@@ -102,12 +102,13 @@ interface SabFlowPropertiesPanelProps {
     node: Node | SabFlowNode;
     onUpdate: (id: string, data: any) => void;
     deleteNode: (id: string) => void;
+    onClose: () => void;
     user: any;
     flowId: string;
     onConnectionSaved?: () => void;
 }
 
-export function SabFlowPropertiesPanel({ node, onUpdate, deleteNode, user, flowId, onConnectionSaved }: SabFlowPropertiesPanelProps) {
+export function SabFlowPropertiesPanel({ node, onUpdate, deleteNode, onClose, user, flowId, onConnectionSaved }: SabFlowPropertiesPanelProps) {
     const { projects } = useProject();
     const wachatProjects = projects.filter(p => p.wabaId);
     const facebookProjects = projects.filter(p => p.facebookPageId);
@@ -1972,110 +1973,123 @@ export function SabFlowPropertiesPanel({ node, onUpdate, deleteNode, user, flowI
 
     // ─── Render ────────────────────────────────────────────────────────────────
 
+    const canDelete = node.type !== 'start' && node.type !== 'trigger';
+
     return (
-        <div className="h-full flex flex-col bg-background/95 backdrop-blur-md">
-            {/* Themed Header */}
-            <div className="sticky top-0 z-20 shrink-0 border-b bg-background/85 backdrop-blur-xl">
-                <div className={cn("absolute inset-0 pointer-events-none bg-linear-to-br", panelTheme.gradient)} />
-                <div className="relative p-5 flex items-start gap-3">
+        <div className="h-full flex flex-col bg-background">
+
+            {/* ── Typebot-style panel header ─────────────────────────────────── */}
+            <div className="shrink-0 border-b border-border/50">
+
+                {/* Color band at top — 3px accent stripe */}
+                <div className={cn('h-0.5 w-full', {
+                    'bg-zinc-400':   BUBBLE_TYPES.includes(blockType),
+                    'bg-orange-400': INPUT_TYPES.includes(blockType),
+                    'bg-purple-500': LOGIC_TYPES.includes(blockType) || node.type === 'condition',
+                    'bg-emerald-500': node.type === 'trigger',
+                    'bg-violet-500': AI_TYPES.includes(blockType) || (!BUBBLE_TYPES.includes(blockType) && !INPUT_TYPES.includes(blockType) && !LOGIC_TYPES.includes(blockType) && node.type !== 'trigger' && node.type !== 'condition' && !isStickyNote),
+                    'bg-yellow-400': isStickyNote,
+                })} />
+
+                <div className="flex items-center gap-2.5 px-4 py-3">
+                    {/* Type icon in colored circle */}
                     <div className={cn(
-                        "h-11 w-11 shrink-0 rounded-xl flex items-center justify-center border border-border/40 shadow-sm",
-                        panelTheme.iconBg
+                        'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg',
+                        panelTheme.iconBg,
                     )}>
-                        <PanelIcon className={cn("h-5 w-5", panelTheme.iconText)} />
+                        <PanelIcon className={cn('h-4 w-4', panelTheme.iconText)} />
                     </div>
+
+                    {/* Title stack */}
                     <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5">
                             <span className={cn(
-                                "inline-flex items-center text-[9px] font-bold tracking-[0.15em] px-1.5 py-0.5 rounded",
-                                panelTheme.badgeBg, panelTheme.badgeText
+                                'text-[9.5px] font-bold tracking-[0.15em] uppercase px-1.5 py-0.5 rounded-sm',
+                                panelTheme.badgeBg, panelTheme.badgeText,
                             )}>
                                 {panelTheme.label}
                             </span>
                         </div>
-                        <h3 className="text-base font-bold tracking-tight text-foreground truncate mt-1">
+                        <h3 className="text-[13.5px] font-semibold text-foreground truncate mt-0.5 leading-tight">
                             {headerDisplayName}
                         </h3>
-                        <p className="text-[11px] text-muted-foreground mt-0.5 truncate">{panelTheme.subLabel}</p>
                     </div>
-                    {node.type !== 'start' && node.type !== 'trigger' && !isStickyNote && (
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors shrink-0"
-                            onClick={() => deleteNode(node.id)}
-                            aria-label="Delete node"
+
+                    {/* Actions: delete + close */}
+                    <div className="flex items-center gap-1 shrink-0">
+                        {(canDelete || isStickyNote) && (
+                            <button
+                                onClick={() => deleteNode(node.id)}
+                                className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground/60 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                                title="Delete node"
+                            >
+                                <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                        )}
+                        <button
+                            onClick={onClose}
+                            className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground/60 hover:text-foreground hover:bg-muted/60 transition-colors"
+                            title="Close panel"
                         >
-                            <Trash2 className="h-4 w-4" />
-                        </Button>
-                    )}
-                    {isStickyNote && (
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors shrink-0"
-                            onClick={() => deleteNode(node.id)}
-                            aria-label="Delete note"
-                        >
-                            <Trash2 className="h-4 w-4" />
-                        </Button>
-                    )}
+                            <ArrowLeft className="h-3.5 w-3.5" />
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            {/* Content */}
+            {/* ── Content ────────────────────────────────────────────────────── */}
             <ScrollArea className="flex-1">
-                <div className="p-5 space-y-6">
-                    {/* Step Name — skip for sticky_note */}
-                    {!isStickyNote && (
-                        <>
-                            <div className="space-y-2">
-                                <Label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-[0.15em] flex items-center gap-1.5">
-                                    <Sliders className="h-3 w-3" />
-                                    Step Name
-                                </Label>
-                                <Input
-                                    value={selectedNodeData.name || ''}
-                                    onChange={e => handleDataChange({ name: e.target.value })}
-                                    className="bg-muted/30 border-border/60 focus:border-primary/50 focus:bg-background transition-all font-medium h-9"
-                                    placeholder="Name your step"
-                                />
-                            </div>
-                            <Separator className="bg-border/40" />
-                        </>
-                    )}
+                <div className="p-4 space-y-5">
 
-                    {/* App Header (if selected, action only) */}
-                    {selectedApp && isAction && !BUBBLE_TYPES.includes(blockType) && !INPUT_TYPES.includes(blockType) && !LOGIC_TYPES.includes(blockType) && !AI_TYPES.includes(blockType) && (
-                        <div className="group relative overflow-hidden rounded-xl border border-border/60 bg-linear-to-br from-violet-500/5 via-muted/30 to-transparent p-3 transition-all hover:shadow-md">
-                            <div className="flex items-center justify-between relative z-10">
-                                <div className="flex items-center gap-3 min-w-0">
-                                    <div className="h-10 w-10 shrink-0 rounded-lg flex items-center justify-center bg-background border border-border/60 shadow-sm">
-                                        <selectedApp.icon className={cn("h-5 w-5", selectedApp.iconColor)} />
-                                    </div>
-                                    <div className="flex flex-col min-w-0">
-                                        <span className="font-semibold text-sm truncate">{selectedApp.name}</span>
-                                        <span className="text-[10px] text-muted-foreground truncate">{selectedApp.category || 'App Integration'}</span>
-                                    </div>
-                                </div>
-                                <Button
-                                    variant="secondary"
-                                    size="sm"
-                                    className="h-7 text-[11px] bg-background/80 backdrop-blur-sm hover:bg-background shrink-0 ml-2"
-                                    onClick={() => handleDataChange({ appId: '', actionName: '', inputs: {} })}
-                                >
-                                    Change
-                                </Button>
-                            </div>
+                    {/* Step Name */}
+                    {!isStickyNote && (
+                        <div className="space-y-1.5">
+                            <Label className="text-[10.5px] font-semibold text-muted-foreground uppercase tracking-[0.12em]">
+                                Step name
+                            </Label>
+                            <Input
+                                value={selectedNodeData.name || ''}
+                                onChange={e => handleDataChange({ name: e.target.value })}
+                                className="h-9 bg-muted/30 border-border/50 focus:bg-background focus:border-violet-400/60 font-medium text-[13px]"
+                                placeholder="Name this step…"
+                            />
                         </div>
                     )}
 
-                    <div className="space-y-2">
-                        <Label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-[0.15em] flex items-center gap-1.5">
-                            <Settings2 className="h-3 w-3" />
-                            Configuration
-                        </Label>
-                        {renderEditorContent()}
+                    {!isStickyNote && <Separator className="bg-border/40" />}
+
+                    {/* App header card for integration nodes */}
+                    {selectedApp && isAction && !BUBBLE_TYPES.includes(blockType) && !INPUT_TYPES.includes(blockType) && !LOGIC_TYPES.includes(blockType) && !AI_TYPES.includes(blockType) && (
+                        <div className="flex items-center gap-3 rounded-xl border border-border/50 bg-muted/20 p-3">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-border/40 bg-background shadow-sm">
+                                <selectedApp.icon className={cn('h-5 w-5', selectedApp.iconColor)} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-[13px] font-semibold truncate">{selectedApp.name}</p>
+                                <p className="text-[11px] text-muted-foreground truncate">{selectedApp.category || 'Integration'}</p>
+                            </div>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-7 text-[11px] shrink-0"
+                                onClick={() => handleDataChange({ appId: '', actionName: '', inputs: {} })}
+                            >
+                                Change
+                            </Button>
+                        </div>
+                    )}
+
+                    {/* Main editor content */}
+                    <div className="space-y-1">
+                        {!isStickyNote && (
+                            <Label className="text-[10.5px] font-semibold text-muted-foreground uppercase tracking-[0.12em] flex items-center gap-1.5">
+                                <Settings2 className="h-3 w-3" />
+                                Configuration
+                            </Label>
+                        )}
+                        <div className="pt-1">
+                            {renderEditorContent()}
+                        </div>
                     </div>
                 </div>
             </ScrollArea>

@@ -10,217 +10,190 @@ import {
     Phone, Star, Hash, Mail, Upload, CreditCard, List,
     Code2, Filter, Timer, Repeat, ArrowRight, Shuffle,
     Bot, Sparkles, Settings2, StickyNote, ToggleLeft,
-    FileText, Link,
+    FileText, Link, AlertTriangle,
 } from 'lucide-react';
 import { sabnodeAppActions } from '@/lib/sabflow/apps';
 
-// ─── Category visual styles (Typebot-inspired colour coding) ─────────────────
-const CATEGORY_STYLES = {
-    bubble:      { bg: 'bg-zinc-50 dark:bg-zinc-800/70',     border: 'border-zinc-200 dark:border-zinc-700',          accent: 'bg-zinc-400',    icon: 'text-zinc-500 dark:text-zinc-400' },
-    input:       { bg: 'bg-orange-50 dark:bg-orange-950/40', border: 'border-orange-200 dark:border-orange-800/60',    accent: 'bg-orange-400',  icon: 'text-orange-500' },
-    logic:       { bg: 'bg-purple-50 dark:bg-purple-950/40', border: 'border-purple-200 dark:border-purple-800/60',    accent: 'bg-purple-400',  icon: 'text-purple-500' },
-    integration: { bg: 'bg-blue-50 dark:bg-blue-950/40',     border: 'border-blue-200 dark:border-blue-800/60',        accent: 'bg-blue-400',    icon: 'text-blue-500'   },
-    trigger:     { bg: 'bg-emerald-50 dark:bg-emerald-950/40', border: 'border-emerald-200 dark:border-emerald-800/60', accent: 'bg-emerald-400', icon: 'text-emerald-500' },
-    ai:          { bg: 'bg-violet-50 dark:bg-violet-950/40', border: 'border-violet-200 dark:border-violet-800/60',    accent: 'bg-violet-400',  icon: 'text-violet-500' },
-    default:     { bg: 'bg-card',                             border: 'border-border',                                  accent: 'bg-muted-foreground', icon: 'text-muted-foreground' },
+// ─── Category palette — Typebot colour language ───────────────────────────────
+const PALETTE = {
+    bubble: {
+        band:     'bg-zinc-300 dark:bg-zinc-600',
+        card:     'bg-white dark:bg-zinc-900',
+        border:   'border-zinc-200 dark:border-zinc-700',
+        icon:     'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400',
+        label:    'text-zinc-500 dark:text-zinc-400',
+        badge:    'bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400',
+    },
+    input: {
+        band:     'bg-orange-400',
+        card:     'bg-orange-50/60 dark:bg-orange-950/20',
+        border:   'border-orange-200 dark:border-orange-800/50',
+        icon:     'bg-orange-100 dark:bg-orange-950/60 text-orange-500',
+        label:    'text-orange-600 dark:text-orange-400',
+        badge:    'bg-orange-100 text-orange-600 dark:bg-orange-950 dark:text-orange-400',
+    },
+    logic: {
+        band:     'bg-purple-500',
+        card:     'bg-purple-50/60 dark:bg-purple-950/20',
+        border:   'border-purple-200 dark:border-purple-800/50',
+        icon:     'bg-purple-100 dark:bg-purple-950/60 text-purple-500',
+        label:    'text-purple-600 dark:text-purple-400',
+        badge:    'bg-purple-100 text-purple-600 dark:bg-purple-950 dark:text-purple-400',
+    },
+    trigger: {
+        band:     'bg-emerald-500',
+        card:     'bg-emerald-50/60 dark:bg-emerald-950/20',
+        border:   'border-emerald-200 dark:border-emerald-800/50',
+        icon:     'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600',
+        label:    'text-emerald-600 dark:text-emerald-400',
+        badge:    'bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400',
+    },
+    ai: {
+        band:     'bg-violet-500',
+        card:     'bg-violet-50/60 dark:bg-violet-950/20',
+        border:   'border-violet-200 dark:border-violet-800/50',
+        icon:     'bg-violet-100 dark:bg-violet-950/60 text-violet-600',
+        label:    'text-violet-600 dark:text-violet-400',
+        badge:    'bg-violet-100 text-violet-600 dark:bg-violet-950 dark:text-violet-400',
+    },
+    integration: {
+        band:     'bg-blue-500',
+        card:     'bg-blue-50/60 dark:bg-blue-950/20',
+        border:   'border-blue-200 dark:border-blue-800/50',
+        icon:     'bg-blue-100 dark:bg-blue-950/60 text-blue-600',
+        label:    'text-blue-600 dark:text-blue-400',
+        badge:    'bg-blue-100 text-blue-600 dark:bg-blue-950 dark:text-blue-400',
+    },
+    default: {
+        band:     'bg-muted-foreground/40',
+        card:     'bg-card',
+        border:   'border-border',
+        icon:     'bg-muted text-muted-foreground',
+        label:    'text-muted-foreground',
+        badge:    'bg-muted text-muted-foreground',
+    },
 } as const;
 
-type Category = keyof typeof CATEGORY_STYLES;
+type PaletteKey = keyof typeof PALETTE;
 
-// ─── Block registry (all 30 Typebot-style block types) ───────────────────────
-const BLOCK_REGISTRY: Record<string, { label: string; icon: React.ComponentType<{ className?: string }>; category: Category; desc: string }> = {
-    // Bubbles – gray
-    text_bubble:     { label: 'Text',          icon: Type,          category: 'bubble',      desc: 'Send a text message'      },
-    image_bubble:    { label: 'Image',         icon: Image,         category: 'bubble',      desc: 'Send an image'            },
-    video_bubble:    { label: 'Video',         icon: Video,         category: 'bubble',      desc: 'Send a video'             },
-    audio_bubble:    { label: 'Audio',         icon: Music,         category: 'bubble',      desc: 'Send audio'               },
-    embed_bubble:    { label: 'Embed',         icon: Globe,         category: 'bubble',      desc: 'Embed a webpage'          },
-    // Inputs – orange
-    text_input:      { label: 'Text Input',    icon: MessageSquare, category: 'input',       desc: 'Collect text'             },
-    number_input:    { label: 'Number',        icon: Hash,          category: 'input',       desc: 'Collect a number'         },
-    email_input:     { label: 'Email',         icon: Mail,          category: 'input',       desc: 'Collect an email'         },
-    phone_input:     { label: 'Phone',         icon: Phone,         category: 'input',       desc: 'Collect a phone number'   },
-    date_input:      { label: 'Date',          icon: Calendar,      category: 'input',       desc: 'Collect a date'           },
-    url_input:       { label: 'URL',           icon: Link,          category: 'input',       desc: 'Collect a URL'            },
-    file_input:      { label: 'File Upload',   icon: Upload,        category: 'input',       desc: 'Collect a file'           },
-    buttons:         { label: 'Buttons',       icon: List,          category: 'input',       desc: 'Multiple choice'          },
-    rating:          { label: 'Rating',        icon: Star,          category: 'input',       desc: 'Star rating'              },
-    payment:         { label: 'Payment',       icon: CreditCard,    category: 'input',       desc: 'Collect payment'          },
-    // Logic – purple
-    condition:       { label: 'Condition',     icon: GitFork,       category: 'logic',       desc: 'Branch on conditions'     },
-    set_variable:    { label: 'Set Variable',  icon: ToggleLeft,    category: 'logic',       desc: 'Store a value'            },
-    redirect:        { label: 'Redirect',      icon: ArrowRight,    category: 'logic',       desc: 'Redirect to URL'          },
-    script:          { label: 'Script',        icon: Code2,         category: 'logic',       desc: 'Run custom code'          },
-    wait:            { label: 'Wait',          icon: Timer,         category: 'logic',       desc: 'Pause the flow'           },
-    ab_test:         { label: 'A/B Test',      icon: Shuffle,       category: 'logic',       desc: 'Split traffic'            },
-    jump:            { label: 'Jump',          icon: Repeat,        category: 'logic',       desc: 'Jump to group'            },
-    filter:          { label: 'Filter',        icon: Filter,        category: 'logic',       desc: 'Filter items'             },
-    // Triggers – green
-    trigger:         { label: 'Trigger',       icon: Zap,           category: 'trigger',     desc: 'Start of flow'            },
-    webhook_trigger: { label: 'Webhook',       icon: Webhook,       category: 'trigger',     desc: 'HTTP webhook'             },
-    schedule:        { label: 'Schedule',      icon: Calendar,      category: 'trigger',     desc: 'Scheduled run'            },
-    manual:          { label: 'Manual',        icon: PlayCircle,    category: 'trigger',     desc: 'Manual start'             },
-    // AI – violet
-    ai_message:      { label: 'AI Message',    icon: Bot,           category: 'ai',          desc: 'AI-generated reply'       },
-    ai_agent:        { label: 'AI Agent',      icon: Sparkles,      category: 'ai',          desc: 'Run an AI agent'          },
-    // Note
-    sticky_note:     { label: 'Note',          icon: StickyNote,    category: 'default',     desc: 'Canvas annotation'        },
+// ─── Block registry ───────────────────────────────────────────────────────────
+const BLOCK_REGISTRY: Record<string, {
+    label: string;
+    category: string;
+    palette: PaletteKey;
+    icon: React.ComponentType<{ className?: string }>;
+    categoryLabel: string;
+}> = {
+    // Bubbles
+    text_bubble:     { label: 'Text',         category: 'Bubble',   palette: 'bubble',   icon: Type,          categoryLabel: 'Bubble'    },
+    image_bubble:    { label: 'Image',        category: 'Bubble',   palette: 'bubble',   icon: Image,         categoryLabel: 'Bubble'    },
+    video_bubble:    { label: 'Video',        category: 'Bubble',   palette: 'bubble',   icon: Video,         categoryLabel: 'Bubble'    },
+    audio_bubble:    { label: 'Audio',        category: 'Bubble',   palette: 'bubble',   icon: Music,         categoryLabel: 'Bubble'    },
+    embed_bubble:    { label: 'Embed',        category: 'Bubble',   palette: 'bubble',   icon: Globe,         categoryLabel: 'Bubble'    },
+    // Inputs
+    text_input:      { label: 'Text Input',   category: 'Input',    palette: 'input',    icon: MessageSquare, categoryLabel: 'Input'     },
+    number_input:    { label: 'Number',       category: 'Input',    palette: 'input',    icon: Hash,          categoryLabel: 'Input'     },
+    email_input:     { label: 'Email',        category: 'Input',    palette: 'input',    icon: Mail,          categoryLabel: 'Input'     },
+    phone_input:     { label: 'Phone',        category: 'Input',    palette: 'input',    icon: Phone,         categoryLabel: 'Input'     },
+    date_input:      { label: 'Date',         category: 'Input',    palette: 'input',    icon: Calendar,      categoryLabel: 'Input'     },
+    url_input:       { label: 'URL',          category: 'Input',    palette: 'input',    icon: Link,          categoryLabel: 'Input'     },
+    file_input:      { label: 'File Upload',  category: 'Input',    palette: 'input',    icon: Upload,        categoryLabel: 'Input'     },
+    buttons:         { label: 'Buttons',      category: 'Input',    palette: 'input',    icon: List,          categoryLabel: 'Input'     },
+    rating:          { label: 'Rating',       category: 'Input',    palette: 'input',    icon: Star,          categoryLabel: 'Input'     },
+    payment:         { label: 'Payment',      category: 'Input',    palette: 'input',    icon: CreditCard,    categoryLabel: 'Input'     },
+    // Logic
+    condition:       { label: 'Condition',    category: 'Logic',    palette: 'logic',    icon: GitFork,       categoryLabel: 'Logic'     },
+    set_variable:    { label: 'Set Variable', category: 'Logic',    palette: 'logic',    icon: ToggleLeft,    categoryLabel: 'Logic'     },
+    redirect:        { label: 'Redirect',     category: 'Logic',    palette: 'logic',    icon: ArrowRight,    categoryLabel: 'Logic'     },
+    script:          { label: 'Script',       category: 'Logic',    palette: 'logic',    icon: Code2,         categoryLabel: 'Logic'     },
+    wait:            { label: 'Wait',         category: 'Logic',    palette: 'logic',    icon: Timer,         categoryLabel: 'Logic'     },
+    ab_test:         { label: 'A/B Test',     category: 'Logic',    palette: 'logic',    icon: Shuffle,       categoryLabel: 'Logic'     },
+    jump:            { label: 'Jump',         category: 'Logic',    palette: 'logic',    icon: Repeat,        categoryLabel: 'Logic'     },
+    filter:          { label: 'Filter',       category: 'Logic',    palette: 'logic',    icon: Filter,        categoryLabel: 'Logic'     },
+    // Triggers
+    trigger:         { label: 'Start',        category: 'Trigger',  palette: 'trigger',  icon: Zap,           categoryLabel: 'Trigger'   },
+    webhook_trigger: { label: 'Webhook',      category: 'Trigger',  palette: 'trigger',  icon: Webhook,       categoryLabel: 'Trigger'   },
+    schedule:        { label: 'Schedule',     category: 'Trigger',  palette: 'trigger',  icon: Calendar,      categoryLabel: 'Trigger'   },
+    manual:          { label: 'Manual',       category: 'Trigger',  palette: 'trigger',  icon: PlayCircle,    categoryLabel: 'Trigger'   },
+    // AI
+    ai_message:      { label: 'AI Message',   category: 'AI',       palette: 'ai',       icon: Bot,           categoryLabel: 'AI'        },
+    ai_agent:        { label: 'AI Agent',     category: 'AI',       palette: 'ai',       icon: Sparkles,      categoryLabel: 'AI'        },
 };
 
-// ─── Content preview helper ───────────────────────────────────────────────────
-
-function truncate(str: string, max = 60): string {
-    if (!str) return '';
-    return str.length <= max ? str : str.slice(0, max - 1) + '…';
+// ─── Content preview ──────────────────────────────────────────────────────────
+function truncate(s: string, max = 55) {
+    return s.length <= max ? s : s.slice(0, max - 1) + '…';
 }
 
 function ContentPreview({ data, blockType }: { data: any; blockType: string }) {
     switch (blockType) {
         case 'text_bubble': {
-            const content = data?.content;
-            if (!content || (typeof content === 'string' && content.trim() === '')) {
-                return <span className="italic opacity-60">No message set</span>;
-            }
-            return <span>{truncate(String(content), 60)}</span>;
+            const c = data?.content;
+            if (!c?.trim()) return <span className="italic opacity-50">No message set</span>;
+            return <span>{truncate(String(c))}</span>;
         }
-
-        case 'image_bubble': {
-            const url = data?.url;
-            if (!url || (typeof url === 'string' && url.trim() === '')) {
-                return <span className="italic opacity-60">No image set</span>;
-            }
-            return <span>{truncate(String(url), 55)}</span>;
-        }
-
-        case 'video_bubble': {
-            const url = data?.url;
-            if (!url || (typeof url === 'string' && url.trim() === '')) {
-                return <span className="italic opacity-60">No video set</span>;
-            }
-            return <span>{truncate(String(url), 55)}</span>;
-        }
-
+        case 'image_bubble':
+        case 'video_bubble':
         case 'audio_bubble': {
-            const url = data?.url;
-            if (!url || (typeof url === 'string' && url.trim() === '')) {
-                return <span className="italic opacity-60">No audio set</span>;
-            }
-            return <span>{truncate(String(url), 55)}</span>;
+            const u = data?.url;
+            if (!u?.trim()) return <span className="italic opacity-50">No URL set</span>;
+            return <span>{truncate(String(u))}</span>;
         }
-
-        case 'text_input':
-        case 'email_input':
-        case 'phone_input':
-        case 'url_input':
-        case 'date_input':
-        case 'file_input': {
-            const varName = data?.variableName;
-            if (!varName || (typeof varName === 'string' && varName.trim() === '')) {
-                return <span className="italic opacity-60">No variable set</span>;
-            }
-            return <span>Saves to: {`{{${varName}}}`}</span>;
-        }
-
+        case 'text_input': case 'email_input': case 'phone_input':
+        case 'url_input': case 'date_input': case 'file_input':
         case 'number_input': {
-            const varName = data?.variableName;
-            if (!varName || (typeof varName === 'string' && varName.trim() === '')) {
-                return <span className="italic opacity-60">No variable set</span>;
-            }
-            const min = data?.min;
-            const max = data?.max;
-            const range = (min !== undefined && min !== null && min !== '') || (max !== undefined && max !== null && max !== '')
-                ? ` (${min ?? '—'} – ${max ?? '—'})`
-                : '';
-            return <span>Saves to: {`{{${varName}}}`}{range}</span>;
+            const v = data?.variableName;
+            if (!v?.trim()) return <span className="italic opacity-50">No variable</span>;
+            return <span>→ {`{{${v}}}`}</span>;
         }
-
         case 'buttons': {
-            const buttons: any[] = data?.buttons ?? [];
-            if (buttons.length === 0) {
-                return <span className="italic opacity-60">No buttons defined</span>;
-            }
-            return <span>{buttons.length} button{buttons.length !== 1 ? 's' : ''}</span>;
+            const btns: any[] = data?.buttons ?? [];
+            if (!btns.length) return <span className="italic opacity-50">No buttons</span>;
+            return <span>{btns.length} option{btns.length !== 1 ? 's' : ''}</span>;
         }
-
-        case 'rating': {
-            const max = data?.maxRating ?? data?.max ?? 5;
-            return <span>★ Max {max} stars</span>;
-        }
-
         case 'set_variable': {
-            const varName = data?.variableName;
-            const value   = data?.value;
-            if (!varName) return <span className="italic opacity-60">Not configured</span>;
-            return <span>{truncate(`{{${varName}}} = ${value ?? ''}`, 55)}</span>;
+            const v = data?.variableName;
+            if (!v) return <span className="italic opacity-50">Not set</span>;
+            return <span>{truncate(`{{${v}}} = ${data?.value ?? ''}`)}</span>;
         }
-
-        case 'redirect': {
-            const url = data?.url;
-            if (!url || (typeof url === 'string' && url.trim() === '')) {
-                return <span className="italic opacity-60">No URL set</span>;
-            }
-            return <span>{truncate(String(url), 55)}</span>;
-        }
-
-        case 'script': {
-            const code = data?.code;
-            if (!code || (typeof code === 'string' && code.trim() === '')) {
-                return <span className="italic opacity-60">No code set</span>;
-            }
-            return <span>Custom JS code</span>;
-        }
-
         case 'wait': {
-            const duration = data?.duration;
-            const unit     = data?.unit ?? 'seconds';
-            if (duration === undefined || duration === null || duration === '') {
-                return <span className="italic opacity-60">Duration not set</span>;
-            }
-            return <span>Wait {duration} {unit}</span>;
+            const d = data?.duration;
+            if (d == null) return <span className="italic opacity-50">Duration not set</span>;
+            return <span>{d} {data?.unit ?? 'seconds'}</span>;
         }
-
-        case 'ab_test': {
-            const splits: any[] = data?.splits ?? [];
-            if (splits.length < 2) return <span className="italic opacity-60">Not configured</span>;
-            const [a, b, ...rest] = splits;
-            const aPct = a?.percentage ?? a?.weight ?? '?';
-            const bPct = b?.percentage ?? b?.weight ?? '?';
-            const extra = rest.length > 0 ? ` +${rest.length}` : '';
-            return <span>A: {aPct}% / B: {bPct}%{extra}</span>;
+        case 'redirect': {
+            const u = data?.url;
+            if (!u?.trim()) return <span className="italic opacity-50">No URL set</span>;
+            return <span>{truncate(String(u))}</span>;
         }
-
-        case 'ai_message': {
-            const model = data?.model;
-            if (!model) return <span className="italic opacity-60">Model not set</span>;
-            return <span>{String(model)}</span>;
-        }
-
+        case 'ai_message':
         case 'ai_agent': {
-            const instructions = data?.instructions;
-            if (!instructions || (typeof instructions === 'string' && instructions.trim() === '')) {
-                return <span className="italic opacity-60">No instructions set</span>;
-            }
-            return <span>{truncate(String(instructions), 55)}</span>;
+            const m = data?.model;
+            if (!m) return <span className="italic opacity-50">Model not set</span>;
+            return <span>{m}</span>;
         }
-
         case 'condition':
         case 'filter': {
             const rules: any[] = data?.rules ?? [];
-            if (rules.length === 0) return <span className="italic opacity-60">No rules</span>;
+            if (!rules.length) return <span className="italic opacity-50">No rules</span>;
             return <span>{rules.length} rule{rules.length !== 1 ? 's' : ''}</span>;
         }
-
-        default:
-            return null;
+        default: return null;
     }
 }
 
-// ─── Sticky note ──────────────────────────────────────────────────────────────
-const StickyNoteNode = ({ data }: { data: Record<string, unknown> }) => (
-    <div className="w-56 min-h-20 bg-yellow-100 dark:bg-yellow-900/40 border-2 border-yellow-300 dark:border-yellow-700 rounded-xl p-3 shadow-sm text-sm text-yellow-900 dark:text-yellow-100 leading-relaxed">
-        {(data?.text as string) || 'Double-click to edit…'}
-    </div>
-);
+// ─── Sticky note node ─────────────────────────────────────────────────────────
+const StickyNoteNode = memo(function StickyNoteNode({ data, selected }: { data: any; selected: boolean }) {
+    return (
+        <div className={cn(
+            'w-56 min-h-20 rounded-2xl border-2 p-3 shadow-sm text-sm leading-relaxed',
+            'bg-yellow-50 dark:bg-yellow-900/30 border-yellow-300 dark:border-yellow-700 text-yellow-900 dark:text-yellow-100',
+            selected && 'ring-2 ring-yellow-400 ring-offset-1',
+        )}>
+            {(data?.text as string) || <span className="opacity-50 italic">Add a note…</span>}
+        </div>
+    );
+});
 
 // ─── Main node ────────────────────────────────────────────────────────────────
 const SabFlowCustomNode = ({ id, data, type, selected }: NodeProps) => {
@@ -228,49 +201,56 @@ const SabFlowCustomNode = ({ id, data, type, selected }: NodeProps) => {
 
     const validationErrors: ValidationError[] = useMemo(() => {
         try {
-            // @ts-ignore – validateNode accepts a partial node shape
-            return validateNode({ id, type, data }, edges);
-        } catch {
-            return [];
-        }
+            return validateNode({ id, type, data } as any, edges);
+        } catch { return []; }
     }, [id, type, data, edges]);
 
     const hasError   = validationErrors.some(e => e.type === 'error');
-    const hasWarning = validationErrors.some(e => e.type === 'warning');
+    const hasWarning = !hasError && validationErrors.some(e => e.type === 'warning');
 
-    // ── Resolve block definition ────────────────────────────────────────────
+    // Resolve block definition
+    const blockType = (data?.blockType as string) ?? type ?? '';
+
     const blockDef = useMemo(() => {
-        const blockType = (data?.blockType as string) ?? type ?? '';
+        if (BLOCK_REGISTRY[blockType]) return {
+            ...BLOCK_REGISTRY[blockType],
+            appIcon: null as React.ComponentType<{ className?: string }> | null,
+            appIconColor: '',
+        };
 
-        if (BLOCK_REGISTRY[blockType]) return BLOCK_REGISTRY[blockType];
-
-        // Fall back to app registry
+        // Integration (action node)
         const app = sabnodeAppActions.find(a => a.appId === (data?.appId as string));
         if (app) {
-            const catRaw = (app as any).category as string | undefined;
-            const cat: Category = catRaw?.toLowerCase().includes('ai') ? 'ai' : 'integration';
             return {
-                label: (data?.name as string) || app.name,
-                icon:  (app as any).icon ?? Zap,
-                category: cat,
-                desc: (data?.actionName as string) || 'App action',
+                label:         (data?.name as string) || app.name,
+                category:      app.category || 'Integration',
+                palette:       'integration' as PaletteKey,
+                icon:          Settings2 as React.ComponentType<{ className?: string }>,
+                categoryLabel: app.category || 'Integration',
+                appIcon:       ((app as any).icon ?? null) as React.ComponentType<{ className?: string }> | null,
+                appIconColor:  (app as any).iconColor ?? 'text-blue-500',
             };
         }
 
         return {
-            label: (data?.name as string) || 'Block',
-            icon:  Settings2 as React.ComponentType<{ className?: string }>,
-            category: 'default' as Category,
-            desc:  type ?? 'Node',
+            label:         (data?.name as string) || 'Block',
+            category:      'Other',
+            palette:       'default' as PaletteKey,
+            icon:          Settings2 as React.ComponentType<{ className?: string }>,
+            categoryLabel: type ?? '',
+            appIcon:       null as null,
+            appIconColor:  '',
         };
-    }, [data, type]);
+    }, [data, type, blockType]);
 
-    const style = CATEGORY_STYLES[blockDef.category];
-    const Icon  = blockDef.icon;
+    const pal       = PALETTE[blockDef.palette];
+    const Icon      = blockDef.icon;
+    const AppIcon   = (blockDef as any).appIcon as React.ComponentType<{ className?: string }> | null;
+    const appIconColor = (blockDef as any).appIconColor as string;
 
-    const blockType = (data?.blockType as string) ?? type ?? '';
-    const isCondition = type === 'condition' || blockType === 'condition';
-    const isTrigger   = blockDef.category === 'trigger';
+    const isTrigger    = blockDef.palette === 'trigger';
+    const isCondition  = blockType === 'condition' || type === 'condition';
+    const isIntegration = blockDef.palette === 'integration';
 
     // Action subtitle
     const subtitle = useMemo(() => {
@@ -279,25 +259,29 @@ const SabFlowCustomNode = ({ id, data, type, selected }: NodeProps) => {
             const action = (app as any)?.actions?.find((a: any) => a.name === data.actionName);
             return (action?.label as string) ?? (data.actionName as string);
         }
-        return blockDef.desc;
+        return blockDef.categoryLabel;
     }, [data, blockDef]);
 
-    // ── Sticky note short-circuit ───────────────────────────────────────────
+    // Sticky note
     if (type === 'sticky_note' || blockType === 'sticky_note') {
-        return <StickyNoteNode data={data as Record<string, unknown>} />;
+        return (
+            <>
+                <Handle type="target" position={Position.Left} className="opacity-0!" />
+                <StickyNoteNode data={data as any} selected={!!selected} />
+                <Handle type="source" position={Position.Right} id="output-main" className="opacity-0!" />
+            </>
+        );
     }
 
-    // ── Content preview ─────────────────────────────────────────────────────
-    const previewContent = <ContentPreview data={data} blockType={blockType} />;
-    const hasPreview = previewContent !== null;
+    const preview = <ContentPreview data={data} blockType={blockType} />;
 
     return (
         <div className="relative group/node select-none" data-node-id={id}>
 
-            {/* "Start" badge above trigger nodes */}
+            {/* "Start" pill above trigger nodes */}
             {isTrigger && (
-                <div className="absolute -top-7 inset-x-0 flex justify-center">
-                    <span className="text-[10px] font-bold tracking-widest uppercase px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/60 text-emerald-600 dark:text-emerald-400">
+                <div className="absolute -top-7 inset-x-0 flex justify-center pointer-events-none">
+                    <span className="text-[9.5px] font-bold tracking-[0.15em] uppercase px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400">
                         Start
                     </span>
                 </div>
@@ -305,105 +289,124 @@ const SabFlowCustomNode = ({ id, data, type, selected }: NodeProps) => {
 
             {/* Validation badge */}
             {(hasError || hasWarning) && (
-                <>
-                    <div className={cn(
-                        'absolute -top-2 -right-2 z-20 w-5 h-5 rounded-full flex items-center justify-center',
-                        'text-[10px] font-bold text-white shadow ring-2 ring-background',
-                        hasError ? 'bg-red-500' : 'bg-orange-400',
-                    )}>
-                        !
-                    </div>
-                    {/* Error tooltip */}
-                    <div className="pointer-events-none absolute bottom-full left-1/2 mb-2 z-30 w-52 -translate-x-1/2 rounded-lg border border-border bg-popover p-2.5 text-xs shadow-xl opacity-0 transition-opacity group-hover/node:opacity-100">
-                        <p className={cn('mb-1 font-semibold', hasError ? 'text-red-500' : 'text-orange-500')}>
+                <div className={cn(
+                    'absolute -top-2 -right-2 z-20 flex h-5 w-5 items-center justify-center rounded-full',
+                    'text-white text-[9px] font-bold shadow ring-2 ring-background',
+                    hasError ? 'bg-red-500' : 'bg-amber-400',
+                )}>
+                    <AlertTriangle className="h-2.5 w-2.5" />
+                    {/* Tooltip */}
+                    <div className="pointer-events-none absolute bottom-full left-1/2 mb-2 z-30 w-52 -translate-x-1/2 rounded-xl border border-border bg-popover p-2.5 text-xs shadow-xl opacity-0 transition-opacity group-hover/node:opacity-100">
+                        <p className={cn('mb-1 font-semibold text-[11px]', hasError ? 'text-red-500' : 'text-amber-500')}>
                             {hasError ? 'Errors' : 'Warnings'}
                         </p>
-                        <ul className="list-disc space-y-0.5 pl-3">
+                        <ul className="list-disc space-y-0.5 pl-3 text-left">
                             {validationErrors.map((e, i) => (
-                                <li key={i} className={e.type === 'error' ? 'text-red-500' : 'text-orange-400'}>
+                                <li key={i} className={e.type === 'error' ? 'text-red-500' : 'text-amber-400'}>
                                     {e.message}
                                 </li>
                             ))}
                         </ul>
                     </div>
-                </>
+                </div>
             )}
 
-            {/* ── Card ─────────────────────────────────────────────────── */}
+            {/* ── Card ────────────────────────────────────────────────────────── */}
             <div className={cn(
-                'relative w-64 rounded-xl border-2 shadow-sm transition-all duration-150',
-                style.bg, style.border,
-                selected && 'ring-2 ring-primary ring-offset-1 shadow-md',
-                'group-hover/node:shadow-md group-hover/node:-translate-y-px',
+                'relative w-64 rounded-2xl border shadow-sm overflow-hidden',
+                'transition-all duration-150',
+                pal.card, pal.border,
+                selected
+                    ? 'ring-2 ring-violet-500 ring-offset-1 shadow-lg shadow-violet-500/10'
+                    : 'hover:shadow-md hover:-translate-y-px',
             )}>
-                {/* Left accent stripe */}
-                <div className={cn('absolute left-0 top-0 h-full w-0.75 rounded-l-[10px]', style.accent)} />
 
-                {/* Body */}
-                <div className="flex items-start gap-3 py-3 pl-4 pr-3">
-                    {/* Icon bubble */}
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/70 dark:border-white/10 bg-white/60 dark:bg-black/20 shadow-sm">
-                        <Icon className={cn('h-4.5 w-4.5', style.icon)} />
+                {/* Top color band — Typebot's signature style */}
+                <div className={cn('h-1 w-full shrink-0', pal.band)} />
+
+                {/* Node body */}
+                <div className="flex items-start gap-3 px-3.5 pt-3 pb-3">
+                    {/* Icon */}
+                    <div className={cn(
+                        'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-sm',
+                        isIntegration && AppIcon ? '' : pal.icon,
+                    )}>
+                        {isIntegration && AppIcon
+                            ? <AppIcon className={cn('h-4 w-4', appIconColor)} />
+                            : <Icon className="h-4 w-4" />
+                        }
                     </div>
 
                     {/* Labels */}
                     <div className="min-w-0 flex-1">
-                        <p className="truncate text-[13px] font-semibold leading-tight text-foreground">
+                        {/* Category pill + name */}
+                        <div className="flex items-center gap-1.5 mb-0.5">
+                            <span className={cn(
+                                'text-[9px] font-bold tracking-[0.12em] uppercase px-1.5 py-px rounded-sm',
+                                pal.badge,
+                            )}>
+                                {blockDef.categoryLabel}
+                            </span>
+                        </div>
+
+                        <p className="truncate text-[13px] font-semibold leading-snug text-foreground">
                             {(data?.name as string) || blockDef.label}
                         </p>
-                        <p className="mt-0.5 truncate text-[11px] text-muted-foreground">
-                            {subtitle}
-                        </p>
+
+                        {subtitle && subtitle !== blockDef.categoryLabel && (
+                            <p className="mt-0.5 truncate text-[10.5px] text-muted-foreground leading-tight">
+                                {subtitle}
+                            </p>
+                        )}
 
                         {/* Content preview */}
-                        {hasPreview && (
-                            <div className="mt-1.5 rounded-md bg-black/5 dark:bg-white/5 px-2 py-1 text-[10px] text-muted-foreground truncate">
-                                {previewContent}
+                        {preview && (
+                            <div className="mt-2 rounded-lg bg-black/5 dark:bg-white/5 px-2.5 py-1.5 text-[10.5px] text-muted-foreground truncate border border-border/30">
+                                {preview}
                             </div>
                         )}
                     </div>
                 </div>
 
-                {/* ── Handles ────────────────────────────────────────────── */}
+                {/* ── Handles ─────────────────────────────────────────────────── */}
 
-                {/* Target handle – left edge (hidden on triggers) */}
+                {/* Target */}
                 {!isTrigger && (
                     <Handle
                         type="target"
                         position={Position.Left}
                         className={cn(
-                            'absolute! -left-1.75! top-1/2! -translate-y-1/2!',
-                            'h-3.5! w-3.5! rounded-full! border-2!',
-                            'bg-background! border-muted-foreground/40!',
-                            'hover:border-primary! transition-colors',
+                            'absolute! -left-2! top-1/2! -translate-y-1/2!',
+                            'h-4! w-4! rounded-full! border-2! border-background!',
+                            'bg-muted-foreground/30! hover:bg-violet-500! transition-colors',
+                            'shadow-sm!',
                         )}
                         isConnectableStart={false}
                     />
                 )}
 
-                {/* Source handles – right edge */}
+                {/* Source — condition: YES/NO, others: single */}
                 {isCondition ? (
-                    /* YES / NO dual outputs */
-                    <div className="absolute -right-8 top-0 flex h-full flex-col items-start justify-around py-3">
+                    <div className="absolute -right-10 top-0 flex h-full flex-col items-start justify-around py-4">
                         {(['yes', 'no'] as const).map(branch => (
-                            <div key={branch} className="flex items-center gap-1.5">
+                            <div key={branch} className="flex items-center gap-2">
                                 <Handle
                                     type="source"
                                     position={Position.Right}
                                     id={`output-${branch}`}
                                     className={cn(
                                         'relative! right-0! top-0! transform-none!',
-                                        'h-3.5! w-3.5! rounded-full! border-2! border-background! shadow-sm',
+                                        'h-4! w-4! rounded-full! border-2! border-background! shadow-sm!',
                                         branch === 'yes' ? 'bg-emerald-500!' : 'bg-red-500!',
                                     )}
                                 />
                                 <span className={cn(
-                                    'rounded px-1 py-px text-[9px] font-bold border',
+                                    'rounded-md px-1.5 py-px text-[8.5px] font-bold border',
                                     branch === 'yes'
-                                        ? 'bg-emerald-50 dark:bg-emerald-950 border-emerald-200 dark:border-emerald-800 text-emerald-600'
-                                        : 'bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800 text-red-600',
+                                        ? 'bg-emerald-50 dark:bg-emerald-950 border-emerald-300 dark:border-emerald-700 text-emerald-600'
+                                        : 'bg-red-50 dark:bg-red-950 border-red-300 dark:border-red-700 text-red-600',
                                 )}>
-                                    {branch.toUpperCase()}
+                                    {branch === 'yes' ? 'YES' : 'NO'}
                                 </span>
                             </div>
                         ))}
@@ -414,10 +417,10 @@ const SabFlowCustomNode = ({ id, data, type, selected }: NodeProps) => {
                         position={Position.Right}
                         id="output-main"
                         className={cn(
-                            'absolute! -right-1.75! top-1/2! -translate-y-1/2!',
-                            'h-3.5! w-3.5! rounded-full! border-2!',
-                            'bg-background! border-muted-foreground/40!',
-                            'hover:border-primary! transition-colors',
+                            'absolute! -right-2! top-1/2! -translate-y-1/2!',
+                            'h-4! w-4! rounded-full! border-2! border-background!',
+                            'bg-muted-foreground/30! hover:bg-violet-500! transition-colors',
+                            'shadow-sm!',
                         )}
                     />
                 )}

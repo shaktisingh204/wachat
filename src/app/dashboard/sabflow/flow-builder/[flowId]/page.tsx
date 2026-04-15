@@ -10,7 +10,6 @@ import {
     Controls,
     Background,
     BackgroundVariant,
-    Connection,
     Edge,
     Node,
     OnConnect,
@@ -20,21 +19,18 @@ import {
 import '@xyflow/react/dist/style.css';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import {
     LoaderCircle, Save, ArrowLeft, ChevronRight, ChevronLeft,
-    PlayCircle, Zap, Share2, Eye,
+    Zap, Eye, Share2, Settings, Palette, Play, LayoutTemplate,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useProject } from '@/context/project-context';
 import { getSabFlowById, saveSabFlow } from '@/app/actions/sabflow.actions';
 import { getSession } from '@/app/actions';
 import { SabFlowSidebar } from '@/components/wabasimplify/sabflow/flow-builder/SabFlowSidebar';
 import SabFlowCustomNode from '@/components/wabasimplify/sabflow/flow-builder/SabFlowCustomNode';
 import { SabFlowPropertiesPanel } from '@/components/wabasimplify/sabflow/flow-builder/SabFlowPropertiesPanel';
-import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
 import { validateFlow } from '@/lib/sabflow/validation';
 
@@ -44,7 +40,6 @@ const nodeTypes: NodeTypes = {
     trigger: SabFlowCustomNode,
     condition: SabFlowCustomNode,
     start: SabFlowCustomNode,
-    // built-in block types (Typebot-style)
     text_bubble: SabFlowCustomNode,
     image_bubble: SabFlowCustomNode,
     video_bubble: SabFlowCustomNode,
@@ -78,7 +73,18 @@ const nodeTypes: NodeTypes = {
 let _idCounter = 0;
 const getId = () => `node_${Date.now()}_${_idCounter++}`;
 
-// ─── Flow builder inner (needs ReactFlowProvider context) ──────────────────────
+// ─── Tab nav ───────────────────────────────────────────────────────────────────
+type Tab = 'flow' | 'theme' | 'settings' | 'share' | 'publish';
+
+const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
+    { id: 'flow',     label: 'Flow',     icon: LayoutTemplate },
+    { id: 'theme',    label: 'Theme',    icon: Palette },
+    { id: 'settings', label: 'Settings', icon: Settings },
+    { id: 'share',    label: 'Share',    icon: Share2 },
+    { id: 'publish',  label: 'Publish',  icon: Play },
+];
+
+// ─── Flow builder inner ────────────────────────────────────────────────────────
 const SabFlowBuilder = ({ flowId }: { flowId: string }) => {
     const router = useRouter();
     const { toast } = useToast();
@@ -95,6 +101,7 @@ const SabFlowBuilder = ({ flowId }: { flowId: string }) => {
     const [selectedNode, setSelectedNode] = useState<Node | null>(null);
     const [user, setUser] = useState<any>(null);
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+    const [activeTab, setActiveTab] = useState<Tab>('flow');
 
     useEffect(() => {
         getSession().then(s => setUser(s?.user));
@@ -128,7 +135,7 @@ const SabFlowBuilder = ({ flowId }: { flowId: string }) => {
 
     // ── Connections ───────────────────────────────────────────────────────────
     const onConnect: OnConnect = useCallback(
-        (params) => setEdges(eds => addEdge({ ...params, animated: true }, eds)),
+        (params) => setEdges(eds => addEdge({ ...params, animated: true, style: { strokeWidth: 2, stroke: '#6366f1' } }, eds)),
         [setEdges],
     );
 
@@ -144,7 +151,7 @@ const SabFlowBuilder = ({ flowId }: { flowId: string }) => {
         if (!raw) return;
         try {
             const payload = JSON.parse(raw);
-            const { type, blockType, appId } = payload;
+            const { type, blockType, appId, actionName } = payload;
             const nodeType = type === 'action' ? 'action' : (type || blockType);
             if (!nodeType) return;
 
@@ -153,16 +160,19 @@ const SabFlowBuilder = ({ flowId }: { flowId: string }) => {
                 y: e.clientY,
             });
 
+            const rawLabel = actionName || blockType || nodeType;
+            const label = rawLabel.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase());
+
             const newNode: Node = {
                 id: getId(),
                 type: nodeType,
                 position,
                 data: {
-                    name: blockType ? blockType.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()) : 'New Block',
+                    name: label,
                     blockType: blockType || nodeType,
                     appId: appId || '',
                     connectionId: '',
-                    actionName: '',
+                    actionName: actionName || '',
                     inputs: {},
                 },
             };
@@ -231,71 +241,87 @@ const SabFlowBuilder = ({ flowId }: { flowId: string }) => {
     const isPaused = currentFlow?.status === 'PAUSED';
 
     return (
-        <div className="flex h-screen flex-col overflow-hidden bg-background">
+        /* Full-screen overlay — covers the Clay sidebar completely */
+        <div className="fixed inset-0 z-100 flex flex-col overflow-hidden bg-background"
+            style={{ fontFamily: 'inherit' }}>
 
-            {/* ── Typebot-style header ──────────────────────────────────────── */}
-            <header className="flex h-14 shrink-0 items-center justify-between border-b bg-background px-3 gap-2">
+            {/* ══ Typebot-style header ══════════════════════════════════════════ */}
+            <header className="flex h-13 shrink-0 items-center border-b border-border/60 bg-background px-3 relative z-10">
 
-                {/* Left */}
-                <div className="flex items-center gap-2 min-w-0">
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-muted-foreground hover:text-foreground shrink-0"
-                        asChild
+                {/* Left: back + logo + flow name */}
+                <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                    <Link
+                        href="/dashboard/sabflow/flow-builder"
+                        className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors shrink-0"
                     >
-                        <Link href="/dashboard/sabflow/flow-builder">
-                            <ArrowLeft className="h-4 w-4" />
-                        </Link>
-                    </Button>
+                        <ArrowLeft className="h-4 w-4" />
+                    </Link>
 
-                    {/* Logo badge */}
-                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-violet-600">
+                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-violet-600 shadow-sm">
                         <Zap className="h-3.5 w-3.5 text-white" />
                     </div>
 
-                    {/* Flow name — editable, minimal */}
                     <input
                         value={flowName}
                         onChange={e => setFlowName(e.target.value)}
                         className={cn(
-                            'h-8 w-44 rounded-md border-transparent bg-transparent px-2 text-sm font-semibold text-foreground',
-                            'focus:border-border focus:bg-muted/40 focus:outline-none focus:ring-0 truncate',
-                            'transition-colors placeholder:text-muted-foreground/50',
+                            'h-8 max-w-[180px] rounded-lg border-transparent bg-transparent px-2',
+                            'text-[13.5px] font-semibold text-foreground',
+                            'hover:bg-muted/40 focus:bg-muted/50 focus:outline-none focus:ring-1 focus:ring-violet-500/50',
+                            'transition-all placeholder:text-muted-foreground/40 max-w-45',
                         )}
                         placeholder="Untitled Flow"
                         spellCheck={false}
                     />
                 </div>
 
-                {/* Right */}
-                <div className="flex items-center gap-1.5 shrink-0">
-                    {/* Active / Paused toggle */}
-                    <div className={cn(
-                        'flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-semibold transition-colors',
-                        isPaused
-                            ? 'border-amber-300/60 bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 dark:border-amber-700/40'
-                            : 'border-emerald-300/60 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-700/40',
-                    )}>
+                {/* Center: tab navigation — Typebot-style */}
+                <nav className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-0.5 rounded-xl border border-border/50 bg-muted/40 p-1">
+                    {TABS.map(tab => {
+                        const Icon = tab.icon;
+                        const active = activeTab === tab.id;
+                        return (
+                            <button
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id)}
+                                className={cn(
+                                    'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12.5px] font-medium transition-all duration-150',
+                                    active
+                                        ? 'bg-background text-foreground shadow-sm'
+                                        : 'text-muted-foreground hover:text-foreground hover:bg-background/50',
+                                )}
+                            >
+                                <Icon className="h-3.5 w-3.5" />
+                                {tab.label}
+                            </button>
+                        );
+                    })}
+                </nav>
+
+                {/* Right: status pill + save */}
+                <div className="flex items-center gap-2 flex-1 justify-end shrink-0">
+                    {/* Live / Paused indicator */}
+                    <button
+                        onClick={() => setCurrentFlow((f: any) => ({ ...f, status: isPaused ? 'ACTIVE' : 'PAUSED' }))}
+                        className={cn(
+                            'flex items-center gap-1.5 rounded-full px-3 py-1 text-[11.5px] font-semibold border transition-colors',
+                            isPaused
+                                ? 'border-amber-300/60 bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-700/50 hover:bg-amber-100'
+                                : 'border-emerald-300/60 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-700/50 hover:bg-emerald-100',
+                        )}
+                    >
                         <span className={cn(
                             'h-1.5 w-1.5 rounded-full',
                             isPaused ? 'bg-amber-500' : 'bg-emerald-500 animate-pulse',
                         )} />
-                        {isPaused ? 'Paused' : 'Active'}
-                        <Switch
-                            checked={!isPaused}
-                            onCheckedChange={checked =>
-                                setCurrentFlow((f: any) => ({ ...f, status: checked ? 'ACTIVE' : 'PAUSED' }))
-                            }
-                            className="h-4 w-7 [&_span]:h-3 [&_span]:w-3"
-                        />
-                    </div>
+                        {isPaused ? 'Paused' : 'Live'}
+                    </button>
 
                     <Button
                         size="sm"
                         onClick={handleSave}
                         disabled={isSaving}
-                        className="h-8 gap-1.5 bg-violet-600 hover:bg-violet-700 text-white shadow-none"
+                        className="h-8 gap-1.5 bg-violet-600 hover:bg-violet-700 text-white text-[12.5px] font-semibold shadow-none rounded-lg px-4"
                     >
                         {isSaving
                             ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
@@ -306,44 +332,50 @@ const SabFlowBuilder = ({ flowId }: { flowId: string }) => {
                 </div>
             </header>
 
-            {/* ── 3-column body ─────────────────────────────────────────────── */}
-            <div className="flex flex-1 overflow-hidden">
+            {/* ══ 3-column body ════════════════════════════════════════════════ */}
+            <div className="flex flex-1 overflow-hidden min-h-0">
 
-                {/* LEFT SIDEBAR — always visible block palette */}
+                {/* LEFT SIDEBAR */}
                 <div className={cn(
-                    'relative flex flex-col border-r bg-background/60 transition-all duration-200 shrink-0',
-                    sidebarCollapsed ? 'w-0 overflow-hidden border-0' : 'w-64',
+                    'relative flex flex-col border-r border-border/50 bg-background transition-all duration-200 shrink-0 overflow-hidden',
+                    sidebarCollapsed ? 'w-0 border-r-0' : 'w-72',
                 )}>
-                    <SabFlowSidebar className="h-full w-full" />
+                    {!sidebarCollapsed && <SabFlowSidebar className="h-full w-full" />}
 
-                    {/* Collapse toggle */}
-                    <button
-                        onClick={() => setSidebarCollapsed(c => !c)}
-                        className={cn(
-                            'absolute -right-3 top-1/2 z-20 flex h-6 w-6 -translate-y-1/2 items-center justify-center',
-                            'rounded-full border bg-background shadow-sm text-muted-foreground hover:text-foreground',
-                            'transition-colors',
-                        )}
-                    >
-                        <ChevronLeft className="h-3 w-3" />
-                    </button>
+                    {/* Collapse handle */}
+                    {!sidebarCollapsed && (
+                        <button
+                            onClick={() => setSidebarCollapsed(true)}
+                            className="absolute -right-3 top-1/2 z-20 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background shadow-sm text-muted-foreground hover:text-foreground transition-colors"
+                            title="Collapse sidebar"
+                        >
+                            <ChevronLeft className="h-3 w-3" />
+                        </button>
+                    )}
                 </div>
 
-                {/* Show sidebar button when collapsed */}
+                {/* Expand handle when collapsed */}
                 {sidebarCollapsed && (
                     <button
                         onClick={() => setSidebarCollapsed(false)}
-                        className="absolute left-0 top-1/2 z-20 flex h-8 w-5 -translate-y-1/2 items-center justify-center rounded-r-md border-y border-r bg-background shadow-sm text-muted-foreground hover:text-foreground transition-colors"
+                        className="absolute left-0 top-1/2 z-30 flex h-10 w-5 -translate-y-1/2 items-center justify-center rounded-r-lg border-y border-r border-border bg-background shadow-sm text-muted-foreground hover:text-foreground transition-colors"
+                        title="Expand sidebar"
                     >
                         <ChevronRight className="h-3 w-3" />
                     </button>
                 )}
 
                 {/* CENTER — ReactFlow canvas */}
-                <div className="relative flex-1 overflow-hidden" ref={reactFlowWrapper}>
+                <div
+                    className="relative flex-1 overflow-hidden bg-[hsl(var(--muted)/0.3)]"
+                    ref={reactFlowWrapper}
+                >
                     {isLoading && (
-                        <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/60 backdrop-blur-sm">
-                            <LoaderCircle className="h-6 w-6 animate-spin text-violet-600" />
+                        <div className="absolute inset-0 z-20 flex items-center justify-center bg-background/70 backdrop-blur-sm">
+                            <div className="flex flex-col items-center gap-3">
+                                <LoaderCircle className="h-7 w-7 animate-spin text-violet-600" />
+                                <p className="text-sm text-muted-foreground font-medium">Loading flow…</p>
+                            </div>
                         </div>
                     )}
 
@@ -366,44 +398,48 @@ const SabFlowBuilder = ({ flowId }: { flowId: string }) => {
                         snapGrid={[16, 16]}
                         defaultEdgeOptions={{
                             animated: true,
-                            style: { strokeWidth: 2 },
+                            style: { strokeWidth: 2, stroke: '#6366f1' },
+                            type: 'smoothstep',
                         }}
-                        connectionLineStyle={{ strokeWidth: 2 }}
+                        connectionLineStyle={{ strokeWidth: 2, stroke: '#6366f1' }}
+                        elevateEdgesOnSelect
                     >
                         <Controls
-                            className="!shadow-none !border !border-border !rounded-xl !overflow-hidden"
+                            className="shadow-none! border! border-border/60! rounded-xl! overflow-hidden! bg-background!"
                             showInteractive={false}
                         />
                         <MiniMap
-                            className="!border !border-border !rounded-xl !shadow-none"
+                            className="border! border-border/60! rounded-xl! shadow-none! bg-background/90!"
                             zoomable
                             pannable
                             nodeColor="#8b5cf6"
+                            maskColor="hsl(var(--background)/0.7)"
                         />
                         <Background
                             variant={BackgroundVariant.Dots}
-                            gap={20}
-                            size={1.2}
+                            gap={24}
+                            size={1.5}
                             color="hsl(var(--muted-foreground)/0.2)"
                         />
                     </ReactFlow>
                 </div>
 
-                {/* RIGHT — Properties panel (always rendered, shows empty state) */}
-                <aside className={cn(
-                    'flex shrink-0 flex-col border-l bg-background transition-all duration-200',
-                    selectedNode ? 'w-80' : 'w-0 overflow-hidden border-0',
+                {/* RIGHT — Properties panel */}
+                <div className={cn(
+                    'flex shrink-0 flex-col border-l border-border/50 bg-background transition-all duration-200 overflow-hidden',
+                    selectedNode ? 'w-95' : 'w-0 border-l-0',
                 )}>
                     {selectedNode && (
                         <SabFlowPropertiesPanel
                             node={selectedNode}
                             onUpdate={onNodeUpdate}
                             deleteNode={onDeleteNode}
+                            onClose={() => setSelectedNode(null)}
                             user={user}
                             flowId={flowId}
                         />
                     )}
-                </aside>
+                </div>
             </div>
         </div>
     );
