@@ -263,6 +263,36 @@ function isHrmRoute(pathname: string | null): boolean {
 }
 
 /**
+ * SabChat routes get their own Clay context="sabchat" with a dedicated
+ * sidebar for inbox, visitors, analytics, quick replies, auto-reply,
+ * AI replies, FAQ, widget, and settings.
+ */
+function isSabChatRoute(pathname: string | null): boolean {
+  if (!pathname) return false;
+  return pathname === '/dashboard/sabchat' || pathname.startsWith('/dashboard/sabchat/');
+}
+
+/**
+ * Email routes get their own Clay context="email" with a dedicated
+ * sidebar for overview, inbox, campaigns, contacts, templates,
+ * analytics, verification, and settings.
+ */
+function isEmailRoute(pathname: string | null): boolean {
+  if (!pathname) return false;
+  return pathname === '/dashboard/email' || pathname.startsWith('/dashboard/email/');
+}
+
+/**
+ * SMS routes get their own Clay context="sms" with a dedicated sidebar
+ * for overview, campaigns, templates, message logs, provider config,
+ * and developer API.
+ */
+function isSmsRoute(pathname: string | null): boolean {
+  if (!pathname) return false;
+  return pathname === '/dashboard/sms' || pathname.startsWith('/dashboard/sms/');
+}
+
+/**
  * Settings routes get their own Clay context="settings" with a
  * dedicated sidebar for profile, security, notifications, billing,
  * API keys, and integrations. User-scoped.
@@ -365,6 +395,45 @@ export function DashboardChromeDispatcher({
     !onTeam &&
     !onCrm &&
     isHrmRoute(pathname);
+  const onSabChat =
+    !onAdManager &&
+    !onInstagram &&
+    !onMetaSuite &&
+    !onSabFlow &&
+    !onTelegram &&
+    !onUrlShortener &&
+    !onQrCodeMaker &&
+    !onTeam &&
+    !onCrm &&
+    !onHrm &&
+    isSabChatRoute(pathname);
+  const onEmail =
+    !onAdManager &&
+    !onInstagram &&
+    !onMetaSuite &&
+    !onSabFlow &&
+    !onTelegram &&
+    !onUrlShortener &&
+    !onQrCodeMaker &&
+    !onTeam &&
+    !onCrm &&
+    !onHrm &&
+    !onSabChat &&
+    isEmailRoute(pathname);
+  const onSms =
+    !onAdManager &&
+    !onInstagram &&
+    !onMetaSuite &&
+    !onSabFlow &&
+    !onTelegram &&
+    !onUrlShortener &&
+    !onQrCodeMaker &&
+    !onTeam &&
+    !onCrm &&
+    !onHrm &&
+    !onSabChat &&
+    !onEmail &&
+    isSmsRoute(pathname);
   const onSettings =
     !onAdManager &&
     !onInstagram &&
@@ -376,6 +445,9 @@ export function DashboardChromeDispatcher({
     !onTeam &&
     !onCrm &&
     !onHrm &&
+    !onSabChat &&
+    !onEmail &&
+    !onSms &&
     isSettingsRoute(pathname);
   const onWachat =
     !onAdManager &&
@@ -388,6 +460,9 @@ export function DashboardChromeDispatcher({
     !onTeam &&
     !onCrm &&
     !onHrm &&
+    !onSabChat &&
+    !onEmail &&
+    !onSms &&
     !onSettings &&
     isWachatRoute(pathname);
 
@@ -411,6 +486,9 @@ export function DashboardChromeDispatcher({
     onTeam ||
     onCrm ||
     onHrm ||
+    onSabChat ||
+    onEmail ||
+    onSms ||
     onSettings;
 
   useEffect(() => {
@@ -661,6 +739,48 @@ export function DashboardChromeDispatcher({
       >
         <AdManagerProvider>
           <ClayDashboardLayout context="sabflow" user={user} plan={plan}>
+            {children}
+          </ClayDashboardLayout>
+        </AdManagerProvider>
+      </ProjectProvider>
+    );
+  }
+
+  // ── SabChat branch: Clay chrome for live chat and support.
+  if (onSabChat) {
+    if (!wachatData) return <ClayBootSkeleton />;
+    return (
+      <ProjectProvider initialProjects={wachatData.projects} user={wachatData.user}>
+        <AdManagerProvider>
+          <ClayDashboardLayout context="sabchat" user={user} plan={plan}>
+            {children}
+          </ClayDashboardLayout>
+        </AdManagerProvider>
+      </ProjectProvider>
+    );
+  }
+
+  // ── Email branch: Clay chrome for email campaigns and inbox.
+  if (onEmail) {
+    if (!wachatData) return <ClayBootSkeleton />;
+    return (
+      <ProjectProvider initialProjects={wachatData.projects} user={wachatData.user}>
+        <AdManagerProvider>
+          <ClayDashboardLayout context="email" user={user} plan={plan}>
+            {children}
+          </ClayDashboardLayout>
+        </AdManagerProvider>
+      </ProjectProvider>
+    );
+  }
+
+  // ── SMS branch: Clay chrome for SMS campaigns and messaging.
+  if (onSms) {
+    if (!wachatData) return <ClayBootSkeleton />;
+    return (
+      <ProjectProvider initialProjects={wachatData.projects} user={wachatData.user}>
+        <AdManagerProvider>
+          <ClayDashboardLayout context="sms" user={user} plan={plan}>
             {children}
           </ClayDashboardLayout>
         </AdManagerProvider>

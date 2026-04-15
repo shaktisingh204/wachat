@@ -1,49 +1,67 @@
-
 'use client';
 
 import { getSession } from '@/app/actions/user.actions';
 import { SabChatWidgetGenerator } from '@/components/wabasimplify/sabchat-widget-generator';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Skeleton } from '@/components/ui/skeleton';
-import { AlertCircle } from 'lucide-react';
+import { ClayCard } from '@/components/clay';
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { MessageCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 function PageSkeleton() {
-    return (
-        <div className="space-y-6">
-            <Skeleton className="h-96 w-full" />
-        </div>
-    );
+  return (
+    <ClayCard>
+      <div className="animate-pulse h-96 rounded-clay-md bg-clay-border" />
+    </ClayCard>
+  );
 }
 
 export default function SabChatWidgetPage() {
-    const [user, setUser] = useState<any>(null);
-    const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-    useEffect(() => {
-        getSession().then(session => {
-            setUser(session?.user);
-            setIsLoading(false);
-        });
-    }, []);
+  useEffect(() => {
+    getSession().then(session => {
+      setUser(session?.user);
+      setIsLoading(false);
+    });
+  }, []);
 
-    if (isLoading) {
-        return <PageSkeleton />;
-    }
-
-    if (!user) {
-        return (
-            <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Authentication Error</AlertTitle>
-                <AlertDescription>
-                    You must be logged in to configure the chat widget.
-                </AlertDescription>
-            </Alert>
-        );
-    }
-
+  if (isLoading) {
     return (
-        <SabChatWidgetGenerator user={user} />
-    )
+      <div className="flex w-full flex-col gap-6">
+        <CrmPageHeader
+          title="Widget"
+          subtitle="Configure and embed the SabChat widget on your website"
+          icon={MessageCircle}
+        />
+        <PageSkeleton />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="flex w-full flex-col gap-6">
+        <CrmPageHeader
+          title="Widget"
+          subtitle="Configure and embed the SabChat widget on your website"
+          icon={MessageCircle}
+        />
+        <ClayCard>
+          <p className="text-[13px] text-clay-red">You must be logged in to configure the chat widget.</p>
+        </ClayCard>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex w-full flex-col gap-6">
+      <CrmPageHeader
+        title="Widget"
+        subtitle="Configure and embed the SabChat widget on your website"
+        icon={MessageCircle}
+      />
+      <SabChatWidgetGenerator user={user} />
+    </div>
+  );
 }

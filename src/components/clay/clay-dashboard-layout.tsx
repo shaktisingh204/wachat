@@ -181,6 +181,9 @@ export type ClayLayoutContext =
   | 'team'
   | 'crm'
   | 'hrm'
+  | 'sabchat'
+  | 'email'
+  | 'sms'
   | 'settings';
 
 export interface ClayDashboardLayoutProps {
@@ -2207,6 +2210,62 @@ const hrmConfigure: NavEntry[] = [
   },
 ];
 
+/* ═══════════════════════════════════════════════════════════════════
+ *  SabChat nav registry — loaded when context="sabchat".
+ * ══════════════════════════════════════════════════════════════════ */
+
+const sabchatPrimary: NavEntry[] = [
+  { key: 'sc-inbox', label: 'Inbox', icon: <LuInbox className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/sabchat/inbox', matches: ['/dashboard/sabchat/inbox'] },
+  { key: 'sc-visitors', label: 'Visitors', icon: <LuUsers className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/sabchat/visitors', matches: ['/dashboard/sabchat/visitors'] },
+  { key: 'sc-analytics', label: 'Analytics', icon: <LuChartBar className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/sabchat/analytics', matches: ['/dashboard/sabchat/analytics'] },
+];
+
+const sabchatAutomate: NavEntry[] = [
+  { key: 'sc-quick-replies', label: 'Quick Replies', icon: <LuReply className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/sabchat/quick-replies', matches: ['/dashboard/sabchat/quick-replies'] },
+  { key: 'sc-auto-reply', label: 'Auto Reply', icon: <LuZap className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/sabchat/auto-reply', matches: ['/dashboard/sabchat/auto-reply'] },
+  { key: 'sc-ai-replies', label: 'AI Replies', icon: <LuBrainCircuit className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/sabchat/ai-replies', matches: ['/dashboard/sabchat/ai-replies'] },
+  { key: 'sc-faq', label: 'FAQ', icon: <LuCircleHelp className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/sabchat/faq', matches: ['/dashboard/sabchat/faq'] },
+];
+
+const sabchatConfigure: NavEntry[] = [
+  { key: 'sc-widget', label: 'Widget', icon: <LuMessageCircle className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/sabchat/widget', matches: ['/dashboard/sabchat/widget'] },
+  { key: 'sc-settings', label: 'Settings', icon: <LuSettings className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/sabchat/settings', matches: ['/dashboard/sabchat/settings'] },
+];
+
+/* ═══════════════════════════════════════════════════════════════════
+ *  Email nav registry — loaded when context="email".
+ * ══════════════════════════════════════════════════════════════════ */
+
+const emailPrimary: NavEntry[] = [
+  { key: 'em-overview', label: 'Overview', icon: <LuMail className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/email', matches: ['/dashboard/email'] },
+  { key: 'em-inbox', label: 'Inbox', icon: <LuInbox className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/email/inbox', matches: ['/dashboard/email/inbox'] },
+  { key: 'em-campaigns', label: 'Campaigns', icon: <LuSend className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/email/campaigns', matches: ['/dashboard/email/campaigns'] },
+  { key: 'em-contacts', label: 'Contacts', icon: <LuUsers className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/email/contacts', matches: ['/dashboard/email/contacts'] },
+  { key: 'em-templates', label: 'Templates', icon: <LuLayoutTemplate className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/email/templates', matches: ['/dashboard/email/templates'] },
+  { key: 'em-analytics', label: 'Analytics', icon: <LuChartBar className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/email/analytics', matches: ['/dashboard/email/analytics'] },
+];
+
+const emailConfigure: NavEntry[] = [
+  { key: 'em-verification', label: 'Verification', icon: <LuShieldCheck className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/email/verification', matches: ['/dashboard/email/verification'] },
+  { key: 'em-settings', label: 'Settings', icon: <LuSettings className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/email/settings', matches: ['/dashboard/email/settings'] },
+];
+
+/* ═══════════════════════════════════════════════════════════════════
+ *  SMS nav registry — loaded when context="sms".
+ * ══════════════════════════════════════════════════════════════════ */
+
+const smsPrimary: NavEntry[] = [
+  { key: 'sms-overview', label: 'Overview', icon: <LuSmartphone className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/sms', matches: ['/dashboard/sms'] },
+  { key: 'sms-campaigns', label: 'Campaigns', icon: <LuSend className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/sms/campaigns', matches: ['/dashboard/sms/campaigns'] },
+  { key: 'sms-templates', label: 'Templates', icon: <LuLayoutTemplate className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/sms/templates', matches: ['/dashboard/sms/templates'] },
+  { key: 'sms-logs', label: 'Message Logs', icon: <LuClock className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/sms/logs', matches: ['/dashboard/sms/logs'] },
+];
+
+const smsConfigure: NavEntry[] = [
+  { key: 'sms-config', label: 'Provider Config', icon: <LuSettings className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/sms/config', matches: ['/dashboard/sms/config'] },
+  { key: 'sms-developer', label: 'Developer API', icon: <LuKey className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/sms/developer', matches: ['/dashboard/sms/developer'] },
+];
+
 const crmServices: NavEntry[] = [
   {
     key: 'crm-projects',
@@ -2739,9 +2798,15 @@ function useActiveKey(context: ClayLayoutContext = 'sabnode'): string {
                         ? [crmPrimary, crmSales, crmSalesCrm, crmClients, crmServices, crmCatalog, crmFinance, crmInsights, crmConfigure]
                         : context === 'hrm'
                           ? [hrmPrimary, hrmRecruitment, hrmPeople, hrmPayroll, hrmCompliance, hrmPerformance, hrmEngagement, hrmConfigure]
-                          : context === 'settings'
-                            ? [settingsPrimary, settingsDeveloper, settingsBilling]
-                            : [primaryNav, appsNav];
+                          : context === 'sabchat'
+                            ? [sabchatPrimary, sabchatAutomate, sabchatConfigure]
+                            : context === 'email'
+                              ? [emailPrimary, emailConfigure]
+                              : context === 'sms'
+                                ? [smsPrimary, smsConfigure]
+                                : context === 'settings'
+                                  ? [settingsPrimary, settingsDeveloper, settingsBilling]
+                                  : [primaryNav, appsNav];
   let bestKey =
     context === 'ad-manager' ? 'adm-overview' :
     context === 'instagram' ? 'ig-dashboard' :
@@ -2754,6 +2819,9 @@ function useActiveKey(context: ClayLayoutContext = 'sabnode'): string {
     context === 'team' ? 'team-overview' :
     context === 'crm' ? 'crm-overview' :
     context === 'hrm' ? 'hrm-overview' :
+    context === 'sabchat' ? 'sc-inbox' :
+    context === 'email' ? 'em-overview' :
+    context === 'sms' ? 'sms-overview' :
     context === 'settings' ? 'set-overview' : 'home';
   let bestLen = 0;
   for (const group of registry) {
@@ -3107,6 +3175,9 @@ export function ClayDashboardLayout({
             context === 'team' ? 'Team' :
             context === 'crm' ? 'CRM' :
             context === 'hrm' ? 'HRM' :
+            context === 'sabchat' ? 'SabChat' :
+            context === 'email' ? 'Email' :
+            context === 'sms' ? 'SMS' :
             context === 'settings' ? 'Settings' : 'SabNode'
           }
           brand={
@@ -3121,6 +3192,9 @@ export function ClayDashboardLayout({
             context === 'team' ? <ClayTeamBrand /> :
             context === 'crm' ? <ClayCrmBrand /> :
             context === 'hrm' ? <ClayCrmBrand /> :
+            context === 'sabchat' ? <ClayCrmBrand /> :
+            context === 'email' ? <ClayCrmBrand /> :
+            context === 'sms' ? <ClayCrmBrand /> :
             context === 'settings' ? <ClaySettingsBrand /> :
             undefined
           }
@@ -3252,6 +3326,22 @@ export function ClayDashboardLayout({
                       items: hrmConfigure.map(toNavItem),
                     },
                   ]
+                : context === 'sabchat'
+                ? [
+                    { items: sabchatPrimary.map(toNavItem) },
+                    { title: 'Automate', addable: false, items: sabchatAutomate.map(toNavItem) },
+                    { title: 'Configure', addable: false, items: sabchatConfigure.map(toNavItem) },
+                  ]
+                : context === 'email'
+                ? [
+                    { items: emailPrimary.map(toNavItem) },
+                    { title: 'Configure', addable: false, items: emailConfigure.map(toNavItem) },
+                  ]
+                : context === 'sms'
+                ? [
+                    { items: smsPrimary.map(toNavItem) },
+                    { title: 'Configure', addable: false, items: smsConfigure.map(toNavItem) },
+                  ]
                 : context === 'settings'
                 ? [
                     { items: settingsPrimary.map(toNavItem) },
@@ -3290,7 +3380,7 @@ export function ClayDashboardLayout({
             // Wachat & Meta Suite pages get generous consistent padding.
             // Page content uses the FULL available width (no max-width cap)
             // so tables and cards don't look shrink-wrapped on wide screens.
-            (context === 'wachat' || context === 'meta-suite' || context === 'instagram' || context === 'ad-manager' || context === 'sabflow' || context === 'telegram' || context === 'url-shortener' || context === 'qr-code-maker' || context === 'team' || context === 'crm' || context === 'hrm' || context === 'settings') && !fullBleed && 'px-10 pt-8 pb-12',
+            (context === 'wachat' || context === 'meta-suite' || context === 'instagram' || context === 'ad-manager' || context === 'sabflow' || context === 'telegram' || context === 'url-shortener' || context === 'qr-code-maker' || context === 'team' || context === 'crm' || context === 'hrm' || context === 'sabchat' || context === 'email' || context === 'sms' || context === 'settings') && !fullBleed && 'px-10 pt-8 pb-12',
           )}
         >
           {fullBleed ? (
@@ -3298,7 +3388,7 @@ export function ClayDashboardLayout({
             <div className="flex h-full min-h-0 w-full flex-1 overflow-hidden">
               {children}
             </div>
-          ) : (context === 'wachat' || context === 'meta-suite' || context === 'instagram' || context === 'ad-manager' || context === 'sabflow' || context === 'telegram' || context === 'url-shortener' || context === 'qr-code-maker' || context === 'team' || context === 'crm' || context === 'hrm' || context === 'settings') ? (
+          ) : (context === 'wachat' || context === 'meta-suite' || context === 'instagram' || context === 'ad-manager' || context === 'sabflow' || context === 'telegram' || context === 'url-shortener' || context === 'qr-code-maker' || context === 'team' || context === 'crm' || context === 'hrm' || context === 'sabchat' || context === 'email' || context === 'sms' || context === 'settings') ? (
             // Wachat pages: full width AND full height — pages can fill
             // the entire available space. Each page's root <div> owns
             // its own clay-enter animation cascade so staggered child
