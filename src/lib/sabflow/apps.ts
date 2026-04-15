@@ -1,83 +1,23 @@
 'use client';
 
-import {
-  MessageSquare,
-  GitFork,
-  Mail,
-  Server,
-  Combine,
-  Code2,
-  Forward,
-  Replace,
-  Timer,
-  Globe2,
-  FileUp,
-  Filter,
-  IterationCcw,
-  Braces,
-  Table,
-  Sigma,
-  Cable,
-  Webhook,
-  Split,
-  CaseSensitive,
-  Route,
-  Columns,
-  Calendar,
-  Link as LinkIcon,
-  QrCode,
-  Handshake,
-  Repeat,
-  Zap,
-  Users,
-} from 'lucide-react';
 import { WhatsAppIcon, MetaIcon, SeoIcon, InstagramIcon, SabChatIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { sabnodeAppData } from './data';
+import { getIconEntry } from './icons';
 
-const iconMap: Record<string, any> = {
+// Platform-specific custom icons take priority
+const customIconMap: Record<string, any> = {
   'wachat': WhatsAppIcon,
   'sabchat': SabChatIcon,
   'meta': MetaIcon,
   'instagram': InstagramIcon,
-  'crm': Handshake,
-  'team': Users,
-  'email': Mail,
-  'sms': MessageSquare,
-  'url-shortener': LinkIcon,
-  'qr-code-maker': QrCode,
   'seo-suite': SeoIcon,
-  'api': Server,
-  'api_file_processor': FileUp,
-  'array_function': Combine,
-  'code': Code2,
-  'data_forwarder': Forward,
-  'data_transformer': Replace,
-  'datetime_formatter': Calendar,
-  'delay': Timer,
-  'dynamic_web_page': Globe2,
-  'file_uploader': FileUp,
-  'filter': Filter,
-  'iterator': IterationCcw,
-  'json_extractor': Braces,
-  'lookup_table': Table,
-  'number_formatter': Sigma,
-  'connect_manager': Cable,
-  'hook': Webhook,
-  'subscription_billing': Repeat,
-  'router': Route,
-  'select_transform_json': Columns,
-  'text_formatter': CaseSensitive,
-  'google_sheets': Zap,
-  'stripe': Zap,
-  'shopify': Zap,
-  'slack': Zap,
-  'gmail': Mail,
-  'hubspot': Handshake,
-  'discord': Zap,
-  'notion': Zap,
 };
 
-export const sabnodeAppActions = sabnodeAppData.map(app => ({
-  ...app,
-  icon: iconMap[app.appId] || Zap,
-}));
+export const sabnodeAppActions = sabnodeAppData.map(app => {
+  const entry = getIconEntry(app.appId);
+  return {
+    ...app,
+    icon: customIconMap[app.appId] ?? entry.icon,
+    iconColor: app.iconColor || entry.iconColor,
+  };
+});
