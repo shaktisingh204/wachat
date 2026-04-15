@@ -1,112 +1,625 @@
 'use client';
 
-import { useState, useEffect, useCallback, useTransition } from 'react';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { DatePicker } from "@/components/ui/date-picker";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
-import { getCrmAttendance, markCrmAttendance } from '@/app/actions/crm-hr.actions';
-import type { WithId, CrmEmployee, CrmAttendance } from '@/lib/definitions';
-import { LoaderCircle, FileText, CheckSquare } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
+import {
+  CheckSquare,
+  Clock,
+  LogIn,
+  LogOut,
+  FileText,
+  MapPin,
+  Plus,
+  Edit,
+  Trash2,
+} from 'lucide-react';
 import { format } from 'date-fns';
-
-import { ClayCard, ClayButton } from '@/components/clay';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { DatePicker } from '@/components/ui/date-picker';
+import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { useToast } from '@/hooks/use-toast';
+import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
+import { getEmployeeShifts } from '@/app/actions/worksuite/shifts.actions';
+import {
+  getAttendanceExt,
+  saveAttendanceExt,
+  clockIn,
+  clockOut,
+  deleteAttendanceExt,
+} from '@/app/actions/worksuite/attendance.actions';
+import type { WsAttendanceExt } from '@/lib/worksuite/shifts-types';
 
-type EmployeeWithAttendance = WithId<CrmEmployee> & { attendanceStatus?: CrmAttendance['status'] };
+type EmployeeLite = { _id: string; firstName?: string; lastName?: string };
+type ShiftLite = { _id: string; name: string; color_code?: string };
 
-export default function DailyAttendancePage() {
-    const [employees, setEmployees] = useState<EmployeeWithAttendance[]>([]);
-    const [date, setDate] = useState<Date | undefined>(new Date());
-    const [isLoading, startTransition] = useTransition();
+const WORKING_FROM_OPTIONS = ['office', 'home', 'remote', 'client-site', 'field'];
 
-    const fetchData = useCallback(() => {
-        if (!date) return;
-        startTransition(async () => {
-            const [allEmployees, attendanceData] = await Promise.all([
-                getCrmEmployees(),
-                getCrmAttendance(date),
-            ]);
-            const attendanceMap = new Map(attendanceData.map(a => [a.employeeId.toString(), a.status]));
-            const mergedData = allEmployees.map(emp => ({
-                ...emp,
-                attendanceStatus: attendanceMap.get(emp._id.toString()) || 'Absent'
-            }));
-            setEmployees(mergedData);
+function fmt(v: unknown): string {
+  if (!v) return '—';
+  try {
+    return format(new Date(v as any), 'hh:mm a');
+  } catch {
+    return String(v);
+  }
+}
+
+function fmtHours(h?: number): string {
+  if (!h) return '—';
+  const hrs = Math.floor(h);
+  const mins = Math.round((h - hrs) * 60);
+  return `${hrs}h ${String(mins).padStart(2, '0')}m`;
+}
+
+type ModalState = {
+  open: boolean;
+  mode: 'clock-in' | 'manual';
+  employeeId: string;
+  record?: WsAttendanceExt;
+};
+
+export default function AttendancePage() {
+  const { toast } = useToast();
+  const [employees, setEmployees] = useState<EmployeeLite[]>([]);
+  const [shifts, setShifts] = useState<ShiftLite[]>([]);
+  const [records, setRecords] = useState<WsAttendanceExt[]>([]);
+  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [isLoading, startTransition] = useTransition();
+
+  const [modal, setModal] = useState<ModalState>({
+    open: false,
+    mode: 'clock-in',
+    employeeId: '',
+  });
+  const [formState, setFormState] = useState({
+    working_from: 'office',
+    shift_id: '',
+    clock_in_time: '',
+    clock_out_time: '',
+    late: false,
+    half_day: false,
+    latitude: '',
+    longitude: '',
+    overwrite: false,
+  });
+  const [isSaving, startSave] = useTransition();
+
+  const load = useCallback(() => {
+    if (!date) return;
+    startTransition(async () => {
+      const [emps, sh, recs] = await Promise.all([
+        getCrmEmployees(),
+        getEmployeeShifts(),
+        getAttendanceExt(date),
+      ]);
+      setEmployees(
+        (emps as any[]).map((e) => ({
+          _id: String(e._id),
+          firstName: e.firstName,
+          lastName: e.lastName,
+        })),
+      );
+      setShifts(
+        (sh as any[]).map((s) => ({
+          _id: String(s._id),
+          name: s.name,
+          color_code: s.color_code,
+        })),
+      );
+      setRecords(recs);
+    });
+  }, [date]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const recordByEmployee = useMemo(() => {
+    const m = new Map<string, WsAttendanceExt>();
+    for (const r of records) m.set(r.user_id, r);
+    return m;
+  }, [records]);
+
+  /* ─── Clock In (quick) ─────────────────────── */
+  const handleQuickClockIn = (empId: string) => {
+    setFormState({
+      working_from: 'office',
+      shift_id: '',
+      clock_in_time: '',
+      clock_out_time: '',
+      late: false,
+      half_day: false,
+      latitude: '',
+      longitude: '',
+      overwrite: false,
+    });
+    setModal({ open: true, mode: 'clock-in', employeeId: empId });
+  };
+
+  /* ─── Clock Out (direct) ───────────────────── */
+  const handleClockOut = (empId: string) => {
+    startSave(async () => {
+      const r = await clockOut(empId, date);
+      if (r.success) {
+        toast({ title: 'Clocked out successfully.' });
+        load();
+      } else {
+        toast({ title: 'Error', description: r.error, variant: 'destructive' });
+      }
+    });
+  };
+
+  /* ─── Manual entry ─────────────────────────── */
+  const handleManualEntry = (empId: string, existing?: WsAttendanceExt) => {
+    if (existing) {
+      setFormState({
+        working_from: existing.working_from ?? 'office',
+        shift_id: existing.employee_shift_id ?? '',
+        clock_in_time: existing.clock_in_time
+          ? format(new Date(existing.clock_in_time as any), "yyyy-MM-dd'T'HH:mm")
+          : '',
+        clock_out_time: existing.clock_out_time
+          ? format(new Date(existing.clock_out_time as any), "yyyy-MM-dd'T'HH:mm")
+          : '',
+        late: existing.late ?? false,
+        half_day: existing.half_day ?? false,
+        latitude: existing.latitude ?? '',
+        longitude: existing.longitude ?? '',
+        overwrite: existing.overwrite_attendance ?? false,
+      });
+    } else {
+      const base = date ? format(date, "yyyy-MM-dd") : '';
+      setFormState({
+        working_from: 'office',
+        shift_id: '',
+        clock_in_time: base ? `${base}T09:00` : '',
+        clock_out_time: base ? `${base}T18:00` : '',
+        late: false,
+        half_day: false,
+        latitude: '',
+        longitude: '',
+        overwrite: false,
+      });
+    }
+    setModal({ open: true, mode: 'manual', employeeId: empId, record: existing });
+  };
+
+  const submitModal = () => {
+    if (!modal.employeeId || !date) return;
+    startSave(async () => {
+      let result;
+      if (modal.mode === 'clock-in') {
+        result = await clockIn(modal.employeeId, {
+          working_from: formState.working_from,
+          employee_shift_id: formState.shift_id || undefined,
+          latitude: formState.latitude || undefined,
+          longitude: formState.longitude || undefined,
+          overwrite: formState.overwrite,
         });
-    }, [date]);
+      } else {
+        result = await saveAttendanceExt({
+          _id: modal.record?._id,
+          user_id: modal.employeeId,
+          date: date,
+          clock_in_time: formState.clock_in_time || undefined,
+          clock_out_time: formState.clock_out_time || undefined,
+          working_from: formState.working_from,
+          employee_shift_id: formState.shift_id || undefined,
+          late: formState.late,
+          half_day: formState.half_day,
+          latitude: formState.latitude || undefined,
+          longitude: formState.longitude || undefined,
+          overwrite_attendance: formState.overwrite,
+        });
+      }
+      if (result.success) {
+        toast({ title: modal.mode === 'clock-in' ? 'Clocked in.' : 'Attendance saved.' });
+        setModal((m) => ({ ...m, open: false }));
+        load();
+      } else {
+        toast({ title: 'Error', description: result.error, variant: 'destructive' });
+      }
+    });
+  };
 
-    useEffect(() => {
-        fetchData();
-    }, [fetchData]);
+  const handleDelete = (id?: string) => {
+    if (!id) return;
+    if (!confirm('Delete this attendance record?')) return;
+    startSave(async () => {
+      await deleteAttendanceExt(id);
+      load();
+    });
+  };
 
-    const handleStatusChange = (employeeId: string, status: CrmAttendance['status']) => {
-        if(!date) return;
-        startTransition(async () => {
-            await markCrmAttendance(employeeId, status, date);
-            fetchData();
-        })
-    };
+  // Stats
+  const presentCount = records.filter((r) => r.clock_in_time).length;
+  const lateCount = records.filter((r) => r.late).length;
+  const wfhCount = records.filter((r) => r.working_from === 'home').length;
 
-    return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Daily Attendance"
-                subtitle="Mark and review attendance for your team."
-                icon={CheckSquare}
-                actions={
-                    <>
-                        <DatePicker date={date} setDate={setDate} />
-                        <ClayButton variant="pill" leading={<FileText className="h-4 w-4" strokeWidth={1.75} />}>
-                            Download Report
-                        </ClayButton>
-                    </>
-                }
-            />
+  return (
+    <div className="flex w-full flex-col gap-6">
+      <CrmPageHeader
+        title="Attendance"
+        subtitle="Track clock-in / clock-out, working location, and shift assignments."
+        icon={CheckSquare}
+        actions={
+          <>
+            <DatePicker date={date} setDate={setDate} />
+            <ClayButton
+              variant="pill"
+              leading={<FileText className="h-4 w-4" strokeWidth={1.75} />}
+            >
+              Export
+            </ClayButton>
+          </>
+        }
+      />
 
-            <ClayCard>
-                <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-clay-ink">Attendance for {date ? format(date, 'PPP') : '...'}</h2>
-                </div>
-                <div className="overflow-x-auto rounded-clay-md border border-clay-border">
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="border-clay-border hover:bg-transparent">
-                                <TableHead className="text-clay-ink-muted">Employee</TableHead>
-                                <TableHead className="text-clay-ink-muted">Department</TableHead>
-                                <TableHead className="w-48 text-clay-ink-muted">Status</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {isLoading ? (
-                                <TableRow className="border-clay-border"><TableCell colSpan={3} className="h-48 text-center"><LoaderCircle className="mx-auto h-8 w-8 animate-spin text-clay-ink-muted"/></TableCell></TableRow>
-                            ) : employees.length > 0 ? (
-                                employees.map(emp => (
-                                    <TableRow key={emp._id.toString()} className="border-clay-border">
-                                        <TableCell className="text-[13px] font-medium text-clay-ink">{emp.firstName} {emp.lastName}</TableCell>
-                                        <TableCell className="text-[13px] text-clay-ink">{(emp as any).departmentName || 'N/A'}</TableCell>
-                                        <TableCell>
-                                            <Select value={emp.attendanceStatus} onValueChange={(val) => handleStatusChange(emp._id.toString(), val as any)}>
-                                                <SelectTrigger className={emp.attendanceStatus === 'Present' ? 'border-clay-green' : emp.attendanceStatus === 'Absent' ? 'border-destructive' : ''}>
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="Present">Present</SelectItem>
-                                                    <SelectItem value="Absent">Absent</SelectItem>
-                                                    <SelectItem value="Half Day">Half Day</SelectItem>
-                                                    <SelectItem value="Leave">Leave</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </TableCell>
-                                    </TableRow>
-                                ))
-                            ) : (
-                                <TableRow className="border-clay-border"><TableCell colSpan={3} className="h-24 text-center text-[13px] text-clay-ink-muted">No employees found.</TableCell></TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
-                </div>
-            </ClayCard>
+      {/* Summary stats */}
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <ClayCard>
+          <p className="text-[12px] text-clay-ink-muted">Present</p>
+          <p className="mt-1 text-[26px] font-semibold text-clay-ink">{presentCount}</p>
+        </ClayCard>
+        <ClayCard>
+          <p className="text-[12px] text-clay-ink-muted">Late</p>
+          <p className="mt-1 text-[26px] font-semibold text-clay-ink">{lateCount}</p>
+        </ClayCard>
+        <ClayCard>
+          <p className="text-[12px] text-clay-ink-muted">WFH</p>
+          <p className="mt-1 text-[26px] font-semibold text-clay-ink">{wfhCount}</p>
+        </ClayCard>
+        <ClayCard>
+          <p className="text-[12px] text-clay-ink-muted">Total Employees</p>
+          <p className="mt-1 text-[26px] font-semibold text-clay-ink">{employees.length}</p>
+        </ClayCard>
+      </div>
+
+      <ClayCard>
+        <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 className="text-[16px] font-semibold text-clay-ink">
+              Attendance — {date ? format(date, 'PPP') : '…'}
+            </h2>
+            <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">
+              {records.length} record{records.length === 1 ? '' : 's'} for this date
+            </p>
+          </div>
         </div>
-    );
+
+        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-clay-border hover:bg-transparent">
+                <TableHead className="text-clay-ink-muted">Employee</TableHead>
+                <TableHead className="text-clay-ink-muted">Clock In</TableHead>
+                <TableHead className="text-clay-ink-muted">Clock Out</TableHead>
+                <TableHead className="text-clay-ink-muted">Working From</TableHead>
+                <TableHead className="text-clay-ink-muted">Hours</TableHead>
+                <TableHead className="text-clay-ink-muted">Flags</TableHead>
+                <TableHead className="text-right text-clay-ink-muted">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                <TableRow className="border-clay-border">
+                  <TableCell colSpan={7} className="h-24 text-center text-[13px] text-clay-ink-muted">
+                    Loading…
+                  </TableCell>
+                </TableRow>
+              ) : employees.length === 0 ? (
+                <TableRow className="border-clay-border">
+                  <TableCell colSpan={7} className="h-24 text-center text-[13px] text-clay-ink-muted">
+                    No employees found.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                employees.map((emp) => {
+                  const rec = recordByEmployee.get(emp._id);
+                  const isIn = !!rec?.clock_in_time;
+                  const isOut = !!rec?.clock_out_time;
+                  return (
+                    <TableRow key={emp._id} className="border-clay-border">
+                      <TableCell className="text-[13px] font-medium text-clay-ink">
+                        {[emp.firstName, emp.lastName].filter(Boolean).join(' ') || 'Unnamed'}
+                      </TableCell>
+                      <TableCell className="text-[13px] text-clay-ink">
+                        {isIn ? (
+                          <span className="flex items-center gap-1.5 text-green-600">
+                            <LogIn className="h-3.5 w-3.5" />
+                            {fmt(rec?.clock_in_time)}
+                          </span>
+                        ) : (
+                          <span className="text-clay-ink-muted">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-[13px] text-clay-ink">
+                        {isOut ? (
+                          <span className="flex items-center gap-1.5 text-red-500">
+                            <LogOut className="h-3.5 w-3.5" />
+                            {fmt(rec?.clock_out_time)}
+                          </span>
+                        ) : isIn ? (
+                          <span className="text-amber-500 text-[12px]">Active</span>
+                        ) : (
+                          <span className="text-clay-ink-muted">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-[12.5px] capitalize text-clay-ink">
+                        {rec?.working_from ? (
+                          <span className="flex items-center gap-1.5">
+                            <MapPin className="h-3 w-3 text-clay-ink-muted" />
+                            {rec.working_from}
+                          </span>
+                        ) : (
+                          <span className="text-clay-ink-muted">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-[13px] text-clay-ink">
+                        {fmtHours(rec?.working_hours)}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1">
+                          {rec?.late && (
+                            <ClayBadge tone="amber">Late</ClayBadge>
+                          )}
+                          {rec?.half_day && (
+                            <ClayBadge tone="blue">Half Day</ClayBadge>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          {!isIn ? (
+                            <ClayButton
+                              variant="pill"
+                              size="sm"
+                              leading={<LogIn className="h-3.5 w-3.5" strokeWidth={1.75} />}
+                              onClick={() => handleQuickClockIn(emp._id)}
+                              disabled={isSaving}
+                            >
+                              Clock In
+                            </ClayButton>
+                          ) : !isOut ? (
+                            <ClayButton
+                              variant="pill"
+                              size="sm"
+                              leading={<LogOut className="h-3.5 w-3.5 text-clay-red" strokeWidth={1.75} />}
+                              onClick={() => handleClockOut(emp._id)}
+                              disabled={isSaving}
+                            >
+                              Clock Out
+                            </ClayButton>
+                          ) : null}
+                          <ClayButton
+                            variant="pill"
+                            size="sm"
+                            onClick={() => handleManualEntry(emp._id, rec)}
+                            title={rec ? 'Edit record' : 'Add manual entry'}
+                          >
+                            {rec ? <Edit className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
+                          </ClayButton>
+                          {rec?._id && (
+                            <ClayButton variant="pill" size="sm" onClick={() => handleDelete(rec._id)}>
+                              <Trash2 className="h-3.5 w-3.5 text-clay-red" />
+                            </ClayButton>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </ClayCard>
+
+      {/* Clock-in / Manual entry dialog */}
+      <Dialog open={modal.open} onOpenChange={(v) => setModal((m) => ({ ...m, open: v }))}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>
+              {modal.mode === 'clock-in' ? 'Clock In' : modal.record ? 'Edit Attendance' : 'Add Attendance'}
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="grid gap-4 py-4 md:grid-cols-2">
+            {/* Employee display */}
+            <div className="md:col-span-2">
+              <Label className="text-[12px] text-clay-ink-muted">Employee</Label>
+              <p className="mt-1 text-[13px] font-medium text-clay-ink">
+                {employees.find((e) => e._id === modal.employeeId)
+                  ? [
+                      employees.find((e) => e._id === modal.employeeId)?.firstName,
+                      employees.find((e) => e._id === modal.employeeId)?.lastName,
+                    ]
+                      .filter(Boolean)
+                      .join(' ')
+                  : modal.employeeId}
+              </p>
+            </div>
+
+            {/* Working From */}
+            <div>
+              <Label className="text-[12px] text-clay-ink-muted">Working From</Label>
+              <Select
+                value={formState.working_from}
+                onValueChange={(v) => setFormState((p) => ({ ...p, working_from: v }))}
+              >
+                <SelectTrigger className="mt-1.5 h-9 text-[13px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {WORKING_FROM_OPTIONS.map((o) => (
+                    <SelectItem key={o} value={o} className="capitalize">
+                      {o.replace('-', ' ')}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Shift */}
+            <div>
+              <Label className="text-[12px] text-clay-ink-muted">Shift</Label>
+              <Select
+                value={formState.shift_id}
+                onValueChange={(v) => setFormState((p) => ({ ...p, shift_id: v }))}
+              >
+                <SelectTrigger className="mt-1.5 h-9 text-[13px]">
+                  <SelectValue placeholder="Select shift (optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">— None —</SelectItem>
+                  {shifts.map((s) => (
+                    <SelectItem key={s._id} value={s._id}>
+                      <span className="flex items-center gap-2">
+                        <span
+                          aria-hidden
+                          className="inline-block h-3 w-3 rounded-[3px]"
+                          style={{ backgroundColor: s.color_code || '#EAB308' }}
+                        />
+                        {s.name}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Manual times — only in manual mode */}
+            {modal.mode === 'manual' && (
+              <>
+                <div>
+                  <Label className="text-[12px] text-clay-ink-muted">Clock In Time</Label>
+                  <Input
+                    type="datetime-local"
+                    value={formState.clock_in_time}
+                    onChange={(e) =>
+                      setFormState((p) => ({ ...p, clock_in_time: e.target.value }))
+                    }
+                    className="mt-1.5 h-9 text-[13px]"
+                  />
+                </div>
+                <div>
+                  <Label className="text-[12px] text-clay-ink-muted">Clock Out Time</Label>
+                  <Input
+                    type="datetime-local"
+                    value={formState.clock_out_time}
+                    onChange={(e) =>
+                      setFormState((p) => ({ ...p, clock_out_time: e.target.value }))
+                    }
+                    className="mt-1.5 h-9 text-[13px]"
+                  />
+                </div>
+              </>
+            )}
+
+            {/* GPS */}
+            <div>
+              <Label className="text-[12px] text-clay-ink-muted">Latitude (optional)</Label>
+              <Input
+                value={formState.latitude}
+                onChange={(e) => setFormState((p) => ({ ...p, latitude: e.target.value }))}
+                placeholder="28.6139"
+                className="mt-1.5 h-9 text-[13px]"
+              />
+            </div>
+            <div>
+              <Label className="text-[12px] text-clay-ink-muted">Longitude (optional)</Label>
+              <Input
+                value={formState.longitude}
+                onChange={(e) => setFormState((p) => ({ ...p, longitude: e.target.value }))}
+                placeholder="77.2090"
+                className="mt-1.5 h-9 text-[13px]"
+              />
+            </div>
+
+            {/* Flags */}
+            <div className="flex items-center gap-4 md:col-span-2">
+              <label className="flex cursor-pointer items-center gap-2 text-[13px] text-clay-ink">
+                <input
+                  type="checkbox"
+                  checked={formState.late}
+                  onChange={(e) => setFormState((p) => ({ ...p, late: e.target.checked }))}
+                  className="h-4 w-4"
+                />
+                Mark as Late
+              </label>
+              <label className="flex cursor-pointer items-center gap-2 text-[13px] text-clay-ink">
+                <input
+                  type="checkbox"
+                  checked={formState.half_day}
+                  onChange={(e) => setFormState((p) => ({ ...p, half_day: e.target.checked }))}
+                  className="h-4 w-4"
+                />
+                Half Day
+              </label>
+              <label className="flex cursor-pointer items-center gap-2 text-[13px] text-clay-ink">
+                <input
+                  type="checkbox"
+                  checked={formState.overwrite}
+                  onChange={(e) => setFormState((p) => ({ ...p, overwrite: e.target.checked }))}
+                  className="h-4 w-4"
+                />
+                Overwrite Existing
+              </label>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <ClayButton
+              variant="pill"
+              onClick={() => setModal((m) => ({ ...m, open: false }))}
+            >
+              Cancel
+            </ClayButton>
+            <ClayButton
+              variant="obsidian"
+              onClick={submitModal}
+              disabled={isSaving}
+              leading={
+                modal.mode === 'clock-in' ? (
+                  <LogIn className="h-4 w-4" strokeWidth={1.75} />
+                ) : (
+                  <Clock className="h-4 w-4" strokeWidth={1.75} />
+                )
+              }
+            >
+              {isSaving
+                ? 'Saving…'
+                : modal.mode === 'clock-in'
+                ? 'Clock In'
+                : modal.record
+                ? 'Update'
+                : 'Add Record'}
+            </ClayButton>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
 }
