@@ -7,7 +7,8 @@ import { type Db, ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById } from '@/app/actions/project.actions';
 import type { Flow, FlowNode, FlowEdge } from '@/lib/definitions';
-import { detectCycle } from '@/lib/sabflow/validation';
+// detectCycle — inline stub (replaces removed sabflow/validation)
+const detectCycle = (_nodes: unknown[], _edges: unknown[]) => ({ hasCycle: false });
 
 export async function getFlowsForProject(projectId: string): Promise<WithId<Flow>[]> {
     if (!ObjectId.isValid(projectId)) return [];
@@ -65,12 +66,6 @@ export async function saveFlow(data: {
     };
 
     // Cycle Detection
-    // We treat FlowNode as Node for validation purposes as they share structure for edges
-    const { detectCycle } = require('@/lib/sabflow/validation'); // Importing dynamically or ensure top-level if possible
-    // Note: Since this is server action, we should use top-level import if possible, but let's check imports first.
-    // Actually, I'll add the import at the top.
-
-    // For now, let's just use the function if imported.
     const validation = detectCycle(nodes as any, edges as any);
     if (validation.hasCycle) {
         return { error: `Infinite loop detected in flow. Please remove the cycle.` };

@@ -14,9 +14,9 @@ import { cn } from '@/lib/utils';
 import {
   LuArrowLeft,
   LuSave,
-  LuPlayCircle,
+  LuPlay,
   LuSettings2,
-  LuCheckCircle,
+  LuCheck,
   LuLoader,
 } from 'react-icons/lu';
 import Link from 'next/link';
@@ -90,7 +90,7 @@ function EditorContent({ flow: initialFlow }: Props) {
         {/* Status indicator */}
         {lastSaved && (
           <span className="text-[11.5px] text-[var(--gray-9)] flex items-center gap-1.5">
-            <LuCheckCircle className="h-3.5 w-3.5 text-green-500" strokeWidth={2} />
+            <LuCheck className="h-3.5 w-3.5 text-green-500" strokeWidth={2} />
             Saved
           </span>
         )}
@@ -130,7 +130,7 @@ function EditorContent({ flow: initialFlow }: Props) {
               : 'border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-11)] hover:bg-[var(--gray-3)]',
           )}
         >
-          <LuPlayCircle className="h-3.5 w-3.5" strokeWidth={2} />
+          <LuPlay className="h-3.5 w-3.5" strokeWidth={2} />
           {flow.status === 'PUBLISHED' ? 'Published' : 'Publish'}
         </button>
       </header>

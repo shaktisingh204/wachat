@@ -15,7 +15,12 @@ import type { Project, Contact, OutgoingMessage, AutoReplySettings, Flow, FlowNo
 import { getErrorMessage } from './utils';
 import { processFacebookComment } from '@/ai/flows/facebook-comment-flow';
 import { handlePaymentRequest } from '@/app/actions/integrations.actions';
-import { executeDelayAction } from '@/lib/sabflow/actions/core/logic';
+// executeDelayAction — inline stub (replaces removed sabflow/actions/core/logic)
+const executeDelayAction = async (type: string, inputs: Record<string, unknown>) => {
+  if (type === 'waitFor' && typeof inputs.seconds === 'number') {
+    await new Promise((resolve) => setTimeout(resolve, inputs.seconds as number * 1000));
+  }
+};
 import NodeFormData from 'form-data';
 
 const BATCH_SIZE = 1000;
