@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useShallow } from 'zustand/react/shallow';
+import { LuX } from 'react-icons/lu';
 import { useGraph } from '../../providers/GraphProvider';
 import { useEndpoints } from '../../providers/EndpointsProvider';
 import { useSelectionStore } from '../../hooks/useSelectionStore';
@@ -38,9 +39,13 @@ export function Edge({ edge, fromGroupId, onDelete }: Props) {
   const isPreviewing = isMouseOver || previewingEdge?.id === edge.id;
 
   const sourceTop = useMemo(() => {
-    // Event-sourced edges register under eventId; block/group edges under blockId or groupId
+    // Event-sourced edges register under eventId.
+    // Block-sourced edges use itemId (for choice items) then blockId, mirroring
+    // Typebot's pathId ?? itemId ?? blockId lookup order.
     const endpointId =
-      edge.from.eventId ?? edge.from.blockId ?? edge.from.groupId;
+      edge.from.eventId ??
+      ('itemId' in edge.from ? edge.from.itemId : undefined) ??
+      ('blockId' in edge.from ? edge.from.blockId : undefined);
     return endpointId ? sourceEndpointYOffsets.get(endpointId)?.y : undefined;
   }, [edge.from, sourceEndpointYOffsets]);
 
@@ -49,8 +54,10 @@ export function Edge({ edge, fromGroupId, onDelete }: Props) {
     return targetEndpointYOffsets.get(edge.to.blockId)?.y;
   }, [edge.to.blockId, targetEndpointYOffsets]);
 
-  const path = useMemo(() => {
-    if (!fromGroupCoordinates || !toGroupCoordinates || !sourceTop) return '';
+  const { path, midPoint } = useMemo(() => {
+    if (!fromGroupCoordinates || !toGroupCoordinates || !sourceTop) {
+      return { path: '', midPoint: null };
+    }
     // Use eventWidth for event-sourced edges so path exits at the correct right edge
     const sourceWidth = edge.from.eventId ? eventWidth : groupWidth;
     const anchorsPosition = getAnchorsPosition({
@@ -61,7 +68,17 @@ export function Edge({ edge, fromGroupId, onDelete }: Props) {
       targetTop,
       graphScale: graphPosition.scale,
     });
-    return computeEdgePath(anchorsPosition);
+    const computedPath = computeEdgePath(anchorsPosition);
+
+    // Approximate the visual midpoint of the bezier so the delete button can be
+    // placed on top of the curve where it is most visible.
+    const sx = anchorsPosition.sourcePosition.x;
+    const sy = anchorsPosition.sourcePosition.y;
+    const tx = anchorsPosition.targetPosition.x;
+    const ty = anchorsPosition.targetPosition.y;
+    const midPoint = { x: (sx + tx) / 2, y: (sy + ty) / 2 };
+
+    return { path: computedPath, midPoint };
   }, [fromGroupCoordinates, toGroupCoordinates, sourceTop, targetTop, graphPosition.scale, edge.from]);
 
   // Close context menu on next outside click
@@ -86,6 +103,11 @@ export function Edge({ edge, fromGroupId, onDelete }: Props) {
 
   if (!path) return null;
 
+  // The delete button is a small circle rendered as a foreignObject so we can
+  // use normal DOM/React event handling. It appears at the approximate visual
+  // midpoint of the bezier curve whenever the edge is hovered.
+  const DELETE_BTN_R = 10; // radius in SVG user-units
+
   return (
     <>
       <g>
@@ -107,16 +129,55 @@ export function Edge({ edge, fromGroupId, onDelete }: Props) {
             setContextMenu({ x: e.clientX, y: e.clientY });
           }}
         />
-        {/* Visible 2 px path */}
+        {/* Visible 2 px path — uses CSS variable colors so dark-mode overrides apply */}
         <path
           data-testid="edge"
           d={path}
           strokeWidth={2}
-          stroke={isPreviewing ? '#f76808' : 'var(--gray-8)'}
+          stroke={isPreviewing ? 'var(--orange-8)' : 'var(--gray-8)'}
           fill="none"
           markerEnd={isPreviewing ? 'url(#orange-arrow)' : 'url(#arrow)'}
           pointerEvents="none"
         />
+
+        {/* Delete button — shown at the midpoint when the edge is hovered */}
+        {isPreviewing && midPoint && onDelete && !isReadOnly && (
+          <foreignObject
+            x={midPoint.x - DELETE_BTN_R}
+            y={midPoint.y - DELETE_BTN_R}
+            width={DELETE_BTN_R * 2}
+            height={DELETE_BTN_R * 2}
+            style={{ overflow: 'visible' }}
+          >
+            <button
+              type="button"
+              aria-label="Delete edge"
+              title="Delete edge"
+              style={{
+                width: DELETE_BTN_R * 2,
+                height: DELETE_BTN_R * 2,
+                borderRadius: '50%',
+                background: 'var(--orange-8)',
+                border: '2px solid #fff',
+                color: '#fff',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: 0,
+                boxShadow: '0 1px 4px rgba(0,0,0,0.25)',
+              }}
+              onMouseEnter={() => setIsMouseOver(true)}
+              onMouseLeave={() => setIsMouseOver(false)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(edge.id);
+              }}
+            >
+              <LuX size={10} strokeWidth={3} />
+            </button>
+          </foreignObject>
+        )}
       </g>
 
       {/* Right-click context menu — rendered into document.body via portal */}

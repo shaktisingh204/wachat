@@ -217,13 +217,20 @@ export function GroupNode({
         onBlocksChange={(blocks) => onGroupBlocksChange?.(group.id, blocks)}
       />
 
-      {/* ── Target endpoint (incoming connection dot, left side) ── */}
+      {/* ── Target endpoint (incoming connection dot, left side) ──
+           Do NOT stopPropagation here — the event must bubble to Graph.tsx's
+           handleMouseUp so the edge is created. We just ensure the target is
+           set in case onMouseEnter hasn't fired yet. */}
       <div
         className="prevent-group-drag absolute left-[-13px] top-5 flex h-[22px] w-[22px] items-center justify-center cursor-crosshair"
-        onMouseUp={(e) => {
-          e.stopPropagation();
-          if (!connectingIds) return;
-          setConnectingIds({ ...connectingIds, target: { groupId: group.id } });
+        onMouseEnter={() => {
+          if (connectingIds && !connectingIds.target?.groupId)
+            setConnectingIds({ ...connectingIds, target: { groupId: group.id } });
+        }}
+        onMouseUp={() => {
+          // Ensure target is set synchronously right before mouseup bubbles to canvas
+          if (connectingIds)
+            setConnectingIds({ ...connectingIds, target: { groupId: group.id } });
         }}
       >
         <div

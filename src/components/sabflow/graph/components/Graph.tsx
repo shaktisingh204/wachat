@@ -8,6 +8,8 @@ import { createId } from '@paralleldrive/cuid2';
 import GraphElements from './GraphElements';
 import { ElementsSelectionMenu } from './ElementsSelectionMenu';
 import { SelectBox } from './SelectBox';
+import { ZoomButtons } from './ZoomButtons';
+import { CanvasMiniMap } from './CanvasMiniMap';
 import { computeSelectBoxDimensions } from '../helpers/computeSelectBoxDimensions';
 import { isSelectBoxIntersectingWithElement } from '../helpers/isSelectBoxIntersectingWithElement';
 import type { SabFlowDoc, SabFlowEvent, Group, Coordinates } from '@/lib/sabflow/types';
@@ -30,7 +32,7 @@ type Props = {
 };
 
 export function Graph({ flow, onFlowChange, containerRef }: Props) {
-  const { graphPosition, setGraphPosition, setCanvasPosition, connectingIds, setConnectingIds, isReadOnly } =
+  const { graphPosition, setGraphPosition, setCanvasPosition, connectingIds, connectingIdsRef, setConnectingIds, isReadOnly } =
     useGraph();
   const { draggedBlockType, setDraggedBlockType } = useBlockDnd();
 
@@ -51,6 +53,9 @@ export function Graph({ flow, onFlowChange, containerRef }: Props) {
   // Space-bar pan mode
   const [isSpacePanMode, setIsSpacePanMode] = useState(false);
   const [isSpaceDragging, setIsSpaceDragging] = useState(false);
+
+  // Minimap visibility
+  const [isMiniMapOpen, setIsMiniMapOpen] = useState(false);
 
   // Rubber-band selection
   const [selectBoxCoordinates, setSelectBoxCoordinates] = useState<SelectBoxCoordinates | undefined>(undefined);
@@ -229,34 +234,36 @@ export function Graph({ flow, onFlowChange, containerRef }: Props) {
     [flow.edges, onFlowChange],
   );
 
-  // Handle edge creation from DrawingEdge mouseup, or drop new block from sidebar
+  // Handle edge creation from DrawingEdge mouseup, or drop new block from sidebar.
+  // Uses connectingIdsRef.current (always fresh) instead of the closure value to
+  // avoid the stale-state race condition when onMouseEnter fires just before mouseup.
   const handleMouseUp = useCallback(
     (e: React.MouseEvent) => {
-      if (connectingIds?.target?.groupId) {
+      const current = connectingIdsRef.current;
+      if (current?.target?.groupId) {
         // Build the "from" side — could be event-sourced or block/group-sourced
-        const fromSource = connectingIds.source.eventId
-          ? { eventId: connectingIds.source.eventId }
-          : connectingIds.source.blockId
-            ? { groupId: connectingIds.source.groupId!, blockId: connectingIds.source.blockId }
-            : { groupId: connectingIds.source.groupId! };
+        const fromSource = current.source.eventId
+          ? { eventId: current.source.eventId }
+          : current.source.blockId
+            ? { groupId: current.source.groupId!, blockId: current.source.blockId }
+            : { groupId: current.source.groupId! };
 
         const newEdge = {
           id: createId(),
           from: fromSource,
-          to: connectingIds.target.blockId
-            ? { groupId: connectingIds.target.groupId, blockId: connectingIds.target.blockId }
-            : { groupId: connectingIds.target.groupId },
+          to: current.target.blockId
+            ? { groupId: current.target.groupId, blockId: current.target.blockId }
+            : { groupId: current.target.groupId },
         };
 
         // Replace existing edge from the same source (only for block sources)
-        const existingIdx =
-          !connectingIds.source.eventId && connectingIds.source.blockId
-            ? flow.edges.findIndex((ed) => ed.from.blockId === connectingIds.source.blockId)
-            : connectingIds.source.eventId
-              ? flow.edges.findIndex(
-                  (ed) => 'eventId' in ed.from && ed.from.eventId === connectingIds.source.eventId,
-                )
-              : -1;
+        const existingIdx = current.source.eventId
+          ? flow.edges.findIndex(
+              (ed) => 'eventId' in ed.from && ed.from.eventId === current.source.eventId,
+            )
+          : current.source.blockId
+            ? flow.edges.findIndex((ed) => ed.from.blockId === current.source.blockId)
+            : -1;
 
         const newEdges =
           existingIdx >= 0
@@ -291,7 +298,7 @@ export function Graph({ flow, onFlowChange, containerRef }: Props) {
       }
     },
     [
-      connectingIds,
+      // connectingIds intentionally omitted — we use connectingIdsRef.current for fresh reads
       draggedBlockType,
       projectMouse,
       flow.groups,
@@ -357,16 +364,6 @@ export function Graph({ flow, onFlowChange, containerRef }: Props) {
     },
   );
 
-  const handleZoom = (direction: 'in' | 'out') => {
-    setGraphPosition((pos) => {
-      const newScale =
-        direction === 'in'
-          ? Math.min(maxScale, pos.scale + zoomStep)
-          : Math.max(minScale, pos.scale - zoomStep);
-      return { ...pos, scale: newScale };
-    });
-  };
-
   const cursorClass = draggedBlockType
     ? 'cursor-crosshair'
     : isSpacePanMode
@@ -428,30 +425,28 @@ export function Graph({ flow, onFlowChange, containerRef }: Props) {
         {focusedElementsId.length > 0 && (
           <div className="w-px bg-[var(--gray-5)] self-stretch" />
         )}
-        <button
-          onClick={() => handleZoom('in')}
-          className="flex h-7 w-7 items-center justify-center rounded text-[var(--gray-11)] hover:bg-[var(--gray-3)] transition-colors font-medium text-base"
-          title="Zoom in"
-        >
-          +
-        </button>
-        <div className="w-px bg-[var(--gray-5)] self-stretch" />
-        <button
-          onClick={() => handleZoom('out')}
-          className="flex h-7 w-7 items-center justify-center rounded text-[var(--gray-11)] hover:bg-[var(--gray-3)] transition-colors font-medium text-base"
-          title="Zoom out"
-        >
-          −
-        </button>
-        <div className="w-px bg-[var(--gray-5)] self-stretch" />
-        <button
-          onClick={() => setGraphPosition({ x: 0, y: 0, scale: 1 })}
-          className="px-2 h-7 text-[11px] rounded text-[var(--gray-11)] hover:bg-[var(--gray-3)] transition-colors tabular-nums"
-          title="Reset zoom"
-        >
-          {Math.round(graphPosition.scale * 100)}%
-        </button>
+        <ZoomButtons
+          graphPosition={graphPosition}
+          setGraphPosition={setGraphPosition}
+          groups={flow.groups}
+          events={flow.events}
+          onToggleMiniMap={() => setIsMiniMapOpen((v) => !v)}
+          isMiniMapOpen={isMiniMapOpen}
+          canvasRef={canvasRef}
+        />
       </div>
+
+      {/* Canvas minimap */}
+      {isMiniMapOpen && (
+        <CanvasMiniMap
+          graphPosition={graphPosition}
+          setGraphPosition={setGraphPosition}
+          groups={flow.groups}
+          events={flow.events}
+          canvasRef={canvasRef}
+          onClose={() => setIsMiniMapOpen(false)}
+        />
+      )}
     </div>
   );
 }

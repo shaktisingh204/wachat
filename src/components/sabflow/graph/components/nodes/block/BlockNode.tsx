@@ -3,8 +3,9 @@ import { useEffect, useRef, useState } from 'react';
 import type { Block, BlockType } from '@/lib/sabflow/types';
 import { useGraph } from '@/components/sabflow/graph/providers/GraphProvider';
 import { useBlockDnd, useDragDistance } from '@/components/sabflow/graph/providers/GraphDndProvider';
-import { getBlockIcon } from '@/lib/sabflow/blocks';
 import { BlockNodeContent } from './BlockNodeContent';
+import { BlockNodeContextMenu } from './BlockNodeContextMenu';
+import { SettingsHoverBar } from './SettingsHoverBar';
 import { BlockSourceEndpoint } from '../../endpoints/BlockSourceEndpoint';
 import { TargetEndpoint } from '../../endpoints/TargetEndpoint';
 import { ItemNodesList } from '../item/ItemNodesList';
@@ -14,28 +15,46 @@ const ITEM_BLOCK_TYPES: BlockType[] = ['choice_input', 'picture_choice_input', '
 
 type NodePosition = { absolute: { x: number; y: number }; relative: { x: number; y: number } };
 
+type ContextMenuPos = { x: number; y: number };
+
 type Props = {
   block: Block;
   blockIndex: number;
   groupIndex: number;
   isConnectable: boolean;
   hasIncomingEdge: boolean;
+  /** True when this block already has an outgoing edge — shows a persistent dot on the source endpoint. */
+  hasOutgoingEdge?: boolean;
   onMouseDown?: (pos: NodePosition, block: Block) => void;
   onBlockChange?: (block: Block) => void;
+  onDuplicate?: (block: Block) => void;
+  onDelete?: (block: Block) => void;
 };
 
 export function BlockNode({
   block,
-  blockIndex,
-  groupIndex,
+  blockIndex: _blockIndex,
+  groupIndex: _groupIndex,
   isConnectable,
   hasIncomingEdge,
+  hasOutgoingEdge = false,
   onMouseDown,
   onBlockChange,
+  onDuplicate,
+  onDelete,
 }: Props) {
-  const { openedNodeId, setOpenedNodeId, connectingIds, setConnectingIds, isReadOnly } = useGraph();
+  const {
+    openedNodeId,
+    setOpenedNodeId,
+    connectingIds,
+    connectingIdsRef,
+    setConnectingIds,
+    isReadOnly,
+  } = useGraph();
   const { mouseOverBlock, setMouseOverBlock } = useBlockDnd();
   const [isConnecting, setIsConnecting] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [contextMenu, setContextMenu] = useState<ContextMenuPos | null>(null);
   const blockRef = useRef<HTMLDivElement>(null);
 
   const isOpen = openedNodeId === block.id;
@@ -65,16 +84,29 @@ export function BlockNode({
 
   const handleMouseEnter = () => {
     if (isReadOnly) return;
+    setIsHovered(true);
     if (mouseOverBlock?.id !== block.id && blockRef.current)
       setMouseOverBlock({ id: block.id, ref: blockRef });
-    if (connectingIds)
-      setConnectingIds({ ...connectingIds, target: { groupId: block.groupId, blockId: block.id } });
+    // Use the ref for a fresh read — avoids a stale-closure race when the drag
+    // starts on another node and this handler fires before the next React render.
+    const current = connectingIdsRef.current;
+    if (current)
+      setConnectingIds({
+        ...current,
+        target: { groupId: block.groupId, blockId: block.id },
+      });
   };
 
   const handleMouseLeave = () => {
+    setIsHovered(false);
     setMouseOverBlock(undefined);
-    if (connectingIds?.target)
-      setConnectingIds({ ...connectingIds, target: { ...connectingIds.target, blockId: undefined } });
+    // Use the ref for a fresh read so we never operate on a stale target.
+    const current = connectingIdsRef.current;
+    if (current?.target)
+      setConnectingIds({
+        ...current,
+        target: { ...current.target, blockId: undefined },
+      });
   };
 
   const handleClick = (e: React.MouseEvent) => {
@@ -83,7 +115,15 @@ export function BlockNode({
     setOpenedNodeId(isOpen ? undefined : block.id);
   };
 
-  const Icon = getBlockIcon(block.type);
+  const handleContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isReadOnly) return;
+    setContextMenu({ x: e.clientX, y: e.clientY });
+    // Focus this block's group by opening the node
+    setOpenedNodeId(block.id);
+  };
+
   const showTargetEndpoint = hasIncomingEdge || !!connectingIds;
   const supportsItems = (ITEM_BLOCK_TYPES as string[]).includes(block.type);
 
@@ -97,6 +137,7 @@ export function BlockNode({
   };
 
   return (
+    <>
     <div
       ref={blockRef}
       data-block-id={block.id}
@@ -104,7 +145,19 @@ export function BlockNode({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onClick={handleClick}
+      onContextMenu={handleContextMenu}
     >
+      {/* Hover bar — floats above top-right corner of the card */}
+      {isHovered && !isReadOnly && (
+        <div className="absolute -top-8 right-0 z-20">
+          <SettingsHoverBar
+            onSettingsClick={() => setOpenedNodeId(isOpen ? undefined : block.id)}
+            onDuplicateClick={() => onDuplicate?.(block)}
+            onDeleteClick={() => onDelete?.(block)}
+          />
+        </div>
+      )}
+
       <div
         className={cn(
           'flex gap-2 flex-1 p-3 rounded-lg items-start w-full text-left select-none transition-[border-color] cursor-pointer bg-[var(--gray-2)]',
@@ -114,14 +167,9 @@ export function BlockNode({
             : 'border border-[var(--gray-5)] hover:border-[var(--gray-7)]',
         )}
       >
-        {/* Icon */}
-        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[var(--gray-3)] text-[var(--gray-11)] mt-0.5">
-          {Icon ? <Icon className="h-3.5 w-3.5" /> : <span className="text-[10px] font-mono">?</span>}
-        </div>
-
         <BlockNodeContent block={block} />
 
-        {/* Target endpoint (left side) — shown when has incoming edge or is connecting */}
+        {/* Target endpoint (left side) — shown when has incoming edge or a drag is in progress */}
         {showTargetEndpoint && (
           <TargetEndpoint
             className="absolute left-[-34px] top-[16px]"
@@ -135,8 +183,8 @@ export function BlockNode({
           <BlockSourceEndpoint
             blockId={block.id}
             groupId={block.groupId}
+            hasOutgoingEdge={hasOutgoingEdge}
             className="absolute right-[-34px] bottom-[10px]"
-            isHidden={!isConnectable}
           />
         )}
       </div>
@@ -159,5 +207,17 @@ export function BlockNode({
         </div>
       )}
     </div>
+
+    {contextMenu && (
+      <BlockNodeContextMenu
+        x={contextMenu.x}
+        y={contextMenu.y}
+        onSettings={() => setOpenedNodeId(block.id)}
+        onDuplicate={() => onDuplicate?.(block)}
+        onDelete={() => onDelete?.(block)}
+        onClose={() => setContextMenu(null)}
+      />
+    )}
+    </>
   );
 }

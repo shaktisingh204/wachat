@@ -12,11 +12,16 @@ type Props = {
 };
 
 export function TargetEndpoint({ blockId, groupId, className }: Props) {
-  const { canvasPosition } = useGraph();
+  const { canvasPosition, connectingIds } = useGraph();
   const { setTargetEndpointYOffset } = useEndpoints();
   const ref = useRef<HTMLDivElement>(null);
   const [groupHeight, setGroupHeight] = useState<number>();
   const [groupTransform, setGroupTransform] = useState<string>();
+
+  /** True when a connection drag is in progress AND this endpoint is the active target. */
+  const isActiveTarget =
+    !!connectingIds &&
+    connectingIds.target?.blockId === blockId;
 
   const endpointY = useMemo(
     () => {
@@ -60,7 +65,26 @@ export function TargetEndpoint({ blockId, groupId, className }: Props) {
   return (
     <div
       ref={ref}
-      className={cn('h-[20px] w-[20px] rounded-full invisible cursor-pointer', className)}
-    />
+      className={cn('relative h-[20px] w-[20px] rounded-full cursor-pointer', className)}
+    >
+      {/* Invisible hit area always present; visible dot only when actively targeted */}
+      {isActiveTarget && (
+        <span
+          className={cn(
+            'absolute inset-0 rounded-full',
+            'bg-[#f76808] opacity-30',
+            'animate-ping',
+          )}
+        />
+      )}
+      <span
+        className={cn(
+          'absolute inset-0 rounded-full transition-all duration-150',
+          isActiveTarget
+            ? 'bg-[#f76808] scale-100 opacity-100'
+            : 'bg-transparent scale-75 opacity-0',
+        )}
+      />
+    </div>
   );
 }

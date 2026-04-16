@@ -1,12 +1,7 @@
 'use client';
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { useBlockDnd } from '@/components/sabflow/graph/providers/GraphDndProvider';
-import {
-  BLOCK_CATEGORIES,
-  getBlockIcon,
-  getBlockLabel,
-  getBlockColor,
-} from '@/lib/sabflow/blocks';
+import { REGISTRY_CATEGORIES, type BlockRegistryEntry } from './blockRegistry';
 import { cn } from '@/lib/utils';
 import { LuPin, LuPinOff, LuSearch, LuChevronDown, LuX } from 'react-icons/lu';
 import type { BlockType } from '@/lib/sabflow/types';
@@ -44,7 +39,7 @@ export function BlocksSideBar() {
     setIsLocked((prev) => {
       const next = !prev;
       try { localStorage.setItem(LOCK_KEY, String(next)); } catch { /* noop */ }
-      if (!next) setIsOpen(false); // collapse when unpinning
+      if (!next) setIsOpen(false);
       return next;
     });
   }, []);
@@ -52,6 +47,17 @@ export function BlocksSideBar() {
   const clearSearch = () => setQuery('');
 
   const isVisible = isOpen || isLocked;
+  const lowerQuery = query.trim().toLowerCase();
+
+  // Filter each category's entries by the search query
+  const filteredCategories = REGISTRY_CATEGORIES.map((cat) => ({
+    ...cat,
+    entries: lowerQuery
+      ? cat.entries.filter((e) => e.label.toLowerCase().includes(lowerQuery))
+      : cat.entries,
+  })).filter((cat) => cat.entries.length > 0);
+
+  const hasNoResults = lowerQuery.length > 0 && filteredCategories.length === 0;
 
   return (
     <div
@@ -91,13 +97,13 @@ export function BlocksSideBar() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className={cn(
-                'w-full pl-7.5 pr-7 py-1.5 text-[12px] rounded-md',
+                'w-full py-1.5 text-[12px] rounded-md',
                 'bg-[var(--gray-3)] border border-[var(--gray-5)]',
                 'text-[var(--gray-12)] placeholder:text-[var(--gray-9)]',
                 'outline-none focus:border-[#f76808] focus:ring-1 focus:ring-[#f76808]/20',
                 'transition-colors',
               )}
-              style={{ paddingLeft: '1.875rem' }}
+              style={{ paddingLeft: '1.875rem', paddingRight: query ? '1.5rem' : '0.5rem' }}
             />
             {query && (
               <button
@@ -128,35 +134,20 @@ export function BlocksSideBar() {
 
         {/* ── Block categories ────────────────────────────── */}
         <div className="flex-1 overflow-y-auto py-2.5 px-2.5 space-y-1">
-          {Object.entries(BLOCK_CATEGORIES).map(([catKey, cat]) => {
-            const filtered = cat.types.filter((type) =>
-              !query.trim() ||
-              getBlockLabel(type).toLowerCase().includes(query.toLowerCase()),
-            );
-            if (filtered.length === 0) return null;
-
-            return (
-              <CategorySection
-                key={catKey}
-                catKey={catKey}
-                label={cat.label}
-                color={cat.color}
-                types={filtered as BlockType[]}
-                defaultOpen={true}
-                onDragStart={(type) => setDraggedBlockType(type)}
-                onDragEnd={() => setDraggedBlockType(undefined)}
-              />
-            );
-          })}
+          {filteredCategories.map((cat) => (
+            <CategorySection
+              key={cat.key}
+              label={cat.label}
+              color={cat.color}
+              entries={cat.entries}
+              defaultOpen={true}
+              onDragStart={(type) => setDraggedBlockType(type)}
+              onDragEnd={() => setDraggedBlockType(undefined)}
+            />
+          ))}
 
           {/* Empty state */}
-          {query.trim() &&
-            Object.values(BLOCK_CATEGORIES).every(
-              (cat) =>
-                !cat.types.some((type) =>
-                  getBlockLabel(type).toLowerCase().includes(query.toLowerCase()),
-                ),
-            ) && (
+          {hasNoResults && (
             <div className="flex flex-col items-center py-8 gap-2 text-[var(--gray-9)]">
               <LuSearch className="h-5 w-5 opacity-40" />
               <p className="text-[12px]">No blocks match &ldquo;{query}&rdquo;</p>
@@ -180,18 +171,16 @@ export function BlocksSideBar() {
 
 /* ── CategorySection ────────────────────────────────────── */
 function CategorySection({
-  catKey,
   label,
   color,
-  types,
+  entries,
   defaultOpen,
   onDragStart,
   onDragEnd,
 }: {
-  catKey: string;
   label: string;
   color: string;
-  types: BlockType[];
+  entries: BlockRegistryEntry[];
   defaultOpen: boolean;
   onDragStart: (type: BlockType) => void;
   onDragEnd: () => void;
@@ -213,7 +202,7 @@ function CategorySection({
           {label}
         </span>
         <span className="text-[10px] text-[var(--gray-8)] font-normal tabular-nums mr-0.5">
-          {types.length}
+          {entries.length}
         </span>
         <LuChevronDown
           className={cn(
@@ -227,10 +216,10 @@ function CategorySection({
       {/* Block grid */}
       {isExpanded && (
         <div className="grid grid-cols-2 gap-1.5 pt-1 pb-1.5 px-0.5">
-          {types.map((type) => (
+          {entries.map((entry) => (
             <BlockCard
-              key={type}
-              type={type}
+              key={entry.type}
+              entry={entry}
               onDragStart={onDragStart}
               onDragEnd={onDragEnd}
             />
@@ -243,24 +232,22 @@ function CategorySection({
 
 /* ── BlockCard ──────────────────────────────────────────── */
 function BlockCard({
-  type,
+  entry,
   onDragStart,
   onDragEnd,
 }: {
-  type: BlockType;
+  entry: BlockRegistryEntry;
   onDragStart: (type: BlockType) => void;
   onDragEnd: () => void;
 }) {
   const [isGrabbing, setIsGrabbing] = useState(false);
-  const Icon = getBlockIcon(type);
-  const label = getBlockLabel(type);
-  const color = getBlockColor(type);
+  const { type, label, icon: Icon, color, description } = entry;
 
   return (
     <div
       role="button"
       tabIndex={0}
-      draggable={false} // we handle drag via mousedown/up manually
+      draggable={false} // drag is handled via mousedown/up — Graph.tsx drops it
       onMouseDown={() => {
         setIsGrabbing(true);
         onDragStart(type);
@@ -270,11 +257,11 @@ function BlockCard({
         onDragEnd();
       }}
       onMouseLeave={() => {
-        // Don't end drag on mouse-leave — Graph.tsx handles the drop
-        // but do reset the visual grab state
+        // Do NOT end drag on mouse-leave — Graph.tsx handles the drop.
+        // Only reset the visual grab state.
         if (isGrabbing) setIsGrabbing(false);
       }}
-      title={label}
+      title={description}
       className={cn(
         'flex items-center gap-2.5 px-3 py-2.5 rounded-lg',
         'border border-[var(--gray-5)] bg-[var(--gray-2)]',
@@ -290,7 +277,7 @@ function BlockCard({
         className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md"
         style={{ backgroundColor: color + '20', color }}
       >
-        {Icon && <Icon className="h-3.5 w-3.5" />}
+        <Icon className="h-3.5 w-3.5" />
       </div>
 
       {/* Label */}

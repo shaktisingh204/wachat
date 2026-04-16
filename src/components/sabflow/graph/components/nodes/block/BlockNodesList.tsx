@@ -22,7 +22,7 @@ type Props = {
 
 export function BlockNodesList({ blocks, group, groupIndex, groupRef, edges, onBlocksChange }: Props) {
   const { draggedBlock, setDraggedBlock, draggedBlockType, setDraggedBlockType, mouseOverGroup } = useBlockDnd();
-  const { isReadOnly, setOpenedNodeId } = useGraph();
+  const { isReadOnly, setOpenedNodeId, graphPosition } = useGraph();
   const placeholderRefs = useRef<HTMLDivElement[]>([]);
   const [expandedPlaceholderIndex, setExpandedPlaceholderIndex] = useState<number | undefined>();
   const [overlayPos, setOverlayPos] = useState({ x: 0, y: 0 });
@@ -125,6 +125,11 @@ export function BlockNodesList({ blocks, group, groupIndex, groupRef, edges, onB
     edges.map((e) => e.to.blockId).filter(Boolean) as string[],
   );
 
+  // Determine which blocks already have an outgoing edge (for persistent source dot)
+  const blockIdsWithOutgoingEdge = new Set(
+    edges.map((e) => e.from.blockId).filter(Boolean) as string[],
+  );
+
   // Last block (or only block) gets a source endpoint
   const lastConnectableIndex = blocks.length - 1;
 
@@ -145,10 +150,20 @@ export function BlockNodesList({ blocks, group, groupIndex, groupRef, edges, onB
             groupIndex={groupIndex}
             isConnectable={index === lastConnectableIndex}
             hasIncomingEdge={blockIdsWithIncomingEdge.has(block.id)}
+            hasOutgoingEdge={blockIdsWithOutgoingEdge.has(block.id)}
             onMouseDown={!isReadOnly ? handleBlockMouseDown(index) : undefined}
             onBlockChange={(updatedBlock) => {
               const updated = blocks.map((b) => (b.id === updatedBlock.id ? updatedBlock : b));
               onBlocksChange(updated);
+            }}
+            onDuplicate={(targetBlock) => {
+              const newBlock: Block = { ...targetBlock, id: createId() };
+              const next = [...blocks];
+              next.splice(index + 1, 0, newBlock);
+              onBlocksChange(next);
+            }}
+            onDelete={(targetBlock) => {
+              onBlocksChange(blocks.filter((b) => b.id !== targetBlock.id));
             }}
           />
           {/* Placeholder after each block */}
@@ -166,15 +181,14 @@ export function BlockNodesList({ blocks, group, groupIndex, groupRef, edges, onB
         </div>
       )}
 
-      {/* Drag overlay portal */}
+      {/* Drag overlay portal — matches Typebot: fixed top-0 left-0, translated + rotated */}
       {draggedBlock?.groupId === groupId &&
         createPortal(
           <BlockNodeOverlay
             block={draggedBlock}
+            className="fixed top-0 left-0 origin-[0_0_0]"
             style={{
-              position: 'fixed',
-              left: overlayPos.x,
-              top: overlayPos.y,
+              transform: `translate(${overlayPos.x}px, ${overlayPos.y}px) rotate(-2deg) scale(${graphPosition.scale})`,
               zIndex: 9999,
             }}
           />,

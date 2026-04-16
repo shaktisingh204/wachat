@@ -1,7 +1,9 @@
 'use client';
 import {
   createContext,
+  useCallback,
   useContext,
+  useRef,
   useState,
   type Dispatch,
   type ReactNode,
@@ -27,6 +29,9 @@ interface GraphContextValue {
   canvasPosition: CanvasPosition;
   setCanvasPosition: Dispatch<SetStateAction<CanvasPosition>>;
   connectingIds: ConnectingIds | null;
+  /** Ref always holding the latest connectingIds — safe to read in window-level
+   *  event handlers and React callbacks without worrying about stale closures. */
+  connectingIdsRef: React.MutableRefObject<ConnectingIds | null>;
   setConnectingIds: Dispatch<SetStateAction<ConnectingIds | null>>;
   previewingEdge?: Edge;
   setPreviewingEdge: Dispatch<SetStateAction<Edge | undefined>>;
@@ -39,16 +44,18 @@ interface GraphContextValue {
 
 const defaultPos: GraphPosition = { x: 0, y: 0, scale: 1 };
 
+const noop = () => {};
 const GraphContext = createContext<GraphContextValue>({
   graphPosition: defaultPos,
-  setGraphPosition: () => {},
+  setGraphPosition: noop,
   canvasPosition: defaultPos,
-  setCanvasPosition: () => {},
+  setCanvasPosition: noop,
   connectingIds: null,
-  setConnectingIds: () => {},
-  setPreviewingEdge: () => {},
-  setPreviewingBlock: () => {},
-  setOpenedNodeId: () => {},
+  connectingIdsRef: { current: null },
+  setConnectingIds: noop,
+  setPreviewingEdge: noop,
+  setPreviewingBlock: noop,
+  setOpenedNodeId: noop,
   isReadOnly: false,
 });
 
@@ -61,7 +68,20 @@ export const GraphProvider = ({
 }) => {
   const [graphPosition, setGraphPosition] = useState<GraphPosition>(defaultPos);
   const [canvasPosition, setCanvasPosition] = useState<CanvasPosition>(defaultPos);
-  const [connectingIds, setConnectingIds] = useState<ConnectingIds | null>(null);
+
+  // connectingIdsRef is always in sync with connectingIds state.
+  // It updates synchronously on every setConnectingIds call, so window-level
+  // event handlers and useCallback closures always read the freshest value.
+  const connectingIdsRef = useRef<ConnectingIds | null>(null);
+  const [connectingIds, setConnectingIdsState] = useState<ConnectingIds | null>(null);
+  const setConnectingIds = useCallback<Dispatch<SetStateAction<ConnectingIds | null>>>((val) => {
+    setConnectingIdsState((prev) => {
+      const next = typeof val === 'function' ? val(prev) : val;
+      connectingIdsRef.current = next;
+      return next;
+    });
+  }, []);
+
   const [previewingEdge, setPreviewingEdge] = useState<Edge | undefined>();
   const [previewingBlock, setPreviewingBlock] = useState<PreviewingBlock | undefined>();
   const [openedNodeId, setOpenedNodeId] = useState<string | undefined>();
@@ -74,6 +94,7 @@ export const GraphProvider = ({
         canvasPosition,
         setCanvasPosition,
         connectingIds,
+        connectingIdsRef,
         setConnectingIds,
         previewingEdge,
         setPreviewingEdge,

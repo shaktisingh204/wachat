@@ -102,7 +102,9 @@ export function DrawingEdge({ connectingIds }: Props) {
       strokeWidth="2px"
       markerEnd="url(#orange-arrow)"
       fill="none"
-      className="stroke-[#f76808] pointer-events-none"
+      stroke="var(--orange-8)"
+      strokeDasharray="5,5"
+      pointerEvents="none"
     />
   );
 }

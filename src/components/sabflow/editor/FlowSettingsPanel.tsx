@@ -269,7 +269,7 @@ function ThemeTab({ flow, onUpdate }: Pick<Props, 'flow' | 'onUpdate'>) {
         label="Chat background"
         value={bgColor}
         onChange={(v) =>
-          setTheme({ general: { background: { type: 'color', content: v } } })
+          setTheme({ general: { background: { type: 'Color', content: v } } })
         }
       />
 

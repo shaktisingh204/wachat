@@ -94,7 +94,8 @@ export function StartNode({ event, onEventUpdate }: Props) {
         left: 0,
       }}
       className={cn(
-        'flex flex-col rounded-xl border select-none overflow-hidden',
+        'flex flex-col rounded-xl border select-none',
+        // NOTE: no overflow-hidden — the EventSourceEndpoint sits outside the right edge
         'transition-[border-color,box-shadow]',
         'hover:shadow-md',
         isFocused ? 'border-2 border-[#f76808]' : 'border border-[var(--gray-5)]',
@@ -106,9 +107,9 @@ export function StartNode({ event, onEventUpdate }: Props) {
         focusElement(event.id);
       }}
     >
-      {/* Orange gradient header */}
+      {/* Orange gradient header — rounded top corners only */}
       <div
-        className="flex items-center gap-2.5 px-3 py-2.5"
+        className="flex items-center gap-2.5 px-3 py-2.5 rounded-t-xl"
         style={{
           background: 'linear-gradient(135deg, #f76808 0%, #f7a035 100%)',
         }}
@@ -120,14 +121,14 @@ export function StartNode({ event, onEventUpdate }: Props) {
       </div>
 
       {/* Description row */}
-      <div className="flex items-center px-3 py-2 bg-[var(--gray-1)]">
+      <div className="flex items-center px-3 py-2 bg-[var(--gray-1)] rounded-b-xl">
         <span className="text-[12px] text-[var(--gray-10)]">Flow starts</span>
       </div>
 
-      {/* Source endpoint — right side, vertically centred on the card */}
+      {/* Source endpoint — floats outside the right edge, vertically centred */}
       <EventSourceEndpoint
         eventId={event.id}
-        className="absolute right-[-19px] bottom-[3px]"
+        className="absolute right-[-16px] top-1/2 -translate-y-1/2"
       />
     </div>
   );

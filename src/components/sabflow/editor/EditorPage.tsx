@@ -1,29 +1,29 @@
 'use client';
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
-import Link from 'next/link';
 import { GraphProvider, useGraph } from '@/components/sabflow/graph/providers/GraphProvider';
 import { GraphDndProvider } from '@/components/sabflow/graph/providers/GraphDndProvider';
 import { Graph } from '@/components/sabflow/graph/components/Graph';
 import { BlocksSideBar } from './BlocksSideBar';
 import { BlockCardOverlay } from './BlockCardOverlay';
-import { BlockPropertiesPanel } from '@/components/sabflow/blocks/panels/BlockPropertiesPanel';
+import { BlockSettingsPanel } from '@/components/sabflow/panels/BlockSettingsPanel';
 import { FlowSettingsPanel } from './FlowSettingsPanel';
 import { FlowPreviewPanel } from './FlowPreviewPanel';
-import { VariablesPanel } from '@/components/sabflow/variables/VariablesPanel';
+import { VariablesPanel } from '@/components/sabflow/panels/VariablesPanel';
+import { ThemePanel } from '@/components/sabflow/panels/ThemePanel';
+import { FlowEditorHeader } from './FlowEditorHeader';
 import { saveSabFlow } from '@/app/actions/sabflow';
 import type { SabFlowDoc } from '@/lib/sabflow/types';
 import { cn } from '@/lib/utils';
 import {
-  LuArrowLeft,
-  LuSave,
-  LuCheck,
-  LuLoader,
-  LuCircleDot,
-  LuCircleOff,
   LuSettings,
   LuPlay,
   LuVariable,
+  LuPalette,
 } from 'react-icons/lu';
+
+/* ── Constants ───────────────────────────────────────────────────────────── */
+
+const MAX_HISTORY = 50;
 
 /* ── Types ───────────────────────────────────────────────────────────────── */
 
@@ -31,7 +31,7 @@ type Props = {
   flow: SabFlowDoc & { _id: string };
 };
 
-type RightPanel = 'block' | 'settings' | 'preview' | 'variables' | null;
+type RightPanel = 'settings' | 'preview' | 'variables' | 'theme' | null;
 
 /* ── EditorContent (must be inside GraphProvider) ────────────────────────── */
 
@@ -42,18 +42,49 @@ function EditorContent({ flow: initialFlow }: Props) {
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [activePanel, setActivePanel] = useState<RightPanel>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const { openedNodeId, setOpenedNodeId } = useGraph();
+  const { setOpenedNodeId } = useGraph();
 
-  // When a block is opened, switch the right rail to the block panel
-  useEffect(() => {
-    if (openedNodeId) setActivePanel('block');
-  }, [openedNodeId]);
+  /* ── Undo / Redo history ─────────────────────────────────────────────── */
 
-  // Toggle a toolbar panel; opening one closes others
-  const togglePanel = useCallback((panel: Exclude<RightPanel, 'block' | null>) => {
+  // history[historyIndex] is always the current state.
+  // Anything after historyIndex has been undone and can be redone.
+  const [history, setHistory] = useState<Array<SabFlowDoc & { _id: string }>>([initialFlow]);
+  const [historyIndex, setHistoryIndex] = useState(0);
+
+  const canUndo = historyIndex > 0;
+  const canRedo = historyIndex < history.length - 1;
+
+  /** Push a new snapshot onto the history stack (trim future, cap at MAX_HISTORY). */
+  const pushHistory = useCallback(
+    (snapshot: SabFlowDoc & { _id: string }) => {
+      setHistory((prev) => {
+        const trunk = prev.slice(0, historyIndex + 1);
+        const next = [...trunk, snapshot];
+        return next.length > MAX_HISTORY ? next.slice(next.length - MAX_HISTORY) : next;
+      });
+      setHistoryIndex((prev) => Math.min(prev + 1, MAX_HISTORY - 1));
+    },
+    [historyIndex],
+  );
+
+  const undo = useCallback(() => {
+    if (!canUndo) return;
+    const newIndex = historyIndex - 1;
+    setHistoryIndex(newIndex);
+    setFlow(history[newIndex]);
+  }, [canUndo, historyIndex, history]);
+
+  const redo = useCallback(() => {
+    if (!canRedo) return;
+    const newIndex = historyIndex + 1;
+    setHistoryIndex(newIndex);
+    setFlow(history[newIndex]);
+  }, [canRedo, historyIndex, history]);
+
+  // When a toolbar panel is opened, close any open block node
+  const togglePanel = useCallback((panel: Exclude<RightPanel, null>) => {
     setActivePanel((prev) => {
       if (prev === panel) return null;
-      // Close any open block
       setOpenedNodeId(undefined);
       return panel;
     });
@@ -63,10 +94,24 @@ function EditorContent({ flow: initialFlow }: Props) {
 
   const handleFlowChange = useCallback(
     (changes: Partial<Pick<SabFlowDoc, 'groups' | 'edges' | 'events'>>) => {
-      setFlow((prev) => ({ ...prev, ...changes }));
+      setFlow((prev) => {
+        const next = { ...prev, ...changes };
+        pushHistory(next);
+        return next;
+      });
     },
-    [],
+    [pushHistory],
   );
+
+  /* ── Name change (from header) ───────────────────────────────────────── */
+
+  const handleNameChange = useCallback((name: string) => {
+    setFlow((prev) => {
+      const next = { ...prev, name };
+      pushHistory(next);
+      return next;
+    });
+  }, [pushHistory]);
 
   /* ── Save ────────────────────────────────────────────────────────────── */
 
@@ -96,33 +141,44 @@ function EditorContent({ flow: initialFlow }: Props) {
     [flow],
   );
 
-  /* ── Keyboard shortcut: Cmd/Ctrl + S ─────────────────────────────────── */
+  /* ── Keyboard shortcuts ──────────────────────────────────────────────── */
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+      const meta = e.metaKey || e.ctrlKey;
+
+      // Cmd+S — save
+      if (meta && e.key === 's' && !e.shiftKey) {
         e.preventDefault();
         save();
+        return;
+      }
+
+      // Cmd+Shift+Z — redo (must come before plain Cmd+Z)
+      if (meta && e.key === 'z' && e.shiftKey) {
+        e.preventDefault();
+        redo();
+        return;
+      }
+
+      // Cmd+Z — undo
+      if (meta && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        undo();
+        return;
       }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [save]);
+  }, [save, undo, redo]);
 
   /* ── Publish toggle ───────────────────────────────────────────────────── */
 
-  const handlePublishToggle = () => {
+  const handlePublishToggle = useCallback(() => {
     const newStatus = flow.status === 'PUBLISHED' ? 'DRAFT' : 'PUBLISHED';
     setFlow((prev) => ({ ...prev, status: newStatus }));
     save({ status: newStatus });
-  };
-
-  /* ── Block currently open in properties panel ────────────────────────── */
-
-  const openedBlock =
-    activePanel === 'block' && openedNodeId
-      ? flow.groups.flatMap((g) => g.blocks).find((b) => b.id === openedNodeId)
-      : null;
+  }, [flow.status, save]);
 
   /* ── Render ──────────────────────────────────────────────────────────── */
 
@@ -132,107 +188,59 @@ function EditorContent({ flow: initialFlow }: Props) {
       className="flex flex-col h-screen w-full overflow-clip bg-[var(--gray-2)]"
     >
       {/* ── Header ────────────────────────────────────────────────────── */}
-      <header className="flex h-14 shrink-0 items-center gap-3 border-b border-[var(--gray-5)] bg-[var(--gray-1)] px-4 z-30">
-
-        {/* Back */}
-        <Link
-          href="/dashboard/sabflow/flow-builder"
-          className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] transition-colors"
-          title="Back to flows"
-        >
-          <LuArrowLeft className="h-4 w-4" strokeWidth={2} />
-        </Link>
-
-        <div className="h-5 w-px bg-[var(--gray-5)]" />
-
-        {/* Editable flow name */}
-        <input
-          type="text"
-          value={flow.name}
-          onChange={(e) => setFlow((prev) => ({ ...prev, name: e.target.value }))}
-          onBlur={() => save()}
-          className="text-[14px] font-semibold text-[var(--gray-12)] bg-transparent border-none outline-none focus:ring-0 min-w-0 w-[200px] truncate hover:bg-[var(--gray-3)] focus:bg-[var(--gray-3)] rounded px-1 -ml-1 transition-colors"
-          aria-label="Flow name"
-        />
-
-        <div className="flex-1" />
-
-        {/* Save status */}
-        {saveError ? (
-          <span className="text-[11.5px] text-red-500 flex items-center gap-1.5 max-w-[180px] truncate">
-            {saveError}
-          </span>
-        ) : lastSaved ? (
-          <span className="text-[11.5px] text-[var(--gray-9)] flex items-center gap-1.5">
-            <LuCheck className="h-3.5 w-3.5 text-green-500 shrink-0" strokeWidth={2.5} />
-            Saved
-          </span>
-        ) : null}
-
-        {/* Save button */}
-        <button
-          onClick={() => save()}
-          disabled={isSaving}
-          title="Save (Cmd+S)"
-          className={cn(
-            'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12.5px] font-medium transition-colors',
-            isSaving
-              ? 'bg-[var(--gray-4)] text-[var(--gray-9)] cursor-wait'
-              : 'bg-amber-500 text-white hover:bg-amber-600',
-          )}
-        >
-          {isSaving ? (
-            <LuLoader className="h-3.5 w-3.5 animate-spin" strokeWidth={2} />
-          ) : (
-            <LuSave className="h-3.5 w-3.5" strokeWidth={2} />
-          )}
-          {isSaving ? 'Saving…' : 'Save'}
-        </button>
-
-        {/* Publish toggle */}
-        <button
-          onClick={handlePublishToggle}
-          disabled={isSaving}
-          className={cn(
-            'flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[12.5px] font-medium transition-colors',
-            flow.status === 'PUBLISHED'
-              ? 'border-green-300 bg-green-50 text-green-700 hover:bg-green-100 dark:border-green-800 dark:bg-green-950/40 dark:text-green-400 dark:hover:bg-green-950/60'
-              : 'border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-11)] hover:bg-[var(--gray-3)]',
-          )}
-        >
-          {flow.status === 'PUBLISHED' ? (
-            <>
-              <LuCircleDot className="h-3.5 w-3.5" strokeWidth={2} />
-              Published
-            </>
-          ) : (
-            <>
-              <LuCircleOff className="h-3.5 w-3.5" strokeWidth={2} />
-              Publish
-            </>
-          )}
-        </button>
-
-        <div className="h-5 w-px bg-[var(--gray-5)]" />
+      <FlowEditorHeader
+        flow={flow}
+        canUndo={canUndo}
+        canRedo={canRedo}
+        isSaving={isSaving}
+        saveError={saveError}
+        lastSaved={lastSaved}
+        onUndo={undo}
+        onRedo={redo}
+        onSave={save}
+        onPublishToggle={handlePublishToggle}
+        onNameChange={handleNameChange}
+      >
+        {/* Panel toggle buttons rendered after the divider in the header */}
 
         {/* Variables panel toggle */}
         <button
+          type="button"
           onClick={() => togglePanel('variables')}
           title="Variables"
+          aria-label="Toggle variables panel"
           className={cn(
             'flex h-8 w-8 items-center justify-center rounded-lg transition-colors',
             activePanel === 'variables'
-              ? 'bg-violet-50 text-violet-600 dark:bg-violet-950/40 dark:text-violet-400'
+              ? 'bg-orange-50 text-[#f76808] dark:bg-orange-950/40'
               : 'text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
           )}
         >
           <LuVariable className="h-4 w-4" strokeWidth={1.8} />
         </button>
 
+        {/* Theme panel toggle */}
+        <button
+          type="button"
+          onClick={() => togglePanel('theme')}
+          title="Theme"
+          aria-label="Toggle theme panel"
+          className={cn(
+            'flex h-8 w-8 items-center justify-center rounded-lg transition-colors',
+            activePanel === 'theme'
+              ? 'bg-orange-50 text-[#f76808] dark:bg-orange-950/40 dark:text-orange-400'
+              : 'text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
+          )}
+        >
+          <LuPalette className="h-4 w-4" strokeWidth={1.8} />
+        </button>
+
         {/* Preview panel toggle */}
         <button
+          type="button"
           onClick={() => togglePanel('preview')}
           title="Preview"
+          aria-label="Toggle preview panel"
           className={cn(
             'flex h-8 w-8 items-center justify-center rounded-lg transition-colors',
             activePanel === 'preview'
@@ -245,8 +253,10 @@ function EditorContent({ flow: initialFlow }: Props) {
 
         {/* Settings panel toggle */}
         <button
+          type="button"
           onClick={() => togglePanel('settings')}
           title="Flow settings"
+          aria-label="Toggle settings panel"
           className={cn(
             'flex h-8 w-8 items-center justify-center rounded-lg transition-colors',
             activePanel === 'settings'
@@ -256,7 +266,7 @@ function EditorContent({ flow: initialFlow }: Props) {
         >
           <LuSettings className="h-4 w-4" strokeWidth={1.8} />
         </button>
-      </header>
+      </FlowEditorHeader>
 
       {/* ── Main area ─────────────────────────────────────────────────── */}
       <div className="flex flex-1 min-h-0 relative overflow-clip">
@@ -273,33 +283,29 @@ function EditorContent({ flow: initialFlow }: Props) {
 
         {/* Right rail: one panel at a time */}
 
-        {/* Block properties */}
-        {activePanel === 'block' && openedBlock && (
-          <BlockPropertiesPanel
-            block={openedBlock}
-            variables={flow.variables}
-            onUpdate={(changes) => {
-              setFlow((prev) => ({
-                ...prev,
-                groups: prev.groups.map((g) => ({
-                  ...g,
-                  blocks: g.blocks.map((b) =>
-                    b.id === openedBlock.id ? { ...b, ...changes } : b,
-                  ),
-                })),
-              }));
-            }}
-          />
-        )}
+        {/* Block settings panel — slides in from the right when a block node is clicked */}
+        <BlockSettingsPanel
+          flow={flow}
+          onFlowChange={handleFlowChange}
+        />
 
         {/* Variables panel */}
         {activePanel === 'variables' && (
           <div className="w-[300px] shrink-0 border-l border-[var(--gray-5)] bg-[var(--gray-1)] z-20 overflow-hidden flex flex-col">
             <VariablesPanel
               variables={flow.variables}
-              onUpdate={(variables) => setFlow((prev) => ({ ...prev, variables }))}
+              onVariablesChange={(variables) => setFlow((prev) => ({ ...prev, variables }))}
             />
           </div>
+        )}
+
+        {/* Theme panel */}
+        {activePanel === 'theme' && (
+          <ThemePanel
+            theme={flow.theme}
+            onThemeChange={(theme) => setFlow((prev) => ({ ...prev, theme }))}
+            onClose={() => setActivePanel(null)}
+          />
         )}
 
         {/* Flow settings */}
