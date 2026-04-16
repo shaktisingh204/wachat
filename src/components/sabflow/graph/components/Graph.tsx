@@ -1,14 +1,14 @@
 'use client';
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useCallback, useEffect } from 'react';
 import { useGesture } from '@use-gesture/react';
 import { useGraph } from '../providers/GraphProvider';
 import { useSelectionStore } from '../hooks/useSelectionStore';
 import { useBlockDnd } from '../providers/GraphDndProvider';
 import { createId } from '@paralleldrive/cuid2';
-import { SelectBox, computeSelectBoxDimensions } from './SelectBox';
 import GraphElements from './GraphElements';
 import type { SabFlowDoc, Group, Coordinates } from '@/lib/sabflow/types';
 import { cn } from '@/lib/utils';
+import { useShallow } from 'zustand/react/shallow';
 
 const maxScale = 2;
 const minScale = 0.2;
@@ -27,14 +27,24 @@ export function Graph({ flow, onFlowChange, containerRef }: Props) {
   const isDraggingGraph = useSelectionStore((s) => s.isDraggingGraph);
   const setIsDraggingGraph = useSelectionStore((s) => s.setIsDraggingGraph);
   const blurElements = useSelectionStore((s) => s.blurElements);
+  const { setElementsCoordinates, updateElementCoordinates } = useSelectionStore(
+    useShallow((s) => ({
+      setElementsCoordinates: s.setElementsCoordinates,
+      updateElementCoordinates: s.updateElementCoordinates,
+    })),
+  );
 
   const canvasRef = useRef<HTMLDivElement>(null);
-  const [selectBoxStart, setSelectBoxStart] = useState<Coordinates | null>(null);
-  const [selectBoxEnd, setSelectBoxEnd] = useState<Coordinates | null>(null);
-  // Track whether current drag started on a group (so we skip canvas pan)
-  const isDragFromGroup = useRef(false);
 
-  /* project screen coords to canvas coords */
+  // ── Seed all group coordinates once on mount (Typebot pattern) ───────────
+  useEffect(() => {
+    const coords: Record<string, Coordinates> = {};
+    flow.groups.forEach((g) => { coords[g.id] = g.graphCoordinates; });
+    setElementsCoordinates(coords);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /* Project screen coords → canvas coords */
   const projectMouse = useCallback((clientX: number, clientY: number) => {
     if (!canvasRef.current) return { x: 0, y: 0 };
     const rect = canvasRef.current.getBoundingClientRect();
@@ -57,10 +67,11 @@ export function Graph({ flow, onFlowChange, containerRef }: Props) {
       const pos = projectMouse(e.clientX, e.clientY);
       const newGroupId = createId();
       const newBlockId = createId();
+      const coords = { x: pos.x - 150, y: pos.y - 30 };
       const newGroup: Group = {
         id: newGroupId,
         title: 'Group',
-        graphCoordinates: { x: pos.x - 150, y: pos.y - 30 },
+        graphCoordinates: coords,
         blocks: [{
           id: newBlockId,
           type: draggedBlockType,
@@ -68,31 +79,21 @@ export function Graph({ flow, onFlowChange, containerRef }: Props) {
           options: {},
         }],
       };
+      updateElementCoordinates(newGroupId, coords);
       onFlowChange({ groups: [...flow.groups, newGroup] });
       setDraggedBlockType(undefined);
     }
-  }, [draggedBlockType, projectMouse, flow.groups, onFlowChange, setDraggedBlockType]);
+  }, [draggedBlockType, projectMouse, flow.groups, onFlowChange, setDraggedBlockType, updateElementCoordinates]);
 
-  /* Gesture binding for canvas pan + zoom */
+  /* Canvas pan + zoom gestures.
+   * Groups stop event propagation on pointerdown (no filterTaps), so this
+   * handler only fires when the user drags directly on the canvas background.
+   */
   useGesture(
     {
-      onDrag: ({ delta: [dx, dy], event, first, last }) => {
-        if (first) {
-          // Only pan if the drag started on the canvas background, not on a group/block
-          const target = event.target as HTMLElement;
-          const onGroup =
-            !!target.closest('[data-selectable]') ||
-            !!target.closest('[data-block-id]') ||
-            !!target.closest('[data-no-canvas-drag]');
-          isDragFromGroup.current = onGroup;
-          if (!onGroup) setIsDraggingGraph(true);
-        }
-        if (isDragFromGroup.current) return;
-        if (last) {
-          setIsDraggingGraph(false);
-          isDragFromGroup.current = false;
-          return;
-        }
+      onDrag: ({ delta: [dx, dy], first, last }) => {
+        if (first) setIsDraggingGraph(true);
+        if (last) { setIsDraggingGraph(false); return; }
         setGraphPosition((pos) => ({ ...pos, x: pos.x + dx, y: pos.y + dy }));
       },
       onWheel: ({ delta: [, dy], event }) => {
@@ -121,7 +122,7 @@ export function Graph({ flow, onFlowChange, containerRef }: Props) {
     },
     {
       target: canvasRef,
-      drag: { filterTaps: true, pointer: { keys: false } },
+      drag: { pointer: { keys: false } },
       wheel: { eventOptions: { passive: false } },
       pinch: { scaleBounds: { min: minScale, max: maxScale } },
     },
@@ -140,30 +141,32 @@ export function Graph({ flow, onFlowChange, containerRef }: Props) {
     <div
       ref={canvasRef}
       className={cn(
-        'relative flex-1 overflow-hidden sabflow-canvas-bg',
+        'relative flex-1 overflow-hidden',
         draggedBlockType
           ? 'cursor-crosshair'
           : isDraggingGraph
           ? 'cursor-grabbing'
           : 'cursor-default',
       )}
-      style={{ backgroundColor: 'var(--gray-3)' }}
+      style={{
+        touchAction: 'none',
+        backgroundColor: 'var(--gray-3)',
+        backgroundImage: 'radial-gradient(var(--gray-7) 1px, transparent 0)',
+        backgroundSize: '40px 40px',
+        backgroundPosition: '-19px -19px',
+      }}
       onMouseUp={handleMouseUp}
       onClick={(e) => {
         if (e.target === canvasRef.current) blurElements();
       }}
     >
-      {/* Transformed canvas layer — large fixed size so absolute groups render correctly */}
+      {/* Transformed canvas layer — Typebot pattern: fills viewport, groups are absolute within */}
       <div
+        className="flex flex-1 w-full h-full absolute will-change-transform"
         style={{
           transform: `translate(${graphPosition.x}px, ${graphPosition.y}px) scale(${graphPosition.scale})`,
           transformOrigin: '0 0',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '5000px',
-          height: '5000px',
-          willChange: 'transform',
+          perspective: 1000,
         }}
       >
         <GraphElements
@@ -171,11 +174,6 @@ export function Graph({ flow, onFlowChange, containerRef }: Props) {
           onGroupUpdate={handleGroupUpdate}
         />
       </div>
-
-      {/* Rubber-band select box */}
-      {selectBoxStart && selectBoxEnd && (
-        <SelectBox dimensions={computeSelectBoxDimensions(selectBoxStart, selectBoxEnd)} />
-      )}
 
       {/* Zoom controls */}
       <div className="absolute top-4 right-4 flex items-stretch gap-1 rounded-lg border border-[var(--gray-5)] bg-[var(--gray-1)] p-1.5 shadow-sm z-10">

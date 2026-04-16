@@ -2,27 +2,28 @@ import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import type { Coordinates } from '@/lib/sabflow/types';
 
-type ElementsCoordinates = Record<string, Coordinates>;
+type CoordinatesMap = Record<string, Coordinates>;
 
 interface SelectionState {
   focusedElementsId: string[];
-  elementsCoordinates: ElementsCoordinates | null;
+  elementsCoordinates: CoordinatesMap | undefined;
   isDraggingGraph: boolean;
 
   setIsDraggingGraph: (val: boolean) => void;
   focusElement: (id: string, addToSelection?: boolean) => void;
+  /** Clears selection but keeps coordinates intact (Typebot pattern) */
   blurElements: () => void;
   setFocusedElements: (ids: string[]) => void;
-  setElementsCoordinates: (coords: ElementsCoordinates) => void;
+  setElementsCoordinates: (coords: CoordinatesMap) => void;
   updateElementCoordinates: (id: string, coords: Coordinates) => void;
   moveFocusedElements: (delta: Coordinates) => void;
-  getElementsCoordinates: () => ElementsCoordinates | null;
+  getElementsCoordinates: () => CoordinatesMap | undefined;
 }
 
 export const useSelectionStore = create<SelectionState>()(
   immer((set, get) => ({
     focusedElementsId: [],
-    elementsCoordinates: null,
+    elementsCoordinates: undefined,
     isDraggingGraph: false,
 
     setIsDraggingGraph: (val) => set((s) => { s.isDraggingGraph = val; }),
@@ -36,11 +37,13 @@ export const useSelectionStore = create<SelectionState>()(
         }
       }),
 
-    blurElements: () => set((s) => { s.focusedElementsId = []; s.elementsCoordinates = null; }),
+    // Only clears selection — does NOT null coordinates so subsequent drags work
+    blurElements: () => set((s) => { s.focusedElementsId = []; }),
 
     setFocusedElements: (ids) => set((s) => { s.focusedElementsId = ids; }),
 
-    setElementsCoordinates: (coords) => set((s) => { s.elementsCoordinates = coords; }),
+    setElementsCoordinates: (coords) =>
+      set((s) => { s.elementsCoordinates = coords; }),
 
     updateElementCoordinates: (id, coords) =>
       set((s) => {
@@ -52,10 +55,12 @@ export const useSelectionStore = create<SelectionState>()(
       set((s) => {
         if (!s.elementsCoordinates) return;
         s.focusedElementsId.forEach((id) => {
-          if (s.elementsCoordinates![id]) {
-            s.elementsCoordinates![id].x += delta.x;
-            s.elementsCoordinates![id].y += delta.y;
-          }
+          const c = s.elementsCoordinates![id];
+          if (!c) return;
+          s.elementsCoordinates![id] = {
+            x: Number((c.x + delta.x).toFixed(2)),
+            y: Number((c.y + delta.y).toFixed(2)),
+          };
         });
       }),
 

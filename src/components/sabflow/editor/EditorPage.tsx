@@ -15,7 +15,6 @@ import {
   LuArrowLeft,
   LuSave,
   LuPlay,
-  LuSettings2,
   LuCheck,
   LuLoader,
 } from 'react-icons/lu';
@@ -40,13 +39,6 @@ function EditorContent({ flow: initialFlow }: Props) {
     [],
   );
 
-  const handleGroupUpdate = useCallback((id: string, changes: Partial<Group>) => {
-    setFlow((prev) => ({
-      ...prev,
-      groups: prev.groups.map((g) => (g.id === id ? { ...g, ...changes } : g)),
-    }));
-  }, []);
-
   const handleSave = () => {
     startSaving(async () => {
       await saveSabFlow(flow._id, {
@@ -65,7 +57,9 @@ function EditorContent({ flow: initialFlow }: Props) {
     : null;
 
   return (
-    <div ref={containerRef} className="flex flex-col h-full overflow-hidden bg-[var(--gray-2)]">
+    // h-screen ensures the editor always fills the full viewport height
+    // regardless of what ancestor containers Clay wraps around it.
+    <div ref={containerRef} className="flex flex-col h-screen overflow-clip bg-[var(--gray-2)]">
       {/* ── Header ─────────────────────────────────────────────── */}
       <header className="flex h-14 shrink-0 items-center gap-3 border-b border-[var(--gray-5)] bg-[var(--gray-1)] px-4 z-30">
         <Link
@@ -136,7 +130,7 @@ function EditorContent({ flow: initialFlow }: Props) {
       </header>
 
       {/* ── Main area ──────────────────────────────────────────── */}
-      <div className="flex flex-1 relative overflow-hidden">
+      <div className="flex flex-1 min-h-0 relative overflow-clip">
         {/* Left sidebar (block palette) */}
         <BlocksSideBar />
 
