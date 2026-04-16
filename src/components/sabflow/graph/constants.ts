@@ -2,6 +2,7 @@ import type { Coordinates, GraphPosition } from '@/lib/sabflow/types';
 
 export const stubLength = 20;
 export const groupWidth = 300;
+export const eventWidth = 230;
 export const pathRadius = 20;
 export const endpointSourceHeight = 32;
 export const endpointTargetHeight = 20;

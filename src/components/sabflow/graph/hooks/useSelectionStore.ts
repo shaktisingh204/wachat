@@ -1,12 +1,13 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
-import type { Coordinates } from '@/lib/sabflow/types';
+import type { Coordinates, Group, Edge } from '@/lib/sabflow/types';
 
 type CoordinatesMap = Record<string, Coordinates>;
 
 interface SelectionState {
   focusedElementsId: string[];
   elementsCoordinates: CoordinatesMap | undefined;
+  elementsInClipboard: { groups: Group[]; edges: Edge[] } | undefined;
   isDraggingGraph: boolean;
 
   setIsDraggingGraph: (val: boolean) => void;
@@ -18,12 +19,14 @@ interface SelectionState {
   updateElementCoordinates: (id: string, coords: Coordinates) => void;
   moveFocusedElements: (delta: Coordinates) => void;
   getElementsCoordinates: () => CoordinatesMap | undefined;
+  copyElements: (args: { groups: Group[]; edges: Edge[] }) => void;
 }
 
 export const useSelectionStore = create<SelectionState>()(
   immer((set, get) => ({
     focusedElementsId: [],
     elementsCoordinates: undefined,
+    elementsInClipboard: undefined,
     isDraggingGraph: false,
 
     setIsDraggingGraph: (val) =>
@@ -77,5 +80,10 @@ export const useSelectionStore = create<SelectionState>()(
       }),
 
     getElementsCoordinates: () => get().elementsCoordinates,
+
+    copyElements: (args) =>
+      set((s) => {
+        s.elementsInClipboard = args;
+      }),
   })),
 );

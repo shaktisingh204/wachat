@@ -5,7 +5,7 @@ import { useEndpoints } from '../../providers/EndpointsProvider';
 import { useSelectionStore } from '../../hooks/useSelectionStore';
 import { computeConnectingEdgePath } from '../../helpers/computeConnectingEdgePath';
 import { computeEdgePathToMouse } from '../../helpers/computeEdgePathToMouse';
-import { groupWidth } from '../../constants';
+import { groupWidth, eventWidth } from '../../constants';
 import type { ConnectingIds, Coordinates } from '@/lib/sabflow/types';
 
 type Props = {
@@ -21,20 +21,28 @@ export function DrawingEdge({ connectingIds }: Props) {
   const elementsCoordinates = useSelectionStore.getState().elementsCoordinates;
   const [mousePosition, setMousePosition] = useState<Coordinates | null>(null);
 
-  const sourceGroupCoordinates = elementsCoordinates?.[connectingIds.source.groupId];
+  // For event-sourced edges, the coordinate key is the eventId; for block/group edges, it's groupId
+  const sourceCoordKey = connectingIds.source.eventId ?? connectingIds.source.groupId;
+  const sourceGroupCoordinates = sourceCoordKey ? elementsCoordinates?.[sourceCoordKey] : undefined;
   const targetGroupCoordinates = connectingIds.target?.groupId
     ? elementsCoordinates?.[connectingIds.target.groupId]
     : undefined;
 
   const sourceTop = useMemo(() => {
-    const endpointId = connectingIds.source.blockId ?? connectingIds.source.groupId;
-    return sourceEndpointYOffsets.get(endpointId)?.y;
+    // For event sources, the endpoint is registered under eventId; for block/group, under blockId or groupId
+    const endpointId =
+      connectingIds.source.eventId ??
+      connectingIds.source.blockId ??
+      connectingIds.source.groupId;
+    return endpointId ? sourceEndpointYOffsets.get(endpointId)?.y : undefined;
   }, [connectingIds.source, sourceEndpointYOffsets]);
 
   const targetTop = useMemo(() => {
     const endpointId = connectingIds.target?.blockId;
     return endpointId ? targetEndpointYOffsets.get(endpointId)?.y : undefined;
   }, [connectingIds.target, targetEndpointYOffsets]);
+
+  const sourceElementWidth = connectingIds.source.eventId ? eventWidth : groupWidth;
 
   const path = useMemo(() => {
     if (!sourceTop || !sourceGroupCoordinates || !mousePosition) return '';
@@ -43,7 +51,7 @@ export function DrawingEdge({ connectingIds }: Props) {
       return computeConnectingEdgePath({
         sourceGroupCoordinates,
         targetGroupCoordinates,
-        elementWidth: groupWidth,
+        elementWidth: sourceElementWidth,
         sourceTop,
         targetTop,
         graphScale: graphPosition.scale,
@@ -54,7 +62,7 @@ export function DrawingEdge({ connectingIds }: Props) {
       sourceGroupCoordinates,
       mousePosition,
       sourceTop,
-      elementWidth: groupWidth,
+      elementWidth: sourceElementWidth,
     });
   }, [
     sourceTop,
@@ -63,6 +71,7 @@ export function DrawingEdge({ connectingIds }: Props) {
     targetGroupCoordinates,
     targetTop,
     graphPosition.scale,
+    sourceElementWidth,
   ]);
 
   useEffect(() => {

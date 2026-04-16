@@ -146,6 +146,10 @@ export function BlockNodesList({ blocks, group, groupIndex, groupRef, edges, onB
             isConnectable={index === lastConnectableIndex}
             hasIncomingEdge={blockIdsWithIncomingEdge.has(block.id)}
             onMouseDown={!isReadOnly ? handleBlockMouseDown(index) : undefined}
+            onBlockChange={(updatedBlock) => {
+              const updated = blocks.map((b) => (b.id === updatedBlock.id ? updatedBlock : b));
+              onBlocksChange(updated);
+            }}
           />
           {/* Placeholder after each block */}
           <PlaceholderNode

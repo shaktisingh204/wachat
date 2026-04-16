@@ -8,6 +8,8 @@ import { useBlockDnd } from '../../../providers/GraphDndProvider';
 import { useSelectionStore } from '../../../hooks/useSelectionStore';
 import { BlockNodesList } from '../block/BlockNodesList';
 import { cn } from '@/lib/utils';
+import { GroupFocusToolbar } from './GroupFocusToolbar';
+import { GroupNodeContextMenu } from './GroupNodeContextMenu';
 
 const GROUP_WIDTH = 300;
 
@@ -17,6 +19,7 @@ type Props = {
   edges: Edge[];
   onGroupUpdate?: (id: string, changes: Partial<Group>) => void;
   onGroupBlocksChange?: (groupId: string, blocks: Group['blocks']) => void;
+  onPlayClick?: () => void;
 };
 
 export function GroupNode({
@@ -25,6 +28,7 @@ export function GroupNode({
   edges,
   onGroupUpdate,
   onGroupBlocksChange,
+  onPlayClick = () => {},
 }: Props) {
   const { connectingIds, setConnectingIds, isReadOnly, graphPosition } = useGraph();
   const { setMouseOverGroup, mouseOverGroup } = useBlockDnd();
@@ -32,6 +36,7 @@ export function GroupNode({
   const [title, setTitle] = useState(group.title);
   const [editingTitle, setEditingTitle] = useState(false);
   const [isMouseDown, setIsMouseDown] = useState(false);
+  const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number } | null>(null);
 
   const groupRef = useRef<HTMLDivElement | null>(null);
 
@@ -121,7 +126,10 @@ export function GroupNode({
     },
   );
 
+  const isSingleFocus = isFocused && focusedGroups.length === 1;
+
   return (
+    <>
     <div
       ref={groupRef}
       id={`group-${group.id}`}
@@ -156,6 +164,12 @@ export function GroupNode({
         if (isReadOnly) return;
         setMouseOverGroup(undefined);
         if (connectingIds) setConnectingIds({ ...connectingIds, target: undefined });
+      }}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        focusElement(group.id);
+        setContextMenuPos({ x: e.clientX, y: e.clientY });
       }}
     >
       {/* ── Title bar ───────────────────────────────────────── */}
@@ -221,6 +235,26 @@ export function GroupNode({
           )}
         />
       </div>
+
+      {/* ── Focus toolbar (shows above group when single focused) ── */}
+      {isSingleFocus && (
+        <GroupFocusToolbar
+          groupId={group.id}
+          isSingleFocus={isSingleFocus}
+          onPlayClick={onPlayClick}
+          className="absolute top-[-44px] right-0"
+        />
+      )}
     </div>
+
+    {/* ── Right-click context menu (screen-coord positioned) ── */}
+    {contextMenuPos && (
+      <GroupNodeContextMenu
+        groupId={group.id}
+        position={contextMenuPos}
+        onClose={() => setContextMenuPos(null)}
+      />
+    )}
+    </>
   );
 }

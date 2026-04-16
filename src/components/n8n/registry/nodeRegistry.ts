@@ -286,7 +286,7 @@ export const NODE_REGISTRY: Record<string, NodeMeta> = {
   code: {
     label:       'Code',
     description: 'Run a custom JavaScript function to transform item data.',
-    icon:        LuCode2,
+    icon:        LuCode,
     color:       '#6366f1',
     category:    'transform',
     inputs:      1,
@@ -298,7 +298,7 @@ export const NODE_REGISTRY: Record<string, NodeMeta> = {
   split_out: {
     label:       'Split Out',
     description: 'Split an array field into individual items, one per array element.',
-    icon:        LuSplitSquareHorizontal,
+    icon:        LuLayoutPanelLeft,
     color:       '#a855f7',
     category:    'transform',
     inputs:      1,

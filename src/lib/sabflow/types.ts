@@ -6,11 +6,9 @@ export type GraphPosition = Coordinates & { scale: number };
 
 /* ── Connecting IDs (edge dragging) ───────────────────── */
 export type ConnectingIds = {
-  source: {
-    groupId: string;
-    blockId?: string;
-    itemId?: string;
-  };
+  source:
+    | { eventId: string; groupId?: undefined; blockId?: undefined; itemId?: undefined }
+    | { groupId: string; blockId?: string; itemId?: string; eventId?: undefined };
   target?: {
     groupId?: string;
     blockId?: string;
@@ -106,11 +104,22 @@ export type Group = {
   blocks: Block[];
 };
 
+/* ── Event ────────────────────────────────────────────── */
+export type EventType = 'start';
+
+export type SabFlowEvent = {
+  id: string;
+  type: EventType;
+  graphCoordinates: Coordinates;
+  outgoingEdgeId?: string;
+};
+
 /* ── Edge ─────────────────────────────────────────────── */
 export type EdgeFrom =
-  | { groupId: string; blockId?: undefined; itemId?: undefined }
-  | { groupId: string; blockId: string; itemId?: undefined }
-  | { groupId: string; blockId: string; itemId: string };
+  | { eventId: string; groupId?: undefined; blockId?: undefined; itemId?: undefined }
+  | { groupId: string; blockId?: undefined; itemId?: undefined; eventId?: undefined }
+  | { groupId: string; blockId: string; itemId?: undefined; eventId?: undefined }
+  | { groupId: string; blockId: string; itemId: string; eventId?: undefined };
 
 export type EdgeTo = {
   groupId: string;
@@ -150,6 +159,7 @@ export type SabFlowDoc = {
   userId: string;
   projectId?: string;
   name: string;
+  events: SabFlowEvent[];
   groups: Group[];
   edges: Edge[];
   variables: Variable[];

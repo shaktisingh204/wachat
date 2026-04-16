@@ -1,0 +1,62 @@
+import type { Vector2 } from '@use-gesture/react';
+import type { Coordinates } from '@/lib/sabflow/types';
+
+type SelectBoxCoordinates = {
+  origin: Coordinates;
+  dimension: {
+    width: number;
+    height: number;
+  };
+};
+
+type Props = {
+  initial: Vector2;
+  movement: Vector2;
+};
+
+export const computeSelectBoxDimensions = ({ initial, movement }: Props): SelectBoxCoordinates => {
+  if (movement[0] < 0 && movement[1] < 0)
+    return {
+      origin: {
+        x: initial[0] + movement[0],
+        y: initial[1] + movement[1],
+      },
+      dimension: {
+        width: Math.abs(movement[0]),
+        height: Math.abs(movement[1]),
+      },
+    };
+  if (movement[0] < 0)
+    return {
+      origin: {
+        x: initial[0] + movement[0],
+        y: initial[1],
+      },
+      dimension: {
+        width: Math.abs(movement[0]),
+        height: movement[1],
+      },
+    };
+  if (movement[1] < 0)
+    return {
+      origin: {
+        x: initial[0],
+        y: initial[1] + movement[1],
+      },
+      dimension: {
+        width: movement[0],
+        height: Math.abs(movement[1]),
+      },
+    };
+
+  return {
+    origin: {
+      x: initial[0],
+      y: initial[1],
+    },
+    dimension: {
+      width: movement[0],
+      height: movement[1],
+    },
+  };
+};

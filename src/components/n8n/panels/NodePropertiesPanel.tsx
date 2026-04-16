@@ -7,7 +7,7 @@ import {
   LuGlobe,
   LuMail,
   LuClock,
-  LuCode2,
+  LuCode,
   LuGitBranch,
   LuTable2,
   LuMessageSquare,
@@ -41,7 +41,7 @@ const NODE_META: Record<N8NNodeType, NodeMeta> = {
   'logic.split':      { label: 'Split',            icon: LuGitBranch,        color: '#64748b' },
   'transform.json':   { label: 'JSON Transform',   icon: LuFileJson,         color: '#10b981' },
   'transform.text':   { label: 'Text Transform',   icon: LuType,             color: '#10b981' },
-  'transform.code':   { label: 'Code',             icon: LuCode2,            color: '#7c3aed' },
+  'transform.code':   { label: 'Code',             icon: LuCode,            color: '#7c3aed' },
   'integration.google_sheets': { label: 'Google Sheets', icon: LuTable2,   color: '#34a853' },
   'integration.slack':         { label: 'Slack',          icon: LuMessageSquare, color: '#4a154b' },
   'integration.whatsapp':      { label: 'WhatsApp',        icon: LuMessageSquare, color: '#25d366' },
@@ -577,7 +577,7 @@ type Props = {
 
 export function NodePropertiesPanel({ node, onUpdate, onClose }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>('params');
-  const meta = getNodeMeta(node.type);
+  const meta = getNodeMeta(node.type as N8NNodeType);
   const Icon = meta.icon;
 
   return (

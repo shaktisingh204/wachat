@@ -62,7 +62,7 @@ function EditorContent({ flow: initialFlow }: Props) {
   /* ── Flow change handler (passed down to Graph) ──────────────────────── */
 
   const handleFlowChange = useCallback(
-    (changes: Partial<Pick<SabFlowDoc, 'groups' | 'edges'>>) => {
+    (changes: Partial<Pick<SabFlowDoc, 'groups' | 'edges' | 'events'>>) => {
       setFlow((prev) => ({ ...prev, ...changes }));
     },
     [],
@@ -76,6 +76,7 @@ function EditorContent({ flow: initialFlow }: Props) {
       startSaving(async () => {
         const payload = {
           name: flow.name,
+          events: flow.events,
           groups: flow.groups,
           edges: flow.edges,
           variables: flow.variables,
@@ -128,7 +129,7 @@ function EditorContent({ flow: initialFlow }: Props) {
   return (
     <div
       ref={containerRef}
-      className="flex flex-col h-screen overflow-clip bg-[var(--gray-2)]"
+      className="flex flex-col h-screen w-full overflow-clip bg-[var(--gray-2)]"
     >
       {/* ── Header ────────────────────────────────────────────────────── */}
       <header className="flex h-14 shrink-0 items-center gap-3 border-b border-[var(--gray-5)] bg-[var(--gray-1)] px-4 z-30">

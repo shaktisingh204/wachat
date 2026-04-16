@@ -56,7 +56,7 @@ export async function createWorkflow(
     name: data.name?.trim() || 'Untitled Workflow',
     active: false,
     nodes: data.nodes ?? [],
-    connections: data.connections ?? [],
+    connections: data.connections ?? {},
     settings: data.settings ?? { executionOrder: 'v1' },
     staticData: data.staticData,
     tags: data.tags ?? [],

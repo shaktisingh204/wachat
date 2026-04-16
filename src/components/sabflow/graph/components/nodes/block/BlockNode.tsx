@@ -1,13 +1,16 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import type { Block } from '@/lib/sabflow/types';
+import type { Block, BlockType } from '@/lib/sabflow/types';
 import { useGraph } from '@/components/sabflow/graph/providers/GraphProvider';
 import { useBlockDnd, useDragDistance } from '@/components/sabflow/graph/providers/GraphDndProvider';
 import { getBlockIcon } from '@/lib/sabflow/blocks';
 import { BlockNodeContent } from './BlockNodeContent';
 import { BlockSourceEndpoint } from '../../endpoints/BlockSourceEndpoint';
 import { TargetEndpoint } from '../../endpoints/TargetEndpoint';
+import { ItemNodesList } from '../item/ItemNodesList';
 import { cn } from '@/lib/utils';
+
+const ITEM_BLOCK_TYPES: BlockType[] = ['choice_input', 'picture_choice_input', 'condition', 'ab_test'];
 
 type NodePosition = { absolute: { x: number; y: number }; relative: { x: number; y: number } };
 
@@ -18,6 +21,7 @@ type Props = {
   isConnectable: boolean;
   hasIncomingEdge: boolean;
   onMouseDown?: (pos: NodePosition, block: Block) => void;
+  onBlockChange?: (block: Block) => void;
 };
 
 export function BlockNode({
@@ -27,6 +31,7 @@ export function BlockNode({
   isConnectable,
   hasIncomingEdge,
   onMouseDown,
+  onBlockChange,
 }: Props) {
   const { openedNodeId, setOpenedNodeId, connectingIds, setConnectingIds, isReadOnly } = useGraph();
   const { mouseOverBlock, setMouseOverBlock } = useBlockDnd();
@@ -80,12 +85,22 @@ export function BlockNode({
 
   const Icon = getBlockIcon(block.type);
   const showTargetEndpoint = hasIncomingEdge || !!connectingIds;
+  const supportsItems = (ITEM_BLOCK_TYPES as string[]).includes(block.type);
+
+  // Ensure items array exists for supported block types
+  const blockWithItems: Block = supportsItems && !block.items
+    ? { ...block, items: [] }
+    : block;
+
+  const handleBlockChange = (updated: Block) => {
+    onBlockChange?.(updated);
+  };
 
   return (
     <div
       ref={blockRef}
       data-block-id={block.id}
-      className="prevent-group-drag relative flex w-full"
+      className="prevent-group-drag relative flex flex-col w-full"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onClick={handleClick}
@@ -93,6 +108,7 @@ export function BlockNode({
       <div
         className={cn(
           'flex gap-2 flex-1 p-3 rounded-lg items-start w-full text-left select-none transition-[border-color] cursor-pointer bg-[var(--gray-2)]',
+          supportsItems ? 'rounded-b-none border-b-0' : '',
           isOpen || isConnecting
             ? 'border-2 border-[#f76808] -m-px'
             : 'border border-[var(--gray-5)] hover:border-[var(--gray-7)]',
@@ -114,8 +130,8 @@ export function BlockNode({
           />
         )}
 
-        {/* Source endpoint (right side) — shown for connectable blocks */}
-        {isConnectable && (
+        {/* Source endpoint (right side) — only for blocks that don't manage items */}
+        {isConnectable && !supportsItems && (
           <BlockSourceEndpoint
             blockId={block.id}
             groupId={block.groupId}
@@ -124,6 +140,24 @@ export function BlockNode({
           />
         )}
       </div>
+
+      {/* Item list for blocks that support items */}
+      {supportsItems && (
+        <div
+          className={cn(
+            'rounded-b-lg border border-t-0 bg-[var(--gray-2)] px-2 pb-2 pt-1',
+            isOpen || isConnecting
+              ? 'border-[#f76808]'
+              : 'border-[var(--gray-5)]',
+          )}
+        >
+          <ItemNodesList
+            block={blockWithItems}
+            groupId={block.groupId}
+            onBlockChange={handleBlockChange}
+          />
+        </div>
+      )}
     </div>
   );
 }

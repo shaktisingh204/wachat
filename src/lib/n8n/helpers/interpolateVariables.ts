@@ -120,14 +120,14 @@ export function interpolateVariables(
   if (typeof template !== 'string') return template;
 
   // If the whole string is a single expression, return the raw resolved value
-  const singleExpr = template.match(/^\{\{(.+?)\}\}$/s);
+  const singleExpr = template.match(/^\{\{([\s\S]+?)\}\}$/);
   if (singleExpr) {
     const value = evaluateExpression(singleExpr[1], scope);
     return value ?? template;
   }
 
   // Otherwise perform string substitution
-  return template.replace(/\{\{(.+?)\}\}/gs, (_, expr) => {
+  return template.replace(/\{\{([\s\S]+?)\}\}/g, (_, expr) => {
     const value = evaluateExpression(expr, scope);
     if (value == null) return '';
     if (typeof value === 'object') return JSON.stringify(value);

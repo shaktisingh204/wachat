@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { LuGitBranch, LuPlus, LuX, LuCheckCircle, LuXCircle } from 'react-icons/lu';
+import { LuGitBranch, LuPlus, LuX, LuCircleCheck, LuCircleX } from 'react-icons/lu';
 import { cn } from '@/lib/utils';
 
 /* ── Types ───────────────────────────────────────────────── */
@@ -221,14 +221,14 @@ export function IfNode({ config, onChange, className }: IfNodeProps) {
         <Label>Output Branches</Label>
         <div className="grid grid-cols-2 gap-2">
           <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2.5">
-            <LuCheckCircle className="h-4 w-4 shrink-0 text-emerald-500" strokeWidth={2} />
+            <LuCircleCheck className="h-4 w-4 shrink-0 text-emerald-500" strokeWidth={2} />
             <div>
               <p className="text-[12px] font-semibold text-emerald-700">True</p>
               <p className="text-[10.5px] text-emerald-600">Output 0 — condition met</p>
             </div>
           </div>
           <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2.5">
-            <LuXCircle className="h-4 w-4 shrink-0 text-red-400" strokeWidth={2} />
+            <LuCircleX className="h-4 w-4 shrink-0 text-red-400" strokeWidth={2} />
             <div>
               <p className="text-[12px] font-semibold text-red-600">False</p>
               <p className="text-[10.5px] text-red-500">Output 1 — condition not met</p>

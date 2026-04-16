@@ -7,7 +7,7 @@ import { useEndpoints } from '../../providers/EndpointsProvider';
 import { useSelectionStore } from '../../hooks/useSelectionStore';
 import { computeEdgePath } from '../../helpers/computeEdgePath';
 import { getAnchorsPosition } from '../../helpers/getAnchorsPosition';
-import { groupWidth } from '../../constants';
+import { groupWidth, eventWidth } from '../../constants';
 import type { Edge as EdgeType } from '@/lib/sabflow/types';
 
 type Props = {
@@ -38,8 +38,10 @@ export function Edge({ edge, fromGroupId, onDelete }: Props) {
   const isPreviewing = isMouseOver || previewingEdge?.id === edge.id;
 
   const sourceTop = useMemo(() => {
-    const endpointId = edge.from.blockId ?? edge.from.groupId;
-    return sourceEndpointYOffsets.get(endpointId)?.y;
+    // Event-sourced edges register under eventId; block/group edges under blockId or groupId
+    const endpointId =
+      edge.from.eventId ?? edge.from.blockId ?? edge.from.groupId;
+    return endpointId ? sourceEndpointYOffsets.get(endpointId)?.y : undefined;
   }, [edge.from, sourceEndpointYOffsets]);
 
   const targetTop = useMemo(() => {
@@ -49,16 +51,18 @@ export function Edge({ edge, fromGroupId, onDelete }: Props) {
 
   const path = useMemo(() => {
     if (!fromGroupCoordinates || !toGroupCoordinates || !sourceTop) return '';
+    // Use eventWidth for event-sourced edges so path exits at the correct right edge
+    const sourceWidth = edge.from.eventId ? eventWidth : groupWidth;
     const anchorsPosition = getAnchorsPosition({
       sourceGroupCoordinates: fromGroupCoordinates,
       targetGroupCoordinates: toGroupCoordinates,
-      elementWidth: groupWidth,
+      elementWidth: sourceWidth,
       sourceTop,
       targetTop,
       graphScale: graphPosition.scale,
     });
     return computeEdgePath(anchorsPosition);
-  }, [fromGroupCoordinates, toGroupCoordinates, sourceTop, targetTop, graphPosition.scale]);
+  }, [fromGroupCoordinates, toGroupCoordinates, sourceTop, targetTop, graphPosition.scale, edge.from]);
 
   // Close context menu on next outside click
   useEffect(() => {

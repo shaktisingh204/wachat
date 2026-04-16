@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { LuVariable, LuPlus, LuX, LuGripVertical, LuCode2 } from 'react-icons/lu';
+import { LuVariable, LuPlus, LuX, LuGripVertical, LuCode } from 'react-icons/lu';
 import { cn } from '@/lib/utils';
 
 /* ── Types ───────────────────────────────────────────────── */
@@ -234,7 +234,7 @@ function EntryRow({
         />
       ) : entry.valueType === 'expression' ? (
         <div className="relative">
-          <LuCode2 className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--gray-8)]" strokeWidth={2} />
+          <LuCode className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--gray-8)]" strokeWidth={2} />
           <input
             type="text"
             className={cn(INPUT_CLS, 'pl-9 font-mono text-[12px]')}

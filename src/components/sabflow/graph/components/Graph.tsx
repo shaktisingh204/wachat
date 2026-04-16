@@ -6,7 +6,11 @@ import { useSelectionStore } from '../hooks/useSelectionStore';
 import { useBlockDnd } from '../providers/GraphDndProvider';
 import { createId } from '@paralleldrive/cuid2';
 import GraphElements from './GraphElements';
-import type { SabFlowDoc, Group, Coordinates } from '@/lib/sabflow/types';
+import { ElementsSelectionMenu } from './ElementsSelectionMenu';
+import { SelectBox } from './SelectBox';
+import { computeSelectBoxDimensions } from '../helpers/computeSelectBoxDimensions';
+import { isSelectBoxIntersectingWithElement } from '../helpers/isSelectBoxIntersectingWithElement';
+import type { SabFlowDoc, SabFlowEvent, Group, Coordinates } from '@/lib/sabflow/types';
 import { cn } from '@/lib/utils';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -14,34 +18,51 @@ const maxScale = 2;
 const minScale = 0.2;
 const zoomStep = 0.2;
 
+type SelectBoxCoordinates = {
+  origin: Coordinates;
+  dimension: { width: number; height: number };
+};
+
 type Props = {
   flow: SabFlowDoc;
-  onFlowChange: (changes: Partial<Pick<SabFlowDoc, 'groups' | 'edges'>>) => void;
+  onFlowChange: (changes: Partial<Pick<SabFlowDoc, 'groups' | 'edges' | 'events'>>) => void;
   containerRef: React.RefObject<HTMLDivElement | null>;
 };
 
 export function Graph({ flow, onFlowChange, containerRef }: Props) {
-  const { graphPosition, setGraphPosition, setCanvasPosition, connectingIds, setConnectingIds } =
+  const { graphPosition, setGraphPosition, setCanvasPosition, connectingIds, setConnectingIds, isReadOnly } =
     useGraph();
   const { draggedBlockType, setDraggedBlockType } = useBlockDnd();
 
   const isDraggingGraph = useSelectionStore((s) => s.isDraggingGraph);
   const setIsDraggingGraph = useSelectionStore((s) => s.setIsDraggingGraph);
   const blurElements = useSelectionStore((s) => s.blurElements);
-  const { setElementsCoordinates, updateElementCoordinates } = useSelectionStore(
+  const focusedElementsId = useSelectionStore((s) => s.focusedElementsId);
+  const { setElementsCoordinates, updateElementCoordinates, setFocusedElements } = useSelectionStore(
     useShallow((s) => ({
       setElementsCoordinates: s.setElementsCoordinates,
       updateElementCoordinates: s.updateElementCoordinates,
+      setFocusedElements: s.setFocusedElements,
     })),
   );
 
   const canvasRef = useRef<HTMLDivElement>(null);
 
-  // Seed all group coordinates once on mount (Typebot pattern)
+  // Space-bar pan mode
+  const [isSpacePanMode, setIsSpacePanMode] = useState(false);
+  const [isSpaceDragging, setIsSpaceDragging] = useState(false);
+
+  // Rubber-band selection
+  const [selectBoxCoordinates, setSelectBoxCoordinates] = useState<SelectBoxCoordinates | undefined>(undefined);
+
+  // Seed all group and event coordinates once on mount (Typebot pattern)
   useEffect(() => {
     const coords: Record<string, Coordinates> = {};
     flow.groups.forEach((g) => {
       coords[g.id] = g.graphCoordinates;
+    });
+    flow.events.forEach((ev) => {
+      coords[ev.id] = ev.graphCoordinates;
     });
     setElementsCoordinates(coords);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -57,6 +78,105 @@ export function Graph({ flow, onFlowChange, containerRef }: Props) {
       scale: graphPosition.scale,
     });
   }, [graphPosition, setCanvasPosition]);
+
+  // Space-bar pan mode — keydown/keyup
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        e.key === ' ' &&
+        !e.metaKey &&
+        !e.ctrlKey &&
+        !e.altKey &&
+        !e.shiftKey &&
+        !(e.target instanceof HTMLInputElement) &&
+        !(e.target instanceof HTMLTextAreaElement)
+      ) {
+        e.preventDefault();
+        setIsSpacePanMode(true);
+        setIsDraggingGraph(true);
+      }
+    };
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.key === ' ') {
+        setIsSpacePanMode(false);
+        setIsSpaceDragging(false);
+        setIsDraggingGraph(false);
+      }
+    };
+    const handleWindowBlur = () => {
+      setIsSpacePanMode(false);
+      setIsSpaceDragging(false);
+      setIsDraggingGraph(false);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    window.addEventListener('blur', handleWindowBlur);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener('blur', handleWindowBlur);
+    };
+  }, [setIsDraggingGraph]);
+
+  // Rubber-band selection — native mouse events on the canvas element
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    let selectOrigin: Coordinates | null = null;
+    let cachedRects: { elementId: string; rect: DOMRect }[] = [];
+    let isSelectDragging = false;
+
+    const onMouseDown = (e: MouseEvent) => {
+      if (e.button !== 0) return;
+      // Only fire when clicking directly on the canvas background
+      if (e.target !== canvas) return;
+      selectOrigin = { x: e.clientX, y: e.clientY };
+      isSelectDragging = false;
+      cachedRects = Array.from(document.querySelectorAll('[data-selectable]')).map((el) => ({
+        elementId: (el as HTMLDivElement).dataset.selectable!,
+        rect: el.getBoundingClientRect(),
+      }));
+    };
+
+    const onMouseMove = (e: MouseEvent) => {
+      if (!selectOrigin) return;
+      const dx = e.clientX - selectOrigin.x;
+      const dy = e.clientY - selectOrigin.y;
+      // Only show selectbox after 5px to avoid accidental selection on click
+      if (!isSelectDragging && Math.abs(dx) + Math.abs(dy) < 5) return;
+      isSelectDragging = true;
+
+      const coords = computeSelectBoxDimensions({
+        initial: [selectOrigin.x, selectOrigin.y],
+        movement: [dx, dy],
+      });
+      setSelectBoxCoordinates(coords);
+
+      // Update selection live as the user drags
+      const selectedIds = cachedRects.reduce<string[]>((acc, el) => {
+        if (isSelectBoxIntersectingWithElement(coords, el.rect)) acc.push(el.elementId);
+        return acc;
+      }, []);
+      if (selectedIds.length > 0) setFocusedElements(selectedIds);
+    };
+
+    const onMouseUp = () => {
+      selectOrigin = null;
+      isSelectDragging = false;
+      setSelectBoxCoordinates(undefined);
+    };
+
+    canvas.addEventListener('mousedown', onMouseDown);
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+    return () => {
+      canvas.removeEventListener('mousedown', onMouseDown);
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [setFocusedElements]);
 
   // Project screen coords → canvas coords
   const projectMouse = useCallback(
@@ -91,6 +211,16 @@ export function Graph({ flow, onFlowChange, containerRef }: Props) {
     [flow.groups, onFlowChange],
   );
 
+  // Handle event position updates
+  const handleEventUpdate = useCallback(
+    (id: string, changes: Partial<SabFlowEvent>) => {
+      onFlowChange({
+        events: flow.events.map((ev) => (ev.id === id ? { ...ev, ...changes } : ev)),
+      });
+    },
+    [flow.events, onFlowChange],
+  );
+
   // Handle edge deletion
   const handleEdgeDelete = useCallback(
     (edgeId: string) => {
@@ -103,18 +233,31 @@ export function Graph({ flow, onFlowChange, containerRef }: Props) {
   const handleMouseUp = useCallback(
     (e: React.MouseEvent) => {
       if (connectingIds?.target?.groupId) {
+        // Build the "from" side — could be event-sourced or block/group-sourced
+        const fromSource = connectingIds.source.eventId
+          ? { eventId: connectingIds.source.eventId }
+          : connectingIds.source.blockId
+            ? { groupId: connectingIds.source.groupId!, blockId: connectingIds.source.blockId }
+            : { groupId: connectingIds.source.groupId! };
+
         const newEdge = {
           id: createId(),
-          from: connectingIds.source.blockId
-            ? { groupId: connectingIds.source.groupId, blockId: connectingIds.source.blockId }
-            : { groupId: connectingIds.source.groupId },
+          from: fromSource,
           to: connectingIds.target.blockId
             ? { groupId: connectingIds.target.groupId, blockId: connectingIds.target.blockId }
             : { groupId: connectingIds.target.groupId },
         };
-        const existingIdx = connectingIds.source.blockId
-          ? flow.edges.findIndex((ed) => ed.from.blockId === connectingIds.source.blockId)
-          : -1;
+
+        // Replace existing edge from the same source (only for block sources)
+        const existingIdx =
+          !connectingIds.source.eventId && connectingIds.source.blockId
+            ? flow.edges.findIndex((ed) => ed.from.blockId === connectingIds.source.blockId)
+            : connectingIds.source.eventId
+              ? flow.edges.findIndex(
+                  (ed) => 'eventId' in ed.from && ed.from.eventId === connectingIds.source.eventId,
+                )
+              : -1;
+
         const newEdges =
           existingIdx >= 0
             ? flow.edges.map((ed, i) => (i === existingIdx ? newEdge : ed))
@@ -160,16 +303,27 @@ export function Graph({ flow, onFlowChange, containerRef }: Props) {
     ],
   );
 
+
   // Canvas pan + zoom gestures
   useGesture(
     {
       onDrag: ({ delta: [dx, dy], first, last }) => {
-        if (first) setIsDraggingGraph(true);
-        if (last) {
-          setIsDraggingGraph(false);
+        // Space-bar pan mode: track drag state for grab/grabbing cursor
+        if (isSpacePanMode) {
+          if (first) setIsSpaceDragging(true);
+          if (last) setIsSpaceDragging(false);
+          setGraphPosition((pos) => ({ ...pos, x: pos.x + dx, y: pos.y + dy }));
           return;
         }
-        setGraphPosition((pos) => ({ ...pos, x: pos.x + dx, y: pos.y + dy }));
+        // Regular pan (isDraggingGraph set externally, e.g. middle-button or future gesture)
+        if (isDraggingGraph) {
+          if (last) {
+            setIsDraggingGraph(false);
+            return;
+          }
+          setGraphPosition((pos) => ({ ...pos, x: pos.x + dx, y: pos.y + dy }));
+        }
+        // Rubber-band selection is handled via native mouse events in the useEffect above.
       },
       onWheel: ({ delta: [, dy], event }) => {
         event.preventDefault();
@@ -213,13 +367,20 @@ export function Graph({ flow, onFlowChange, containerRef }: Props) {
     });
   };
 
+  const cursorClass = draggedBlockType
+    ? 'cursor-crosshair'
+    : isSpacePanMode
+      ? isSpaceDragging
+        ? 'cursor-grabbing'
+        : 'cursor-grab'
+      : isDraggingGraph
+        ? 'cursor-grabbing'
+        : 'cursor-default';
+
   return (
     <div
       ref={canvasRef}
-      className={cn(
-        'relative flex-1 overflow-hidden',
-        draggedBlockType ? 'cursor-crosshair' : isDraggingGraph ? 'cursor-grabbing' : 'cursor-default',
-      )}
+      className={cn('relative flex-1 overflow-hidden', cursorClass)}
       style={{
         touchAction: 'none',
         backgroundColor: 'var(--gray-3)',
@@ -232,6 +393,11 @@ export function Graph({ flow, onFlowChange, containerRef }: Props) {
         if (e.target === canvasRef.current) blurElements();
       }}
     >
+      {/* Rubber-band selection box (fixed position = screen coords) */}
+      {!isReadOnly && selectBoxCoordinates && (
+        <SelectBox origin={selectBoxCoordinates.origin} dimension={selectBoxCoordinates.dimension} />
+      )}
+
       {/* Transformed canvas layer */}
       <div
         className="flex flex-1 w-full h-full absolute will-change-transform"
@@ -246,11 +412,22 @@ export function Graph({ flow, onFlowChange, containerRef }: Props) {
           onGroupUpdate={handleGroupUpdate}
           onGroupBlocksChange={handleGroupBlocksChange}
           onEdgeDelete={handleEdgeDelete}
+          onEventUpdate={handleEventUpdate}
         />
       </div>
 
-      {/* Zoom controls */}
+      {/* Zoom controls + selection menu */}
       <div className="absolute top-4 right-4 flex items-stretch gap-1 rounded-lg border border-[var(--gray-5)] bg-[var(--gray-1)] p-1.5 shadow-sm z-10">
+        <ElementsSelectionMenu
+          graphPosition={graphPosition}
+          focusedElementIds={focusedElementsId}
+          blurElements={blurElements}
+          flow={flow}
+          onFlowChange={onFlowChange}
+        />
+        {focusedElementsId.length > 0 && (
+          <div className="w-px bg-[var(--gray-5)] self-stretch" />
+        )}
         <button
           onClick={() => handleZoom('in')}
           className="flex h-7 w-7 items-center justify-center rounded text-[var(--gray-11)] hover:bg-[var(--gray-3)] transition-colors font-medium text-base"

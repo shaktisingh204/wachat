@@ -4,7 +4,7 @@ import { ObjectId } from 'mongodb';
 import { revalidatePath } from 'next/cache';
 import { getSession } from '@/app/actions/user.actions';
 import { getSabFlowCollection } from '@/lib/sabflow/db';
-import type { SabFlowDoc, Group } from '@/lib/sabflow/types';
+import type { SabFlowDoc, SabFlowEvent, Group } from '@/lib/sabflow/types';
 import { getErrorMessage } from '@/lib/utils';
 
 // ── helpers ────────────────────────────────────────────────────────────────
@@ -12,9 +12,17 @@ import { getErrorMessage } from '@/lib/utils';
 function defaultStartGroup(): Group {
   return {
     id: crypto.randomUUID(),
-    title: 'Start',
-    graphCoordinates: { x: 200, y: 200 },
+    title: 'Group',
+    graphCoordinates: { x: 380, y: 200 },
     blocks: [],
+  };
+}
+
+function defaultStartEvent(): SabFlowEvent {
+  return {
+    id: crypto.randomUUID(),
+    type: 'start',
+    graphCoordinates: { x: 100, y: 200 },
   };
 }
 
@@ -69,6 +77,12 @@ export async function getSabFlow(flowId: string) {
       userId: session.user._id.toString(),
     });
     if (!doc) return null;
+
+    // Back-fill `events` for flows created before the StartNode feature
+    if (!doc.events || !Array.isArray(doc.events) || doc.events.length === 0) {
+      (doc as any).events = [defaultStartEvent()];
+    }
+
     return JSON.parse(JSON.stringify(serialize(doc)));
   } catch {
     return null;
@@ -88,6 +102,7 @@ export async function createSabFlow(name: string, projectId?: string) {
     userId: session.user._id.toString(),
     projectId,
     name: trimmed,
+    events: [defaultStartEvent()],
     groups: [defaultStartGroup()],
     edges: [],
     variables: [],

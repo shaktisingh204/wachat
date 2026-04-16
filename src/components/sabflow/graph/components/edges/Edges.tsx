@@ -1,5 +1,5 @@
 'use client';
-import type { Edge as EdgeType, Group } from '@/lib/sabflow/types';
+import type { Edge as EdgeType, Group, SabFlowEvent } from '@/lib/sabflow/types';
 import { useGraph } from '../../providers/GraphProvider';
 import { DrawingEdge } from './DrawingEdge';
 import { Edge } from './Edge';
@@ -7,10 +7,11 @@ import { Edge } from './Edge';
 type Props = {
   edges: EdgeType[];
   groups: Group[];
+  events: SabFlowEvent[];
   onEdgeDelete?: (edgeId: string) => void;
 };
 
-export function Edges({ edges, groups, onEdgeDelete }: Props) {
+export function Edges({ edges, groups, events, onEdgeDelete }: Props) {
   const { connectingIds } = useGraph();
 
   // Build blockId → groupId lookup for O(1) fromGroupId resolution per edge
@@ -18,6 +19,9 @@ export function Edges({ edges, groups, onEdgeDelete }: Props) {
   groups.forEach((g) => {
     g.blocks.forEach((b) => blockToGroup.set(b.id, g.id));
   });
+
+  // Build eventId lookup for event-sourced edges
+  const eventIds = new Set(events.map((ev) => ev.id));
 
   return (
     <svg
@@ -60,9 +64,17 @@ export function Edges({ edges, groups, onEdgeDelete }: Props) {
       <g style={{ pointerEvents: 'all' }}>
         {connectingIds && <DrawingEdge connectingIds={connectingIds} />}
         {edges.map((edge) => {
-          const fromGroupId = edge.from.blockId
-            ? blockToGroup.get(edge.from.blockId)
-            : edge.from.groupId;
+          // Determine the "from" group ID for coordinate lookups.
+          // Event-sourced edges use the eventId as the source coordinate key.
+          let fromGroupId: string | undefined;
+          if (edge.from.eventId) {
+            // Event-sourced edge: use eventId as coordinate key (seeded in store by StartNode)
+            fromGroupId = eventIds.has(edge.from.eventId) ? edge.from.eventId : undefined;
+          } else if (edge.from.blockId) {
+            fromGroupId = blockToGroup.get(edge.from.blockId);
+          } else {
+            fromGroupId = edge.from.groupId;
+          }
           return (
             <Edge
               key={edge.id}

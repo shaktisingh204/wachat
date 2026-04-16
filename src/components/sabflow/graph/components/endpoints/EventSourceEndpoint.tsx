@@ -6,80 +6,70 @@ import { cn } from '@/lib/utils';
 import { endpointSourceHeight } from '../../constants';
 
 type Props = {
-  blockId: string;
-  groupId: string;
-  /** When set, this endpoint belongs to an item (not the block itself). */
-  itemId?: string;
+  eventId: string;
   isHidden?: boolean;
   className?: string;
 };
 
-export function BlockSourceEndpoint({ blockId, groupId, itemId, isHidden, className }: Props) {
+export function EventSourceEndpoint({ eventId, isHidden, className }: Props) {
   const { canvasPosition, connectingIds, setConnectingIds, previewingEdge } = useGraph();
   const { setSourceEndpointYOffset, deleteSourceEndpointYOffset } = useEndpoints();
   const ref = useRef<HTMLDivElement>(null);
-  const [groupHeight, setGroupHeight] = useState<number>();
-  const [groupTransform, setGroupTransform] = useState<string>();
-  /** The registry key: items use their own id; blocks use blockId. */
-  const endpointId = itemId ?? blockId;
+  const [eventHeight, setEventHeight] = useState<number>();
+  const [eventTransform, setEventTransform] = useState<string>();
 
-  // Recompute canvas-space Y whenever group resizes or moves
-  const endpointY = useMemo(
-    () => {
-      if (!ref.current) return undefined;
-      return Number(
-        ((ref.current.getBoundingClientRect().y +
+  // Recompute canvas-space Y whenever the event node resizes or moves
+  const endpointY = useMemo(() => {
+    if (!ref.current) return undefined;
+    return Number(
+      (
+        (ref.current.getBoundingClientRect().y +
           (endpointSourceHeight * canvasPosition.scale) / 2 -
           canvasPosition.y) /
-          canvasPosition.scale).toFixed(2),
-      );
-    },
+        canvasPosition.scale
+      ).toFixed(2),
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [canvasPosition.scale, canvasPosition.y, groupHeight, groupTransform],
-  );
+  }, [canvasPosition.scale, canvasPosition.y, eventHeight, eventTransform]);
 
   useLayoutEffect(() => {
-    const el = document.getElementById(`group-${groupId}`);
+    const el = document.querySelector(`[data-moving-element="event-${eventId}"]`);
     if (!el) return;
     const ro = new ResizeObserver((entries) => {
-      setGroupHeight(entries[0].contentRect.height);
+      setEventHeight(entries[0].contentRect.height);
     });
     ro.observe(el);
     return () => ro.disconnect();
-  }, [groupId]);
+  }, [eventId]);
 
   useLayoutEffect(() => {
-    const el = document.getElementById(`group-${groupId}`);
+    const el = document.querySelector(`[data-moving-element="event-${eventId}"]`);
     if (!el) return;
     const mo = new MutationObserver((entries) => {
-      setGroupTransform((entries[0].target as HTMLElement).style.transform);
+      setEventTransform((entries[0].target as HTMLElement).style.transform);
     });
     mo.observe(el, { attributes: true, attributeFilter: ['style'] });
     return () => mo.disconnect();
-  }, [groupId]);
+  }, [eventId]);
 
   useEffect(() => {
     if (endpointY === undefined) return;
-    setSourceEndpointYOffset({ id: endpointId, y: endpointY });
-  }, [setSourceEndpointYOffset, endpointId, endpointY]);
+    setSourceEndpointYOffset({ id: eventId, y: endpointY });
+  }, [setSourceEndpointYOffset, eventId, endpointY]);
 
   useEffect(() => {
-    return () => deleteSourceEndpointYOffset(endpointId);
-  }, [deleteSourceEndpointYOffset, endpointId]);
+    return () => deleteSourceEndpointYOffset(eventId);
+  }, [deleteSourceEndpointYOffset, eventId]);
 
-  const isPreviewing = itemId
-    ? previewingEdge &&
-      'itemId' in previewingEdge.from &&
-      previewingEdge.from.itemId === itemId
-    : previewingEdge &&
-      'blockId' in previewingEdge.from &&
-      !('itemId' in previewingEdge.from && previewingEdge.from.itemId) &&
-      previewingEdge.from.blockId === blockId;
+  const isPreviewing =
+    previewingEdge &&
+    'eventId' in previewingEdge.from &&
+    previewingEdge.from.eventId === eventId;
 
   return (
     <div
       ref={ref}
-      data-testid="source-endpoint"
+      data-testid="event-source-endpoint"
       className={cn(
         'prevent-group-drag flex h-[32px] w-[32px] items-center justify-center rounded-full cursor-copy pointer-events-auto',
         isHidden ? 'invisible' : 'visible',
@@ -87,11 +77,7 @@ export function BlockSourceEndpoint({ blockId, groupId, itemId, isHidden, classN
       )}
       onPointerDown={(e) => {
         e.stopPropagation();
-        if (itemId) {
-          setConnectingIds({ source: { groupId, blockId, itemId } });
-        } else {
-          setConnectingIds({ source: { groupId, blockId } });
-        }
+        setConnectingIds({ source: { eventId } });
       }}
       onMouseDown={(e) => e.stopPropagation()}
     >
