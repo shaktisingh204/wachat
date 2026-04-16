@@ -10,6 +10,7 @@ import { BlockNodesList } from '../block/BlockNodesList';
 import { cn } from '@/lib/utils';
 import { GroupFocusToolbar } from './GroupFocusToolbar';
 import { GroupNodeContextMenu } from './GroupNodeContextMenu';
+import { AnalyticsBadge } from '../AnalyticsBadge';
 
 const GROUP_WIDTH = 300;
 
@@ -178,6 +179,14 @@ export function GroupNode({
         setContextMenuPos({ x: e.clientX, y: e.clientY });
       }}
     >
+      {/* ── Analytics badge (top-right corner overlay) ───────
+           Only rendered when the analytics overlay is enabled; AnalyticsBadge
+           itself handles the hidden-when-disabled case. */}
+      <AnalyticsBadge
+        groupId={group.id}
+        className="absolute right-1.5 top-1.5 z-10"
+      />
+
       {/* ── Title bar ───────────────────────────────────────── */}
       <div className="px-4 pb-2 flex items-center gap-2 min-h-[28px]">
         {editingTitle ? (

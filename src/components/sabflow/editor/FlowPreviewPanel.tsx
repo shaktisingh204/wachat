@@ -39,7 +39,16 @@ import {
   LuChevronDown,
   LuChevronRight,
   LuGripVertical,
+  LuTerminal,
 } from 'react-icons/lu';
+import { DebugConsolePanel } from '@/components/sabflow/debug/DebugConsolePanel';
+import { useDebugStore } from '@/lib/sabflow/debug/store';
+import {
+  instrumentLog,
+  instrumentStep,
+  instrumentVariableUpdate,
+  instrumentVariablesSeed,
+} from '@/lib/sabflow/debug/instrumentation';
 
 /* ═══════════════════════════════════════════════════════════
    Internal message model
@@ -183,6 +192,114 @@ function evalConditionBlock(
     if (pass) return item.id as string;
   }
   return undefined; // else branch — will fall through to outgoingEdgeId
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Debug recorder — diffs post-run vs pre-run and pushes to the
+   debug store.  Only invoked when the console is open; all pushes
+   short-circuit inside the instrumentation helpers when it isn't.
+═══════════════════════════════════════════════════════════ */
+
+function recordRunToDebug(args: {
+  flow: SabFlowDoc;
+  priorMessages: ChatMsg[];
+  priorVars: Record<string, string>;
+  nextMessages: ChatMsg[];
+  nextVars: Record<string, string>;
+  pendingInput: PendingInput | null;
+  isCompleted: boolean;
+  duration: number;
+  startGroupId?: string;
+  startGroupName?: string;
+}): void {
+  const {
+    flow,
+    priorVars,
+    nextMessages,
+    nextVars,
+    pendingInput,
+    isCompleted,
+    duration,
+    startGroupId,
+    startGroupName,
+  } = args;
+
+  // Push a single "run" step summarising the batch; keeps the timeline
+  // skimmable.  Per-message steps are added below.
+  instrumentStep({
+    blockType: 'message',
+    label: `Run · ${nextMessages.length} message(s)`,
+    groupId: startGroupId,
+    groupName: startGroupName,
+    duration,
+    outputs: {
+      messages: nextMessages.map((m) =>
+        m.role === 'host' ? { role: 'host', kind: m.msg.kind } : { role: 'guest', text: m.text },
+      ),
+      pendingInput: pendingInput
+        ? { blockId: pendingInput.blockId, inputType: pendingInput.inputType }
+        : null,
+    },
+  });
+
+  // Record each outgoing message as its own step so the timeline
+  // tells the story end-to-end.
+  for (const m of nextMessages) {
+    if (m.role !== 'host') continue;
+    instrumentStep({
+      blockType: 'message',
+      label: m.msg.kind,
+      groupId: startGroupId,
+      groupName: startGroupName,
+      outputs:
+        m.msg.kind === 'text'
+          ? { text: m.msg.text }
+          : m.msg.kind === 'redirect'
+            ? { url: m.msg.url }
+            : { url: 'url' in m.msg ? m.msg.url : undefined },
+    });
+  }
+
+  // Diff variables and push variable-set steps + update the variable list.
+  for (const [name, value] of Object.entries(nextVars)) {
+    if (priorVars[name] === value) continue;
+    instrumentVariableUpdate(name, value, priorVars[name]);
+    // Resolve a friendly name when the key looks like an id.
+    const varDef = flow.variables.find((v) => v.id === name);
+    if (varDef && varDef.name !== name) {
+      // Skip recording the id entry as its own step — the name entry will cover it.
+      continue;
+    }
+    instrumentStep({
+      blockType: 'set_variable',
+      label: `Set ${name}`,
+      groupId: startGroupId,
+      groupName: startGroupName,
+      inputs: { previous: priorVars[name] ?? null },
+      outputs: { value },
+    });
+  }
+
+  if (pendingInput) {
+    instrumentStep({
+      blockType: 'input',
+      label: `Waiting for ${pendingInput.inputType}`,
+      blockId: pendingInput.blockId,
+      outputs: {
+        inputType: pendingInput.inputType,
+        choices: pendingInput.choices,
+      },
+    });
+  }
+
+  if (isCompleted) {
+    instrumentStep({
+      blockType: 'end',
+      label: 'Flow completed',
+      groupId: startGroupId,
+      groupName: startGroupName,
+    });
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -779,6 +896,18 @@ export function FlowPreviewPanel({ flow, onClose }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const runningRef = useRef(false);
 
+  /* ── Debug console toggle ───────────────────────────── */
+  const [debugOpen, setDebugOpen] = useState(false);
+  // Ref mirror of debugOpen so non-reactive helpers can read it
+  // without re-subscribing; also used to avoid pushing debug entries
+  // when the console is not active (the store's `active` flag does
+  // the same thing, but this avoids the function-call noise too).
+  const debugOpenRef = useRef(false);
+  useEffect(() => {
+    debugOpenRef.current = debugOpen;
+  }, [debugOpen]);
+  const clearDebugSession = useDebugStore((s) => s.clearDebugSession);
+
   /* ── Auto-scroll on new messages ────────────────────── */
   useEffect(() => {
     const el = scrollRef.current;
@@ -793,6 +922,23 @@ export function FlowPreviewPanel({ flow, onClose }: Props) {
     setState(buildInitialState());
     setTextValue('');
 
+    // Reset the debug console when the session restarts (only when active).
+    if (debugOpenRef.current) {
+      clearDebugSession();
+      instrumentStep({
+        blockType: 'init',
+        label: 'Session started',
+        inputs: { flowId: flow._id, flowName: flow.name },
+      });
+      // Seed variables from the flow definition.
+      const seed: Record<string, unknown> = {};
+      for (const v of flow.variables) {
+        seed[v.name] =
+          v.defaultValue !== undefined ? String(v.defaultValue) : v.value ?? '';
+      }
+      instrumentVariablesSeed(seed);
+    }
+
     const startGroup = findStartGroup(flow);
     if (!startGroup) {
       setState((prev) => ({
@@ -805,6 +951,9 @@ export function FlowPreviewPanel({ flow, onClose }: Props) {
         ],
         isCompleted: true,
       }));
+      if (debugOpenRef.current) {
+        instrumentLog('error', 'preview', 'No Start event connected.');
+      }
       runningRef.current = false;
       return;
     }
@@ -813,7 +962,10 @@ export function FlowPreviewPanel({ flow, onClose }: Props) {
     setState((prev) => ({ ...prev, isTyping: true, currentGroupId: startGroup.id }));
 
     const timer = setTimeout(() => {
+      const startedAt = performance.now();
       const result = runFlowEngine(flow, startGroup.id, 0, {});
+      const duration = Math.round(performance.now() - startedAt);
+
       setState({
         messages: result.newMessages,
         currentGroupId: result.nextGroupId,
@@ -823,12 +975,28 @@ export function FlowPreviewPanel({ flow, onClose }: Props) {
         isTyping: false,
         isCompleted: result.isCompleted,
       });
+
+      if (debugOpenRef.current) {
+        recordRunToDebug({
+          flow,
+          priorMessages: [],
+          priorVars: {},
+          nextMessages: result.newMessages,
+          nextVars: result.updatedVars,
+          pendingInput: result.pendingInput,
+          isCompleted: result.isCompleted,
+          duration,
+          startGroupId: startGroup.id,
+          startGroupName: startGroup.title ?? undefined,
+        });
+      }
+
       runningRef.current = false;
       requestAnimationFrame(() => inputRef.current?.focus());
     }, 600);
 
     return () => clearTimeout(timer);
-  }, [flow]);
+  }, [flow, clearDebugSession]);
 
   // Auto-start on mount
   useEffect(() => {
@@ -860,7 +1028,17 @@ export function FlowPreviewPanel({ flow, onClose }: Props) {
       setTextValue('');
 
       const capturedState = state;
+      // Push a guest-input step (the answer the user provided).
+      if (debugOpenRef.current && capturedState.pendingInput) {
+        instrumentStep({
+          blockType: 'input',
+          label: `User input: ${capturedState.pendingInput.inputType}`,
+          blockId: capturedState.pendingInput.blockId,
+          inputs: { value: inputValue, inputType: capturedState.pendingInput.inputType },
+        });
+      }
       const timer = setTimeout(() => {
+        const startedAt = performance.now();
         const result = runFlowEngine(
           flow,
           capturedState.currentGroupId,
@@ -869,6 +1047,8 @@ export function FlowPreviewPanel({ flow, onClose }: Props) {
           inputValue,
           capturedState.pendingInput,
         );
+        const duration = Math.round(performance.now() - startedAt);
+
         setState((prev) => ({
           ...prev,
           messages: [...prev.messages, ...result.newMessages],
@@ -879,6 +1059,24 @@ export function FlowPreviewPanel({ flow, onClose }: Props) {
           isTyping: false,
           isCompleted: result.isCompleted,
         }));
+
+        if (debugOpenRef.current) {
+          recordRunToDebug({
+            flow,
+            priorMessages: [],
+            priorVars: capturedState.variables,
+            nextMessages: result.newMessages,
+            nextVars: result.updatedVars,
+            pendingInput: result.pendingInput,
+            isCompleted: result.isCompleted,
+            duration,
+            startGroupId: result.nextGroupId ?? undefined,
+            startGroupName: result.nextGroupId
+              ? flow.groups.find((g) => g.id === result.nextGroupId)?.title ?? undefined
+              : undefined,
+          });
+        }
+
         runningRef.current = false;
         requestAnimationFrame(() => inputRef.current?.focus());
       }, 400);
@@ -909,6 +1107,16 @@ export function FlowPreviewPanel({ flow, onClose }: Props) {
 
   /* ── Render ─────────────────────────────────────────── */
   return (
+    <>
+      {/* Debug console (rendered to the left of the preview so the
+          preview's drag-handle on its own left border still works
+          against the console panel). */}
+      <DebugConsolePanel
+        open={debugOpen}
+        onClose={() => setDebugOpen(false)}
+        layout="side"
+      />
+
     <div
       className="shrink-0 flex flex-col border-l border-[var(--gray-5)] bg-white z-20 overflow-hidden relative"
       style={{ width: `${width}px` }}
@@ -927,6 +1135,21 @@ export function FlowPreviewPanel({ flow, onClose }: Props) {
       {/* ── Header ────────────────────────────────────── */}
       <div className="flex items-center gap-2.5 border-b border-[var(--gray-4)] px-4 py-3 shrink-0">
         <span className="flex-1 text-[13px] font-semibold text-[var(--gray-12)]">Preview</span>
+
+        {/* Debug toggle */}
+        <button
+          onClick={() => setDebugOpen((o) => !o)}
+          title={debugOpen ? 'Hide debug console' : 'Show debug console'}
+          className={cn(
+            'flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-[12px] font-medium transition-colors active:scale-95',
+            debugOpen
+              ? 'bg-[#fff4ee] text-[#f76808] border border-[#f76808]/30'
+              : 'border border-[var(--gray-5)] text-[var(--gray-11)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
+          )}
+        >
+          <LuTerminal className="h-3.5 w-3.5" strokeWidth={2} />
+          Debug
+        </button>
 
         {/* Restart */}
         <button
@@ -1032,5 +1255,6 @@ export function FlowPreviewPanel({ flow, onClose }: Props) {
         flowVariables={flow.variables}
       />
     </div>
+    </>
   );
 }

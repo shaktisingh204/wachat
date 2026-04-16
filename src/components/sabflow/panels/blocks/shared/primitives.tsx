@@ -1,6 +1,7 @@
 'use client';
 
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
+import { LuChevronDown } from 'react-icons/lu';
 import { cn } from '@/lib/utils';
 
 /** Labelled field wrapper */
@@ -52,6 +53,43 @@ export function PanelHeader({
       <span className="text-[12px] font-semibold text-[var(--gray-11)] uppercase tracking-wide">
         {title}
       </span>
+    </div>
+  );
+}
+
+/**
+ * Collapsible settings section — used to group advanced options
+ * (e.g. "Validation") so the default panel stays uncluttered.
+ */
+export function CollapsibleSection({
+  title,
+  defaultOpen = false,
+  children,
+}: {
+  title: string;
+  defaultOpen?: boolean;
+  children: ReactNode;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div className="rounded-lg border border-[var(--gray-4)] bg-[var(--gray-2)]/40">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        className="flex w-full items-center justify-between px-3 py-2 text-[11.5px] font-semibold text-[var(--gray-11)] uppercase tracking-wide hover:text-[var(--gray-12)]"
+      >
+        <span>{title}</span>
+        <LuChevronDown
+          className={cn(
+            'h-3.5 w-3.5 shrink-0 transition-transform',
+            open ? 'rotate-180' : 'rotate-0',
+          )}
+          strokeWidth={2}
+          aria-hidden="true"
+        />
+      </button>
+      {open && <div className="space-y-3 border-t border-[var(--gray-4)] px-3 py-3">{children}</div>}
     </div>
   );
 }

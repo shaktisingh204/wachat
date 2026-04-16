@@ -10,6 +10,7 @@
  */
 
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   LuHistory,
   LuRotateCcw,
@@ -17,9 +18,10 @@ import {
   LuPlus,
   LuCheck,
   LuLoader,
-  LuAlertTriangle,
+  LuTriangleAlert,
   LuClock,
   LuTag,
+  LuGitCompare,
 } from 'react-icons/lu';
 import { cn } from '@/lib/utils';
 import type { SabFlowDoc } from '@/lib/sabflow/types';
@@ -89,7 +91,7 @@ function ConfirmDialog({ versionLabel, onConfirm, onCancel }: ConfirmDialogProps
       <div className="relative z-10 w-full max-w-sm rounded-2xl border border-[var(--gray-5)] bg-[var(--gray-1)] p-5 shadow-xl">
         <div className="flex items-start gap-3">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-500 dark:bg-amber-950/40 dark:text-amber-400">
-            <LuAlertTriangle className="h-4.5 w-4.5" strokeWidth={2} />
+            <LuTriangleAlert className="h-4.5 w-4.5" strokeWidth={2} />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-[13.5px] font-semibold text-[var(--gray-12)]">
@@ -129,6 +131,7 @@ function ConfirmDialog({ versionLabel, onConfirm, onCancel }: ConfirmDialogProps
 /* ── VersionHistoryPanel ────────────────────────────────────────────────────── */
 
 export function VersionHistoryPanel({ flowId, onClose, onRestore }: Props) {
+  const router = useRouter();
   const [versions, setVersions] = useState<VersionSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
@@ -321,7 +324,7 @@ export function VersionHistoryPanel({ flowId, onClose, onRestore }: Props) {
         {/* ── Restore error banner ──────────────────────────────── */}
         {restoreError && (
           <div className="mx-3 mt-2 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 dark:border-red-800 dark:bg-red-950/30 shrink-0">
-            <LuAlertTriangle className="h-3.5 w-3.5 shrink-0 text-red-500" strokeWidth={2} />
+            <LuTriangleAlert className="h-3.5 w-3.5 shrink-0 text-red-500" strokeWidth={2} />
             <p className="text-[11.5px] text-red-600 dark:text-red-400 flex-1 min-w-0 truncate">{restoreError}</p>
             <button
               type="button"
@@ -342,7 +345,7 @@ export function VersionHistoryPanel({ flowId, onClose, onRestore }: Props) {
           ) : fetchError ? (
             <div className="flex flex-col items-center justify-center py-10 gap-3 text-center px-2">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-50 text-red-500 dark:bg-red-950/30">
-                <LuAlertTriangle className="h-5 w-5" strokeWidth={1.5} />
+                <LuTriangleAlert className="h-5 w-5" strokeWidth={1.5} />
               </div>
               <div>
                 <p className="text-[12.5px] font-medium text-[var(--gray-11)]">Could not load versions</p>
@@ -376,6 +379,11 @@ export function VersionHistoryPanel({ flowId, onClose, onRestore }: Props) {
                 isLatest={idx === 0}
                 isRestoring={restoringId === version._id}
                 onRestore={() => setConfirmingId(version._id)}
+                onCompare={() =>
+                  router.push(
+                    `/dashboard/sabflow/flow-builder/${flowId}/diff?from=${version._id}&to=current`,
+                  )
+                }
               />
             ))
           )}
@@ -401,9 +409,10 @@ interface VersionRowProps {
   isLatest: boolean;
   isRestoring: boolean;
   onRestore: () => void;
+  onCompare: () => void;
 }
 
-function VersionRow({ version, isLatest, isRestoring, onRestore }: VersionRowProps) {
+function VersionRow({ version, isLatest, isRestoring, onRestore, onCompare }: VersionRowProps) {
   return (
     <div
       className={cn(
@@ -443,25 +452,45 @@ function VersionRow({ version, isLatest, isRestoring, onRestore }: VersionRowPro
         </p>
       </div>
 
-      {/* Restore button */}
-      <button
-        type="button"
-        onClick={onRestore}
-        disabled={isRestoring}
-        title="Restore this version"
-        aria-label={`Restore version "${version.label}"`}
-        className={cn(
-          'flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors mt-0.5',
-          isRestoring
-            ? 'text-[var(--gray-8)] cursor-wait'
-            : 'text-[var(--gray-8)] opacity-0 group-hover:opacity-100 hover:bg-amber-50 hover:text-amber-600 dark:hover:bg-amber-950/30 dark:hover:text-amber-400',
-        )}
-      >
-        {isRestoring
-          ? <LuLoader className="h-3.5 w-3.5 animate-spin" strokeWidth={2} />
-          : <LuRotateCcw className="h-3.5 w-3.5" strokeWidth={2} />
-        }
-      </button>
+      {/* Action buttons */}
+      <div className="flex items-center gap-0.5 mt-0.5">
+        {/* Compare with current */}
+        <button
+          type="button"
+          onClick={onCompare}
+          disabled={isLatest}
+          title={isLatest ? 'This is the latest saved version' : 'Compare with current'}
+          aria-label={`Compare version "${version.label}" with current`}
+          className={cn(
+            'flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors',
+            isLatest
+              ? 'text-[var(--gray-7)] cursor-not-allowed opacity-40'
+              : 'text-[var(--gray-8)] opacity-0 group-hover:opacity-100 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-950/30 dark:hover:text-blue-400',
+          )}
+        >
+          <LuGitCompare className="h-3.5 w-3.5" strokeWidth={2} />
+        </button>
+
+        {/* Restore */}
+        <button
+          type="button"
+          onClick={onRestore}
+          disabled={isRestoring}
+          title="Restore this version"
+          aria-label={`Restore version "${version.label}"`}
+          className={cn(
+            'flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors',
+            isRestoring
+              ? 'text-[var(--gray-8)] cursor-wait'
+              : 'text-[var(--gray-8)] opacity-0 group-hover:opacity-100 hover:bg-amber-50 hover:text-amber-600 dark:hover:bg-amber-950/30 dark:hover:text-amber-400',
+          )}
+        >
+          {isRestoring
+            ? <LuLoader className="h-3.5 w-3.5 animate-spin" strokeWidth={2} />
+            : <LuRotateCcw className="h-3.5 w-3.5" strokeWidth={2} />
+          }
+        </button>
+      </div>
     </div>
   );
 }

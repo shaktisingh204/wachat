@@ -1,8 +1,9 @@
 'use client';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import type { Block } from '@/lib/sabflow/types';
 import { cn } from '@/lib/utils';
-import { LuVideo, LuLink, LuExternalLink } from 'react-icons/lu';
+import { LuVideo, LuLink, LuExternalLink, LuUpload } from 'react-icons/lu';
+import { FileUploadInput } from './shared/FileUploadInput';
 
 /* ── Shared primitives ──────────────────────────────────────── */
 const inputClass =
@@ -131,18 +132,65 @@ function VideoPreview({ parsed }: { parsed: ParsedVideo }) {
   );
 }
 
+/* ── Tab switcher ───────────────────────────────────────────── */
+type Tab = 'upload' | 'url';
+
+function TabSwitcher({
+  active,
+  onChange,
+}: {
+  active: Tab;
+  onChange: (next: Tab) => void;
+}) {
+  const btn = (tab: Tab, label: string, Icon: typeof LuUpload) => (
+    <button
+      key={tab}
+      type="button"
+      onClick={() => onChange(tab)}
+      className={cn(
+        'flex flex-1 items-center justify-center gap-1.5 rounded-md px-2.5 py-1.5 text-[12px] font-medium transition-colors',
+        active === tab
+          ? 'bg-[var(--gray-1)] text-[var(--gray-12)] shadow-sm'
+          : 'text-[var(--gray-9)] hover:text-[var(--gray-11)]',
+      )}
+    >
+      <Icon className="h-3.5 w-3.5" strokeWidth={1.8} />
+      {label}
+    </button>
+  );
+
+  return (
+    <div className="flex items-center gap-1 rounded-lg bg-[var(--gray-3)] p-1">
+      {btn('upload', 'Upload', LuUpload)}
+      {btn('url', 'URL', LuLink)}
+    </div>
+  );
+}
+
 /* ── Main component ─────────────────────────────────────────── */
 type Props = {
   block: Block;
   onBlockChange: (block: Block) => void;
+  workspaceId?: string;
+  flowId?: string;
   className?: string;
 };
 
-export function VideoBubbleSettings({ block, onBlockChange, className }: Props) {
+export function VideoBubbleSettings({
+  block,
+  onBlockChange,
+  workspaceId,
+  flowId,
+  className,
+}: Props) {
   const options = block.options ?? {};
   const url = String(options.url ?? '');
 
   const parsed = useMemo(() => parseVideoUrl(url), [url]);
+
+  const [tab, setTab] = useState<Tab>(
+    !url && workspaceId ? 'upload' : url.startsWith('/uploads/') ? 'upload' : 'url',
+  );
 
   const update = useCallback(
     (patch: Record<string, unknown>) => {
@@ -164,51 +212,67 @@ export function VideoBubbleSettings({ block, onBlockChange, className }: Props) 
       </div>
 
       {/* Preview */}
-      <VideoPreview parsed={parsed} />
+      {tab === 'url' && <VideoPreview parsed={parsed} />}
 
-      {/* URL input */}
-      <Field label="Video URL">
-        <div className="relative flex items-center">
-          <LuLink
-            className="absolute left-3 h-3.5 w-3.5 text-[var(--gray-7)] pointer-events-none"
-            strokeWidth={1.8}
-          />
-          <input
-            type="url"
-            value={url}
-            onChange={(e) => update({ url: e.target.value })}
-            placeholder="YouTube, Vimeo, or direct .mp4 URL"
-            className={cn(inputClass, 'pl-8')}
-          />
-        </div>
+      {/* Tabs */}
+      {workspaceId && <TabSwitcher active={tab} onChange={setTab} />}
 
-        {/* Provider badge row */}
-        {url && (
-          <div className="flex items-center gap-2">
-            <ProviderBadge provider={parsed.provider} />
-            {parsed.provider === 'unknown' && url && (
-              <span className="text-[11px] text-[var(--gray-8)]">
-                Paste a YouTube, Vimeo, or direct video URL
-              </span>
+      {tab === 'upload' && workspaceId ? (
+        <FileUploadInput
+          label="Video file"
+          value={url}
+          onChange={(u) => update({ url: u })}
+          accept="video/*"
+          flowId={flowId}
+          workspaceId={workspaceId}
+        />
+      ) : (
+        <>
+          {/* URL input */}
+          <Field label="Video URL">
+            <div className="relative flex items-center">
+              <LuLink
+                className="absolute left-3 h-3.5 w-3.5 text-[var(--gray-7)] pointer-events-none"
+                strokeWidth={1.8}
+              />
+              <input
+                type="url"
+                value={url}
+                onChange={(e) => update({ url: e.target.value })}
+                placeholder="YouTube, Vimeo, or direct .mp4 URL"
+                className={cn(inputClass, 'pl-8')}
+              />
+            </div>
+
+            {/* Provider badge row */}
+            {url && (
+              <div className="flex items-center gap-2">
+                <ProviderBadge provider={parsed.provider} />
+                {parsed.provider === 'unknown' && url && (
+                  <span className="text-[11px] text-[var(--gray-8)]">
+                    Paste a YouTube, Vimeo, or direct video URL
+                  </span>
+                )}
+              </div>
             )}
-          </div>
-        )}
-      </Field>
+          </Field>
 
-      {/* Hint */}
-      <div className="rounded-lg border border-dashed border-[var(--gray-6)] p-3 text-[12px] text-[var(--gray-9)] leading-relaxed">
-        <div className="flex items-start gap-2">
-          <LuExternalLink className="mt-0.5 h-3.5 w-3.5 shrink-0" strokeWidth={1.5} />
-          <span>
-            Supports <strong>YouTube</strong>, <strong>Vimeo</strong>, direct{' '}
-            <code className="font-mono bg-[var(--gray-3)] px-1 rounded">.mp4</code> URLs,
-            or{' '}
-            <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-[#f76808]">
-              {'{{variable}}'}
-            </code>
-          </span>
-        </div>
-      </div>
+          {/* Hint */}
+          <div className="rounded-lg border border-dashed border-[var(--gray-6)] p-3 text-[12px] text-[var(--gray-9)] leading-relaxed">
+            <div className="flex items-start gap-2">
+              <LuExternalLink className="mt-0.5 h-3.5 w-3.5 shrink-0" strokeWidth={1.5} />
+              <span>
+                Supports <strong>YouTube</strong>, <strong>Vimeo</strong>, direct{' '}
+                <code className="font-mono bg-[var(--gray-3)] px-1 rounded">.mp4</code> URLs,
+                or{' '}
+                <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-[#f76808]">
+                  {'{{variable}}'}
+                </code>
+              </span>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

@@ -3,7 +3,13 @@
 import { LuHash } from 'react-icons/lu';
 import type { Block, Variable } from '@/lib/sabflow/types';
 import { VariableSelect } from './shared/VariableSelect';
-import { Field, PanelHeader, inputClass } from './shared/primitives';
+import {
+  Field,
+  PanelHeader,
+  CollapsibleSection,
+  inputClass,
+  toggleClass,
+} from './shared/primitives';
 
 type Props = {
   block: Block;
@@ -19,6 +25,7 @@ export function NumberInputSettings({ block, onBlockChange, variables = [] }: Pr
 
   const placeholder = String(options.placeholder ?? '');
   const variableId = typeof options.variableId === 'string' ? options.variableId : undefined;
+  const integer = Boolean(options.integer ?? false);
 
   const toNum = (v: unknown): string =>
     v !== undefined && v !== null ? String(v) : '';
@@ -37,44 +44,6 @@ export function NumberInputSettings({ block, onBlockChange, variables = [] }: Pr
         />
       </Field>
 
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="Min">
-          <input
-            type="number"
-            value={toNum(options.min)}
-            onChange={(e) =>
-              update({ min: e.target.value === '' ? undefined : Number(e.target.value) })
-            }
-            placeholder="—"
-            className={inputClass}
-          />
-        </Field>
-        <Field label="Max">
-          <input
-            type="number"
-            value={toNum(options.max)}
-            onChange={(e) =>
-              update({ max: e.target.value === '' ? undefined : Number(e.target.value) })
-            }
-            placeholder="—"
-            className={inputClass}
-          />
-        </Field>
-      </div>
-
-      <Field label="Step">
-        <input
-          type="number"
-          value={toNum(options.step)}
-          onChange={(e) =>
-            update({ step: e.target.value === '' ? undefined : Number(e.target.value) })
-          }
-          placeholder="1"
-          min={0}
-          className={inputClass}
-        />
-      </Field>
-
       <Field label="Save answer to variable">
         <VariableSelect
           variables={variables}
@@ -82,6 +51,65 @@ export function NumberInputSettings({ block, onBlockChange, variables = [] }: Pr
           onChange={(id) => update({ variableId: id })}
         />
       </Field>
+
+      <CollapsibleSection title="Validation" defaultOpen>
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="Min">
+            <input
+              type="number"
+              value={toNum(options.min)}
+              onChange={(e) =>
+                update({ min: e.target.value === '' ? undefined : Number(e.target.value) })
+              }
+              placeholder="—"
+              className={inputClass}
+            />
+          </Field>
+          <Field label="Max">
+            <input
+              type="number"
+              value={toNum(options.max)}
+              onChange={(e) =>
+                update({ max: e.target.value === '' ? undefined : Number(e.target.value) })
+              }
+              placeholder="—"
+              className={inputClass}
+            />
+          </Field>
+        </div>
+
+        <Field label="Step">
+          <input
+            type="number"
+            value={toNum(options.step)}
+            onChange={(e) =>
+              update({ step: e.target.value === '' ? undefined : Number(e.target.value) })
+            }
+            placeholder="1"
+            min={0}
+            className={inputClass}
+          />
+        </Field>
+
+        <div className="flex items-center justify-between">
+          <label className="text-[11.5px] font-medium text-[var(--gray-10)] uppercase tracking-wide">
+            Whole numbers only
+          </label>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={integer}
+            onClick={() => update({ integer: !integer })}
+            className={toggleClass(integer)}
+          >
+            <span
+              className={`block h-4 w-4 rounded-full bg-white shadow transition-transform ${
+                integer ? 'translate-x-5' : 'translate-x-0.5'
+              }`}
+            />
+          </button>
+        </div>
+      </CollapsibleSection>
     </div>
   );
 }

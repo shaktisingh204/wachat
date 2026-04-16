@@ -1,8 +1,9 @@
 'use client';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import type { Block } from '@/lib/sabflow/types';
 import { cn } from '@/lib/utils';
-import { LuMic, LuLink, LuMusic } from 'react-icons/lu';
+import { LuMic, LuLink, LuMusic, LuUpload } from 'react-icons/lu';
+import { FileUploadInput } from './shared/FileUploadInput';
 
 /* ── Shared primitives ──────────────────────────────────────── */
 const inputClass =
@@ -41,16 +42,63 @@ function AudioPreview({ url }: { url: string }) {
   );
 }
 
+/* ── Tab switcher ──────────────────────────────────────────── */
+type Tab = 'upload' | 'url';
+
+function TabSwitcher({
+  active,
+  onChange,
+}: {
+  active: Tab;
+  onChange: (next: Tab) => void;
+}) {
+  const btn = (tab: Tab, label: string, Icon: typeof LuUpload) => (
+    <button
+      key={tab}
+      type="button"
+      onClick={() => onChange(tab)}
+      className={cn(
+        'flex flex-1 items-center justify-center gap-1.5 rounded-md px-2.5 py-1.5 text-[12px] font-medium transition-colors',
+        active === tab
+          ? 'bg-[var(--gray-1)] text-[var(--gray-12)] shadow-sm'
+          : 'text-[var(--gray-9)] hover:text-[var(--gray-11)]',
+      )}
+    >
+      <Icon className="h-3.5 w-3.5" strokeWidth={1.8} />
+      {label}
+    </button>
+  );
+
+  return (
+    <div className="flex items-center gap-1 rounded-lg bg-[var(--gray-3)] p-1">
+      {btn('upload', 'Upload', LuUpload)}
+      {btn('url', 'URL', LuLink)}
+    </div>
+  );
+}
+
 /* ── Main component ─────────────────────────────────────────── */
 type Props = {
   block: Block;
   onBlockChange: (block: Block) => void;
+  workspaceId?: string;
+  flowId?: string;
   className?: string;
 };
 
-export function AudioBubbleSettings({ block, onBlockChange, className }: Props) {
+export function AudioBubbleSettings({
+  block,
+  onBlockChange,
+  workspaceId,
+  flowId,
+  className,
+}: Props) {
   const options = block.options ?? {};
   const url = String(options.url ?? '');
+
+  const [tab, setTab] = useState<Tab>(
+    !url && workspaceId ? 'upload' : url.startsWith('/uploads/') ? 'upload' : 'url',
+  );
 
   const update = useCallback(
     (patch: Record<string, unknown>) => {
@@ -72,33 +120,46 @@ export function AudioBubbleSettings({ block, onBlockChange, className }: Props) 
       </div>
 
       {/* Preview */}
-      <AudioPreview url={url} />
+      {tab === 'url' && <AudioPreview url={url} />}
 
-      {/* URL input */}
-      <Field label="Audio URL">
-        <div className="relative flex items-center">
-          <LuLink
-            className="absolute left-3 h-3.5 w-3.5 text-[var(--gray-7)] pointer-events-none"
-            strokeWidth={1.8}
-          />
-          <input
-            type="url"
-            value={url}
-            onChange={(e) => update({ url: e.target.value })}
-            placeholder="https://example.com/audio.mp3 or {{audioUrl}}"
-            className={cn(inputClass, 'pl-8')}
-          />
-        </div>
-        <p className="text-[11px] text-[var(--gray-8)]">
-          Supports{' '}
-          <code className="font-mono bg-[var(--gray-3)] px-1 rounded">.mp3</code>,{' '}
-          <code className="font-mono bg-[var(--gray-3)] px-1 rounded">.wav</code>,{' '}
-          <code className="font-mono bg-[var(--gray-3)] px-1 rounded">.ogg</code>, or{' '}
-          <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-[#f76808]">
-            {'{{variable}}'}
-          </code>
-        </p>
-      </Field>
+      {/* Tabs */}
+      {workspaceId && <TabSwitcher active={tab} onChange={setTab} />}
+
+      {tab === 'upload' && workspaceId ? (
+        <FileUploadInput
+          label="Audio file"
+          value={url}
+          onChange={(u) => update({ url: u })}
+          accept="audio/*"
+          flowId={flowId}
+          workspaceId={workspaceId}
+        />
+      ) : (
+        <Field label="Audio URL">
+          <div className="relative flex items-center">
+            <LuLink
+              className="absolute left-3 h-3.5 w-3.5 text-[var(--gray-7)] pointer-events-none"
+              strokeWidth={1.8}
+            />
+            <input
+              type="url"
+              value={url}
+              onChange={(e) => update({ url: e.target.value })}
+              placeholder="https://example.com/audio.mp3 or {{audioUrl}}"
+              className={cn(inputClass, 'pl-8')}
+            />
+          </div>
+          <p className="text-[11px] text-[var(--gray-8)]">
+            Supports{' '}
+            <code className="font-mono bg-[var(--gray-3)] px-1 rounded">.mp3</code>,{' '}
+            <code className="font-mono bg-[var(--gray-3)] px-1 rounded">.wav</code>,{' '}
+            <code className="font-mono bg-[var(--gray-3)] px-1 rounded">.ogg</code>, or{' '}
+            <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-[#f76808]">
+              {'{{variable}}'}
+            </code>
+          </p>
+        </Field>
+      )}
     </div>
   );
 }

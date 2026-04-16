@@ -3,7 +3,14 @@
 import { LuCalendar } from 'react-icons/lu';
 import type { Block, Variable } from '@/lib/sabflow/types';
 import { VariableSelect } from './shared/VariableSelect';
-import { Field, PanelHeader, inputClass, selectClass, toggleClass } from './shared/primitives';
+import {
+  Field,
+  PanelHeader,
+  CollapsibleSection,
+  inputClass,
+  selectClass,
+  toggleClass,
+} from './shared/primitives';
 
 type Props = {
   block: Block;
@@ -73,27 +80,6 @@ export function DateInputSettings({ block, onBlockChange, variables = [] }: Prop
         </button>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="Min date">
-          <input
-            type="text"
-            value={minDate}
-            onChange={(e) => update({ minDate: e.target.value || undefined })}
-            placeholder={hasTime ? 'YYYY-MM-DDTHH:mm' : 'YYYY-MM-DD'}
-            className={inputClass}
-          />
-        </Field>
-        <Field label="Max date">
-          <input
-            type="text"
-            value={maxDate}
-            onChange={(e) => update({ maxDate: e.target.value || undefined })}
-            placeholder={hasTime ? 'YYYY-MM-DDTHH:mm' : 'YYYY-MM-DD'}
-            className={inputClass}
-          />
-        </Field>
-      </div>
-
       <Field label="Save answer to variable">
         <VariableSelect
           variables={variables}
@@ -101,6 +87,29 @@ export function DateInputSettings({ block, onBlockChange, variables = [] }: Prop
           onChange={(id) => update({ variableId: id })}
         />
       </Field>
+
+      <CollapsibleSection title="Validation" defaultOpen>
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="Min date">
+            <input
+              type={hasTime ? 'datetime-local' : 'date'}
+              value={minDate}
+              onChange={(e) => update({ minDate: e.target.value || undefined })}
+              placeholder={hasTime ? 'YYYY-MM-DDTHH:mm' : 'YYYY-MM-DD'}
+              className={inputClass}
+            />
+          </Field>
+          <Field label="Max date">
+            <input
+              type={hasTime ? 'datetime-local' : 'date'}
+              value={maxDate}
+              onChange={(e) => update({ maxDate: e.target.value || undefined })}
+              placeholder={hasTime ? 'YYYY-MM-DDTHH:mm' : 'YYYY-MM-DD'}
+              className={inputClass}
+            />
+          </Field>
+        </div>
+      </CollapsibleSection>
     </div>
   );
 }

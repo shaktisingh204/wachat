@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils';
 import type { Block, Variable } from '@/lib/sabflow/types';
 import { Field, PanelHeader, inputClass, selectClass, Divider, toggleClass } from './shared/primitives';
 import { VariableSelect } from './shared/VariableSelect';
+import { VariableAutocompleteInput } from './shared/VariableAutocompleteInput';
 
 /* ══════════════════════════════════════════════════════════
    Types
@@ -359,13 +360,15 @@ function AskAssistantSection({
       <SectionLabel>Prompt</SectionLabel>
 
       <Field label="System prompt">
-        <textarea
+        <VariableAutocompleteInput
+          type="textarea"
           value={opts.systemPrompt ?? ''}
-          onChange={(e) => update({ systemPrompt: e.target.value })}
+          onChange={(v) => update({ systemPrompt: v })}
+          variables={variables}
           placeholder="You are a helpful assistant…"
           rows={4}
-          spellCheck
-          className={cn(inputClass, 'resize-y min-h-[80px]')}
+          aria-label="System prompt"
+          className="min-h-[80px]"
         />
         <VariableHint />
       </Field>
@@ -405,6 +408,7 @@ function AskAssistantSection({
               key={msg.id}
               index={idx}
               message={msg}
+              variables={variables}
               onRemove={() => removeMessage(msg.id)}
               onPatch={(patch) => patchMessage(msg.id, patch)}
             />
@@ -534,11 +538,12 @@ function AskAssistantSection({
 type CustomMessageRowProps = {
   index: number;
   message: CustomMessage;
+  variables: Variable[];
   onRemove: () => void;
   onPatch: (patch: Partial<Omit<CustomMessage, 'id'>>) => void;
 };
 
-function CustomMessageRow({ index, message, onRemove, onPatch }: CustomMessageRowProps) {
+function CustomMessageRow({ index, message, variables, onRemove, onPatch }: CustomMessageRowProps) {
   return (
     <div className="rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] p-2.5 space-y-2">
       <div className="flex items-center gap-2">
@@ -561,14 +566,16 @@ function CustomMessageRow({ index, message, onRemove, onPatch }: CustomMessageRo
           <LuTrash2 className="h-3.5 w-3.5" strokeWidth={1.8} />
         </button>
       </div>
-      <textarea
+      <VariableAutocompleteInput
+        type="textarea"
         value={message.content}
-        onChange={(e) => onPatch({ content: e.target.value })}
+        onChange={(v) => onPatch({ content: v })}
+        variables={variables}
         placeholder="Message content… {{variable}} supported"
         rows={2}
         spellCheck={false}
-        className={cn(inputClass, 'resize-y min-h-[52px] text-[12px]')}
         aria-label={`Message ${index + 1} content`}
+        className="min-h-[52px] text-[12px]"
       />
     </div>
   );
@@ -590,13 +597,16 @@ function CreateImageSection({ opts, update, variables }: CreateImageSectionProps
       <SectionLabel>Image generation</SectionLabel>
 
       <Field label="Prompt">
-        <textarea
+        <VariableAutocompleteInput
+          type="textarea"
           value={opts.imagePrompt ?? ''}
-          onChange={(e) => update({ imagePrompt: e.target.value })}
+          onChange={(v) => update({ imagePrompt: v })}
+          variables={variables}
           placeholder="A photo of a cat wearing a space suit…"
           rows={3}
           spellCheck={false}
-          className={cn(inputClass, 'resize-y min-h-[70px]')}
+          aria-label="Image prompt"
+          className="min-h-[70px]"
         />
         <VariableHint />
       </Field>
@@ -710,13 +720,16 @@ function CreateSpeechSection({ opts, update, variables }: CreateSpeechSectionPro
       <SectionLabel>Text to speech</SectionLabel>
 
       <Field label="Text">
-        <textarea
+        <VariableAutocompleteInput
+          type="textarea"
           value={opts.speechText ?? ''}
-          onChange={(e) => update({ speechText: e.target.value })}
+          onChange={(v) => update({ speechText: v })}
+          variables={variables}
           placeholder="Hello {{name}}, welcome!"
           rows={3}
           spellCheck={false}
-          className={cn(inputClass, 'resize-y min-h-[70px]')}
+          aria-label="Speech text"
+          className="min-h-[70px]"
         />
         <VariableHint />
       </Field>
@@ -765,13 +778,16 @@ function CreateEmbeddingSection({ opts, update, variables }: CreateEmbeddingSect
       <SectionLabel>Embedding</SectionLabel>
 
       <Field label="Input text">
-        <textarea
+        <VariableAutocompleteInput
+          type="textarea"
           value={opts.embeddingInput ?? ''}
-          onChange={(e) => update({ embeddingInput: e.target.value })}
+          onChange={(v) => update({ embeddingInput: v })}
+          variables={variables}
           placeholder="Text to embed… {{variable}} supported"
           rows={3}
           spellCheck={false}
-          className={cn(inputClass, 'resize-y min-h-[70px]')}
+          aria-label="Embedding input text"
+          className="min-h-[70px]"
         />
         <VariableHint />
       </Field>

@@ -55,18 +55,40 @@ interface BubbleOpts {
 
 /* ── Snippet builders ────────────────────────────────────── */
 
+/** Derive the app origin + flow id from the public share URL. */
+function parseShareUrl(shareUrl: string): { origin: string; flowId: string } {
+  try {
+    const url = new URL(shareUrl);
+    const flowId = url.pathname.split('/').filter(Boolean).pop() ?? '';
+    return { origin: url.origin, flowId };
+  } catch {
+    // Fallback for SSR / malformed URL
+    const flowId = shareUrl.split('/').filter(Boolean).pop() ?? '';
+    return { origin: '', flowId };
+  }
+}
+
 function buildStandardSnippet(shareUrl: string, opts: StandardOpts): string {
-  return `<iframe
-  src="${shareUrl}"
-  style="width:100%;height:${opts.height}px;border:none;border-radius:${opts.borderRadius}px;"
-  allow="microphone"
-></iframe>`;
+  const { origin, flowId } = parseShareUrl(shareUrl);
+  // Two options shown: direct iframe, or data-* standard mode via embed.js
+  return `<!-- SabFlow — Standard embed (inline iframe) -->
+<div id="sabflow-container" style="width:100%;height:${opts.height}px;border-radius:${opts.borderRadius}px;overflow:hidden;"></div>
+<script
+  src="${origin}/embed.js"
+  data-flow-id="${flowId}"
+  data-mode="standard"
+  data-container="#sabflow-container"
+  data-height="${opts.height}px"
+  data-border-radius="${opts.borderRadius}"
+></script>`;
 }
 
 function buildPopupSnippet(shareUrl: string, opts: PopupOpts): string {
-  return `<script
-  src="${typeof window !== 'undefined' ? window.location.origin : ''}/embed.js"
-  data-flow-id="${shareUrl.split('/').pop() ?? ''}"
+  const { origin, flowId } = parseShareUrl(shareUrl);
+  return `<!-- SabFlow — Popup embed (button opens a centred modal) -->
+<script
+  src="${origin}/embed.js"
+  data-flow-id="${flowId}"
   data-mode="popup"
   data-button-label="${opts.buttonLabel}"
   data-button-color="${opts.buttonColor}"
@@ -74,12 +96,15 @@ function buildPopupSnippet(shareUrl: string, opts: PopupOpts): string {
 }
 
 function buildBubbleSnippet(shareUrl: string, opts: BubbleOpts): string {
-  return `<script
-  src="${typeof window !== 'undefined' ? window.location.origin : ''}/embed.js"
-  data-flow-id="${shareUrl.split('/').pop() ?? ''}"
+  const { origin, flowId } = parseShareUrl(shareUrl);
+  return `<!-- SabFlow — Bubble embed (floating chat button) -->
+<script
+  src="${origin}/embed.js"
+  data-flow-id="${flowId}"
   data-mode="bubble"
   data-button-text="${opts.buttonText}"
-  data-position="${opts.position}"
+  data-button-color="${ACCENT}"
+  data-button-position="${opts.position}"
 ></script>`;
 }
 

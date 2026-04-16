@@ -13,6 +13,8 @@ import { SelectBox } from './SelectBox';
 import { ZoomButtons } from './ZoomButtons';
 import { CanvasMiniMap } from './CanvasMiniMap';
 import { ShortcutsHelp } from './ShortcutsHelp';
+import { AnalyticsProvider } from '../providers/AnalyticsProvider';
+import { AnalyticsToggle } from './AnalyticsToggle';
 import { computeSelectBoxDimensions } from '../helpers/computeSelectBoxDimensions';
 import { isSelectBoxIntersectingWithElement } from '../helpers/isSelectBoxIntersectingWithElement';
 import type { SabFlowDoc, SabFlowEvent, Group, Coordinates } from '@/lib/sabflow/types';
@@ -66,6 +68,9 @@ export function Graph({ flow, onFlowChange, containerRef, onUndo, onRedo }: Prop
 
   // Shortcuts help panel
   const [isShortcutsHelpOpen, setIsShortcutsHelpOpen] = useState(false);
+
+  // Analytics heatmap sub-toggle — lives here so HeatmapOverlay can read it.
+  const [isHeatmapEnabled, setIsHeatmapEnabled] = useState(false);
 
   // Rubber-band selection
   const [selectBoxCoordinates, setSelectBoxCoordinates] = useState<SelectBoxCoordinates | undefined>(undefined);
@@ -407,7 +412,10 @@ export function Graph({ flow, onFlowChange, containerRef, onUndo, onRedo }: Prop
         ? 'cursor-grabbing'
         : 'cursor-default';
 
+  const flowIdStr = flow._id ? String(flow._id) : undefined;
+
   return (
+    <AnalyticsProvider flowId={flowIdStr}>
     <div
       ref={canvasRef}
       className={cn('relative flex-1 overflow-hidden', cursorClass)}
@@ -444,6 +452,7 @@ export function Graph({ flow, onFlowChange, containerRef, onUndo, onRedo }: Prop
           onEdgeDelete={handleEdgeDelete}
           onEventUpdate={handleEventUpdate}
           onFlowChange={onFlowChange}
+          isHeatmapEnabled={isHeatmapEnabled}
         />
       </div>
 
@@ -467,6 +476,14 @@ export function Graph({ flow, onFlowChange, containerRef, onUndo, onRedo }: Prop
           onToggleMiniMap={() => setIsMiniMapOpen((v) => !v)}
           isMiniMapOpen={isMiniMapOpen}
           canvasRef={canvasRef}
+        />
+
+        <div className="w-px bg-[var(--gray-5)] self-stretch" />
+
+        {/* Analytics overlay toggle + popover */}
+        <AnalyticsToggle
+          isHeatmapEnabled={isHeatmapEnabled}
+          onHeatmapToggle={setIsHeatmapEnabled}
         />
 
         <div className="w-px bg-[var(--gray-5)] self-stretch" />
@@ -503,5 +520,6 @@ export function Graph({ flow, onFlowChange, containerRef, onUndo, onRedo }: Prop
         onClose={() => setIsShortcutsHelpOpen(false)}
       />
     </div>
+    </AnalyticsProvider>
   );
 }

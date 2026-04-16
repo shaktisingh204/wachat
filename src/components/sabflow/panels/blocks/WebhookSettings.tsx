@@ -6,6 +6,7 @@ import type { Block, Variable } from '@/lib/sabflow/types';
 import { cn } from '@/lib/utils';
 import { Field, inputClass, PanelHeader } from './shared/primitives';
 import { VariableSelect } from './shared/VariableSelect';
+import { VariableAutocompleteInput } from './shared/VariableAutocompleteInput';
 
 /* ── Types ──────────────────────────────────────────────────── */
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
@@ -83,13 +84,16 @@ export function WebhookSettings({ block, onBlockChange, variables = [] }: Props)
           {/* URL */}
           <Field label="URL">
             <div className="relative flex items-center">
-              <input
-                type="text"
-                value={url}
-                onChange={(e) => update({ url: e.target.value })}
-                placeholder="https://api.example.com/endpoint or {{webhookUrl}}"
-                className={cn(inputClass, 'pr-8')}
-              />
+              <div className="flex-1">
+                <VariableAutocompleteInput
+                  value={url}
+                  onChange={(v) => update({ url: v })}
+                  variables={variables}
+                  placeholder="https://api.example.com/endpoint or {{webhookUrl}}"
+                  aria-label="Request URL"
+                  className="pr-8"
+                />
+              </div>
               <LuBraces
                 className="absolute right-2.5 h-3.5 w-3.5 text-[var(--gray-7)] pointer-events-none"
                 strokeWidth={1.8}
@@ -130,13 +134,15 @@ export function WebhookSettings({ block, onBlockChange, variables = [] }: Props)
                     placeholder="Header name"
                     className={cn(inputClass, 'flex-1')}
                   />
-                  <input
-                    type="text"
-                    value={h.value}
-                    onChange={(e) => updateHeader(h.id, { value: e.target.value })}
-                    placeholder="Value"
-                    className={cn(inputClass, 'flex-1')}
-                  />
+                  <div className="flex-1">
+                    <VariableAutocompleteInput
+                      value={h.value}
+                      onChange={(v) => updateHeader(h.id, { value: v })}
+                      variables={variables}
+                      placeholder="Value"
+                      aria-label="Header value"
+                    />
+                  </div>
                   <button
                     type="button"
                     onClick={() => removeHeader(h.id)}
@@ -167,16 +173,16 @@ export function WebhookSettings({ block, onBlockChange, variables = [] }: Props)
           {/* Body */}
           {showBody && (
             <Field label="Body (JSON)">
-              <textarea
+              <VariableAutocompleteInput
+                type="textarea"
                 value={body}
-                onChange={(e) => update({ body: e.target.value })}
+                onChange={(v) => update({ body: v })}
+                variables={variables}
                 placeholder={'{\n  "key": "{{value}}"\n}'}
                 rows={6}
                 spellCheck={false}
-                className={cn(
-                  inputClass,
-                  'font-mono text-[12px] resize-y min-h-[100px]',
-                )}
+                aria-label="Request body"
+                className="font-mono text-[12px] min-h-[100px]"
               />
               <p className="text-[11px] text-[var(--gray-8)] mt-1">
                 Use{' '}

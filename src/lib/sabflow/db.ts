@@ -3,6 +3,7 @@ import { ObjectId } from 'mongodb';
 import type { Collection } from 'mongodb';
 import type { SabFlowDoc, FlowNotificationSettings, RecentSubmissionRow } from './types';
 import type { FlowSession } from './execution/types';
+import type { WhatsAppConfig } from './whatsapp/types';
 
 /* ══════════════════════════════════════════════════════════
    Version history types
@@ -166,6 +167,29 @@ export async function getVersions(flowId: string): Promise<Version[]> {
     label: d.label,
     userId: d.userId,
   }));
+}
+
+/**
+ * Returns a single Version (with full snapshot) by its id.
+ * Returns `null` when the id is invalid or the version does not belong
+ * to the given flow.
+ */
+export async function getVersionById(
+  flowId: string,
+  versionId: string,
+): Promise<Version | null> {
+  if (!ObjectId.isValid(versionId)) return null;
+  const col = await getVersionCollection();
+  const doc = await col.findOne({ _id: new ObjectId(versionId), flowId });
+  if (!doc) return null;
+  return {
+    _id: doc._id.toHexString(),
+    flowId: doc.flowId,
+    snapshot: doc.snapshot,
+    savedAt: doc.savedAt,
+    label: doc.label,
+    userId: doc.userId,
+  };
 }
 
 /**
@@ -405,4 +429,76 @@ export async function saveNotificationSettings(
     settings as NotificationSettingsDoc,
     { upsert: true },
   );
+}
+
+// ── WhatsApp config helpers ────────────────────────────────────────────────
+
+interface WhatsAppConfigDoc extends WhatsAppConfig {
+  _id?: ObjectId;
+}
+
+async function getWhatsAppConfigCollection(): Promise<Collection<WhatsAppConfigDoc>> {
+  const { db } = await connectToDatabase();
+  const col = db.collection<WhatsAppConfigDoc>('sabflow_whatsapp_configs');
+  await col.createIndex({ flowId: 1 }, { unique: true, background: true });
+  return col;
+}
+
+/**
+ * Returns the stored WhatsApp configuration for a flow, or null when none
+ * has been saved yet.  `accessToken` is returned as-is (still encrypted).
+ */
+export async function getWhatsAppConfig(
+  flowId: string,
+): Promise<WhatsAppConfig | null> {
+  const col = await getWhatsAppConfigCollection();
+  const doc = await col.findOne({ flowId });
+  if (!doc) return null;
+  const { _id: _unused, ...rest } = doc;
+  return rest as WhatsAppConfig;
+}
+
+/**
+ * Upserts (creates or fully replaces) the WhatsApp configuration for a flow.
+ * Callers are expected to have encrypted `accessToken` already.
+ */
+export async function saveWhatsAppConfig(config: WhatsAppConfig): Promise<void> {
+  const col = await getWhatsAppConfigCollection();
+  const now = new Date();
+  const toSave: WhatsAppConfigDoc = {
+    ...config,
+    createdAt: config.createdAt ?? now,
+    updatedAt: now,
+  };
+  await col.replaceOne(
+    { flowId: config.flowId },
+    toSave,
+    { upsert: true },
+  );
+}
+
+/**
+ * Finds the most recent active session for (flowId, phone).  Used by the
+ * WhatsApp webhook to resume existing conversations instead of starting a
+ * new one on every inbound message.
+ *
+ * Convention: sessions started via WhatsApp store the sender's phone number
+ * on `variables.waPhone`.  Returns null when no active session is found.
+ */
+export async function getWhatsAppSessionByPhone(
+  flowId: string,
+  phone: string,
+): Promise<FlowSession | null> {
+  const col = await getSessionCollection();
+  const doc = await col.findOne(
+    {
+      flowId,
+      status: 'active',
+      'variables.waPhone': phone,
+    },
+    { sort: { updatedAt: -1 } },
+  );
+  if (!doc) return null;
+  const { expiresAt: _exp, ...session } = doc as SessionDoc & { _id: unknown };
+  return session as unknown as FlowSession;
 }

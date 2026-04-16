@@ -11,6 +11,7 @@ import {
 import type { Block, Variable } from '@/lib/sabflow/types';
 import { Field, PanelHeader, inputClass, selectClass, Divider } from './shared/primitives';
 import { VariableSelect } from './shared/VariableSelect';
+import { VariableAutocompleteInput } from './shared/VariableAutocompleteInput';
 
 /* ── Types ───────────────────────────────────────────────────────────────── */
 
@@ -169,13 +170,15 @@ export function HttpRequestSettings({ block, onBlockChange, variables = [] }: Pr
             </option>
           ))}
         </select>
-        <input
-          type="text"
-          value={url}
-          onChange={(e) => update({ url: e.target.value })}
-          placeholder="https://api.example.com/endpoint"
-          className={inputClass}
-        />
+        <div className="flex-1">
+          <VariableAutocompleteInput
+            value={url}
+            onChange={(v) => update({ url: v })}
+            variables={variables}
+            placeholder="https://api.example.com/endpoint"
+            aria-label="Request URL"
+          />
+        </div>
       </div>
 
       <Divider />
@@ -207,13 +210,15 @@ export function HttpRequestSettings({ block, onBlockChange, variables = [] }: Pr
               placeholder="Key"
               className={`${inputClass} flex-1`}
             />
-            <input
-              type="text"
-              value={h.value}
-              onChange={(e) => updateHeader(h.id, 'value', e.target.value)}
-              placeholder="Value or {{variable}}"
-              className={`${inputClass} flex-1`}
-            />
+            <div className="flex-1">
+              <VariableAutocompleteInput
+                value={h.value}
+                onChange={(v) => updateHeader(h.id, 'value', v)}
+                variables={variables}
+                placeholder="Value or {{variable}}"
+                aria-label="Header value"
+              />
+            </div>
             <button
               type="button"
               onClick={() => removeHeader(h.id)}
@@ -245,13 +250,16 @@ export function HttpRequestSettings({ block, onBlockChange, variables = [] }: Pr
               />
             </button>
             {bodyOpen && (
-              <textarea
+              <VariableAutocompleteInput
+                type="textarea"
                 value={body}
-                onChange={(e) => update({ body: e.target.value })}
+                onChange={(v) => update({ body: v })}
+                variables={variables}
                 placeholder={'{\n  "key": "{{variable}}"\n}'}
                 rows={6}
                 spellCheck={false}
-                className={`${inputClass} resize-y font-mono text-[12px] min-h-[120px]`}
+                aria-label="Request body"
+                className="font-mono text-[12px] min-h-[120px]"
               />
             )}
           </div>

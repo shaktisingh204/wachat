@@ -74,11 +74,29 @@ export type IntegrationBlockType =
   | 'together_ai'
   | 'mistral';
 
+/**
+ * Forge-registered integration block types.
+ *
+ * These are declarative blocks implemented via `src/lib/sabflow/forge/` —
+ * a shared schema drives both the settings UI (ForgeBlockSettings) and the
+ * runtime (`ForgeAction.run`).  Add a new entry here when publishing a new
+ * forge block so it becomes assignable to the `BlockType` union.
+ */
+export type ForgeBlockType =
+  | 'forge_notion'
+  | 'forge_airtable'
+  | 'forge_slack'
+  | 'forge_discord'
+  | 'forge_github'
+  | 'forge_twilio'
+  | 'forge_sendgrid';
+
 export type BlockType =
   | BubbleBlockType
   | InputBlockType
   | LogicBlockType
-  | IntegrationBlockType;
+  | IntegrationBlockType
+  | ForgeBlockType;
 
 /* ══════════════════════════════════════════════════════════
    BLOCK OPTION TYPES — mapped from Typebot block schemas
@@ -165,6 +183,14 @@ export type TextInputOptions = {
   isLong?: boolean;
   /** HTML input mode hint */
   inputMode?: 'text' | 'decimal' | 'numeric' | 'tel' | 'search' | 'email' | 'url';
+  /** Minimum allowed character length */
+  minLength?: number;
+  /** Maximum allowed character length */
+  maxLength?: number;
+  /** Regex pattern string the value must match */
+  pattern?: string;
+  /** Message shown when the value does not match `pattern` */
+  patternMessage?: string;
 };
 
 /** Options for a numeric input block. */
@@ -180,6 +206,8 @@ export type NumberInputOptions = {
   step?: number | string;
   /** BCP 47 locale for formatting, e.g. "en-US" */
   locale?: string;
+  /** Restrict to integer (whole-number) values */
+  integer?: boolean;
 };
 
 /** Options for an email address input block. */
@@ -200,6 +228,8 @@ export type PhoneInputOptions = {
   retryMessageContent?: string;
   /** Default country code prefix, e.g. "US", "IN" */
   defaultCountryCode?: string;
+  /** Default country for validation (ISO 3166-1 alpha-2, e.g. "US", "IN"). */
+  country?: string;
 };
 
 /** Options for a URL input block. */
@@ -209,6 +239,8 @@ export type UrlInputOptions = {
   variableId?: string;
   /** Message shown when the user enters an invalid URL */
   retryMessageContent?: string;
+  /** Require the URL to use the https:// scheme. */
+  requireHttps?: boolean;
 };
 
 /** Options for a date picker input block. */
@@ -240,6 +272,10 @@ export type TimeInputOptions = {
   labels?: {
     button?: string;
   };
+  /** Earliest selectable time as "HH:MM". */
+  minTime?: string;
+  /** Latest selectable time as "HH:MM". */
+  maxTime?: string;
 };
 
 /** Options for a star / numeric rating input block. */
@@ -300,6 +336,52 @@ export type PictureChoiceOptions = {
   };
 };
 
+/* ── Payment input ────────────────────────────────────── */
+
+/** Supported payment providers. */
+export type PaymentProvider = 'stripe' | 'razorpay' | 'paypal';
+
+/** Options for a payment collection input block. */
+export type PaymentInputOptions = {
+  /** Which payment provider to charge through. */
+  provider?: PaymentProvider;
+  /** References a stored credential (stripe secret key, etc.). */
+  credentialId?: string;
+  /** Amount to charge — supports {{variables}}. Parsed as a decimal. */
+  amount?: string;
+  /** 3-letter ISO currency code, e.g. "USD". */
+  currency?: string;
+  /** Description shown on the payment provider's checkout page. */
+  description?: string;
+  /** Variable ID to store the payment result (paymentIntentId / status). */
+  variableId?: string;
+  /** Customisable UI labels. */
+  labels?: {
+    /** Button text — supports {{variables}}. Default: "Pay {{amount}}". */
+    button?: string;
+    /** Message shown after a successful payment. */
+    success?: string;
+  };
+  /** Toggle collecting extra information from the payer. */
+  additionalInformation?: {
+    /** Collect customer full name. */
+    name?: string;
+    /** Collect customer email address. */
+    email?: string;
+    /** Collect customer phone number. */
+    phoneNumber?: string;
+    /** Collect billing address fields. */
+    address?: {
+      country?: string;
+      line1?: string;
+      line2?: string;
+      city?: string;
+      state?: string;
+      postalCode?: string;
+    };
+  };
+};
+
 /** Options for a file-upload input block. */
 export type FileInputOptions = {
   isRequired?: boolean;
@@ -319,6 +401,14 @@ export type FileInputOptions = {
     isEnabled?: boolean;
     types?: string[];
   };
+  /** Maximum file size in megabytes. */
+  maxSizeMB?: number;
+  /**
+   * Flat list of accepted MIME types / extensions — e.g.
+   * ["image/*", ".pdf", "application/json"].  Simpler alternative to
+   * `allowedFileTypes.types`.
+   */
+  acceptedTypes?: string[];
 };
 
 /* ── Logic block options ──────────────────────────────── */
@@ -704,6 +794,7 @@ export type BlockOptions = (
   | ChoiceInputOptions
   | PictureChoiceOptions
   | FileInputOptions
+  | PaymentInputOptions
   | ConditionOptions
   | SetVariableOptions
   | ABTestOptions
@@ -765,7 +856,7 @@ export type TypedBlock =
   | { id: string; groupId: string; type: 'time_input';         outgoingEdgeId?: string; items?: BlockItem[]; options?: TimeInputOptions     }
   | { id: string; groupId: string; type: 'rating_input';       outgoingEdgeId?: string; items?: BlockItem[]; options?: RatingInputOptions   }
   | { id: string; groupId: string; type: 'file_input';         outgoingEdgeId?: string; items?: BlockItem[]; options?: FileInputOptions     }
-  | { id: string; groupId: string; type: 'payment_input';      outgoingEdgeId?: string; items?: BlockItem[]; options?: BlockOptions        }
+  | { id: string; groupId: string; type: 'payment_input';      outgoingEdgeId?: string; items?: BlockItem[]; options?: PaymentInputOptions }
   | { id: string; groupId: string; type: 'choice_input';       outgoingEdgeId?: string; items?: ChoiceItem[]; options?: ChoiceInputOptions  }
   | { id: string; groupId: string; type: 'picture_choice_input'; outgoingEdgeId?: string; items?: ChoiceItem[]; options?: PictureChoiceOptions }
   | { id: string; groupId: string; type: 'condition';          outgoingEdgeId?: string; items?: ConditionItem[]; options?: ConditionOptions }
@@ -1027,6 +1118,40 @@ export type FlowSettings = {
   [key: string]: unknown;
 };
 
+/* ── Annotations (canvas sticky notes / text labels) ─── */
+
+/** Pastel colour palette for sticky-note annotations. */
+export type AnnotationColor =
+  | 'yellow'
+  | 'pink'
+  | 'blue'
+  | 'green'
+  | 'purple'
+  | 'orange';
+
+/**
+ * A free-floating sticky note / label attached to the flow canvas.
+ *
+ * Annotations are not part of the flow graph (they have no edges, blocks,
+ * or runtime semantics).  They exist purely so teammates can leave comments
+ * and visual hints on the canvas.
+ */
+export type Annotation = {
+  id: string;
+  type: 'sticky_note' | 'text_label';
+  graphCoordinates: Coordinates;
+  /** Width in canvas units (defaults to 200 at render time). */
+  width?: number;
+  /** Height in canvas units (defaults to 150 at render time). */
+  height?: number;
+  /** User-authored rich-text-ish content (plain string, line-breaks allowed). */
+  content: string;
+  /** Visual colour key — maps to a pastel background palette. */
+  color?: AnnotationColor;
+  /** Optional font-size override in px. */
+  fontSize?: number;
+};
+
 /* ── SabFlow (document) ───────────────────────────────── */
 export type SabFlowDoc = {
   _id?: ObjectId;
@@ -1037,6 +1162,8 @@ export type SabFlowDoc = {
   groups: Group[];
   edges: Edge[];
   variables: Variable[];
+  /** Free-floating sticky notes / text labels on the canvas. */
+  annotations?: Annotation[];
   theme: SabFlowTheme;
   settings: FlowSettings;
   publicId?: string;

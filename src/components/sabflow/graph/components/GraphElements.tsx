@@ -5,6 +5,7 @@ import { EndpointsProvider } from '../providers/EndpointsProvider';
 import { Edges } from './edges/Edges';
 import { GroupNode } from './nodes/group/GroupNode';
 import { StartNode } from './nodes/event/StartNode';
+import { HeatmapOverlay } from './HeatmapOverlay';
 
 type Props = {
   flow: Pick<SabFlowDoc, 'groups' | 'edges' | 'events'>;
@@ -13,6 +14,8 @@ type Props = {
   onGroupBlocksChange?: (groupId: string, blocks: Group['blocks']) => void;
   onEventUpdate?: (id: string, changes: Partial<SabFlowEvent>) => void;
   onFlowChange?: (changes: Partial<Pick<SabFlowDoc, 'groups' | 'edges'>>) => void;
+  /** Analytics edge-traversal heatmap overlay toggle. */
+  isHeatmapEnabled?: boolean;
 };
 
 function GraphElements({
@@ -22,6 +25,7 @@ function GraphElements({
   onGroupBlocksChange,
   onEventUpdate,
   onFlowChange,
+  isHeatmapEnabled = false,
 }: Props) {
   return (
     <EndpointsProvider>
@@ -30,6 +34,15 @@ function GraphElements({
         groups={flow.groups}
         events={flow.events}
         onEdgeDelete={onEdgeDelete}
+      />
+      {/* Heatmap overlay — rendered inside EndpointsProvider so it can read
+          endpoint offsets; visually painted on top of the base edges but below
+          interactive elements via z-index on the svg path. */}
+      <HeatmapOverlay
+        isHeatmapEnabled={isHeatmapEnabled}
+        edges={flow.edges}
+        groups={flow.groups}
+        events={flow.events}
       />
       {flow.events.map((event) => (
         <StartNode

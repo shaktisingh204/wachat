@@ -205,6 +205,10 @@ export function processInput(
               label: item.content ?? '',
             })),
             validation: block.options?.validation as Record<string, unknown> | undefined,
+            // Forward the full block options so the client can render
+            // configuration-rich inputs (e.g. payment buttons) without having
+            // to re-fetch the flow.  Kept as unknown to avoid leaking types.
+            options: block.options,
           },
         });
 

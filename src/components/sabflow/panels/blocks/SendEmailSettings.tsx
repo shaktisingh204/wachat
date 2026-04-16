@@ -13,6 +13,7 @@ import {
 } from 'react-icons/lu';
 import type { Block, Variable, SendEmailOptions, SmtpConfig, EmailAttachment } from '@/lib/sabflow/types';
 import { Field, PanelHeader, inputClass, selectClass, Divider, toggleClass } from './shared/primitives';
+import { VariableAutocompleteInput } from './shared/VariableAutocompleteInput';
 
 /* ── Sub-components ──────────────────────────────────────────────────────── */
 
@@ -79,7 +80,7 @@ type Props = {
 
 /* ── Main component ──────────────────────────────────────────────────────── */
 
-export function SendEmailSettings({ block, onBlockChange, variables: _variables = [] }: Props) {
+export function SendEmailSettings({ block, onBlockChange, variables = [] }: Props) {
   const opts         = (block.options ?? {}) as SendEmailOptions;
   const smtp         = opts.smtp ?? {};
   const attachments  = opts.attachments ?? [];
@@ -161,12 +162,12 @@ export function SendEmailSettings({ block, onBlockChange, variables: _variables 
 
       {/* ── Recipients ───────────────────────────────────────────── */}
       <Field label="To">
-        <input
-          type="text"
+        <VariableAutocompleteInput
           value={opts.to ?? ''}
-          onChange={(e) => update({ to: e.target.value })}
+          onChange={(v) => update({ to: v })}
+          variables={variables}
           placeholder="recipient@example.com or {{email}}"
-          className={inputClass}
+          aria-label="To"
         />
         <HintText>
           Multiple addresses separated by commas. Supports <VarBadge />.
@@ -175,12 +176,12 @@ export function SendEmailSettings({ block, onBlockChange, variables: _variables 
 
       {/* ── Subject ──────────────────────────────────────────────── */}
       <Field label="Subject">
-        <input
-          type="text"
+        <VariableAutocompleteInput
           value={opts.subject ?? ''}
-          onChange={(e) => update({ subject: e.target.value })}
+          onChange={(v) => update({ subject: v })}
+          variables={variables}
           placeholder="Your order is confirmed — supports {{variable}}"
-          className={inputClass}
+          aria-label="Email subject"
         />
       </Field>
 
@@ -201,13 +202,16 @@ export function SendEmailSettings({ block, onBlockChange, variables: _variables 
       <Field label="Body">
         {bodyType === 'html' ? (
           <>
-            <textarea
+            <VariableAutocompleteInput
+              type="textarea"
               value={opts.body ?? ''}
-              onChange={(e) => update({ body: e.target.value })}
+              onChange={(v) => update({ body: v })}
+              variables={variables}
               placeholder={`<p>Hello {{name}},</p>\n<p>Your booking is confirmed.</p>`}
               rows={8}
               spellCheck={false}
-              className={`${inputClass} resize-y min-h-[160px] font-mono text-[12px] leading-relaxed`}
+              aria-label="Email HTML body"
+              className="min-h-[160px] font-mono text-[12px] leading-relaxed"
             />
             <HintText>
               Raw HTML. Use <VarBadge /> for dynamic content.
@@ -215,12 +219,15 @@ export function SendEmailSettings({ block, onBlockChange, variables: _variables 
           </>
         ) : (
           <>
-            <textarea
+            <VariableAutocompleteInput
+              type="textarea"
               value={opts.body ?? ''}
-              onChange={(e) => update({ body: e.target.value })}
+              onChange={(v) => update({ body: v })}
+              variables={variables}
               placeholder={`Hello {{name}},\n\nYour booking is confirmed.\n\nThanks,\nThe Team`}
               rows={7}
-              className={`${inputClass} resize-y min-h-[140px]`}
+              aria-label="Email body"
+              className="min-h-[140px]"
             />
             <HintText>
               Plain text with line breaks. Use <VarBadge /> for dynamic content. Basic HTML tags
@@ -257,14 +264,16 @@ export function SendEmailSettings({ block, onBlockChange, variables: _variables 
 
         {attachments.map((att) => (
           <div key={att.id} className="flex gap-1.5 items-center">
-            <input
-              type="text"
-              value={att.url}
-              onChange={(e) => updateAttachment(att.id, { url: e.target.value })}
-              placeholder="https://example.com/file.pdf or {{fileUrl}}"
-              spellCheck={false}
-              className={`${inputClass} flex-1`}
-            />
+            <div className="flex-1">
+              <VariableAutocompleteInput
+                value={att.url}
+                onChange={(v) => updateAttachment(att.id, { url: v })}
+                variables={variables}
+                placeholder="https://example.com/file.pdf or {{fileUrl}}"
+                spellCheck={false}
+                aria-label="Attachment URL"
+              />
+            </div>
             <button
               type="button"
               onClick={() => removeAttachment(att.id)}

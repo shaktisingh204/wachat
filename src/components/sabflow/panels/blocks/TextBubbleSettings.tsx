@@ -1,6 +1,6 @@
 'use client';
-import { useCallback, useId, useRef, useState } from 'react';
-import type { Block } from '@/lib/sabflow/types';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import type { Block, Variable } from '@/lib/sabflow/types';
 import { cn } from '@/lib/utils';
 import {
   LuMessageSquare,
@@ -9,6 +9,7 @@ import {
   LuBraces,
   LuChevronDown,
 } from 'react-icons/lu';
+import { VariableAutocompleteInput } from './shared/VariableAutocompleteInput';
 
 /* ── Shared primitives ──────────────────────────────────────── */
 const inputClass =
@@ -116,10 +117,16 @@ export function TextBubbleSettings({
   variables = [],
   className,
 }: Props) {
-  const id = useId();
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const options = block.options ?? {};
   const content = String(options.content ?? '');
+
+  /* Adapt the legacy string[] `variables` prop to the Variable[] shape that
+     VariableAutocompleteInput expects. */
+  const variableObjects = useMemo<Variable[]>(
+    () => variables.map((name) => ({ id: name, name })),
+    [variables],
+  );
 
   const updateContent = useCallback(
     (newContent: string) => {
@@ -211,15 +218,19 @@ export function TextBubbleSettings({
         </div>
 
         {/* Textarea with highlighted preview below */}
-        <textarea
-          ref={textareaRef}
-          id={id}
+        <VariableAutocompleteInput
+          type="textarea"
           value={content}
-          onChange={(e) => updateContent(e.target.value)}
+          onChange={updateContent}
+          variables={variableObjects}
           placeholder="Type your message… Use {{variable}} to insert variables"
           rows={5}
-          className={cn(inputClass, 'rounded-t-none resize-y min-h-[100px]')}
           spellCheck={false}
+          aria-label="Message content"
+          className="rounded-t-none min-h-[100px]"
+          inputRef={(node) => {
+            textareaRef.current = node as HTMLTextAreaElement | null;
+          }}
         />
 
         {/* Live variable highlight preview */}

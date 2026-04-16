@@ -97,9 +97,12 @@ export function PhoneInputSettings({ block, onBlockChange, variables = [] }: Pro
       <Field label="Default country">
         <select
           value={defaultCountryCode}
-          onChange={(e) =>
-            update({ defaultCountryCode: e.target.value || undefined })
-          }
+          onChange={(e) => {
+            const code = e.target.value || undefined;
+            // Keep both fields in sync: `country` is the canonical
+            // validation key, `defaultCountryCode` is the legacy UI key.
+            update({ defaultCountryCode: code, country: code });
+          }}
           className={selectClass}
         >
           {COUNTRY_OPTIONS.map((c) => (
