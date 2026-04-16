@@ -12,6 +12,7 @@ import {
   LuWorkflow,
   LuZap,
   LuCircle,
+  LuDownload,
 } from 'react-icons/lu';
 import { cn } from '@/lib/utils';
 
@@ -32,11 +33,12 @@ type Props = {
   onDelete: (flow: FlowItem) => void;
   onDuplicate: (flowId: string) => void;
   onRename: (flowId: string, newName: string) => void;
+  onExport?: (flowId: string) => void;
 };
 
 /* ── FlowCard ───────────────────────────────────────────────────────────── */
 
-export function FlowCard({ flow, onDelete, onDuplicate, onRename }: Props) {
+export function FlowCard({ flow, onDelete, onDuplicate, onRename, onExport }: Props) {
   const router = useRouter();
   const [isRenaming, setIsRenaming] = React.useState(false);
   const [nameValue, setNameValue] = React.useState(flow.name);
@@ -142,6 +144,23 @@ export function FlowCard({ flow, onDelete, onDuplicate, onRename }: Props) {
             onClick={() => {
               const url = `${window.location.origin}/flow/${flow._id}`;
               void navigator.clipboard.writeText(url);
+            }}
+          />
+          <ActionIconBtn
+            label="Export"
+            icon={<LuDownload className="h-4 w-4" />}
+            onClick={() => {
+              if (onExport) {
+                onExport(flow._id);
+              } else {
+                // Default: trigger browser download directly
+                const a = document.createElement('a');
+                a.href = `/api/sabflow/export/${flow._id}`;
+                a.download = `flow-${flow._id}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+              }
             }}
           />
           <ActionIconBtn

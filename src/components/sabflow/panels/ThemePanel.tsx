@@ -1,26 +1,42 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
-import type { SabFlowTheme } from '@/lib/sabflow/types';
+import type { SabFlowTheme, ThemeColor } from '@/lib/sabflow/types';
 import { cn } from '@/lib/utils';
 import {
   LuChevronDown,
   LuChevronRight,
   LuPalette,
   LuX,
+  LuRotateCcw,
+  LuLayoutGrid,
 } from 'react-icons/lu';
+import { ThemePresetPicker } from './ThemePresetPicker';
 
-/* ── Props ───────────────────────────────────────────────── */
-
-export interface ThemePanelProps {
-  theme: SabFlowTheme;
-  onThemeChange: (theme: SabFlowTheme) => void;
-  onClose?: () => void;
-}
-
-/* ── Constants ───────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────
+   Constants
+───────────────────────────────────────────────────────────── */
 
 const ACCENT = '#f76808';
+
+const GOOGLE_FONTS = [
+  'Inter',
+  'System UI',
+  'Roboto',
+  'Open Sans',
+  'Lato',
+  'Poppins',
+  'Nunito',
+  'Raleway',
+  'Montserrat',
+  'Source Sans Pro',
+  'Noto Sans',
+  'Ubuntu',
+  'Merriweather',
+  'Playfair Display',
+  'Georgia',
+  'Courier New',
+];
 
 const PALETTE = [
   '#ffffff', '#f8f8f8', '#f0f4ff', '#fff9f0',
@@ -29,18 +45,44 @@ const PALETTE = [
   '#7c3aed', '#db2777', '#0ea5e9', '#f59e0b',
 ];
 
-const FONTS = [
-  'Inter',
-  'System UI',
-  'Roboto',
-  'Open Sans',
-  'Lato',
-  'Poppins',
-  'Georgia',
-  'Courier New',
-];
+const DEFAULT_THEME: SabFlowTheme = {
+  general: {
+    font: 'Inter',
+    background: { type: 'Color', content: '#ffffff' },
+    progressBar: { isEnabled: false, color: ACCENT, placement: 'top' },
+  },
+  chat: {
+    container: { backgroundColor: '#ffffff', maxWidth: '800px' },
+    header: { backgroundColor: '#ffffff', color: '#161616', isEnabled: true },
+    hostBubble: {
+      backgroundColor: { type: 'Color', value: '#f5f5f5' },
+      color: { type: 'Color', value: '#161616' },
+      borderRadius: '18px',
+    },
+    guestBubble: {
+      backgroundColor: { type: 'Color', value: ACCENT },
+      color: { type: 'Color', value: '#ffffff' },
+      borderRadius: '18px',
+    },
+    input: {
+      backgroundColor: { type: 'Color', value: '#ffffff' },
+      color: { type: 'Color', value: '#161616' },
+      borderColor: { type: 'Color', value: '#e4e4e7' },
+      placeholderColor: { type: 'Color', value: '#a0a0a0' },
+      borderRadius: '12px',
+    },
+    button: {
+      backgroundColor: { type: 'Color', value: ACCENT },
+      color: { type: 'Color', value: '#ffffff' },
+      borderRadius: '12px',
+    },
+    roundness: 'Medium',
+  },
+};
 
-/* ── Shared input class ─────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────
+   Shared helpers
+───────────────────────────────────────────────────────────── */
 
 const inputCls = [
   'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)]',
@@ -48,7 +90,21 @@ const inputCls = [
   'outline-none focus:border-[#f76808] focus:ring-1 focus:ring-[#f76808]/20 transition-colors',
 ].join(' ');
 
-/* ── ColorSwatch ─────────────────────────────────────────── */
+/** Extract a plain hex string from a ThemeColor (falls back to empty). */
+function colorValue(tc: ThemeColor | undefined, fallback = '#ffffff'): string {
+  if (!tc) return fallback;
+  if (tc.type === 'Color') return tc.value;
+  return fallback;
+}
+
+/** Wrap a plain hex string in a ThemeColor. */
+function asColor(value: string): ThemeColor {
+  return { type: 'Color', value };
+}
+
+/* ─────────────────────────────────────────────────────────────
+   ColorSwatch — compact inline color picker
+───────────────────────────────────────────────────────────── */
 
 interface ColorSwatchProps {
   value: string;
@@ -58,21 +114,19 @@ interface ColorSwatchProps {
 function ColorSwatch({ value, onChange }: ColorSwatchProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleSwatchClick = useCallback(() => {
+  const open = useCallback(() => {
     inputRef.current?.click();
   }, []);
 
   return (
     <div className="flex items-center gap-2">
-      {/* Colour dot — click opens native color picker */}
       <button
         type="button"
         title={value || 'Pick a colour'}
-        onClick={handleSwatchClick}
-        className="h-6 w-6 rounded-md border-2 border-[var(--gray-5)] shrink-0 transition-transform hover:scale-110"
+        onClick={open}
+        className="h-6 w-6 rounded-md border-2 border-[var(--gray-5)] shrink-0 transition-transform hover:scale-110 cursor-pointer"
         style={{ backgroundColor: value || '#ffffff' }}
       />
-      {/* Hidden native color input */}
       <input
         ref={inputRef}
         type="color"
@@ -81,13 +135,12 @@ function ColorSwatch({ value, onChange }: ColorSwatchProps) {
         className="sr-only"
         tabIndex={-1}
       />
-      {/* Hex text input */}
       <input
         type="text"
         value={value || ''}
         onChange={(e) => onChange(e.target.value)}
         placeholder="#hex"
-        maxLength={7}
+        maxLength={9}
         className={cn(
           'w-[90px] rounded-md border border-[var(--gray-5)] bg-[var(--gray-1)]',
           'px-2 py-1 text-[12px] font-mono text-[var(--gray-12)]',
@@ -98,32 +151,36 @@ function ColorSwatch({ value, onChange }: ColorSwatchProps) {
   );
 }
 
-/* ── ColorField: label + swatch + palette swatches ────────── */
+/* ─────────────────────────────────────────────────────────────
+   ColorField — label + palette swatches + swatch picker
+───────────────────────────────────────────────────────────── */
 
 interface ColorFieldProps {
   label: string;
-  value: string;
-  onChange: (v: string) => void;
+  value: ThemeColor | undefined;
+  fallback?: string;
+  onChange: (v: ThemeColor) => void;
 }
 
-function ColorField({ label, value, onChange }: ColorFieldProps) {
+function ColorField({ label, value, fallback = '#ffffff', onChange }: ColorFieldProps) {
+  const hex = colorValue(value, fallback);
+
   return (
     <div className="space-y-1.5">
       <label className="block text-[11px] font-medium text-[var(--gray-9)] uppercase tracking-wide">
         {label}
       </label>
       <div className="rounded-xl border border-[var(--gray-5)] bg-[var(--gray-2)] p-2.5 space-y-2">
-        {/* Palette row */}
         <div className="flex flex-wrap gap-1.5">
           {PALETTE.map((c) => (
             <button
               key={c}
               type="button"
               title={c}
-              onClick={() => onChange(c)}
+              onClick={() => onChange(asColor(c))}
               className={cn(
                 'h-5 w-5 rounded border-2 transition-transform hover:scale-110',
-                value === c
+                hex === c
                   ? 'border-[#f76808] scale-110'
                   : 'border-transparent hover:border-[var(--gray-6)]',
               )}
@@ -131,14 +188,41 @@ function ColorField({ label, value, onChange }: ColorFieldProps) {
             />
           ))}
         </div>
-        {/* Swatch + hex */}
-        <ColorSwatch value={value} onChange={onChange} />
+        <ColorSwatch value={hex} onChange={(v) => onChange(asColor(v))} />
       </div>
     </div>
   );
 }
 
-/* ── Section (collapsible) ──────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────
+   RadiusField — text input for border-radius
+───────────────────────────────────────────────────────────── */
+
+interface RadiusFieldProps {
+  value: string | undefined;
+  onChange: (v: string) => void;
+}
+
+function RadiusField({ value, onChange }: RadiusFieldProps) {
+  return (
+    <div className="space-y-1.5">
+      <label className="block text-[11px] font-medium text-[var(--gray-9)] uppercase tracking-wide">
+        Border radius
+      </label>
+      <input
+        type="text"
+        value={value ?? ''}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="e.g. 8px or 1rem"
+        className={inputCls}
+      />
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Section — collapsible wrapper
+───────────────────────────────────────────────────────────── */
 
 interface SectionProps {
   title: string;
@@ -173,7 +257,9 @@ function Section({ title, defaultOpen = true, children }: SectionProps) {
   );
 }
 
-/* ── SubSection (inner group with title) ────────────────── */
+/* ─────────────────────────────────────────────────────────────
+   SubSection — inner card with title
+───────────────────────────────────────────────────────────── */
 
 function SubSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -186,7 +272,9 @@ function SubSection({ title, children }: { title: string; children: React.ReactN
   );
 }
 
-/* ── ToggleRow ───────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────
+   ToggleRow
+───────────────────────────────────────────────────────────── */
 
 function ToggleRow({
   label,
@@ -221,17 +309,73 @@ function ToggleRow({
   );
 }
 
-/* ── ThemePanel ──────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────
+   RoundnessPreset
+───────────────────────────────────────────────────────────── */
+
+type Roundness = 'None' | 'Medium' | 'Large';
+
+const ROUNDNESS_OPTIONS: { label: string; value: Roundness }[] = [
+  { label: 'None',   value: 'None'   },
+  { label: 'Medium', value: 'Medium' },
+  { label: 'Large',  value: 'Large'  },
+];
+
+function RoundnessPreset({
+  value,
+  onChange,
+}: {
+  value: Roundness | undefined;
+  onChange: (v: Roundness) => void;
+}) {
+  const active = value ?? 'Medium';
+  return (
+    <div className="space-y-1.5">
+      <label className="block text-[11px] font-medium text-[var(--gray-9)] uppercase tracking-wide">
+        Roundness
+      </label>
+      <div className="flex gap-1.5">
+        {ROUNDNESS_OPTIONS.map(({ label, value: v }) => (
+          <button
+            key={v}
+            type="button"
+            onClick={() => onChange(v)}
+            className={cn(
+              'flex-1 py-1.5 text-[12px] font-medium transition-colors border',
+              v === 'None'   && 'rounded',
+              v === 'Medium' && 'rounded-lg',
+              v === 'Large'  && 'rounded-full',
+              active === v
+                ? 'border-[#f76808] bg-[#f76808]/10 text-[#f76808]'
+                : 'border-[var(--gray-5)] text-[var(--gray-9)] hover:bg-[var(--gray-3)]',
+            )}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   ThemePanel — main export
+───────────────────────────────────────────────────────────── */
+
+export interface ThemePanelProps {
+  theme: SabFlowTheme;
+  onThemeChange: (theme: SabFlowTheme) => void;
+  onClose?: () => void;
+}
 
 export function ThemePanel({ theme, onThemeChange, onClose }: ThemePanelProps) {
-  /* ── Updater helpers ──────────────────────────────────── */
+  const [showPresets, setShowPresets] = useState(false);
+
+  /* ── Updater helpers ────────────────────────────────── */
 
   const setGeneral = useCallback(
     (partial: Partial<NonNullable<SabFlowTheme['general']>>) => {
-      onThemeChange({
-        ...theme,
-        general: { ...theme.general, ...partial },
-      });
+      onThemeChange({ ...theme, general: { ...theme.general, ...partial } });
     },
     [theme, onThemeChange],
   );
@@ -268,10 +412,7 @@ export function ThemePanel({ theme, onThemeChange, onClose }: ThemePanelProps) {
 
   const setChat = useCallback(
     (partial: Partial<NonNullable<SabFlowTheme['chat']>>) => {
-      onThemeChange({
-        ...theme,
-        chat: { ...theme.chat, ...partial },
-      });
+      onThemeChange({ ...theme, chat: { ...theme.chat, ...partial } });
     },
     [theme, onThemeChange],
   );
@@ -292,41 +433,62 @@ export function ThemePanel({ theme, onThemeChange, onClose }: ThemePanelProps) {
     [theme, onThemeChange],
   );
 
-  /* ── Resolved values (with defaults) ─────────────────── */
+  /* ── Resolved values (with defaults) ────────────────── */
 
-  const bgType = theme.general?.background?.type ?? 'Color';
+  const bgType    = theme.general?.background?.type    ?? 'Color';
   const bgContent = theme.general?.background?.content ?? '#ffffff';
-  const font = theme.general?.font ?? 'Inter';
+  const font      = theme.general?.font                ?? 'Inter';
 
-  const progressBarEnabled = theme.general?.progressBar?.isEnabled ?? false;
-  const progressBarColor = theme.general?.progressBar?.color ?? ACCENT;
-  const progressBarPlacement = theme.general?.progressBar?.placement ?? 'top';
+  const progressBarEnabled   = theme.general?.progressBar?.isEnabled  ?? false;
+  const progressBarColor     = theme.general?.progressBar?.color       ?? ACCENT;
+  const progressBarPlacement = theme.general?.progressBar?.placement   ?? 'top';
 
-  const containerBg = theme.chat?.container?.backgroundColor ?? '#ffffff';
-  const containerMaxWidth = theme.chat?.container?.maxWidth ?? '800px';
+  const containerBg       = theme.chat?.container?.backgroundColor ?? '#ffffff';
+  const containerMaxWidth = theme.chat?.container?.maxWidth        ?? '800px';
 
-  const headerEnabled = theme.chat?.header?.isEnabled ?? true;
-  const headerBg = theme.chat?.header?.backgroundColor ?? '#ffffff';
-  const headerColor = theme.chat?.header?.color ?? '#161616';
+  const headerEnabled = theme.chat?.header?.isEnabled      ?? true;
+  const headerBg      = theme.chat?.header?.backgroundColor ?? '#ffffff';
+  const headerColor   = theme.chat?.header?.color           ?? '#161616';
 
-  const hostBg = theme.chat?.hostBubble?.backgroundColor ?? '#f5f5f5';
-  const hostColor = theme.chat?.hostBubble?.color ?? '#161616';
+  /* Rich typed fields — may come from the new ThemeColor shape or the legacy flat string */
+  const hostBgColor   = theme.chat?.hostBubble?.backgroundColor
+    ?? (theme.chat?.hostBubble as { backgroundColor?: string } | undefined)?.backgroundColor
+      ? asColor((theme.chat?.hostBubble as { backgroundColor?: string }).backgroundColor ?? '#f5f5f5')
+      : asColor('#f5f5f5');
+  const hostTextColor = theme.chat?.hostBubble?.color
+    ?? (typeof (theme.chat?.hostBubble as { color?: unknown })?.color === 'string'
+        ? asColor((theme.chat?.hostBubble as { color?: string }).color ?? '#161616')
+        : asColor('#161616'));
+  const hostRadius = theme.chat?.hostBubble?.borderRadius ?? '18px';
 
-  const guestBg = theme.chat?.guestBubble?.backgroundColor ?? ACCENT;
-  const guestColor = theme.chat?.guestBubble?.color ?? '#ffffff';
+  const guestBgColor   = theme.chat?.guestBubble?.backgroundColor
+    ?? (typeof (theme.chat?.guestBubble as { backgroundColor?: unknown })?.backgroundColor === 'string'
+        ? asColor((theme.chat?.guestBubble as { backgroundColor?: string }).backgroundColor ?? ACCENT)
+        : asColor(ACCENT));
+  const guestTextColor = theme.chat?.guestBubble?.color
+    ?? (typeof (theme.chat?.guestBubble as { color?: unknown })?.color === 'string'
+        ? asColor((theme.chat?.guestBubble as { color?: string }).color ?? '#ffffff')
+        : asColor('#ffffff'));
+  const guestRadius = theme.chat?.guestBubble?.borderRadius ?? '18px';
 
-  const inputBg = theme.chat?.input?.backgroundColor ?? '#ffffff';
-  const inputColor = theme.chat?.input?.color ?? '#161616';
-  const inputPlaceholder = theme.chat?.input?.placeholderColor ?? '#a0a0a0';
+  const inputBgColor          = theme.chat?.input?.backgroundColor   ?? asColor('#ffffff');
+  const inputTextColor        = theme.chat?.input?.color             ?? asColor('#161616');
+  const inputBorderColor      = theme.chat?.input?.borderColor       ?? asColor('#e4e4e7');
+  const inputPlaceholderColor = theme.chat?.input?.placeholderColor  ?? asColor('#a0a0a0');
+  const inputRadius           = theme.chat?.input?.borderRadius      ?? '12px';
 
-  const buttonBg = theme.chat?.button?.backgroundColor ?? ACCENT;
-  const buttonColor = theme.chat?.button?.color ?? '#ffffff';
+  const buttonBgColor   = theme.chat?.button?.backgroundColor ?? asColor(ACCENT);
+  const buttonTextColor = theme.chat?.button?.color           ?? asColor('#ffffff');
+  const buttonRadius    = theme.chat?.button?.borderRadius    ?? '12px';
 
-  /* ── Render ───────────────────────────────────────────── */
+  const roundness = theme.chat?.roundness ?? 'Medium';
+
+  /* ── Render ──────────────────────────────────────────── */
 
   return (
     <div className="w-[320px] shrink-0 flex flex-col border-l border-[var(--gray-5)] bg-[var(--gray-1)] z-20 overflow-hidden">
-      {/* Header */}
+
+      {/* ── Header ───────────────────────────────────── */}
       <div className="flex items-center gap-2.5 border-b border-[var(--gray-4)] px-4 py-3 shrink-0">
         <div
           className="flex h-7 w-7 items-center justify-center rounded-lg shrink-0"
@@ -335,6 +497,22 @@ export function ThemePanel({ theme, onThemeChange, onClose }: ThemePanelProps) {
           <LuPalette className="h-4 w-4" strokeWidth={1.8} style={{ color: ACCENT }} />
         </div>
         <span className="flex-1 text-[13px] font-semibold text-[var(--gray-12)]">Theme</span>
+
+        {/* Presets toggle */}
+        <button
+          type="button"
+          title="Theme presets"
+          onClick={() => setShowPresets((v) => !v)}
+          className={cn(
+            'flex h-6 w-6 items-center justify-center rounded transition-colors',
+            showPresets
+              ? 'bg-[#f76808]/15 text-[#f76808]'
+              : 'text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
+          )}
+        >
+          <LuLayoutGrid className="h-3.5 w-3.5" strokeWidth={2} />
+        </button>
+
         {onClose && (
           <button
             type="button"
@@ -346,11 +524,26 @@ export function ThemePanel({ theme, onThemeChange, onClose }: ThemePanelProps) {
         )}
       </div>
 
-      {/* Scrollable body */}
+      {/* ── Presets drawer ───────────────────────────── */}
+      {showPresets && (
+        <div className="border-b border-[var(--gray-4)] bg-[var(--gray-2)] px-4 py-4 shrink-0">
+          <p className="mb-3 text-[11px] font-semibold text-[var(--gray-10)] uppercase tracking-wide">
+            Presets
+          </p>
+          <ThemePresetPicker
+            onApply={(preset) => {
+              onThemeChange(preset);
+              setShowPresets(false);
+            }}
+          />
+        </div>
+      )}
+
+      {/* ── Scrollable body ──────────────────────────── */}
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
 
-        {/* ── General ──────────────────────────────────────── */}
-        <Section title="General" defaultOpen>
+        {/* ── General ────────────────────────────────── */}
+        <Section title="General">
 
           {/* Font */}
           <div className="space-y-1.5">
@@ -362,7 +555,7 @@ export function ThemePanel({ theme, onThemeChange, onClose }: ThemePanelProps) {
               onChange={(e) => setGeneral({ font: e.target.value })}
               className={inputCls}
             >
-              {FONTS.map((f) => (
+              {GOOGLE_FONTS.map((f) => (
                 <option key={f} value={f}>{f}</option>
               ))}
             </select>
@@ -373,7 +566,6 @@ export function ThemePanel({ theme, onThemeChange, onClose }: ThemePanelProps) {
             <label className="block text-[11px] font-medium text-[var(--gray-9)] uppercase tracking-wide">
               Background
             </label>
-            {/* Type switcher */}
             <div className="flex gap-1.5">
               {(['Color', 'Image', 'None'] as const).map((t) => (
                 <button
@@ -395,8 +587,9 @@ export function ThemePanel({ theme, onThemeChange, onClose }: ThemePanelProps) {
             {bgType === 'Color' && (
               <ColorField
                 label="Background colour"
-                value={bgContent}
-                onChange={(v) => setBackground({ content: v })}
+                value={asColor(bgContent)}
+                fallback="#ffffff"
+                onChange={(tc) => setBackground({ content: colorValue(tc) })}
               />
             )}
 
@@ -427,8 +620,9 @@ export function ThemePanel({ theme, onThemeChange, onClose }: ThemePanelProps) {
               <>
                 <ColorField
                   label="Progress bar colour"
-                  value={progressBarColor}
-                  onChange={(v) => setProgressBar({ color: v })}
+                  value={asColor(progressBarColor)}
+                  fallback={ACCENT}
+                  onChange={(tc) => setProgressBar({ color: colorValue(tc) })}
                 />
                 <div className="space-y-1.5">
                   <label className="block text-[11px] font-medium text-[var(--gray-9)] uppercase tracking-wide">
@@ -457,15 +651,22 @@ export function ThemePanel({ theme, onThemeChange, onClose }: ThemePanelProps) {
           </div>
         </Section>
 
-        {/* ── Chat ─────────────────────────────────────────── */}
-        <Section title="Chat" defaultOpen>
+        {/* ── Chat ───────────────────────────────────── */}
+        <Section title="Chat">
+
+          {/* Roundness */}
+          <RoundnessPreset
+            value={roundness}
+            onChange={(v) => setChat({ roundness: v })}
+          />
 
           {/* Container */}
           <SubSection title="Container">
             <ColorField
               label="Background colour"
-              value={containerBg}
-              onChange={(v) => setChatNested('container', { backgroundColor: v })}
+              value={asColor(containerBg)}
+              fallback="#ffffff"
+              onChange={(tc) => setChatNested('container', { backgroundColor: colorValue(tc) })}
             />
             <div className="space-y-1.5">
               <label className="block text-[11px] font-medium text-[var(--gray-9)] uppercase tracking-wide">
@@ -492,62 +693,89 @@ export function ThemePanel({ theme, onThemeChange, onClose }: ThemePanelProps) {
               <>
                 <ColorField
                   label="Background colour"
-                  value={headerBg}
-                  onChange={(v) => setChatNested('header', { backgroundColor: v })}
+                  value={asColor(headerBg)}
+                  fallback="#ffffff"
+                  onChange={(tc) => setChatNested('header', { backgroundColor: colorValue(tc) })}
                 />
                 <ColorField
                   label="Text colour"
-                  value={headerColor}
-                  onChange={(v) => setChatNested('header', { color: v })}
+                  value={asColor(headerColor)}
+                  fallback="#161616"
+                  onChange={(tc) => setChatNested('header', { color: colorValue(tc) })}
                 />
               </>
             )}
           </SubSection>
 
-          {/* Host (bot) bubble */}
+          {/* Bot bubble */}
           <SubSection title="Bot bubble">
             <ColorField
               label="Background colour"
-              value={hostBg}
-              onChange={(v) => setChatNested('hostBubble', { backgroundColor: v })}
+              value={hostBgColor}
+              fallback="#f5f5f5"
+              onChange={(tc) => setChatNested('hostBubble', { backgroundColor: tc })}
             />
             <ColorField
               label="Text colour"
-              value={hostColor}
-              onChange={(v) => setChatNested('hostBubble', { color: v })}
+              value={hostTextColor}
+              fallback="#161616"
+              onChange={(tc) => setChatNested('hostBubble', { color: tc })}
+            />
+            <RadiusField
+              value={hostRadius}
+              onChange={(v) => setChatNested('hostBubble', { borderRadius: v })}
             />
           </SubSection>
 
-          {/* Guest (user) bubble */}
+          {/* User bubble */}
           <SubSection title="User bubble">
             <ColorField
               label="Background colour"
-              value={guestBg}
-              onChange={(v) => setChatNested('guestBubble', { backgroundColor: v })}
+              value={guestBgColor}
+              fallback={ACCENT}
+              onChange={(tc) => setChatNested('guestBubble', { backgroundColor: tc })}
             />
             <ColorField
               label="Text colour"
-              value={guestColor}
-              onChange={(v) => setChatNested('guestBubble', { color: v })}
+              value={guestTextColor}
+              fallback="#ffffff"
+              onChange={(tc) => setChatNested('guestBubble', { color: tc })}
+            />
+            <RadiusField
+              value={guestRadius}
+              onChange={(v) => setChatNested('guestBubble', { borderRadius: v })}
             />
           </SubSection>
 
-          {/* Input */}
+          {/* Input field */}
           <SubSection title="Input field">
             <ColorField
               label="Background colour"
-              value={inputBg}
-              onChange={(v) => setChatNested('input', { backgroundColor: v })}
+              value={inputBgColor}
+              fallback="#ffffff"
+              onChange={(tc) => setChatNested('input', { backgroundColor: tc })}
             />
             <ColorField
               label="Text colour"
-              value={inputColor}
-              onChange={(v) => setChatNested('input', { color: v })}
+              value={inputTextColor}
+              fallback="#161616"
+              onChange={(tc) => setChatNested('input', { color: tc })}
+            />
+            <ColorField
+              label="Border colour"
+              value={inputBorderColor}
+              fallback="#e4e4e7"
+              onChange={(tc) => setChatNested('input', { borderColor: tc })}
             />
             <ColorField
               label="Placeholder colour"
-              value={inputPlaceholder}
-              onChange={(v) => setChatNested('input', { placeholderColor: v })}
+              value={inputPlaceholderColor}
+              fallback="#a0a0a0"
+              onChange={(tc) => setChatNested('input', { placeholderColor: tc })}
+            />
+            <RadiusField
+              value={inputRadius}
+              onChange={(v) => setChatNested('input', { borderRadius: v })}
             />
           </SubSection>
 
@@ -555,18 +783,42 @@ export function ThemePanel({ theme, onThemeChange, onClose }: ThemePanelProps) {
           <SubSection title="Button">
             <ColorField
               label="Background colour"
-              value={buttonBg}
-              onChange={(v) => setChat({ button: { ...theme.chat?.button, backgroundColor: v } })}
+              value={buttonBgColor}
+              fallback={ACCENT}
+              onChange={(tc) => setChatNested('button', { backgroundColor: tc })}
             />
             <ColorField
               label="Text colour"
-              value={buttonColor}
-              onChange={(v) => setChat({ button: { ...theme.chat?.button, color: v } })}
+              value={buttonTextColor}
+              fallback="#ffffff"
+              onChange={(tc) => setChatNested('button', { color: tc })}
+            />
+            <RadiusField
+              value={buttonRadius}
+              onChange={(v) => setChatNested('button', { borderRadius: v })}
             />
           </SubSection>
 
         </Section>
       </div>
+
+      {/* ── Footer: reset ────────────────────────────── */}
+      <div className="shrink-0 border-t border-[var(--gray-4)] px-4 py-3">
+        <button
+          type="button"
+          onClick={() => onThemeChange(DEFAULT_THEME)}
+          className={cn(
+            'flex w-full items-center justify-center gap-2 rounded-lg border',
+            'border-[var(--gray-5)] py-2 text-[12.5px] font-medium',
+            'text-[var(--gray-9)] hover:border-[var(--gray-7)] hover:text-[var(--gray-12)]',
+            'transition-colors active:scale-[0.98]',
+          )}
+        >
+          <LuRotateCcw className="h-3.5 w-3.5" strokeWidth={2} />
+          Reset to defaults
+        </button>
+      </div>
+
     </div>
   );
 }

@@ -10,15 +10,20 @@ import { FlowSettingsPanel } from './FlowSettingsPanel';
 import { FlowPreviewPanel } from './FlowPreviewPanel';
 import { VariablesPanel } from '@/components/sabflow/panels/VariablesPanel';
 import { ThemePanel } from '@/components/sabflow/panels/ThemePanel';
+import { VersionHistoryPanel } from '@/components/sabflow/panels/VersionHistoryPanel';
 import { FlowEditorHeader } from './FlowEditorHeader';
+import { ValidationPanel } from '@/components/sabflow/panels/ValidationPanel';
 import { saveSabFlow } from '@/app/actions/sabflow';
 import type { SabFlowDoc } from '@/lib/sabflow/types';
+import { countValidationResults } from '@/lib/sabflow/validation';
+import type { ValidationError } from '@/lib/sabflow/validation';
 import { cn } from '@/lib/utils';
 import {
   LuSettings,
   LuPlay,
   LuVariable,
   LuPalette,
+  LuHistory,
 } from 'react-icons/lu';
 
 /* ── Constants ───────────────────────────────────────────────────────────── */
@@ -31,7 +36,7 @@ type Props = {
   flow: SabFlowDoc & { _id: string };
 };
 
-type RightPanel = 'settings' | 'preview' | 'variables' | 'theme' | null;
+type RightPanel = 'settings' | 'preview' | 'variables' | 'theme' | 'validation' | 'versions' | null;
 
 /* ── EditorContent (must be inside GraphProvider) ────────────────────────── */
 
@@ -41,6 +46,7 @@ function EditorContent({ flow: initialFlow }: Props) {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [activePanel, setActivePanel] = useState<RightPanel>(null);
+  const [validationResults, setValidationResults] = useState<ValidationError[]>([]);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const { setOpenedNodeId } = useGraph();
 
@@ -89,6 +95,19 @@ function EditorContent({ flow: initialFlow }: Props) {
       return panel;
     });
   }, [setOpenedNodeId]);
+
+  /* ── Validation focus handler ────────────────────────────────────────── */
+
+  const handleFocusBlock = useCallback(
+    (groupId: string, blockId?: string) => {
+      // Open the block settings panel for the given block if a blockId is provided.
+      // GraphProvider's setOpenedNodeId uses the block id as the "node id".
+      if (blockId) setOpenedNodeId(blockId);
+      // Close the validation panel so the user can see the canvas
+      setActivePanel(null);
+    },
+    [setOpenedNodeId],
+  );
 
   /* ── Flow change handler (passed down to Graph) ──────────────────────── */
 
@@ -200,6 +219,10 @@ function EditorContent({ flow: initialFlow }: Props) {
         onSave={save}
         onPublishToggle={handlePublishToggle}
         onNameChange={handleNameChange}
+        validationErrorCount={countValidationResults(validationResults).errorCount}
+        validationWarningCount={countValidationResults(validationResults).warningCount}
+        isValidationPanelOpen={activePanel === 'validation'}
+        onValidationToggle={() => togglePanel('validation')}
       >
         {/* Panel toggle buttons rendered after the divider in the header */}
 
@@ -266,6 +289,22 @@ function EditorContent({ flow: initialFlow }: Props) {
         >
           <LuSettings className="h-4 w-4" strokeWidth={1.8} />
         </button>
+
+        {/* Version history panel toggle */}
+        <button
+          type="button"
+          onClick={() => togglePanel('versions')}
+          title="Version history"
+          aria-label="Toggle version history panel"
+          className={cn(
+            'flex h-8 w-8 items-center justify-center rounded-lg transition-colors',
+            activePanel === 'versions'
+              ? 'bg-amber-50 text-amber-500 dark:bg-amber-950/40 dark:text-amber-400'
+              : 'text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
+          )}
+        >
+          <LuHistory className="h-4 w-4" strokeWidth={1.8} />
+        </button>
       </FlowEditorHeader>
 
       {/* ── Main area ─────────────────────────────────────────────────── */}
@@ -278,7 +317,10 @@ function EditorContent({ flow: initialFlow }: Props) {
         <Graph
           flow={flow}
           onFlowChange={handleFlowChange}
+          onVariablesChange={(variables) => setFlow((prev) => ({ ...prev, variables }))}
           containerRef={containerRef}
+          onUndo={undo}
+          onRedo={redo}
         />
 
         {/* Right rail: one panel at a time */}
@@ -287,6 +329,7 @@ function EditorContent({ flow: initialFlow }: Props) {
         <BlockSettingsPanel
           flow={flow}
           onFlowChange={handleFlowChange}
+          onVariablesChange={(variables) => setFlow((prev) => ({ ...prev, variables }))}
         />
 
         {/* Variables panel */}
@@ -295,6 +338,7 @@ function EditorContent({ flow: initialFlow }: Props) {
             <VariablesPanel
               variables={flow.variables}
               onVariablesChange={(variables) => setFlow((prev) => ({ ...prev, variables }))}
+              flow={flow}
             />
           </div>
         )}
@@ -322,6 +366,29 @@ function EditorContent({ flow: initialFlow }: Props) {
           <FlowPreviewPanel
             flow={flow}
             onClose={() => setActivePanel(null)}
+          />
+        )}
+
+        {/* Validation panel */}
+        {activePanel === 'validation' && (
+          <ValidationPanel
+            flow={flow}
+            onFocusBlock={handleFocusBlock}
+            onResultsChange={setValidationResults}
+            onClose={() => setActivePanel(null)}
+          />
+        )}
+
+        {/* Version history panel */}
+        {activePanel === 'versions' && (
+          <VersionHistoryPanel
+            flowId={flow._id}
+            onClose={() => setActivePanel(null)}
+            onRestore={(restoredFlow) => {
+              setFlow(restoredFlow);
+              setHistory([restoredFlow]);
+              setHistoryIndex(0);
+            }}
           />
         )}
       </div>

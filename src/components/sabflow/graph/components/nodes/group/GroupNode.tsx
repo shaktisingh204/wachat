@@ -2,7 +2,7 @@
 import { useRef, useState, useEffect } from 'react';
 import { useDrag } from '@use-gesture/react';
 import { useShallow } from 'zustand/react/shallow';
-import type { Group, Edge } from '@/lib/sabflow/types';
+import type { Group, Edge, SabFlowDoc } from '@/lib/sabflow/types';
 import { useGraph } from '../../../providers/GraphProvider';
 import { useBlockDnd } from '../../../providers/GraphDndProvider';
 import { useSelectionStore } from '../../../hooks/useSelectionStore';
@@ -20,6 +20,10 @@ type Props = {
   onGroupUpdate?: (id: string, changes: Partial<Group>) => void;
   onGroupBlocksChange?: (groupId: string, blocks: Group['blocks']) => void;
   onPlayClick?: () => void;
+  /** Optional: full groups+edges slice — forwarded to the context menu for
+   *  delete/select-connected operations that need the whole graph. */
+  flow?: Pick<SabFlowDoc, 'groups' | 'edges'>;
+  onFlowChange?: (changes: Partial<Pick<SabFlowDoc, 'groups' | 'edges'>>) => void;
 };
 
 export function GroupNode({
@@ -29,6 +33,8 @@ export function GroupNode({
   onGroupUpdate,
   onGroupBlocksChange,
   onPlayClick = () => {},
+  flow,
+  onFlowChange,
 }: Props) {
   const { connectingIds, setConnectingIds, isReadOnly, graphPosition } = useGraph();
   const { setMouseOverGroup, mouseOverGroup } = useBlockDnd();
@@ -260,6 +266,9 @@ export function GroupNode({
         groupId={group.id}
         position={contextMenuPos}
         onClose={() => setContextMenuPos(null)}
+        flow={flow}
+        onFlowChange={onFlowChange}
+        onEditTitle={() => setEditingTitle(true)}
       />
     )}
     </>

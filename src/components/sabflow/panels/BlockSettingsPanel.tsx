@@ -13,28 +13,46 @@ import { useCallback } from 'react';
 import { LuArrowRight } from 'react-icons/lu';
 import { useGraph } from '@/components/sabflow/graph/providers/GraphProvider';
 import { getBlockLabel, getBlockIcon, getBlockColor } from '@/lib/sabflow/blocks';
-import type { Block, SabFlowDoc } from '@/lib/sabflow/types';
+import type { Block, SabFlowDoc, Variable } from '@/lib/sabflow/types';
 import { cn } from '@/lib/utils';
 
 // Re-use the existing per-block settings sub-components
 import { TextBlockSettings } from '@/components/sabflow/blocks/panels/settings/TextBlockSettings';
 import { TextInputSettings } from '@/components/sabflow/blocks/panels/settings/TextInputSettings';
-import { ConditionSettings } from '@/components/sabflow/blocks/panels/settings/ConditionSettings';
+import { ConditionSettings } from '@/components/sabflow/panels/blocks/logic/ConditionSettings';
 import { WebhookSettings } from '@/components/sabflow/blocks/panels/settings/WebhookSettings';
 import { SetVariableSettings } from '@/components/sabflow/blocks/panels/settings/SetVariableSettings';
 import { WaitSettings } from '@/components/sabflow/blocks/panels/settings/WaitSettings';
 import { ScriptSettings } from '@/components/sabflow/blocks/panels/settings/ScriptSettings';
+
+// AI / Integration panels
+import { OpenAISettings } from '@/components/sabflow/panels/blocks/OpenAISettings';
+import { AnthropicSettings } from '@/components/sabflow/panels/blocks/integrations/AnthropicSettings';
+import { TogetherAISettings } from '@/components/sabflow/panels/blocks/integrations/TogetherAISettings';
+import { MistralSettings } from '@/components/sabflow/panels/blocks/integrations/MistralSettings';
+import { GoogleAnalyticsSettings } from '@/components/sabflow/panels/blocks/integrations/GoogleAnalyticsSettings';
+import { TypebotLinkSettings } from '@/components/sabflow/panels/blocks/logic/TypebotLinkSettings';
+import { ChatwootSettings } from '@/components/sabflow/panels/blocks/integrations/ChatwootSettings';
+import { CalComSettings } from '@/components/sabflow/panels/blocks/integrations/CalComSettings';
+import { NocoDBSettings } from '@/components/sabflow/panels/blocks/integrations/NocoDBSettings';
+import { ElevenLabsSettings } from '@/components/sabflow/panels/blocks/integrations/ElevenLabsSettings';
+import { SegmentSettings } from '@/components/sabflow/panels/blocks/integrations/SegmentSettings';
+import { PixelSettings } from '@/components/sabflow/panels/blocks/integrations/PixelSettings';
+import { ChoiceInputSettings } from '@/components/sabflow/panels/blocks/ChoiceInputSettings';
+import { PictureChoiceSettings } from '@/components/sabflow/panels/blocks/PictureChoiceSettings';
 
 /* ── Props ───────────────────────────────────────────────────────────────── */
 
 type Props = {
   flow: SabFlowDoc;
   onFlowChange: (changes: Partial<Pick<SabFlowDoc, 'groups' | 'edges' | 'events'>>) => void;
+  /** Optional: allow block settings panels to create new variables inline */
+  onVariablesChange?: (variables: Variable[]) => void;
 };
 
 /* ── Main component ──────────────────────────────────────────────────────── */
 
-export function BlockSettingsPanel({ flow, onFlowChange }: Props) {
+export function BlockSettingsPanel({ flow, onFlowChange, onVariablesChange }: Props) {
   const { openedNodeId, setOpenedNodeId } = useGraph();
 
   // Find the block that is currently open
@@ -65,6 +83,7 @@ export function BlockSettingsPanel({ flow, onFlowChange }: Props) {
   );
 
   const variableNames = flow.variables.map((v) => v.name);
+  const variables = flow.variables;
 
   /* ── Render ────────────────────────────────────────────────────────────── */
 
@@ -89,8 +108,14 @@ export function BlockSettingsPanel({ flow, onFlowChange }: Props) {
           {openedBlock && (
             <BlockSettingsBody
               block={openedBlock}
-              variables={variableNames}
+              variableNames={variableNames}
+              variables={variables}
               onUpdate={handleBlockUpdate}
+              onCreateVariable={
+                onVariablesChange
+                  ? (v) => onVariablesChange([...flow.variables, v])
+                  : undefined
+              }
             />
           )}
         </div>
@@ -146,11 +171,16 @@ function PanelHeader({
 
 type BodyProps = {
   block: Block;
-  variables: string[];
+  /** Raw Variable objects — used by components that need id-based lookup (e.g. ConditionSettings) */
+  variables: Variable[];
+  /** Flat name list — used by legacy components that accept string[] */
+  variableNames: string[];
   onUpdate: (changes: Partial<Block>) => void;
+  /** Allow block-level VariableSelect to create a new variable inline */
+  onCreateVariable?: (variable: Variable) => void;
 };
 
-function BlockSettingsBody({ block, variables, onUpdate }: BodyProps) {
+function BlockSettingsBody({ block, variables, variableNames, onUpdate, onCreateVariable }: BodyProps) {
   const options = block.options ?? {};
   const update = (patch: Record<string, unknown>) =>
     onUpdate({ options: { ...options, ...patch } });
@@ -158,7 +188,7 @@ function BlockSettingsBody({ block, variables, onUpdate }: BodyProps) {
   /* ── Bubbles ───────────────────────────────────────── */
 
   if (block.type === 'text') {
-    return <TextBlockSettings block={block} onUpdate={onUpdate} variables={variables} />;
+    return <TextBlockSettings block={block} onUpdate={onUpdate} variables={variableNames} />;
   }
 
   if (block.type === 'image' || block.type === 'video' || block.type === 'audio' || block.type === 'embed') {
@@ -186,10 +216,30 @@ function BlockSettingsBody({ block, variables, onUpdate }: BodyProps) {
   /* ── Inputs ────────────────────────────────────────── */
 
   if (block.type === 'text_input') {
-    return <TextInputSettings block={block} onUpdate={onUpdate} variables={variables} />;
+    return <TextInputSettings block={block} onUpdate={onUpdate} variables={variableNames} />;
   }
 
-  // Generic inputs (number, email, phone, url, date, time, rating, file, payment, choice, picture_choice)
+  if (block.type === 'choice_input') {
+    return (
+      <ChoiceInputSettings
+        block={block}
+        onBlockChange={(updated) => onUpdate({ options: updated.options, items: updated.items })}
+        variables={variables}
+      />
+    );
+  }
+
+  if (block.type === 'picture_choice_input') {
+    return (
+      <PictureChoiceSettings
+        block={block}
+        onBlockChange={(updated) => onUpdate({ options: updated.options, items: updated.items })}
+        variables={variables}
+      />
+    );
+  }
+
+  // Generic inputs (number, email, phone, url, date, time, rating, file, payment)
   if (block.type.endsWith('_input')) {
     return (
       <div className="space-y-4">
@@ -218,19 +268,25 @@ function BlockSettingsBody({ block, variables, onUpdate }: BodyProps) {
   /* ── Logic ─────────────────────────────────────────── */
 
   if (block.type === 'condition') {
-    return <ConditionSettings block={block} onUpdate={onUpdate} variables={variables} />;
+    return (
+      <ConditionSettings
+        block={block}
+        onBlockChange={(updated) => onUpdate({ options: updated.options })}
+        variables={variables}
+      />
+    );
   }
 
   if (block.type === 'set_variable') {
-    return <SetVariableSettings block={block} onUpdate={onUpdate} variables={variables} />;
+    return <SetVariableSettings block={block} onUpdate={onUpdate} variables={variableNames} />;
   }
 
   if (block.type === 'wait') {
-    return <WaitSettings block={block} onUpdate={onUpdate} variables={variables} />;
+    return <WaitSettings block={block} onUpdate={onUpdate} variables={variableNames} />;
   }
 
   if (block.type === 'script') {
-    return <ScriptSettings block={block} onUpdate={onUpdate} variables={variables} />;
+    return <ScriptSettings block={block} onUpdate={onUpdate} variables={variableNames} />;
   }
 
   if (block.type === 'redirect') {
@@ -295,7 +351,7 @@ function BlockSettingsBody({ block, variables, onUpdate }: BodyProps) {
   /* ── Integrations ──────────────────────────────────── */
 
   if (block.type === 'webhook') {
-    return <WebhookSettings block={block} onUpdate={onUpdate} variables={variables} />;
+    return <WebhookSettings block={block} onUpdate={onUpdate} variables={variableNames} />;
   }
 
   if (block.type === 'send_email') {
@@ -331,35 +387,115 @@ function BlockSettingsBody({ block, variables, onUpdate }: BodyProps) {
     );
   }
 
-  if (['open_ai', 'anthropic', 'together_ai', 'mistral'].includes(block.type)) {
+  if (block.type === 'open_ai') {
     return (
-      <div className="space-y-3">
-        <Field label="System prompt">
-          <textarea
-            className={cn(inputClass, 'min-h-[80px] resize-y')}
-            value={String(options.systemPrompt ?? '')}
-            onChange={(e) => update({ systemPrompt: e.target.value })}
-            placeholder="You are a helpful assistant…"
-          />
-        </Field>
-        <Field label="User message">
-          <textarea
-            className={cn(inputClass, 'min-h-[60px] resize-y')}
-            value={String(options.userMessage ?? '')}
-            onChange={(e) => update({ userMessage: e.target.value })}
-            placeholder="{{userMessage}}"
-          />
-        </Field>
-        <Field label="Save response to">
-          <input
-            type="text"
-            className={inputClass}
-            value={String(options.responseVariable ?? '')}
-            onChange={(e) => update({ responseVariable: e.target.value })}
-            placeholder="{{aiResponse}}"
-          />
-        </Field>
-      </div>
+      <OpenAISettings
+        block={block}
+        onBlockChange={(updated) => onUpdate({ options: updated.options })}
+        variables={variables}
+      />
+    );
+  }
+
+  if (block.type === 'anthropic') {
+    return (
+      <AnthropicSettings
+        block={block}
+        onBlockChange={(updated) => onUpdate({ options: updated.options })}
+        variables={variables}
+      />
+    );
+  }
+
+  if (block.type === 'together_ai') {
+    return (
+      <TogetherAISettings
+        block={block}
+        onBlockChange={(updated) => onUpdate({ options: updated.options })}
+        variables={variables}
+      />
+    );
+  }
+
+  if (block.type === 'mistral') {
+    return (
+      <MistralSettings
+        block={block}
+        onBlockChange={(updated) => onUpdate({ options: updated.options })}
+        variables={variables}
+      />
+    );
+  }
+
+  if (block.type === 'typebot_link') {
+    return (
+      <TypebotLinkSettings
+        block={block}
+        onBlockChange={(updated) => onUpdate({ options: updated.options })}
+      />
+    );
+  }
+
+  if (block.type === 'google_analytics') {
+    return (
+      <GoogleAnalyticsSettings
+        block={block}
+        onBlockChange={(updated) => onUpdate({ options: updated.options })}
+      />
+    );
+  }
+
+  if (block.type === 'chatwoot') {
+    return (
+      <ChatwootSettings
+        block={block}
+        onBlockChange={(updated) => onUpdate({ options: updated.options })}
+      />
+    );
+  }
+
+  if (block.type === 'cal_com') {
+    return (
+      <CalComSettings
+        block={block}
+        onBlockChange={(updated) => onUpdate({ options: updated.options })}
+      />
+    );
+  }
+
+  if (block.type === 'nocodb') {
+    return (
+      <NocoDBSettings
+        block={block}
+        onBlockChange={(updated) => onUpdate({ options: updated.options })}
+      />
+    );
+  }
+
+  if (block.type === 'elevenlabs') {
+    return (
+      <ElevenLabsSettings
+        block={block}
+        onBlockChange={(updated) => onUpdate({ options: updated.options })}
+      />
+    );
+  }
+
+  if (block.type === 'segment') {
+    return (
+      <SegmentSettings
+        block={block}
+        onBlockChange={(updated) => onUpdate({ options: updated.options })}
+      />
+    );
+  }
+
+  if (block.type === 'pixel') {
+    return (
+      <PixelSettings
+        block={block}
+        onBlockChange={(updated) => onUpdate({ options: updated.options })}
+      />
     );
   }
 

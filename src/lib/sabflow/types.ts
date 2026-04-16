@@ -272,10 +272,16 @@ export type ChoiceInputOptions = {
   variableId?: string;
   /** Submit button label when multiple-choice is on */
   buttonLabel?: string;
-  /** Variable ID containing a dynamic list of choices */
+  /**
+   * When true, the choices list is driven by a variable containing a JSON
+   * array of strings rather than the static `block.items` list.
+   */
+  isDynamic?: boolean;
+  /** Variable ID containing a dynamic list of choice strings (JSON array) */
   dynamicVariableId?: string;
   /** Show a search box above the choices */
   isSearchable?: boolean;
+  /** Placeholder shown inside the search box */
   searchInputPlaceholder?: string;
 };
 
@@ -317,7 +323,59 @@ export type FileInputOptions = {
 
 /* ── Logic block options ──────────────────────────────── */
 
-/** A single comparison clause within a condition block. */
+/** All comparison operators supported by the condition block. */
+export type ComparisonOperator =
+  | 'Equal to'
+  | 'Not equal to'
+  | 'Contains'
+  | 'Does not contain'
+  | 'Greater than'
+  | 'Less than'
+  | 'Greater than or equal'
+  | 'Less than or equal'
+  | 'Is empty'
+  | 'Is not empty'
+  | 'Starts with'
+  | 'Ends with'
+  | 'Matches regex';
+
+/** A single comparison clause within a condition group. */
+export type Comparison = {
+  id: string;
+  /** Left-hand variable ID */
+  variableId?: string;
+  /** Comparison operator */
+  operator?: ComparisonOperator;
+  /** Right-hand literal or {{variable}} */
+  value?: string;
+};
+
+/** A group of comparisons joined by a single logical operator. */
+export type ConditionGroup = {
+  id: string;
+  /** Logical operator between comparisons within this group */
+  logicalOperator: 'AND' | 'OR';
+  comparisons: Comparison[];
+};
+
+/**
+ * Options for a condition (branching) block.
+ *
+ * Structured as a list of groups where:
+ * - comparisons *within* a group are evaluated using `group.logicalOperator`
+ * - groups themselves are joined by the top-level `logicalOperator`
+ */
+export type ConditionOptions = {
+  /** Logical operator applied between groups */
+  logicalOperator: 'AND' | 'OR';
+  /** One or more condition groups */
+  conditionGroups: ConditionGroup[];
+};
+
+/**
+ * Legacy single comparison clause shape (kept for ConditionItem back-compat).
+ * New code should use `Comparison` from this module.
+ */
 export type ConditionComparison = {
   id: string;
   /** Left-hand variable ID */
@@ -328,26 +386,19 @@ export type ConditionComparison = {
   value?: string;
 };
 
-/** Options for a condition (branching) block. */
-export type ConditionOptions = {
-  /** 'AND' requires all comparisons to pass; 'OR' requires at least one */
-  logicalOperator?: 'AND' | 'OR';
-  /** Flat condition rows (SabFlow UI model) */
-  conditions?: Array<{
-    id: string;
-    variableId: string;
-    operator: string;
-    value: string;
-  }>;
-};
-
 /** Options for a set-variable block. */
 export type SetVariableOptions = {
   variableId?: string;
-  /** How to compute the new value */
+  /**
+   * How to compute the new value.
+   * Supported: "custom" | "empty" | "today" | "now" | "random_id" |
+   *            "code" | "append" | "sum" | "subtract" | "multiply" | "divide"
+   */
   valueType?: string;
-  /** Static value or JS expression string */
+  /** Static value, JS expression string, or numeric operand */
   value?: string;
+  /** JS expression to evaluate when valueType === "code" */
+  code?: string;
   /** JS expression to evaluate (Typebot compat) */
   expressionToEvaluate?: string;
   /** Whether to treat expressionToEvaluate as code */
@@ -440,22 +491,87 @@ export type WebhookOptions = {
   responseMappings?: ResponseMapping[];
 };
 
+/** A file attachment entry (URL-based) for send-email blocks. */
+export type EmailAttachment = {
+  id: string;
+  /** Direct URL to the file (supports {{variable}}) */
+  url: string;
+};
+
+/** SMTP connection settings for a send-email block. */
+export type SmtpConfig = {
+  host?: string;
+  /** TCP port, e.g. 587 or 465 */
+  port?: number;
+  /** Use STARTTLS upgrade (port 587) instead of implicit TLS (port 465) */
+  useStartTls?: boolean;
+  username?: string;
+  password?: string;
+};
+
 /** Options for a send-email integration block. */
 export type SendEmailOptions = {
-  to?: string;
-  from?: string;
+  /** Sender display name, e.g. "My Bot" */
+  fromName?: string;
+  /** Sender address, e.g. "no-reply@myapp.com" */
+  fromEmail?: string;
+  /** Reply-to address (optional) */
   replyTo?: string;
+  /** Recipient(s) — comma-separated, supports {{variable}} */
+  to?: string;
+  /** Email subject — supports {{variable}} */
   subject?: string;
+  /** Body content type */
+  bodyType?: 'richtext' | 'html';
+  /** Email body — supports {{variable}} */
   body?: string;
+  /** File attachment URLs */
+  attachments?: EmailAttachment[];
+  /** When true, use custom SMTP; when false, use workspace SMTP */
+  useCustomSmtp?: boolean;
+  /** Custom SMTP connection settings */
+  smtp?: SmtpConfig;
+  /** @legacy — kept for back-compat with existing documents */
+  from?: string;
+  /** @legacy — kept for back-compat */
   isCustomSmtp?: boolean;
+  /** @legacy — kept for back-compat */
   credentialsId?: string;
+};
+
+/** A column-to-variable extractor row (Get data action). */
+export type SheetsExtractor = {
+  id: string;
+  /** Column letter, e.g. "A" */
+  column: string;
+  /** Variable ID to save the cell value into */
+  variableId?: string;
+};
+
+/** A column-value pair row (Insert / Update actions). */
+export type SheetsCellValue = {
+  id: string;
+  /** Column letter, e.g. "A" */
+  column: string;
+  /** Cell value — supports {{variable}} tokens */
+  value: string;
 };
 
 /** Options for a Google Sheets integration block. */
 export type GoogleSheetsOptions = {
   spreadsheetId?: string;
+  sheetName?: string;
+  action?: 'get_data' | 'insert_row' | 'update_row' | 'delete_row';
+  /** Get data: the reference cell/range, e.g. "A1" or {{variable}} */
+  referenceRow?: string;
+  /** Get data: column → variable mappings */
+  extractors?: SheetsExtractor[];
+  /** Insert / Update row: column → value mappings */
+  cellValues?: SheetsCellValue[];
+  /** Update / Delete row: row number (string or {{variable}}) */
+  rowNumber?: string;
+  /** @legacy fields — kept for back-compat with existing documents */
   sheetId?: string | number;
-  action?: 'Get' | 'Insert row' | 'Update row';
   cellsToExtract?: Array<{ id: string; column?: string; variableId?: string }>;
   cellsToUpsert?: Array<{ id: string; column?: string; value?: string }>;
   referenceCell?: { column?: string; value?: string };
@@ -463,13 +579,45 @@ export type GoogleSheetsOptions = {
 
 /** Options for an AI (LLM) integration block (OpenAI / Anthropic / etc.). */
 export type AIBlockOptions = {
+  /* ── Credentials ─────────────────────────────── */
   credentialsId?: string;
+  /** Inherit the API key from workspace settings instead of storing it per-block. */
+  useWorkspaceKey?: boolean;
+  apiKey?: string;
+  /* ── Core ────────────────────────────────────── */
   model?: string;
+  /** Task variant (OpenAI-specific): ask_assistant | create_image | create_transcription | create_speech | create_embedding */
+  task?: string;
+  /* ── Ask assistant ───────────────────────────── */
   systemPrompt?: string;
   userMessage?: string;
+  /** How the conversation history is sent: "last" | "all" | "custom" */
+  messagesFormat?: string;
+  /** Explicit messages array when messagesFormat === "custom" */
+  customMessages?: Array<{ id: string; role: 'system' | 'user' | 'assistant'; content: string }>;
   responseVariable?: string;
+  responseVariableId?: string;
+  /* ── Advanced (ask assistant) ────────────────── */
   temperature?: number;
   maxTokens?: number;
+  frequencyPenalty?: number;
+  presencePenalty?: number;
+  /* ── Create image ────────────────────────────── */
+  imagePrompt?: string;
+  imageSize?: string;
+  imageQuality?: string;
+  imageUrlVariableId?: string;
+  /* ── Create transcription ────────────────────── */
+  audioUrlVariableId?: string;
+  transcriptionLanguage?: string;
+  transcriptionVariableId?: string;
+  /* ── Create speech ───────────────────────────── */
+  speechText?: string;
+  speechVoice?: string;
+  speechUrlVariableId?: string;
+  /* ── Create embedding ────────────────────────── */
+  embeddingInput?: string;
+  embeddingVariableId?: string;
 };
 
 /* ══════════════════════════════════════════════════════════
@@ -719,21 +867,99 @@ export type Edge = {
 export type Variable = {
   id: string;
   name: string;
+  /** Current / default runtime value (string serialisation) */
   value?: string;
+  /** Typed default value — used by the engine to seed the session */
+  defaultValue?: string | number | boolean;
+  /** Session-only: not persisted to results across sessions */
+  isSessionVariable?: boolean;
+  /** Hidden from the results table / exports */
+  isHidden?: boolean;
 };
 
 /* ── Theme ────────────────────────────────────────────── */
-export type SabFlowTheme = {
-  general?: {
-    font?: string;
-    background?: { type: 'Color' | 'Image' | 'None'; content?: string };
+
+/**
+ * A colour value that is either a literal hex/CSS colour string,
+ * or a reference to a flow variable.
+ */
+export type ThemeColor =
+  | { type: 'Color'; value: string }
+  | { type: 'Variable'; id: string };
+
+/** Theme overrides for the bot (host) message bubbles. */
+export type HostBubbleTheme = {
+  backgroundColor?: ThemeColor;
+  color?: ThemeColor;
+  /** CSS border-radius value, e.g. "8px" or "1rem" */
+  borderRadius?: string;
+  fontFamily?: string;
+};
+
+/** Theme overrides for the user (guest) message bubbles. */
+export type GuestBubbleTheme = {
+  backgroundColor?: ThemeColor;
+  color?: ThemeColor;
+  borderRadius?: string;
+};
+
+/** Theme overrides for the text / date / email input field. */
+export type InputTheme = {
+  backgroundColor?: ThemeColor;
+  color?: ThemeColor;
+  borderColor?: ThemeColor;
+  borderRadius?: string;
+  placeholderColor?: ThemeColor;
+};
+
+/** Theme overrides for the primary send / choice buttons. */
+export type ButtonTheme = {
+  backgroundColor?: ThemeColor;
+  color?: ThemeColor;
+  borderRadius?: string;
+};
+
+/** Full chat-window theme configuration. */
+export type ChatTheme = {
+  background?: { type: 'Color' | 'Gradient' | 'Image'; content?: string };
+  hostBubble?: HostBubbleTheme;
+  guestBubble?: GuestBubbleTheme;
+  input?: InputTheme;
+  button?: ButtonTheme;
+  fontFamily?: string;
+  /** Global corner-roundness preset applied across all chat elements. */
+  roundness?: 'None' | 'Medium' | 'Large';
+};
+
+/** General (page-level) theme configuration. */
+export type GeneralTheme = {
+  font?: string;
+  background?: { type: 'Color' | 'Transparent'; color?: string };
+};
+
+/**
+ * Composite flow theme.
+ * `FlowTheme` is the canonical name used in new code.
+ * `SabFlowTheme` is the legacy name kept for backward-compat with
+ * existing DB documents — it is a superset that also carries the
+ * old flat fields alongside the new rich typed fields.
+ */
+export type FlowTheme = {
+  chat?: ChatTheme;
+  general?: GeneralTheme;
+};
+
+export type SabFlowTheme = FlowTheme & {
+  general?: GeneralTheme & {
+    /** @legacy */
+    background?: { type: 'Color' | 'Image' | 'None' | 'Transparent'; content?: string; color?: string };
     progressBar?: {
       isEnabled?: boolean;
       color?: string;
       placement?: 'top' | 'bottom';
     };
   };
-  chat?: {
+  chat?: ChatTheme & {
     container?: {
       backgroundColor?: string;
       maxWidth?: string;
@@ -744,15 +970,61 @@ export type SabFlowTheme = {
       color?: string;
       isEnabled?: boolean;
     };
-    hostBubble?: { backgroundColor?: string; color?: string };
-    guestBubble?: { backgroundColor?: string; color?: string };
-    input?: {
-      backgroundColor?: string;
-      color?: string;
-      placeholderColor?: string;
-    };
-    button?: { backgroundColor?: string; color?: string };
+    /** @legacy — flat string colour, superseded by hostBubble.backgroundColor */
+    hostBubble?: HostBubbleTheme & { backgroundColor?: string; color?: string };
+    /** @legacy — flat string colour, superseded by guestBubble.backgroundColor */
+    guestBubble?: GuestBubbleTheme & { backgroundColor?: string; color?: string };
+    input?: InputTheme & { backgroundColor?: string; color?: string; placeholderColor?: string };
+    button?: ButtonTheme & { backgroundColor?: string; color?: string };
   };
+};
+
+/* ── FlowSettings ─────────────────────────────────────── */
+
+/**
+ * Per-flow configuration that drives behaviour, SEO, and embed options.
+ * All fields are optional so that a partial object can be saved incrementally.
+ */
+export type FlowSettings = {
+  /* ── General ──────────────────────────────────────── */
+  /** Internal description (not shown to users). */
+  description?: string;
+  /** BCP 47 language tag for the flow's primary language, e.g. "en", "es". */
+  language?: string;
+
+  /* ── Behaviour ────────────────────────────────────── */
+  /** Persist the user's session across visits (localStorage / cookie). */
+  rememberUser?: boolean;
+  /** Render a close / dismiss button in the chat widget. */
+  showCloseButton?: boolean;
+  /** Show a "Restart" button so users can start over. */
+  allowRestart?: boolean;
+  /** Strip UTM / query-string params from the share URL. */
+  hideQueryString?: boolean;
+  /** Pressing Escape dismisses the chat widget. */
+  closeOnEscapeKey?: boolean;
+
+  /* ── Metadata (SEO) ───────────────────────────────── */
+  /** Browser tab / og:title for the full-page embed. */
+  seoTitle?: string;
+  /** meta description / og:description for the full-page embed. */
+  seoDescription?: string;
+  /** Favicon URL for the full-page embed. */
+  faviconUrl?: string;
+  /** Open Graph / social preview image URL. */
+  ogImageUrl?: string;
+
+  /* ── Custom Domain ────────────────────────────────── */
+  /** Custom hostname, e.g. "chat.yoursite.com". */
+  customDomain?: string;
+
+  /* ── Custom CSS ───────────────────────────────────── */
+  /** Raw CSS injected into the full-page embed. */
+  customCss?: string;
+
+  /* ── Legacy / misc keys kept for back-compat ─────── */
+  customHeadScript?: string;
+  [key: string]: unknown;
 };
 
 /* ── SabFlow (document) ───────────────────────────────── */
@@ -766,11 +1038,37 @@ export type SabFlowDoc = {
   edges: Edge[];
   variables: Variable[];
   theme: SabFlowTheme;
-  settings: Record<string, unknown>;
+  settings: FlowSettings;
   publicId?: string;
   status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
   createdAt: Date;
   updatedAt: Date;
+};
+
+/* ── Notification settings ────────────────────────────── */
+
+export type FlowNotificationSettings = {
+  flowId: string;
+  emailOnSubmission: boolean;
+  /** List of email addresses to notify on each submission */
+  emailAddresses: string[];
+  /** Optional webhook URL called on each submission */
+  webhookUrl?: string;
+  webhookOnSubmission: boolean;
+  digestEnabled: boolean;
+  digestFrequency: 'daily' | 'weekly';
+  /** HH:mm string e.g. "09:00" */
+  digestTime?: string;
+};
+
+/* ── Recent activity ──────────────────────────────────── */
+
+/** A single row returned by getRecentSubmissions() */
+export type RecentSubmissionRow = {
+  submissionId: string;
+  flowId: string;
+  flowName: string;
+  completedAt: Date;
 };
 
 /* ── Draggable state ──────────────────────────────────── */

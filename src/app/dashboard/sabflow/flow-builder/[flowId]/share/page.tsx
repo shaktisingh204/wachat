@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getSabFlow } from '@/app/actions/sabflow';
 import { SharePanelClient } from '@/components/sabflow/panels/SharePanelClient';
+import type { FlowStatus } from '@/components/sabflow/panels/SharePanel';
 
 type Props = {
   params: Promise<{ flowId: string }>;
@@ -26,12 +27,18 @@ export default async function SharePage({ params }: Props) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
   const shareUrl = `${appUrl}/flow/${flow._id}`;
 
+  // Normalise legacy statuses — only PUBLISHED counts as live.
+  const status: FlowStatus =
+    flow.status === 'PUBLISHED' ? 'PUBLISHED'
+    : flow.status === 'ARCHIVED' ? 'ARCHIVED'
+    : 'DRAFT';
+
   return (
     <SharePanelClient
       flowId={flow._id as string}
       flowName={flow.name}
       shareUrl={shareUrl}
-      initialPublicLinkEnabled={!!(flow.settings as Record<string, unknown>)?.publicLinkEnabled}
+      initialStatus={status}
     />
   );
 }

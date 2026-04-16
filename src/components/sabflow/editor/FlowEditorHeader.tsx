@@ -11,6 +11,8 @@ import {
   LuCircleOff,
   LuUndo2,
   LuRedo2,
+  LuShieldCheck,
+  LuBarChart2,
 } from 'react-icons/lu';
 import { cn } from '@/lib/utils';
 import type { SabFlowDoc } from '@/lib/sabflow/types';
@@ -35,6 +37,11 @@ export type FlowEditorHeaderProps = {
   onSave: () => void;
   onPublishToggle: () => void;
   onNameChange: (name: string) => void;
+  /** Validation state — drives the shield badge in the header. */
+  validationErrorCount?: number;
+  validationWarningCount?: number;
+  isValidationPanelOpen?: boolean;
+  onValidationToggle?: () => void;
   /** Extra toolbar buttons rendered after the divider (panel toggles). */
   children?: React.ReactNode;
 };
@@ -129,6 +136,10 @@ export function FlowEditorHeader({
   onSave,
   onPublishToggle,
   onNameChange,
+  validationErrorCount,
+  validationWarningCount,
+  isValidationPanelOpen,
+  onValidationToggle,
   children,
 }: FlowEditorHeaderProps) {
   const isPublished = flow.status === 'PUBLISHED';
@@ -147,6 +158,18 @@ export function FlowEditorHeader({
         aria-label="Back to flows"
       >
         <LuArrowLeft className="h-4 w-4" strokeWidth={2} />
+      </Link>
+
+      <div className="h-5 w-px bg-[var(--gray-5)] shrink-0" />
+
+      {/* ── Results link ──────────────────────────────────────────────── */}
+      <Link
+        href={`/dashboard/sabflow/flow-builder/${flow._id}/results`}
+        className="flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-[12px] text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] transition-colors shrink-0"
+        title="View results & analytics"
+      >
+        <LuBarChart2 className="h-3.5 w-3.5" strokeWidth={1.8} />
+        <span className="hidden sm:inline">Results</span>
       </Link>
 
       <div className="h-5 w-px bg-[var(--gray-5)] shrink-0" />
@@ -259,6 +282,40 @@ export function FlowEditorHeader({
             </>
           )}
         </button>
+
+        {/* Validation toggle */}
+        {onValidationToggle && (
+          <>
+            <div className="h-5 w-px bg-[var(--gray-5)]" />
+            <div className="relative">
+              <button
+                type="button"
+                onClick={onValidationToggle}
+                title="Validate flow"
+                aria-label="Toggle validation panel"
+                className={cn(
+                  'flex h-8 w-8 items-center justify-center rounded-lg transition-colors',
+                  isValidationPanelOpen
+                    ? 'bg-[var(--gray-4)] text-[var(--gray-12)]'
+                    : 'text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
+                )}
+              >
+                <LuShieldCheck className="h-4 w-4" strokeWidth={1.8} />
+              </button>
+              {/* Badge: red if errors, yellow if only warnings */}
+              {(validationErrorCount !== undefined && validationErrorCount > 0) && (
+                <span className="pointer-events-none absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-0.5 text-[9px] font-bold text-white tabular-nums">
+                  {validationErrorCount > 99 ? '99+' : validationErrorCount}
+                </span>
+              )}
+              {(validationErrorCount === 0 && validationWarningCount !== undefined && validationWarningCount > 0) && (
+                <span className="pointer-events-none absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-400 px-0.5 text-[9px] font-bold text-white tabular-nums">
+                  {validationWarningCount > 99 ? '99+' : validationWarningCount}
+                </span>
+              )}
+            </div>
+          </>
+        )}
 
         {/* Optional extra toolbar buttons (panel toggles, etc.) */}
         {children && (

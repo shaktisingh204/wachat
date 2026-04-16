@@ -1,15 +1,18 @@
 'use client';
 import { useRef, useCallback, useEffect, useState } from 'react';
 import { useGesture } from '@use-gesture/react';
+import { LuKeyboard } from 'react-icons/lu';
 import { useGraph } from '../providers/GraphProvider';
 import { useSelectionStore } from '../hooks/useSelectionStore';
 import { useBlockDnd } from '../providers/GraphDndProvider';
+import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import { createId } from '@paralleldrive/cuid2';
 import GraphElements from './GraphElements';
 import { ElementsSelectionMenu } from './ElementsSelectionMenu';
 import { SelectBox } from './SelectBox';
 import { ZoomButtons } from './ZoomButtons';
 import { CanvasMiniMap } from './CanvasMiniMap';
+import { ShortcutsHelp } from './ShortcutsHelp';
 import { computeSelectBoxDimensions } from '../helpers/computeSelectBoxDimensions';
 import { isSelectBoxIntersectingWithElement } from '../helpers/isSelectBoxIntersectingWithElement';
 import type { SabFlowDoc, SabFlowEvent, Group, Coordinates } from '@/lib/sabflow/types';
@@ -29,9 +32,13 @@ type Props = {
   flow: SabFlowDoc;
   onFlowChange: (changes: Partial<Pick<SabFlowDoc, 'groups' | 'edges' | 'events'>>) => void;
   containerRef: React.RefObject<HTMLDivElement | null>;
+  /** Optional undo callback — wired to Ctrl/Cmd+Z on the canvas. */
+  onUndo?: () => void;
+  /** Optional redo callback — wired to Ctrl/Cmd+Shift+Z and Ctrl/Cmd+Y. */
+  onRedo?: () => void;
 };
 
-export function Graph({ flow, onFlowChange, containerRef }: Props) {
+export function Graph({ flow, onFlowChange, containerRef, onUndo, onRedo }: Props) {
   const { graphPosition, setGraphPosition, setCanvasPosition, connectingIds, connectingIdsRef, setConnectingIds, isReadOnly } =
     useGraph();
   const { draggedBlockType, setDraggedBlockType } = useBlockDnd();
@@ -57,8 +64,23 @@ export function Graph({ flow, onFlowChange, containerRef }: Props) {
   // Minimap visibility
   const [isMiniMapOpen, setIsMiniMapOpen] = useState(false);
 
+  // Shortcuts help panel
+  const [isShortcutsHelpOpen, setIsShortcutsHelpOpen] = useState(false);
+
   // Rubber-band selection
   const [selectBoxCoordinates, setSelectBoxCoordinates] = useState<SelectBoxCoordinates | undefined>(undefined);
+
+  // ── Keyboard shortcuts ─────────────────────────────────────────────────────
+  useKeyboardShortcuts({
+    flow,
+    onFlowChange,
+    graphPosition,
+    setGraphPosition,
+    canvasRef,
+    undo: onUndo,
+    redo: onRedo,
+    onEscape: () => setIsShortcutsHelpOpen(false),
+  });
 
   // Seed all group and event coordinates once on mount (Typebot pattern)
   useEffect(() => {
@@ -84,17 +106,28 @@ export function Graph({ flow, onFlowChange, containerRef }: Props) {
     });
   }, [graphPosition, setCanvasPosition]);
 
-  // Space-bar pan mode — keydown/keyup
+  // Space-bar pan mode — keydown/keyup + '?' shortcut to open shortcuts help
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      const isEditable =
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement ||
+        (e.target instanceof HTMLElement && e.target.isContentEditable);
+
+      // '?' → open shortcuts help
+      if (e.key === '?' && !e.metaKey && !e.ctrlKey && !isEditable) {
+        e.preventDefault();
+        setIsShortcutsHelpOpen((v) => !v);
+        return;
+      }
+
       if (
         e.key === ' ' &&
         !e.metaKey &&
         !e.ctrlKey &&
         !e.altKey &&
         !e.shiftKey &&
-        !(e.target instanceof HTMLInputElement) &&
-        !(e.target instanceof HTMLTextAreaElement)
+        !isEditable
       ) {
         e.preventDefault();
         setIsSpacePanMode(true);
@@ -410,6 +443,7 @@ export function Graph({ flow, onFlowChange, containerRef }: Props) {
           onGroupBlocksChange={handleGroupBlocksChange}
           onEdgeDelete={handleEdgeDelete}
           onEventUpdate={handleEventUpdate}
+          onFlowChange={onFlowChange}
         />
       </div>
 
@@ -434,6 +468,21 @@ export function Graph({ flow, onFlowChange, containerRef }: Props) {
           isMiniMapOpen={isMiniMapOpen}
           canvasRef={canvasRef}
         />
+
+        <div className="w-px bg-[var(--gray-5)] self-stretch" />
+
+        {/* Keyboard shortcuts reference */}
+        <button
+          aria-label="Keyboard shortcuts"
+          title="Keyboard shortcuts (?)"
+          onClick={() => setIsShortcutsHelpOpen((v) => !v)}
+          className={cn(
+            'flex h-7 w-7 items-center justify-center rounded text-[var(--gray-11)] hover:bg-[var(--gray-3)] transition-colors',
+            isShortcutsHelpOpen && 'bg-[var(--gray-4)]',
+          )}
+        >
+          <LuKeyboard size={14} />
+        </button>
       </div>
 
       {/* Canvas minimap */}
@@ -447,6 +496,12 @@ export function Graph({ flow, onFlowChange, containerRef }: Props) {
           onClose={() => setIsMiniMapOpen(false)}
         />
       )}
+
+      {/* Keyboard shortcuts help modal */}
+      <ShortcutsHelp
+        isOpen={isShortcutsHelpOpen}
+        onClose={() => setIsShortcutsHelpOpen(false)}
+      />
     </div>
   );
 }

@@ -3,22 +3,28 @@ import { useRef, useState, useEffect } from 'react';
 import { useDrag } from '@use-gesture/react';
 import { useShallow } from 'zustand/react/shallow';
 import { LuPlay } from 'react-icons/lu';
-import type { SabFlowEvent } from '@/lib/sabflow/types';
+import type { SabFlowEvent, SabFlowDoc } from '@/lib/sabflow/types';
 import { useGraph } from '../../../providers/GraphProvider';
 import { useSelectionStore } from '../../../hooks/useSelectionStore';
 import { EventSourceEndpoint } from '../../endpoints/EventSourceEndpoint';
+import { EventContextMenu } from './EventContextMenu';
 import { eventWidth } from '../../../constants';
 import { cn } from '@/lib/utils';
 
 type Props = {
   event: SabFlowEvent;
   onEventUpdate?: (id: string, changes: Partial<SabFlowEvent>) => void;
+  /** Optional: full flow slice for context menu operations. */
+  flow?: Pick<SabFlowDoc, 'groups' | 'edges' | 'events'>;
 };
 
-export function StartNode({ event, onEventUpdate }: Props) {
+export function StartNode({ event, onEventUpdate, flow }: Props) {
   const { graphPosition } = useGraph();
   const nodeRef = useRef<HTMLDivElement | null>(null);
   const [isMouseDown, setIsMouseDown] = useState(false);
+  const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number } | null>(null);
+  const [editingDescription, setEditingDescription] = useState(false);
+  const [description, setDescription] = useState('');
 
   const isDraggingGraph = useSelectionStore((s) => s.isDraggingGraph);
   const isFocused = useSelectionStore(
@@ -80,6 +86,7 @@ export function StartNode({ event, onEventUpdate }: Props) {
   );
 
   return (
+    <>
     <div
       ref={nodeRef}
       id={`event-${event.id}`}
@@ -106,6 +113,12 @@ export function StartNode({ event, onEventUpdate }: Props) {
         e.stopPropagation();
         focusElement(event.id);
       }}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        focusElement(event.id);
+        setContextMenuPos({ x: e.clientX, y: e.clientY });
+      }}
     >
       {/* Orange gradient header — rounded top corners only */}
       <div
@@ -121,8 +134,27 @@ export function StartNode({ event, onEventUpdate }: Props) {
       </div>
 
       {/* Description row */}
-      <div className="flex items-center px-3 py-2 bg-[var(--gray-1)] rounded-b-xl">
-        <span className="text-[12px] text-[var(--gray-10)]">Flow starts</span>
+      <div className="flex items-center px-3 py-2 bg-[var(--gray-1)] rounded-b-xl min-h-[34px]">
+        {editingDescription ? (
+          <input
+            autoFocus
+            value={description}
+            placeholder="Flow starts"
+            onChange={(e) => setDescription(e.target.value)}
+            onBlur={() => setEditingDescription(false)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === 'Escape') {
+                setEditingDescription(false);
+              }
+            }}
+            onClick={(e) => e.stopPropagation()}
+            className="prevent-group-drag flex-1 text-[12px] text-[var(--gray-10)] bg-transparent border-b border-[#f76808] outline-none"
+          />
+        ) : (
+          <span className="text-[12px] text-[var(--gray-10)]">
+            {description || 'Flow starts'}
+          </span>
+        )}
       </div>
 
       {/* Source endpoint — floats outside the right edge, vertically centred */}
@@ -131,5 +163,17 @@ export function StartNode({ event, onEventUpdate }: Props) {
         className="absolute right-[-16px] top-1/2 -translate-y-1/2"
       />
     </div>
+
+    {/* ── Right-click context menu ── */}
+    {contextMenuPos && (
+      <EventContextMenu
+        eventId={event.id}
+        position={contextMenuPos}
+        onClose={() => setContextMenuPos(null)}
+        flow={flow}
+        onEditDescription={() => setEditingDescription(true)}
+      />
+    )}
+    </>
   );
 }

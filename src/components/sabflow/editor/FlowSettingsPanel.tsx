@@ -1,117 +1,114 @@
 'use client';
 
+/**
+ * FlowSettingsPanel
+ *
+ * Right-side sliding panel for per-flow configuration.
+ * Sections: General · Behaviour · Metadata · Custom Domain · Custom CSS
+ *
+ * Follows the same collapsible-Section pattern as ThemePanel.
+ * Uses react-icons/lu only. No lucide-react.
+ */
+
 import { useState, useCallback } from 'react';
-import type { SabFlowDoc, SabFlowTheme } from '@/lib/sabflow/types';
-import { cn } from '@/lib/utils';
 import {
-  LuSettings,
+  LuSettings2,
   LuX,
+  LuChevronDown,
+  LuChevronRight,
+  LuGlobe,
   LuLink,
   LuCopy,
   LuCheck,
-  LuPalette,
-  LuFileText,
-  LuGlobe,
-  LuAlignLeft,
   LuInfo,
+  LuToggleRight,
+  LuCode,
 } from 'react-icons/lu';
+import type { SabFlowDoc, FlowSettings } from '@/lib/sabflow/types';
+import { cn } from '@/lib/utils';
 
-/* ── Types ──────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════
+   Types
+   ══════════════════════════════════════════════════════════ */
 
 interface Props {
-  flow: Pick<SabFlowDoc, '_id' | 'name' | 'settings' | 'theme' | 'publicId' | 'status'> & { _id: string };
-  onUpdate: (changes: Partial<Pick<SabFlowDoc, 'name' | 'settings' | 'theme'>>) => void;
+  flow: Pick<SabFlowDoc, '_id' | 'name' | 'settings' | 'publicId' | 'status'> & {
+    _id: string;
+  };
+  onUpdate: (changes: Partial<Pick<SabFlowDoc, 'name' | 'settings'>>) => void;
   onClose: () => void;
 }
 
-type TabId = 'general' | 'theme' | 'metadata';
-
-const TABS: { id: TabId; label: string; Icon: React.ElementType }[] = [
-  { id: 'general',  label: 'General',  Icon: LuFileText  },
-  { id: 'theme',    label: 'Theme',    Icon: LuPalette   },
-  { id: 'metadata', label: 'Metadata', Icon: LuInfo      },
-];
-
-/* ── Small form primitives ──────────────────────────────── */
-
-function Field({ label, children, hint }: { label: string; children: React.ReactNode; hint?: string }) {
-  return (
-    <div className="space-y-1.5">
-      <label className="block text-[11.5px] font-medium text-[var(--gray-10)] uppercase tracking-wide">
-        {label}
-      </label>
-      {children}
-      {hint && <p className="text-[11px] text-[var(--gray-9)]">{hint}</p>}
-    </div>
-  );
-}
+/* ══════════════════════════════════════════════════════════
+   Shared primitives
+   ══════════════════════════════════════════════════════════ */
 
 const inputCls = cn(
   'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)]',
   'px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-9)]',
-  'outline-none focus:border-[#f76808] focus:ring-1 focus:ring-[#f76808]/20 transition-colors',
+  'outline-none focus:border-[var(--orange-8)] focus:ring-1 focus:ring-[var(--orange-8)]/20',
+  'transition-colors',
 );
 
-/* ── Colour swatch picker ───────────────────────────────── */
-
-const PALETTE = [
-  '#ffffff', '#f5f5f5', '#f0f4ff', '#fff9f0',
-  '#1a1a1a', '#0f172a', '#1e3a5f', '#3f1f00',
-  '#f76808', '#0090ff', '#30a46c', '#e5484d',
-];
-
-function ColorField({
+function Field({
   label,
-  value,
-  onChange,
+  hint,
+  children,
 }: {
   label: string;
-  value: string;
-  onChange: (v: string) => void;
+  hint?: string;
+  children: React.ReactNode;
 }) {
   return (
-    <Field label={label}>
-      <div className="flex flex-wrap gap-1.5 p-2.5 rounded-xl border border-[var(--gray-5)] bg-[var(--gray-2)]">
-        {PALETTE.map((c) => (
-          <button
-            key={c}
-            type="button"
-            onClick={() => onChange(c)}
-            title={c}
-            className={cn(
-              'h-6 w-6 rounded-md border-2 transition-transform hover:scale-110',
-              value === c
-                ? 'border-[#f76808] scale-110'
-                : 'border-transparent hover:border-[var(--gray-7)]',
-            )}
-            style={{ backgroundColor: c }}
-          />
-        ))}
-        {/* Custom hex input */}
-        <div className="relative flex items-center">
-          <span
-            className="h-6 w-6 rounded-md border border-[var(--gray-5)] shrink-0"
-            style={{ backgroundColor: value }}
-          />
-          <input
-            type="text"
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            placeholder="#hex"
-            maxLength={7}
-            className={cn(
-              'ml-1.5 w-[72px] rounded-md border border-[var(--gray-5)] bg-[var(--gray-1)]',
-              'px-2 py-0.5 text-[11px] font-mono text-[var(--gray-12)]',
-              'outline-none focus:border-[#f76808] transition-colors',
-            )}
-          />
-        </div>
-      </div>
-    </Field>
+    <div className="space-y-1.5">
+      <label className="block text-[11px] font-medium text-[var(--gray-9)] uppercase tracking-wide">
+        {label}
+      </label>
+      {children}
+      {hint && <p className="text-[11px] text-[var(--gray-9)] leading-relaxed">{hint}</p>}
+    </div>
   );
 }
 
-/* ── Copy-to-clipboard helper ───────────────────────────── */
+function ToggleRow({
+  label,
+  hint,
+  checked,
+  onChange,
+}: {
+  label: string;
+  hint?: string;
+  checked: boolean;
+  onChange: (v: boolean) => void;
+}) {
+  return (
+    <div className="flex items-start justify-between gap-3">
+      <div className="min-w-0">
+        <p className="text-[12.5px] text-[var(--gray-12)]">{label}</p>
+        {hint && (
+          <p className="mt-0.5 text-[11px] text-[var(--gray-9)] leading-relaxed">{hint}</p>
+        )}
+      </div>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        onClick={() => onChange(!checked)}
+        className={cn(
+          'relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors',
+          checked ? 'bg-[var(--orange-8)]' : 'bg-[var(--gray-5)]',
+        )}
+      >
+        <span
+          className={cn(
+            'absolute h-3.5 w-3.5 rounded-full bg-white shadow transition-transform',
+            checked ? 'translate-x-4' : 'translate-x-1',
+          )}
+        />
+      </button>
+    </div>
+  );
+}
 
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
@@ -121,7 +118,9 @@ function CopyButton({ text }: { text: string }) {
       await navigator.clipboard.writeText(text);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch { /* noop */ }
+    } catch {
+      /* noop */
+    }
   };
 
   return (
@@ -131,22 +130,90 @@ function CopyButton({ text }: { text: string }) {
       title="Copy to clipboard"
       className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] transition-colors"
     >
-      {copied
-        ? <LuCheck className="h-3.5 w-3.5 text-green-500" strokeWidth={2} />
-        : <LuCopy className="h-3.5 w-3.5" strokeWidth={2} />}
+      {copied ? (
+        <LuCheck className="h-3.5 w-3.5 text-green-500" strokeWidth={2} />
+      ) : (
+        <LuCopy className="h-3.5 w-3.5" strokeWidth={2} />
+      )}
     </button>
   );
 }
 
-/* ── Tab: General ───────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════
+   Collapsible Section (matches ThemePanel style)
+   ══════════════════════════════════════════════════════════ */
 
-function GeneralTab({ flow, onUpdate }: Pick<Props, 'flow' | 'onUpdate'>) {
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-  const publicUrl = flow.publicId ? `${baseUrl}/flow/${flow.publicId}` : '';
-  const webhookUrl = `${baseUrl}/api/sabflow/session`;
+function Section({
+  title,
+  defaultOpen = true,
+  children,
+}: {
+  title: string;
+  defaultOpen?: boolean;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
 
   return (
-    <div className="space-y-5">
+    <div className="rounded-xl border border-[var(--gray-5)] overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center justify-between px-4 py-3 bg-[var(--gray-2)] hover:bg-[var(--gray-3)] transition-colors"
+      >
+        <span className="text-[12.5px] font-semibold text-[var(--gray-11)] uppercase tracking-wide">
+          {title}
+        </span>
+        {open ? (
+          <LuChevronDown className="h-3.5 w-3.5 text-[var(--gray-9)]" strokeWidth={2.5} />
+        ) : (
+          <LuChevronRight className="h-3.5 w-3.5 text-[var(--gray-9)]" strokeWidth={2.5} />
+        )}
+      </button>
+      {open && (
+        <div className="px-4 py-4 space-y-4 bg-[var(--gray-1)]">{children}</div>
+      )}
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════
+   Section components
+   ══════════════════════════════════════════════════════════ */
+
+/* ── General ─────────────────────────────────────────────── */
+
+const LANGUAGES: { value: string; label: string }[] = [
+  { value: 'en', label: 'English' },
+  { value: 'es', label: 'Spanish' },
+  { value: 'fr', label: 'French' },
+  { value: 'de', label: 'German' },
+  { value: 'pt', label: 'Portuguese' },
+  { value: 'it', label: 'Italian' },
+  { value: 'nl', label: 'Dutch' },
+  { value: 'pl', label: 'Polish' },
+  { value: 'ru', label: 'Russian' },
+  { value: 'ar', label: 'Arabic' },
+  { value: 'zh', label: 'Chinese (Simplified)' },
+  { value: 'ja', label: 'Japanese' },
+  { value: 'ko', label: 'Korean' },
+  { value: 'hi', label: 'Hindi' },
+];
+
+function GeneralSection({ flow, onUpdate }: Pick<Props, 'flow' | 'onUpdate'>) {
+  const settings = flow.settings ?? {};
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+  const publicUrl = flow.publicId ? `${baseUrl}/flow/${flow.publicId}` : '';
+
+  const patch = useCallback(
+    (partial: Partial<FlowSettings>) =>
+      onUpdate({ settings: { ...settings, ...partial } }),
+    [settings, onUpdate],
+  );
+
+  return (
+    <Section title="General" defaultOpen>
+      {/* Flow name */}
       <Field label="Flow name">
         <input
           type="text"
@@ -157,23 +224,34 @@ function GeneralTab({ flow, onUpdate }: Pick<Props, 'flow' | 'onUpdate'>) {
         />
       </Field>
 
-      <Field
-        label="Description"
-        hint="Internal note — not shown to users."
-      >
+      {/* Description */}
+      <Field label="Description" hint="Internal note — not shown to users.">
         <textarea
           className={cn(inputCls, 'min-h-[72px] resize-y')}
-          value={String(flow.settings?.description ?? '')}
-          onChange={(e) =>
-            onUpdate({ settings: { ...flow.settings, description: e.target.value } })
-          }
+          value={String(settings.description ?? '')}
+          onChange={(e) => patch({ description: e.target.value })}
           placeholder="What does this flow do?"
         />
       </Field>
 
+      {/* Language */}
+      <Field label="Language" hint="Primary language for the flow's UI labels.">
+        <select
+          className={inputCls}
+          value={String(settings.language ?? 'en')}
+          onChange={(e) => patch({ language: e.target.value })}
+        >
+          {LANGUAGES.map(({ value, label }) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
+        </select>
+      </Field>
+
       {/* Public URL */}
       <div className="space-y-1.5">
-        <label className="flex items-center gap-1.5 text-[11.5px] font-medium text-[var(--gray-10)] uppercase tracking-wide">
+        <label className="flex items-center gap-1.5 text-[11px] font-medium text-[var(--gray-9)] uppercase tracking-wide">
           <LuGlobe className="h-3 w-3" strokeWidth={2} />
           Public URL
         </label>
@@ -193,239 +271,249 @@ function GeneralTab({ flow, onUpdate }: Pick<Props, 'flow' | 'onUpdate'>) {
           </div>
         )}
       </div>
-
-      {/* Webhook endpoint */}
-      <div className="space-y-1.5">
-        <label className="flex items-center gap-1.5 text-[11.5px] font-medium text-[var(--gray-10)] uppercase tracking-wide">
-          <LuLink className="h-3 w-3" strokeWidth={2} />
-          API / Webhook endpoint
-        </label>
-        <div className="flex items-center gap-2">
-          <div className="flex-1 rounded-lg border border-[var(--gray-5)] bg-[var(--gray-3)] px-3 py-2 text-[12px] font-mono text-[var(--gray-11)] truncate">
-            {webhookUrl}
-          </div>
-          <CopyButton text={webhookUrl} />
-        </div>
-        <p className="text-[11px] text-[var(--gray-9)]">
-          POST{' '}
-          <code className="rounded bg-[var(--gray-3)] px-1 font-mono text-[10.5px]">
-            {'{ "flowId": "..." }'}
-          </code>{' '}
-          to start a new session.
-        </p>
-      </div>
-    </div>
+    </Section>
   );
 }
 
-/* ── Tab: Theme ─────────────────────────────────────────── */
+/* ── Behaviour ───────────────────────────────────────────── */
 
-const FONTS = ['Inter', 'System UI', 'Roboto', 'Open Sans', 'Lato', 'Georgia', 'Courier New'];
+function BehaviourSection({ flow, onUpdate }: Pick<Props, 'flow' | 'onUpdate'>) {
+  const settings = flow.settings ?? {};
 
-function ThemeTab({ flow, onUpdate }: Pick<Props, 'flow' | 'onUpdate'>) {
-  const theme: SabFlowTheme = flow.theme ?? {};
-
-  const setTheme = (partial: SabFlowTheme) => {
-    const merged: SabFlowTheme = {
-      ...theme,
-      general: { ...theme.general, ...partial.general },
-      chat: {
-        ...theme.chat,
-        ...partial.chat,
-        hostBubble: { ...theme.chat?.hostBubble, ...partial.chat?.hostBubble },
-        guestBubble: { ...theme.chat?.guestBubble, ...partial.chat?.guestBubble },
-        input: { ...theme.chat?.input, ...partial.chat?.input },
-      },
-    };
-    onUpdate({ theme: merged });
-  };
-
-  const bgColor = theme.general?.background?.content ?? '#ffffff';
-  const font = theme.general?.font ?? 'Inter';
-  const hostBg = theme.chat?.hostBubble?.backgroundColor ?? '#f5f5f5';
-  const hostText = theme.chat?.hostBubble?.color ?? '#161616';
-  const guestBg = theme.chat?.guestBubble?.backgroundColor ?? '#f76808';
-  const guestText = theme.chat?.guestBubble?.color ?? '#ffffff';
-  const inputBg = theme.chat?.input?.backgroundColor ?? '#ffffff';
-  const inputText = theme.chat?.input?.color ?? '#161616';
+  const patch = useCallback(
+    (partial: Partial<FlowSettings>) =>
+      onUpdate({ settings: { ...settings, ...partial } }),
+    [settings, onUpdate],
+  );
 
   return (
-    <div className="space-y-5">
-      {/* Font */}
-      <Field label="Font family">
-        <select
-          value={font}
-          onChange={(e) => setTheme({ general: { font: e.target.value } })}
-          className={inputCls}
-        >
-          {FONTS.map((f) => (
-            <option key={f} value={f}>{f}</option>
-          ))}
-        </select>
-      </Field>
-
-      {/* Background */}
-      <ColorField
-        label="Chat background"
-        value={bgColor}
-        onChange={(v) =>
-          setTheme({ general: { background: { type: 'Color', content: v } } })
-        }
+    <Section title="Behaviour" defaultOpen={false}>
+      <ToggleRow
+        label="Remember user"
+        hint="Keep the user's session across visits so they can resume where they left off."
+        checked={Boolean(settings.rememberUser)}
+        onChange={(v) => patch({ rememberUser: v })}
       />
-
-      {/* Host (bot) bubble */}
-      <div className="space-y-3 rounded-xl border border-[var(--gray-5)] p-3.5 bg-[var(--gray-2)]">
-        <p className="text-[11.5px] font-semibold text-[var(--gray-10)] uppercase tracking-wide">
-          Bot bubble
-        </p>
-        <ColorField
-          label="Background"
-          value={hostBg}
-          onChange={(v) => setTheme({ chat: { hostBubble: { backgroundColor: v } } })}
-        />
-        <ColorField
-          label="Text colour"
-          value={hostText}
-          onChange={(v) => setTheme({ chat: { hostBubble: { color: v } } })}
-        />
-      </div>
-
-      {/* Guest bubble */}
-      <div className="space-y-3 rounded-xl border border-[var(--gray-5)] p-3.5 bg-[var(--gray-2)]">
-        <p className="text-[11.5px] font-semibold text-[var(--gray-10)] uppercase tracking-wide">
-          User bubble
-        </p>
-        <ColorField
-          label="Background"
-          value={guestBg}
-          onChange={(v) => setTheme({ chat: { guestBubble: { backgroundColor: v } } })}
-        />
-        <ColorField
-          label="Text colour"
-          value={guestText}
-          onChange={(v) => setTheme({ chat: { guestBubble: { color: v } } })}
-        />
-      </div>
-
-      {/* Input */}
-      <div className="space-y-3 rounded-xl border border-[var(--gray-5)] p-3.5 bg-[var(--gray-2)]">
-        <p className="text-[11.5px] font-semibold text-[var(--gray-10)] uppercase tracking-wide">
-          Input field
-        </p>
-        <ColorField
-          label="Background"
-          value={inputBg}
-          onChange={(v) => setTheme({ chat: { input: { backgroundColor: v } } })}
-        />
-        <ColorField
-          label="Text colour"
-          value={inputText}
-          onChange={(v) => setTheme({ chat: { input: { color: v } } })}
-        />
-      </div>
-    </div>
+      <ToggleRow
+        label="Show close button"
+        hint="Display a dismiss / close button inside the chat widget."
+        checked={Boolean(settings.showCloseButton)}
+        onChange={(v) => patch({ showCloseButton: v })}
+      />
+      <ToggleRow
+        label="Allow restart"
+        hint="Show a restart button so users can start the flow from the beginning."
+        checked={Boolean(settings.allowRestart)}
+        onChange={(v) => patch({ allowRestart: v })}
+      />
+      <ToggleRow
+        label="Hide query string on share"
+        hint="Strip UTM and other query parameters from the share URL."
+        checked={Boolean(settings.hideQueryString)}
+        onChange={(v) => patch({ hideQueryString: v })}
+      />
+      <ToggleRow
+        label="Close on Escape key"
+        hint="Allow pressing Escape to dismiss the chat widget."
+        checked={Boolean(settings.closeOnEscapeKey)}
+        onChange={(v) => patch({ closeOnEscapeKey: v })}
+      />
+    </Section>
   );
 }
 
-/* ── Tab: Metadata ──────────────────────────────────────── */
+/* ── Metadata (SEO) ──────────────────────────────────────── */
 
-function MetadataTab({ flow, onUpdate }: Pick<Props, 'flow' | 'onUpdate'>) {
+function MetadataSection({ flow, onUpdate }: Pick<Props, 'flow' | 'onUpdate'>) {
+  const settings = flow.settings ?? {};
+
+  const patch = useCallback(
+    (partial: Partial<FlowSettings>) =>
+      onUpdate({ settings: { ...settings, ...partial } }),
+    [settings, onUpdate],
+  );
+
   return (
-    <div className="space-y-5">
-      <Field label="SEO title" hint="Shown in browser tab when flow is embedded as a full page.">
+    <Section title="Metadata (SEO)" defaultOpen={false}>
+      <div className="flex items-start gap-2 rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2.5">
+        <LuInfo className="h-3.5 w-3.5 text-[var(--gray-8)] shrink-0 mt-px" strokeWidth={2} />
+        <p className="text-[11.5px] text-[var(--gray-9)] leading-relaxed">
+          These fields apply to the full-page embed only (when the flow is opened at its public URL).
+        </p>
+      </div>
+
+      <Field label="Custom title" hint="Shown in the browser tab and used as og:title.">
         <input
           type="text"
           className={inputCls}
-          value={String(flow.settings?.seoTitle ?? '')}
-          onChange={(e) =>
-            onUpdate({ settings: { ...flow.settings, seoTitle: e.target.value } })
-          }
-          placeholder="My Flow"
+          value={String(settings.seoTitle ?? '')}
+          onChange={(e) => patch({ seoTitle: e.target.value })}
+          placeholder="My Awesome Flow"
         />
       </Field>
 
-      <Field label="SEO description">
+      <Field label="Custom description" hint="Used as the meta description and og:description.">
         <textarea
           className={cn(inputCls, 'min-h-[72px] resize-y')}
-          value={String(flow.settings?.seoDescription ?? '')}
-          onChange={(e) =>
-            onUpdate({ settings: { ...flow.settings, seoDescription: e.target.value } })
-          }
-          placeholder="A short description for search engines."
+          value={String(settings.seoDescription ?? '')}
+          onChange={(e) => patch({ seoDescription: e.target.value })}
+          placeholder="A short description for search engines and social cards."
         />
       </Field>
 
-      <Field label="OG image URL" hint="Social sharing preview image.">
+      <Field label="Favicon URL" hint="Absolute URL to a .ico, .png, or .svg file.">
         <input
           type="url"
           className={inputCls}
-          value={String(flow.settings?.ogImageUrl ?? '')}
-          onChange={(e) =>
-            onUpdate({ settings: { ...flow.settings, ogImageUrl: e.target.value } })
-          }
-          placeholder="https://example.com/image.png"
+          value={String(settings.faviconUrl ?? '')}
+          onChange={(e) => patch({ faviconUrl: e.target.value })}
+          placeholder="https://example.com/favicon.ico"
         />
       </Field>
 
-      <Field label="Custom head script" hint="Injected into the <head> of the full-page embed only.">
-        <textarea
-          className={cn(inputCls, 'min-h-[90px] resize-y font-mono text-[12px]')}
-          value={String(flow.settings?.customHeadScript ?? '')}
-          onChange={(e) =>
-            onUpdate({ settings: { ...flow.settings, customHeadScript: e.target.value } })
-          }
-          placeholder={'<!-- Google Analytics, etc. -->'}
+      <Field label="Social preview image URL" hint="Displayed when the flow URL is shared on social media (og:image).">
+        <input
+          type="url"
+          className={inputCls}
+          value={String(settings.ogImageUrl ?? '')}
+          onChange={(e) => patch({ ogImageUrl: e.target.value })}
+          placeholder="https://example.com/preview.png"
         />
       </Field>
-    </div>
+    </Section>
   );
 }
 
-/* ── FlowSettingsPanel ──────────────────────────────────── */
+/* ── Custom Domain ───────────────────────────────────────── */
 
-export function FlowSettingsPanel({ flow, onUpdate, onClose }: Props) {
-  const [activeTab, setActiveTab] = useState<TabId>('general');
+function CustomDomainSection({ flow, onUpdate }: Pick<Props, 'flow' | 'onUpdate'>) {
+  const settings = flow.settings ?? {};
+
+  const patch = useCallback(
+    (partial: Partial<FlowSettings>) =>
+      onUpdate({ settings: { ...settings, ...partial } }),
+    [settings, onUpdate],
+  );
 
   return (
+    <Section title="Custom Domain" defaultOpen={false}>
+      <Field label="Custom domain">
+        <input
+          type="text"
+          className={inputCls}
+          value={String(settings.customDomain ?? '')}
+          onChange={(e) => patch({ customDomain: e.target.value })}
+          placeholder="chat.yoursite.com"
+        />
+      </Field>
+
+      <div className="rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2.5 space-y-1.5">
+        <p className="text-[11.5px] font-medium text-[var(--gray-10)]">DNS configuration</p>
+        <p className="text-[11.5px] text-[var(--gray-9)] leading-relaxed">
+          Point a{' '}
+          <code className="rounded bg-[var(--gray-3)] px-1 font-mono text-[10.5px] text-[var(--gray-11)]">
+            CNAME
+          </code>{' '}
+          record for{' '}
+          <code className="rounded bg-[var(--gray-3)] px-1 font-mono text-[10.5px] text-[var(--gray-11)]">
+            {String(settings.customDomain || 'chat.yoursite.com')}
+          </code>{' '}
+          to{' '}
+          <code className="rounded bg-[var(--gray-3)] px-1 font-mono text-[10.5px] text-[var(--gray-11)]">
+            flow.sabnode.com
+          </code>
+          .
+        </p>
+      </div>
+    </Section>
+  );
+}
+
+/* ── Custom CSS ──────────────────────────────────────────── */
+
+function CustomCssSection({ flow, onUpdate }: Pick<Props, 'flow' | 'onUpdate'>) {
+  const settings = flow.settings ?? {};
+
+  const patch = useCallback(
+    (partial: Partial<FlowSettings>) =>
+      onUpdate({ settings: { ...settings, ...partial } }),
+    [settings, onUpdate],
+  );
+
+  return (
+    <Section title="Custom CSS" defaultOpen={false}>
+      <div className="flex items-start gap-2 rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2.5">
+        <LuCode className="h-3.5 w-3.5 text-[var(--gray-8)] shrink-0 mt-px" strokeWidth={2} />
+        <p className="text-[11.5px] text-[var(--gray-9)] leading-relaxed">
+          CSS injected into the{' '}
+          <code className="rounded bg-[var(--gray-3)] px-1 font-mono text-[10.5px] text-[var(--gray-11)]">
+            {'<head>'}
+          </code>{' '}
+          of the full-page embed. Use with caution.
+        </p>
+      </div>
+
+      <Field label="Custom CSS">
+        <textarea
+          className={cn(
+            inputCls,
+            'min-h-[140px] resize-y font-mono text-[12px] leading-relaxed',
+          )}
+          value={String(settings.customCss ?? '')}
+          onChange={(e) => patch({ customCss: e.target.value })}
+          placeholder={'.typebot-button {\n  border-radius: 8px;\n}'}
+          spellCheck={false}
+          autoCapitalize="none"
+          autoCorrect="off"
+        />
+      </Field>
+    </Section>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════
+   FlowSettingsPanel
+   ══════════════════════════════════════════════════════════ */
+
+export function FlowSettingsPanel({ flow, onUpdate, onClose }: Props) {
+  return (
     <div className="w-[340px] shrink-0 flex flex-col border-l border-[var(--gray-5)] bg-[var(--gray-1)] z-20 overflow-hidden">
-      {/* ── Header ──────────────────────────────────────── */}
+      {/* ── Panel header ──────────────────────────────────── */}
       <div className="flex items-center gap-2.5 border-b border-[var(--gray-4)] px-4 py-3 shrink-0">
         <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--gray-3)] text-[var(--gray-9)] shrink-0">
-          <LuSettings className="h-4 w-4" strokeWidth={1.8} />
+          <LuSettings2 className="h-4 w-4" strokeWidth={1.8} />
         </div>
-        <span className="flex-1 text-[13px] font-semibold text-[var(--gray-12)]">Flow settings</span>
+        <span className="flex-1 text-[13px] font-semibold text-[var(--gray-12)]">
+          Flow settings
+        </span>
         <button
+          type="button"
           onClick={onClose}
+          aria-label="Close settings panel"
           className="flex h-6 w-6 items-center justify-center rounded text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] transition-colors"
         >
           <LuX className="h-3.5 w-3.5" strokeWidth={2} />
         </button>
       </div>
 
-      {/* ── Tab bar ─────────────────────────────────────── */}
-      <div className="flex shrink-0 border-b border-[var(--gray-4)] px-2 pt-1">
-        {TABS.map(({ id, label, Icon }) => (
-          <button
-            key={id}
-            onClick={() => setActiveTab(id)}
-            className={cn(
-              'flex items-center gap-1.5 px-2.5 py-2 text-[12px] font-medium rounded-t-lg transition-colors',
-              activeTab === id
-                ? 'text-[#f76808] border-b-2 border-[#f76808] -mb-px bg-[#f76808]/5'
-                : 'text-[var(--gray-9)] hover:text-[var(--gray-12)] hover:bg-[var(--gray-3)]',
-            )}
-          >
-            <Icon className="h-3.5 w-3.5" strokeWidth={1.8} />
-            {label}
-          </button>
-        ))}
+      {/* ── Scrollable body: collapsible sections ─────────── */}
+      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+        <GeneralSection flow={flow} onUpdate={onUpdate} />
+        <BehaviourSection flow={flow} onUpdate={onUpdate} />
+        <MetadataSection flow={flow} onUpdate={onUpdate} />
+        <CustomDomainSection flow={flow} onUpdate={onUpdate} />
+        <CustomCssSection flow={flow} onUpdate={onUpdate} />
       </div>
 
-      {/* ── Tab content ─────────────────────────────────── */}
-      <div className="flex-1 overflow-y-auto px-4 py-4">
-        {activeTab === 'general'  && <GeneralTab  flow={flow} onUpdate={onUpdate} />}
-        {activeTab === 'theme'    && <ThemeTab    flow={flow} onUpdate={onUpdate} />}
-        {activeTab === 'metadata' && <MetadataTab flow={flow} onUpdate={onUpdate} />}
+      {/* ── Footer hint ───────────────────────────────────── */}
+      <div className="shrink-0 border-t border-[var(--gray-4)] px-4 py-3">
+        <div className="flex items-center gap-1.5">
+          <LuToggleRight className="h-3.5 w-3.5 text-[var(--gray-7)] shrink-0" strokeWidth={1.8} />
+          <p className="text-[11px] text-[var(--gray-8)]">
+            Changes apply after you{' '}
+            <span className="font-medium text-[var(--gray-10)]">Save</span>.
+          </p>
+        </div>
       </div>
     </div>
   );

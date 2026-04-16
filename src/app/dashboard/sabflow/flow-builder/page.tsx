@@ -16,7 +16,15 @@ import {
   LuTriangle,
   LuLoader,
   LuSparkles,
+  LuPencil,
+  LuTrash2,
+  LuCopy,
+  LuEllipsis,
+  LuChartColumn,
+  LuCircle,
+  LuDownload,
 } from 'react-icons/lu';
+import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import {
@@ -25,7 +33,9 @@ import {
   deleteSabFlow,
   duplicateSabFlow,
   saveSabFlow,
+  getTodaySubmissionCounts,
 } from '@/app/actions/sabflow';
+import { RecentActivityFeed } from '@/components/sabflow/RecentActivityFeed';
 import {
   Dialog,
   DialogContent,
@@ -34,19 +44,6 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { FlowCard, type FlowItem } from '@/components/sabflow/FlowCard';
-import { FlowTemplates } from '@/components/sabflow/FlowTemplates';
-import { format } from 'date-fns';
-import {
-  LuPencil,
-  LuTrash2,
-  LuCopy,
-  LuEllipsis,
-  LuChartColumn,
-  LuCircle,
-} from 'react-icons/lu';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -55,6 +52,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { FlowCard, type FlowItem } from '@/components/sabflow/FlowCard';
+import { FlowTemplates } from '@/components/sabflow/FlowTemplates';
+import { FlowImportExport } from '@/components/sabflow/FlowImportExport';
 
 /* ── Component ─────────────────────────────────────────────────────────── */
 
@@ -65,6 +67,7 @@ export default function SabFlowListPage() {
   const { toast } = useToast();
 
   const [flows, setFlows] = useState<FlowItem[]>([]);
+  const [todayCounts, setTodayCounts] = useState<Record<string, number>>({});
   const [isPending, startTransition] = useTransition();
   const [query, setQuery] = useState('');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
@@ -84,7 +87,13 @@ export default function SabFlowListPage() {
     startTransition(async () => {
       const data = await listSabFlows();
       if (Array.isArray(data)) {
-        setFlows(data as FlowItem[]);
+        const items = data as FlowItem[];
+        setFlows(items);
+        // Load today's submission counts in the background
+        const ids = items.map((f) => f._id);
+        if (ids.length > 0) {
+          getTodaySubmissionCounts(ids).then(setTodayCounts).catch(() => {});
+        }
       } else if (data && 'error' in data) {
         toast({ title: 'Error', description: data.error as string, variant: 'destructive' });
       }
@@ -184,13 +193,16 @@ export default function SabFlowListPage() {
             </p>
           </div>
         </div>
-        <Button
-          onClick={() => setShowCreate(true)}
-          className="gap-2 bg-amber-500 hover:bg-amber-600 text-white border-0 shadow-sm"
-        >
-          <LuPlus className="h-4 w-4" strokeWidth={2.5} />
-          New Flow
-        </Button>
+        <div className="flex items-center gap-2">
+          <FlowImportExport />
+          <Button
+            onClick={() => setShowCreate(true)}
+            className="gap-2 bg-amber-500 hover:bg-amber-600 text-white border-0 shadow-sm"
+          >
+            <LuPlus className="h-4 w-4" strokeWidth={2.5} />
+            New Flow
+          </Button>
+        </div>
       </div>
 
       {/* ── Stats cards ──────────────────────────────────────────────── */}
@@ -215,6 +227,66 @@ export default function SabFlowListPage() {
           </div>
         ))}
       </div>
+
+      {/* ── Recent submissions feed ───────────────────────────────────── */}
+      {flows.length > 0 && (
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          {/* Feed takes 1/3 width on large screens */}
+          <div className="lg:col-span-1">
+            <RecentActivityFeed />
+          </div>
+          {/* Today's top-submitted flows */}
+          <div className="lg:col-span-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden">
+            <div className="flex items-center gap-2.5 px-4 py-3 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50">
+              <LuZap className="h-4 w-4 text-amber-500" strokeWidth={1.75} />
+              <span className="text-[13px] font-semibold text-zinc-800 dark:text-zinc-200">
+                Today&apos;s Activity
+              </span>
+            </div>
+            <div className="px-4 py-3">
+              {flows.length === 0 ? (
+                <p className="text-[12px] text-zinc-400 py-4 text-center">No flows yet.</p>
+              ) : (
+                <ul className="flex flex-col gap-1.5">
+                  {flows
+                    .slice()
+                    .sort((a, b) => (todayCounts[b._id] ?? 0) - (todayCounts[a._id] ?? 0))
+                    .slice(0, 6)
+                    .map((flow) => {
+                      const count = todayCounts[flow._id] ?? 0;
+                      return (
+                        <li
+                          key={flow._id}
+                          className="flex items-center justify-between gap-3 rounded-lg px-3 py-2 hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors"
+                        >
+                          <button
+                            type="button"
+                            onClick={() =>
+                              router.push(`/dashboard/sabflow/flow-builder/${flow._id}`)
+                            }
+                            className="flex-1 text-left truncate text-[12.5px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-amber-500 dark:hover:text-amber-400 transition-colors"
+                          >
+                            {flow.name}
+                          </button>
+                          <span
+                            className={cn(
+                              'shrink-0 tabular-nums text-[11.5px] font-semibold rounded-full px-2 py-0.5',
+                              count > 0
+                                ? 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400'
+                                : 'bg-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-500',
+                            )}
+                          >
+                            {count} today
+                          </span>
+                        </li>
+                      );
+                    })}
+                </ul>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Templates section ─────────────────────────────────────────── */}
       {flows.length === 0 && !isPending && (
@@ -356,7 +428,7 @@ export default function SabFlowListPage() {
               <FlowCard
                 key={flow._id}
                 flow={flow}
-                onDelete={setDeleteTarget}
+                onDelete={(flow) => setDeleteTarget({ id: flow._id, name: flow.name })}
                 onDuplicate={handleDuplicate}
                 onRename={handleRename}
               />
@@ -383,6 +455,9 @@ export default function SabFlowListPage() {
                   <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
                     Updated
                   </th>
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-zinc-500 hidden md:table-cell">
+                    Today
+                  </th>
                   <th className="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
                     Actions
                   </th>
@@ -391,6 +466,7 @@ export default function SabFlowListPage() {
               <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
                 {filtered.map((flow) => {
                   const isPublished = flow.status === 'PUBLISHED';
+                  const todayCount = todayCounts[flow._id] ?? 0;
                   return (
                     <tr
                       key={flow._id}
@@ -447,6 +523,20 @@ export default function SabFlowListPage() {
                           : '—'}
                       </td>
 
+                      {/* Today's submission count */}
+                      <td className="px-4 py-3 hidden md:table-cell">
+                        <span
+                          className={cn(
+                            'inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold tabular-nums',
+                            todayCount > 0
+                              ? 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400'
+                              : 'text-zinc-400 dark:text-zinc-600',
+                          )}
+                        >
+                          {todayCount > 0 ? `+${todayCount}` : '—'}
+                        </span>
+                      </td>
+
                       {/* Actions dropdown */}
                       <td className="px-4 py-3 text-right">
                         <DropdownMenu>
@@ -482,6 +572,19 @@ export default function SabFlowListPage() {
                             <DropdownMenuItem onClick={() => handleDuplicate(flow._id)}>
                               <LuCopy className="mr-2 h-3.5 w-3.5" />
                               Duplicate
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => {
+                                const a = document.createElement('a');
+                                a.href = `/api/sabflow/export/${flow._id}`;
+                                a.download = `flow-${flow._id}.json`;
+                                document.body.appendChild(a);
+                                a.click();
+                                document.body.removeChild(a);
+                              }}
+                            >
+                              <LuDownload className="mr-2 h-3.5 w-3.5" />
+                              Export
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem

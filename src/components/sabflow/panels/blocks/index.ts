@@ -10,3 +10,4 @@ export { PhoneInputSettings } from './PhoneInputSettings';
 export { UrlInputSettings } from './UrlInputSettings';
 export { DateInputSettings } from './DateInputSettings';
 export { ChoiceInputSettings } from './ChoiceInputSettings';
+export { PictureChoiceSettings } from './PictureChoiceSettings';

@@ -1,23 +1,91 @@
 'use client';
-import { useState, useRef, useCallback, useEffect } from 'react';
+import {
+  useState,
+  useRef,
+  useCallback,
+  useEffect,
+  type KeyboardEvent,
+} from 'react';
 import { useBlockDnd } from '@/components/sabflow/graph/providers/GraphDndProvider';
 import { REGISTRY_CATEGORIES, type BlockRegistryEntry } from './blockRegistry';
 import { cn } from '@/lib/utils';
-import { LuPin, LuPinOff, LuSearch, LuChevronDown, LuX } from 'react-icons/lu';
+import {
+  LuPin,
+  LuPinOff,
+  LuSearch,
+  LuChevronDown,
+  LuChevronRight,
+  LuX,
+  LuClock,
+} from 'react-icons/lu';
 import type { BlockType } from '@/lib/sabflow/types';
 
+/* ── Constants ──────────────────────────────────────────── */
+
 const LOCK_KEY = 'sabflow:sidebar:locked';
+const RECENT_KEY = 'sabflow:sidebar:recent';
+const COLLAPSED_KEY = 'sabflow:sidebar:collapsed';
+const MAX_RECENT = 5;
+
+/* ── localStorage helpers ───────────────────────────────── */
+
+function readRecent(): BlockType[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = localStorage.getItem(RECENT_KEY);
+    if (!raw) return [];
+    const parsed: unknown = JSON.parse(raw);
+    return Array.isArray(parsed) ? (parsed as BlockType[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeRecent(types: BlockType[]): void {
+  try {
+    localStorage.setItem(RECENT_KEY, JSON.stringify(types));
+  } catch {
+    /* noop */
+  }
+}
+
+function readCollapsed(): Set<string> {
+  if (typeof window === 'undefined') return new Set();
+  try {
+    const raw = localStorage.getItem(COLLAPSED_KEY);
+    if (!raw) return new Set();
+    const parsed: unknown = JSON.parse(raw);
+    return Array.isArray(parsed) ? new Set(parsed as string[]) : new Set();
+  } catch {
+    return new Set();
+  }
+}
+
+function writeCollapsed(collapsed: Set<string>): void {
+  try {
+    localStorage.setItem(COLLAPSED_KEY, JSON.stringify([...collapsed]));
+  } catch {
+    /* noop */
+  }
+}
 
 /* ── BlocksSideBar ──────────────────────────────────────── */
 export function BlocksSideBar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLocked, setIsLocked] = useState(() => {
     if (typeof window === 'undefined') return false;
-    try { return localStorage.getItem(LOCK_KEY) === 'true'; } catch { return false; }
+    try {
+      return localStorage.getItem(LOCK_KEY) === 'true';
+    } catch {
+      return false;
+    }
   });
   const [query, setQuery] = useState('');
-  const { setDraggedBlockType } = useBlockDnd();
+  const [recentTypes, setRecentTypes] = useState<BlockType[]>(() => readRecent());
+  const [collapsed, setCollapsed] = useState<Set<string>>(() => readCollapsed());
 
+  const { setDraggedBlockType } = useBlockDnd();
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   // Initial open state follows lock
@@ -38,13 +106,65 @@ export function BlocksSideBar() {
   const toggleLock = useCallback(() => {
     setIsLocked((prev) => {
       const next = !prev;
-      try { localStorage.setItem(LOCK_KEY, String(next)); } catch { /* noop */ }
+      try {
+        localStorage.setItem(LOCK_KEY, String(next));
+      } catch {
+        /* noop */
+      }
       if (!next) setIsOpen(false);
       return next;
     });
   }, []);
 
-  const clearSearch = () => setQuery('');
+  const clearSearch = useCallback(() => {
+    setQuery('');
+    searchInputRef.current?.focus();
+  }, []);
+
+  const handleSearchKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        clearSearch();
+      }
+    },
+    [clearSearch],
+  );
+
+  /** Called when a block is dragged — records it in recent list. */
+  const handleDragStart = useCallback(
+    (type: BlockType) => {
+      setDraggedBlockType(type);
+      setRecentTypes((prev) => {
+        const next = [type, ...prev.filter((t) => t !== type)].slice(0, MAX_RECENT);
+        writeRecent(next);
+        return next;
+      });
+    },
+    [setDraggedBlockType],
+  );
+
+  const handleDragEnd = useCallback(() => {
+    setDraggedBlockType(undefined);
+  }, [setDraggedBlockType]);
+
+  const clearRecent = useCallback(() => {
+    setRecentTypes([]);
+    writeRecent([]);
+  }, []);
+
+  const toggleCategory = useCallback((key: string) => {
+    setCollapsed((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) {
+        next.delete(key);
+      } else {
+        next.add(key);
+      }
+      writeCollapsed(next);
+      return next;
+    });
+  }, []);
 
   const isVisible = isOpen || isLocked;
   const lowerQuery = query.trim().toLowerCase();
@@ -53,11 +173,21 @@ export function BlocksSideBar() {
   const filteredCategories = REGISTRY_CATEGORIES.map((cat) => ({
     ...cat,
     entries: lowerQuery
-      ? cat.entries.filter((e) => e.label.toLowerCase().includes(lowerQuery))
+      ? cat.entries.filter(
+          (e) =>
+            e.label.toLowerCase().includes(lowerQuery) ||
+            e.description.toLowerCase().includes(lowerQuery),
+        )
       : cat.entries,
   })).filter((cat) => cat.entries.length > 0);
 
   const hasNoResults = lowerQuery.length > 0 && filteredCategories.length === 0;
+
+  // Build recent entries from the full registry
+  const allEntries = REGISTRY_CATEGORIES.flatMap((cat) => cat.entries);
+  const recentEntries = recentTypes
+    .map((type) => allEntries.find((e) => e.type === type))
+    .filter((e): e is BlockRegistryEntry => e !== undefined);
 
   return (
     <div
@@ -66,12 +196,7 @@ export function BlocksSideBar() {
       onMouseLeave={scheduleClose}
     >
       {/* Thin hot-zone to trigger reveal when sidebar is hidden */}
-      {!isVisible && (
-        <div
-          className="w-3 h-full cursor-pointer"
-          aria-hidden="true"
-        />
-      )}
+      {!isVisible && <div className="w-3 h-full cursor-pointer" aria-hidden="true" />}
 
       {/* Slide-in panel */}
       <div
@@ -92,10 +217,12 @@ export function BlocksSideBar() {
               strokeWidth={2}
             />
             <input
+              ref={searchInputRef}
               type="text"
               placeholder="Search blocks…"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={handleSearchKeyDown}
               className={cn(
                 'w-full py-1.5 text-[12px] rounded-md',
                 'bg-[var(--gray-3)] border border-[var(--gray-5)]',
@@ -108,6 +235,7 @@ export function BlocksSideBar() {
             {query && (
               <button
                 onClick={clearSearch}
+                aria-label="Clear search"
                 className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--gray-9)] hover:text-[var(--gray-12)] transition-colors"
               >
                 <LuX className="h-3 w-3" strokeWidth={2.5} />
@@ -126,23 +254,39 @@ export function BlocksSideBar() {
             )}
             title={isLocked ? 'Unpin sidebar' : 'Pin sidebar open'}
           >
-            {isLocked
-              ? <LuPin className="h-3.5 w-3.5" strokeWidth={2} />
-              : <LuPinOff className="h-3.5 w-3.5" strokeWidth={2} />}
+            {isLocked ? (
+              <LuPin className="h-3.5 w-3.5" strokeWidth={2} />
+            ) : (
+              <LuPinOff className="h-3.5 w-3.5" strokeWidth={2} />
+            )}
           </button>
         </div>
 
-        {/* ── Block categories ────────────────────────────── */}
+        {/* ── Block list ──────────────────────────────────── */}
         <div className="flex-1 overflow-y-auto py-2.5 px-2.5 space-y-1">
+
+          {/* Recently used section — hidden while searching */}
+          {!lowerQuery && recentEntries.length > 0 && (
+            <RecentSection
+              entries={recentEntries}
+              onClear={clearRecent}
+              onDragStart={handleDragStart}
+              onDragEnd={handleDragEnd}
+            />
+          )}
+
+          {/* Category sections */}
           {filteredCategories.map((cat) => (
             <CategorySection
               key={cat.key}
+              catKey={cat.key}
               label={cat.label}
               color={cat.color}
               entries={cat.entries}
-              defaultOpen={true}
-              onDragStart={(type) => setDraggedBlockType(type)}
-              onDragEnd={() => setDraggedBlockType(undefined)}
+              isCollapsed={collapsed.has(cat.key)}
+              onToggle={toggleCategory}
+              onDragStart={handleDragStart}
+              onDragEnd={handleDragEnd}
             />
           ))}
 
@@ -169,52 +313,106 @@ export function BlocksSideBar() {
   );
 }
 
-/* ── CategorySection ────────────────────────────────────── */
-function CategorySection({
-  label,
-  color,
+/* ── RecentSection ──────────────────────────────────────── */
+function RecentSection({
   entries,
-  defaultOpen,
+  onClear,
   onDragStart,
   onDragEnd,
 }: {
-  label: string;
-  color: string;
   entries: BlockRegistryEntry[];
-  defaultOpen: boolean;
+  onClear: () => void;
   onDragStart: (type: BlockType) => void;
   onDragEnd: () => void;
 }) {
-  const [isExpanded, setIsExpanded] = useState(defaultOpen);
+  return (
+    <div>
+      {/* Section header */}
+      <div className="flex w-full items-center gap-2 px-1.5 py-1.5">
+        <LuClock className="h-3 w-3 text-[var(--gray-8)] shrink-0" strokeWidth={2} />
+        <span className="flex-1 text-left text-[11px] font-semibold uppercase tracking-wider text-[var(--gray-9)]">
+          Recently Used
+        </span>
+        <button
+          onClick={onClear}
+          aria-label="Clear recent history"
+          className="text-[var(--gray-8)] hover:text-[var(--gray-11)] transition-colors"
+          title="Clear recent history"
+        >
+          <LuX className="h-3 w-3" strokeWidth={2.5} />
+        </button>
+      </div>
 
+      {/* Block grid */}
+      <div className="grid grid-cols-2 gap-1.5 pt-1 pb-1.5 px-0.5">
+        {entries.map((entry) => (
+          <BlockCard
+            key={`recent-${entry.type}`}
+            entry={entry}
+            onDragStart={onDragStart}
+            onDragEnd={onDragEnd}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ── CategorySection ────────────────────────────────────── */
+function CategorySection({
+  catKey,
+  label,
+  color,
+  entries,
+  isCollapsed,
+  onToggle,
+  onDragStart,
+  onDragEnd,
+}: {
+  catKey: string;
+  label: string;
+  color: string;
+  entries: BlockRegistryEntry[];
+  isCollapsed: boolean;
+  onToggle: (key: string) => void;
+  onDragStart: (type: BlockType) => void;
+  onDragEnd: () => void;
+}) {
   return (
     <div>
       {/* Section header */}
       <button
-        onClick={() => setIsExpanded((v) => !v)}
+        onClick={() => onToggle(catKey)}
         className={cn(
           'flex w-full items-center gap-2 px-1.5 py-1.5 rounded-md',
           'hover:bg-[var(--gray-3)] transition-colors group',
         )}
+        aria-expanded={!isCollapsed}
       >
         <div className="h-2 w-2 rounded-full shrink-0" style={{ background: color }} />
         <span className="flex-1 text-left text-[11px] font-semibold uppercase tracking-wider text-[var(--gray-9)] group-hover:text-[var(--gray-11)] transition-colors">
           {label}
         </span>
-        <span className="text-[10px] text-[var(--gray-8)] font-normal tabular-nums mr-0.5">
+        {/* Count badge */}
+        <span className="text-[10px] text-[var(--gray-8)] font-normal tabular-nums mr-0.5 px-1.5 py-0.5 rounded-full bg-[var(--gray-3)] group-hover:bg-[var(--gray-4)] transition-colors">
           {entries.length}
         </span>
-        <LuChevronDown
-          className={cn(
-            'h-3 w-3 text-[var(--gray-8)] transition-transform duration-150',
-            !isExpanded && '-rotate-90',
-          )}
-          strokeWidth={2.5}
-        />
+        {/* Chevron */}
+        {isCollapsed ? (
+          <LuChevronRight
+            className="h-3 w-3 text-[var(--gray-8)] transition-transform duration-150"
+            strokeWidth={2.5}
+          />
+        ) : (
+          <LuChevronDown
+            className="h-3 w-3 text-[var(--gray-8)] transition-transform duration-150"
+            strokeWidth={2.5}
+          />
+        )}
       </button>
 
       {/* Block grid */}
-      {isExpanded && (
+      {!isCollapsed && (
         <div className="grid grid-cols-2 gap-1.5 pt-1 pb-1.5 px-0.5">
           {entries.map((entry) => (
             <BlockCard
@@ -241,49 +439,87 @@ function BlockCard({
   onDragEnd: () => void;
 }) {
   const [isGrabbing, setIsGrabbing] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
+  const tooltipTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const { type, label, icon: Icon, color, description } = entry;
 
+  const handleMouseEnter = useCallback(() => {
+    tooltipTimer.current = setTimeout(() => setShowTooltip(true), 600);
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    clearTimeout(tooltipTimer.current);
+    setShowTooltip(false);
+    // Do NOT end drag on mouse-leave — Graph.tsx handles the drop.
+    // Only reset the visual grab state.
+    if (isGrabbing) setIsGrabbing(false);
+  }, [isGrabbing]);
+
   return (
-    <div
-      role="button"
-      tabIndex={0}
-      draggable={false} // drag is handled via mousedown/up — Graph.tsx drops it
-      onMouseDown={() => {
-        setIsGrabbing(true);
-        onDragStart(type);
-      }}
-      onMouseUp={() => {
-        setIsGrabbing(false);
-        onDragEnd();
-      }}
-      onMouseLeave={() => {
-        // Do NOT end drag on mouse-leave — Graph.tsx handles the drop.
-        // Only reset the visual grab state.
-        if (isGrabbing) setIsGrabbing(false);
-      }}
-      title={description}
-      className={cn(
-        'flex items-center gap-2.5 px-3 py-2.5 rounded-lg',
-        'border border-[var(--gray-5)] bg-[var(--gray-2)]',
-        'hover:border-[var(--gray-7)] hover:bg-[var(--gray-3)]',
-        'transition-colors',
-        isGrabbing
-          ? 'opacity-40 cursor-grabbing shadow-none'
-          : 'cursor-grab hover:shadow-sm active:cursor-grabbing',
-      )}
-    >
-      {/* Icon badge */}
+    <div className="relative">
       <div
-        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md"
-        style={{ backgroundColor: color + '20', color }}
+        role="button"
+        tabIndex={0}
+        draggable={false} // drag is handled via mousedown/up — Graph.tsx drops it
+        onMouseDown={() => {
+          setIsGrabbing(true);
+          setShowTooltip(false);
+          clearTimeout(tooltipTimer.current);
+          onDragStart(type);
+        }}
+        onMouseUp={() => {
+          setIsGrabbing(false);
+          onDragEnd();
+        }}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        className={cn(
+          'flex items-center gap-2.5 px-3 py-2.5 rounded-lg',
+          'border border-[var(--gray-5)] bg-[var(--gray-2)]',
+          'hover:border-[var(--gray-7)] hover:bg-[var(--gray-3)]',
+          'transition-colors',
+          isGrabbing
+            ? 'opacity-40 cursor-grabbing shadow-none'
+            : 'cursor-grab hover:shadow-sm active:cursor-grabbing',
+        )}
       >
-        <Icon className="h-3.5 w-3.5" />
+        {/* Icon badge */}
+        <div
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md"
+          style={{ backgroundColor: color + '20', color }}
+        >
+          <Icon className="h-3.5 w-3.5" />
+        </div>
+
+        {/* Label */}
+        <span className="text-[12.5px] font-medium text-[var(--gray-12)] truncate leading-tight">
+          {label}
+        </span>
       </div>
 
-      {/* Label */}
-      <span className="text-[12.5px] font-medium text-[var(--gray-12)] truncate leading-tight">
-        {label}
-      </span>
+      {/* CSS tooltip — positioned to the right of the card */}
+      {showTooltip && !isGrabbing && (
+        <div
+          role="tooltip"
+          className={cn(
+            'absolute left-[calc(100%+8px)] top-1/2 -translate-y-1/2 z-50',
+            'px-2.5 py-1.5 rounded-md pointer-events-none',
+            'bg-[var(--gray-12)] text-[var(--gray-1)]',
+            'text-[11px] leading-snug whitespace-nowrap',
+            'shadow-lg',
+          )}
+          style={{ maxWidth: '200px', whiteSpace: 'normal' }}
+        >
+          {/* Arrow pointing left */}
+          <span
+            aria-hidden="true"
+            className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent"
+            style={{ borderRightColor: 'var(--gray-12)' }}
+          />
+          <p className="font-medium text-[11.5px] mb-0.5">{label}</p>
+          <p className="text-[10.5px] opacity-70">{description}</p>
+        </div>
+      )}
     </div>
   );
 }

@@ -3,7 +3,7 @@
 import { ObjectId } from 'mongodb';
 import { revalidatePath } from 'next/cache';
 import { getSession } from '@/app/actions/user.actions';
-import { getSabFlowCollection } from '@/lib/sabflow/db';
+import { getSabFlowCollection, getTodaySubmissionCount } from '@/lib/sabflow/db';
 import type { SabFlowDoc, SabFlowEvent, Group } from '@/lib/sabflow/types';
 import { getErrorMessage } from '@/lib/utils';
 
@@ -203,5 +203,29 @@ export async function duplicateSabFlow(flowId: string) {
     return { id: result.insertedId.toString() };
   } catch (e) {
     return { error: getErrorMessage(e) };
+  }
+}
+
+// ── getTodaySubmissionCounts ───────────────────────────────────────────────
+
+/**
+ * Returns today's submission count for each of the given flowIds.
+ * Result is a plain record: flowId → count.
+ * Flows the user doesn't own are silently omitted.
+ */
+export async function getTodaySubmissionCounts(
+  flowIds: string[],
+): Promise<Record<string, number>> {
+  const session = await getSession();
+  if (!session?.user) return {};
+  if (flowIds.length === 0) return {};
+
+  try {
+    const counts = await Promise.all(
+      flowIds.map(async (id) => [id, await getTodaySubmissionCount(id)] as const),
+    );
+    return Object.fromEntries(counts);
+  } catch {
+    return {};
   }
 }

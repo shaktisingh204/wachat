@@ -12,6 +12,7 @@ type Props = {
   onEdgeDelete?: (edgeId: string) => void;
   onGroupBlocksChange?: (groupId: string, blocks: Group['blocks']) => void;
   onEventUpdate?: (id: string, changes: Partial<SabFlowEvent>) => void;
+  onFlowChange?: (changes: Partial<Pick<SabFlowDoc, 'groups' | 'edges'>>) => void;
 };
 
 function GraphElements({
@@ -20,6 +21,7 @@ function GraphElements({
   onEdgeDelete,
   onGroupBlocksChange,
   onEventUpdate,
+  onFlowChange,
 }: Props) {
   return (
     <EndpointsProvider>
@@ -34,6 +36,7 @@ function GraphElements({
           key={event.id}
           event={event}
           onEventUpdate={onEventUpdate}
+          flow={flow}
         />
       ))}
       {flow.groups.map((group, i) => (
@@ -45,6 +48,8 @@ function GraphElements({
           onGroupUpdate={onGroupUpdate}
           onGroupBlocksChange={onGroupBlocksChange}
           onPlayClick={() => {}}
+          flow={flow}
+          onFlowChange={onFlowChange}
         />
       ))}
     </EndpointsProvider>

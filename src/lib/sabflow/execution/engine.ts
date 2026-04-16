@@ -44,10 +44,12 @@ function findStartGroup(flow: SabFlowDoc): Group | undefined {
 export function startSession(flow: SabFlowDoc): FlowSession {
   const startGroup = findStartGroup(flow);
 
-  // Seed variables map from the flow's variable definitions (default values)
+  // Seed variables map from the flow's variable definitions (default values).
+  // `defaultValue` takes precedence over the legacy `value` field.
   const variables: Record<string, string | undefined> = {};
   for (const v of flow.variables) {
-    variables[v.name] = v.value;
+    const seed = v.defaultValue !== undefined ? String(v.defaultValue) : v.value;
+    variables[v.name] = seed;
   }
 
   const now = new Date();

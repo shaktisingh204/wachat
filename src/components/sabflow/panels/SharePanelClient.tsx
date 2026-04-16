@@ -1,41 +1,43 @@
 'use client';
 
-import { useState, useCallback } from 'react';
-import { saveSabFlow } from '@/app/actions/sabflow';
-import { SharePanel } from './SharePanel';
+import { useCallback } from 'react';
+import { SharePanel, type FlowStatus } from './SharePanel';
 
 interface SharePanelClientProps {
   flowId: string;
   flowName: string;
   shareUrl: string;
-  initialPublicLinkEnabled: boolean;
+  initialStatus: FlowStatus;
 }
 
 export function SharePanelClient({
   flowId,
   flowName,
   shareUrl,
-  initialPublicLinkEnabled,
+  initialStatus,
 }: SharePanelClientProps) {
-  const [isPublicLinkEnabled, setIsPublicLinkEnabled] = useState(initialPublicLinkEnabled);
+  const handlePublishToggle = useCallback(async (): Promise<FlowStatus> => {
+    const res = await fetch(`/api/sabflow/${flowId}/publish`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    });
 
-  const handlePublicLinkToggle = useCallback(
-    async (enabled: boolean) => {
-      setIsPublicLinkEnabled(enabled);
-      await saveSabFlow(flowId, {
-        settings: { publicLinkEnabled: enabled },
-      });
-    },
-    [flowId],
-  );
+    if (!res.ok) {
+      const body = (await res.json().catch(() => ({}))) as { error?: string };
+      throw new Error(body.error ?? `Request failed (${res.status})`);
+    }
+
+    const data = (await res.json()) as { status: FlowStatus };
+    return data.status;
+  }, [flowId]);
 
   return (
     <SharePanel
       flowId={flowId}
       flowName={flowName}
       shareUrl={shareUrl}
-      isPublicLinkEnabled={isPublicLinkEnabled}
-      onPublicLinkToggle={handlePublicLinkToggle}
+      initialStatus={initialStatus}
+      onPublishToggle={handlePublishToggle}
     />
   );
 }
