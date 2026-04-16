@@ -16,6 +16,7 @@
     "db:assign-plan": "tsx scripts/assign-default-plan.ts",
     "db:clear-broadcasts": "node scripts/clear-old-broadcasts.js",
     "hash:admin-password": "tsx scripts/hash-admin-password.ts",
+    "set:admin-credentials": "tsx scripts/set-admin-credentials.ts",
     "worker:seo": "tsx src/workers/seo/audit.worker.ts",
     "worker:rank": "tsx src/workers/seo/rank.worker.ts",
     "worker:embedding": "tsx src/workers/seo/embedding.worker.ts",

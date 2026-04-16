@@ -47,12 +47,33 @@ export async function handleAdminLogin(prevState: any, formData: FormData) {
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
 
-    const adminEmail = process.env.ADMIN_EMAIL;
-    const adminPasswordHash = process.env.ADMIN_PASSWORD_HASH;
     const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+        return { success: false, error: "Server misconfiguration: JWT_SECRET is not set." };
+    }
 
-    if (!adminEmail || !adminPasswordHash || !jwtSecret) {
-        return { success: false, error: "Server misconfiguration: Admin credentials are not set." };
+    // Prefer credentials stored in DB; fall back to env vars for first-boot
+    let adminEmail: string | undefined;
+    let adminPasswordHash: string | undefined;
+
+    try {
+        const { db } = await connectToDatabase();
+        const stored = await db.collection('settings').findOne({ key: 'admin_credentials' });
+        if (stored?.email && stored?.passwordHash) {
+            adminEmail = stored.email as string;
+            adminPasswordHash = stored.passwordHash as string;
+        }
+    } catch {
+        // DB unavailable — fall through to env vars
+    }
+
+    if (!adminEmail || !adminPasswordHash) {
+        adminEmail = process.env.ADMIN_EMAIL;
+        adminPasswordHash = process.env.ADMIN_PASSWORD_HASH;
+    }
+
+    if (!adminEmail || !adminPasswordHash) {
+        return { success: false, error: "Admin credentials are not configured. Run: npm run set:admin-credentials" };
     }
 
     if (email !== adminEmail) {
