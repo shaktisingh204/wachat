@@ -1,23 +1,29 @@
 'use client';
 import {
-  createContext, useContext, useState,
-  type Dispatch, type ReactNode, type SetStateAction,
+  createContext,
+  useContext,
+  useState,
+  type Dispatch,
+  type ReactNode,
+  type SetStateAction,
 } from 'react';
-import type { GraphPosition, ConnectingIds, Edge } from '@/lib/sabflow/types';
+import type { ConnectingIds, Edge, GraphPosition } from '@/lib/sabflow/types';
 
-const defaultPos: GraphPosition = { x: 0, y: 0, scale: 1 };
+/** Absolute screen position of the canvas origin.
+ *  canvasPosition.x = canvasRect.left + transformX
+ *  canvasPosition.y = canvasRect.top  + transformY
+ *  Used in the endpoint Y formula:
+ *    (ref.getBoundingClientRect().y + endpointH/2 - canvasPosition.y) / canvasPosition.scale
+ */
+export type CanvasPosition = { x: number; y: number; scale: number };
 
 type PreviewingBlock = { id: string; groupId: string };
 
-/** Absolute screen position of the canvas origin (top-left of canvas + transform).
- *  Used by endpoints to compute canvas-space Y coordinates from screen-space Y. */
-export type CanvasPosition = { x: number; y: number; scale: number };
-
 interface GraphContextValue {
-  /** Transform values used directly on the canvas div's `transform` CSS property. */
+  /** Raw transform values applied to the canvas div's CSS transform. */
   graphPosition: GraphPosition;
   setGraphPosition: Dispatch<SetStateAction<GraphPosition>>;
-  /** Absolute screen-space position of the canvas origin: canvasRect.{left|top} + transform.{x|y}. */
+  /** Absolute screen coords of the canvas origin (Typebot pattern). */
   canvasPosition: CanvasPosition;
   setCanvasPosition: Dispatch<SetStateAction<CanvasPosition>>;
   connectingIds: ConnectingIds | null;
@@ -30,6 +36,8 @@ interface GraphContextValue {
   setOpenedNodeId: Dispatch<SetStateAction<string | undefined>>;
   isReadOnly: boolean;
 }
+
+const defaultPos: GraphPosition = { x: 0, y: 0, scale: 1 };
 
 const GraphContext = createContext<GraphContextValue>({
   graphPosition: defaultPos,
@@ -59,15 +67,23 @@ export const GraphProvider = ({
   const [openedNodeId, setOpenedNodeId] = useState<string | undefined>();
 
   return (
-    <GraphContext.Provider value={{
-      graphPosition, setGraphPosition,
-      canvasPosition, setCanvasPosition,
-      connectingIds, setConnectingIds,
-      previewingEdge, setPreviewingEdge,
-      previewingBlock, setPreviewingBlock,
-      openedNodeId, setOpenedNodeId,
-      isReadOnly,
-    }}>
+    <GraphContext.Provider
+      value={{
+        graphPosition,
+        setGraphPosition,
+        canvasPosition,
+        setCanvasPosition,
+        connectingIds,
+        setConnectingIds,
+        previewingEdge,
+        setPreviewingEdge,
+        previewingBlock,
+        setPreviewingBlock,
+        openedNodeId,
+        setOpenedNodeId,
+        isReadOnly,
+      }}
+    >
       {children}
     </GraphContext.Provider>
   );

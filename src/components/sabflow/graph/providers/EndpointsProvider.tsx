@@ -1,5 +1,11 @@
 'use client';
-import { createContext, useCallback, useContext, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useState,
+  type ReactNode,
+} from 'react';
 
 export type Endpoint = { id: string; y: number };
 
@@ -20,8 +26,12 @@ const EndpointsContext = createContext<EndpointsContextValue>({
 });
 
 export const EndpointsProvider = ({ children }: { children: ReactNode }) => {
-  const [sourceEndpointYOffsets, setSourceEndpoints] = useState<Map<string, Endpoint>>(new Map());
-  const [targetEndpointYOffsets, setTargetEndpoints] = useState<Map<string, Endpoint>>(new Map());
+  const [sourceEndpointYOffsets, setSourceEndpoints] = useState<Map<string, Endpoint>>(
+    new Map(),
+  );
+  const [targetEndpointYOffsets, setTargetEndpoints] = useState<Map<string, Endpoint>>(
+    new Map(),
+  );
 
   const setSourceEndpointYOffset = useCallback((endpoint: Endpoint) => {
     setSourceEndpoints((prev) => new Map(prev).set(endpoint.id, endpoint));
@@ -40,13 +50,15 @@ export const EndpointsProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <EndpointsContext.Provider value={{
-      sourceEndpointYOffsets,
-      targetEndpointYOffsets,
-      setSourceEndpointYOffset,
-      deleteSourceEndpointYOffset,
-      setTargetEndpointYOffset,
-    }}>
+    <EndpointsContext.Provider
+      value={{
+        sourceEndpointYOffsets,
+        targetEndpointYOffsets,
+        setSourceEndpointYOffset,
+        deleteSourceEndpointYOffset,
+        setTargetEndpointYOffset,
+      }}
+    >
       {children}
     </EndpointsContext.Provider>
   );

@@ -1,8 +1,8 @@
 'use client';
 import type { Edge as EdgeType, Group } from '@/lib/sabflow/types';
-import { Edge } from './Edge';
-import { DrawingEdge } from './DrawingEdge';
 import { useGraph } from '../../providers/GraphProvider';
+import { DrawingEdge } from './DrawingEdge';
+import { Edge } from './Edge';
 
 type Props = {
   edges: EdgeType[];
@@ -13,7 +13,7 @@ type Props = {
 export function Edges({ edges, groups, onEdgeDelete }: Props) {
   const { connectingIds } = useGraph();
 
-  // Map blockId → groupId for fast lookup
+  // Build blockId → groupId lookup for O(1) fromGroupId resolution per edge
   const blockToGroup = new Map<string, string>();
   groups.forEach((g) => {
     g.blocks.forEach((b) => blockToGroup.set(b.id, g.id));
@@ -21,10 +21,9 @@ export function Edges({ edges, groups, onEdgeDelete }: Props) {
 
   return (
     <svg
-      className="absolute left-0 top-0 overflow-visible pointer-events-none w-full h-full"
+      className="absolute left-0 top-0 overflow-visible w-full h-full"
       style={{ zIndex: 0 }}
     >
-      {/* Arrow markers */}
       <defs>
         <marker
           id="arrow"

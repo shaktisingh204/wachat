@@ -1,10 +1,17 @@
-import type { GraphPosition } from '@/lib/sabflow/types';
+import type { RefObject } from 'react';
+import type { Coordinates, GraphPosition } from '@/lib/sabflow/types';
 
 export const projectMouse = (
-  mousePos: { clientX: number; clientY: number },
-  canvasRect: DOMRect,
+  clientX: number,
+  clientY: number,
+  canvasRef: RefObject<HTMLDivElement | null>,
   graphPosition: GraphPosition,
-) => ({
-  x: (mousePos.clientX - canvasRect.left - graphPosition.x) / graphPosition.scale,
-  y: (mousePos.clientY - canvasRect.top - graphPosition.y) / graphPosition.scale,
-});
+): Coordinates => {
+  const canvas = canvasRef.current;
+  if (!canvas) return { x: clientX, y: clientY };
+  const rect = canvas.getBoundingClientRect();
+  return {
+    x: (clientX - rect.left - graphPosition.x) / graphPosition.scale,
+    y: (clientY - rect.top - graphPosition.y) / graphPosition.scale,
+  };
+};

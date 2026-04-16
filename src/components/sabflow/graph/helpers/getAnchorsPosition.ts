@@ -1,4 +1,4 @@
-import { groupAnchorsOffset, groupWidth, stubLength } from '../constants';
+import { groupAnchorsOffset, stubLength } from '../constants';
 import type { AnchorsPositionProps } from './segments';
 import { computeSourceCoordinates } from './computeSourceCoordinates';
 import type { Coordinates } from '@/lib/sabflow/types';
@@ -63,8 +63,10 @@ const computeGroupTargetPosition = ({
 
   if (isTargetGroupBelow && isTargettingGroup) {
     const isExterior =
-      targetGroupPosition.x < sourceGroupPosition.x - elementWidth / 2 - stubLength ||
-      targetGroupPosition.x > sourceGroupPosition.x + elementWidth / 2 + stubLength;
+      targetGroupPosition.x <
+        sourceGroupPosition.x - elementWidth / 2 - stubLength ||
+      targetGroupPosition.x >
+        sourceGroupPosition.x + elementWidth / 2 + stubLength;
     const targetPosition = parseGroupAnchorPosition(targetGroupPosition, 'top');
     return { totalSegments: isExterior ? 2 : 4, targetPosition };
   }

@@ -1,9 +1,17 @@
 'use client';
 import {
-  createContext, useContext, useState, useCallback, useEffect, useRef,
-  type Dispatch, type ReactNode, type SetStateAction, type RefObject,
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type Dispatch,
+  type ReactNode,
+  type RefObject,
+  type SetStateAction,
 } from 'react';
-import type { BlockType, Block, BlockItem, Coordinates } from '@/lib/sabflow/types';
+import type { Block, BlockItem, BlockType, Coordinates } from '@/lib/sabflow/types';
 
 type NodeElement = { id: string; ref: RefObject<HTMLElement | null> };
 type DraggedBlock = Block & { groupId: string };
@@ -38,13 +46,20 @@ export const GraphDndProvider = ({ children }: { children: ReactNode }) => {
   const [mouseOverBlock, setMouseOverBlock] = useState<NodeElement | undefined>();
 
   return (
-    <GraphDndContext.Provider value={{
-      draggedBlockType, setDraggedBlockType,
-      draggedBlock, setDraggedBlock,
-      draggedItem, setDraggedItem,
-      mouseOverGroup, setMouseOverGroup,
-      mouseOverBlock, setMouseOverBlock,
-    }}>
+    <GraphDndContext.Provider
+      value={{
+        draggedBlockType,
+        setDraggedBlockType,
+        draggedBlock,
+        setDraggedBlock,
+        draggedItem,
+        setDraggedItem,
+        mouseOverGroup,
+        setMouseOverGroup,
+        mouseOverBlock,
+        setMouseOverBlock,
+      }}
+    >
       {children}
     </GraphDndContext.Provider>
   );
@@ -52,19 +67,29 @@ export const GraphDndProvider = ({ children }: { children: ReactNode }) => {
 
 export const useBlockDnd = () => useContext(GraphDndContext);
 
-/* ── useDragDistance hook (Typebot's pattern) ─────────── */
+/* ── useDragDistance ──────────────────────────────────────
+ * Attaches a native mousedown listener to `ref`. When the
+ * pointer moves more than `distanceTolerance` pixels after
+ * mousedown, `onDrag` fires once with absolute + relative
+ * coords. Matches Typebot's implementation exactly.
+ * ─────────────────────────────────────────────────────── */
 export const useDragDistance = ({
   ref,
   onDrag,
   distanceTolerance = 20,
   isDisabled = false,
+  deps = [],
 }: {
   ref: RefObject<HTMLElement | null>;
   onDrag: (pos: { absolute: Coordinates; relative: Coordinates }) => void;
   distanceTolerance?: number;
   isDisabled?: boolean;
+  /** Extra deps that should re-register the mousedown listener. */
+  deps?: unknown[];
 }) => {
-  const mouseDownPos = useRef<{ absolute: Coordinates; relative: Coordinates }>();
+  const mouseDownPos = useRef<{ absolute: Coordinates; relative: Coordinates }>(
+    undefined,
+  );
 
   const onGlobalMouseUp = useCallback(() => {
     mouseDownPos.current = undefined;
@@ -75,26 +100,41 @@ export const useDragDistance = ({
     return () => window.removeEventListener('mouseup', onGlobalMouseUp);
   }, [onGlobalMouseUp]);
 
+  // Re-registers whenever isDisabled or any caller-supplied dep changes.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
     const onMouseDown = (e: MouseEvent) => {
-      if (isDisabled) return;
+      if (isDisabled || !ref.current) return;
       e.stopPropagation();
-      const { top, left } = el.getBoundingClientRect();
+      const { top, left } = ref.current.getBoundingClientRect();
       mouseDownPos.current = {
         absolute: { x: e.clientX, y: e.clientY },
         relative: { x: e.clientX - left, y: e.clientY - top },
       };
     };
-    el.addEventListener('mousedown', onMouseDown);
-    return () => el.removeEventListener('mousedown', onMouseDown);
-  }, [ref, isDisabled]);
+    ref.current?.addEventListener('mousedown', onMouseDown);
+    return () => {
+      ref.current?.removeEventListener('mousedown', onMouseDown);
+    };
+    // deps spread is intentional — matches Typebot: [isDisabled, ...deps]
+  }, [isDisabled, ...deps]);
 
   useEffect(() => {
     let triggered = false;
     const onMove = (e: MouseEvent) => {
       if (!mouseDownPos.current || triggered) return;
+
+      // Ignore drag events originating from interactive form elements.
+      const target = e.target as HTMLElement;
+      if (
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.tagName === 'SELECT' ||
+        target.contentEditable === 'true' ||
+        target.closest('[contenteditable=true]')
+      )
+        return;
+
       const { clientX, clientY } = e;
       if (
         Math.abs(mouseDownPos.current.absolute.x - clientX) > distanceTolerance ||
@@ -109,6 +149,10 @@ export const useDragDistance = ({
   }, [distanceTolerance, onDrag]);
 };
 
+/* ── computeNearestPlaceholderIndex ───────────────────────
+ * Given a mouse Y position (screen space) and an array of
+ * placeholder divs, returns the index of the closest one.
+ * ─────────────────────────────────────────────────────── */
 export const computeNearestPlaceholderIndex = (
   offsetY: number,
   placeholderRefs: React.MutableRefObject<HTMLDivElement[]>,

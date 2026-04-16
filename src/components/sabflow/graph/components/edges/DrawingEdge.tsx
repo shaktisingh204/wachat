@@ -6,8 +6,7 @@ import { useSelectionStore } from '../../hooks/useSelectionStore';
 import { computeConnectingEdgePath } from '../../helpers/computeConnectingEdgePath';
 import { computeEdgePathToMouse } from '../../helpers/computeEdgePathToMouse';
 import { groupWidth } from '../../constants';
-import type { ConnectingIds } from '@/lib/sabflow/types';
-import type { Coordinates } from '@/lib/sabflow/types';
+import type { ConnectingIds, Coordinates } from '@/lib/sabflow/types';
 
 type Props = {
   connectingIds: ConnectingIds;
@@ -16,7 +15,12 @@ type Props = {
 export function DrawingEdge({ connectingIds }: Props) {
   const { canvasPosition, graphPosition, setConnectingIds } = useGraph();
   const { sourceEndpointYOffsets, targetEndpointYOffsets } = useEndpoints();
-  const elementsCoordinates = useSelectionStore((s) => s.elementsCoordinates);
+  // Equality fn `() => true` keeps coordinates frozen while drawing an edge,
+  // preventing unnecessary re-renders caused by group coordinate updates.
+  const elementsCoordinates = useSelectionStore(
+    (s) => s.elementsCoordinates,
+    () => true,
+  );
   const [mousePosition, setMousePosition] = useState<Coordinates | null>(null);
 
   const sourceGroupCoordinates = elementsCoordinates?.[connectingIds.source.groupId];
@@ -47,20 +51,24 @@ export function DrawingEdge({ connectingIds }: Props) {
         graphScale: graphPosition.scale,
       });
     }
+
     return computeEdgePathToMouse({
       sourceGroupCoordinates,
       mousePosition,
       sourceTop,
       elementWidth: groupWidth,
     });
-  }, [sourceTop, sourceGroupCoordinates, mousePosition, targetGroupCoordinates, targetTop, graphPosition.scale]);
+  }, [
+    sourceTop,
+    sourceGroupCoordinates,
+    mousePosition,
+    targetGroupCoordinates,
+    targetTop,
+    graphPosition.scale,
+  ]);
 
   useEffect(() => {
     const onMouseMove = (e: MouseEvent) => {
-      if (!connectingIds) {
-        if (mousePosition) setMousePosition(null);
-        return;
-      }
       setMousePosition({
         x: (e.clientX - canvasPosition.x) / canvasPosition.scale,
         y: (e.clientY - canvasPosition.y) / canvasPosition.scale,
@@ -68,9 +76,6 @@ export function DrawingEdge({ connectingIds }: Props) {
     };
 
     const onMouseUp = () => {
-      if (connectingIds?.target) {
-        // Edge creation is handled by Edges.tsx via the onEdgeCreate callback
-      }
       setConnectingIds(null);
     };
 
@@ -80,7 +85,7 @@ export function DrawingEdge({ connectingIds }: Props) {
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseup', onMouseUp);
     };
-  }, [connectingIds, canvasPosition, mousePosition, setConnectingIds]);
+  }, [canvasPosition, setConnectingIds]);
 
   if (!path) return null;
 

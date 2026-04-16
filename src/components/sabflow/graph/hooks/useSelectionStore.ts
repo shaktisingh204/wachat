@@ -11,7 +11,7 @@ interface SelectionState {
 
   setIsDraggingGraph: (val: boolean) => void;
   focusElement: (id: string, addToSelection?: boolean) => void;
-  /** Clears selection but keeps coordinates intact (Typebot pattern) */
+  /** Clears selection but keeps coordinates intact (Typebot pattern). */
   blurElements: () => void;
   setFocusedElements: (ids: string[]) => void;
   setElementsCoordinates: (coords: CoordinatesMap) => void;
@@ -26,7 +26,10 @@ export const useSelectionStore = create<SelectionState>()(
     elementsCoordinates: undefined,
     isDraggingGraph: false,
 
-    setIsDraggingGraph: (val) => set((s) => { s.isDraggingGraph = val; }),
+    setIsDraggingGraph: (val) =>
+      set((s) => {
+        s.isDraggingGraph = val;
+      }),
 
     focusElement: (id, addToSelection = false) =>
       set((s) => {
@@ -37,13 +40,22 @@ export const useSelectionStore = create<SelectionState>()(
         }
       }),
 
-    // Only clears selection — does NOT null coordinates so subsequent drags work
-    blurElements: () => set((s) => { s.focusedElementsId = []; }),
+    // Only clears selection — does NOT null out coordinates so subsequent
+    // drags and edge calculations still work (Typebot pattern).
+    blurElements: () =>
+      set((s) => {
+        s.focusedElementsId = [];
+      }),
 
-    setFocusedElements: (ids) => set((s) => { s.focusedElementsId = ids; }),
+    setFocusedElements: (ids) =>
+      set((s) => {
+        s.focusedElementsId = ids;
+      }),
 
     setElementsCoordinates: (coords) =>
-      set((s) => { s.elementsCoordinates = coords; }),
+      set((s) => {
+        s.elementsCoordinates = coords;
+      }),
 
     updateElementCoordinates: (id, coords) =>
       set((s) => {

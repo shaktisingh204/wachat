@@ -1,8 +1,9 @@
 'use client';
+import { memo } from 'react';
 import type { SabFlowDoc, Group } from '@/lib/sabflow/types';
-import { GroupNode } from './nodes/group/GroupNode';
-import { Edges } from './edges/Edges';
 import { EndpointsProvider } from '../providers/EndpointsProvider';
+import { Edges } from './edges/Edges';
+import { GroupNode } from './nodes/group/GroupNode';
 
 type Props = {
   flow: Pick<SabFlowDoc, 'groups' | 'edges'>;
@@ -11,7 +12,7 @@ type Props = {
   onGroupBlocksChange?: (groupId: string, blocks: Group['blocks']) => void;
 };
 
-export default function GraphElements({ flow, onGroupUpdate, onEdgeDelete, onGroupBlocksChange }: Props) {
+function GraphElements({ flow, onGroupUpdate, onEdgeDelete, onGroupBlocksChange }: Props) {
   return (
     <EndpointsProvider>
       <Edges
@@ -32,3 +33,5 @@ export default function GraphElements({ flow, onGroupUpdate, onEdgeDelete, onGro
     </EndpointsProvider>
   );
 }
+
+export default memo(GraphElements);

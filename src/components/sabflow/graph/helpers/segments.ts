@@ -15,56 +15,78 @@ export const getSegments = ({
   totalSegments,
 }: AnchorsPositionProps): string => {
   switch (totalSegments) {
-    case 2: return computeTwoSegments(sourcePosition, targetPosition);
-    case 3: return computeThreeSegments(sourcePosition, targetPosition, sourceType);
-    case 4: return computeFourSegments(sourcePosition, targetPosition, sourceType);
-    default: return computeFiveSegments(sourcePosition, targetPosition, sourceType);
+    case 2:
+      return computeTwoSegments(sourcePosition, targetPosition);
+    case 3:
+      return computeThreeSegments(sourcePosition, targetPosition, sourceType);
+    case 4:
+      return computeFourSegments(sourcePosition, targetPosition, sourceType);
+    default:
+      return computeFiveSegments(sourcePosition, targetPosition, sourceType);
   }
 };
 
-export const computeTwoSegments = (s: Coordinates, t: Coordinates) => [
-  `L${t.x},${s.y}`,
-  `L${t.x},${t.y}`,
-].join(' ');
+export const computeTwoSegments = (
+  sourcePosition: Coordinates,
+  targetPosition: Coordinates,
+): string => {
+  const segments: string[] = [];
+  segments.push(`L${targetPosition.x},${sourcePosition.y}`);
+  segments.push(`L${targetPosition.x},${targetPosition.y}`);
+  return segments.join(' ');
+};
 
 export const computeThreeSegments = (
-  s: Coordinates,
-  t: Coordinates,
+  sourcePosition: Coordinates,
+  targetPosition: Coordinates,
   sourceType: 'right' | 'left',
-) => {
-  const midX = sourceType === 'right'
-    ? s.x + (t.x - s.x) / 2
-    : s.x - (s.x - t.x) / 2;
-  return [`L${midX},${s.y}`, `L${midX},${t.y}`, `L${t.x},${t.y}`].join(' ');
+): string => {
+  const segments: string[] = [];
+  const firstSegmentX =
+    sourceType === 'right'
+      ? sourcePosition.x + (targetPosition.x - sourcePosition.x) / 2
+      : sourcePosition.x - (sourcePosition.x - targetPosition.x) / 2;
+  segments.push(`L${firstSegmentX},${sourcePosition.y}`);
+  segments.push(`L${firstSegmentX},${targetPosition.y}`);
+  segments.push(`L${targetPosition.x},${targetPosition.y}`);
+  return segments.join(' ');
 };
 
 export const computeFourSegments = (
-  s: Coordinates,
-  t: Coordinates,
+  sourcePosition: Coordinates,
+  targetPosition: Coordinates,
   sourceType: 'right' | 'left',
-) => {
-  const x1 = s.x + (sourceType === 'right' ? stubLength : -stubLength);
-  const y2 = s.y + (t.y - s.y) - stubLength;
-  return [
-    `L${x1},${s.y}`,
-    `L${x1},${y2}`,
-    `L${t.x},${y2}`,
-    `L${t.x},${t.y}`,
-  ].join(' ');
+): string => {
+  const segments: string[] = [];
+  const firstSegmentX =
+    sourcePosition.x + (sourceType === 'right' ? stubLength : -stubLength);
+  segments.push(`L${firstSegmentX},${sourcePosition.y}`);
+  const secondSegmentY =
+    sourcePosition.y + (targetPosition.y - sourcePosition.y) - stubLength;
+  segments.push(`L${firstSegmentX},${secondSegmentY}`);
+  segments.push(`L${targetPosition.x},${secondSegmentY}`);
+  segments.push(`L${targetPosition.x},${targetPosition.y}`);
+  return segments.join(' ');
 };
 
 export const computeFiveSegments = (
-  s: Coordinates,
-  t: Coordinates,
+  sourcePosition: Coordinates,
+  targetPosition: Coordinates,
   sourceType: 'right' | 'left',
-) => {
-  const x1 = s.x + (sourceType === 'right' ? stubLength : -stubLength);
-  const y1 = s.y + (t.y - s.y) / 2;
-  return [
-    `L${x1},${s.y}`,
-    `L${x1},${y1}`,
-    `L${t.x + (sourceType === 'right' ? -stubLength : stubLength)},${y1}`,
-    `L${t.x + (sourceType === 'right' ? -stubLength : stubLength)},${t.y}`,
-    `L${t.x},${t.y}`,
-  ].join(' ');
+): string => {
+  const segments: string[] = [];
+  const firstSegmentX =
+    sourcePosition.x + (sourceType === 'right' ? stubLength : -stubLength);
+  segments.push(`L${firstSegmentX},${sourcePosition.y}`);
+  const firstSegmentY =
+    sourcePosition.y + (targetPosition.y - sourcePosition.y) / 2;
+  segments.push(
+    `L${sourcePosition.x + (sourceType === 'right' ? stubLength : -stubLength)},${firstSegmentY}`,
+  );
+  const secondSegmentX =
+    targetPosition.x - (sourceType === 'right' ? stubLength : -stubLength);
+  segments.push(`L${secondSegmentX},${firstSegmentY}`);
+  segments.push(`L${secondSegmentX},${targetPosition.y}`);
+  segments.push(`L${targetPosition.x},${targetPosition.y}`);
+  return segments.join(' ');
 };

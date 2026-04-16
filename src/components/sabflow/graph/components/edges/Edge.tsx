@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
-import { useShallow } from 'zustand/react/shallow';
 import { createPortal } from 'react-dom';
+import { useShallow } from 'zustand/react/shallow';
 import { useGraph } from '../../providers/GraphProvider';
 import { useEndpoints } from '../../providers/EndpointsProvider';
 import { useSelectionStore } from '../../hooks/useSelectionStore';
@@ -23,10 +23,16 @@ export function Edge({ edge, fromGroupId, onDelete }: Props) {
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
 
   const fromGroupCoordinates = useSelectionStore(
-    useShallow((s) => fromGroupId ? s.elementsCoordinates?.[fromGroupId] : undefined),
+    useShallow((s) =>
+      fromGroupId && s.elementsCoordinates
+        ? s.elementsCoordinates[fromGroupId]
+        : undefined,
+    ),
   );
   const toGroupCoordinates = useSelectionStore(
-    useShallow((s) => s.elementsCoordinates?.[edge.to.groupId]),
+    useShallow((s) =>
+      s.elementsCoordinates ? s.elementsCoordinates[edge.to.groupId] : undefined,
+    ),
   );
 
   const isPreviewing = isMouseOver || previewingEdge?.id === edge.id;
@@ -54,7 +60,7 @@ export function Edge({ edge, fromGroupId, onDelete }: Props) {
     return computeEdgePath(anchorsPosition);
   }, [fromGroupCoordinates, toGroupCoordinates, sourceTop, targetTop, graphPosition.scale]);
 
-  // Close context menu on outside click
+  // Close context menu on next outside click
   useEffect(() => {
     if (!contextMenu) return;
     const close = () => setContextMenu(null);
@@ -62,7 +68,7 @@ export function Edge({ edge, fromGroupId, onDelete }: Props) {
     return () => window.removeEventListener('click', close);
   }, [contextMenu]);
 
-  // Delete on backspace when previewing
+  // Delete edge with Backspace / Delete when this edge is being previewed
   useEffect(() => {
     if (!isPreviewing || isReadOnly) return;
     const onKeyDown = (e: KeyboardEvent) => {
@@ -79,13 +85,15 @@ export function Edge({ edge, fromGroupId, onDelete }: Props) {
   return (
     <>
       <g>
-        {/* Wide invisible hit area */}
+        {/* Wide invisible hit area — 18 px stroke so the edge is easy to click/hover */}
         <path
+          data-testid="clickable-edge"
           d={path}
           strokeWidth={18}
-          stroke="transparent"
+          stroke="white"
           fill="none"
-          style={{ cursor: 'pointer', pointerEvents: 'stroke' }}
+          pointerEvents="stroke"
+          style={{ cursor: 'pointer', visibility: 'hidden' }}
           onMouseEnter={() => setIsMouseOver(true)}
           onMouseLeave={() => setIsMouseOver(false)}
           onClick={() => setPreviewingEdge(edge)}
@@ -95,8 +103,9 @@ export function Edge({ edge, fromGroupId, onDelete }: Props) {
             setContextMenu({ x: e.clientX, y: e.clientY });
           }}
         />
-        {/* Visible path */}
+        {/* Visible 2 px path */}
         <path
+          data-testid="edge"
           d={path}
           strokeWidth={2}
           stroke={isPreviewing ? '#f76808' : 'var(--gray-8)'}
@@ -106,7 +115,7 @@ export function Edge({ edge, fromGroupId, onDelete }: Props) {
         />
       </g>
 
-      {/* Context menu portal */}
+      {/* Right-click context menu — rendered into document.body via portal */}
       {contextMenu &&
         createPortal(
           <div
@@ -115,6 +124,7 @@ export function Edge({ edge, fromGroupId, onDelete }: Props) {
             onClick={(e) => e.stopPropagation()}
           >
             <button
+              type="button"
               className="flex w-full items-center gap-2 px-3 py-1.5 text-[12px] text-red-500 hover:bg-[var(--gray-3)]"
               onClick={() => {
                 onDelete?.(edge.id);

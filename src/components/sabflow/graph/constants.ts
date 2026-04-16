@@ -1,4 +1,4 @@
-import type { Coordinates } from '@/lib/sabflow/types';
+import type { Coordinates, GraphPosition } from '@/lib/sabflow/types';
 
 export const stubLength = 20;
 export const groupWidth = 300;
@@ -12,7 +12,9 @@ export const groupAnchorsOffset = {
   right: { x: groupWidth, y: stubLength },
 };
 
-export const graphPositionDefaultValue = (firstGroupCoordinates: Coordinates) => ({
+export const graphPositionDefaultValue = (
+  firstGroupCoordinates: Coordinates,
+): GraphPosition => ({
   x: 400 - firstGroupCoordinates.x,
   y: 100 - firstGroupCoordinates.y,
   scale: 1,

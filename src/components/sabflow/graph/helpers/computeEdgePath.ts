@@ -9,7 +9,12 @@ export const computeEdgePath = ({
   sourceType,
   totalSegments,
 }: AnchorsPositionProps): string => {
-  const segments = getSegments({ sourcePosition, targetPosition, sourceType, totalSegments });
+  const segments = getSegments({
+    sourcePosition,
+    targetPosition,
+    sourceType,
+    totalSegments,
+  });
   return roundCorners(
     `M${sourcePosition.x},${sourcePosition.y} ${segments}`,
     pathRadius,
