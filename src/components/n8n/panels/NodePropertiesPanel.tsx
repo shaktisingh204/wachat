@@ -18,7 +18,7 @@ import {
   LuType,
 } from 'react-icons/lu';
 import { cn } from '@/lib/utils';
-import type { N8NNode, N8NNodeType } from '../types';
+import type { N8NNode, LegacyN8NNodeType as N8NNodeType } from '../types';
 
 /* ── Metadata registry ───────────────────────────────────── */
 

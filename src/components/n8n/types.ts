@@ -76,6 +76,73 @@ export type N8NCanvasWorkflow = {
   updatedAt: Date;
 };
 
+/* ─────────────────────────────────────────────────────────────────────────
+ * BACKWARD-COMPAT ALIASES
+ *
+ * The files under panels/ and edges/ were written before the canvas types
+ * were introduced.  They use the old dot-notation N8NNodeType enum and the
+ * flat N8NNode / N8NConnection shapes.  Keep these aliases so those files
+ * compile without modification.
+ * ───────────────────────────────────────────────────────────────────────── */
+
+/** @deprecated Use N8NNodeType (open string union) instead. */
+export type LegacyN8NNodeType =
+  | 'trigger.webhook'
+  | 'trigger.schedule'
+  | 'trigger.manual'
+  | 'action.http'
+  | 'action.send_email'
+  | 'action.set_data'
+  | 'logic.if'
+  | 'logic.switch'
+  | 'logic.merge'
+  | 'logic.split'
+  | 'transform.json'
+  | 'transform.text'
+  | 'transform.code'
+  | 'integration.google_sheets'
+  | 'integration.slack'
+  | 'integration.whatsapp';
+
+/**
+ * Old flat-array node shape used by NodePropertiesPanel.
+ * @deprecated Use N8NCanvasNode instead.
+ */
+export type N8NNode = {
+  id: string;
+  name: string;
+  type: LegacyN8NNodeType | N8NNodeType;
+  position: { x: number; y: number };
+  parameters: Record<string, unknown>;
+  disabled?: boolean;
+};
+
+/**
+ * Old flat connection shape used by WorkflowEdge / WorkflowEdges.
+ * @deprecated Use N8NCanvasConnection instead.
+ */
+export type N8NConnection = {
+  id: string;
+  sourceNodeId: string;
+  sourceOutputIndex: number;
+  targetNodeId: string;
+  targetInputIndex: number;
+};
+
+/**
+ * Old workflow shape used by N8NWorkflowEditorPage (legacy adapter).
+ * @deprecated Use N8NCanvasWorkflow instead.
+ */
+export type N8NWorkflow = {
+  id: string;
+  name: string;
+  nodes: N8NNode[];
+  connections: N8NConnection[];
+  active: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 /** Canvas transform state: pan + zoom. */
 export type N8NGraphPosition = {
   x: number;
