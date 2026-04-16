@@ -18,22 +18,23 @@ type Props = {
 };
 
 export function GroupNode({ group, groupIndex, onGroupUpdate }: Props) {
-  const { connectingIds, setConnectingIds, previewingEdge, isReadOnly, graphPosition } = useGraph();
-  const { setMouseOverGroup, mouseOverGroup } = useBlockDnd();
+  const { connectingIds, setConnectingIds, isReadOnly, graphPosition } = useGraph();
+  const { setMouseOverGroup } = useBlockDnd();
   const [isConnecting, setIsConnecting] = useState(false);
   const [title, setTitle] = useState(group.title);
   const [editingTitle, setEditingTitle] = useState(false);
-  const [isMouseDown, setIsMouseDown] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   const groupRef = useRef<HTMLDivElement | null>(null);
 
   const isDraggingGraph = useSelectionStore((s) => s.isDraggingGraph);
   const isFocused = useSelectionStore(useShallow((s) => s.focusedElementsId.includes(group.id)));
+
+  // Read live position from store (falls back to prop coordinates if not yet set)
   const groupCoords = useSelectionStore(
-    useShallow((s) =>
-      s.elementsCoordinates?.[group.id] ?? group.graphCoordinates
-    ),
+    useShallow((s) => s.elementsCoordinates?.[group.id] ?? group.graphCoordinates),
   );
+
   const { moveFocusedElements, focusElement, getElementsCoordinates, updateElementCoordinates } =
     useSelectionStore(
       useShallow((s) => ({
@@ -44,36 +45,47 @@ export function GroupNode({ group, groupIndex, onGroupUpdate }: Props) {
       })),
     );
 
-  // Sync this group's coordinate into selection store on mount
+  // Register this group's coordinate in the selection store
   useEffect(() => {
     updateElementCoordinates(group.id, group.graphCoordinates);
-  }, [group.id, group.graphCoordinates.x, group.graphCoordinates.y]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [group.id]);
 
   useEffect(() => {
     setIsConnecting(
-      connectingIds?.target?.groupId === group.id && !connectingIds.target?.blockId
+      connectingIds?.target?.groupId === group.id && !connectingIds.target?.blockId,
     );
   }, [connectingIds, group.id]);
 
   useEffect(() => {
     if (group.title !== title) setTitle(group.title);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [group.title]);
 
+  // Drag: moves this group (and any other selected groups)
   useDrag(
-    ({ first, last, delta, event }) => {
+    ({ first, last, delta: [dx, dy], event }) => {
+      // Stop event so the canvas useGesture doesn't also start panning
       event.stopPropagation();
+
       if (first) {
-        setIsMouseDown(true);
+        setIsDragging(true);
+        // Re-register current position in case store coords were cleared (e.g. after blurElements)
+        updateElementCoordinates(group.id, groupCoords);
         focusElement(group.id, (event as MouseEvent).shiftKey);
       }
+
+      // Apply delta in canvas space (divide by scale)
       moveFocusedElements({
-        x: delta[0] / graphPosition.scale,
-        y: delta[1] / graphPosition.scale,
+        x: dx / graphPosition.scale,
+        y: dy / graphPosition.scale,
       });
+
       if (last) {
-        setIsMouseDown(false);
+        setIsDragging(false);
+        // Persist final position to the flow document
         const coords = getElementsCoordinates();
-        if (coords && onGroupUpdate) {
+        if (coords?.[group.id] && onGroupUpdate) {
           onGroupUpdate(group.id, { graphCoordinates: coords[group.id] });
         }
       }
@@ -81,7 +93,8 @@ export function GroupNode({ group, groupIndex, onGroupUpdate }: Props) {
     {
       target: groupRef,
       pointer: { keys: false },
-      from: () => [groupCoords.x * graphPosition.scale, groupCoords.y * graphPosition.scale],
+      // filterTaps prevents accidental tiny drags from triggering
+      filterTaps: true,
     },
   );
 
@@ -89,36 +102,43 @@ export function GroupNode({ group, groupIndex, onGroupUpdate }: Props) {
     <div
       ref={groupRef}
       id={`group-${group.id}`}
+      // data attributes let Graph.tsx detect "drag started on a group"
       data-selectable={group.id}
+      data-no-canvas-drag="true"
       style={{
-        '--group-width': `${groupWidth}px`,
-        transform: `translate(${groupCoords?.x ?? 0}px, ${groupCoords?.y ?? 0}px)`,
+        transform: `translate(${groupCoords.x}px, ${groupCoords.y}px)`,
         touchAction: 'none',
         width: groupWidth,
-      } as React.CSSProperties}
+        position: 'absolute',
+        top: 0,
+        left: 0,
+      }}
       className={cn(
-        'flex flex-col group absolute rounded-xl border select-none bg-[var(--gray-1)]',
-        'transition-[border-color,box-shadow] px-0 pt-3 pb-2 gap-0',
+        'flex flex-col rounded-xl border select-none',
+        'bg-[var(--gray-1)] pt-3 pb-2',
+        'transition-[border-color,box-shadow]',
         'hover:shadow-md',
         isFocused || isConnecting
-          ? 'border-[#f76808] -m-px border-2'
-          : 'border-[var(--gray-5)]',
-        isMouseDown ? 'cursor-grabbing z-10' : 'cursor-pointer',
+          ? 'border-2 border-[#f76808]'
+          : 'border border-[var(--gray-5)]',
+        isDragging ? 'cursor-grabbing shadow-lg z-10' : 'cursor-grab',
         isDraggingGraph ? 'pointer-events-none' : 'pointer-events-auto',
       )}
       onMouseEnter={() => {
         if (isReadOnly || !groupRef.current) return;
         setMouseOverGroup({ id: group.id, ref: groupRef });
-        if (connectingIds) setConnectingIds({ ...connectingIds, target: { groupId: group.id } });
+        if (connectingIds)
+          setConnectingIds({ ...connectingIds, target: { groupId: group.id } });
       }}
       onMouseLeave={() => {
         if (isReadOnly) return;
         setMouseOverGroup(undefined);
-        if (connectingIds) setConnectingIds({ ...connectingIds, target: undefined });
+        if (connectingIds)
+          setConnectingIds({ ...connectingIds, target: undefined });
       }}
     >
-      {/* Title */}
-      <div className="px-4 pb-2 flex items-center gap-2">
+      {/* ── Title bar ───────────────────────────────────────── */}
+      <div className="px-4 pb-2 flex items-center gap-2 min-h-[28px]">
         {editingTitle ? (
           <input
             autoFocus
@@ -134,42 +154,47 @@ export function GroupNode({ group, groupIndex, onGroupUpdate }: Props) {
                 onGroupUpdate?.(group.id, { title });
               }
             }}
-            className="prevent-group-drag flex-1 text-[13px] font-medium bg-transparent border-b border-[#f76808] outline-none"
+            className="prevent-group-drag flex-1 text-[13px] font-semibold bg-transparent border-b border-[#f76808] outline-none text-[var(--gray-12)]"
             onClick={(e) => e.stopPropagation()}
+            // prevent the drag gesture from starting while typing
+            data-no-canvas-drag="true"
           />
         ) : (
           <span
-            className="flex-1 text-[13px] font-medium truncate text-[var(--gray-12)]"
+            className="flex-1 text-[13px] font-semibold truncate text-[var(--gray-12)]"
             onDoubleClick={(e) => {
               e.stopPropagation();
               setEditingTitle(true);
             }}
           >
-            {title || <span className="text-[var(--gray-8)] italic">Untitled</span>}
+            {title || <span className="text-[var(--gray-8)] italic text-[12px]">Untitled</span>}
           </span>
         )}
       </div>
 
-      {/* Blocks list */}
+      {/* ── Block list ──────────────────────────────────────── */}
       <BlockNodesList
         blocks={group.blocks}
         groupIndex={groupIndex}
         groupRef={groupRef}
       />
 
-      {/* Target endpoint (left side, top) */}
+      {/* ── Target endpoint (incoming connection dot, left side) */}
       <div
-        className="absolute left-[-13px] top-4 flex h-[22px] w-[22px] items-center justify-center"
+        data-no-canvas-drag="true"
+        className="absolute left-[-13px] top-5 flex h-[22px] w-[22px] items-center justify-center cursor-crosshair"
         onMouseUp={(e) => {
           e.stopPropagation();
           if (!connectingIds) return;
           setConnectingIds({ ...connectingIds, target: { groupId: group.id } });
         }}
       >
-        <div className={cn(
-          'h-3 w-3 rounded-full border-2 bg-[var(--gray-1)] transition-colors',
-          isConnecting ? 'border-[#f76808] bg-[#f76808]' : 'border-[var(--gray-7)]'
-        )} />
+        <div
+          className={cn(
+            'h-3 w-3 rounded-full border-2 bg-[var(--gray-1)] transition-colors',
+            isConnecting ? 'border-[#f76808] bg-[#f76808]' : 'border-[var(--gray-7)] hover:border-[#f76808]',
+          )}
+        />
       </div>
     </div>
   );
