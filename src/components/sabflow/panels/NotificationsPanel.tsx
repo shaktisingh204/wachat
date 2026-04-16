@@ -13,7 +13,7 @@ import {
   LuLoader,
   LuSend,
   LuSave,
-  LuAlertCircle,
+  LuCircleAlert,
   LuChevronDown,
 } from 'react-icons/lu';
 import { cn } from '@/lib/utils';
@@ -331,7 +331,7 @@ export function NotificationsPanel({ flowId }: NotificationsPanelProps) {
                 />
                 {emailError && (
                   <span className="text-[11px] text-red-500 flex items-center gap-1">
-                    <LuAlertCircle className="h-3 w-3" />
+                    <LuCircleAlert className="h-3 w-3" />
                     {emailError}
                   </span>
                 )}
@@ -408,7 +408,7 @@ export function NotificationsPanel({ flowId }: NotificationsPanelProps) {
                   </>
                 ) : (
                   <>
-                    <LuAlertCircle className="h-3.5 w-3.5" />
+                    <LuCircleAlert className="h-3.5 w-3.5" />
                     {testError || 'Webhook request failed.'}
                   </>
                 )}
@@ -497,7 +497,7 @@ export function NotificationsPanel({ flowId }: NotificationsPanelProps) {
           </>
         ) : saveStatus === 'error' ? (
           <>
-            <LuAlertCircle className="h-4 w-4" />
+            <LuCircleAlert className="h-4 w-4" />
             Save failed
           </>
         ) : (
