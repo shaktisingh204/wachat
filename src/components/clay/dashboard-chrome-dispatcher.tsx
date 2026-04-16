@@ -199,6 +199,15 @@ function isSabFlowRoute(pathname: string | null): boolean {
 }
 
 /**
+ * n8n routes get their own Clay context="n8n" with a dedicated sidebar
+ * for workflows, executions, credentials, settings, and docs.
+ */
+function isN8NRoute(pathname: string | null): boolean {
+  if (!pathname) return false;
+  return pathname === '/dashboard/n8n' || pathname.startsWith('/dashboard/n8n/');
+}
+
+/**
  * Telegram routes get their own Clay context="telegram" with sidebar
  * for bots, chat, broadcasts, channels, mini apps, payments, ads.
  */
@@ -353,15 +362,17 @@ export function DashboardChromeDispatcher({
   const onInstagram = !onAdManager && isInstagramRoute(pathname);
   const onMetaSuite = !onAdManager && !onInstagram && isMetaSuiteRoute(pathname);
   const onSabFlow = !onAdManager && !onInstagram && !onMetaSuite && isSabFlowRoute(pathname);
+  const onN8N = !onAdManager && !onInstagram && !onMetaSuite && !onSabFlow && isN8NRoute(pathname);
   const onTelegram =
-    !onAdManager && !onInstagram && !onMetaSuite && !onSabFlow && isTelegramRoute(pathname);
+    !onAdManager && !onInstagram && !onMetaSuite && !onSabFlow && !onN8N && isTelegramRoute(pathname);
   const onUrlShortener =
-    !onAdManager && !onInstagram && !onMetaSuite && !onSabFlow && !onTelegram && isUrlShortenerRoute(pathname);
+    !onAdManager && !onInstagram && !onMetaSuite && !onSabFlow && !onN8N && !onTelegram && isUrlShortenerRoute(pathname);
   const onQrCodeMaker =
     !onAdManager &&
     !onInstagram &&
     !onMetaSuite &&
     !onSabFlow &&
+    !onN8N &&
     !onTelegram &&
     !onUrlShortener &&
     isQrCodeMakerRoute(pathname);
@@ -370,6 +381,7 @@ export function DashboardChromeDispatcher({
     !onInstagram &&
     !onMetaSuite &&
     !onSabFlow &&
+    !onN8N &&
     !onTelegram &&
     !onUrlShortener &&
     !onQrCodeMaker &&
@@ -379,6 +391,7 @@ export function DashboardChromeDispatcher({
     !onInstagram &&
     !onMetaSuite &&
     !onSabFlow &&
+    !onN8N &&
     !onTelegram &&
     !onUrlShortener &&
     !onQrCodeMaker &&
@@ -389,6 +402,7 @@ export function DashboardChromeDispatcher({
     !onInstagram &&
     !onMetaSuite &&
     !onSabFlow &&
+    !onN8N &&
     !onTelegram &&
     !onUrlShortener &&
     !onQrCodeMaker &&
@@ -400,6 +414,7 @@ export function DashboardChromeDispatcher({
     !onInstagram &&
     !onMetaSuite &&
     !onSabFlow &&
+    !onN8N &&
     !onTelegram &&
     !onUrlShortener &&
     !onQrCodeMaker &&
@@ -412,6 +427,7 @@ export function DashboardChromeDispatcher({
     !onInstagram &&
     !onMetaSuite &&
     !onSabFlow &&
+    !onN8N &&
     !onTelegram &&
     !onUrlShortener &&
     !onQrCodeMaker &&
@@ -425,6 +441,7 @@ export function DashboardChromeDispatcher({
     !onInstagram &&
     !onMetaSuite &&
     !onSabFlow &&
+    !onN8N &&
     !onTelegram &&
     !onUrlShortener &&
     !onQrCodeMaker &&
@@ -439,6 +456,7 @@ export function DashboardChromeDispatcher({
     !onInstagram &&
     !onMetaSuite &&
     !onSabFlow &&
+    !onN8N &&
     !onTelegram &&
     !onUrlShortener &&
     !onQrCodeMaker &&
@@ -454,6 +472,7 @@ export function DashboardChromeDispatcher({
     !onInstagram &&
     !onMetaSuite &&
     !onSabFlow &&
+    !onN8N &&
     !onTelegram &&
     !onUrlShortener &&
     !onQrCodeMaker &&
@@ -480,6 +499,7 @@ export function DashboardChromeDispatcher({
     onMetaSuite ||
     onInstagram ||
     onSabFlow ||
+    onN8N ||
     onTelegram ||
     onUrlShortener ||
     onQrCodeMaker ||
@@ -739,6 +759,25 @@ export function DashboardChromeDispatcher({
       >
         <AdManagerProvider>
           <ClayDashboardLayout context="sabflow" user={user} plan={plan}>
+            {children}
+          </ClayDashboardLayout>
+        </AdManagerProvider>
+      </ProjectProvider>
+    );
+  }
+
+  // ── n8n branch: Clay chrome for node-based workflow automation.
+  if (onN8N) {
+    if (!wachatData) {
+      return <ClayBootSkeleton />;
+    }
+    return (
+      <ProjectProvider
+        initialProjects={wachatData.projects}
+        user={wachatData.user}
+      >
+        <AdManagerProvider>
+          <ClayDashboardLayout context="n8n" user={user} plan={plan}>
             {children}
           </ClayDashboardLayout>
         </AdManagerProvider>

@@ -19,6 +19,17 @@ import {
 } from 'lucide-react';
 import type { N8NNodeType } from './types';
 
+/** Fallback metadata returned for unrecognised node types. */
+const FALLBACK_META: N8NNodeMeta = {
+  label: 'Unknown Node',
+  description: 'No metadata registered for this node type.',
+  icon: Terminal,
+  color: '#9ca3af',
+  category: 'actions',
+  inputs: 1,
+  outputs: 1,
+};
+
 export type N8NNodeCategory =
   | 'triggers'
   | 'actions'
@@ -38,9 +49,9 @@ export type N8NNodeMeta = {
   outputs: number;
 };
 
-export const N8N_NODE_REGISTRY: Record<N8NNodeType, N8NNodeMeta> = {
+export const N8N_NODE_REGISTRY: Record<string, N8NNodeMeta> = {
   // ── Triggers ────────────────────────────────────────────────────────────────
-  'trigger.webhook': {
+  'n8n-nodes-base.webhook': {
     label: 'Webhook',
     description: 'Starts the workflow when an HTTP request is received.',
     icon: Webhook,
@@ -49,7 +60,7 @@ export const N8N_NODE_REGISTRY: Record<N8NNodeType, N8NNodeMeta> = {
     inputs: 0,
     outputs: 1,
   },
-  'trigger.schedule': {
+  'n8n-nodes-base.scheduleTrigger': {
     label: 'Schedule',
     description: 'Runs the workflow on a cron schedule.',
     icon: Clock,
@@ -58,7 +69,7 @@ export const N8N_NODE_REGISTRY: Record<N8NNodeType, N8NNodeMeta> = {
     inputs: 0,
     outputs: 1,
   },
-  'trigger.manual': {
+  'n8n-nodes-base.manualTrigger': {
     label: 'Manual Trigger',
     description: 'Runs the workflow when triggered manually.',
     icon: Play,
@@ -69,7 +80,7 @@ export const N8N_NODE_REGISTRY: Record<N8NNodeType, N8NNodeMeta> = {
   },
 
   // ── Actions ─────────────────────────────────────────────────────────────────
-  'action.http': {
+  'n8n-nodes-base.httpRequest': {
     label: 'HTTP Request',
     description: 'Makes an HTTP request to any URL.',
     icon: Globe,
@@ -78,7 +89,7 @@ export const N8N_NODE_REGISTRY: Record<N8NNodeType, N8NNodeMeta> = {
     inputs: 1,
     outputs: 1,
   },
-  'action.send_email': {
+  'n8n-nodes-base.emailSend': {
     label: 'Send Email',
     description: 'Sends an email via SMTP or API.',
     icon: Mail,
@@ -87,7 +98,7 @@ export const N8N_NODE_REGISTRY: Record<N8NNodeType, N8NNodeMeta> = {
     inputs: 1,
     outputs: 1,
   },
-  'action.set_data': {
+  'n8n-nodes-base.set': {
     label: 'Set Data',
     description: 'Sets or overwrites fields on the current item.',
     icon: Database,
@@ -98,7 +109,7 @@ export const N8N_NODE_REGISTRY: Record<N8NNodeType, N8NNodeMeta> = {
   },
 
   // ── Logic ───────────────────────────────────────────────────────────────────
-  'logic.if': {
+  'n8n-nodes-base.if': {
     label: 'If',
     description: 'Routes items into true / false branches.',
     icon: GitBranch,
@@ -107,7 +118,7 @@ export const N8N_NODE_REGISTRY: Record<N8NNodeType, N8NNodeMeta> = {
     inputs: 1,
     outputs: 2,
   },
-  'logic.switch': {
+  'n8n-nodes-base.switch': {
     label: 'Switch',
     description: 'Routes items based on a value across multiple outputs.',
     icon: Shuffle,
@@ -116,7 +127,7 @@ export const N8N_NODE_REGISTRY: Record<N8NNodeType, N8NNodeMeta> = {
     inputs: 1,
     outputs: 4,
   },
-  'logic.merge': {
+  'n8n-nodes-base.merge': {
     label: 'Merge',
     description: 'Combines items from multiple branches.',
     icon: Merge,
@@ -125,9 +136,9 @@ export const N8N_NODE_REGISTRY: Record<N8NNodeType, N8NNodeMeta> = {
     inputs: 2,
     outputs: 1,
   },
-  'logic.split': {
-    label: 'Split',
-    description: 'Splits a single flow into parallel branches.',
+  'n8n-nodes-base.splitInBatches': {
+    label: 'Split In Batches',
+    description: 'Splits items into smaller batches for processing.',
     icon: Split,
     color: '#8b5cf6',
     category: 'logic',
@@ -136,25 +147,25 @@ export const N8N_NODE_REGISTRY: Record<N8NNodeType, N8NNodeMeta> = {
   },
 
   // ── Transform ───────────────────────────────────────────────────────────────
-  'transform.json': {
-    label: 'JSON',
-    description: 'Parse, stringify, or transform JSON data.',
+  'n8n-nodes-base.extractFromFile': {
+    label: 'Extract from File',
+    description: 'Extract data from binary file content.',
     icon: Code2,
     color: '#06b6d4',
     category: 'transform',
     inputs: 1,
     outputs: 1,
   },
-  'transform.text': {
-    label: 'Text',
-    description: 'Manipulate text: replace, extract, format.',
+  'n8n-nodes-base.convertToFile': {
+    label: 'Convert to File',
+    description: 'Convert data to binary file content.',
     icon: FileText,
     color: '#06b6d4',
     category: 'transform',
     inputs: 1,
     outputs: 1,
   },
-  'transform.code': {
+  'n8n-nodes-base.code': {
     label: 'Code',
     description: 'Execute custom JavaScript / Python logic.',
     icon: Terminal,
@@ -165,7 +176,7 @@ export const N8N_NODE_REGISTRY: Record<N8NNodeType, N8NNodeMeta> = {
   },
 
   // ── Integrations ────────────────────────────────────────────────────────────
-  'integration.google_sheets': {
+  'n8n-nodes-base.googleSheets': {
     label: 'Google Sheets',
     description: 'Read, write, or update rows in a spreadsheet.',
     icon: Sheet,
@@ -174,7 +185,7 @@ export const N8N_NODE_REGISTRY: Record<N8NNodeType, N8NNodeMeta> = {
     inputs: 1,
     outputs: 1,
   },
-  'integration.slack': {
+  'n8n-nodes-base.slack': {
     label: 'Slack',
     description: 'Send messages or interact with Slack workspaces.',
     icon: MessageSquare,
@@ -183,7 +194,7 @@ export const N8N_NODE_REGISTRY: Record<N8NNodeType, N8NNodeMeta> = {
     inputs: 1,
     outputs: 1,
   },
-  'integration.whatsapp': {
+  'n8n-nodes-base.whatsapp': {
     label: 'WhatsApp',
     description: 'Send WhatsApp messages via the Cloud API.',
     icon: Send,
@@ -201,34 +212,51 @@ export const N8N_NODE_CATEGORIES: Record<
   triggers: {
     label: 'Triggers',
     color: '#f97316',
-    types: ['trigger.webhook', 'trigger.schedule', 'trigger.manual'],
+    types: [
+      'n8n-nodes-base.webhook',
+      'n8n-nodes-base.scheduleTrigger',
+      'n8n-nodes-base.manualTrigger',
+    ],
   },
   actions: {
     label: 'Actions',
     color: '#3b82f6',
-    types: ['action.http', 'action.send_email', 'action.set_data'],
+    types: [
+      'n8n-nodes-base.httpRequest',
+      'n8n-nodes-base.emailSend',
+      'n8n-nodes-base.set',
+    ],
   },
   logic: {
     label: 'Logic',
     color: '#8b5cf6',
-    types: ['logic.if', 'logic.switch', 'logic.merge', 'logic.split'],
+    types: [
+      'n8n-nodes-base.if',
+      'n8n-nodes-base.switch',
+      'n8n-nodes-base.merge',
+      'n8n-nodes-base.splitInBatches',
+    ],
   },
   transform: {
     label: 'Transform',
     color: '#06b6d4',
-    types: ['transform.json', 'transform.text', 'transform.code'],
+    types: [
+      'n8n-nodes-base.extractFromFile',
+      'n8n-nodes-base.convertToFile',
+      'n8n-nodes-base.code',
+    ],
   },
   integrations: {
     label: 'Integrations',
     color: '#22c55e',
     types: [
-      'integration.google_sheets',
-      'integration.slack',
-      'integration.whatsapp',
+      'n8n-nodes-base.googleSheets',
+      'n8n-nodes-base.slack',
+      'n8n-nodes-base.whatsapp',
     ],
   },
 };
 
-export function getNodeMeta(type: N8NNodeType): N8NNodeMeta {
-  return N8N_NODE_REGISTRY[type];
+export function getNodeMeta(type: string): N8NNodeMeta {
+  return N8N_NODE_REGISTRY[type] ?? FALLBACK_META;
 }

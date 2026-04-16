@@ -105,14 +105,12 @@ export function Graph({ flow, onFlowChange, containerRef }: Props) {
       if (connectingIds?.target?.groupId) {
         const newEdge = {
           id: createId(),
-          from: {
-            groupId: connectingIds.source.groupId,
-            ...(connectingIds.source.blockId ? { blockId: connectingIds.source.blockId } : {}),
-          },
-          to: {
-            groupId: connectingIds.target.groupId,
-            ...(connectingIds.target.blockId ? { blockId: connectingIds.target.blockId } : {}),
-          },
+          from: connectingIds.source.blockId
+            ? { groupId: connectingIds.source.groupId, blockId: connectingIds.source.blockId }
+            : { groupId: connectingIds.source.groupId },
+          to: connectingIds.target.blockId
+            ? { groupId: connectingIds.target.groupId, blockId: connectingIds.target.blockId }
+            : { groupId: connectingIds.target.groupId },
         };
         const existingIdx = connectingIds.source.blockId
           ? flow.edges.findIndex((ed) => ed.from.blockId === connectingIds.source.blockId)

@@ -10,7 +10,7 @@ import {
 import type {
   N8NGraphPosition,
   N8NDraftConnection,
-  N8NNode,
+  N8NCanvasNode,
 } from './types';
 
 interface WorkflowContextValue {
@@ -24,8 +24,8 @@ interface WorkflowContextValue {
   selectedNodeId: string | null;
   setSelectedNodeId: Dispatch<SetStateAction<string | null>>;
   /** Type being dragged from the palette (null when not dragging). */
-  draggedNodeType: N8NNode['type'] | null;
-  setDraggedNodeType: Dispatch<SetStateAction<N8NNode['type'] | null>>;
+  draggedNodeType: N8NCanvasNode['type'] | null;
+  setDraggedNodeType: Dispatch<SetStateAction<N8NCanvasNode['type'] | null>>;
 }
 
 const defaultPos: N8NGraphPosition = { x: 0, y: 0, scale: 1 };
@@ -45,7 +45,7 @@ export function WorkflowProvider({ children }: { children: ReactNode }) {
   const [graphPosition, setGraphPosition] = useState<N8NGraphPosition>(defaultPos);
   const [draftConnection, setDraftConnection] = useState<N8NDraftConnection | null>(null);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-  const [draggedNodeType, setDraggedNodeType] = useState<N8NNode['type'] | null>(null);
+  const [draggedNodeType, setDraggedNodeType] = useState<N8NCanvasNode['type'] | null>(null);
 
   return (
     <WorkflowContext.Provider

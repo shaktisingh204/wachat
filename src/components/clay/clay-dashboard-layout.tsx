@@ -175,6 +175,7 @@ export type ClayLayoutContext =
   | 'instagram'
   | 'ad-manager'
   | 'sabflow'
+  | 'n8n'
   | 'telegram'
   | 'url-shortener'
   | 'qr-code-maker'
@@ -791,6 +792,52 @@ const sabflowManage: NavEntry[] = [
     icon: <LuBookCopy className="h-[15px] w-[15px]" strokeWidth={1.75} />,
     href: '/dashboard/sabflow/docs',
     matches: ['/dashboard/sabflow/docs'],
+  },
+];
+
+/* ═══════════════════════════════════════════════════════════════════
+ *  n8n nav registry — loaded when context="n8n".
+ *  Mirrors the /dashboard/n8n/* directory structure.
+ * ══════════════════════════════════════════════════════════════════ */
+
+const n8nPrimary: NavEntry[] = [
+  {
+    key: 'n8n-workflows',
+    label: 'Workflows',
+    icon: <LuWorkflow className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/n8n',
+    matches: ['/dashboard/n8n'],
+  },
+  {
+    key: 'n8n-executions',
+    label: 'Executions',
+    icon: <LuActivity className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/n8n/executions',
+    matches: ['/dashboard/n8n/executions'],
+  },
+  {
+    key: 'n8n-credentials',
+    label: 'Credentials',
+    icon: <LuKey className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/n8n/credentials',
+    matches: ['/dashboard/n8n/credentials'],
+  },
+];
+
+const n8nManage: NavEntry[] = [
+  {
+    key: 'n8n-settings',
+    label: 'Settings',
+    icon: <LuSettings className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/n8n/settings',
+    matches: ['/dashboard/n8n/settings'],
+  },
+  {
+    key: 'n8n-docs',
+    label: 'Docs',
+    icon: <LuBookCopy className="h-[15px] w-[15px]" strokeWidth={1.75} />,
+    href: '/dashboard/n8n/docs',
+    matches: ['/dashboard/n8n/docs'],
   },
 ];
 
@@ -2786,7 +2833,9 @@ function useActiveKey(context: ClayLayoutContext = 'sabnode'): string {
             ? [wachatPrimary, wachatAutomate, wachatGrow, wachatConfigure]
             : context === 'sabflow'
               ? [sabflowPrimary, sabflowManage]
-              : context === 'telegram'
+              : context === 'n8n'
+                ? [n8nPrimary, n8nManage]
+                : context === 'telegram'
                 ? [tgPrimary, tgMessaging, tgAutomate, tgContent, tgGrow, tgConfigure]
                 : context === 'url-shortener'
                   ? [urlShortenerPrimary, urlShortenerManage]
@@ -2813,6 +2862,7 @@ function useActiveKey(context: ClayLayoutContext = 'sabnode'): string {
     context === 'meta-suite' ? 'ms-dashboard' :
     context === 'wachat' ? 'wachat-chat' :
     context === 'sabflow' ? 'sf-flow-builder' :
+    context === 'n8n' ? 'n8n-workflows' :
     context === 'telegram' ? 'tg-dashboard' :
     context === 'url-shortener' ? 'us-links' :
     context === 'qr-code-maker' ? 'qr-generator' :
@@ -3169,6 +3219,7 @@ export function ClayDashboardLayout({
             context === 'meta-suite' ? 'Meta Suite' :
             context === 'wachat' ? 'Wachat' :
             context === 'sabflow' ? 'SabFlow' :
+            context === 'n8n' ? 'n8n' :
             context === 'telegram' ? 'Telegram' :
             context === 'url-shortener' ? 'URL Shortener' :
             context === 'qr-code-maker' ? 'QR Code Maker' :
@@ -3186,6 +3237,7 @@ export function ClayDashboardLayout({
             context === 'meta-suite' ? <ClayMetaBrand /> :
             context === 'wachat' ? <ClayWachatBrand /> :
             context === 'sabflow' ? <ClaySabFlowBrand /> :
+            context === 'n8n' ? <ClayN8NBrand /> :
             context === 'telegram' ? <ClayTelegramBrand /> :
             context === 'url-shortener' ? <ClayUrlShortenerBrand /> :
             context === 'qr-code-maker' ? <ClayQrCodeMakerBrand /> :
@@ -3251,6 +3303,15 @@ export function ClayDashboardLayout({
                       title: 'Manage',
                       addable: false,
                       items: sabflowManage.map(toNavItem),
+                    },
+                  ]
+                : context === 'n8n'
+                ? [
+                    { items: n8nPrimary.map(toNavItem) },
+                    {
+                      title: 'Manage',
+                      addable: false,
+                      items: n8nManage.map(toNavItem),
                     },
                   ]
                 : context === 'telegram'
@@ -3380,7 +3441,7 @@ export function ClayDashboardLayout({
             // Wachat & Meta Suite pages get generous consistent padding.
             // Page content uses the FULL available width (no max-width cap)
             // so tables and cards don't look shrink-wrapped on wide screens.
-            (context === 'wachat' || context === 'meta-suite' || context === 'instagram' || context === 'ad-manager' || context === 'sabflow' || context === 'telegram' || context === 'url-shortener' || context === 'qr-code-maker' || context === 'team' || context === 'crm' || context === 'hrm' || context === 'sabchat' || context === 'email' || context === 'sms' || context === 'settings') && !fullBleed && 'px-10 pt-8 pb-12',
+            (context === 'wachat' || context === 'meta-suite' || context === 'instagram' || context === 'ad-manager' || context === 'sabflow' || context === 'n8n' || context === 'telegram' || context === 'url-shortener' || context === 'qr-code-maker' || context === 'team' || context === 'crm' || context === 'hrm' || context === 'sabchat' || context === 'email' || context === 'sms' || context === 'settings') && !fullBleed && 'px-10 pt-8 pb-12',
           )}
         >
           {fullBleed ? (
@@ -3388,7 +3449,7 @@ export function ClayDashboardLayout({
             <div className="flex h-full min-h-0 w-full flex-1 overflow-hidden">
               {children}
             </div>
-          ) : (context === 'wachat' || context === 'meta-suite' || context === 'instagram' || context === 'ad-manager' || context === 'sabflow' || context === 'telegram' || context === 'url-shortener' || context === 'qr-code-maker' || context === 'team' || context === 'crm' || context === 'hrm' || context === 'sabchat' || context === 'email' || context === 'sms' || context === 'settings') ? (
+          ) : (context === 'wachat' || context === 'meta-suite' || context === 'instagram' || context === 'ad-manager' || context === 'sabflow' || context === 'n8n' || context === 'telegram' || context === 'url-shortener' || context === 'qr-code-maker' || context === 'team' || context === 'crm' || context === 'hrm' || context === 'sabchat' || context === 'email' || context === 'sms' || context === 'settings') ? (
             // Wachat pages: full width AND full height — pages can fill
             // the entire available space. Each page's root <div> owns
             // its own clay-enter animation cascade so staggered child
@@ -3834,6 +3895,37 @@ function ClayCrmBrand() {
         <div className="min-w-0">
           <p className="truncate text-[13px] font-semibold leading-tight text-clay-ink">CRM</p>
           <p className="text-[11px] text-clay-ink-muted">Sales, Ops & Accounting</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── n8n sidebar brand ───────────────────────────────────────── */
+
+function ClayN8NBrand() {
+  const router = useRouter();
+
+  return (
+    <div className="flex flex-col gap-2.5">
+      <button
+        type="button"
+        onClick={() => router.push('/home')}
+        className="inline-flex items-center gap-1.5 self-start rounded-full border border-clay-border bg-clay-surface px-2.5 py-1.5 text-[11.5px] font-medium text-clay-ink-muted hover:text-clay-ink hover:border-clay-border-strong transition-colors"
+      >
+        <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
+        Back to Apps
+      </button>
+      <div className="flex items-center gap-2.5 px-1">
+        <div
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
+          style={{ background: 'linear-gradient(135deg, #FF6D5A 0%, #EA4B35 100%)' }}
+        >
+          <LuZap className="h-4 w-4 text-white" strokeWidth={2} />
+        </div>
+        <div className="min-w-0">
+          <p className="truncate text-[13px] font-semibold leading-tight text-clay-ink">n8n</p>
+          <p className="text-[11px] text-clay-ink-muted">Workflow automation</p>
         </div>
       </div>
     </div>

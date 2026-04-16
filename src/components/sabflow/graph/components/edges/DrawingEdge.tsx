@@ -15,12 +15,10 @@ type Props = {
 export function DrawingEdge({ connectingIds }: Props) {
   const { canvasPosition, graphPosition, setConnectingIds } = useGraph();
   const { sourceEndpointYOffsets, targetEndpointYOffsets } = useEndpoints();
-  // Equality fn `() => true` keeps coordinates frozen while drawing an edge,
-  // preventing unnecessary re-renders caused by group coordinate updates.
-  const elementsCoordinates = useSelectionStore(
-    (s) => s.elementsCoordinates,
-    () => true,
-  );
+  // Read coordinates directly from the store without subscribing — this avoids
+  // re-renders caused by group coordinate updates while the edge is being drawn.
+  // The component will re-render only when connectingIds or mousePosition changes.
+  const elementsCoordinates = useSelectionStore.getState().elementsCoordinates;
   const [mousePosition, setMousePosition] = useState<Coordinates | null>(null);
 
   const sourceGroupCoordinates = elementsCoordinates?.[connectingIds.source.groupId];
