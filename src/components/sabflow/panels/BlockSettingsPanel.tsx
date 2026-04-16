@@ -46,6 +46,9 @@ import { VideoBubbleSettings } from '@/components/sabflow/panels/blocks/VideoBub
 import { AudioBubbleSettings } from '@/components/sabflow/panels/blocks/AudioBubbleSettings';
 import { EmbedBubbleSettings } from '@/components/sabflow/panels/blocks/EmbedBubbleSettings';
 
+// n8n-style "Execute this node" runner shared across every block type
+import { TestNodePanel } from '@/components/sabflow/panels/blocks/shared/TestNodePanel';
+
 /* ── Props ───────────────────────────────────────────────────────────────── */
 
 type Props = {

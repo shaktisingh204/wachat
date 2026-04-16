@@ -1,10 +1,11 @@
-import type { SabFlowDoc, Group, EdgeFrom } from '@/lib/sabflow/types';
+import type { SabFlowDoc, Group, EdgeFrom, MergeOptions } from '@/lib/sabflow/types';
 import type { FlowSession, ChatMessage, ExecutionStep } from './types';
 import {
   evaluateCondition,
   substituteVariables,
 } from '@/lib/sabflow/engine';
 import type { Condition } from '@/lib/sabflow/engine';
+import { executeMerge } from './mergeNode';
 
 // ── helpers ────────────────────────────────────────────────────────────────
 

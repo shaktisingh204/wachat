@@ -53,7 +53,8 @@ export type LogicBlockType =
   | 'typebot_link'
   | 'wait'
   | 'jump'
-  | 'ab_test';
+  | 'ab_test'
+  | 'merge';
 
 export type IntegrationBlockType =
   | 'webhook'
@@ -533,6 +534,28 @@ export type ScriptOptions = {
   shouldExecuteInParentContext?: boolean;
 };
 
+/* ── Merge block options ──────────────────────────────── */
+
+/**
+ * Merge modes (n8n-style).
+ *
+ * - `append`      concatenate all input arrays into one output array
+ * - `mergeByKey`  SQL-like join on a shared field
+ * - `multiplex`   cartesian product across every input
+ * - `pickFirst`   pass through the first non-empty input
+ */
+export type MergeMode = 'append' | 'mergeByKey' | 'multiplex' | 'pickFirst';
+
+/** Options for a merge (fan-in) logic block. */
+export type MergeOptions = {
+  /** Combination strategy — defaults to 'append'. */
+  mode?: MergeMode;
+  /** For `mergeByKey`: field name used as the join key on both sides. */
+  mergeByField?: string;
+  /** For `mergeByKey`: keep items whose key did not match anything. */
+  includeUnpaired?: boolean;
+};
+
 /** Options for a wait/delay block. */
 export type WaitOptions = {
   /** Number of seconds to pause execution (string or number) */
@@ -802,6 +825,7 @@ export type BlockOptions = (
   | RedirectOptions
   | ScriptOptions
   | WaitOptions
+  | MergeOptions
   | WebhookOptions
   | SendEmailOptions
   | GoogleSheetsOptions
@@ -867,6 +891,7 @@ export type TypedBlock =
   | { id: string; groupId: string; type: 'wait';               outgoingEdgeId?: string; items?: BlockItem[]; options?: WaitOptions         }
   | { id: string; groupId: string; type: 'jump';               outgoingEdgeId?: string; items?: BlockItem[]; options?: JumpOptions         }
   | { id: string; groupId: string; type: 'ab_test';            outgoingEdgeId?: string; items?: ABTestItem[]; options?: ABTestOptions      }
+  | { id: string; groupId: string; type: 'merge';              outgoingEdgeId?: string; items?: BlockItem[]; options?: MergeOptions       }
   | { id: string; groupId: string; type: 'webhook';            outgoingEdgeId?: string; items?: BlockItem[]; options?: WebhookOptions      }
   | { id: string; groupId: string; type: 'send_email';         outgoingEdgeId?: string; items?: BlockItem[]; options?: SendEmailOptions    }
   | { id: string; groupId: string; type: 'google_sheets';      outgoingEdgeId?: string; items?: BlockItem[]; options?: GoogleSheetsOptions }
@@ -894,7 +919,7 @@ const INPUT_BLOCK_TYPES: InputBlockType[] = [
   'choice_input', 'picture_choice_input',
 ];
 const LOGIC_BLOCK_TYPES: LogicBlockType[] = [
-  'condition', 'set_variable', 'redirect', 'script', 'typebot_link', 'wait', 'jump', 'ab_test',
+  'condition', 'set_variable', 'redirect', 'script', 'typebot_link', 'wait', 'jump', 'ab_test', 'merge',
 ];
 const INTEGRATION_BLOCK_TYPES: IntegrationBlockType[] = [
   'webhook', 'send_email', 'google_sheets', 'google_analytics', 'open_ai',
