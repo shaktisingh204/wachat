@@ -11,7 +11,7 @@ import {
   LuGitBranch,
   LuGitFork,
   LuClock,
-  LuCode2,
+  LuCode,
   LuZap,
   LuDatabase,
   LuMail,
@@ -22,10 +22,10 @@ import {
   LuRefreshCw,
   LuFilter,
   LuMerge,
-  LuSplitSquareHorizontal,
+  LuLayoutPanelLeft,
   LuHash,
   LuRepeat,
-} from 'lucide-react';
+} from 'react-icons/lu';
 
 /* ── Category definitions ────────────────────────────────── */
 

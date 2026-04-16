@@ -1,6 +1,11 @@
 
 import type { Config } from 'tailwindcss';
-const { fontFamily } = require("tailwindcss/defaultTheme")
+
+// Tailwind v4 removed defaultTheme — inline the default sans stack
+const defaultSans = [
+  'ui-sans-serif', 'system-ui', 'sans-serif',
+  '"Apple Color Emoji"', '"Segoe UI Emoji"', '"Segoe UI Symbol"', '"Noto Color Emoji"',
+];
 
 export default {
   darkMode: 'class',
@@ -23,9 +28,9 @@ export default {
         'glass-gradient-dark': 'linear-gradient(180deg, hsla(220,10%,18%,0.8), hsla(220,10%,12%,0.2))',
       },
       fontFamily: {
-        sans: ["var(--font-sans)", ...fontFamily.sans],
-        headline: ["var(--font-sans)", ...fontFamily.sans],
-        display: ["var(--font-sans)", ...fontFamily.sans],
+        sans: ["var(--font-sans)", ...defaultSans],
+        headline: ["var(--font-sans)", ...defaultSans],
+        display: ["var(--font-sans)", ...defaultSans],
         code: ['ui-monospace', 'Cascadia Code', 'Source Code Pro', 'monospace'],
       },
       colors: {
