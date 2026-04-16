@@ -14,10 +14,12 @@ const groupWidth = 300;
 type Props = {
   group: Group;
   groupIndex: number;
+  edges: { from: { blockId?: string }; to: { blockId?: string } }[];
   onGroupUpdate?: (id: string, changes: Partial<Group>) => void;
+  onGroupBlocksChange?: (groupId: string, blocks: Group['blocks']) => void;
 };
 
-export function GroupNode({ group, groupIndex, onGroupUpdate }: Props) {
+export function GroupNode({ group, groupIndex, edges, onGroupUpdate, onGroupBlocksChange }: Props) {
   const { connectingIds, setConnectingIds, isReadOnly, graphPosition } = useGraph();
   const { setMouseOverGroup } = useBlockDnd();
   const [isConnecting, setIsConnecting] = useState(false);
@@ -184,8 +186,11 @@ export function GroupNode({ group, groupIndex, onGroupUpdate }: Props) {
       {/* ── Block list ──────────────────────────────────────── */}
       <BlockNodesList
         blocks={group.blocks}
+        group={group}
         groupIndex={groupIndex}
         groupRef={groupRef}
+        edges={edges}
+        onBlocksChange={(blocks) => onGroupBlocksChange?.(group.id, blocks)}
       />
 
       {/* ── Target endpoint (incoming connection dot, left side) */}

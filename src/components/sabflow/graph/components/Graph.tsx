@@ -21,7 +21,7 @@ type Props = {
 };
 
 export function Graph({ flow, onFlowChange, containerRef }: Props) {
-  const { graphPosition, setGraphPosition } = useGraph();
+  const { graphPosition, setGraphPosition, setCanvasPosition, connectingIds, setConnectingIds } = useGraph();
   const { draggedBlockType, setDraggedBlockType } = useBlockDnd();
 
   const isDraggingGraph = useSelectionStore((s) => s.isDraggingGraph);
@@ -36,13 +36,29 @@ export function Graph({ flow, onFlowChange, containerRef }: Props) {
 
   const canvasRef = useRef<HTMLDivElement>(null);
 
-  // ── Seed all group coordinates once on mount (Typebot pattern) ───────────
+  // ── Seed all group coordinates once on mount ─────────────────────────────
   useEffect(() => {
     const coords: Record<string, Coordinates> = {};
     flow.groups.forEach((g) => { coords[g.id] = g.graphCoordinates; });
     setElementsCoordinates(coords);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // ── Update absolute canvas position for endpoint Y calculations ──────────
+  useEffect(() => {
+    const updateAbsolute = () => {
+      if (!canvasRef.current) return;
+      const rect = canvasRef.current.getBoundingClientRect();
+      setCanvasPosition({
+        x: rect.left + graphPosition.x,
+        y: rect.top + graphPosition.y,
+        scale: graphPosition.scale,
+      });
+    };
+    updateAbsolute();
+    window.addEventListener('resize', updateAbsolute);
+    return () => window.removeEventListener('resize', updateAbsolute);
+  }, [graphPosition, setCanvasPosition]);
 
   /* Project screen coords → canvas coords */
   const projectMouse = useCallback((clientX: number, clientY: number) => {
@@ -61,8 +77,46 @@ export function Graph({ flow, onFlowChange, containerRef }: Props) {
     });
   }, [flow.groups, onFlowChange]);
 
-  /* Drop new block from sidebar */
+  /* Handle group block reordering / drag-drop */
+  const handleGroupBlocksChange = useCallback((groupId: string, blocks: Group['blocks']) => {
+    onFlowChange({
+      groups: flow.groups.map((g) => (g.id === groupId ? { ...g, blocks } : g)),
+    });
+  }, [flow.groups, onFlowChange]);
+
+  /* Handle edge deletion */
+  const handleEdgeDelete = useCallback((edgeId: string) => {
+    onFlowChange({ edges: flow.edges.filter((e) => e.id !== edgeId) });
+  }, [flow.edges, onFlowChange]);
+
+  /* Handle edge creation from DrawingEdge mouseup */
   const handleMouseUp = useCallback((e: React.MouseEvent) => {
+    // Create edge if connecting
+    if (connectingIds?.target?.groupId) {
+      const newEdge = {
+        id: createId(),
+        from: {
+          groupId: connectingIds.source.groupId,
+          ...(connectingIds.source.blockId ? { blockId: connectingIds.source.blockId } : {}),
+        },
+        to: {
+          groupId: connectingIds.target.groupId,
+          ...(connectingIds.target.blockId ? { blockId: connectingIds.target.blockId } : {}),
+        },
+      };
+      // Replace existing edge from same source block if any
+      const existingIdx = connectingIds.source.blockId
+        ? flow.edges.findIndex((ed) => ed.from.blockId === connectingIds.source.blockId)
+        : -1;
+      const newEdges = existingIdx >= 0
+        ? flow.edges.map((ed, i) => (i === existingIdx ? newEdge : ed))
+        : [...flow.edges, newEdge];
+      onFlowChange({ edges: newEdges });
+      setConnectingIds(null);
+      return;
+    }
+
+    // Drop new block from sidebar onto canvas
     if (draggedBlockType) {
       const pos = projectMouse(e.clientX, e.clientY);
       const newGroupId = createId();
@@ -83,12 +137,9 @@ export function Graph({ flow, onFlowChange, containerRef }: Props) {
       onFlowChange({ groups: [...flow.groups, newGroup] });
       setDraggedBlockType(undefined);
     }
-  }, [draggedBlockType, projectMouse, flow.groups, onFlowChange, setDraggedBlockType, updateElementCoordinates]);
+  }, [connectingIds, draggedBlockType, projectMouse, flow.groups, flow.edges, onFlowChange, setDraggedBlockType, updateElementCoordinates, setConnectingIds]);
 
-  /* Canvas pan + zoom gestures.
-   * Groups stop event propagation on pointerdown (no filterTaps), so this
-   * handler only fires when the user drags directly on the canvas background.
-   */
+  /* Canvas pan + zoom gestures */
   useGesture(
     {
       onDrag: ({ delta: [dx, dy], first, last }) => {
@@ -160,7 +211,7 @@ export function Graph({ flow, onFlowChange, containerRef }: Props) {
         if (e.target === canvasRef.current) blurElements();
       }}
     >
-      {/* Transformed canvas layer — Typebot pattern: fills viewport, groups are absolute within */}
+      {/* Transformed canvas layer */}
       <div
         className="flex flex-1 w-full h-full absolute will-change-transform"
         style={{
@@ -172,6 +223,8 @@ export function Graph({ flow, onFlowChange, containerRef }: Props) {
         <GraphElements
           flow={flow}
           onGroupUpdate={handleGroupUpdate}
+          onGroupBlocksChange={handleGroupBlocksChange}
+          onEdgeDelete={handleEdgeDelete}
         />
       </div>
 
