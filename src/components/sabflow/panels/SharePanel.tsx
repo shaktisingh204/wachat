@@ -10,7 +10,7 @@ import {
   LuShare2,
   LuQrCode,
   LuGlobe,
-  LuAlertTriangle,
+  LuTriangleAlert as LuAlertTriangle,
   LuLoader,
 } from 'react-icons/lu';
 import { cn } from '@/lib/utils';

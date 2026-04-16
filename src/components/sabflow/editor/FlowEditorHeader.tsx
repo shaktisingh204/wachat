@@ -12,7 +12,7 @@ import {
   LuUndo2,
   LuRedo2,
   LuShieldCheck,
-  LuBarChart2,
+  LuChartBar as LuBarChart2,
 } from 'react-icons/lu';
 import { cn } from '@/lib/utils';
 import type { SabFlowDoc } from '@/lib/sabflow/types';

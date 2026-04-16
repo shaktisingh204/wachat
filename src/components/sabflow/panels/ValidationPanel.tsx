@@ -3,9 +3,9 @@
 import { useCallback, useState } from 'react';
 import {
   LuShieldCheck,
-  LuAlertTriangle,
-  LuAlertCircle,
-  LuCheckCircle,
+  LuTriangleAlert as LuAlertTriangle,
+  LuCircleAlert as LuAlertCircle,
+  LuCircleCheck as LuCheckCircle,
   LuLoader,
   LuChevronDown,
   LuChevronRight,

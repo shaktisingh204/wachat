@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useTransition } from 'react';
-import { LuActivity, LuCheckCircle, LuUsers, LuMessageSquare } from 'react-icons/lu';
+import { LuActivity, LuCircleCheck as LuCheckCircle, LuUsers, LuMessageSquare } from 'react-icons/lu';
 import {
   getFlowSessions,
   getFlowResultsStats,

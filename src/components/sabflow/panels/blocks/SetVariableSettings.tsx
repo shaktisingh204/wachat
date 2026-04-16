@@ -6,7 +6,7 @@ import {
   LuCalendarDays,
   LuClock,
   LuHash,
-  LuCode2,
+  LuCode as LuCode2,
   LuListPlus,
   LuPlus,
   LuMinus,

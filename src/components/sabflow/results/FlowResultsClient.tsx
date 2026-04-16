@@ -9,7 +9,7 @@ import {
 } from 'react';
 import {
   LuUsers,
-  LuCheckCircle2,
+  LuCircleCheck as LuCheckCircle2,
   LuActivity,
   LuTimer,
   LuSearch,
@@ -19,9 +19,9 @@ import {
   LuChevronRight,
   LuChevronLeft,
   LuInbox,
-  LuBarChart2,
-  LuTable2,
-  LuLoader2,
+  LuChartBar as LuBarChart2,
+  LuTable as LuTable2,
+  LuLoader as LuLoader2,
   LuX,
 } from 'react-icons/lu';
 

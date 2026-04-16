@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { LuChevronRight, LuBarChart2 } from 'react-icons/lu';
+import { LuChevronRight, LuChartBar as LuBarChart2 } from 'react-icons/lu';
 import { getSabFlow } from '@/app/actions/sabflow';
 import { FlowResultsClient } from '@/components/sabflow/results/FlowResultsClient';
 

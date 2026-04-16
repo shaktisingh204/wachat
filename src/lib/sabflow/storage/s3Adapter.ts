@@ -39,13 +39,14 @@ function readConfig(): S3Config {
 /** Runtime type-checked reference to the AWS SDK module. */
 type S3SdkModule = typeof import('@aws-sdk/client-s3');
 
-/** Load the AWS SDK lazily — returns null when the package isn't installed. */
+/** Load the AWS SDK lazily — returns null when the package isn't installed.
+ *  The module name is indirected through a variable so bundlers (Turbopack /
+ *  webpack) cannot statically resolve it — otherwise the build fails with
+ *  "module not found" when the optional dependency isn't installed. */
 async function loadSdk(): Promise<S3SdkModule | null> {
   try {
-    // `@aws-sdk/client-s3` is optional. If the package isn't installed, the
-    // dynamic import throws and we return null so callers can surface a clean
-    // "S3 not configured" error to the user.
-    const mod = (await import('@aws-sdk/client-s3')) as S3SdkModule;
+    const name = '@aws-sdk/client-s3';
+    const mod = (await import(/* webpackIgnore: true */ /* @vite-ignore */ name)) as S3SdkModule;
     return mod;
   } catch {
     return null;
@@ -132,11 +133,12 @@ export class S3StorageAdapter implements StorageAdapter {
     }
 
     // Signed URLs live in a separate subpackage — load it dynamically too.
+    // Name is indirected through a variable so bundlers cannot statically
+    // resolve it when the optional dep isn't installed.
     let presigner: typeof import('@aws-sdk/s3-request-presigner');
     try {
-      presigner = (await import(
-        '@aws-sdk/s3-request-presigner'
-      )) as typeof import('@aws-sdk/s3-request-presigner');
+      const presignerName = '@aws-sdk/s3-request-presigner';
+      presigner = (await import(/* webpackIgnore: true */ /* @vite-ignore */ presignerName)) as typeof import('@aws-sdk/s3-request-presigner');
     } catch {
       throw new Error(
         'S3 presigner not configured — install @aws-sdk/s3-request-presigner.',

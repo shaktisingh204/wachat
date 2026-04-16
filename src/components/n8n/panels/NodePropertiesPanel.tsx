@@ -9,7 +9,7 @@ import {
   LuClock,
   LuCode,
   LuGitBranch,
-  LuTable2,
+  LuTable as LuTable2,
   LuMessageSquare,
   LuZap,
   LuPlay,
