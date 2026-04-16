@@ -1,5 +1,5 @@
 'use client';
-import { useRef, useCallback, useEffect } from 'react';
+import { useRef, useCallback, useEffect, useState } from 'react';
 import { useGesture } from '@use-gesture/react';
 import { useGraph } from '../providers/GraphProvider';
 import { useSelectionStore } from '../hooks/useSelectionStore';
@@ -21,7 +21,8 @@ type Props = {
 };
 
 export function Graph({ flow, onFlowChange, containerRef }: Props) {
-  const { graphPosition, setGraphPosition, setCanvasPosition, connectingIds, setConnectingIds } = useGraph();
+  const { graphPosition, setGraphPosition, setCanvasPosition, connectingIds, setConnectingIds } =
+    useGraph();
   const { draggedBlockType, setDraggedBlockType } = useBlockDnd();
 
   const isDraggingGraph = useSelectionStore((s) => s.isDraggingGraph);
@@ -36,115 +37,140 @@ export function Graph({ flow, onFlowChange, containerRef }: Props) {
 
   const canvasRef = useRef<HTMLDivElement>(null);
 
-  // ── Seed all group coordinates once on mount ─────────────────────────────
+  // Seed all group coordinates once on mount (Typebot pattern)
   useEffect(() => {
     const coords: Record<string, Coordinates> = {};
-    flow.groups.forEach((g) => { coords[g.id] = g.graphCoordinates; });
+    flow.groups.forEach((g) => {
+      coords[g.id] = g.graphCoordinates;
+    });
     setElementsCoordinates(coords);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ── Update absolute canvas position for endpoint Y calculations ──────────
+  // Update absolute canvas position for endpoint Y calculations
   useEffect(() => {
-    const updateAbsolute = () => {
-      if (!canvasRef.current) return;
-      const rect = canvasRef.current.getBoundingClientRect();
-      setCanvasPosition({
-        x: rect.left + graphPosition.x,
-        y: rect.top + graphPosition.y,
-        scale: graphPosition.scale,
-      });
-    };
-    updateAbsolute();
-    window.addEventListener('resize', updateAbsolute);
-    return () => window.removeEventListener('resize', updateAbsolute);
+    if (!canvasRef.current) return;
+    const rect = canvasRef.current.getBoundingClientRect();
+    setCanvasPosition({
+      x: rect.left + graphPosition.x,
+      y: rect.top + graphPosition.y,
+      scale: graphPosition.scale,
+    });
   }, [graphPosition, setCanvasPosition]);
 
-  /* Project screen coords → canvas coords */
-  const projectMouse = useCallback((clientX: number, clientY: number) => {
-    if (!canvasRef.current) return { x: 0, y: 0 };
-    const rect = canvasRef.current.getBoundingClientRect();
-    return {
-      x: (clientX - rect.left - graphPosition.x) / graphPosition.scale,
-      y: (clientY - rect.top - graphPosition.y) / graphPosition.scale,
-    };
-  }, [graphPosition]);
-
-  /* Handle group position updates */
-  const handleGroupUpdate = useCallback((id: string, changes: Partial<Group>) => {
-    onFlowChange({
-      groups: flow.groups.map((g) => (g.id === id ? { ...g, ...changes } : g)),
-    });
-  }, [flow.groups, onFlowChange]);
-
-  /* Handle group block reordering / drag-drop */
-  const handleGroupBlocksChange = useCallback((groupId: string, blocks: Group['blocks']) => {
-    onFlowChange({
-      groups: flow.groups.map((g) => (g.id === groupId ? { ...g, blocks } : g)),
-    });
-  }, [flow.groups, onFlowChange]);
-
-  /* Handle edge deletion */
-  const handleEdgeDelete = useCallback((edgeId: string) => {
-    onFlowChange({ edges: flow.edges.filter((e) => e.id !== edgeId) });
-  }, [flow.edges, onFlowChange]);
-
-  /* Handle edge creation from DrawingEdge mouseup */
-  const handleMouseUp = useCallback((e: React.MouseEvent) => {
-    // Create edge if connecting
-    if (connectingIds?.target?.groupId) {
-      const newEdge = {
-        id: createId(),
-        from: {
-          groupId: connectingIds.source.groupId,
-          ...(connectingIds.source.blockId ? { blockId: connectingIds.source.blockId } : {}),
-        },
-        to: {
-          groupId: connectingIds.target.groupId,
-          ...(connectingIds.target.blockId ? { blockId: connectingIds.target.blockId } : {}),
-        },
+  // Project screen coords → canvas coords
+  const projectMouse = useCallback(
+    (clientX: number, clientY: number): Coordinates => {
+      if (!canvasRef.current) return { x: 0, y: 0 };
+      const rect = canvasRef.current.getBoundingClientRect();
+      return {
+        x: (clientX - rect.left - graphPosition.x) / graphPosition.scale,
+        y: (clientY - rect.top - graphPosition.y) / graphPosition.scale,
       };
-      // Replace existing edge from same source block if any
-      const existingIdx = connectingIds.source.blockId
-        ? flow.edges.findIndex((ed) => ed.from.blockId === connectingIds.source.blockId)
-        : -1;
-      const newEdges = existingIdx >= 0
-        ? flow.edges.map((ed, i) => (i === existingIdx ? newEdge : ed))
-        : [...flow.edges, newEdge];
-      onFlowChange({ edges: newEdges });
-      setConnectingIds(null);
-      return;
-    }
+    },
+    [graphPosition],
+  );
 
-    // Drop new block from sidebar onto canvas
-    if (draggedBlockType) {
-      const pos = projectMouse(e.clientX, e.clientY);
-      const newGroupId = createId();
-      const newBlockId = createId();
-      const coords = { x: pos.x - 150, y: pos.y - 30 };
-      const newGroup: Group = {
-        id: newGroupId,
-        title: 'Group',
-        graphCoordinates: coords,
-        blocks: [{
-          id: newBlockId,
-          type: draggedBlockType,
-          groupId: newGroupId,
-          options: {},
-        }],
-      };
-      updateElementCoordinates(newGroupId, coords);
-      onFlowChange({ groups: [...flow.groups, newGroup] });
-      setDraggedBlockType(undefined);
-    }
-  }, [connectingIds, draggedBlockType, projectMouse, flow.groups, flow.edges, onFlowChange, setDraggedBlockType, updateElementCoordinates, setConnectingIds]);
+  // Handle group position/title updates
+  const handleGroupUpdate = useCallback(
+    (id: string, changes: Partial<Group>) => {
+      onFlowChange({
+        groups: flow.groups.map((g) => (g.id === id ? { ...g, ...changes } : g)),
+      });
+    },
+    [flow.groups, onFlowChange],
+  );
 
-  /* Canvas pan + zoom gestures */
+  // Handle block reordering within a group
+  const handleGroupBlocksChange = useCallback(
+    (groupId: string, blocks: Group['blocks']) => {
+      onFlowChange({
+        groups: flow.groups.map((g) => (g.id === groupId ? { ...g, blocks } : g)),
+      });
+    },
+    [flow.groups, onFlowChange],
+  );
+
+  // Handle edge deletion
+  const handleEdgeDelete = useCallback(
+    (edgeId: string) => {
+      onFlowChange({ edges: flow.edges.filter((e) => e.id !== edgeId) });
+    },
+    [flow.edges, onFlowChange],
+  );
+
+  // Handle edge creation from DrawingEdge mouseup, or drop new block from sidebar
+  const handleMouseUp = useCallback(
+    (e: React.MouseEvent) => {
+      if (connectingIds?.target?.groupId) {
+        const newEdge = {
+          id: createId(),
+          from: {
+            groupId: connectingIds.source.groupId,
+            ...(connectingIds.source.blockId ? { blockId: connectingIds.source.blockId } : {}),
+          },
+          to: {
+            groupId: connectingIds.target.groupId,
+            ...(connectingIds.target.blockId ? { blockId: connectingIds.target.blockId } : {}),
+          },
+        };
+        const existingIdx = connectingIds.source.blockId
+          ? flow.edges.findIndex((ed) => ed.from.blockId === connectingIds.source.blockId)
+          : -1;
+        const newEdges =
+          existingIdx >= 0
+            ? flow.edges.map((ed, i) => (i === existingIdx ? newEdge : ed))
+            : [...flow.edges, newEdge];
+        onFlowChange({ edges: newEdges });
+        setConnectingIds(null);
+        return;
+      }
+
+      if (draggedBlockType) {
+        const pos = projectMouse(e.clientX, e.clientY);
+        const newGroupId = createId();
+        const newBlockId = createId();
+        const coords = { x: pos.x - 150, y: pos.y - 30 };
+        const newGroup: Group = {
+          id: newGroupId,
+          title: 'Group',
+          graphCoordinates: coords,
+          blocks: [
+            {
+              id: newBlockId,
+              type: draggedBlockType,
+              groupId: newGroupId,
+              options: {},
+            },
+          ],
+        };
+        updateElementCoordinates(newGroupId, coords);
+        onFlowChange({ groups: [...flow.groups, newGroup] });
+        setDraggedBlockType(undefined);
+      }
+    },
+    [
+      connectingIds,
+      draggedBlockType,
+      projectMouse,
+      flow.groups,
+      flow.edges,
+      onFlowChange,
+      setDraggedBlockType,
+      updateElementCoordinates,
+      setConnectingIds,
+    ],
+  );
+
+  // Canvas pan + zoom gestures
   useGesture(
     {
       onDrag: ({ delta: [dx, dy], first, last }) => {
         if (first) setIsDraggingGraph(true);
-        if (last) { setIsDraggingGraph(false); return; }
+        if (last) {
+          setIsDraggingGraph(false);
+          return;
+        }
         setGraphPosition((pos) => ({ ...pos, x: pos.x + dx, y: pos.y + dy }));
       },
       onWheel: ({ delta: [, dy], event }) => {
@@ -181,9 +207,10 @@ export function Graph({ flow, onFlowChange, containerRef }: Props) {
 
   const handleZoom = (direction: 'in' | 'out') => {
     setGraphPosition((pos) => {
-      const newScale = direction === 'in'
-        ? Math.min(maxScale, pos.scale + zoomStep)
-        : Math.max(minScale, pos.scale - zoomStep);
+      const newScale =
+        direction === 'in'
+          ? Math.min(maxScale, pos.scale + zoomStep)
+          : Math.max(minScale, pos.scale - zoomStep);
       return { ...pos, scale: newScale };
     });
   };
@@ -193,11 +220,7 @@ export function Graph({ flow, onFlowChange, containerRef }: Props) {
       ref={canvasRef}
       className={cn(
         'relative flex-1 overflow-hidden',
-        draggedBlockType
-          ? 'cursor-crosshair'
-          : isDraggingGraph
-          ? 'cursor-grabbing'
-          : 'cursor-default',
+        draggedBlockType ? 'cursor-crosshair' : isDraggingGraph ? 'cursor-grabbing' : 'cursor-default',
       )}
       style={{
         touchAction: 'none',
@@ -234,13 +257,17 @@ export function Graph({ flow, onFlowChange, containerRef }: Props) {
           onClick={() => handleZoom('in')}
           className="flex h-7 w-7 items-center justify-center rounded text-[var(--gray-11)] hover:bg-[var(--gray-3)] transition-colors font-medium text-base"
           title="Zoom in"
-        >+</button>
+        >
+          +
+        </button>
         <div className="w-px bg-[var(--gray-5)] self-stretch" />
         <button
           onClick={() => handleZoom('out')}
           className="flex h-7 w-7 items-center justify-center rounded text-[var(--gray-11)] hover:bg-[var(--gray-3)] transition-colors font-medium text-base"
           title="Zoom out"
-        >−</button>
+        >
+          −
+        </button>
         <div className="w-px bg-[var(--gray-5)] self-stretch" />
         <button
           onClick={() => setGraphPosition({ x: 0, y: 0, scale: 1 })}

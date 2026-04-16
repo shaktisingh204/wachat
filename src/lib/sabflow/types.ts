@@ -164,3 +164,40 @@ export type SabFlowDoc = {
 /* ── Draggable state ──────────────────────────────────── */
 export type DraggedBlock = Block & { groupId: string };
 export type DraggedItem = BlockItem & { type: BlockType; blockId: string };
+
+/* ── Runtime / Execution types ────────────────────────── */
+
+/** A message the flow engine sends out to the user (bubble output). */
+export type OutgoingMessage =
+  | { type: 'text';  content: string }
+  | { type: 'image'; url: string; alt?: string }
+  | { type: 'video'; url: string }
+  | { type: 'audio'; url: string }
+  | { type: 'embed'; url: string };
+
+/** A pending input request waiting for the user's reply. */
+export type InputRequest = {
+  blockId: string;
+  inputType: InputBlockType;
+  /** Variable name to store the answer into */
+  variableName?: string;
+  /** For choice / picture_choice inputs */
+  choices?: { id: string; label: string; imageUrl?: string }[];
+  /** Validation hints forwarded to the client */
+  validation?: Record<string, unknown>;
+};
+
+/** Status of a single flow execution session. */
+export type SessionState = {
+  sessionId: string;
+  flowId: string;
+  /** Resolved variable map (variable id → current value) */
+  variables: Record<string, string>;
+  /** Current position in the flow graph */
+  currentGroupId: string | null;
+  currentBlockIndex: number;
+  isCompleted: boolean;
+  /** ISO timestamp */
+  createdAt: string;
+  updatedAt: string;
+};
