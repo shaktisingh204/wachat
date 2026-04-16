@@ -6,7 +6,7 @@
     "dev": "next dev -p 3002",
     "genkit:dev": "genkit start -- tsx src/ai/dev.ts",
     "genkit:watch": "genkit start -- tsx --watch src/ai/dev.ts",
-    "build": "next build",
+    "build": "next build --turbo",
     "start": "pm2 start ecosystem.config.js",
     "start:pm2": "npm run build && npm run start",
     "stop:pm2": "pm2 stop all && pm2 delete all",
@@ -135,7 +135,7 @@
     "zustand": "^5.0.12"
   },
   "devDependencies": {
-    "@next/bundle-analyzer": "^16.2.3",
+    "@next/bundle-analyzer": "^16.2.4",
     "@tailwindcss/postcss": "^4.2.2",
     "@types/bcryptjs": "^2.4.6",
     "@types/form-data": "^2.5.0",
