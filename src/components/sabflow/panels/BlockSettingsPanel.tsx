@@ -40,6 +40,13 @@ import { SegmentSettings } from '@/components/sabflow/panels/blocks/integrations
 import { PixelSettings } from '@/components/sabflow/panels/blocks/integrations/PixelSettings';
 import { ChoiceInputSettings } from '@/components/sabflow/panels/blocks/ChoiceInputSettings';
 import { PictureChoiceSettings } from '@/components/sabflow/panels/blocks/PictureChoiceSettings';
+import { MergeSettings } from '@/components/sabflow/panels/blocks/logic/MergeSettings';
+import { LoopSettings } from '@/components/sabflow/panels/blocks/logic/LoopSettings';
+import { SwitchSettings } from '@/components/sabflow/panels/blocks/logic/SwitchSettings';
+import { FilterSettings } from '@/components/sabflow/panels/blocks/logic/FilterSettings';
+import { SortSettings } from '@/components/sabflow/panels/blocks/logic/SortSettings';
+import { TestNodePanel } from '@/components/sabflow/panels/blocks/shared/TestNodePanel';
+import { NodeStatusBadge } from '@/components/sabflow/inspector/NodeStatusBadge';
 
 /* ── Props ───────────────────────────────────────────────────────────────── */
 
@@ -106,17 +113,20 @@ export function BlockSettingsPanel({ flow, onFlowChange, onVariablesChange }: Pr
         {/* ── Body (scrollable) ───────────────────────────────── */}
         <div className="flex-1 overflow-y-auto p-4">
           {openedBlock && (
-            <BlockSettingsBody
-              block={openedBlock}
-              variableNames={variableNames}
-              variables={variables}
-              onUpdate={handleBlockUpdate}
-              onCreateVariable={
-                onVariablesChange
-                  ? (v) => onVariablesChange([...flow.variables, v])
-                  : undefined
-              }
-            />
+            <>
+              <BlockSettingsBody
+                block={openedBlock}
+                variableNames={variableNames}
+                variables={variables}
+                onUpdate={handleBlockUpdate}
+                onCreateVariable={
+                  onVariablesChange
+                    ? (v) => onVariablesChange([...flow.variables, v])
+                    : undefined
+                }
+              />
+              <TestNodePanel block={openedBlock} flow={flow} />
+            </>
           )}
         </div>
       </div>
@@ -153,6 +163,9 @@ function PanelHeader({
       <span className="flex-1 text-[13px] font-semibold text-[var(--gray-12)] truncate">
         {label}
       </span>
+
+      {/* Live status badge (hidden when idle) */}
+      {block && <NodeStatusBadge nodeId={block.id} size="sm" />}
 
       {/* Close button — back arrow (slides panel away) */}
       <button
@@ -352,6 +365,26 @@ function BlockSettingsBody({ block, variables, variableNames, onUpdate, onCreate
         </Field>
       </div>
     );
+  }
+
+  if (block.type === 'merge') {
+    return <MergeSettings block={block} onUpdate={onUpdate} />;
+  }
+
+  if (block.type === 'loop') {
+    return <LoopSettings block={block} onUpdate={onUpdate} variables={variableNames} />;
+  }
+
+  if (block.type === 'switch') {
+    return <SwitchSettings block={block} onUpdate={onUpdate} variables={variableNames} />;
+  }
+
+  if (block.type === 'filter') {
+    return <FilterSettings block={block} onUpdate={onUpdate} variables={variableNames} />;
+  }
+
+  if (block.type === 'sort') {
+    return <SortSettings block={block} onUpdate={onUpdate} variables={variableNames} />;
   }
 
   /* ── Integrations ──────────────────────────────────── */

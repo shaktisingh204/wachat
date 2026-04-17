@@ -49,6 +49,11 @@ import {
   LuVolume2,
   LuBrain,
   LuCpu,
+  LuRepeat,
+  LuGitMerge,
+  LuSplit,
+  LuFilter,
+  LuArrowDownWideNarrow,
 } from 'react-icons/lu';
 
 import type { BlockCategory, BlockType } from '@/lib/sabflow/types';
@@ -272,6 +277,46 @@ export const blockRegistry: BlockRegistryEntry[] = [
     category: 'logic',
     description: 'Split traffic for A/B testing',
     color: '#f59e0b',
+  },
+  {
+    type: 'loop',
+    label: 'Loop',
+    icon: LuRepeat as IconComponent,
+    category: 'logic',
+    description: 'Iterate over an array of items',
+    color: '#eab308',
+  },
+  {
+    type: 'merge',
+    label: 'Merge',
+    icon: LuGitMerge as IconComponent,
+    category: 'logic',
+    description: 'Merge multiple branches into one',
+    color: '#facc15',
+  },
+  {
+    type: 'switch',
+    label: 'Switch',
+    icon: LuSplit as IconComponent,
+    category: 'logic',
+    description: 'Route to one of many branches by value',
+    color: '#fde047',
+  },
+  {
+    type: 'filter',
+    label: 'Filter',
+    icon: LuFilter as IconComponent,
+    category: 'logic',
+    description: 'Keep items matching a condition',
+    color: '#fcd34d',
+  },
+  {
+    type: 'sort',
+    label: 'Sort',
+    icon: LuArrowDownWideNarrow as IconComponent,
+    category: 'logic',
+    description: 'Sort an array by a field',
+    color: '#fbbf24',
   },
 
   // ── Integrations ──────────────────────────────────────────

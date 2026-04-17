@@ -40,6 +40,14 @@ import {
   LuBrain,
   LuCpu,
   LuLayers,
+  LuRepeat,
+  LuGitMerge,
+  LuSplit,
+  LuFilter,
+  LuArrowDownWideNarrow,
+  LuPackage,
+  LuWorkflow,
+  LuMessageCircleReply,
 } from 'react-icons/lu';
 import type { Block, BlockType } from '@/lib/sabflow/types';
 import { WithVariableContent } from './WithVariableContent';
@@ -78,6 +86,22 @@ const BLOCK_ICONS: Record<BlockType, IconComponent> = {
   wait:                 LuTimer,
   jump:                 LuShuffle,
   ab_test:              LuFlaskConical,
+  merge:                LuGitMerge,
+  loop:                 LuRepeat,
+  switch:               LuSplit,
+  filter:               LuFilter,
+  sort:                 LuArrowDownWideNarrow,
+  set:                  LuVariable,
+  execute_workflow:     LuWorkflow,
+  respond_to_webhook:   LuMessageCircleReply,
+  // Forge integrations
+  forge_notion:         LuPackage,
+  forge_airtable:       LuPackage,
+  forge_slack:          LuPackage,
+  forge_discord:        LuPackage,
+  forge_github:         LuPackage,
+  forge_twilio:         LuPackage,
+  forge_sendgrid:       LuPackage,
   // Integrations
   webhook:              LuGlobe,
   send_email:           LuSend,
@@ -108,6 +132,7 @@ const INPUT_TYPES = new Set<BlockType>([
 ]);
 const LOGIC_TYPES = new Set<BlockType>([
   'condition', 'set_variable', 'redirect', 'script', 'typebot_link', 'wait', 'jump', 'ab_test',
+  'merge', 'loop', 'switch', 'filter', 'sort', 'set', 'execute_workflow', 'respond_to_webhook',
 ]);
 
 /* ── label map ───────────────────────────────────────────────────────────── */
@@ -125,6 +150,11 @@ const BLOCK_LABELS: Record<BlockType, string> = {
   make_com: 'Make', pabbly_connect: 'Pabbly', chatwoot: 'Chatwoot', pixel: 'Pixel',
   segment: 'Segment', cal_com: 'Cal.com', nocodb: 'NocoDB', elevenlabs: 'ElevenLabs',
   anthropic: 'Anthropic', together_ai: 'Together AI', mistral: 'Mistral AI',
+  merge: 'Merge', loop: 'Loop', switch: 'Switch', filter: 'Filter', sort: 'Sort',
+  set: 'Set Variable', execute_workflow: 'Execute Workflow', respond_to_webhook: 'Respond',
+  forge_notion: 'Notion', forge_airtable: 'Airtable', forge_slack: 'Slack',
+  forge_discord: 'Discord', forge_github: 'GitHub', forge_twilio: 'Twilio',
+  forge_sendgrid: 'SendGrid',
 };
 
 /* ── BlockNodeContent ────────────────────────────────────────────────────── */

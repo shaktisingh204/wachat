@@ -124,12 +124,12 @@ function TabButton({ label, active, accent = 'default', onClick }: TabButtonProp
 /* ── Main panel ─────────────────────────────────────────────────── */
 
 function NodeDataInspectorImpl({ nodeId, onClose, block, group }: Props) {
-  const nodeEntry = useNodeDataStore((s) => s.data.get(nodeId));
-  const pinnedOutput = useNodeDataStore((s) => s.pinnedData.get(nodeId));
+  const nodeEntry = useNodeDataStore((s) => s.entries[nodeId]);
+  const pinnedOutput = useNodeDataStore((s) => s.entries[nodeId]?.pinnedOutput);
   const pinData = useNodeDataStore((s) => s.pinData);
   const unpinData = useNodeDataStore((s) => s.unpinData);
 
-  const isPinned = useNodeDataStore((s) => s.pinnedData.has(nodeId));
+  const isPinned = useNodeDataStore((s) => s.entries[nodeId]?.pinnedOutput !== undefined);
 
   const [tab, setTab] = useState<TabKey>('output');
   const [filter, setFilter] = useState('');
@@ -145,15 +145,13 @@ function NodeDataInspectorImpl({ nodeId, onClose, block, group }: Props) {
   /* ── Derived values ─────────────────────────────────────────── */
 
   // When output is pinned, the pinned value takes precedence for display.
-  const effectiveOutput = isPinned ? pinnedOutput : nodeEntry?.output;
-  const input = nodeEntry?.input;
-  // Fall back to block.options if the engine hasn't run yet.
+  const effectiveOutput = isPinned ? pinnedOutput : nodeEntry?.lastOutput;
+  const input = nodeEntry?.lastInput;
+  // Fall back to block.options if the engine hasn't run yet — the store
+  // doesn't track per-block parameters separately any more.
   const parameters: Record<string, unknown> = useMemo(() => {
-    if (nodeEntry?.parameters && Object.keys(nodeEntry.parameters).length > 0) {
-      return nodeEntry.parameters;
-    }
     return (block?.options as Record<string, unknown> | undefined) ?? {};
-  }, [nodeEntry?.parameters, block?.options]);
+  }, [block?.options]);
 
   const errorMessage = nodeEntry?.error;
 
@@ -176,9 +174,9 @@ function NodeDataInspectorImpl({ nodeId, onClose, block, group }: Props) {
     if (isPinned) {
       unpinData(nodeId);
     } else {
-      pinData(nodeId, nodeEntry?.output);
+      pinData(nodeId, nodeEntry?.lastOutput);
     }
-  }, [isPinned, nodeId, nodeEntry?.output, pinData, unpinData]);
+  }, [isPinned, nodeId, nodeEntry?.lastOutput, pinData, unpinData]);
 
   const handleCopy = useCallback(() => {
     void writeToClipboard(safeStringify(displayedData));

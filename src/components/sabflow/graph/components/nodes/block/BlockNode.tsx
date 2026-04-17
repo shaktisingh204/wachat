@@ -11,6 +11,7 @@ import { BlockSourceEndpoint } from '../../endpoints/BlockSourceEndpoint';
 import { MultiSourceEndpoints } from '../../endpoints/MultiSourceEndpoints';
 import { TargetEndpoint } from '../../endpoints/TargetEndpoint';
 import { ItemNodesList } from '../item/ItemNodesList';
+import { NodeStatusBadge } from '@/components/sabflow/inspector/NodeStatusBadge';
 import { cn } from '@/lib/utils';
 
 const ITEM_BLOCK_TYPES: BlockType[] = ['choice_input', 'picture_choice_input', 'condition', 'ab_test'];
@@ -42,6 +43,7 @@ export function BlockNode({
   isConnectable,
   hasIncomingEdge,
   hasOutgoingEdge = false,
+  outgoingPinIds,
   onMouseDown,
   onBlockChange,
   onDuplicate,
@@ -130,6 +132,8 @@ export function BlockNode({
 
   const showTargetEndpoint = hasIncomingEdge || !!connectingIds;
   const supportsItems = (ITEM_BLOCK_TYPES as string[]).includes(block.type);
+  const effectivePins = getEffectivePins(block);
+  const hasMultiPins = !supportsItems && !!effectivePins && effectivePins.length > 1;
 
   // Ensure items array exists for supported block types
   const blockWithItems: Block = supportsItems && !block.items
@@ -162,6 +166,11 @@ export function BlockNode({
         </div>
       )}
 
+      {/* Execution status badge — top-left, hidden while idle */}
+      <div className="absolute -top-1.5 -left-1.5 z-10 pointer-events-none">
+        <NodeStatusBadge nodeId={block.id} size="xs" />
+      </div>
+
       <div
         className={cn(
           'flex gap-2 flex-1 p-3 rounded-lg items-start w-full text-left select-none transition-[border-color] cursor-pointer bg-[var(--gray-2)]',
@@ -182,13 +191,24 @@ export function BlockNode({
           />
         )}
 
-        {/* Source endpoint (right side) — only for blocks that don't manage items */}
-        {isConnectable && !supportsItems && (
+        {/* Source endpoint (right side) — single pin blocks */}
+        {isConnectable && !supportsItems && !hasMultiPins && (
           <BlockSourceEndpoint
             blockId={block.id}
             groupId={block.groupId}
             hasOutgoingEdge={hasOutgoingEdge}
             className="absolute right-[-34px] bottom-[10px]"
+          />
+        )}
+
+        {/* Multi-pin source endpoints — n8n-style output pins stacked on right */}
+        {isConnectable && hasMultiPins && effectivePins && (
+          <MultiSourceEndpoints
+            blockId={block.id}
+            groupId={block.groupId}
+            pins={effectivePins}
+            outgoingPinIds={outgoingPinIds}
+            className="absolute right-[-18px] top-1/2 -translate-y-1/2"
           />
         )}
       </div>

@@ -53,7 +53,15 @@ export function Edge({ edge, fromGroupId, onDelete, onInsertNode }: Props) {
   }, [edge.sourceHandle]);
 
   const sourceTop = useMemo(() => {
+    // For multi-pin blocks, MultiSourceEndpoints registers each pin under
+    // the composite key `${blockId}:${pinId}`. Fall back to plain blockId
+    // when the edge has no pinId (single-endpoint blocks).
+    const pinKey =
+      'blockId' in edge.from && edge.from.blockId && edge.from.pinId
+        ? `${edge.from.blockId}:${edge.from.pinId}`
+        : undefined;
     const endpointId =
+      pinKey ??
       edge.from.eventId ??
       ('itemId' in edge.from ? edge.from.itemId : undefined) ??
       ('blockId' in edge.from ? edge.from.blockId : undefined);

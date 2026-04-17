@@ -283,7 +283,11 @@ export function Graph({ flow, onFlowChange, containerRef, onUndo, onRedo }: Prop
         const fromSource = current.source.eventId
           ? { eventId: current.source.eventId }
           : current.source.blockId
-            ? { groupId: current.source.groupId!, blockId: current.source.blockId }
+            ? {
+                groupId: current.source.groupId!,
+                blockId: current.source.blockId,
+                ...(current.source.pinId ? { pinId: current.source.pinId } : {}),
+              }
             : { groupId: current.source.groupId! };
 
         const newEdge = {
@@ -294,13 +298,22 @@ export function Graph({ flow, onFlowChange, containerRef, onUndo, onRedo }: Prop
             : { groupId: current.target.groupId },
         };
 
-        // Replace existing edge from the same source (only for block sources)
+        // Replace existing edge from the same source. For multi-pin blocks
+        // we match on (blockId, pinId) so each pin keeps its own edge.
         const existingIdx = current.source.eventId
           ? flow.edges.findIndex(
               (ed) => 'eventId' in ed.from && ed.from.eventId === current.source.eventId,
             )
           : current.source.blockId
-            ? flow.edges.findIndex((ed) => ed.from.blockId === current.source.blockId)
+            ? current.source.pinId
+              ? flow.edges.findIndex(
+                  (ed) =>
+                    ed.from.blockId === current.source.blockId &&
+                    ed.from.pinId === current.source.pinId,
+                )
+              : flow.edges.findIndex(
+                  (ed) => ed.from.blockId === current.source.blockId && !ed.from.pinId,
+                )
             : -1;
 
         const newEdges =

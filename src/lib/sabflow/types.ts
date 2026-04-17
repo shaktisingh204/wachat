@@ -7,8 +7,8 @@ export type GraphPosition = Coordinates & { scale: number };
 /* ── Connecting IDs (edge dragging) ───────────────────── */
 export type ConnectingIds = {
   source:
-    | { eventId: string; groupId?: undefined; blockId?: undefined; itemId?: undefined }
-    | { groupId: string; blockId?: string; itemId?: string; eventId?: undefined };
+    | { eventId: string; groupId?: undefined; blockId?: undefined; itemId?: undefined; pinId?: undefined }
+    | { groupId: string; blockId?: string; itemId?: string; pinId?: string; eventId?: undefined };
   target?: {
     groupId?: string;
     blockId?: string;
@@ -833,6 +833,10 @@ export type BlockOptions = (
   | ScriptOptions
   | WaitOptions
   | MergeOptions
+  | LoopOptions
+  | SwitchOptions
+  | FilterOptions
+  | SortOptions
   | WebhookOptions
   | SendEmailOptions
   | GoogleSheetsOptions
@@ -903,6 +907,10 @@ export type TypedBlock =
   | { id: string; groupId: string; type: 'jump';               outgoingEdgeId?: string; items?: BlockItem[]; options?: JumpOptions         }
   | { id: string; groupId: string; type: 'ab_test';            outgoingEdgeId?: string; items?: ABTestItem[]; options?: ABTestOptions      }
   | { id: string; groupId: string; type: 'merge';              outgoingEdgeId?: string; items?: BlockItem[]; options?: MergeOptions       }
+  | { id: string; groupId: string; type: 'loop';               outgoingEdgeId?: string; items?: BlockItem[]; options?: LoopOptions        }
+  | { id: string; groupId: string; type: 'switch';             outgoingEdgeId?: string; items?: BlockItem[]; options?: SwitchOptions      }
+  | { id: string; groupId: string; type: 'filter';             outgoingEdgeId?: string; items?: BlockItem[]; options?: FilterOptions      }
+  | { id: string; groupId: string; type: 'sort';               outgoingEdgeId?: string; items?: BlockItem[]; options?: SortOptions        }
   | { id: string; groupId: string; type: 'webhook';            outgoingEdgeId?: string; items?: BlockItem[]; options?: WebhookOptions      }
   | { id: string; groupId: string; type: 'send_email';         outgoingEdgeId?: string; items?: BlockItem[]; options?: SendEmailOptions    }
   | { id: string; groupId: string; type: 'google_sheets';      outgoingEdgeId?: string; items?: BlockItem[]; options?: GoogleSheetsOptions }
@@ -1025,12 +1033,19 @@ export type NodePort = {
 /** Status of an edge — drives colour / animation in the edge renderer. */
 export type EdgeStatus = 'idle' | 'success' | 'error' | 'pinned' | 'running';
 
+/* ── Output pins (legacy multi-output system) ─────────── */
+export type OutputPin = {
+  id: string;
+  label: string;
+  color?: string;
+};
+
 /* ── Edge ─────────────────────────────────────────────── */
 export type EdgeFrom =
-  | { eventId: string; groupId?: undefined; blockId?: undefined; itemId?: undefined }
-  | { groupId: string; blockId?: undefined; itemId?: undefined; eventId?: undefined }
-  | { groupId: string; blockId: string; itemId?: undefined; eventId?: undefined }
-  | { groupId: string; blockId: string; itemId: string; eventId?: undefined };
+  | { eventId: string; groupId?: undefined; blockId?: undefined; itemId?: undefined; pinId?: undefined }
+  | { groupId: string; blockId?: undefined; itemId?: undefined; pinId?: undefined; eventId?: undefined }
+  | { groupId: string; blockId: string; itemId?: undefined; pinId?: string; eventId?: undefined }
+  | { groupId: string; blockId: string; itemId: string; pinId?: undefined; eventId?: undefined };
 
 export type EdgeTo = {
   groupId: string;
@@ -1344,6 +1359,44 @@ export type LoopOptions = {
   maxIterations?: number;
   mode?: 'sequential' | 'parallel';
   concurrency?: number;
+};
+
+/* ── Switch / Filter / Sort block options ────────────── */
+
+export type SwitchCase = {
+  id: string;
+  /** Pin id this case routes to, e.g. "case_1" or a user-defined id. */
+  pinId: string;
+  /** Human label displayed next to the pin. */
+  label?: string;
+  /** Comparison operator. */
+  operator?: 'equals' | 'notEquals' | 'contains' | 'greaterThan' | 'lessThan';
+  /** Raw value or expression to compare against. */
+  value?: string;
+};
+
+export type SwitchOptions = {
+  /** Expression or variable that feeds the comparison. */
+  expression?: string;
+  cases?: SwitchCase[];
+  /** Fallback pin id when no case matches — defaults to "default". */
+  defaultPinId?: string;
+};
+
+export type FilterOptions = {
+  /** Expression / variable holding the array to filter. */
+  arrayPath?: string;
+  /** Expression evaluated for each item — truthy → pass, falsy → fail. */
+  condition?: string;
+};
+
+export type SortOptions = {
+  /** Expression / variable holding the array to sort. */
+  arrayPath?: string;
+  /** Field to sort by — supports dot-paths like `user.name`. */
+  sortBy?: string;
+  /** Sort direction. */
+  direction?: 'asc' | 'desc';
 };
 
 /* ── Respond to Webhook options ──────────────────────── */

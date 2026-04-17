@@ -18,6 +18,10 @@ export const PIN_COLORS = {
   error: '#ef4444',
   pathA: '#3b82f6',
   pathB: '#f59e0b',
+  loop: '#8b5cf6',
+  done: '#10b981',
+  pass: '#10b981',
+  fail: '#ef4444',
 } as const;
 
 /**
@@ -67,6 +71,29 @@ export function getDefaultPins(blockType: BlockType): OutputPin[] | null {
     ];
   }
 
+  if (blockType === 'loop') {
+    return [
+      { id: 'loop', label: 'Loop', color: PIN_COLORS.loop },
+      { id: 'done', label: 'Done', color: PIN_COLORS.done },
+      { id: 'error', label: 'Error', color: PIN_COLORS.error },
+    ];
+  }
+
+  if (blockType === 'filter') {
+    return [
+      { id: 'pass', label: 'Pass', color: PIN_COLORS.pass },
+      { id: 'fail', label: 'Fail', color: PIN_COLORS.fail },
+    ];
+  }
+
+  if (blockType === 'switch') {
+    return [
+      { id: 'case_1', label: 'Case 1', color: PIN_COLORS.pathA },
+      { id: 'case_2', label: 'Case 2', color: PIN_COLORS.pathB },
+      { id: 'default', label: 'Default', color: '#9ca3af' },
+    ];
+  }
+
   return null;
 }
 
@@ -77,7 +104,8 @@ export function getDefaultPins(blockType: BlockType): OutputPin[] | null {
  *   - returns `null` for blocks with a single output endpoint
  */
 export function getEffectivePins(block: Block): OutputPin[] | null {
-  if (block.outputPins && block.outputPins.length > 0) return block.outputPins;
+  const custom = (block as { outputPins?: OutputPin[] }).outputPins;
+  if (custom && custom.length > 0) return custom;
   return getDefaultPins(block.type);
 }
 

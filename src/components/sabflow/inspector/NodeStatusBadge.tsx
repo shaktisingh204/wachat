@@ -112,7 +112,7 @@ function NodeStatusBadgeImpl({
   className,
 }: Props) {
   // Fine-grained subscription — only re-renders when this node's status flips.
-  const status = useNodeDataStore((s) => s.data.get(nodeId)?.status ?? 'idle');
+  const status = useNodeDataStore((s) => s.entries[nodeId]?.status ?? 'idle');
 
   if (status === 'idle' && !showIdle) return null;
 
