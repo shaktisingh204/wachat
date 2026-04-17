@@ -1,16 +1,43 @@
-import type { SabFlowDoc, Group, EdgeFrom, MergeOptions } from '@/lib/sabflow/types';
+import type { SabFlowDoc, Group, EdgeFrom, ScriptOptions } from '@/lib/sabflow/types';
 import type { FlowSession, ChatMessage, ExecutionStep } from './types';
 import {
   evaluateCondition,
   substituteVariables,
 } from '@/lib/sabflow/engine';
 import type { Condition } from '@/lib/sabflow/engine';
-import { executeMerge } from './mergeNode';
+import { runScript } from './sandbox';
+import type { SandboxContext, SandboxLogEntry } from './sandbox';
 
 // ── helpers ────────────────────────────────────────────────────────────────
 
 function makeId(): string {
   return crypto.randomUUID();
+}
+
+/** Convert any sandbox return value to the string shape used by the engine's variable map. */
+function toStringValue(value: unknown): string {
+  if (value === undefined || value === null) return '';
+  if (typeof value === 'string') return value;
+  if (typeof value === 'number' || typeof value === 'boolean' || typeof value === 'bigint') {
+    return String(value);
+  }
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return '';
+  }
+}
+
+/** Stringify an arbitrary console argument for human-readable log lines. */
+function formatArg(value: unknown): string {
+  if (typeof value === 'string') return value;
+  if (value === undefined) return 'undefined';
+  if (value === null) return 'null';
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return String(value);
+  }
 }
 
 /** Resolve the first group connected from the start event, or the first group. */
@@ -90,13 +117,14 @@ const INPUT_TYPES = new Set([
  * Processes user input against the current session position and advances
  * the flow until the next input request, a redirect, or completion.
  *
- * Pure — no DB, no side effects.
+ * Nearly pure — no DB writes. Script blocks execute user code inside the
+ * sandbox module (which itself is side-effect-free unless fetch is enabled).
  */
-export function processInput(
+export async function processInput(
   session: FlowSession,
   flow: SabFlowDoc,
   input: string,
-): { session: FlowSession; nextSteps: ExecutionStep[] } {
+): Promise<{ session: FlowSession; nextSteps: ExecutionStep[] }> {
   const nextSteps: ExecutionStep[] = [];
   const newMessages: ChatMessage[] = [...session.messages];
 
@@ -206,10 +234,6 @@ export function processInput(
               label: item.content ?? '',
             })),
             validation: block.options?.validation as Record<string, unknown> | undefined,
-            // Forward the full block options so the client can render
-            // configuration-rich inputs (e.g. payment buttons) without having
-            // to re-fetch the flow.  Kept as unknown to avoid leaking types.
-            options: block.options,
           },
         });
 
@@ -322,7 +346,97 @@ export function processInput(
         continue;
       }
 
-      // All other blocks (integration, script, wait, etc.) — skip gracefully
+      // ── script block ───────────────────────────────────────────────────
+      if (block.type === 'script') {
+        const scriptOpts = (block.options ?? {}) as ScriptOptions & {
+          code?: string;
+          outputVariable?: string;
+          timeoutMs?: number;
+          allowFetch?: boolean;
+          allowedDomains?: string[];
+          runOnClient?: boolean;
+        };
+
+        // Accept either the Typebot `content` field or SabFlow's `code`.
+        const source = (scriptOpts.code ?? scriptOpts.content ?? '').trim();
+        if (!source) continue;
+
+        // If the script is marked as client-side but we're running on the
+        // server (no window), we defer execution by emitting a placeholder
+        // step and letting the chat widget pick it up. Otherwise we run it
+        // right here inside the appropriate sandbox.
+        const runOnClient =
+          scriptOpts.isExecutedOnClient === true || scriptOpts.runOnClient === true;
+        const hasWindow = typeof window !== 'undefined';
+        if (runOnClient && !hasWindow) {
+          nextSteps.push({
+            type: 'script_executed',
+            payload: {
+              blockId: block.id,
+              deferred: true,
+              runOn: 'client',
+              code: source,
+              outputVariable: scriptOpts.outputVariable ?? null,
+              timeoutMs: scriptOpts.timeoutMs ?? 5000,
+            },
+          });
+          continue;
+        }
+
+        const collectedLogs: SandboxLogEntry[] = [];
+        const sandboxCtx: SandboxContext = {
+          variables: { ...variables },
+          setVariable: (name, value) => {
+            if (typeof name !== 'string' || !name) return;
+            variables = { ...variables, [name]: toStringValue(value) };
+          },
+          console: {
+            log: (...args) => {
+              collectedLogs.push({ level: 'log', message: args.map(formatArg).join(' ') });
+            },
+            error: (...args) => {
+              collectedLogs.push({ level: 'error', message: args.map(formatArg).join(' ') });
+            },
+          },
+        };
+
+        const result = await runScript(source, sandboxCtx, {
+          timeoutMs: typeof scriptOpts.timeoutMs === 'number' ? scriptOpts.timeoutMs : 5000,
+          allowFetch: scriptOpts.allowFetch === true,
+          allowedDomains: scriptOpts.allowedDomains ?? [],
+        });
+
+        // Merge any captured logs (sandbox also fills these but may have its own).
+        const allLogs = [...collectedLogs, ...result.logs];
+
+        // If the block has an outputVariable, stash the return value there.
+        if (result.success && scriptOpts.outputVariable) {
+          variables = {
+            ...variables,
+            [scriptOpts.outputVariable]: toStringValue(result.returnValue),
+          };
+          nextSteps.push({
+            type: 'variable_set',
+            payload: { key: scriptOpts.outputVariable, value: variables[scriptOpts.outputVariable] },
+          });
+        }
+
+        nextSteps.push({
+          type: 'script_executed',
+          payload: {
+            blockId: block.id,
+            success: result.success,
+            returnValue: result.returnValue,
+            variables: result.variables,
+            logs: allLogs,
+            error: result.error,
+            executionTimeMs: result.executionTimeMs,
+          },
+        });
+        continue;
+      }
+
+      // All other blocks (integration, wait, etc.) — skip gracefully
     }
 
     // All blocks in the group done. Follow the last block's outgoing edge.

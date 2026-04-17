@@ -1,11 +1,10 @@
-import { roundCorners } from 'svg-round-corners';
-import { pathRadius } from '../constants';
 import type { Coordinates } from '@/lib/sabflow/types';
-import { computeTwoSegments } from './segments';
 
 export const dropOffBoxDimensions = { width: 100, height: 48 };
 export const dropOffSegmentLength = 80;
 export const dropOffStubLength = 30;
+
+const RADIUS = 16;
 
 /**
  * Computes the SVG path for a "drop-off arc" that extends from the last source
@@ -20,18 +19,21 @@ export const computeDropOffPath = (
   sourcePosition: Coordinates,
   isLastBlock = false,
 ): string => {
-  const targetX =
-    sourcePosition.x +
-    (isLastBlock
-      ? dropOffStubLength + dropOffBoxDimensions.width / 2
-      : dropOffStubLength);
-  const targetY =
-    sourcePosition.y + (isLastBlock ? dropOffSegmentLength : 0);
+  const sx = sourcePosition.x;
+  const sy = sourcePosition.y;
 
-  const segments = computeTwoSegments(sourcePosition, { x: targetX, y: targetY });
+  if (isLastBlock) {
+    const targetX = sx + dropOffStubLength + dropOffBoxDimensions.width / 2;
+    const targetY = sy + dropOffSegmentLength;
+    const r = Math.min(RADIUS, Math.abs(targetX - sx) / 2, Math.abs(targetY - sy) / 2);
+    return [
+      `M ${sx},${sy}`,
+      `L ${targetX - r},${sy}`,
+      `Q ${targetX},${sy} ${targetX},${sy + r}`,
+      `L ${targetX},${targetY}`,
+    ].join(' ');
+  }
 
-  return roundCorners(
-    `M${sourcePosition.x},${sourcePosition.y} ${segments}`,
-    pathRadius,
-  ).path;
+  const targetX = sx + dropOffStubLength;
+  return `M ${sx},${sy} L ${targetX},${sy}`;
 };

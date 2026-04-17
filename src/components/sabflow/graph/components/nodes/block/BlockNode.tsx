@@ -1,12 +1,14 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Block, BlockType } from '@/lib/sabflow/types';
+import { getEffectivePins } from '@/lib/sabflow/pins';
 import { useGraph } from '@/components/sabflow/graph/providers/GraphProvider';
 import { useBlockDnd, useDragDistance } from '@/components/sabflow/graph/providers/GraphDndProvider';
 import { BlockNodeContent } from './BlockNodeContent';
 import { BlockNodeContextMenu } from './BlockNodeContextMenu';
 import { SettingsHoverBar } from './SettingsHoverBar';
 import { BlockSourceEndpoint } from '../../endpoints/BlockSourceEndpoint';
+import { MultiSourceEndpoints } from '../../endpoints/MultiSourceEndpoints';
 import { TargetEndpoint } from '../../endpoints/TargetEndpoint';
 import { ItemNodesList } from '../item/ItemNodesList';
 import { cn } from '@/lib/utils';
@@ -25,6 +27,8 @@ type Props = {
   hasIncomingEdge: boolean;
   /** True when this block already has an outgoing edge — shows a persistent dot on the source endpoint. */
   hasOutgoingEdge?: boolean;
+  /** When this block exposes multiple output pins, the set of pin ids that already have an edge. */
+  outgoingPinIds?: ReadonlySet<string>;
   onMouseDown?: (pos: NodePosition, block: Block) => void;
   onBlockChange?: (block: Block) => void;
   onDuplicate?: (block: Block) => void;

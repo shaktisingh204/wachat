@@ -1,7 +1,16 @@
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 import type { Collection } from 'mongodb';
-import type { SabFlowDoc, FlowNotificationSettings, RecentSubmissionRow } from './types';
+import type {
+  SabFlowDoc,
+  FlowNotificationSettings,
+  RecentSubmissionRow,
+  ExecutionHistoryEntry,
+  ExecutionHistoryFilter,
+  ExecutionHistoryNode,
+  ExecutionStatus,
+  ExecutionTriggerMode,
+} from './types';
 import type { FlowSession } from './execution/types';
 import type { WhatsAppConfig } from './whatsapp/types';
 
@@ -475,6 +484,140 @@ export async function saveWhatsAppConfig(config: WhatsAppConfig): Promise<void> 
     toSave,
     { upsert: true },
   );
+}
+
+/* ══════════════════════════════════════════════════════════
+   Execution history helpers
+   ══════════════════════════════════════════════════════════ */
+
+interface ExecutionHistoryDoc {
+  _id: ObjectId;
+  flowId: string;
+  sessionId: string;
+  triggerMode: ExecutionTriggerMode;
+  startedAt: Date;
+  finishedAt?: Date;
+  status: ExecutionStatus;
+  error?: string;
+  nodeCount: number;
+  executionTimeMs?: number;
+  variables?: Record<string, unknown>;
+  nodes?: ExecutionHistoryNode[];
+  inputData?: Record<string, unknown>;
+  startNodeId?: string;
+}
+
+async function getExecutionHistoryCollection(): Promise<Collection<ExecutionHistoryDoc>> {
+  const { db } = await connectToDatabase();
+  const col = db.collection<ExecutionHistoryDoc>('sabflow_executions');
+  await col.createIndex({ flowId: 1, startedAt: -1 }, { background: true });
+  await col.createIndex({ status: 1 }, { background: true });
+  return col;
+}
+
+function mapExecutionDoc(doc: ExecutionHistoryDoc): ExecutionHistoryEntry {
+  return {
+    id: doc._id.toHexString(),
+    flowId: doc.flowId,
+    sessionId: doc.sessionId,
+    triggerMode: doc.triggerMode,
+    startedAt: doc.startedAt,
+    finishedAt: doc.finishedAt,
+    status: doc.status,
+    error: doc.error,
+    nodeCount: doc.nodeCount,
+    executionTimeMs: doc.executionTimeMs,
+    variables: doc.variables,
+    nodes: doc.nodes,
+    inputData: doc.inputData,
+    startNodeId: doc.startNodeId,
+  };
+}
+
+/**
+ * Inserts a new execution-history row in `running` state.
+ * Returns the inserted entry with a generated `id` (hex ObjectId string).
+ */
+export async function createExecutionHistory(
+  entry: Omit<ExecutionHistoryEntry, 'id'>,
+): Promise<ExecutionHistoryEntry> {
+  const col = await getExecutionHistoryCollection();
+  const oid = new ObjectId();
+  const doc: ExecutionHistoryDoc = { _id: oid, ...entry };
+  await col.insertOne(doc);
+  return mapExecutionDoc(doc);
+}
+
+/**
+ * Patches an existing execution-history row. Silently no-ops for invalid ids.
+ */
+export async function updateExecutionHistory(
+  executionId: string,
+  patch: Partial<Omit<ExecutionHistoryEntry, 'id' | 'flowId'>>,
+): Promise<void> {
+  if (!ObjectId.isValid(executionId)) return;
+  const col = await getExecutionHistoryCollection();
+  await col.updateOne(
+    { _id: new ObjectId(executionId) },
+    { $set: patch as Partial<ExecutionHistoryDoc> },
+  );
+}
+
+/**
+ * Paginated execution history for a flow (newest first), with optional filters.
+ */
+export async function getExecutionHistory(
+  flowId: string,
+  limit = 50,
+  skip = 0,
+  filters: ExecutionHistoryFilter = {},
+): Promise<{ executions: ExecutionHistoryEntry[]; total: number }> {
+  const col = await getExecutionHistoryCollection();
+  const query: Record<string, unknown> = { flowId };
+  if (filters.status) query.status = filters.status;
+  if (filters.triggerMode) query.triggerMode = filters.triggerMode;
+  if (filters.from || filters.to) {
+    const range: Record<string, Date> = {};
+    if (filters.from) range.$gte = filters.from;
+    if (filters.to) range.$lte = filters.to;
+    query.startedAt = range;
+  }
+
+  const [docs, total] = await Promise.all([
+    col.find(query).sort({ startedAt: -1 }).skip(skip).limit(limit).toArray(),
+    col.countDocuments(query),
+  ]);
+
+  return { executions: docs.map(mapExecutionDoc), total };
+}
+
+/**
+ * Returns a full execution record (with node timeline) or null when missing.
+ */
+export async function getExecutionById(
+  executionId: string,
+): Promise<ExecutionHistoryEntry | null> {
+  if (!ObjectId.isValid(executionId)) return null;
+  const col = await getExecutionHistoryCollection();
+  const doc = await col.findOne({ _id: new ObjectId(executionId) });
+  return doc ? mapExecutionDoc(doc) : null;
+}
+
+/**
+ * Bulk delete by ids for the given flow. Returns the number of deleted rows.
+ */
+export async function deleteExecutionHistory(
+  flowId: string,
+  executionIds: string[],
+): Promise<number> {
+  if (executionIds.length === 0) return 0;
+  const col = await getExecutionHistoryCollection();
+  const oids = executionIds
+    .filter((id) => ObjectId.isValid(id))
+    .map((id) => new ObjectId(id));
+  if (oids.length === 0) return 0;
+  const res = await col.deleteMany({ flowId, _id: { $in: oids } });
+  return res.deletedCount ?? 0;
 }
 
 /**

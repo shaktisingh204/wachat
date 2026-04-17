@@ -9,7 +9,7 @@ import {
   type ReactNode,
   type SetStateAction,
 } from 'react';
-import type { ConnectingIds, Edge, GraphPosition } from '@/lib/sabflow/types';
+import type { ConnectingIds, Edge, GraphPosition, NodePort } from '@/lib/sabflow/types';
 
 /** Absolute screen position of the canvas origin.
  *  canvasPosition.x = canvasRect.left + transformX
@@ -20,6 +20,13 @@ import type { ConnectingIds, Edge, GraphPosition } from '@/lib/sabflow/types';
 export type CanvasPosition = { x: number; y: number; scale: number };
 
 type PreviewingBlock = { id: string; groupId: string };
+
+/** Info about the handle being dragged during a connection attempt. */
+export type ConnectingHandle = {
+  nodeId: string;
+  handleId: string;
+  port: NodePort;
+};
 
 interface GraphContextValue {
   /** Raw transform values applied to the canvas div's CSS transform. */
@@ -39,6 +46,9 @@ interface GraphContextValue {
   setPreviewingBlock: Dispatch<SetStateAction<PreviewingBlock | undefined>>;
   openedNodeId?: string;
   setOpenedNodeId: Dispatch<SetStateAction<string | undefined>>;
+  /** Handle currently being dragged for a new connection. */
+  connectingHandle: ConnectingHandle | null;
+  setConnectingHandle: Dispatch<SetStateAction<ConnectingHandle | null>>;
   isReadOnly: boolean;
 }
 
@@ -56,6 +66,8 @@ const GraphContext = createContext<GraphContextValue>({
   setPreviewingEdge: noop,
   setPreviewingBlock: noop,
   setOpenedNodeId: noop,
+  connectingHandle: null,
+  setConnectingHandle: noop,
   isReadOnly: false,
 });
 
@@ -85,6 +97,7 @@ export const GraphProvider = ({
   const [previewingEdge, setPreviewingEdge] = useState<Edge | undefined>();
   const [previewingBlock, setPreviewingBlock] = useState<PreviewingBlock | undefined>();
   const [openedNodeId, setOpenedNodeId] = useState<string | undefined>();
+  const [connectingHandle, setConnectingHandle] = useState<ConnectingHandle | null>(null);
 
   return (
     <GraphContext.Provider
@@ -102,6 +115,8 @@ export const GraphProvider = ({
         setPreviewingBlock,
         openedNodeId,
         setOpenedNodeId,
+        connectingHandle,
+        setConnectingHandle,
         isReadOnly,
       }}
     >

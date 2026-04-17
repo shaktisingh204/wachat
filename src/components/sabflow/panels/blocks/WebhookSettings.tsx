@@ -1,16 +1,15 @@
 'use client';
 
 import { useState } from 'react';
+import { createId } from '@paralleldrive/cuid2';
 import { LuWebhook, LuPlus, LuTrash2, LuBraces } from 'react-icons/lu';
-import type { Block, Variable } from '@/lib/sabflow/types';
+import type { Block, Variable, WebhookOptions, KVPair } from '@/lib/sabflow/types';
 import { cn } from '@/lib/utils';
 import { Field, inputClass, PanelHeader } from './shared/primitives';
 import { VariableSelect } from './shared/VariableSelect';
-import { VariableAutocompleteInput } from './shared/VariableAutocompleteInput';
 
 /* ── Types ──────────────────────────────────────────────────── */
-type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-type KVPair = { id: string; key: string; value: string };
+type HttpMethod = NonNullable<WebhookOptions['method']>;
 
 type Props = {
   block: Block;
@@ -20,7 +19,7 @@ type Props = {
 
 /* ── Helpers ────────────────────────────────────────────────── */
 function makeKV(): KVPair {
-  return { id: crypto.randomUUID(), key: '', value: '' };
+  return { id: createId(), key: '', value: '' };
 }
 
 function methodColor(method: HttpMethod): string {
@@ -36,16 +35,17 @@ function methodColor(method: HttpMethod): string {
 
 /* ── Main component ─────────────────────────────────────────── */
 export function WebhookSettings({ block, onBlockChange, variables = [] }: Props) {
-  const options = block.options ?? {};
+  const options = (block.options ?? {}) as WebhookOptions;
   const [activeTab, setActiveTab] = useState<'request' | 'response'>('request');
 
-  const url = typeof options.url === 'string' ? options.url : '';
-  const method: HttpMethod = (options.method as HttpMethod) ?? 'POST';
-  const headers: KVPair[] = Array.isArray(options.headers) ? (options.headers as KVPair[]) : [];
-  const body = typeof options.body === 'string' ? options.body : '{}';
+  const url: string = options.url ?? '';
+  const method: HttpMethod = options.method ?? 'POST';
+  const headers: KVPair[] = options.headers ?? [];
+  // body.content for backwards compat with the old string body field
+  const bodyContent: string = options.body?.content ?? '{}';
   const showBody = method !== 'GET';
 
-  const update = (patch: Record<string, unknown>) =>
+  const update = (patch: Partial<WebhookOptions>) =>
     onBlockChange({ ...block, options: { ...options, ...patch } });
 
   const updateHeaders = (updated: KVPair[]) => update({ headers: updated });
@@ -84,16 +84,13 @@ export function WebhookSettings({ block, onBlockChange, variables = [] }: Props)
           {/* URL */}
           <Field label="URL">
             <div className="relative flex items-center">
-              <div className="flex-1">
-                <VariableAutocompleteInput
-                  value={url}
-                  onChange={(v) => update({ url: v })}
-                  variables={variables}
-                  placeholder="https://api.example.com/endpoint or {{webhookUrl}}"
-                  aria-label="Request URL"
-                  className="pr-8"
-                />
-              </div>
+              <input
+                type="text"
+                value={url}
+                onChange={(e) => update({ url: e.target.value })}
+                placeholder="https://api.example.com/endpoint or {{webhookUrl}}"
+                className={cn(inputClass, 'pr-8')}
+              />
               <LuBraces
                 className="absolute right-2.5 h-3.5 w-3.5 text-[var(--gray-7)] pointer-events-none"
                 strokeWidth={1.8}
@@ -134,15 +131,13 @@ export function WebhookSettings({ block, onBlockChange, variables = [] }: Props)
                     placeholder="Header name"
                     className={cn(inputClass, 'flex-1')}
                   />
-                  <div className="flex-1">
-                    <VariableAutocompleteInput
-                      value={h.value}
-                      onChange={(v) => updateHeader(h.id, { value: v })}
-                      variables={variables}
-                      placeholder="Value"
-                      aria-label="Header value"
-                    />
-                  </div>
+                  <input
+                    type="text"
+                    value={h.value}
+                    onChange={(e) => updateHeader(h.id, { value: e.target.value })}
+                    placeholder="Value"
+                    className={cn(inputClass, 'flex-1')}
+                  />
                   <button
                     type="button"
                     onClick={() => removeHeader(h.id)}
@@ -173,16 +168,18 @@ export function WebhookSettings({ block, onBlockChange, variables = [] }: Props)
           {/* Body */}
           {showBody && (
             <Field label="Body (JSON)">
-              <VariableAutocompleteInput
-                type="textarea"
-                value={body}
-                onChange={(v) => update({ body: v })}
-                variables={variables}
+              <textarea
+                value={bodyContent}
+                onChange={(e) =>
+                  update({ body: { type: 'json', content: e.target.value } })
+                }
                 placeholder={'{\n  "key": "{{value}}"\n}'}
                 rows={6}
                 spellCheck={false}
-                aria-label="Request body"
-                className="font-mono text-[12px] min-h-[100px]"
+                className={cn(
+                  inputClass,
+                  'font-mono text-[12px] resize-y min-h-[100px]',
+                )}
               />
               <p className="text-[11px] text-[var(--gray-8)] mt-1">
                 Use{' '}
@@ -202,8 +199,8 @@ export function WebhookSettings({ block, onBlockChange, variables = [] }: Props)
           <Field label="Save full response to">
             <VariableSelect
               variables={variables}
-              value={typeof options.responseVariableId === 'string' ? options.responseVariableId : undefined}
-              onChange={(id) => update({ responseVariableId: id })}
+              value={options.fullResponseVariableId}
+              onChange={(id) => update({ fullResponseVariableId: id })}
               placeholder="— select variable —"
             />
           </Field>
@@ -211,7 +208,7 @@ export function WebhookSettings({ block, onBlockChange, variables = [] }: Props)
           <Field label="Save status code to">
             <VariableSelect
               variables={variables}
-              value={typeof options.statusCodeVariableId === 'string' ? options.statusCodeVariableId : undefined}
+              value={options.statusCodeVariableId}
               onChange={(id) => update({ statusCodeVariableId: id })}
               placeholder="— select variable —"
             />

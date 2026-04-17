@@ -1,161 +1,141 @@
 /**
- * SabFlow node-data store — per-block runtime inspection cache.
+ * Per-node execution data store — n8n-style.
  *
- * This is an n8n-style "node data" memory that remembers the last observed
- * input + output (and optional pinned output) for every block id in a flow.
- * It is client-only Zustand state — nothing is persisted across reloads.
+ * Tracks Input / Output / Parameters + status for every block the engine
+ * has touched during a run.  Consumed by the NodeDataInspector right-side
+ * panel and the tiny status badges overlaid on canvas blocks.
  *
- * It is intentionally separate from the debug store:
- *   - The debug store records *session* traces (steps, logs, network).
- *   - The node-data store records *per-node* sample values so the Test-Node
- *     panel can prefill inputs, reuse pinned outputs downstream, and show
- *     the last execution result inline inside the block settings panel.
- *
- * Callers must not mutate returned objects; always replace via setters.
+ * Pure client state (no SSR coupling).  Components that don't render the
+ * inspector should NOT subscribe reactively — prefer `getState()` via
+ * `nodeDataSnapshot()`.
  */
 
 import { create } from 'zustand';
 
-/* ── Public data shapes ──────────────────────────────────────────────────── */
+/* ── Types ───────────────────────────────────────────────────────── */
 
-export type NodeTestLog = {
-  level: 'log' | 'warn' | 'error';
-  message: string;
-};
+export type NodeExecutionStatus =
+  | 'idle'
+  | 'running'
+  | 'success'
+  | 'error'
+  | 'waiting';
 
-export type NodeTestResult = {
-  /** Arbitrary JSON-serialisable output returned by testNode. */
+export interface NodeExecutionData {
+  nodeId: string;
+  input: unknown;
   output: unknown;
-  /** Collected console-style logs from the run. */
-  logs: NodeTestLog[];
-  /** Wall-clock duration in milliseconds. */
-  durationMs: number;
-  /** Human-readable error message when the run failed. */
+  parameters: Record<string, unknown>;
+  status: NodeExecutionStatus;
   error?: string;
-  /** Wall-clock timestamp (ms since epoch) when the run completed. */
-  ranAt: number;
-};
+  startedAt?: number;
+  completedAt?: number;
+  executionTimeMs?: number;
+}
 
-export type NodeDataEntry = {
-  /** Last input value fed into the block (from a real run or manual test). */
-  lastInput?: unknown;
-  /** Last output value produced by the block. */
-  lastOutput?: unknown;
-  /** Pinned output — when set, downstream test runs read this value instead. */
-  pinnedOutput?: unknown;
-  /** The most recent test-node result, if any. */
-  lastResult?: NodeTestResult;
-};
+/* ── Store shape ─────────────────────────────────────────────────── */
 
-/* ── Store shape ─────────────────────────────────────────────────────────── */
+interface NodeDataStoreState {
+  /** Keyed by block / node id. */
+  data: Map<string, NodeExecutionData>;
+  /** Manually pinned outputs — survive `clearAll`. */
+  pinnedData: Map<string, unknown>;
 
-type NodeDataMap = Record<string, NodeDataEntry>;
-
-interface NodeDataState {
-  /** Map of blockId → cached data entry. */
-  entries: NodeDataMap;
-
-  /** Replace the entry for a single block (shallow merge). */
-  setEntry: (blockId: string, patch: Partial<NodeDataEntry>) => void;
-
-  /** Record the result of a Test-Node run. */
-  recordResult: (
-    blockId: string,
-    result: NodeTestResult,
-    input?: unknown,
+  /* actions */
+  setNodeData: (nodeId: string, patch: Partial<NodeExecutionData>) => void;
+  updateNodeStatus: (
+    nodeId: string,
+    status: NodeExecutionStatus,
+    extras?: { error?: string; output?: unknown },
   ) => void;
-
-  /** Pin the last output for a block so downstream tests reuse it. */
-  pinData: (blockId: string, value: unknown) => void;
-
-  /** Remove a pinned output. */
-  unpinData: (blockId: string) => void;
-
-  /** Drop the entry for a single block (e.g. when the block is deleted). */
-  clearBlock: (blockId: string) => void;
-
-  /** Wipe every entry — used when a new flow is opened. */
+  pinData: (nodeId: string, value: unknown) => void;
+  unpinData: (nodeId: string) => void;
   clearAll: () => void;
 }
 
-/* ── Store ───────────────────────────────────────────────────────────────── */
+/* ── Helpers ─────────────────────────────────────────────────────── */
 
-export const useNodeDataStore = create<NodeDataState>((set) => ({
-  entries: {},
+function emptyEntry(nodeId: string): NodeExecutionData {
+  return {
+    nodeId,
+    input: undefined,
+    output: undefined,
+    parameters: {},
+    status: 'idle',
+  };
+}
 
-  setEntry: (blockId, patch) =>
-    set((state) => ({
-      entries: {
-        ...state.entries,
-        [blockId]: { ...state.entries[blockId], ...patch },
-      },
-    })),
+/** Immutably clone and merge a Map entry. */
+function withPatch(
+  prev: Map<string, NodeExecutionData>,
+  nodeId: string,
+  patch: Partial<NodeExecutionData>,
+): Map<string, NodeExecutionData> {
+  const next = new Map(prev);
+  const existing = prev.get(nodeId) ?? emptyEntry(nodeId);
+  next.set(nodeId, { ...existing, ...patch, nodeId });
+  return next;
+}
 
-  recordResult: (blockId, result, input) =>
-    set((state) => {
-      const prev = state.entries[blockId] ?? {};
-      return {
-        entries: {
-          ...state.entries,
-          [blockId]: {
-            ...prev,
-            lastInput: input !== undefined ? input : prev.lastInput,
-            lastOutput: result.output,
-            lastResult: result,
-          },
-        },
-      };
-    }),
+/* ── Store ───────────────────────────────────────────────────────── */
 
-  pinData: (blockId, value) =>
-    set((state) => ({
-      entries: {
-        ...state.entries,
-        [blockId]: { ...state.entries[blockId], pinnedOutput: value },
-      },
-    })),
+export const useNodeDataStore = create<NodeDataStoreState>()((set) => ({
+  data: new Map(),
+  pinnedData: new Map(),
 
-  unpinData: (blockId) =>
-    set((state) => {
-      const prev = state.entries[blockId];
-      if (!prev) return state;
-      const { pinnedOutput: _removed, ...rest } = prev;
-      void _removed;
-      return {
-        entries: { ...state.entries, [blockId]: rest },
-      };
-    }),
+  setNodeData: (nodeId, patch) => {
+    set((s) => ({ data: withPatch(s.data, nodeId, patch) }));
+  },
 
-  clearBlock: (blockId) =>
-    set((state) => {
-      if (!(blockId in state.entries)) return state;
-      const next: NodeDataMap = { ...state.entries };
-      delete next[blockId];
-      return { entries: next };
-    }),
+  updateNodeStatus: (nodeId, status, extras) => {
+    set((s) => {
+      const existing = s.data.get(nodeId) ?? emptyEntry(nodeId);
+      const now = Date.now();
 
-  clearAll: () => set({ entries: {} }),
+      const patch: Partial<NodeExecutionData> = { status };
+
+      if (status === 'running') {
+        patch.startedAt = now;
+        patch.completedAt = undefined;
+        patch.executionTimeMs = undefined;
+        patch.error = undefined;
+      }
+
+      if (status === 'success' || status === 'error') {
+        patch.completedAt = now;
+        if (existing.startedAt !== undefined) {
+          patch.executionTimeMs = now - existing.startedAt;
+        }
+      }
+
+      if (extras?.error !== undefined) patch.error = extras.error;
+      if (extras?.output !== undefined) patch.output = extras.output;
+
+      return { data: withPatch(s.data, nodeId, patch) };
+    });
+  },
+
+  pinData: (nodeId, value) => {
+    set((s) => {
+      const next = new Map(s.pinnedData);
+      next.set(nodeId, value);
+      return { pinnedData: next };
+    });
+  },
+
+  unpinData: (nodeId) => {
+    set((s) => {
+      if (!s.pinnedData.has(nodeId)) return {};
+      const next = new Map(s.pinnedData);
+      next.delete(nodeId);
+      return { pinnedData: next };
+    });
+  },
+
+  clearAll: () => {
+    set({ data: new Map() });
+  },
 }));
 
-/* ── Non-reactive snapshot helpers ───────────────────────────────────────── */
-
-/**
- * Return the effective output for a block — preferring its pinned value when
- * present, else the last recorded output. Returns `undefined` when neither
- * exists.  Non-reactive: safe to call inside plain functions / effects.
- */
-export function getEffectiveOutput(blockId: string): unknown {
-  const entry = useNodeDataStore.getState().entries[blockId];
-  if (!entry) return undefined;
-  return entry.pinnedOutput !== undefined ? entry.pinnedOutput : entry.lastOutput;
-}
-
-/** Return the last input observed for a block, or undefined. */
-export function getLastInput(blockId: string): unknown {
-  return useNodeDataStore.getState().entries[blockId]?.lastInput;
-}
-
-/** Return the pinned output for a block, or undefined. */
-export function getPinnedOutput(blockId: string): unknown {
-  return useNodeDataStore.getState().entries[blockId]?.pinnedOutput;
-}
+/** Non-reactive snapshot — safe from non-React engine code. */
+export const nodeDataSnapshot = () => useNodeDataStore.getState();

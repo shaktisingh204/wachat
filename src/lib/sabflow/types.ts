@@ -54,7 +54,14 @@ export type LogicBlockType =
   | 'wait'
   | 'jump'
   | 'ab_test'
-  | 'merge';
+  | 'merge'
+  | 'switch'
+  | 'loop'
+  | 'filter'
+  | 'sort'
+  | 'set'
+  | 'execute_workflow'
+  | 'respond_to_webhook';
 
 export type IntegrationBlockType =
   | 'webhook'
@@ -850,6 +857,10 @@ export type Block = {
   options?: BlockOptions;
   items?: BlockItem[];
   outgoingEdgeId?: string;
+  /** Custom input ports — when omitted, `getDefaultPorts()` is used. */
+  inputPorts?: NodePort[];
+  /** Custom output ports — when omitted, `getDefaultPorts()` is used. */
+  outputPorts?: NodePort[];
 };
 
 /* ── Discriminated union for type-safe access ─────────── */
@@ -952,14 +963,67 @@ export type Group = {
 };
 
 /* ── Event ────────────────────────────────────────────── */
-export type EventType = 'start';
+export type EventType = 'start' | 'schedule' | 'webhook' | 'manual' | 'error';
+
+export type ScheduleEventOptions = {
+  cronExpression: string;
+  timezone?: string;
+  enabled?: boolean;
+};
+
+export type WebhookEventOptions = {
+  path: string;
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'ANY';
+  authentication: 'none' | 'header' | 'basic' | 'query';
+  authHeaderName?: string;
+  authHeaderValue?: string;
+  authBasicUser?: string;
+  authBasicPassword?: string;
+  responseMode: 'immediately' | 'lastNode' | 'responseNode';
+  responseCode?: number;
+  responseData?: string;
+  responseHeaders?: { name: string; value: string }[];
+  enabled?: boolean;
+};
+
+export type ManualEventOptions = {
+  enabled?: boolean;
+  samplePayload?: Record<string, unknown>;
+};
 
 export type SabFlowEvent = {
   id: string;
   type: EventType;
   graphCoordinates: Coordinates;
   outgoingEdgeId?: string;
+  options?: ScheduleEventOptions | WebhookEventOptions | ManualEventOptions;
 };
+
+/* ── Port / Handle types (n8n-style) ─────────────────── */
+
+/** Semantic type of a port — determines which ports can connect to each other. */
+export type PortType = 'main' | 'ai' | 'tool' | 'data';
+
+/**
+ * A single input or output port on a block.
+ *
+ * The `id` follows the n8n convention: `"{mode}/{type}/{index}"`,
+ * e.g. `"outputs/main/0"`, `"inputs/main/1"`.
+ */
+export type NodePort = {
+  id: string;
+  mode: 'input' | 'output';
+  type: PortType;
+  index: number;
+  label?: string;
+  /** Max connections allowed on this handle. Defaults: inputs=1, outputs=Infinity. */
+  maxConnections?: number;
+  /** When true the port must be connected for the block to be valid. */
+  required?: boolean;
+};
+
+/** Status of an edge — drives colour / animation in the edge renderer. */
+export type EdgeStatus = 'idle' | 'success' | 'error' | 'pinned' | 'running';
 
 /* ── Edge ─────────────────────────────────────────────── */
 export type EdgeFrom =
@@ -977,6 +1041,12 @@ export type Edge = {
   id: string;
   from: EdgeFrom;
   to: EdgeTo;
+  /** n8n-style handle ID on the source, e.g. "outputs/main/0". */
+  sourceHandle?: string;
+  /** n8n-style handle ID on the target, e.g. "inputs/main/0". */
+  targetHandle?: string;
+  /** Visual status of this edge — drives colour and animation. */
+  status?: EdgeStatus;
 };
 
 /* ── Variable ─────────────────────────────────────────── */
@@ -1262,4 +1332,43 @@ export type SessionState = {
   /** ISO timestamp */
   createdAt: string;
   updatedAt: string;
+};
+
+/* ── Loop block options ──────────────────────────────── */
+
+export type LoopOptions = {
+  arrayPath?: string;
+  batchSize?: number;
+  itemVariableName?: string;
+  indexVariableName?: string;
+  maxIterations?: number;
+  mode?: 'sequential' | 'parallel';
+  concurrency?: number;
+};
+
+/* ── Respond to Webhook options ──────────────────────── */
+
+export type RespondToWebhookOptions = {
+  responseCode?: number;
+  responseData?: string;
+  responseHeaders?: { name: string; value: string }[];
+};
+
+/* ── Execution history ───────────────────────────────── */
+
+export type ExecutionTriggerMode = 'manual' | 'schedule' | 'webhook' | 'start' | 'test';
+export type ExecutionStatus = 'running' | 'success' | 'error' | 'cancelled';
+
+export type ExecutionHistoryEntry = {
+  id: string;
+  flowId: string;
+  sessionId: string;
+  triggerMode: ExecutionTriggerMode;
+  startedAt: Date;
+  finishedAt?: Date;
+  status: ExecutionStatus;
+  error?: string;
+  nodeCount: number;
+  executionTimeMs?: number;
+  variables?: Record<string, unknown>;
 };

@@ -13,44 +13,16 @@ import {
   LuRotateCcw,
   LuStar,
   LuUpload,
+  LuCreditCard,
   LuZap,
-  LuLoader,
-  LuTriangleAlert,
-  LuFileText,
 } from 'react-icons/lu';
 import { cn } from '@/lib/utils';
 
-import type {
-  SabFlowDoc,
-  PaymentInputOptions,
-  TextInputOptions,
-  NumberInputOptions,
-  PhoneInputOptions,
-  UrlInputOptions,
-  DateInputOptions,
-  TimeInputOptions,
-} from '@/lib/sabflow/types';
+import type { SabFlowDoc } from '@/lib/sabflow/types';
 import type { FlowSession, ExecutionStep } from '@/lib/sabflow/execution/types';
 import { startSession, processInput } from '@/lib/sabflow/execution/engine';
-import {
-  validateEmail,
-  validatePhone,
-  validateUrl,
-  validateNumber,
-  validateText,
-  validateDate,
-  validateTime,
-  type ValidationResult,
-} from '@/lib/sabflow/inputs/validation';
 import { TypingIndicator } from './TypingIndicator';
-import { PaymentBlock } from './blocks/PaymentBlock';
-import { TextBubble } from './blocks/TextBubble';
-import { ImageBubble } from './blocks/ImageBubble';
-import { VideoBubble } from './blocks/VideoBubble';
-import { AudioBubble } from './blocks/AudioBubble';
-import { EmbedBubble } from './blocks/EmbedBubble';
-import { InputFieldError } from './blocks/InputFieldError';
-import { EmbedListener, postEmbedEvent } from './EmbedListener';
+import { ChatBubble } from './ChatBubble';
 
 /* ── Serialisable SabFlowDoc (ObjectIds serialised to strings) ──────────── */
 
@@ -69,29 +41,11 @@ type UiMessage =
 
 /* ── Pending input descriptor ─────────────────────────────────────────── */
 
-type TextishInputType =
-  | 'text_input'
-  | 'email_input'
-  | 'phone_input'
-  | 'url_input'
-  | 'number_input'
-  | 'date_input'
-  | 'time_input';
-
-type TextishInputOptions =
-  | TextInputOptions
-  | NumberInputOptions
-  | PhoneInputOptions
-  | UrlInputOptions
-  | DateInputOptions
-  | TimeInputOptions
-  | undefined;
-
 type PendingInput =
-  | { type: TextishInputType; options?: TextishInputOptions }
+  | { type: 'text_input' | 'email_input' | 'phone_input' | 'url_input' | 'number_input' | 'date_input' | 'time_input' }
   | { type: 'rating_input'; length: number }
   | { type: 'file_input' }
-  | { type: 'payment_input'; options: PaymentInputOptions }
+  | { type: 'payment_input' }
   | { type: 'choice_input' | 'picture_choice_input'; choices: { id: string; label: string; imageUrl?: string }[] };
 
 /* ── helpers ────────────────────────────────────────────────────────────── */
@@ -120,40 +74,6 @@ function inputPlaceholder(inputType: PendingInput['type']): string {
     case 'file_input':   return 'File upload…';
     default:             return 'Type your answer…';
   }
-}
-
-/** Substitute `{{varName}}` tokens against the session's variable map. */
-function substituteTokens(
-  text: string,
-  variables: Record<string, string | undefined>,
-): string {
-  if (!text) return text;
-  return text.replace(/\{\{([^}]+)\}\}/g, (match, name: string) => {
-    const trimmed = name.trim();
-    const value = variables[trimmed];
-    return typeof value === 'string' ? value : match;
-  });
-}
-
-/** Resolve the payment amount, substituting any {{variable}} tokens. */
-function resolvePaymentAmount(
-  options: PaymentInputOptions,
-  variables: Record<string, string | undefined>,
-): string {
-  return substituteTokens(options.amount ?? '', variables).trim();
-}
-
-/** Resolve the payment button label, with {{amount}} pre-substituted. */
-function resolvePaymentButtonLabel(
-  options: PaymentInputOptions,
-  variables: Record<string, string | undefined>,
-): string {
-  const currency = options.currency ?? 'USD';
-  const amount = resolvePaymentAmount(options, variables);
-  const displayAmount = amount ? `${amount} ${currency}` : currency;
-  const template = options.labels?.button ?? 'Pay {{amount}}';
-  const merged = { ...variables, amount: displayAmount };
-  return substituteTokens(template, merged);
 }
 
 /** Convert ExecutionStep[] emitted by the engine into UiMessage[]. */
@@ -199,79 +119,9 @@ function stepsToNextInput(steps: ExecutionStep[]): PendingInput | undefined {
     };
   }
   if (inputType === 'file_input') return { type: 'file_input' };
-  if (inputType === 'payment_input') {
-    const options = (step.payload.options ?? {}) as PaymentInputOptions;
-    return { type: 'payment_input', options };
-  }
+  if (inputType === 'payment_input') return { type: 'payment_input' };
 
-  const textishOptions = step.payload.options as TextishInputOptions;
-  return {
-    type: inputType as TextishInputType,
-    options: textishOptions,
-  };
-}
-
-/**
- * Runs the correct validator for a pending input and returns a
- * discriminated result.  Phone validation is async (libphonenumber-js
- * loaded on demand) so the function itself returns a Promise.
- */
-async function validatePendingInput(
-  pending: PendingInput,
-  value: string,
-): Promise<ValidationResult> {
-  switch (pending.type) {
-    case 'email_input':
-      return validateEmail(value);
-    case 'phone_input': {
-      const opts = pending.options as PhoneInputOptions | undefined;
-      return validatePhone(value, { country: opts?.country ?? opts?.defaultCountryCode });
-    }
-    case 'url_input': {
-      const opts = pending.options as UrlInputOptions | undefined;
-      return validateUrl(value, { requireHttps: opts?.requireHttps });
-    }
-    case 'number_input': {
-      const opts = pending.options as NumberInputOptions | undefined;
-      const toNum = (v: number | string | undefined): number | undefined => {
-        if (v === undefined || v === '') return undefined;
-        const n = typeof v === 'number' ? v : Number(v);
-        return Number.isFinite(n) ? n : undefined;
-      };
-      return validateNumber(value, {
-        min: toNum(opts?.min),
-        max: toNum(opts?.max),
-        step: toNum(opts?.step),
-        integer: opts?.integer,
-      });
-    }
-    case 'text_input': {
-      const opts = pending.options as TextInputOptions | undefined;
-      return validateText(value, {
-        minLength: opts?.minLength,
-        maxLength: opts?.maxLength,
-        pattern: opts?.pattern,
-        patternMessage: opts?.patternMessage,
-      });
-    }
-    case 'date_input': {
-      const opts = pending.options as DateInputOptions | undefined;
-      return validateDate(value, {
-        min: opts?.minDate,
-        max: opts?.maxDate,
-        format: opts?.hasTime ? 'datetime' : 'date',
-      });
-    }
-    case 'time_input': {
-      const opts = pending.options as TimeInputOptions | undefined;
-      return validateTime(value, {
-        min: opts?.minTime,
-        max: opts?.maxTime,
-      });
-    }
-    default:
-      return { valid: true };
-  }
+  return { type: inputType as PendingInput['type'] };
 }
 
 /* ── Sub-components ─────────────────────────────────────────────────────── */
@@ -343,141 +193,6 @@ function ChoiceButtonList({
   );
 }
 
-/* ── File upload input (for file_input blocks) ─────────────────────────── */
-
-function FileUploadBlock({
-  flowId,
-  sessionId,
-  accentColor,
-  onUploaded,
-}: {
-  flowId: string;
-  sessionId: string;
-  accentColor: string;
-  onUploaded: (url: string) => void;
-}) {
-  const fileRef = useRef<HTMLInputElement>(null);
-  const [progress, setProgress] = useState<number | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [lastFilename, setLastFilename] = useState<string | null>(null);
-
-  const upload = useCallback(
-    (file: File) => {
-      setError(null);
-      setProgress(0);
-
-      const fd = new FormData();
-      fd.append('file', file);
-      fd.append('flowId', flowId);
-      fd.append('sessionId', sessionId);
-
-      const xhr = new XMLHttpRequest();
-      xhr.open('POST', '/api/sabflow/upload');
-
-      xhr.upload.onprogress = (e) => {
-        if (e.lengthComputable) {
-          setProgress(Math.round((e.loaded / e.total) * 100));
-        }
-      };
-
-      xhr.onload = () => {
-        setProgress(null);
-        let parsed:
-          | { url: string; filename: string }
-          | { error?: string }
-          | null = null;
-        try {
-          parsed = xhr.responseText ? JSON.parse(xhr.responseText) : null;
-        } catch {
-          parsed = null;
-        }
-        if (
-          xhr.status >= 200 &&
-          xhr.status < 300 &&
-          parsed &&
-          'url' in parsed
-        ) {
-          setLastFilename(parsed.filename);
-          onUploaded(parsed.url);
-        } else {
-          const msg =
-            (parsed && 'error' in parsed && parsed.error) ||
-            `Upload failed (${xhr.status})`;
-          setError(msg);
-        }
-      };
-
-      xhr.onerror = () => {
-        setProgress(null);
-        setError('Network error — please try again.');
-      };
-
-      xhr.send(fd);
-    },
-    [flowId, sessionId, onUploaded],
-  );
-
-  const uploading = progress !== null;
-
-  return (
-    <div className="flex flex-col items-start gap-1.5 py-1 max-w-[90%]">
-      <input
-        ref={fileRef}
-        type="file"
-        className="hidden"
-        onChange={(e) => {
-          const f = e.target.files?.[0];
-          if (f) upload(f);
-          e.target.value = '';
-        }}
-      />
-
-      <button
-        type="button"
-        disabled={uploading}
-        onClick={() => fileRef.current?.click()}
-        className="flex items-center gap-2.5 rounded-xl border-2 border-dashed px-5 py-3 text-[13px] font-medium transition-colors hover:opacity-80 disabled:opacity-60 disabled:cursor-not-allowed"
-        style={{ borderColor: accentColor, color: accentColor }}
-      >
-        {uploading ? (
-          <>
-            <LuLoader className="h-4 w-4 animate-spin" strokeWidth={2} />
-            Uploading… {progress ?? 0}%
-          </>
-        ) : (
-          <>
-            <LuUpload className="h-4 w-4" strokeWidth={2} />
-            Upload file
-          </>
-        )}
-      </button>
-
-      {uploading && (
-        <div className="h-1 w-full max-w-[180px] overflow-hidden rounded-full bg-black/10">
-          <div
-            className="h-full transition-[width] duration-200"
-            style={{ width: `${progress ?? 0}%`, backgroundColor: accentColor }}
-          />
-        </div>
-      )}
-
-      {lastFilename && !uploading && !error && (
-        <div className="flex items-center gap-1.5 text-[11.5px] text-[var(--gray-9)]">
-          <LuFileText className="h-3 w-3" strokeWidth={1.8} />
-          <span className="truncate max-w-[220px]">{lastFilename}</span>
-        </div>
-      )}
-
-      {error && (
-        <div className="flex items-start gap-1.5 text-[11.5px] text-red-500">
-          <LuTriangleAlert className="mt-0.5 h-3 w-3 shrink-0" strokeWidth={1.8} />
-          <span>{error}</span>
-        </div>
-      )}
-    </div>
-  );
-}
-
 /* ── Main ChatWindow component ──────────────────────────────────────────── */
 
 interface ChatWindowProps {
@@ -511,10 +226,6 @@ export function ChatWindow({ flow }: ChatWindowProps) {
   const [isTyping,    setIsTyping]    = useState(false);
   const [textValue,   setTextValue]   = useState('');
   const [error,       setError]       = useState<string | null>(null);
-  const [validationError, setValidationError] = useState<string | null>(null);
-  // Incremented by async validations so stale resolutions can be discarded
-  // if the user has moved on (different input or different value).
-  const validationTokenRef = useRef(0);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef  = useRef<HTMLInputElement>(null);
@@ -525,48 +236,13 @@ export function ChatWindow({ flow }: ChatWindowProps) {
     if (el) el.scrollTop = el.scrollHeight;
   }, [messages, isTyping]);
 
-  /* ── embed: emit 'completed' to parent frame ─────────────── */
-  useEffect(() => {
-    if (isCompleted) {
-      postEmbedEvent('completed', {
-        sessionId: session?.id,
-        variables: session?.variables,
-      });
-    }
-  }, [isCompleted, session]);
-
-  /* ── embed: parent → session variable prefill ────────────── */
-  const handleEmbedSetVariable = useCallback((name: string, value: unknown) => {
-    const stringValue =
-      value === null || value === undefined
-        ? undefined
-        : typeof value === 'string'
-          ? value
-          : typeof value === 'number' || typeof value === 'boolean'
-            ? String(value)
-            : (() => {
-                try { return JSON.stringify(value); }
-                catch { return undefined; }
-              })();
-
-    setSession((prev) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        variables: { ...prev.variables, [name]: stringValue },
-        updatedAt: new Date(),
-      };
-    });
-  }, []);
-
   /* ── init (start session + run initial steps) ───────────── */
-  const initFlow = useCallback(() => {
+  const initFlow = useCallback(async () => {
     setMessages([]);
     setNextInput(undefined);
     setIsCompleted(false);
     setTextValue('');
     setError(null);
-    setValidationError(null);
     setIsTyping(true);
 
     // startSession is synchronous / pure
@@ -575,7 +251,7 @@ export function ChatWindow({ flow }: ChatWindowProps) {
 
     // Kick the engine with an empty input to run bubble blocks up to the
     // first input request (same pattern as processInput with empty string).
-    const { session: advanced, nextSteps } = processInput(
+    const { session: advanced, nextSteps } = await processInput(
       newSession,
       flow as unknown as SabFlowDoc,
       '',
@@ -586,15 +262,7 @@ export function ChatWindow({ flow }: ChatWindowProps) {
 
     setTimeout(() => {
       setSession(advanced);
-      const uiMsgs = stepsToUiMessages(nextSteps);
-      setMessages(uiMsgs);
-      for (const m of uiMsgs) {
-        if (m.kind === 'text') {
-          postEmbedEvent('message', { role: 'bot', text: m.text, kind: 'text' });
-        } else {
-          postEmbedEvent('message', { role: 'bot', kind: m.kind });
-        }
-      }
+      setMessages(stepsToUiMessages(nextSteps));
       setNextInput(stepsToNextInput(nextSteps));
       setIsCompleted(advanced.status === 'completed');
       setIsTyping(false);
@@ -610,45 +278,17 @@ export function ChatWindow({ flow }: ChatWindowProps) {
 
   /* ── submit user answer ─────────────────────────────────── */
   const submitAnswer = useCallback(
-    async (answer: string, options?: { skipValidation?: boolean }) => {
+    async (answer: string) => {
       if (!session || !answer.trim() || isTyping) return;
-
-      // Run validation for text-ish inputs.  Non-text inputs (choice,
-      // rating, file, payment) skip validation because they are rendered
-      // as structured widgets and the runtime enforces their shape.
-      if (!options?.skipValidation && nextInput) {
-        const needsValidation =
-          nextInput.type === 'text_input' ||
-          nextInput.type === 'email_input' ||
-          nextInput.type === 'phone_input' ||
-          nextInput.type === 'url_input' ||
-          nextInput.type === 'number_input' ||
-          nextInput.type === 'date_input' ||
-          nextInput.type === 'time_input';
-
-        if (needsValidation) {
-          const result = await validatePendingInput(nextInput, answer);
-          if (!result.valid) {
-            setValidationError(result.error);
-            // Preserve the user's value so they can correct it in place.
-            // Refocus so keyboard users can keep typing immediately.
-            requestAnimationFrame(() => inputRef.current?.focus());
-            return;
-          }
-        }
-      }
-
-      setValidationError(null);
 
       // Append user bubble immediately
       setMessages((prev) => [...prev, { kind: 'text', role: 'user', text: answer }]);
-      postEmbedEvent('message', { role: 'user', text: answer, kind: 'text' });
       setTextValue('');
       setNextInput(undefined);
       setIsTyping(true);
 
       try {
-        const { session: advanced, nextSteps } = processInput(
+        const { session: advanced, nextSteps } = await processInput(
           session,
           flow as unknown as SabFlowDoc,
           answer,
@@ -660,13 +300,6 @@ export function ChatWindow({ flow }: ChatWindowProps) {
         setTimeout(() => {
           setSession(advanced);
           setMessages((prev) => [...prev, ...botMessages]);
-          for (const m of botMessages) {
-            if (m.kind === 'text') {
-              postEmbedEvent('message', { role: 'bot', text: m.text, kind: 'text' });
-            } else {
-              postEmbedEvent('message', { role: 'bot', kind: m.kind });
-            }
-          }
           setNextInput(stepsToNextInput(nextSteps));
           setIsCompleted(advanced.status === 'completed');
           setIsTyping(false);
@@ -689,34 +322,17 @@ export function ChatWindow({ flow }: ChatWindowProps) {
         setError(msg);
       }
     },
-    [session, isTyping, flow, nextInput],
+    [session, isTyping, flow],
   );
 
   const handleFormSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Fire-and-forget — submitAnswer handles its own async state
     void submitAnswer(textValue);
   };
 
   const handleTextChange = (e: ChangeEvent<HTMLInputElement>) => {
     setTextValue(e.target.value);
-    // Dismiss the error as the user edits so they are not scolded on
-    // every keystroke; the error will reappear on blur/submit if still
-    // invalid.
-    if (validationError) setValidationError(null);
   };
-
-  const handleTextBlur = useCallback(() => {
-    if (!nextInput) return;
-    if (!textValue.trim()) return; // don't scold empty-on-blur
-    const token = ++validationTokenRef.current;
-    void (async () => {
-      const result = await validatePendingInput(nextInput, textValue);
-      // Discard if a newer validation has superseded us.
-      if (token !== validationTokenRef.current) return;
-      setValidationError(result.valid ? null : result.error);
-    })();
-  }, [nextInput, textValue]);
 
   /* ── derived flags ──────────────────────────────────────── */
   const isChoiceInput =
@@ -758,12 +374,6 @@ export function ChatWindow({ flow }: ChatWindowProps) {
       className="min-h-screen flex items-center justify-center p-4"
       style={{ backgroundColor: pageBg, fontFamily }}
     >
-      {/* Bridge to parent frame when embedded (?embed=standard|popup|bubble) */}
-      <EmbedListener
-        onSetVariable={handleEmbedSetVariable}
-        onOpen={initFlow}
-        onClose={() => postEmbedEvent('close', { mode: 'requested' })}
-      />
       <div
         className="w-full flex flex-col overflow-hidden shadow-2xl"
         style={{
@@ -810,75 +420,72 @@ export function ChatWindow({ flow }: ChatWindowProps) {
           {messages.map((msg, i) => {
             if (msg.kind === 'text' && msg.role === 'user') {
               return (
-                <TextBubble
+                <ChatBubble
                   key={i}
-                  text={msg.text}
                   variant="user"
-                  variables={session?.variables}
                   backgroundColor={guestBubbleBg}
                   color={guestBubbleColor}
-                  linkColor={guestBubbleColor}
-                />
+                >
+                  {msg.text}
+                </ChatBubble>
               );
             }
 
             if (msg.kind === 'text' && msg.role === 'bot') {
               return (
-                <TextBubble
+                <ChatBubble
                   key={i}
-                  text={msg.text}
                   variant="bot"
-                  variables={session?.variables}
                   backgroundColor={hostBubbleBg}
                   color={hostBubbleColor}
-                  linkColor={buttonBg}
-                />
+                >
+                  {msg.text}
+                </ChatBubble>
               );
             }
 
             if (msg.kind === 'image') {
               return (
-                <ImageBubble
-                  key={i}
-                  url={msg.url}
-                  alt={msg.alt}
-                  backgroundColor={hostBubbleBg}
-                  color={hostBubbleColor}
-                />
+                <div key={i} className="flex justify-start">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={msg.url}
+                    alt={msg.alt ?? 'Image'}
+                    className="max-w-[260px] rounded-2xl rounded-tl-sm shadow-sm object-cover"
+                  />
+                </div>
               );
             }
 
             if (msg.kind === 'video') {
               return (
-                <VideoBubble
-                  key={i}
-                  url={msg.url}
-                  backgroundColor={hostBubbleBg}
-                  color={hostBubbleColor}
-                />
+                <div key={i} className="flex justify-start">
+                  <video
+                    src={msg.url}
+                    controls
+                    className="max-w-[280px] rounded-2xl rounded-tl-sm shadow-sm"
+                  />
+                </div>
               );
             }
 
             if (msg.kind === 'audio') {
               return (
-                <AudioBubble
-                  key={i}
-                  url={msg.url}
-                  backgroundColor={hostBubbleBg}
-                  color={hostBubbleColor}
-                  accentColor={buttonBg}
-                />
+                <div key={i} className="flex justify-start">
+                  <audio src={msg.url} controls className="max-w-[280px]" />
+                </div>
               );
             }
 
             if (msg.kind === 'embed') {
               return (
-                <EmbedBubble
-                  key={i}
-                  url={msg.url}
-                  backgroundColor={hostBubbleBg}
-                  color={hostBubbleColor}
-                />
+                <div key={i} className="flex justify-start">
+                  <iframe
+                    src={msg.url}
+                    title="Embedded content"
+                    className="w-[280px] h-[180px] rounded-2xl border-none shadow-sm"
+                  />
+                </div>
               );
             }
 
@@ -927,7 +534,7 @@ export function ChatWindow({ flow }: ChatWindowProps) {
           {isChoiceInput && nextInput !== undefined && (nextInput.type === 'choice_input' || nextInput.type === 'picture_choice_input') && (
             <ChoiceButtonList
               choices={nextInput.choices}
-              onChoose={(label) => { void submitAnswer(label); }}
+              onChoose={submitAnswer}
               accentColor={guestBubbleBg}
             />
           )}
@@ -936,37 +543,39 @@ export function ChatWindow({ flow }: ChatWindowProps) {
           {isRatingInput && nextInput !== undefined && nextInput.type === 'rating_input' && (
             <StarRating
               length={nextInput.length}
-              onRate={(value) => { void submitAnswer(value); }}
+              onRate={submitAnswer}
               accentColor={guestBubbleBg}
             />
           )}
 
-          {/* File upload — uploads through /api/sabflow/upload, then submits
-              the returned URL as the answer so it gets stored in the block's
-              target variable. */}
-          {isFileInput && session && (
-            <FileUploadBlock
-              flowId={flow._id}
-              sessionId={session.id}
-              accentColor={buttonBg}
-              onUploaded={(url) => { void submitAnswer(url); }}
-            />
+          {/* File upload placeholder */}
+          {isFileInput && (
+            <div className="flex justify-start py-1">
+              <button
+                type="button"
+                onClick={() => submitAnswer('file_uploaded')}
+                className="flex items-center gap-2.5 rounded-xl border-2 border-dashed px-5 py-3 text-[13px] font-medium transition-colors hover:opacity-80"
+                style={{ borderColor: buttonBg, color: buttonBg }}
+              >
+                <LuUpload className="h-4 w-4" strokeWidth={2} />
+                Upload file
+              </button>
+            </div>
           )}
 
-          {/* Payment input */}
-          {isPaymentInput && nextInput?.type === 'payment_input' && session && (
-            <PaymentBlock
-              options={nextInput.options}
-              flowId={flow._id}
-              sessionId={session.id}
-              resolvedAmount={resolvePaymentAmount(nextInput.options, session.variables)}
-              resolvedButtonLabel={resolvePaymentButtonLabel(nextInput.options, session.variables)}
-              buttonBg={buttonBg}
-              buttonColor={buttonColor}
-              bubbleBg={hostBubbleBg}
-              bubbleColor={hostBubbleColor}
-              onComplete={(summary) => { void submitAnswer(summary); }}
-            />
+          {/* Payment placeholder */}
+          {isPaymentInput && (
+            <div className="flex justify-start py-1">
+              <button
+                type="button"
+                onClick={() => submitAnswer('payment_completed')}
+                className="flex items-center gap-2.5 rounded-xl px-5 py-2.5 text-[13px] font-semibold shadow-sm transition-opacity hover:opacity-90"
+                style={{ backgroundColor: buttonBg, color: buttonColor }}
+              >
+                <LuCreditCard className="h-4 w-4" strokeWidth={2} />
+                Complete payment
+              </button>
+            </div>
           )}
 
           {/* Completed state */}
@@ -1013,58 +622,43 @@ export function ChatWindow({ flow }: ChatWindowProps) {
 
         {/* ── Text input bar ────────────────────────────────── */}
         {showTextInput && nextInput !== undefined && (
-          <div
-            className="shrink-0 border-t"
+          <form
+            onSubmit={handleFormSubmit}
+            className="shrink-0 flex items-center gap-2.5 border-t px-3 py-2.5"
             style={{
               backgroundColor: inputBg,
               borderColor: 'var(--gray-5)',
             }}
           >
-            {validationError && (
-              <div className="px-3 pt-2">
-                <InputFieldError error={validationError} />
-              </div>
-            )}
-            <form
-              onSubmit={handleFormSubmit}
-              className="flex items-center gap-2.5 px-3 py-2.5"
+            <input
+              ref={inputRef}
+              type={htmlInputType(nextInput.type)}
+              value={textValue}
+              onChange={handleTextChange}
+              placeholder={inputPlaceholder(nextInput.type)}
+              autoFocus
+              autoComplete="off"
+              className="flex-1 min-w-0 bg-transparent text-[13.5px] outline-none placeholder:opacity-50"
+              style={{ color: inputColor }}
+            />
+            <button
+              type="submit"
+              disabled={!textValue.trim()}
+              aria-label="Send"
+              className={cn(
+                'flex h-8 w-8 shrink-0 items-center justify-center rounded-xl transition-all',
+                textValue.trim()
+                  ? 'hover:opacity-90 active:scale-95'
+                  : 'opacity-30 cursor-not-allowed',
+              )}
+              style={{
+                backgroundColor: textValue.trim() ? buttonBg : 'var(--gray-4)',
+                color: textValue.trim() ? buttonColor : 'var(--gray-8)',
+              }}
             >
-              <input
-                ref={inputRef}
-                type={htmlInputType(nextInput.type)}
-                value={textValue}
-                onChange={handleTextChange}
-                onBlur={handleTextBlur}
-                placeholder={inputPlaceholder(nextInput.type)}
-                autoFocus
-                autoComplete="off"
-                aria-invalid={validationError ? true : undefined}
-                aria-errormessage={validationError ? 'sabflow-input-error' : undefined}
-                className={cn(
-                  'flex-1 min-w-0 bg-transparent text-[13.5px] outline-none placeholder:opacity-50',
-                  validationError && 'placeholder:text-red-400',
-                )}
-                style={{ color: inputColor }}
-              />
-              <button
-                type="submit"
-                disabled={!textValue.trim()}
-                aria-label="Send"
-                className={cn(
-                  'flex h-8 w-8 shrink-0 items-center justify-center rounded-xl transition-all',
-                  textValue.trim()
-                    ? 'hover:opacity-90 active:scale-95'
-                    : 'opacity-30 cursor-not-allowed',
-                )}
-                style={{
-                  backgroundColor: textValue.trim() ? buttonBg : 'var(--gray-4)',
-                  color: textValue.trim() ? buttonColor : 'var(--gray-8)',
-                }}
-              >
-                <LuSend className="h-3.5 w-3.5" strokeWidth={2} />
-              </button>
-            </form>
-          </div>
+              <LuSend className="h-3.5 w-3.5" strokeWidth={2} />
+            </button>
+          </form>
         )}
 
         {/* ── Powered-by footer ─────────────────────────────── */}

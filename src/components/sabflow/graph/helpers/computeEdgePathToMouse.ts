@@ -1,7 +1,5 @@
-import { roundCorners } from 'svg-round-corners';
-import { pathRadius } from '../constants';
+import { computePathToMouse } from './computeEdgePath';
 import type { Coordinates } from '@/lib/sabflow/types';
-import { computeThreeSegments } from './segments';
 
 export const computeEdgePathToMouse = ({
   sourceGroupCoordinates,
@@ -14,20 +12,10 @@ export const computeEdgePathToMouse = ({
   sourceTop: number;
   elementWidth: number;
 }): string => {
-  const sourcePosition: Coordinates = {
-    x:
-      mousePosition.x - sourceGroupCoordinates.x > elementWidth / 2
-        ? sourceGroupCoordinates.x + elementWidth
-        : sourceGroupCoordinates.x,
-    y: sourceTop,
-  };
-  const sourceType: 'right' | 'left' =
+  const sourceX =
     mousePosition.x - sourceGroupCoordinates.x > elementWidth / 2
-      ? 'right'
-      : 'left';
-  const segments = computeThreeSegments(sourcePosition, mousePosition, sourceType);
-  return roundCorners(
-    `M${sourcePosition.x},${sourcePosition.y} ${segments}`,
-    pathRadius,
-  ).path;
+      ? sourceGroupCoordinates.x + elementWidth
+      : sourceGroupCoordinates.x;
+
+  return computePathToMouse(sourceX, sourceTop, mousePosition.x, mousePosition.y);
 };

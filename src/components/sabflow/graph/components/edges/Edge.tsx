@@ -1,27 +1,34 @@
 'use client';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useShallow } from 'zustand/react/shallow';
-import { LuX } from 'react-icons/lu';
+import { LuPlus, LuX } from 'react-icons/lu';
 import { useGraph } from '../../providers/GraphProvider';
 import { useEndpoints } from '../../providers/EndpointsProvider';
 import { useSelectionStore } from '../../hooks/useSelectionStore';
-import { computeEdgePath } from '../../helpers/computeEdgePath';
+import { computeEdgePathFull } from '../../helpers/computeEdgePath';
 import { getAnchorsPosition } from '../../helpers/getAnchorsPosition';
 import { groupWidth, eventWidth } from '../../constants';
-import type { Edge as EdgeType } from '@/lib/sabflow/types';
+import { getArrowMarkerId, getEdgeStrokeColor } from './ArrowMarker';
+import { parsePortId } from '@/lib/sabflow/ports';
+import type { Edge as EdgeType, PortType } from '@/lib/sabflow/types';
 
 type Props = {
   edge: EdgeType;
   fromGroupId: string | undefined;
   onDelete?: (edgeId: string) => void;
+  onInsertNode?: (edgeId: string, position: { x: number; y: number }) => void;
 };
 
-export function Edge({ edge, fromGroupId, onDelete }: Props) {
+const TOOLBAR_SHOW_DELAY = 600;
+
+export function Edge({ edge, fromGroupId, onDelete, onInsertNode }: Props) {
   const { previewingEdge, graphPosition, setPreviewingEdge, isReadOnly } = useGraph();
   const { sourceEndpointYOffsets, targetEndpointYOffsets } = useEndpoints();
   const [isMouseOver, setIsMouseOver] = useState(false);
+  const [showToolbar, setShowToolbar] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
+  const toolbarTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const fromGroupCoordinates = useSelectionStore(
     useShallow((s) =>
@@ -38,10 +45,14 @@ export function Edge({ edge, fromGroupId, onDelete }: Props) {
 
   const isPreviewing = isMouseOver || previewingEdge?.id === edge.id;
 
+  // Determine if this is a non-main port type (for dashed rendering)
+  const portType = useMemo<PortType>(() => {
+    const handle = edge.sourceHandle ?? 'outputs/main/0';
+    const parsed = parsePortId(handle);
+    return parsed?.type ?? 'main';
+  }, [edge.sourceHandle]);
+
   const sourceTop = useMemo(() => {
-    // Event-sourced edges register under eventId.
-    // Block-sourced edges use itemId (for choice items) then blockId, mirroring
-    // Typebot's pathId ?? itemId ?? blockId lookup order.
     const endpointId =
       edge.from.eventId ??
       ('itemId' in edge.from ? edge.from.itemId : undefined) ??
@@ -58,7 +69,6 @@ export function Edge({ edge, fromGroupId, onDelete }: Props) {
     if (!fromGroupCoordinates || !toGroupCoordinates || !sourceTop) {
       return { path: '', midPoint: null };
     }
-    // Use eventWidth for event-sourced edges so path exits at the correct right edge
     const sourceWidth = edge.from.eventId ? eventWidth : groupWidth;
     const anchorsPosition = getAnchorsPosition({
       sourceGroupCoordinates: fromGroupCoordinates,
@@ -68,18 +78,29 @@ export function Edge({ edge, fromGroupId, onDelete }: Props) {
       targetTop,
       graphScale: graphPosition.scale,
     });
-    const computedPath = computeEdgePath(anchorsPosition);
 
-    // Approximate the visual midpoint of the bezier so the delete button can be
-    // placed on top of the curve where it is most visible.
-    const sx = anchorsPosition.sourcePosition.x;
-    const sy = anchorsPosition.sourcePosition.y;
-    const tx = anchorsPosition.targetPosition.x;
-    const ty = anchorsPosition.targetPosition.y;
-    const midPoint = { x: (sx + tx) / 2, y: (sy + ty) / 2 };
+    const result = computeEdgePathFull(
+      anchorsPosition.sourcePosition.x,
+      anchorsPosition.sourcePosition.y,
+      anchorsPosition.targetPosition.x,
+      anchorsPosition.targetPosition.y,
+    );
 
-    return { path: computedPath, midPoint };
+    return { path: result.path, midPoint: result.midPoint };
   }, [fromGroupCoordinates, toGroupCoordinates, sourceTop, targetTop, graphPosition.scale, edge.from]);
+
+  // Toolbar show/hide with delay
+  useEffect(() => {
+    if (isMouseOver && !isReadOnly) {
+      toolbarTimerRef.current = setTimeout(() => setShowToolbar(true), TOOLBAR_SHOW_DELAY);
+    } else {
+      if (toolbarTimerRef.current) clearTimeout(toolbarTimerRef.current);
+      setShowToolbar(false);
+    }
+    return () => {
+      if (toolbarTimerRef.current) clearTimeout(toolbarTimerRef.current);
+    };
+  }, [isMouseOver, isReadOnly]);
 
   // Close context menu on next outside click
   useEffect(() => {
@@ -103,15 +124,17 @@ export function Edge({ edge, fromGroupId, onDelete }: Props) {
 
   if (!path) return null;
 
-  // The delete button is a small circle rendered as a foreignObject so we can
-  // use normal DOM/React event handling. It appears at the approximate visual
-  // midpoint of the bezier curve whenever the edge is hovered.
-  const DELETE_BTN_R = 10; // radius in SVG user-units
+  const strokeColor = getEdgeStrokeColor(edge.status, isPreviewing);
+  const markerEnd = getArrowMarkerId(edge.status, isPreviewing);
+  const isNonMain = portType !== 'main';
+  const isRunning = edge.status === 'running';
+
+  const TOOLBAR_SIZE = 24;
 
   return (
     <>
       <g>
-        {/* Wide invisible hit area — 18 px stroke so the edge is easy to click/hover */}
+        {/* Wide invisible hit area */}
         <path
           data-testid="clickable-edge"
           d={path}
@@ -129,58 +152,73 @@ export function Edge({ edge, fromGroupId, onDelete }: Props) {
             setContextMenu({ x: e.clientX, y: e.clientY });
           }}
         />
-        {/* Visible 2 px path — uses CSS variable colors so dark-mode overrides apply */}
+
+        {/* Visible edge path */}
         <path
           data-testid="edge"
           d={path}
-          strokeWidth={2}
-          stroke={isPreviewing ? 'var(--orange-8)' : 'var(--gray-8)'}
+          strokeWidth={isPreviewing ? 2.5 : 2}
+          stroke={strokeColor}
           fill="none"
-          markerEnd={isPreviewing ? 'url(#orange-arrow)' : 'url(#arrow)'}
+          markerEnd={markerEnd}
           pointerEvents="none"
+          strokeDasharray={isNonMain ? '5,6' : 'none'}
+          style={isRunning ? {
+            strokeDasharray: '8,4',
+            animation: 'edgeFlowAnimation 1s linear infinite',
+          } : undefined}
         />
 
-        {/* Delete button — shown at the midpoint when the edge is hovered */}
-        {isPreviewing && midPoint && onDelete && !isReadOnly && (
+        {/* Edge toolbar — appears at midpoint after hover delay */}
+        {showToolbar && midPoint && !isReadOnly && (
           <foreignObject
-            x={midPoint.x - DELETE_BTN_R}
-            y={midPoint.y - DELETE_BTN_R}
-            width={DELETE_BTN_R * 2}
-            height={DELETE_BTN_R * 2}
+            x={midPoint.x - TOOLBAR_SIZE}
+            y={midPoint.y - TOOLBAR_SIZE / 2}
+            width={TOOLBAR_SIZE * 2}
+            height={TOOLBAR_SIZE}
             style={{ overflow: 'visible' }}
           >
-            <button
-              type="button"
-              aria-label="Delete edge"
-              title="Delete edge"
-              style={{
-                width: DELETE_BTN_R * 2,
-                height: DELETE_BTN_R * 2,
-                borderRadius: '50%',
-                background: 'var(--orange-8)',
-                border: '2px solid #fff',
-                color: '#fff',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: 0,
-                boxShadow: '0 1px 4px rgba(0,0,0,0.25)',
-              }}
+            <div
+              className="flex items-center gap-0.5 rounded-md border border-[var(--gray-5)] bg-[var(--gray-1)] shadow-sm"
+              style={{ width: 'fit-content', margin: '0 auto' }}
               onMouseEnter={() => setIsMouseOver(true)}
               onMouseLeave={() => setIsMouseOver(false)}
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete(edge.id);
-              }}
             >
-              <LuX size={10} strokeWidth={3} />
-            </button>
+              {/* Add node button */}
+              <button
+                type="button"
+                aria-label="Insert node"
+                title="Insert node"
+                className="flex h-6 w-6 items-center justify-center rounded-l-md text-[var(--gray-11)] hover:bg-[var(--gray-3)] hover:text-[#f76808] transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onInsertNode?.(edge.id, midPoint);
+                }}
+              >
+                <LuPlus size={12} />
+              </button>
+
+              {/* Delete edge button */}
+              {onDelete && (
+                <button
+                  type="button"
+                  aria-label="Delete edge"
+                  title="Delete edge"
+                  className="flex h-6 w-6 items-center justify-center rounded-r-md text-[var(--gray-11)] hover:bg-[var(--gray-3)] hover:text-[#ef4444] transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(edge.id);
+                  }}
+                >
+                  <LuX size={12} />
+                </button>
+              )}
+            </div>
           </foreignObject>
         )}
       </g>
 
-      {/* Right-click context menu — rendered into document.body via portal */}
+      {/* Right-click context menu */}
       {contextMenu &&
         createPortal(
           <div

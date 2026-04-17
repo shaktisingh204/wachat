@@ -23,7 +23,7 @@ import { ConditionSettings } from '@/components/sabflow/panels/blocks/logic/Cond
 import { WebhookSettings } from '@/components/sabflow/blocks/panels/settings/WebhookSettings';
 import { SetVariableSettings } from '@/components/sabflow/blocks/panels/settings/SetVariableSettings';
 import { WaitSettings } from '@/components/sabflow/blocks/panels/settings/WaitSettings';
-import { ScriptSettings } from '@/components/sabflow/blocks/panels/settings/ScriptSettings';
+import { ScriptSettings } from '@/components/sabflow/panels/blocks/logic/ScriptSettings';
 
 // AI / Integration panels
 import { OpenAISettings } from '@/components/sabflow/panels/blocks/OpenAISettings';
@@ -40,14 +40,6 @@ import { SegmentSettings } from '@/components/sabflow/panels/blocks/integrations
 import { PixelSettings } from '@/components/sabflow/panels/blocks/integrations/PixelSettings';
 import { ChoiceInputSettings } from '@/components/sabflow/panels/blocks/ChoiceInputSettings';
 import { PictureChoiceSettings } from '@/components/sabflow/panels/blocks/PictureChoiceSettings';
-import { PaymentInputSettings } from '@/components/sabflow/panels/blocks/inputs/PaymentInputSettings';
-import { ImageBubbleSettings } from '@/components/sabflow/panels/blocks/ImageBubbleSettings';
-import { VideoBubbleSettings } from '@/components/sabflow/panels/blocks/VideoBubbleSettings';
-import { AudioBubbleSettings } from '@/components/sabflow/panels/blocks/AudioBubbleSettings';
-import { EmbedBubbleSettings } from '@/components/sabflow/panels/blocks/EmbedBubbleSettings';
-
-// n8n-style "Execute this node" runner shared across every block type
-import { TestNodePanel } from '@/components/sabflow/panels/blocks/shared/TestNodePanel';
 
 /* ── Props ───────────────────────────────────────────────────────────────── */
 
@@ -119,8 +111,6 @@ export function BlockSettingsPanel({ flow, onFlowChange, onVariablesChange }: Pr
               variableNames={variableNames}
               variables={variables}
               onUpdate={handleBlockUpdate}
-              workspaceId={flow.userId}
-              flowId={flow._id?.toString()}
               onCreateVariable={
                 onVariablesChange
                   ? (v) => onVariablesChange([...flow.variables, v])
@@ -186,23 +176,11 @@ type BodyProps = {
   /** Flat name list — used by legacy components that accept string[] */
   variableNames: string[];
   onUpdate: (changes: Partial<Block>) => void;
-  /** Owning workspace id — enables file uploads in bubble settings. */
-  workspaceId?: string;
-  /** Owning flow id — attached to upload metadata. */
-  flowId?: string;
   /** Allow block-level VariableSelect to create a new variable inline */
   onCreateVariable?: (variable: Variable) => void;
 };
 
-function BlockSettingsBody({
-  block,
-  variables,
-  variableNames,
-  onUpdate,
-  workspaceId,
-  flowId,
-  onCreateVariable,
-}: BodyProps) {
+function BlockSettingsBody({ block, variables, variableNames, onUpdate, onCreateVariable }: BodyProps) {
   const options = block.options ?? {};
   const update = (patch: Record<string, unknown>) =>
     onUpdate({ options: { ...options, ...patch } });
@@ -213,45 +191,25 @@ function BlockSettingsBody({
     return <TextBlockSettings block={block} onUpdate={onUpdate} variables={variableNames} />;
   }
 
-  if (block.type === 'image') {
+  if (block.type === 'image' || block.type === 'video' || block.type === 'audio' || block.type === 'embed') {
+    const urlLabel: Record<string, string> = {
+      image: 'Image URL',
+      video: 'Video URL',
+      audio: 'Audio URL',
+      embed: 'Embed URL',
+    };
     return (
-      <ImageBubbleSettings
-        block={block}
-        onBlockChange={(updated) => onUpdate({ options: updated.options })}
-        workspaceId={workspaceId}
-        flowId={flowId}
-      />
-    );
-  }
-
-  if (block.type === 'video') {
-    return (
-      <VideoBubbleSettings
-        block={block}
-        onBlockChange={(updated) => onUpdate({ options: updated.options })}
-        workspaceId={workspaceId}
-        flowId={flowId}
-      />
-    );
-  }
-
-  if (block.type === 'audio') {
-    return (
-      <AudioBubbleSettings
-        block={block}
-        onBlockChange={(updated) => onUpdate({ options: updated.options })}
-        workspaceId={workspaceId}
-        flowId={flowId}
-      />
-    );
-  }
-
-  if (block.type === 'embed') {
-    return (
-      <EmbedBubbleSettings
-        block={block}
-        onBlockChange={(updated) => onUpdate({ options: updated.options })}
-      />
+      <div className="space-y-4">
+        <Field label={urlLabel[block.type] ?? 'URL'}>
+          <input
+            type="text"
+            className={inputClass}
+            value={String(options.url ?? '')}
+            onChange={(e) => update({ url: e.target.value })}
+            placeholder="https://…"
+          />
+        </Field>
+      </div>
     );
   }
 
@@ -281,17 +239,7 @@ function BlockSettingsBody({
     );
   }
 
-  if (block.type === 'payment_input') {
-    return (
-      <PaymentInputSettings
-        block={block}
-        onBlockChange={(updated) => onUpdate({ options: updated.options })}
-        variables={variables}
-      />
-    );
-  }
-
-  // Generic inputs (number, email, phone, url, date, time, rating, file)
+  // Generic inputs (number, email, phone, url, date, time, rating, file, payment)
   if (block.type.endsWith('_input')) {
     return (
       <div className="space-y-4">
@@ -338,7 +286,13 @@ function BlockSettingsBody({
   }
 
   if (block.type === 'script') {
-    return <ScriptSettings block={block} onUpdate={onUpdate} variables={variableNames} />;
+    return (
+      <ScriptSettings
+        block={block}
+        onBlockChange={(updated) => onUpdate({ options: updated.options })}
+        variables={variables}
+      />
+    );
   }
 
   if (block.type === 'redirect') {

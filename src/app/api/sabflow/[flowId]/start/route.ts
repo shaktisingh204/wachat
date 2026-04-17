@@ -48,7 +48,7 @@ export async function POST(_req: NextRequest, { params }: RouteContext) {
 
     // Run one step with an empty input so bubble blocks before the first
     // input prompt are collected and the first pendingInput is resolved.
-    const { session: advancedSession, nextSteps } = processInput(session, flow, '');
+    const { session: advancedSession, nextSteps } = await processInput(session, flow, '');
 
     // Collect only host messages (guest echo of the empty seed input is skipped)
     const messages: ChatMessage[] = advancedSession.messages.filter(

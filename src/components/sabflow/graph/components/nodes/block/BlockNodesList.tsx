@@ -16,7 +16,7 @@ type Props = {
   group: Group;
   groupIndex: number;
   groupRef: React.RefObject<HTMLDivElement | null>;
-  edges: { from: { blockId?: string }; to: { blockId?: string } }[];
+  edges: { from: { blockId?: string; pinId?: string }; to: { blockId?: string } }[];
   onBlocksChange: (blocks: Block[]) => void;
 };
 
@@ -130,6 +130,19 @@ export function BlockNodesList({ blocks, group, groupIndex, groupRef, edges, onB
     edges.map((e) => e.from.blockId).filter(Boolean) as string[],
   );
 
+  // Per-block map of pin ids that already have an outgoing edge — used by
+  // MultiSourceEndpoints to render a persistent filled dot on active pins.
+  const outgoingPinIdsByBlock = new Map<string, Set<string>>();
+  for (const e of edges) {
+    if (!e.from.blockId || !e.from.pinId) continue;
+    let set = outgoingPinIdsByBlock.get(e.from.blockId);
+    if (!set) {
+      set = new Set<string>();
+      outgoingPinIdsByBlock.set(e.from.blockId, set);
+    }
+    set.add(e.from.pinId);
+  }
+
   // Last block (or only block) gets a source endpoint
   const lastConnectableIndex = blocks.length - 1;
 
@@ -151,6 +164,7 @@ export function BlockNodesList({ blocks, group, groupIndex, groupRef, edges, onB
             isConnectable={index === lastConnectableIndex}
             hasIncomingEdge={blockIdsWithIncomingEdge.has(block.id)}
             hasOutgoingEdge={blockIdsWithOutgoingEdge.has(block.id)}
+            outgoingPinIds={outgoingPinIdsByBlock.get(block.id)}
             onMouseDown={!isReadOnly ? handleBlockMouseDown(index) : undefined}
             onBlockChange={(updatedBlock) => {
               const updated = blocks.map((b) => (b.id === updatedBlock.id ? updatedBlock : b));

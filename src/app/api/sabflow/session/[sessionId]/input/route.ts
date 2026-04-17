@@ -89,7 +89,7 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
 
   // ── Advance the engine ─────────────────────────────────────────────────
   try {
-    const { session: updatedSession, nextSteps } = processInput(
+    const { session: updatedSession, nextSteps } = await processInput(
       session,
       flow,
       inputStr,

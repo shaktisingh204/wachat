@@ -20,6 +20,12 @@ export type ChatMessage = {
 };
 
 export type ExecutionStep = {
-  type: 'message' | 'input' | 'redirect' | 'condition_evaluated' | 'variable_set';
+  type:
+    | 'message'
+    | 'input'
+    | 'redirect'
+    | 'condition_evaluated'
+    | 'variable_set'
+    | 'script_executed';
   payload: Record<string, unknown>;
 };

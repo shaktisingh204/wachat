@@ -1,5 +1,5 @@
 'use client';
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import { useGraph } from '../../providers/GraphProvider';
 import { useEndpoints } from '../../providers/EndpointsProvider';
 import { useSelectionStore } from '../../hooks/useSelectionStore';
@@ -12,16 +12,25 @@ type Props = {
   connectingIds: ConnectingIds;
 };
 
+/** Delay before showing the drawing edge — prevents flicker on accidental clicks. */
+const VISIBILITY_DELAY_MS = 300;
+
 export function DrawingEdge({ connectingIds }: Props) {
   const { canvasPosition, graphPosition, setConnectingIds } = useGraph();
   const { sourceEndpointYOffsets, targetEndpointYOffsets } = useEndpoints();
-  // Read coordinates directly from the store without subscribing — this avoids
-  // re-renders caused by group coordinate updates while the edge is being drawn.
-  // The component will re-render only when connectingIds or mousePosition changes.
   const elementsCoordinates = useSelectionStore.getState().elementsCoordinates;
   const [mousePosition, setMousePosition] = useState<Coordinates | null>(null);
+  const [isVisible, setIsVisible] = useState(false);
+  const visibilityTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // For event-sourced edges, the coordinate key is the eventId; for block/group edges, it's groupId
+  // 300ms visibility delay to prevent flicker
+  useEffect(() => {
+    visibilityTimerRef.current = setTimeout(() => setIsVisible(true), VISIBILITY_DELAY_MS);
+    return () => {
+      if (visibilityTimerRef.current) clearTimeout(visibilityTimerRef.current);
+    };
+  }, []);
+
   const sourceCoordKey = connectingIds.source.eventId ?? connectingIds.source.groupId;
   const sourceGroupCoordinates = sourceCoordKey ? elementsCoordinates?.[sourceCoordKey] : undefined;
   const targetGroupCoordinates = connectingIds.target?.groupId
@@ -29,7 +38,6 @@ export function DrawingEdge({ connectingIds }: Props) {
     : undefined;
 
   const sourceTop = useMemo(() => {
-    // For event sources, the endpoint is registered under eventId; for block/group, under blockId or groupId
     const endpointId =
       connectingIds.source.eventId ??
       connectingIds.source.blockId ??
@@ -94,16 +102,17 @@ export function DrawingEdge({ connectingIds }: Props) {
     };
   }, [canvasPosition, setConnectingIds]);
 
-  if (!path) return null;
+  if (!path || !isVisible) return null;
 
   return (
     <path
       d={path}
       strokeWidth="2px"
-      markerEnd="url(#orange-arrow)"
+      markerEnd="url(#arrow-hover)"
       fill="none"
-      stroke="var(--orange-8)"
+      stroke="var(--gray-9)"
       strokeDasharray="5,5"
+      opacity={0.7}
       pointerEvents="none"
     />
   );
