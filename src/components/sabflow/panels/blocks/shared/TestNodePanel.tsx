@@ -41,7 +41,35 @@ import { PinDataButton } from '@/components/sabflow/panels/blocks/shared/PinData
 type TestNodePanelProps = {
   block: Block;
   flow: SabFlowDoc;
+  /** When provided, pin/unpin writes to `block.pinData` via this callback. */
+  onBlockChange?: (changes: Partial<Block>) => void;
 };
+
+/**
+ * Walk the flow edges and return the set of block IDs upstream of the target.
+ * Used to build the pinned-upstream map that feeds into testNode.
+ */
+function getUpstreamBlockIds(flow: SabFlowDoc, blockId: string): Set<string> {
+  const upstream = new Set<string>();
+  const queue: string[] = [blockId];
+  const seen = new Set<string>([blockId]);
+
+  while (queue.length > 0) {
+    const current = queue.shift()!;
+    for (const edge of flow.edges) {
+      if (edge.to.blockId === current) {
+        const sourceId =
+          'blockId' in edge.from ? edge.from.blockId : undefined;
+        if (sourceId && !seen.has(sourceId)) {
+          seen.add(sourceId);
+          upstream.add(sourceId);
+          queue.push(sourceId);
+        }
+      }
+    }
+  }
+  return upstream;
+}
 
 type Tab = 'input' | 'variables';
 
@@ -207,9 +235,19 @@ type ResultPanelProps = {
   blockId: string;
   result: TestNodeResult | null;
   status: Status;
+  onPersistPinData?: (value: unknown) => void;
+  onClearPinData?: () => void;
+  pinPersisted?: boolean;
 };
 
-function ResultPanel({ blockId, result, status }: ResultPanelProps) {
+function ResultPanel({
+  blockId,
+  result,
+  status,
+  onPersistPinData,
+  onClearPinData,
+  pinPersisted,
+}: ResultPanelProps) {
   if (!result && status !== 'running') {
     return (
       <p className="mt-3 text-[11.5px] text-[var(--gray-9)]">
@@ -229,7 +267,13 @@ function ResultPanel({ blockId, result, status }: ResultPanelProps) {
         ) : null}
         <div className="flex-1" />
         {result && !result.error ? (
-          <PinDataButton blockId={blockId} value={result.output} />
+          <PinDataButton
+            blockId={blockId}
+            value={result.output}
+            onPersistPin={onPersistPinData}
+            onClearPin={onClearPinData}
+            persisted={pinPersisted}
+          />
         ) : null}
       </div>
 
@@ -265,10 +309,11 @@ function ResultPanel({ blockId, result, status }: ResultPanelProps) {
 
 /* ── Main panel ──────────────────────────────────────────────────────────── */
 
-function TestNodePanelInner({ block, flow }: TestNodePanelProps) {
+function TestNodePanelInner({ block, flow, onBlockChange }: TestNodePanelProps) {
   const { getInput } = useNodeContext();
   const recordResult = useNodeDataStore((s) => s.recordResult);
   const cached = useNodeDataStore((s) => s.entries[block.id]);
+  const upstreamEntries = useNodeDataStore((s) => s.entries);
 
   const [tab, setTab] = useState<Tab>('input');
   const [inputText, setInputText] = useState<string>(() =>
@@ -305,10 +350,20 @@ function TestNodePanelInner({ block, flow }: TestNodePanelProps) {
   const handleExecute = useCallback(async () => {
     if (parseError) return;
     setStatus('running');
+
+    const pinnedUpstream: Record<string, unknown> = {};
+    const upstreamIds = getUpstreamBlockIds(flow, block.id);
+    for (const id of upstreamIds) {
+      const entry = upstreamEntries[id];
+      const pinned = entry?.pinnedOutput ?? entry?.lastOutput;
+      if (pinned !== undefined) pinnedUpstream[id] = pinned;
+    }
+
     const r = await testNode({
       block,
       inputData: inputParsed.value,
       variables: variablesParsed.value,
+      pinnedUpstream,
     });
     setResult(r);
     setStatus(r.error ? 'error' : 'success');
@@ -317,7 +372,7 @@ function TestNodePanelInner({ block, flow }: TestNodePanelProps) {
       { ...r, ranAt: Date.now() },
       inputParsed.value,
     );
-  }, [parseError, block, inputParsed.value, variablesParsed.value, recordResult]);
+  }, [parseError, block, flow, inputParsed.value, variablesParsed.value, upstreamEntries, recordResult]);
 
   const activeText = tab === 'input' ? inputText : variablesText;
   const activeError =
@@ -396,7 +451,20 @@ function TestNodePanelInner({ block, flow }: TestNodePanelProps) {
       </button>
 
       {/* Result */}
-      <ResultPanel blockId={block.id} result={result} status={status} />
+      <ResultPanel
+        blockId={block.id}
+        result={result}
+        status={status}
+        pinPersisted={block.pinData !== undefined}
+        onPersistPinData={
+          onBlockChange
+            ? (value) => onBlockChange({ pinData: value })
+            : undefined
+        }
+        onClearPinData={
+          onBlockChange ? () => onBlockChange({ pinData: undefined }) : undefined
+        }
+      />
     </div>
   );
 }
@@ -430,10 +498,14 @@ function TabButton({
 
 /* ── Public wrapper (collapsible) ────────────────────────────────────────── */
 
-export function TestNodePanel({ block, flow }: TestNodePanelProps) {
+export function TestNodePanel({ block, flow, onBlockChange }: TestNodePanelProps) {
   return (
     <Collapsible title="Test this node">
-      <TestNodePanelInner block={block} flow={flow} />
+      <TestNodePanelInner
+        block={block}
+        flow={flow}
+        onBlockChange={onBlockChange}
+      />
     </Collapsible>
   );
 }

@@ -865,7 +865,40 @@ export type Block = {
   inputPorts?: NodePort[];
   /** Custom output ports — when omitted, `getDefaultPorts()` is used. */
   outputPorts?: NodePort[];
+  /** Custom output pins — overrides `getDefaultPins(type)`. */
+  outputPins?: OutputPin[];
+  /** n8n-style retry-on-failure config. */
+  retry?: NodeRetryConfig;
+  /** n8n-style error-handling strategy. */
+  onError?: NodeErrorStrategy;
+  /** Pinned output — when set, engine skips execution and returns this. */
+  pinData?: unknown;
 };
+
+/**
+ * n8n-style retry config.  When a node throws, the executor re-runs it up to
+ * `maxTries` times, sleeping `waitMs` between attempts (optionally multiplied
+ * by a backoff factor).
+ */
+export type NodeRetryConfig = {
+  /** Total attempts including the first. Minimum 1. Default 1 (no retry). */
+  maxTries: number;
+  /** Delay between attempts in ms. Default 1000. */
+  waitMs?: number;
+  /** 'linear' = constant waitMs; 'exponential' = waitMs * 2^(attempt-1). */
+  backoff?: 'linear' | 'exponential';
+};
+
+/**
+ * Action to take when a node errors after all retries are exhausted.
+ *   - 'stop'                 — default. Execution halts, error propagates.
+ *   - 'continueRegularOutput'— swallow the error, continue on the main pin.
+ *   - 'continueErrorOutput'  — route to the node's 'error' pin edges.
+ */
+export type NodeErrorStrategy =
+  | 'stop'
+  | 'continueRegularOutput'
+  | 'continueErrorOutput';
 
 /* ── Discriminated union for type-safe access ─────────── */
 

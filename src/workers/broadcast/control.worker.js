@@ -234,7 +234,7 @@ async function processControlJob(job, workerId) {
 }
 
 function startControlWorker(workerId) {
-  const concurrency = parseInt(process.env.BROADCAST_CONTROL_CONCURRENCY || '4', 10);
+  const concurrency = parseInt(process.env.BROADCAST_CONTROL_CONCURRENCY || '50', 10);
 
   const worker = new Worker(
     BROADCAST_CONTROL_QUEUE,

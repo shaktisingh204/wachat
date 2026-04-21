@@ -17,6 +17,7 @@
 import type { Block, KVPair } from '@/lib/sabflow/types';
 import { substituteVariables } from '@/lib/sabflow/engine/substituteVariables';
 import { evaluateCondition } from '@/lib/sabflow/engine/evaluateCondition';
+import { runWithRetry } from '@/lib/sabflow/engine/runWithRetry';
 
 /* ── Public types ────────────────────────────────────────────────────────── */
 
@@ -33,6 +34,13 @@ export type TestNodeParams = {
   variables: Record<string, unknown>;
   /** Map of credentialId → key-value bag. */
   credentials?: Record<string, Record<string, string>>;
+  /**
+   * n8n-style upstream pin map. When an upstream node hasn't been tested but
+   * has pinned output, the caller passes its id → output here. Values are
+   * merged into the interpolation context under `$node.<id>` and shallow-
+   * merged into `inputData` when the key `'$input'` is used.
+   */
+  pinnedUpstream?: Record<string, unknown>;
 };
 
 export type TestNodeResult = {
@@ -40,6 +48,10 @@ export type TestNodeResult = {
   logs: TestLogEntry[];
   durationMs: number;
   error?: string;
+  /** Number of attempts (1 = no retry, N = first success or final failure). */
+  attempts?: number;
+  /** True when the output came from `block.pinData` without running. */
+  pinned?: boolean;
 };
 
 /* ── Internal helpers ────────────────────────────────────────────────────── */
@@ -438,70 +450,72 @@ async function runScript(
 export async function testNode(
   params: TestNodeParams,
 ): Promise<TestNodeResult> {
-  const { block, inputData, variables, credentials } = params;
+  const { block, inputData, variables, credentials, pinnedUpstream } = params;
   const logs: TestLogEntry[] = [];
   const start = performance.now();
-  const vars = buildInterpolationMap(variables, inputData);
 
-  try {
-    let output: unknown;
+  // Merge pinned upstream outputs into inputData so references like
+  // `{{ nodeId.field }}` still resolve against their pinned values.
+  const effectiveInput: Record<string, unknown> = pinnedUpstream
+    ? { ...pinnedUpstream, ...inputData }
+    : inputData;
+  const vars = buildInterpolationMap(variables, effectiveInput);
 
-    switch (block.type) {
-      case 'webhook':
-        output = await runHttp(block, vars, logs);
-        break;
+  const outcome = await runWithRetry(
+    block,
+    async () => {
+      switch (block.type) {
+        case 'webhook':
+          return runHttp(block, vars, logs);
+        case 'open_ai':
+          return runOpenAI(block, vars, credentials, logs);
+        case 'anthropic':
+          return runAnthropic(block, vars, credentials, logs);
+        case 'mistral':
+        case 'together_ai':
+          return runMistral(block, vars, credentials, logs);
+        case 'set_variable':
+          return runSetVariable(block, variables, vars);
+        case 'condition':
+          return runCondition(block, vars);
+        case 'text':
+        case 'image':
+        case 'video':
+        case 'audio':
+        case 'embed':
+          return runBubble(block, vars);
+        case 'script':
+          return runScript(block, effectiveInput, variables, logs);
+        default:
+          return { skipped: true, reason: `No test runner for "${block.type}"` };
+      }
+    },
+    {
+      onRetry: (attempt, waitMs, err) => {
+        logs.push({
+          level: 'warn',
+          message: `Attempt ${attempt} failed (${err.message}); retrying in ${waitMs}ms`,
+        });
+      },
+    },
+  );
 
-      case 'open_ai':
-        output = await runOpenAI(block, vars, credentials, logs);
-        break;
-
-      case 'anthropic':
-        output = await runAnthropic(block, vars, credentials, logs);
-        break;
-
-      case 'mistral':
-      case 'together_ai':
-        output = await runMistral(block, vars, credentials, logs);
-        break;
-
-      case 'set_variable':
-        output = runSetVariable(block, variables, vars);
-        break;
-
-      case 'condition':
-        output = runCondition(block, vars);
-        break;
-
-      case 'text':
-      case 'image':
-      case 'video':
-      case 'audio':
-      case 'embed':
-        output = runBubble(block, vars);
-        break;
-
-      case 'script':
-        output = await runScript(block, inputData, variables, logs);
-        break;
-
-      default:
-        output = { skipped: true, reason: `No test runner for "${block.type}"` };
-        break;
-    }
-
+  if (outcome.kind === 'ok') {
     return {
-      output,
+      output: outcome.value,
       logs,
       durationMs: Math.round(performance.now() - start),
-    };
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    logs.push({ level: 'error', message });
-    return {
-      output: null,
-      logs,
-      durationMs: Math.round(performance.now() - start),
-      error: message,
+      attempts: outcome.attempts,
+      pinned: outcome.pinned,
     };
   }
+
+  logs.push({ level: 'error', message: outcome.error.message });
+  return {
+    output: null,
+    logs,
+    durationMs: Math.round(performance.now() - start),
+    error: outcome.error.message,
+    attempts: outcome.attempts,
+  };
 }

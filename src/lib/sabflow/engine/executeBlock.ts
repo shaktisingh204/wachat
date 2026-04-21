@@ -3,6 +3,8 @@ import type { OutgoingMessage } from './types';
 import type { Condition } from './evaluateCondition';
 import { evaluateCondition } from './evaluateCondition';
 import { substituteVariables } from './substituteVariables';
+import { runWithRetry } from './runWithRetry';
+import { resolveErrorEdge } from './errorRouting';
 
 export type BlockExecutionResult = {
   messages: OutgoingMessage[];
@@ -14,6 +16,13 @@ export type BlockExecutionResult = {
   updatedVariables?: Record<string, string>;
   /** True when the block needs a user reply before execution can continue. */
   requiresInput?: boolean;
+  /**
+   * When the block errored and `onError` is set to 'continueErrorOutput', this
+   * carries the error edge's destination so `executeFlow` can jump to it.
+   * When the block errored and `onError` is 'stop' (or undefined), this is
+   * 'halt' and the caller terminates execution.
+   */
+  errorSignal?: { kind: 'goto'; groupId: string } | { kind: 'halt'; message: string };
 };
 
 const INPUT_TYPES = new Set([
@@ -154,24 +163,27 @@ export async function executeBlock(
         (block.options?.content as string | undefined) ?? '',
         variables,
       );
-      let result = '';
-      try {
-        // Very lightweight sandbox: the script gets a read-only variables
-        // object and can return a string value via `return`.
+      const outcome = await runWithRetry(block, () => {
+        // Lightweight sandbox: read-only variables, string return via `return`.
         const fn = new Function('variables', `"use strict"; ${code}`);
         const raw = fn({ ...variables });
-        if (raw !== undefined && raw !== null) result = String(raw);
-      } catch (err) {
-        result = `Script error: ${err instanceof Error ? err.message : String(err)}`;
-      }
+        return raw === undefined || raw === null ? '' : String(raw);
+      });
+
       const saveVariableId =
         (block.options?.variableId as string | undefined) ??
         (block.options?.variableName as string | undefined);
-      const updatedVariables =
-        saveVariableId && result
-          ? { ...variables, [saveVariableId]: result }
-          : undefined;
-      return { messages: [], updatedVariables };
+
+      if (outcome.kind === 'ok') {
+        const result = outcome.value;
+        const updatedVariables =
+          saveVariableId && result
+            ? { ...variables, [saveVariableId]: result }
+            : undefined;
+        return { messages: [], updatedVariables };
+      }
+
+      return buildErrorSignal(block, edges, outcome.error, outcome.strategy);
     }
 
     case 'wait': {
@@ -213,8 +225,7 @@ export async function executeBlock(
 
       if (!url) return { messages: [] };
 
-      let responseText = '';
-      try {
+      const outcome = await runWithRetry(block, async () => {
         const fetchOptions: RequestInit = {
           method,
           headers: {
@@ -231,25 +242,29 @@ export async function executeBlock(
           fetchOptions.body = substituteVariables(bodyTemplate, variables);
         }
         const res = await fetch(url, fetchOptions);
-        responseText = await res.text();
-      } catch (err) {
-        responseText = `Webhook error: ${err instanceof Error ? err.message : String(err)}`;
-      }
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status} ${res.statusText}`);
+        }
+        return res.text();
+      });
 
-      // Optionally save the response body into a variable
       const responseVariableId =
         (block.options?.responseVariableId as string | undefined) ??
         (block.options?.saveResponseVariableId as string | undefined);
-      const updatedVariables =
-        responseVariableId
-          ? { ...variables, [responseVariableId]: responseText }
-          : undefined;
 
-      return { messages: [], updatedVariables };
+      if (outcome.kind === 'ok') {
+        const updatedVariables = responseVariableId
+          ? { ...variables, [responseVariableId]: outcome.value }
+          : undefined;
+        return { messages: [], updatedVariables };
+      }
+
+      return buildErrorSignal(block, edges, outcome.error, outcome.strategy);
     }
 
     case 'send_email':
     case 'google_sheets':
+    case 'google_analytics':
     case 'google_analytics':
     case 'open_ai':
     case 'zapier':
@@ -270,4 +285,36 @@ export async function executeBlock(
       return { messages: [] };
     }
   }
+}
+
+function buildErrorSignal(
+  block: Block,
+  edges: Edge[],
+  error: Error,
+  strategy: 'stop' | 'continueRegularOutput' | 'continueErrorOutput',
+): BlockExecutionResult {
+  const errorText = `Error in ${block.type}: ${error.message}`;
+
+  if (strategy === 'continueRegularOutput') {
+    return { messages: [{ type: 'text', content: errorText }] };
+  }
+
+  if (strategy === 'continueErrorOutput') {
+    const edge = resolveErrorEdge(block, edges);
+    if (edge?.to.groupId) {
+      return {
+        messages: [{ type: 'text', content: errorText }],
+        errorSignal: { kind: 'goto', groupId: edge.to.groupId },
+      };
+    }
+    return {
+      messages: [{ type: 'text', content: errorText }],
+      errorSignal: { kind: 'halt', message: errorText },
+    };
+  }
+
+  return {
+    messages: [],
+    errorSignal: { kind: 'halt', message: errorText },
+  };
 }

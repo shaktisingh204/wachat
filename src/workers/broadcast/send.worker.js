@@ -420,7 +420,7 @@ async function processSendJob(job) {
 }
 
 function startSendWorker(workerId) {
-  const concurrency = parseInt(process.env.BROADCAST_SEND_CONCURRENCY || '16', 10);
+  const concurrency = parseInt(process.env.BROADCAST_SEND_CONCURRENCY || '64', 10);
 
   const worker = new Worker(
     BROADCAST_SEND_QUEUE,

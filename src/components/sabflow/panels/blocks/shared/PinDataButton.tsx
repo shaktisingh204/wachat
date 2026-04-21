@@ -20,25 +20,42 @@ type Props = {
   value?: unknown;
   /** Optional extra className for layout tweaks. */
   className?: string;
+  /** When provided, pin writes persist to `block.pinData`. */
+  onPersistPin?: (value: unknown) => void;
+  /** When provided, unpin clears `block.pinData`. */
+  onClearPin?: () => void;
+  /** True when block.pinData is currently set. Drives the pressed state. */
+  persisted?: boolean;
 };
 
-export function PinDataButton({ blockId, value, className }: Props) {
+export function PinDataButton({
+  blockId,
+  value,
+  className,
+  onPersistPin,
+  onClearPin,
+  persisted,
+}: Props) {
   const pinnedOutput = useNodeDataStore(
     (state) => state.entries[blockId]?.pinnedOutput,
   );
   const pinData = useNodeDataStore((state) => state.pinData);
   const unpinData = useNodeDataStore((state) => state.unpinData);
 
-  const isPinned = pinnedOutput !== undefined;
+  const isPinned = persisted ?? pinnedOutput !== undefined;
   const canPin = value !== undefined && value !== null;
 
   const handleClick = useCallback(() => {
     if (isPinned) {
       unpinData(blockId);
+      onClearPin?.();
       return;
     }
-    if (canPin) pinData(blockId, value);
-  }, [isPinned, canPin, pinData, unpinData, blockId, value]);
+    if (canPin) {
+      pinData(blockId, value);
+      onPersistPin?.(value);
+    }
+  }, [isPinned, canPin, pinData, unpinData, blockId, value, onPersistPin, onClearPin]);
 
   const { label, Icon } = useMemo(
     () =>

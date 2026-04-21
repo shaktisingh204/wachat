@@ -106,6 +106,40 @@ export async function executeFlow(
         continue outer;
       }
 
+      // The block failed and signalled how to proceed.
+      if (blockResult.errorSignal) {
+        if (blockResult.errorSignal.kind === 'goto') {
+          currentGroupId = blockResult.errorSignal.groupId;
+          currentBlockIndex = 0;
+          hopCount++;
+          continue outer;
+        }
+        // 'halt' — terminate execution with the error surfaced as a message.
+        return {
+          result: {
+            messages,
+            isCompleted: true,
+            updatedVariables: variables,
+          },
+          updatedSession: {
+            ...session,
+            currentGroupId,
+            currentBlockIndex: i,
+            variables,
+            history: [
+              ...session.history,
+              {
+                groupId: currentGroupId,
+                blockId: block.id,
+                blockType: block.type,
+                timestamp: new Date(),
+                output: blockResult.errorSignal.message,
+              },
+            ],
+          },
+        };
+      }
+
       // The block has an outgoing edge — follow it at the end of this block
       // (handled after the for-loop falls through to the edge resolution below)
     }

@@ -125,7 +125,11 @@ export function BlockSettingsPanel({ flow, onFlowChange, onVariablesChange }: Pr
                     : undefined
                 }
               />
-              <TestNodePanel block={openedBlock} flow={flow} />
+              <TestNodePanel
+                block={openedBlock}
+                flow={flow}
+                onBlockChange={handleBlockUpdate}
+              />
             </>
           )}
         </div>

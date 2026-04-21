@@ -4,6 +4,9 @@ export { executeBlock } from './executeBlock';
 export { evaluateCondition } from './evaluateCondition';
 export { substituteVariables } from './substituteVariables';
 export { getNextGroup } from './getNextGroup';
+export { runWithRetry } from './runWithRetry';
+export { resolveErrorEdge } from './errorRouting';
+export type { NodeRunOutcome } from './runWithRetry';
 
 export type {
   SessionState,

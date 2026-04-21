@@ -27,6 +27,12 @@ module.exports = {
       env: {
         NODE_ENV: 'production',
         BROADCAST_USE_BULLMQ: '1',
+        // Effectively-unlimited concurrent campaigns. There is no per-user or
+        // per-project cap in code; with 4 PM2 instances these give 200 control
+        // jobs and 256 send-batch jobs in flight at once. Per-broadcast MPS
+        // (Redis token bucket) still keeps Meta API usage sane regardless.
+        BROADCAST_CONTROL_CONCURRENCY: process.env.BROADCAST_CONTROL_CONCURRENCY || '50',
+        BROADCAST_SEND_CONCURRENCY: process.env.BROADCAST_SEND_CONCURRENCY || '64',
       },
     },
 
