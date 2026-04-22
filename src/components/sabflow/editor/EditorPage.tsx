@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 import { GraphProvider, useGraph } from '@/components/sabflow/graph/providers/GraphProvider';
 import { GraphDndProvider } from '@/components/sabflow/graph/providers/GraphDndProvider';
-import { Graph } from '@/components/sabflow/graph/components/Graph';
+import { WorkflowCanvas } from '@/components/sabflow/canvas/WorkflowCanvas';
 import { BlocksSideBar } from './BlocksSideBar';
 import { BlockCardOverlay } from './BlockCardOverlay';
 import { BlockSettingsPanel } from '@/components/sabflow/panels/BlockSettingsPanel';
@@ -117,6 +117,22 @@ function EditorContent({ flow: initialFlow }: Props) {
         const next = { ...prev, ...changes };
         pushHistory(next);
         return next;
+      });
+    },
+    [pushHistory],
+  );
+
+  /**
+   * Full-document replace — used by the n8n-style WorkflowCanvas, which
+   * returns the entire next SabFlowDoc rather than a diff patch. We preserve
+   * the mongo _id so downstream saves still target the right record.
+   */
+  const handleDocChange = useCallback(
+    (next: SabFlowDoc) => {
+      setFlow((prev) => {
+        const merged = { ...next, _id: prev._id } as SabFlowDoc & { _id: string };
+        pushHistory(merged);
+        return merged;
       });
     },
     [pushHistory],
@@ -313,14 +329,13 @@ function EditorContent({ flow: initialFlow }: Props) {
         {/* Left sidebar: block palette */}
         <BlocksSideBar />
 
-        {/* Centre: graph canvas */}
-        <Graph
+        {/* Centre: n8n-style WorkflowCanvas. Replaces the Typebot-style Graph
+           while preserving the BlocksSideBar drag-in flow and the right-rail
+           BlockSettingsPanel wiring via `openedNodeId`. */}
+        <WorkflowCanvas
           flow={flow}
-          onFlowChange={handleFlowChange}
-          onVariablesChange={(variables) => setFlow((prev) => ({ ...prev, variables }))}
+          onFlowChange={handleDocChange}
           containerRef={containerRef}
-          onUndo={undo}
-          onRedo={redo}
         />
 
         {/* Right rail: one panel at a time */}

@@ -873,6 +873,12 @@ export type Block = {
   onError?: NodeErrorStrategy;
   /** Pinned output — when set, engine skips execution and returns this. */
   pinData?: unknown;
+  /**
+   * Canvas position for this block when rendered as an atomic n8n-style node.
+   * When absent, the n8n canvas falls back to the containing group's coords
+   * plus a per-index vertical offset.
+   */
+  graphCoordinates?: Coordinates;
 };
 
 /**
