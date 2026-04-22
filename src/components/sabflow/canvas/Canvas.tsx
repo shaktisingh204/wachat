@@ -17,10 +17,12 @@ import {
   Controls,
   MiniMap,
   ReactFlow,
+  applyEdgeChanges,
   applyNodeChanges,
   useReactFlow,
   type Connection,
   type Edge as XYEdge,
+  type EdgeChange,
   type Node as XYNode,
   type NodeChange,
   type OnConnectEnd,
@@ -82,19 +84,55 @@ export function Canvas({ flow, onFlowChange, containerRef }: Props) {
   // to the flow doc after the interaction settles.
   const [nodes, setNodes] = useState<XYNode[]>(translated.nodes);
   const [edges, setEdges] = useState<XYEdge[]>(translated.edges);
-  const prevTranslatedRef = useRef(translated);
 
+  /**
+   * Sync doc → local state. On every flow change we merge instead of
+   * replace, preserving each node's React-Flow-measured dimensions and
+   * selection state. Wholesale replacement would wipe the `measured` field
+   * React Flow sets via ResizeObserver, forcing a re-measure cycle on every
+   * doc update — which (combined with zustand subscribers) has been enough
+   * to re-trigger React error #185 in the past.
+   */
   useEffect(() => {
-    // Reset local nodes/edges only when the underlying doc changes meaningfully.
-    if (prevTranslatedRef.current !== translated) {
-      prevTranslatedRef.current = translated;
-      setNodes(translated.nodes);
-      setEdges(translated.edges);
-    }
+    setNodes((prev) => {
+      const byId = new Map(prev.map((n) => [n.id, n]));
+      const merged: XYNode[] = [];
+      for (const next of translated.nodes) {
+        const existing = byId.get(next.id);
+        if (existing) {
+          // Preserve measured dims + selection; refresh position + data.
+          merged.push({
+            ...existing,
+            position: next.position,
+            data: next.data,
+            type: next.type,
+          });
+        } else {
+          merged.push(next);
+        }
+      }
+      return merged;
+    });
+    setEdges((prev) => {
+      const byId = new Map(prev.map((e) => [e.id, e]));
+      const merged: XYEdge[] = [];
+      for (const next of translated.edges) {
+        const existing = byId.get(next.id);
+        merged.push(existing ? { ...existing, data: next.data } : next);
+      }
+      return merged;
+    });
   }, [translated]);
 
   /* ── Selection helpers ─────────────────────────────────── */
-  const selectedNodeIds = useMemo(() => nodes.filter((n) => n.selected).map((n) => n.id), [nodes]);
+  const selectedNodeIds = useMemo(
+    () => nodes.filter((n) => n.selected).map((n) => n.id),
+    [nodes],
+  );
+  const selectedEdgeIds = useMemo(
+    () => edges.filter((e) => e.selected).map((e) => e.id),
+    [edges],
+  );
 
   /* ── Handlers wired into CanvasNode via the node-type factory ─ */
   const handleNodeDelete = useCallback(
@@ -174,8 +212,15 @@ export function Canvas({ flow, onFlowChange, containerRef }: Props) {
     setNodes((nds) => applyNodeChanges(changes, nds));
   }, []);
 
-  const onEdgesChange = useCallback((_changes: unknown) => {
-    // We ignore xyflow-driven edge removals and let context menu drive removes.
+  /**
+   * Apply incremental edge changes (selection, dimension, etc). We deliberately
+   * filter out "remove" — deletions go through our ops.deleteEdgeById pipeline
+   * so the flow doc stays the source of truth.
+   */
+  const onEdgesChange = useCallback((changes: EdgeChange[]) => {
+    const filtered = changes.filter((c) => c.type !== 'remove');
+    if (filtered.length === 0) return;
+    setEdges((eds) => applyEdgeChanges(filtered, eds));
   }, []);
 
   const onNodeDragStop: OnNodeDrag = useCallback(
@@ -332,12 +377,12 @@ export function Canvas({ flow, onFlowChange, containerRef }: Props) {
 
   /* ── Keyboard shortcuts ──────────────────────────────── */
   useCanvasKeyboard({
+    selectedNodeIds,
+    selectedEdgeIds,
     onSelectAll: () =>
       setNodes((nds) => nds.map((n) => ({ ...n, selected: true }))),
     onDeleteSelected: () => {
-      // Delete selected edges too
-      const selEdges = edges.filter((e) => e.selected).map((e) => e.id);
-      for (const eid of selEdges) ops.deleteEdgeById(eid);
+      for (const eid of selectedEdgeIds) ops.deleteEdgeById(eid);
       if (selectedNodeIds.length) ops.deleteNodes(selectedNodeIds);
     },
     onDuplicateSelected: () => ops.duplicateNodes(selectedNodeIds),

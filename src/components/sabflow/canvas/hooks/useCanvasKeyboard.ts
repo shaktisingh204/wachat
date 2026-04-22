@@ -1,25 +1,31 @@
 'use client';
 /**
- * useCanvasKeyboard — port of n8n's canvas keybindings from Canvas.vue.
+ * useCanvasKeyboard — canvas keybindings.
  *
- * Full set ported so far:
- *   ⌘A / ⌘D / ⌘C / ⌘V / ⌘X / ⌘Z / ⌘⇧Z — owned by EditorPage
- *   Delete                — delete selected nodes/edges
- *   d                     — toggle disabled
- *   p                     — pin/unpin single selected node
- *   Tab                   — open node creator
- *   Escape                — clear selection / close pickers
- *   0                     — reset zoom
- *   1                     — fit-to-view
- *   Enter                 — open last-selected node's settings panel
- *   F2                    — start rename-in-place on last selected node
- *   ← / → / ↑ / ↓         — hop to adjacent connected node
- *   ⇧S                    — create sticky note at viewport center
- *   ⇧⌥T                   — tidy-up (auto-layout)
- *   ?                     — toggle keyboard help overlay
+ * Receives `selectedNodeIds` / `selectedEdgeIds` as arguments from the caller
+ * rather than reading them from React Flow's zustand store via inline
+ * selectors — that pattern returns a fresh array every render and was
+ * producing React error #185 (infinite re-render) because zustand kept
+ * reporting "store changed" on every evaluation.
+ *
+ * Shortcut set (same as before):
+ *   ⌘A / ⌘D / ⌘C / ⌘V / ⌘X / ⌘Z / ⌘⇧Z  (Z/⇧Z owned by EditorPage)
+ *   Delete   — delete selected nodes/edges
+ *   d        — toggle disabled
+ *   p        — pin / unpin
+ *   Tab      — open node creator
+ *   Escape   — clear selection / close pickers
+ *   0        — reset zoom
+ *   1        — fit-to-view
+ *   Enter    — open selected node
+ *   F2       — rename selected
+ *   ←/→/↑/↓  — hop between connected nodes
+ *   ⇧S       — add sticky note
+ *   ⇧⌥T      — tidy up
+ *   ?        — toggle help overlay
  */
-import { useEffect } from 'react';
-import { useReactFlow, useStore as useRFStore } from '@xyflow/react';
+import { useEffect, useRef } from 'react';
+import { useReactFlow } from '@xyflow/react';
 import { shouldIgnoreCanvasShortcut } from '../utils';
 
 type Handlers = {
@@ -40,23 +46,31 @@ type Handlers = {
   onTidyUp?: () => void;
   onToggleHelp?: () => void;
   readOnly?: boolean;
+  /** IDs of currently-selected nodes (from caller's local state). */
+  selectedNodeIds: string[];
+  /** IDs of currently-selected edges (from caller's local state). */
+  selectedEdgeIds: string[];
 };
 
 export function useCanvasKeyboard(h: Handlers) {
   const rf = useReactFlow();
-  const selectedNodeIds = useRFStore((s) =>
-    s.nodes.filter((n) => n.selected).map((n) => n.id),
-  );
-  const selectedEdgeIds = useRFStore((s) =>
-    s.edges.filter((e) => e.selected).map((e) => e.id),
-  );
+
+  /**
+   * Keep a ref to the latest handlers so we can register the keydown
+   * listener exactly once. Without this the listener would be re-attached
+   * on every render (cheap but wasteful).
+   */
+  const handlersRef = useRef(h);
+  handlersRef.current = h;
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
+      const h = handlersRef.current;
       if (shouldIgnoreCanvasShortcut(document.activeElement)) return;
       const meta = e.metaKey || e.ctrlKey;
+      const { selectedNodeIds, selectedEdgeIds } = h;
 
-      // Help overlay — "?" (shift+/ on most layouts)
+      // Help overlay — "?" (shift+/)
       if (!meta && e.key === '?') {
         e.preventDefault();
         h.onToggleHelp?.();
@@ -98,7 +112,7 @@ export function useCanvasKeyboard(h: Handlers) {
         return;
       }
 
-      // Shift+S — add sticky note
+      // Shift+S — add sticky
       if (e.shiftKey && !meta && !e.altKey && e.key.toLowerCase() === 's') {
         e.preventDefault();
         if (!h.readOnly) h.onAddSticky?.();
@@ -177,5 +191,6 @@ export function useCanvasKeyboard(h: Handlers) {
     }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [h, rf, selectedNodeIds, selectedEdgeIds]);
+    // Only re-register if the react-flow instance itself changes (essentially never).
+  }, [rf]);
 }
