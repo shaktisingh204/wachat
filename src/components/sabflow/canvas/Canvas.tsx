@@ -21,10 +21,8 @@ import {
   useReactFlow,
   type Connection,
   type Edge as XYEdge,
-  type EdgeTypes,
   type Node as XYNode,
   type NodeChange,
-  type NodeTypes,
   type OnConnectEnd,
   type OnConnectStart,
   type OnNodeDrag,
@@ -41,8 +39,9 @@ import {
   applyBulkNodePositions,
   flowDocToCanvas,
 } from './adapter';
-import { makeCanvasNodeType } from './nodes/CanvasNode';
-import { CanvasEdge } from './edges/CanvasEdge';
+import { CANVAS_NODE_TYPES } from './nodes/CanvasNode';
+import { CANVAS_EDGE_TYPES } from './edges/CanvasEdge';
+import { CanvasHandlersProvider } from './CanvasHandlersContext';
 import { CanvasContextMenu } from './contextMenu/CanvasContextMenu';
 import { useContextMenu } from './contextMenu/useContextMenu';
 import { NodeCreator } from './nodeCreator/NodeCreator';
@@ -52,6 +51,10 @@ import { useCanvasKeyboard } from './hooks/useCanvasKeyboard';
 import { MIN_ZOOM, MAX_ZOOM, GRID_SIZE } from './constants';
 import type { CanvasEdge as CanvasEdgeType, CanvasNode as CanvasNodeType } from './types';
 import { parseCanvasConnectionHandleString } from './utils';
+import { canConnect } from './connectionValidation';
+import { findNeighbor } from './navigation';
+import { EmptyCanvasOverlay } from './EmptyCanvasOverlay';
+import { ShortcutHelp } from './ShortcutHelp';
 
 type Props = {
   flow: SabFlowDoc;
@@ -66,6 +69,8 @@ export function Canvas({ flow, onFlowChange, containerRef }: Props) {
 
   const { state: menuState, open: openMenu, close: closeMenu } = useContextMenu();
   const { state: creatorState, open: openCreator, close: closeCreator } = useNodeCreator();
+  const [helpOpen, setHelpOpen] = useState(false);
+  const [renamingId, setRenamingId] = useState<string | undefined>(undefined);
 
   const ops = useCanvasOperations(flow, onFlowChange);
 
@@ -127,16 +132,28 @@ export function Canvas({ flow, onFlowChange, containerRef }: Props) {
     [openCreator, containerRef],
   );
 
-  const nodeTypes: NodeTypes = useMemo(
+  /**
+   * nodeTypes / edgeTypes MUST be stable (module-level constants). Every new
+   * reference forces React Flow to re-register and remount — an infinite loop
+   * generator when combined with onResize-on-mount callbacks.
+   *
+   * Dynamic handlers flow through <CanvasHandlersProvider> below.
+   */
+  const handlersValue = useMemo(
     () => ({
-      canvasNode: makeCanvasNodeType({
-        onAdd: handleNodeAdd,
-        onDelete: handleNodeDelete,
-        onDuplicate: handleNodeDuplicate,
-        onToggleDisabled: handleNodeToggleDisabled,
-        onExecute: handleNodeExecute,
-        isReadOnly,
-      }),
+      onNodeAdd: handleNodeAdd,
+      onNodeDelete: handleNodeDelete,
+      onNodeDuplicate: handleNodeDuplicate,
+      onNodeToggleDisabled: handleNodeToggleDisabled,
+      onNodeExecute: handleNodeExecute,
+      onNodeRename: (id: string, label: string) => ops.rename(id, label),
+      renamingNodeId: renamingId,
+      onRenameDone: () => setRenamingId(undefined),
+      onStickyUpdate: ops.patchSticky,
+      onStickyDelete: (id: string) => ops.deleteNodes([id]),
+      onEdgeAdd: (edgeId: string) => openCreator({ kind: 'edge-button', edgeId }),
+      onEdgeDelete: ops.deleteEdgeById,
+      isReadOnly,
     }),
     [
       handleNodeAdd,
@@ -144,24 +161,11 @@ export function Canvas({ flow, onFlowChange, containerRef }: Props) {
       handleNodeDuplicate,
       handleNodeToggleDisabled,
       handleNodeExecute,
+      ops,
+      renamingId,
+      openCreator,
       isReadOnly,
     ],
-  );
-
-  const edgeTypes: EdgeTypes = useMemo(
-    () => ({
-      canvasEdge: (edgeProps) => (
-        <CanvasEdge
-          {...edgeProps}
-          readOnly={isReadOnly}
-          onAdd={(edgeId) =>
-            openCreator({ kind: 'edge-button', edgeId }, /* allow all types */)
-          }
-          onDelete={(edgeId) => ops.deleteEdgeById(edgeId)}
-        />
-      ),
-    }),
-    [isReadOnly, openCreator, ops],
   );
 
   /* ── Node / edge events ────────────────────────────────── */
@@ -188,6 +192,8 @@ export function Canvas({ flow, onFlowChange, containerRef }: Props) {
   const onConnect = useCallback(
     (c: Connection) => {
       if (!c.source || !c.target) return;
+      const result = canConnect(c, flow);
+      if (!result.ok) return;
       ops.connect({
         source: c.source,
         sourceHandle: c.sourceHandle ?? 'outputs/main/0',
@@ -195,7 +201,20 @@ export function Canvas({ flow, onFlowChange, containerRef }: Props) {
         targetHandle: c.targetHandle ?? 'inputs/main/0',
       });
     },
-    [ops],
+    [ops, flow],
+  );
+
+  const isValidConnection = useCallback(
+    (c: Connection | XYEdge) => {
+      const conn: Connection = {
+        source: c.source ?? null,
+        target: c.target ?? null,
+        sourceHandle: (c as Connection).sourceHandle ?? null,
+        targetHandle: (c as Connection).targetHandle ?? null,
+      };
+      return canConnect(conn, flow).ok;
+    },
+    [flow],
   );
 
   /* Connection-to-empty-canvas triggers the node creator */
@@ -315,7 +334,12 @@ export function Canvas({ flow, onFlowChange, containerRef }: Props) {
   useCanvasKeyboard({
     onSelectAll: () =>
       setNodes((nds) => nds.map((n) => ({ ...n, selected: true }))),
-    onDeleteSelected: () => ops.deleteNodes(selectedNodeIds),
+    onDeleteSelected: () => {
+      // Delete selected edges too
+      const selEdges = edges.filter((e) => e.selected).map((e) => e.id);
+      for (const eid of selEdges) ops.deleteEdgeById(eid);
+      if (selectedNodeIds.length) ops.deleteNodes(selectedNodeIds);
+    },
     onDuplicateSelected: () => ops.duplicateNodes(selectedNodeIds),
     onToggleDisabledSelected: () => ops.toggleDisabled(selectedNodeIds),
     onTogglePinSelected: () => {
@@ -323,6 +347,65 @@ export function Canvas({ flow, onFlowChange, containerRef }: Props) {
     },
     onOpenNodeCreator: () => openCreator({ kind: 'keyboard' }),
     onClearSelection: () => setNodes((nds) => nds.map((n) => ({ ...n, selected: false }))),
+    onOpenSelected: () => {
+      if (selectedNodeIds.length === 1) setOpenedNodeId(selectedNodeIds[0]);
+    },
+    onRenameSelected: () => {
+      if (selectedNodeIds.length === 1) setRenamingId(selectedNodeIds[0]);
+    },
+    onNavigate: (dir) => {
+      if (selectedNodeIds.length !== 1) return;
+      const next = findNeighbor(nodes, edges, selectedNodeIds[0], dir);
+      if (!next) return;
+      setNodes((nds) => nds.map((n) => ({ ...n, selected: n.id === next })));
+      rf.setCenter(
+        nodes.find((n) => n.id === next)?.position.x ?? 0,
+        nodes.find((n) => n.id === next)?.position.y ?? 0,
+        { duration: 200, zoom: rf.getZoom() },
+      );
+    },
+    onCopySelected: () => {
+      const payload = ops.buildClipboardPayload(selectedNodeIds);
+      try {
+        void navigator.clipboard.writeText(JSON.stringify(payload));
+      } catch {
+        /* noop */
+      }
+    },
+    onPaste: async () => {
+      try {
+        const raw = await navigator.clipboard.readText();
+        const parsed = JSON.parse(raw) as { type?: string };
+        if (parsed?.type !== 'sabflow-clipboard') return;
+        const rect = containerRef.current?.getBoundingClientRect();
+        const flowPos = rf.screenToFlowPosition({
+          x: (rect?.left ?? 0) + (rect?.width ?? 800) / 2,
+          y: (rect?.top ?? 0) + (rect?.height ?? 600) / 2,
+        });
+        ops.pastePayload(parsed as Parameters<typeof ops.pastePayload>[0], flowPos);
+      } catch {
+        /* noop */
+      }
+    },
+    onCutSelected: () => {
+      const payload = ops.buildClipboardPayload(selectedNodeIds);
+      try {
+        void navigator.clipboard.writeText(JSON.stringify(payload));
+      } catch {
+        /* noop */
+      }
+      ops.deleteNodes(selectedNodeIds);
+    },
+    onAddSticky: () => {
+      const rect = containerRef.current?.getBoundingClientRect();
+      const flowPos = rf.screenToFlowPosition({
+        x: (rect?.left ?? 0) + (rect?.width ?? 800) / 2,
+        y: (rect?.top ?? 0) + (rect?.height ?? 600) / 2,
+      });
+      ops.addSticky(flowPos);
+    },
+    onTidyUp: () => ops.tidyUp(),
+    onToggleHelp: () => setHelpOpen((v) => !v),
     readOnly: isReadOnly,
   });
 
@@ -332,11 +415,12 @@ export function Canvas({ flow, onFlowChange, containerRef }: Props) {
       onPointerUp={onCanvasPointerUp}
       data-testid="sabflow-canvas"
     >
+     <CanvasHandlersProvider value={handlersValue}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
-        nodeTypes={nodeTypes}
-        edgeTypes={edgeTypes}
+        nodeTypes={CANVAS_NODE_TYPES}
+        edgeTypes={CANVAS_EDGE_TYPES}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onNodeDragStop={onNodeDragStop}
@@ -357,6 +441,7 @@ export function Canvas({ flow, onFlowChange, containerRef }: Props) {
         proOptions={{ hideAttribution: true }}
         defaultEdgeOptions={{ type: 'canvasEdge' }}
         connectionLineStyle={{ stroke: '#f76808', strokeWidth: 2 }}
+        isValidConnection={isValidConnection}
         nodesDraggable={!isReadOnly}
         nodesConnectable={!isReadOnly}
         elementsSelectable={!isReadOnly}
@@ -379,8 +464,15 @@ export function Canvas({ flow, onFlowChange, containerRef }: Props) {
           }}
         />
       </ReactFlow>
+     </CanvasHandlersProvider>
+
+      {nodes.length === 0 && !isReadOnly ? (
+        <EmptyCanvasOverlay onAdd={() => openCreator({ kind: 'plus-button' })} />
+      ) : null}
 
       <NodeCreator state={creatorState} onClose={closeCreator} onPick={onPickType} />
+
+      <ShortcutHelp open={helpOpen} onClose={() => setHelpOpen(false)} />
 
       <CanvasContextMenu
         state={menuState}
@@ -389,7 +481,12 @@ export function Canvas({ flow, onFlowChange, containerRef }: Props) {
         actions={{
           onAddNode: (x, y) =>
             openCreator({ kind: 'canvas-context-menu', position: { x, y } }),
+          onAddSticky: (x, y) => {
+            const flowPos = rf.screenToFlowPosition({ x, y });
+            ops.addSticky(flowPos);
+          },
           onSelectAll: () => setNodes((nds) => nds.map((n) => ({ ...n, selected: true }))),
+          onTidyUp: () => ops.tidyUp(),
           onOpen: (id) => setOpenedNodeId(id),
           onExecute: (id) => setOpenedNodeId(id),
           onCopy: (ids) => {
@@ -404,6 +501,7 @@ export function Canvas({ flow, onFlowChange, containerRef }: Props) {
               /* noop */
             }
           },
+          onRename: (id) => setRenamingId(id),
           onDuplicate: (ids) => ops.duplicateNodes(ids),
           onTogglePin: (id) => ops.togglePin(id),
           onToggleDisabled: (ids) => ops.toggleDisabled(ids),

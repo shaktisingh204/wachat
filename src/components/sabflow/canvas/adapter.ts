@@ -16,6 +16,7 @@
  *    the referenced group.
  */
 import type {
+  Annotation,
   Block,
   Coordinates,
   Edge as SabEdge,
@@ -126,6 +127,30 @@ export function flowDocToCanvas(flow: SabFlowDoc): {
       type: 'canvasNode',
       position: event.graphCoordinates,
       data,
+    });
+  }
+
+  /* Sticky-note annotations — their own node type, won't show handles. */
+  for (const note of flow.annotations ?? []) {
+    if (note.type !== 'sticky_note') continue;
+    // Sticky data shape is deliberately loose — it's dispatched by node type
+    // (`canvasSticky`) so the narrow `CanvasNodeData` shape doesn't apply.
+    // We DO NOT put width/height on the node object; React Flow would then
+    // try to enforce them against the measured DOM size and feed a resize
+    // loop. The component picks them up from `data.width` / `data.height`.
+    nodes.push({
+      id: note.id,
+      type: 'canvasSticky',
+      position: note.graphCoordinates,
+      data: {
+        id: note.id,
+        content: note.content ?? '',
+        color: note.color ?? 'yellow',
+        width: note.width ?? 240,
+        height: note.height ?? 160,
+        isSticky: true,
+      } as unknown as CanvasNodeData,
+      zIndex: -1,
     });
   }
 
@@ -248,8 +273,22 @@ export function applyNodePosition(
     });
     return blocks === g.blocks ? g : { ...g, blocks };
   });
-  if (!blockUpdated) return { ...flow, events: events ?? flow.events };
-  return { ...flow, events: events ?? flow.events, groups: groups ?? flow.groups };
+  const annotations = flow.annotations?.map((a) =>
+    a.id === nodeId ? { ...a, graphCoordinates: position } : a,
+  );
+  if (!blockUpdated) {
+    return {
+      ...flow,
+      events: events ?? flow.events,
+      annotations: annotations ?? flow.annotations,
+    };
+  }
+  return {
+    ...flow,
+    events: events ?? flow.events,
+    groups: groups ?? flow.groups,
+    annotations: annotations ?? flow.annotations,
+  };
 }
 
 /** Apply bulk position changes in one pass. */
@@ -262,13 +301,14 @@ export function applyBulkNodePositions(
   return out;
 }
 
-/** Remove nodes (blocks or events) from the flow doc, plus any touching edges. */
+/** Remove nodes (blocks, events, stickies) from the flow doc, plus touching edges. */
 export function removeNodes(flow: SabFlowDoc, ids: string[]): SabFlowDoc {
   const idSet = new Set(ids);
   const groups = (flow.groups ?? [])
     .map((g) => ({ ...g, blocks: g.blocks.filter((b) => !idSet.has(b.id)) }))
     .filter((g) => g.blocks.length > 0);
   const events = (flow.events ?? []).filter((e) => !idSet.has(e.id));
+  const annotations = (flow.annotations ?? []).filter((a) => !idSet.has(a.id));
   const edges = (flow.edges ?? []).filter((edge) => {
     const srcId = 'eventId' in edge.from ? edge.from.eventId : edge.from.blockId;
     const tgtId = edge.to.blockId;
@@ -276,7 +316,49 @@ export function removeNodes(flow: SabFlowDoc, ids: string[]): SabFlowDoc {
     if (tgtId && idSet.has(tgtId)) return false;
     return true;
   });
-  return { ...flow, groups, events, edges };
+  return { ...flow, groups, events, edges, annotations };
+}
+
+/** Append a new sticky-note annotation. */
+export function addStickyNote(
+  flow: SabFlowDoc,
+  note: Annotation,
+): SabFlowDoc {
+  return {
+    ...flow,
+    annotations: [...(flow.annotations ?? []), note],
+  };
+}
+
+/** Update a sticky-note annotation's properties. */
+export function updateStickyNote(
+  flow: SabFlowDoc,
+  id: string,
+  patch: Partial<Annotation>,
+): SabFlowDoc {
+  return {
+    ...flow,
+    annotations: (flow.annotations ?? []).map((a) =>
+      a.id === id ? { ...a, ...patch } : a,
+    ),
+  };
+}
+
+/** Rename a single block. */
+export function renameBlock(
+  flow: SabFlowDoc,
+  id: string,
+  label: string,
+): SabFlowDoc {
+  const groups = (flow.groups ?? []).map((g) => ({
+    ...g,
+    blocks: g.blocks.map((b) => {
+      if (b.id !== id) return b;
+      const opts = (b.options ?? {}) as Record<string, unknown>;
+      return { ...b, options: { ...opts, title: label } } as Block;
+    }),
+  }));
+  return { ...flow, groups };
 }
 
 /** Add an edge between two nodes with given handles. */

@@ -8,6 +8,8 @@
 import { useCallback } from 'react';
 import { createId } from '@paralleldrive/cuid2';
 import type {
+  Annotation,
+  AnnotationColor,
   Block,
   BlockType,
   Coordinates,
@@ -16,8 +18,16 @@ import type {
   SabFlowDoc,
 } from '@/lib/sabflow/types';
 import { DEFAULT_SOURCE_HANDLE, DEFAULT_TARGET_HANDLE } from '@/lib/sabflow/ports';
-import { addEdge, removeEdge, removeNodes } from '../adapter';
+import {
+  addEdge,
+  addStickyNote,
+  removeEdge,
+  removeNodes,
+  renameBlock,
+  updateStickyNote,
+} from '../adapter';
 import { createCanvasConnectionId } from '../utils';
+import { tidyUp as tidyUpFlow } from './useTidyUp';
 
 type Update = (next: SabFlowDoc) => void;
 
@@ -214,6 +224,134 @@ export function useCanvasOperations(
     [flow, update],
   );
 
+  /** Create a new sticky-note at a canvas position. */
+  const addSticky = useCallback(
+    (position: Coordinates, color: AnnotationColor = 'yellow'): string => {
+      const note: Annotation = {
+        id: createId(),
+        type: 'sticky_note',
+        graphCoordinates: position,
+        width: 240,
+        height: 160,
+        content: '',
+        color,
+      };
+      update(addStickyNote(flow, note));
+      return note.id;
+    },
+    [flow, update],
+  );
+
+  /** Patch a sticky-note annotation. */
+  const patchSticky = useCallback(
+    (id: string, patch: Partial<Annotation>) => {
+      update(updateStickyNote(flow, id, patch));
+    },
+    [flow, update],
+  );
+
+  /** Rename a block — stored on block.options.title so ports untouched. */
+  const rename = useCallback(
+    (id: string, label: string) => {
+      update(renameBlock(flow, id, label));
+    },
+    [flow, update],
+  );
+
+  /** Auto-layout the whole canvas in one pass. */
+  const tidyUp = useCallback(() => {
+    update(tidyUpFlow(flow));
+  }, [flow, update]);
+
+  /**
+   * Paste a previously-copied payload (`{ type:'sabflow-clipboard', blocks, edges }`)
+   * at a canvas position, remapping IDs and preserving internal connections.
+   */
+  const pastePayload = useCallback(
+    (
+      payload: {
+        blocks?: Array<Block & { position?: Coordinates }>;
+        edges?: SabEdge[];
+      },
+      at: Coordinates,
+    ) => {
+      if (!payload.blocks?.length) return;
+      // Remap IDs — new block id per old, new group per old.
+      const idMap = new Map<string, string>();
+      for (const b of payload.blocks) idMap.set(b.id, createId());
+
+      // Bounding-box origin so paste lands relative to the cursor.
+      const xs = payload.blocks.map((b) => (b.graphCoordinates ?? b.position ?? { x: 0, y: 0 }).x);
+      const ys = payload.blocks.map((b) => (b.graphCoordinates ?? b.position ?? { x: 0, y: 0 }).y);
+      const minX = Math.min(...xs);
+      const minY = Math.min(...ys);
+
+      let next: SabFlowDoc = flow;
+      for (const b of payload.blocks) {
+        const newBlockId = idMap.get(b.id)!;
+        const newGroupId = createId();
+        const src = b.graphCoordinates ?? b.position ?? { x: 0, y: 0 };
+        const position: Coordinates = {
+          x: at.x + (src.x - minX),
+          y: at.y + (src.y - minY),
+        };
+        const newBlock: Block = {
+          ...b,
+          id: newBlockId,
+          groupId: newGroupId,
+          graphCoordinates: position,
+        };
+        const newGroup: Group = {
+          id: newGroupId,
+          title: '',
+          graphCoordinates: position,
+          blocks: [newBlock],
+        };
+        next = { ...next, groups: [...(next.groups ?? []), newGroup] };
+      }
+      // Edges whose endpoints are both within the clipboard get remapped.
+      for (const e of payload.edges ?? []) {
+        const srcId = 'eventId' in e.from ? e.from.eventId : e.from.blockId;
+        const tgtId = e.to.blockId;
+        if (!srcId || !tgtId) continue;
+        if (!idMap.has(srcId) || !idMap.has(tgtId)) continue;
+        next = addEdge(next, {
+          source: idMap.get(srcId)!,
+          sourceHandle: e.sourceHandle ?? DEFAULT_SOURCE_HANDLE,
+          target: idMap.get(tgtId)!,
+          targetHandle: e.targetHandle ?? DEFAULT_TARGET_HANDLE,
+        });
+      }
+      update(next);
+    },
+    [flow, update],
+  );
+
+  /** Collect selected block+edge data into a clipboard payload. */
+  const buildClipboardPayload = useCallback(
+    (selectedIds: string[]) => {
+      const idSet = new Set(selectedIds);
+      const blocks: Block[] = [];
+      for (const g of flow.groups ?? []) {
+        for (const b of g.blocks) {
+          if (idSet.has(b.id)) {
+            blocks.push({
+              ...b,
+              graphCoordinates: b.graphCoordinates ?? g.graphCoordinates,
+            });
+          }
+        }
+      }
+      const edges = (flow.edges ?? []).filter((e) => {
+        const s = 'eventId' in e.from ? e.from.eventId : e.from.blockId;
+        const t = e.to.blockId;
+        return s && t && idSet.has(s) && idSet.has(t);
+      });
+      return { type: 'sabflow-clipboard' as const, blocks, edges };
+    },
+    [flow],
+  );
+
   return {
     addBlock,
     connect,
@@ -222,5 +360,11 @@ export function useCanvasOperations(
     duplicateNodes,
     toggleDisabled,
     togglePin,
+    addSticky,
+    patchSticky,
+    rename,
+    tidyUp,
+    pastePayload,
+    buildClipboardPayload,
   };
 }

@@ -18,6 +18,7 @@ import {
   LuSquarePlus,
   LuStickyNote,
   LuMousePointer,
+  LuAlignHorizontalJustifyCenter,
 } from 'react-icons/lu';
 import type { ContextMenuState } from './useContextMenu';
 
@@ -39,6 +40,7 @@ type Props = {
     onAddNode?: (screenX: number, screenY: number) => void;
     onAddSticky?: (screenX: number, screenY: number) => void;
     onSelectAll?: () => void;
+    onTidyUp?: () => void;
     onOpen?: (nodeId: string) => void;
     onExecute?: (nodeId: string) => void;
     onRename?: (nodeId: string) => void;
@@ -96,6 +98,13 @@ export function CanvasContextMenu({ state, onClose, isReadOnly, actions }: Props
         icon: LuMousePointer,
         shortcut: '⌘ A',
         run: () => actions.onSelectAll?.(),
+      },
+      {
+        id: 'tidy-up',
+        label: 'Tidy up',
+        icon: LuAlignHorizontalJustifyCenter,
+        shortcut: '⇧ ⌥ T',
+        run: () => actions.onTidyUp?.(),
       },
     );
   } else if (state.target.source === 'node') {

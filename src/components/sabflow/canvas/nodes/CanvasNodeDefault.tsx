@@ -6,7 +6,7 @@
  * beneath), plus trigger variant (left side rounded). Status borders, disabled
  * strike-through, running gradient-ring, hover toolbar — all ported visually.
  */
-import { memo, useMemo } from 'react';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import type { NodeProps } from '@xyflow/react';
 import { LuPlay, LuPlus, LuTrash2, LuPower, LuCopy, LuCircle } from 'react-icons/lu';
 import { CanvasHandle } from '../handles/CanvasHandle';
@@ -20,8 +20,57 @@ type Props = NodeProps<CanvasNode> & {
   onToggleDisabled?: (nodeId: string) => void;
   onDuplicate?: (nodeId: string) => void;
   onExecute?: (nodeId: string) => void;
+  onRename?: (nodeId: string, label: string) => void;
+  /** ID of the node currently being renamed — switches its label to an input. */
+  renamingId?: string;
+  onRenameDone?: () => void;
   isReadOnly?: boolean;
 };
+
+function RenameInput({
+  initial,
+  onCommit,
+}: {
+  initial: string;
+  onCommit: (v: string) => void;
+}) {
+  const [value, setValue] = useState(initial);
+  const ref = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    ref.current?.focus();
+    ref.current?.select();
+  }, []);
+  return (
+    <input
+      ref={ref}
+      value={value}
+      className="nodrag nopan"
+      onChange={(e) => setValue(e.target.value)}
+      onBlur={() => onCommit(value.trim() || initial)}
+      onKeyDown={(e) => {
+        e.stopPropagation();
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          onCommit(value.trim() || initial);
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          onCommit(initial);
+        }
+      }}
+      style={{
+        background: 'var(--gray-1)',
+        border: '1px solid #f76808',
+        borderRadius: 6,
+        padding: '3px 6px',
+        fontSize: 13,
+        color: 'var(--gray-12)',
+        pointerEvents: 'all',
+        textAlign: 'center',
+        width: '90%',
+      }}
+    />
+  );
+}
 
 export const CanvasNodeDefault = memo(function CanvasNodeDefault({
   id,
@@ -32,6 +81,9 @@ export const CanvasNodeDefault = memo(function CanvasNodeDefault({
   onToggleDisabled,
   onDuplicate,
   onExecute,
+  onRename,
+  renamingId,
+  onRenameDone,
   isReadOnly,
 }: Props) {
   const d = data as CanvasNodeData;
@@ -108,9 +160,16 @@ export const CanvasNodeDefault = memo(function CanvasNodeDefault({
         </div>
       ) : null}
 
-      {/* Description (label + subtitle) */}
+      {/* Description (label + subtitle) — renders an input when renaming */}
       <div className="sabflow-node__description">
-        <div className="sabflow-node__label">{d.label}</div>
+        {renamingId === id && !isReadOnly ? (
+          <RenameInput initial={d.label} onCommit={(v) => {
+            onRename?.(id, v);
+            onRenameDone?.();
+          }} />
+        ) : (
+          <div className="sabflow-node__label">{d.label}</div>
+        )}
         {d.disabled ? <div className="sabflow-node__disabled-label">(disabled)</div> : null}
         {d.subtitle ? <div className="sabflow-node__subtitle">{d.subtitle}</div> : null}
       </div>

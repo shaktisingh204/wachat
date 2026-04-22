@@ -7,12 +7,13 @@
  * toolbar appears at midpoint on hover after a short delay.
  */
 import { memo, useEffect, useRef, useState } from 'react';
-import type { EdgeProps } from '@xyflow/react';
+import type { EdgeProps, EdgeTypes } from '@xyflow/react';
 import { BaseEdge, EdgeLabelRenderer, getBezierPath, getSmoothStepPath, Position } from '@xyflow/react';
 import { CanvasEdgeToolbar } from './CanvasEdgeToolbar';
 import type { CanvasEdge as CanvasEdgeType } from '../types';
 import { EDGE_TOOLBAR_HOVER_DELAY } from '../constants';
 import { cn } from '@/lib/utils';
+import { useCanvasHandlers } from '../CanvasHandlersContext';
 
 const EDGE_PADDING_BOTTOM = 130;
 const EDGE_PADDING_X = 40;
@@ -76,14 +77,8 @@ function renderEdgePath(p: {
   };
 }
 
-type Extra = {
-  onAdd?: (edgeId: string) => void;
-  onDelete?: (edgeId: string) => void;
-  readOnly?: boolean;
-};
-
 export const CanvasEdge = memo(function CanvasEdge(
-  props: EdgeProps<CanvasEdgeType> & Extra,
+  props: EdgeProps<CanvasEdgeType>,
 ) {
   const {
     id,
@@ -96,10 +91,12 @@ export const CanvasEdge = memo(function CanvasEdge(
     selected,
     data,
     markerEnd,
-    onAdd,
-    onDelete,
-    readOnly,
   } = props;
+
+  const handlers = useCanvasHandlers();
+  const onAdd = handlers.onEdgeAdd;
+  const onDelete = handlers.onEdgeDelete;
+  const readOnly = handlers.isReadOnly;
 
   const isMain = data?.source?.type === 'main' && data?.target?.type === 'main';
   const status = data?.status;
@@ -182,3 +179,8 @@ export const CanvasEdge = memo(function CanvasEdge(
     </g>
   );
 });
+
+/** Module-level stable edge-type map. See CanvasNode.tsx for the same pattern. */
+export const CANVAS_EDGE_TYPES: EdgeTypes = {
+  canvasEdge: CanvasEdge,
+};
