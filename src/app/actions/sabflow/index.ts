@@ -17,6 +17,28 @@ async function requireUser() {
   return id;
 }
 
+/**
+ * Recursively strip every BSON value (ObjectId, Date, Decimal128, Binary,
+ * Long) from a Mongo document so Next.js's RSC serializer can stream it
+ * safely to a client component. Without this, `Cannot access toBSON on the
+ * server` is thrown on any nested BSON value that Next.js walks into.
+ */
+function deepSanitize<T>(value: T): T {
+  if (value === null || value === undefined) return value;
+  if (typeof value !== 'object') return value;
+  const asAny = value as { _bsontype?: string; toString?: () => string; toBSON?: unknown };
+  if (asAny._bsontype || typeof asAny.toBSON === 'function') {
+    return asAny.toString?.() as T;
+  }
+  if (value instanceof Date) return (value as Date).toISOString() as unknown as T;
+  if (Array.isArray(value)) return value.map((v) => deepSanitize(v)) as unknown as T;
+  const out: Record<string, unknown> = {};
+  for (const k of Object.keys(value as Record<string, unknown>)) {
+    out[k] = deepSanitize((value as Record<string, unknown>)[k]);
+  }
+  return out as T;
+}
+
 /* ── List flows ────────────────────────────────────────── */
 export async function listSabFlows() {
   const userId = await requireUser();
@@ -25,7 +47,7 @@ export async function listSabFlows() {
     .find({ userId, status: { $ne: 'ARCHIVED' } })
     .sort({ updatedAt: -1 })
     .toArray();
-  return docs.map((d) => ({ ...d, _id: d._id!.toString() }));
+  return docs.map((d) => ({ ...deepSanitize(d), _id: d._id!.toString() }));
 }
 
 /* ── Get single flow ───────────────────────────────────── */
@@ -34,7 +56,7 @@ export async function getSabFlow(flowId: string) {
   const col = await getSabFlowCollection();
   const doc = await col.findOne({ _id: new ObjectId(flowId), userId });
   if (!doc) return null;
-  return { ...doc, _id: doc._id.toString() };
+  return { ...deepSanitize(doc), _id: doc._id.toString() };
 }
 
 /* ── Create flow ───────────────────────────────────────── */

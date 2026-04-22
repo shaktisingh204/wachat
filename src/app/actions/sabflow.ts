@@ -26,10 +26,45 @@ function defaultStartEvent(): SabFlowEvent {
   };
 }
 
+/**
+ * Recursively strip every BSON type (ObjectId, Date, Decimal128, Binary, Long)
+ * out of a value, producing a POJO that React Server Components can safely
+ * stream to a client boundary.
+ *
+ * Important: Next.js's RSC serializer inspects *every* reachable property,
+ * including arrays and nested documents. If ANY value still carries a
+ * `toBSON` method, it throws `Cannot access toBSON on the server`. The old
+ * `JSON.parse(JSON.stringify(...))` round-trip is almost enough, but Date
+ * objects survive `JSON.stringify` as strings and any custom BSON types with
+ * non-standard `toJSON` can slip through. This helper is the safe version.
+ */
+function deepSanitize<T>(value: T): T {
+  if (value === null || value === undefined) return value;
+  // Primitives pass through unchanged
+  if (typeof value !== 'object') return value;
+
+  // BSON-like: has a toBSON or _bsontype marker → coerce to string/primitive
+  const asAny = value as { _bsontype?: string; toString?: () => string; toBSON?: unknown };
+  if (asAny._bsontype || typeof asAny.toBSON === 'function') {
+    return asAny.toString?.() as T;
+  }
+  // Dates → ISO string (RSC-safe)
+  if (value instanceof Date) return (value as Date).toISOString() as unknown as T;
+  // Arrays
+  if (Array.isArray(value)) return value.map((v) => deepSanitize(v)) as unknown as T;
+  // Plain objects
+  const out: Record<string, unknown> = {};
+  for (const k of Object.keys(value as Record<string, unknown>)) {
+    out[k] = deepSanitize((value as Record<string, unknown>)[k]);
+  }
+  return out as T;
+}
+
 /** Strip MongoDB _id so the returned object is plain-serialisable JSON. */
 function serialize<T extends { _id?: unknown }>(doc: T): Omit<T, '_id'> & { _id: string } {
   const { _id, ...rest } = doc as any;
-  return { _id: _id?.toString() ?? '', ...rest };
+  const sanitized = deepSanitize(rest);
+  return { _id: _id?.toString() ?? '', ...sanitized };
 }
 
 // ── listSabFlows ───────────────────────────────────────────────────────────

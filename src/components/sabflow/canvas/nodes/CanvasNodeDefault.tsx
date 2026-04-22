@@ -103,8 +103,9 @@ export const CanvasNodeDefault = memo(function CanvasNodeDefault({
         d.execution.status === 'error' && 'is-error',
         d.execution.status === 'waiting' && 'is-waiting',
         (d.execution.running || d.execution.status === 'running') && 'is-running',
+        d.isUnconnected && 'is-unconnected',
       ),
-    [selected, d.isTrigger, d.disabled, d.pinned, d.execution],
+    [selected, d.isTrigger, d.disabled, d.pinned, d.execution, d.isUnconnected],
   );
 
   // Strike-through only when disabled AND node has a single in/out on main.
@@ -230,13 +231,17 @@ export const CanvasNodeDefault = memo(function CanvasNodeDefault({
         </div>
       ) : null}
 
-      {/* Right-side "+" — inserts a new node after this one */}
+      {/* Right-side "+" — inserts a new node after this one. Triggers without
+         any downstream edge get a larger, pulsing variant as a setup hint. */}
       {!isReadOnly && d.outputs.length > 0 ? (
         <button
           type="button"
-          title="Add node"
+          title={d.isUnconnected ? 'Connect a step after this trigger' : 'Add node'}
           aria-label="Add node"
-          className="sabflow-node__plus"
+          className={cn(
+            'sabflow-node__plus',
+            d.isUnconnected && 'is-prompt',
+          )}
           onClick={(e) => {
             e.stopPropagation();
             onAdd?.(id);

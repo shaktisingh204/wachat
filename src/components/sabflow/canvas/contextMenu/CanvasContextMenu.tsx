@@ -19,6 +19,10 @@ import {
   LuStickyNote,
   LuMousePointer,
   LuAlignHorizontalJustifyCenter,
+  LuZap,
+  LuClock,
+  LuGlobe,
+  LuHand,
 } from 'react-icons/lu';
 import type { ContextMenuState } from './useContextMenu';
 
@@ -32,10 +36,20 @@ type Action = {
   divider?: boolean;
 };
 
+export type TriggerKind = 'start' | 'webhook' | 'schedule' | 'manual' | 'error';
+
 type Props = {
   state: ContextMenuState;
   onClose: () => void;
   isReadOnly?: boolean;
+  /**
+   * Map of nodeId → 'trigger' for trigger nodes. When a trigger node is
+   * right-clicked we surface a "Change trigger" sub-list instead of the
+   * normal node actions.
+   */
+  nodeKinds?: Map<string, 'trigger' | 'block' | 'sticky'>;
+  /** True for the sole remaining trigger — disables the delete row for it. */
+  isSoleTrigger?: (nodeId: string) => boolean;
   actions: {
     onAddNode?: (screenX: number, screenY: number) => void;
     onAddSticky?: (screenX: number, screenY: number) => void;
@@ -50,10 +64,18 @@ type Props = {
     onToggleDisabled?: (nodeIds: string[]) => void;
     onDeleteNodes?: (nodeIds: string[]) => void;
     onDeleteEdge?: (edgeId: string) => void;
+    onChangeTrigger?: (nodeId: string, kind: TriggerKind) => void;
   };
 };
 
-export function CanvasContextMenu({ state, onClose, isReadOnly, actions }: Props) {
+export function CanvasContextMenu({
+  state,
+  onClose,
+  isReadOnly,
+  nodeKinds,
+  isSoleTrigger,
+  actions,
+}: Props) {
   useEffect(() => {
     if (!state.open) return;
     const onDocDown = (e: MouseEvent) => {
@@ -110,6 +132,9 @@ export function CanvasContextMenu({ state, onClose, isReadOnly, actions }: Props
   } else if (state.target.source === 'node') {
     const nodeIds = state.target.nodeIds;
     const single = nodeIds.length === 1 ? nodeIds[0] : undefined;
+    const singleKind = single ? nodeKinds?.get(single) : undefined;
+    const isTrigger = singleKind === 'trigger';
+
     if (single) {
       items.push({
         id: 'open',
@@ -118,12 +143,48 @@ export function CanvasContextMenu({ state, onClose, isReadOnly, actions }: Props
         shortcut: '↵',
         run: () => actions.onOpen?.(single),
       });
-      items.push({
-        id: 'execute',
-        label: 'Execute step',
-        icon: LuPlay,
-        run: () => actions.onExecute?.(single),
-      });
+      if (!isTrigger) {
+        items.push({
+          id: 'execute',
+          label: 'Execute step',
+          icon: LuPlay,
+          run: () => actions.onExecute?.(single),
+        });
+      }
+      /* Trigger-only: surface quick "Change trigger" options so the user
+         can switch the flow's entry point without navigating elsewhere. */
+      if (isTrigger && actions.onChangeTrigger) {
+        items.push({
+          id: 'trigger-start',
+          label: 'Trigger: When flow starts',
+          icon: LuPlay,
+          run: () => actions.onChangeTrigger?.(single, 'start'),
+        });
+        items.push({
+          id: 'trigger-webhook',
+          label: 'Trigger: On webhook',
+          icon: LuGlobe,
+          run: () => actions.onChangeTrigger?.(single, 'webhook'),
+        });
+        items.push({
+          id: 'trigger-schedule',
+          label: 'Trigger: On schedule',
+          icon: LuClock,
+          run: () => actions.onChangeTrigger?.(single, 'schedule'),
+        });
+        items.push({
+          id: 'trigger-manual',
+          label: 'Trigger: Manual',
+          icon: LuHand,
+          run: () => actions.onChangeTrigger?.(single, 'manual'),
+        });
+        items.push({
+          id: 'trigger-error',
+          label: 'Trigger: On error',
+          icon: LuZap,
+          run: () => actions.onChangeTrigger?.(single, 'error'),
+        });
+      }
     }
     items.push(
       {
@@ -157,15 +218,17 @@ export function CanvasContextMenu({ state, onClose, isReadOnly, actions }: Props
         run: () => actions.onRename?.(single),
       });
     }
-    items.push(
-      {
-        id: 'disable',
-        label: nodeIds.length > 1 ? 'Toggle disabled' : 'Disable / enable',
-        icon: LuPower,
-        shortcut: 'D',
-        run: () => actions.onToggleDisabled?.(nodeIds),
-      },
-      {
+    const cantDelete =
+      nodeIds.length === 1 && isSoleTrigger?.(nodeIds[0]) === true;
+    items.push({
+      id: 'disable',
+      label: nodeIds.length > 1 ? 'Toggle disabled' : 'Disable / enable',
+      icon: LuPower,
+      shortcut: 'D',
+      run: () => actions.onToggleDisabled?.(nodeIds),
+    });
+    if (!cantDelete) {
+      items.push({
         id: 'delete',
         label: nodeIds.length > 1 ? 'Delete nodes' : 'Delete',
         icon: LuTrash2,
@@ -173,8 +236,8 @@ export function CanvasContextMenu({ state, onClose, isReadOnly, actions }: Props
         danger: true,
         run: () => actions.onDeleteNodes?.(nodeIds),
         divider: true,
-      },
-    );
+      });
+    }
   } else if (state.target.source === 'edge') {
     const edgeId = state.target.edgeId;
     items.push({

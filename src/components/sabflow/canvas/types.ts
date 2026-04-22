@@ -68,6 +68,12 @@ export type CanvasNodeData = {
   render: CanvasNodeRenderType;
   /** BlockType used for icon/color lookup in registry. */
   blockType?: BlockType;
+  /**
+   * For trigger nodes: true if the event has zero outgoing edges. The node
+   * renderer uses this to show a pulsing "+" affordance prompting the user to
+   * wire up the start of the flow.
+   */
+  isUnconnected?: boolean;
 };
 
 /** Data payload on each edge — carries source/target port metadata + status. */

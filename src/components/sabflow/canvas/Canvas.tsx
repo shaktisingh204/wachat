@@ -39,6 +39,7 @@ import { useGraph } from '@/components/sabflow/graph/providers/GraphProvider';
 
 import {
   applyBulkNodePositions,
+  findStartEvent,
   flowDocToCanvas,
 } from './adapter';
 import { CANVAS_NODE_TYPES } from './nodes/CanvasNode';
@@ -75,6 +76,19 @@ export function Canvas({ flow, onFlowChange, containerRef }: Props) {
   const [renamingId, setRenamingId] = useState<string | undefined>(undefined);
 
   const ops = useCanvasOperations(flow, onFlowChange);
+
+  /**
+   * Guarantee a start event exists. Without one, the engine's `findStartGroup`
+   * bails and the preview panel surfaces "No Start event connected". We only
+   * run this once per mount to avoid rewriting the doc on every render.
+   */
+  const didEnsureStartRef = useRef(false);
+  useEffect(() => {
+    if (didEnsureStartRef.current) return;
+    didEnsureStartRef.current = true;
+    if (!isReadOnly) ops.ensureStart();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Translate SabFlowDoc → { nodes, edges } (memoized on flow identity).
   const translated = useMemo(() => flowDocToCanvas(flow), [flow]);
@@ -136,8 +150,14 @@ export function Canvas({ flow, onFlowChange, containerRef }: Props) {
 
   /* ── Handlers wired into CanvasNode via the node-type factory ─ */
   const handleNodeDelete = useCallback(
-    (id: string) => ops.deleteNodes([id]),
-    [ops],
+    (id: string) => {
+      /* Never let the user delete the sole remaining trigger — without one,
+         the engine can't start the flow. Fail soft (no-op). */
+      const triggerIds = new Set((flow.events ?? []).map((e) => e.id));
+      if (triggerIds.has(id) && triggerIds.size <= 1) return;
+      ops.deleteNodes([id]);
+    },
+    [ops, flow.events],
   );
   const handleNodeDuplicate = useCallback(
     (id: string) => ops.duplicateNodes([id]),
@@ -368,11 +388,30 @@ export function Canvas({ flow, onFlowChange, containerRef }: Props) {
         const pos = rf.screenToFlowPosition({ x: src.position.x, y: src.position.y });
         ops.addBlock({ type, position: pos });
       } else {
-        ops.addBlock({ type, position: fallbackPos });
+        /* keyboard / plus-button / catch-all — if a start event exists and
+           isn't yet connected, auto-wire the new block to it so the user never
+           ends up with an orphaned flow. */
+        const start = findStartEvent(flow);
+        const startAlreadyConnected =
+          start &&
+          (flow.edges ?? []).some(
+            (e) => 'eventId' in e.from && e.from.eventId === start.id,
+          );
+        if (start && !startAlreadyConnected) {
+          // Drop the new block to the right of the start event
+          const startPos = start.graphCoordinates;
+          ops.addBlock({
+            type,
+            position: { x: startPos.x + 260, y: startPos.y },
+            connectFrom: { nodeId: start.id, handleId: 'outputs/main/0' },
+          });
+        } else {
+          ops.addBlock({ type, position: fallbackPos });
+        }
       }
       closeCreator();
     },
-    [creatorState.source, rf, ops, closeCreator, containerRef],
+    [creatorState.source, rf, ops, closeCreator, containerRef, flow],
   );
 
   /* ── Keyboard shortcuts ──────────────────────────────── */
@@ -511,9 +550,51 @@ export function Canvas({ flow, onFlowChange, containerRef }: Props) {
       </ReactFlow>
      </CanvasHandlersProvider>
 
-      {nodes.length === 0 && !isReadOnly ? (
-        <EmptyCanvasOverlay onAdd={() => openCreator({ kind: 'plus-button' })} />
-      ) : null}
+      {/* Empty-canvas overlay. Shown when there are NO nodes at all, OR when
+          the only thing on the canvas is an unconnected start event and no
+          blocks yet — in which case the CTA explicitly invites wiring the
+          first action after the trigger. */}
+      {!isReadOnly && (() => {
+        const blockCount = (flow.groups ?? []).reduce(
+          (n, g) => n + g.blocks.length,
+          0,
+        );
+        const start = findStartEvent(flow);
+        const startUnconnected =
+          start &&
+          !(flow.edges ?? []).some(
+            (e) => 'eventId' in e.from && e.from.eventId === start.id,
+          );
+        if (nodes.length === 0 || (blockCount === 0 && startUnconnected)) {
+          return (
+            <EmptyCanvasOverlay
+              onAdd={() => {
+                if (start) {
+                  /* Wire directly from the existing start event when the user
+                     clicks "Add first step" — never leave them with an
+                     orphaned action. */
+                  openCreator({
+                    kind: 'drag-from-handle',
+                    nodeId: start.id,
+                    handleId: 'outputs/main/0',
+                    position: {
+                      x:
+                        (containerRef.current?.getBoundingClientRect().left ?? 0) +
+                        (containerRef.current?.getBoundingClientRect().width ?? 600) / 2,
+                      y:
+                        (containerRef.current?.getBoundingClientRect().top ?? 0) +
+                        60,
+                    },
+                  });
+                } else {
+                  openCreator({ kind: 'plus-button' });
+                }
+              }}
+            />
+          );
+        }
+        return null;
+      })()}
 
       <NodeCreator state={creatorState} onClose={closeCreator} onPick={onPickType} />
 
@@ -523,6 +604,23 @@ export function Canvas({ flow, onFlowChange, containerRef }: Props) {
         state={menuState}
         onClose={closeMenu}
         isReadOnly={isReadOnly}
+        nodeKinds={
+          new Map<string, 'trigger' | 'block' | 'sticky'>([
+            ...(flow.events ?? []).map(
+              (e) => [e.id, 'trigger'] as [string, 'trigger'],
+            ),
+            ...(flow.annotations ?? []).map(
+              (a) => [a.id, 'sticky'] as [string, 'sticky'],
+            ),
+            ...(flow.groups ?? []).flatMap((g) =>
+              g.blocks.map((b) => [b.id, 'block'] as [string, 'block']),
+            ),
+          ])
+        }
+        isSoleTrigger={(id) => {
+          const events = flow.events ?? [];
+          return events.length === 1 && events[0].id === id;
+        }}
         actions={{
           onAddNode: (x, y) =>
             openCreator({ kind: 'canvas-context-menu', position: { x, y } }),
@@ -552,6 +650,7 @@ export function Canvas({ flow, onFlowChange, containerRef }: Props) {
           onToggleDisabled: (ids) => ops.toggleDisabled(ids),
           onDeleteNodes: (ids) => ops.deleteNodes(ids),
           onDeleteEdge: (id) => ops.deleteEdgeById(id),
+          onChangeTrigger: (id, kind) => ops.setEventType(id, kind),
         }}
       />
     </div>

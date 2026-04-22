@@ -108,6 +108,9 @@ export function flowDocToCanvas(flow: SabFlowDoc): {
 
   for (const event of flow.events ?? []) {
     const { inputs, outputs } = triggerPorts();
+    const connected = (flow.edges ?? []).some(
+      (e) => 'eventId' in e.from && e.from.eventId === event.id,
+    );
     const data: CanvasNodeData = {
       id: event.id,
       label: eventLabel(event),
@@ -121,6 +124,8 @@ export function flowDocToCanvas(flow: SabFlowDoc): {
       execution: {},
       event,
       render: CanvasNodeRenderType.Trigger,
+      // Trigger nodes with no downstream edge get a visual "wire me up" hint.
+      isUnconnected: !connected,
     };
     nodes.push({
       id: event.id,
@@ -299,6 +304,57 @@ export function applyBulkNodePositions(
   let out = flow;
   for (const u of updates) out = applyNodePosition(out, u.id, u.position);
   return out;
+}
+
+/* ── Start-event helpers ─────────────────────────────── */
+
+/** Does the flow have at least one trigger event (start/webhook/schedule/manual)? */
+export function hasTriggerEvent(flow: SabFlowDoc): boolean {
+  return (flow.events ?? []).length > 0;
+}
+
+/** The primary start event — the one the engine treats as the entry point. */
+export function findStartEvent(flow: SabFlowDoc): SabFlowEvent | undefined {
+  const events = flow.events ?? [];
+  return events.find((e) => e.type === 'start') ?? events[0];
+}
+
+/** Returns true if the given event has at least one outgoing edge. */
+export function isEventConnected(flow: SabFlowDoc, eventId: string): boolean {
+  return (flow.edges ?? []).some(
+    (e) => 'eventId' in e.from && e.from.eventId === eventId,
+  );
+}
+
+/**
+ * Ensure the flow has a start event. If none exists, append a default 'start'
+ * trigger at the top-left of the canvas. Idempotent.
+ */
+export function ensureStartEvent(
+  flow: SabFlowDoc,
+  makeId: () => string,
+): SabFlowDoc {
+  if (hasTriggerEvent(flow)) return flow;
+  const newEvent: SabFlowEvent = {
+    id: makeId(),
+    type: 'start',
+    graphCoordinates: { x: 100, y: 200 },
+  };
+  return { ...flow, events: [...(flow.events ?? []), newEvent] };
+}
+
+/** Change a trigger event's type (start → webhook → schedule → manual → …). */
+export function changeEventType(
+  flow: SabFlowDoc,
+  eventId: string,
+  type: SabFlowEvent['type'],
+): SabFlowDoc {
+  return {
+    ...flow,
+    events: (flow.events ?? []).map((e) =>
+      e.id === eventId ? ({ ...e, type } as SabFlowEvent) : e,
+    ),
+  };
 }
 
 /** Remove nodes (blocks, events, stickies) from the flow doc, plus touching edges. */

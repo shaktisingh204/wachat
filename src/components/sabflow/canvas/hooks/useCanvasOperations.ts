@@ -21,6 +21,9 @@ import { DEFAULT_SOURCE_HANDLE, DEFAULT_TARGET_HANDLE } from '@/lib/sabflow/port
 import {
   addEdge,
   addStickyNote,
+  changeEventType,
+  ensureStartEvent,
+  findStartEvent,
   removeEdge,
   removeNodes,
   renameBlock,
@@ -126,11 +129,23 @@ export function useCanvasOperations(
     [flow, update],
   );
 
-  /** Delete selected nodes + their edges. */
+  /** Delete selected nodes + their edges.
+   *  Never lets the user delete every trigger event — the engine needs at
+   *  least one to start the flow. If the deletion would leave zero triggers,
+   *  the last trigger in the deletion list is preserved. */
   const deleteNodes = useCallback(
     (ids: string[]) => {
       if (ids.length === 0) return;
-      update(removeNodes(flow, ids));
+      const eventIds = new Set((flow.events ?? []).map((e) => e.id));
+      const triggersBeingDeleted = ids.filter((id) => eventIds.has(id));
+      const remainingTriggers = eventIds.size - triggersBeingDeleted.length;
+      let filtered = ids;
+      if (remainingTriggers < 1 && triggersBeingDeleted.length > 0) {
+        const keepId = triggersBeingDeleted[triggersBeingDeleted.length - 1];
+        filtered = ids.filter((id) => id !== keepId);
+      }
+      if (filtered.length === 0) return;
+      update(removeNodes(flow, filtered));
     },
     [flow, update],
   );
@@ -352,6 +367,29 @@ export function useCanvasOperations(
     [flow],
   );
 
+  /**
+   * Ensure the flow has a start event. If one is missing, add it and commit.
+   * Returns the id of the event that now serves as the start trigger.
+   */
+  const ensureStart = useCallback((): string | undefined => {
+    const existing = findStartEvent(flow);
+    if (existing) return existing.id;
+    const next = ensureStartEvent(flow, createId);
+    update(next);
+    return findStartEvent(next)?.id;
+  }, [flow, update]);
+
+  /** Change a trigger event's type (start / webhook / schedule / manual). */
+  const setEventType = useCallback(
+    (
+      eventId: string,
+      type: 'start' | 'webhook' | 'schedule' | 'manual' | 'error',
+    ) => {
+      update(changeEventType(flow, eventId, type));
+    },
+    [flow, update],
+  );
+
   return {
     addBlock,
     connect,
@@ -366,5 +404,7 @@ export function useCanvasOperations(
     tidyUp,
     pastePayload,
     buildClipboardPayload,
+    ensureStart,
+    setEventType,
   };
 }
