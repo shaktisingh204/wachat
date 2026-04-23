@@ -98,8 +98,11 @@ export function Canvas({ flow, onFlowChange, containerRef }: Props) {
   }, [flow.events, isReadOnly]);
 
   const handlePickTrigger = useCallback(
-    (type: 'start' | 'webhook' | 'schedule' | 'manual' | 'error') => {
-      ops.addTrigger(type);
+    (
+      type: 'start' | 'webhook' | 'schedule' | 'manual' | 'error',
+      appEvent: string,
+    ) => {
+      ops.addTrigger(type, undefined, appEvent);
       setTriggerPanelOpen(false);
     },
     [ops],

@@ -4,17 +4,23 @@
  *
  * Auto-opens on the right side of the canvas when a flow has no trigger
  * events. Picking a row creates the corresponding SabFlowEvent and closes
- * the panel. Search filters across label + description.
+ * the panel. Search filters across label + description; the list is
+ * grouped by SabNode product category (Wachat, CRM, Calls, Broadcasts, …).
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { LuSearch, LuX } from 'react-icons/lu';
 import type { EventType } from '@/lib/sabflow/types';
-import { TRIGGER_OPTIONS } from './triggerOptions';
+import {
+  TRIGGER_OPTIONS,
+  TRIGGER_CATEGORY_META,
+  type TriggerCategory,
+  type TriggerOption,
+} from './triggerOptions';
 
 type Props = {
   open: boolean;
   onClose: () => void;
-  onPick: (type: EventType) => void;
+  onPick: (eventType: EventType, appEvent: string) => void;
 };
 
 export function TriggerStartPanel({ open, onClose, onPick }: Props) {
@@ -36,9 +42,31 @@ export function TriggerStartPanel({ open, onClose, onPick }: Props) {
     return TRIGGER_OPTIONS.filter(
       (o) =>
         o.label.toLowerCase().includes(lower) ||
-        o.description.toLowerCase().includes(lower),
+        o.description.toLowerCase().includes(lower) ||
+        o.appEvent.toLowerCase().includes(lower),
     );
   }, [query]);
+
+  /** Filtered options grouped by category, in TRIGGER_CATEGORY_META.order. */
+  const grouped = useMemo(() => {
+    const buckets = new Map<TriggerCategory, TriggerOption[]>();
+    for (const opt of filtered) {
+      const arr = buckets.get(opt.category);
+      if (arr) arr.push(opt);
+      else buckets.set(opt.category, [opt]);
+    }
+    return [...buckets.entries()]
+      .sort(
+        ([a], [b]) =>
+          (TRIGGER_CATEGORY_META[a]?.order ?? 999) -
+          (TRIGGER_CATEGORY_META[b]?.order ?? 999),
+      )
+      .map(([key, options]) => ({
+        key,
+        meta: TRIGGER_CATEGORY_META[key],
+        options,
+      }));
+  }, [filtered]);
 
   useEffect(() => {
     if (!open) return;
@@ -57,7 +85,7 @@ export function TriggerStartPanel({ open, onClose, onPick }: Props) {
       } else if (e.key === 'Enter') {
         e.preventDefault();
         const picked = filtered[activeIndex];
-        if (picked) onPick(picked.type);
+        if (picked) onPick(picked.eventType, picked.appEvent);
       }
     };
     document.addEventListener('keydown', onKey);
@@ -66,6 +94,7 @@ export function TriggerStartPanel({ open, onClose, onPick }: Props) {
 
   if (!open) return null;
 
+  let runningIndex = 0;
   return (
     <div className="sabflow-trigger-panel" onMouseDown={(e) => e.stopPropagation()}>
       <div className="sabflow-trigger-panel__head">
@@ -89,7 +118,7 @@ export function TriggerStartPanel({ open, onClose, onPick }: Props) {
           ref={inputRef}
           type="text"
           value={query}
-          placeholder="Search nodes…"
+          placeholder="Search triggers…"
           onChange={(e) => {
             setQuery(e.target.value);
             setActiveIndex(0);
@@ -98,37 +127,51 @@ export function TriggerStartPanel({ open, onClose, onPick }: Props) {
       </div>
 
       <div className="sabflow-trigger-panel__body">
-        {filtered.length === 0 ? (
+        {grouped.length === 0 ? (
           <div className="sabflow-trigger-panel__empty">
             No triggers match &ldquo;{query}&rdquo;
           </div>
         ) : (
-          filtered.map((option, idx) => {
-            const Icon = option.icon;
-            const isActive = idx === activeIndex;
-            return (
-              <button
-                key={option.type}
-                type="button"
-                role="option"
-                aria-selected={isActive}
-                className={`sabflow-trigger-panel__item${isActive ? ' is-active' : ''}`}
-                onMouseEnter={() => setActiveIndex(idx)}
-                onClick={() => onPick(option.type)}
+          grouped.map((group) => (
+            <div key={group.key} className="sabflow-trigger-panel__group">
+              <div
+                className="sabflow-trigger-panel__group-label"
+                style={{ color: group.meta?.color }}
               >
-                <span
-                  className="sabflow-trigger-panel__item-icon"
-                  style={{ backgroundColor: option.color + '1f', color: option.color }}
-                >
-                  <Icon className="h-4 w-4" />
-                </span>
-                <span className="sabflow-trigger-panel__item-text">
-                  <span className="sabflow-trigger-panel__item-label">{option.label}</span>
-                  <span className="sabflow-trigger-panel__item-desc">{option.description}</span>
-                </span>
-              </button>
-            );
-          })
+                {group.meta?.label ?? group.key}
+              </div>
+              {group.options.map((option) => {
+                const Icon = option.icon;
+                const idx = runningIndex++;
+                const isActive = idx === activeIndex;
+                return (
+                  <button
+                    key={option.appEvent}
+                    type="button"
+                    role="option"
+                    aria-selected={isActive}
+                    className={`sabflow-trigger-panel__item${isActive ? ' is-active' : ''}`}
+                    onMouseEnter={() => setActiveIndex(idx)}
+                    onClick={() => onPick(option.eventType, option.appEvent)}
+                  >
+                    <span
+                      className="sabflow-trigger-panel__item-icon"
+                      style={{
+                        backgroundColor: option.color + '1f',
+                        color: option.color,
+                      }}
+                    >
+                      <Icon className="h-4 w-4" />
+                    </span>
+                    <span className="sabflow-trigger-panel__item-text">
+                      <span className="sabflow-trigger-panel__item-label">{option.label}</span>
+                      <span className="sabflow-trigger-panel__item-desc">{option.description}</span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          ))
         )}
       </div>
     </div>

@@ -18,6 +18,7 @@ import { WeeklyHoursEditor } from './weekly-hours-editor';
 import { HolidayScheduleEditor } from './holiday-schedule-editor';
 import { timezones } from '@/lib/timezones';
 import { Textarea } from '../ui/textarea';
+import { recordApiCall } from '@/lib/calls/api-log';
 
 const saveInitialState = { success: false, error: undefined };
 
@@ -51,10 +52,21 @@ export function CallingSettingsForm({ project, phone, onSuccess }: CallingSettin
             const result = await getPhoneNumberCallingSettings(project._id.toString(), phone.id);
             if (result.error) {
                 toast({ title: "Error", description: `Could not fetch settings: ${result.error}`, variant: 'destructive' });
+                recordApiCall({
+                    method: 'GET',
+                    status: 'ERROR',
+                    summary: `Fetch settings for ${phone.display_phone_number}`,
+                    errorMessage: result.error,
+                });
             } else {
                 setSettings(result.settings || {});
                 setWeeklyHours(result.settings?.call_hours?.weekly_operating_hours || []);
                 setHolidaySchedule(result.settings?.call_hours?.holiday_schedule || []);
+                recordApiCall({
+                    method: 'GET',
+                    status: 'SUCCESS',
+                    summary: `Fetched settings for ${phone.display_phone_number}`,
+                });
             }
         });
     }, [project, phone, toast]);
@@ -70,8 +82,14 @@ export function CallingSettingsForm({ project, phone, onSuccess }: CallingSettin
         }
         if (saveState.error) {
             toast({ title: 'Error Saving Settings', description: saveState.error, variant: 'destructive' });
+            recordApiCall({
+                method: 'POST',
+                status: 'ERROR',
+                summary: `Save settings for ${phone.display_phone_number}`,
+                errorMessage: saveState.error,
+            });
         }
-    }, [saveState, toast, onSuccess]);
+    }, [saveState, toast, onSuccess, phone.display_phone_number]);
 
 
     if (isLoading) {

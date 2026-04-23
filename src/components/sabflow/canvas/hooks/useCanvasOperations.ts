@@ -394,15 +394,17 @@ export function useCanvasOperations(
   /**
    * Append a new trigger event of the given type. Used by the n8n-style
    * "What triggers this workflow?" picker that opens on an empty canvas.
-   * Returns the id of the created event.
+   * `appEvent` is an optional product-event slug (e.g. `whatsapp_message_received`)
+   * that the engine can route on. Returns the id of the created event.
    */
   const addTrigger = useCallback(
     (
       type: 'start' | 'webhook' | 'schedule' | 'manual' | 'error',
       position?: { x: number; y: number },
+      appEvent?: string,
     ): string => {
       const id = createId();
-      const next = addTriggerEvent(flow, type, () => id, position);
+      const next = addTriggerEvent(flow, type, () => id, position, appEvent);
       update(next);
       return id;
     },

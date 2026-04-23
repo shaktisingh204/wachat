@@ -1,166 +1,353 @@
-
 'use client';
 
-import { useState, useEffect, useTransition, useCallback } from 'react';
-import type { WithId } from 'mongodb';
-import { getProjectById } from '@/app/actions/index.ts';
-import { getPhoneNumberCallingSettings } from '@/app/actions/calling.actions';
-import type { Project, PhoneNumber, CallingSettings } from '@/lib/definitions';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, Phone, FileText, Check, X } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CallingSettingsForm } from '@/components/wabasimplify/calling-settings-form';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
-import { formatDistanceToNow } from 'date-fns';
-import { Button } from '@/components/ui/button';
-import { RefreshCw } from 'lucide-react';
-import { useProject } from '@/context/project-context';
+/**
+ * Wachat Calls -- Setup tab.
+ *
+ * Select a phone number, view a status summary, edit Meta calling settings
+ * (status, icon visibility, country restriction, callback prompt, business
+ * hours, SIP), and see a live API call log tracking every fetch/save.
+ */
 
-function SettingsPageSkeleton() {
-    return (
-        <div className="flex flex-col gap-8">
-            <div className="space-y-2">
-                <Skeleton className="h-6 w-1/3" />
-                <Skeleton className="h-4 w-2/3" />
-            </div>
-            <Skeleton className="h-10 w-full md:w-1/2" />
-            <Skeleton className="h-[400px] w-full" />
-        </div>
-    );
+import * as React from 'react';
+import { useState, useEffect, useTransition, useCallback, useMemo } from 'react';
+import {
+  LuPhone,
+  LuCircleAlert,
+  LuCircleCheck,
+  LuFileText,
+  LuRefreshCw,
+  LuLoader,
+  LuTrash2,
+} from 'react-icons/lu';
+import { formatDistanceToNow } from 'date-fns';
+
+import { getProjectById } from '@/app/actions/index.ts';
+import type { PhoneNumber } from '@/lib/definitions';
+
+import { CallingSettingsForm } from '@/components/wabasimplify/calling-settings-form';
+import { useProject } from '@/context/project-context';
+import { useToast } from '@/hooks/use-toast';
+import { ClayButton, ClayCard } from '@/components/clay';
+import { cn } from '@/lib/utils';
+import { recordApiCall, clearApiLog, subscribeApiLog, getApiLog, type ApiLogEntry } from '@/lib/calls/api-log';
+
+function useApiLog() {
+  const [log, setLog] = useState<ApiLogEntry[]>(getApiLog());
+  useEffect(() => subscribeApiLog((next) => setLog([...next])), []);
+  return log;
 }
 
-const ApiLogRow = ({ log }: { log: any }) => {
-    // Clean user-facing row — no raw JSON payload dumps.
-    // If something failed we show the short error message only.
-    return (
-        <div className="flex items-center justify-between gap-3 border-b border-clay-border px-1 py-2.5 text-[12.5px] last:border-0">
-            <div className="flex min-w-0 items-center gap-2">
-                <span className="font-mono text-[11px] text-clay-ink-muted">
-                    {log.method}
-                </span>
-                <Badge
-                    variant={log.status === 'SUCCESS' ? 'default' : 'destructive'}
-                    className="text-[10px]"
-                >
-                    {log.status}
-                </Badge>
-                {log.status !== 'SUCCESS' && log.errorMessage ? (
-                    <span className="ml-2 min-w-0 truncate text-[11.5px] text-clay-red/80">
-                        {log.errorMessage}
-                    </span>
-                ) : null}
-            </div>
-            <span className="shrink-0 text-[11px] text-clay-ink-muted">
-                {formatDistanceToNow(new Date(log.createdAt), { addSuffix: true })}
-            </span>
-        </div>
-    );
-};
-
+/* ── Setup page ─────────────────────────────────────────────────── */
 
 export default function CallingSettingsPage() {
-    const { activeProject, activeProjectId } = useProject();
-    const [isLoading, startLoadingTransition] = useTransition();
-    const [selectedPhone, setSelectedPhone] = useState<PhoneNumber | null>(null);
-    const [apiLogs, setApiLogs] = useState<any[]>([]);
+  const { activeProject, activeProjectId } = useProject();
+  const { toast } = useToast();
+  const [isLoading, startLoadingTransition] = useTransition();
+  const [selectedPhoneId, setSelectedPhoneId] = useState<string | null>(null);
+  const log = useApiLog();
 
-    const fetchData = useCallback(() => {
-        if (!activeProjectId) return;
-        startLoadingTransition(async () => {
-            // Re-fetch project to ensure phone numbers are up to date
-            await getProjectById(activeProjectId);
-        });
-    }, [activeProjectId]);
-
-    useEffect(() => {
-        if (activeProject?.phoneNumbers && activeProject.phoneNumbers.length > 0 && !selectedPhone) {
-            setSelectedPhone(activeProject.phoneNumbers[0]);
-        }
-    }, [activeProject, selectedPhone]);
-    
-    if (isLoading && !activeProject) return <SettingsPageSkeleton />;
-
-    if (!activeProject) {
-        return (
-             <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>No Project Selected</AlertTitle>
-                <AlertDescription>
-                    Please select a project from the main dashboard to configure its calling settings.
-                </AlertDescription>
-            </Alert>
-        );
-    }
-    
+  const selectedPhone: PhoneNumber | null = useMemo(() => {
+    if (!activeProject?.phoneNumbers) return null;
     return (
-        <div className="grid lg:grid-cols-3 gap-8 items-start">
-            <div className="lg:col-span-2 flex flex-col gap-6">
-                <div className="space-y-2">
-                    <h2 className="text-2xl font-bold">Configure Number</h2>
-                    <p className="text-muted-foreground">
-                        Select a phone number to view and modify its calling configuration.
-                    </p>
-                </div>
-                
-                <div className="max-w-md">
-                    <Select 
-                        value={selectedPhone?.id} 
-                        onValueChange={(id) => setSelectedPhone(activeProject.phoneNumbers.find(p => p.id === id) || null)}
-                    >
-                        <SelectTrigger><SelectValue placeholder="Select a phone number..." /></SelectTrigger>
-                        <SelectContent>
-                            {activeProject.phoneNumbers.map(phone => (
-                                <SelectItem key={phone.id} value={phone.id}>
-                                    {phone.display_phone_number} ({phone.verified_name})
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-
-                {selectedPhone ? (
-                    <CallingSettingsForm 
-                        key={selectedPhone.id} 
-                        project={activeProject} 
-                        phone={selectedPhone}
-                        onSuccess={fetchData}
-                    />
-                ) : (
-                    <Alert>
-                        <Phone className="h-4 w-4" />
-                        <AlertTitle>No Phone Number Selected</AlertTitle>
-                        <AlertDescription>
-                        Please select a phone number from the dropdown above to manage its settings.
-                        </AlertDescription>
-                    </Alert>
-                )}
-            </div>
-            <div className="lg:col-span-1">
-                <Card>
-                    <CardHeader>
-                        <div className="flex justify-between items-center">
-                            <div className="space-y-1.5">
-                                <CardTitle className="flex items-center gap-2"><FileText className="h-5 w-5"/> API Call Log</CardTitle>
-                                <CardDescription>A log of recent API calls made from this page.</CardDescription>
-                            </div>
-                            <Button variant="ghost" size="icon" onClick={() => fetchData()} disabled={isLoading}><RefreshCw className="h-4 w-4"/></Button>
-                        </div>
-                    </CardHeader>
-                    <CardContent className="p-0">
-                         <ScrollArea className="h-96">
-                            {apiLogs.length > 0 ? (
-                                apiLogs.map(log => <ApiLogRow key={log._id} log={log} />)
-                            ) : (
-                                <div className="p-8 text-center text-sm text-muted-foreground">No API calls logged yet.</div>
-                            )}
-                        </ScrollArea>
-                    </CardContent>
-                </Card>
-            </div>
-        </div>
+      activeProject.phoneNumbers.find((p) => p.id === selectedPhoneId) ||
+      activeProject.phoneNumbers[0] ||
+      null
     );
+  }, [activeProject, selectedPhoneId]);
+
+  const refreshProject = useCallback(() => {
+    if (!activeProjectId) return;
+    startLoadingTransition(async () => {
+      try {
+        await getProjectById(activeProjectId);
+        recordApiCall({ method: 'GET', status: 'SUCCESS', summary: 'Reloaded project' });
+      } catch (err: any) {
+        recordApiCall({
+          method: 'GET',
+          status: 'ERROR',
+          summary: 'Project reload failed',
+          errorMessage: err?.message || String(err),
+        });
+      }
+    });
+  }, [activeProjectId]);
+
+  useEffect(() => {
+    if (activeProject?.phoneNumbers?.[0]?.id && !selectedPhoneId) {
+      setSelectedPhoneId(activeProject.phoneNumbers[0].id);
+    }
+  }, [activeProject, selectedPhoneId]);
+
+  if (!activeProject) {
+    return (
+      <ClayCard className="p-10 text-center">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-clay-bg-2 text-clay-ink-muted">
+          <LuPhone className="h-5 w-5" strokeWidth={1.5} />
+        </div>
+        <h2 className="mt-4 text-[16px] font-semibold text-clay-ink">No project selected</h2>
+        <p className="mx-auto mt-1.5 max-w-[360px] text-[12.5px] text-clay-ink-muted">
+          Select a project from the home screen to configure its WhatsApp calling settings.
+        </p>
+      </ClayCard>
+    );
+  }
+
+  const phoneNumbers = activeProject.phoneNumbers ?? [];
+
+  return (
+    <div className="grid items-start gap-6 lg:grid-cols-3">
+      {/* Left column: picker + status banner + form */}
+      <div className="flex flex-col gap-6 lg:col-span-2">
+        {phoneNumbers.length === 0 ? (
+          <ClayCard className="p-10 text-center">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-clay-bg-2 text-clay-ink-muted">
+              <LuPhone className="h-5 w-5" strokeWidth={1.5} />
+            </div>
+            <h2 className="mt-4 text-[16px] font-semibold text-clay-ink">No phone numbers linked</h2>
+            <p className="mx-auto mt-1.5 max-w-[360px] text-[12.5px] text-clay-ink-muted">
+              Add a WhatsApp Business phone number to the project first, then come back here to configure calling.
+            </p>
+            <ClayButton
+              variant="obsidian"
+              size="md"
+              className="mt-4"
+              onClick={() => (window.location.href = '/dashboard/numbers')}
+            >
+              Manage numbers
+            </ClayButton>
+          </ClayCard>
+        ) : (
+          <>
+            {/* Phone picker card */}
+            <ClayCard padded={false} className="p-5">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-[16px] font-semibold text-clay-ink">Configure number</h2>
+                  <p className="mt-1 text-[12.5px] text-clay-ink-muted">
+                    Select a phone number to view and modify its calling configuration.
+                  </p>
+                </div>
+                <ClayButton
+                  variant="ghost"
+                  size="sm"
+                  leading={
+                    isLoading ? (
+                      <LuLoader className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <LuRefreshCw className="h-3.5 w-3.5" strokeWidth={2} />
+                    )
+                  }
+                  onClick={refreshProject}
+                  disabled={isLoading}
+                >
+                  Reload
+                </ClayButton>
+              </div>
+
+              <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                {phoneNumbers.map((phone) => {
+                  const active = phone.id === selectedPhone?.id;
+                  const callingEnabled = phone.callingSettings?.status === 'ENABLED';
+                  return (
+                    <button
+                      key={phone.id}
+                      type="button"
+                      onClick={() => setSelectedPhoneId(phone.id)}
+                      className={cn(
+                        'flex items-center justify-between gap-3 rounded-[12px] border px-4 py-3 text-left transition-colors',
+                        active
+                          ? 'border-clay-obsidian bg-clay-obsidian/5 shadow-clay-card'
+                          : 'border-clay-border bg-clay-surface hover:border-clay-border-strong',
+                      )}
+                    >
+                      <div className="min-w-0">
+                        <div className="truncate text-[13px] font-semibold text-clay-ink">
+                          {phone.display_phone_number}
+                        </div>
+                        <div className="truncate text-[11.5px] text-clay-ink-muted">
+                          {phone.verified_name || 'Unverified'}
+                        </div>
+                      </div>
+                      <span
+                        className={cn(
+                          'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10.5px] font-medium',
+                          callingEnabled
+                            ? 'bg-emerald-50 text-emerald-700'
+                            : 'bg-clay-bg-2 text-clay-ink-muted',
+                        )}
+                      >
+                        <span
+                          className={cn(
+                            'h-1.5 w-1.5 rounded-full',
+                            callingEnabled ? 'bg-emerald-500' : 'bg-clay-ink-fade',
+                          )}
+                        />
+                        {callingEnabled ? 'On' : 'Off'}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </ClayCard>
+
+            {/* Status banner */}
+            {selectedPhone ? (
+              <StatusBanner phone={selectedPhone} />
+            ) : null}
+
+            {/* Form */}
+            {selectedPhone ? (
+              <CallingSettingsForm
+                key={selectedPhone.id}
+                project={activeProject}
+                phone={selectedPhone}
+                onSuccess={() => {
+                  recordApiCall({ method: 'POST', status: 'SUCCESS', summary: `Saved settings for ${selectedPhone.display_phone_number}` });
+                  toast({ title: 'Saved', description: 'Calling settings were updated in Meta.' });
+                  refreshProject();
+                }}
+              />
+            ) : (
+              <ClayCard className="p-8 text-center text-[13px] text-clay-ink-muted">
+                Select a phone number above to manage its settings.
+              </ClayCard>
+            )}
+          </>
+        )}
+      </div>
+
+      {/* Right column: API log */}
+      <div className="lg:col-span-1">
+        <ClayCard padded={false} className="p-5">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-clay-surface-2">
+                <LuFileText className="h-4 w-4 text-clay-ink-muted" strokeWidth={1.75} />
+              </span>
+              <div>
+                <h3 className="text-[13.5px] font-semibold text-clay-ink">API call log</h3>
+                <p className="text-[11.5px] text-clay-ink-muted">Fetches and saves from this page.</p>
+              </div>
+            </div>
+            <ClayButton
+              variant="ghost"
+              size="icon"
+              aria-label="Clear log"
+              onClick={clearApiLog}
+              disabled={log.length === 0}
+              className="h-7 w-7"
+            >
+              <LuTrash2 className="h-3.5 w-3.5" />
+            </ClayButton>
+          </div>
+
+          <div className="mt-4 max-h-96 overflow-y-auto">
+            {log.length === 0 ? (
+              <p className="py-8 text-center text-[12.5px] text-clay-ink-muted">
+                Nothing logged yet. Fetches and saves will appear here.
+              </p>
+            ) : (
+              <ul className="divide-y divide-clay-border">
+                {log.map((entry) => (
+                  <li key={entry.id} className="py-2.5">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-[10.5px] text-clay-ink-muted">{entry.method}</span>
+                      <span
+                        className={cn(
+                          'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium',
+                          entry.status === 'SUCCESS'
+                            ? 'bg-emerald-50 text-emerald-700'
+                            : 'bg-rose-50 text-rose-700',
+                        )}
+                      >
+                        {entry.status === 'SUCCESS' ? (
+                          <LuCircleCheck className="h-3 w-3" strokeWidth={2} />
+                        ) : (
+                          <LuCircleAlert className="h-3 w-3" strokeWidth={2} />
+                        )}
+                        {entry.status}
+                      </span>
+                      <span className="ml-auto text-[10.5px] text-clay-ink-muted">
+                        {formatDistanceToNow(entry.createdAt, { addSuffix: true })}
+                      </span>
+                    </div>
+                    <div className="mt-1 text-[12.5px] text-clay-ink">{entry.summary}</div>
+                    {entry.status === 'ERROR' && entry.errorMessage ? (
+                      <div className="mt-1 truncate text-[11.5px] text-rose-600">{entry.errorMessage}</div>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </ClayCard>
+      </div>
+    </div>
+  );
 }
 
+/* ── Status banner ──────────────────────────────────────────────── */
+
+function StatusBanner({ phone }: { phone: PhoneNumber }) {
+  const s = phone.callingSettings;
+  const enabled = s?.status === 'ENABLED';
+  const callbackOn = s?.callback_permission_status === 'ENABLED';
+  const sipOn = s?.sip?.status === 'ENABLED';
+  const hoursOn = s?.call_hours?.status === 'ENABLED';
+
+  const checklist: Array<{ label: string; ok: boolean }> = [
+    { label: 'Calling enabled', ok: enabled },
+    { label: 'Callback prompt', ok: callbackOn },
+    { label: 'Business hours', ok: hoursOn },
+    { label: 'SIP routing', ok: sipOn },
+  ];
+
+  return (
+    <ClayCard padded={false} className="p-5">
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <h3 className="text-[14px] font-semibold text-clay-ink">Current status</h3>
+          <p className="mt-0.5 text-[12px] text-clay-ink-muted">
+            Live configuration for {phone.display_phone_number}
+          </p>
+        </div>
+        <span
+          className={cn(
+            'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11.5px] font-semibold uppercase tracking-wide',
+            enabled ? 'bg-emerald-50 text-emerald-700' : 'bg-clay-bg-2 text-clay-ink-muted',
+          )}
+        >
+          <span
+            className={cn(
+              'h-2 w-2 rounded-full',
+              enabled ? 'bg-emerald-500' : 'bg-clay-ink-fade',
+            )}
+          />
+          {enabled ? 'Enabled' : 'Disabled'}
+        </span>
+      </div>
+      <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+        {checklist.map((item) => (
+          <div
+            key={item.label}
+            className="flex items-center gap-2 rounded-[10px] border border-clay-border bg-clay-surface-2 px-3 py-2"
+          >
+            <span
+              className={cn(
+                'flex h-5 w-5 items-center justify-center rounded-full',
+                item.ok ? 'bg-emerald-50 text-emerald-600' : 'bg-clay-bg-2 text-clay-ink-fade',
+              )}
+            >
+              {item.ok ? (
+                <LuCircleCheck className="h-3 w-3" strokeWidth={2.25} />
+              ) : (
+                <LuCircleAlert className="h-3 w-3" strokeWidth={2.25} />
+              )}
+            </span>
+            <span className="truncate text-[12px] font-medium text-clay-ink">{item.label}</span>
+          </div>
+        ))}
+      </div>
+    </ClayCard>
+  );
+}

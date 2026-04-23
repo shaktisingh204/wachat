@@ -346,17 +346,23 @@ export function ensureStartEvent(
 /**
  * Append a new trigger event of the given type. Used by the n8n-style
  * "What triggers this workflow?" panel that fires when a flow has none.
+ *
+ * `appEvent` records the specific SabNode product event the user picked
+ * (e.g. `whatsapp_message_received`). The fundamental `type` still drives
+ * how the engine subscribes (webhook/schedule/manual/start/error).
  */
 export function addTriggerEvent(
   flow: SabFlowDoc,
   type: SabFlowEvent['type'],
   makeId: () => string,
   position: { x: number; y: number } = { x: 100, y: 200 },
+  appEvent?: string,
 ): SabFlowDoc {
   const newEvent: SabFlowEvent = {
     id: makeId(),
     type,
     graphCoordinates: position,
+    ...(appEvent ? { appEvent } : {}),
   };
   return { ...flow, events: [...(flow.events ?? []), newEvent] };
 }

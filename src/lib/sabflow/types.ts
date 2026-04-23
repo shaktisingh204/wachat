@@ -1044,6 +1044,13 @@ export type SabFlowEvent = {
   graphCoordinates: Coordinates;
   outgoingEdgeId?: string;
   options?: ScheduleEventOptions | WebhookEventOptions | ManualEventOptions;
+  /**
+   * App-event slug picked from the trigger panel (e.g. `whatsapp_message_received`,
+   * `crm_deal_moved`). Independent of `type` — `type` describes the engine
+   * subscription mechanism (webhook / schedule / manual / start / error) while
+   * `appEvent` records the specific SabNode product event the user selected.
+   */
+  appEvent?: string;
 };
 
 /* ── Port / Handle types (n8n-style) ─────────────────── */
