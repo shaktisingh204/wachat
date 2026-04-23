@@ -50,7 +50,8 @@ export default function MessageTagsPage() {
     });
   };
 
-  const handleDelete = (tagId: string) => {
+  const handleDelete = (tagId: string, tagName: string) => {
+    if (!window.confirm(`Delete tag "${tagName}"? This cannot be undone.`)) return;
     startMutateTransition(async () => {
       const res = await deleteMessageTag(tagId);
       if (res.error) { toast({ title: 'Error', description: res.error, variant: 'destructive' }); return; }
@@ -113,7 +114,7 @@ export default function MessageTagsPage() {
               <span className="h-4 w-4 rounded-full shrink-0" style={{ backgroundColor: tag.color }} />
               <span className="flex-1 text-[14px] font-medium text-clay-ink">{tag.name}</span>
               <span className="text-[12px] text-clay-ink-muted tabular-nums">{tag.usageCount ?? 0} messages</span>
-              <button onClick={() => handleDelete(tag._id)} disabled={isMutating}
+              <button onClick={() => handleDelete(tag._id, tag.name)} disabled={isMutating}
                 className="p-1.5 rounded-md hover:bg-red-50 transition-colors text-red-500" title="Delete">
                 <LuTrash2 className="h-3.5 w-3.5" />
               </button>

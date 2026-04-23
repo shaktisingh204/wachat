@@ -24,14 +24,13 @@ import {
   LuLoader,
   LuCircleStop,
   LuArrowUpRight,
-  LuSend,
   LuChevronLeft,
   LuChevronRight,
   LuPlus,
   LuEllipsis,
-  LuChevronDown,
   LuBookCopy,
   LuUsers,
+  LuSearch,
 } from 'react-icons/lu';
 
 import { getTemplates, handleStopBroadcast } from '@/app/actions/index.ts';
@@ -219,6 +218,9 @@ export default function BroadcastPage() {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  const [hasLoaded, setHasLoaded] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
 
   const fetchData = useCallback(
     async (projectId: string, page: number, showToast = false) => {
@@ -237,6 +239,7 @@ export default function BroadcastPage() {
           setTotalPages(
             Math.max(1, Math.ceil(historyData.total / BROADCASTS_PER_PAGE)),
           );
+          setHasLoaded(true);
 
           if (showToast) {
             toast({
@@ -336,6 +339,22 @@ export default function BroadcastPage() {
     };
   }, [history]);
 
+  /* ── client-side filters over current page ─────────────────── */
+  const filteredHistory = React.useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    return history.filter((h) => {
+      if (statusFilter !== 'all') {
+        const s = (h.status || '').toLowerCase();
+        if (statusFilter === 'live' && !['queued', 'processing', 'pending_processing'].includes(s)) return false;
+        if (statusFilter === 'completed' && s !== 'completed') return false;
+        if (statusFilter === 'failed' && !['failed', 'cancelled', 'partial failure'].includes(s)) return false;
+      }
+      if (!q) return true;
+      const hay = `${h.name || ''} ${h.fileName || ''} ${h.templateName || ''}`.toLowerCase();
+      return hay.includes(q);
+    });
+  }, [history, searchQuery, statusFilter]);
+
   return (
     <div className="clay-enter flex min-h-full flex-col gap-6">
       {/* ── Breadcrumb ── */}
@@ -391,8 +410,8 @@ export default function BroadcastPage() {
           hint="across this project"
         />
         <MiniStat
-          label="Contacts reached"
-          value={compact(stats.totalContacts)}
+          label="Messages sent"
+          value={compact(stats.totalSent)}
           hint="sum of this page"
         />
         <MiniStat
@@ -403,7 +422,7 @@ export default function BroadcastPage() {
         <MiniStat
           label="Live now"
           value={String(stats.processing)}
-          hint={stats.processing > 0 ? 'polling every 5s' : 'nothing running'}
+          hint={stats.processing > 0 ? 'polling every 15s' : 'nothing running'}
         />
       </div>
 
@@ -494,7 +513,48 @@ export default function BroadcastPage() {
         </div>
 
         <ClayCard padded={false} className="mt-5 p-6">
-          {isRefreshing && history.length === 0 ? (
+          {/* ── Filter bar ── */}
+          {hasLoaded && history.length > 0 && (
+            <div className="mb-4 flex flex-wrap items-center gap-2 border-b border-clay-border pb-4">
+              <div className="relative min-w-[240px] flex-1">
+                <LuSearch className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-clay-ink-muted" strokeWidth={1.75} />
+                <input
+                  type="text"
+                  placeholder="Search by name or template..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="h-9 w-full rounded-[10px] border border-clay-border bg-clay-surface pl-9 pr-3 text-[13px] text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-border-strong focus:outline-none"
+                />
+              </div>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="h-9 rounded-[10px] border border-clay-border bg-clay-surface px-3 text-[13px] text-clay-ink focus:border-clay-border-strong focus:outline-none"
+              >
+                <option value="all">All statuses</option>
+                <option value="live">Live (queued/processing)</option>
+                <option value="completed">Completed</option>
+                <option value="failed">Failed / cancelled</option>
+              </select>
+              {(searchQuery || statusFilter !== 'all') && (
+                <ClayButton
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setSearchQuery('');
+                    setStatusFilter('all');
+                  }}
+                >
+                  Clear
+                </ClayButton>
+              )}
+              <span className="ml-auto text-[11px] text-clay-ink-muted tabular-nums">
+                {filteredHistory.length} of {history.length}
+              </span>
+            </div>
+          )}
+
+          {!hasLoaded && isRefreshing ? (
             <div className="flex h-24 items-center justify-center">
               <LuLoader
                 className="h-5 w-5 animate-spin text-clay-ink-muted"
@@ -535,9 +595,21 @@ export default function BroadcastPage() {
                 it&apos;ll appear here with live delivery and read analytics.
               </div>
             </div>
+          ) : filteredHistory.length === 0 ? (
+            <div className="flex flex-col items-center gap-2 rounded-clay-md border border-dashed border-clay-border bg-clay-surface-2 px-4 py-10 text-center">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-clay-bg text-clay-ink-muted">
+                <LuSearch className="h-5 w-5" strokeWidth={1.5} />
+              </div>
+              <div className="text-[13px] font-semibold text-clay-ink">
+                No broadcasts match
+              </div>
+              <div className="max-w-[340px] text-[11.5px] text-clay-ink-muted">
+                Try clearing the search or status filter.
+              </div>
+            </div>
           ) : (
             <div className="flex flex-col gap-3">
-              {history.map((item, i) => {
+              {filteredHistory.map((item, i) => {
                 const tone = statusTone(item.status);
                 const processing =
                   item.status === 'PROCESSING' && item.contactCount > 0;
@@ -553,7 +625,7 @@ export default function BroadcastPage() {
                   <ClayListRow
                     key={item._id.toString()}
                     index={index}
-                    title={item.fileName || item.templateName || 'Untitled'}
+                    title={item.name || item.templateName || item.fileName || 'Untitled'}
                     meta={
                       <span className="flex flex-wrap items-center gap-2">
                         {item.templateName ? (

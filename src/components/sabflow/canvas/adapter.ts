@@ -343,6 +343,24 @@ export function ensureStartEvent(
   return { ...flow, events: [...(flow.events ?? []), newEvent] };
 }
 
+/**
+ * Append a new trigger event of the given type. Used by the n8n-style
+ * "What triggers this workflow?" panel that fires when a flow has none.
+ */
+export function addTriggerEvent(
+  flow: SabFlowDoc,
+  type: SabFlowEvent['type'],
+  makeId: () => string,
+  position: { x: number; y: number } = { x: 100, y: 200 },
+): SabFlowDoc {
+  const newEvent: SabFlowEvent = {
+    id: makeId(),
+    type,
+    graphCoordinates: position,
+  };
+  return { ...flow, events: [...(flow.events ?? []), newEvent] };
+}
+
 /** Change a trigger event's type (start → webhook → schedule → manual → …). */
 export function changeEventType(
   flow: SabFlowDoc,

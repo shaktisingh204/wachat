@@ -730,7 +730,7 @@ export default function UrlShortenerPage() {
                                 e.preventDefault();
                                 handleCopy(id, shortUrl);
                               }}
-                              className="ml-1 rounded p-0.5 text-clay-ink-muted hover:bg-clay-bg-hover hover:text-clay-ink"
+                              className="ml-1 rounded p-0.5 text-clay-ink-muted hover:bg-clay-bg-2 hover:text-clay-ink"
                               aria-label="Copy link"
                             >
                               {copiedId === id ? (
@@ -779,7 +779,7 @@ export default function UrlShortenerPage() {
                           <div className="inline-flex items-center gap-1">
                             <Link
                               href={`/dashboard/url-shortener/${id}`}
-                              className="rounded p-1.5 text-clay-ink-muted hover:bg-clay-bg-hover hover:text-clay-ink"
+                              className="rounded p-1.5 text-clay-ink-muted hover:bg-clay-bg-2 hover:text-clay-ink"
                               aria-label="Analytics"
                             >
                               <BarChart className="h-3.5 w-3.5" />
@@ -787,7 +787,7 @@ export default function UrlShortenerPage() {
                             <button
                               type="button"
                               onClick={() => setSelectedUrlForQr(shortUrl)}
-                              className="rounded p-1.5 text-clay-ink-muted hover:bg-clay-bg-hover hover:text-clay-ink"
+                              className="rounded p-1.5 text-clay-ink-muted hover:bg-clay-bg-2 hover:text-clay-ink"
                               aria-label="QR Code"
                             >
                               <QrCode className="h-3.5 w-3.5" />
@@ -838,7 +838,7 @@ export default function UrlShortenerPage() {
                     type="button"
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                     disabled={currentPage <= 1}
-                    className="rounded p-1 text-clay-ink-muted hover:bg-clay-bg-hover hover:text-clay-ink disabled:opacity-40 disabled:pointer-events-none"
+                    className="rounded p-1 text-clay-ink-muted hover:bg-clay-bg-2 hover:text-clay-ink disabled:opacity-40 disabled:pointer-events-none"
                     aria-label="Previous page"
                   >
                     <ChevronLeft className="h-4 w-4" />
@@ -850,7 +850,7 @@ export default function UrlShortenerPage() {
                     type="button"
                     onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
                     disabled={currentPage >= pageCount}
-                    className="rounded p-1 text-clay-ink-muted hover:bg-clay-bg-hover hover:text-clay-ink disabled:opacity-40 disabled:pointer-events-none"
+                    className="rounded p-1 text-clay-ink-muted hover:bg-clay-bg-2 hover:text-clay-ink disabled:opacity-40 disabled:pointer-events-none"
                     aria-label="Next page"
                   >
                     <ChevronRight className="h-4 w-4" />

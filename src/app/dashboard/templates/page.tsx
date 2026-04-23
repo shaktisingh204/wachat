@@ -67,6 +67,7 @@ export default function TemplatesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('ALL');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
+  const [languageFilter, setLanguageFilter] = useState<string>('ALL');
   const [isLoading, startLoading] = useTransition();
   const [isSyncing, startSyncing] = useTransition();
   const [isClient, setIsClient] = useState(false);
@@ -139,9 +140,11 @@ export default function TemplatesPage() {
           categoryFilter === 'ALL' || t.category === categoryFilter;
         const statusMatch =
           statusFilter === 'ALL' || t.status === statusFilter;
-        return nameMatch && categoryMatch && statusMatch;
+        const languageMatch =
+          languageFilter === 'ALL' || t.language === languageFilter;
+        return nameMatch && categoryMatch && statusMatch && languageMatch;
       }),
-    [templates, searchQuery, categoryFilter, statusFilter],
+    [templates, searchQuery, categoryFilter, statusFilter, languageFilter],
   );
 
   const categories = useMemo(
@@ -155,6 +158,13 @@ export default function TemplatesPage() {
     () => [
       'ALL',
       ...Array.from(new Set(templates.map((t) => t.status).filter(Boolean))),
+    ],
+    [templates],
+  );
+  const languages = useMemo(
+    () => [
+      'ALL',
+      ...Array.from(new Set(templates.map((t) => t.language).filter(Boolean) as string[])),
     ],
     [templates],
   );
@@ -369,6 +379,35 @@ export default function TemplatesPage() {
                 </DropdownMenuContent>
               </DropdownMenu>
 
+              {/* Language filter */}
+              {languages.length > 2 ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <ClayButton
+                      variant="pill"
+                      size="md"
+                      trailing={<LuChevronDown className="h-3 w-3 opacity-60" />}
+                    >
+                      {languageFilter === 'ALL' ? 'All languages' : languageFilter}
+                    </ClayButton>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Language</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuRadioGroup
+                      value={languageFilter}
+                      onValueChange={setLanguageFilter}
+                    >
+                      {languages.map((l) => (
+                        <DropdownMenuRadioItem key={l} value={l}>
+                          {l === 'ALL' ? 'All' : l}
+                        </DropdownMenuRadioItem>
+                      ))}
+                    </DropdownMenuRadioGroup>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : null}
+
               <span className="ml-auto text-[11.5px] tabular-nums text-clay-ink-muted">
                 {filteredTemplates.length} / {templates.length} templates
               </span>
@@ -442,6 +481,7 @@ export default function TemplatesPage() {
                     setSearchQuery('');
                     setCategoryFilter('ALL');
                     setStatusFilter('ALL');
+                    setLanguageFilter('ALL');
                   }}
                   className="mt-5"
                 >

@@ -6,13 +6,16 @@
 
 import * as React from 'react';
 import { useEffect, useState, useTransition, useCallback } from 'react';
-import { LuCoins, LuTrendingUp, LuCalendar, LuTriangleAlert, LuLoader } from 'react-icons/lu';
+import { LuCoins, LuTrendingUp, LuCalendar, LuTriangleAlert, LuLoader, LuCreditCard } from 'react-icons/lu';
+import { useRouter } from 'next/navigation';
 import { useProject } from '@/context/project-context';
 import { useToast } from '@/hooks/use-toast';
-import { ClayBreadcrumbs, ClayCard } from '@/components/clay';
+import { ClayBreadcrumbs, ClayButton, ClayCard } from '@/components/clay';
 import { getCreditUsage } from '@/app/actions/wachat-features.actions';
+import { ResponsiveContainer, LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
 
 export default function CreditUsagePage() {
+  const router = useRouter();
   const { activeProject } = useProject();
   const { toast } = useToast();
   const projectId = activeProject?._id?.toString();
@@ -54,9 +57,19 @@ export default function CreditUsagePage() {
         { label: 'Credit Usage' },
       ]} />
 
-      <div>
-        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">Credit Usage</h1>
-        <p className="mt-1.5 text-[13px] text-clay-ink-muted">Monitor your messaging credit balance and daily usage.</p>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">Credit Usage</h1>
+          <p className="mt-1.5 text-[13px] text-clay-ink-muted">Monitor your messaging credit balance and daily usage.</p>
+        </div>
+        <ClayButton
+          variant="obsidian"
+          size="md"
+          leading={<LuCreditCard className="h-3.5 w-3.5" strokeWidth={2} />}
+          onClick={() => router.push('/dashboard/billing')}
+        >
+          Top up credits
+        </ClayButton>
       </div>
 
       {isLow && credits > 0 && (
@@ -93,7 +106,18 @@ export default function CreditUsagePage() {
 
           {dailyUsage.length > 0 && (
             <ClayCard padded={false} className="p-5">
-              <h2 className="text-[15px] font-semibold text-clay-ink mb-4">Daily Usage</h2>
+              <h2 className="text-[15px] font-semibold text-clay-ink mb-4">Daily trend</h2>
+              <div className="mb-5 h-[220px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={dailyUsage.map((d) => ({ date: d._id, count: d.count }))} margin={{ top: 5, right: 12, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" />
+                    <XAxis dataKey="date" stroke="#a1a1aa" tick={{ fontSize: 10 }} />
+                    <YAxis stroke="#a1a1aa" tick={{ fontSize: 10 }} />
+                    <Tooltip />
+                    <Line type="monotone" dataKey="count" stroke="#f59e0b" strokeWidth={2} dot={false} name="Credits used" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
               <div className="space-y-2">
                 <div className="grid grid-cols-[100px_80px_1fr] gap-2 text-[11.5px] font-medium text-clay-ink-muted">
                   <span>Date</span><span className="text-right">Messages</span><span />

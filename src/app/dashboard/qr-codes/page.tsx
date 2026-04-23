@@ -171,7 +171,7 @@ export default function QrCodesPage() {
                       setEditingId(qr.code);
                       setEditMessage(qr.prefilled_message);
                     }}
-                    className="rounded p-1.5 text-clay-ink-muted hover:bg-clay-bg-hover hover:text-clay-ink"
+                    className="rounded p-1.5 text-clay-ink-muted hover:bg-clay-bg-2 hover:text-clay-ink"
                   >
                     <LuPencil className="h-3.5 w-3.5" />
                   </button>

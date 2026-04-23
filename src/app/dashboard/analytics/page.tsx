@@ -22,8 +22,9 @@ import {
 
 import { useProject } from '@/context/project-context';
 import { useToast } from '@/hooks/use-toast';
-import { getLocalMessageAnalytics, getBroadcastAnalytics, getConversationAnalytics } from '@/app/actions/whatsapp-analytics.actions';
+import { getLocalMessageAnalytics, getBroadcastAnalytics } from '@/app/actions/whatsapp-analytics.actions';
 import { ClayBreadcrumbs, ClayButton, ClayCard } from '@/components/clay';
+import { ResponsiveContainer, LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 
 export const dynamic = 'force-dynamic';
 
@@ -121,7 +122,7 @@ export default function AnalyticsPage() {
               <button
                 key={range}
                 onClick={() => setDateRange(range)}
-                className={`px-3 py-1.5 transition-colors ${dateRange === range ? 'bg-clay-bg-active text-clay-ink font-medium' : 'text-clay-ink-muted hover:bg-clay-bg-hover'}`}
+                className={`px-3 py-1.5 transition-colors ${dateRange === range ? 'bg-clay-surface-2 text-clay-ink font-medium' : 'text-clay-ink-muted hover:bg-clay-bg-2'}`}
               >
                 {range === '7d' ? '7 Days' : range === '30d' ? '30 Days' : '90 Days'}
               </button>
@@ -176,6 +177,28 @@ export default function AnalyticsPage() {
         </ClayCard>
       )}
 
+      {/* Daily trend chart */}
+      {analytics && analytics.dailyBreakdown.length > 0 && (
+        <ClayCard className="p-6">
+          <h2 className="mb-4 text-sm font-medium text-clay-ink">Daily trend</h2>
+          <div className="h-[260px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={analytics.dailyBreakdown} margin={{ top: 5, right: 12, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" />
+                <XAxis dataKey="date" stroke="#a1a1aa" tick={{ fontSize: 10 }} />
+                <YAxis stroke="#a1a1aa" tick={{ fontSize: 10 }} />
+                <Tooltip />
+                <Legend wrapperStyle={{ fontSize: 11 }} />
+                <Line type="monotone" dataKey="sent" stroke="#18181b" strokeWidth={2} dot={false} name="Sent" />
+                <Line type="monotone" dataKey="delivered" stroke="#10b981" strokeWidth={2} dot={false} name="Delivered" />
+                <Line type="monotone" dataKey="read" stroke="#f59e0b" strokeWidth={2} dot={false} name="Read" />
+                <Line type="monotone" dataKey="failed" stroke="#ef4444" strokeWidth={2} dot={false} name="Failed" />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </ClayCard>
+      )}
+
       {/* Daily Breakdown Table */}
       {analytics && analytics.dailyBreakdown.length > 0 && (
         <ClayCard padded={false}>
@@ -196,7 +219,7 @@ export default function AnalyticsPage() {
               </thead>
               <tbody>
                 {analytics.dailyBreakdown.slice().reverse().map((day) => (
-                  <tr key={day.date} className="border-b border-clay-border/50 hover:bg-clay-bg-hover/50">
+                  <tr key={day.date} className="border-b border-clay-border/50 hover:bg-clay-bg-2/50">
                     <td className="px-4 py-2 text-clay-ink font-medium">{day.date}</td>
                     <td className="px-4 py-2 text-right text-clay-ink tabular-nums">{day.sent}</td>
                     <td className="px-4 py-2 text-right text-green-500 tabular-nums">{day.delivered}</td>

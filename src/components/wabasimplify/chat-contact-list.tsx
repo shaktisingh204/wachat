@@ -8,9 +8,10 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
-import { LoaderCircle, MessageSquarePlus, Search } from 'lucide-react';
+import { LoaderCircle, MessageSquarePlus, Search, Users } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
 import { Input } from '../ui/input';
+import Link from 'next/link';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { format } from 'date-fns';
 import { useDebouncedCallback } from 'use-debounce';
@@ -232,8 +233,16 @@ export function ChatContactList({
                         </div>
                     </>
                 ) : (
-                    <div className="p-8 text-center text-sm text-muted-foreground">
-                        No contacts found{searchQuery ? ' for your search' : ' for this number'}.
+                    <div className="flex flex-col items-center gap-2 p-8 text-center text-sm text-muted-foreground">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-foreground/50">
+                            <Users className="h-5 w-5" />
+                        </div>
+                        <div>No contacts found{searchQuery ? ' for your search' : ' for this number'}.</div>
+                        {!searchQuery && (
+                            <Button asChild variant="outline" size="sm" className="mt-2">
+                                <Link href="/dashboard/contacts">Import or add contacts</Link>
+                            </Button>
+                        )}
                     </div>
                 )}
             </ScrollArea>

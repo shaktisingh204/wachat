@@ -76,17 +76,30 @@ export default function ConversationSearchPage() {
       {!isLoading && results.length > 0 && (
         <div className="flex flex-col gap-3">
           {results.map((r: any) => (
-            <ClayCard key={r._id} padded={false} className="p-4">
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-[13px] font-medium text-clay-ink">{r.contactId || r.from || 'Unknown'}</span>
-                <span className="text-[11px] text-clay-ink-muted whitespace-nowrap">
-                  {r.timestamp ? new Date(r.timestamp).toLocaleString() : ''}
-                </span>
-              </div>
-              <p className="text-[13px] text-clay-ink-muted leading-relaxed">{r.content?.text || r.type || '--'}</p>
-            </ClayCard>
+            <a
+              key={r._id}
+              href={`/dashboard/chat?contactId=${r.contactId || ''}`}
+              className="block transition-transform hover:-translate-y-0.5"
+            >
+              <ClayCard padded={false} className="p-4 hover:border-clay-border-strong">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[13px] font-medium text-clay-ink">{r.contactName || r.contactId || r.from || 'Unknown'}</span>
+                  <span className="text-[11px] text-clay-ink-muted whitespace-nowrap">
+                    {r.timestamp ? new Date(r.timestamp).toLocaleString() : ''}
+                  </span>
+                </div>
+                <p className="text-[13px] text-clay-ink-muted leading-relaxed">{r.content?.text || r.messageText || r.type || '--'}</p>
+              </ClayCard>
+            </a>
           ))}
         </div>
+      )}
+
+      {!isLoading && !searched && (
+        <ClayCard className="p-12 text-center">
+          <LuSearch className="mx-auto h-12 w-12 text-clay-ink-muted/30 mb-4" />
+          <p className="text-sm text-clay-ink-muted">Start searching to see messages here.</p>
+        </ClayCard>
       )}
 
       {!isLoading && searched && results.length === 0 && (

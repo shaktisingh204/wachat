@@ -7,6 +7,10 @@ import {
   LuKey,
   LuPuzzle,
   LuArrowRight,
+  LuShoppingBag,
+  LuZap,
+  LuFileSpreadsheet,
+  LuStore,
 } from 'react-icons/lu';
 
 import {
@@ -24,6 +28,7 @@ type Integration = {
   icon: React.ReactNode;
   href: string;
   accent: string; // tailwind bg class for the icon badge
+  status: 'ready' | 'coming-soon';
 };
 
 const integrations: Integration[] = [
@@ -34,6 +39,7 @@ const integrations: Integration[] = [
     icon: <LuLink className="h-[18px] w-[18px]" strokeWidth={2} />,
     href: '/dashboard/integrations/whatsapp-link-generator',
     accent: 'bg-emerald-50 text-emerald-600',
+    status: 'ready',
   },
   {
     title: 'Website Widget',
@@ -42,6 +48,7 @@ const integrations: Integration[] = [
     icon: <LuCode className="h-[18px] w-[18px]" strokeWidth={2} />,
     href: '/dashboard/integrations/whatsapp-widget-generator',
     accent: 'bg-sky-50 text-sky-600',
+    status: 'ready',
   },
   {
     title: 'Razorpay',
@@ -50,6 +57,39 @@ const integrations: Integration[] = [
     icon: <LuKey className="h-[18px] w-[18px]" strokeWidth={2} />,
     href: '/dashboard/integrations/razorpay',
     accent: 'bg-clay-rose-soft text-clay-rose',
+    status: 'ready',
+  },
+  {
+    title: 'Shopify',
+    description: 'Sync orders, send abandoned-cart nudges and delivery updates from Shopify to WhatsApp.',
+    icon: <LuShoppingBag className="h-[18px] w-[18px]" strokeWidth={2} />,
+    href: '#',
+    accent: 'bg-lime-50 text-lime-700',
+    status: 'coming-soon',
+  },
+  {
+    title: 'Zapier',
+    description: 'Connect 5,000+ apps to Wachat: trigger broadcasts, sync contacts, log events — no code.',
+    icon: <LuZap className="h-[18px] w-[18px]" strokeWidth={2} />,
+    href: '#',
+    accent: 'bg-orange-50 text-orange-600',
+    status: 'coming-soon',
+  },
+  {
+    title: 'Google Sheets',
+    description: 'Sync contacts to/from a spreadsheet. Two-way updates, column mapping, scheduled pulls.',
+    icon: <LuFileSpreadsheet className="h-[18px] w-[18px]" strokeWidth={2} />,
+    href: '#',
+    accent: 'bg-emerald-50 text-emerald-600',
+    status: 'coming-soon',
+  },
+  {
+    title: 'WooCommerce',
+    description: 'Trigger WhatsApp flows on order events: created, paid, shipped, delivered.',
+    icon: <LuStore className="h-[18px] w-[18px]" strokeWidth={2} />,
+    href: '#',
+    accent: 'bg-purple-50 text-purple-600',
+    status: 'coming-soon',
   },
 ];
 
@@ -95,20 +135,30 @@ export default function IntegrationsPage() {
             </p>
 
             <div className="flex items-center justify-between border-t border-clay-border pt-4">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.10em] text-clay-ink-soft">
-                Ready to configure
+              <span
+                className={`text-[11px] font-semibold uppercase tracking-[0.10em] ${
+                  integration.status === 'ready' ? 'text-emerald-600' : 'text-clay-ink-soft'
+                }`}
+              >
+                {integration.status === 'ready' ? 'Ready to configure' : 'Coming soon'}
               </span>
-              <Link href={integration.href}>
-                <ClayButton
-                  variant="obsidian"
-                  size="sm"
-                  trailing={
-                    <LuArrowRight className="h-3.5 w-3.5" strokeWidth={2} />
-                  }
-                >
-                  Configure
+              {integration.status === 'ready' ? (
+                <Link href={integration.href}>
+                  <ClayButton
+                    variant="obsidian"
+                    size="sm"
+                    trailing={
+                      <LuArrowRight className="h-3.5 w-3.5" strokeWidth={2} />
+                    }
+                  >
+                    Configure
+                  </ClayButton>
+                </Link>
+              ) : (
+                <ClayButton variant="pill" size="sm" disabled>
+                  Notify me
                 </ClayButton>
-              </Link>
+              )}
             </div>
           </ClayCard>
         ))}

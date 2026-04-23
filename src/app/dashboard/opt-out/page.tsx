@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useEffect, useState, useTransition, useCallback } from 'react';
-import { LuShieldOff, LuPlus, LuTrash2, LuLoader } from 'react-icons/lu';
+import { LuShieldOff, LuPlus, LuTrash2, LuLoader, LuDownload, LuUpload } from 'react-icons/lu';
 import { useProject } from '@/context/project-context';
 import { useToast } from '@/hooks/use-toast';
 import { ClayBreadcrumbs, ClayButton, ClayCard, ClayInput } from '@/components/clay';
@@ -47,6 +47,41 @@ export default function OptOutPage() {
     });
   };
 
+  const handleBulkPaste = async (raw: string) => {
+    const phones = raw
+      .split(/[\n,;\s]+/)
+      .map((p) => p.trim())
+      .filter(Boolean);
+    if (phones.length === 0) return;
+    let ok = 0;
+    let fail = 0;
+    for (const p of phones) {
+      const res = await addToOptOut(String(activeProject?._id ?? ''), p);
+      if (res.success) ok++;
+      else fail++;
+    }
+    toast({ title: `Bulk add complete`, description: `${ok} added, ${fail} failed.` });
+    load();
+  };
+
+  const handleExport = () => {
+    if (list.length === 0) {
+      toast({ title: 'Nothing to export' });
+      return;
+    }
+    const header = 'phone,reason,opted_out_at\n';
+    const rows = list.map((i) => `"${i.phone}","${(i.reason || '').replace(/"/g, '""')}","${i.optedOutAt || ''}"`).join('\n');
+    const blob = new Blob([header + rows], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `opt-out-list-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="clay-enter flex min-h-full flex-col gap-6">
       <ClayBreadcrumbs items={[
@@ -78,14 +113,57 @@ export default function OptOutPage() {
         </form>
       </ClayCard>
 
+      {/* Bulk paste */}
+      <ClayCard padded={false} className="p-5">
+        <h2 className="mb-3 text-[15px] font-semibold text-clay-ink">Bulk add</h2>
+        <p className="mb-2 text-[12px] text-clay-ink-muted">Paste multiple phone numbers separated by newlines or commas.</p>
+        <textarea
+          id="bulk-opt-out"
+          rows={4}
+          placeholder={'+919876543210\n+919876543211\n+919876543212'}
+          className="w-full rounded-[10px] border border-clay-border bg-clay-surface p-3 text-[13px] text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-border-strong focus:outline-none"
+        />
+        <ClayButton
+          variant="pill"
+          size="sm"
+          className="mt-3"
+          leading={<LuUpload className="h-3.5 w-3.5" strokeWidth={2} />}
+          onClick={() => {
+            const el = document.getElementById('bulk-opt-out') as HTMLTextAreaElement | null;
+            if (el) {
+              handleBulkPaste(el.value);
+              el.value = '';
+            }
+          }}
+        >
+          Bulk add
+        </ClayButton>
+      </ClayCard>
+
       {/* List */}
       <ClayCard padded={false} className="p-5">
-        <h2 className="mb-4 text-[15px] font-semibold text-clay-ink">Opt-Out Numbers</h2>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-[15px] font-semibold text-clay-ink">Opt-Out Numbers</h2>
+          <ClayButton
+            variant="pill"
+            size="sm"
+            leading={<LuDownload className="h-3.5 w-3.5" strokeWidth={2} />}
+            onClick={handleExport}
+            disabled={list.length === 0}
+          >
+            Export CSV
+          </ClayButton>
+        </div>
         {isPending && list.length === 0 && (
           <div className="flex justify-center py-8"><LuLoader className="h-5 w-5 animate-spin text-clay-ink-muted" /></div>
         )}
         {!isPending && list.length === 0 && (
-          <p className="py-8 text-center text-[13px] text-clay-ink-muted">No opt-out numbers recorded.</p>
+          <div className="flex flex-col items-center gap-2 py-8 text-center">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-clay-bg-2 text-clay-ink-muted">
+              <LuShieldOff className="h-5 w-5" strokeWidth={1.5} />
+            </div>
+            <p className="text-[13px] text-clay-ink-muted">No opt-out numbers recorded.</p>
+          </div>
         )}
         {list.length > 0 && (
           <div className="space-y-1">

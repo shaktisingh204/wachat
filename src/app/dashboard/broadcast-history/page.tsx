@@ -57,6 +57,43 @@ export default function BroadcastHistoryPage() {
         <p className="mt-1.5 text-[13px] text-clay-ink-muted">View detailed history of all broadcast campaigns.</p>
       </div>
 
+      {broadcasts.length > 0 && (
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          {[
+            {
+              label: 'Total broadcasts',
+              value: broadcasts.length,
+            },
+            {
+              label: 'Total messages',
+              value: broadcasts.reduce((s, b) => s + (b.totalContacts || b.total || b.successCount || 0), 0),
+            },
+            {
+              label: 'Avg delivery rate',
+              value: (() => {
+                const totals = broadcasts.reduce(
+                  (acc, b) => {
+                    acc.sent += b.sentCount || b.sent || b.successCount || 0;
+                    acc.total += b.totalContacts || b.total || b.contactCount || 0;
+                    return acc;
+                  },
+                  { sent: 0, total: 0 },
+                );
+                if (!totals.total) return '—';
+                return `${Math.round((totals.sent / totals.total) * 100)}%`;
+              })(),
+            },
+          ].map((k) => (
+            <ClayCard key={k.label} padded={false} className="p-5">
+              <div className="text-[11px] font-medium uppercase tracking-wide text-clay-ink-muted">{k.label}</div>
+              <div className="mt-2 text-[22px] font-semibold text-clay-ink leading-none">
+                {typeof k.value === 'number' ? k.value.toLocaleString() : k.value}
+              </div>
+            </ClayCard>
+          ))}
+        </div>
+      )}
+
       {isLoading && broadcasts.length === 0 ? (
         <div className="flex h-32 items-center justify-center">
           <LuLoader className="h-5 w-5 animate-spin text-clay-ink-muted" />

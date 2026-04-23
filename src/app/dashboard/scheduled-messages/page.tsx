@@ -41,6 +41,7 @@ export default function ScheduledMessagesPage() {
   const [messages, setMessages] = useState<any[]>([]);
   const [isLoading, startLoading] = useTransition();
   const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string>('all');
 
   const [formState, formAction, isPending] = useActionState(scheduleMessage, null);
 
@@ -127,9 +128,22 @@ export default function ScheduledMessagesPage() {
 
       {/* Messages table */}
       <ClayCard padded={false} className="p-6">
-        <h2 className="text-[16px] font-semibold text-clay-ink mb-4">
-          Pending Messages ({messages.length})
-        </h2>
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          <h2 className="text-[16px] font-semibold text-clay-ink">
+            Messages ({messages.filter(m => statusFilter === 'all' || m.status === statusFilter).length})
+          </h2>
+          <div className="ml-auto flex gap-1">
+            {(['all','pending','sent','cancelled','failed'] as const).map((s) => (
+              <button
+                key={s}
+                onClick={() => setStatusFilter(s)}
+                className={`rounded-full px-2.5 py-1 text-[11px] capitalize transition-colors ${statusFilter === s ? 'bg-clay-ink text-white' : 'bg-clay-surface-2 text-clay-ink-muted hover:bg-clay-bg-2'}`}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        </div>
         {isLoading && messages.length === 0 ? (
           <div className="flex h-20 items-center justify-center">
             <LuLoader className="h-5 w-5 animate-spin text-clay-ink-muted" strokeWidth={1.75} />
@@ -152,7 +166,7 @@ export default function ScheduledMessagesPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {messages.map((msg) => (
+              {messages.filter((m) => statusFilter === 'all' || m.status === statusFilter).map((msg) => (
                 <TableRow key={msg._id}>
                   <TableCell className="font-medium text-[13px]">{msg.recipientPhone}</TableCell>
                   <TableCell className="max-w-[200px] truncate text-[13px] text-clay-ink-muted">

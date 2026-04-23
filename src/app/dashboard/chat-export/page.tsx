@@ -39,6 +39,17 @@ function messagesToCsv(messages: any[]): string {
   return header + rows.join('\n');
 }
 
+function messagesToTxt(messages: any[]): string {
+  return messages
+    .map((m) => {
+      const ts = m.timestamp || m.createdAt || '';
+      const dir = (m.direction || '').toUpperCase();
+      const content = m.messageText || m.content?.text || JSON.stringify(m.content);
+      return `[${ts}] ${dir}: ${content}`;
+    })
+    .join('\n');
+}
+
 export default function ChatExportPage() {
   const { activeProject } = useProject();
   const { toast } = useToast();
@@ -70,6 +81,8 @@ export default function ChatExportPage() {
       const timestamp = new Date().toISOString().slice(0, 10);
       if (format === 'json') {
         downloadFile(JSON.stringify(messages, null, 2), `chat-${contactId}-${timestamp}.json`, 'application/json');
+      } else if (format === 'txt') {
+        downloadFile(messagesToTxt(messages), `chat-${contactId}-${timestamp}.txt`, 'text/plain');
       } else {
         downloadFile(messagesToCsv(messages), `chat-${contactId}-${timestamp}.csv`, 'text/csv');
       }
@@ -117,6 +130,7 @@ export default function ChatExportPage() {
               <SelectContent>
                 <SelectItem value="json">JSON</SelectItem>
                 <SelectItem value="csv">CSV</SelectItem>
+                <SelectItem value="txt">Plain text (TXT)</SelectItem>
               </SelectContent>
             </Select>
           </div>

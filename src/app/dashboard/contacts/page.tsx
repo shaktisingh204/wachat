@@ -451,6 +451,8 @@ export default function ContactsPage() {
                   <tr>
                     <th className="px-4 py-3 text-left">Name</th>
                     <th className="px-4 py-3 text-left">WhatsApp ID</th>
+                    <th className="px-4 py-3 text-left">Email</th>
+                    <th className="px-4 py-3 text-left">Opt-in</th>
                     <th className="px-4 py-3 text-left">Tags</th>
                     <th className="px-4 py-3 text-left">Last activity</th>
                     <th className="px-4 py-3 text-right">Actions</th>
@@ -474,6 +476,22 @@ export default function ContactsPage() {
                       </td>
                       <td className="px-4 py-3 font-mono text-[12px] text-clay-ink-muted tabular-nums">
                         {contact.waId}
+                      </td>
+                      <td className="px-4 py-3 text-[12px] text-clay-ink-muted">
+                        {(contact as any).email || '—'}
+                      </td>
+                      <td className="px-4 py-3 text-[12px]">
+                        {(contact as any).isOptedOut ? (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-clay-red-soft px-2 py-0.5 text-[10.5px] font-medium text-clay-red">
+                            <span className="h-1.5 w-1.5 rounded-full bg-clay-red" />
+                            Opted-out
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-clay-green-soft px-2 py-0.5 text-[10.5px] font-medium text-clay-green">
+                            <span className="h-1.5 w-1.5 rounded-full bg-clay-green" />
+                            Opted-in
+                          </span>
+                        )}
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex flex-wrap gap-1">

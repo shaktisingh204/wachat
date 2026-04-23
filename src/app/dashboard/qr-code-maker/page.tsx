@@ -550,7 +550,7 @@ export default function QrCodeMakerPage() {
                               <button
                                 type="button"
                                 onClick={() => handleCopy(id, shortUrlStr)}
-                                className="rounded p-0.5 text-clay-ink-muted hover:bg-clay-bg-hover hover:text-clay-ink"
+                                className="rounded p-0.5 text-clay-ink-muted hover:bg-clay-bg-2 hover:text-clay-ink"
                                 aria-label="Copy short URL"
                               >
                                 {copiedId === id ? (
@@ -567,7 +567,7 @@ export default function QrCodeMakerPage() {
                                 <button
                                   type="button"
                                   onClick={() => handleCopy(id, staticPreview)}
-                                  className="rounded p-0.5 text-clay-ink-muted hover:bg-clay-bg-hover hover:text-clay-ink"
+                                  className="rounded p-0.5 text-clay-ink-muted hover:bg-clay-bg-2 hover:text-clay-ink"
                                   aria-label="Copy data"
                                 >
                                   {copiedId === id ? (
@@ -588,7 +588,7 @@ export default function QrCodeMakerPage() {
                             <button
                               type="button"
                               onClick={() => handleView(code)}
-                              className="rounded p-1.5 text-clay-ink-muted hover:bg-clay-bg-hover hover:text-clay-ink"
+                              className="rounded p-1.5 text-clay-ink-muted hover:bg-clay-bg-2 hover:text-clay-ink"
                               aria-label="View QR"
                             >
                               <Eye className="h-3.5 w-3.5" />
@@ -660,7 +660,7 @@ export default function QrCodeMakerPage() {
                     type="button"
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                     disabled={currentPage <= 1}
-                    className="rounded p-1 text-clay-ink-muted hover:bg-clay-bg-hover hover:text-clay-ink disabled:opacity-40 disabled:pointer-events-none"
+                    className="rounded p-1 text-clay-ink-muted hover:bg-clay-bg-2 hover:text-clay-ink disabled:opacity-40 disabled:pointer-events-none"
                     aria-label="Previous page"
                   >
                     <ChevronLeft className="h-4 w-4" />
@@ -672,7 +672,7 @@ export default function QrCodeMakerPage() {
                     type="button"
                     onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
                     disabled={currentPage >= pageCount}
-                    className="rounded p-1 text-clay-ink-muted hover:bg-clay-bg-hover hover:text-clay-ink disabled:opacity-40 disabled:pointer-events-none"
+                    className="rounded p-1 text-clay-ink-muted hover:bg-clay-bg-2 hover:text-clay-ink disabled:opacity-40 disabled:pointer-events-none"
                     aria-label="Next page"
                   >
                     <ChevronRight className="h-4 w-4" />

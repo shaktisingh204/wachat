@@ -7,6 +7,7 @@ import { useProject } from '@/context/project-context';
 import { useToast } from '@/hooks/use-toast';
 import { ClayBreadcrumbs, ClayButton, ClayCard, ClayBadge } from '@/components/clay';
 import { getMessageAnalytics } from '@/app/actions/wachat-features.actions';
+import { ResponsiveContainer, LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 
 type DailyRow = { date: string; outgoing: number; incoming: number };
 
@@ -52,7 +53,7 @@ export default function MessageAnalyticsPage() {
     return `${(ms / 60000).toFixed(1)}m`;
   };
 
-  const periods = [7, 14, 30] as const;
+  const periods = [7, 30, 90] as const;
 
   return (
     <div className="clay-enter flex min-h-full flex-col gap-6">
@@ -89,7 +90,7 @@ export default function MessageAnalyticsPage() {
             </span>
             <div>
               <div className="text-[12px] text-clay-ink-muted">{s.label}</div>
-              <div className="text-[22px] font-semibold text-clay-ink leading-tight">{s.value}</div>
+              <div className="text-[22px] font-semibold text-clay-ink leading-tight">{typeof s.value === 'number' ? s.value.toLocaleString() : s.value}</div>
             </div>
           </ClayCard>
         ))}
@@ -105,6 +106,20 @@ export default function MessageAnalyticsPage() {
           <p className="py-8 text-center text-[13px] text-clay-ink-muted">No data for this period.</p>
         )}
         {rows.length > 0 && (
+          <>
+            <div className="mb-5 h-[240px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={rows} margin={{ top: 5, right: 12, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" />
+                  <XAxis dataKey="date" stroke="#a1a1aa" tick={{ fontSize: 10 }} />
+                  <YAxis stroke="#a1a1aa" tick={{ fontSize: 10 }} />
+                  <Tooltip />
+                  <Legend wrapperStyle={{ fontSize: 11 }} />
+                  <Line type="monotone" dataKey="outgoing" stroke="#18181b" strokeWidth={2} dot={false} name="Outgoing" />
+                  <Line type="monotone" dataKey="incoming" stroke="#10b981" strokeWidth={2} dot={false} name="Incoming" />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
           <div className="space-y-2">
             {/* Header */}
             <div className="grid grid-cols-[110px_80px_80px_80px_1fr] gap-2 text-[11.5px] font-medium text-clay-ink-muted">
@@ -125,6 +140,7 @@ export default function MessageAnalyticsPage() {
               );
             })}
           </div>
+          </>
         )}
       </ClayCard>
       <div className="h-6" />

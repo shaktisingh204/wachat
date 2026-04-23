@@ -56,7 +56,8 @@ export default function ApiKeysPage() {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const handleRevoke = (keyId: string) => {
+  const handleRevoke = (keyId: string, keyName: string) => {
+    if (!window.confirm(`Revoke API key "${keyName}"? Any services using it will stop working immediately.`)) return;
     startMutateTransition(async () => {
       const res = await revokeApiKey(keyId);
       if (res.error) { toast({ title: 'Error', description: res.error, variant: 'destructive' }); return; }
@@ -156,7 +157,7 @@ export default function ApiKeysPage() {
                         {copiedId === k._id ? <LuCheck className="h-3.5 w-3.5 text-emerald-600" /> : <LuCopy className="h-3.5 w-3.5 text-clay-ink-muted" />}
                       </button>
                       {k.isActive && (
-                        <button onClick={() => handleRevoke(k._id)} disabled={isMutating}
+                        <button onClick={() => handleRevoke(k._id, k.name || 'Unnamed')} disabled={isMutating}
                           className="p-1.5 rounded-md hover:bg-red-50 transition-colors text-red-500" title="Revoke">
                           <LuTrash2 className="h-3.5 w-3.5" />
                         </button>

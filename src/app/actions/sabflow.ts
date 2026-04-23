@@ -4,27 +4,14 @@ import { ObjectId } from 'mongodb';
 import { revalidatePath } from 'next/cache';
 import { getSession } from '@/app/actions/user.actions';
 import { getSabFlowCollection, getTodaySubmissionCount } from '@/lib/sabflow/db';
-import type { SabFlowDoc, SabFlowEvent, Group } from '@/lib/sabflow/types';
+import type { SabFlowDoc } from '@/lib/sabflow/types';
 import { getErrorMessage } from '@/lib/utils';
 
 // ── helpers ────────────────────────────────────────────────────────────────
 
-function defaultStartGroup(): Group {
-  return {
-    id: crypto.randomUUID(),
-    title: 'Group',
-    graphCoordinates: { x: 380, y: 200 },
-    blocks: [],
-  };
-}
-
-function defaultStartEvent(): SabFlowEvent {
-  return {
-    id: crypto.randomUUID(),
-    type: 'start',
-    graphCoordinates: { x: 100, y: 200 },
-  };
-}
+// New flows now open onto an empty canvas with the trigger picker — matching
+// n8n's "What triggers this workflow?" experience. The user explicitly chooses
+// the first trigger rather than having a default 'start' event auto-created.
 
 /**
  * Recursively strip every BSON type (ObjectId, Date, Decimal128, Binary, Long)
@@ -113,9 +100,10 @@ export async function getSabFlow(flowId: string) {
     });
     if (!doc) return null;
 
-    // Back-fill `events` for flows created before the StartNode feature
-    if (!doc.events || !Array.isArray(doc.events) || doc.events.length === 0) {
-      (doc as any).events = [defaultStartEvent()];
+    // Normalize `events` to an empty array for legacy flows that never had it.
+    // The trigger picker shows on the canvas when this is empty.
+    if (!doc.events || !Array.isArray(doc.events)) {
+      (doc as any).events = [];
     }
 
     return JSON.parse(JSON.stringify(serialize(doc)));
@@ -137,8 +125,8 @@ export async function createSabFlow(name: string, projectId?: string) {
     userId: session.user._id.toString(),
     projectId,
     name: trimmed,
-    events: [defaultStartEvent()],
-    groups: [defaultStartGroup()],
+    events: [],
+    groups: [],
     edges: [],
     variables: [],
     theme: {},

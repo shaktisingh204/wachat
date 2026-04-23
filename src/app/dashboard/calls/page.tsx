@@ -1,13 +1,20 @@
-
 'use client';
 
 import { useEffect } from 'react';
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
-// This component redirects the base /dashboard/calls route to the default logs tab.
+// Redirect the base /dashboard/calls route to the default logs tab.
+// Uses router.replace() in an effect instead of redirect() — redirect() is
+// for Server Components/Route Handlers; calling it in useEffect of a Client
+// Component throws an error.
 export default function CallsRedirectPage() {
-    useEffect(() => {
-        redirect('/dashboard/calls/logs');
-    }, []);
-    return null; 
+  const router = useRouter();
+  useEffect(() => {
+    router.replace('/dashboard/calls/logs');
+  }, [router]);
+  return (
+    <div className="flex min-h-[240px] items-center justify-center text-sm text-clay-ink-muted">
+      Redirecting to call logs...
+    </div>
+  );
 }

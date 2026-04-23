@@ -21,6 +21,7 @@ import { DEFAULT_SOURCE_HANDLE, DEFAULT_TARGET_HANDLE } from '@/lib/sabflow/port
 import {
   addEdge,
   addStickyNote,
+  addTriggerEvent,
   changeEventType,
   ensureStartEvent,
   findStartEvent,
@@ -390,6 +391,24 @@ export function useCanvasOperations(
     [flow, update],
   );
 
+  /**
+   * Append a new trigger event of the given type. Used by the n8n-style
+   * "What triggers this workflow?" picker that opens on an empty canvas.
+   * Returns the id of the created event.
+   */
+  const addTrigger = useCallback(
+    (
+      type: 'start' | 'webhook' | 'schedule' | 'manual' | 'error',
+      position?: { x: number; y: number },
+    ): string => {
+      const id = createId();
+      const next = addTriggerEvent(flow, type, () => id, position);
+      update(next);
+      return id;
+    },
+    [flow, update],
+  );
+
   return {
     addBlock,
     connect,
@@ -406,5 +425,6 @@ export function useCanvasOperations(
     buildClipboardPayload,
     ensureStart,
     setEventType,
+    addTrigger,
   };
 }

@@ -7,7 +7,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { LuCircleAlert } from 'react-icons/lu';
+import { LuCircleAlert, LuListFilter } from 'react-icons/lu';
 import { useProject } from '@/context/project-context';
 import { AutoReplySettingsTab } from '@/components/wabasimplify/auto-reply-settings-tab';
 import { ClayBreadcrumbs, ClayButton, ClayCard } from '@/components/clay';
@@ -48,13 +48,23 @@ export default function AutoReplyPage() {
         { label: 'Auto Reply' },
       ]} />
 
-      <div>
-        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">
-          Auto Reply
-        </h1>
-        <p className="mt-1.5 max-w-[720px] text-[13px] text-clay-ink-muted">
-          Configure automatic responses: welcome messages, business hours away messages, AI-powered replies, and keyword-based rules.
-        </p>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">
+            Auto Reply
+          </h1>
+          <p className="mt-1.5 max-w-[720px] text-[13px] text-clay-ink-muted">
+            Configure automatic responses: welcome messages, business hours away messages, AI-powered replies, and keyword-based rules.
+          </p>
+        </div>
+        <ClayButton
+          variant="pill"
+          size="sm"
+          leading={<LuListFilter className="h-3.5 w-3.5" strokeWidth={2} />}
+          onClick={() => router.push('/dashboard/auto-reply-rules')}
+        >
+          Advanced rules
+        </ClayButton>
       </div>
 
       <AutoReplySettingsTab project={activeProject} />

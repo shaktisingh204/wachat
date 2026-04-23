@@ -123,13 +123,13 @@ export default function OverviewPage() {
   const [broadcasts, setBroadcasts] = useState<RecentBroadcast[]>([]);
   const [loading, startTransition] = useTransition();
 
-  const fetch = React.useCallback(() => {
+  const reload = React.useCallback(() => {
     if (!projectId) return;
     startTransition(() => {
       Promise.all([
         getDashboardStats(projectId),
         getDashboardChartData(projectId),
-        getBroadcasts(projectId, 1, 6),
+        getBroadcasts(projectId, 1, 5),
       ]).then(([s, c, b]) => {
         setStats(s);
         setChart((c as ChartPoint[]) || []);
@@ -138,9 +138,14 @@ export default function OverviewPage() {
     });
   }, [projectId]);
 
+  const handleRefresh = React.useCallback(() => {
+    router.refresh();
+    reload();
+  }, [router, reload]);
+
   useEffect(() => {
-    fetch();
-  }, [fetch]);
+    reload();
+  }, [reload]);
 
   const derived = useMemo(() => {
     if (!stats) return null;
@@ -174,6 +179,38 @@ export default function OverviewPage() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
+
+  if (!projectId) {
+    return (
+      <div className="clay-enter flex min-h-full flex-col gap-6">
+        <ClayBreadcrumbs
+          items={[
+            { label: 'Wachat', href: '/home' },
+            { label: 'Overview' },
+          ]}
+        />
+        <ClayCard padded={false} className="p-10 text-center">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-clay-bg text-clay-ink-muted">
+            <LuInbox className="h-5 w-5" strokeWidth={1.5} />
+          </div>
+          <h2 className="mt-4 text-[18px] font-semibold text-clay-ink">
+            Select a project to continue
+          </h2>
+          <p className="mx-auto mt-1.5 max-w-[360px] text-[12.5px] text-clay-ink-muted">
+            Overview stats are scoped to a single WhatsApp Business project. Pick one from the home screen.
+          </p>
+          <ClayButton
+            variant="obsidian"
+            size="md"
+            className="mt-4"
+            onClick={() => router.push('/home')}
+          >
+            Go to projects
+          </ClayButton>
+        </ClayCard>
+      </div>
+    );
+  }
 
   if (loading && !stats) {
     return (
@@ -230,7 +267,7 @@ export default function OverviewPage() {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Time range</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onSelect={fetch}>Refresh now</DropdownMenuItem>
+              <DropdownMenuItem onSelect={handleRefresh}>Refresh now</DropdownMenuItem>
               <DropdownMenuItem
                 onSelect={() => router.push('/dashboard/analytics')}
               >
@@ -241,8 +278,8 @@ export default function OverviewPage() {
           <ClayButton
             variant="pill"
             size="md"
-            leading={<LuRefreshCw className="h-3.5 w-3.5" strokeWidth={2} />}
-            onClick={fetch}
+            leading={<LuRefreshCw className={cn('h-3.5 w-3.5', loading && 'animate-spin')} strokeWidth={2} />}
+            onClick={handleRefresh}
           >
             Refresh
           </ClayButton>
@@ -450,10 +487,11 @@ export default function OverviewPage() {
                 const total = b.contactCount ?? 0;
                 const delivered = b.deliveredCount ?? 0;
                 const rate = pct(delivered, total);
+                const s = (b.status || '').toLowerCase();
                 const statusTone =
-                  (b.status || '').toLowerCase() === 'completed'
+                  s === 'completed'
                     ? 'bg-clay-green'
-                    : (b.status || '').toLowerCase() === 'failed'
+                    : s === 'failed' || s === 'cancelled' || s === 'partial failure'
                       ? 'bg-clay-red'
                       : 'bg-clay-amber';
                 const createdDate = b.createdAt

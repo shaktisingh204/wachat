@@ -58,6 +58,7 @@ import { canConnect } from './connectionValidation';
 import { findNeighbor } from './navigation';
 import { EmptyCanvasOverlay } from './EmptyCanvasOverlay';
 import { ShortcutHelp } from './ShortcutHelp';
+import { TriggerStartPanel } from './triggerPanel/TriggerStartPanel';
 
 type Props = {
   flow: SabFlowDoc;
@@ -78,17 +79,31 @@ export function Canvas({ flow, onFlowChange, containerRef }: Props) {
   const ops = useCanvasOperations(flow, onFlowChange);
 
   /**
-   * Guarantee a start event exists. Without one, the engine's `findStartGroup`
-   * bails and the preview panel surfaces "No Start event connected". We only
-   * run this once per mount to avoid rewriting the doc on every render.
+   * Trigger picker — n8n-style "What triggers this workflow?" rail.
+   *
+   * When a flow has zero trigger events, auto-open the picker on mount so the
+   * user explicitly chooses the entry point (mirrors n8n). The user can close
+   * it; from then on the empty-canvas overlay's "Add first step" CTA reopens
+   * it (still routed through the picker, never auto-creating a default).
    */
-  const didEnsureStartRef = useRef(false);
+  const [triggerPanelOpen, setTriggerPanelOpen] = useState(false);
+  const didAutoOpenTriggerRef = useRef(false);
   useEffect(() => {
-    if (didEnsureStartRef.current) return;
-    didEnsureStartRef.current = true;
-    if (!isReadOnly) ops.ensureStart();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (isReadOnly) return;
+    if (didAutoOpenTriggerRef.current) return;
+    if ((flow.events ?? []).length === 0) {
+      didAutoOpenTriggerRef.current = true;
+      setTriggerPanelOpen(true);
+    }
+  }, [flow.events, isReadOnly]);
+
+  const handlePickTrigger = useCallback(
+    (type: 'start' | 'webhook' | 'schedule' | 'manual' | 'error') => {
+      ops.addTrigger(type);
+      setTriggerPanelOpen(false);
+    },
+    [ops],
+  );
 
   // Translate SabFlowDoc → { nodes, edges } (memoized on flow identity).
   const translated = useMemo(() => flowDocToCanvas(flow), [flow]);
@@ -553,8 +568,9 @@ export function Canvas({ flow, onFlowChange, containerRef }: Props) {
       {/* Empty-canvas overlay. Shown when there are NO nodes at all, OR when
           the only thing on the canvas is an unconnected start event and no
           blocks yet — in which case the CTA explicitly invites wiring the
-          first action after the trigger. */}
-      {!isReadOnly && (() => {
+          first action after the trigger. The trigger picker takes priority
+          when it's open, so the overlay hides while it's showing. */}
+      {!isReadOnly && !triggerPanelOpen && (() => {
         const blockCount = (flow.groups ?? []).reduce(
           (n, g) => n + g.blocks.length,
           0,
@@ -565,10 +581,17 @@ export function Canvas({ flow, onFlowChange, containerRef }: Props) {
           !(flow.edges ?? []).some(
             (e) => 'eventId' in e.from && e.from.eventId === start.id,
           );
+        const hasAnyTrigger = (flow.events ?? []).length > 0;
         if (nodes.length === 0 || (blockCount === 0 && startUnconnected)) {
           return (
             <EmptyCanvasOverlay
               onAdd={() => {
+                /* No trigger picked yet → reopen the n8n-style trigger picker
+                   instead of jumping straight to the block creator. */
+                if (!hasAnyTrigger) {
+                  setTriggerPanelOpen(true);
+                  return;
+                }
                 if (start) {
                   /* Wire directly from the existing start event when the user
                      clicks "Add first step" — never leave them with an
@@ -595,6 +618,12 @@ export function Canvas({ flow, onFlowChange, containerRef }: Props) {
         }
         return null;
       })()}
+
+      <TriggerStartPanel
+        open={triggerPanelOpen}
+        onClose={() => setTriggerPanelOpen(false)}
+        onPick={handlePickTrigger}
+      />
 
       <NodeCreator state={creatorState} onClose={closeCreator} onPick={onPickType} />
 
