@@ -8,6 +8,7 @@ import { nanoid } from 'nanoid';
 import { cookies } from 'next/headers';
 import { getErrorMessage } from '@/lib/utils';
 import { comparePassword, hashPassword, verifyAdminJwt, createAdminSessionToken } from '@/lib/auth';
+import { sessionCookieOptions } from '@/lib/cookies';
 import { getAdminSession } from '@/lib/admin-session';
 import { ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
@@ -106,13 +107,7 @@ export async function setupInitialAdmin(prevState: any, formData: FormData) {
         // Auto-login right after setup so the user lands on the dashboard.
         const token = await createAdminSessionToken();
         const cookieStore = await cookies();
-        cookieStore.set('admin_session', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            path: '/',
-            maxAge: 60 * 60 * 24,
-        });
+        cookieStore.set('admin_session', token, sessionCookieOptions(60 * 60 * 24));
 
         return { success: true };
     } catch (e: any) {
@@ -163,13 +158,7 @@ export async function handleAdminLogin(prevState: any, formData: FormData) {
 
         const token = await createAdminSessionToken();
         const cookieStore = await cookies();
-        cookieStore.set('admin_session', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            path: '/',
-            maxAge: 60 * 60 * 24, // 1 day
-        });
+        cookieStore.set('admin_session', token, sessionCookieOptions(60 * 60 * 24));
 
         return { success: true };
     } catch (e: any) {
@@ -681,13 +670,7 @@ export async function impersonateUser(userId: string): Promise<{ success: boolea
 
         // Set the session cookie
         const cookieStore = await cookies();
-        cookieStore.set('session', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            path: '/',
-            maxAge: 7 * 24 * 60 * 60 // 7 days
-        });
+        cookieStore.set('session', token, sessionCookieOptions(7 * 24 * 60 * 60));
 
         // Redirect is handled on client side usually, but we can return success
         return { success: true };

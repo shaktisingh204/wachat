@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/app/actions/user.actions';
 import { nanoid } from 'nanoid';
+import { getCookieSecureFlag } from '@/lib/cookies';
 
 export async function GET(request: NextRequest) {
   const session = await getSession();
@@ -55,7 +56,7 @@ export async function GET(request: NextRequest) {
     name: 'onboarding_state',
     value: JSON.stringify({ state, userId: session.user._id, includeCatalog }),
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: getCookieSecureFlag(),
     maxAge: 60 * 10, // 10 minutes
     path: '/',
   });

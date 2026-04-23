@@ -14,6 +14,7 @@ import { logActivity } from '@/app/actions/activity.actions';
 import crypto from 'crypto';
 import { getTransporter } from '@/lib/email-service';
 import { PENDING_INVITE_COOKIE } from '@/lib/team-invites';
+import { sessionCookieOptions } from '@/lib/cookies';
 import { requirePermission } from '@/lib/rbac-server';
 import { renderWelcomeEmail, renderRoleChangedEmail } from '@/lib/email-templates';
 import { notifyTeamMember } from '@/lib/team-notifications';
@@ -728,13 +729,7 @@ export async function listPendingInvitations(): Promise<InvitationView[]> {
 export async function rememberPendingInviteToken(token: string): Promise<void> {
     if (!token || typeof token !== 'string') return;
     const store = await cookies();
-    store.set(PENDING_INVITE_COOKIE, token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/',
-        maxAge: 60 * 60 * 24 * 7, // 7 days
-    });
+    store.set(PENDING_INVITE_COOKIE, token, sessionCookieOptions(60 * 60 * 24 * 7));
 }
 
 export async function forgetPendingInviteToken(): Promise<void> {

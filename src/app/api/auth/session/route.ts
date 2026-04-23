@@ -3,6 +3,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { verifyFirebaseIdToken, createSessionToken } from '@/lib/auth';
+import { sessionCookieOptions } from '@/lib/cookies';
 import type { User, WithId, SessionPayload } from '@/lib/definitions';
 import { ObjectId } from 'mongodb';
 
@@ -94,13 +95,7 @@ export async function POST(request: NextRequest) {
         const response = NextResponse.json({ success: true, user: user });
 
         console.log('[API_SESSION] Setting session cookie.');
-        response.cookies.set('session', customSessionToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            path: '/',
-            maxAge: SESSION_DURATION / 1000,
-        });
+        response.cookies.set('session', customSessionToken, sessionCookieOptions(SESSION_DURATION / 1000));
 
         console.log('[API_SESSION] Session successfully created.');
         return response;
