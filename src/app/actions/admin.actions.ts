@@ -7,7 +7,7 @@ import { SignJWT } from 'jose';
 import { nanoid } from 'nanoid';
 import { cookies } from 'next/headers';
 import { getErrorMessage } from '@/lib/utils';
-import { comparePassword, verifyAdminJwt, createAdminSessionToken } from '@/lib/auth';
+import { comparePassword, hashPassword, verifyAdminJwt, createAdminSessionToken } from '@/lib/auth';
 import { getAdminSession } from '@/lib/admin-session';
 import { ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
@@ -43,16 +43,95 @@ export async function getWebhookProcessingStatus(): Promise<{ enabled: boolean }
     }
 }
 
-export async function handleAdminLogin(prevState: any, formData: FormData) {
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
+/**
+ * Returns true when an admin credential document exists in MongoDB.
+ * The login page uses this to decide between showing the login form
+ * or the first-time setup form.
+ */
+export async function isAdminConfigured(): Promise<boolean> {
+    try {
+        const { db } = await connectToDatabase();
+        const stored = await db.collection('settings').findOne({ key: 'admin_credentials' });
+        return !!(stored?.email && stored?.passwordHash);
+    } catch {
+        return false;
+    }
+}
 
-    const jwtSecret = process.env.JWT_SECRET;
-    if (!jwtSecret) {
-        return { success: false, error: "Server misconfiguration: JWT_SECRET is not set." };
+/**
+ * First-time admin setup. Creates the `admin_credentials` settings document
+ * in MongoDB. Refuses to run if an admin already exists — so this endpoint
+ * can't be used to hijack an existing deployment.
+ */
+export async function setupInitialAdmin(prevState: any, formData: FormData) {
+    const email = (formData.get('email') as string | null)?.trim().toLowerCase();
+    const password = formData.get('password') as string | null;
+    const confirm = formData.get('confirmPassword') as string | null;
+
+    if (!process.env.JWT_SECRET) {
+        return { success: false, error: 'Server misconfiguration: JWT_SECRET is not set.' };
+    }
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return { success: false, error: 'Enter a valid email address.' };
+    }
+    if (!password || password.length < 10) {
+        return { success: false, error: 'Password must be at least 10 characters.' };
+    }
+    if (password !== confirm) {
+        return { success: false, error: 'Passwords do not match.' };
     }
 
-    // Prefer credentials stored in DB; fall back to env vars for first-boot
+    try {
+        const { db } = await connectToDatabase();
+        const existing = await db.collection('settings').findOne({ key: 'admin_credentials' });
+        if (existing?.email && existing?.passwordHash) {
+            return { success: false, error: 'An admin already exists. Setup is disabled.' };
+        }
+
+        const passwordHash = await hashPassword(password);
+        await db.collection('settings').updateOne(
+            { key: 'admin_credentials' },
+            {
+                $set: {
+                    key: 'admin_credentials',
+                    email,
+                    passwordHash,
+                    updatedAt: new Date(),
+                },
+                $setOnInsert: { createdAt: new Date() },
+            },
+            { upsert: true }
+        );
+
+        // Auto-login right after setup so the user lands on the dashboard.
+        const token = await createAdminSessionToken();
+        const cookieStore = await cookies();
+        cookieStore.set('admin_session', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            path: '/',
+            maxAge: 60 * 60 * 24,
+        });
+
+        return { success: true };
+    } catch (e: any) {
+        console.error('[ADMIN_SETUP] FATAL:', e);
+        return { success: false, error: 'An unexpected server error occurred.' };
+    }
+}
+
+export async function handleAdminLogin(prevState: any, formData: FormData) {
+    const email = (formData.get('email') as string | null)?.trim().toLowerCase();
+    const password = formData.get('password') as string | null;
+
+    if (!process.env.JWT_SECRET) {
+        return { success: false, error: 'Server misconfiguration: JWT_SECRET is not set.' };
+    }
+    if (!email || !password) {
+        return { success: false, error: 'Email and password are required.' };
+    }
+
     let adminEmail: string | undefined;
     let adminPasswordHash: string | undefined;
 
@@ -60,35 +139,29 @@ export async function handleAdminLogin(prevState: any, formData: FormData) {
         const { db } = await connectToDatabase();
         const stored = await db.collection('settings').findOne({ key: 'admin_credentials' });
         if (stored?.email && stored?.passwordHash) {
-            adminEmail = stored.email as string;
+            adminEmail = (stored.email as string).toLowerCase();
             adminPasswordHash = stored.passwordHash as string;
         }
-    } catch {
-        // DB unavailable — fall through to env vars
+    } catch (e: any) {
+        console.error('[ADMIN_LOGIN] DB error:', e);
+        return { success: false, error: 'Database unavailable. Try again shortly.' };
     }
 
     if (!adminEmail || !adminPasswordHash) {
-        adminEmail = process.env.ADMIN_EMAIL;
-        adminPasswordHash = process.env.ADMIN_PASSWORD_HASH;
-    }
-
-    if (!adminEmail || !adminPasswordHash) {
-        return { success: false, error: "Admin credentials are not configured. Run: npm run set:admin-credentials" };
+        return { success: false, error: 'NEEDS_SETUP' };
     }
 
     if (email !== adminEmail) {
-        return { success: false, error: "Invalid credentials." };
+        return { success: false, error: 'Invalid credentials.' };
     }
 
     try {
         const isMatch = await comparePassword(password, adminPasswordHash);
         if (!isMatch) {
-            return { success: false, error: "Invalid credentials." };
+            return { success: false, error: 'Invalid credentials.' };
         }
 
         const token = await createAdminSessionToken();
-
-        // Set httpOnly cookie server-side — never expose the token to the client
         const cookieStore = await cookies();
         cookieStore.set('admin_session', token, {
             httpOnly: true,
