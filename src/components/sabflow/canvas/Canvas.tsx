@@ -102,7 +102,17 @@ export function Canvas({ flow, onFlowChange, containerRef }: Props) {
       type: 'start' | 'webhook' | 'schedule' | 'manual' | 'error',
       appEvent: string,
     ) => {
-      const newId = ops.addTrigger(type, undefined, appEvent);
+      /* Drop the trigger near the visible centre of the canvas (offset a bit
+         left so the right-rail settings panel doesn't cover it). The default
+         (100, 200) often lands off-screen once `fitView` no longer applies. */
+      const rect = containerRef.current?.getBoundingClientRect();
+      const screenX = rect ? rect.left + rect.width / 2 - 220 : 0;
+      const screenY = rect ? rect.top + rect.height / 2 - 60 : 0;
+      const flowPos = rect
+        ? rf.screenToFlowPosition({ x: screenX, y: screenY })
+        : undefined;
+
+      const newId = ops.addTrigger(type, flowPos, appEvent);
       setTriggerPanelOpen(false);
       /* The first trigger in `flow.events` is the workflow's starting node
          (see `findStartEvent`). Open the right-rail settings panel on it
@@ -110,8 +120,13 @@ export function Canvas({ flow, onFlowChange, containerRef }: Props) {
          (cron for schedule, path/auth for webhook, sample payload for
          manual) without an extra click. */
       setOpenedNodeId(newId);
+      /* Recentre on the freshly-placed trigger after React Flow has rendered
+         it, so the user actually sees what they just picked. */
+      requestAnimationFrame(() => {
+        rf.fitView({ padding: 0.5, duration: 250, nodes: [{ id: newId }] });
+      });
     },
-    [ops, setOpenedNodeId],
+    [ops, setOpenedNodeId, rf, containerRef],
   );
 
   // Translate SabFlowDoc → { nodes, edges } (memoized on flow identity).
@@ -574,59 +589,15 @@ export function Canvas({ flow, onFlowChange, containerRef }: Props) {
       </ReactFlow>
      </CanvasHandlersProvider>
 
-      {/* Empty-canvas overlay. Shown when there are NO nodes at all, OR when
-          the only thing on the canvas is an unconnected start event and no
-          blocks yet — in which case the CTA explicitly invites wiring the
-          first action after the trigger. The trigger picker takes priority
-          when it's open, so the overlay hides while it's showing. */}
-      {!isReadOnly && !triggerPanelOpen && (() => {
-        const blockCount = (flow.groups ?? []).reduce(
-          (n, g) => n + g.blocks.length,
-          0,
-        );
-        const start = findStartEvent(flow);
-        const startUnconnected =
-          start &&
-          !(flow.edges ?? []).some(
-            (e) => 'eventId' in e.from && e.from.eventId === start.id,
-          );
-        const hasAnyTrigger = (flow.events ?? []).length > 0;
-        if (nodes.length === 0 || (blockCount === 0 && startUnconnected)) {
-          return (
-            <EmptyCanvasOverlay
-              onAdd={() => {
-                /* No trigger picked yet → reopen the n8n-style trigger picker
-                   instead of jumping straight to the block creator. */
-                if (!hasAnyTrigger) {
-                  setTriggerPanelOpen(true);
-                  return;
-                }
-                if (start) {
-                  /* Wire directly from the existing start event when the user
-                     clicks "Add first step" — never leave them with an
-                     orphaned action. */
-                  openCreator({
-                    kind: 'drag-from-handle',
-                    nodeId: start.id,
-                    handleId: 'outputs/main/0',
-                    position: {
-                      x:
-                        (containerRef.current?.getBoundingClientRect().left ?? 0) +
-                        (containerRef.current?.getBoundingClientRect().width ?? 600) / 2,
-                      y:
-                        (containerRef.current?.getBoundingClientRect().top ?? 0) +
-                        60,
-                    },
-                  });
-                } else {
-                  openCreator({ kind: 'plus-button' });
-                }
-              }}
-            />
-          );
-        }
-        return null;
-      })()}
+      {/* Empty-canvas overlay. Shown only when the canvas is genuinely empty
+          (no trigger, no blocks, no stickies). Once a trigger has been picked
+          the trigger node itself shows a pulsing "+" affordance to invite
+          wiring the next step — keeping this overlay around then would just
+          obscure the freshly-placed trigger. The trigger picker takes
+          priority when it's open, so the overlay hides while it's showing. */}
+      {!isReadOnly && !triggerPanelOpen && nodes.length === 0 && (
+        <EmptyCanvasOverlay onAdd={() => setTriggerPanelOpen(true)} />
+      )}
 
       <TriggerStartPanel
         open={triggerPanelOpen}
