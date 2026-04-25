@@ -1,4 +1,11 @@
-import type { BlockType, NodePort, PortType } from './types';
+import type {
+  Block,
+  BlockType,
+  ChoiceItem,
+  NodePort,
+  PortType,
+  SwitchCase,
+} from './types';
 
 /* ── Helpers ──────────────────────────────────────────── */
 
@@ -145,6 +152,39 @@ export function getDefaultPorts(blockType: BlockType): DefaultPorts {
         outputs: [],
       };
 
+    /* ── Logic: loop — body + done branches ───────── */
+    case 'loop':
+      return {
+        inputs: [mkInput('main', 0)],
+        outputs: [
+          mkOutput('main', 0, 'Loop'),
+          mkOutput('main', 1, 'Done'),
+        ],
+      };
+
+    /* ── Logic: filter — pass + fail branches ─────── */
+    case 'filter':
+      return {
+        inputs: [mkInput('main', 0)],
+        outputs: [
+          mkOutput('main', 0, 'Pass'),
+          mkOutput('main', 1, 'Fail'),
+        ],
+      };
+
+    /* ── Logic: choice / switch — placeholders ────────
+       These have a *dynamic* number of outputs (one per item / case +
+       fallback). The static default keeps a single output so existing
+       flows render; `regenerateOutputPortsForBlock` rebuilds the real
+       port list once the block's items / cases are known. */
+    case 'choice_input':
+    case 'picture_choice_input':
+    case 'switch':
+      return {
+        inputs: [mkInput('main', 0)],
+        outputs: [mkOutput('main', 0)],
+      };
+
     /* ── Default: 1 in, 1 out ─────────────────────── */
     default:
       return {
@@ -152,6 +192,39 @@ export function getDefaultPorts(blockType: BlockType): DefaultPorts {
         outputs: [mkOutput('main', 0)],
       };
   }
+}
+
+/**
+ * Recompute output ports for blocks whose branch count depends on user
+ * configuration — Choice/PictureChoice (one output per item) and Switch
+ * (one output per case + a fallback). Returns `null` for block types
+ * whose ports are static (use `getDefaultPorts` for those).
+ *
+ * Adapter calls this on every render so adding/removing a choice or case
+ * immediately surfaces a new "+" affordance on the canvas.
+ */
+export function regenerateOutputPortsForBlock(block: Block): NodePort[] | null {
+  if (block.type === 'choice_input' || block.type === 'picture_choice_input') {
+    const items: ChoiceItem[] = block.items ?? [];
+    if (items.length === 0) return [mkOutput('main', 0)];
+    return items.map((item, i) =>
+      mkOutput(
+        'main',
+        i,
+        item.title?.trim() || item.content?.trim() || `Choice ${i + 1}`,
+      ),
+    );
+  }
+  if (block.type === 'switch') {
+    const opts = (block.options ?? {}) as { cases?: SwitchCase[] };
+    const cases = opts.cases ?? [];
+    const out: NodePort[] = cases.map((c, i) =>
+      mkOutput('main', i, c.label?.trim() || c.pinId || `Case ${i + 1}`),
+    );
+    out.push(mkOutput('main', cases.length, 'Default'));
+    return out;
+  }
+  return null;
 }
 
 /**

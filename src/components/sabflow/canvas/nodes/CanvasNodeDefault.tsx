@@ -15,7 +15,11 @@ import { blockRegistryMap } from '@/components/sabflow/editor/blockRegistry';
 import { cn } from '@/lib/utils';
 
 type Props = NodeProps<CanvasNode> & {
-  onAdd?: (nodeId: string) => void;
+  /** Add a new node downstream of this one. `handleId` identifies which
+      specific output port to wire from — required for multi-output nodes
+      like Condition (True/False), Switch (per-case), Choice (per-item),
+      Loop (Loop/Done), AB-test (A/B), and integrations (Success/Error). */
+  onAdd?: (nodeId: string, handleId: string) => void;
   onDelete?: (nodeId: string) => void;
   onToggleDisabled?: (nodeId: string) => void;
   onDuplicate?: (nodeId: string) => void;
@@ -26,6 +30,15 @@ type Props = NodeProps<CanvasNode> & {
   onRenameDone?: () => void;
   isReadOnly?: boolean;
 };
+
+/** Mirror of CanvasHandle's vertical distribution so a "+" lines up with its handle. */
+function plusTopForIndex(total: number, index: number): string {
+  if (total <= 1) return '50%';
+  const min = 20;
+  const max = 80;
+  const step = (max - min) / (total - 1);
+  return `${min + index * step}%`;
+}
 
 function RenameInput({
   initial,
@@ -231,26 +244,46 @@ export const CanvasNodeDefault = memo(function CanvasNodeDefault({
         </div>
       ) : null}
 
-      {/* Right-side "+" — inserts a new node after this one. Triggers without
-         any downstream edge get a larger, pulsing variant as a setup hint. */}
-      {!isReadOnly && d.outputs.length > 0 ? (
-        <button
-          type="button"
-          title={d.isUnconnected ? 'Connect a step after this trigger' : 'Add node'}
-          aria-label="Add node"
-          className={cn(
-            'sabflow-node__plus',
-            d.isUnconnected && 'is-prompt',
-          )}
-          onClick={(e) => {
-            e.stopPropagation();
-            onAdd?.(id);
-          }}
-          onMouseDown={(e) => e.stopPropagation()}
-        >
-          <LuPlus className="h-3 w-3" />
-        </button>
-      ) : null}
+      {/* Right-side "+" affordances — one per output port so multi-output
+         blocks (Condition True/False, Switch per-case, Choice per-item, Loop,
+         AB-test, integrations Success/Error) each get their own
+         "Add next step" button. Triggers without any downstream edge get a
+         larger, pulsing variant as a setup hint. */}
+      {!isReadOnly &&
+        d.outputs.map((port, index) => {
+          const handleId = `outputs/${port.type}/${port.index}`;
+          const top = plusTopForIndex(d.outputs.length, index);
+          const showLabel = d.outputs.length > 1 && !!port.label;
+          return (
+            <button
+              key={handleId}
+              type="button"
+              title={
+                d.isUnconnected
+                  ? 'Connect a step after this trigger'
+                  : port.label
+                    ? `Add node — ${port.label}`
+                    : 'Add node'
+              }
+              aria-label={port.label ? `Add node (${port.label})` : 'Add node'}
+              className={cn('sabflow-node__plus', d.isUnconnected && 'is-prompt')}
+              /* Only override `top` so CSS keeps owning `transform`
+                 (hover scale, etc.). The base rule already supplies
+                 translateY(-50%) for vertical centring. */
+              style={{ top }}
+              onClick={(e) => {
+                e.stopPropagation();
+                onAdd?.(id, handleId);
+              }}
+              onMouseDown={(e) => e.stopPropagation()}
+            >
+              <LuPlus className="h-3 w-3" />
+              {showLabel ? (
+                <span className="sabflow-node__plus-label">{port.label}</span>
+              ) : null}
+            </button>
+          );
+        })}
     </div>
   );
 });

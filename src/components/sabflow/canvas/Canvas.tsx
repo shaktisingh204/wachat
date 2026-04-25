@@ -120,7 +120,7 @@ export function Canvas({ flow, onFlowChange, containerRef }: Props) {
          (cron for schedule, path/auth for webhook, sample payload for
          manual) without an extra click. */
       setOpenedNodeId(newId);
-      /* Recentre on the freshly-placed trigger after React Flow has rendered
+      /* Recenter on the freshly-placed trigger after React Flow has rendered
          it, so the user actually sees what they just picked. */
       requestAnimationFrame(() => {
         rf.fitView({ padding: 0.5, duration: 250, nodes: [{ id: newId }] });
@@ -216,13 +216,17 @@ export function Canvas({ flow, onFlowChange, containerRef }: Props) {
   );
 
   const handleNodeAdd = useCallback(
-    (fromNodeId: string) => {
+    (fromNodeId: string, handleId?: string) => {
       const rect = containerRef.current?.getBoundingClientRect();
       if (!rect) return;
       openCreator({
         kind: 'drag-from-handle',
         nodeId: fromNodeId,
-        handleId: 'outputs/main/0',
+        /* Per-output "+" passes its own handle id so multi-output nodes
+           (Condition True/False, Switch cases, Choice items, etc.) wire the
+           new step from the branch the user clicked, not always from
+           outputs/main/0. */
+        handleId: handleId ?? 'outputs/main/0',
         position: { x: rect.right - 360, y: rect.top + 60 },
       });
     },

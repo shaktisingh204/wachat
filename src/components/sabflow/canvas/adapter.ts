@@ -26,7 +26,12 @@ import type {
   SabFlowDoc,
   SabFlowEvent,
 } from '@/lib/sabflow/types';
-import { DEFAULT_SOURCE_HANDLE, DEFAULT_TARGET_HANDLE, getDefaultPorts } from '@/lib/sabflow/ports';
+import {
+  DEFAULT_SOURCE_HANDLE,
+  DEFAULT_TARGET_HANDLE,
+  getDefaultPorts,
+  regenerateOutputPortsForBlock,
+} from '@/lib/sabflow/ports';
 import { blockRegistryMap } from '@/components/sabflow/editor/blockRegistry';
 import {
   DEFAULT_NODE_HEIGHT,
@@ -62,6 +67,11 @@ function resolveInputs(block: Block): NodePort[] {
 }
 function resolveOutputs(block: Block): NodePort[] {
   if (block.outputPorts && block.outputPorts.length) return block.outputPorts;
+  /* Choice/Switch derive their branch count from `block.items` /
+     `block.options.cases`; recompute on every render so editing the block's
+     items adds/removes "+" affordances on the canvas without a refresh. */
+  const dynamic = regenerateOutputPortsForBlock(block);
+  if (dynamic) return dynamic;
   return getDefaultPorts(block.type).outputs;
 }
 

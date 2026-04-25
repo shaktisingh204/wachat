@@ -16,8 +16,11 @@ import { createContext, useContext, type ReactNode } from 'react';
 import type { Annotation, BlockType } from '@/lib/sabflow/types';
 
 export type CanvasHandlers = {
-  /** Click the right-side "+" on a node → open node creator wired to this source. */
-  onNodeAdd?: (nodeId: string) => void;
+  /** Click the right-side "+" on a node → open node creator wired to this
+   *  source. `handleId` identifies the specific output port for multi-output
+   *  nodes (Condition True/False, Switch cases, Choice items, etc.); falls
+   *  back to `outputs/main/0` when omitted. */
+  onNodeAdd?: (nodeId: string, handleId?: string) => void;
   /** Toolbar delete button. */
   onNodeDelete?: (nodeId: string) => void;
   /** Toolbar duplicate button. */
