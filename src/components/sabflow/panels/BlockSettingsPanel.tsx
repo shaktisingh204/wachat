@@ -9,12 +9,14 @@
  * Animation: CSS translate-x transition (slide in from right).
  */
 
-import { useCallback } from 'react';
-import { LuArrowRight } from 'react-icons/lu';
+import { useCallback, useMemo } from 'react';
+import { LuArrowRight, LuPlay } from 'react-icons/lu';
 import { useGraph } from '@/components/sabflow/graph/providers/GraphProvider';
 import { getBlockLabel, getBlockIcon, getBlockColor } from '@/lib/sabflow/blocks';
-import type { Block, SabFlowDoc, Variable } from '@/lib/sabflow/types';
+import type { Block, SabFlowDoc, SabFlowEvent, Variable } from '@/lib/sabflow/types';
 import { cn } from '@/lib/utils';
+import { TRIGGER_OPTIONS } from '@/components/sabflow/canvas/triggerPanel/triggerOptions';
+import { TriggerEventSettings } from './TriggerEventSettings';
 
 // Re-use the existing per-block settings sub-components
 import { TextBlockSettings } from '@/components/sabflow/blocks/panels/settings/TextBlockSettings';
@@ -67,7 +69,14 @@ export function BlockSettingsPanel({ flow, onFlowChange, onVariablesChange }: Pr
     ? flow.groups.flatMap((g) => g.blocks).find((b) => b.id === openedNodeId) ?? null
     : null;
 
-  const isOpen = Boolean(openedBlock);
+  /* If the opened id isn't a block, see if it matches a trigger event — the
+     event-level editor renders in this same right-rail slot. */
+  const openedEvent = useMemo<SabFlowEvent | null>(() => {
+    if (!openedNodeId || openedBlock) return null;
+    return (flow.events ?? []).find((e) => e.id === openedNodeId) ?? null;
+  }, [openedNodeId, openedBlock, flow.events]);
+
+  const isOpen = Boolean(openedBlock || openedEvent);
 
   const handleClose = useCallback(() => {
     setOpenedNodeId(undefined);
@@ -89,6 +98,19 @@ export function BlockSettingsPanel({ flow, onFlowChange, onVariablesChange }: Pr
     [openedBlock, flow.groups, onFlowChange],
   );
 
+  /* Propagate event-level changes (trigger options, etc.) back up. */
+  const handleEventUpdate = useCallback(
+    (changes: Partial<SabFlowEvent>) => {
+      if (!openedEvent) return;
+      onFlowChange({
+        events: (flow.events ?? []).map((e) =>
+          e.id === openedEvent.id ? ({ ...e, ...changes } as SabFlowEvent) : e,
+        ),
+      });
+    },
+    [openedEvent, flow.events, onFlowChange],
+  );
+
   const variableNames = flow.variables.map((v) => v.name);
   const variables = flow.variables;
 
@@ -108,7 +130,7 @@ export function BlockSettingsPanel({ flow, onFlowChange, onVariablesChange }: Pr
     >
       <div className="w-80 h-full flex flex-col border-l border-[var(--gray-5)] bg-[var(--gray-1)] z-20">
         {/* ── Header ──────────────────────────────────────────── */}
-        <PanelHeader block={openedBlock} onClose={handleClose} />
+        <PanelHeader block={openedBlock} event={openedEvent} onClose={handleClose} />
 
         {/* ── Body (scrollable) ───────────────────────────────── */}
         <div className="flex-1 overflow-y-auto p-4">
@@ -132,6 +154,9 @@ export function BlockSettingsPanel({ flow, onFlowChange, onVariablesChange }: Pr
               />
             </>
           )}
+          {openedEvent && (
+            <TriggerEventSettings event={openedEvent} onUpdate={handleEventUpdate} />
+          )}
         </div>
       </div>
     </div>
@@ -142,18 +167,31 @@ export function BlockSettingsPanel({ flow, onFlowChange, onVariablesChange }: Pr
 
 function PanelHeader({
   block,
+  event,
   onClose,
 }: {
   block: Block | null;
+  event: SabFlowEvent | null;
   onClose: () => void;
 }) {
-  const Icon = block ? getBlockIcon(block.type) : null;
-  const label = block ? getBlockLabel(block.type) : '';
-  const color = block ? getBlockColor(block.type) : '#888';
+  let Icon: ReturnType<typeof getBlockIcon> | null = null;
+  let label = '';
+  let color = '#888';
+
+  if (block) {
+    Icon = getBlockIcon(block.type);
+    label = getBlockLabel(block.type);
+    color = getBlockColor(block.type);
+  } else if (event) {
+    const meta = TRIGGER_OPTIONS.find((o) => o.appEvent === event.appEvent);
+    Icon = (meta?.icon as ReturnType<typeof getBlockIcon>) ?? LuPlay;
+    label = meta?.label ?? 'Trigger';
+    color = meta?.color ?? '#10b981';
+  }
 
   return (
     <div className="flex items-center gap-2.5 border-b border-[var(--gray-4)] px-4 py-3 shrink-0">
-      {/* Block type icon */}
+      {/* Block / event icon */}
       {Icon && (
         <div
           className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg"
@@ -163,12 +201,12 @@ function PanelHeader({
         </div>
       )}
 
-      {/* Block type label */}
+      {/* Label */}
       <span className="flex-1 text-[13px] font-semibold text-[var(--gray-12)] truncate">
         {label}
       </span>
 
-      {/* Live status badge (hidden when idle) */}
+      {/* Live status badge (hidden when idle) — blocks only */}
       {block && <NodeStatusBadge nodeId={block.id} size="sm" />}
 
       {/* Close button — back arrow (slides panel away) */}

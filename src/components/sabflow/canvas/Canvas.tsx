@@ -102,10 +102,16 @@ export function Canvas({ flow, onFlowChange, containerRef }: Props) {
       type: 'start' | 'webhook' | 'schedule' | 'manual' | 'error',
       appEvent: string,
     ) => {
-      ops.addTrigger(type, undefined, appEvent);
+      const newId = ops.addTrigger(type, undefined, appEvent);
       setTriggerPanelOpen(false);
+      /* The first trigger in `flow.events` is the workflow's starting node
+         (see `findStartEvent`). Open the right-rail settings panel on it
+         immediately so the user can configure trigger-specific options
+         (cron for schedule, path/auth for webhook, sample payload for
+         manual) without an extra click. */
+      setOpenedNodeId(newId);
     },
-    [ops],
+    [ops, setOpenedNodeId],
   );
 
   // Translate SabFlowDoc → { nodes, edges } (memoized on flow identity).
