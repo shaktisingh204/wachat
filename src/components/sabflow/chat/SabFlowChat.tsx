@@ -230,12 +230,21 @@ export function SabFlowChat({
   const inputRef = useRef<HTMLInputElement>(null);
 
   /* ── Theming ──────────────────────────────────────────── */
-  const hostBg    = theme?.chat?.hostBubble?.backgroundColor  ?? '#f0f0f0';
-  const hostColor = theme?.chat?.hostBubble?.color            ?? '#161616';
-  const guestBg   = theme?.chat?.guestBubble?.backgroundColor ?? '#f76808';
-  const guestColor= theme?.chat?.guestBubble?.color           ?? '#ffffff';
-  const inputBg   = theme?.chat?.input?.backgroundColor       ?? '#ffffff';
-  const inputColor= theme?.chat?.input?.color                 ?? '#161616';
+  // Coerce string | ThemeColor objects into a CSS-applicable string.
+  const toCss = (v: unknown, fb: string): string => {
+    if (typeof v === 'string') return v;
+    if (v && typeof v === 'object') {
+      const o = v as { type?: string; value?: string };
+      if (o.type === 'Color' && typeof o.value === 'string') return o.value;
+    }
+    return fb;
+  };
+  const hostBg    = toCss(theme?.chat?.hostBubble?.backgroundColor,  '#f0f0f0');
+  const hostColor = toCss(theme?.chat?.hostBubble?.color,            '#161616');
+  const guestBg   = toCss(theme?.chat?.guestBubble?.backgroundColor, '#f76808');
+  const guestColor= toCss(theme?.chat?.guestBubble?.color,           '#ffffff');
+  const inputBg   = toCss(theme?.chat?.input?.backgroundColor,       '#ffffff');
+  const inputColor= toCss(theme?.chat?.input?.color,                 '#161616');
   const chatBg    = theme?.general?.background?.content       ?? 'transparent';
   const font      = theme?.general?.font                      ?? 'inherit';
 

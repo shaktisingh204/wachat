@@ -42,7 +42,10 @@ export function WebhookSettings({ block, onBlockChange, variables = [] }: Props)
   const method: HttpMethod = options.method ?? 'POST';
   const headers: KVPair[] = options.headers ?? [];
   // body.content for backwards compat with the old string body field
-  const bodyContent: string = options.body?.content ?? '{}';
+  const bodyContent: string =
+    typeof options.body === 'string'
+      ? options.body
+      : options.body?.content ?? '{}';
   const showBody = method !== 'GET';
 
   const update = (patch: Partial<WebhookOptions>) =>

@@ -1,4 +1,6 @@
 import { type ASTAfterHook, type ASTBeforeHook, astBuilders as b, astVisit } from '@n8n/tournament';
+import type { ExpressionKind, SpreadElementKind } from 'ast-types/lib/gen/kinds';
+type SpreadElement = SpreadElementKind;
 
 import {
 	ExpressionClassExtensionError,
@@ -160,9 +162,12 @@ export const ThisSanitizer: ASTBeforeHook = (ast, dataNode) => {
 			 * ```
 			 */
 			this.traverse(path); // depth first to transform inside out
+			// `b.memberExpression(fnExpression, ...)` — ast-types v0.16 widened
+			// the FunctionExpression-vs-ExpressionKind hierarchy slightly; the
+			// runtime types are still compatible, so cast through unknown.
 			const callExpression = b.callExpression(
-				b.memberExpression(fnExpression, b.identifier('call')),
-				[EMPTY_CONTEXT, ...node.arguments],
+				b.memberExpression(fnExpression as unknown as ExpressionKind, b.identifier('call')),
+				[EMPTY_CONTEXT, ...node.arguments] as unknown as Array<ExpressionKind | SpreadElement>,
 			);
 			path.replace(callExpression);
 			return false;
@@ -185,9 +190,10 @@ export const ThisSanitizer: ASTBeforeHook = (ast, dataNode) => {
 			 * ```
 			 */
 			this.traverse(path);
-			const boundFunction = b.callExpression(b.memberExpression(node, b.identifier('bind')), [
-				EMPTY_CONTEXT,
-			]);
+			const boundFunction = b.callExpression(
+				b.memberExpression(node as unknown as ExpressionKind, b.identifier('bind')),
+				[EMPTY_CONTEXT],
+			);
 			path.replace(boundFunction);
 			return false;
 		},

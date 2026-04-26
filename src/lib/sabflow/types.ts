@@ -596,6 +596,16 @@ export type ResponseMapping = {
   variableId?: string;
 };
 
+/** Structured body of an HTTP request (form/JSON/raw/binary). */
+export type WebhookBody = {
+  /** `'form-data'` is accepted as a legacy alias for `'form'`. */
+  type: 'json' | 'form' | 'form-data' | 'raw' | 'binary';
+  content?: string;
+  pairs?: KVPair[];
+  /** Legacy form-encoded payload (key/value list). Prefer `pairs`. */
+  formData?: KVPair[];
+};
+
 /** Options for an HTTP request (webhook) integration block. */
 export type WebhookOptions = {
   /** Request URL */
@@ -605,13 +615,30 @@ export type WebhookOptions = {
   /** Request headers */
   headers?: KVPair[];
   /** Raw JSON body (may contain {{variable}} tokens) */
-  body?: string;
+  body?: string | WebhookBody;
+  /** Query parameters (key/value pairs, supports {{variable}}). */
+  queryParams?: KVPair[];
+  /** Request timeout in milliseconds. Default: no timeout. */
+  timeout?: number;
   /** Variable ID to store the raw response body */
   responseVariable?: string;
   /** Variable ID to store the HTTP status code */
   statusCodeVariable?: string;
+  /** Save the entire response (status + headers + body) into the response variable. */
+  saveFullResponseToVariable?: boolean;
+  /** @alias responseVariable — kept for legacy callers. */
+  fullResponseVariableId?: string;
+  /** @alias statusCodeVariable — kept for legacy callers. */
+  statusCodeVariableId?: string;
   /** Response field extraction mappings (Typebot compat) */
   responseMappings?: ResponseMapping[];
+  /** Auth strategy when the request must be signed/authenticated. */
+  authentication?:
+    | { type: 'none' }
+    | { type: 'basic'; username?: string; password?: string }
+    | { type: 'bearer'; token?: string }
+    | { type: 'header'; name?: string; value?: string }
+    | { type: 'oauth2'; credentialId?: string };
 };
 
 /** A file attachment entry (URL-based) for send-email blocks. */
@@ -1200,7 +1227,7 @@ export type FlowTheme = {
 };
 
 export type SabFlowTheme = FlowTheme & {
-  general?: GeneralTheme & {
+  general?: Omit<GeneralTheme, 'background'> & {
     /** @legacy */
     background?: { type: 'Color' | 'Image' | 'None' | 'Transparent'; content?: string; color?: string };
     progressBar?: {
@@ -1221,11 +1248,24 @@ export type SabFlowTheme = FlowTheme & {
       isEnabled?: boolean;
     };
     /** @legacy — flat string colour, superseded by hostBubble.backgroundColor */
-    hostBubble?: HostBubbleTheme & { backgroundColor?: string; color?: string };
+    hostBubble?: Omit<HostBubbleTheme, 'backgroundColor' | 'color'> & {
+      backgroundColor?: string | ThemeColor;
+      color?: string | ThemeColor;
+    };
     /** @legacy — flat string colour, superseded by guestBubble.backgroundColor */
-    guestBubble?: GuestBubbleTheme & { backgroundColor?: string; color?: string };
-    input?: InputTheme & { backgroundColor?: string; color?: string; placeholderColor?: string };
-    button?: ButtonTheme & { backgroundColor?: string; color?: string };
+    guestBubble?: Omit<GuestBubbleTheme, 'backgroundColor' | 'color'> & {
+      backgroundColor?: string | ThemeColor;
+      color?: string | ThemeColor;
+    };
+    input?: Omit<InputTheme, 'backgroundColor' | 'color' | 'placeholderColor'> & {
+      backgroundColor?: string | ThemeColor;
+      color?: string | ThemeColor;
+      placeholderColor?: string | ThemeColor;
+    };
+    button?: Omit<ButtonTheme, 'backgroundColor' | 'color'> & {
+      backgroundColor?: string | ThemeColor;
+      color?: string | ThemeColor;
+    };
   };
 };
 
@@ -1408,6 +1448,8 @@ export type LoopOptions = {
   maxIterations?: number;
   mode?: 'sequential' | 'parallel';
   concurrency?: number;
+  /** When true, swallow per-iteration errors and continue with the next item. */
+  continueOnFail?: boolean;
 };
 
 /* ── Switch / Filter / Sort block options ────────────── */
@@ -1461,6 +1503,19 @@ export type RespondToWebhookOptions = {
 export type ExecutionTriggerMode = 'manual' | 'schedule' | 'webhook' | 'start' | 'test';
 export type ExecutionStatus = 'running' | 'success' | 'error' | 'cancelled';
 
+/** Per-node detail attached to an `ExecutionHistoryEntry`. */
+export type ExecutionHistoryNode = {
+  blockId: string;
+  blockType: string;
+  status: ExecutionStatus | 'skipped' | 'waiting';
+  startedAt?: Date;
+  finishedAt?: Date;
+  durationMs?: number;
+  input?: unknown;
+  output?: unknown;
+  error?: string;
+};
+
 export type ExecutionHistoryEntry = {
   id: string;
   flowId: string;
@@ -1473,4 +1528,30 @@ export type ExecutionHistoryEntry = {
   nodeCount: number;
   executionTimeMs?: number;
   variables?: Record<string, unknown>;
+  /** Optional per-block execution detail (only persisted when verbose). */
+  nodes?: ExecutionHistoryNode[];
+  /** Optional captured trigger payload that started this execution. */
+  inputData?: unknown;
+  /** ID of the first block that ran in this execution (for resuming partial runs). */
+  startNodeId?: string;
+};
+
+/** Optional filter passed to `listExecutions()`. All fields are AND-ed. */
+export type ExecutionHistoryFilter = {
+  flowId?: string;
+  sessionId?: string;
+  status?: ExecutionStatus | ExecutionStatus[];
+  triggerMode?: ExecutionTriggerMode | ExecutionTriggerMode[];
+  /** Inclusive lower-bound on `startedAt`. */
+  startedAfter?: Date;
+  /** Exclusive upper-bound on `startedAt`. */
+  startedBefore?: Date;
+  /** @alias `startedAfter`. */
+  from?: Date;
+  /** @alias `startedBefore`. */
+  to?: Date;
+  /** Page offset for paginated results. */
+  skip?: number;
+  /** Page size; default 50 in callers. */
+  limit?: number;
 };

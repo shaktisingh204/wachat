@@ -174,7 +174,10 @@ export function HttpRequestSettings({ block, onBlockChange, variables = [] }: Pr
   const url: string = opts.url ?? '';
   const headers: KVPair[] = opts.headers ?? [];
   const queryParams: KVPair[] = opts.queryParams ?? [];
-  const body: WebhookBody = opts.body ?? { type: 'json', content: '' };
+  const body: WebhookBody =
+    typeof opts.body === 'string'
+      ? { type: 'json', content: opts.body }
+      : opts.body ?? { type: 'json', content: '' };
   const responseMappings = opts.responseMappings ?? [];
   const timeout: number = opts.timeout ?? 30000;
   const saveFullResponse: boolean = opts.saveFullResponseToVariable ?? false;

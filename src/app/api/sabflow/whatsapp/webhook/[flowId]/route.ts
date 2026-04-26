@@ -149,7 +149,7 @@ async function handleIncomingMessage(
   // When the session already exists, we feed the user's text/choice in.
   const inputToFeed = isNew ? '' : (userInput ?? '');
 
-  const { session: updated, nextSteps } = processInput(session, flow, inputToFeed);
+  const { session: updated, nextSteps } = await processInput(session, flow, inputToFeed);
 
   // ── Persist the updated session ──────────────────────────────────────
   await updateSession(session.id, {

@@ -86,6 +86,7 @@ export async function createSabFlow(name: string) {
       },
     ],
     edges: [],
+    events: [],
     variables: [],
     theme: {},
     settings: {},

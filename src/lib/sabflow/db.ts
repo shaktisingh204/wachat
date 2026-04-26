@@ -543,7 +543,7 @@ export async function createExecutionHistory(
 ): Promise<ExecutionHistoryEntry> {
   const col = await getExecutionHistoryCollection();
   const oid = new ObjectId();
-  const doc: ExecutionHistoryDoc = { _id: oid, ...entry };
+  const doc = { _id: oid, ...entry } as ExecutionHistoryDoc;
   await col.insertOne(doc);
   return mapExecutionDoc(doc);
 }

@@ -18,6 +18,8 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "incremental": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "plugins": [
       {
         "name": "next"
@@ -81,6 +83,7 @@
     "node_modules",
     "n8n-master",
     "typebot.io-main",
-    ".claude/worktrees"
+    ".claude/worktrees",
+    "src/lib/sabflow/n8n/core"
   ]
 }

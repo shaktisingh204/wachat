@@ -121,7 +121,7 @@ function stepsToNextInput(steps: ExecutionStep[]): PendingInput | undefined {
   if (inputType === 'file_input') return { type: 'file_input' };
   if (inputType === 'payment_input') return { type: 'payment_input' };
 
-  return { type: inputType as PendingInput['type'] };
+  return { type: inputType as PendingInput['type'] } as unknown as PendingInput;
 }
 
 /* ── Sub-components ─────────────────────────────────────────────────────── */
@@ -199,20 +199,31 @@ interface ChatWindowProps {
   flow: SerialisedFlow;
 }
 
+/** Coerce a `ThemeColor` (or legacy plain string) into a CSS-applicable string. */
+function toCssColor(value: unknown, fallback: string): string {
+  if (typeof value === 'string') return value;
+  if (value && typeof value === 'object') {
+    const v = value as { type?: string; value?: string; id?: string };
+    if (v.type === 'Color' && typeof v.value === 'string') return v.value;
+    // 'Variable' references resolve at runtime; until then, render the fallback.
+  }
+  return fallback;
+}
+
 export function ChatWindow({ flow }: ChatWindowProps) {
   /* ── theme ──────────────────────────────────────────────── */
   const theme = flow.theme;
-  const containerBg     = theme?.chat?.container?.backgroundColor  ?? 'var(--gray-1)';
-  const headerBg        = theme?.chat?.header?.backgroundColor     ?? 'var(--gray-2)';
-  const headerColor     = theme?.chat?.header?.color               ?? 'var(--gray-12)';
-  const hostBubbleBg    = theme?.chat?.hostBubble?.backgroundColor ?? 'var(--gray-3)';
-  const hostBubbleColor = theme?.chat?.hostBubble?.color           ?? 'var(--gray-12)';
-  const guestBubbleBg   = theme?.chat?.guestBubble?.backgroundColor ?? 'var(--orange-8)';
-  const guestBubbleColor= theme?.chat?.guestBubble?.color           ?? '#ffffff';
-  const inputBg         = theme?.chat?.input?.backgroundColor      ?? 'var(--gray-1)';
-  const inputColor      = theme?.chat?.input?.color                ?? 'var(--gray-12)';
-  const buttonBg        = theme?.chat?.button?.backgroundColor     ?? 'var(--orange-8)';
-  const buttonColor     = theme?.chat?.button?.color               ?? '#ffffff';
+  const containerBg     = toCssColor(theme?.chat?.container?.backgroundColor,  'var(--gray-1)');
+  const headerBg        = toCssColor(theme?.chat?.header?.backgroundColor,     'var(--gray-2)');
+  const headerColor     = toCssColor(theme?.chat?.header?.color,               'var(--gray-12)');
+  const hostBubbleBg    = toCssColor(theme?.chat?.hostBubble?.backgroundColor, 'var(--gray-3)');
+  const hostBubbleColor = toCssColor(theme?.chat?.hostBubble?.color,           'var(--gray-12)');
+  const guestBubbleBg   = toCssColor(theme?.chat?.guestBubble?.backgroundColor,'var(--orange-8)');
+  const guestBubbleColor= toCssColor(theme?.chat?.guestBubble?.color,          '#ffffff');
+  const inputBg         = toCssColor(theme?.chat?.input?.backgroundColor,      'var(--gray-1)');
+  const inputColor      = toCssColor(theme?.chat?.input?.color,                'var(--gray-12)');
+  const buttonBg        = toCssColor(theme?.chat?.button?.backgroundColor,     'var(--orange-8)');
+  const buttonColor     = toCssColor(theme?.chat?.button?.color,               '#ffffff');
   const pageBg          = theme?.general?.background?.type === 'Color'
     ? (theme.general.background.content ?? 'var(--gray-2)')
     : 'var(--gray-2)';

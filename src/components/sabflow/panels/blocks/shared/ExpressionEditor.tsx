@@ -37,7 +37,9 @@ import {
   type CSSProperties,
   type ReactNode,
 } from 'react';
-import { LuFunctionSquare, LuBraces, LuBoxes, LuCircleDollarSign } from 'react-icons/lu';
+// `LuFunctionSquare` was renamed in newer react-icons releases — alias to the
+// closest available icon so existing call-sites do not need to change.
+import { LuSquareFunction as LuFunctionSquare, LuBraces, LuBoxes, LuCircleDollarSign } from 'react-icons/lu';
 import type { Variable } from '@/lib/sabflow/types';
 import { cn } from '@/lib/utils';
 import { inputClass } from './primitives';

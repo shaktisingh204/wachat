@@ -106,7 +106,11 @@ export function WebhookEventNode({ event, onEventUpdate, flow, flowId }: Props) 
     },
   );
 
-  const options = event.options;
+  // We are rendered specifically for an event with `type === 'webhook'`, so
+  // the options union narrows to `WebhookEventOptions`.
+  const options = event.options as
+    | { method?: string; path?: string; enabled?: boolean }
+    | undefined;
   const method = options?.method ?? 'POST';
   const path = options?.path ?? 'my-webhook';
   const enabled = options?.enabled !== false;
@@ -170,7 +174,7 @@ export function WebhookEventNode({ event, onEventUpdate, flow, flowId }: Props) 
           <span
             className={cn(
               'rounded px-1.5 py-[1px] text-[10px] font-bold tracking-wide uppercase',
-              methodBadgeClass(method),
+              methodBadgeClass(method as 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'ANY'),
             )}
           >
             {method}

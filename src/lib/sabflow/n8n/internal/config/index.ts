@@ -11,10 +11,9 @@ import { Service } from '../di/di';
 
 /* ── Decorators (no-ops) ────────────────────────────────────────────────── */
 
-export function Config<T extends new (...args: unknown[]) => object>(target: T): T {
+export function Config<T extends new (...args: unknown[]) => object>(target: T): void {
   // Behave like @Service so the class is registered with our DI container.
   Service()(target as unknown as new (...args: unknown[]) => unknown);
-  return target;
 }
 
 export function Env(_envVar: string, _opts?: unknown): PropertyDecorator {

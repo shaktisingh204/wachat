@@ -571,7 +571,13 @@ export function ThemePanel({ theme, onThemeChange, onClose }: ThemePanelProps) {
                 <button
                   key={t}
                   type="button"
-                  onClick={() => setBackground({ type: t, content: undefined })}
+                  onClick={() =>
+                    // The legacy `SabFlowTheme.general.background.type` accepts
+                    // `'Color' | 'Image' | 'None' | 'Transparent'`; cast through
+                    // `unknown` because the strict `GeneralTheme.background.type`
+                    // setter is `'Color' | 'Transparent'` only.
+                    setBackground({ type: t as unknown as 'Color' | 'Transparent', content: undefined })
+                  }
                   className={cn(
                     'flex-1 rounded-lg border py-1.5 text-[12px] font-medium transition-colors',
                     bgType === t
@@ -593,7 +599,7 @@ export function ThemePanel({ theme, onThemeChange, onClose }: ThemePanelProps) {
               />
             )}
 
-            {bgType === 'Image' && (
+            {(bgType as string) === 'Image' && (
               <div className="space-y-1.5">
                 <label className="block text-[11px] font-medium text-[var(--gray-9)] uppercase tracking-wide">
                   Image URL

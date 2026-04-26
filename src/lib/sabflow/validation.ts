@@ -428,7 +428,11 @@ function checkMissingVariables(
           checkVariableId(mapping.variableId, block, group, `responseMapping[${mapping.id}]`);
         }
         checkVariableTokens(webhookOpts.url, block, group, 'url');
-        checkVariableTokens(webhookOpts.body, block, group, 'body');
+        const bodyText =
+          typeof webhookOpts.body === 'string'
+            ? webhookOpts.body
+            : webhookOpts.body?.content;
+        checkVariableTokens(bodyText, block, group, 'body');
       }
 
       // Condition comparisons
