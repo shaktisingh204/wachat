@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { useBlockDnd } from '@/components/sabflow/graph/providers/GraphDndProvider';
-import { getBlockIcon, getBlockLabel, getBlockColor } from '@/lib/sabflow/blocks';
+import { getRegistryEntry } from './blockRegistry';
 
 /**
  * A floating ghost card that follows the mouse cursor while the user is
@@ -49,9 +49,9 @@ export function BlockCardOverlay() {
 
   if (!draggedBlockType) return null;
 
-  const Icon = getBlockIcon(draggedBlockType);
-  const label = getBlockLabel(draggedBlockType);
-  const color = getBlockColor(draggedBlockType);
+  const entry = getRegistryEntry(draggedBlockType);
+  if (!entry) return null;
+  const { icon: Icon, label, color } = entry;
 
   return (
     <div
@@ -70,7 +70,7 @@ export function BlockCardOverlay() {
         className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md"
         style={{ backgroundColor: color + '20', color }}
       >
-        {Icon && <Icon className="h-3.5 w-3.5" />}
+        <Icon className="h-3.5 w-3.5" />
       </div>
 
       {/* Label */}

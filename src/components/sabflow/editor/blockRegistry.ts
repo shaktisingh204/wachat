@@ -54,6 +54,14 @@ import {
   LuSplit,
   LuFilter,
   LuArrowDownWideNarrow,
+  LuPlay,
+  LuArrowLeft,
+  LuFileText,
+  LuFileBox,
+  LuMessageCircle,
+  LuShare2,
+  LuGithub,
+  LuPaperclip,
 } from 'react-icons/lu';
 
 import type { BlockCategory, BlockType } from '@/lib/sabflow/types';
@@ -318,6 +326,30 @@ export const blockRegistry: BlockRegistryEntry[] = [
     description: 'Sort an array by a field',
     color: '#fbbf24',
   },
+  {
+    type: 'set',
+    label: 'Set Multiple',
+    icon: LuVariable as IconComponent,
+    category: 'logic',
+    description: 'Assign multiple variables in one block',
+    color: '#fb923c',
+  },
+  {
+    type: 'execute_workflow',
+    label: 'Execute Workflow',
+    icon: LuPlay as IconComponent,
+    category: 'logic',
+    description: 'Run another sabflow inline and use its result',
+    color: '#fde68a',
+  },
+  {
+    type: 'respond_to_webhook',
+    label: 'Respond Webhook',
+    icon: LuArrowLeft as IconComponent,
+    category: 'logic',
+    description: 'Send a custom HTTP response back to an inbound webhook',
+    color: '#fde68a',
+  },
 
   // ── Integrations ──────────────────────────────────────────
   {
@@ -456,6 +488,64 @@ export const blockRegistry: BlockRegistryEntry[] = [
     description: 'Generate text with Mistral models',
     color: '#6366f1',
   },
+
+  // ── Forge (declarative integrations) ──────────────────────
+  {
+    type: 'forge_notion',
+    label: 'Notion',
+    icon: LuFileText as IconComponent,
+    category: 'forge',
+    description: 'Query databases, create or update Notion pages',
+    color: '#000000',
+  },
+  {
+    type: 'forge_airtable',
+    label: 'Airtable',
+    icon: LuFileBox as IconComponent,
+    category: 'forge',
+    description: 'List, create, or update Airtable records',
+    color: '#fcb400',
+  },
+  {
+    type: 'forge_slack',
+    label: 'Slack',
+    icon: LuMessageCircle as IconComponent,
+    category: 'forge',
+    description: 'Post messages and files to Slack',
+    color: '#4a154b',
+  },
+  {
+    type: 'forge_discord',
+    label: 'Discord',
+    icon: LuShare2 as IconComponent,
+    category: 'forge',
+    description: 'Send messages via a Discord channel webhook',
+    color: '#5865f2',
+  },
+  {
+    type: 'forge_github',
+    label: 'GitHub',
+    icon: LuGithub as IconComponent,
+    category: 'forge',
+    description: 'Create or list issues, dispatch repository events',
+    color: '#181717',
+  },
+  {
+    type: 'forge_twilio',
+    label: 'Twilio',
+    icon: LuPhone as IconComponent,
+    category: 'forge',
+    description: 'Send SMS messages via Twilio',
+    color: '#f22f46',
+  },
+  {
+    type: 'forge_sendgrid',
+    label: 'SendGrid',
+    icon: LuPaperclip as IconComponent,
+    category: 'forge',
+    description: 'Send transactional email via SendGrid',
+    color: '#1a82e2',
+  },
 ];
 
 /* ── Derived lookups ──────────────────────────────────────── */
@@ -495,6 +585,12 @@ export const REGISTRY_CATEGORIES: {
     label: 'Integrations',
     color: '#ec4899',
     entries: blockRegistry.filter((e) => e.category === 'integrations'),
+  },
+  {
+    key: 'forge',
+    label: 'Forge',
+    color: '#a855f7',
+    entries: blockRegistry.filter((e) => e.category === 'forge'),
   },
 ];
 

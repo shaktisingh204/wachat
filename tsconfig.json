@@ -26,6 +26,33 @@
     "paths": {
       "@/*": [
         "./src/*"
+      ],
+      "@n8n/errors": [
+        "./src/lib/sabflow/n8n/internal/errors"
+      ],
+      "@n8n/errors/*": [
+        "./src/lib/sabflow/n8n/internal/errors/*"
+      ],
+      "@n8n/di": [
+        "./src/lib/sabflow/n8n/internal/di/di"
+      ],
+      "@n8n/constants": [
+        "./src/lib/sabflow/n8n/internal/constants"
+      ],
+      "@n8n/constants/*": [
+        "./src/lib/sabflow/n8n/internal/constants/*"
+      ],
+      "n8n-workflow": [
+        "./src/lib/sabflow/n8n"
+      ],
+      "n8n-workflow/*": [
+        "./src/lib/sabflow/n8n/*"
+      ],
+      "@n8n/expression-runtime": [
+        "./src/lib/sabflow/n8n/internal/expression-runtime"
+      ],
+      "@n8n/expression-runtime/*": [
+        "./src/lib/sabflow/n8n/internal/expression-runtime/*"
       ]
     }
   },

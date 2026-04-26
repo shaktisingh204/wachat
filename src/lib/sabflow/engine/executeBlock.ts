@@ -5,6 +5,7 @@ import { evaluateCondition } from './evaluateCondition';
 import { substituteVariables } from './substituteVariables';
 import { runWithRetry } from './runWithRetry';
 import { resolveErrorEdge } from './errorRouting';
+import { getForgeBlock } from '@/lib/sabflow/forge';
 
 export type BlockExecutionResult = {
   messages: OutgoingMessage[];
@@ -51,6 +52,12 @@ export async function executeBlock(
   edges: Edge[],
   userInput?: string,
 ): Promise<BlockExecutionResult> {
+  // Forge blocks are dispatched via the schema-driven registry. Caught before
+  // the switch so we don't have to enumerate every forge type below.
+  if (block.type.startsWith('forge_')) {
+    return executeForgeBlock(block, variables, edges);
+  }
+
   switch (block.type) {
     // ── Bubble blocks ────────────────────────────────────────────────────────
     case 'text': {
@@ -92,25 +99,6 @@ export async function executeBlock(
         (block.options?.embedUrl as string | undefined) ??
         '';
       return { messages: [{ type: 'embed', content: substituteVariables(url, variables) }] };
-    }
-
-    // ── Input blocks ─────────────────────────────────────────────────────────
-    default: {
-      if (INPUT_TYPES.has(block.type)) {
-        // If we already have user input, store it in the target variable and
-        // continue; otherwise signal that we need user input.
-        if (userInput !== undefined) {
-          const variableId = block.options?.variableId as string | undefined;
-          const variableName = block.options?.variableName as string | undefined;
-          const key = variableName ?? variableId;
-          const updatedVariables = key
-            ? { ...variables, [key]: userInput }
-            : variables;
-          return { messages: [], updatedVariables };
-        }
-        return { messages: [], requiresInput: true };
-      }
-      return { messages: [] };
     }
 
     // ── Logic blocks ─────────────────────────────────────────────────────────
@@ -265,7 +253,6 @@ export async function executeBlock(
     case 'send_email':
     case 'google_sheets':
     case 'google_analytics':
-    case 'google_analytics':
     case 'open_ai':
     case 'zapier':
     case 'make_com':
@@ -284,7 +271,101 @@ export async function executeBlock(
       // handle them externally.
       return { messages: [] };
     }
+
+    // ── Input blocks (and unknown types) ─────────────────────────────────────
+    default: {
+      if (INPUT_TYPES.has(block.type)) {
+        // If we already have user input, store it in the target variable and
+        // continue; otherwise signal that we need user input.
+        if (userInput !== undefined) {
+          const variableId = block.options?.variableId as string | undefined;
+          const variableName = block.options?.variableName as string | undefined;
+          const key = variableName ?? variableId;
+          const updatedVariables = key
+            ? { ...variables, [key]: userInput }
+            : variables;
+          return { messages: [], updatedVariables };
+        }
+        return { messages: [], requiresInput: true };
+      }
+      return { messages: [] };
+    }
   }
+}
+
+/**
+ * Run a forge block by looking up its action in the schema-driven registry
+ * and invoking action.run with a thin context. Variable substitution is
+ * applied to all string options recursively.
+ */
+async function executeForgeBlock(
+  block: Block,
+  variables: Record<string, string>,
+  edges: Edge[],
+): Promise<BlockExecutionResult> {
+  const forge = getForgeBlock(block.type);
+  if (!forge) {
+    return {
+      messages: [],
+      errorSignal: { kind: 'halt', message: `Unknown forge block: ${block.type}` },
+    };
+  }
+
+  const actionName =
+    (block.options?.action as string | undefined) ??
+    (forge.actions?.[0]?.name as string | undefined);
+  const action = forge.actions?.find((a) => a.name === actionName);
+  if (!action || typeof action.run !== 'function') {
+    return {
+      messages: [],
+      errorSignal: { kind: 'halt', message: `Forge ${block.type}: action "${actionName}" not found` },
+    };
+  }
+
+  const resolvedOptions = substituteInValue(block.options ?? {}, variables);
+
+  const outcome = await runWithRetry(block, async () => {
+    return action.run({
+      options: resolvedOptions,
+      credentials: undefined,
+      variables,
+      fetch,
+      logger: { info: () => {}, warn: () => {}, error: () => {} },
+    });
+  });
+
+  if (outcome.kind === 'ok') {
+    const out = outcome.value;
+    const responseVariableId =
+      (block.options?.responseVariableId as string | undefined) ??
+      (block.options?.saveResponseVariableId as string | undefined);
+    if (responseVariableId) {
+      const value =
+        typeof out === 'string'
+          ? out
+          : out === undefined
+          ? ''
+          : JSON.stringify(out);
+      return { messages: [], updatedVariables: { ...variables, [responseVariableId]: value } };
+    }
+    return { messages: [] };
+  }
+
+  return buildErrorSignal(block, edges, outcome.error, outcome.strategy);
+}
+
+/** Recursively substitute {{var}} tokens in any string field of an object/array. */
+function substituteInValue(input: unknown, variables: Record<string, string>): unknown {
+  if (typeof input === 'string') return substituteVariables(input, variables);
+  if (Array.isArray(input)) return input.map((v) => substituteInValue(v, variables));
+  if (input && typeof input === 'object') {
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(input)) {
+      out[k] = substituteInValue(v, variables);
+    }
+    return out;
+  }
+  return input;
 }
 
 function buildErrorSignal(

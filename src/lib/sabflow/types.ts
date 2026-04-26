@@ -21,7 +21,10 @@ export type BlockCategory =
   | 'inputs'
   | 'logic'
   | 'integrations'
-  | 'events';
+  | 'events'
+  | 'forge'
+  | 'ai'
+  | 'webhook';
 
 /* ── Block Types (Typebot-style) ──────────────────────── */
 export type BubbleBlockType =

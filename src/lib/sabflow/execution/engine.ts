@@ -65,11 +65,25 @@ function findStartGroup(flow: SabFlowDoc): Group | undefined {
 
 // ── startSession ───────────────────────────────────────────────────────────
 
+/** Optional trigger context recorded on session start so the engine + flow can
+ *  branch on which trigger (schedule / webhook / form / manual) started the run. */
+export type StartSessionOptions = {
+  /** ID of the SabFlowEvent that fired the run (for schedule/webhook/etc.). */
+  eventId?: string;
+  /** Arbitrary trigger payload (e.g. webhook body, form data) seeded as $trigger. */
+  triggerData?: unknown;
+  /** Pre-seeded variables (override flow defaults). */
+  initialVariables?: Record<string, string | undefined>;
+};
+
 /**
  * Creates a brand-new FlowSession positioned at the start of the flow.
  * Pure — no DB, no side effects.
  */
-export function startSession(flow: SabFlowDoc): FlowSession {
+export function startSession(
+  flow: SabFlowDoc,
+  options?: StartSessionOptions,
+): FlowSession {
   const startGroup = findStartGroup(flow);
 
   // Seed variables map from the flow's variable definitions (default values).
@@ -78,6 +92,23 @@ export function startSession(flow: SabFlowDoc): FlowSession {
   for (const v of flow.variables) {
     const seed = v.defaultValue !== undefined ? String(v.defaultValue) : v.value;
     variables[v.name] = seed;
+  }
+  // Caller-provided overrides win over flow defaults.
+  if (options?.initialVariables) {
+    for (const [k, v] of Object.entries(options.initialVariables)) {
+      variables[k] = v;
+    }
+  }
+  // Synthetic trigger variable so flows can reference {{$trigger.eventId}}.
+  if (options?.eventId) {
+    variables.$triggerEventId = options.eventId;
+  }
+  if (options?.triggerData !== undefined) {
+    try {
+      variables.$trigger = JSON.stringify(options.triggerData);
+    } catch {
+      /* ignore non-serialisable payloads */
+    }
   }
 
   const now = new Date();
