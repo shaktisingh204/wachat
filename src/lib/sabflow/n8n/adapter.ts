@@ -29,7 +29,6 @@ import type {
   INode,
   IConnection,
   IConnections,
-  IDataObject,
   INodeParameters,
   INodeTypes,
 } from './interfaces';
