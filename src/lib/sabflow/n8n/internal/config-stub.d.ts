@@ -1,8 +1,11 @@
 /**
- * Type-only stub for `@n8n/config` so n8n's interfaces.ts can resolve
- * `import type { LogScope } from '@n8n/config'` without pulling in the
- * full config package (which expects DI/decorators infrastructure we do
- * not vendor).
+ * Type-only stubs for n8n source-files that import packages we do not
+ * install at runtime. All declarations here are intentionally loose
+ * (`unknown` / open-ended structural types) — the goal is only to make
+ * the TypeScript compiler accept the n8n source after a verbatim copy.
+ *
+ * Replace any of these with the real package if/when we begin actually
+ * exercising the corresponding code path at runtime.
  */
 declare module '@n8n/config' {
   export type LogScope =
@@ -16,4 +19,23 @@ declare module '@n8n/config' {
     | 'task-runner'
     | 'waiting-executions'
     | string;
+}
+
+declare module 'ssh2' {
+  // Used as a type-only reference inside interfaces.ts (`SSHClient`).
+  export class Client {}
+}
+
+declare module '@langchain/core/callbacks/manager' {
+  // Used as a type-only reference for AI agent callbacks.
+  export interface CallbackManager {
+    [key: string]: unknown;
+  }
+}
+
+declare module 'nock' {
+  // Test-only matchers referenced (not invoked) by interfaces.ts.
+  export type ReplyHeaders = unknown;
+  export type RequestBodyMatcher = unknown;
+  export type RequestHeaderMatcher = unknown;
 }

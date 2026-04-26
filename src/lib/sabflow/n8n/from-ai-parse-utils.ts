@@ -38,7 +38,10 @@ export function generateZodSchema(placeholder: FromAIArgument): z.ZodTypeAny {
 			schema = z.boolean();
 			break;
 		case 'json': {
-			interface CustomSchemaDef extends z.ZodTypeDef {
+			// zod v4 removed `z.ZodTypeDef` and renamed `_def.jsonSchema` access path.
+			// Use `unknown` here so the custom-metadata trick still type-checks; the
+			// runtime shape is preserved.
+			interface CustomSchemaDef {
 				jsonSchema?: {
 					anyOf: [
 						{
@@ -69,10 +72,10 @@ export function generateZodSchema(placeholder: FromAIArgument): z.ZodTypeAny {
 			);
 
 			// Cast the custom schema to a type that includes our JSON metadata.
-			const typedSchema = customSchema as z.ZodType<
-				Record<string, unknown> | unknown[],
-				CustomSchemaDef
-			>;
+			// In zod v4 `_def` is an opaque internals type, so we widen via `unknown`.
+			const typedSchema = customSchema as unknown as {
+				_def: CustomSchemaDef & Record<string, unknown>;
+			} & z.ZodType<Record<string, unknown> | unknown[]>;
 
 			// Attach the updated `jsonSchema` metadata to the internal definition.
 			typedSchema._def.jsonSchema = {

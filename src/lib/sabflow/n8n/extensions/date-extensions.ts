@@ -194,7 +194,7 @@ function isInLast(date: Date | DateTime, extraArgs: unknown[]): boolean {
 const WEEKEND_DAYS: WeekdayNumbers[] = [6, 7];
 function isWeekend(date: Date | DateTime): boolean {
 	const { weekday } = isDateTime(date) ? date : DateTime.fromJSDate(date);
-	return WEEKEND_DAYS.includes(weekday);
+	return WEEKEND_DAYS.includes(weekday as WeekdayNumbers);
 }
 
 function minus(

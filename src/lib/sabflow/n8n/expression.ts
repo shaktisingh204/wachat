@@ -486,9 +486,10 @@ export class Expression {
 		let result = '';
 		if (value instanceof Date) {
 			// We don't want to use JSON.stringify for dates since it disregards workflow timezone
-			result = DateTime.fromJSDate(value, {
-				zone: this.timezone,
-			}).toISO();
+			result =
+				DateTime.fromJSDate(value, {
+					zone: this.timezone,
+				}).toISO() ?? '';
 		} else if (DateTime.isDateTime(value)) {
 			result = value.toString();
 		} else {

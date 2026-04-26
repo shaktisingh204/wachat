@@ -216,11 +216,10 @@ export const IPostReceiveSetSchema: z.ZodType<IPostReceiveSet> = IPostReceiveBas
 	}),
 });
 
-export const IPostReceiveSetKeyValueSchema: z.ZodType<IPostReceiveSetKeyValue> =
-	IPostReceiveBaseSchema.extend({
-		type: z.literal('setKeyValue'),
-		properties: z.record(z.union([z.string(), z.number()])),
-	});
+export const IPostReceiveSetKeyValueSchema = IPostReceiveBaseSchema.extend({
+	type: z.literal('setKeyValue'),
+	properties: z.record(z.string(), z.union([z.string(), z.number()])),
+}) as unknown as z.ZodType<IPostReceiveSetKeyValue>;
 
 export const IPostReceiveSortSchema: z.ZodType<IPostReceiveSort> = IPostReceiveBaseSchema.extend({
 	type: z.literal('sort'),
@@ -360,14 +359,14 @@ export const ResourceMapperFieldSchema: z.ZodType<ResourceMapperField> = z.objec
 	readOnly: z.boolean().optional(),
 });
 
-export const ResourceMapperValueSchema: z.ZodType<ResourceMapperValue> = z.object({
+export const ResourceMapperValueSchema = z.object({
 	mappingMode: z.string(),
-	value: z.record(z.union([z.string(), z.number(), z.boolean(), z.null()])),
+	value: z.record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.null()])),
 	matchingColumns: z.array(z.string()),
 	schema: z.array(ResourceMapperFieldSchema),
 	attemptToConvertTypes: z.boolean(),
 	convertFieldsToString: z.boolean(),
-});
+}) as unknown as z.ZodType<ResourceMapperValue>;
 
 export const FilterOptionsValueSchema: z.ZodType<FilterOptionsValue> = z.object({
 	caseSensitive: z.boolean(),

@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "ES2017",
+    "target": "ES2020",
     "lib": [
       "dom",
       "dom.iterable",
@@ -48,11 +48,23 @@
       "n8n-workflow/*": [
         "./src/lib/sabflow/n8n/*"
       ],
-      "@n8n/expression-runtime": [
-        "./src/lib/sabflow/n8n/internal/expression-runtime"
+      "@n8n-core/*": [
+        "./src/lib/sabflow/n8n/core/*"
       ],
-      "@n8n/expression-runtime/*": [
-        "./src/lib/sabflow/n8n/internal/expression-runtime/*"
+      "@n8n/backend-common": [
+        "./src/lib/sabflow/n8n/internal/backend-common"
+      ],
+      "@n8n/decorators": [
+        "./src/lib/sabflow/n8n/internal/decorators"
+      ],
+      "@n8n/config": [
+        "./src/lib/sabflow/n8n/internal/config"
+      ],
+      "@n8n/config/*": [
+        "./src/lib/sabflow/n8n/internal/config/*"
+      ],
+      "@n8n/client-oauth2": [
+        "./src/lib/sabflow/n8n/internal/client-oauth2"
       ]
     }
   },
@@ -61,10 +73,14 @@
     "**/*.ts",
     "**/*.tsx",
     "src/types/**/*.d.ts",
+    "src/lib/sabflow/n8n/**/*.d.ts",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "n8n-master",
+    "typebot.io-main",
+    ".claude/worktrees"
   ]
 }

@@ -142,7 +142,7 @@ export const MessageEventBusDestinationOptionsSchema = z.object({
 	label: z.string().min(1).optional(),
 	enabled: z.boolean().optional(),
 	subscribedEvents: z.array(z.string()).optional(),
-	credentials: z.record(z.unknown()).optional(),
+	credentials: z.record(z.string(), z.unknown()).optional(),
 	anonymizeAuditMessages: z.boolean().optional(),
 	circuitBreaker: circuitBreakerSchema,
 });

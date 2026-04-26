@@ -14,8 +14,11 @@ export interface ExpressionCode {
 
 export type ExpressionChunk = ExpressionCode | ExpressionText;
 
-const OPEN_BRACKET = /(?<escape>\\|)(?<brackets>\{\{)/;
-const CLOSE_BRACKET = /(?<escape>\\|)(?<brackets>\}\})/;
+// Use `new RegExp(...)` instead of regex literals so TypeScript 5.9 does not
+// reject the (?<name>) syntax under our `target: ES2020` config (a known
+// quirk of the regex-literal parser; runtime behaviour is identical).
+const OPEN_BRACKET = new RegExp('(?<escape>\\\\|)(?<brackets>\\{\\{)');
+const CLOSE_BRACKET = new RegExp('(?<escape>\\\\|)(?<brackets>\\}\\})');
 
 export const escapeCode = (text: string): string => {
 	return text.replace('\\}}', '}}');

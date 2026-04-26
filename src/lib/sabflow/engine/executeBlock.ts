@@ -311,42 +311,40 @@ async function executeForgeBlock(
     };
   }
 
-  const actionName =
+  const actionId =
     (block.options?.action as string | undefined) ??
-    (forge.actions?.[0]?.name as string | undefined);
-  const action = forge.actions?.find((a) => a.name === actionName);
+    forge.actions?.[0]?.id;
+  const action = forge.actions?.find((a) => a.id === actionId);
   if (!action || typeof action.run !== 'function') {
     return {
       messages: [],
-      errorSignal: { kind: 'halt', message: `Forge ${block.type}: action "${actionName}" not found` },
+      errorSignal: { kind: 'halt', message: `Forge ${block.type}: action "${actionId}" not found` },
     };
   }
 
-  const resolvedOptions = substituteInValue(block.options ?? {}, variables);
+  const resolvedOptions = substituteInValue(block.options ?? {}, variables) as Record<
+    string,
+    unknown
+  >;
 
   const outcome = await runWithRetry(block, async () => {
     return action.run({
       options: resolvedOptions,
-      credentials: undefined,
       variables,
-      fetch,
-      logger: { info: () => {}, warn: () => {}, error: () => {} },
+      credential: undefined,
     });
   });
 
   if (outcome.kind === 'ok') {
-    const out = outcome.value;
-    const responseVariableId =
-      (block.options?.responseVariableId as string | undefined) ??
-      (block.options?.saveResponseVariableId as string | undefined);
-    if (responseVariableId) {
-      const value =
-        typeof out === 'string'
-          ? out
-          : out === undefined
-          ? ''
-          : JSON.stringify(out);
-      return { messages: [], updatedVariables: { ...variables, [responseVariableId]: value } };
+    const result = outcome.value;
+    const updates = result?.outputs;
+    if (updates && Object.keys(updates).length) {
+      const merged: Record<string, string> = { ...variables };
+      for (const [k, v] of Object.entries(updates)) {
+        merged[k] =
+          typeof v === 'string' ? v : v === undefined || v === null ? '' : JSON.stringify(v);
+      }
+      return { messages: [], updatedVariables: merged };
     }
     return { messages: [] };
   }
