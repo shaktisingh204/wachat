@@ -1,6 +1,11 @@
 import { ApplicationError } from '@n8n/errors';
+// `@n8n/expression-runtime` is an optional dependency — its native build
+// (`isolated-vm`) requires Node 22 + Python and fails on many production
+// environments. We refer to its types via the local module-stub in
+// `internal/config-stub.d.ts` and switch the `instanceof` checks below to
+// name-based comparisons so this module loads even when the package is
+// not installed at runtime.
 import type { IExpressionEvaluator } from '@n8n/expression-runtime';
-import { MemoryLimitError, SecurityViolationError, TimeoutError } from '@n8n/expression-runtime';
 import { DateTime, Duration, Interval } from 'luxon';
 
 import { UnexpectedError } from './errors';
@@ -61,19 +66,20 @@ function mapVmError(error: unknown): Error {
 	if (isExpressionError(error)) return error;
 
 	// Runtime error types (TimeoutError, MemoryLimitError, etc.) must be
-	// checked before the name-based reconstruction below, because they
-	// extend the runtime's ExpressionError and share .name === 'ExpressionError'.
-	if (error instanceof TimeoutError) {
+	// checked before the name-based reconstruction below. We use name-based
+	// matching here so we don't need to import the classes from
+	// `@n8n/expression-runtime` (which is now an optional dependency).
+	if (error instanceof Error && error.name === 'TimeoutError') {
 		const wrapped = new ExpressionError('Expression timed out');
 		wrapped.cause = error;
 		return wrapped;
 	}
-	if (error instanceof MemoryLimitError) {
+	if (error instanceof Error && error.name === 'MemoryLimitError') {
 		const wrapped = new ExpressionError('Expression exceeded memory limit');
 		wrapped.cause = error;
 		return wrapped;
 	}
-	if (error instanceof SecurityViolationError) {
+	if (error instanceof Error && error.name === 'SecurityViolationError') {
 		const wrapped = new ExpressionError(error.message);
 		wrapped.cause = error;
 		return wrapped;
@@ -255,8 +261,22 @@ export class Expression {
 		this.expressionEngine = options.engine;
 
 		if (!this.vmEvaluator) {
-			// Dynamic import to avoid loading expression-runtime in browser environments
-			const { ExpressionEvaluator, IsolatedVmBridge } = await import('@n8n/expression-runtime');
+			// `@n8n/expression-runtime` is an optional dep — its native build
+			// (isolated-vm) requires Node 22 + Python and may be absent.  Skip
+			// the VM engine gracefully when the package isn't installed; the
+			// legacy engine continues to work.
+			let mod: typeof import('@n8n/expression-runtime') | undefined;
+			try {
+				mod = await import('@n8n/expression-runtime');
+			} catch (err) {
+				LoggerProxy.warn(
+					'@n8n/expression-runtime is not installed; falling back to the legacy expression engine.',
+					{ error: err instanceof Error ? err.message : String(err) },
+				);
+				this.expressionEngine = 'legacy';
+				return;
+			}
+			const { ExpressionEvaluator, IsolatedVmBridge } = mod;
 			this.vmEvaluator = new ExpressionEvaluator({
 				createBridge: () =>
 					new IsolatedVmBridge({

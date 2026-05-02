@@ -39,6 +39,27 @@ declare module '@sentry/profiling-node' {
   export function nodeProfilingIntegration(): unknown;
 }
 
+declare module '@n8n/expression-runtime' {
+  // `@n8n/expression-runtime` is an optionalDependency in package.json
+  // because its native `isolated-vm` build needs Node 22 + Python and
+  // fails on many production environments. Loose ambient types so
+  // `expression.ts` (and the dynamic-import call inside it) compile
+  // whether the package is installed or not.
+  export interface IExpressionEvaluator {
+    initialize(): Promise<void>;
+    acquire(owner: unknown): Promise<void>;
+    release(owner: unknown): Promise<void>;
+    dispose(): Promise<void>;
+  }
+  // Concrete classes are referenced only inside `await import(...)` blocks
+  // that we already wrap in try/catch — declare them as `any`-shaped.
+  export const ExpressionEvaluator: new (_opts: unknown) => IExpressionEvaluator;
+  export const IsolatedVmBridge: new (_opts: unknown) => unknown;
+  export class TimeoutError extends Error {}
+  export class MemoryLimitError extends Error {}
+  export class SecurityViolationError extends Error {}
+}
+
 declare module '@aws-sdk/client-s3' {
   // Optional S3 dep for the storage adapter; type-only stub keeps build clean
   // when the package is not installed at runtime.

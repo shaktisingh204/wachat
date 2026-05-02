@@ -37,7 +37,6 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@genkit-ai/googleai": "^1.28.0",
     "@hookform/resolvers": "^5.2.2",
-    "@n8n/expression-runtime": "^0.9.1",
     "@n8n/tournament": "^1.0.7",
     "@octokit/rest": "^22.0.1",
     "@opentelemetry/api": "^1.9.1",
@@ -187,6 +186,9 @@
     "@google-cloud/opentelemetry-resource-util": {
       "@opentelemetry/resources": "^2.6.1"
     }
+  },
+  "optionalDependencies": {
+    "@n8n/expression-runtime": "^0.9.1"
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^16.2.4",
