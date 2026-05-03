@@ -18,3 +18,7 @@ export {
 } from "./zoru-app-sidebar";
 export { ZoruHeader, type ZoruHeaderProps } from "./zoru-header";
 export { ZoruDock, ZoruDockIcon, type ZoruDockAccent } from "./zoru-dock";
+export {
+  ZoruHomeShell,
+  type ZoruHomeShellProps,
+} from "./zoru-home-shell";

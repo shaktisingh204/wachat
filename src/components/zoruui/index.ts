@@ -257,6 +257,7 @@ export {
   ZoruAppRail,
   ZoruAppSidebar,
   ZoruHeader,
+  ZoruHomeShell,
   type ZoruShellProps,
   type ZoruAppRailItem,
   type ZoruAppRailProps,
@@ -264,6 +265,7 @@ export {
   type ZoruSidebarGroup,
   type ZoruSidebarLeaf,
   type ZoruHeaderProps,
+  type ZoruHomeShellProps,
 } from "./shell";
 
 // Data display & inputs

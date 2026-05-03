@@ -1,17 +1,21 @@
 /**
- * /home layout — the first route migrated to the Clay design system.
+ * /home layout — first route migrated to ZoruUI.
  *
- * Server component: checks session, redirects unauthenticated users,
- * then wraps children in the ClayDashboardLayout (Clay topbar + sidebar).
- * Zero legacy chrome.
+ * Server Component: checks session, redirects unauthenticated users,
+ * then wraps children in `ZoruHomeShell` (zoruui rail + sidebar +
+ * header + dock). The multi-tab `TabsProvider`/`TabsBar` system is
+ * intentionally absent — see ZORUUI_TASKS.md, hard constraint.
  */
 
-import React from 'react';
-import { redirect } from 'next/navigation';
-import { getSession } from '@/app/actions/user.actions';
-import { getProjects } from '@/app/actions/project.actions';
-import { RBACGuard } from '@/components/wabasimplify/rbac-guard';
-import { ClayDashboardLayout } from '@/components/clay';
+import "@/styles/zoruui.css";
+
+import React from "react";
+import { redirect } from "next/navigation";
+
+import { getSession } from "@/app/actions/user.actions";
+import { getProjects } from "@/app/actions/project.actions";
+import { RBACGuard } from "@/components/wabasimplify/rbac-guard";
+import { ZoruHomeShell } from "@/components/zoruui";
 
 export default async function HomeLayout({
   children,
@@ -20,41 +24,38 @@ export default async function HomeLayout({
 }) {
   const session = await getSession();
   if (!session?.user) {
-    redirect('/login');
+    redirect("/login");
   }
 
   const user = session.user as any;
 
-  // Redirect to onboarding if the user hasn't completed it
   const onboarding = user.onboarding;
-  if (onboarding && onboarding.status !== 'complete') {
-    redirect('/onboarding');
+  if (onboarding && onboarding.status !== "complete") {
+    redirect("/onboarding");
   }
-  // Legacy users without onboarding field who have no projects
-  if (!onboarding || onboarding.status !== 'complete') {
+  if (!onboarding || onboarding.status !== "complete") {
     const projects = await getProjects();
     if (!projects || projects.length === 0) {
-      redirect('/onboarding');
+      redirect("/onboarding");
     }
   }
 
-  // session.user.credits is an object keyed by channel
-  // ({ broadcast, sms, meta, email }) — collapse to a single total
-  // for the sidebar promo card. Fall back to zero if missing.
+  // session.user.credits is keyed by channel; collapse to a single
+  // total for the sidebar plan-card readout.
   const credits = user?.credits;
   const totalCredits =
-    typeof credits === 'number'
+    typeof credits === "number"
       ? credits
-      : credits && typeof credits === 'object'
+      : credits && typeof credits === "object"
         ? Object.values(credits).reduce<number>(
-            (sum, v) => sum + (typeof v === 'number' ? v : 0),
+            (sum, v) => sum + (typeof v === "number" ? v : 0),
             0,
           )
         : 0;
 
   return (
     <RBACGuard>
-      <ClayDashboardLayout
+      <ZoruHomeShell
         user={{
           name: user?.name,
           email: user?.email,
@@ -66,7 +67,7 @@ export default async function HomeLayout({
         }}
       >
         {children}
-      </ClayDashboardLayout>
+      </ZoruHomeShell>
     </RBACGuard>
   );
 }
