@@ -45,16 +45,17 @@ export function SabNodeWaterLoader({
       )}
       style={{ width }}
     >
-      {/* Soft multicolour halo behind the text */}
+      {/* Soft Prism halo behind the text */}
       {!flat && (
         <div
           aria-hidden
           className="pointer-events-none absolute -inset-x-10 -top-6 -bottom-2 -z-10 blur-3xl opacity-60"
           style={{
             background:
-              "radial-gradient(50% 70% at 25% 50%, rgba(244,114,182,0.45), transparent 70%)," +
-              "radial-gradient(50% 70% at 50% 50%, rgba(99,102,241,0.40), transparent 70%)," +
-              "radial-gradient(50% 70% at 75% 50%, rgba(45,212,191,0.45), transparent 70%)",
+              "radial-gradient(50% 70% at 25% 50%, rgba(99,102,241,0.45), transparent 70%)," +   // indigo
+              "radial-gradient(50% 70% at 50% 50%, rgba(168,85,247,0.40), transparent 70%)," +   // violet
+              "radial-gradient(50% 70% at 75% 50%, rgba(236,72,153,0.40), transparent 70%)," +   // pink
+              "radial-gradient(50% 70% at 95% 50%, rgba(6,182,212,0.35), transparent 70%)",      // cyan
           }}
         />
       )}
@@ -67,12 +68,12 @@ export function SabNodeWaterLoader({
         aria-hidden
       >
         <defs>
-          {/* Gradient that fills the "water" — vivid multicolour */}
+          {/* Gradient that fills the "water" — Prism multicolour */}
           <linearGradient id="sabnode-water-fill" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%"  stopColor="#8b5cf6" />
-            <stop offset="35%" stopColor="#ec4899" />
-            <stop offset="70%" stopColor="#f97316" />
-            <stop offset="100%" stopColor="#14b8a6" />
+            <stop offset="0%"   stopColor="#6366F1" />{/* indigo */}
+            <stop offset="35%"  stopColor="#A855F7" />{/* violet */}
+            <stop offset="70%"  stopColor="#EC4899" />{/* pink */}
+            <stop offset="100%" stopColor="#06B6D4" />{/* cyan */}
           </linearGradient>
 
           {/* Subtle gradient for the empty/outline text */}
@@ -177,12 +178,12 @@ export function SabNodeWaterLoader({
         }
         :global(.water-wave-back) {
           animation-duration: 4.2s;
-          fill: rgba(99, 102, 241, 0.55);
+          fill: rgba(99, 102, 241, 0.55);   /* indigo */
         }
         :global(.water-wave-front) {
           animation-duration: 2.8s;
           animation-direction: reverse;
-          fill: rgba(236, 72, 153, 0.85);
+          fill: rgba(168, 85, 247, 0.85);   /* violet */
         }
 
         @keyframes sabnode-water-rise {

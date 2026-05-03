@@ -47,7 +47,7 @@ export function AdminHeader({ appRailPosition, activeApp }: AdminHeaderProps) {
 
     return (
         <header
-            className="sticky top-0 z-10 flex h-14 shrink-0 items-center justify-between gap-3 px-3 bg-white/60 backdrop-blur-md transition-colors duration-500"
+            className="sticky top-0 z-10 flex h-14 shrink-0 items-center justify-between gap-3 px-3 backdrop-blur-xl supports-[backdrop-filter]:bg-background/50 bg-background/85 transition-colors duration-500"
             style={{ borderBottom: '1px solid var(--app-border)' }}
         >
             {/* ── Left ── */}
@@ -93,7 +93,7 @@ export function AdminHeader({ appRailPosition, activeApp }: AdminHeaderProps) {
 
                 {/* User pill */}
                 <div
-                    className="flex items-center gap-2 rounded-full px-2 py-1 bg-white/80 hover:bg-white transition-colors cursor-pointer"
+                    className="flex items-center gap-2 rounded-full px-2 py-1 bg-card/80 hover:bg-card transition-colors cursor-pointer"
                     style={{ border: '1px solid var(--app-border)' }}
                 >
                     <Avatar className="h-7 w-7 shrink-0">

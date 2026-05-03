@@ -2,10 +2,29 @@
 
 import * as React from "react"
 import * as TabsPrimitive from "@radix-ui/react-tabs"
+import { LayoutGroup, m } from "motion/react"
 
 import { cn } from "@/lib/utils"
+import { springSoft } from "@/lib/motion"
 
-const Tabs = TabsPrimitive.Root
+const TabsContext = React.createContext<{ layoutId: string }>({ layoutId: "tabs" })
+
+const Tabs = React.forwardRef<
+  React.ElementRef<typeof TabsPrimitive.Root>,
+  React.ComponentPropsWithoutRef<typeof TabsPrimitive.Root>
+>(({ ...props }, ref) => {
+  // Each Tabs root gets its own layoutId so multiple tab groups on a page
+  // animate independently.
+  const layoutId = React.useId()
+  return (
+    <TabsContext.Provider value={{ layoutId }}>
+      <LayoutGroup id={layoutId}>
+        <TabsPrimitive.Root ref={ref} {...props} />
+      </LayoutGroup>
+    </TabsContext.Provider>
+  )
+})
+Tabs.displayName = "Tabs"
 
 const TabsList = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.List>,
@@ -14,7 +33,7 @@ const TabsList = React.forwardRef<
   <TabsPrimitive.List
     ref={ref}
     className={cn(
-      "inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground",
+      "inline-flex h-10 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground",
       className
     )}
     {...props}
@@ -22,19 +41,56 @@ const TabsList = React.forwardRef<
 ))
 TabsList.displayName = TabsPrimitive.List.displayName
 
+interface TabsTriggerProps
+  extends React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger> {
+  /** Disables the layout-animated active pill (renders the bare shadcn active state). */
+  noPill?: boolean
+}
+
 const TabsTrigger = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.Trigger>,
-  React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>
->(({ className, ...props }, ref) => (
-  <TabsPrimitive.Trigger
-    ref={ref}
-    className={cn(
-      "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
-      className
-    )}
-    {...props}
-  />
-))
+  TabsTriggerProps
+>(({ className, children, noPill, ...props }, ref) => {
+  const { layoutId } = React.useContext(TabsContext)
+  const [isActive, setIsActive] = React.useState(false)
+  const triggerRef = React.useRef<HTMLButtonElement | null>(null)
+
+  React.useImperativeHandle(ref, () => triggerRef.current as HTMLButtonElement)
+
+  // Track the data-state attribute via a tiny observer so we know when to
+  // render the layoutId pill on this trigger. This avoids re-implementing
+  // Radix internal state.
+  React.useEffect(() => {
+    const node = triggerRef.current
+    if (!node) return
+    const sync = () => setIsActive(node.getAttribute("data-state") === "active")
+    sync()
+    const observer = new MutationObserver(sync)
+    observer.observe(node, { attributes: true, attributeFilter: ["data-state"] })
+    return () => observer.disconnect()
+  }, [])
+
+  return (
+    <TabsPrimitive.Trigger
+      ref={triggerRef}
+      className={cn(
+        "relative inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:text-foreground",
+        noPill && "data-[state=active]:bg-background data-[state=active]:shadow-sm",
+        className
+      )}
+      {...props}
+    >
+      {!noPill && isActive && (
+        <m.span
+          layoutId={`${layoutId}-tab-pill`}
+          className="absolute inset-0 z-0 rounded-md bg-background shadow-sm"
+          transition={springSoft}
+        />
+      )}
+      <span className="relative z-10">{children}</span>
+    </TabsPrimitive.Trigger>
+  )
+})
 TabsTrigger.displayName = TabsPrimitive.Trigger.displayName
 
 const TabsContent = React.forwardRef<

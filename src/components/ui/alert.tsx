@@ -3,6 +3,14 @@ import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
 
+/**
+ * Alert — Prism palette.
+ *  - default: neutral surface
+ *  - destructive: rose
+ *  - success: emerald
+ *  - warning: coral (replaces amber!)
+ *  - info: sky
+ */
 const alertVariants = cva(
   "relative w-full rounded-lg border p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground",
   {
@@ -10,7 +18,13 @@ const alertVariants = cva(
       variant: {
         default: "bg-background text-foreground",
         destructive:
-          "border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive",
+          "border-destructive/40 bg-[hsl(var(--prism-rose)/0.06)] text-destructive [&>svg]:text-destructive",
+        success:
+          "border-[hsl(var(--prism-emerald)/0.4)] bg-[hsl(var(--prism-emerald)/0.06)] text-[hsl(var(--prism-emerald))] [&>svg]:text-[hsl(var(--prism-emerald))]",
+        warning:
+          "border-[hsl(var(--prism-coral)/0.5)] bg-[hsl(var(--prism-coral)/0.08)] text-[hsl(var(--prism-coral))] [&>svg]:text-[hsl(var(--prism-coral))]",
+        info:
+          "border-[hsl(var(--prism-sky)/0.4)] bg-[hsl(var(--prism-sky)/0.06)] text-[hsl(var(--prism-sky))] [&>svg]:text-[hsl(var(--prism-sky))]",
       },
     },
     defaultVariants: {

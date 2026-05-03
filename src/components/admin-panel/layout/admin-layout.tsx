@@ -9,6 +9,7 @@ import { getDiwaliThemeStatus } from '@/app/actions/admin.actions';
 import { AppSidebar } from '@/components/admin-panel/sidebar/app-sidebar';
 import { AppRail } from '@/components/admin-panel/sidebar/app-rail';
 import { AdminHeader } from '@/components/admin-panel/header/admin-header';
+import { RouteTransition } from '@/components/motion';
 
 interface AdminLayoutProps {
     children: React.ReactNode;
@@ -96,7 +97,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                         <div
                             className="hidden md:flex my-2 mr-0 ml-1 rounded-2xl h-[calc(100%-1rem)] shadow-xl overflow-hidden transition-all duration-500 animate-fade-in shrink-0"
                             style={{
-                                background: 'rgba(255,255,255,0.80)',
+                                background: 'hsl(var(--card) / 0.85)',
                                 backdropFilter: 'blur(24px)',
                                 WebkitBackdropFilter: 'blur(24px)',
                                 border: '1px solid var(--app-border)',
@@ -111,26 +112,26 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                             <div
                                 className="h-full overflow-hidden rounded-2xl shadow-xl"
                                 style={{
-                                    background: 'rgba(255,255,255,0.80)',
+                                    background: 'hsl(var(--card) / 0.85)',
                                     backdropFilter: 'blur(24px)',
                                     WebkitBackdropFilter: 'blur(24px)',
                                     border: '1px solid var(--app-border)',
                                 }}
                             >
-                                {children}
+                                <RouteTransition>{children}</RouteTransition>
                             </div>
                         ) : (
                             <div
                                 className="h-full overflow-y-auto rounded-2xl shadow-xl px-5 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-8"
                                 style={{
-                                    background: 'rgba(255,255,255,0.80)',
+                                    background: 'hsl(var(--card) / 0.85)',
                                     backdropFilter: 'blur(24px)',
                                     WebkitBackdropFilter: 'blur(24px)',
                                     border: '1px solid var(--app-border)',
                                 }}
                             >
                                 <div className="mx-auto w-full max-w-[1600px]">
-                                    {children}
+                                    <RouteTransition>{children}</RouteTransition>
                                 </div>
                             </div>
                         )}

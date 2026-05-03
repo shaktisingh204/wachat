@@ -90,7 +90,7 @@ export function AppRail({ activeApp }: AppRailProps) {
         <nav
             className="hidden md:flex flex-col h-[calc(100vh-1rem)] w-[64px] shrink-0 m-2 mr-0 rounded-2xl z-20 overflow-hidden"
             style={{
-                background: 'rgba(255,255,255,0.82)',
+                background: 'hsl(var(--card) / 0.85)',
                 backdropFilter: 'blur(24px)',
                 WebkitBackdropFilter: 'blur(24px)',
                 border: '1px solid var(--app-border)',
@@ -98,14 +98,15 @@ export function AppRail({ activeApp }: AppRailProps) {
                 transition: 'border-color 0.5s ease',
             }}
         >
-            {/* ── Logo ── */}
+            {/* ── Logo — Prism gradient lockup ── */}
             <div className="flex items-center justify-center pt-4 pb-3 shrink-0">
                 <Link
                     href="/home"
-                    className="flex items-center justify-center w-9 h-9 rounded-xl transition-transform duration-200 hover:scale-105"
+                    className="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200 hover:scale-105"
                     style={{
-                        background: 'linear-gradient(135deg, #059669 0%, #0d9488 100%)',
-                        boxShadow: '0 4px 14px var(--app-glow)',
+                        background: 'var(--prism-gradient)',
+                        boxShadow:
+                            '0 4px 14px hsl(var(--prism-indigo) / 0.45), 0 0 20px -4px hsl(var(--prism-violet) / 0.40)',
                     }}
                 >
                     <SabNodeLogo className="w-5 h-5 text-white" />

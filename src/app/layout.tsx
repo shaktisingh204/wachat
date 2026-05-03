@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { Plus_Jakarta_Sans, Geist, Geist_Mono, Hanken_Grotesk, Onest } from 'next/font/google';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import SessionProvider from '@/components/wabasimplify/session-provider';
+import { MotionProvider } from '@/components/motion';
 
 export const metadata: Metadata = {
   title: 'SabNode',
@@ -76,12 +77,14 @@ export default function RootLayout({
       className={`${plusJakartaSans.variable} ${geistSans.variable} ${geistMono.variable} ${hankenGrotesk.variable} ${onest.variable}`}
     >
       <body className="antialiased font-sans">
-        <SessionProvider>
-          <TooltipProvider>
-            {children}
-          </TooltipProvider>
-        </SessionProvider>
-        <Toaster />
+        <MotionProvider>
+          <SessionProvider>
+            <TooltipProvider>
+              {children}
+            </TooltipProvider>
+          </SessionProvider>
+          <Toaster />
+        </MotionProvider>
       </body>
     </html>
   );

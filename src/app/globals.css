@@ -18,173 +18,145 @@
 @layer base {
   :root {
     /* ═══════════════════════════════════════════════════════════════
-     *  Clay design system — warm cream canvas, dusty-rose accent,
-     *  near-black obsidian primary button. Replaces every prior
-     *  palette across SabNode. Pixel-matched to the product
-     *  reference (Rounds/Interview dashboard).
+     *  SabNode Prism — fresh multicolour palette.
+     *  Brand primary: Electric Indigo. Accents: Violet, Pink, Emerald,
+     *  Cyan. Replaces every prior palette across SabNode (Clay/SabUI).
+     *  All values in HSL space so the shadcn token remap below stays
+     *  compatible with `border-color: hsl(var(--border))` consumers.
      * ═══════════════════════════════════════════════════════════════ */
 
-    /* ── Clay canvas (warm cream, barely yellow) ── */
-    --clay-bg:           36 22% 95%;   /* #F4F2EE  — page canvas    */
-    --clay-bg-2:         34 18% 92%;   /* #EDE9E2  — deeper cream    */
-    --clay-surface:       0  0% 100%;  /* pure white cards           */
-    --clay-surface-2:    36 15% 97%;   /* inset surfaces             */
-    --clay-border:       30 12% 88%;   /* #E6E1DB — warm hairline    */
-    --clay-border-strong:30 10% 80%;
-    --clay-divider:      30  8% 90%;
+    /* ── Prism core hues (HSL) ── */
+    --prism-indigo:  239 84% 67%;   /* #6366F1 brand primary */
+    --prism-indigo-hover:  239 84% 60%;   /* #4F46E5 */
+    --prism-indigo-active: 239 84% 53%;   /* #4338CA */
+    --prism-cyan:    188 94% 43%;   /* #06B6D4 secondary / info */
+    --prism-violet:  271 91% 65%;   /* #A855F7 accent */
+    --prism-pink:    330 81% 60%;   /* #EC4899 accent */
+    --prism-emerald: 160 84% 39%;   /* #10B981 success */
+    --prism-coral:   354 92% 73%;   /* #FB7185 warning (no amber!) */
+    --prism-rose:    347 89% 60%;   /* #F43F5E danger */
+    --prism-sky:     199 89% 48%;   /* #0EA5E9 info */
 
-    /* ── Clay ink ── */
-    --clay-ink:          24 10% 10%;   /* #1C1917 near-black         */
-    --clay-ink-2:        24  8% 20%;
-    --clay-ink-muted:    25  6% 42%;   /* #6F6A64 body muted         */
-    --clay-ink-soft:     28  5% 60%;   /* placeholders               */
-    --clay-ink-fade:     30  5% 72%;
+    /* Semantic aliases */
+    --prism-success: 160 84% 39%;
+    --prism-warning: 354 92% 73%;
+    --prism-danger:  347 89% 60%;
+    --prism-info:    199 89% 48%;
 
-    /* ── Clay signature — dusty rose (active nav, accent CTA) ── */
-    --clay-rose:          6 28% 56%;   /* #B07B7B */
-    --clay-rose-hover:    6 32% 50%;
-    --clay-rose-active:   6 36% 44%;
-    --clay-rose-soft:    10 40% 94%;   /* #F5E6E3 — active nav bg    */
-    --clay-rose-softer:  15 50% 97%;
-    --clay-rose-ink:      6 30% 28%;   /* text on rose-soft          */
+    /* Multicolour gradients */
+    --prism-gradient: linear-gradient(135deg, hsl(var(--prism-indigo)) 0%, hsl(var(--prism-violet)) 50%, hsl(var(--prism-pink)) 100%);
+    --prism-gradient-cool: linear-gradient(135deg, hsl(var(--prism-indigo)) 0%, hsl(var(--prism-cyan)) 50%, hsl(var(--prism-emerald)) 100%);
+    --prism-gradient-warm: linear-gradient(135deg, hsl(var(--prism-violet)) 0%, hsl(var(--prism-pink)) 50%, hsl(var(--prism-coral)) 100%);
+    --prism-gradient-soft: linear-gradient(135deg, hsl(239 84% 96%) 0%, hsl(271 91% 96%) 50%, hsl(330 81% 96%) 100%);
 
-    /* ── Obsidian (primary dark CTA — "View candidates →") ── */
-    --clay-obsidian:     24  8% 12%;   /* #1F1C1A */
-    --clay-obsidian-hover:24 8% 20%;
-    --clay-obsidian-fg:   0  0% 100%;
+    /* Mesh / hero backdrops */
+    --prism-mesh:
+      radial-gradient(at 12% 8%,  hsl(239 84% 88% / 0.55) 0px, transparent 50%),
+      radial-gradient(at 88% 12%, hsl(271 91% 88% / 0.45) 0px, transparent 50%),
+      radial-gradient(at 40% 92%, hsl(188 94% 86% / 0.40) 0px, transparent 50%),
+      radial-gradient(at 82% 84%, hsl(330 81% 90% / 0.40) 0px, transparent 50%);
 
-    /* ── Semantic Clay (quiet, for badges) ── */
-    --clay-green:       145 45% 42%;
-    --clay-green-soft:  145 45% 94%;
-    --clay-amber:        35 78% 52%;
-    --clay-amber-soft:   35 80% 94%;
-    --clay-red:           2 68% 55%;
-    --clay-red-soft:      2 60% 96%;
-    --clay-blue:        212 55% 52%;
-    --clay-blue-soft:   212 60% 95%;
-
-    /* ── Clay radii — everything rounder than before ── */
-    --clay-radius-xs:    8px;
-    --clay-radius-sm:   10px;
-    --clay-radius-md:   14px;
-    --clay-radius-lg:   18px;  /* default card radius in reference */
-    --clay-radius-xl:   24px;
-    --clay-radius-2xl:  32px;
-    --clay-radius-pill: 9999px;
-
-    /* ── Clay shadows — whisper quiet ── */
-    --clay-shadow-xs:    0 1px 2px rgba(28,25,23,0.04);
-    --clay-shadow-sm:    0 1px 2px rgba(28,25,23,0.03), 0 1px 3px rgba(28,25,23,0.04);
-    --clay-shadow-card:  0 1px 2px rgba(28,25,23,0.04), 0 2px 4px rgba(28,25,23,0.03);
-    --clay-shadow-float: 0 12px 32px -12px rgba(28,25,23,0.10), 0 4px 12px -8px rgba(28,25,23,0.05);
-    --clay-shadow-pop:   0 24px 48px -16px rgba(28,25,23,0.14), 0 8px 16px -12px rgba(28,25,23,0.06);
-
-    /* ── Promo card mesh (sidebar upgrade block) ── */
-    --clay-promo-mesh:
-      radial-gradient(at 20% 20%,  hsl(340 85% 85% / 0.90) 0px, transparent 55%),
-      radial-gradient(at 80% 20%,  hsl(260 85% 88% / 0.85) 0px, transparent 55%),
-      radial-gradient(at 70% 80%,  hsl(200 85% 88% / 0.75) 0px, transparent 55%),
-      radial-gradient(at 20% 80%,  hsl(30  90% 88% / 0.70) 0px, transparent 55%);
-
-    /* ── Paper grain — barely perceptible warmth over cream ── */
-    --clay-grain: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.11 0 0 0 0 0.10 0 0 0 0 0.09 0 0 0 0.35 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    /* ── Shadows ── */
+    --shadow-sm:  0 1px 2px 0 hsl(240 10% 9% / 0.04), 0 1px 3px 0 hsl(240 10% 9% / 0.06);
+    --shadow-md:  0 4px 12px -2px hsl(240 10% 9% / 0.08), 0 2px 6px -2px hsl(240 10% 9% / 0.05);
+    --shadow-lg:  0 12px 24px -6px hsl(240 10% 9% / 0.10), 0 6px 12px -6px hsl(240 10% 9% / 0.06);
+    --shadow-xl:  0 24px 48px -12px hsl(240 10% 9% / 0.14), 0 12px 20px -12px hsl(240 10% 9% / 0.08);
+    --shadow-glow: 0 0 24px -4px hsl(var(--prism-indigo) / 0.35);
+    --shadow-glow-strong: 0 0 32px -4px hsl(var(--prism-indigo) / 0.50), 0 8px 24px -8px hsl(var(--prism-violet) / 0.30);
 
     /* ═══════════════════════════════════════════════════════════════
-     *  shadcn token remap → Clay. Every shadcn-based component
-     *  (Button, Card, Input, Dialog, DropdownMenu, etc.) immediately
-     *  adopts the Clay palette without a single component change.
+     *  shadcn token remap → Prism (light).
+     *  Every shadcn-based primitive (Button, Card, Input, Dialog…)
+     *  immediately adopts Prism without component changes.
      * ═══════════════════════════════════════════════════════════════ */
-    --background: 36 22% 95%;          /* Clay cream canvas          */
-    --foreground: 24 10% 10%;          /* Clay ink                   */
+    --background: 0 0% 100%;             /* white canvas */
+    --foreground: 240 10% 9%;            /* zinc-950 ink */
 
     --card: 0 0% 100%;
-    --card-foreground: 24 10% 10%;
+    --card-foreground: 240 10% 9%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 24 10% 10%;
+    --popover-foreground: 240 10% 9%;
 
-    /* Primary = Obsidian (the near-black Create/View CTA)           */
-    --primary: 24 8% 12%;
+    /* Primary = Electric Indigo */
+    --primary: 239 84% 67%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 36 15% 97%;
-    --secondary-foreground: 24 10% 10%;
+    --secondary: 240 5% 96%;             /* zinc-100 */
+    --secondary-foreground: 240 10% 9%;
 
-    --muted: 36 15% 94%;
-    --muted-foreground: 25 6% 42%;
+    --muted: 240 5% 96%;
+    --muted-foreground: 240 4% 46%;      /* zinc-500 */
 
-    /* Accent = Rose-soft (hovers, active states, subtle fills)      */
-    --accent: 10 40% 94%;
-    --accent-foreground: 6 30% 28%;
+    /* Accent = Indigo-tinted hover surface */
+    --accent: 239 84% 96%;
+    --accent-foreground: 239 84% 30%;
 
-    --destructive: 2 68% 55%;
+    --destructive: 347 89% 60%;          /* rose */
     --destructive-foreground: 0 0% 100%;
 
-    --border: 30 12% 88%;
-    --input: 30 12% 88%;
-    --ring: 6 28% 56%;                  /* rose focus ring           */
-    --radius: 1.125rem;                 /* 18px — Clay card default  */
+    --border: 240 6% 90%;                /* zinc-200 */
+    --input: 240 6% 90%;
+    --ring: 239 84% 67%;                 /* indigo focus ring */
 
-    /* ── Chart: vivid, distinct, perceptually balanced ── */
-    --chart-1: 161 84% 35%;           /* emerald */
-    --chart-2: 217 91% 58%;           /* blue-400 */
-    --chart-3: 271 81% 62%;           /* violet-400 */
-    --chart-4: 38 92% 50%;            /* amber-400 */
-    --chart-5: 0 82% 59%;             /* red-400 */
+    --radius: 0.875rem;                  /* 14px — slightly rounder than default */
 
-    /* ── Sidebar (transparent shell) ── */
-    --sidebar-background: 0 0% 100% / 0;   /* transparent */
+    /* ── Chart palette (Prism-aligned, perceptually balanced) ── */
+    --chart-1: 239 84% 67%;              /* indigo */
+    --chart-2: 188 94% 43%;              /* cyan */
+    --chart-3: 271 91% 65%;              /* violet */
+    --chart-4: 330 81% 60%;              /* pink */
+    --chart-5: 160 84% 39%;              /* emerald */
+
+    /* ── Sidebar — light, glassy ── */
+    --sidebar: 0 0% 100%;
+    --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 240 4% 38%;
-    --sidebar-border: 0 0% 0% / 0;          /* no border — layout handles it */
-    --sidebar-ring: 161 94% 30%;
-    --sidebar-primary: 161 94% 30%;
+    --sidebar-border: 240 6% 90%;
+    --sidebar-ring: 239 84% 67%;
+    --sidebar-primary: 239 84% 67%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 5% 96%;
-    --sidebar-accent-foreground: 240 10% 9%;
+    --sidebar-accent: 239 84% 96%;
+    --sidebar-accent-foreground: 239 84% 30%;
 
     /* Legacy custom sidebar vars (kept for backward compat) */
     --sidebar-secondary-background: 0 0% 100%;
     --sidebar-secondary-foreground: 240 10% 20%;
-    --sidebar-active-background: 161 94% 30%;
+    --sidebar-active-background: 239 84% 67%;
     --sidebar-active-foreground: 0 0% 100%;
 
     /* ─────────────────────────────────────────────────────────────
-     *  SabUI — modern design system tokens
-     *  These live on :root so any page (not just Wachat) can use
-     *  the sab-ui primitives without a wrapper. Coexists with the
-     *  shadcn tokens above — nothing is overridden.
+     *  SabUI tokens — kept for any pages still consuming sab-* names.
+     *  Aliased to Prism values so legacy primitives render in the new
+     *  palette without code changes.
      * ──────────────────────────────────────────────────────────── */
 
-    /* Neutrals — warm near-white surfaces */
-    --sab-bg:          250 20% 99%;   /* #FCFCFE — ever-so-slightly warm */
-    --sab-bg-subtle:   240 20% 97%;   /* #F7F7FB */
-    --sab-surface:     0 0% 100%;     /* pure white card */
-    --sab-surface-2:   240 10% 98%;   /* faint zinc */
-    --sab-border:      240 6% 90%;    /* zinc-200 */
-    --sab-border-strong: 240 5% 84%;  /* zinc-300 */
+    --sab-bg:          0 0% 100%;
+    --sab-bg-subtle:   240 5% 98%;
+    --sab-surface:     0 0% 100%;
+    --sab-surface-2:   240 5% 98%;
+    --sab-border:      240 6% 90%;
+    --sab-border-strong: 240 5% 84%;
 
-    /* Ink */
-    --sab-fg:          240 10% 9%;    /* zinc-950 */
-    --sab-fg-muted:    240 4% 46%;    /* zinc-500 */
-    --sab-fg-subtle:   240 5% 65%;    /* zinc-400 */
+    --sab-fg:          240 10% 9%;
+    --sab-fg-muted:    240 4% 46%;
+    --sab-fg-subtle:   240 5% 65%;
 
-    /* Primary — violet-600, distinctive, modern, avoids WhatsApp-green clash */
-    --sab-primary:        258 90% 66%;     /* #8B5CF6 violet-500 a touch softer */
-    --sab-primary-hover:  258 85% 58%;     /* violet-600 */
-    --sab-primary-active: 258 80% 50%;     /* violet-700 */
+    --sab-primary:        239 84% 67%;
+    --sab-primary-hover:  239 84% 60%;
+    --sab-primary-active: 239 84% 53%;
     --sab-primary-fg:     0 0% 100%;
-    --sab-primary-soft:   258 100% 97%;    /* violet-50 */
-    --sab-primary-ring:   258 90% 66% / 0.25;
+    --sab-primary-soft:   239 84% 96%;
+    --sab-primary-ring:   239 84% 67% / 0.25;
 
-    /* Semantic */
-    --sab-success:      158 64% 42%;   /* emerald-600 */
-    --sab-success-soft: 152 76% 96%;   /* emerald-50 */
-    --sab-warning:      37 92% 50%;    /* amber-500 */
-    --sab-warning-soft: 48 96% 95%;    /* amber-50 */
-    --sab-danger:       0 84% 60%;     /* red-500 */
-    --sab-danger-soft:  0 100% 97%;    /* red-50 */
-    --sab-info:         217 91% 60%;   /* blue-500 */
-    --sab-info-soft:    214 100% 97%;  /* blue-50 */
+    --sab-success:      160 84% 39%;
+    --sab-success-soft: 160 60% 95%;
+    --sab-warning:      354 92% 73%;
+    --sab-warning-soft: 354 80% 96%;
+    --sab-danger:       347 89% 60%;
+    --sab-danger-soft:  347 80% 96%;
+    --sab-info:         199 89% 48%;
+    --sab-info-soft:    199 80% 95%;
 
     /* Radii */
     --sab-radius-sm: 6px;
@@ -193,138 +165,152 @@
     --sab-radius-xl: 20px;
     --sab-radius-2xl: 28px;
 
-    /* Shadows — soft, layered, no sharp edges */
+    /* Shadows mapped to Prism shadow scale */
     --sab-shadow-xs: 0 1px 2px 0 rgba(17, 17, 26, 0.04);
     --sab-shadow-sm: 0 1px 3px 0 rgba(17, 17, 26, 0.05), 0 1px 2px -1px rgba(17, 17, 26, 0.04);
     --sab-shadow-md: 0 4px 8px -2px rgba(17, 17, 26, 0.06), 0 2px 4px -2px rgba(17, 17, 26, 0.04);
     --sab-shadow-lg: 0 12px 24px -6px rgba(17, 17, 26, 0.08), 0 6px 10px -6px rgba(17, 17, 26, 0.04);
     --sab-shadow-xl: 0 24px 48px -12px rgba(17, 17, 26, 0.12), 0 12px 20px -12px rgba(17, 17, 26, 0.06);
 
-    /* Typography stacks — consume the Geist vars loaded in app/layout.tsx,
-       fall back to system fonts if Geist hasn't loaded yet. */
+    /* Typography stacks */
     --sab-font-sans: var(--font-sab-sans), ui-sans-serif, -apple-system, "Segoe UI", "Helvetica Neue", sans-serif;
     --sab-font-mono: var(--font-sab-mono), ui-monospace, "SFMono-Regular", "Menlo", "Consolas", monospace;
 
-    /* ─────────────────────────────────────────────────────────────
-     *  SabUI Aurora — atmosphere layer
-     *  Adds gradient meshes, colored glows, and gradient accents
-     *  on top of the base tokens. Purely additive — existing
-     *  primitives work unchanged.
-     * ──────────────────────────────────────────────────────────── */
+    /* Aurora — aliased to Prism */
+    --sab-gradient-primary: var(--prism-gradient);
+    --sab-gradient-primary-soft: var(--prism-gradient-soft);
+    --sab-gradient-success: linear-gradient(135deg, hsl(var(--prism-emerald)) 0%, hsl(var(--prism-cyan)) 100%);
+    --sab-gradient-warning: linear-gradient(135deg, hsl(var(--prism-coral)) 0%, hsl(var(--prism-pink)) 100%);
+    --sab-gradient-danger:  linear-gradient(135deg, hsl(var(--prism-rose)) 0%, hsl(var(--prism-pink)) 100%);
+    --sab-gradient-info:    linear-gradient(135deg, hsl(var(--prism-sky)) 0%, hsl(var(--prism-indigo)) 100%);
 
-    /* Primary gradient: violet → indigo → fuchsia. Use for hero buttons,
-       gradient text, accent fills. */
-    --sab-gradient-primary: linear-gradient(135deg, hsl(258 90% 66%) 0%, hsl(268 85% 62%) 50%, hsl(296 85% 66%) 100%);
-    --sab-gradient-primary-soft: linear-gradient(135deg, hsl(258 100% 97%) 0%, hsl(280 100% 97%) 50%, hsl(296 100% 97%) 100%);
+    --sab-glow-primary: 0 20px 40px -12px hsl(var(--prism-indigo) / 0.30), 0 8px 16px -8px hsl(var(--prism-indigo) / 0.22);
+    --sab-glow-success: 0 20px 40px -12px hsl(var(--prism-emerald) / 0.25), 0 8px 16px -8px hsl(var(--prism-emerald) / 0.18);
+    --sab-glow-danger:  0 20px 40px -12px hsl(var(--prism-rose) / 0.25),    0 8px 16px -8px hsl(var(--prism-rose) / 0.18);
+    --sab-glow-info:    0 20px 40px -12px hsl(var(--prism-sky) / 0.25),     0 8px 16px -8px hsl(var(--prism-sky) / 0.18);
 
-    /* Semantic gradients for success/warning/danger tiles */
-    --sab-gradient-success: linear-gradient(135deg, hsl(158 64% 48%) 0%, hsl(172 66% 50%) 100%);
-    --sab-gradient-warning: linear-gradient(135deg, hsl(37 92% 55%) 0%, hsl(20 90% 58%) 100%);
-    --sab-gradient-danger:  linear-gradient(135deg, hsl(0 84% 62%) 0%, hsl(340 84% 60%) 100%);
-    --sab-gradient-info:    linear-gradient(135deg, hsl(217 91% 62%) 0%, hsl(258 90% 68%) 100%);
+    --sab-mesh-light: var(--prism-mesh);
 
-    /* Colored glow shadows — reads as "lit from within" without being heavy */
-    --sab-glow-primary: 0 20px 40px -12px hsl(258 90% 66% / 0.25), 0 8px 16px -8px hsl(258 90% 66% / 0.20);
-    --sab-glow-success: 0 20px 40px -12px hsl(158 64% 48% / 0.22), 0 8px 16px -8px hsl(158 64% 48% / 0.18);
-    --sab-glow-danger:  0 20px 40px -12px hsl(0 84% 62% / 0.22),   0 8px 16px -8px hsl(0 84% 62% / 0.18);
-    --sab-glow-info:    0 20px 40px -12px hsl(217 91% 62% / 0.22), 0 8px 16px -8px hsl(217 91% 62% / 0.18);
+    --sab-grain: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.08 0 0 0 0 0.06 0 0 0 0 0.45 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 
-    /* Mesh background — a reusable radial-gradient composition that goes
-       on the WachatShell. Read as soft atmosphere, not a distraction. */
-    --sab-mesh-light:
-      radial-gradient(at 12% 8%,  hsl(258 90% 88% / 0.50) 0px, transparent 50%),
-      radial-gradient(at 88% 12%, hsl(296 85% 88% / 0.38) 0px, transparent 50%),
-      radial-gradient(at 40% 92%, hsl(213 94% 90% / 0.40) 0px, transparent 50%),
-      radial-gradient(at 82% 84%, hsl(330 85% 92% / 0.32) 0px, transparent 50%);
-
-    /* Grain texture — 1×1 SVG noise dataurl for paper-like warmth */
-    --sab-grain: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.08 0 0 0 0 0.06 0 0 0 0.55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-
-    /* Gradient border trick — use with `background-origin: border-box` */
-    --sab-border-gradient: linear-gradient(135deg, hsl(258 90% 66% / 0.55), hsl(296 85% 70% / 0.20) 35%, transparent 70%);
+    --sab-border-gradient: linear-gradient(135deg, hsl(var(--prism-indigo) / 0.55), hsl(var(--prism-violet) / 0.25) 35%, transparent 70%);
   }
 
   .dark {
-    /* ── Deep ink dark mode ── */
-    --background: 240 10% 4%;         /* zinc-950 #09090b */
-    --foreground: 0 0% 98%;           /* zinc-50 */
+    /* ═══════════════════════════════════════════════════════════════
+     *  Prism dark mode — slate-950/900 surfaces, brighter Prism hues.
+     * ═══════════════════════════════════════════════════════════════ */
 
-    --card: 240 6% 10%;               /* zinc-900 #18181b */
+    --background: 222 47% 5%;            /* slate-950 #020617 */
+    --foreground: 0 0% 98%;
+
+    --card: 222 32% 9%;                  /* slate-900 #0F172A */
     --card-foreground: 0 0% 98%;
 
-    --popover: 240 6% 10%;
+    --popover: 222 32% 9%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 160 84% 39%;           /* emerald-500 — brighter in dark */
+    --primary: 239 84% 72%;              /* indigo-400 — brighter on dark */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 240 4% 16%;          /* zinc-800 */
+    --secondary: 222 24% 14%;
     --secondary-foreground: 0 0% 98%;
 
-    --muted: 240 4% 16%;              /* zinc-800 */
-    --muted-foreground: 240 5% 65%;   /* zinc-400 */
+    --muted: 222 24% 14%;
+    --muted-foreground: 240 5% 65%;
 
-    --accent: 240 4% 16%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 239 50% 18%;
+    --accent-foreground: 239 84% 88%;
 
-    --destructive: 0 62% 31%;
+    --destructive: 347 89% 65%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 240 4% 18%;             /* zinc-800 */
-    --input: 240 4% 16%;
-    --ring: 160 84% 39%;
+    --border: 222 24% 18%;               /* slate-800 */
+    --input: 222 24% 14%;
+    --ring: 239 84% 72%;
 
-    /* ── Chart (vivid on dark) ── */
-    --chart-1: 160 84% 39%;
-    --chart-2: 213 94% 68%;
-    --chart-3: 270 76% 72%;
-    --chart-4: 43 96% 58%;
-    --chart-5: 0 76% 62%;
+    --chart-1: 239 84% 72%;
+    --chart-2: 188 94% 55%;
+    --chart-3: 271 91% 75%;
+    --chart-4: 330 81% 70%;
+    --chart-5: 160 84% 50%;
 
-    /* ── Sidebar (dark) ── */
-    --sidebar-background: 240 10% 4%;
+    --sidebar: 222 32% 9%;
+    --sidebar-background: 222 32% 9%;
     --sidebar-foreground: 240 5% 65%;
-    --sidebar-border: 240 4% 16%;
-    --sidebar-ring: 160 84% 39%;
-    --sidebar-primary: 160 84% 39%;
+    --sidebar-border: 222 24% 18%;
+    --sidebar-ring: 239 84% 72%;
+    --sidebar-primary: 239 84% 72%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 4% 16%;
-    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-accent: 239 50% 18%;
+    --sidebar-accent-foreground: 239 84% 88%;
 
-    --sidebar-secondary-background: 240 10% 4%;
+    --sidebar-secondary-background: 222 32% 9%;
     --sidebar-secondary-foreground: 0 0% 98%;
-    --sidebar-active-background: 160 84% 39%;
+    --sidebar-active-background: 239 84% 72%;
     --sidebar-active-foreground: 0 0% 100%;
 
-    /* ─────────────────────────────────────────────────────────────
-     *  SabUI dark mode
-     * ──────────────────────────────────────────────────────────── */
-    --sab-bg:          240 10% 4%;    /* zinc-950 */
-    --sab-bg-subtle:   240 8% 6%;     /* slightly lifted */
-    --sab-surface:     240 7% 9%;     /* raised card */
-    --sab-surface-2:   240 6% 12%;    /* nested card */
-    --sab-border:      240 5% 18%;    /* zinc-800 */
-    --sab-border-strong: 240 5% 25%;  /* zinc-700 */
+    /* Prism core hues — brighter on dark */
+    --prism-indigo:  239 84% 72%;
+    --prism-indigo-hover:  239 84% 78%;
+    --prism-indigo-active: 239 84% 84%;
+    --prism-cyan:    188 94% 55%;
+    --prism-violet:  271 91% 75%;
+    --prism-pink:    330 81% 70%;
+    --prism-emerald: 160 84% 50%;
+    --prism-coral:   354 92% 78%;
+    --prism-rose:    347 89% 68%;
+    --prism-sky:     199 89% 60%;
+    --prism-success: 160 84% 50%;
+    --prism-warning: 354 92% 78%;
+    --prism-danger:  347 89% 68%;
+    --prism-info:    199 89% 60%;
 
-    --sab-fg:          0 0% 98%;      /* zinc-50 */
-    --sab-fg-muted:    240 5% 65%;    /* zinc-400 */
-    --sab-fg-subtle:   240 4% 46%;    /* zinc-500 */
+    --prism-gradient: linear-gradient(135deg, hsl(239 84% 72%) 0%, hsl(271 91% 75%) 50%, hsl(330 81% 70%) 100%);
+    --prism-gradient-cool: linear-gradient(135deg, hsl(239 84% 72%) 0%, hsl(188 94% 55%) 50%, hsl(160 84% 50%) 100%);
+    --prism-gradient-warm: linear-gradient(135deg, hsl(271 91% 75%) 0%, hsl(330 81% 70%) 50%, hsl(354 92% 78%) 100%);
+    --prism-gradient-soft: linear-gradient(135deg, hsl(239 50% 18%) 0%, hsl(271 50% 20%) 50%, hsl(330 50% 22%) 100%);
 
-    --sab-primary:        258 90% 70%;     /* brighter in dark */
-    --sab-primary-hover:  258 90% 75%;
-    --sab-primary-active: 258 85% 80%;
-    --sab-primary-fg:     240 10% 9%;      /* dark fg on bright bg */
-    --sab-primary-soft:   258 50% 18%;
-    --sab-primary-ring:   258 90% 70% / 0.35;
+    --prism-mesh:
+      radial-gradient(at 12% 8%,  hsl(239 80% 28% / 0.60) 0px, transparent 50%),
+      radial-gradient(at 88% 12%, hsl(271 75% 28% / 0.45) 0px, transparent 50%),
+      radial-gradient(at 40% 92%, hsl(188 80% 28% / 0.40) 0px, transparent 50%),
+      radial-gradient(at 82% 84%, hsl(330 70% 28% / 0.40) 0px, transparent 50%);
 
-    --sab-success:      152 60% 52%;
-    --sab-success-soft: 155 40% 14%;
-    --sab-warning:      38 90% 58%;
-    --sab-warning-soft: 38 40% 14%;
-    --sab-danger:       0 72% 62%;
-    --sab-danger-soft:  0 40% 14%;
-    --sab-info:         213 94% 68%;
-    --sab-info-soft:    213 40% 14%;
+    --shadow-sm:  0 1px 2px 0 rgba(0, 0, 0, 0.30), 0 1px 3px 0 rgba(0, 0, 0, 0.20);
+    --shadow-md:  0 4px 12px -2px rgba(0, 0, 0, 0.40), 0 2px 6px -2px rgba(0, 0, 0, 0.25);
+    --shadow-lg:  0 12px 24px -6px rgba(0, 0, 0, 0.50), 0 6px 12px -6px rgba(0, 0, 0, 0.30);
+    --shadow-xl:  0 24px 48px -12px rgba(0, 0, 0, 0.60), 0 12px 20px -12px rgba(0, 0, 0, 0.40);
+    --shadow-glow: 0 0 24px -4px hsl(var(--prism-indigo) / 0.55);
+    --shadow-glow-strong: 0 0 32px -4px hsl(var(--prism-indigo) / 0.70), 0 8px 24px -8px hsl(var(--prism-violet) / 0.45);
+
+    /* SabUI dark — alias to Prism */
+    --sab-bg:          222 47% 5%;
+    --sab-bg-subtle:   222 40% 7%;
+    --sab-surface:     222 32% 9%;
+    --sab-surface-2:   222 28% 12%;
+    --sab-border:      222 24% 18%;
+    --sab-border-strong: 222 20% 25%;
+
+    --sab-fg:          0 0% 98%;
+    --sab-fg-muted:    240 5% 65%;
+    --sab-fg-subtle:   240 4% 46%;
+
+    --sab-primary:        239 84% 72%;
+    --sab-primary-hover:  239 84% 78%;
+    --sab-primary-active: 239 84% 84%;
+    --sab-primary-fg:     0 0% 100%;
+    --sab-primary-soft:   239 50% 18%;
+    --sab-primary-ring:   239 84% 72% / 0.35;
+
+    --sab-success:      160 84% 50%;
+    --sab-success-soft: 160 50% 14%;
+    --sab-warning:      354 92% 78%;
+    --sab-warning-soft: 354 50% 14%;
+    --sab-danger:       347 89% 68%;
+    --sab-danger-soft:  347 50% 14%;
+    --sab-info:         199 89% 60%;
+    --sab-info-soft:    199 50% 14%;
 
     --sab-shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.30);
     --sab-shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.40), 0 1px 2px -1px rgba(0, 0, 0, 0.30);
@@ -332,28 +318,23 @@
     --sab-shadow-lg: 0 12px 24px -6px rgba(0, 0, 0, 0.55), 0 6px 10px -6px rgba(0, 0, 0, 0.40);
     --sab-shadow-xl: 0 24px 48px -12px rgba(0, 0, 0, 0.60), 0 12px 20px -12px rgba(0, 0, 0, 0.45);
 
-    /* Aurora dark mode */
-    --sab-gradient-primary: linear-gradient(135deg, hsl(258 90% 70%) 0%, hsl(278 85% 72%) 50%, hsl(296 85% 72%) 100%);
-    --sab-gradient-primary-soft: linear-gradient(135deg, hsl(258 50% 18%) 0%, hsl(280 45% 20%) 50%, hsl(296 45% 20%) 100%);
-    --sab-gradient-success: linear-gradient(135deg, hsl(152 60% 52%) 0%, hsl(172 60% 55%) 100%);
-    --sab-gradient-warning: linear-gradient(135deg, hsl(38 90% 62%) 0%, hsl(20 88% 62%) 100%);
-    --sab-gradient-danger:  linear-gradient(135deg, hsl(0 72% 62%) 0%, hsl(340 72% 62%) 100%);
-    --sab-gradient-info:    linear-gradient(135deg, hsl(213 94% 68%) 0%, hsl(258 90% 72%) 100%);
+    --sab-gradient-primary: var(--prism-gradient);
+    --sab-gradient-primary-soft: var(--prism-gradient-soft);
+    --sab-gradient-success: linear-gradient(135deg, hsl(var(--prism-emerald)) 0%, hsl(var(--prism-cyan)) 100%);
+    --sab-gradient-warning: linear-gradient(135deg, hsl(var(--prism-coral)) 0%, hsl(var(--prism-pink)) 100%);
+    --sab-gradient-danger:  linear-gradient(135deg, hsl(var(--prism-rose)) 0%, hsl(var(--prism-pink)) 100%);
+    --sab-gradient-info:    linear-gradient(135deg, hsl(var(--prism-sky)) 0%, hsl(var(--prism-indigo)) 100%);
 
-    --sab-glow-primary: 0 20px 40px -12px hsl(258 90% 70% / 0.40), 0 8px 16px -8px hsl(258 90% 70% / 0.30);
-    --sab-glow-success: 0 20px 40px -12px hsl(152 60% 52% / 0.30), 0 8px 16px -8px hsl(152 60% 52% / 0.22);
-    --sab-glow-danger:  0 20px 40px -12px hsl(0 72% 62% / 0.30),   0 8px 16px -8px hsl(0 72% 62% / 0.22);
-    --sab-glow-info:    0 20px 40px -12px hsl(213 94% 68% / 0.30), 0 8px 16px -8px hsl(213 94% 68% / 0.22);
+    --sab-glow-primary: 0 20px 40px -12px hsl(var(--prism-indigo) / 0.40), 0 8px 16px -8px hsl(var(--prism-indigo) / 0.30);
+    --sab-glow-success: 0 20px 40px -12px hsl(var(--prism-emerald) / 0.30), 0 8px 16px -8px hsl(var(--prism-emerald) / 0.22);
+    --sab-glow-danger:  0 20px 40px -12px hsl(var(--prism-rose) / 0.30),    0 8px 16px -8px hsl(var(--prism-rose) / 0.22);
+    --sab-glow-info:    0 20px 40px -12px hsl(var(--prism-sky) / 0.30),     0 8px 16px -8px hsl(var(--prism-sky) / 0.22);
 
-    --sab-mesh-light:
-      radial-gradient(at 12% 8%,  hsl(258 80% 28% / 0.60) 0px, transparent 50%),
-      radial-gradient(at 88% 12%, hsl(296 75% 28% / 0.45) 0px, transparent 50%),
-      radial-gradient(at 40% 92%, hsl(213 80% 28% / 0.45) 0px, transparent 50%),
-      radial-gradient(at 82% 84%, hsl(330 70% 28% / 0.35) 0px, transparent 50%);
+    --sab-mesh-light: var(--prism-mesh);
 
     --sab-grain: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.04 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 
-    --sab-border-gradient: linear-gradient(135deg, hsl(258 90% 70% / 0.60), hsl(296 85% 74% / 0.25) 35%, transparent 70%);
+    --sab-border-gradient: linear-gradient(135deg, hsl(var(--prism-indigo) / 0.60), hsl(var(--prism-violet) / 0.30) 35%, transparent 70%);
   }
 }
 
@@ -369,10 +350,8 @@
     text-rendering: optimizeLegibility;
   }
 
-  /* Project-wide bold default — applied to body so every text node inherits
-     a bold weight unless a child explicitly overrides it. */
   body {
-    font-weight: 700;
+    font-weight: 600;
   }
 
   /* Fluid type scale */
@@ -380,23 +359,23 @@
   h2, .h2 { @apply text-2xl font-bold tracking-tight leading-snug; }
   h3, .h3 { @apply text-xl font-bold leading-snug; }
   h4, .h4 { @apply text-base font-bold; }
-  p { @apply leading-relaxed font-bold; }
+  p { @apply leading-relaxed; }
 
-  /* Selection color follows app theme */
+  /* Selection color follows Prism theme */
   ::selection {
-    background: var(--app-light, rgba(209,250,229,0.6));
-    color: var(--app-text, #065f46);
+    background: hsl(var(--prism-indigo) / 0.18);
+    color: hsl(var(--foreground));
   }
 
   /* Scrollbar — thin, themed */
   ::-webkit-scrollbar { width: 4px; height: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb {
-    background: var(--app-border, rgba(0,0,0,0.12));
+    background: hsl(var(--border));
     border-radius: 99px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: var(--app-glow, rgba(0,0,0,0.22));
+    background: hsl(var(--prism-indigo) / 0.45);
   }
 }
 
@@ -429,7 +408,7 @@
     height: 2.5rem;
     width: 2.5rem !important;
     position: relative;
-    background: var(--app-light, rgba(209,250,229,0.9));
+    background: hsl(var(--prism-indigo) / 0.12);
   }
 
   .active-app-border::before {
@@ -482,7 +461,7 @@
   }
 
   .dark .bg-auth-texture {
-    background-color: #111827;
+    background-color: #0F172A;
   }
 
   .bg-chat-texture {
@@ -503,7 +482,7 @@
 
   .glass-bubble-out {
     @apply bg-primary text-primary-foreground shadow-md;
-    background: linear-gradient(135deg, var(--app-hex, #059669), color-mix(in srgb, var(--app-hex, #059669) 70%, #0d9488));
+    background: linear-gradient(135deg, var(--app-hex, hsl(var(--prism-indigo))), color-mix(in srgb, var(--app-hex, hsl(var(--prism-indigo))) 70%, hsl(var(--prism-violet))));
   }
 
   .bg-instagram {
@@ -656,28 +635,34 @@
 
   /* ── Shadows ── */
   .shadow-glow {
-    box-shadow: 0 0 20px -5px hsl(var(--primary) / 0.4);
+    box-shadow: 0 0 24px -4px hsl(var(--prism-indigo) / 0.35);
   }
   .shadow-glow-lg {
-    box-shadow: 0 0 40px -10px hsl(var(--primary) / 0.5);
+    box-shadow: 0 0 40px -10px hsl(var(--prism-indigo) / 0.45);
   }
   .shadow-app-glow {
-    box-shadow: 0 0 20px -4px var(--app-glow, hsl(var(--primary) / 0.3));
+    box-shadow: 0 0 20px -4px var(--app-glow, hsl(var(--prism-indigo) / 0.30));
+  }
+  .shadow-prism {
+    box-shadow: var(--shadow-md);
+  }
+  .shadow-prism-lg {
+    box-shadow: var(--shadow-lg);
   }
 
   /* ── Card variants ── */
   .card-elevated {
     @apply bg-card rounded-xl border border-border/50;
-    box-shadow: 0 4px 24px -4px rgba(0,0,0,0.08), 0 1px 4px -1px rgba(0,0,0,0.04);
+    box-shadow: var(--shadow-md);
   }
   .card-modern {
-    @apply bg-white rounded-xl;
-    box-shadow: 0 2px 16px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+    @apply bg-card rounded-xl;
+    box-shadow: var(--shadow-sm);
   }
   .card-glass {
-    @apply bg-white/70 backdrop-blur-2xl rounded-xl;
-    border: 1px solid var(--app-border, rgba(0,0,0,0.08));
-    box-shadow: 0 4px 32px rgba(0,0,0,0.06);
+    @apply bg-card/70 backdrop-blur-2xl rounded-xl;
+    border: 1px solid hsl(var(--border));
+    box-shadow: var(--shadow-md);
   }
   .card {
     @apply rounded-xl shadow-sm;
@@ -686,17 +671,34 @@
   /* ── Gradients & text ── */
   .gradient-border {
     @apply relative;
-    background: linear-gradient(to right, hsl(var(--primary)), hsl(var(--secondary))) border-box;
+    background: var(--prism-gradient) border-box;
     border: 2px solid transparent;
   }
   .text-gradient {
-    @apply bg-gradient-to-r from-emerald-600 via-teal-600 to-lime-600 bg-clip-text text-transparent;
+    background: var(--prism-gradient);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
   }
   .text-gradient-app {
-    background: linear-gradient(135deg, var(--app-hex, #059669), color-mix(in srgb, var(--app-hex, #059669) 60%, #fff));
+    background: linear-gradient(135deg, var(--app-hex, hsl(var(--prism-indigo))), color-mix(in srgb, var(--app-hex, hsl(var(--prism-indigo))) 60%, #fff));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+  }
+  .text-prism {
+    background: var(--prism-gradient);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  .bg-prism {
+    background: var(--prism-gradient);
+  }
+  .bg-prism-mesh {
+    background: var(--prism-mesh);
   }
 
   /* ── Typography scale ── */
@@ -738,570 +740,251 @@
     outline: 2px solid var(--app-hex, hsl(var(--ring)));
     outline-offset: 2px;
   }
+  .ring-prism {
+    outline: 2px solid hsl(var(--prism-indigo));
+    outline-offset: 2px;
+  }
 }
 
 /* ── Per-app theme tokens ──────────────────────────────────────────────────── */
-/* Default / Home: emerald */
+/* Default / Home: indigo (Prism brand) */
 :root,
 [data-app="home"] {
-  --app-hex: #059669;
-  --app-blob1: rgba(16,185,129,0.20);
-  --app-blob2: rgba(13,148,136,0.16);
-  --app-blob3: rgba(132,204,22,0.18);
-  --app-blob4: rgba(5,150,105,0.12);
-  --app-light: rgba(209,250,229,0.92);
-  --app-bg: #f0fdf4;
-  --app-glow: rgba(5,150,105,0.28);
-  --app-border: rgba(5,150,105,0.22);
-  --app-text: #065f46;
+  --app-hex: #6366F1;
+  --app-blob1: hsl(239 84% 78% / 0.20);
+  --app-blob2: hsl(271 91% 78% / 0.16);
+  --app-blob3: hsl(188 94% 78% / 0.18);
+  --app-blob4: hsl(330 81% 80% / 0.14);
+  --app-light: hsl(239 84% 96%);
+  --app-bg: hsl(0 0% 100%);
+  --app-glow: hsl(239 84% 67% / 0.28);
+  --app-border: hsl(239 50% 88%);
+  --app-text: hsl(239 84% 30%);
 }
 
-/* WhatsApp / WaChat: green */
+/* WhatsApp / WaChat: emerald */
 [data-app="whatsapp"] {
-  --app-hex: #16a34a;
-  --app-blob1: rgba(34,197,94,0.22);
-  --app-blob2: rgba(22,163,74,0.16);
-  --app-blob3: rgba(74,222,128,0.18);
-  --app-blob4: rgba(16,185,129,0.12);
-  --app-light: rgba(220,252,231,0.92);
-  --app-bg: #f0fdf4;
-  --app-glow: rgba(22,163,74,0.28);
-  --app-border: rgba(22,163,74,0.22);
-  --app-text: #14532d;
+  --app-hex: #10B981;
+  --app-blob1: hsl(160 84% 65% / 0.22);
+  --app-blob2: hsl(160 84% 50% / 0.16);
+  --app-blob3: hsl(160 70% 80% / 0.18);
+  --app-blob4: hsl(188 94% 80% / 0.12);
+  --app-light: hsl(160 60% 95%);
+  --app-bg: hsl(0 0% 100%);
+  --app-glow: hsl(160 84% 39% / 0.28);
+  --app-border: hsl(160 50% 85%);
+  --app-text: hsl(160 84% 22%);
 }
 
 /* SabFlow: violet */
 [data-app="sabflow"] {
-  --app-hex: #7c3aed;
-  --app-blob1: rgba(139,92,246,0.22);
-  --app-blob2: rgba(124,58,237,0.16);
-  --app-blob3: rgba(167,139,250,0.18);
-  --app-blob4: rgba(196,181,253,0.12);
-  --app-light: rgba(237,233,254,0.92);
-  --app-bg: #faf5ff;
-  --app-glow: rgba(124,58,237,0.28);
-  --app-border: rgba(124,58,237,0.22);
-  --app-text: #4c1d95;
+  --app-hex: #A855F7;
+  --app-blob1: hsl(271 91% 78% / 0.22);
+  --app-blob2: hsl(271 91% 65% / 0.16);
+  --app-blob3: hsl(271 80% 85% / 0.18);
+  --app-blob4: hsl(330 81% 88% / 0.12);
+  --app-light: hsl(271 91% 96%);
+  --app-bg: hsl(0 0% 100%);
+  --app-glow: hsl(271 91% 65% / 0.28);
+  --app-border: hsl(271 60% 88%);
+  --app-text: hsl(271 91% 30%);
 }
 
-/* Meta Suite / Facebook: blue */
+/* Meta Suite / Facebook: indigo */
 [data-app="facebook"] {
-  --app-hex: #1877F2;
-  --app-blob1: rgba(24,119,242,0.22);
-  --app-blob2: rgba(59,130,246,0.16);
-  --app-blob3: rgba(147,197,253,0.18);
-  --app-blob4: rgba(191,219,254,0.12);
-  --app-light: rgba(219,234,254,0.92);
-  --app-bg: #eff6ff;
-  --app-glow: rgba(24,119,242,0.28);
-  --app-border: rgba(24,119,242,0.22);
-  --app-text: #1e3a5f;
+  --app-hex: #4F46E5;
+  --app-blob1: hsl(239 84% 78% / 0.22);
+  --app-blob2: hsl(239 84% 67% / 0.16);
+  --app-blob3: hsl(239 80% 85% / 0.18);
+  --app-blob4: hsl(199 89% 80% / 0.12);
+  --app-light: hsl(239 84% 96%);
+  --app-bg: hsl(0 0% 100%);
+  --app-glow: hsl(239 84% 53% / 0.28);
+  --app-border: hsl(239 60% 88%);
+  --app-text: hsl(239 84% 28%);
 }
 
-/* Instagram: rose/pink */
+/* Instagram: pink */
 [data-app="instagram"] {
-  --app-hex: #e1306c;
-  --app-blob1: rgba(225,48,108,0.22);
-  --app-blob2: rgba(253,112,154,0.16);
-  --app-blob3: rgba(251,146,60,0.18);
-  --app-blob4: rgba(249,168,212,0.12);
-  --app-light: rgba(252,231,243,0.92);
-  --app-bg: #fff1f8;
-  --app-glow: rgba(225,48,108,0.28);
-  --app-border: rgba(225,48,108,0.22);
-  --app-text: #831843;
+  --app-hex: #EC4899;
+  --app-blob1: hsl(330 81% 78% / 0.22);
+  --app-blob2: hsl(330 81% 65% / 0.16);
+  --app-blob3: hsl(354 92% 80% / 0.18);
+  --app-blob4: hsl(20 90% 78% / 0.12);
+  --app-light: hsl(330 81% 96%);
+  --app-bg: hsl(0 0% 100%);
+  --app-glow: hsl(330 81% 60% / 0.28);
+  --app-border: hsl(330 60% 88%);
+  --app-text: hsl(330 81% 30%);
 }
 
-/* CRM: orange */
+/* CRM: coral */
 [data-app="crm"] {
-  --app-hex: #ea580c;
-  --app-blob1: rgba(234,88,12,0.22);
-  --app-blob2: rgba(249,115,22,0.16);
-  --app-blob3: rgba(251,191,36,0.18);
-  --app-blob4: rgba(253,186,116,0.12);
-  --app-light: rgba(255,237,213,0.92);
-  --app-bg: #fff7ed;
-  --app-glow: rgba(234,88,12,0.28);
-  --app-border: rgba(234,88,12,0.22);
-  --app-text: #7c2d12;
+  --app-hex: #FB7185;
+  --app-blob1: hsl(354 92% 80% / 0.22);
+  --app-blob2: hsl(354 92% 73% / 0.16);
+  --app-blob3: hsl(347 89% 82% / 0.18);
+  --app-blob4: hsl(330 81% 85% / 0.12);
+  --app-light: hsl(354 92% 96%);
+  --app-bg: hsl(0 0% 100%);
+  --app-glow: hsl(354 92% 73% / 0.28);
+  --app-border: hsl(354 70% 88%);
+  --app-text: hsl(354 70% 32%);
 }
 
-/* SabChat: fuchsia */
+/* SabChat: pink-violet */
 [data-app="sabchat"] {
-  --app-hex: #a21caf;
-  --app-blob1: rgba(162,28,175,0.22);
-  --app-blob2: rgba(217,70,239,0.16);
-  --app-blob3: rgba(240,171,252,0.18);
-  --app-blob4: rgba(245,208,254,0.12);
-  --app-light: rgba(250,232,255,0.92);
-  --app-bg: #fdf4ff;
-  --app-glow: rgba(162,28,175,0.28);
-  --app-border: rgba(162,28,175,0.22);
-  --app-text: #701a75;
+  --app-hex: #C026D3;
+  --app-blob1: hsl(290 80% 78% / 0.22);
+  --app-blob2: hsl(290 80% 60% / 0.16);
+  --app-blob3: hsl(330 81% 82% / 0.18);
+  --app-blob4: hsl(271 91% 85% / 0.12);
+  --app-light: hsl(290 80% 96%);
+  --app-bg: hsl(0 0% 100%);
+  --app-glow: hsl(290 80% 50% / 0.28);
+  --app-border: hsl(290 60% 88%);
+  --app-text: hsl(290 80% 28%);
 }
 
 /* Email: sky */
 [data-app="email"] {
-  --app-hex: #0ea5e9;
-  --app-blob1: rgba(14,165,233,0.22);
-  --app-blob2: rgba(56,189,248,0.16);
-  --app-blob3: rgba(186,230,253,0.18);
-  --app-blob4: rgba(224,242,254,0.12);
-  --app-light: rgba(224,242,254,0.92);
-  --app-bg: #f0f9ff;
-  --app-glow: rgba(14,165,233,0.28);
-  --app-border: rgba(14,165,233,0.22);
-  --app-text: #0c4a6e;
+  --app-hex: #0EA5E9;
+  --app-blob1: hsl(199 89% 78% / 0.22);
+  --app-blob2: hsl(199 89% 60% / 0.16);
+  --app-blob3: hsl(188 94% 80% / 0.18);
+  --app-blob4: hsl(199 89% 85% / 0.12);
+  --app-light: hsl(199 89% 95%);
+  --app-bg: hsl(0 0% 100%);
+  --app-glow: hsl(199 89% 48% / 0.28);
+  --app-border: hsl(199 70% 88%);
+  --app-text: hsl(199 89% 26%);
 }
 
-/* SMS: lime */
+/* SMS: cyan */
 [data-app="sms"] {
-  --app-hex: #65a30d;
-  --app-blob1: rgba(101,163,13,0.22);
-  --app-blob2: rgba(132,204,22,0.16);
-  --app-blob3: rgba(190,242,100,0.18);
-  --app-blob4: rgba(217,249,157,0.12);
-  --app-light: rgba(236,252,203,0.92);
-  --app-bg: #f7fee7;
-  --app-glow: rgba(101,163,13,0.28);
-  --app-border: rgba(101,163,13,0.22);
-  --app-text: #365314;
+  --app-hex: #06B6D4;
+  --app-blob1: hsl(188 94% 78% / 0.22);
+  --app-blob2: hsl(188 94% 55% / 0.16);
+  --app-blob3: hsl(199 89% 82% / 0.18);
+  --app-blob4: hsl(188 94% 88% / 0.12);
+  --app-light: hsl(188 94% 95%);
+  --app-bg: hsl(0 0% 100%);
+  --app-glow: hsl(188 94% 43% / 0.28);
+  --app-border: hsl(188 70% 86%);
+  --app-text: hsl(188 94% 22%);
 }
 
-/* Ad Manager: indigo */
+/* Ad Manager: indigo (deeper) */
 [data-app="ad-manager"] {
-  --app-hex: #4f46e5;
-  --app-blob1: rgba(79,70,229,0.22);
-  --app-blob2: rgba(99,102,241,0.16);
-  --app-blob3: rgba(165,180,252,0.18);
-  --app-blob4: rgba(199,210,254,0.12);
-  --app-light: rgba(224,231,255,0.92);
-  --app-bg: #eef2ff;
-  --app-glow: rgba(79,70,229,0.28);
-  --app-border: rgba(79,70,229,0.22);
-  --app-text: #312e81;
+  --app-hex: #4338CA;
+  --app-blob1: hsl(239 84% 80% / 0.22);
+  --app-blob2: hsl(239 84% 72% / 0.16);
+  --app-blob3: hsl(271 91% 85% / 0.18);
+  --app-blob4: hsl(239 80% 88% / 0.12);
+  --app-light: hsl(239 84% 96%);
+  --app-bg: hsl(0 0% 100%);
+  --app-glow: hsl(239 84% 53% / 0.28);
+  --app-border: hsl(239 60% 86%);
+  --app-text: hsl(239 84% 25%);
 }
 
-/* SEO Suite: teal */
+/* SEO Suite: emerald-cyan */
 [data-app="seo-suite"] {
-  --app-hex: #0d9488;
-  --app-blob1: rgba(13,148,136,0.22);
-  --app-blob2: rgba(20,184,166,0.16);
-  --app-blob3: rgba(94,234,212,0.18);
-  --app-blob4: rgba(153,246,228,0.12);
-  --app-light: rgba(204,251,241,0.92);
-  --app-bg: #f0fdfa;
-  --app-glow: rgba(13,148,136,0.28);
-  --app-border: rgba(13,148,136,0.22);
-  --app-text: #134e4a;
+  --app-hex: #059669;
+  --app-blob1: hsl(160 84% 70% / 0.22);
+  --app-blob2: hsl(160 84% 50% / 0.16);
+  --app-blob3: hsl(188 94% 80% / 0.18);
+  --app-blob4: hsl(160 70% 85% / 0.12);
+  --app-light: hsl(160 60% 95%);
+  --app-bg: hsl(0 0% 100%);
+  --app-glow: hsl(160 84% 39% / 0.28);
+  --app-border: hsl(160 50% 86%);
+  --app-text: hsl(160 84% 20%);
 }
 
-/* Team: slate */
+/* Team: slate-indigo */
 [data-app="team"] {
   --app-hex: #475569;
-  --app-blob1: rgba(71,85,105,0.22);
-  --app-blob2: rgba(100,116,139,0.16);
-  --app-blob3: rgba(148,163,184,0.18);
-  --app-blob4: rgba(203,213,225,0.12);
-  --app-light: rgba(226,232,240,0.92);
-  --app-bg: #f8fafc;
-  --app-glow: rgba(71,85,105,0.28);
-  --app-border: rgba(71,85,105,0.22);
-  --app-text: #1e293b;
+  --app-blob1: hsl(217 30% 75% / 0.22);
+  --app-blob2: hsl(217 25% 65% / 0.16);
+  --app-blob3: hsl(217 25% 80% / 0.18);
+  --app-blob4: hsl(239 84% 88% / 0.12);
+  --app-light: hsl(217 25% 95%);
+  --app-bg: hsl(0 0% 100%);
+  --app-glow: hsl(217 25% 50% / 0.28);
+  --app-border: hsl(217 25% 86%);
+  --app-text: hsl(222 47% 22%);
 }
 
-/* User Settings: gray */
+/* User Settings: zinc */
 [data-app="user-settings"] {
-  --app-hex: #6b7280;
-  --app-blob1: rgba(107,114,128,0.22);
-  --app-blob2: rgba(156,163,175,0.16);
-  --app-blob3: rgba(209,213,219,0.18);
-  --app-blob4: rgba(229,231,235,0.12);
-  --app-light: rgba(229,231,235,0.92);
-  --app-bg: #f9fafb;
-  --app-glow: rgba(107,114,128,0.28);
-  --app-border: rgba(107,114,128,0.22);
-  --app-text: #111827;
+  --app-hex: #71717a;
+  --app-blob1: hsl(240 4% 70% / 0.22);
+  --app-blob2: hsl(240 4% 60% / 0.16);
+  --app-blob3: hsl(240 4% 80% / 0.18);
+  --app-blob4: hsl(240 4% 88% / 0.12);
+  --app-light: hsl(240 4% 96%);
+  --app-bg: hsl(0 0% 100%);
+  --app-glow: hsl(240 4% 50% / 0.22);
+  --app-border: hsl(240 4% 86%);
+  --app-text: hsl(240 10% 18%);
 }
 
-/* Website Builder: amber */
+/* Website Builder: cyan-indigo */
 [data-app="website-builder"] {
-  --app-hex: #d97706;
-  --app-blob1: rgba(217,119,6,0.22);
-  --app-blob2: rgba(245,158,11,0.16);
-  --app-blob3: rgba(252,211,77,0.18);
-  --app-blob4: rgba(253,230,138,0.12);
-  --app-light: rgba(254,243,199,0.92);
-  --app-bg: #fffbeb;
-  --app-glow: rgba(217,119,6,0.28);
-  --app-border: rgba(217,119,6,0.22);
-  --app-text: #78350f;
+  --app-hex: #06B6D4;
+  --app-blob1: hsl(188 94% 78% / 0.22);
+  --app-blob2: hsl(188 94% 55% / 0.16);
+  --app-blob3: hsl(239 84% 88% / 0.18);
+  --app-blob4: hsl(188 94% 88% / 0.12);
+  --app-light: hsl(188 94% 95%);
+  --app-bg: hsl(0 0% 100%);
+  --app-glow: hsl(188 94% 43% / 0.28);
+  --app-border: hsl(188 70% 86%);
+  --app-text: hsl(188 94% 22%);
 }
 
 /* URL Shortener: cyan */
 [data-app="url-shortener"] {
-  --app-hex: #0891b2;
-  --app-blob1: rgba(8,145,178,0.22);
-  --app-blob2: rgba(6,182,212,0.16);
-  --app-blob3: rgba(103,232,249,0.18);
-  --app-blob4: rgba(165,243,252,0.12);
-  --app-light: rgba(207,250,254,0.92);
-  --app-bg: #ecfeff;
-  --app-glow: rgba(8,145,178,0.28);
-  --app-border: rgba(8,145,178,0.22);
-  --app-text: #164e63;
+  --app-hex: #0891B2;
+  --app-blob1: hsl(188 80% 75% / 0.22);
+  --app-blob2: hsl(188 80% 55% / 0.16);
+  --app-blob3: hsl(188 70% 80% / 0.18);
+  --app-blob4: hsl(199 89% 85% / 0.12);
+  --app-light: hsl(188 80% 95%);
+  --app-bg: hsl(0 0% 100%);
+  --app-glow: hsl(188 80% 36% / 0.28);
+  --app-border: hsl(188 60% 86%);
+  --app-text: hsl(188 80% 22%);
 }
 
-/* QR Code Maker: purple */
+/* QR Code Maker: violet */
 [data-app="qr-code-maker"] {
-  --app-hex: #9333ea;
-  --app-blob1: rgba(147,51,234,0.22);
-  --app-blob2: rgba(168,85,247,0.16);
-  --app-blob3: rgba(216,180,254,0.18);
-  --app-blob4: rgba(233,213,255,0.12);
-  --app-light: rgba(243,232,255,0.92);
-  --app-bg: #faf5ff;
-  --app-glow: rgba(147,51,234,0.28);
-  --app-border: rgba(147,51,234,0.22);
-  --app-text: #581c87;
+  --app-hex: #9333EA;
+  --app-blob1: hsl(271 91% 78% / 0.22);
+  --app-blob2: hsl(271 91% 60% / 0.16);
+  --app-blob3: hsl(271 80% 82% / 0.18);
+  --app-blob4: hsl(290 80% 88% / 0.12);
+  --app-light: hsl(271 91% 96%);
+  --app-bg: hsl(0 0% 100%);
+  --app-glow: hsl(271 91% 50% / 0.28);
+  --app-border: hsl(271 60% 88%);
+  --app-text: hsl(271 91% 28%);
 }
 
 /* API: zinc */
 [data-app="api"] {
-  --app-hex: #71717a;
-  --app-blob1: rgba(113,113,122,0.22);
-  --app-blob2: rgba(161,161,170,0.16);
-  --app-blob3: rgba(212,212,216,0.18);
-  --app-blob4: rgba(228,228,231,0.12);
-  --app-light: rgba(228,228,231,0.92);
-  --app-bg: #fafafa;
-  --app-glow: rgba(113,113,122,0.28);
-  --app-border: rgba(113,113,122,0.22);
-  --app-text: #18181b;
+  --app-hex: #52525b;
+  --app-blob1: hsl(240 4% 70% / 0.22);
+  --app-blob2: hsl(240 4% 60% / 0.16);
+  --app-blob3: hsl(240 4% 80% / 0.18);
+  --app-blob4: hsl(240 4% 88% / 0.12);
+  --app-light: hsl(240 4% 96%);
+  --app-bg: hsl(0 0% 100%);
+  --app-glow: hsl(240 4% 38% / 0.22);
+  --app-border: hsl(240 4% 86%);
+  --app-text: hsl(240 10% 16%);
 }
-
-/* ═══════════════════════════════════════════════════════════════════
- *  CLAY OVERRIDE — SabUI legacy design tokens
- *  Forces every SabCard/SabButton/SabStat (still used in many Wachat
- *  and dashboard pages) to render in the Clay palette instead of the
- *  old violet/zinc theme. Applied globally so unmigrated pages inherit
- *  the Clay look the moment they're wrapped in ClayDashboardLayout.
- * ═══════════════════════════════════════════════════════════════════ */
-:root {
-  /* Surfaces → Clay cream */
-  --sab-bg:              36 22% 95%;  /* Clay canvas */
-  --sab-bg-subtle:       36 18% 92%;
-  --sab-surface:          0  0% 100%; /* pure white cards (unchanged) */
-  --sab-surface-2:       36 15% 97%;
-  --sab-border:          30 12% 88%;
-  --sab-border-strong:   30 10% 80%;
-
-  /* Ink */
-  --sab-fg:              24 10% 10%;
-  --sab-fg-muted:        25  6% 42%;
-  --sab-fg-subtle:       28  5% 60%;
-
-  /* Primary → Clay rose (replaces violet) */
-  --sab-primary:          6 28% 56%;   /* #B07B7B */
-  --sab-primary-hover:    6 32% 50%;
-  --sab-primary-active:   6 36% 44%;
-  --sab-primary-fg:       0  0% 100%;
-  --sab-primary-soft:    10 40% 94%;
-  --sab-primary-ring:     6 28% 56% / 0.25;
-
-  /* Semantic → Clay semantic */
-  --sab-success:         145 45% 42%;
-  --sab-success-soft:    145 45% 94%;
-  --sab-warning:          35 78% 52%;
-  --sab-warning-soft:     35 80% 94%;
-  --sab-danger:            2 68% 55%;
-  --sab-danger-soft:       2 60% 96%;
-  --sab-info:            212 55% 52%;
-  --sab-info-soft:       212 60% 95%;
-
-  /* Gradients that decorate SabUI hero areas */
-  --sab-gradient-primary:
-    linear-gradient(135deg, hsl(6 28% 56%) 0%, hsl(6 32% 50%) 50%, hsl(24 8% 12%) 100%);
-  --sab-gradient-primary-soft:
-    linear-gradient(135deg, hsl(10 40% 94%) 0%, hsl(15 50% 97%) 50%, hsl(36 22% 95%) 100%);
-
-  /* Kill the legacy violet/dark mesh that SabMeshBackground used to
-     draw. We let Clay's own grain on `.clay-panel::before` provide the
-     atmosphere, so any SabPageShell rendered inside Clay chrome shows
-     cream canvas through cleanly instead of a muddy overlay. */
-  --sab-mesh-light: none;
-  --sab-grain: none;
-}
-
-/* Aggressive belt-and-braces override — if any page hard-codes the
-   legacy mesh via inline style, this neutralises it inside Clay. */
-.clay-panel .sab-shell > [aria-hidden][class*="absolute"],
-.clay-panel .sab-shell [class*="sab-mesh-drift"] {
-  background: none !important;
-  opacity: 0 !important;
-}
-
-/* ═══════════════════════════════════════════════════════════════════
- *  CLAY OVERRIDE — forces every per-app theme to render in the Clay
- *  cream/rose palette. Zero exceptions. This block MUST stay at the
- *  end of the per-app section so it wins the cascade.
- * ═══════════════════════════════════════════════════════════════════ */
-:root,
-[data-app],
-.admin-dashboard,
-.admin-dashboard [data-app],
-[data-app="home"],
-[data-app="whatsapp"],
-[data-app="sabflow"],
-[data-app="facebook"],
-[data-app="instagram"],
-[data-app="crm"],
-[data-app="sabchat"],
-[data-app="email"],
-[data-app="sms"],
-[data-app="ad-manager"],
-[data-app="seo-suite"],
-[data-app="team"],
-[data-app="user-settings"],
-[data-app="website-builder"],
-[data-app="url-shortener"],
-[data-app="qr-code-maker"],
-[data-app="api"] {
-  --app-hex:    #b07b7b !important;
-  --app-blob1:  transparent !important;
-  --app-blob2:  transparent !important;
-  --app-blob3:  transparent !important;
-  --app-blob4:  transparent !important;
-  --app-light:  #f5e6e3 !important;
-  --app-bg:     #f4f2ee !important;
-  --app-glow:   rgba(176,123,123,0.22) !important;
-  --app-border: #e6e1db !important;
-  --app-text:   #4a2a2a !important;
-}
-
-/* ═══════════════════════════════════════════════════════════════════
- *  Clay utility classes — consumed by <ClayShell>, <ClayCard>,
- *  <ClayPromoCard>, <ClaySidebar>, etc. Kept as real CSS so they
- *  stay framework-agnostic and tree-shake out of unused pages.
- * ═══════════════════════════════════════════════════════════════════ */
-/* ── Outer page chrome — slightly darker cream sits BEHIND the
-      rounded floating panel. Holds the whole viewport. ── */
-.clay-outer-shell {
-  background-color: #EBE8DF;              /* ~ hsl(42 18% 90%) */
-  color: hsl(var(--clay-ink));
-  min-height: 100vh;
-  font-feature-settings: "ss01", "cv11";
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-}
-
-/* ── Inner floating panel — rounded 28px, soft shadow, grain overlay
-      scoped to its own area so the outer chrome stays clean.
-      Fixed viewport height (minus outer padding) so the sidebar can
-      be static and main-content scrolls independently. ── */
-.clay-panel {
-  position: relative;
-  background-color: hsl(var(--clay-bg));
-  border-radius: 28px;
-  overflow: hidden;
-  height: calc(100vh - 2rem);        /* full viewport minus outer padding */
-  box-shadow:
-    0 1px 0 rgba(28,25,23,0.02),
-    0 12px 32px -16px rgba(28,25,23,0.10),
-    0 6px 16px -10px rgba(28,25,23,0.06);
-  border: 1px solid rgba(28,25,23,0.06);
-}
-@media (max-width: 768px) {
-  .clay-panel { height: calc(100vh - 1.5rem); }
-}
-.clay-panel::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  background-image: var(--clay-grain);
-  background-size: 220px 220px;
-  opacity: 0.38;
-  mix-blend-mode: multiply;
-}
-.clay-panel > * {
-  position: relative;
-  z-index: 1;
-}
-
-/* legacy .clay-canvas — keep alias for any future non-panelled pages */
-.clay-canvas {
-  background-color: hsl(var(--clay-bg));
-  color: hsl(var(--clay-ink));
-  font-feature-settings: "ss01", "cv11";
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-}
-.clay-card {
-  background: hsl(var(--clay-surface));
-  border: 1px solid hsl(var(--clay-border));
-  border-radius: var(--clay-radius-lg);
-  box-shadow: var(--clay-shadow-card);
-}
-.clay-card-soft {
-  background: hsl(var(--clay-surface-2));
-  border: 1px solid hsl(var(--clay-border));
-  border-radius: var(--clay-radius-lg);
-}
-.clay-hairline {
-  border-color: hsl(var(--clay-border));
-}
-.clay-promo-bg {
-  background: var(--clay-promo-mesh), hsl(var(--clay-surface));
-  background-blend-mode: multiply;
-}
-.clay-pill-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.875rem;
-  border-radius: var(--clay-radius-pill);
-  background: hsl(var(--clay-surface));
-  border: 1px solid hsl(var(--clay-border));
-  color: hsl(var(--clay-ink));
-  font-size: 0.8125rem;
-  font-weight: 500;
-  line-height: 1;
-  transition: background 150ms ease, border-color 150ms ease, transform 120ms ease;
-}
-.clay-pill-btn:hover {
-  background: hsl(var(--clay-surface-2));
-  border-color: hsl(var(--clay-border-strong));
-}
-.clay-pill-btn:active {
-  transform: scale(0.98);
-}
-.clay-obsidian-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1rem;
-  border-radius: var(--clay-radius-pill);
-  background: hsl(var(--clay-obsidian));
-  color: hsl(var(--clay-obsidian-fg));
-  font-size: 0.8125rem;
-  font-weight: 500;
-  line-height: 1;
-  transition: background 150ms ease, transform 120ms ease;
-}
-.clay-obsidian-btn:hover { background: hsl(var(--clay-obsidian-hover)); }
-.clay-obsidian-btn:active { transform: scale(0.98); }
-.clay-rose-btn {
-  background: hsl(var(--clay-rose));
-  color: white;
-}
-.clay-rose-btn:hover { background: hsl(var(--clay-rose-hover)); }
-.clay-rose-soft-btn {
-  background: hsl(var(--clay-rose-soft));
-  color: hsl(var(--clay-rose-ink));
-  border: 1px solid hsl(var(--clay-rose-soft));
-}
-.clay-nav-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.625rem 0.875rem;
-  border-radius: var(--clay-radius-md);
-  color: hsl(var(--clay-ink-2));
-  font-size: 13.5px;
-  font-weight: 500;
-  line-height: 1;
-  transition: background 150ms ease, color 150ms ease;
-}
-.clay-nav-item svg {
-  color: hsl(var(--clay-ink-2));
-  opacity: 0.9;
-}
-.clay-nav-item:hover {
-  background: hsl(var(--clay-surface));
-  color: hsl(var(--clay-ink));
-}
-.clay-nav-item:hover svg { color: hsl(var(--clay-ink)); opacity: 1; }
-.clay-nav-item[data-active="true"] {
-  background: hsl(var(--clay-rose));
-  color: white;
-  box-shadow: 0 1px 2px hsl(var(--clay-rose) / 0.28);
-}
-.clay-nav-item[data-active="true"] svg {
-  color: white;
-  opacity: 1;
-}
-.clay-section-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: hsl(var(--clay-ink-soft));
-  letter-spacing: 0.02em;
-  text-transform: none;
-}
-.clay-kbd {
-  display: inline-flex;
-  align-items: center;
-  padding: 0 0.375rem;
-  height: 1.125rem;
-  border-radius: 4px;
-  background: hsl(var(--clay-bg-2));
-  border: 1px solid hsl(var(--clay-border));
-  color: hsl(var(--clay-ink-muted));
-  font-size: 0.6875rem;
-  font-family: var(--font-sab-mono), ui-monospace, monospace;
-}
-.clay-breadcrumb-sep {
-  color: hsl(var(--clay-ink-fade));
-  margin: 0 0.375rem;
-}
-.clay-input {
-  width: 100%;
-  padding: 0.625rem 0.875rem;
-  background: hsl(var(--clay-surface));
-  border: 1px solid hsl(var(--clay-border));
-  border-radius: var(--clay-radius-md);
-  color: hsl(var(--clay-ink));
-  font-size: 0.875rem;
-  line-height: 1.25;
-  transition: border-color 150ms ease, box-shadow 150ms ease;
-}
-.clay-input::placeholder { color: hsl(var(--clay-ink-soft)); }
-.clay-input:focus {
-  outline: none;
-  border-color: hsl(var(--clay-rose));
-  box-shadow: 0 0 0 3px hsl(var(--clay-rose) / 0.14);
-}
-.clay-avatar-ring {
-  box-shadow: 0 0 0 2px hsl(var(--clay-surface));
-}
-.clay-gradient-text {
-  background: linear-gradient(135deg, hsl(var(--clay-rose)) 0%, hsl(24 10% 10%) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-}
-
-@keyframes clay-fade-up {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes clay-scale-in {
-  from { opacity: 0; transform: scale(0.97); }
-  to   { opacity: 1; transform: scale(1); }
-}
-.clay-enter > * {
-  animation: clay-fade-up 600ms cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-.clay-enter > *:nth-child(1) { animation-delay: 40ms; }
-.clay-enter > *:nth-child(2) { animation-delay: 100ms; }
-.clay-enter > *:nth-child(3) { animation-delay: 160ms; }
-.clay-enter > *:nth-child(4) { animation-delay: 220ms; }
-.clay-enter > *:nth-child(5) { animation-delay: 280ms; }
-.clay-enter > *:nth-child(6) { animation-delay: 340ms; }
 
 /* ══════════════════════════════════════════════════════════════════
  *  SabUI Aurora — motion, utilities, and the page entrance cascade
@@ -1364,7 +1047,7 @@
 
 /* ───────────────── Gradient text ───────────────── */
 .sab-gradient-text {
-  background: var(--sab-gradient-primary);
+  background: var(--prism-gradient);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -1407,12 +1090,38 @@
   pointer-events: none;
 }
 
+/* ══════════════════════════════════════════════════════════════════
+ *  Prism page entrance — animates the header underline drawing in,
+ *  hero gradient blooming, content fading. Pure CSS so it works
+ *  even before motion's JS chunk has loaded.
+ * ══════════════════════════════════════════════════════════════════ */
+@keyframes prism-underline-grow {
+  from { transform: scaleX(0); transform-origin: left; }
+  to   { transform: scaleX(1); transform-origin: left; }
+}
+@keyframes prism-pulse {
+  0%, 100% { opacity: 0.6; }
+  50%      { opacity: 1; }
+}
+.prism-underline {
+  display: inline-block;
+  height: 3px;
+  background: var(--prism-gradient);
+  border-radius: 999px;
+  animation: prism-underline-grow 720ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.prism-pulse {
+  animation: prism-pulse 2.4s ease-in-out infinite;
+}
+
 /* Reduced motion respect */
 @media (prefers-reduced-motion: reduce) {
   .sab-shell .sab-page-header,
   .sab-shell .sab-card,
   .sab-shell .sab-stat,
-  .sab-shell .sab-mesh-drift {
+  .sab-shell .sab-mesh-drift,
+  .prism-underline,
+  .prism-pulse {
     animation: none !important;
   }
 }
