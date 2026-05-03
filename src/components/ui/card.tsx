@@ -13,16 +13,17 @@ import { hoverLift } from "@/lib/motion"
  * lift + indigo halo on hover, animated through motion.
  */
 const cardVariants = cva(
-  "rounded-xl bg-card text-card-foreground transition-all duration-300",
+  "rounded-xl bg-card text-card-foreground shadow-sm transition-all duration-300",
   {
     variants: {
       variant: {
-        default: "border shadow-sm hover:shadow-md",
-        elevated: "border shadow-md hover:shadow-lg",
-        glass: "backdrop-blur-xl bg-card/60 border border-white/20 shadow-md hover:bg-card/70 hover:shadow-lg dark:border-white/10 dark:bg-card/40",
-        interactive: "border shadow-md hover:shadow-[0_0_24px_-4px_hsl(var(--prism-indigo)/0.25),0_8px_20px_-6px_hsl(var(--prism-indigo)/0.18)] cursor-pointer hover:border-[hsl(var(--prism-indigo)/0.4)]",
-        gradient: "border shadow-md relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-br before:from-[hsl(var(--prism-indigo)/0.08)] before:via-transparent before:to-[hsl(var(--prism-violet)/0.08)] before:opacity-0 hover:before:opacity-100 before:transition-opacity hover:shadow-lg",
-        prism: "relative overflow-hidden border-0 shadow-md text-white [background:var(--prism-gradient)] hover:shadow-[0_0_32px_-4px_hsl(var(--prism-indigo)/0.5)]",
+        // v2 cream/terracotta — TRULY BORDERLESS. Shadow-only depth.
+        default: "hover:shadow-md",
+        elevated: "shadow-md hover:shadow-lg",
+        glass: "backdrop-blur-xl bg-card/60 shadow-md hover:bg-card/70 hover:shadow-lg dark:bg-card/40",
+        interactive: "shadow-md hover:shadow-[0_0_24px_-4px_hsl(var(--prism-indigo)/0.25),0_8px_20px_-6px_hsl(var(--prism-indigo)/0.18)] cursor-pointer",
+        gradient: "shadow-md relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-br before:from-[hsl(var(--prism-indigo)/0.08)] before:via-transparent before:to-[hsl(var(--prism-violet)/0.08)] before:opacity-0 hover:before:opacity-100 before:transition-opacity hover:shadow-lg",
+        prism: "relative overflow-hidden shadow-md text-white [background:var(--prism-gradient)] hover:shadow-[0_0_32px_-4px_hsl(var(--prism-indigo)/0.5)]",
       },
     },
     defaultVariants: {

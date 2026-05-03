@@ -26,6 +26,7 @@ const Tabs = React.forwardRef<
 })
 Tabs.displayName = "Tabs"
 
+// v2 — borderless TabsList with limelight (top glow) on the active trigger.
 const TabsList = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.List>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>
@@ -33,7 +34,7 @@ const TabsList = React.forwardRef<
   <TabsPrimitive.List
     ref={ref}
     className={cn(
-      "inline-flex h-10 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground",
+      "relative inline-flex h-12 items-center justify-center rounded-lg bg-card p-1 text-muted-foreground shadow-sm",
       className
     )}
     {...props}
@@ -74,18 +75,29 @@ const TabsTrigger = React.forwardRef<
     <TabsPrimitive.Trigger
       ref={triggerRef}
       className={cn(
-        "relative inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:text-foreground",
+        "relative inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:text-foreground",
         noPill && "data-[state=active]:bg-background data-[state=active]:shadow-sm",
         className
       )}
       {...props}
     >
       {!noPill && isActive && (
-        <m.span
-          layoutId={`${layoutId}-tab-pill`}
-          className="absolute inset-0 z-0 rounded-md bg-background shadow-sm"
-          transition={springSoft}
-        />
+        <>
+          {/* Limelight glow above the active trigger */}
+          <m.span
+            layoutId={`${layoutId}-tab-limelight`}
+            className="pointer-events-none absolute -top-1 left-1/2 z-0 h-[5px] w-10 -translate-x-1/2 rounded-full bg-primary"
+            transition={springSoft}
+          >
+            <span className="absolute left-[-30%] top-[5px] h-14 w-[160%] [clip-path:polygon(5%_100%,25%_0,75%_0,95%_100%)] bg-gradient-to-b from-primary/30 to-transparent" />
+          </m.span>
+          {/* Soft active surface (no border) */}
+          <m.span
+            layoutId={`${layoutId}-tab-pill`}
+            className="absolute inset-0 z-0 rounded-md bg-background shadow-sm"
+            transition={springSoft}
+          />
+        </>
       )}
       <span className="relative z-10">{children}</span>
     </TabsPrimitive.Trigger>
