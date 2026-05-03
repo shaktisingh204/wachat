@@ -18,7 +18,7 @@ import {
   instantiateRecipe,
   listRecipes,
   getRecipe,
-} from '@/lib/sabflow/recipes/registry';
+} from '@/lib/sabflow/recipes';
 import { listTemplateCategories } from '@/lib/sabflow/templates';
 
 export const dynamic = 'force-dynamic';

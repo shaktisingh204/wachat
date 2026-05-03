@@ -164,14 +164,9 @@ export function instantiateRecipe(
   return doc;
 }
 
-/* ── Built-in recipe imports ────────────────────────────── */
-//
-// Importing the recipe modules here ensures each one calls
-// `registerRecipe()` at startup.  Side-effect imports keep the public
-// surface clean (consumers just `import { listRecipes }` and they're set).
-
-import './lead-to-whatsapp-welcome';
-import './abandoned-cart';
-import './ad-spend-alert';
-import './welcome-onboarding';
-import './payment-received';
+// Built-in recipe modules used to be side-effect-imported here. That created
+// a circular import (recipe → registry → recipe) which crashes at module
+// init under bundlers that hoist imports strictly: the recipe runs
+// `registerRecipe(...)` while `recipeMap` is still in the TDZ. The bootstrap
+// imports now live in `./index.ts` — consumers should import from
+// `@/lib/sabflow/recipes` (the package entry), not directly from `registry`.

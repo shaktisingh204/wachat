@@ -6,12 +6,8 @@
  * `src/lib/sabflow/recipes/` — this module is a thin presentation layer.
  */
 
-import { listRecipes } from '@/lib/sabflow/recipes/registry';
+import { listRecipes } from '@/lib/sabflow/recipes';
 import type { Recipe, RecipeCategory } from '@/lib/sabflow/recipes/types';
-
-/* Ensure the recipe registry is populated by importing the registry module
- * (which side-effect-imports every built-in recipe). */
-import '@/lib/sabflow/recipes/registry';
 
 export type TemplateCategoryGroup = {
   /** Stable category id, e.g. "ecommerce". */
