@@ -1,0 +1,105 @@
+/* ═══════════════════════════════════════════════════════════════════════
+ * ZoruUI — design tokens
+ * Pure black-and-white light palette. All tokens scoped under `.zoruui`
+ * so this system can coexist with the existing `--prism-*` / shadcn
+ * tokens without bleeding into the rest of the app.
+ *
+ * Usage: any subtree wrapped in `<div class="zoruui">…</div>` (or
+ * `<html class="zoruui">`) inherits the zoru palette. Components in
+ * `src/components/zoruui/*` consume the `--zoru-*` variables via
+ * Tailwind utilities defined in tailwind.config.ts under the `zoru-*`
+ * color group.
+ * ═══════════════════════════════════════════════════════════════════════ */
+
+.zoruui {
+  /* Surfaces (HSL triplets — used as `hsl(var(--zoru-bg))`) */
+  --zoru-bg:           0 0% 100%;        /* white */
+  --zoru-surface:      0 0% 98%;         /* zinc-50 */
+  --zoru-surface-2:    240 5% 96%;       /* zinc-100 */
+  --zoru-surface-3:    240 5% 92%;       /* zinc-150-ish */
+
+  /* Ink */
+  --zoru-ink:          240 6% 10%;       /* zinc-900 */
+  --zoru-ink-strong:   0 0% 0%;          /* pure black */
+  --zoru-ink-muted:    240 4% 46%;       /* zinc-500 */
+  --zoru-ink-subtle:   240 5% 65%;       /* zinc-400 */
+
+  /* Lines */
+  --zoru-line:         240 6% 90%;       /* zinc-200 */
+  --zoru-line-strong:  240 5% 84%;       /* zinc-300 */
+
+  /* Brand (black-as-primary) */
+  --zoru-primary:      240 6% 10%;       /* zinc-900 */
+  --zoru-primary-hover:240 6% 16%;
+  --zoru-primary-active:240 6% 22%;
+  --zoru-on-primary:   0 0% 100%;
+
+  /* States — kept for semantic affordance only, neutral elsewhere */
+  --zoru-danger:       0 72% 51%;        /* red-600 */
+  --zoru-on-danger:    0 0% 100%;
+  --zoru-success:      152 60% 36%;      /* emerald-600 */
+  --zoru-on-success:   0 0% 100%;
+  --zoru-warning:      38 92% 50%;       /* amber-500 — info pill only */
+  --zoru-on-warning:   240 6% 10%;
+  --zoru-info:         215 16% 47%;      /* slate-500 */
+  --zoru-on-info:      0 0% 100%;
+
+  /* Focus */
+  --zoru-ring:         240 6% 10%;
+  --zoru-ring-alpha:   0.30;
+
+  /* Geometry */
+  --zoru-radius:       10px;
+  --zoru-radius-sm:    6px;
+  --zoru-radius-lg:    14px;
+  --zoru-radius-xl:    20px;
+
+  /* Shadows — neutral, low-contrast */
+  --zoru-shadow-sm:    0 1px 2px 0 hsl(240 6% 10% / 0.05);
+  --zoru-shadow-md:    0 4px 12px -2px hsl(240 6% 10% / 0.08), 0 2px 6px -2px hsl(240 6% 10% / 0.05);
+  --zoru-shadow-lg:    0 12px 24px -6px hsl(240 6% 10% / 0.10), 0 6px 12px -6px hsl(240 6% 10% / 0.06);
+  --zoru-shadow-xl:    0 24px 48px -12px hsl(240 6% 10% / 0.14);
+
+  /* shadcn primitive remap — so any `<div class="zoruui">` subtree that
+   * still uses default shadcn tokens (border, ring, background, etc.)
+   * automatically picks up the zoru palette. This is what makes the
+   * existing dock — which reads `--background`, `--border` — look correct
+   * inside the new shell without rewriting it. */
+  --background:        var(--zoru-bg);
+  --foreground:        var(--zoru-ink);
+  --card:              var(--zoru-bg);
+  --card-foreground:   var(--zoru-ink);
+  --popover:           var(--zoru-bg);
+  --popover-foreground:var(--zoru-ink);
+  --primary:           var(--zoru-primary);
+  --primary-foreground:var(--zoru-on-primary);
+  --secondary:         var(--zoru-surface-2);
+  --secondary-foreground:var(--zoru-ink);
+  --muted:             var(--zoru-surface);
+  --muted-foreground:  var(--zoru-ink-muted);
+  --accent:            var(--zoru-surface-2);
+  --accent-foreground: var(--zoru-ink);
+  --destructive:       var(--zoru-danger);
+  --destructive-foreground:var(--zoru-on-danger);
+  --border:            var(--zoru-line);
+  --input:             var(--zoru-line);
+  --ring:              var(--zoru-ring);
+  --radius:            var(--zoru-radius);
+
+  background-color: hsl(var(--zoru-bg));
+  color: hsl(var(--zoru-ink));
+  font-feature-settings: "cv11", "ss01";
+}
+
+/* Default focus ring used by zoru primitives */
+.zoruui :focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px hsl(var(--zoru-bg)), 0 0 0 4px hsl(var(--zoru-ring) / var(--zoru-ring-alpha));
+  border-radius: var(--zoru-radius-sm);
+}
+
+/* Selection */
+.zoruui ::selection {
+  background-color: hsl(var(--zoru-ink) / 0.92);
+  color: hsl(var(--zoru-on-primary));
+}

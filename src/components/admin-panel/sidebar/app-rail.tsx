@@ -88,28 +88,18 @@ export function AppRail({ activeApp }: AppRailProps) {
 
     return (
         <nav
-            className="hidden md:flex flex-col h-[calc(100vh-1rem)] w-[64px] shrink-0 m-2 mr-0 rounded-2xl z-20 overflow-hidden"
+            className="hidden md:flex flex-col h-[calc(100vh-1rem)] w-[64px] shrink-0 m-2 mr-0 rounded-2xl z-20 overflow-hidden bg-card border border-border"
             style={{
-                background: 'hsl(var(--card) / 0.85)',
-                backdropFilter: 'blur(24px)',
-                WebkitBackdropFilter: 'blur(24px)',
-                border: '1px solid var(--app-border)',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.04)',
-                transition: 'border-color 0.5s ease',
+                boxShadow: '0 1px 3px hsl(240 6% 10% / 0.04)',
             }}
         >
-            {/* ── Logo — Prism gradient lockup ── */}
+            {/* ── Logo — black wordmark on white ── */}
             <div className="flex items-center justify-center pt-4 pb-3 shrink-0">
                 <Link
                     href="/home"
-                    className="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200 hover:scale-105"
-                    style={{
-                        background: 'var(--prism-gradient)',
-                        boxShadow:
-                            '0 4px 14px hsl(var(--prism-indigo) / 0.45), 0 0 20px -4px hsl(var(--prism-violet) / 0.40)',
-                    }}
+                    className="flex items-center justify-center w-9 h-9 rounded-xl bg-foreground text-background transition-all duration-200 hover:scale-105"
                 >
-                    <SabNodeLogo className="w-5 h-5 text-white" />
+                    <SabNodeLogo className="w-5 h-5 text-background" />
                 </Link>
             </div>
 
@@ -128,8 +118,7 @@ export function AppRail({ activeApp }: AppRailProps) {
                 />
 
                 {/* Micro label */}
-                <span className="mt-3 mb-1 text-[9px] font-bold uppercase tracking-[0.12em] select-none"
-                    style={{ color: 'var(--app-text)', opacity: 0.45 }}>
+                <span className="mt-3 mb-1 text-[9px] font-bold uppercase tracking-[0.12em] select-none text-muted-foreground/60">
                     Apps
                 </span>
 
@@ -172,13 +161,9 @@ export function AppRail({ activeApp }: AppRailProps) {
                             href="/dashboard/user/profile"
                             className="flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200 hover:scale-105 mt-0.5"
                         >
-                            <Avatar className="h-8 w-8 ring-2 ring-transparent hover:ring-2 transition-all duration-200"
-                                style={{ '--tw-ring-color': 'var(--app-border)' } as React.CSSProperties}>
+                            <Avatar className="h-8 w-8 ring-2 ring-transparent hover:ring-border transition-all duration-200">
                                 <AvatarImage src={avatarSrc} />
-                                <AvatarFallback
-                                    className="text-[11px] font-bold"
-                                    style={{ background: 'var(--app-light)', color: 'var(--app-text)' }}
-                                >
+                                <AvatarFallback className="text-[11px] font-bold bg-secondary text-foreground">
                                     {initials}
                                 </AvatarFallback>
                             </Avatar>
@@ -230,24 +215,15 @@ function RailItem({
                     className={cn(
                         'relative flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200 group',
                         destructive
-                            ? 'text-zinc-400 hover:text-red-500 hover:bg-red-50'
-                            : !active
-                                ? 'text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100/80'
-                                : ''
+                            ? 'text-muted-foreground hover:text-destructive hover:bg-destructive/10'
+                            : active
+                                ? 'bg-secondary text-foreground'
+                                : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
                     )}
-                    style={active && !destructive ? {
-                        background: 'var(--app-light)',
-                        color: 'var(--app-text)',
-                        boxShadow: '0 0 14px var(--app-glow)',
-                        outline: '1px solid var(--app-border)',
-                    } : undefined}
                 >
                     {/* Left indicator bar */}
                     {active && !destructive && (
-                        <span
-                            className="absolute -left-[1px] top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full"
-                            style={{ background: 'var(--app-hex)' }}
-                        />
+                        <span className="absolute -left-[1px] top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-foreground" />
                     )}
                     <Icon className="h-[18px] w-[18px] shrink-0" />
                     <span className="sr-only">{label}</span>
@@ -264,9 +240,6 @@ function RailItem({
 
 function Divider() {
     return (
-        <div
-            className="w-8 h-px my-1.5 shrink-0 rounded-full transition-colors duration-500"
-            style={{ background: 'var(--app-border)' }}
-        />
+        <div className="w-8 h-px my-1.5 shrink-0 rounded-full bg-border" />
     );
 }

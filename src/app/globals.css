@@ -18,115 +18,112 @@
 @layer base {
   :root {
     /* ═══════════════════════════════════════════════════════════════
-     *  SabNode v2 — cream/terracotta foundation.
-     *  Brand primary: terracotta (rgb(201,100,66)). Backgrounds: warm
-     *  off-whites. All `--prism-*` variable NAMES are preserved so
+     *  SabNode v3 — pure black/white light foundation.
+     *  Background: pure white. Ink: zinc-900. Primary: black.
+     *  All `--prism-*` and `--sab-*` variable NAMES are preserved so
      *  every existing primitive (Button, Card, Input, Dialog, sidebar,
      *  charts, page chrome) immediately adopts the new palette without
      *  any component-level edits — only the VALUES are swapped to
-     *  cream/terracotta-friendly equivalents.
-     *
-     *  Anchor terracotta: rgb(201, 100, 66) ≈ HSL 16 56% 52%.
-     *  Source spec colour: rgb(201, 100, 66).
+     *  pure neutral equivalents.
      * ═══════════════════════════════════════════════════════════════ */
 
-    /* ── Prism (now cream/terracotta) core hues (HSL) ── */
-    --prism-indigo:        16 56% 52%;   /* terracotta primary (anchor rgb(201, 100, 66)) */
-    --prism-indigo-hover:  16 56% 46%;   /* deeper terracotta hover */
-    --prism-indigo-active: 16 56% 40%;   /* deepest terracotta active */
-    --prism-cyan:    180 30% 55%;        /* muted teal — soft secondary */
-    --prism-violet:  265 25% 65%;        /* soft mauve accent */
-    --prism-pink:    340 30% 70%;        /* dusty rose accent */
-    --prism-emerald: 160 50% 42%;        /* tempered success green */
-    --prism-coral:   16 56% 62%;         /* coral terracotta — matches primary */
-    --prism-rose:    347 70% 56%;        /* dusty rose danger */
-    --prism-sky:     215 35% 60%;        /* soft slate-blue info */
+    /* ── Prism (now pure neutral) core hues (HSL) ── */
+    --prism-indigo:        240 6% 10%;   /* primary black (zinc-900) */
+    --prism-indigo-hover:  240 6% 16%;   /* slightly lighter on hover */
+    --prism-indigo-active: 240 6% 22%;   /* slightly lighter on active */
+    --prism-cyan:    200 18% 46%;        /* cool slate */
+    --prism-violet:  240 5% 64%;         /* zinc-400 */
+    --prism-pink:    0 0% 80%;           /* light gray */
+    --prism-emerald: 152 60% 36%;        /* success green — kept for state */
+    --prism-coral:   0 0% 50%;           /* mid gray */
+    --prism-rose:    0 84% 60%;          /* danger red-500 */
+    --prism-sky:     200 18% 46%;        /* cool slate info */
 
-    /* Semantic aliases (cream/terracotta) */
-    --prism-success: 160 50% 42%;
-    --prism-warning: 28 70% 60%;
-    --prism-danger:  347 70% 56%;
-    --prism-info:    215 35% 60%;
+    /* Semantic aliases (pure neutral) */
+    --prism-success: 152 60% 36%;
+    --prism-warning: 38 92% 50%;         /* amber-500 — only for warning state */
+    --prism-danger:  0 84% 60%;
+    --prism-info:    200 18% 46%;
 
-    /* Multicolour gradients — warm sunset spectrum */
-    --prism-gradient: linear-gradient(135deg, hsl(16 56% 52%) 0%, hsl(340 30% 70%) 50%, hsl(265 25% 65%) 100%);
-    --prism-gradient-cool: linear-gradient(135deg, hsl(16 56% 52%) 0%, hsl(180 30% 55%) 50%, hsl(160 50% 42%) 100%);
-    --prism-gradient-warm: linear-gradient(135deg, hsl(265 25% 65%) 0%, hsl(340 30% 70%) 50%, hsl(16 56% 62%) 100%);
-    --prism-gradient-soft: linear-gradient(135deg, hsl(48 30% 96%) 0%, hsl(28 40% 95%) 50%, hsl(16 60% 95%) 100%);
+    /* Multicolour gradients — subtle white-on-white */
+    --prism-gradient: linear-gradient(135deg, hsl(0 0% 98%) 0%, hsl(0 0% 100%) 50%, hsl(240 5% 96%) 100%);
+    --prism-gradient-cool: linear-gradient(135deg, hsl(240 5% 96%) 0%, hsl(0 0% 100%) 50%, hsl(0 0% 98%) 100%);
+    --prism-gradient-warm: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(240 5% 96%) 50%, hsl(0 0% 98%) 100%);
+    --prism-gradient-soft: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(240 5% 98%) 50%, hsl(240 5% 96%) 100%);
 
-    /* Cream radial mesh — warm off-whites with a soft terracotta hint */
+    /* Pure neutral radial mesh — white/zinc-50/zinc-100 only, no warm tones */
     --prism-mesh:
-      radial-gradient(at 12% 8%,  hsl(48 35% 92% / 0.65) 0px, transparent 50%),
-      radial-gradient(at 88% 12%, hsl(28 50% 90% / 0.55) 0px, transparent 50%),
-      radial-gradient(at 40% 92%, hsl(16 60% 90% / 0.45) 0px, transparent 50%),
-      radial-gradient(at 82% 84%, hsl(340 35% 92% / 0.40) 0px, transparent 50%);
+      radial-gradient(at 12% 8%,  hsl(0 0% 100% / 0.85) 0px, transparent 50%),
+      radial-gradient(at 88% 12%, hsl(240 5% 98% / 0.65) 0px, transparent 50%),
+      radial-gradient(at 40% 92%, hsl(240 5% 96% / 0.55) 0px, transparent 50%),
+      radial-gradient(at 82% 84%, hsl(0 0% 98% / 0.45) 0px, transparent 50%);
 
-    /* ── Shadows (warm, low-contrast) ── */
-    --shadow-sm:  0 1px 3px 0 hsl(20 25% 15% / 0.06), 0 1px 2px -1px hsl(20 25% 15% / 0.05);
-    --shadow-md:  0 4px 12px -2px hsl(20 25% 15% / 0.08), 0 2px 6px -2px hsl(20 25% 15% / 0.06);
-    --shadow-lg:  0 12px 24px -6px hsl(20 25% 15% / 0.10), 0 6px 12px -6px hsl(20 25% 15% / 0.07);
-    --shadow-xl:  0 24px 48px -12px hsl(20 25% 15% / 0.14), 0 12px 20px -12px hsl(20 25% 15% / 0.09);
-    --shadow-glow: 0 0 24px -4px hsl(var(--prism-indigo) / 0.30);
-    --shadow-glow-strong: 0 0 32px -4px hsl(var(--prism-indigo) / 0.45), 0 8px 24px -8px hsl(340 30% 60% / 0.25);
+    /* ── Shadows (neutral, low-contrast) ── */
+    --shadow-sm:  0 1px 3px 0 hsl(240 6% 10% / 0.06), 0 1px 2px -1px hsl(240 6% 10% / 0.05);
+    --shadow-md:  0 4px 12px -2px hsl(240 6% 10% / 0.08), 0 2px 6px -2px hsl(240 6% 10% / 0.06);
+    --shadow-lg:  0 12px 24px -6px hsl(240 6% 10% / 0.10), 0 6px 12px -6px hsl(240 6% 10% / 0.07);
+    --shadow-xl:  0 24px 48px -12px hsl(240 6% 10% / 0.14), 0 12px 20px -12px hsl(240 6% 10% / 0.09);
+    --shadow-glow: 0 0 24px -4px hsl(240 6% 10% / 0.08);
+    --shadow-glow-strong: 0 0 32px -4px hsl(240 6% 10% / 0.14), 0 8px 24px -8px hsl(240 6% 10% / 0.08);
 
     /* ═══════════════════════════════════════════════════════════════
-     *  shadcn token remap → cream/terracotta (light).
-     *  Background: rgb(250, 249, 245). Primary: rgb(201, 100, 66).
+     *  shadcn token remap → pure black/white (light).
+     *  Background: white. Primary: zinc-900. Ring: black.
      * ═══════════════════════════════════════════════════════════════ */
-    --background: 48 25% 97%;            /* rgb(250, 249, 245) — cream */
-    --foreground: 40 20% 20%;            /* rgb(61, 57, 41) — warm ink */
+    --background: 0 0% 100%;             /* pure white */
+    --foreground: 240 6% 10%;            /* zinc-900 — black ink */
 
-    --card: 48 25% 97%;                  /* same cream as bg — borderless cards float */
-    --card-foreground: 30 5% 8%;         /* rgb(20, 20, 19) */
+    --card: 0 0% 100%;                   /* white */
+    --card-foreground: 240 6% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 38 18% 13%;    /* rgb(40, 38, 27) */
+    --popover-foreground: 240 6% 10%;
 
-    /* Primary = terracotta */
-    --primary: 16 56% 52%;
+    /* Primary = black */
+    --primary: 240 6% 10%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 42 18% 89%;             /* rgb(233, 230, 220) */
-    --secondary-foreground: 38 8% 30%;   /* rgb(83, 81, 70) */
+    --secondary: 240 5% 96%;             /* zinc-100 */
+    --secondary-foreground: 240 6% 10%;
 
-    --muted: 42 27% 90%;                 /* rgb(237, 233, 222) */
-    --muted-foreground: 42 3% 50%;       /* rgb(131, 130, 125) */
+    --muted: 0 0% 98%;                   /* zinc-50 */
+    --muted-foreground: 240 4% 46%;      /* zinc-500 */
 
-    /* Accent = warm sand */
-    --accent: 42 18% 89%;
-    --accent-foreground: 38 18% 13%;
+    /* Accent = zinc-100 */
+    --accent: 240 5% 96%;
+    --accent-foreground: 240 6% 10%;
 
-    --destructive: 347 70% 56%;
+    --destructive: 0 84% 60%;            /* red-500 */
     --destructive-foreground: 0 0% 100%;
 
-    --border: 40 6% 85%;                 /* rgb(218, 217, 212) */
-    --input: 36 7% 68%;                  /* rgb(180, 178, 167) */
-    --ring: 16 56% 52%;                  /* terracotta focus ring */
+    --border: 240 6% 90%;                /* zinc-200 */
+    --input: 240 6% 90%;                 /* zinc-200 */
+    --ring: 240 6% 10%;                  /* black focus ring */
 
-    --radius: 0.5rem;                    /* warmer, slightly tighter radius */
+    --radius: 0.625rem;                  /* slightly tighter */
 
-    /* ── Chart palette (terracotta-aligned) ── */
-    --chart-1: 16 56% 52%;               /* terracotta */
-    --chart-2: 265 25% 65%;              /* mauve */
-    --chart-3: 42 27% 82%;               /* sand */
-    --chart-4: 215 35% 60%;              /* slate-blue */
-    --chart-5: 16 60% 44%;               /* deeper terracotta */
+    /* ── Chart palette (zinc scale) ── */
+    --chart-1: 240 6% 10%;               /* zinc-900 */
+    --chart-2: 240 4% 46%;               /* zinc-500 */
+    --chart-3: 240 5% 64%;               /* zinc-400 */
+    --chart-4: 240 5% 84%;               /* zinc-300 */
+    --chart-5: 240 5% 96%;               /* zinc-100 */
 
-    /* ── Sidebar — soft cream ── */
-    --sidebar: 48 25% 95%;               /* rgb(245, 244, 238) */
-    --sidebar-background: 48 25% 95%;
-    --sidebar-foreground: 40 4% 38%;     /* rgb(61, 61, 58) */
-    --sidebar-border: 0 0% 92%;          /* rgb(235, 235, 235) */
-    --sidebar-ring: 16 56% 52%;
-    --sidebar-primary: 16 56% 52%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 42 18% 89%;
-    --sidebar-accent-foreground: 0 0% 20%;
+    /* ── Sidebar — pure white ── */
+    --sidebar: 0 0% 100%;                /* white */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 240 6% 10%;    /* zinc-900 */
+    --sidebar-border: 240 6% 90%;        /* zinc-200 */
+    --sidebar-ring: 240 6% 10%;
+    --sidebar-primary: 240 6% 10%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 5% 96%;
+    --sidebar-accent-foreground: 240 6% 10%;
 
     /* Legacy custom sidebar vars (kept for backward compat) */
     --sidebar-secondary-background: 0 0% 100%;
-    --sidebar-secondary-foreground: 240 10% 20%;
-    --sidebar-active-background: 239 84% 67%;
+    --sidebar-secondary-foreground: 240 6% 10%;
+    --sidebar-active-background: 240 6% 10%;
     --sidebar-active-foreground: 0 0% 100%;
 
     /* ─────────────────────────────────────────────────────────────
@@ -146,12 +143,12 @@
     --sab-fg-muted:    240 4% 46%;
     --sab-fg-subtle:   240 5% 65%;
 
-    --sab-primary:        239 84% 67%;
-    --sab-primary-hover:  239 84% 60%;
-    --sab-primary-active: 239 84% 53%;
+    --sab-primary:        240 6% 10%;
+    --sab-primary-hover:  240 6% 16%;
+    --sab-primary-active: 240 6% 22%;
     --sab-primary-fg:     0 0% 100%;
-    --sab-primary-soft:   239 84% 96%;
-    --sab-primary-ring:   239 84% 67% / 0.25;
+    --sab-primary-soft:   240 5% 96%;
+    --sab-primary-ring:   240 6% 10% / 0.25;
 
     --sab-success:      160 84% 39%;
     --sab-success-soft: 160 60% 95%;
@@ -202,111 +199,110 @@
 
   .dark {
     /* ═══════════════════════════════════════════════════════════════
-     *  Cream/terracotta dark mode — warm charcoal surfaces, brighter
-     *  terracotta hues. Source rgb(38, 38, 36) bg, rgb(217, 119, 87) primary.
+     *  Pure black/white dark mode — black bg, white ink.
      * ═══════════════════════════════════════════════════════════════ */
 
-    --background: 30 3% 14%;             /* rgb(38, 38, 36) — warm charcoal */
-    --foreground: 40 12% 74%;            /* rgb(195, 192, 182) */
+    --background: 240 6% 6%;             /* near-black */
+    --foreground: 0 0% 98%;              /* near-white */
 
-    --card: 30 3% 14%;                   /* same as bg — borderless cards float on shadow */
-    --card-foreground: 48 25% 97%;       /* rgb(250, 249, 245) */
+    --card: 240 6% 8%;                   /* slightly raised */
+    --card-foreground: 0 0% 98%;
 
-    --popover: 30 3% 19%;                /* rgb(48, 48, 46) */
-    --popover-foreground: 36 8% 89%;     /* rgb(229, 229, 226) */
+    --popover: 240 6% 8%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 16 64% 60%;               /* rgb(217, 119, 87) — brighter terracotta */
-    --primary-foreground: 0 0% 100%;
+    --primary: 0 0% 98%;                 /* white */
+    --primary-foreground: 240 6% 10%;
 
-    --secondary: 48 25% 97%;
-    --secondary-foreground: 30 3% 19%;
+    --secondary: 240 6% 14%;             /* dark zinc */
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 30 3% 10%;                  /* rgb(27, 27, 25) */
-    --muted-foreground: 42 8% 69%;       /* rgb(183, 181, 169) */
+    --muted: 240 6% 12%;
+    --muted-foreground: 240 5% 64%;      /* zinc-400 */
 
-    --accent: 30 9% 9%;                  /* rgb(26, 25, 21) */
-    --accent-foreground: 48 25% 95%;     /* rgb(245, 244, 238) */
+    --accent: 240 6% 14%;
+    --accent-foreground: 0 0% 98%;
 
-    --destructive: 0 84% 60%;            /* rgb(239, 68, 68) */
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 36 5% 23%;                 /* rgb(62, 62, 56) */
-    --input: 42 5% 31%;                  /* rgb(82, 81, 74) */
-    --ring: 16 64% 60%;                  /* brighter terracotta focus ring */
+    --border: 240 6% 18%;
+    --input: 240 6% 18%;
+    --ring: 0 0% 98%;                    /* white focus ring */
 
-    --chart-1: 16 64% 60%;
-    --chart-2: 265 30% 70%;
-    --chart-3: 30 9% 9%;
-    --chart-4: 250 25% 23%;
-    --chart-5: 16 60% 44%;
+    --chart-1: 0 0% 98%;
+    --chart-2: 240 5% 64%;
+    --chart-3: 240 5% 46%;
+    --chart-4: 240 6% 28%;
+    --chart-5: 240 6% 18%;
 
-    --sidebar: 30 4% 12%;                /* rgb(31, 30, 29) */
-    --sidebar-background: 30 4% 12%;
-    --sidebar-foreground: 40 12% 74%;
-    --sidebar-border: 36 5% 23%;
-    --sidebar-ring: 16 64% 60%;
-    --sidebar-primary: 0 0% 20%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 36 6% 6%;
-    --sidebar-accent-foreground: 40 12% 74%;
+    --sidebar: 240 6% 6%;                /* black sidebar */
+    --sidebar-background: 240 6% 6%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-border: 240 6% 18%;
+    --sidebar-ring: 0 0% 98%;
+    --sidebar-primary: 0 0% 98%;
+    --sidebar-primary-foreground: 240 6% 10%;
+    --sidebar-accent: 240 6% 14%;
+    --sidebar-accent-foreground: 0 0% 98%;
 
-    --sidebar-secondary-background: 222 32% 9%;
+    --sidebar-secondary-background: 240 6% 8%;
     --sidebar-secondary-foreground: 0 0% 98%;
-    --sidebar-active-background: 239 84% 72%;
-    --sidebar-active-foreground: 0 0% 100%;
+    --sidebar-active-background: 0 0% 98%;
+    --sidebar-active-foreground: 240 6% 10%;
 
-    /* Cream/terracotta core hues — brighter on dark */
-    --prism-indigo:        16 64% 60%;   /* brighter terracotta on dark */
-    --prism-indigo-hover:  16 64% 66%;
-    --prism-indigo-active: 16 64% 72%;
-    --prism-cyan:    180 30% 60%;
-    --prism-violet:  265 30% 72%;
-    --prism-pink:    340 35% 76%;
-    --prism-emerald: 160 50% 52%;
-    --prism-coral:   16 64% 70%;
-    --prism-rose:    347 70% 64%;
-    --prism-sky:     215 40% 66%;
-    --prism-success: 160 50% 52%;
-    --prism-warning: 28 70% 65%;
-    --prism-danger:  347 70% 64%;
-    --prism-info:    215 40% 66%;
+    /* Pure neutral core hues — bright on dark */
+    --prism-indigo:        0 0% 98%;     /* white primary on dark */
+    --prism-indigo-hover:  0 0% 90%;
+    --prism-indigo-active: 0 0% 84%;
+    --prism-cyan:    200 18% 60%;
+    --prism-violet:  240 5% 64%;
+    --prism-pink:    0 0% 70%;
+    --prism-emerald: 152 60% 46%;
+    --prism-coral:   0 0% 60%;
+    --prism-rose:    0 84% 64%;
+    --prism-sky:     200 18% 60%;
+    --prism-success: 152 60% 46%;
+    --prism-warning: 38 92% 56%;
+    --prism-danger:  0 84% 64%;
+    --prism-info:    200 18% 60%;
 
-    --prism-gradient: linear-gradient(135deg, hsl(16 64% 60%) 0%, hsl(340 35% 76%) 50%, hsl(265 30% 72%) 100%);
-    --prism-gradient-cool: linear-gradient(135deg, hsl(16 64% 60%) 0%, hsl(180 30% 60%) 50%, hsl(160 50% 52%) 100%);
-    --prism-gradient-warm: linear-gradient(135deg, hsl(265 30% 72%) 0%, hsl(340 35% 76%) 50%, hsl(16 64% 70%) 100%);
-    --prism-gradient-soft: linear-gradient(135deg, hsl(16 30% 18%) 0%, hsl(340 25% 20%) 50%, hsl(265 20% 22%) 100%);
+    --prism-gradient: linear-gradient(135deg, hsl(240 6% 8%) 0%, hsl(240 6% 12%) 50%, hsl(240 6% 6%) 100%);
+    --prism-gradient-cool: linear-gradient(135deg, hsl(240 6% 6%) 0%, hsl(240 6% 12%) 50%, hsl(240 6% 8%) 100%);
+    --prism-gradient-warm: linear-gradient(135deg, hsl(240 6% 8%) 0%, hsl(240 6% 14%) 50%, hsl(240 6% 6%) 100%);
+    --prism-gradient-soft: linear-gradient(135deg, hsl(240 6% 8%) 0%, hsl(240 6% 6%) 50%, hsl(240 6% 10%) 100%);
 
     --prism-mesh:
-      radial-gradient(at 12% 8%,  hsl(16 50% 30% / 0.55) 0px, transparent 50%),
-      radial-gradient(at 88% 12%, hsl(340 45% 28% / 0.45) 0px, transparent 50%),
-      radial-gradient(at 40% 92%, hsl(180 35% 25% / 0.35) 0px, transparent 50%),
-      radial-gradient(at 82% 84%, hsl(265 35% 28% / 0.35) 0px, transparent 50%);
+      radial-gradient(at 12% 8%,  hsl(240 6% 12% / 0.55) 0px, transparent 50%),
+      radial-gradient(at 88% 12%, hsl(240 6% 10% / 0.45) 0px, transparent 50%),
+      radial-gradient(at 40% 92%, hsl(240 6% 8% / 0.35) 0px, transparent 50%),
+      radial-gradient(at 82% 84%, hsl(240 6% 14% / 0.35) 0px, transparent 50%);
 
     --shadow-sm:  0 1px 2px 0 rgba(0, 0, 0, 0.30), 0 1px 3px 0 rgba(0, 0, 0, 0.20);
     --shadow-md:  0 4px 12px -2px rgba(0, 0, 0, 0.40), 0 2px 6px -2px rgba(0, 0, 0, 0.25);
     --shadow-lg:  0 12px 24px -6px rgba(0, 0, 0, 0.50), 0 6px 12px -6px rgba(0, 0, 0, 0.30);
     --shadow-xl:  0 24px 48px -12px rgba(0, 0, 0, 0.60), 0 12px 20px -12px rgba(0, 0, 0, 0.40);
-    --shadow-glow: 0 0 24px -4px hsl(var(--prism-indigo) / 0.55);
-    --shadow-glow-strong: 0 0 32px -4px hsl(var(--prism-indigo) / 0.70), 0 8px 24px -8px hsl(var(--prism-violet) / 0.45);
+    --shadow-glow: 0 0 24px -4px hsl(0 0% 100% / 0.10);
+    --shadow-glow-strong: 0 0 32px -4px hsl(0 0% 100% / 0.20), 0 8px 24px -8px hsl(0 0% 100% / 0.10);
 
-    /* SabUI dark — alias to Prism */
-    --sab-bg:          222 47% 5%;
-    --sab-bg-subtle:   222 40% 7%;
-    --sab-surface:     222 32% 9%;
-    --sab-surface-2:   222 28% 12%;
-    --sab-border:      222 24% 18%;
-    --sab-border-strong: 222 20% 25%;
+    /* SabUI dark — pure neutral */
+    --sab-bg:          240 6% 6%;
+    --sab-bg-subtle:   240 6% 8%;
+    --sab-surface:     240 6% 10%;
+    --sab-surface-2:   240 6% 14%;
+    --sab-border:      240 6% 18%;
+    --sab-border-strong: 240 6% 24%;
 
     --sab-fg:          0 0% 98%;
-    --sab-fg-muted:    240 5% 65%;
+    --sab-fg-muted:    240 5% 64%;
     --sab-fg-subtle:   240 4% 46%;
 
-    --sab-primary:        239 84% 72%;
-    --sab-primary-hover:  239 84% 78%;
-    --sab-primary-active: 239 84% 84%;
-    --sab-primary-fg:     0 0% 100%;
-    --sab-primary-soft:   239 50% 18%;
-    --sab-primary-ring:   239 84% 72% / 0.35;
+    --sab-primary:        0 0% 98%;
+    --sab-primary-hover:  0 0% 90%;
+    --sab-primary-active: 0 0% 84%;
+    --sab-primary-fg:     240 6% 10%;
+    --sab-primary-soft:   240 6% 18%;
+    --sab-primary-ring:   0 0% 98% / 0.35;
 
     --sab-success:      160 84% 50%;
     --sab-success-soft: 160 50% 14%;

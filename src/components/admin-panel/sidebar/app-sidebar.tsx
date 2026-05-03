@@ -91,37 +91,26 @@ const NavItem = ({ item, depth = 0 }: { item: MenuItem; depth?: number }) => {
         <Link
             href={item.href}
             className={cn(
-                'group flex items-center gap-2.5 rounded-xl py-2 pr-3 text-sm font-medium transition-all duration-150 relative',
+                'group flex items-center gap-2.5 rounded-lg py-2 pr-3 text-sm font-medium transition-colors relative',
                 indent,
                 isActive
-                    ? 'text-[var(--app-text)]'
-                    : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50'
+                    ? 'bg-secondary text-foreground'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
             )}
-            style={isActive ? {
-                background: 'var(--app-light)',
-                boxShadow: '0 0 0 1px var(--app-border)',
-            } : undefined}
         >
             {/* Left indicator */}
             {isActive && (
-                <span
-                    className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[60%] rounded-r-full"
-                    style={{ background: 'var(--app-hex)' }}
-                />
+                <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[60%] rounded-r-full bg-foreground" />
             )}
 
             {Icon && (
-                <Icon
-                    className="h-4 w-4 shrink-0 transition-colors"
-                    style={isActive ? { color: 'var(--app-text)' } : undefined}
-                />
+                <Icon className="h-4 w-4 shrink-0 transition-colors" />
             )}
 
             <span className="flex-1 truncate">{item.label}</span>
 
             {item.new && (
-                <Badge className="ml-auto text-[10px] h-4 px-1.5 font-semibold"
-                    style={{ background: 'var(--app-light)', color: 'var(--app-text)', border: '1px solid var(--app-border)' }}>
+                <Badge className="ml-auto text-[10px] h-4 px-1.5 font-semibold bg-foreground text-background border-0">
                     New
                 </Badge>
             )}
@@ -145,23 +134,20 @@ const NavCollapsible = ({ item }: { item: MenuItem }) => {
             <CollapsibleTrigger asChild>
                 <button
                     className={cn(
-                        'group flex w-full items-center gap-2.5 rounded-xl py-2 pl-3 pr-3 text-sm font-medium transition-all duration-150 relative',
-                        isOpenPath ? 'text-[var(--app-text)]' : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50'
+                        'group flex w-full items-center gap-2.5 rounded-lg py-2 pl-3 pr-3 text-sm font-medium transition-colors relative',
+                        isOpenPath ? 'bg-secondary text-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
                     )}
-                    style={isOpenPath ? { background: 'var(--app-light)', boxShadow: '0 0 0 1px var(--app-border)' } : undefined}
                 >
                     {isOpenPath && (
-                        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[60%] rounded-r-full"
-                            style={{ background: 'var(--app-hex)' }} />
+                        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[60%] rounded-r-full bg-foreground" />
                     )}
-                    {Icon && <Icon className="h-4 w-4 shrink-0" style={isOpenPath ? { color: 'var(--app-text)' } : undefined} />}
+                    {Icon && <Icon className="h-4 w-4 shrink-0" />}
                     <span className="flex-1 text-left truncate">{item.label}</span>
                     <ChevronRight className={cn('h-3.5 w-3.5 transition-transform duration-200', open && 'rotate-90')} />
                 </button>
             </CollapsibleTrigger>
             <CollapsibleContent>
-                <div className="mt-0.5 ml-3 pl-3 flex flex-col gap-0.5"
-                    style={{ borderLeft: '1.5px solid var(--app-border)' }}>
+                <div className="mt-0.5 ml-3 pl-3 flex flex-col gap-0.5 border-l border-border">
                     {(item.subItems || item.subSubItems || []).map((sub: any, i: number) =>
                         sub.subItems ? (
                             <NavCollapsible key={sub.label || i} item={sub} />
@@ -179,10 +165,7 @@ const NavCollapsible = ({ item }: { item: MenuItem }) => {
 
 const GroupLabel = ({ title }: { title: string }) => (
     <div className="px-3 pt-5 pb-1.5">
-        <span
-            className="text-[10px] font-bold uppercase tracking-[0.1em] transition-colors duration-500"
-            style={{ color: 'var(--app-text)', opacity: 0.5 }}
-        >
+        <span className="text-xs uppercase tracking-wider text-muted-foreground/70 font-semibold">
             {title}
         </span>
     </div>
@@ -209,22 +192,18 @@ function InlineProjectSwitcher() {
         <div className="px-2 py-2">
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <button
-                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-150 hover:bg-zinc-50 group"
-                        style={{ border: '1px solid var(--app-border)', background: 'var(--app-light)' }}
-                    >
-                        <div className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 text-white text-[10px] font-bold"
-                            style={{ background: 'var(--app-hex)' }}>
+                    <button className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-secondary group border border-border bg-card">
+                        <div className="w-6 h-6 rounded-md flex items-center justify-center shrink-0 bg-foreground text-background text-[10px] font-bold">
                             {(activeProject?.name?.[0] || 'P').toUpperCase()}
                         </div>
-                        <span className="flex-1 text-left truncate text-[var(--app-text)]">
+                        <span className="flex-1 text-left truncate text-foreground">
                             {activeProject?.name || 'Select project'}
                         </span>
-                        <ChevronsUpDown className="h-3.5 w-3.5 shrink-0 text-zinc-400" />
+                        <ChevronsUpDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                     </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-56 rounded-xl p-1.5">
-                    <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1">
+                <DropdownMenuContent align="start" className="w-56 rounded-lg p-1.5">
+                    <div className="px-2 py-1 text-xs uppercase tracking-wider font-semibold text-muted-foreground/70 mb-1">
                         Projects
                     </div>
                     {projects.map((p: any) => {
@@ -232,21 +211,23 @@ function InlineProjectSwitcher() {
                         return (
                             <DropdownMenuItem
                                 key={p._id.toString()}
-                                className="flex items-center gap-2.5 px-2 py-2 rounded-lg cursor-pointer text-sm"
+                                className="flex items-center gap-2.5 px-2 py-2 rounded-md cursor-pointer text-sm"
                                 onClick={() => handleSelect(p._id.toString(), p.name)}
                             >
-                                <div className="w-6 h-6 rounded-md flex items-center justify-center text-white text-[10px] font-bold shrink-0"
-                                    style={{ background: isSelected ? 'var(--app-hex)' : '#94a3b8' }}>
+                                <div className={cn(
+                                    'w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-bold shrink-0',
+                                    isSelected ? 'bg-foreground text-background' : 'bg-secondary text-muted-foreground'
+                                )}>
                                     {(p.name?.[0] || 'P').toUpperCase()}
                                 </div>
                                 <span className="flex-1 truncate font-medium">{p.name}</span>
-                                {isSelected && <Check className="h-3.5 w-3.5 shrink-0" style={{ color: 'var(--app-hex)' }} />}
+                                {isSelected && <Check className="h-3.5 w-3.5 shrink-0 text-foreground" />}
                             </DropdownMenuItem>
                         );
                     })}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
-                        <Link href="/dashboard/setup" className="flex items-center gap-2 px-2 py-2 text-xs text-zinc-500 rounded-lg">
+                        <Link href="/dashboard/setup" className="flex items-center gap-2 px-2 py-2 text-xs text-muted-foreground rounded-md">
                             + Add project
                         </Link>
                     </DropdownMenuItem>

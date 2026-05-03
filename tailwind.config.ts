@@ -84,6 +84,43 @@ export default {
           border: 'hsl(var(--sidebar-border))',
           ring: 'hsl(var(--sidebar-ring))',
         },
+        // ZoruUI palette — tokens defined in src/styles/zoruui.css under `.zoruui`.
+        // Use as `bg-zoru-bg`, `text-zoru-ink`, `border-zoru-line`, etc.
+        zoru: {
+          bg: 'hsl(var(--zoru-bg))',
+          surface: 'hsl(var(--zoru-surface))',
+          'surface-2': 'hsl(var(--zoru-surface-2))',
+          'surface-3': 'hsl(var(--zoru-surface-3))',
+          ink: 'hsl(var(--zoru-ink))',
+          'ink-strong': 'hsl(var(--zoru-ink-strong))',
+          'ink-muted': 'hsl(var(--zoru-ink-muted))',
+          'ink-subtle': 'hsl(var(--zoru-ink-subtle))',
+          line: 'hsl(var(--zoru-line))',
+          'line-strong': 'hsl(var(--zoru-line-strong))',
+          primary: {
+            DEFAULT: 'hsl(var(--zoru-primary))',
+            hover: 'hsl(var(--zoru-primary-hover))',
+            active: 'hsl(var(--zoru-primary-active))',
+            foreground: 'hsl(var(--zoru-on-primary))',
+          },
+          danger: {
+            DEFAULT: 'hsl(var(--zoru-danger))',
+            foreground: 'hsl(var(--zoru-on-danger))',
+          },
+          success: {
+            DEFAULT: 'hsl(var(--zoru-success))',
+            foreground: 'hsl(var(--zoru-on-success))',
+          },
+          warning: {
+            DEFAULT: 'hsl(var(--zoru-warning))',
+            foreground: 'hsl(var(--zoru-on-warning))',
+          },
+          info: {
+            DEFAULT: 'hsl(var(--zoru-info))',
+            foreground: 'hsl(var(--zoru-on-info))',
+          },
+          ring: 'hsl(var(--zoru-ring))',
+        },
       },
       boxShadow: {},
       borderRadius: {
