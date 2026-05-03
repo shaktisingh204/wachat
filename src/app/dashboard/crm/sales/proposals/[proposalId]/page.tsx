@@ -297,7 +297,7 @@ export default function ProposalDetailPage(props: {
     return (
       <ClayCard variant="outline" className="border-dashed">
         <div className="flex flex-col items-center gap-3 py-12 text-center">
-          <p className="text-[13px] text-clay-ink-muted">Proposal not found.</p>
+          <p className="text-[13px] text-muted-foreground">Proposal not found.</p>
           <Link href="/dashboard/crm/sales/proposals">
             <ClayButton variant="pill" leading={<ArrowLeft className="h-4 w-4" />}>
               Back to Proposals
@@ -391,48 +391,48 @@ export default function ProposalDetailPage(props: {
 
         <div className="grid gap-4 md:grid-cols-4">
           <div className="flex items-start gap-3">
-            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-clay-md bg-clay-rose-soft">
-              <UserIcon className="h-4 w-4 text-clay-rose-ink" strokeWidth={1.75} />
+            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent">
+              <UserIcon className="h-4 w-4 text-accent-foreground" strokeWidth={1.75} />
             </div>
             <div>
-              <p className="text-[11.5px] text-clay-ink-muted">Client</p>
-              <p className="text-[13px] font-medium text-clay-ink">
+              <p className="text-[11.5px] text-muted-foreground">Client</p>
+              <p className="text-[13px] font-medium text-foreground">
                 {proposal.client_id ? String(proposal.client_id) : '—'}
               </p>
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-clay-md bg-clay-rose-soft">
-              <Calendar className="h-4 w-4 text-clay-rose-ink" strokeWidth={1.75} />
+            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent">
+              <Calendar className="h-4 w-4 text-accent-foreground" strokeWidth={1.75} />
             </div>
             <div>
-              <p className="text-[11.5px] text-clay-ink-muted">Issued</p>
-              <p className="text-[13px] font-medium text-clay-ink">
+              <p className="text-[11.5px] text-muted-foreground">Issued</p>
+              <p className="text-[13px] font-medium text-foreground">
                 {fmtDate(proposal.issue_date)}
               </p>
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-clay-md bg-clay-rose-soft">
-              <Calendar className="h-4 w-4 text-clay-rose-ink" strokeWidth={1.75} />
+            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent">
+              <Calendar className="h-4 w-4 text-accent-foreground" strokeWidth={1.75} />
             </div>
             <div>
-              <p className="text-[11.5px] text-clay-ink-muted">Valid Until</p>
-              <p className="text-[13px] font-medium text-clay-ink">
+              <p className="text-[11.5px] text-muted-foreground">Valid Until</p>
+              <p className="text-[13px] font-medium text-foreground">
                 {fmtDate(proposal.valid_until)}
               </p>
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-clay-md bg-clay-rose-soft">
+            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent">
               <DollarSign
-                className="h-4 w-4 text-clay-rose-ink"
+                className="h-4 w-4 text-accent-foreground"
                 strokeWidth={1.75}
               />
             </div>
             <div>
-              <p className="text-[11.5px] text-clay-ink-muted">Total</p>
-              <p className="text-[13px] font-medium text-clay-ink">
+              <p className="text-[11.5px] text-muted-foreground">Total</p>
+              <p className="text-[13px] font-medium text-foreground">
                 {fmtCurrency(proposal.total, proposal.currency)}
               </p>
             </div>
@@ -441,49 +441,49 @@ export default function ProposalDetailPage(props: {
       </ClayCard>
 
       <ClayCard>
-        <h2 className="mb-3 text-[16px] font-semibold text-clay-ink">Line Items</h2>
-        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+        <h2 className="mb-3 text-[16px] font-semibold text-foreground">Line Items</h2>
+        <div className="overflow-x-auto rounded-lg border border-border">
           <table className="w-full text-[13px]">
-            <thead className="bg-clay-surface-2">
-              <tr className="border-b border-clay-border">
-                <th className="p-3 text-left font-medium text-clay-ink">Item</th>
-                <th className="p-3 text-right font-medium text-clay-ink">Qty</th>
-                <th className="p-3 text-right font-medium text-clay-ink">Unit</th>
-                <th className="p-3 text-right font-medium text-clay-ink">Tax</th>
-                <th className="p-3 text-right font-medium text-clay-ink">Total</th>
+            <thead className="bg-secondary">
+              <tr className="border-b border-border">
+                <th className="p-3 text-left font-medium text-foreground">Item</th>
+                <th className="p-3 text-right font-medium text-foreground">Qty</th>
+                <th className="p-3 text-right font-medium text-foreground">Unit</th>
+                <th className="p-3 text-right font-medium text-foreground">Tax</th>
+                <th className="p-3 text-right font-medium text-foreground">Total</th>
               </tr>
             </thead>
             <tbody>
               {data.items.length === 0 ? (
-                <tr className="border-b border-clay-border">
+                <tr className="border-b border-border">
                   <td
                     colSpan={5}
-                    className="p-6 text-center text-[12.5px] text-clay-ink-muted"
+                    className="p-6 text-center text-[12.5px] text-muted-foreground"
                   >
                     No line items.
                   </td>
                 </tr>
               ) : (
                 data.items.map((it) => (
-                  <tr key={it._id} className="border-b border-clay-border">
-                    <td className="p-3 align-top text-clay-ink">
+                  <tr key={it._id} className="border-b border-border">
+                    <td className="p-3 align-top text-foreground">
                       <div className="font-medium">{it.name}</div>
                       {it.description ? (
-                        <div className="mt-0.5 text-[12.5px] text-clay-ink-muted">
+                        <div className="mt-0.5 text-[12.5px] text-muted-foreground">
                           {it.description}
                         </div>
                       ) : null}
                     </td>
-                    <td className="p-3 text-right align-top text-clay-ink">
+                    <td className="p-3 text-right align-top text-foreground">
                       {it.quantity}
                     </td>
-                    <td className="p-3 text-right align-top text-clay-ink">
+                    <td className="p-3 text-right align-top text-foreground">
                       {fmtCurrency(it.unit_price, proposal.currency)}
                     </td>
-                    <td className="p-3 text-right align-top text-clay-ink">
+                    <td className="p-3 text-right align-top text-foreground">
                       {it.tax}%
                     </td>
-                    <td className="p-3 text-right align-top font-medium text-clay-ink">
+                    <td className="p-3 text-right align-top font-medium text-foreground">
                       {fmtCurrency(it.total, proposal.currency)}
                     </td>
                   </tr>
@@ -492,37 +492,37 @@ export default function ProposalDetailPage(props: {
             </tbody>
             <tfoot>
               <tr>
-                <td colSpan={4} className="p-3 text-right text-clay-ink">
+                <td colSpan={4} className="p-3 text-right text-foreground">
                   Subtotal
                 </td>
-                <td className="p-3 text-right font-medium text-clay-ink">
+                <td className="p-3 text-right font-medium text-foreground">
                   {fmtCurrency(proposal.subtotal, proposal.currency)}
                 </td>
               </tr>
               <tr>
-                <td colSpan={4} className="p-3 text-right text-clay-ink">
+                <td colSpan={4} className="p-3 text-right text-foreground">
                   Tax
                 </td>
-                <td className="p-3 text-right font-medium text-clay-ink">
+                <td className="p-3 text-right font-medium text-foreground">
                   {fmtCurrency(proposal.tax, proposal.currency)}
                 </td>
               </tr>
               <tr>
-                <td colSpan={4} className="p-3 text-right text-clay-ink">
+                <td colSpan={4} className="p-3 text-right text-foreground">
                   Discount
                 </td>
-                <td className="p-3 text-right font-medium text-clay-ink">
+                <td className="p-3 text-right font-medium text-foreground">
                   −{fmtCurrency(proposal.discount, proposal.currency)}
                 </td>
               </tr>
               <tr>
                 <td
                   colSpan={4}
-                  className="border-t border-clay-border p-3 text-right font-semibold text-clay-ink"
+                  className="border-t border-border p-3 text-right font-semibold text-foreground"
                 >
                   Total
                 </td>
-                <td className="border-t border-clay-border p-3 text-right font-semibold text-clay-ink">
+                <td className="border-t border-border p-3 text-right font-semibold text-foreground">
                   {fmtCurrency(proposal.total, proposal.currency)}
                 </td>
               </tr>
@@ -534,10 +534,10 @@ export default function ProposalDetailPage(props: {
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             {proposal.note ? (
               <div>
-                <p className="mb-1 text-[11.5px] font-medium uppercase tracking-wide text-clay-ink-muted">
+                <p className="mb-1 text-[11.5px] font-medium uppercase tracking-wide text-muted-foreground">
                   Notes
                 </p>
-                <div className="rounded-clay-md border border-clay-border bg-clay-surface-2 p-3 text-[13px] text-clay-ink">
+                <div className="rounded-lg border border-border bg-secondary p-3 text-[13px] text-foreground">
                   <pre className="whitespace-pre-wrap font-sans">
                     {proposal.note}
                   </pre>
@@ -546,10 +546,10 @@ export default function ProposalDetailPage(props: {
             ) : null}
             {proposal.terms ? (
               <div>
-                <p className="mb-1 text-[11.5px] font-medium uppercase tracking-wide text-clay-ink-muted">
+                <p className="mb-1 text-[11.5px] font-medium uppercase tracking-wide text-muted-foreground">
                   Terms &amp; Conditions
                 </p>
-                <div className="rounded-clay-md border border-clay-border bg-clay-surface-2 p-3 text-[13px] text-clay-ink">
+                <div className="rounded-lg border border-border bg-secondary p-3 text-[13px] text-foreground">
                   <pre className="whitespace-pre-wrap font-sans">
                     {proposal.terms}
                   </pre>
@@ -563,13 +563,13 @@ export default function ProposalDetailPage(props: {
       {isAccepted ? (
         <ClayCard>
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="h-5 w-5 text-clay-green" />
-            <h2 className="text-[16px] font-semibold text-clay-ink">
+            <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+            <h2 className="text-[16px] font-semibold text-foreground">
               Accepted &amp; Signed
             </h2>
           </div>
           {data.signs.length === 0 ? (
-            <p className="mt-2 text-[13px] text-clay-ink-muted">
+            <p className="mt-2 text-[13px] text-muted-foreground">
               No signature records on file.
             </p>
           ) : (
@@ -577,19 +577,19 @@ export default function ProposalDetailPage(props: {
               {data.signs.map((s) => (
                 <div
                   key={s._id}
-                  className="rounded-clay-md border border-clay-border bg-clay-surface-2 p-4"
+                  className="rounded-lg border border-border bg-secondary p-4"
                 >
-                  <p className="text-[11.5px] text-clay-ink-muted">Signed by</p>
-                  <p className="text-[13px] font-medium text-clay-ink">
+                  <p className="text-[11.5px] text-muted-foreground">Signed by</p>
+                  <p className="text-[13px] font-medium text-foreground">
                     {s.signer_name}
                   </p>
-                  <p className="text-[11.5px] text-clay-ink-muted">
+                  <p className="text-[11.5px] text-muted-foreground">
                     {s.signer_email}
                   </p>
-                  <p className="mt-2 text-[11.5px] text-clay-ink-muted">
+                  <p className="mt-2 text-[11.5px] text-muted-foreground">
                     Signed at
                   </p>
-                  <p className="text-[13px] text-clay-ink">
+                  <p className="text-[13px] text-foreground">
                     {fmtDateTime(s.signed_at)}
                   </p>
                   {s.signature_data_url ? (
@@ -597,7 +597,7 @@ export default function ProposalDetailPage(props: {
                     <img
                       src={s.signature_data_url}
                       alt="Signature"
-                      className="mt-2 max-h-24 rounded-clay-md border border-clay-border bg-white p-2"
+                      className="mt-2 max-h-24 rounded-lg border border-border bg-white p-2"
                     />
                   ) : null}
                 </div>
@@ -608,38 +608,38 @@ export default function ProposalDetailPage(props: {
       ) : proposal.signature_required ? (
         <ClayCard>
           <div className="mb-4 flex items-center gap-2">
-            <FileSignature className="h-5 w-5 text-clay-rose-ink" />
-            <h2 className="text-[16px] font-semibold text-clay-ink">
+            <FileSignature className="h-5 w-5 text-accent-foreground" />
+            <h2 className="text-[16px] font-semibold text-foreground">
               Sign this proposal
             </h2>
           </div>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <Label className="text-clay-ink">Full Name</Label>
+              <Label className="text-foreground">Full Name</Label>
               <Input
                 value={signerName}
                 onChange={(e) => setSignerName(e.target.value)}
                 placeholder="Jane Doe"
-                className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div>
-              <Label className="text-clay-ink">Email</Label>
+              <Label className="text-foreground">Email</Label>
               <Input
                 type="email"
                 value={signerEmail}
                 onChange={(e) => setSignerEmail(e.target.value)}
                 placeholder="jane@example.com"
-                className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
           </div>
           <div className="mt-4">
-            <Label className="text-clay-ink">Signature</Label>
-            <div className="mt-1.5 rounded-clay-md border border-clay-border bg-white p-2">
+            <Label className="text-foreground">Signature</Label>
+            <div className="mt-1.5 rounded-lg border border-border bg-white p-2">
               <canvas
                 ref={canvasRef}
-                className="block w-full touch-none rounded-clay-md bg-white"
+                className="block w-full touch-none rounded-lg bg-white"
                 style={{ height: 180 }}
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
@@ -648,7 +648,7 @@ export default function ProposalDetailPage(props: {
                 onPointerLeave={handlePointerUp}
               />
             </div>
-            <p className="mt-1 text-[11.5px] text-clay-ink-muted">
+            <p className="mt-1 text-[11.5px] text-muted-foreground">
               Use your mouse, stylus, or finger to draw your signature.
             </p>
           </div>

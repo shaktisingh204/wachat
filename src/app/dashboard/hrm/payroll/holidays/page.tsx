@@ -198,27 +198,27 @@ export default function HolidaysPage() {
 
             <ClayCard>
                 <div className="mb-4 flex items-center justify-between">
-                    <h2 className="text-[16px] font-semibold text-clay-ink">Holiday Calendar</h2>
+                    <h2 className="text-[16px] font-semibold text-foreground">Holiday Calendar</h2>
                     <ClayBadge tone="neutral">{holidays.length} holidays</ClayBadge>
                 </div>
-                <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                <div className="overflow-x-auto rounded-lg border border-border">
                     <table className="w-full text-left text-[13px]">
                         <thead>
-                            <tr className="border-b border-clay-border bg-clay-surface-2">
-                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Holiday</th>
-                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Date</th>
-                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Day</th>
-                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Type</th>
-                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Location</th>
-                                <th className="px-4 py-3 text-center text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Recurring</th>
-                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Actions</th>
+                            <tr className="border-b border-border bg-secondary">
+                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Holiday</th>
+                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Date</th>
+                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Day</th>
+                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Type</th>
+                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Location</th>
+                                <th className="px-4 py-3 text-center text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Recurring</th>
+                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {isLoading ? (
                                 <tr>
                                     <td colSpan={7} className="h-24 text-center">
-                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-clay-ink-muted" />
+                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
                                     </td>
                                 </tr>
                             ) : holidays.length > 0 ? (
@@ -226,16 +226,16 @@ export default function HolidaysPage() {
                                     const d = new Date(holiday.date);
                                     const holidayType: HolidayType = ((holiday as any).type as HolidayType) ?? 'national';
                                     return (
-                                        <tr key={holiday._id.toString()} className="border-b border-clay-border last:border-0 hover:bg-clay-surface-2/50 transition-colors">
-                                            <td className="px-4 py-3 font-medium text-clay-ink">{holiday.name}</td>
-                                            <td className="px-4 py-3 text-clay-ink">{format(d, 'dd MMM yyyy')}</td>
-                                            <td className="px-4 py-3 text-clay-ink-muted">{DAY_NAMES[d.getDay()]}</td>
+                                        <tr key={holiday._id.toString()} className="border-b border-border last:border-0 hover:bg-secondary/50 transition-colors">
+                                            <td className="px-4 py-3 font-medium text-foreground">{holiday.name}</td>
+                                            <td className="px-4 py-3 text-foreground">{format(d, 'dd MMM yyyy')}</td>
+                                            <td className="px-4 py-3 text-muted-foreground">{DAY_NAMES[d.getDay()]}</td>
                                             <td className="px-4 py-3">
                                                 <ClayBadge tone={TYPE_TONES[holidayType]}>
                                                     {TYPE_LABELS[holidayType]}
                                                 </ClayBadge>
                                             </td>
-                                            <td className="px-4 py-3 text-clay-ink-muted">
+                                            <td className="px-4 py-3 text-muted-foreground">
                                                 {(holiday as any).location || '—'}
                                             </td>
                                             <td className="px-4 py-3 text-center">
@@ -271,7 +271,7 @@ export default function HolidaysPage() {
                                 })
                             ) : (
                                 <tr>
-                                    <td colSpan={7} className="h-24 text-center text-[13px] text-clay-ink-muted">
+                                    <td colSpan={7} className="h-24 text-center text-[13px] text-muted-foreground">
                                         No holidays added yet. Click "Add Holiday" or "Add Public Holidays".
                                     </td>
                                 </tr>
@@ -285,10 +285,10 @@ export default function HolidaysPage() {
             <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) setEditing(null); }}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle className="text-clay-ink">
+                        <DialogTitle className="text-foreground">
                             {editing ? 'Edit Holiday' : 'Add Holiday'}
                         </DialogTitle>
-                        <DialogDescription className="text-clay-ink-muted">
+                        <DialogDescription className="text-muted-foreground">
                             Fill in the holiday details. Name and date are required.
                         </DialogDescription>
                     </DialogHeader>
@@ -301,7 +301,7 @@ export default function HolidaysPage() {
                         <input type="hidden" name="recurring" value={recurring} />
 
                         <div>
-                            <Label htmlFor="holiday-name" className="text-[13px] text-clay-ink">
+                            <Label htmlFor="holiday-name" className="text-[13px] text-foreground">
                                 Holiday Name <span className="text-red-500">*</span>
                             </Label>
                             <Input
@@ -310,12 +310,12 @@ export default function HolidaysPage() {
                                 required
                                 defaultValue={editing?.name ?? ''}
                                 placeholder="e.g. Diwali"
-                                className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
                             />
                         </div>
 
                         <div>
-                            <Label className="text-[13px] text-clay-ink">
+                            <Label className="text-[13px] text-foreground">
                                 Date <span className="text-red-500">*</span>
                             </Label>
                             <div className="mt-1.5">
@@ -324,13 +324,13 @@ export default function HolidaysPage() {
                         </div>
 
                         <div>
-                            <Label htmlFor="holiday-type" className="text-[13px] text-clay-ink">
+                            <Label htmlFor="holiday-type" className="text-[13px] text-foreground">
                                 Type
                             </Label>
                             <Select value={type} onValueChange={setType}>
                                 <SelectTrigger
                                     id="holiday-type"
-                                    className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                                    className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
                                 >
                                     <SelectValue />
                                 </SelectTrigger>
@@ -343,7 +343,7 @@ export default function HolidaysPage() {
                         </div>
 
                         <div>
-                            <Label htmlFor="holiday-location" className="text-[13px] text-clay-ink">
+                            <Label htmlFor="holiday-location" className="text-[13px] text-foreground">
                                 Location / State
                             </Label>
                             <Input
@@ -351,18 +351,18 @@ export default function HolidaysPage() {
                                 name="location"
                                 defaultValue={(editing as any)?.location ?? ''}
                                 placeholder="e.g. Maharashtra (leave blank for all)"
-                                className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
                             />
                         </div>
 
                         <div>
-                            <Label htmlFor="holiday-recurring" className="text-[13px] text-clay-ink">
+                            <Label htmlFor="holiday-recurring" className="text-[13px] text-foreground">
                                 Recurring Yearly
                             </Label>
                             <Select value={recurring} onValueChange={setRecurring}>
                                 <SelectTrigger
                                     id="holiday-recurring"
-                                    className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                                    className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
                                 >
                                     <SelectValue />
                                 </SelectTrigger>

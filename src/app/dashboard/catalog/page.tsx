@@ -54,27 +54,27 @@ function WACatalogCard({
       <div className="flex items-center gap-3">
         <span
           className={cn(
-            'flex h-10 w-10 items-center justify-center rounded-[10px] bg-gradient-to-br text-white shadow-clay-card',
+            'flex h-10 w-10 items-center justify-center rounded-[10px] bg-gradient-to-br text-white shadow-sm',
             tint,
           )}
         >
           <LuShoppingBag className="h-[18px] w-[18px]" strokeWidth={2.25} />
         </span>
-        <span className="min-w-0 flex-1 truncate text-[15px] font-semibold text-clay-ink">
+        <span className="min-w-0 flex-1 truncate text-[15px] font-semibold text-foreground">
           {catalog.name}
         </span>
       </div>
 
       <div className="mt-5">
-        <div className="text-[10px] font-semibold uppercase tracking-wide text-clay-ink-soft">
+        <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
           Meta catalog ID
         </div>
-        <div className="mt-1 break-all font-mono text-[11.5px] text-clay-ink-muted tabular-nums">
+        <div className="mt-1 break-all font-mono text-[11.5px] text-muted-foreground tabular-nums">
           {catalog.metaCatalogId}
         </div>
       </div>
 
-      <div className="mt-4 text-[11px] text-clay-ink-soft">
+      <div className="mt-4 text-[11px] text-muted-foreground">
         Created {new Date(catalog.createdAt).toLocaleDateString()}
       </div>
 
@@ -137,10 +137,10 @@ export default function CatalogPage() {
       />
       <div className="flex items-center justify-between gap-6">
         <div className="min-w-0">
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">
+          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
             Ecomm + Catalog
           </h1>
-          <p className="mt-1.5 max-w-[720px] text-[13px] text-clay-ink-muted">
+          <p className="mt-1.5 max-w-[720px] text-[13px] text-muted-foreground">
             Manage product catalogs that power WhatsApp interactive messages —
             single-product and multi-product carousels.
           </p>
@@ -163,7 +163,7 @@ export default function CatalogPage() {
           {Array.from({ length: 4 }).map((_, i) => (
             <div
               key={i}
-              className="h-[220px] animate-pulse rounded-clay-lg bg-clay-bg-2"
+              className="h-[220px] animate-pulse rounded-xl bg-muted"
             />
           ))}
         </div>
@@ -185,13 +185,13 @@ export default function CatalogPage() {
       <div className="clay-enter flex min-h-full flex-col gap-6">
         {header}
         <ClayCard padded={false} className="p-10 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-clay-rose-soft text-clay-rose-ink">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-accent text-accent-foreground">
             <LuCircleAlert className="h-5 w-5" strokeWidth={1.5} />
           </div>
-          <div className="mt-4 text-[15px] font-semibold text-clay-ink">
+          <div className="mt-4 text-[15px] font-semibold text-foreground">
             Invalid project type
           </div>
-          <div className="mt-1.5 max-w-[420px] mx-auto text-[12.5px] text-clay-ink-muted">
+          <div className="mt-1.5 max-w-[420px] mx-auto text-[12.5px] text-muted-foreground">
             This section is for WhatsApp projects. The selected project is not
             a WhatsApp project.
           </div>
@@ -208,13 +208,13 @@ export default function CatalogPage() {
         /* ── Locked: catalog management not authorized ── */
         <ClayCard padded={false} className="p-8">
           <div className="flex flex-col items-center gap-4 py-4 text-center">
-            <span className="flex h-16 w-16 items-center justify-center rounded-[18px] bg-gradient-to-br from-clay-red to-[#BE123C] text-white shadow-clay-float">
+            <span className="flex h-16 w-16 items-center justify-center rounded-[18px] bg-gradient-to-br from-destructive to-[#BE123C] text-white shadow-md">
               <LuLock className="h-7 w-7" strokeWidth={2} />
             </span>
-            <h2 className="text-[22px] font-semibold tracking-[-0.01em] text-clay-ink">
+            <h2 className="text-[22px] font-semibold tracking-[-0.01em] text-foreground">
               Catalog management locked
             </h2>
-            <p className="max-w-md text-[13px] text-clay-ink-muted leading-relaxed">
+            <p className="max-w-md text-[13px] text-muted-foreground leading-relaxed">
               This project was set up without catalog management permissions.
               Re-authorize the application with{' '}
               <Code>catalog_management</Code> and{' '}
@@ -230,7 +230,7 @@ export default function CatalogPage() {
                   reauthorize={true}
                 />
               ) : (
-                <p className="text-[12.5px] text-clay-red">
+                <p className="text-[12.5px] text-destructive">
                   Admin has not configured the Facebook App ID.
                 </p>
               )}
@@ -241,7 +241,7 @@ export default function CatalogPage() {
         /* ── Catalogs loaded: grid ── */
         <div>
           <div className="mb-4 flex items-center justify-between">
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-clay-ink-muted">
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
               {catalogs.length} {catalogs.length === 1 ? 'catalog' : 'catalogs'}
             </div>
           </div>
@@ -255,14 +255,14 @@ export default function CatalogPage() {
         /* ── First-run guide ── */
         <ClayCard padded={false} className="p-6">
           <div className="flex items-center gap-2.5">
-            <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-clay-rose-soft text-clay-rose-ink">
+            <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-accent text-accent-foreground">
               <LuGitBranch className="h-4 w-4" strokeWidth={2} />
             </span>
             <div>
-              <div className="text-[15px] font-semibold text-clay-ink leading-tight">
+              <div className="text-[15px] font-semibold text-foreground leading-tight">
                 Get started with catalogs
               </div>
-              <div className="mt-0.5 text-[11.5px] text-clay-ink-muted">
+              <div className="mt-0.5 text-[11.5px] text-muted-foreground">
                 Create a catalog in Meta Commerce Manager, then sync it here.
               </div>
             </div>
@@ -270,14 +270,14 @@ export default function CatalogPage() {
 
           <div className="mt-8 flex flex-col gap-10">
             <GuideStep step="Step 1" title="Create a catalog" image={step1}>
-              <ol className="list-inside list-decimal space-y-2 pl-4 text-[13px] text-clay-ink-muted">
+              <ol className="list-inside list-decimal space-y-2 pl-4 text-[13px] text-muted-foreground">
                 <li>
                   Open the{' '}
                   <a
                     href="https://business.facebook.com/commerce"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 font-medium text-clay-rose-ink hover:text-clay-rose"
+                    className="inline-flex items-center gap-1 font-medium text-accent-foreground hover:text-primary"
                   >
                     Meta Commerce Manager{' '}
                     <LuExternalLink className="h-3 w-3" />
@@ -289,18 +289,18 @@ export default function CatalogPage() {
                   selected.
                 </li>
                 <li>
-                  Click <strong className="text-clay-ink">Add Catalog</strong>,
-                  choose <strong className="text-clay-ink">E-commerce</strong>{' '}
+                  Click <strong className="text-foreground">Add Catalog</strong>,
+                  choose <strong className="text-foreground">E-commerce</strong>{' '}
                   as the type, and follow the prompts.
                 </li>
               </ol>
             </GuideStep>
 
             <GuideStep step="Step 2" title="Assign partner" image={step2}>
-              <ol className="list-inside list-decimal space-y-2 pl-4 text-[13px] text-clay-ink-muted">
+              <ol className="list-inside list-decimal space-y-2 pl-4 text-[13px] text-muted-foreground">
                 <li>
                   In Business Settings, go to{' '}
-                  <strong className="text-clay-ink">
+                  <strong className="text-foreground">
                     Data Sources → Catalogs
                   </strong>
                   .
@@ -308,7 +308,7 @@ export default function CatalogPage() {
                 <li>Select your newly created catalog.</li>
                 <li>
                   Click{' '}
-                  <strong className="text-clay-ink">Assign Partners</strong>.
+                  <strong className="text-foreground">Assign Partners</strong>.
                 </li>
                 <li>
                   Assign your BSP as a partner with Full Access permissions.
@@ -321,60 +321,60 @@ export default function CatalogPage() {
               title="Add your first product (mandatory)"
               image={step2}
             >
-              <ol className="list-inside list-decimal space-y-2 pl-4 text-[13px] text-clay-ink-muted">
+              <ol className="list-inside list-decimal space-y-2 pl-4 text-[13px] text-muted-foreground">
                 <li>
                   In your new catalog, go to the{' '}
-                  <strong className="text-clay-ink">Items</strong> tab and
-                  click <strong className="text-clay-ink">Add Items</strong>.
+                  <strong className="text-foreground">Items</strong> tab and
+                  click <strong className="text-foreground">Add Items</strong>.
                 </li>
                 <li>
-                  Choose the <strong className="text-clay-ink">Manual</strong>{' '}
+                  Choose the <strong className="text-foreground">Manual</strong>{' '}
                   option.
                 </li>
                 <li>
                   Fill in all required details for at least one product
                   (image, price, currency, availability, description).
                 </li>
-                <li className="font-medium text-clay-ink">
+                <li className="font-medium text-foreground">
                   This step is mandatory to activate the catalog for WhatsApp.
                 </li>
               </ol>
             </GuideStep>
 
             <GuideStep step="Step 4" title="Assign to WABA" image={step3}>
-              <ol className="list-inside list-decimal space-y-2 pl-4 text-[13px] text-clay-ink-muted">
+              <ol className="list-inside list-decimal space-y-2 pl-4 text-[13px] text-muted-foreground">
                 <li>
                   Navigate to{' '}
-                  <strong className="text-clay-ink">WhatsApp Manager</strong>{' '}
+                  <strong className="text-foreground">WhatsApp Manager</strong>{' '}
                   from your Business Suite.
                 </li>
                 <li>
                   Go to{' '}
-                  <strong className="text-clay-ink">
+                  <strong className="text-foreground">
                     Account tools → Catalog
                   </strong>
                   .
                 </li>
                 <li>
                   Click{' '}
-                  <strong className="text-clay-ink">Choose a catalog</strong>.
+                  <strong className="text-foreground">Choose a catalog</strong>.
                 </li>
                 <li>
                   Select the catalog you just created and click{' '}
-                  <strong className="text-clay-ink">Connect catalog</strong>.
+                  <strong className="text-foreground">Connect catalog</strong>.
                 </li>
               </ol>
             </GuideStep>
 
             {/* Step 5 — the big rose-tinted sync CTA */}
-            <div className="flex flex-col items-center gap-3 rounded-[16px] border-2 border-dashed border-clay-rose-soft bg-clay-rose-softer px-6 py-8 text-center">
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-clay-rose-ink">
+            <div className="flex flex-col items-center gap-3 rounded-[16px] border-2 border-dashed border-accent bg-accent/50 px-6 py-8 text-center">
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-accent-foreground">
                 Step 5
               </div>
-              <h3 className="text-[22px] font-semibold tracking-[-0.01em] text-clay-ink">
+              <h3 className="text-[22px] font-semibold tracking-[-0.01em] text-foreground">
                 Sync your catalog
               </h3>
-              <p className="max-w-xl text-[13px] text-clay-ink-muted">
+              <p className="max-w-xl text-[13px] text-muted-foreground">
                 Once your catalog is created, has at least one product, and is
                 connected to your WABA, return here and click sync.
               </p>
@@ -392,11 +392,11 @@ export default function CatalogPage() {
               image={step6}
               imageFirst
             >
-              <p className="text-[13px] text-clay-ink-muted leading-relaxed">
+              <p className="text-[13px] text-muted-foreground leading-relaxed">
                 After a successful sync, reference your products inside
                 interactive messages — Multi-Product and Single-Product
                 Messages. Use the{' '}
-                <strong className="text-clay-ink">Product Catalog</strong>{' '}
+                <strong className="text-foreground">Product Catalog</strong>{' '}
                 template type to get started.
               </p>
             </GuideStep>
@@ -414,13 +414,13 @@ export default function CatalogPage() {
 function NoProjectCard({ onChoose }: { onChoose: () => void }) {
   return (
     <ClayCard padded={false} className="p-10 text-center">
-      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-clay-rose-soft text-clay-rose-ink">
+      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-accent text-accent-foreground">
         <LuCircleAlert className="h-5 w-5" strokeWidth={1.5} />
       </div>
-      <div className="mt-4 text-[15px] font-semibold text-clay-ink">
+      <div className="mt-4 text-[15px] font-semibold text-foreground">
         No project selected
       </div>
-      <div className="mt-1.5 text-[12.5px] text-clay-ink-muted">
+      <div className="mt-1.5 text-[12.5px] text-muted-foreground">
         Please select a WhatsApp project from the main dashboard to manage its
         catalog.
       </div>
@@ -438,7 +438,7 @@ function NoProjectCard({ onChoose }: { onChoose: () => void }) {
 
 function Code({ children }: { children: React.ReactNode }) {
   return (
-    <code className="inline-flex items-center rounded-[4px] border border-clay-border bg-clay-surface px-1.5 py-0.5 font-mono text-[11px] text-clay-rose-ink">
+    <code className="inline-flex items-center rounded-[4px] border border-border bg-card px-1.5 py-0.5 font-mono text-[11px] text-accent-foreground">
       {children}
     </code>
   );
@@ -458,7 +458,7 @@ function GuideStep({
   children: React.ReactNode;
 }) {
   const imageBlock = image ? (
-    <div className="overflow-hidden rounded-[14px] border border-clay-border shadow-clay-card">
+    <div className="overflow-hidden rounded-[14px] border border-border shadow-sm">
       <Image
         src={image.imageUrl}
         alt={image.description}
@@ -474,10 +474,10 @@ function GuideStep({
     <div className="grid items-center gap-6 md:grid-cols-2">
       {imageFirst ? imageBlock : null}
       <div>
-        <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-clay-rose-ink">
+        <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-accent-foreground">
           {step}
         </div>
-        <h3 className="mb-3 text-[18px] font-semibold tracking-[-0.01em] text-clay-ink">
+        <h3 className="mb-3 text-[18px] font-semibold tracking-[-0.01em] text-foreground">
           {title}
         </h3>
         {children}

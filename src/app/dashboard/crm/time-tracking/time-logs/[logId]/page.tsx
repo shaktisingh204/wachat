@@ -125,7 +125,7 @@ export default function TimeLogDetailPage({
       <div>
         <Link
           href="/dashboard/crm/time-tracking/time-logs"
-          className="inline-flex items-center gap-1.5 text-[12.5px] text-clay-ink-muted hover:text-clay-ink"
+          className="inline-flex items-center gap-1.5 text-[12.5px] text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.75} />
           Back to Time Logs
@@ -140,7 +140,7 @@ export default function TimeLogDetailPage({
           log && !log.end_time ? (
             <ClayButton
               variant="obsidian"
-              className="bg-clay-red text-white hover:bg-clay-red/90"
+              className="bg-destructive text-white hover:bg-destructive/90"
               leading={<Square className="h-4 w-4" strokeWidth={1.75} />}
               disabled={isBusy}
               onClick={handleStopTimer}
@@ -157,7 +157,7 @@ export default function TimeLogDetailPage({
         </ClayCard>
       ) : !log ? (
         <ClayCard>
-          <p className="text-center text-[13px] text-clay-ink-muted">
+          <p className="text-center text-[13px] text-muted-foreground">
             Log not found.
           </p>
         </ClayCard>
@@ -209,7 +209,7 @@ export default function TimeLogDetailPage({
               />
             </div>
             {log.reason ? (
-              <div className="mt-4 rounded-clay-md border border-clay-red-soft bg-clay-red-soft/40 p-3 text-[12.5px] text-clay-red">
+              <div className="mt-4 rounded-lg border border-rose-50 bg-rose-50/40 p-3 text-[12.5px] text-destructive">
                 <span className="font-semibold">Reason: </span>
                 {log.reason}
               </div>
@@ -219,32 +219,32 @@ export default function TimeLogDetailPage({
           <ClayCard>
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-[16px] font-semibold text-clay-ink">
+                <h2 className="text-[16px] font-semibold text-foreground">
                   Breaks
                 </h2>
-                <p className="text-[12.5px] text-clay-ink-muted">
+                <p className="text-[12.5px] text-muted-foreground">
                   Record pauses during this session.
                 </p>
               </div>
             </div>
 
             {!log.end_time ? (
-              <div className="mt-4 flex flex-wrap items-end gap-3 rounded-clay-md border border-dashed border-clay-border bg-clay-surface-2 p-3">
+              <div className="mt-4 flex flex-wrap items-end gap-3 rounded-lg border border-dashed border-border bg-secondary p-3">
                 <div className="min-w-[220px] flex-1">
-                  <Label className="text-[11px] uppercase tracking-[0.18em] text-clay-ink-muted">
+                  <Label className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
                     Reason
                   </Label>
                   <Input
                     value={reason}
                     onChange={(e) => setReason(e.target.value)}
                     placeholder="Coffee, lunch…"
-                    className="mt-1 h-9 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                    className="mt-1 h-9 rounded-lg border-border bg-card text-[13px]"
                   />
                 </div>
                 {activeBreak ? (
                   <ClayButton
                     variant="obsidian"
-                    className="bg-clay-red text-white hover:bg-clay-red/90"
+                    className="bg-destructive text-white hover:bg-destructive/90"
                     leading={<Square className="h-4 w-4" strokeWidth={1.75} />}
                     disabled={isBusy}
                     onClick={() =>
@@ -275,42 +275,42 @@ export default function TimeLogDetailPage({
               </div>
             ) : null}
 
-            <div className="mt-4 overflow-x-auto rounded-clay-md border border-clay-border">
+            <div className="mt-4 overflow-x-auto rounded-lg border border-border">
               <Table>
                 <TableHeader>
-                  <TableRow className="border-clay-border hover:bg-transparent">
-                    <TableHead className="text-clay-ink-muted">Reason</TableHead>
-                    <TableHead className="text-clay-ink-muted">Start</TableHead>
-                    <TableHead className="text-clay-ink-muted">End</TableHead>
-                    <TableHead className="text-clay-ink-muted">Duration</TableHead>
-                    <TableHead className="w-[100px] text-right text-clay-ink-muted">
+                  <TableRow className="border-border hover:bg-transparent">
+                    <TableHead className="text-muted-foreground">Reason</TableHead>
+                    <TableHead className="text-muted-foreground">Start</TableHead>
+                    <TableHead className="text-muted-foreground">End</TableHead>
+                    <TableHead className="text-muted-foreground">Duration</TableHead>
+                    <TableHead className="w-[100px] text-right text-muted-foreground">
                       Actions
                     </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {breaks.length === 0 ? (
-                    <TableRow className="border-clay-border">
+                    <TableRow className="border-border">
                       <TableCell
                         colSpan={5}
-                        className="h-20 text-center text-[13px] text-clay-ink-muted"
+                        className="h-20 text-center text-[13px] text-muted-foreground"
                       >
                         No breaks recorded.
                       </TableCell>
                     </TableRow>
                   ) : (
                     breaks.map((br) => (
-                      <TableRow key={br._id} className="border-clay-border">
-                        <TableCell className="text-[13px] text-clay-ink">
+                      <TableRow key={br._id} className="border-border">
+                        <TableCell className="text-[13px] text-foreground">
                           {br.reason || '—'}
                         </TableCell>
-                        <TableCell className="text-[13px] text-clay-ink-muted">
+                        <TableCell className="text-[13px] text-muted-foreground">
                           {fmt(br.start_time)}
                         </TableCell>
-                        <TableCell className="text-[13px] text-clay-ink-muted">
+                        <TableCell className="text-[13px] text-muted-foreground">
                           {br.end_time ? fmt(br.end_time) : '—'}
                         </TableCell>
-                        <TableCell className="text-[13px] text-clay-ink">
+                        <TableCell className="text-[13px] text-foreground">
                           {br.end_time
                             ? wsFormatDuration(br.start_time, br.end_time)
                             : '— running'}
@@ -321,7 +321,7 @@ export default function TimeLogDetailPage({
                               <ClayButton
                                 size="sm"
                                 variant="obsidian"
-                                className="bg-clay-red text-white hover:bg-clay-red/90"
+                                className="bg-destructive text-white hover:bg-destructive/90"
                                 onClick={() =>
                                   br._id && handleStopBreak(br._id)
                                 }
@@ -342,7 +342,7 @@ export default function TimeLogDetailPage({
                                 aria-label="Delete"
                               >
                                 <Trash2
-                                  className="h-3.5 w-3.5 text-clay-red"
+                                  className="h-3.5 w-3.5 text-destructive"
                                   strokeWidth={1.75}
                                 />
                               </ClayButton>
@@ -371,10 +371,10 @@ function Field({
 }) {
   return (
     <div>
-      <p className="text-[11px] uppercase tracking-[0.18em] text-clay-ink-muted">
+      <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
         {label}
       </p>
-      <div className="mt-1 text-[13.5px] text-clay-ink">{value}</div>
+      <div className="mt-1 text-[13.5px] text-foreground">{value}</div>
     </div>
   );
 }

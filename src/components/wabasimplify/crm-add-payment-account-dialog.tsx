@@ -33,13 +33,13 @@ export function CrmAddPaymentAccountDialog() {
       </DialogTrigger>
       <DialogContent className="sm:max-w-xl max-h-[85vh] flex flex-col overflow-hidden p-0">
         <DialogHeader className="px-6 pt-6 pb-2">
-          <DialogTitle className="text-clay-ink">Add New Payment Account</DialogTitle>
-          <DialogDescription className="text-clay-ink-muted">
+          <DialogTitle className="text-foreground">Add New Payment Account</DialogTitle>
+          <DialogDescription className="text-muted-foreground">
             This feature has moved to a dedicated page for a better experience.
           </DialogDescription>
         </DialogHeader>
         <div className="flex-1 overflow-y-auto px-6 py-2 text-center">
-          <p className="mb-4 text-clay-ink-muted">Please use the new page to add payment accounts.</p>
+          <p className="mb-4 text-muted-foreground">Please use the new page to add payment accounts.</p>
           <Button asChild>
             <Link href="/dashboard/crm/banking/all/new">
               Go to Add Account Page

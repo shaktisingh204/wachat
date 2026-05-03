@@ -51,11 +51,11 @@ export function ConsentForm({
   return (
     <ClayCard>
       {purposes.length === 0 ? (
-        <p className="py-6 text-center text-[13px] text-clay-ink-muted">
+        <p className="py-6 text-center text-[13px] text-muted-foreground">
           No consent purposes are currently defined.
         </p>
       ) : (
-        <div className="divide-y divide-clay-border">
+        <div className="divide-y divide-border">
           {purposes.map((p) => (
             <label
               key={p._id}
@@ -68,19 +68,19 @@ export function ConsentForm({
                   setGranted((prev) => ({ ...prev, [p._id]: e.target.checked }))
                 }
                 disabled={busy}
-                className="mt-1 h-4 w-4 rounded border-clay-border accent-clay-rose"
+                className="mt-1 h-4 w-4 rounded border-border accent-primary"
               />
               <div>
-                <p className="text-[13px] font-medium text-clay-ink">
+                <p className="text-[13px] font-medium text-foreground">
                   {p.title}
                   {p.is_required ? (
-                    <span className="ml-1 text-[11.5px] text-clay-rose-ink">
+                    <span className="ml-1 text-[11.5px] text-accent-foreground">
                       (required)
                     </span>
                   ) : null}
                 </p>
                 {p.description ? (
-                  <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">
+                  <p className="mt-0.5 text-[12.5px] text-muted-foreground">
                     {p.description}
                   </p>
                 ) : null}
@@ -90,7 +90,7 @@ export function ConsentForm({
         </div>
       )}
       {error ? (
-        <p className="mt-3 text-[12.5px] text-clay-rose-ink">{error}</p>
+        <p className="mt-3 text-[12.5px] text-accent-foreground">{error}</p>
       ) : null}
       <div className="mt-4 flex justify-end">
         <ClayButton

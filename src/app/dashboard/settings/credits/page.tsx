@@ -76,13 +76,13 @@ export default function CreditsSettingsPage() {
                             <LuStar className="h-6 w-6" />
                         </div>
                         <div>
-                            <p className="text-[12.5px] font-medium uppercase tracking-wide text-clay-ink-muted">
+                            <p className="text-[12.5px] font-medium uppercase tracking-wide text-muted-foreground">
                                 Wallet balance
                             </p>
                             {loading ? (
                                 <Skeleton className="mt-1 h-8 w-40" />
                             ) : (
-                                <p className="mt-0.5 text-[24px] font-semibold text-clay-ink">
+                                <p className="mt-0.5 text-[24px] font-semibold text-foreground">
                                     {formatCurrency((wallet?.balance ?? 0) / 100, wallet?.currency ?? 'INR')}
                                 </p>
                             )}
@@ -120,15 +120,15 @@ export default function CreditsSettingsPage() {
                                 {value === 0 && <ClayBadge tone="red">Empty</ClayBadge>}
                                 {value > 0 && value < 100 && <ClayBadge tone="amber">Low</ClayBadge>}
                             </div>
-                            <p className="text-[12.5px] font-medium text-clay-ink-muted">{row.label}</p>
+                            <p className="text-[12.5px] font-medium text-muted-foreground">{row.label}</p>
                             {loading ? (
                                 <Skeleton className="mt-1 h-8 w-24" />
                             ) : (
-                                <p className="mt-0.5 text-[26px] font-semibold leading-none text-clay-ink">
+                                <p className="mt-0.5 text-[26px] font-semibold leading-none text-foreground">
                                     {value.toLocaleString()}
                                 </p>
                             )}
-                            <p className="mt-2 text-[12px] text-clay-ink-muted">{row.description}</p>
+                            <p className="mt-2 text-[12px] text-muted-foreground">{row.description}</p>
                         </ClayCard>
                     );
                 })}
@@ -136,12 +136,12 @@ export default function CreditsSettingsPage() {
 
             <ClayCard variant="soft" padded>
                 <div className="flex items-start gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-clay-obsidian text-white">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-foreground text-white">
                         <LuZap className="h-4 w-4" />
                     </div>
                     <div>
-                        <p className="text-[13px] font-semibold text-clay-ink">How credits are consumed</p>
-                        <p className="mt-1 text-[12.5px] text-clay-ink-muted">
+                        <p className="text-[13px] font-semibold text-foreground">How credits are consumed</p>
+                        <p className="mt-1 text-[12.5px] text-muted-foreground">
                             Credits are deducted when messages are delivered. Your plan grants a monthly
                             allotment, and unused credits roll over while your plan is active.
                         </p>

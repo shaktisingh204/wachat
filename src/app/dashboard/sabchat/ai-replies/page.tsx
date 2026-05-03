@@ -72,30 +72,30 @@ export default function AiRepliesPage() {
         />
 
         <ClayCard>
-          <h2 className="mb-4 text-[15px] font-semibold text-clay-ink">AI Assistant Configuration</h2>
-          <p className="mb-4 text-[13px] text-clay-ink-muted">
+          <h2 className="mb-4 text-[15px] font-semibold text-foreground">AI Assistant Configuration</h2>
+          <p className="mb-4 text-[13px] text-muted-foreground">
             Provide context about your business. The AI will use this information, along with your FAQs, to answer visitor questions automatically.
           </p>
 
           <div className="mb-4 flex items-center gap-3">
             <Switch id="aiEnabled" name="aiEnabled" defaultChecked={settings.aiEnabled} />
-            <Label htmlFor="aiEnabled" className="text-[13px] text-clay-ink">
+            <Label htmlFor="aiEnabled" className="text-[13px] text-foreground">
               Enable AI Assistant
             </Label>
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="aiContext" className="text-[12px] text-clay-ink-muted">
+            <Label htmlFor="aiContext" className="text-[12px] text-muted-foreground">
               Business Context
             </Label>
             <Textarea
               id="aiContext"
               name="aiContext"
               defaultValue={settings.aiContext || ''}
-              className="min-h-[250px] rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+              className="min-h-[250px] rounded-lg border-border bg-card text-[13px]"
               placeholder="Describe your business, services, hours, and common policies..."
             />
-            <p className="text-[12px] text-clay-ink-muted">
+            <p className="text-[12px] text-muted-foreground">
               The more detailed your context, the better the AI will perform.
             </p>
           </div>

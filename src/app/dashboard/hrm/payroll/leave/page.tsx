@@ -157,18 +157,18 @@ export default function LeaveManagementPage() {
       <ClayCard>
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 className="text-[16px] font-semibold text-clay-ink">Leave Requests</h2>
-            <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">
+            <h2 className="text-[16px] font-semibold text-foreground">Leave Requests</h2>
+            <p className="mt-0.5 text-[12.5px] text-muted-foreground">
               Showing {leaves.length} {statusFilter === 'all' ? 'total' : statusFilter} request{leaves.length === 1 ? '' : 's'}.
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Filter className="h-4 w-4 text-clay-ink-muted" />
+            <Filter className="h-4 w-4 text-muted-foreground" />
             <Select
               value={statusFilter}
               onValueChange={(v) => setStatusFilter(v as any)}
             >
-              <SelectTrigger className="h-9 w-[160px] rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
+              <SelectTrigger className="h-9 w-[160px] rounded-lg border-border bg-card text-[13px]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -180,30 +180,30 @@ export default function LeaveManagementPage() {
             </Select>
           </div>
         </div>
-        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <table className="w-full text-left text-[13px]">
             <thead>
-              <tr className="border-b border-clay-border">
-                <th className="px-4 py-3 font-medium text-clay-ink-muted">Employee</th>
-                <th className="px-4 py-3 font-medium text-clay-ink-muted">Type</th>
-                <th className="px-4 py-3 font-medium text-clay-ink-muted">Duration</th>
-                <th className="px-4 py-3 font-medium text-clay-ink-muted">Date(s)</th>
-                <th className="px-4 py-3 font-medium text-clay-ink-muted">Days</th>
-                <th className="px-4 py-3 font-medium text-clay-ink-muted">Applied At</th>
-                <th className="px-4 py-3 font-medium text-clay-ink-muted">Status</th>
-                <th className="px-4 py-3 text-right font-medium text-clay-ink-muted">Actions</th>
+              <tr className="border-b border-border">
+                <th className="px-4 py-3 font-medium text-muted-foreground">Employee</th>
+                <th className="px-4 py-3 font-medium text-muted-foreground">Type</th>
+                <th className="px-4 py-3 font-medium text-muted-foreground">Duration</th>
+                <th className="px-4 py-3 font-medium text-muted-foreground">Date(s)</th>
+                <th className="px-4 py-3 font-medium text-muted-foreground">Days</th>
+                <th className="px-4 py-3 font-medium text-muted-foreground">Applied At</th>
+                <th className="px-4 py-3 font-medium text-muted-foreground">Status</th>
+                <th className="px-4 py-3 text-right font-medium text-muted-foreground">Actions</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={8} className="h-24 text-center text-clay-ink-muted">
+                  <td colSpan={8} className="h-24 text-center text-muted-foreground">
                     Loading...
                   </td>
                 </tr>
               ) : leaves.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="h-24 text-center text-clay-ink-muted">
+                  <td colSpan={8} className="h-24 text-center text-muted-foreground">
                     No leave requests.
                   </td>
                 </tr>
@@ -215,8 +215,8 @@ export default function LeaveManagementPage() {
                       ? `${format(new Date(l.leave_date), 'dd MMM yy')} – ${format(new Date(l.end_date), 'dd MMM yy')}`
                       : format(new Date(l.leave_date), 'dd MMM yy');
                   return (
-                    <tr key={String(l._id)} className="border-b border-clay-border last:border-0">
-                      <td className="px-4 py-3 font-medium text-clay-ink">
+                    <tr key={String(l._id)} className="border-b border-border last:border-0">
+                      <td className="px-4 py-3 font-medium text-foreground">
                         {empMap.get(String(l.user_id)) || l.user_id}
                       </td>
                       <td className="px-4 py-3">
@@ -240,18 +240,18 @@ export default function LeaveManagementPage() {
                           '—'
                         )}
                       </td>
-                      <td className="px-4 py-3 text-clay-ink capitalize">
+                      <td className="px-4 py-3 text-foreground capitalize">
                         {l.duration}
                         {l.duration === 'half-day' && l.half_day_type
                           ? ` (${l.half_day_type})`
                           : ''}
                       </td>
-                      <td className="px-4 py-3 text-clay-ink">{dates}</td>
-                      <td className="px-4 py-3 text-clay-ink">
+                      <td className="px-4 py-3 text-foreground">{dates}</td>
+                      <td className="px-4 py-3 text-foreground">
                         {l.days_count}
                         {l.duration === 'hours' && l.hours ? ` (${l.hours}h)` : ''}
                       </td>
-                      <td className="px-4 py-3 text-clay-ink-muted">
+                      <td className="px-4 py-3 text-muted-foreground">
                         {l.applied_at
                           ? format(new Date(l.applied_at), 'dd MMM yy')
                           : '—'}
@@ -259,7 +259,7 @@ export default function LeaveManagementPage() {
                       <td className="px-4 py-3">
                         <ClayBadge tone={statusTone(l.status)}>{l.status}</ClayBadge>
                         {l.status === 'rejected' && l.reject_reason ? (
-                          <p className="mt-1 max-w-[180px] truncate text-[11px] text-clay-red">
+                          <p className="mt-1 max-w-[180px] truncate text-[11px] text-destructive">
                             {l.reject_reason}
                           </p>
                         ) : null}

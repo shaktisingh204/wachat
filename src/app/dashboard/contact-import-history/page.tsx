@@ -44,7 +44,7 @@ export default function ContactImportHistoryPage() {
   if (isLoading) {
     return (
       <div className="flex min-h-[300px] items-center justify-center">
-        <LuLoader className="h-6 w-6 animate-spin text-clay-ink-muted" />
+        <LuLoader className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -58,18 +58,18 @@ export default function ContactImportHistoryPage() {
       ]} />
 
       <div>
-        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">Contact Import History</h1>
-        <p className="mt-1.5 text-[13px] text-clay-ink-muted">View the history of all past CSV contact imports.</p>
+        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">Contact Import History</h1>
+        <p className="mt-1.5 text-[13px] text-muted-foreground">View the history of all past CSV contact imports.</p>
       </div>
 
       <div className="flex gap-4">
         <ClayCard className="p-5">
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-clay-ink-muted">Total Imports</div>
-          <div className="mt-1 text-[28px] font-semibold text-clay-ink tabular-nums">{imports.length}</div>
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Total Imports</div>
+          <div className="mt-1 text-[28px] font-semibold text-foreground tabular-nums">{imports.length}</div>
         </ClayCard>
         <ClayCard className="p-5">
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-clay-ink-muted">Contacts Imported</div>
-          <div className="mt-1 text-[28px] font-semibold text-clay-ink tabular-nums">{totalImported.toLocaleString()}</div>
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Contacts Imported</div>
+          <div className="mt-1 text-[28px] font-semibold text-foreground tabular-nums">{totalImported.toLocaleString()}</div>
         </ClayCard>
       </div>
 
@@ -77,7 +77,7 @@ export default function ContactImportHistoryPage() {
         <ClayCard padded={false} className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-clay-border text-[11px] font-semibold uppercase tracking-wide text-clay-ink-muted">
+              <tr className="border-b border-border text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                 <th className="px-5 py-3">Filename</th>
                 <th className="px-5 py-3">Date</th>
                 <th className="px-5 py-3 text-right">Total</th>
@@ -88,15 +88,15 @@ export default function ContactImportHistoryPage() {
             </thead>
             <tbody>
               {imports.map((imp) => (
-                <tr key={imp._id} className="border-b border-clay-border last:border-0">
-                  <td className="px-5 py-3 text-[13px] text-clay-ink font-medium flex items-center gap-2">
-                    <LuFileSpreadsheet className="h-4 w-4 text-clay-ink-muted shrink-0" />
+                <tr key={imp._id} className="border-b border-border last:border-0">
+                  <td className="px-5 py-3 text-[13px] text-foreground font-medium flex items-center gap-2">
+                    <LuFileSpreadsheet className="h-4 w-4 text-muted-foreground shrink-0" />
                     {imp.filename || 'Unknown'}
                   </td>
-                  <td className="px-5 py-3 text-[12px] text-clay-ink-muted whitespace-nowrap">
+                  <td className="px-5 py-3 text-[12px] text-muted-foreground whitespace-nowrap">
                     {imp.importedAt ? new Date(imp.importedAt).toLocaleString() : '-'}
                   </td>
-                  <td className="px-5 py-3 text-right text-[13px] text-clay-ink tabular-nums">{(imp.total ?? 0).toLocaleString()}</td>
+                  <td className="px-5 py-3 text-right text-[13px] text-foreground tabular-nums">{(imp.total ?? 0).toLocaleString()}</td>
                   <td className="px-5 py-3 text-right text-[13px] text-emerald-600 tabular-nums">{(imp.success ?? 0).toLocaleString()}</td>
                   <td className="px-5 py-3 text-right text-[13px] text-red-500 tabular-nums">{imp.failed ?? 0}</td>
                   <td className="px-5 py-3">{statusBadge(imp.status || 'completed')}</td>
@@ -107,8 +107,8 @@ export default function ContactImportHistoryPage() {
         </ClayCard>
       ) : (
         <ClayCard className="p-12 text-center">
-          <LuFileSpreadsheet className="mx-auto h-12 w-12 text-clay-ink-muted/30 mb-4" />
-          <p className="text-sm text-clay-ink-muted">No import records found.</p>
+          <LuFileSpreadsheet className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
+          <p className="text-sm text-muted-foreground">No import records found.</p>
         </ClayCard>
       )}
       <div className="h-6" />

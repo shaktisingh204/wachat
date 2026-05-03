@@ -68,23 +68,23 @@ export function CrmEmailTemplateDialog({ isOpen, onOpenChange, template, onSucce
                 <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
                     {isEditing && <input type="hidden" name="templateId" value={template._id.toString()} />}
                     <DialogHeader className="px-6 pt-6 pb-2">
-                        <DialogTitle className="text-clay-ink">{isEditing ? 'Edit' : 'Create'} Email Template</DialogTitle>
-                        <DialogDescription className="text-clay-ink-muted">
+                        <DialogTitle className="text-foreground">{isEditing ? 'Edit' : 'Create'} Email Template</DialogTitle>
+                        <DialogDescription className="text-muted-foreground">
                             Design a reusable email template. Use variables like {'{{contact.name}}'} for personalization.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="flex-1 overflow-y-auto px-6 py-2">
                         <div className="space-y-4">
                             <div className="space-y-2">
-                                <Label htmlFor="name" className="text-clay-ink">Template Name</Label>
+                                <Label htmlFor="name" className="text-foreground">Template Name</Label>
                                 <Input id="name" name="name" defaultValue={template?.name} required />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="subject" className="text-clay-ink">Subject</Label>
+                                <Label htmlFor="subject" className="text-foreground">Subject</Label>
                                 <Input id="subject" name="subject" defaultValue={template?.subject} required />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="body" className="text-clay-ink">Body (HTML)</Label>
+                                <Label htmlFor="body" className="text-foreground">Body (HTML)</Label>
                                 <Textarea id="body" name="body" defaultValue={template?.body} required className="min-h-[300px] font-mono" />
                             </div>
                         </div>

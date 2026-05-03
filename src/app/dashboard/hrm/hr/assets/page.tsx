@@ -16,16 +16,16 @@ const CONDITION_TONES: Record<string, 'neutral' | 'green' | 'amber' | 'red'> = {
 };
 
 function formatDate(value: unknown): React.ReactNode {
-  if (!value) return <span className="text-clay-ink-muted">—</span>;
+  if (!value) return <span className="text-muted-foreground">—</span>;
   const d = new Date(value as any);
-  if (isNaN(d.getTime())) return <span className="text-clay-ink-muted">—</span>;
+  if (isNaN(d.getTime())) return <span className="text-muted-foreground">—</span>;
   return d.toISOString().slice(0, 10);
 }
 
 function formatCurrency(value: unknown, currency?: string): React.ReactNode {
-  if (!value) return <span className="text-clay-ink-muted">—</span>;
+  if (!value) return <span className="text-muted-foreground">—</span>;
   const n = Number(value);
-  if (isNaN(n)) return <span className="text-clay-ink-muted">—</span>;
+  if (isNaN(n)) return <span className="text-muted-foreground">—</span>;
   return `${currency || 'INR'} ${n.toLocaleString()}`;
 }
 

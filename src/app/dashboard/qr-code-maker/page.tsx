@@ -88,9 +88,9 @@ function downloadCsv(filename: string, rows: string[][]) {
 function StatCard({ label, value, hint }: { label: string; value: React.ReactNode; hint?: string }) {
   return (
     <ClayCard className="p-4">
-      <div className="text-[11px] font-medium uppercase tracking-wider text-clay-ink-muted">{label}</div>
-      <div className="mt-1.5 text-[22px] font-semibold text-clay-ink leading-tight">{value}</div>
-      {hint ? <div className="mt-0.5 text-[11px] text-clay-ink-muted">{hint}</div> : null}
+      <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{label}</div>
+      <div className="mt-1.5 text-[22px] font-semibold text-foreground leading-tight">{value}</div>
+      {hint ? <div className="mt-0.5 text-[11px] text-muted-foreground">{hint}</div> : null}
     </ClayCard>
   );
 }
@@ -299,11 +299,11 @@ export default function QrCodeMakerPage() {
         <Skeleton className="h-10 w-64" />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-[88px] rounded-clay-lg" />
+            <Skeleton key={i} className="h-[88px] rounded-xl" />
           ))}
         </div>
-        <Skeleton className="h-[420px] w-full rounded-clay-lg" />
-        <Skeleton className="h-64 w-full rounded-clay-lg" />
+        <Skeleton className="h-[420px] w-full rounded-xl" />
+        <Skeleton className="h-64 w-full rounded-xl" />
       </div>
     );
   }
@@ -313,9 +313,9 @@ export default function QrCodeMakerPage() {
       <div className="clay-enter flex min-h-full flex-col gap-6">
         {breadcrumbs}
         <ClayCard className="p-10 text-center">
-          <AlertCircle className="mx-auto h-10 w-10 text-clay-ink-muted/30 mb-4" />
-          <h3 className="text-sm font-medium text-clay-ink mb-1">Authentication required</h3>
-          <p className="text-xs text-clay-ink-muted">You must be logged in to access this page.</p>
+          <AlertCircle className="mx-auto h-10 w-10 text-muted-foreground/30 mb-4" />
+          <h3 className="text-sm font-medium text-foreground mb-1">Authentication required</h3>
+          <p className="text-xs text-muted-foreground">You must be logged in to access this page.</p>
         </ClayCard>
       </div>
     );
@@ -335,11 +335,11 @@ export default function QrCodeMakerPage() {
 
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
-            <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1] flex items-center gap-3">
+            <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1] flex items-center gap-3">
               <LuQrCode className="h-7 w-7" />
               QR Code Maker
             </h1>
-            <p className="mt-1.5 max-w-[720px] text-[13px] text-clay-ink-muted">
+            <p className="mt-1.5 max-w-[720px] text-[13px] text-muted-foreground">
               Generate customizable QR codes for links, text, WhatsApp messages, and more.
             </p>
           </div>
@@ -371,15 +371,15 @@ export default function QrCodeMakerPage() {
 
         {/* Saved QR Codes */}
         <ClayCard padded={false}>
-          <div className="flex items-center justify-between border-b border-clay-border px-5 py-4">
-            <h2 className="text-[15px] font-semibold text-clay-ink">Your Saved QR Codes</h2>
-            <div className="text-[11.5px] text-clay-ink-muted">
+          <div className="flex items-center justify-between border-b border-border px-5 py-4">
+            <h2 className="text-[15px] font-semibold text-foreground">Your Saved QR Codes</h2>
+            <div className="text-[11.5px] text-muted-foreground">
               {filtered.length} of {qrCodes.length}
             </div>
           </div>
 
           {/* Filter bar */}
-          <div className="flex flex-wrap items-center gap-3 border-b border-clay-border px-5 py-3.5">
+          <div className="flex flex-wrap items-center gap-3 border-b border-border px-5 py-3.5">
             <div className="flex-1 min-w-[220px]">
               <ClayInput
                 sizeVariant="sm"
@@ -416,8 +416,8 @@ export default function QrCodeMakerPage() {
           </div>
 
           {selectedIds.size > 0 ? (
-            <div className="flex items-center justify-between gap-3 border-b border-clay-border bg-clay-rose-soft/40 px-5 py-2.5 text-[12.5px]">
-              <span className="text-clay-ink">
+            <div className="flex items-center justify-between gap-3 border-b border-border bg-accent/40 px-5 py-2.5 text-[12.5px]">
+              <span className="text-foreground">
                 <strong>{selectedIds.size}</strong> selected
               </span>
               <div className="flex items-center gap-2">
@@ -464,14 +464,14 @@ export default function QrCodeMakerPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-[13px]">
               <thead>
-                <tr className="border-b border-clay-border text-left text-[12px] text-clay-ink-muted">
+                <tr className="border-b border-border text-left text-[12px] text-muted-foreground">
                   <th className="w-10 px-5 py-3">
                     <input
                       type="checkbox"
                       checked={allPageSelected}
                       onChange={toggleSelectPage}
                       aria-label="Select all on page"
-                      className="h-3.5 w-3.5 rounded border-clay-border"
+                      className="h-3.5 w-3.5 rounded border-border"
                     />
                   </th>
                   <th className="px-2 py-3 font-medium">Name</th>
@@ -503,8 +503,8 @@ export default function QrCodeMakerPage() {
                       <tr
                         key={id}
                         className={cn(
-                          'border-b border-clay-border last:border-0 hover:bg-clay-surface-2',
-                          selected && 'bg-clay-rose-soft/30',
+                          'border-b border-border last:border-0 hover:bg-secondary',
+                          selected && 'bg-accent/30',
                         )}
                       >
                         <td className="w-10 px-5 py-3">
@@ -513,14 +513,14 @@ export default function QrCodeMakerPage() {
                             checked={selected}
                             onChange={() => toggleSelect(id)}
                             aria-label="Select QR code"
-                            className="h-3.5 w-3.5 rounded border-clay-border"
+                            className="h-3.5 w-3.5 rounded border-border"
                           />
                         </td>
                         <td className="px-2 py-3">
-                          <div className="flex items-center gap-2 font-medium text-clay-ink">
+                          <div className="flex items-center gap-2 font-medium text-foreground">
                             {code.name || '(untitled)'}
                             {isNew ? (
-                              <span className="rounded-full border border-clay-green/40 bg-clay-green/10 px-1.5 py-0 text-[10px] font-medium text-clay-green">
+                              <span className="rounded-full border border-emerald-500/40 bg-emerald-500/10 px-1.5 py-0 text-[10px] font-medium text-emerald-500">
                                 New
                               </span>
                             ) : null}
@@ -528,33 +528,33 @@ export default function QrCodeMakerPage() {
                         </td>
                         <td className="px-5 py-3">
                           <div className="flex items-center gap-1.5">
-                            <span className="rounded-full border border-clay-border bg-clay-surface-2 px-1.5 py-0.5 text-[10.5px] capitalize text-clay-ink">
+                            <span className="rounded-full border border-border bg-secondary px-1.5 py-0.5 text-[10.5px] capitalize text-foreground">
                               {code.dataType}
                             </span>
                             {isDynamic ? (
-                              <span className="rounded-full border border-clay-accent/40 bg-clay-accent/10 px-1.5 py-0.5 text-[10.5px] font-medium text-clay-accent">
+                              <span className="rounded-full border border-accent/40 bg-accent/10 px-1.5 py-0.5 text-[10.5px] font-medium text-accent">
                                 Dynamic
                               </span>
                             ) : null}
                           </div>
                         </td>
-                        <td className="px-5 py-3 font-mono text-[11.5px] text-clay-ink-muted max-w-[260px]">
+                        <td className="px-5 py-3 font-mono text-[11.5px] text-muted-foreground max-w-[260px]">
                           {isDynamic ? (
                             <div className="flex items-center gap-1.5">
                               <Link
                                 href={`/dashboard/url-shortener/${code.shortUrl._id}`}
-                                className="truncate text-clay-accent hover:underline"
+                                className="truncate text-accent hover:underline"
                               >
                                 {shortUrlStr.replace(/^https?:\/\//, '')}
                               </Link>
                               <button
                                 type="button"
                                 onClick={() => handleCopy(id, shortUrlStr)}
-                                className="rounded p-0.5 text-clay-ink-muted hover:bg-clay-bg-2 hover:text-clay-ink"
+                                className="rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground"
                                 aria-label="Copy short URL"
                               >
                                 {copiedId === id ? (
-                                  <Check className="h-3 w-3 text-clay-green" />
+                                  <Check className="h-3 w-3 text-emerald-500" />
                                 ) : (
                                   <Copy className="h-3 w-3" />
                                 )}
@@ -567,11 +567,11 @@ export default function QrCodeMakerPage() {
                                 <button
                                   type="button"
                                   onClick={() => handleCopy(id, staticPreview)}
-                                  className="rounded p-0.5 text-clay-ink-muted hover:bg-clay-bg-2 hover:text-clay-ink"
+                                  className="rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground"
                                   aria-label="Copy data"
                                 >
                                   {copiedId === id ? (
-                                    <Check className="h-3 w-3 text-clay-green" />
+                                    <Check className="h-3 w-3 text-emerald-500" />
                                   ) : (
                                     <Copy className="h-3 w-3" />
                                   )}
@@ -580,7 +580,7 @@ export default function QrCodeMakerPage() {
                             </div>
                           )}
                         </td>
-                        <td className="px-5 py-3 text-clay-ink">
+                        <td className="px-5 py-3 text-foreground">
                           {code.createdAt ? new Date(code.createdAt).toLocaleDateString() : '—'}
                         </td>
                         <td className="px-5 py-3 text-right">
@@ -588,7 +588,7 @@ export default function QrCodeMakerPage() {
                             <button
                               type="button"
                               onClick={() => handleView(code)}
-                              className="rounded p-1.5 text-clay-ink-muted hover:bg-clay-bg-2 hover:text-clay-ink"
+                              className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
                               aria-label="View QR"
                             >
                               <Eye className="h-3.5 w-3.5" />
@@ -597,7 +597,7 @@ export default function QrCodeMakerPage() {
                               <AlertDialogTrigger asChild>
                                 <button
                                   type="button"
-                                  className="rounded p-1.5 text-clay-ink-muted hover:bg-red-500/10 hover:text-red-500"
+                                  className="rounded p-1.5 text-muted-foreground hover:bg-red-500/10 hover:text-red-500"
                                   aria-label="Delete"
                                 >
                                   <Trash2 className="h-3.5 w-3.5" />
@@ -623,7 +623,7 @@ export default function QrCodeMakerPage() {
                   })
                 ) : (
                   <tr>
-                    <td colSpan={6} className="px-5 py-12 text-center text-clay-ink-muted">
+                    <td colSpan={6} className="px-5 py-12 text-center text-muted-foreground">
                       {qrCodes.length === 0
                         ? 'No QR codes saved yet. Use the generator above to create one.'
                         : 'No QR codes match your filters.'}
@@ -635,13 +635,13 @@ export default function QrCodeMakerPage() {
           </div>
 
           {filtered.length > 0 ? (
-            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-clay-border px-5 py-3 text-[12px] text-clay-ink-muted">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-5 py-3 text-[12px] text-muted-foreground">
               <div className="flex items-center gap-2">
                 <span>Rows per page</span>
                 <select
                   value={pageSize}
                   onChange={(e) => setPageSize(Number(e.target.value))}
-                  className="h-7 rounded border border-clay-border bg-clay-surface px-2 text-[12px] text-clay-ink"
+                  className="h-7 rounded border border-border bg-card px-2 text-[12px] text-foreground"
                 >
                   {PAGE_SIZES.map((s) => (
                     <option key={s} value={s}>
@@ -660,7 +660,7 @@ export default function QrCodeMakerPage() {
                     type="button"
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                     disabled={currentPage <= 1}
-                    className="rounded p-1 text-clay-ink-muted hover:bg-clay-bg-2 hover:text-clay-ink disabled:opacity-40 disabled:pointer-events-none"
+                    className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:pointer-events-none"
                     aria-label="Previous page"
                   >
                     <ChevronLeft className="h-4 w-4" />
@@ -672,7 +672,7 @@ export default function QrCodeMakerPage() {
                     type="button"
                     onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
                     disabled={currentPage >= pageCount}
-                    className="rounded p-1 text-clay-ink-muted hover:bg-clay-bg-2 hover:text-clay-ink disabled:opacity-40 disabled:pointer-events-none"
+                    className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:pointer-events-none"
                     aria-label="Next page"
                   >
                     <ChevronRight className="h-4 w-4" />

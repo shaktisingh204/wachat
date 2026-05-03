@@ -51,13 +51,13 @@ export default function MessageStatisticsPage() {
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">Message Statistics</h1>
-          <p className="mt-1.5 text-[13px] text-clay-ink-muted">Monitor your message volume and engagement metrics.</p>
+          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">Message Statistics</h1>
+          <p className="mt-1.5 text-[13px] text-muted-foreground">Monitor your message volume and engagement metrics.</p>
         </div>
-        <div className="flex rounded-lg border border-clay-border overflow-hidden">
+        <div className="flex rounded-lg border border-border overflow-hidden">
           {(['daily', 'weekly', 'monthly'] as const).map((p) => (
             <button key={p} onClick={() => setPeriod(p)}
-              className={`px-3 py-1.5 text-[12px] font-medium capitalize transition-colors ${period === p ? 'bg-clay-ink text-white' : 'bg-clay-bg text-clay-ink-muted hover:bg-clay-bg-2'}`}>
+              className={`px-3 py-1.5 text-[12px] font-medium capitalize transition-colors ${period === p ? 'bg-foreground text-white' : 'bg-background text-muted-foreground hover:bg-muted'}`}>
               {p}
             </button>
           ))}
@@ -66,7 +66,7 @@ export default function MessageStatisticsPage() {
 
       {isLoading ? (
         <div className="flex min-h-[200px] items-center justify-center">
-          <LuLoader className="h-6 w-6 animate-spin text-clay-ink-muted" />
+          <LuLoader className="h-6 w-6 animate-spin text-muted-foreground" />
         </div>
       ) : (
         <>
@@ -74,12 +74,12 @@ export default function MessageStatisticsPage() {
             {cards.map((c) => (
               <ClayCard key={c.label} padded={false} className="p-5">
                 <div className="flex items-center gap-3">
-                  <div className={`flex h-10 w-10 items-center justify-center rounded-full bg-clay-bg-2 ${c.color}`}>
+                  <div className={`flex h-10 w-10 items-center justify-center rounded-full bg-muted ${c.color}`}>
                     <c.icon className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-[11px] text-clay-ink-muted uppercase tracking-wide">{c.label}</p>
-                    <p className="text-[22px] font-semibold text-clay-ink">{c.value.toLocaleString()}</p>
+                    <p className="text-[11px] text-muted-foreground uppercase tracking-wide">{c.label}</p>
+                    <p className="text-[22px] font-semibold text-foreground">{c.value.toLocaleString()}</p>
                   </div>
                 </div>
               </ClayCard>
@@ -87,18 +87,18 @@ export default function MessageStatisticsPage() {
           </div>
 
           <ClayCard padded={false} className="p-5">
-            <h2 className="text-[15px] font-semibold text-clay-ink mb-4">
+            <h2 className="text-[15px] font-semibold text-foreground mb-4">
               <LuChartBar className="inline mr-2 h-4 w-4" />Volume Breakdown
             </h2>
             <div className="flex items-end gap-6 h-48">
               {barValues.map((val, i) => (
                 <div key={barLabels[i]} className="flex flex-1 flex-col items-center gap-1">
-                  <span className="text-[13px] font-semibold text-clay-ink tabular-nums">{val.toLocaleString()}</span>
+                  <span className="text-[13px] font-semibold text-foreground tabular-nums">{val.toLocaleString()}</span>
                   <div
                     className={`w-full max-w-[80px] rounded-t-md ${barColors[i]} transition-all`}
                     style={{ height: `${(val / maxVal) * 100}%`, minHeight: 4 }}
                   />
-                  <span className="text-[11px] text-clay-ink-muted">{barLabels[i]}</span>
+                  <span className="text-[11px] text-muted-foreground">{barLabels[i]}</span>
                 </div>
               ))}
             </div>

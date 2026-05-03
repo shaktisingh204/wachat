@@ -60,20 +60,20 @@ const LineItemsTable = ({ items, setItems }: { items: DeliveryChallanLineItem[],
 
     return (
         <div className="mt-6">
-            <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+            <div className="overflow-x-auto rounded-lg border border-border">
                 <table className="w-full text-sm">
-                    <thead className="bg-clay-surface-2">
-                        <tr className="border-b border-clay-border">
-                            <th className="p-3 text-left font-medium text-clay-ink">Item Name*</th>
-                            <th className="p-3 text-left font-medium text-clay-ink">HSN Code</th>
-                            <th className="p-3 text-right font-medium text-clay-ink">Quantity*</th>
-                            <th className="p-3 text-left font-medium text-clay-ink">Unit</th>
+                    <thead className="bg-secondary">
+                        <tr className="border-b border-border">
+                            <th className="p-3 text-left font-medium text-foreground">Item Name*</th>
+                            <th className="p-3 text-left font-medium text-foreground">HSN Code</th>
+                            <th className="p-3 text-right font-medium text-foreground">Quantity*</th>
+                            <th className="p-3 text-left font-medium text-foreground">Unit</th>
                             <th className="p-3"></th>
                         </tr>
                     </thead>
                     <tbody>
                         {items.map((item, index) => (
-                            <tr key={item.id} className="border-b border-clay-border">
+                            <tr key={item.id} className="border-b border-border">
                                 <td className="p-2"><Input placeholder="Item Name" value={item.name} onChange={e => handleItemChange(item.id, 'name', e.target.value)} required maxLength={100} /></td>
                                 <td className="p-2"><Input placeholder="e.g. 998314" value={item.hsnCode} onChange={e => handleItemChange(item.id, 'hsnCode', e.target.value)} maxLength={20} /></td>
                                 <td className="p-2"><Input type="number" className="w-24 text-right" value={item.quantity} onChange={e => handleItemChange(item.id, 'quantity', Number(e.target.value))} required /></td>
@@ -139,19 +139,19 @@ export default function NewDeliveryChallanPage() {
                     <ClayCard variant="floating" padded={false} className="max-w-4xl mx-auto p-4 sm:p-8 md:p-12">
                         <div className="p-0">
                             <header className="mb-8">
-                                <h1 className="text-3xl font-bold text-clay-ink">Delivery Challan</h1>
+                                <h1 className="text-3xl font-bold text-foreground">Delivery Challan</h1>
                             </header>
 
                             <Separator className="my-8" />
 
                             <section className="grid md:grid-cols-2 gap-8 text-sm mb-8">
                                 <div>
-                                    <h3 className="font-semibold mb-2 text-clay-ink">From (Consignor):</h3>
+                                    <h3 className="font-semibold mb-2 text-foreground">From (Consignor):</h3>
                                     <p className="font-bold">{yourBusinessDetails.name}</p>
-                                    <p className="text-clay-ink-muted">{yourBusinessDetails.address}</p>
+                                    <p className="text-muted-foreground">{yourBusinessDetails.address}</p>
                                 </div>
                                 <div>
-                                    <h3 className="font-semibold mb-2 text-clay-ink">To (Consignee):</h3>
+                                    <h3 className="font-semibold mb-2 text-foreground">To (Consignee):</h3>
                                     <SmartClientSelect
                                         value={selectedClientId}
                                         onSelect={setSelectedClientId}
@@ -164,14 +164,14 @@ export default function NewDeliveryChallanPage() {
                                         }}
                                     />
                                     {selectedClient && (
-                                        <p className="text-clay-ink-muted mt-1">{selectedClient?.phone}</p>
+                                        <p className="text-muted-foreground mt-1">{selectedClient?.phone}</p>
                                     )}
                                 </div>
                             </section>
 
                             <section className="grid grid-cols-2 gap-4 mb-8">
-                                <div className="space-y-1"><Label className="text-xs text-clay-ink">Challan No *</Label><Input name="challanNumber" defaultValue="DC-00001" className="h-8" required maxLength={50} /></div>
-                                <div className="space-y-1"><Label className="text-xs text-clay-ink">Challan Date *</Label><DatePicker date={challanDate} setDate={setChallanDate} /></div>
+                                <div className="space-y-1"><Label className="text-xs text-foreground">Challan No *</Label><Input name="challanNumber" defaultValue="DC-00001" className="h-8" required maxLength={50} /></div>
+                                <div className="space-y-1"><Label className="text-xs text-foreground">Challan Date *</Label><DatePicker date={challanDate} setDate={setChallanDate} /></div>
                             </section>
 
                             <section>
@@ -182,27 +182,27 @@ export default function NewDeliveryChallanPage() {
 
                             <section className="grid md:grid-cols-2 gap-8 mt-8">
                                 <div className="space-y-4">
-                                    <div className="space-y-2"><Label className="text-clay-ink">Reason for Delivery</Label><Input name="reason" placeholder="e.g. For Job Work, Sale on Approval" maxLength={200} /></div>
-                                    <div className="space-y-2"><Label className="text-clay-ink">Notes (Optional)</Label><Textarea name="notes" placeholder="Any special instructions..." maxLength={500} /></div>
+                                    <div className="space-y-2"><Label className="text-foreground">Reason for Delivery</Label><Input name="reason" placeholder="e.g. For Job Work, Sale on Approval" maxLength={200} /></div>
+                                    <div className="space-y-2"><Label className="text-foreground">Notes (Optional)</Label><Textarea name="notes" placeholder="Any special instructions..." maxLength={500} /></div>
                                 </div>
                                 <div className="space-y-4">
-                                    <h3 className="font-semibold text-clay-ink">Transport Details</h3>
+                                    <h3 className="font-semibold text-foreground">Transport Details</h3>
                                     <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-2"><Label className="text-clay-ink">Vehicle Number</Label><Input name="vehicleNumber" placeholder="e.g. RJ14 AB 1234" maxLength={20} /></div>
-                                        <div className="space-y-2"><Label className="text-clay-ink">Driver Name</Label><Input name="driverName" placeholder="e.g. John Doe" maxLength={100} /></div>
+                                        <div className="space-y-2"><Label className="text-foreground">Vehicle Number</Label><Input name="vehicleNumber" placeholder="e.g. RJ14 AB 1234" maxLength={20} /></div>
+                                        <div className="space-y-2"><Label className="text-foreground">Driver Name</Label><Input name="driverName" placeholder="e.g. John Doe" maxLength={100} /></div>
                                     </div>
-                                    <div className="space-y-2"><Label className="text-clay-ink">Transport Mode</Label><Input name="mode" placeholder="e.g. By Road" maxLength={100} /></div>
+                                    <div className="space-y-2"><Label className="text-foreground">Transport Mode</Label><Input name="mode" placeholder="e.g. By Road" maxLength={100} /></div>
                                 </div>
                             </section>
                             <Separator className="my-8" />
                             <section className="grid md:grid-cols-2 gap-8 mt-8">
                                 <div className="space-y-2">
-                                    <Label className="text-clay-ink">Signature (Consignor)</Label>
-                                    <div className="h-24 border border-clay-border rounded-clay-md bg-clay-surface-2 flex items-center justify-center text-clay-ink-muted text-sm">Authorized Signatory</div>
+                                    <Label className="text-foreground">Signature (Consignor)</Label>
+                                    <div className="h-24 border border-border rounded-lg bg-secondary flex items-center justify-center text-muted-foreground text-sm">Authorized Signatory</div>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="text-clay-ink">Signature (Consignee)</Label>
-                                    <div className="h-24 border border-clay-border rounded-clay-md bg-clay-surface-2 flex items-center justify-center text-clay-ink-muted text-sm">Receiver&apos;s Signature</div>
+                                    <Label className="text-foreground">Signature (Consignee)</Label>
+                                    <div className="h-24 border border-border rounded-lg bg-secondary flex items-center justify-center text-muted-foreground text-sm">Receiver&apos;s Signature</div>
                                 </div>
                             </section>
                         </div>

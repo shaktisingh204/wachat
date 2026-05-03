@@ -27,8 +27,8 @@ import { DeletePaymentConfigButton } from '@/components/wabasimplify/delete-paym
 function PageSkeleton() {
   return (
     <div className="space-y-4">
-      <div className="h-64 w-full animate-pulse rounded-clay-lg bg-clay-bg-2" />
-      <div className="h-48 w-full animate-pulse rounded-clay-lg bg-clay-bg-2" />
+      <div className="h-64 w-full animate-pulse rounded-xl bg-muted" />
+      <div className="h-48 w-full animate-pulse rounded-xl bg-muted" />
     </div>
   );
 }
@@ -41,9 +41,9 @@ function InfoRow({
   value: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center justify-between border-b border-clay-border py-2.5 text-[13px]">
-      <span className="text-clay-ink-muted">{label}</span>
-      <span className="font-medium text-clay-ink">{value}</span>
+    <div className="flex items-center justify-between border-b border-border py-2.5 text-[13px]">
+      <span className="text-muted-foreground">{label}</span>
+      <span className="font-medium text-foreground">{value}</span>
     </div>
   );
 }
@@ -107,7 +107,7 @@ export default function WhatsAppPaySetupPage() {
 
   if (!project) {
     return (
-      <div className="flex items-center gap-3 rounded-clay-md border border-clay-red/20 bg-red-50 p-4 text-[13px] text-clay-red">
+      <div className="flex items-center gap-3 rounded-lg border border-destructive/20 bg-red-50 p-4 text-[13px] text-destructive">
         <LuCircleAlert className="h-4 w-4 shrink-0" />
         No project selected. Please select a project to manage its payment
         settings.
@@ -127,20 +127,20 @@ export default function WhatsAppPaySetupPage() {
 
       {/* Setup instructions */}
       <ClayCard className="p-5">
-        <h3 className="text-[15px] font-semibold text-clay-ink">
+        <h3 className="text-[15px] font-semibold text-foreground">
           WhatsApp Pay Setup
         </h3>
-        <p className="mt-1 text-[13px] text-clay-ink-muted">
+        <p className="mt-1 text-[13px] text-muted-foreground">
           To enable WhatsApp Pay, configure a payment provider (like Razorpay or
           PayU) within your Meta Commerce Manager.
         </p>
-        <ol className="mt-4 list-inside list-decimal space-y-1.5 text-[13px] text-clay-ink-muted">
+        <ol className="mt-4 list-inside list-decimal space-y-1.5 text-[13px] text-muted-foreground">
           <li>Navigate to your Meta Commerce Manager.</li>
           <li>
-            Go to the <strong className="text-clay-ink">Settings</strong> tab.
+            Go to the <strong className="text-foreground">Settings</strong> tab.
           </li>
           <li>
-            Select <strong className="text-clay-ink">Payment Method</strong> and
+            Select <strong className="text-foreground">Payment Method</strong> and
             add your preferred provider.
           </li>
           <li>
@@ -166,10 +166,10 @@ export default function WhatsAppPaySetupPage() {
       <ClayCard className="p-5">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <h3 className="text-[15px] font-semibold text-clay-ink">
+            <h3 className="text-[15px] font-semibold text-foreground">
               Your Payment Configurations
             </h3>
-            <p className="mt-0.5 text-[12px] text-clay-ink-muted">
+            <p className="mt-0.5 text-[12px] text-muted-foreground">
               Payment providers linked to your WABA.
             </p>
           </div>
@@ -203,7 +203,7 @@ export default function WhatsAppPaySetupPage() {
 
         <div className="mt-5">
           {error ? (
-            <div className="flex items-center gap-3 rounded-clay-md border border-clay-red/20 bg-red-50 p-4 text-[13px] text-clay-red">
+            <div className="flex items-center gap-3 rounded-lg border border-destructive/20 bg-red-50 p-4 text-[13px] text-destructive">
               <LuCircleAlert className="h-4 w-4 shrink-0" />
               {error}
             </div>
@@ -216,8 +216,8 @@ export default function WhatsAppPaySetupPage() {
                   className="p-4"
                 >
                   <div className="flex items-center gap-2">
-                    <LuSettings className="h-4 w-4 text-clay-ink-muted" />
-                    <h4 className="text-[14px] font-semibold text-clay-ink">
+                    <LuSettings className="h-4 w-4 text-muted-foreground" />
+                    <h4 className="text-[14px] font-semibold text-foreground">
                       {config.configuration_name}
                     </h4>
                   </div>
@@ -270,7 +270,7 @@ export default function WhatsAppPaySetupPage() {
               ))}
             </div>
           ) : (
-            <p className="py-8 text-center text-[13px] text-clay-ink-muted">
+            <p className="py-8 text-center text-[13px] text-muted-foreground">
               No payment configurations found for this WABA.
             </p>
           )}

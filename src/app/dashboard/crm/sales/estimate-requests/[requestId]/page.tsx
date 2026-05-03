@@ -276,7 +276,7 @@ export default function EstimateRequestDetailPage(props: {
     return (
       <ClayCard variant="outline" className="border-dashed">
         <div className="flex flex-col items-center gap-3 py-12 text-center">
-          <p className="text-[13px] text-clay-ink-muted">
+          <p className="text-[13px] text-muted-foreground">
             Estimate request not found.
           </p>
           <Link href="/dashboard/crm/sales/estimate-requests">
@@ -333,7 +333,7 @@ export default function EstimateRequestDetailPage(props: {
             value={request.status}
             onValueChange={(v) => handleStatusChange(v as WsEstimateRequestStatus)}
           >
-            <SelectTrigger className="h-9 w-40 rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
+            <SelectTrigger className="h-9 w-40 rounded-lg border-border bg-card text-[13px]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -348,7 +348,7 @@ export default function EstimateRequestDetailPage(props: {
             <button
               type="button"
               onClick={handleDelete}
-              className="rounded-clay-md p-2 text-clay-ink-muted hover:bg-clay-red-soft hover:text-clay-red"
+              className="rounded-lg p-2 text-muted-foreground hover:bg-rose-50 hover:text-destructive"
               aria-label="Delete"
             >
               <Trash2 className="h-4 w-4" />
@@ -358,39 +358,39 @@ export default function EstimateRequestDetailPage(props: {
 
         <div className="grid gap-4 md:grid-cols-3">
           <div className="flex items-start gap-3">
-            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-clay-md bg-clay-rose-soft">
-              <UserIcon className="h-4 w-4 text-clay-rose-ink" strokeWidth={1.75} />
+            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent">
+              <UserIcon className="h-4 w-4 text-accent-foreground" strokeWidth={1.75} />
             </div>
             <div>
-              <p className="text-[11.5px] text-clay-ink-muted">Requester</p>
-              <p className="text-[13px] font-medium text-clay-ink">
+              <p className="text-[11.5px] text-muted-foreground">Requester</p>
+              <p className="text-[13px] font-medium text-foreground">
                 {request.requester_name || '—'}
               </p>
               {request.requester_email ? (
-                <p className="text-[11.5px] text-clay-ink-muted">
+                <p className="text-[11.5px] text-muted-foreground">
                   {request.requester_email}
                 </p>
               ) : null}
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-clay-md bg-clay-rose-soft">
-              <Calendar className="h-4 w-4 text-clay-rose-ink" strokeWidth={1.75} />
+            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent">
+              <Calendar className="h-4 w-4 text-accent-foreground" strokeWidth={1.75} />
             </div>
             <div>
-              <p className="text-[11.5px] text-clay-ink-muted">Desired Date</p>
-              <p className="text-[13px] font-medium text-clay-ink">
+              <p className="text-[11.5px] text-muted-foreground">Desired Date</p>
+              <p className="text-[13px] font-medium text-foreground">
                 {fmtDate(request.desired_date)}
               </p>
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-clay-md bg-clay-rose-soft">
-              <Calendar className="h-4 w-4 text-clay-rose-ink" strokeWidth={1.75} />
+            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent">
+              <Calendar className="h-4 w-4 text-accent-foreground" strokeWidth={1.75} />
             </div>
             <div>
-              <p className="text-[11.5px] text-clay-ink-muted">Created</p>
-              <p className="text-[13px] font-medium text-clay-ink">
+              <p className="text-[11.5px] text-muted-foreground">Created</p>
+              <p className="text-[13px] font-medium text-foreground">
                 {fmtDate(request.createdAt)}
               </p>
             </div>
@@ -398,10 +398,10 @@ export default function EstimateRequestDetailPage(props: {
         </div>
 
         <div className="mt-6">
-          <p className="mb-1 text-[11.5px] font-medium uppercase tracking-wide text-clay-ink-muted">
+          <p className="mb-1 text-[11.5px] font-medium uppercase tracking-wide text-muted-foreground">
             Description
           </p>
-          <div className="rounded-clay-md border border-clay-border bg-clay-surface-2 p-3 text-[13px] text-clay-ink">
+          <div className="rounded-lg border border-border bg-secondary p-3 text-[13px] text-foreground">
             <pre className="whitespace-pre-wrap font-sans">
               {request.description}
             </pre>
@@ -410,10 +410,10 @@ export default function EstimateRequestDetailPage(props: {
 
         {request.notes ? (
           <div className="mt-4">
-            <p className="mb-1 text-[11.5px] font-medium uppercase tracking-wide text-clay-ink-muted">
+            <p className="mb-1 text-[11.5px] font-medium uppercase tracking-wide text-muted-foreground">
               Internal Notes
             </p>
-            <div className="rounded-clay-md border border-clay-border bg-clay-surface-2 p-3 text-[13px] text-clay-ink">
+            <div className="rounded-lg border border-border bg-secondary p-3 text-[13px] text-foreground">
               <pre className="whitespace-pre-wrap font-sans">
                 {request.notes}
               </pre>
@@ -425,8 +425,8 @@ export default function EstimateRequestDetailPage(props: {
       {data.accepts.length > 0 ? (
         <ClayCard>
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="h-5 w-5 text-clay-green" />
-            <h2 className="text-[16px] font-semibold text-clay-ink">
+            <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+            <h2 className="text-[16px] font-semibold text-foreground">
               Accepted by customer
             </h2>
           </div>
@@ -434,19 +434,19 @@ export default function EstimateRequestDetailPage(props: {
             {data.accepts.map((s) => (
               <div
                 key={s._id}
-                className="rounded-clay-md border border-clay-border bg-clay-surface-2 p-4"
+                className="rounded-lg border border-border bg-secondary p-4"
               >
-                <p className="text-[11.5px] text-clay-ink-muted">Accepted by</p>
-                <p className="text-[13px] font-medium text-clay-ink">
+                <p className="text-[11.5px] text-muted-foreground">Accepted by</p>
+                <p className="text-[13px] font-medium text-foreground">
                   {s.accepted_by_name}
                 </p>
-                <p className="text-[11.5px] text-clay-ink-muted">
+                <p className="text-[11.5px] text-muted-foreground">
                   {s.accepted_by_email}
                 </p>
-                <p className="mt-2 text-[11.5px] text-clay-ink-muted">
+                <p className="mt-2 text-[11.5px] text-muted-foreground">
                   Accepted at
                 </p>
-                <p className="text-[13px] text-clay-ink">
+                <p className="text-[13px] text-foreground">
                   {fmtDateTime(s.accepted_at)}
                 </p>
                 {s.signature_data_url ? (
@@ -454,7 +454,7 @@ export default function EstimateRequestDetailPage(props: {
                   <img
                     src={s.signature_data_url}
                     alt="Signature"
-                    className="mt-2 max-h-24 rounded-clay-md border border-clay-border bg-white p-2"
+                    className="mt-2 max-h-24 rounded-lg border border-border bg-white p-2"
                   />
                 ) : null}
               </div>
@@ -466,41 +466,41 @@ export default function EstimateRequestDetailPage(props: {
       {canAccept ? (
         <ClayCard>
           <div className="mb-4">
-            <h2 className="text-[16px] font-semibold text-clay-ink">
+            <h2 className="text-[16px] font-semibold text-foreground">
               Accept estimate
             </h2>
-            <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">
+            <p className="mt-0.5 text-[12.5px] text-muted-foreground">
               Record customer acceptance with signature. This will move the
               request into <span className="font-medium">quoted</span>.
             </p>
           </div>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <Label className="text-clay-ink">Full Name</Label>
+              <Label className="text-foreground">Full Name</Label>
               <Input
                 value={signerName}
                 onChange={(e) => setSignerName(e.target.value)}
                 placeholder="Jane Doe"
-                className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div>
-              <Label className="text-clay-ink">Email</Label>
+              <Label className="text-foreground">Email</Label>
               <Input
                 type="email"
                 value={signerEmail}
                 onChange={(e) => setSignerEmail(e.target.value)}
                 placeholder="jane@example.com"
-                className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
           </div>
           <div className="mt-4">
-            <Label className="text-clay-ink">Signature</Label>
-            <div className="mt-1.5 rounded-clay-md border border-clay-border bg-white p-2">
+            <Label className="text-foreground">Signature</Label>
+            <div className="mt-1.5 rounded-lg border border-border bg-white p-2">
               <canvas
                 ref={canvasRef}
-                className="block w-full touch-none rounded-clay-md bg-white"
+                className="block w-full touch-none rounded-lg bg-white"
                 style={{ height: 180 }}
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}

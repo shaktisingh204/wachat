@@ -51,13 +51,13 @@ import type { CustomAudience } from '@/lib/definitions';
 function AudienceRowSkeleton() {
   return (
     <div className="flex items-center gap-4 px-5 py-4 animate-pulse">
-      <div className="h-9 w-9 rounded-full bg-clay-surface-2" />
+      <div className="h-9 w-9 rounded-full bg-secondary" />
       <div className="flex-1 space-y-2">
-        <div className="h-3.5 w-40 rounded bg-clay-surface-2" />
-        <div className="h-2.5 w-24 rounded bg-clay-surface-2" />
+        <div className="h-3.5 w-40 rounded bg-secondary" />
+        <div className="h-2.5 w-24 rounded bg-secondary" />
       </div>
-      <div className="h-6 w-16 rounded-full bg-clay-surface-2" />
-      <div className="h-3 w-14 rounded bg-clay-surface-2" />
+      <div className="h-6 w-16 rounded-full bg-secondary" />
+      <div className="h-3 w-14 rounded bg-secondary" />
     </div>
   );
 }
@@ -68,17 +68,17 @@ function AudienceRowSkeleton() {
 function EmptyState({ type }: { type: 'custom' | 'lookalike' }) {
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center">
-      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-clay-surface-2 mb-4">
+      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary mb-4">
         {type === 'custom' ? (
-          <LuUsers className="h-5 w-5 text-clay-ink-soft" />
+          <LuUsers className="h-5 w-5 text-muted-foreground" />
         ) : (
-          <LuCopy className="h-5 w-5 text-clay-ink-soft" />
+          <LuCopy className="h-5 w-5 text-muted-foreground" />
         )}
       </div>
-      <p className="text-[13px] font-medium text-clay-ink mb-1">
+      <p className="text-[13px] font-medium text-foreground mb-1">
         No {type === 'custom' ? 'custom' : 'lookalike'} audiences
       </p>
-      <p className="text-[11px] text-clay-ink-muted max-w-[240px]">
+      <p className="text-[11px] text-muted-foreground max-w-[240px]">
         {type === 'custom'
           ? 'Create a custom audience from your website visitors, customer lists, or engagement data.'
           : 'Build lookalike audiences from your existing custom audiences to reach similar people.'}
@@ -93,11 +93,11 @@ function EmptyState({ type }: { type: 'custom' | 'lookalike' }) {
 function NoAccountState() {
   return (
     <div className="flex flex-col items-center justify-center py-24 text-center">
-      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-clay-surface-2 mb-5">
-        <LuUsers className="h-6 w-6 text-clay-ink-soft" />
+      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-secondary mb-5">
+        <LuUsers className="h-6 w-6 text-muted-foreground" />
       </div>
-      <p className="text-[15px] font-medium text-clay-ink mb-1">No ad account selected</p>
-      <p className="text-[13px] text-clay-ink-muted mb-5 max-w-xs">
+      <p className="text-[15px] font-medium text-foreground mb-1">No ad account selected</p>
+      <p className="text-[13px] text-muted-foreground mb-5 max-w-xs">
         Pick an ad account to view and manage your audiences.
       </p>
       <Link href="/dashboard/ad-manager/ad-accounts">
@@ -135,23 +135,23 @@ function AudienceRow({
 
   return (
     <>
-      <div className="group flex items-center gap-4 px-5 py-3.5 border-b border-clay-border last:border-b-0 hover:bg-clay-surface-2/50 transition-colors">
+      <div className="group flex items-center gap-4 px-5 py-3.5 border-b border-border last:border-b-0 hover:bg-secondary/50 transition-colors">
         {/* icon */}
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-clay-surface-2">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-secondary">
           {subtype === 'LOOKALIKE' ? (
-            <LuCopy className="h-4 w-4 text-clay-ink-soft" />
+            <LuCopy className="h-4 w-4 text-muted-foreground" />
           ) : subtype === 'WEBSITE' ? (
-            <LuGlobe className="h-4 w-4 text-clay-ink-soft" />
+            <LuGlobe className="h-4 w-4 text-muted-foreground" />
           ) : (
-            <LuTarget className="h-4 w-4 text-clay-ink-soft" />
+            <LuTarget className="h-4 w-4 text-muted-foreground" />
           )}
         </div>
 
         {/* name + description */}
         <div className="flex-1 min-w-0">
-          <p className="text-[13px] font-medium text-clay-ink truncate">{audience.name}</p>
+          <p className="text-[13px] font-medium text-foreground truncate">{audience.name}</p>
           {audience.description && (
-            <p className="text-[11px] text-clay-ink-muted truncate mt-0.5">{audience.description}</p>
+            <p className="text-[11px] text-muted-foreground truncate mt-0.5">{audience.description}</p>
           )}
         </div>
 
@@ -161,7 +161,7 @@ function AudienceRow({
         </ClayBadge>
 
         {/* approximate count */}
-        <span className="text-[13px] text-clay-ink tabular-nums min-w-[72px] text-right">
+        <span className="text-[13px] text-foreground tabular-nums min-w-[72px] text-right">
           {audience.approximate_count_lower_bound
             ? formatNumber(audience.approximate_count_lower_bound)
             : '--'}
@@ -171,7 +171,7 @@ function AudienceRow({
         <ClayButton
           variant="ghost"
           size="icon"
-          className="opacity-0 group-hover:opacity-100 text-clay-ink-muted hover:text-clay-red"
+          className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive"
           onClick={() => setConfirmOpen(true)}
         >
           <LuTrash2 className="h-4 w-4" />
@@ -183,7 +183,7 @@ function AudienceRow({
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle className="text-[15px]">Delete audience</DialogTitle>
-            <DialogDescription className="text-[13px] text-clay-ink-muted">
+            <DialogDescription className="text-[13px] text-muted-foreground">
               Are you sure you want to delete <strong>{audience.name}</strong>? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
@@ -194,7 +194,7 @@ function AudienceRow({
             <ClayButton
               variant="rose"
               size="sm"
-              className="bg-clay-red hover:bg-clay-red/90"
+              className="bg-destructive hover:bg-destructive/90"
               onClick={() => {
                 onDelete(audience.id);
                 setConfirmOpen(false);
@@ -228,8 +228,8 @@ function TabPill({
       className={cn(
         'h-8 px-4 rounded-full text-[12.5px] font-medium transition-all duration-150',
         active
-          ? 'bg-clay-obsidian text-white shadow-sm'
-          : 'bg-clay-surface-2 text-clay-ink-muted hover:text-clay-ink hover:bg-clay-surface-2/80',
+          ? 'bg-foreground text-white shadow-sm'
+          : 'bg-secondary text-muted-foreground hover:text-foreground hover:bg-secondary/80',
       )}
     >
       {children}
@@ -316,10 +316,10 @@ function CreateAudienceSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:max-w-md bg-clay-bg overflow-y-auto">
+      <SheetContent side="right" className="w-full sm:max-w-md bg-background overflow-y-auto">
         <SheetHeader className="mb-6">
-          <SheetTitle className="text-[18px] font-semibold text-clay-ink">Create audience</SheetTitle>
-          <SheetDescription className="text-[13px] text-clay-ink-muted">
+          <SheetTitle className="text-[18px] font-semibold text-foreground">Create audience</SheetTitle>
+          <SheetDescription className="text-[13px] text-muted-foreground">
             Build a custom or lookalike audience for targeting.
           </SheetDescription>
         </SheetHeader>
@@ -337,7 +337,7 @@ function CreateAudienceSheet({
         {type === 'custom' ? (
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <Label className="text-[11px] font-medium text-clay-ink-muted uppercase tracking-wide">
+              <Label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
                 Name
               </Label>
               <ClayInput
@@ -348,7 +348,7 @@ function CreateAudienceSheet({
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-[11px] font-medium text-clay-ink-muted uppercase tracking-wide">
+              <Label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
                 Description
               </Label>
               <ClayInput
@@ -359,11 +359,11 @@ function CreateAudienceSheet({
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-[11px] font-medium text-clay-ink-muted uppercase tracking-wide">
+              <Label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
                 Source type
               </Label>
               <Select value={customSubtype} onValueChange={(v) => setCustomSubtype(v as typeof customSubtype)}>
-                <SelectTrigger className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px] text-clay-ink">
+                <SelectTrigger className="h-10 rounded-lg border-border bg-card text-[13px] text-foreground">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -377,11 +377,11 @@ function CreateAudienceSheet({
         ) : (
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <Label className="text-[11px] font-medium text-clay-ink-muted uppercase tracking-wide">
+              <Label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
                 Source audience
               </Label>
               <Select value={lookOrigin} onValueChange={setLookOrigin}>
-                <SelectTrigger className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px] text-clay-ink">
+                <SelectTrigger className="h-10 rounded-lg border-border bg-card text-[13px] text-foreground">
                   <SelectValue placeholder="Select a source audience" />
                 </SelectTrigger>
                 <SelectContent>
@@ -395,11 +395,11 @@ function CreateAudienceSheet({
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-[11px] font-medium text-clay-ink-muted uppercase tracking-wide">
+              <Label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
                 Country
               </Label>
               <Select value={lookCountry} onValueChange={setLookCountry}>
-                <SelectTrigger className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px] text-clay-ink">
+                <SelectTrigger className="h-10 rounded-lg border-border bg-card text-[13px] text-foreground">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -414,10 +414,10 @@ function CreateAudienceSheet({
 
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">
-                <Label className="text-[11px] font-medium text-clay-ink-muted uppercase tracking-wide">
+                <Label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
                   Similarity ratio
                 </Label>
-                <span className="text-[13px] font-semibold text-clay-ink tabular-nums">{lookRatio}%</span>
+                <span className="text-[13px] font-semibold text-foreground tabular-nums">{lookRatio}%</span>
               </div>
               <input
                 type="range"
@@ -426,9 +426,9 @@ function CreateAudienceSheet({
                 step={1}
                 value={lookRatio}
                 onChange={(e) => setLookRatio(Number(e.target.value))}
-                className="w-full accent-clay-obsidian h-1.5 rounded-full appearance-none bg-clay-surface-2 cursor-pointer"
+                className="w-full accent-foreground h-1.5 rounded-full appearance-none bg-secondary cursor-pointer"
               />
-              <div className="flex justify-between text-[10px] text-clay-ink-muted">
+              <div className="flex justify-between text-[10px] text-muted-foreground">
                 <span>1% most similar</span>
                 <span>10% broadest</span>
               </div>
@@ -437,7 +437,7 @@ function CreateAudienceSheet({
         )}
 
         {/* actions */}
-        <div className="flex gap-3 mt-8 pt-5 border-t border-clay-border">
+        <div className="flex gap-3 mt-8 pt-5 border-t border-border">
           <ClayButton
             variant="pill"
             className="flex-1"
@@ -531,7 +531,7 @@ export default function AudiencesPage() {
       {/* header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <h1 className="text-[26px] font-semibold tracking-tight text-clay-ink">Audiences</h1>
+          <h1 className="text-[26px] font-semibold tracking-tight text-foreground">Audiences</h1>
           <ClayBadge tone="neutral">
             <span className="tabular-nums">{audiences.length}</span>
           </ClayBadge>
@@ -571,7 +571,7 @@ export default function AudiencesPage() {
       {/* audience list */}
       <ClayCard padded={false}>
         {/* column header */}
-        <div className="flex items-center gap-4 px-5 py-2.5 border-b border-clay-border text-[10px] font-medium text-clay-ink-muted uppercase tracking-wider">
+        <div className="flex items-center gap-4 px-5 py-2.5 border-b border-border text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
           <div className="w-9 shrink-0" />
           <div className="flex-1">Name</div>
           <div className="w-20 text-center">Type</div>

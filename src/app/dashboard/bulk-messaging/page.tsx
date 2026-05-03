@@ -53,23 +53,23 @@ export default function BulkMessagingPage() {
       ]} />
 
       <div>
-        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">Bulk Messaging</h1>
-        <p className="mt-1.5 text-[13px] text-clay-ink-muted">Send a message to multiple phone numbers at once.</p>
+        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">Bulk Messaging</h1>
+        <p className="mt-1.5 text-[13px] text-muted-foreground">Send a message to multiple phone numbers at once.</p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <ClayCard padded={false} className="p-6 flex flex-col gap-4">
           <div>
-            <label className="text-[13px] font-medium text-clay-ink mb-1.5 block">Phone Numbers (one per line)</label>
+            <label className="text-[13px] font-medium text-foreground mb-1.5 block">Phone Numbers (one per line)</label>
             <textarea value={numbers} onChange={(e) => setNumbers(e.target.value)} rows={6} disabled={sending}
               placeholder={'+91 98765 43210\n+91 87654 32109\n+91 76543 21098'}
-              className="w-full rounded-lg border border-clay-border bg-clay-bg px-3 py-2 text-sm text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-accent focus:outline-none resize-none font-mono" />
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none resize-none font-mono" />
           </div>
           <div>
-            <label className="text-[13px] font-medium text-clay-ink mb-1.5 block">Message</label>
+            <label className="text-[13px] font-medium text-foreground mb-1.5 block">Message</label>
             <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={4} disabled={sending}
               placeholder="Type your message here..."
-              className="w-full rounded-lg border border-clay-border bg-clay-bg px-3 py-2 text-sm text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-accent focus:outline-none resize-none" />
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none resize-none" />
           </div>
           <div>
             <ClayButton variant="obsidian" size="md" onClick={handleSend} disabled={sending || !projectId}
@@ -80,31 +80,31 @@ export default function BulkMessagingPage() {
         </ClayCard>
 
         <ClayCard padded={false} className="p-6">
-          <h2 className="text-[16px] font-semibold text-clay-ink mb-4">Result</h2>
+          <h2 className="text-[16px] font-semibold text-foreground mb-4">Result</h2>
           {sending ? (
             <div className="flex h-20 items-center justify-center gap-3">
-              <LuLoader className="h-5 w-5 animate-spin text-clay-ink-muted" />
-              <p className="text-[13px] text-clay-ink-muted">Sending messages...</p>
+              <LuLoader className="h-5 w-5 animate-spin text-muted-foreground" />
+              <p className="text-[13px] text-muted-foreground">Sending messages...</p>
             </div>
           ) : result ? (
             <>
-              <div className="h-3 w-full overflow-hidden rounded-full bg-clay-surface-2 mb-4">
-                <div className="h-full rounded-full bg-clay-rose" style={{ width: '100%' }} />
+              <div className="h-3 w-full overflow-hidden rounded-full bg-secondary mb-4">
+                <div className="h-full rounded-full bg-primary" style={{ width: '100%' }} />
               </div>
-              <p className="text-[13px] text-clay-ink mb-4">{result.total} processed</p>
+              <p className="text-[13px] text-foreground mb-4">{result.total} processed</p>
               <div className="flex gap-6">
                 <div className="flex items-center gap-2">
                   <LuCircleCheck className="h-4 w-4 text-emerald-600" />
-                  <span className="text-[13px] text-clay-ink">{result.success} sent</span>
+                  <span className="text-[13px] text-foreground">{result.success} sent</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <LuCircleX className="h-4 w-4 text-red-500" />
-                  <span className="text-[13px] text-clay-ink">{result.failed} failed</span>
+                  <span className="text-[13px] text-foreground">{result.failed} failed</span>
                 </div>
               </div>
             </>
           ) : (
-            <p className="text-[13px] text-clay-ink-muted py-8 text-center">Enter numbers and a message, then click Send All.</p>
+            <p className="text-[13px] text-muted-foreground py-8 text-center">Enter numbers and a message, then click Send All.</p>
           )}
         </ClayCard>
       </div>

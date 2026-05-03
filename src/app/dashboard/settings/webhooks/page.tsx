@@ -80,17 +80,17 @@ export default function WebhooksPage() {
 
             {rows.length === 0 ? (
                 <ClayCard padded className="py-10 text-center">
-                    <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-clay-surface-subtle text-clay-ink-muted">
+                    <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-muted/50 text-muted-foreground">
                         <LuWebhook className="h-5 w-5" />
                     </div>
-                    <p className="text-[13px] font-semibold text-clay-ink">No webhooks yet</p>
-                    <p className="mt-1 text-[12.5px] text-clay-ink-muted">
+                    <p className="text-[13px] font-semibold text-foreground">No webhooks yet</p>
+                    <p className="mt-1 text-[12.5px] text-muted-foreground">
                         Add your first endpoint to start receiving event callbacks.
                     </p>
                 </ClayCard>
             ) : (
                 <ClayCard padded={false}>
-                    <ul className="divide-y divide-clay-border">
+                    <ul className="divide-y divide-border">
                         {rows.map((w) => (
                             <WebhookRowItem
                                 key={w.id}
@@ -104,14 +104,14 @@ export default function WebhooksPage() {
             )}
 
             <ClayCard padded variant="soft" className="flex items-start gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-clay-obsidian text-white">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-foreground text-white">
                     <LuCircleAlert className="h-4 w-4" />
                 </div>
                 <div>
-                    <p className="text-[13px] font-semibold text-clay-ink">Verifying the signature</p>
-                    <p className="mt-1 text-[12.5px] text-clay-ink-muted">
+                    <p className="text-[13px] font-semibold text-foreground">Verifying the signature</p>
+                    <p className="mt-1 text-[12.5px] text-muted-foreground">
                         Every request is signed with your webhook secret in the
-                        <code className="mx-1 rounded bg-clay-surface px-1">X-SabNode-Signature</code>
+                        <code className="mx-1 rounded bg-card px-1">X-SabNode-Signature</code>
                         header. HMAC-SHA256 over the raw body.
                     </p>
                 </div>
@@ -164,7 +164,7 @@ function AddWebhookDialog({ onAdd }: { onAdd: (row: WebhookRow) => void }) {
                 </DialogHeader>
                 <div className="space-y-4 py-2">
                     <div>
-                        <Label className="mb-1.5 block text-[12.5px] font-medium text-clay-ink">
+                        <Label className="mb-1.5 block text-[12.5px] font-medium text-foreground">
                             Endpoint URL
                         </Label>
                         <ClayInput
@@ -174,7 +174,7 @@ function AddWebhookDialog({ onAdd }: { onAdd: (row: WebhookRow) => void }) {
                         />
                     </div>
                     <div>
-                        <Label className="mb-1.5 block text-[12.5px] font-medium text-clay-ink">Events</Label>
+                        <Label className="mb-1.5 block text-[12.5px] font-medium text-foreground">Events</Label>
                         <div className="flex flex-wrap gap-2">
                             {ALL_EVENTS.map((ev) => {
                                 const on = selected.has(ev);
@@ -190,8 +190,8 @@ function AddWebhookDialog({ onAdd }: { onAdd: (row: WebhookRow) => void }) {
                                         }}
                                         className={`rounded-full border px-3 py-1 text-[12px] font-medium transition-colors ${
                                             on
-                                                ? 'border-clay-obsidian bg-clay-obsidian text-white'
-                                                : 'border-clay-border bg-clay-surface text-clay-ink-muted hover:text-clay-ink'
+                                                ? 'border-foreground bg-foreground text-white'
+                                                : 'border-border bg-card text-muted-foreground hover:text-foreground'
                                         }`}
                                     >
                                         {ev}
@@ -236,16 +236,16 @@ function WebhookRowItem({
         <li className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
             <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                    <p className="truncate text-[13.5px] font-semibold text-clay-ink">{row.url}</p>
+                    <p className="truncate text-[13.5px] font-semibold text-foreground">{row.url}</p>
                     {row.active ? (
                         <ClayBadge tone="green">Active</ClayBadge>
                     ) : (
                         <ClayBadge tone="neutral">Paused</ClayBadge>
                     )}
                 </div>
-                <p className="mt-1 truncate text-[12px] text-clay-ink-muted">
+                <p className="mt-1 truncate text-[12px] text-muted-foreground">
                     {row.events.join(', ')} · secret{' '}
-                    <code className="rounded bg-clay-surface-subtle px-1">{row.secret.slice(0, 8)}…</code>
+                    <code className="rounded bg-muted/50 px-1">{row.secret.slice(0, 8)}…</code>
                 </p>
             </div>
             <div className="flex gap-2">

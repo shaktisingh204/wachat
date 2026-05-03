@@ -45,7 +45,7 @@ type FormState = { message?: string; error?: string; id?: string };
 const initialState: FormState = {};
 
 const inputClass =
-  'h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]';
+  'h-10 rounded-lg border-border bg-card text-[13px]';
 
 type Row = WsCurrencyFormatSetting & { _id: string };
 
@@ -132,12 +132,12 @@ export default function CurrencyFormatsPage() {
 
       <ClayCard>
         <form action={formAction} className="space-y-4">
-          <h3 className="text-[13px] font-semibold uppercase tracking-wide text-clay-ink-muted">
+          <h3 className="text-[13px] font-semibold uppercase tracking-wide text-muted-foreground">
             Add or Update Format
           </h3>
           <div className="grid gap-4 md:grid-cols-3">
             <div>
-              <Label htmlFor="currency_id" className="text-[13px] text-clay-ink">
+              <Label htmlFor="currency_id" className="text-[13px] text-foreground">
                 Currency
               </Label>
               <Select
@@ -158,7 +158,7 @@ export default function CurrencyFormatsPage() {
               </Select>
             </div>
             <div>
-              <Label htmlFor="position" className="text-[13px] text-clay-ink">
+              <Label htmlFor="position" className="text-[13px] text-foreground">
                 Symbol Position
               </Label>
               <Select
@@ -182,7 +182,7 @@ export default function CurrencyFormatsPage() {
             <div>
               <Label
                 htmlFor="decimal_separator"
-                className="text-[13px] text-clay-ink"
+                className="text-[13px] text-foreground"
               >
                 Decimal Separator
               </Label>
@@ -196,7 +196,7 @@ export default function CurrencyFormatsPage() {
             <div>
               <Label
                 htmlFor="thousand_separator"
-                className="text-[13px] text-clay-ink"
+                className="text-[13px] text-foreground"
               >
                 Thousand Separator
               </Label>
@@ -210,7 +210,7 @@ export default function CurrencyFormatsPage() {
             <div>
               <Label
                 htmlFor="decimal_digits"
-                className="text-[13px] text-clay-ink"
+                className="text-[13px] text-foreground"
               >
                 Decimal Digits
               </Label>
@@ -226,7 +226,7 @@ export default function CurrencyFormatsPage() {
             <div>
               <Label
                 htmlFor="no_of_decimal"
-                className="text-[13px] text-clay-ink"
+                className="text-[13px] text-foreground"
               >
                 No. of Decimal
               </Label>
@@ -263,7 +263,7 @@ export default function CurrencyFormatsPage() {
         {isLoading && rows.length === 0 ? (
           <Skeleton className="h-[200px] w-full" />
         ) : rows.length === 0 ? (
-          <div className="py-10 text-center text-[13px] text-clay-ink-muted">
+          <div className="py-10 text-center text-[13px] text-muted-foreground">
             No currency formats configured.
           </div>
         ) : (
@@ -299,7 +299,7 @@ export default function CurrencyFormatsPage() {
                         disabled={isDeleting && deletingId === String(row._id)}
                         onClick={() => handleDelete(String(row._id))}
                       >
-                        <Trash2 className="h-4 w-4 text-clay-ink-muted" />
+                        <Trash2 className="h-4 w-4 text-muted-foreground" />
                       </Button>
                     </TableCell>
                   </TableRow>

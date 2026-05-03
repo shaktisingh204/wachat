@@ -81,7 +81,7 @@ export default function PfEsiPage() {
                 actions={
                     <>
                         <Select value={String(month)} onValueChange={val => setMonth(Number(val))}>
-                            <SelectTrigger className="w-36 h-9 rounded-full border-clay-border bg-clay-surface text-[13px]">
+                            <SelectTrigger className="w-36 h-9 rounded-full border-border bg-card text-[13px]">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -89,7 +89,7 @@ export default function PfEsiPage() {
                             </SelectContent>
                         </Select>
                         <Select value={String(year)} onValueChange={val => setYear(Number(val))}>
-                            <SelectTrigger className="w-28 h-9 rounded-full border-clay-border bg-clay-surface text-[13px]">
+                            <SelectTrigger className="w-28 h-9 rounded-full border-border bg-card text-[13px]">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -102,75 +102,75 @@ export default function PfEsiPage() {
 
             <div className="grid gap-4 md:grid-cols-3">
                 <ClayCard>
-                    <p className="text-[12.5px] font-medium text-clay-ink-muted">Total PF Liability</p>
-                    <div className="mt-2 text-2xl font-bold text-clay-ink">₹{totalPF.toLocaleString('en-IN')}</div>
-                    <p className="mt-1 text-[11.5px] text-clay-ink-muted">Employee share @ {PF_RATE}% of basic</p>
+                    <p className="text-[12.5px] font-medium text-muted-foreground">Total PF Liability</p>
+                    <div className="mt-2 text-2xl font-bold text-foreground">₹{totalPF.toLocaleString('en-IN')}</div>
+                    <p className="mt-1 text-[11.5px] text-muted-foreground">Employee share @ {PF_RATE}% of basic</p>
                 </ClayCard>
                 <ClayCard>
-                    <p className="text-[12.5px] font-medium text-clay-ink-muted">Total ESI Liability</p>
-                    <div className="mt-2 text-2xl font-bold text-clay-ink">₹{totalESI.toLocaleString('en-IN')}</div>
-                    <p className="mt-1 text-[11.5px] text-clay-ink-muted">Employee share @ {ESI_RATE}% (ceiling ₹{ESI_WAGE_CEILING.toLocaleString('en-IN')})</p>
+                    <p className="text-[12.5px] font-medium text-muted-foreground">Total ESI Liability</p>
+                    <div className="mt-2 text-2xl font-bold text-foreground">₹{totalESI.toLocaleString('en-IN')}</div>
+                    <p className="mt-1 text-[11.5px] text-muted-foreground">Employee share @ {ESI_RATE}% (ceiling ₹{ESI_WAGE_CEILING.toLocaleString('en-IN')})</p>
                 </ClayCard>
                 <ClayCard>
-                    <p className="text-[12.5px] font-medium text-clay-ink-muted">Total Combined</p>
-                    <div className="mt-2 text-2xl font-bold text-clay-ink">₹{(totalPF + totalESI).toLocaleString('en-IN')}</div>
-                    <p className="mt-1 text-[11.5px] text-clay-ink-muted">{rows.length} employees this period</p>
+                    <p className="text-[12.5px] font-medium text-muted-foreground">Total Combined</p>
+                    <div className="mt-2 text-2xl font-bold text-foreground">₹{(totalPF + totalESI).toLocaleString('en-IN')}</div>
+                    <p className="mt-1 text-[11.5px] text-muted-foreground">{rows.length} employees this period</p>
                 </ClayCard>
             </div>
 
             <ClayCard>
                 <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-clay-ink">Employee PF & ESI Breakdown</h2>
-                    <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">Contribution details, registration numbers, and UAN per employee.</p>
+                    <h2 className="text-[16px] font-semibold text-foreground">Employee PF & ESI Breakdown</h2>
+                    <p className="mt-0.5 text-[12.5px] text-muted-foreground">Contribution details, registration numbers, and UAN per employee.</p>
                 </div>
-                <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                <div className="overflow-x-auto rounded-lg border border-border">
                     <table className="w-full text-left text-[13px]">
                         <thead>
-                            <tr className="border-b border-clay-border bg-clay-surface-2">
-                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Employee</th>
-                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Gross Salary</th>
-                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">PF Rate (%)</th>
-                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">PF Amount</th>
-                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">ESI Rate (%)</th>
-                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">ESI Amount</th>
-                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">PF Number</th>
-                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">ESI Number</th>
-                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">UAN</th>
+                            <tr className="border-b border-border bg-secondary">
+                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Employee</th>
+                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Gross Salary</th>
+                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">PF Rate (%)</th>
+                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">PF Amount</th>
+                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">ESI Rate (%)</th>
+                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">ESI Amount</th>
+                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">PF Number</th>
+                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">ESI Number</th>
+                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">UAN</th>
                             </tr>
                         </thead>
                         <tbody>
                             {isLoading ? (
                                 <tr>
                                     <td colSpan={9} className="h-48 text-center">
-                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-clay-ink-muted" />
+                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
                                     </td>
                                 </tr>
                             ) : rows.length > 0 ? (
                                 rows.map((row, idx) => (
-                                    <tr key={row._id?.toString() ?? idx} className="border-b border-clay-border last:border-0 hover:bg-clay-surface-2/50 transition-colors">
+                                    <tr key={row._id?.toString() ?? idx} className="border-b border-border last:border-0 hover:bg-secondary/50 transition-colors">
                                         <td className="px-4 py-3">
-                                            <div className="font-medium text-clay-ink">
+                                            <div className="font-medium text-foreground">
                                                 {row.employee?.firstName} {row.employee?.lastName}
                                             </div>
-                                            <div className="text-[11.5px] text-clay-ink-muted">{row.employee?.designationName ?? '—'}</div>
+                                            <div className="text-[11.5px] text-muted-foreground">{row.employee?.designationName ?? '—'}</div>
                                         </td>
-                                        <td className="px-4 py-3 text-right font-mono text-clay-ink">₹{(row.grossSalary ?? 0).toLocaleString('en-IN')}</td>
-                                        <td className="px-4 py-3 text-right font-mono text-clay-ink">{row.pfRate}%</td>
-                                        <td className="px-4 py-3 text-right font-mono font-semibold text-clay-ink">₹{row.pf.toLocaleString('en-IN')}</td>
-                                        <td className="px-4 py-3 text-right font-mono text-clay-ink">
+                                        <td className="px-4 py-3 text-right font-mono text-foreground">₹{(row.grossSalary ?? 0).toLocaleString('en-IN')}</td>
+                                        <td className="px-4 py-3 text-right font-mono text-foreground">{row.pfRate}%</td>
+                                        <td className="px-4 py-3 text-right font-mono font-semibold text-foreground">₹{row.pf.toLocaleString('en-IN')}</td>
+                                        <td className="px-4 py-3 text-right font-mono text-foreground">
                                             {row.esiApplicable ? `${row.esiRate}%` : <ClayBadge tone="neutral">N/A</ClayBadge>}
                                         </td>
-                                        <td className="px-4 py-3 text-right font-mono font-semibold text-clay-ink">
+                                        <td className="px-4 py-3 text-right font-mono font-semibold text-foreground">
                                             {row.esiApplicable ? `₹${row.esi.toLocaleString('en-IN')}` : '—'}
                                         </td>
-                                        <td className="px-4 py-3 font-mono text-[12px] text-clay-ink-muted">{row.pfNumber}</td>
-                                        <td className="px-4 py-3 font-mono text-[12px] text-clay-ink-muted">{row.esiNumber}</td>
-                                        <td className="px-4 py-3 font-mono text-[12px] text-clay-ink-muted">{row.uan}</td>
+                                        <td className="px-4 py-3 font-mono text-[12px] text-muted-foreground">{row.pfNumber}</td>
+                                        <td className="px-4 py-3 font-mono text-[12px] text-muted-foreground">{row.esiNumber}</td>
+                                        <td className="px-4 py-3 font-mono text-[12px] text-muted-foreground">{row.uan}</td>
                                     </tr>
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan={9} className="h-24 text-center text-[13px] text-clay-ink-muted">
+                                    <td colSpan={9} className="h-24 text-center text-[13px] text-muted-foreground">
                                         No payroll data for {periodLabel}. Generate payroll first.
                                     </td>
                                 </tr>
@@ -178,11 +178,11 @@ export default function PfEsiPage() {
                         </tbody>
                         {rows.length > 0 && (
                             <tfoot>
-                                <tr className="border-t-2 border-clay-border bg-clay-surface-2">
-                                    <td colSpan={3} className="px-4 py-3 text-[12.5px] font-semibold text-clay-ink">Totals</td>
-                                    <td className="px-4 py-3 text-right font-mono text-[12.5px] font-bold text-clay-ink">₹{totalPF.toLocaleString('en-IN')}</td>
+                                <tr className="border-t-2 border-border bg-secondary">
+                                    <td colSpan={3} className="px-4 py-3 text-[12.5px] font-semibold text-foreground">Totals</td>
+                                    <td className="px-4 py-3 text-right font-mono text-[12.5px] font-bold text-foreground">₹{totalPF.toLocaleString('en-IN')}</td>
                                     <td />
-                                    <td className="px-4 py-3 text-right font-mono text-[12.5px] font-bold text-clay-ink">₹{totalESI.toLocaleString('en-IN')}</td>
+                                    <td className="px-4 py-3 text-right font-mono text-[12.5px] font-bold text-foreground">₹{totalESI.toLocaleString('en-IN')}</td>
                                     <td colSpan={3} />
                                 </tr>
                             </tfoot>

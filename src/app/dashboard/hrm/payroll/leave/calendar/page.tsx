@@ -104,7 +104,7 @@ export default function LeaveCalendarPage() {
             >
               Prev
             </ClayButton>
-            <div className="min-w-[180px] text-center text-[16px] font-semibold text-clay-ink">
+            <div className="min-w-[180px] text-center text-[16px] font-semibold text-foreground">
               {monthLabel}
             </div>
             <ClayButton
@@ -124,7 +124,7 @@ export default function LeaveCalendarPage() {
           {WEEKDAYS.map((d) => (
             <div
               key={d}
-              className="py-2 text-center text-[11.5px] font-medium uppercase tracking-wide text-clay-ink-muted"
+              className="py-2 text-center text-[11.5px] font-medium uppercase tracking-wide text-muted-foreground"
             >
               {d}
             </div>
@@ -134,7 +134,7 @@ export default function LeaveCalendarPage() {
               return (
                 <div
                   key={`empty-${idx}`}
-                  className="min-h-[90px] rounded-clay-md border border-transparent"
+                  className="min-h-[90px] rounded-lg border border-transparent"
                 />
               );
             }
@@ -144,16 +144,16 @@ export default function LeaveCalendarPage() {
               <div
                 key={cell.iso!}
                 className={
-                  'min-h-[90px] rounded-clay-md border bg-clay-surface p-1.5 ' +
+                  'min-h-[90px] rounded-lg border bg-card p-1.5 ' +
                   (isToday
-                    ? 'border-clay-obsidian ring-1 ring-clay-obsidian'
-                    : 'border-clay-border')
+                    ? 'border-foreground ring-1 ring-foreground'
+                    : 'border-border')
                 }
               >
                 <div
                   className={
                     'mb-1 text-[12px] font-medium ' +
-                    (isToday ? 'text-clay-obsidian' : 'text-clay-ink')
+                    (isToday ? 'text-foreground' : 'text-foreground')
                   }
                 >
                   {cell.date.getDate()}
@@ -173,7 +173,7 @@ export default function LeaveCalendarPage() {
                     </div>
                   ))}
                   {dayEntries.length > 3 ? (
-                    <div className="text-[10.5px] text-clay-ink-muted">
+                    <div className="text-[10.5px] text-muted-foreground">
                       +{dayEntries.length - 3} more
                     </div>
                   ) : null}
@@ -184,7 +184,7 @@ export default function LeaveCalendarPage() {
         </div>
 
         {isLoading ? (
-          <p className="mt-4 text-center text-[12px] text-clay-ink-muted">Loading…</p>
+          <p className="mt-4 text-center text-[12px] text-muted-foreground">Loading…</p>
         ) : null}
       </ClayCard>
     </div>

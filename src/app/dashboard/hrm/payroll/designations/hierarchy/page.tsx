@@ -82,7 +82,7 @@ function TreeRow({
     return (
         <div>
             <div
-                className="flex items-center gap-2 border-b border-clay-border py-2.5 last:border-b-0"
+                className="flex items-center gap-2 border-b border-border py-2.5 last:border-b-0"
                 style={{ paddingLeft: `${level * 20 + 8}px` }}
             >
                 <ClayButton
@@ -105,9 +105,9 @@ function TreeRow({
                 </ClayButton>
 
                 <div className="min-w-0 flex-1">
-                    <div className="text-[13px] font-medium text-clay-ink">{node.name}</div>
+                    <div className="text-[13px] font-medium text-foreground">{node.name}</div>
                     {node.description ? (
-                        <div className="text-[11.5px] text-clay-ink-muted">{node.description}</div>
+                        <div className="text-[11.5px] text-muted-foreground">{node.description}</div>
                     ) : null}
                 </div>
 
@@ -118,7 +118,7 @@ function TreeRow({
                             onSetParent(node._id, v === '__none__' ? null : v)
                         }
                     >
-                        <SelectTrigger className="h-8 rounded-clay-md border-clay-border bg-clay-surface text-[12px]">
+                        <SelectTrigger className="h-8 rounded-lg border-border bg-card text-[12px]">
                             <SelectValue placeholder="No parent" />
                         </SelectTrigger>
                         <SelectContent>
@@ -282,11 +282,11 @@ export default function DesignationsHierarchyPage() {
                 {isLoading && tree.length === 0 ? (
                     <Skeleton className="h-[240px] w-full" />
                 ) : tree.length === 0 ? (
-                    <div className="py-10 text-center text-[13px] text-clay-ink-muted">
+                    <div className="py-10 text-center text-[13px] text-muted-foreground">
                         No designations yet — click Add to get started.
                     </div>
                 ) : (
-                    <div className="rounded-clay-md border border-clay-border bg-clay-surface">
+                    <div className="rounded-lg border border-border bg-card">
                         {tree.map((n) => (
                             <TreeRow
                                 key={n._id}
@@ -307,10 +307,10 @@ export default function DesignationsHierarchyPage() {
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle className="text-clay-ink">
+                        <DialogTitle className="text-foreground">
                             {editing ? 'Edit Designation' : 'Add Designation'}
                         </DialogTitle>
-                        <DialogDescription className="text-clay-ink-muted">
+                        <DialogDescription className="text-muted-foreground">
                             Provide a name, optional description, and parent designation.
                         </DialogDescription>
                     </DialogHeader>
@@ -319,7 +319,7 @@ export default function DesignationsHierarchyPage() {
                             <input type="hidden" name="_id" value={String(editing._id)} />
                         ) : null}
                         <div>
-                            <Label htmlFor="name" className="text-[13px] text-clay-ink">
+                            <Label htmlFor="name" className="text-[13px] text-foreground">
                                 Name <span className="text-red-500">*</span>
                             </Label>
                             <Input
@@ -327,11 +327,11 @@ export default function DesignationsHierarchyPage() {
                                 name="name"
                                 required
                                 defaultValue={editing?.name ?? ''}
-                                className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
                             />
                         </div>
                         <div>
-                            <Label htmlFor="description" className="text-[13px] text-clay-ink">
+                            <Label htmlFor="description" className="text-[13px] text-foreground">
                                 Description
                             </Label>
                             <Textarea
@@ -339,13 +339,13 @@ export default function DesignationsHierarchyPage() {
                                 name="description"
                                 rows={2}
                                 defaultValue={editing?.description ?? ''}
-                                className="mt-1.5 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                                className="mt-1.5 rounded-lg border-border bg-card text-[13px]"
                             />
                         </div>
                         <div>
                             <Label
                                 htmlFor="parent_designation_id"
-                                className="text-[13px] text-clay-ink"
+                                className="text-[13px] text-foreground"
                             >
                                 Parent Designation
                             </Label>
@@ -355,7 +355,7 @@ export default function DesignationsHierarchyPage() {
                             >
                                 <SelectTrigger
                                     id="parent_designation_id"
-                                    className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                                    className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
                                 >
                                     <SelectValue />
                                 </SelectTrigger>
@@ -370,7 +370,7 @@ export default function DesignationsHierarchyPage() {
                                         ))}
                                 </SelectContent>
                             </Select>
-                            <p className="mt-1 text-[11px] text-clay-ink-muted">
+                            <p className="mt-1 text-[11px] text-muted-foreground">
                                 Select "Root" to make this a top-level designation.
                             </p>
                         </div>

@@ -136,38 +136,38 @@ export default function CrmContactsPage() {
       <ClayCard>
         <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 className="text-[16px] font-semibold text-clay-ink">Contacts Directory</h2>
-            <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">
+            <h2 className="text-[16px] font-semibold text-foreground">Contacts Directory</h2>
+            <p className="mt-0.5 text-[12.5px] text-muted-foreground">
               A list of all individuals in your CRM.
             </p>
           </div>
           <div className="relative w-full max-w-sm">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-clay-ink-muted" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="Search by name, email, or phone..."
-              className="h-10 rounded-clay-md border-clay-border bg-clay-surface pl-9 text-[13px]"
+              className="h-10 rounded-lg border-border bg-card pl-9 text-[13px]"
               onChange={(e) => handleSearch(e.target.value)}
             />
           </div>
         </div>
 
-        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <Table>
             <TableHeader>
-              <TableRow className="border-clay-border hover:bg-transparent">
-                <TableHead className="text-clay-ink-muted">Name</TableHead>
-                <TableHead className="text-clay-ink-muted">Contact Info</TableHead>
-                <TableHead className="text-clay-ink-muted">Job Title</TableHead>
-                <TableHead className="text-clay-ink-muted">Lead Score</TableHead>
-                <TableHead className="text-clay-ink-muted">Status</TableHead>
-                <TableHead className="text-clay-ink-muted">Last Activity</TableHead>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableHead className="text-muted-foreground">Name</TableHead>
+                <TableHead className="text-muted-foreground">Contact Info</TableHead>
+                <TableHead className="text-muted-foreground">Job Title</TableHead>
+                <TableHead className="text-muted-foreground">Lead Score</TableHead>
+                <TableHead className="text-muted-foreground">Status</TableHead>
+                <TableHead className="text-muted-foreground">Last Activity</TableHead>
                 <TableHead className="w-[50px]" />
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 [...Array(5)].map((_, i) => (
-                  <TableRow key={i} className="border-clay-border">
+                  <TableRow key={i} className="border-border">
                     <TableCell colSpan={7}>
                       <Skeleton className="h-16 w-full" />
                     </TableCell>
@@ -175,45 +175,45 @@ export default function CrmContactsPage() {
                 ))
               ) : contacts.length > 0 ? (
                 contacts.map((contact) => (
-                  <TableRow key={contact._id.toString()} className="border-clay-border">
+                  <TableRow key={contact._id.toString()} className="border-border">
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        <Avatar className="h-9 w-9 border border-clay-border">
+                        <Avatar className="h-9 w-9 border border-border">
                           <AvatarImage src={contact.avatarUrl || ''} />
-                          <AvatarFallback className="bg-clay-rose-soft text-[12px] text-clay-rose-ink">
+                          <AvatarFallback className="bg-accent text-[12px] text-accent-foreground">
                             {contact.name?.charAt(0) ?? '?'}
                           </AvatarFallback>
                         </Avatar>
                         <div>
                           <Link
                             href={`/dashboard/crm/contacts/${contact._id.toString()}`}
-                            className="text-[13px] font-medium text-clay-ink hover:underline"
+                            className="text-[13px] font-medium text-foreground hover:underline"
                           >
                             {contact.name}
                           </Link>
-                          <p className="text-[11.5px] text-clay-ink-muted">
+                          <p className="text-[11.5px] text-muted-foreground">
                             Added {new Date(contact.createdAt).toLocaleDateString()}
                           </p>
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="flex flex-col gap-1 text-[12.5px] text-clay-ink">
+                      <div className="flex flex-col gap-1 text-[12.5px] text-foreground">
                         {contact.email && (
                           <div className="flex items-center gap-1.5">
-                            <Mail className="h-3 w-3 text-clay-ink-muted" />
+                            <Mail className="h-3 w-3 text-muted-foreground" />
                             {contact.email}
                           </div>
                         )}
                         {contact.phone && (
                           <div className="flex items-center gap-1.5">
-                            <Phone className="h-3 w-3 text-clay-ink-muted" />
+                            <Phone className="h-3 w-3 text-muted-foreground" />
                             {contact.phone}
                           </div>
                         )}
                       </div>
                     </TableCell>
-                    <TableCell className="text-[13px] text-clay-ink">
+                    <TableCell className="text-[13px] text-foreground">
                       {contact.jobTitle || 'N/A'}
                     </TableCell>
                     <TableCell>
@@ -224,7 +224,7 @@ export default function CrmContactsPage() {
                     <TableCell>
                       <ClayBadge tone="rose-soft">{contact.status}</ClayBadge>
                     </TableCell>
-                    <TableCell className="text-[13px] text-clay-ink">
+                    <TableCell className="text-[13px] text-foreground">
                       {contact.lastActivity
                         ? new Date(contact.lastActivity).toLocaleDateString()
                         : 'Never'}
@@ -257,8 +257,8 @@ export default function CrmContactsPage() {
                   </TableRow>
                 ))
               ) : (
-                <TableRow className="border-clay-border">
-                  <TableCell colSpan={7} className="h-24 text-center text-[13px] text-clay-ink-muted">
+                <TableRow className="border-border">
+                  <TableCell colSpan={7} className="h-24 text-center text-[13px] text-muted-foreground">
                     No contacts found.
                   </TableCell>
                 </TableRow>

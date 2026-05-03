@@ -71,12 +71,12 @@ export function ApplyForLeaveDialog({ isOpen, onOpenChange, onSuccess }: ApplyFo
           <input type="hidden" name="startDate" value={startDate?.toISOString()} />
           <input type="hidden" name="endDate" value={endDate?.toISOString()} />
           <DialogHeader className="px-6 pt-6 pb-2">
-            <DialogTitle className="text-clay-ink">Apply for Leave</DialogTitle>
+            <DialogTitle className="text-foreground">Apply for Leave</DialogTitle>
           </DialogHeader>
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="grid gap-4">
               <div className="space-y-2">
-                <Label htmlFor="leaveType" className="text-clay-ink">Leave Type *</Label>
+                <Label htmlFor="leaveType" className="text-foreground">Leave Type *</Label>
                 <Select name="leaveType" required>
                   <SelectTrigger id="leaveType"><SelectValue placeholder="Select type..." /></SelectTrigger>
                   <SelectContent>
@@ -89,16 +89,16 @@ export function ApplyForLeaveDialog({ isOpen, onOpenChange, onSuccess }: ApplyFo
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-clay-ink">Start Date *</Label>
+                  <Label className="text-foreground">Start Date *</Label>
                   <DatePicker date={startDate} setDate={setStartDate} />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-clay-ink">End Date *</Label>
+                  <Label className="text-foreground">End Date *</Label>
                   <DatePicker date={endDate} setDate={setEndDate} />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="reason" className="text-clay-ink">Reason *</Label>
+                <Label htmlFor="reason" className="text-foreground">Reason *</Label>
                 <Textarea id="reason" name="reason" required placeholder="Enter reason for leave..." />
               </div>
             </div>

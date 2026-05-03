@@ -75,7 +75,7 @@ function StatusBadge({ status }: { status?: string }) {
     canceled: { bg: 'bg-rose-50', fg: 'text-rose-700', Icon: LuX, label: 'Cancelled' },
     cancelled: { bg: 'bg-rose-50', fg: 'text-rose-700', Icon: LuX, label: 'Cancelled' },
   };
-  const entry = map[s] ?? { bg: 'bg-clay-bg-2', fg: 'text-clay-ink-muted', Icon: LuClock, label: status || 'Unknown' };
+  const entry = map[s] ?? { bg: 'bg-muted', fg: 'text-muted-foreground', Icon: LuClock, label: status || 'Unknown' };
   const { bg, fg, Icon, label } = entry;
   return (
     <span className={cn('inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium capitalize', bg, fg)}>
@@ -202,11 +202,11 @@ export default function CallLogsPage() {
   if (!activeProjectId) {
     return (
       <ClayCard className="p-10 text-center">
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-clay-bg-2 text-clay-ink-muted">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
           <LuPhone className="h-5 w-5" strokeWidth={1.5} />
         </div>
-        <h2 className="mt-4 text-[16px] font-semibold text-clay-ink">No project selected</h2>
-        <p className="mx-auto mt-1.5 max-w-[360px] text-[12.5px] text-clay-ink-muted">
+        <h2 className="mt-4 text-[16px] font-semibold text-foreground">No project selected</h2>
+        <p className="mx-auto mt-1.5 max-w-[360px] text-[12.5px] text-muted-foreground">
           Select a project from the home screen to view its call logs.
         </p>
       </ClayCard>
@@ -229,19 +229,19 @@ export default function CallLogsPage() {
       <ClayCard padded={false} className="p-4">
         <div className="flex flex-wrap items-center gap-2">
           <div className="relative min-w-[220px] flex-1">
-            <LuSearch className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-clay-ink-muted" strokeWidth={1.75} />
+            <LuSearch className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" strokeWidth={1.75} />
             <input
               type="text"
               placeholder="Search by phone or Call SID..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="h-9 w-full rounded-[10px] border border-clay-border bg-clay-surface pl-9 pr-3 text-[13px] text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-border-strong focus:outline-none"
+              className="h-9 w-full rounded-[10px] border border-border bg-card pl-9 pr-3 text-[13px] text-foreground placeholder:text-muted-foreground focus:border-border focus:outline-none"
             />
           </div>
           <select
             value={direction}
             onChange={(e) => setDirection(e.target.value as typeof direction)}
-            className="h-9 rounded-[10px] border border-clay-border bg-clay-surface px-3 text-[13px] text-clay-ink focus:border-clay-border-strong focus:outline-none"
+            className="h-9 rounded-[10px] border border-border bg-card px-3 text-[13px] text-foreground focus:border-border focus:outline-none"
           >
             <option value="all">All directions</option>
             <option value="inbound">Inbound</option>
@@ -250,7 +250,7 @@ export default function CallLogsPage() {
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="h-9 rounded-[10px] border border-clay-border bg-clay-surface px-3 text-[13px] text-clay-ink capitalize focus:border-clay-border-strong focus:outline-none"
+            className="h-9 rounded-[10px] border border-border bg-card px-3 text-[13px] text-foreground capitalize focus:border-border focus:outline-none"
           >
             {statusOptions.map((s) => (
               <option key={s} value={s}>
@@ -262,14 +262,14 @@ export default function CallLogsPage() {
             type="date"
             value={fromDate}
             onChange={(e) => setFromDate(e.target.value)}
-            className="h-9 rounded-[10px] border border-clay-border bg-clay-surface px-3 text-[13px] text-clay-ink focus:border-clay-border-strong focus:outline-none"
+            className="h-9 rounded-[10px] border border-border bg-card px-3 text-[13px] text-foreground focus:border-border focus:outline-none"
             aria-label="From date"
           />
           <input
             type="date"
             value={toDate}
             onChange={(e) => setToDate(e.target.value)}
-            className="h-9 rounded-[10px] border border-clay-border bg-clay-surface px-3 text-[13px] text-clay-ink focus:border-clay-border-strong focus:outline-none"
+            className="h-9 rounded-[10px] border border-border bg-card px-3 text-[13px] text-foreground focus:border-border focus:outline-none"
             aria-label="To date"
           />
           {(search || direction !== 'all' || status !== 'all' || fromDate || toDate) && (
@@ -308,7 +308,7 @@ export default function CallLogsPage() {
             </ClayButton>
           </div>
         </div>
-        <div className="mt-3 flex items-center gap-2 border-t border-clay-border pt-3 text-[11.5px] text-clay-ink-muted">
+        <div className="mt-3 flex items-center gap-2 border-t border-border pt-3 text-[11.5px] text-muted-foreground">
           <span>{filtered.length}</span>
           <span>of</span>
           <span>{logs.length} calls</span>
@@ -319,17 +319,17 @@ export default function CallLogsPage() {
       <ClayCard padded={false} className="overflow-hidden">
         {isLoading && logs.length === 0 ? (
           <div className="flex h-40 items-center justify-center">
-            <LuLoader className="h-5 w-5 animate-spin text-clay-ink-muted" />
+            <LuLoader className="h-5 w-5 animate-spin text-muted-foreground" />
           </div>
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center gap-2 px-4 py-14 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-clay-bg-2 text-clay-ink-muted">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
               <LuPhone className="h-5 w-5" strokeWidth={1.5} />
             </div>
-            <div className="text-[13px] font-semibold text-clay-ink">
+            <div className="text-[13px] font-semibold text-foreground">
               {logs.length === 0 ? 'No calls yet' : 'No calls match your filters'}
             </div>
-            <div className="max-w-[360px] text-[11.5px] text-clay-ink-muted">
+            <div className="max-w-[360px] text-[11.5px] text-muted-foreground">
               {logs.length === 0
                 ? 'Call logs will appear here once your WhatsApp Business Calling is enabled and active.'
                 : 'Try adjusting your search or clearing the filters.'}
@@ -338,7 +338,7 @@ export default function CallLogsPage() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-[13px]">
-              <thead className="bg-clay-surface-2 border-b border-clay-border text-[11px] font-semibold uppercase tracking-wide text-clay-ink-muted">
+              <thead className="bg-secondary border-b border-border text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                 <tr>
                   <th className="px-4 py-3 text-left w-10" />
                   <th className="px-4 py-3 text-left">From</th>
@@ -349,22 +349,22 @@ export default function CallLogsPage() {
                   <th className="px-4 py-3 text-left">Call SID</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-clay-border">
+              <tbody className="divide-y divide-border">
                 {filtered.map((log) => (
-                  <tr key={log._id} className="transition-colors hover:bg-clay-surface-2">
+                  <tr key={log._id} className="transition-colors hover:bg-secondary">
                     <td className="px-4 py-3">
                       <DirectionPill direction={log.direction} />
                     </td>
-                    <td className="px-4 py-3 font-mono text-[12px] text-clay-ink">{log.from || '—'}</td>
-                    <td className="px-4 py-3 font-mono text-[12px] text-clay-ink">{log.to || '—'}</td>
-                    <td className="px-4 py-3 tabular-nums text-clay-ink">{formatDuration(log.duration)}</td>
+                    <td className="px-4 py-3 font-mono text-[12px] text-foreground">{log.from || '—'}</td>
+                    <td className="px-4 py-3 font-mono text-[12px] text-foreground">{log.to || '—'}</td>
+                    <td className="px-4 py-3 tabular-nums text-foreground">{formatDuration(log.duration)}</td>
                     <td className="px-4 py-3">
                       <StatusBadge status={log.status} />
                     </td>
-                    <td className="px-4 py-3 text-[12px] text-clay-ink-muted whitespace-nowrap">
+                    <td className="px-4 py-3 text-[12px] text-muted-foreground whitespace-nowrap">
                       {log.createdAt ? formatDistanceToNow(new Date(log.createdAt), { addSuffix: true }) : '—'}
                     </td>
-                    <td className="px-4 py-3 font-mono text-[11px] text-clay-ink-muted">{log.callId || '—'}</td>
+                    <td className="px-4 py-3 font-mono text-[11px] text-muted-foreground">{log.callId || '—'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -388,14 +388,14 @@ function Kpi({
   accent?: 'neutral' | 'emerald' | 'blue' | 'rose';
 }) {
   const tint: Record<typeof accent, string> = {
-    neutral: 'text-clay-ink',
+    neutral: 'text-foreground',
     emerald: 'text-emerald-700',
     blue: 'text-blue-700',
     rose: 'text-rose-700',
   };
   return (
-    <div className="rounded-[14px] border border-clay-border bg-clay-surface p-4">
-      <div className="text-[10.5px] font-medium uppercase tracking-wide text-clay-ink-muted">{label}</div>
+    <div className="rounded-[14px] border border-border bg-card p-4">
+      <div className="text-[10.5px] font-medium uppercase tracking-wide text-muted-foreground">{label}</div>
       <div className={cn('mt-2 text-[22px] font-semibold tracking-[-0.01em] leading-none tabular-nums', tint[accent])}>
         {value}
       </div>

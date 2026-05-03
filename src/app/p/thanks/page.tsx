@@ -47,11 +47,11 @@ export default async function ThanksPage({ searchParams }: PageProps) {
   return (
     <ClayCard>
       <div className="flex flex-col items-center gap-3 py-10 text-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-clay-rose-soft">
-          <CheckCircle2 className="h-6 w-6 text-clay-rose-ink" />
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent">
+          <CheckCircle2 className="h-6 w-6 text-accent-foreground" />
         </div>
-        <h1 className="text-[18px] font-semibold text-clay-ink">{m.title}</h1>
-        <p className="max-w-md text-[13px] text-clay-ink-muted">{m.body}</p>
+        <h1 className="text-[18px] font-semibold text-foreground">{m.title}</h1>
+        <p className="max-w-md text-[13px] text-muted-foreground">{m.body}</p>
       </div>
     </ClayCard>
   );

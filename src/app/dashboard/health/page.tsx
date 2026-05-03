@@ -66,14 +66,14 @@ function StatusPill({ status, label }: { status?: string; label?: string }) {
       color === 'green' && 'bg-emerald-500/10 text-emerald-600',
       color === 'amber' && 'bg-amber-500/10 text-amber-600',
       color === 'red' && 'bg-red-500/10 text-red-600',
-      color === 'muted' && 'bg-clay-bg-2 text-clay-ink-muted',
+      color === 'muted' && 'bg-muted text-muted-foreground',
     )}>
       <span className={cn(
         'h-1.5 w-1.5 rounded-full',
         color === 'green' && 'bg-emerald-500',
         color === 'amber' && 'bg-amber-500',
         color === 'red' && 'bg-red-500',
-        color === 'muted' && 'bg-clay-ink-muted',
+        color === 'muted' && 'bg-muted-foreground',
       )} />
       {text}
     </span>
@@ -171,10 +171,10 @@ export default function HealthPage() {
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">
+          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
             Account Health
           </h1>
-          <p className="mt-1.5 max-w-[720px] text-[13px] text-clay-ink-muted">
+          <p className="mt-1.5 max-w-[720px] text-[13px] text-muted-foreground">
             Monitor your WABA status, resolve issues blocking messaging, and manage phone number quality.
           </p>
         </div>
@@ -192,14 +192,14 @@ export default function HealthPage() {
             statusColor(overallStatus) === 'green' && 'bg-emerald-500/5',
             statusColor(overallStatus) === 'amber' && 'bg-amber-500/5',
             statusColor(overallStatus) === 'red' && 'bg-red-500/5',
-            statusColor(overallStatus) === 'muted' && 'bg-clay-bg-2/50',
+            statusColor(overallStatus) === 'muted' && 'bg-muted/50',
           )}>
             <div className={cn(
               'flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl',
               statusColor(overallStatus) === 'green' && 'bg-emerald-500/10 text-emerald-600',
               statusColor(overallStatus) === 'amber' && 'bg-amber-500/10 text-amber-600',
               statusColor(overallStatus) === 'red' && 'bg-red-500/10 text-red-600',
-              statusColor(overallStatus) === 'muted' && 'bg-clay-bg-2 text-clay-ink-muted',
+              statusColor(overallStatus) === 'muted' && 'bg-muted text-muted-foreground',
             )}>
               {statusColor(overallStatus) === 'green' ? <LuCircleCheck className="h-6 w-6" /> :
                statusColor(overallStatus) === 'amber' ? <LuTriangleAlert className="h-6 w-6" /> :
@@ -208,10 +208,10 @@ export default function HealthPage() {
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2.5">
-                <h2 className="text-[16px] font-semibold text-clay-ink">Messaging Status</h2>
+                <h2 className="text-[16px] font-semibold text-foreground">Messaging Status</h2>
                 <StatusPill status={overallStatus} />
               </div>
-              <p className="mt-0.5 text-[12px] text-clay-ink-muted">
+              <p className="mt-0.5 text-[12px] text-muted-foreground">
                 {statusColor(overallStatus) === 'green'
                   ? 'Your account is healthy. You can send business-initiated and user-initiated messages.'
                   : statusColor(overallStatus) === 'amber'
@@ -225,7 +225,7 @@ export default function HealthPage() {
 
           {/* Entity breakdown */}
           {entities.length > 0 && (
-            <div className="divide-y divide-clay-border">
+            <div className="divide-y divide-border">
               {entities.map((entity: any, i: number) => {
                 const errors: any[] = entity.errors || [];
                 const eColor = statusColor(entity.can_send_message);
@@ -237,16 +237,16 @@ export default function HealthPage() {
                         eColor === 'green' && 'bg-emerald-500/10 text-emerald-500',
                         eColor === 'amber' && 'bg-amber-500/10 text-amber-500',
                         eColor === 'red' && 'bg-red-500/10 text-red-500',
-                        eColor === 'muted' && 'bg-clay-bg-2 text-clay-ink-muted',
+                        eColor === 'muted' && 'bg-muted text-muted-foreground',
                       )}>
                         {entityIcon(entity.entity_type)}
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-[13px] font-medium text-clay-ink">{entity.entity_type}</span>
+                          <span className="text-[13px] font-medium text-foreground">{entity.entity_type}</span>
                           <StatusPill status={entity.can_send_message} />
                         </div>
-                        <p className="text-[11px] text-clay-ink-muted font-mono">{entity.id}</p>
+                        <p className="text-[11px] text-muted-foreground font-mono">{entity.id}</p>
                       </div>
                     </div>
 
@@ -261,7 +261,7 @@ export default function HealthPage() {
                                 {err.error_description || err.message || 'Unknown error'}
                               </p>
                               {err.possible_solution && (
-                                <p className="mt-1 text-[11px] text-clay-ink-muted">{err.possible_solution}</p>
+                                <p className="mt-1 text-[11px] text-muted-foreground">{err.possible_solution}</p>
                               )}
                             </div>
                           </div>
@@ -279,7 +279,7 @@ export default function HealthPage() {
       {/* ── Phone Numbers ── */}
       {phoneHealths.length > 0 && (
         <>
-          <h2 className="text-[14px] font-semibold text-clay-ink">Phone Numbers</h2>
+          <h2 className="text-[14px] font-semibold text-foreground">Phone Numbers</h2>
           <div className="grid gap-4 sm:grid-cols-2">
             {phoneHealths.map((phone) => (
               <ClayCard key={phone.phoneNumberId} className="p-5">
@@ -288,26 +288,26 @@ export default function HealthPage() {
                     <LuPhone className="h-4 w-4 text-blue-500" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[13px] font-semibold text-clay-ink truncate">{phone.displayName}</p>
-                    <p className="text-[11px] text-clay-ink-muted font-mono">{phone.displayNumber}</p>
+                    <p className="text-[13px] font-semibold text-foreground truncate">{phone.displayName}</p>
+                    <p className="text-[11px] text-muted-foreground font-mono">{phone.displayNumber}</p>
                   </div>
                   <StatusPill status={phone.qualityRating} label={phone.qualityRating?.toLowerCase() === 'green' ? 'Healthy' : phone.qualityRating} />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-lg bg-clay-bg-2/50 px-3 py-2.5">
-                    <p className="text-[10px] text-clay-ink-muted uppercase tracking-wider mb-0.5">Messaging Tier</p>
-                    <p className="text-[13px] font-medium text-clay-ink">{phone.messagingLimitTier || 'Unknown'}</p>
+                  <div className="rounded-lg bg-muted/50 px-3 py-2.5">
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Messaging Tier</p>
+                    <p className="text-[13px] font-medium text-foreground">{phone.messagingLimitTier || 'Unknown'}</p>
                   </div>
-                  <div className="rounded-lg bg-clay-bg-2/50 px-3 py-2.5">
-                    <p className="text-[10px] text-clay-ink-muted uppercase tracking-wider mb-0.5">Name Status</p>
-                    <p className="text-[13px] font-medium text-clay-ink capitalize">{(phone.nameStatus || 'Unknown').replace(/_/g, ' ')}</p>
+                  <div className="rounded-lg bg-muted/50 px-3 py-2.5">
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Name Status</p>
+                    <p className="text-[13px] font-medium text-foreground capitalize">{(phone.nameStatus || 'Unknown').replace(/_/g, ' ')}</p>
                   </div>
                 </div>
 
                 {/* Commerce + 2FA row */}
-                <div className="mt-3 flex items-center justify-between pt-3 border-t border-clay-border/50">
-                  <div className="flex items-center gap-3 text-[11px] text-clay-ink-muted">
+                <div className="mt-3 flex items-center justify-between pt-3 border-t border-border/50">
+                  <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
                     {phone.commerceSettings && (
                       <>
                         <span>Cart {phone.commerceSettings.is_cart_enabled ? '✓' : '✗'}</span>
@@ -324,15 +324,15 @@ export default function HealthPage() {
                         onChange={(e) => setPinInput(e.target.value.replace(/\D/g, '').slice(0, 6))}
                         placeholder="PIN"
                         maxLength={6}
-                        className="w-16 rounded border border-clay-border bg-clay-bg px-1.5 py-1 text-[11px] text-clay-ink text-center font-mono focus:border-clay-accent focus:outline-none"
+                        className="w-16 rounded border border-border bg-background px-1.5 py-1 text-[11px] text-foreground text-center font-mono focus:border-accent focus:outline-none"
                       />
                       <ClayButton size="sm" onClick={() => handleSetPin(phone.phoneNumberId)} disabled={isPending || pinInput.length !== 6}>Set</ClayButton>
-                      <button onClick={() => { setPinPhoneId(null); setPinInput(''); }} className="text-[11px] text-clay-ink-muted hover:text-clay-ink">Cancel</button>
+                      <button onClick={() => { setPinPhoneId(null); setPinInput(''); }} className="text-[11px] text-muted-foreground hover:text-foreground">Cancel</button>
                     </div>
                   ) : (
                     <button
                       onClick={() => setPinPhoneId(phone.phoneNumberId)}
-                      className="flex items-center gap-1 text-[11px] text-clay-ink-muted hover:text-clay-ink transition-colors"
+                      className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
                     >
                       <LuLock className="h-3 w-3" />
                       2FA PIN
@@ -348,15 +348,15 @@ export default function HealthPage() {
       {/* Loading / empty */}
       {isPending && !wabaHealth && (
         <ClayCard className="p-12 text-center">
-          <LuRefreshCw className="mx-auto h-8 w-8 text-clay-ink-muted/30 animate-spin mb-4" />
-          <p className="text-sm text-clay-ink-muted">Loading account health...</p>
+          <LuRefreshCw className="mx-auto h-8 w-8 text-muted-foreground/30 animate-spin mb-4" />
+          <p className="text-sm text-muted-foreground">Loading account health...</p>
         </ClayCard>
       )}
 
       {!isPending && !wabaHealth && !activeProject?._id && (
         <ClayCard className="p-12 text-center">
-          <LuActivity className="mx-auto h-12 w-12 text-clay-ink-muted/30 mb-4" />
-          <p className="text-sm text-clay-ink-muted">Select a project to view account health.</p>
+          <LuActivity className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
+          <p className="text-sm text-muted-foreground">Select a project to view account health.</p>
         </ClayCard>
       )}
     </div>

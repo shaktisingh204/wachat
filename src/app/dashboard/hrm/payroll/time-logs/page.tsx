@@ -273,16 +273,16 @@ export default function TimeLogsPage() {
 
       {/* ── Active Timer Banner ── */}
       {runningLog && (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-clay-md border border-clay-amber-soft bg-clay-amber-soft/30 px-4 py-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-amber-50 bg-amber-50/30 px-4 py-3">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-clay-amber-soft">
-              <Timer className="h-4 w-4 text-clay-amber" strokeWidth={1.75} />
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-50">
+              <Timer className="h-4 w-4 text-amber-500" strokeWidth={1.75} />
             </div>
             <div>
-              <p className="text-[13px] font-semibold text-clay-ink">
+              <p className="text-[13px] font-semibold text-foreground">
                 Timer running
               </p>
-              <p className="font-mono text-[12px] text-clay-ink-muted">
+              <p className="font-mono text-[12px] text-muted-foreground">
                 {elapsedLabel(runningLog.start_time)}
                 {runningLog.memo ? ` · ${runningLog.memo}` : ''}
               </p>
@@ -292,7 +292,7 @@ export default function TimeLogsPage() {
             variant="pill"
             disabled={isActing}
             onClick={() => handleStopTimer(String(runningLog._id))}
-            leading={<Square className="h-3.5 w-3.5 fill-current text-clay-amber" strokeWidth={1.75} />}
+            leading={<Square className="h-3.5 w-3.5 fill-current text-amber-500" strokeWidth={1.75} />}
           >
             Stop Timer
           </ClayButton>
@@ -303,10 +303,10 @@ export default function TimeLogsPage() {
       {!runningLog && (
         <ClayCard>
           <div className="flex flex-wrap items-center gap-3">
-            <Timer className="h-5 w-5 shrink-0 text-clay-ink-muted" strokeWidth={1.75} />
+            <Timer className="h-5 w-5 shrink-0 text-muted-foreground" strokeWidth={1.75} />
             <Input
               placeholder="What are you working on? (optional memo)"
-              className="h-9 min-w-[220px] flex-1 rounded-clay-md border-clay-border bg-clay-surface text-[13px] placeholder:text-clay-ink-muted focus-visible:ring-clay-rose"
+              className="h-9 min-w-[220px] flex-1 rounded-lg border-border bg-card text-[13px] placeholder:text-muted-foreground focus-visible:ring-primary"
               value={memo}
               onChange={(e) => setMemo(e.target.value)}
               onKeyDown={(e) => {
@@ -330,8 +330,8 @@ export default function TimeLogsPage() {
         {/* Card header + filters */}
         <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h2 className="text-[16px] font-semibold text-clay-ink">Time Entries</h2>
-            <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">
+            <h2 className="text-[16px] font-semibold text-foreground">Time Entries</h2>
+            <p className="mt-0.5 text-[12.5px] text-muted-foreground">
               {logs.length} entr{logs.length === 1 ? 'y' : 'ies'}
               {(fromDate || toDate) ? ' (filtered)' : ''}
               {logs.length > 0 ? ` · ${totalFormatted} total` : ''}
@@ -339,20 +339,20 @@ export default function TimeLogsPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <Filter className="h-4 w-4 shrink-0 text-clay-ink-muted" />
+            <Filter className="h-4 w-4 shrink-0 text-muted-foreground" />
             <Input
               type="date"
               value={fromDate}
               onChange={(e) => setFromDate(e.target.value)}
-              className="h-9 w-[150px] rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+              className="h-9 w-[150px] rounded-lg border-border bg-card text-[13px]"
               aria-label="From date"
             />
-            <span className="text-[12px] text-clay-ink-muted">to</span>
+            <span className="text-[12px] text-muted-foreground">to</span>
             <Input
               type="date"
               value={toDate}
               onChange={(e) => setToDate(e.target.value)}
-              className="h-9 w-[150px] rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+              className="h-9 w-[150px] rounded-lg border-border bg-card text-[13px]"
               aria-label="To date"
             />
             <ClayButton
@@ -374,34 +374,34 @@ export default function TimeLogsPage() {
         </div>
 
         {/* Table */}
-        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <Table>
             <TableHeader>
-              <TableRow className="border-clay-border hover:bg-transparent">
-                <TableHead className="text-clay-ink-muted">Employee</TableHead>
-                <TableHead className="text-clay-ink-muted">Start Time</TableHead>
-                <TableHead className="text-clay-ink-muted">End Time</TableHead>
-                <TableHead className="text-clay-ink-muted">Duration</TableHead>
-                <TableHead className="text-clay-ink-muted">Memo</TableHead>
-                <TableHead className="text-clay-ink-muted">Status</TableHead>
-                <TableHead className="text-right text-clay-ink-muted">Actions</TableHead>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableHead className="text-muted-foreground">Employee</TableHead>
+                <TableHead className="text-muted-foreground">Start Time</TableHead>
+                <TableHead className="text-muted-foreground">End Time</TableHead>
+                <TableHead className="text-muted-foreground">Duration</TableHead>
+                <TableHead className="text-muted-foreground">Memo</TableHead>
+                <TableHead className="text-muted-foreground">Status</TableHead>
+                <TableHead className="text-right text-muted-foreground">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRow className="border-clay-border">
+                <TableRow className="border-border">
                   <TableCell
                     colSpan={7}
-                    className="h-24 text-center text-[13px] text-clay-ink-muted"
+                    className="h-24 text-center text-[13px] text-muted-foreground"
                   >
                     Loading…
                   </TableCell>
                 </TableRow>
               ) : logs.length === 0 ? (
-                <TableRow className="border-clay-border">
+                <TableRow className="border-border">
                   <TableCell
                     colSpan={7}
-                    className="h-24 text-center text-[13px] text-clay-ink-muted"
+                    className="h-24 text-center text-[13px] text-muted-foreground"
                   >
                     No time entries found.
                   </TableCell>
@@ -426,36 +426,36 @@ export default function TimeLogsPage() {
                       key={id}
                       className={
                         isRunning
-                          ? 'border-clay-border bg-clay-amber-soft/10'
-                          : 'border-clay-border'
+                          ? 'border-border bg-amber-50/10'
+                          : 'border-border'
                       }
                     >
                       {/* Employee */}
-                      <TableCell className="text-[13px] font-medium text-clay-ink">
+                      <TableCell className="text-[13px] font-medium text-foreground">
                         {log.user_id || '—'}
                       </TableCell>
 
                       {/* Start time */}
-                      <TableCell className="text-[13px] text-clay-ink">
+                      <TableCell className="text-[13px] text-foreground">
                         {formatTs(log.start_time)}
                       </TableCell>
 
                       {/* End time */}
-                      <TableCell className="text-[13px] text-clay-ink">
+                      <TableCell className="text-[13px] text-foreground">
                         {isRunning ? (
-                          <span className="text-clay-amber">Running…</span>
+                          <span className="text-amber-500">Running…</span>
                         ) : (
                           formatTs(log.end_time)
                         )}
                       </TableCell>
 
                       {/* Duration */}
-                      <TableCell className="font-mono text-[13px] text-clay-ink">
+                      <TableCell className="font-mono text-[13px] text-foreground">
                         {duration}
                       </TableCell>
 
                       {/* Memo */}
-                      <TableCell className="max-w-[200px] truncate text-[11.5px] text-clay-ink-muted">
+                      <TableCell className="max-w-[200px] truncate text-[11.5px] text-muted-foreground">
                         {log.memo || '—'}
                       </TableCell>
 
@@ -471,16 +471,16 @@ export default function TimeLogsPage() {
                         <div className="flex justify-end gap-1">
                           {isRunning && (
                             <ClayButton variant="pill" size="sm" title="Stop Timer" disabled={isActing} onClick={() => handleStopTimer(id)}>
-                              <Square className="h-3.5 w-3.5 fill-current text-clay-amber" />
+                              <Square className="h-3.5 w-3.5 fill-current text-amber-500" />
                             </ClayButton>
                           )}
                           {isPending && (
                             <>
                               <ClayButton variant="pill" size="sm" title="Approve" disabled={isActing} onClick={() => handleApprove(id)}>
-                                <Check className="h-3.5 w-3.5 text-clay-green" />
+                                <Check className="h-3.5 w-3.5 text-emerald-500" />
                               </ClayButton>
                               <ClayButton variant="pill" size="sm" title="Reject" disabled={isActing} onClick={() => handleReject(id)}>
-                                <X className="h-3.5 w-3.5 text-clay-red" />
+                                <X className="h-3.5 w-3.5 text-destructive" />
                               </ClayButton>
                             </>
                           )}
@@ -497,56 +497,56 @@ export default function TimeLogsPage() {
 
       {/* ── Manual Entry Dialog ── */}
       <Dialog open={manualOpen} onOpenChange={setManualOpen}>
-        <DialogContent className="bg-clay-surface sm:max-w-[440px]">
+        <DialogContent className="bg-card sm:max-w-[440px]">
           <DialogHeader>
-            <DialogTitle className="text-[16px] font-semibold text-clay-ink">
+            <DialogTitle className="text-[16px] font-semibold text-foreground">
               Add Manual Entry
             </DialogTitle>
           </DialogHeader>
 
           <div className="flex flex-col gap-4 py-2">
             <div className="flex flex-col gap-1.5">
-              <label className="text-[12.5px] font-medium text-clay-ink-muted">
-                Start Time <span className="text-clay-red">*</span>
+              <label className="text-[12.5px] font-medium text-muted-foreground">
+                Start Time <span className="text-destructive">*</span>
               </label>
               <Input
                 type="datetime-local"
                 value={manualStart}
                 onChange={(e) => setManualStart(e.target.value)}
-                className="h-9 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="h-9 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-[12.5px] font-medium text-clay-ink-muted">
-                End Time <span className="text-clay-red">*</span>
+              <label className="text-[12.5px] font-medium text-muted-foreground">
+                End Time <span className="text-destructive">*</span>
               </label>
               <Input
                 type="datetime-local"
                 value={manualEnd}
                 onChange={(e) => setManualEnd(e.target.value)}
-                className="h-9 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="h-9 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
 
             {manualStart && manualEnd && new Date(manualEnd) > new Date(manualStart) && (
-              <p className="text-[12px] text-clay-ink-muted">
+              <p className="text-[12px] text-muted-foreground">
                 Duration:{' '}
-                <span className="font-mono font-medium text-clay-ink">
+                <span className="font-mono font-medium text-foreground">
                   {wsFormatDuration(manualStart, manualEnd)}
                 </span>
               </p>
             )}
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-[12.5px] font-medium text-clay-ink-muted">
+              <label className="text-[12.5px] font-medium text-muted-foreground">
                 Memo
               </label>
               <Input
                 placeholder="What did you work on?"
                 value={manualMemo}
                 onChange={(e) => setManualMemo(e.target.value)}
-                className="h-9 rounded-clay-md border-clay-border bg-clay-surface text-[13px] placeholder:text-clay-ink-muted"
+                className="h-9 rounded-lg border-border bg-card text-[13px] placeholder:text-muted-foreground"
               />
             </div>
           </div>

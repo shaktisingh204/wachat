@@ -34,7 +34,7 @@ type FormState = { message?: string; error?: string; id?: string };
 const initialState: FormState = {};
 
 const inputClass =
-  'h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]';
+  'h-10 rounded-lg border-border bg-card text-[13px]';
 
 function ToggleRow({
   name,
@@ -49,13 +49,13 @@ function ToggleRow({
 }) {
   const [checked, setChecked] = useState<boolean>(!!defaultChecked);
   return (
-    <div className="flex items-start justify-between gap-4 rounded-clay-md border border-clay-border bg-clay-surface/50 px-4 py-3">
+    <div className="flex items-start justify-between gap-4 rounded-lg border border-border bg-card/50 px-4 py-3">
       <div className="flex-1">
-        <Label htmlFor={name} className="text-[13px] font-medium text-clay-ink">
+        <Label htmlFor={name} className="text-[13px] font-medium text-foreground">
           {label}
         </Label>
         {description ? (
-          <p className="mt-0.5 text-[12px] text-clay-ink-muted">{description}</p>
+          <p className="mt-0.5 text-[12px] text-muted-foreground">{description}</p>
         ) : null}
       </div>
       <Switch
@@ -118,12 +118,12 @@ export default function InvoiceSettingsPage() {
         <ClayCard>
           <form action={formAction} className="space-y-6">
             <section className="space-y-4">
-              <h3 className="text-[13px] font-semibold uppercase tracking-wide text-clay-ink-muted">
+              <h3 className="text-[13px] font-semibold uppercase tracking-wide text-muted-foreground">
                 Invoice Numbering
               </h3>
               <div className="grid gap-4 md:grid-cols-3">
                 <div>
-                  <Label htmlFor="invoice_prefix" className="text-[13px] text-clay-ink">
+                  <Label htmlFor="invoice_prefix" className="text-[13px] text-foreground">
                     Prefix
                   </Label>
                   <Input
@@ -135,7 +135,7 @@ export default function InvoiceSettingsPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="invoice_digit" className="text-[13px] text-clay-ink">
+                  <Label htmlFor="invoice_digit" className="text-[13px] text-foreground">
                     Digits
                   </Label>
                   <Input
@@ -150,7 +150,7 @@ export default function InvoiceSettingsPage() {
                 <div>
                   <Label
                     htmlFor="invoice_number_separator"
-                    className="text-[13px] text-clay-ink"
+                    className="text-[13px] text-foreground"
                   >
                     Separator
                   </Label>
@@ -165,12 +165,12 @@ export default function InvoiceSettingsPage() {
             </section>
 
             <section className="space-y-4">
-              <h3 className="text-[13px] font-semibold uppercase tracking-wide text-clay-ink-muted">
+              <h3 className="text-[13px] font-semibold uppercase tracking-wide text-muted-foreground">
                 Terms & Tax
               </h3>
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
-                  <Label htmlFor="due_after_days" className="text-[13px] text-clay-ink">
+                  <Label htmlFor="due_after_days" className="text-[13px] text-foreground">
                     Default Due (days)
                   </Label>
                   <Input
@@ -183,7 +183,7 @@ export default function InvoiceSettingsPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="tax_calculation" className="text-[13px] text-clay-ink">
+                  <Label htmlFor="tax_calculation" className="text-[13px] text-foreground">
                     Tax Calculation
                   </Label>
                   <Select
@@ -200,7 +200,7 @@ export default function InvoiceSettingsPage() {
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="hsn_sac_label" className="text-[13px] text-clay-ink">
+                  <Label htmlFor="hsn_sac_label" className="text-[13px] text-foreground">
                     HSN/SAC Label
                   </Label>
                   <Input
@@ -214,7 +214,7 @@ export default function InvoiceSettingsPage() {
             </section>
 
             <section className="space-y-3">
-              <h3 className="text-[13px] font-semibold uppercase tracking-wide text-clay-ink-muted">
+              <h3 className="text-[13px] font-semibold uppercase tracking-wide text-muted-foreground">
                 Display
               </h3>
               <div className="grid gap-3 md:grid-cols-2">
@@ -248,12 +248,12 @@ export default function InvoiceSettingsPage() {
             </section>
 
             <section className="space-y-4">
-              <h3 className="text-[13px] font-semibold uppercase tracking-wide text-clay-ink-muted">
+              <h3 className="text-[13px] font-semibold uppercase tracking-wide text-muted-foreground">
                 Defaults
               </h3>
               <div className="grid gap-4">
                 <div>
-                  <Label htmlFor="default_note" className="text-[13px] text-clay-ink">
+                  <Label htmlFor="default_note" className="text-[13px] text-foreground">
                     Default Note
                   </Label>
                   <Textarea
@@ -261,11 +261,11 @@ export default function InvoiceSettingsPage() {
                     name="default_note"
                     rows={3}
                     defaultValue={settings?.default_note ?? ''}
-                    className="mt-1.5 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                    className="mt-1.5 rounded-lg border-border bg-card text-[13px]"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="default_terms" className="text-[13px] text-clay-ink">
+                  <Label htmlFor="default_terms" className="text-[13px] text-foreground">
                     Default Terms
                   </Label>
                   <Textarea
@@ -273,14 +273,14 @@ export default function InvoiceSettingsPage() {
                     name="default_terms"
                     rows={3}
                     defaultValue={settings?.default_terms ?? ''}
-                    className="mt-1.5 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                    className="mt-1.5 rounded-lg border-border bg-card text-[13px]"
                   />
                 </div>
               </div>
             </section>
 
             <section className="space-y-3">
-              <h3 className="text-[13px] font-semibold uppercase tracking-wide text-clay-ink-muted">
+              <h3 className="text-[13px] font-semibold uppercase tracking-wide text-muted-foreground">
                 Reminders
               </h3>
               <div className="grid gap-3 md:grid-cols-2">
@@ -292,7 +292,7 @@ export default function InvoiceSettingsPage() {
                 <div>
                   <Label
                     htmlFor="reminder_days_before"
-                    className="text-[13px] text-clay-ink"
+                    className="text-[13px] text-foreground"
                   >
                     Days Before Due
                   </Label>

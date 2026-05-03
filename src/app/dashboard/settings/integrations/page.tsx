@@ -116,7 +116,7 @@ export default function IntegrationsPage() {
             />
 
             <div className="flex flex-wrap items-center gap-3">
-                <div className="flex flex-wrap gap-1 rounded-full border border-clay-border bg-clay-surface p-1">
+                <div className="flex flex-wrap gap-1 rounded-full border border-border bg-card p-1">
                     {CATEGORIES.map((c) => (
                         <button
                             key={c.id}
@@ -124,8 +124,8 @@ export default function IntegrationsPage() {
                             onClick={() => setFilter(c.id)}
                             className={`rounded-full px-3 py-1.5 text-[12.5px] font-medium transition-colors ${
                                 filter === c.id
-                                    ? 'bg-clay-obsidian text-white'
-                                    : 'text-clay-ink-muted hover:text-clay-ink'
+                                    ? 'bg-foreground text-white'
+                                    : 'text-muted-foreground hover:text-foreground'
                             }`}
                         >
                             {c.label}
@@ -146,7 +146,7 @@ export default function IntegrationsPage() {
                 {visible.map((i) => (
                     <ClayCard key={i.id} padded className="flex flex-col gap-3">
                         <div className="flex items-start justify-between">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-clay-surface-subtle text-clay-ink">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted/50 text-foreground">
                                 <i.icon className="h-5 w-5" />
                             </div>
                             {i.connected ? (
@@ -158,8 +158,8 @@ export default function IntegrationsPage() {
                             )}
                         </div>
                         <div>
-                            <p className="text-[14px] font-semibold text-clay-ink">{i.name}</p>
-                            <p className="mt-1 text-[12.5px] leading-relaxed text-clay-ink-muted">
+                            <p className="text-[14px] font-semibold text-foreground">{i.name}</p>
+                            <p className="mt-1 text-[12.5px] leading-relaxed text-muted-foreground">
                                 {i.description}
                             </p>
                         </div>
@@ -184,8 +184,8 @@ export default function IntegrationsPage() {
 
             {visible.length === 0 && (
                 <ClayCard padded className="py-10 text-center">
-                    <p className="text-[13px] font-semibold text-clay-ink">No integrations match</p>
-                    <p className="mt-1 text-[12.5px] text-clay-ink-muted">
+                    <p className="text-[13px] font-semibold text-foreground">No integrations match</p>
+                    <p className="mt-1 text-[12.5px] text-muted-foreground">
                         Try a different search or category.
                     </p>
                 </ClayCard>

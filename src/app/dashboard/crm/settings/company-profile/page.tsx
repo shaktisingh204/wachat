@@ -20,7 +20,7 @@ type FormState = { message?: string; error?: string; id?: string };
 const initialState: FormState = {};
 
 const inputClass =
-  'h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]';
+  'h-10 rounded-lg border-border bg-card text-[13px]';
 
 function Field({
   name,
@@ -39,7 +39,7 @@ function Field({
 }) {
   return (
     <div className={fullWidth ? 'md:col-span-2' : ''}>
-      <Label htmlFor={name} className="text-[13px] text-clay-ink">
+      <Label htmlFor={name} className="text-[13px] text-foreground">
         {label}
       </Label>
       <Input
@@ -104,7 +104,7 @@ export default function CompanyProfilePage() {
         <form action={formAction}>
           <div className="grid items-start gap-6 lg:grid-cols-2">
             <ClayCard>
-              <h2 className="mb-4 text-[16px] font-semibold text-clay-ink">
+              <h2 className="mb-4 text-[16px] font-semibold text-foreground">
                 Identity
               </h2>
               <div className="grid gap-4 md:grid-cols-2">
@@ -145,7 +145,7 @@ export default function CompanyProfilePage() {
                   defaultValue={profile?.phone}
                 />
                 <div className="md:col-span-2">
-                  <Label htmlFor="address" className="text-[13px] text-clay-ink">
+                  <Label htmlFor="address" className="text-[13px] text-foreground">
                     Primary Address
                   </Label>
                   <Textarea
@@ -153,7 +153,7 @@ export default function CompanyProfilePage() {
                     name="address"
                     rows={2}
                     defaultValue={profile?.address ?? ''}
-                    className="mt-1.5 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                    className="mt-1.5 rounded-lg border-border bg-card text-[13px]"
                   />
                 </div>
                 <Field name="city" label="City" defaultValue={profile?.city} />
@@ -182,7 +182,7 @@ export default function CompanyProfilePage() {
             </ClayCard>
 
             <ClayCard>
-              <h2 className="mb-4 text-[16px] font-semibold text-clay-ink">
+              <h2 className="mb-4 text-[16px] font-semibold text-foreground">
                 Locale & Fiscal
               </h2>
               <div className="grid gap-4 md:grid-cols-2">
@@ -230,7 +230,7 @@ export default function CompanyProfilePage() {
                 />
               </div>
 
-              <h2 className="mb-4 mt-6 text-[16px] font-semibold text-clay-ink">
+              <h2 className="mb-4 mt-6 text-[16px] font-semibold text-foreground">
                 Document Prefixes
               </h2>
               <div className="grid gap-4 md:grid-cols-3">

@@ -66,13 +66,13 @@ function TrialBalanceClient({ data, totals, user }: { data: TrialBalanceEntry[],
             <ClayCard>
                 <div className="flex flex-wrap items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 rounded-full bg-clay-rose-soft text-clay-rose-ink flex items-center justify-center text-2xl font-semibold">
+                        <div className="w-14 h-14 rounded-full bg-accent text-accent-foreground flex items-center justify-center text-2xl font-semibold">
                             {businessProfile?.name?.charAt(0) || 'B'}
                         </div>
                         <div>
-                            <h2 className="text-[16px] font-semibold text-clay-ink">{businessProfile?.name || 'Your Business'}</h2>
-                            <p className="text-[12.5px] text-clay-ink-muted">{businessProfile?.address || 'Your Address'}</p>
-                            <p className="text-[12.5px] text-clay-ink-muted">GSTIN: {businessProfile?.gstin || 'N/A'}</p>
+                            <h2 className="text-[16px] font-semibold text-foreground">{businessProfile?.name || 'Your Business'}</h2>
+                            <p className="text-[12.5px] text-muted-foreground">{businessProfile?.address || 'Your Address'}</p>
+                            <p className="text-[12.5px] text-muted-foreground">GSTIN: {businessProfile?.gstin || 'N/A'}</p>
                         </div>
                     </div>
                     <DropdownMenu>
@@ -91,40 +91,40 @@ function TrialBalanceClient({ data, totals, user }: { data: TrialBalanceEntry[],
             </ClayCard>
 
             <ClayCard>
-                <h2 className="text-[16px] font-semibold text-clay-ink">Trial Balance</h2>
-                <div className="mt-4 overflow-x-auto rounded-clay-md border border-clay-border">
+                <h2 className="text-[16px] font-semibold text-foreground">Trial Balance</h2>
+                <div className="mt-4 overflow-x-auto rounded-lg border border-border">
                     <Table>
                         <TableHeader>
-                            <TableRow className="border-clay-border hover:bg-transparent">
-                                <TableHead className="text-clay-ink-muted">Account</TableHead>
-                                <TableHead className="text-clay-ink-muted text-right">Opening Balance</TableHead>
-                                <TableHead className="text-clay-ink-muted text-right">Debit</TableHead>
-                                <TableHead className="text-clay-ink-muted text-right">Credit</TableHead>
-                                <TableHead className="text-clay-ink-muted text-right">Closing Balance</TableHead>
+                            <TableRow className="border-border hover:bg-transparent">
+                                <TableHead className="text-muted-foreground">Account</TableHead>
+                                <TableHead className="text-muted-foreground text-right">Opening Balance</TableHead>
+                                <TableHead className="text-muted-foreground text-right">Debit</TableHead>
+                                <TableHead className="text-muted-foreground text-right">Credit</TableHead>
+                                <TableHead className="text-muted-foreground text-right">Closing Balance</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {filteredData.length > 0 ? (
                                 filteredData.map(entry => (
-                                    <TableRow key={entry.accountId} className="border-clay-border">
-                                        <TableCell className="font-medium text-clay-ink">{entry.accountName}</TableCell>
-                                        <TableCell className="text-right font-mono text-clay-ink">{Math.abs(entry.openingBalance).toFixed(2)} {entry.openingBalanceType}</TableCell>
-                                        <TableCell className="text-right font-mono text-clay-ink">{entry.totalDebit.toFixed(2)}</TableCell>
-                                        <TableCell className="text-right font-mono text-clay-ink">{entry.totalCredit.toFixed(2)}</TableCell>
-                                        <TableCell className="text-right font-mono text-clay-ink">{Math.abs(entry.closingBalance).toFixed(2)} {entry.closingBalanceType}</TableCell>
+                                    <TableRow key={entry.accountId} className="border-border">
+                                        <TableCell className="font-medium text-foreground">{entry.accountName}</TableCell>
+                                        <TableCell className="text-right font-mono text-foreground">{Math.abs(entry.openingBalance).toFixed(2)} {entry.openingBalanceType}</TableCell>
+                                        <TableCell className="text-right font-mono text-foreground">{entry.totalDebit.toFixed(2)}</TableCell>
+                                        <TableCell className="text-right font-mono text-foreground">{entry.totalCredit.toFixed(2)}</TableCell>
+                                        <TableCell className="text-right font-mono text-foreground">{Math.abs(entry.closingBalance).toFixed(2)} {entry.closingBalanceType}</TableCell>
                                     </TableRow>
                                 ))
                             ) : (
-                                <TableRow className="border-clay-border">
-                                    <TableCell colSpan={5} className="h-24 text-center text-clay-ink-muted">No Data</TableCell>
+                                <TableRow className="border-border">
+                                    <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">No Data</TableCell>
                                 </TableRow>
                             )}
-                            <TableRow className="border-clay-border bg-clay-surface-2 font-semibold">
-                                <TableCell className="text-clay-ink">Total</TableCell>
-                                <TableCell className="text-right font-mono text-clay-ink">{Math.abs(totals.totalOpening).toFixed(2)} {totals.totalOpening >= 0 ? 'Dr' : 'Cr'}</TableCell>
-                                <TableCell className="text-right font-mono text-clay-ink">{totals.totalDebit.toFixed(2)}</TableCell>
-                                <TableCell className="text-right font-mono text-clay-ink">{totals.totalCredit.toFixed(2)}</TableCell>
-                                <TableCell className="text-right font-mono text-clay-ink">{Math.abs(totals.totalClosing).toFixed(2)} {totals.totalClosing >= 0 ? 'Dr' : 'Cr'}</TableCell>
+                            <TableRow className="border-border bg-secondary font-semibold">
+                                <TableCell className="text-foreground">Total</TableCell>
+                                <TableCell className="text-right font-mono text-foreground">{Math.abs(totals.totalOpening).toFixed(2)} {totals.totalOpening >= 0 ? 'Dr' : 'Cr'}</TableCell>
+                                <TableCell className="text-right font-mono text-foreground">{totals.totalDebit.toFixed(2)}</TableCell>
+                                <TableCell className="text-right font-mono text-foreground">{totals.totalCredit.toFixed(2)}</TableCell>
+                                <TableCell className="text-right font-mono text-foreground">{Math.abs(totals.totalClosing).toFixed(2)} {totals.totalClosing >= 0 ? 'Dr' : 'Cr'}</TableCell>
                             </TableRow>
                         </TableBody>
                     </Table>
@@ -132,7 +132,7 @@ function TrialBalanceClient({ data, totals, user }: { data: TrialBalanceEntry[],
                 <div className="flex items-center justify-end mt-4">
                     <div className="flex items-center space-x-2">
                         <Switch id="hide-zero" checked={hideZero} onCheckedChange={setHideZero} />
-                        <Label htmlFor="hide-zero" className="text-[13px] text-clay-ink">Hide Zero-Entry Accounts</Label>
+                        <Label htmlFor="hide-zero" className="text-[13px] text-foreground">Hide Zero-Entry Accounts</Label>
                     </div>
                 </div>
             </ClayCard>
@@ -179,7 +179,7 @@ export default function TrialBalancePage() {
     if (isLoading || !data || !user) {
         return (
             <div className="flex justify-center items-center h-full">
-                <LoaderCircle className="h-8 w-8 animate-spin text-clay-ink-muted" />
+                <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
         );
     }

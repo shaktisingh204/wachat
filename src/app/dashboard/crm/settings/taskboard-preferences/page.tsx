@@ -141,10 +141,10 @@ export default function TaskboardPreferencesPage() {
       <div className="grid gap-4 lg:grid-cols-3">
         <ClayCard className="lg:col-span-2">
           <div className="pb-3">
-            <h2 className="text-[16px] font-semibold text-clay-ink">
+            <h2 className="text-[16px] font-semibold text-foreground">
               Edit preferences
             </h2>
-            <p className="text-[12.5px] text-clay-ink-muted">
+            <p className="text-[12.5px] text-muted-foreground">
               Leave project id blank for a global default that applies to
               every project board.
             </p>
@@ -242,17 +242,17 @@ export default function TaskboardPreferencesPage() {
 
         <ClayCard>
           <div className="pb-3">
-            <h2 className="text-[16px] font-semibold text-clay-ink">
+            <h2 className="text-[16px] font-semibold text-foreground">
               Saved presets
             </h2>
-            <p className="text-[12.5px] text-clay-ink-muted">
+            <p className="text-[12.5px] text-muted-foreground">
               Click a preset to load it into the editor.
             </p>
           </div>
           {isLoading ? (
-            <p className="text-[13px] text-clay-ink-muted">Loading…</p>
+            <p className="text-[13px] text-muted-foreground">Loading…</p>
           ) : rows.length === 0 ? (
-            <p className="text-[13px] text-clay-ink-muted">
+            <p className="text-[13px] text-muted-foreground">
               No presets yet. Save one to see it here.
             </p>
           ) : (
@@ -260,14 +260,14 @@ export default function TaskboardPreferencesPage() {
               {rows.map((r) => (
                 <li
                   key={r._id}
-                  className="flex items-center justify-between gap-2 rounded-clay-md border border-clay-border p-2"
+                  className="flex items-center justify-between gap-2 rounded-lg border border-border p-2"
                 >
                   <button
                     type="button"
                     onClick={() => loadRow(r)}
                     className="min-w-0 flex-1 text-left"
                   >
-                    <p className="truncate text-[13px] font-medium text-clay-ink">
+                    <p className="truncate text-[13px] font-medium text-foreground">
                       {r.project_id ? `Project ${String(r.project_id).slice(-6)}` : 'Global default'}
                     </p>
                     <div className="mt-1 flex flex-wrap gap-1">
@@ -284,7 +284,7 @@ export default function TaskboardPreferencesPage() {
                     onClick={() => setDeletingId(r._id)}
                     aria-label="Delete preset"
                   >
-                    <Trash2 className="h-3.5 w-3.5 text-clay-red" />
+                    <Trash2 className="h-3.5 w-3.5 text-destructive" />
                   </Button>
                 </li>
               ))}
@@ -299,10 +299,10 @@ export default function TaskboardPreferencesPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-clay-ink">
+            <AlertDialogTitle className="text-foreground">
               Delete preset?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-clay-ink-muted">
+            <AlertDialogDescription className="text-muted-foreground">
               This removes the stored taskboard preferences for that scope.
             </AlertDialogDescription>
           </AlertDialogHeader>

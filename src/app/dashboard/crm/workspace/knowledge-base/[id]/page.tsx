@@ -54,7 +54,7 @@ export default async function KnowledgeBaseDetailPage({
           ) : null}
         </div>
         <div
-          className="prose prose-sm max-w-none text-clay-ink whitespace-pre-wrap text-[14px] leading-relaxed"
+          className="prose prose-sm max-w-none text-foreground whitespace-pre-wrap text-[14px] leading-relaxed"
         >
           {article.description || 'No content.'}
         </div>

@@ -142,35 +142,35 @@ export default function ActivityLogPage() {
                                 setUntil('');
                                 setPage(1);
                             }}
-                            className="text-[12px] text-clay-rose-ink underline-offset-2 hover:underline"
+                            className="text-[12px] text-accent-foreground underline-offset-2 hover:underline"
                         >
                             Reset
                         </button>
                     )}
                 </div>
-                <div className="text-[12px] text-clay-ink-soft">
+                <div className="text-[12px] text-muted-foreground">
                     {total.toLocaleString()} event{total === 1 ? '' : 's'}
                 </div>
             </ClayCard>
 
             <ClayCard padded={false} className="overflow-hidden">
                 {loading ? (
-                    <div className="flex items-center justify-center gap-2 p-10 text-clay-ink-soft">
+                    <div className="flex items-center justify-center gap-2 p-10 text-muted-foreground">
                         <LuLoader className="h-4 w-4 animate-spin" />
                         <span className="text-[13px]">Loading activity…</span>
                     </div>
                 ) : logs.length === 0 ? (
                     <div className="flex flex-col items-center gap-2 p-12 text-center">
-                        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-clay-surface-2 text-clay-ink-muted">
+                        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary text-muted-foreground">
                             <LuActivity className="h-5 w-5" strokeWidth={1.75} />
                         </span>
-                        <div className="text-[15px] font-semibold text-clay-ink">No matching activity</div>
-                        <div className="max-w-[360px] text-[12.5px] text-clay-ink-muted">
+                        <div className="text-[15px] font-semibold text-foreground">No matching activity</div>
+                        <div className="max-w-[360px] text-[12.5px] text-muted-foreground">
                             Try broadening the filters — as your team does more, this feed fills up.
                         </div>
                     </div>
                 ) : (
-                    <div className="divide-y divide-clay-border">
+                    <div className="divide-y divide-border">
                         {logs.map((log) => (
                             <ActivityRow key={log._id.toString()} log={log} />
                         ))}
@@ -189,7 +189,7 @@ export default function ActivityLogPage() {
                     >
                         Previous
                     </ClayButton>
-                    <span className="text-[12px] text-clay-ink-muted">
+                    <span className="text-[12px] text-muted-foreground">
                         Page {page} of {totalPages}
                     </span>
                     <ClayButton
@@ -226,10 +226,10 @@ function ActivityRow({ log }: { log: WithId<ActivityLog> }) {
             <div className="flex min-w-0 flex-1 flex-col gap-1">
                 <div className="flex items-center justify-between gap-4">
                     <div className="text-[13px]">
-                        <span className="font-medium text-clay-ink">{log.user?.name || 'Unknown user'}</span>{' '}
-                        <span className="text-clay-ink-muted">{actionMessage(log.action as string, log.details)}</span>
+                        <span className="font-medium text-foreground">{log.user?.name || 'Unknown user'}</span>{' '}
+                        <span className="text-muted-foreground">{actionMessage(log.action as string, log.details)}</span>
                     </div>
-                    <div className="flex shrink-0 items-center gap-1 text-[11px] text-clay-ink-soft" title={format(new Date(log.createdAt), 'PPpp')}>
+                    <div className="flex shrink-0 items-center gap-1 text-[11px] text-muted-foreground" title={format(new Date(log.createdAt), 'PPpp')}>
                         <LuClock className="h-3 w-3" />
                         {formatDistanceToNow(new Date(log.createdAt), { addSuffix: true })}
                     </div>

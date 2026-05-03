@@ -30,12 +30,12 @@ export default async function LateReportPage(props: {
 
       <ClayCard>
         <div className="mb-3">
-          <h2 className="text-[16px] font-semibold text-clay-ink">
+          <h2 className="text-[16px] font-semibold text-foreground">
             By employee
           </h2>
         </div>
         {rows.length === 0 ? (
-          <div className="py-8 text-center text-[13px] text-clay-ink-muted">
+          <div className="py-8 text-center text-[13px] text-muted-foreground">
             No late arrivals in this range.
           </div>
         ) : (

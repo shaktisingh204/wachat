@@ -106,7 +106,7 @@ export default function PartyTransactionsReportPage() {
             />
 
             <ClayCard>
-                <h2 className="text-[16px] font-semibold text-clay-ink">Filters</h2>
+                <h2 className="text-[16px] font-semibold text-foreground">Filters</h2>
                 <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="space-y-1"><Label>Party Type</Label><Select value={partyType} onValueChange={(val) => setPartyType(val as any)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="customer">Customer</SelectItem><SelectItem value="vendor">Vendor</SelectItem></SelectContent></Select></div>
                     <div className="space-y-1">
@@ -137,38 +137,38 @@ export default function PartyTransactionsReportPage() {
             </ClayCard>
 
             <ClayCard>
-                <h2 className="text-[16px] font-semibold text-clay-ink">Report Data</h2>
-                <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">Showing transactions for the selected party and date range.</p>
-                <div className="mt-4 overflow-x-auto rounded-clay-md border border-clay-border">
+                <h2 className="text-[16px] font-semibold text-foreground">Report Data</h2>
+                <p className="mt-0.5 text-[12.5px] text-muted-foreground">Showing transactions for the selected party and date range.</p>
+                <div className="mt-4 overflow-x-auto rounded-lg border border-border">
                     <Table>
                         <TableHeader>
-                            <TableRow className="border-clay-border hover:bg-transparent">
-                                <TableHead className="text-clay-ink-muted">Date</TableHead>
-                                <TableHead className="text-clay-ink-muted">Type</TableHead>
-                                <TableHead className="text-clay-ink-muted">Reference</TableHead>
-                                <TableHead className="text-clay-ink-muted">Item Name</TableHead>
-                                <TableHead className="text-clay-ink-muted text-right">Quantity</TableHead>
-                                <TableHead className="text-clay-ink-muted text-right">Rate</TableHead>
-                                <TableHead className="text-clay-ink-muted text-right">Total</TableHead>
+                            <TableRow className="border-border hover:bg-transparent">
+                                <TableHead className="text-muted-foreground">Date</TableHead>
+                                <TableHead className="text-muted-foreground">Type</TableHead>
+                                <TableHead className="text-muted-foreground">Reference</TableHead>
+                                <TableHead className="text-muted-foreground">Item Name</TableHead>
+                                <TableHead className="text-muted-foreground text-right">Quantity</TableHead>
+                                <TableHead className="text-muted-foreground text-right">Rate</TableHead>
+                                <TableHead className="text-muted-foreground text-right">Total</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {isLoading ? (
-                                <TableRow className="border-clay-border"><TableCell colSpan={7} className="h-24 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin text-clay-ink-muted" /></TableCell></TableRow>
+                                <TableRow className="border-border"><TableCell colSpan={7} className="h-24 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" /></TableCell></TableRow>
                             ) : reportData.length > 0 ? (
                                 reportData.map((row, index) => (
-                                    <TableRow key={index} className="border-clay-border">
-                                        <TableCell className="text-clay-ink">{format(new Date(row.date), 'PPP')}</TableCell>
-                                        <TableCell className="text-clay-ink">{row.type}</TableCell>
-                                        <TableCell className="font-mono text-[11.5px] text-clay-ink">{row.reference}</TableCell>
-                                        <TableCell className="font-medium text-clay-ink">{row.itemName}</TableCell>
-                                        <TableCell className="text-right text-clay-ink">{row.quantity}</TableCell>
-                                        <TableCell className="text-right text-clay-ink">₹{row.rate.toFixed(2)}</TableCell>
-                                        <TableCell className="text-right font-semibold text-clay-ink">₹{(row.quantity * row.rate).toFixed(2)}</TableCell>
+                                    <TableRow key={index} className="border-border">
+                                        <TableCell className="text-foreground">{format(new Date(row.date), 'PPP')}</TableCell>
+                                        <TableCell className="text-foreground">{row.type}</TableCell>
+                                        <TableCell className="font-mono text-[11.5px] text-foreground">{row.reference}</TableCell>
+                                        <TableCell className="font-medium text-foreground">{row.itemName}</TableCell>
+                                        <TableCell className="text-right text-foreground">{row.quantity}</TableCell>
+                                        <TableCell className="text-right text-foreground">₹{row.rate.toFixed(2)}</TableCell>
+                                        <TableCell className="text-right font-semibold text-foreground">₹{(row.quantity * row.rate).toFixed(2)}</TableCell>
                                     </TableRow>
                                 ))
                             ) : (
-                                <TableRow className="border-clay-border"><TableCell colSpan={7} className="h-24 text-center text-clay-ink-muted">No transactions found for the selected criteria.</TableCell></TableRow>
+                                <TableRow className="border-border"><TableCell colSpan={7} className="h-24 text-center text-muted-foreground">No transactions found for the selected criteria.</TableCell></TableRow>
                             )}
                         </TableBody>
                     </Table>

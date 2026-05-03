@@ -109,17 +109,17 @@ export function CrmAddAccountDialog({ onAdded }: CrmAddAccountDialogProps) {
       <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden p-0">
         <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
           <DialogHeader className="px-6 pt-6 pb-2">
-            <DialogTitle className="text-clay-ink">Add New Account</DialogTitle>
-            <DialogDescription className="text-clay-ink-muted">Create a new company record in your CRM.</DialogDescription>
+            <DialogTitle className="text-foreground">Add New Account</DialogTitle>
+            <DialogDescription className="text-muted-foreground">Create a new company record in your CRM.</DialogDescription>
           </DialogHeader>
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="grid gap-4">
               <div className="space-y-2">
-                <Label htmlFor="name" className="text-clay-ink">Company Name</Label>
+                <Label htmlFor="name" className="text-foreground">Company Name</Label>
                 <Input id="name" name="name" required />
               </div>
               <div className="space-y-2">
-                <Label className="text-clay-ink">Industry</Label>
+                <Label className="text-foreground">Industry</Label>
                 <input type="hidden" name="industry" value={industry} />
                 <SmartCombobox
                   options={industryOptions}
@@ -132,18 +132,18 @@ export function CrmAddAccountDialog({ onAdded }: CrmAddAccountDialogProps) {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="website" className="text-clay-ink">Website</Label>
+                  <Label htmlFor="website" className="text-foreground">Website</Label>
                   <Input id="website" name="website" type="url" placeholder="https://example.com" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="phone" className="text-clay-ink">Phone</Label>
+                  <Label htmlFor="phone" className="text-foreground">Phone</Label>
                   <Input id="phone" name="phone" />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-clay-ink">Country</Label>
+                  <Label className="text-foreground">Country</Label>
                   <input type="hidden" name="country" value={country} />
                   <SmartCombobox
                     options={countryOptions}
@@ -155,7 +155,7 @@ export function CrmAddAccountDialog({ onAdded }: CrmAddAccountDialogProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-clay-ink">State</Label>
+                  <Label className="text-foreground">State</Label>
                   <input type="hidden" name="state" value={addressState} />
                   <SmartCombobox
                     options={stateOptions}

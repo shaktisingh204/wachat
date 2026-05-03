@@ -40,29 +40,29 @@ export default async function LeaveReportPage(props: {
       </div>
 
       <ClayCard>
-        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <Table>
             <TableHeader>
-              <TableRow className="border-clay-border hover:bg-transparent">
-                <TableHead className="text-clay-ink-muted">Employee</TableHead>
-                <TableHead className="text-clay-ink-muted">Leave Type</TableHead>
-                <TableHead className="text-right text-clay-ink-muted">
+              <TableRow className="border-border hover:bg-transparent">
+                <TableHead className="text-muted-foreground">Employee</TableHead>
+                <TableHead className="text-muted-foreground">Leave Type</TableHead>
+                <TableHead className="text-right text-muted-foreground">
                   Approved
                 </TableHead>
-                <TableHead className="text-right text-clay-ink-muted">
+                <TableHead className="text-right text-muted-foreground">
                   Pending
                 </TableHead>
-                <TableHead className="text-right text-clay-ink-muted">
+                <TableHead className="text-right text-muted-foreground">
                   Rejected
                 </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {rows.length === 0 ? (
-                <TableRow className="border-clay-border">
+                <TableRow className="border-border">
                   <TableCell
                     colSpan={5}
-                    className="h-20 text-center text-[13px] text-clay-ink-muted"
+                    className="h-20 text-center text-[13px] text-muted-foreground"
                   >
                     No leaves in this range.
                   </TableCell>
@@ -71,21 +71,21 @@ export default async function LeaveReportPage(props: {
                 rows.map((r, i) => (
                   <TableRow
                     key={`${r.employeeId}-${i}`}
-                    className="border-clay-border"
+                    className="border-border"
                   >
-                    <TableCell className="font-medium text-clay-ink">
+                    <TableCell className="font-medium text-foreground">
                       {r.employeeName}
                     </TableCell>
-                    <TableCell className="text-[13px] text-clay-ink">
+                    <TableCell className="text-[13px] text-foreground">
                       {r.leaveTypeName}
                     </TableCell>
-                    <TableCell className="text-right text-[13px] text-clay-green">
+                    <TableCell className="text-right text-[13px] text-emerald-500">
                       {r.approvedDays}
                     </TableCell>
-                    <TableCell className="text-right text-[13px] text-clay-amber">
+                    <TableCell className="text-right text-[13px] text-amber-500">
                       {r.pendingDays}
                     </TableCell>
-                    <TableCell className="text-right text-[13px] text-clay-red">
+                    <TableCell className="text-right text-[13px] text-destructive">
                       {r.rejectedDays}
                     </TableCell>
                   </TableRow>

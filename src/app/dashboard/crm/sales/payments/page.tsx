@@ -93,7 +93,7 @@ export default function PaymentsPage() {
 
       <ClayCard>
         <div className="mb-4 flex flex-wrap items-end gap-3">
-          <div className="flex items-center gap-2 text-[12px] text-clay-ink-muted">
+          <div className="flex items-center gap-2 text-[12px] text-muted-foreground">
             <FilterIcon className="h-3.5 w-3.5" strokeWidth={1.75} />
             Filters
           </div>
@@ -103,7 +103,7 @@ export default function PaymentsPage() {
               setFilter((f) => ({ ...f, gateway: v === 'all' ? '' : v }))
             }
           >
-            <SelectTrigger className="h-9 w-[150px] rounded-clay-md border-clay-border bg-clay-surface text-[12.5px]">
+            <SelectTrigger className="h-9 w-[150px] rounded-lg border-border bg-card text-[12.5px]">
               <SelectValue placeholder="Gateway" />
             </SelectTrigger>
             <SelectContent>
@@ -121,7 +121,7 @@ export default function PaymentsPage() {
               setFilter((f) => ({ ...f, status: v === 'all' ? '' : v }))
             }
           >
-            <SelectTrigger className="h-9 w-[140px] rounded-clay-md border-clay-border bg-clay-surface text-[12.5px]">
+            <SelectTrigger className="h-9 w-[140px] rounded-lg border-border bg-card text-[12.5px]">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
@@ -139,7 +139,7 @@ export default function PaymentsPage() {
             onChange={(e) =>
               setFilter((f) => ({ ...f, from: e.target.value || '' }))
             }
-            className="h-9 w-[150px] rounded-clay-md border-clay-border bg-clay-surface text-[12.5px]"
+            className="h-9 w-[150px] rounded-lg border-border bg-card text-[12.5px]"
           />
           <Input
             type="date"
@@ -147,42 +147,42 @@ export default function PaymentsPage() {
             onChange={(e) =>
               setFilter((f) => ({ ...f, to: e.target.value || '' }))
             }
-            className="h-9 w-[150px] rounded-clay-md border-clay-border bg-clay-surface text-[12.5px]"
+            className="h-9 w-[150px] rounded-lg border-border bg-card text-[12.5px]"
           />
         </div>
 
         {isLoading && rows.length === 0 ? (
           <div className="flex justify-center py-10">
-            <LoaderCircle className="h-5 w-5 animate-spin text-clay-ink-muted" />
+            <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />
           </div>
         ) : rows.length === 0 ? (
           <div className="flex flex-col items-center gap-3 py-10 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-clay-md bg-clay-rose-soft">
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent">
               <CreditCard
-                className="h-6 w-6 text-clay-rose-ink"
+                className="h-6 w-6 text-accent-foreground"
                 strokeWidth={1.75}
               />
             </div>
-            <p className="text-[13px] text-clay-ink-muted">
+            <p className="text-[13px] text-muted-foreground">
               No payments recorded yet.
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+          <div className="overflow-x-auto rounded-lg border border-border">
             <Table>
               <TableHeader>
-                <TableRow className="border-clay-border hover:bg-transparent">
-                  <TableHead className="text-clay-ink-muted">Date</TableHead>
-                  <TableHead className="text-clay-ink-muted">
+                <TableRow className="border-border hover:bg-transparent">
+                  <TableHead className="text-muted-foreground">Date</TableHead>
+                  <TableHead className="text-muted-foreground">
                     Invoice
                   </TableHead>
-                  <TableHead className="text-clay-ink-muted">Client</TableHead>
-                  <TableHead className="text-clay-ink-muted">Gateway</TableHead>
-                  <TableHead className="text-right text-clay-ink-muted">
+                  <TableHead className="text-muted-foreground">Client</TableHead>
+                  <TableHead className="text-muted-foreground">Gateway</TableHead>
+                  <TableHead className="text-right text-muted-foreground">
                     Amount
                   </TableHead>
-                  <TableHead className="text-clay-ink-muted">Status</TableHead>
-                  <TableHead className="text-right text-clay-ink-muted">
+                  <TableHead className="text-muted-foreground">Status</TableHead>
+                  <TableHead className="text-right text-muted-foreground">
                     &nbsp;
                   </TableHead>
                 </TableRow>
@@ -191,23 +191,23 @@ export default function PaymentsPage() {
                 {rows.map((row) => (
                   <TableRow
                     key={String(row._id)}
-                    className="border-clay-border"
+                    className="border-border"
                   >
-                    <TableCell className="text-[12.5px] text-clay-ink">
+                    <TableCell className="text-[12.5px] text-foreground">
                       {row.paid_on
                         ? new Date(row.paid_on).toLocaleDateString()
                         : '—'}
                     </TableCell>
-                    <TableCell className="font-mono text-[12px] text-clay-ink">
+                    <TableCell className="font-mono text-[12px] text-foreground">
                       {row.invoice_number || '—'}
                     </TableCell>
-                    <TableCell className="text-[12.5px] text-clay-ink">
+                    <TableCell className="text-[12.5px] text-foreground">
                       {row.client_name || '—'}
                     </TableCell>
                     <TableCell>
                       <ClayBadge tone="neutral">{row.gateway}</ClayBadge>
                     </TableCell>
-                    <TableCell className="text-right font-semibold text-clay-ink">
+                    <TableCell className="text-right font-semibold text-foreground">
                       {formatMoney(row.amount, row.currency)}
                     </TableCell>
                     <TableCell>
@@ -221,7 +221,7 @@ export default function PaymentsPage() {
                     <TableCell className="text-right">
                       <Link
                         href={`/dashboard/crm/sales/payments/${String(row._id)}`}
-                        className="text-[12px] font-medium text-clay-rose-ink hover:underline"
+                        className="text-[12px] font-medium text-accent-foreground hover:underline"
                       >
                         View
                       </Link>

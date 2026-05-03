@@ -80,20 +80,20 @@ export default function ContractTemplateEditorPage(props: {
           <form action={saveFormAction} className="space-y-4 p-6">
             <input type="hidden" name="_id" value={templateId} />
             <div>
-              <Label htmlFor="name" className="text-clay-ink">
-                Template Name <span className="text-clay-red">*</span>
+              <Label htmlFor="name" className="text-foreground">
+                Template Name <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="name"
                 name="name"
                 required
                 defaultValue={tpl?.name || ''}
-                className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div>
-              <Label htmlFor="body" className="text-clay-ink">
-                Body <span className="text-clay-red">*</span>
+              <Label htmlFor="body" className="text-foreground">
+                Body <span className="text-destructive">*</span>
               </Label>
               <Textarea
                 id="body"
@@ -101,10 +101,10 @@ export default function ContractTemplateEditorPage(props: {
                 required
                 rows={20}
                 defaultValue={tpl?.body || ''}
-                className="mt-1.5 rounded-clay-md border-clay-border bg-clay-surface font-mono text-[13px]"
+                className="mt-1.5 rounded-lg border-border bg-card font-mono text-[13px]"
                 placeholder="Contract body..."
               />
-              <p className="mt-1 text-[11.5px] text-clay-ink-muted">
+              <p className="mt-1 text-[11.5px] text-muted-foreground">
                 Supported placeholders: {'{{client_name}}'}, {'{{start_date}}'},{' '}
                 {'{{end_date}}'}, {'{{value}}'}, {'{{currency}}'}
               </p>

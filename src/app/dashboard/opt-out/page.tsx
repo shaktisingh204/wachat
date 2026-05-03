@@ -91,19 +91,19 @@ export default function OptOutPage() {
       ]} />
 
       <div>
-        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">Opt-Out / DND Management</h1>
-        <p className="mt-1.5 text-[13px] text-clay-ink-muted">Manage numbers that have opted out of receiving messages.</p>
+        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">Opt-Out / DND Management</h1>
+        <p className="mt-1.5 text-[13px] text-muted-foreground">Manage numbers that have opted out of receiving messages.</p>
       </div>
 
       {/* Add form */}
       <ClayCard padded={false} className="p-5">
-        <h2 className="mb-4 text-[15px] font-semibold text-clay-ink">Add to Opt-Out List</h2>
+        <h2 className="mb-4 text-[15px] font-semibold text-foreground">Add to Opt-Out List</h2>
         <form onSubmit={handleAdd} className="flex flex-wrap items-end gap-3">
-          <label className="flex flex-col gap-1.5 text-[12px] font-medium text-clay-ink-muted">
+          <label className="flex flex-col gap-1.5 text-[12px] font-medium text-muted-foreground">
             Phone Number
             <ClayInput value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+1 234 567 8900" required className="w-52" />
           </label>
-          <label className="flex flex-1 flex-col gap-1.5 text-[12px] font-medium text-clay-ink-muted">
+          <label className="flex flex-1 flex-col gap-1.5 text-[12px] font-medium text-muted-foreground">
             Reason
             <ClayInput value={reason} onChange={(e) => setReason(e.target.value)} placeholder="e.g. User requested" className="w-full" />
           </label>
@@ -115,13 +115,13 @@ export default function OptOutPage() {
 
       {/* Bulk paste */}
       <ClayCard padded={false} className="p-5">
-        <h2 className="mb-3 text-[15px] font-semibold text-clay-ink">Bulk add</h2>
-        <p className="mb-2 text-[12px] text-clay-ink-muted">Paste multiple phone numbers separated by newlines or commas.</p>
+        <h2 className="mb-3 text-[15px] font-semibold text-foreground">Bulk add</h2>
+        <p className="mb-2 text-[12px] text-muted-foreground">Paste multiple phone numbers separated by newlines or commas.</p>
         <textarea
           id="bulk-opt-out"
           rows={4}
           placeholder={'+919876543210\n+919876543211\n+919876543212'}
-          className="w-full rounded-[10px] border border-clay-border bg-clay-surface p-3 text-[13px] text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-border-strong focus:outline-none"
+          className="w-full rounded-[10px] border border-border bg-card p-3 text-[13px] text-foreground placeholder:text-muted-foreground focus:border-border focus:outline-none"
         />
         <ClayButton
           variant="pill"
@@ -143,7 +143,7 @@ export default function OptOutPage() {
       {/* List */}
       <ClayCard padded={false} className="p-5">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-[15px] font-semibold text-clay-ink">Opt-Out Numbers</h2>
+          <h2 className="text-[15px] font-semibold text-foreground">Opt-Out Numbers</h2>
           <ClayButton
             variant="pill"
             size="sm"
@@ -155,27 +155,27 @@ export default function OptOutPage() {
           </ClayButton>
         </div>
         {isPending && list.length === 0 && (
-          <div className="flex justify-center py-8"><LuLoader className="h-5 w-5 animate-spin text-clay-ink-muted" /></div>
+          <div className="flex justify-center py-8"><LuLoader className="h-5 w-5 animate-spin text-muted-foreground" /></div>
         )}
         {!isPending && list.length === 0 && (
           <div className="flex flex-col items-center gap-2 py-8 text-center">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-clay-bg-2 text-clay-ink-muted">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-muted-foreground">
               <LuShieldOff className="h-5 w-5" strokeWidth={1.5} />
             </div>
-            <p className="text-[13px] text-clay-ink-muted">No opt-out numbers recorded.</p>
+            <p className="text-[13px] text-muted-foreground">No opt-out numbers recorded.</p>
           </div>
         )}
         {list.length > 0 && (
           <div className="space-y-1">
-            <div className="grid grid-cols-[1fr_1fr_140px_48px] gap-3 pb-2 text-[11.5px] font-medium text-clay-ink-muted">
+            <div className="grid grid-cols-[1fr_1fr_140px_48px] gap-3 pb-2 text-[11.5px] font-medium text-muted-foreground">
               <span>Phone</span><span>Reason</span><span>Opted Out</span><span />
             </div>
             {list.map((item) => (
-              <div key={item._id} className="grid grid-cols-[1fr_1fr_140px_48px] items-center gap-3 rounded-clay-md px-1 py-2 text-[13px] text-clay-ink hover:bg-clay-surface-2">
+              <div key={item._id} className="grid grid-cols-[1fr_1fr_140px_48px] items-center gap-3 rounded-lg px-1 py-2 text-[13px] text-foreground hover:bg-secondary">
                 <span className="font-medium">{item.phone}</span>
-                <span className="text-clay-ink-muted">{item.reason || '--'}</span>
-                <span className="text-[12px] text-clay-ink-muted">{item.optedOutAt ? new Date(item.optedOutAt).toLocaleDateString() : '--'}</span>
-                <ClayButton variant="ghost" size="icon" className="h-7 w-7 text-clay-ink-soft hover:text-clay-red" onClick={() => handleRemove(item._id)}>
+                <span className="text-muted-foreground">{item.reason || '--'}</span>
+                <span className="text-[12px] text-muted-foreground">{item.optedOutAt ? new Date(item.optedOutAt).toLocaleDateString() : '--'}</span>
+                <ClayButton variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => handleRemove(item._id)}>
                   <LuTrash2 className="h-3.5 w-3.5" />
                 </ClayButton>
               </div>

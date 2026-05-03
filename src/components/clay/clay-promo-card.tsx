@@ -42,7 +42,7 @@ export function ClayPromoCard({
   return (
     <div
       className={cn(
-        'rounded-clay-xl border border-clay-border bg-clay-surface overflow-hidden',
+        'rounded-2xl border border-border bg-card overflow-hidden',
         className,
       )}
     >
@@ -56,38 +56,38 @@ export function ClayPromoCard({
               'radial-gradient(at 82% 22%, hsl(262 85% 88%) 0px, transparent 52%),' +
               'radial-gradient(at 68% 82%, hsl(198 90% 86%) 0px, transparent 55%),' +
               'radial-gradient(at 22% 80%, hsl(28  95% 86%) 0px, transparent 55%),' +
-              'hsl(var(--clay-surface))',
+              'hsl(var(--card))',
             filter: 'saturate(1.05)',
           }}
         />
         {/* subtle noise overlay to avoid flat gradients reading synthetic */}
         <div
           className="absolute inset-0 mix-blend-multiply opacity-30"
-          style={{ backgroundImage: 'var(--clay-grain)', backgroundSize: '180px' }}
+          style={{ backgroundImage: 'none', backgroundSize: '180px' }}
         />
       </div>
 
       <div className="p-4">
-        <h4 className="text-[14px] font-semibold tracking-tight text-clay-ink leading-tight">
+        <h4 className="text-[14px] font-semibold tracking-tight text-foreground leading-tight">
           {title}
         </h4>
         {description ? (
-          <p className="mt-1 text-[11.5px] leading-[1.45] text-clay-ink-muted">
+          <p className="mt-1 text-[11.5px] leading-[1.45] text-muted-foreground">
             {description}
           </p>
         ) : null}
 
         {discountLabel ? (
-          <div className="mt-3 flex items-center gap-2 rounded-clay-md border border-clay-border bg-clay-surface-2 px-2.5 py-1.5">
+          <div className="mt-3 flex items-center gap-2 rounded-lg border border-border bg-secondary px-2.5 py-1.5">
             <LuTag
-              className="h-3 w-3 text-clay-rose"
+              className="h-3 w-3 text-primary"
               strokeWidth={2.25}
             />
-            <span className="text-[11px] font-semibold text-clay-rose-ink">
+            <span className="text-[11px] font-semibold text-accent-foreground">
               {discountLabel}
             </span>
             {discountNote ? (
-              <span className="text-[10.5px] text-clay-ink-muted">
+              <span className="text-[10.5px] text-muted-foreground">
                 {discountNote}
               </span>
             ) : null}

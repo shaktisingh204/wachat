@@ -118,17 +118,17 @@ export default function EmailNotificationsIntegrationPage() {
             />
           ))}
 
-          <div className="divide-y divide-clay-border rounded-clay-md border border-clay-border bg-clay-surface">
+          <div className="divide-y divide-border rounded-lg border border-border bg-card">
             {WS_EMAIL_NOTIFICATION_KEYS.map((row) => (
               <div
                 key={row.key}
                 className="flex items-center justify-between gap-4 px-4 py-3"
               >
                 <div className="min-w-0">
-                  <div className="text-[13px] font-medium text-clay-ink">
+                  <div className="text-[13px] font-medium text-foreground">
                     {row.label}
                   </div>
-                  <div className="text-[12px] text-clay-ink-muted">
+                  <div className="text-[12px] text-muted-foreground">
                     {row.description}
                   </div>
                 </div>

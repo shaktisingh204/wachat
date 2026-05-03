@@ -183,11 +183,11 @@ export default function TeamOverviewPage() {
 
             {/* Module tiles */}
             <div>
-                <h2 className="mb-3 text-[14px] font-semibold text-clay-ink">Quick actions</h2>
+                <h2 className="mb-3 text-[14px] font-semibold text-foreground">Quick actions</h2>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     {MODULE_TILES.map((tile) => (
                         <Link key={tile.href} href={tile.href} className="group">
-                            <ClayCard padded className="h-full transition-shadow group-hover:shadow-clay-md">
+                            <ClayCard padded className="h-full transition-shadow group-hover:shadow-md">
                                 <div
                                     className={cn(
                                         'mb-3 flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br text-white',
@@ -197,10 +197,10 @@ export default function TeamOverviewPage() {
                                     <tile.icon className="h-[18px] w-[18px]" strokeWidth={2} />
                                 </div>
                                 <div className="flex items-start justify-between gap-2">
-                                    <p className="text-[13.5px] font-semibold text-clay-ink">{tile.label}</p>
-                                    <LuArrowUpRight className="h-4 w-4 text-clay-ink-muted transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                                    <p className="text-[13.5px] font-semibold text-foreground">{tile.label}</p>
+                                    <LuArrowUpRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                                 </div>
-                                <p className="mt-1 text-[12.5px] leading-relaxed text-clay-ink-muted">
+                                <p className="mt-1 text-[12.5px] leading-relaxed text-muted-foreground">
                                     {tile.description}
                                 </p>
                             </ClayCard>
@@ -213,8 +213,8 @@ export default function TeamOverviewPage() {
             <ClayCard padded>
                 <div className="flex items-center justify-between">
                     <div>
-                        <h2 className="text-[14px] font-semibold text-clay-ink">Recent invitations</h2>
-                        <p className="text-[12.5px] text-clay-ink-muted">
+                        <h2 className="text-[14px] font-semibold text-foreground">Recent invitations</h2>
+                        <p className="text-[12.5px] text-muted-foreground">
                             Latest 5 invites across all projects.
                         </p>
                     </div>
@@ -231,19 +231,19 @@ export default function TeamOverviewPage() {
                         <Skeleton className="h-12 w-full" />
                     </div>
                 ) : data.recentInvites.length === 0 ? (
-                    <div className="mt-4 rounded-xl border border-dashed border-clay-border bg-clay-surface-subtle p-6 text-center text-[13px] text-clay-ink-muted">
+                    <div className="mt-4 rounded-xl border border-dashed border-border bg-muted/50 p-6 text-center text-[13px] text-muted-foreground">
                         No invitations yet. Start by inviting your first teammate.
                     </div>
                 ) : (
-                    <ul className="mt-3 divide-y divide-clay-border rounded-xl border border-clay-border">
+                    <ul className="mt-3 divide-y divide-border rounded-xl border border-border">
                         {data.recentInvites.map((inv) => (
                             <li
                                 key={inv._id}
                                 className="flex items-center justify-between gap-4 px-4 py-3 text-[13px]"
                             >
                                 <div className="min-w-0">
-                                    <p className="truncate font-medium text-clay-ink">{inv.inviteeEmail}</p>
-                                    <p className="truncate text-[12px] text-clay-ink-muted">
+                                    <p className="truncate font-medium text-foreground">{inv.inviteeEmail}</p>
+                                    <p className="truncate text-[12px] text-muted-foreground">
                                         {inv.projectName ?? 'Workspace-wide'} · {inv.role}
                                     </p>
                                 </div>
@@ -273,7 +273,7 @@ function StatCard({
     return (
         <ClayCard variant="soft" padded>
             <div className="flex items-start justify-between">
-                <p className="text-[11.5px] font-medium uppercase tracking-wide text-clay-ink-muted">
+                <p className="text-[11.5px] font-medium uppercase tracking-wide text-muted-foreground">
                     {label}
                 </p>
                 <div
@@ -281,13 +281,13 @@ function StatCard({
                         'flex h-7 w-7 items-center justify-center rounded-full',
                         tone === 'amber' && 'bg-amber-100 text-amber-700',
                         tone === 'red' && 'bg-red-100 text-red-700',
-                        tone === 'neutral' && 'bg-clay-rose-soft text-clay-rose',
+                        tone === 'neutral' && 'bg-accent text-primary',
                     )}
                 >
                     {icon}
                 </div>
             </div>
-            <p className="mt-2 text-[28px] font-semibold leading-none text-clay-ink">
+            <p className="mt-2 text-[28px] font-semibold leading-none text-foreground">
                 {loading ? <Skeleton className="inline-block h-7 w-12" /> : value}
             </p>
         </ClayCard>

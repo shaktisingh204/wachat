@@ -46,7 +46,7 @@ export default function PoliciesPage() {
                 {row.status}
               </ClayBadge>
             ) : (
-              <span className="text-clay-ink-muted">—</span>
+              <span className="text-muted-foreground">—</span>
             );
           },
         },
@@ -57,7 +57,7 @@ export default function PoliciesPage() {
             row.appliesTo ? (
               <ClayBadge tone="neutral">{row.appliesTo}</ClayBadge>
             ) : (
-              <span className="text-clay-ink-muted">all</span>
+              <span className="text-muted-foreground">all</span>
             ),
         },
         { key: 'version', label: 'Version' },
@@ -75,12 +75,12 @@ export default function PoliciesPage() {
                 href={String(row.attachmentUrl)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[12px] text-clay-rose-ink underline-offset-2 hover:underline"
+                className="text-[12px] text-accent-foreground underline-offset-2 hover:underline"
               >
                 View
               </a>
             ) : (
-              <span className="text-clay-ink-muted">—</span>
+              <span className="text-muted-foreground">—</span>
             ),
         },
       ]}

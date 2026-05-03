@@ -69,7 +69,7 @@ export default function ApiKeysPage() {
   if (isLoading) {
     return (
       <div className="flex min-h-[300px] items-center justify-center">
-        <LuLoader className="h-6 w-6 animate-spin text-clay-ink-muted" />
+        <LuLoader className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -84,8 +84,8 @@ export default function ApiKeysPage() {
 
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">API Keys</h1>
-          <p className="mt-1.5 text-[13px] text-clay-ink-muted">Manage API keys for programmatic access to WhatsApp APIs.</p>
+          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">API Keys</h1>
+          <p className="mt-1.5 text-[13px] text-muted-foreground">Manage API keys for programmatic access to WhatsApp APIs.</p>
         </div>
         <ClayButton variant="obsidian" size="sm" onClick={() => setShowCreate(true)}
           leading={<LuPlus className="h-3.5 w-3.5" />}>
@@ -95,12 +95,12 @@ export default function ApiKeysPage() {
 
       {showCreate && (
         <ClayCard padded={false} className="p-5">
-          <h2 className="text-[15px] font-semibold text-clay-ink mb-3">New API Key</h2>
+          <h2 className="text-[15px] font-semibold text-foreground mb-3">New API Key</h2>
           <div className="flex gap-3 max-w-md">
             <input type="text" value={newName} onChange={(e) => setNewName(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
               placeholder="Key name (e.g. Production)"
-              className="flex-1 rounded-lg border border-clay-border bg-clay-bg px-3 py-2 text-sm text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-accent focus:outline-none" />
+              className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none" />
             <ClayButton size="sm" onClick={handleCreate} disabled={!newName.trim() || isMutating}>Create</ClayButton>
             <ClayButton size="sm" variant="pill" onClick={() => setShowCreate(false)}>Cancel</ClayButton>
           </div>
@@ -130,7 +130,7 @@ export default function ApiKeysPage() {
         <ClayCard padded={false} className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-clay-border text-[11px] font-semibold uppercase tracking-wide text-clay-ink-muted">
+              <tr className="border-b border-border text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                 <th className="px-5 py-3">Name</th>
                 <th className="px-5 py-3">Key</th>
                 <th className="px-5 py-3">Status</th>
@@ -140,21 +140,21 @@ export default function ApiKeysPage() {
             </thead>
             <tbody>
               {keys.map((k) => (
-                <tr key={k._id} className="border-b border-clay-border last:border-0">
-                  <td className="px-5 py-3 font-medium text-[13px] text-clay-ink">{k.name}</td>
-                  <td className="px-5 py-3 text-[13px] text-clay-ink font-mono">{maskKey(k.key)}</td>
+                <tr key={k._id} className="border-b border-border last:border-0">
+                  <td className="px-5 py-3 font-medium text-[13px] text-foreground">{k.name}</td>
+                  <td className="px-5 py-3 text-[13px] text-foreground font-mono">{maskKey(k.key)}</td>
                   <td className="px-5 py-3">
                     <span className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-medium ${k.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
                       {k.isActive ? 'Active' : 'Revoked'}
                     </span>
                   </td>
-                  <td className="px-5 py-3 text-[12px] text-clay-ink-muted">
+                  <td className="px-5 py-3 text-[12px] text-muted-foreground">
                     {k.createdAt ? new Date(k.createdAt).toLocaleDateString() : '-'}
                   </td>
                   <td className="px-5 py-3 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <button onClick={() => handleCopy(k.key, k._id)} className="p-1.5 rounded-md hover:bg-clay-surface-2 transition-colors" title="Copy">
-                        {copiedId === k._id ? <LuCheck className="h-3.5 w-3.5 text-emerald-600" /> : <LuCopy className="h-3.5 w-3.5 text-clay-ink-muted" />}
+                      <button onClick={() => handleCopy(k.key, k._id)} className="p-1.5 rounded-md hover:bg-secondary transition-colors" title="Copy">
+                        {copiedId === k._id ? <LuCheck className="h-3.5 w-3.5 text-emerald-600" /> : <LuCopy className="h-3.5 w-3.5 text-muted-foreground" />}
                       </button>
                       {k.isActive && (
                         <button onClick={() => handleRevoke(k._id, k.name || 'Unnamed')} disabled={isMutating}
@@ -171,8 +171,8 @@ export default function ApiKeysPage() {
         </ClayCard>
       ) : (
         <ClayCard className="p-12 text-center">
-          <LuKey className="mx-auto h-12 w-12 text-clay-ink-muted/30 mb-4" />
-          <p className="text-sm text-clay-ink-muted">No API keys yet. Create one to get started.</p>
+          <LuKey className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
+          <p className="text-sm text-muted-foreground">No API keys yet. Create one to get started.</p>
         </ClayCard>
       )}
       <div className="h-6" />

@@ -35,10 +35,10 @@ export default function ProjectStatusesPage() {
             row.color ? (
               <span className="inline-flex items-center gap-2">
                 <span
-                  className="inline-block h-4 w-4 rounded-full border border-clay-border"
+                  className="inline-block h-4 w-4 rounded-full border border-border"
                   style={{ backgroundColor: row.color }}
                 />
-                <span className="text-[12px] text-clay-ink-muted">{row.color}</span>
+                <span className="text-[12px] text-muted-foreground">{row.color}</span>
               </span>
             ) : (
               '—'

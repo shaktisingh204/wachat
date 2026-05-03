@@ -52,9 +52,9 @@ function DealsPageSkeleton() {
         <Skeleton className="mt-2 h-4 w-96" />
       </div>
       <div className="flex gap-4">
-        <Skeleton className="h-[60vh] w-80 rounded-clay-lg" />
-        <Skeleton className="h-[60vh] w-80 rounded-clay-lg" />
-        <Skeleton className="h-[60vh] w-80 rounded-clay-lg" />
+        <Skeleton className="h-[60vh] w-80 rounded-xl" />
+        <Skeleton className="h-[60vh] w-80 rounded-xl" />
+        <Skeleton className="h-[60vh] w-80 rounded-xl" />
       </div>
     </div>
   );
@@ -164,7 +164,7 @@ export default function DealsPage() {
             {pipelines.length > 0 && (
               <div className="w-[200px]">
                 <Select value={selectedPipelineId} onValueChange={setSelectedPipelineId}>
-                  <SelectTrigger className="h-9 rounded-full border-clay-border bg-clay-surface text-[13px]">
+                  <SelectTrigger className="h-9 rounded-full border-border bg-card text-[13px]">
                     <SelectValue placeholder="Select Pipeline" />
                   </SelectTrigger>
                   <SelectContent>

@@ -97,10 +97,10 @@ export default function InstalledMarketplaceAppsPage(): React.JSX.Element {
 
             <header className="flex items-start justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-semibold text-clay-ink">
+                    <h1 className="text-2xl font-semibold text-foreground">
                         Installed Apps
                     </h1>
-                    <p className="mt-1 text-sm text-clay-ink-muted">
+                    <p className="mt-1 text-sm text-muted-foreground">
                         Apps your workspace has connected, with the last 30 days of usage.
                     </p>
                 </div>
@@ -151,7 +151,7 @@ function InstalledAppCard({ row }: { row: InstalledAppRow }): React.JSX.Element 
             <header className="flex items-start gap-3">
                 <div
                     aria-hidden="true"
-                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-clay-surface-muted text-clay-ink"
+                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted text-foreground"
                 >
                     {row.iconUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
@@ -161,8 +161,8 @@ function InstalledAppCard({ row }: { row: InstalledAppRow }): React.JSX.Element 
                     )}
                 </div>
                 <div className="flex-1">
-                    <h2 className="text-base font-semibold text-clay-ink">{row.name}</h2>
-                    <p className="text-xs text-clay-ink-muted">
+                    <h2 className="text-base font-semibold text-foreground">{row.name}</h2>
+                    <p className="text-xs text-muted-foreground">
                         v{row.version} · {row.pricingType}
                     </p>
                 </div>
@@ -171,13 +171,13 @@ function InstalledAppCard({ row }: { row: InstalledAppRow }): React.JSX.Element 
 
             <UsageSparkline series={row.usageSeries} />
 
-            <footer className="flex items-baseline justify-between text-xs text-clay-ink-muted">
+            <footer className="flex items-baseline justify-between text-xs text-muted-foreground">
                 <span>30-day usage</span>
-                <span className="font-mono text-sm text-clay-ink">
+                <span className="font-mono text-sm text-foreground">
                     {total.toLocaleString()} units
                 </span>
             </footer>
-            <p className="text-[11px] uppercase tracking-wider text-clay-ink-muted">
+            <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
                 Lifetime: {row.lifetimeUnits.toLocaleString()} units
             </p>
         </ClayCard>
@@ -199,7 +199,7 @@ function UsageSparkline({
 
     if (series.length === 0) {
         return (
-            <div className="flex h-16 items-center justify-center rounded-lg bg-clay-surface-muted text-xs text-clay-ink-muted">
+            <div className="flex h-16 items-center justify-center rounded-lg bg-muted text-xs text-muted-foreground">
                 No usage in the last 30 days
             </div>
         );
@@ -213,7 +213,7 @@ function UsageSparkline({
             role="img"
             aria-label={`Daily usage chart with ${series.length} bars; max ${max} units in a single day`}
             viewBox={`0 0 ${W} ${H}`}
-            className="h-16 w-full text-clay-accent"
+            className="h-16 w-full text-accent"
         >
             <title>30-day usage</title>
             {series.map((p, i) => {
@@ -260,7 +260,7 @@ function StatusPill({
 function LoadingPanel(): React.JSX.Element {
     return (
         <div className="flex min-h-[240px] items-center justify-center">
-            <LuLoader className="h-6 w-6 animate-spin text-clay-ink-muted" />
+            <LuLoader className="h-6 w-6 animate-spin text-muted-foreground" />
         </div>
     );
 }
@@ -268,9 +268,9 @@ function LoadingPanel(): React.JSX.Element {
 function EmptyPanel(): React.JSX.Element {
     return (
         <ClayCard className="flex min-h-[240px] flex-col items-center justify-center gap-2 p-8 text-center">
-            <LuStore className="h-8 w-8 text-clay-ink-muted" />
-            <h2 className="text-base font-semibold text-clay-ink">No apps installed yet</h2>
-            <p className="max-w-md text-sm text-clay-ink-muted">
+            <LuStore className="h-8 w-8 text-muted-foreground" />
+            <h2 className="text-base font-semibold text-foreground">No apps installed yet</h2>
+            <p className="max-w-md text-sm text-muted-foreground">
                 Browse the marketplace to extend your workspace with first- and third-party apps.
             </p>
             <ClayButton
@@ -295,8 +295,8 @@ function ErrorPanel({
 }): React.JSX.Element {
     return (
         <ClayCard className="flex min-h-[160px] flex-col items-center justify-center gap-3 p-6 text-center">
-            <p className="text-sm text-clay-ink">Couldn’t load installed apps.</p>
-            <p className="font-mono text-xs text-clay-ink-muted">{message}</p>
+            <p className="text-sm text-foreground">Couldn’t load installed apps.</p>
+            <p className="font-mono text-xs text-muted-foreground">{message}</p>
             <ClayButton variant="ghost" onClick={onRetry}>
                 <LuRefreshCw className="mr-2 h-4 w-4" />
                 Retry

@@ -36,7 +36,7 @@ export const ClayBreadcrumbs = React.forwardRef<
           {item.href && !isLast ? (
             <Link
               href={item.href}
-              className="text-clay-ink-soft hover:text-clay-ink transition-colors"
+              className="text-muted-foreground hover:text-foreground transition-colors"
             >
               {item.label}
             </Link>
@@ -44,8 +44,8 @@ export const ClayBreadcrumbs = React.forwardRef<
             <span
               className={cn(
                 isLast
-                  ? 'text-clay-ink font-medium'
-                  : 'text-clay-ink-soft',
+                  ? 'text-foreground font-medium'
+                  : 'text-muted-foreground',
               )}
             >
               {item.label}

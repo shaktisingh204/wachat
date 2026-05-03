@@ -176,57 +176,57 @@ export default function TaskboardColumnsPage() {
       />
 
       <ClayCard>
-        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <Table>
             <TableHeader>
-              <TableRow className="border-clay-border hover:bg-transparent">
-                <TableHead className="text-clay-ink-muted">Name</TableHead>
-                <TableHead className="text-clay-ink-muted">Slug</TableHead>
-                <TableHead className="text-clay-ink-muted">Colour</TableHead>
-                <TableHead className="text-clay-ink-muted">Priority</TableHead>
-                <TableHead className="w-[180px] text-right text-clay-ink-muted">
+              <TableRow className="border-border hover:bg-transparent">
+                <TableHead className="text-muted-foreground">Name</TableHead>
+                <TableHead className="text-muted-foreground">Slug</TableHead>
+                <TableHead className="text-muted-foreground">Colour</TableHead>
+                <TableHead className="text-muted-foreground">Priority</TableHead>
+                <TableHead className="w-[180px] text-right text-muted-foreground">
                   Actions
                 </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading && rows.length === 0 ? (
-                <TableRow className="border-clay-border">
+                <TableRow className="border-border">
                   <TableCell
                     colSpan={5}
-                    className="h-20 text-center text-[13px] text-clay-ink-muted"
+                    className="h-20 text-center text-[13px] text-muted-foreground"
                   >
                     Loading…
                   </TableCell>
                 </TableRow>
               ) : rows.length === 0 ? (
-                <TableRow className="border-clay-border">
+                <TableRow className="border-border">
                   <TableCell
                     colSpan={5}
-                    className="h-20 text-center text-[13px] text-clay-ink-muted"
+                    className="h-20 text-center text-[13px] text-muted-foreground"
                   >
                     No columns yet — click Add to get started.
                   </TableCell>
                 </TableRow>
               ) : (
                 rows.map((row, idx) => (
-                  <TableRow key={row._id} className="border-clay-border">
-                    <TableCell className="text-[13px] text-clay-ink">
+                  <TableRow key={row._id} className="border-border">
+                    <TableCell className="text-[13px] text-foreground">
                       {row.columnName}
                     </TableCell>
-                    <TableCell className="text-[13px] text-clay-ink-muted">
+                    <TableCell className="text-[13px] text-muted-foreground">
                       {row.slug || '—'}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <span
-                          className="inline-block h-4 w-4 rounded-sm border border-clay-border"
+                          className="inline-block h-4 w-4 rounded-sm border border-border"
                           style={{
                             backgroundColor: row.labelColor || DEFAULT_COLOR,
                           }}
                           aria-hidden
                         />
-                        <code className="text-[12px] text-clay-ink-muted">
+                        <code className="text-[12px] text-muted-foreground">
                           {row.labelColor || DEFAULT_COLOR}
                         </code>
                       </div>
@@ -268,7 +268,7 @@ export default function TaskboardColumnsPage() {
                           onClick={() => setDeletingId(row._id)}
                           aria-label="Delete"
                         >
-                          <Trash2 className="h-3.5 w-3.5 text-clay-red" />
+                          <Trash2 className="h-3.5 w-3.5 text-destructive" />
                         </Button>
                       </div>
                     </TableCell>
@@ -283,10 +283,10 @@ export default function TaskboardColumnsPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle className="text-clay-ink">
+            <DialogTitle className="text-foreground">
               {editing ? 'Edit Column' : 'Add Column'}
             </DialogTitle>
-            <DialogDescription className="text-clay-ink-muted">
+            <DialogDescription className="text-muted-foreground">
               Columns are shown in the kanban board in priority order.
             </DialogDescription>
           </DialogHeader>
@@ -297,20 +297,20 @@ export default function TaskboardColumnsPage() {
             ) : null}
 
             <div>
-              <Label htmlFor="columnName" className="text-clay-ink">
-                Column name <span className="text-clay-red">*</span>
+              <Label htmlFor="columnName" className="text-foreground">
+                Column name <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="columnName"
                 name="columnName"
                 required
                 defaultValue={editing?.columnName || ''}
-                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
 
             <div>
-              <Label htmlFor="slug" className="text-clay-ink">
+              <Label htmlFor="slug" className="text-foreground">
                 Slug
               </Label>
               <Input
@@ -318,12 +318,12 @@ export default function TaskboardColumnsPage() {
                 name="slug"
                 defaultValue={editing?.slug || ''}
                 placeholder="in-progress"
-                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
 
             <div>
-              <Label htmlFor="labelColor" className="text-clay-ink">
+              <Label htmlFor="labelColor" className="text-foreground">
                 Label colour (hex)
               </Label>
               <div className="flex items-center gap-2">
@@ -333,10 +333,10 @@ export default function TaskboardColumnsPage() {
                   defaultValue={editing?.labelColor || DEFAULT_COLOR}
                   placeholder="#7c3aed"
                   onChange={(e) => setColorPreview(e.target.value)}
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
                 <span
-                  className="inline-block h-8 w-8 shrink-0 rounded-clay-md border border-clay-border"
+                  className="inline-block h-8 w-8 shrink-0 rounded-lg border border-border"
                   style={{ backgroundColor: colorPreview }}
                   aria-label="Colour preview"
                 />
@@ -344,7 +344,7 @@ export default function TaskboardColumnsPage() {
             </div>
 
             <div>
-              <Label htmlFor="priority" className="text-clay-ink">
+              <Label htmlFor="priority" className="text-foreground">
                 Priority
               </Label>
               <Input
@@ -352,7 +352,7 @@ export default function TaskboardColumnsPage() {
                 name="priority"
                 type="number"
                 defaultValue={String(editing?.priority ?? rows.length)}
-                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
 
@@ -390,10 +390,10 @@ export default function TaskboardColumnsPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-clay-ink">
+            <AlertDialogTitle className="text-foreground">
               Delete column?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-clay-ink-muted">
+            <AlertDialogDescription className="text-muted-foreground">
               Existing tasks assigned to this column will not be deleted.
             </AlertDialogDescription>
           </AlertDialogHeader>

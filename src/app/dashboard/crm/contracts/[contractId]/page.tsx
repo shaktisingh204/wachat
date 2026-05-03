@@ -223,7 +223,7 @@ export default function ContractDetailPage(props: {
     return (
       <ClayCard variant="outline" className="border-dashed">
         <div className="flex flex-col items-center gap-3 py-12 text-center">
-          <p className="text-[13px] text-clay-ink-muted">Contract not found.</p>
+          <p className="text-[13px] text-muted-foreground">Contract not found.</p>
           <Link href="/dashboard/crm/contracts">
             <ClayButton variant="pill" leading={<ArrowLeft className="h-4 w-4" />}>
               Back to Contracts
@@ -265,23 +265,23 @@ export default function ContractDetailPage(props: {
         </div>
         <div className="grid gap-4 md:grid-cols-4">
           <div className="flex items-start gap-3">
-            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-clay-md bg-clay-rose-soft">
-              <User className="h-4 w-4 text-clay-rose-ink" strokeWidth={1.75} />
+            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent">
+              <User className="h-4 w-4 text-accent-foreground" strokeWidth={1.75} />
             </div>
             <div>
-              <p className="text-[11.5px] text-clay-ink-muted">Client</p>
-              <p className="text-[13px] font-medium text-clay-ink">
+              <p className="text-[11.5px] text-muted-foreground">Client</p>
+              <p className="text-[13px] font-medium text-foreground">
                 {contract.clientName || '—'}
               </p>
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-clay-md bg-clay-rose-soft">
-              <DollarSign className="h-4 w-4 text-clay-rose-ink" strokeWidth={1.75} />
+            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent">
+              <DollarSign className="h-4 w-4 text-accent-foreground" strokeWidth={1.75} />
             </div>
             <div>
-              <p className="text-[11.5px] text-clay-ink-muted">Value</p>
-              <p className="text-[13px] font-medium text-clay-ink">
+              <p className="text-[11.5px] text-muted-foreground">Value</p>
+              <p className="text-[13px] font-medium text-foreground">
                 {contract.value != null
                   ? new Intl.NumberFormat('en-IN', {
                       style: 'currency',
@@ -292,23 +292,23 @@ export default function ContractDetailPage(props: {
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-clay-md bg-clay-rose-soft">
-              <Calendar className="h-4 w-4 text-clay-rose-ink" strokeWidth={1.75} />
+            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent">
+              <Calendar className="h-4 w-4 text-accent-foreground" strokeWidth={1.75} />
             </div>
             <div>
-              <p className="text-[11.5px] text-clay-ink-muted">Start</p>
-              <p className="text-[13px] font-medium text-clay-ink">
+              <p className="text-[11.5px] text-muted-foreground">Start</p>
+              <p className="text-[13px] font-medium text-foreground">
                 {fmtDate(contract.startDate)}
               </p>
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-clay-md bg-clay-rose-soft">
-              <Calendar className="h-4 w-4 text-clay-rose-ink" strokeWidth={1.75} />
+            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent">
+              <Calendar className="h-4 w-4 text-accent-foreground" strokeWidth={1.75} />
             </div>
             <div>
-              <p className="text-[11.5px] text-clay-ink-muted">End</p>
-              <p className="text-[13px] font-medium text-clay-ink">
+              <p className="text-[11.5px] text-muted-foreground">End</p>
+              <p className="text-[13px] font-medium text-foreground">
                 {fmtDate(contract.endDate)}
               </p>
             </div>
@@ -317,11 +317,11 @@ export default function ContractDetailPage(props: {
 
         {contract.body ? (
           <div className="mt-6">
-            <p className="mb-2 text-[11.5px] font-medium uppercase tracking-wide text-clay-ink-muted">
+            <p className="mb-2 text-[11.5px] font-medium uppercase tracking-wide text-muted-foreground">
               Contract Body
             </p>
-            <div className="rounded-clay-md border border-clay-border bg-clay-surface-2 p-4">
-              <pre className="whitespace-pre-wrap font-sans text-[13px] text-clay-ink">
+            <div className="rounded-lg border border-border bg-secondary p-4">
+              <pre className="whitespace-pre-wrap font-sans text-[13px] text-foreground">
                 {contract.body}
               </pre>
             </div>
@@ -332,39 +332,39 @@ export default function ContractDetailPage(props: {
       {isSigned ? (
         <ClayCard>
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="h-5 w-5 text-clay-green" />
-            <h2 className="text-[16px] font-semibold text-clay-ink">
+            <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+            <h2 className="text-[16px] font-semibold text-foreground">
               Signed Contract
             </h2>
           </div>
           <div className="mt-4 grid gap-4 md:grid-cols-3">
             <div>
-              <p className="text-[11.5px] text-clay-ink-muted">Signed by</p>
-              <p className="text-[13px] font-medium text-clay-ink">
+              <p className="text-[11.5px] text-muted-foreground">Signed by</p>
+              <p className="text-[13px] font-medium text-foreground">
                 {contract.signedByName || '—'}
               </p>
-              <p className="text-[11.5px] text-clay-ink-muted">
+              <p className="text-[11.5px] text-muted-foreground">
                 {contract.signedByEmail || ''}
               </p>
             </div>
             <div>
-              <p className="text-[11.5px] text-clay-ink-muted">Signed at</p>
-              <p className="text-[13px] font-medium text-clay-ink">
+              <p className="text-[11.5px] text-muted-foreground">Signed at</p>
+              <p className="text-[13px] font-medium text-foreground">
                 {fmtDateTime(contract.signedAt)}
               </p>
             </div>
             <div>
-              <p className="text-[11.5px] text-clay-ink-muted">Signature</p>
+              <p className="text-[11.5px] text-muted-foreground">Signature</p>
               {contract.signatureDataUrl ? (
                 // Signature is a user-drawn PNG data URL; next/image isn't practical here.
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={contract.signatureDataUrl}
                   alt="Signature"
-                  className="mt-1 max-h-24 rounded-clay-md border border-clay-border bg-white p-2"
+                  className="mt-1 max-h-24 rounded-lg border border-border bg-white p-2"
                 />
               ) : (
-                <p className="text-[13px] text-clay-ink-muted">—</p>
+                <p className="text-[13px] text-muted-foreground">—</p>
               )}
             </div>
           </div>
@@ -372,42 +372,42 @@ export default function ContractDetailPage(props: {
       ) : (
         <ClayCard>
           <div className="mb-4">
-            <h2 className="text-[16px] font-semibold text-clay-ink">
+            <h2 className="text-[16px] font-semibold text-foreground">
               Sign this contract
             </h2>
-            <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">
+            <p className="mt-0.5 text-[12.5px] text-muted-foreground">
               Enter your details and draw your signature below.
             </p>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <Label className="text-clay-ink">Full Name</Label>
+              <Label className="text-foreground">Full Name</Label>
               <Input
                 value={signerName}
                 onChange={(e) => setSignerName(e.target.value)}
                 placeholder="Jane Doe"
-                className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div>
-              <Label className="text-clay-ink">Email</Label>
+              <Label className="text-foreground">Email</Label>
               <Input
                 type="email"
                 value={signerEmail}
                 onChange={(e) => setSignerEmail(e.target.value)}
                 placeholder="jane@example.com"
-                className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
           </div>
 
           <div className="mt-4">
-            <Label className="text-clay-ink">Signature</Label>
-            <div className="mt-1.5 rounded-clay-md border border-clay-border bg-white p-2">
+            <Label className="text-foreground">Signature</Label>
+            <div className="mt-1.5 rounded-lg border border-border bg-white p-2">
               <canvas
                 ref={canvasRef}
-                className="block w-full touch-none rounded-clay-md bg-white"
+                className="block w-full touch-none rounded-lg bg-white"
                 style={{ height: 180 }}
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
@@ -416,7 +416,7 @@ export default function ContractDetailPage(props: {
                 onPointerLeave={handlePointerUp}
               />
             </div>
-            <p className="mt-1 text-[11.5px] text-clay-ink-muted">
+            <p className="mt-1 text-[11.5px] text-muted-foreground">
               Use your mouse, stylus, or finger to draw your signature.
             </p>
           </div>

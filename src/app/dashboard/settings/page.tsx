@@ -131,13 +131,13 @@ export default function SettingsOverviewPage() {
 
             {SECTIONS.map((section) => (
                 <div key={section.title}>
-                    <h2 className="mb-3 text-[13px] font-semibold uppercase tracking-wide text-clay-ink-muted">
+                    <h2 className="mb-3 text-[13px] font-semibold uppercase tracking-wide text-muted-foreground">
                         {section.title}
                     </h2>
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                         {section.tiles.map((tile) => (
                             <Link key={tile.href} href={tile.href} className="group">
-                                <ClayCard padded className="h-full transition-shadow group-hover:shadow-clay-md">
+                                <ClayCard padded className="h-full transition-shadow group-hover:shadow-md">
                                     <div
                                         className={cn(
                                             'mb-3 flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br text-white',
@@ -147,12 +147,12 @@ export default function SettingsOverviewPage() {
                                         <tile.icon className="h-[18px] w-[18px]" strokeWidth={2} />
                                     </div>
                                     <div className="flex items-start justify-between gap-2">
-                                        <p className="text-[13.5px] font-semibold text-clay-ink">
+                                        <p className="text-[13.5px] font-semibold text-foreground">
                                             {tile.label}
                                         </p>
-                                        <LuArrowUpRight className="h-4 w-4 text-clay-ink-muted transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                                        <LuArrowUpRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                                     </div>
-                                    <p className="mt-1 text-[12.5px] leading-relaxed text-clay-ink-muted">
+                                    <p className="mt-1 text-[12.5px] leading-relaxed text-muted-foreground">
                                         {tile.description}
                                     </p>
                                 </ClayCard>

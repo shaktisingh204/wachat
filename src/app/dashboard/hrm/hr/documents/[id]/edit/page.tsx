@@ -35,7 +35,7 @@ export default function EditDocumentPage() {
   }, [id]);
 
   if (loading) {
-    return <div className="text-[13px] text-clay-ink-muted">Loading…</div>;
+    return <div className="text-[13px] text-muted-foreground">Loading…</div>;
   }
 
   return (

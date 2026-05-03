@@ -81,7 +81,7 @@ export default function TimeTrackingSettingsPage() {
       />
 
       <ClayCard>
-        <div className="divide-y divide-clay-border">
+        <div className="divide-y divide-border">
           {ITEMS.map(({ module, label, description, icon: Icon }) => {
             const enabled = isEnabled(module);
             return (
@@ -90,22 +90,22 @@ export default function TimeTrackingSettingsPage() {
                 className="flex items-center justify-between gap-4 py-4 first:pt-0 last:pb-0"
               >
                 <div className="flex items-start gap-3">
-                  <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-clay-md bg-clay-rose-soft">
+                  <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent">
                     <Icon
-                      className="h-4.5 w-4.5 text-clay-rose-ink"
+                      className="h-4.5 w-4.5 text-accent-foreground"
                       strokeWidth={1.75}
                     />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <p className="text-[14px] font-semibold text-clay-ink">
+                      <p className="text-[14px] font-semibold text-foreground">
                         {label}
                       </p>
                       <ClayBadge tone={enabled ? 'green' : 'neutral'} dot>
                         {enabled ? 'Enabled' : 'Disabled'}
                       </ClayBadge>
                     </div>
-                    <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">
+                    <p className="mt-0.5 text-[12.5px] text-muted-foreground">
                       {description}
                     </p>
                   </div>

@@ -105,19 +105,19 @@ export function CreateDealDialog({
         <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
           <input type="hidden" name="closeDate" value={closeDate?.toISOString()} />
           <DialogHeader className="px-6 pt-6 pb-2">
-            <DialogTitle className="text-clay-ink">Create New Deal</DialogTitle>
-            <DialogDescription className="text-clay-ink-muted">Track a new sales opportunity.</DialogDescription>
+            <DialogTitle className="text-foreground">Create New Deal</DialogTitle>
+            <DialogDescription className="text-muted-foreground">Track a new sales opportunity.</DialogDescription>
           </DialogHeader>
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="grid gap-4">
-              <div className="space-y-2"><Label htmlFor="name" className="text-clay-ink">Deal Name</Label><Input id="name" name="name" required placeholder="e.g. Website Redesign for Acme Corp" /></div>
+              <div className="space-y-2"><Label htmlFor="name" className="text-foreground">Deal Name</Label><Input id="name" name="name" required placeholder="e.g. Website Redesign for Acme Corp" /></div>
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2"><Label htmlFor="value" className="text-clay-ink">Value</Label><Input id="value" name="value" type="number" step="0.01" required placeholder="10000" /></div>
-                <div className="space-y-2"><Label htmlFor="currency" className="text-clay-ink">Currency</Label><Select name="currency" defaultValue="USD" required><SelectTrigger id="currency"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="USD">USD</SelectItem><SelectItem value="INR">INR</SelectItem><SelectItem value="EUR">EUR</SelectItem></SelectContent></Select></div>
+                <div className="space-y-2"><Label htmlFor="value" className="text-foreground">Value</Label><Input id="value" name="value" type="number" step="0.01" required placeholder="10000" /></div>
+                <div className="space-y-2"><Label htmlFor="currency" className="text-foreground">Currency</Label><Select name="currency" defaultValue="USD" required><SelectTrigger id="currency"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="USD">USD</SelectItem><SelectItem value="INR">INR</SelectItem><SelectItem value="EUR">EUR</SelectItem></SelectContent></Select></div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="stage" className="text-clay-ink">Stage</Label>
+                  <Label htmlFor="stage" className="text-foreground">Stage</Label>
                   <Select name="stage" defaultValue={dealStages[0]} required>
                     <SelectTrigger id="stage"><SelectValue /></SelectTrigger>
                     <SelectContent>
@@ -127,21 +127,21 @@ export function CreateDealDialog({
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-2"><Label className="text-clay-ink">Expected Close Date</Label><DatePicker date={closeDate} setDate={setCloseDate} /></div>
+                <div className="space-y-2"><Label className="text-foreground">Expected Close Date</Label><DatePicker date={closeDate} setDate={setCloseDate} /></div>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2"><Label htmlFor="accountId" className="text-clay-ink">Account</Label><Select name="accountId" required defaultValue={defaultAccountId}><SelectTrigger id="accountId"><SelectValue placeholder="Select an account..." /></SelectTrigger><SelectContent>{accounts.map(acc => <SelectItem key={acc._id.toString()} value={acc._id.toString()}>{acc.name}</SelectItem>)}</SelectContent></Select></div>
-                <div className="space-y-2"><Label htmlFor="contactId" className="text-clay-ink">Primary Contact</Label><Select name="contactId" required defaultValue={defaultContactId}><SelectTrigger id="contactId"><SelectValue placeholder="Select a contact..." /></SelectTrigger><SelectContent>{contacts.map(c => <SelectItem key={c._id.toString()} value={c._id.toString()}>{c.name}</SelectItem>)}</SelectContent></Select></div>
+                <div className="space-y-2"><Label htmlFor="accountId" className="text-foreground">Account</Label><Select name="accountId" required defaultValue={defaultAccountId}><SelectTrigger id="accountId"><SelectValue placeholder="Select an account..." /></SelectTrigger><SelectContent>{accounts.map(acc => <SelectItem key={acc._id.toString()} value={acc._id.toString()}>{acc.name}</SelectItem>)}</SelectContent></Select></div>
+                <div className="space-y-2"><Label htmlFor="contactId" className="text-foreground">Primary Contact</Label><Select name="contactId" required defaultValue={defaultContactId}><SelectTrigger id="contactId"><SelectValue placeholder="Select a contact..." /></SelectTrigger><SelectContent>{contacts.map(c => <SelectItem key={c._id.toString()} value={c._id.toString()}>{c.name}</SelectItem>)}</SelectContent></Select></div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="probability" className="text-clay-ink">Probability %</Label>
-                  <Input id="probability" name="probability" type="number" min={0} max={100} placeholder="e.g. 60" className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                  <Label htmlFor="probability" className="text-foreground">Probability %</Label>
+                  <Input id="probability" name="probability" type="number" min={0} max={100} placeholder="e.g. 60" className="h-10 rounded-lg border-border bg-card text-[13px]" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="priority" className="text-clay-ink">Priority</Label>
+                  <Label htmlFor="priority" className="text-foreground">Priority</Label>
                   <Select name="priority" defaultValue="medium">
-                    <SelectTrigger id="priority" className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"><SelectValue /></SelectTrigger>
+                    <SelectTrigger id="priority" className="h-10 rounded-lg border-border bg-card text-[13px]"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="low">Low</SelectItem>
                       <SelectItem value="medium">Medium</SelectItem>
@@ -153,9 +153,9 @@ export function CreateDealDialog({
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="leadSource" className="text-clay-ink">Lead Source</Label>
+                  <Label htmlFor="leadSource" className="text-foreground">Lead Source</Label>
                   <Select name="leadSource" defaultValue="other">
-                    <SelectTrigger id="leadSource" className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"><SelectValue /></SelectTrigger>
+                    <SelectTrigger id="leadSource" className="h-10 rounded-lg border-border bg-card text-[13px]"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="website">Website</SelectItem>
                       <SelectItem value="referral">Referral</SelectItem>
@@ -168,18 +168,18 @@ export function CreateDealDialog({
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="campaign" className="text-clay-ink">Campaign</Label>
-                  <Input id="campaign" name="campaign" placeholder="e.g. Q1 Launch" className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                  <Label htmlFor="campaign" className="text-foreground">Campaign</Label>
+                  <Input id="campaign" name="campaign" placeholder="e.g. Q1 Launch" className="h-10 rounded-lg border-border bg-card text-[13px]" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="nextStep" className="text-clay-ink">Next Step</Label>
-                  <Input id="nextStep" name="nextStep" placeholder="e.g. Send proposal" className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                  <Label htmlFor="nextStep" className="text-foreground">Next Step</Label>
+                  <Input id="nextStep" name="nextStep" placeholder="e.g. Send proposal" className="h-10 rounded-lg border-border bg-card text-[13px]" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="lossReason" className="text-clay-ink">Loss Reason (if lost)</Label>
-                  <Input id="lossReason" name="lossReason" placeholder="Optional" className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                  <Label htmlFor="lossReason" className="text-foreground">Loss Reason (if lost)</Label>
+                  <Input id="lossReason" name="lossReason" placeholder="Optional" className="h-10 rounded-lg border-border bg-card text-[13px]" />
                 </div>
               </div>
             </div>

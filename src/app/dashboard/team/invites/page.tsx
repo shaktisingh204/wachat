@@ -132,7 +132,7 @@ export default function TeamInvitesPage() {
 
             {/* Filters */}
             <div className="flex flex-wrap items-center gap-3">
-                <div className="flex gap-1 rounded-full border border-clay-border bg-clay-surface p-1">
+                <div className="flex gap-1 rounded-full border border-border bg-card p-1">
                     {(['all', 'pending', 'expired', 'accepted'] as Filter[]).map((f) => (
                         <button
                             key={f}
@@ -141,8 +141,8 @@ export default function TeamInvitesPage() {
                             className={cn(
                                 'rounded-full px-3 py-1.5 text-[12.5px] font-medium capitalize transition-colors',
                                 filter === f
-                                    ? 'bg-clay-obsidian text-white'
-                                    : 'text-clay-ink-muted hover:text-clay-ink',
+                                    ? 'bg-foreground text-white'
+                                    : 'text-muted-foreground hover:text-foreground',
                             )}
                         >
                             {f}
@@ -170,16 +170,16 @@ export default function TeamInvitesPage() {
                     </div>
                 ) : visible.length === 0 ? (
                     <div className="p-10 text-center">
-                        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-clay-surface-subtle text-clay-ink-muted">
+                        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-muted/50 text-muted-foreground">
                             <LuUserPlus className="h-5 w-5" />
                         </div>
-                        <p className="text-[13px] font-semibold text-clay-ink">No invitations match</p>
-                        <p className="mt-1 text-[12.5px] text-clay-ink-muted">
+                        <p className="text-[13px] font-semibold text-foreground">No invitations match</p>
+                        <p className="mt-1 text-[12.5px] text-muted-foreground">
                             Adjust the filter or invite a teammate from the Members page.
                         </p>
                     </div>
                 ) : (
-                    <ul className="divide-y divide-clay-border">
+                    <ul className="divide-y divide-border">
                         {visible.map((inv) => {
                             const status = inv.isExpired ? 'expired' : inv.status;
                             const canResend = status === 'pending' || status === 'expired';
@@ -191,16 +191,16 @@ export default function TeamInvitesPage() {
                                 >
                                     <div className="min-w-0 flex-1">
                                         <div className="flex items-center gap-2">
-                                            <p className="truncate text-[13.5px] font-semibold text-clay-ink">
+                                            <p className="truncate text-[13.5px] font-semibold text-foreground">
                                                 {inv.inviteeEmail}
                                             </p>
                                             <StatusBadge status={status} />
                                         </div>
-                                        <p className="mt-1 truncate text-[12.5px] text-clay-ink-muted">
+                                        <p className="mt-1 truncate text-[12.5px] text-muted-foreground">
                                             {inv.projectName ?? 'Workspace-wide'} · {inv.role}
                                             {inv.inviterName && ` · by ${inv.inviterName}`}
                                         </p>
-                                        <p className="mt-1 flex items-center gap-1.5 text-[11.5px] text-clay-ink-muted">
+                                        <p className="mt-1 flex items-center gap-1.5 text-[11.5px] text-muted-foreground">
                                             <LuClock className="h-3 w-3" />
                                             {formatRelative(inv.createdAt)} · expires{' '}
                                             {formatRelative(inv.expiresAt)}

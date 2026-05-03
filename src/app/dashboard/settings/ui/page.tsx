@@ -137,7 +137,7 @@ export default function AppearanceSettingsPage() {
                     title="Motion & navigation"
                     description="Fine-tune how the UI behaves around you."
                 />
-                <ul className="divide-y divide-clay-border">
+                <ul className="divide-y divide-border">
                     <Row
                         id="collapsed"
                         label="Collapse sidebar by default"
@@ -169,12 +169,12 @@ function SectionTitle({
 }) {
     return (
         <div className="mb-4 flex items-start gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-clay-surface-subtle text-clay-ink-muted">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted/50 text-muted-foreground">
                 {icon}
             </div>
             <div>
-                <p className="text-[13.5px] font-semibold text-clay-ink">{title}</p>
-                <p className="text-[12.5px] text-clay-ink-muted">{description}</p>
+                <p className="text-[13.5px] font-semibold text-foreground">{title}</p>
+                <p className="text-[12.5px] text-muted-foreground">{description}</p>
             </div>
         </div>
     );
@@ -198,19 +198,19 @@ function ThemeTile({
             className={cn(
                 'flex items-center gap-3 rounded-xl border p-4 text-left transition-colors',
                 selected
-                    ? 'border-clay-obsidian bg-clay-surface-subtle'
-                    : 'border-clay-border bg-clay-surface hover:border-clay-border-strong',
+                    ? 'border-foreground bg-muted/50'
+                    : 'border-border bg-card hover:border-border',
             )}
         >
             <div
                 className={cn(
                     'flex h-9 w-9 items-center justify-center rounded-lg',
-                    selected ? 'bg-clay-obsidian text-white' : 'bg-clay-surface-subtle text-clay-ink',
+                    selected ? 'bg-foreground text-white' : 'bg-muted/50 text-foreground',
                 )}
             >
                 {icon}
             </div>
-            <span className="text-[13px] font-semibold text-clay-ink">{label}</span>
+            <span className="text-[13px] font-semibold text-foreground">{label}</span>
         </button>
     );
 }
@@ -233,12 +233,12 @@ function DensityTile({
             className={cn(
                 'rounded-xl border p-4 text-left transition-colors',
                 selected
-                    ? 'border-clay-obsidian bg-clay-surface-subtle'
-                    : 'border-clay-border bg-clay-surface hover:border-clay-border-strong',
+                    ? 'border-foreground bg-muted/50'
+                    : 'border-border bg-card hover:border-border',
             )}
         >
-            <p className="text-[13px] font-semibold text-clay-ink">{label}</p>
-            <p className="mt-1 text-[12px] text-clay-ink-muted">{description}</p>
+            <p className="text-[13px] font-semibold text-foreground">{label}</p>
+            <p className="mt-1 text-[12px] text-muted-foreground">{description}</p>
         </button>
     );
 }
@@ -259,10 +259,10 @@ function Row({
     return (
         <li className="flex items-start justify-between gap-4 py-3">
             <div>
-                <Label htmlFor={id} className="text-[13px] font-medium text-clay-ink">
+                <Label htmlFor={id} className="text-[13px] font-medium text-foreground">
                     {label}
                 </Label>
-                <p className="mt-0.5 text-[12px] text-clay-ink-muted">{description}</p>
+                <p className="mt-0.5 text-[12px] text-muted-foreground">{description}</p>
             </div>
             <Switch id={id} checked={checked} onCheckedChange={onChange} />
         </li>

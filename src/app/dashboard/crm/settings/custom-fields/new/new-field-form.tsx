@@ -72,7 +72,7 @@ export function NewCustomFieldForm() {
 
   if (!loaded) {
     return (
-      <div className="text-[13px] text-clay-ink-muted">Loading…</div>
+      <div className="text-[13px] text-muted-foreground">Loading…</div>
     );
   }
 
@@ -88,13 +88,13 @@ export function NewCustomFieldForm() {
         ) : null}
 
         <div>
-          <Label htmlFor="group_id" className="text-clay-ink">
-            Group <span className="text-clay-red">*</span>
+          <Label htmlFor="group_id" className="text-foreground">
+            Group <span className="text-destructive">*</span>
           </Label>
           <Select name="group_id" defaultValue={defaultGroup} required>
             <SelectTrigger
               id="group_id"
-              className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+              className="h-10 rounded-lg border-border bg-card text-[13px]"
             >
               <SelectValue placeholder="Select a group" />
             </SelectTrigger>
@@ -110,19 +110,19 @@ export function NewCustomFieldForm() {
 
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <Label htmlFor="label" className="text-clay-ink">
-              Label <span className="text-clay-red">*</span>
+            <Label htmlFor="label" className="text-foreground">
+              Label <span className="text-destructive">*</span>
             </Label>
             <Input
               id="label"
               name="label"
               required
               defaultValue={existing?.label || ''}
-              className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+              className="h-10 rounded-lg border-border bg-card text-[13px]"
             />
           </div>
           <div>
-            <Label htmlFor="name" className="text-clay-ink">
+            <Label htmlFor="name" className="text-foreground">
               Slug (optional)
             </Label>
             <Input
@@ -130,20 +130,20 @@ export function NewCustomFieldForm() {
               name="name"
               defaultValue={existing?.name || ''}
               placeholder="auto-generated from label"
-              className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+              className="h-10 rounded-lg border-border bg-card text-[13px]"
             />
           </div>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <Label htmlFor="type" className="text-clay-ink">
+            <Label htmlFor="type" className="text-foreground">
               Type
             </Label>
             <Select name="type" defaultValue={existing?.type || 'text'}>
               <SelectTrigger
                 id="type"
-                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="h-10 rounded-lg border-border bg-card text-[13px]"
               >
                 <SelectValue />
               </SelectTrigger>
@@ -161,7 +161,7 @@ export function NewCustomFieldForm() {
             </Select>
           </div>
           <div>
-            <Label htmlFor="position" className="text-clay-ink">
+            <Label htmlFor="position" className="text-foreground">
               Position
             </Label>
             <Input
@@ -169,13 +169,13 @@ export function NewCustomFieldForm() {
               name="position"
               type="number"
               defaultValue={String(existing?.position ?? 0)}
-              className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+              className="h-10 rounded-lg border-border bg-card text-[13px]"
             />
           </div>
         </div>
 
         <div>
-          <Label htmlFor="values" className="text-clay-ink">
+          <Label htmlFor="values" className="text-foreground">
             Options (comma or newline separated)
           </Label>
           <Textarea
@@ -184,13 +184,13 @@ export function NewCustomFieldForm() {
             rows={3}
             defaultValue={(existing?.values || []).join('\n')}
             placeholder="Used for select / radio / checkbox types"
-            className="rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+            className="rounded-lg border-border bg-card text-[13px]"
           />
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <Label htmlFor="is_required" className="text-clay-ink">
+            <Label htmlFor="is_required" className="text-foreground">
               Required
             </Label>
             <Select
@@ -199,7 +199,7 @@ export function NewCustomFieldForm() {
             >
               <SelectTrigger
                 id="is_required"
-                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="h-10 rounded-lg border-border bg-card text-[13px]"
               >
                 <SelectValue />
               </SelectTrigger>
@@ -210,7 +210,7 @@ export function NewCustomFieldForm() {
             </Select>
           </div>
           <div>
-            <Label htmlFor="display_in_table" className="text-clay-ink">
+            <Label htmlFor="display_in_table" className="text-foreground">
               Show in tables
             </Label>
             <Select
@@ -219,7 +219,7 @@ export function NewCustomFieldForm() {
             >
               <SelectTrigger
                 id="display_in_table"
-                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="h-10 rounded-lg border-border bg-card text-[13px]"
               >
                 <SelectValue />
               </SelectTrigger>

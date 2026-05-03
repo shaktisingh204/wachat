@@ -163,43 +163,43 @@ export default function PermissionTypesPage() {
       />
 
       <ClayCard>
-        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <Table>
             <TableHeader>
-              <TableRow className="border-clay-border hover:bg-transparent">
-                <TableHead className="text-clay-ink-muted">Name</TableHead>
-                <TableHead className="text-clay-ink-muted">Display</TableHead>
-                <TableHead className="w-[120px] text-right text-clay-ink-muted">
+              <TableRow className="border-border hover:bg-transparent">
+                <TableHead className="text-muted-foreground">Name</TableHead>
+                <TableHead className="text-muted-foreground">Display</TableHead>
+                <TableHead className="w-[120px] text-right text-muted-foreground">
                   Actions
                 </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading && rows.length === 0 ? (
-                <TableRow className="border-clay-border">
+                <TableRow className="border-border">
                   <TableCell
                     colSpan={3}
-                    className="h-20 text-center text-[13px] text-clay-ink-muted"
+                    className="h-20 text-center text-[13px] text-muted-foreground"
                   >
                     <LoaderCircle className="mx-auto h-4 w-4 animate-spin" />
                   </TableCell>
                 </TableRow>
               ) : rows.length === 0 ? (
-                <TableRow className="border-clay-border">
+                <TableRow className="border-border">
                   <TableCell
                     colSpan={3}
-                    className="h-20 text-center text-[13px] text-clay-ink-muted"
+                    className="h-20 text-center text-[13px] text-muted-foreground"
                   >
                     No permission types — click &quot;Seed defaults&quot;.
                   </TableCell>
                 </TableRow>
               ) : (
                 rows.map((row) => (
-                  <TableRow key={row._id} className="border-clay-border">
+                  <TableRow key={row._id} className="border-border">
                     <TableCell>
                       <ClayBadge tone="neutral">{row.name}</ClayBadge>
                     </TableCell>
-                    <TableCell className="text-[13px] text-clay-ink">
+                    <TableCell className="text-[13px] text-foreground">
                       {row.display_name || '—'}
                     </TableCell>
                     <TableCell className="text-right">
@@ -221,7 +221,7 @@ export default function PermissionTypesPage() {
                           onClick={() => setDeletingId(row._id)}
                           aria-label="Delete"
                         >
-                          <Trash2 className="h-3.5 w-3.5 text-clay-red" />
+                          <Trash2 className="h-3.5 w-3.5 text-destructive" />
                         </Button>
                       </div>
                     </TableCell>
@@ -236,10 +236,10 @@ export default function PermissionTypesPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-clay-ink">
+            <DialogTitle className="text-foreground">
               {editing ? 'Edit Type' : 'Add Type'}
             </DialogTitle>
-            <DialogDescription className="text-clay-ink-muted">
+            <DialogDescription className="text-muted-foreground">
               Standard names are none / all / added / owned / both.
             </DialogDescription>
           </DialogHeader>
@@ -249,8 +249,8 @@ export default function PermissionTypesPage() {
               <input type="hidden" name="_id" value={editing._id} />
             ) : null}
             <div>
-              <Label htmlFor="name" className="text-clay-ink">
-                Name <span className="text-clay-red">*</span>
+              <Label htmlFor="name" className="text-foreground">
+                Name <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="name"
@@ -258,11 +258,11 @@ export default function PermissionTypesPage() {
                 required
                 defaultValue={editing?.name || ''}
                 placeholder="all"
-                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div>
-              <Label htmlFor="display_name" className="text-clay-ink">
+              <Label htmlFor="display_name" className="text-foreground">
                 Display name
               </Label>
               <Input
@@ -270,7 +270,7 @@ export default function PermissionTypesPage() {
                 name="display_name"
                 defaultValue={editing?.display_name || ''}
                 placeholder="All"
-                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <DialogFooter className="gap-2">
@@ -307,10 +307,10 @@ export default function PermissionTypesPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-clay-ink">
+            <AlertDialogTitle className="text-foreground">
               Delete type?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-clay-ink-muted">
+            <AlertDialogDescription className="text-muted-foreground">
               Grants that reference this type will lose their type — re-seed
               afterwards to restore defaults.
             </AlertDialogDescription>

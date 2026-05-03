@@ -39,10 +39,10 @@ function AccountDetailPageSkeleton() {
       <Skeleton className="h-8 w-48" />
       <div className="grid gap-6 md:grid-cols-3">
         <div className="space-y-4 md:col-span-1">
-          <Skeleton className="h-48 w-full rounded-clay-lg" />
+          <Skeleton className="h-48 w-full rounded-xl" />
         </div>
         <div className="space-y-4 md:col-span-2">
-          <Skeleton className="h-96 w-full rounded-clay-lg" />
+          <Skeleton className="h-96 w-full rounded-xl" />
         </div>
       </div>
     </div>
@@ -105,7 +105,7 @@ export default function CrmAccountDetailPage() {
         <div>
           <Link
             href="/dashboard/crm/accounts"
-            className="inline-flex items-center gap-1.5 text-[12.5px] text-clay-ink-muted hover:text-clay-ink"
+            className="inline-flex items-center gap-1.5 text-[12.5px] text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.75} />
             Back to All Accounts
@@ -122,11 +122,11 @@ export default function CrmAccountDetailPage() {
           <div className="space-y-6 lg:col-span-1">
             <ClayCard>
               <div className="flex flex-col items-center text-center">
-                <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-clay-lg bg-clay-rose-soft">
-                  <Building className="h-8 w-8 text-clay-rose-ink" strokeWidth={1.75} />
+                <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-xl bg-accent">
+                  <Building className="h-8 w-8 text-accent-foreground" strokeWidth={1.75} />
                 </div>
-                <h2 className="text-[16px] font-semibold text-clay-ink">{account.name}</h2>
-                <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">
+                <h2 className="text-[16px] font-semibold text-foreground">{account.name}</h2>
+                <p className="mt-0.5 text-[12.5px] text-muted-foreground">
                   {account.industry || 'N/A'}
                 </p>
               </div>
@@ -141,29 +141,29 @@ export default function CrmAccountDetailPage() {
                   Email All Contacts
                 </ClayButton>
 
-                <div className="flex items-center gap-3 pt-1 text-clay-ink">
-                  <LinkIcon className="h-4 w-4 text-clay-ink-muted" strokeWidth={1.75} />
+                <div className="flex items-center gap-3 pt-1 text-foreground">
+                  <LinkIcon className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
                   {account.website ? (
                     <a
                       href={account.website}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-clay-rose hover:underline"
+                      className="text-primary hover:underline"
                     >
                       {account.website}
                     </a>
                   ) : (
-                    <span className="text-clay-ink-muted">No website</span>
+                    <span className="text-muted-foreground">No website</span>
                   )}
                 </div>
-                <div className="flex items-center gap-3 text-clay-ink">
-                  <Phone className="h-4 w-4 text-clay-ink-muted" strokeWidth={1.75} />
+                <div className="flex items-center gap-3 text-foreground">
+                  <Phone className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
                   {account.phone ? (
                     <a href={`tel:${account.phone}`} className="hover:underline">
                       {account.phone}
                     </a>
                   ) : (
-                    <span className="text-clay-ink-muted">N/A</span>
+                    <span className="text-muted-foreground">N/A</span>
                   )}
                 </div>
               </div>
@@ -179,16 +179,16 @@ export default function CrmAccountDetailPage() {
           <div className="space-y-6 lg:col-span-2">
             <ClayCard>
               <div className="mb-4 flex items-center gap-2">
-                <Users className="h-4 w-4 text-clay-ink-muted" strokeWidth={1.75} />
-                <h2 className="text-[16px] font-semibold text-clay-ink">Associated Contacts</h2>
+                <Users className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
+                <h2 className="text-[16px] font-semibold text-foreground">Associated Contacts</h2>
               </div>
-              <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+              <div className="overflow-x-auto rounded-lg border border-border">
                 <Table>
                   <TableHeader>
-                    <TableRow className="border-clay-border hover:bg-transparent">
-                      <TableHead className="text-clay-ink-muted">Name</TableHead>
-                      <TableHead className="text-clay-ink-muted">Email</TableHead>
-                      <TableHead className="text-clay-ink-muted">Job Title</TableHead>
+                    <TableRow className="border-border hover:bg-transparent">
+                      <TableHead className="text-muted-foreground">Name</TableHead>
+                      <TableHead className="text-muted-foreground">Email</TableHead>
+                      <TableHead className="text-muted-foreground">Job Title</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -199,24 +199,24 @@ export default function CrmAccountDetailPage() {
                           onClick={() =>
                             (window.location.href = `/dashboard/crm/contacts/${contact._id.toString()}`)
                           }
-                          className="cursor-pointer border-clay-border"
+                          className="cursor-pointer border-border"
                         >
-                          <TableCell className="text-[13px] font-medium text-clay-ink">
+                          <TableCell className="text-[13px] font-medium text-foreground">
                             {contact.name}
                           </TableCell>
-                          <TableCell className="text-[13px] text-clay-ink">
+                          <TableCell className="text-[13px] text-foreground">
                             {contact.email}
                           </TableCell>
-                          <TableCell className="text-[13px] text-clay-ink">
+                          <TableCell className="text-[13px] text-foreground">
                             {contact.jobTitle || 'N/A'}
                           </TableCell>
                         </TableRow>
                       ))
                     ) : (
-                      <TableRow className="border-clay-border">
+                      <TableRow className="border-border">
                         <TableCell
                           colSpan={3}
-                          className="h-24 text-center text-[13px] text-clay-ink-muted"
+                          className="h-24 text-center text-[13px] text-muted-foreground"
                         >
                           No contacts associated with this account.
                         </TableCell>
@@ -228,7 +228,7 @@ export default function CrmAccountDetailPage() {
 
               {totalPages > 1 && (
                 <div className="flex items-center justify-end gap-2 pt-4">
-                  <span className="text-[12.5px] text-clay-ink-muted">
+                  <span className="text-[12.5px] text-muted-foreground">
                     Page {currentPage} of {totalPages}
                   </span>
                   <ClayButton

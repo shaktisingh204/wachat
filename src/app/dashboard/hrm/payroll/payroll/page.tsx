@@ -76,37 +76,37 @@ export default function GeneratePayrollPage() {
 
             <ClayCard>
                 <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-clay-ink">Payroll for {months[month].label}, {year}</h2>
+                    <h2 className="text-[16px] font-semibold text-foreground">Payroll for {months[month].label}, {year}</h2>
                 </div>
-                <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                <div className="overflow-x-auto rounded-lg border border-border">
                     <Table>
                         <TableHeader>
-                            <TableRow className="border-clay-border hover:bg-transparent">
-                                <TableHead className="text-clay-ink-muted">Employee</TableHead>
-                                <TableHead className="text-clay-ink-muted">Paid Days</TableHead>
-                                <TableHead className="text-right text-clay-ink-muted">Gross Salary</TableHead>
-                                <TableHead className="text-right text-clay-ink-muted">Deductions</TableHead>
-                                <TableHead className="text-right text-clay-ink-muted">Net Salary</TableHead>
+                            <TableRow className="border-border hover:bg-transparent">
+                                <TableHead className="text-muted-foreground">Employee</TableHead>
+                                <TableHead className="text-muted-foreground">Paid Days</TableHead>
+                                <TableHead className="text-right text-muted-foreground">Gross Salary</TableHead>
+                                <TableHead className="text-right text-muted-foreground">Deductions</TableHead>
+                                <TableHead className="text-right text-muted-foreground">Net Salary</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {isLoading ? <TableRow className="border-clay-border"><TableCell colSpan={5} className="h-48 text-center"><LoaderCircle className="mx-auto h-8 w-8 animate-spin text-clay-ink-muted"/></TableCell></TableRow>
+                            {isLoading ? <TableRow className="border-border"><TableCell colSpan={5} className="h-48 text-center"><LoaderCircle className="mx-auto h-8 w-8 animate-spin text-muted-foreground"/></TableCell></TableRow>
                             : payrollData.length > 0 ? payrollData.map(item => (
-                                <TableRow key={item.employeeId} className="border-clay-border">
-                                    <TableCell className="text-[13px] font-medium text-clay-ink">{item.employeeName}</TableCell>
-                                    <TableCell className="text-[13px] text-clay-ink">{item.presentDays} / {item.totalDays}</TableCell>
-                                    <TableCell className="text-right font-mono text-[13px] text-clay-ink">₹{item.grossSalary.toLocaleString()}</TableCell>
+                                <TableRow key={item.employeeId} className="border-border">
+                                    <TableCell className="text-[13px] font-medium text-foreground">{item.employeeName}</TableCell>
+                                    <TableCell className="text-[13px] text-foreground">{item.presentDays} / {item.totalDays}</TableCell>
+                                    <TableCell className="text-right font-mono text-[13px] text-foreground">₹{item.grossSalary.toLocaleString()}</TableCell>
                                     <TableCell className="text-right font-mono text-[13px] text-destructive">- ₹{item.deductions.reduce((s:number, i:any) => s+i.amount, 0).toLocaleString()}</TableCell>
-                                    <TableCell className="text-right font-mono text-[13px] font-bold text-clay-ink">₹{item.netSalary.toLocaleString()}</TableCell>
+                                    <TableCell className="text-right font-mono text-[13px] font-bold text-foreground">₹{item.netSalary.toLocaleString()}</TableCell>
                                 </TableRow>
                             ))
-                            : <TableRow className="border-clay-border"><TableCell colSpan={5} className="h-24 text-center text-[13px] text-clay-ink-muted">No active employees with salary details found.</TableCell></TableRow>}
+                            : <TableRow className="border-border"><TableCell colSpan={5} className="h-24 text-center text-[13px] text-muted-foreground">No active employees with salary details found.</TableCell></TableRow>}
                         </TableBody>
                         {payrollData.length > 0 && (
-                            <TableFooter className="bg-clay-surface-2">
-                                <TableRow className="border-clay-border">
-                                    <TableCell colSpan={4} className="text-right font-semibold text-[13px] text-clay-ink">Total Net Payout</TableCell>
-                                    <TableCell className="text-right font-mono text-xl text-clay-ink">₹{totalNetSalary.toLocaleString()}</TableCell>
+                            <TableFooter className="bg-secondary">
+                                <TableRow className="border-border">
+                                    <TableCell colSpan={4} className="text-right font-semibold text-[13px] text-foreground">Total Net Payout</TableCell>
+                                    <TableCell className="text-right font-mono text-xl text-foreground">₹{totalNetSalary.toLocaleString()}</TableCell>
                                 </TableRow>
                             </TableFooter>
                         )}
@@ -116,7 +116,7 @@ export default function GeneratePayrollPage() {
 
             <ClayCard>
                 <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-clay-ink">Actions</h2>
+                    <h2 className="text-[16px] font-semibold text-foreground">Actions</h2>
                 </div>
                 <div className="flex flex-wrap gap-3">
                     <ClayButton
@@ -130,7 +130,7 @@ export default function GeneratePayrollPage() {
                     <ClayButton variant="pill" disabled leading={<Printer className="h-4 w-4"/>}>Print All Payslips</ClayButton>
                     <ClayButton variant="pill" disabled leading={<Mail className="h-4 w-4"/>}>Email All Payslips</ClayButton>
                 </div>
-                <p className="mt-4 text-[11.5px] text-clay-ink-muted">Running payroll will lock these calculations and generate payslips for employees.</p>
+                <p className="mt-4 text-[11.5px] text-muted-foreground">Running payroll will lock these calculations and generate payslips for employees.</p>
             </ClayCard>
         </div>
     );

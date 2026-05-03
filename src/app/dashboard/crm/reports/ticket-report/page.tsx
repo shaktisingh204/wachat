@@ -48,12 +48,12 @@ export default async function TicketReportPage(props: {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <ClayCard>
           <div className="mb-3">
-            <h2 className="text-[16px] font-semibold text-clay-ink">
+            <h2 className="text-[16px] font-semibold text-foreground">
               By status
             </h2>
           </div>
           {m.byStatus.length === 0 ? (
-            <div className="py-6 text-center text-[13px] text-clay-ink-muted">
+            <div className="py-6 text-center text-[13px] text-muted-foreground">
               No tickets.
             </div>
           ) : (
@@ -72,7 +72,7 @@ export default async function TicketReportPage(props: {
 
         <ClayCard>
           <div className="mb-3">
-            <h2 className="text-[16px] font-semibold text-clay-ink">
+            <h2 className="text-[16px] font-semibold text-foreground">
               By channel
             </h2>
           </div>
@@ -90,7 +90,7 @@ export default async function TicketReportPage(props: {
 
         <ClayCard>
           <div className="mb-3">
-            <h2 className="text-[16px] font-semibold text-clay-ink">
+            <h2 className="text-[16px] font-semibold text-foreground">
               By agent
             </h2>
           </div>

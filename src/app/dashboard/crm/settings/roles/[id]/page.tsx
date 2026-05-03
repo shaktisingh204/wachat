@@ -197,7 +197,7 @@ export default function RoleDetailPage() {
   if (isLoading && !role) {
     return (
       <div className="flex h-60 items-center justify-center">
-        <LoaderCircle className="h-5 w-5 animate-spin text-clay-ink-muted" />
+        <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -237,9 +237,9 @@ export default function RoleDetailPage() {
 
       {/* Members */}
       <ClayCard>
-        <div className="border-b border-clay-border p-5">
-          <h2 className="text-[15px] font-semibold text-clay-ink">Members</h2>
-          <p className="text-[13px] text-clay-ink-muted">
+        <div className="border-b border-border p-5">
+          <h2 className="text-[15px] font-semibold text-foreground">Members</h2>
+          <p className="text-[13px] text-muted-foreground">
             {members.length} assigned
           </p>
         </div>
@@ -247,7 +247,7 @@ export default function RoleDetailPage() {
         <div className="space-y-3 p-5">
           <div className="flex flex-wrap items-end gap-2">
             <div className="min-w-[180px] flex-1">
-              <Label htmlFor="newMemberName" className="text-clay-ink">
+              <Label htmlFor="newMemberName" className="text-foreground">
                 Name
               </Label>
               <Input
@@ -255,11 +255,11 @@ export default function RoleDetailPage() {
                 value={newMemberName}
                 onChange={(e) => setNewMemberName(e.target.value)}
                 placeholder="Alex Doe"
-                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div className="min-w-[220px] flex-1">
-              <Label htmlFor="newMemberEmail" className="text-clay-ink">
+              <Label htmlFor="newMemberEmail" className="text-foreground">
                 Email / user id
               </Label>
               <Input
@@ -267,7 +267,7 @@ export default function RoleDetailPage() {
                 value={newMemberEmail}
                 onChange={(e) => setNewMemberEmail(e.target.value)}
                 placeholder="alex@example.com"
-                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <ClayButton
@@ -280,11 +280,11 @@ export default function RoleDetailPage() {
           </div>
 
           {members.length === 0 ? (
-            <div className="rounded-clay-md border border-dashed border-clay-border p-6 text-center text-[13px] text-clay-ink-muted">
+            <div className="rounded-lg border border-dashed border-border p-6 text-center text-[13px] text-muted-foreground">
               No members yet.
             </div>
           ) : (
-            <ul className="divide-y divide-clay-border rounded-clay-md border border-clay-border">
+            <ul className="divide-y divide-border rounded-lg border border-border">
               {members.map((m) => {
                 const label = m.user_name || m.user_email || m.user_id;
                 return (
@@ -294,16 +294,16 @@ export default function RoleDetailPage() {
                   >
                     <div className="flex items-center gap-3">
                       <Avatar className="h-9 w-9">
-                        <AvatarFallback className="bg-clay-rose-soft text-[12px] text-clay-rose-ink">
+                        <AvatarFallback className="bg-accent text-[12px] text-accent-foreground">
                           {initials(label)}
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <div className="text-[13px] font-medium text-clay-ink">
+                        <div className="text-[13px] font-medium text-foreground">
                           {label}
                         </div>
                         {m.user_email && m.user_name ? (
-                          <div className="text-[12px] text-clay-ink-muted">
+                          <div className="text-[12px] text-muted-foreground">
                             {m.user_email}
                           </div>
                         ) : null}
@@ -315,7 +315,7 @@ export default function RoleDetailPage() {
                       onClick={() => removeMember(m.user_id)}
                       aria-label="Remove member"
                     >
-                      <Trash2 className="h-3.5 w-3.5 text-clay-red" />
+                      <Trash2 className="h-3.5 w-3.5 text-destructive" />
                     </Button>
                   </li>
                 );
@@ -327,11 +327,11 @@ export default function RoleDetailPage() {
 
       {/* Permission matrix */}
       <ClayCard>
-        <div className="border-b border-clay-border p-5">
-          <h2 className="text-[15px] font-semibold text-clay-ink">
+        <div className="border-b border-border p-5">
+          <h2 className="text-[15px] font-semibold text-foreground">
             Permission matrix
           </h2>
-          <p className="text-[13px] text-clay-ink-muted">
+          <p className="text-[13px] text-muted-foreground">
             Toggle a cell to grant this role the permission with the chosen
             type. Toggle again to revoke.{' '}
             {isBusy ? (
@@ -342,7 +342,7 @@ export default function RoleDetailPage() {
 
         <div className="overflow-x-auto p-5">
           {groups.length === 0 ? (
-            <div className="rounded-clay-md border border-dashed border-clay-border p-6 text-center text-[13px] text-clay-ink-muted">
+            <div className="rounded-lg border border-dashed border-border p-6 text-center text-[13px] text-muted-foreground">
               No permissions defined. Create some under{' '}
               <Link
                 href="/dashboard/crm/settings/permissions"
@@ -355,14 +355,14 @@ export default function RoleDetailPage() {
           ) : (
             <Table>
               <TableHeader>
-                <TableRow className="border-clay-border hover:bg-transparent">
-                  <TableHead className="text-clay-ink-muted">
+                <TableRow className="border-border hover:bg-transparent">
+                  <TableHead className="text-muted-foreground">
                     Permission
                   </TableHead>
                   {types.map((t) => (
                     <TableHead
                       key={t._id}
-                      className="text-center text-clay-ink-muted"
+                      className="text-center text-muted-foreground"
                     >
                       {t.display_name || t.name}
                     </TableHead>
@@ -372,10 +372,10 @@ export default function RoleDetailPage() {
               <TableBody>
                 {groups.map((g, gi) => (
                   <React.Fragment key={g.module?._id || `orphan-${gi}`}>
-                    <TableRow className="border-clay-border bg-clay-rose-soft/30 hover:bg-clay-rose-soft/30">
+                    <TableRow className="border-border bg-accent/30 hover:bg-accent/30">
                       <TableCell
                         colSpan={types.length + 1}
-                        className="text-[13px] font-semibold text-clay-ink"
+                        className="text-[13px] font-semibold text-foreground"
                       >
                         {g.module?.display_name ||
                           g.module?.module_name ||
@@ -383,10 +383,10 @@ export default function RoleDetailPage() {
                       </TableCell>
                     </TableRow>
                     {g.permissions.length === 0 ? (
-                      <TableRow className="border-clay-border">
+                      <TableRow className="border-border">
                         <TableCell
                           colSpan={types.length + 1}
-                          className="py-3 text-center text-[12px] text-clay-ink-muted"
+                          className="py-3 text-center text-[12px] text-muted-foreground"
                         >
                           No permissions in this module.
                         </TableCell>
@@ -395,12 +395,12 @@ export default function RoleDetailPage() {
                       g.permissions.map((p) => {
                         const activeType = grants.get(String(p._id));
                         return (
-                          <TableRow key={p._id} className="border-clay-border">
-                            <TableCell className="text-[13px] text-clay-ink">
+                          <TableRow key={p._id} className="border-border">
+                            <TableCell className="text-[13px] text-foreground">
                               <div className="font-medium">
                                 {p.display_name || p.name}
                               </div>
-                              <div className="text-[12px] text-clay-ink-muted">
+                              <div className="text-[12px] text-muted-foreground">
                                 <code>{p.name}</code>
                               </div>
                             </TableCell>
@@ -413,7 +413,7 @@ export default function RoleDetailPage() {
                                 >
                                   <input
                                     type="checkbox"
-                                    className="h-4 w-4 cursor-pointer accent-clay-ink"
+                                    className="h-4 w-4 cursor-pointer accent-foreground"
                                     checked={checked}
                                     disabled={isBusy}
                                     onChange={() =>
@@ -435,7 +435,7 @@ export default function RoleDetailPage() {
           )}
         </div>
 
-        <div className="flex flex-wrap gap-2 border-t border-clay-border p-4">
+        <div className="flex flex-wrap gap-2 border-t border-border p-4">
           {Array.from(grants.entries()).slice(0, 6).map(([permId, typeId]) => {
             const perm = groups
               .flatMap((g) => g.permissions)

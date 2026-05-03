@@ -29,7 +29,7 @@ export default async function EditEmployeePage(
   ]);
 
   if (!employee) {
-    return <p className="text-[13px] text-clay-ink-muted">Employee not found.</p>;
+    return <p className="text-[13px] text-muted-foreground">Employee not found.</p>;
   }
 
   return (
@@ -40,7 +40,7 @@ export default async function EditEmployeePage(
             Back to Employee Directory
           </ClayButton>
         </Link>
-        <h1 className="mt-2 text-[26px] font-semibold leading-tight tracking-tight text-clay-ink">Edit Employee</h1>
+        <h1 className="mt-2 text-[26px] font-semibold leading-tight tracking-tight text-foreground">Edit Employee</h1>
       </div>
 
       <EmployeeForm

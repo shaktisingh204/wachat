@@ -53,47 +53,47 @@ export default async function ProfitLossPage(props: {
       </div>
 
       <ClayCard>
-        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <Table>
             <TableHeader>
-              <TableRow className="border-clay-border hover:bg-transparent">
-                <TableHead className="text-clay-ink-muted">Period</TableHead>
-                <TableHead className="text-right text-clay-ink-muted">
+              <TableRow className="border-border hover:bg-transparent">
+                <TableHead className="text-muted-foreground">Period</TableHead>
+                <TableHead className="text-right text-muted-foreground">
                   Income
                 </TableHead>
-                <TableHead className="text-right text-clay-ink-muted">
+                <TableHead className="text-right text-muted-foreground">
                   Expense
                 </TableHead>
-                <TableHead className="text-right text-clay-ink-muted">
+                <TableHead className="text-right text-muted-foreground">
                   Profit
                 </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {rows.length === 0 ? (
-                <TableRow className="border-clay-border">
+                <TableRow className="border-border">
                   <TableCell
                     colSpan={4}
-                    className="h-20 text-center text-[13px] text-clay-ink-muted"
+                    className="h-20 text-center text-[13px] text-muted-foreground"
                   >
                     No data.
                   </TableCell>
                 </TableRow>
               ) : (
                 rows.map((r) => (
-                  <TableRow key={r.period} className="border-clay-border">
-                    <TableCell className="font-medium text-clay-ink">
+                  <TableRow key={r.period} className="border-border">
+                    <TableCell className="font-medium text-foreground">
                       {r.period}
                     </TableCell>
-                    <TableCell className="text-right text-[13px] text-clay-green">
+                    <TableCell className="text-right text-[13px] text-emerald-500">
                       {fmtMoney(r.income)}
                     </TableCell>
-                    <TableCell className="text-right text-[13px] text-clay-red">
+                    <TableCell className="text-right text-[13px] text-destructive">
                       {fmtMoney(r.expense)}
                     </TableCell>
                     <TableCell
                       className={`text-right text-[13px] font-medium ${
-                        r.profit >= 0 ? 'text-clay-green' : 'text-clay-red'
+                        r.profit >= 0 ? 'text-emerald-500' : 'text-destructive'
                       }`}
                     >
                       {fmtMoney(r.profit)}

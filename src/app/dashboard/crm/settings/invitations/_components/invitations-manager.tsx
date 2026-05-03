@@ -110,7 +110,7 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
           aria-label="Send invitation"
         >
           <div>
-            <Label className="text-[11.5px] text-clay-ink-muted" htmlFor="inv-email">
+            <Label className="text-[11.5px] text-muted-foreground" htmlFor="inv-email">
               Email
             </Label>
             <Input
@@ -120,11 +120,11 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="teammate@company.com"
-              className="mt-1 h-9 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+              className="mt-1 h-9 rounded-lg border-border bg-card text-[13px]"
             />
           </div>
           <div>
-            <Label className="text-[11.5px] text-clay-ink-muted" htmlFor="inv-role">
+            <Label className="text-[11.5px] text-muted-foreground" htmlFor="inv-role">
               Role id (optional)
             </Label>
             <Input
@@ -132,7 +132,7 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
               value={roleId}
               onChange={(e) => setRoleId(e.target.value)}
               placeholder="role id"
-              className="mt-1 h-9 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+              className="mt-1 h-9 rounded-lg border-border bg-card text-[13px]"
             />
           </div>
           <div className="flex items-end">
@@ -156,16 +156,16 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
 
       {rows.length === 0 ? (
         <ClayCard className="flex items-center justify-center py-12">
-          <p className="text-[13px] text-clay-ink-muted">No invitations yet.</p>
+          <p className="text-[13px] text-muted-foreground">No invitations yet.</p>
         </ClayCard>
       ) : (
         <ClayCard padded={false}>
-          <ul className="divide-y divide-clay-border">
+          <ul className="divide-y divide-border">
             {rows.map((inv) => (
               <li key={inv._id} className="flex flex-wrap items-center gap-3 px-4 py-3">
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="truncate text-[13px] font-medium text-clay-ink">
+                    <span className="truncate text-[13px] font-medium text-foreground">
                       {inv.email}
                     </span>
                     <ClayBadge tone={STATUS_TONE[inv.status] || 'neutral'}>
@@ -175,7 +175,7 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
                       <ClayBadge tone="neutral">role {inv.role_id}</ClayBadge>
                     ) : null}
                   </div>
-                  <p className="mt-0.5 text-[11.5px] text-clay-ink-muted">
+                  <p className="mt-0.5 text-[11.5px] text-muted-foreground">
                     Sent {formatStamp(inv.createdAt)}
                     {inv.expires_at ? ` · Expires ${formatStamp(inv.expires_at)}` : ''}
                     {inv.accepted_at ? ` · Accepted ${formatStamp(inv.accepted_at)}` : ''}
@@ -205,7 +205,7 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
                     size="sm"
                     onClick={() => handleDelete(inv._id)}
                     leading={
-                      <Trash2 className="h-3.5 w-3.5 text-clay-red" />
+                      <Trash2 className="h-3.5 w-3.5 text-destructive" />
                     }
                   >
                     Delete

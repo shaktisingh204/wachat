@@ -148,7 +148,7 @@ function DeleteButton({ account, onDeleted }: { account: WithId<any>, onDeleted:
     return (
         <AlertDialog>
             <AlertDialogTrigger asChild>
-                <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-clay-red"/></Button>
+                <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive"/></Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
                 <AlertDialogHeader>
@@ -238,25 +238,25 @@ export default function AccountGroupsPage() {
                     }
                 />
                 <ClayCard>
-                    <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                    <div className="overflow-x-auto rounded-lg border border-border">
                         <Table>
                             <TableHeader>
-                                <TableRow className="border-clay-border hover:bg-transparent">
-                                    <TableHead className="text-clay-ink-muted">Group Name</TableHead>
-                                    <TableHead className="text-clay-ink-muted">Type</TableHead>
-                                    <TableHead className="text-clay-ink-muted">Category</TableHead>
-                                    <TableHead className="text-clay-ink-muted text-right">Actions</TableHead>
+                                <TableRow className="border-border hover:bg-transparent">
+                                    <TableHead className="text-muted-foreground">Group Name</TableHead>
+                                    <TableHead className="text-muted-foreground">Type</TableHead>
+                                    <TableHead className="text-muted-foreground">Category</TableHead>
+                                    <TableHead className="text-muted-foreground text-right">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {isLoading ? (
-                                    <TableRow className="border-clay-border"><TableCell colSpan={4} className="h-24 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin text-clay-ink-muted"/></TableCell></TableRow>
+                                    <TableRow className="border-border"><TableCell colSpan={4} className="h-24 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground"/></TableCell></TableRow>
                                 ) : groups.length > 0 ? (
                                     groups.map(group => (
-                                        <TableRow key={group._id.toString()} className="border-clay-border">
-                                            <TableCell className="font-medium text-clay-ink">{group.name}</TableCell>
-                                            <TableCell className="text-clay-ink">{group.type}</TableCell>
-                                            <TableCell className="text-clay-ink">{group.category?.replace(/_/g, ' ')}</TableCell>
+                                        <TableRow key={group._id.toString()} className="border-border">
+                                            <TableCell className="font-medium text-foreground">{group.name}</TableCell>
+                                            <TableCell className="text-foreground">{group.type}</TableCell>
+                                            <TableCell className="text-foreground">{group.category?.replace(/_/g, ' ')}</TableCell>
                                             <TableCell className="text-right">
                                                 <Button variant="ghost" size="icon" onClick={() => handleOpenDialog(group)}><Edit className="h-4 w-4"/></Button>
                                                 <DeleteButton account={group} onDeleted={fetchData} />
@@ -264,7 +264,7 @@ export default function AccountGroupsPage() {
                                         </TableRow>
                                     ))
                                 ) : (
-                                    <TableRow className="border-clay-border"><TableCell colSpan={4} className="h-24 text-center text-clay-ink-muted">No account groups found.</TableCell></TableRow>
+                                    <TableRow className="border-border"><TableCell colSpan={4} className="h-24 text-center text-muted-foreground">No account groups found.</TableCell></TableRow>
                                 )}
                             </TableBody>
                         </Table>

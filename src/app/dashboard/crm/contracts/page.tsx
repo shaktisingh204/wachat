@@ -157,17 +157,17 @@ export default function ContractsPage() {
       />
 
       <ClayCard>
-        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <Table>
             <TableHeader>
-              <TableRow className="border-clay-border hover:bg-transparent">
-                <TableHead className="text-clay-ink-muted">Title</TableHead>
-                <TableHead className="text-clay-ink-muted">Client</TableHead>
-                <TableHead className="text-clay-ink-muted">Value</TableHead>
-                <TableHead className="text-clay-ink-muted">Start</TableHead>
-                <TableHead className="text-clay-ink-muted">End</TableHead>
-                <TableHead className="text-clay-ink-muted">Status</TableHead>
-                <TableHead className="w-[200px] text-right text-clay-ink-muted">
+              <TableRow className="border-border hover:bg-transparent">
+                <TableHead className="text-muted-foreground">Title</TableHead>
+                <TableHead className="text-muted-foreground">Client</TableHead>
+                <TableHead className="text-muted-foreground">Value</TableHead>
+                <TableHead className="text-muted-foreground">Start</TableHead>
+                <TableHead className="text-muted-foreground">End</TableHead>
+                <TableHead className="text-muted-foreground">Status</TableHead>
+                <TableHead className="w-[200px] text-right text-muted-foreground">
                   Actions
                 </TableHead>
               </TableRow>
@@ -175,25 +175,25 @@ export default function ContractsPage() {
             <TableBody>
               {isLoading && rows.length === 0 ? (
                 [...Array(3)].map((_, i) => (
-                  <TableRow key={i} className="border-clay-border">
+                  <TableRow key={i} className="border-border">
                     <TableCell colSpan={7}>
                       <Skeleton className="h-8 w-full" />
                     </TableCell>
                   </TableRow>
                 ))
               ) : rows.length === 0 ? (
-                <TableRow className="border-clay-border">
+                <TableRow className="border-border">
                   <TableCell
                     colSpan={7}
-                    className="h-24 text-center text-[13px] text-clay-ink-muted"
+                    className="h-24 text-center text-[13px] text-muted-foreground"
                   >
                     No contracts yet — click Add Contract to get started.
                   </TableCell>
                 </TableRow>
               ) : (
                 rows.map((row) => (
-                  <TableRow key={row._id} className="border-clay-border">
-                    <TableCell className="text-[13px] font-medium text-clay-ink">
+                  <TableRow key={row._id} className="border-border">
+                    <TableCell className="text-[13px] font-medium text-foreground">
                       <Link
                         href={`/dashboard/crm/contracts/${row._id}`}
                         className="hover:underline"
@@ -201,10 +201,10 @@ export default function ContractsPage() {
                         {row.title}
                       </Link>
                     </TableCell>
-                    <TableCell className="text-[13px] text-clay-ink">
+                    <TableCell className="text-[13px] text-foreground">
                       {row.clientName || '—'}
                     </TableCell>
-                    <TableCell className="text-[13px] text-clay-ink">
+                    <TableCell className="text-[13px] text-foreground">
                       {row.value != null
                         ? new Intl.NumberFormat('en-IN', {
                             style: 'currency',
@@ -212,10 +212,10 @@ export default function ContractsPage() {
                           }).format(row.value)
                         : '—'}
                     </TableCell>
-                    <TableCell className="text-[13px] text-clay-ink">
+                    <TableCell className="text-[13px] text-foreground">
                       {fmtDate(row.startDate)}
                     </TableCell>
-                    <TableCell className="text-[13px] text-clay-ink">
+                    <TableCell className="text-[13px] text-foreground">
                       {fmtDate(row.endDate)}
                     </TableCell>
                     <TableCell>
@@ -249,7 +249,7 @@ export default function ContractsPage() {
                           size="sm"
                           onClick={() => setDeletingId(row._id)}
                         >
-                          <Trash2 className="h-3.5 w-3.5 text-clay-red" />
+                          <Trash2 className="h-3.5 w-3.5 text-destructive" />
                         </Button>
                       </div>
                     </TableCell>
@@ -264,10 +264,10 @@ export default function ContractsPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="text-clay-ink">
+            <DialogTitle className="text-foreground">
               {editing ? 'Edit Contract' : 'Add Contract'}
             </DialogTitle>
-            <DialogDescription className="text-clay-ink-muted">
+            <DialogDescription className="text-muted-foreground">
               Fill in the details below.
             </DialogDescription>
           </DialogHeader>
@@ -279,33 +279,33 @@ export default function ContractsPage() {
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="md:col-span-2">
-                <Label className="text-clay-ink">
-                  Title <span className="text-clay-red">*</span>
+                <Label className="text-foreground">
+                  Title <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   name="title"
                   required
                   defaultValue={editing?.title || ''}
-                  className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
               <div>
-                <Label className="text-clay-ink">Client Name</Label>
+                <Label className="text-foreground">Client Name</Label>
                 <Input
                   name="clientName"
                   defaultValue={editing?.clientName || ''}
-                  className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
               <div>
-                <Label className="text-clay-ink">
-                  Status <span className="text-clay-red">*</span>
+                <Label className="text-foreground">
+                  Status <span className="text-destructive">*</span>
                 </Label>
                 <Select
                   name="status"
                   defaultValue={editing?.status || 'draft'}
                 >
-                  <SelectTrigger className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
+                  <SelectTrigger className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -318,24 +318,24 @@ export default function ContractsPage() {
                 </Select>
               </div>
               <div>
-                <Label className="text-clay-ink">Value</Label>
+                <Label className="text-foreground">Value</Label>
                 <Input
                   type="number"
                   name="value"
                   defaultValue={editing?.value ?? ''}
-                  className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
               <div>
-                <Label className="text-clay-ink">Currency</Label>
+                <Label className="text-foreground">Currency</Label>
                 <Input
                   name="currency"
                   defaultValue={editing?.currency || 'INR'}
-                  className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
               <div>
-                <Label className="text-clay-ink">Start Date</Label>
+                <Label className="text-foreground">Start Date</Label>
                 <Input
                   type="date"
                   name="startDate"
@@ -346,11 +346,11 @@ export default function ContractsPage() {
                           .slice(0, 10)
                       : ''
                   }
-                  className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
               <div>
-                <Label className="text-clay-ink">End Date</Label>
+                <Label className="text-foreground">End Date</Label>
                 <Input
                   type="date"
                   name="endDate"
@@ -361,16 +361,16 @@ export default function ContractsPage() {
                           .slice(0, 10)
                       : ''
                   }
-                  className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
               <div className="md:col-span-2">
-                <Label className="text-clay-ink">Body</Label>
+                <Label className="text-foreground">Body</Label>
                 <Textarea
                   name="body"
                   rows={6}
                   defaultValue={editing?.body || ''}
-                  className="mt-1.5 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="mt-1.5 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
@@ -409,10 +409,10 @@ export default function ContractsPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-clay-ink">
+            <AlertDialogTitle className="text-foreground">
               Delete contract?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-clay-ink-muted">
+            <AlertDialogDescription className="text-muted-foreground">
               This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>

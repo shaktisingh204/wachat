@@ -119,78 +119,78 @@ export default function Form16Page() {
             {/* Summary cards */}
             <div className="grid gap-4 md:grid-cols-3">
                 <ClayCard>
-                    <p className="text-[12.5px] font-medium text-clay-ink-muted">Total Tax Deducted (FY {selectedFY.label})</p>
-                    <div className="mt-2 text-2xl font-bold text-clay-ink">₹{totalTaxDeducted.toLocaleString('en-IN')}</div>
-                    <p className="mt-1 text-[11.5px] text-clay-ink-muted">Across {mockForm16Data.length} employees</p>
+                    <p className="text-[12.5px] font-medium text-muted-foreground">Total Tax Deducted (FY {selectedFY.label})</p>
+                    <div className="mt-2 text-2xl font-bold text-foreground">₹{totalTaxDeducted.toLocaleString('en-IN')}</div>
+                    <p className="mt-1 text-[11.5px] text-muted-foreground">Across {mockForm16Data.length} employees</p>
                 </ClayCard>
                 <ClayCard>
-                    <p className="text-[12.5px] font-medium text-clay-ink-muted">Form 16 Generated</p>
-                    <div className="mt-2 text-2xl font-bold text-clay-ink">{generated} / {mockForm16Data.length}</div>
-                    <p className="mt-1 text-[11.5px] text-clay-ink-muted">employees</p>
+                    <p className="text-[12.5px] font-medium text-muted-foreground">Form 16 Generated</p>
+                    <div className="mt-2 text-2xl font-bold text-foreground">{generated} / {mockForm16Data.length}</div>
+                    <p className="mt-1 text-[11.5px] text-muted-foreground">employees</p>
                 </ClayCard>
                 <ClayCard>
-                    <p className="text-[12.5px] font-medium text-clay-ink-muted">Financial Year</p>
-                    <div className="mt-2 text-2xl font-bold text-clay-ink">FY {selectedFY.label}</div>
-                    <p className="mt-1 text-[11.5px] text-clay-ink-muted">{selectedFY.period}</p>
+                    <p className="text-[12.5px] font-medium text-muted-foreground">Financial Year</p>
+                    <div className="mt-2 text-2xl font-bold text-foreground">FY {selectedFY.label}</div>
+                    <p className="mt-1 text-[11.5px] text-muted-foreground">{selectedFY.period}</p>
                 </ClayCard>
             </div>
 
             {/* FY selector accordion */}
             <ClayCard>
                 <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-clay-ink">Select Financial Year</h2>
-                    <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">Expand a year to view and download individual Form 16 certificates.</p>
+                    <h2 className="text-[16px] font-semibold text-foreground">Select Financial Year</h2>
+                    <p className="mt-0.5 text-[12.5px] text-muted-foreground">Expand a year to view and download individual Form 16 certificates.</p>
                 </div>
                 <div className="space-y-2">
                     {financialYears.map(fy => (
-                        <div key={fy.label} className="rounded-clay-md border border-clay-border overflow-hidden">
+                        <div key={fy.label} className="rounded-lg border border-border overflow-hidden">
                             <button
                                 type="button"
                                 onClick={() => {
                                     setSelectedFY(fy);
                                     setExpandedFY(prev => prev === fy.label ? '' : fy.label);
                                 }}
-                                className="flex w-full items-center justify-between bg-clay-surface-2 px-4 py-3 text-left hover:bg-clay-surface transition-colors"
+                                className="flex w-full items-center justify-between bg-secondary px-4 py-3 text-left hover:bg-card transition-colors"
                             >
                                 <div>
-                                    <span className="text-[14px] font-semibold text-clay-ink">Financial Year {fy.label}</span>
-                                    <span className="ml-3 text-[12.5px] text-clay-ink-muted">{fy.period}</span>
+                                    <span className="text-[14px] font-semibold text-foreground">Financial Year {fy.label}</span>
+                                    <span className="ml-3 text-[12.5px] text-muted-foreground">{fy.period}</span>
                                 </div>
                                 <div className="flex items-center gap-3">
                                     {fy.label === financialYears[0].label && (
                                         <ClayBadge tone="blue">Current FY</ClayBadge>
                                     )}
-                                    <ChevronDown className={`h-4 w-4 text-clay-ink-muted transition-transform ${expandedFY === fy.label ? 'rotate-180' : ''}`} />
+                                    <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${expandedFY === fy.label ? 'rotate-180' : ''}`} />
                                 </div>
                             </button>
 
                             {expandedFY === fy.label && (
-                                <div className="border-t border-clay-border">
+                                <div className="border-t border-border">
                                     <table className="w-full text-left text-[13px]">
                                         <thead>
-                                            <tr className="border-b border-clay-border bg-clay-surface">
-                                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Employee</th>
-                                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">PAN Number</th>
-                                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Gross Salary</th>
-                                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Total Deductions</th>
-                                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Taxable Income</th>
-                                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Tax Deducted</th>
-                                                <th className="px-4 py-3 text-center text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Status</th>
-                                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Download</th>
+                                            <tr className="border-b border-border bg-card">
+                                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Employee</th>
+                                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">PAN Number</th>
+                                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Gross Salary</th>
+                                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Total Deductions</th>
+                                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Taxable Income</th>
+                                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Tax Deducted</th>
+                                                <th className="px-4 py-3 text-center text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Status</th>
+                                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Download</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {mockForm16Data.map(emp => (
-                                                <tr key={emp.id} className="border-b border-clay-border last:border-0 hover:bg-clay-surface-2/50 transition-colors">
+                                                <tr key={emp.id} className="border-b border-border last:border-0 hover:bg-secondary/50 transition-colors">
                                                     <td className="px-4 py-3">
-                                                        <div className="font-medium text-clay-ink">{emp.employeeName}</div>
-                                                        <div className="text-[11.5px] text-clay-ink-muted">{emp.designation}</div>
+                                                        <div className="font-medium text-foreground">{emp.employeeName}</div>
+                                                        <div className="text-[11.5px] text-muted-foreground">{emp.designation}</div>
                                                     </td>
-                                                    <td className="px-4 py-3 font-mono text-[12px] text-clay-ink">{emp.pan}</td>
-                                                    <td className="px-4 py-3 text-right font-mono text-clay-ink">₹{emp.grossSalary.toLocaleString('en-IN')}</td>
-                                                    <td className="px-4 py-3 text-right font-mono text-clay-ink">₹{emp.totalDeductions.toLocaleString('en-IN')}</td>
-                                                    <td className="px-4 py-3 text-right font-mono text-clay-ink">₹{emp.taxableIncome.toLocaleString('en-IN')}</td>
-                                                    <td className="px-4 py-3 text-right font-mono font-semibold text-clay-ink">₹{emp.taxDeducted.toLocaleString('en-IN')}</td>
+                                                    <td className="px-4 py-3 font-mono text-[12px] text-foreground">{emp.pan}</td>
+                                                    <td className="px-4 py-3 text-right font-mono text-foreground">₹{emp.grossSalary.toLocaleString('en-IN')}</td>
+                                                    <td className="px-4 py-3 text-right font-mono text-foreground">₹{emp.totalDeductions.toLocaleString('en-IN')}</td>
+                                                    <td className="px-4 py-3 text-right font-mono text-foreground">₹{emp.taxableIncome.toLocaleString('en-IN')}</td>
+                                                    <td className="px-4 py-3 text-right font-mono font-semibold text-foreground">₹{emp.taxDeducted.toLocaleString('en-IN')}</td>
                                                     <td className="px-4 py-3 text-center">{statusBadge(emp.status)}</td>
                                                     <td className="px-4 py-3 text-right">
                                                         <ClayButton
@@ -206,9 +206,9 @@ export default function Form16Page() {
                                             ))}
                                         </tbody>
                                         <tfoot>
-                                            <tr className="border-t-2 border-clay-border bg-clay-surface-2">
-                                                <td colSpan={5} className="px-4 py-3 text-[12.5px] font-semibold text-clay-ink">Total Tax Deducted</td>
-                                                <td className="px-4 py-3 text-right font-mono text-[12.5px] font-bold text-clay-ink">₹{totalTaxDeducted.toLocaleString('en-IN')}</td>
+                                            <tr className="border-t-2 border-border bg-secondary">
+                                                <td colSpan={5} className="px-4 py-3 text-[12.5px] font-semibold text-foreground">Total Tax Deducted</td>
+                                                <td className="px-4 py-3 text-right font-mono text-[12.5px] font-bold text-foreground">₹{totalTaxDeducted.toLocaleString('en-IN')}</td>
                                                 <td colSpan={2} />
                                             </tr>
                                         </tfoot>
@@ -219,8 +219,8 @@ export default function Form16Page() {
                     ))}
                 </div>
 
-                <div className="mt-4 rounded-clay-md border border-dashed border-clay-border bg-clay-surface-2 p-4 text-center">
-                    <p className="text-[12.5px] text-clay-ink-muted">
+                <div className="mt-4 rounded-lg border border-dashed border-border bg-secondary p-4 text-center">
+                    <p className="text-[12.5px] text-muted-foreground">
                         Payroll data must be finalized for the complete financial year before generating Form 16.
                         Currently showing sample data — connect to live payroll actions to enable actual generation.
                     </p>

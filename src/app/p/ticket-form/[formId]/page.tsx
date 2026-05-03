@@ -17,13 +17,13 @@ export default async function PublicTicketFormPage({ params }: PageProps) {
   return (
     <div className="flex flex-col gap-5">
       <ClayCard>
-        <p className="text-[11.5px] uppercase tracking-wide text-clay-ink-muted">
+        <p className="text-[11.5px] uppercase tracking-wide text-muted-foreground">
           Support ticket
         </p>
-        <h1 className="mt-1 text-[18px] font-semibold text-clay-ink">
+        <h1 className="mt-1 text-[18px] font-semibold text-foreground">
           Open a ticket
         </h1>
-        <p className="mt-1 text-[12.5px] text-clay-ink-muted">
+        <p className="mt-1 text-[12.5px] text-muted-foreground">
           Describe the issue and we will get back to you.
         </p>
       </ClayCard>

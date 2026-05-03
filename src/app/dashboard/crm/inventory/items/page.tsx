@@ -47,58 +47,58 @@ export default async function InventoryItemsPage(
 
             <ClayCard>
                 <div className="mb-4 relative max-w-md">
-                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-clay-ink-muted" />
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
                         placeholder="Search items..."
-                        className="h-10 rounded-clay-md border-clay-border bg-clay-surface pl-9 text-[13px]"
+                        className="h-10 rounded-lg border-border bg-card pl-9 text-[13px]"
                         defaultValue={query}
                     />
                 </div>
-                <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                <div className="overflow-x-auto rounded-lg border border-border">
                     <Table>
                         <TableHeader>
-                            <TableRow className="border-clay-border hover:bg-transparent">
-                                <TableHead className="text-clay-ink-muted w-[80px]">Image</TableHead>
-                                <TableHead className="text-clay-ink-muted">Name</TableHead>
-                                <TableHead className="text-clay-ink-muted">SKU</TableHead>
-                                <TableHead className="text-clay-ink-muted">Price</TableHead>
-                                <TableHead className="text-clay-ink-muted">Stock</TableHead>
-                                <TableHead className="text-clay-ink-muted text-right">Actions</TableHead>
+                            <TableRow className="border-border hover:bg-transparent">
+                                <TableHead className="text-muted-foreground w-[80px]">Image</TableHead>
+                                <TableHead className="text-muted-foreground">Name</TableHead>
+                                <TableHead className="text-muted-foreground">SKU</TableHead>
+                                <TableHead className="text-muted-foreground">Price</TableHead>
+                                <TableHead className="text-muted-foreground">Stock</TableHead>
+                                <TableHead className="text-muted-foreground text-right">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {products.length === 0 ? (
-                                <TableRow className="border-clay-border">
-                                    <TableCell colSpan={6} className="h-24 text-center text-clay-ink-muted">
+                                <TableRow className="border-border">
+                                    <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
                                         No items found.
                                     </TableCell>
                                 </TableRow>
                             ) : (
                                 products.map((product) => (
-                                    <TableRow key={product._id.toString()} className="border-clay-border">
+                                    <TableRow key={product._id.toString()} className="border-border">
                                         <TableCell>
                                             <Avatar className="h-10 w-10 rounded-sm">
                                                 <AvatarImage src={product.images?.[0] || (product as any).imageUrl} alt={product.name} />
-                                                <AvatarFallback className="rounded-sm bg-clay-rose-soft text-clay-rose-ink">{product.name.charAt(0)}</AvatarFallback>
+                                                <AvatarFallback className="rounded-sm bg-accent text-accent-foreground">{product.name.charAt(0)}</AvatarFallback>
                                             </Avatar>
                                         </TableCell>
                                         <TableCell className="font-medium">
                                             <div className="flex flex-col">
-                                                <span className="text-clay-ink">{product.name}</span>
-                                                {product.itemType && <span className="text-[11.5px] text-clay-ink-muted capitalize">{product.itemType}</span>}
+                                                <span className="text-foreground">{product.name}</span>
+                                                {product.itemType && <span className="text-[11.5px] text-muted-foreground capitalize">{product.itemType}</span>}
                                             </div>
                                         </TableCell>
-                                        <TableCell className="text-clay-ink">{product.sku || '-'}</TableCell>
-                                        <TableCell className="text-clay-ink">
+                                        <TableCell className="text-foreground">{product.sku || '-'}</TableCell>
+                                        <TableCell className="text-foreground">
                                             {product.currency} {product.sellingPrice}
                                         </TableCell>
                                         <TableCell>
                                             {product.isTrackInventory ? (
-                                                <span className={product.totalStock <= 5 ? "text-clay-red font-medium" : "text-clay-ink"}>
+                                                <span className={product.totalStock <= 5 ? "text-destructive font-medium" : "text-foreground"}>
                                                     {product.totalStock}
                                                 </span>
                                             ) : (
-                                                <span className="text-clay-ink-muted text-[12.5px]">N/A</span>
+                                                <span className="text-muted-foreground text-[12.5px]">N/A</span>
                                             )}
                                         </TableCell>
                                         <TableCell className="text-right">

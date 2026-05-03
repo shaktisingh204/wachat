@@ -27,13 +27,13 @@ export default async function PublicContractPage({ params }: PageProps) {
       <ClayCard>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="text-[11.5px] uppercase tracking-wide text-clay-ink-muted">
+            <p className="text-[11.5px] uppercase tracking-wide text-muted-foreground">
               Contract
             </p>
-            <h1 className="text-[18px] font-semibold text-clay-ink">
+            <h1 className="text-[18px] font-semibold text-foreground">
               {String(contract.subject || contract.name || 'Contract')}
             </h1>
-            <p className="mt-1 text-[12.5px] text-clay-ink-muted">
+            <p className="mt-1 text-[12.5px] text-muted-foreground">
               {fmtDate(contract.start_date)} → {fmtDate(contract.end_date)}
             </p>
           </div>
@@ -42,7 +42,7 @@ export default async function PublicContractPage({ params }: PageProps) {
           </ClayBadge>
         </div>
         {contract.value ? (
-          <p className="mt-3 text-[13px] text-clay-ink">
+          <p className="mt-3 text-[13px] text-foreground">
             Value:{' '}
             <strong>
               {fmtCurrency(Number(contract.value), String(contract.currency || 'INR'))}
@@ -50,7 +50,7 @@ export default async function PublicContractPage({ params }: PageProps) {
           </p>
         ) : null}
         {contract.description ? (
-          <div className="mt-4 rounded-clay-md border border-clay-border bg-clay-surface-2 p-3 text-[13px] text-clay-ink">
+          <div className="mt-4 rounded-lg border border-border bg-secondary p-3 text-[13px] text-foreground">
             <pre className="whitespace-pre-wrap font-sans">
               {String(contract.description)}
             </pre>
@@ -60,20 +60,20 @@ export default async function PublicContractPage({ params }: PageProps) {
 
       {isSigned ? (
         <ClayCard>
-          <h2 className="text-[15px] font-semibold text-clay-ink">Signed</h2>
+          <h2 className="text-[15px] font-semibold text-foreground">Signed</h2>
           <div className="mt-3 space-y-3">
             {signs.map((s, i) => (
               <div
                 key={i}
-                className="rounded-clay-md border border-clay-border bg-clay-surface-2 p-4"
+                className="rounded-lg border border-border bg-secondary p-4"
               >
-                <p className="text-[13px] font-medium text-clay-ink">
+                <p className="text-[13px] font-medium text-foreground">
                   {String(s.signer_name || '')}
                 </p>
-                <p className="text-[11.5px] text-clay-ink-muted">
+                <p className="text-[11.5px] text-muted-foreground">
                   {String(s.signer_email || '')}
                 </p>
-                <p className="mt-2 text-[11.5px] text-clay-ink-muted">
+                <p className="mt-2 text-[11.5px] text-muted-foreground">
                   Signed {fmtDateTime(s.signed_at)}
                 </p>
               </div>

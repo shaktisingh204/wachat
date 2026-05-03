@@ -22,36 +22,36 @@ type ReportData = {
 
 const StatCard = ({ title, value }: { title: string, value: number }) => (
     <ClayCard>
-        <p className="text-[12.5px] font-medium text-clay-ink-muted">{title}</p>
-        <p className="mt-2 text-[26px] font-semibold text-clay-ink">{value.toLocaleString()}</p>
+        <p className="text-[12.5px] font-medium text-muted-foreground">{title}</p>
+        <p className="mt-2 text-[26px] font-semibold text-foreground">{value.toLocaleString()}</p>
     </ClayCard>
 );
 
 const BatchTable = ({ title, batches }: { title: string, batches: any[] }) => (
     <ClayCard>
-        <h2 className="text-[15px] font-semibold text-clay-ink">{title}</h2>
-        <div className="mt-4 overflow-x-auto rounded-clay-md border border-clay-border">
+        <h2 className="text-[15px] font-semibold text-foreground">{title}</h2>
+        <div className="mt-4 overflow-x-auto rounded-lg border border-border">
             <Table>
                 <TableHeader>
-                    <TableRow className="border-clay-border hover:bg-transparent">
-                        <TableHead className="text-clay-ink-muted">Product</TableHead>
-                        <TableHead className="text-clay-ink-muted">Batch No.</TableHead>
-                        <TableHead className="text-clay-ink-muted">Expiry Date</TableHead>
-                        <TableHead className="text-clay-ink-muted text-right">Stock</TableHead>
+                    <TableRow className="border-border hover:bg-transparent">
+                        <TableHead className="text-muted-foreground">Product</TableHead>
+                        <TableHead className="text-muted-foreground">Batch No.</TableHead>
+                        <TableHead className="text-muted-foreground">Expiry Date</TableHead>
+                        <TableHead className="text-muted-foreground text-right">Stock</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {batches.length > 0 ? (
                         batches.map(item => (
-                            <TableRow key={`${item.productId}-${item.batchId}`} className="border-clay-border">
-                                <TableCell className="font-medium text-clay-ink">{item.productName}</TableCell>
-                                <TableCell className="font-mono text-[11.5px] text-clay-ink">{item.batchNumber}</TableCell>
-                                <TableCell className="text-clay-ink">{format(new Date(item.expiryDate), 'PPP')}</TableCell>
-                                <TableCell className="text-right font-semibold text-clay-ink">{item.stock}</TableCell>
+                            <TableRow key={`${item.productId}-${item.batchId}`} className="border-border">
+                                <TableCell className="font-medium text-foreground">{item.productName}</TableCell>
+                                <TableCell className="font-mono text-[11.5px] text-foreground">{item.batchNumber}</TableCell>
+                                <TableCell className="text-foreground">{format(new Date(item.expiryDate), 'PPP')}</TableCell>
+                                <TableCell className="text-right font-semibold text-foreground">{item.stock}</TableCell>
                             </TableRow>
                         ))
                     ) : (
-                        <TableRow className="border-clay-border"><TableCell colSpan={4} className="h-24 text-center text-clay-ink-muted">No items in this category.</TableCell></TableRow>
+                        <TableRow className="border-border"><TableCell colSpan={4} className="h-24 text-center text-muted-foreground">No items in this category.</TableCell></TableRow>
                     )}
                 </TableBody>
             </Table>
@@ -103,7 +103,7 @@ export default function BatchExpiryReportPage() {
     if (isLoading || !reportData) {
         return (
             <div className="flex justify-center items-center h-full">
-                <LoaderCircle className="h-8 w-8 animate-spin text-clay-ink-muted" />
+                <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
         );
     }

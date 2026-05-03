@@ -106,13 +106,13 @@ export const Sidebar = ({ className }: { className?: string }) => {
     <div className={cn('space-y-3', className)}>
       {/* Search */}
       <div className="relative">
-        <LuSearch className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-clay-ink-muted" />
+        <LuSearch className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search blocks..."
-          className="w-full rounded-lg border border-clay-border bg-clay-bg pl-8 pr-3 py-1.5 text-[12px] text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-accent focus:outline-none"
+          className="w-full rounded-lg border border-border bg-background pl-8 pr-3 py-1.5 text-[12px] text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none"
         />
       </div>
 
@@ -124,7 +124,7 @@ export const Sidebar = ({ className }: { className?: string }) => {
             <button
               type="button"
               onClick={() => setCollapsed(c => ({ ...c, [group.title]: !c[group.title] }))}
-              className="flex w-full items-center justify-between text-[10px] font-bold uppercase tracking-[0.1em] text-clay-ink-muted mb-1.5 hover:text-clay-ink"
+              className="flex w-full items-center justify-between text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground mb-1.5 hover:text-foreground"
             >
               {group.title}
               <LuChevronDown className={cn('h-3 w-3 transition-transform', isCollapsed && '-rotate-90')} />
@@ -137,12 +137,12 @@ export const Sidebar = ({ className }: { className?: string }) => {
                   return (
                     <div
                       key={block.type}
-                      className="flex items-center gap-2 rounded-lg border border-clay-border bg-clay-surface px-2.5 py-2 cursor-grab active:cursor-grabbing hover:border-clay-accent/40 hover:bg-clay-accent/5 transition-colors"
+                      className="flex items-center gap-2 rounded-lg border border-border bg-card px-2.5 py-2 cursor-grab active:cursor-grabbing hover:border-accent/40 hover:bg-accent/5 transition-colors"
                       onDragStart={(event) => onDragStart(event, block.type)}
                       draggable
                     >
-                      <Icon className="h-3.5 w-3.5 shrink-0 text-clay-ink-muted" />
-                      <span className="text-[10.5px] font-medium text-clay-ink leading-tight truncate">{block.label}</span>
+                      <Icon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                      <span className="text-[10.5px] font-medium text-foreground leading-tight truncate">{block.label}</span>
                     </div>
                   );
                 })}

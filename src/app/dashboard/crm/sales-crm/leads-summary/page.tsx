@@ -17,8 +17,8 @@ import { CrmPageHeader } from '../../_components/crm-page-header';
 
 const StatCard = ({ title, value }: { title: string, value: number }) => (
     <ClayCard>
-        <p className="text-[13px] font-medium text-clay-ink-muted">{title}</p>
-        <p className="mt-1 text-[28px] font-semibold text-clay-ink">{value.toLocaleString()}</p>
+        <p className="text-[13px] font-medium text-muted-foreground">{title}</p>
+        <p className="mt-1 text-[28px] font-semibold text-foreground">{value.toLocaleString()}</p>
     </ClayCard>
 );
 
@@ -132,18 +132,18 @@ export default function LeadsSummaryPage() {
 
             <ClayCard>
                 <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-clay-ink">Filters</h2>
+                    <h2 className="text-[16px] font-semibold text-foreground">Filters</h2>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    <div className="space-y-1"><Label className="text-clay-ink">Pipeline</Label><Select value={filters.pipelineId} onValueChange={v => handleFilterChange('pipelineId', v)}><SelectTrigger><SelectValue placeholder="Sales Pipeline" /></SelectTrigger><SelectContent>{(filtersData.pipelines || []).map((p: any) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent></Select></div>
-                    <div className="space-y-1"><Label className="text-clay-ink">Lead Source</Label><Select value={filters.leadSource} onValueChange={v => handleFilterChange('leadSource', v)}><SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent>{(filtersData.leadSources || []).map((s: string) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select></div>
-                    <div className="space-y-1"><Label className="text-clay-ink">Assigned To</Label><Select value={filters.assigneeId} onValueChange={v => handleFilterChange('assigneeId', v)}><SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent>{(filtersData.assignees || []).map((a: any) => <SelectItem key={a._id} value={a._id}>{a.name}</SelectItem>)}</SelectContent></Select></div>
-                    <div className="space-y-1"><Label className="text-clay-ink">Current Stage</Label><Select value={filters.currentStage} onValueChange={v => handleFilterChange('currentStage', v)}><SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent>{(filtersData.pipelines[0]?.stages || []).map((s: any) => <SelectItem key={s.id} value={s.name}>{s.name}</SelectItem>)}</SelectContent></Select></div>
-                    <div className="space-y-1"><Label className="text-clay-ink">Created Date</Label><DatePicker date={filters.createdFrom} setDate={((d: any) => handleFilterChange('createdFrom', d)) as any} placeholder="Start Date" /></div>
+                    <div className="space-y-1"><Label className="text-foreground">Pipeline</Label><Select value={filters.pipelineId} onValueChange={v => handleFilterChange('pipelineId', v)}><SelectTrigger><SelectValue placeholder="Sales Pipeline" /></SelectTrigger><SelectContent>{(filtersData.pipelines || []).map((p: any) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent></Select></div>
+                    <div className="space-y-1"><Label className="text-foreground">Lead Source</Label><Select value={filters.leadSource} onValueChange={v => handleFilterChange('leadSource', v)}><SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent>{(filtersData.leadSources || []).map((s: string) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select></div>
+                    <div className="space-y-1"><Label className="text-foreground">Assigned To</Label><Select value={filters.assigneeId} onValueChange={v => handleFilterChange('assigneeId', v)}><SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent>{(filtersData.assignees || []).map((a: any) => <SelectItem key={a._id} value={a._id}>{a.name}</SelectItem>)}</SelectContent></Select></div>
+                    <div className="space-y-1"><Label className="text-foreground">Current Stage</Label><Select value={filters.currentStage} onValueChange={v => handleFilterChange('currentStage', v)}><SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent>{(filtersData.pipelines[0]?.stages || []).map((s: any) => <SelectItem key={s.id} value={s.name}>{s.name}</SelectItem>)}</SelectContent></Select></div>
+                    <div className="space-y-1"><Label className="text-foreground">Created Date</Label><DatePicker date={filters.createdFrom} setDate={((d: any) => handleFilterChange('createdFrom', d)) as any} placeholder="Start Date" /></div>
                     <div className="space-y-1"><Label>&nbsp;</Label><DatePicker date={filters.createdTo} setDate={((d: any) => handleFilterChange('createdTo', d)) as any} placeholder="End Date" /></div>
-                    <div className="space-y-1"><Label className="text-clay-ink">Updated Date</Label><DatePicker date={filters.updatedFrom} setDate={((d: any) => handleFilterChange('updatedFrom', d)) as any} placeholder="Start Date" /></div>
+                    <div className="space-y-1"><Label className="text-foreground">Updated Date</Label><DatePicker date={filters.updatedFrom} setDate={((d: any) => handleFilterChange('updatedFrom', d)) as any} placeholder="Start Date" /></div>
                     <div className="space-y-1"><Label>&nbsp;</Label><DatePicker date={filters.updatedTo} setDate={((d: any) => handleFilterChange('updatedTo', d)) as any} placeholder="End Date" /></div>
-                    <div className="space-y-1"><Label className="text-clay-ink">Closed Date</Label><DatePicker date={filters.closedFrom} setDate={((d: any) => handleFilterChange('closedFrom', d)) as any} placeholder="Start Date" /></div>
+                    <div className="space-y-1"><Label className="text-foreground">Closed Date</Label><DatePicker date={filters.closedFrom} setDate={((d: any) => handleFilterChange('closedFrom', d)) as any} placeholder="Start Date" /></div>
                     <div className="space-y-1"><Label>&nbsp;</Label><DatePicker date={filters.closedTo} setDate={((d: any) => handleFilterChange('closedTo', d)) as any} placeholder="End Date" /></div>
                 </div>
                 <div className="mt-4">
@@ -154,18 +154,18 @@ export default function LeadsSummaryPage() {
             </ClayCard>
 
             <div className="flex flex-wrap gap-2 items-center">
-                <span className="text-[13px] font-semibold text-clay-ink">Applied Filters:</span>
+                <span className="text-[13px] font-semibold text-foreground">Applied Filters:</span>
                 {activeFilters.length > 0 ? (
                     activeFilters.map(([key, value]) => <FilterPill key={key} filterKey={key} value={value} />)
                 ) : (
-                    <span className="text-[13px] text-clay-ink-muted">None</span>
+                    <span className="text-[13px] text-muted-foreground">None</span>
                 )}
                 {activeFilters.length > 0 && <ClayButton variant="ghost" size="sm" onClick={resetFilters}>Reset all filters</ClayButton>}
             </div>
 
             <ClayCard>
                 <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-clay-ink">Graph</h2>
+                    <h2 className="text-[16px] font-semibold text-foreground">Graph</h2>
                 </div>
                 <ResponsiveContainer width="100%" height={300}>
                     <BarChart data={pipelineSummary}>
@@ -184,16 +184,16 @@ export default function LeadsSummaryPage() {
 
             <ClayCard>
                 <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-clay-ink">Sales Pipeline Summary</h2>
+                    <h2 className="text-[16px] font-semibold text-foreground">Sales Pipeline Summary</h2>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                     {pipelineSummary.map((stage: any) => (
-                        <div key={stage.name} className="rounded-clay-md border border-clay-border bg-clay-surface-2 p-4 text-center">
-                            <h3 className="text-[13px] font-semibold text-clay-ink">{stage.name}</h3>
-                            <p className="text-[22px] font-semibold text-clay-ink">{stage.leadCount}</p>
-                            <p className="text-[11.5px] text-clay-ink-muted">Leads</p>
-                            <p className="mt-2 text-[11.5px] text-clay-ink-muted">Total: ₹{stage.totalValue.toLocaleString()}</p>
-                            <p className="text-[11.5px] text-clay-ink-muted">Weighted: ₹{stage.weightedValue.toLocaleString()}</p>
+                        <div key={stage.name} className="rounded-lg border border-border bg-secondary p-4 text-center">
+                            <h3 className="text-[13px] font-semibold text-foreground">{stage.name}</h3>
+                            <p className="text-[22px] font-semibold text-foreground">{stage.leadCount}</p>
+                            <p className="text-[11.5px] text-muted-foreground">Leads</p>
+                            <p className="mt-2 text-[11.5px] text-muted-foreground">Total: ₹{stage.totalValue.toLocaleString()}</p>
+                            <p className="text-[11.5px] text-muted-foreground">Weighted: ₹{stage.weightedValue.toLocaleString()}</p>
                         </div>
                     ))}
                 </div>

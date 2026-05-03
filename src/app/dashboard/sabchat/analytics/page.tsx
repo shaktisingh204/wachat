@@ -10,7 +10,7 @@ import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 
 const ChartContainer = dynamic(
   () => import('@/components/ui/chart').then(mod => mod.ChartContainer),
-  { ssr: false, loading: () => <div className="animate-pulse rounded-clay-md bg-clay-border" style={{ height: '16rem' }} /> },
+  { ssr: false, loading: () => <div className="animate-pulse rounded-lg bg-border" style={{ height: '16rem' }} /> },
 );
 const ChartTooltip = dynamic(
   () => import('@/components/ui/chart').then(mod => mod.ChartTooltip),
@@ -34,10 +34,10 @@ const StatCard = ({
 }) => (
   <ClayCard>
     <div className="flex items-center justify-between">
-      <p className="text-[12px] text-clay-ink-muted">{title}</p>
-      <Icon className="h-4 w-4 text-clay-ink-muted" />
+      <p className="text-[12px] text-muted-foreground">{title}</p>
+      <Icon className="h-4 w-4 text-muted-foreground" />
     </div>
-    <div className="mt-2 text-[28px] font-semibold text-clay-ink">{value}</div>
+    <div className="mt-2 text-[28px] font-semibold text-foreground">{value}</div>
   </ClayCard>
 );
 
@@ -46,10 +46,10 @@ function AnalyticsSkeleton() {
     <div className="flex w-full flex-col gap-6">
       <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
         {[...Array(5)].map((_, i) => (
-          <div key={i} className="animate-pulse rounded-clay-md bg-clay-border" style={{ height: '7rem' }} />
+          <div key={i} className="animate-pulse rounded-lg bg-border" style={{ height: '7rem' }} />
         ))}
       </div>
-      <div className="animate-pulse rounded-clay-md bg-clay-border" style={{ height: '22rem' }} />
+      <div className="animate-pulse rounded-lg bg-border" style={{ height: '22rem' }} />
     </div>
   );
 }
@@ -86,7 +86,7 @@ export default function SabChatAnalyticsPage() {
       </div>
 
       <ClayCard>
-        <h2 className="mb-4 text-[15px] font-semibold text-clay-ink">Daily Chat Volume</h2>
+        <h2 className="mb-4 text-[15px] font-semibold text-foreground">Daily Chat Volume</h2>
         <ChartContainer config={chartConfig} className="h-64 w-full">
           <BarChart data={data.dailyChatVolume} accessibilityLayer>
             <CartesianGrid vertical={false} />

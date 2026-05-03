@@ -49,15 +49,15 @@ export default function LeaveBalancePage() {
       />
 
       <ClayCard>
-        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <table className="w-full text-left text-[13px]">
             <thead>
-              <tr className="border-b border-clay-border">
-                <th className="px-4 py-3 font-medium text-clay-ink-muted">Employee</th>
+              <tr className="border-b border-border">
+                <th className="px-4 py-3 font-medium text-muted-foreground">Employee</th>
                 {types.map((t) => (
                   <th
                     key={String(t._id)}
-                    className="px-4 py-3 font-medium text-clay-ink-muted"
+                    className="px-4 py-3 font-medium text-muted-foreground"
                   >
                     <span className="inline-flex items-center gap-1.5">
                       <span
@@ -76,7 +76,7 @@ export default function LeaveBalancePage() {
                 <tr>
                   <td
                     colSpan={types.length + 1}
-                    className="h-24 text-center text-clay-ink-muted"
+                    className="h-24 text-center text-muted-foreground"
                   >
                     Loading…
                   </td>
@@ -85,7 +85,7 @@ export default function LeaveBalancePage() {
                 <tr>
                   <td
                     colSpan={types.length + 1}
-                    className="h-24 text-center text-clay-ink-muted"
+                    className="h-24 text-center text-muted-foreground"
                   >
                     No employees found.
                   </td>
@@ -94,8 +94,8 @@ export default function LeaveBalancePage() {
                 rows.map((r) => {
                   const byType = new Map(r.rows.map((x) => [x.leave_type_id, x]));
                   return (
-                    <tr key={r.employee_id} className="border-b border-clay-border last:border-0">
-                      <td className="px-4 py-3 font-medium text-clay-ink">
+                    <tr key={r.employee_id} className="border-b border-border last:border-0">
+                      <td className="px-4 py-3 font-medium text-foreground">
                         {r.employee_name}
                       </td>
                       {types.map((t) => {
@@ -104,7 +104,7 @@ export default function LeaveBalancePage() {
                           return (
                             <td
                               key={String(t._id)}
-                              className="px-4 py-3 text-clay-ink-muted"
+                              className="px-4 py-3 text-muted-foreground"
                             >
                               —
                             </td>
@@ -118,12 +118,12 @@ export default function LeaveBalancePage() {
                                 className={
                                   low
                                     ? 'font-semibold text-red-500'
-                                    : 'font-semibold text-clay-ink'
+                                    : 'font-semibold text-foreground'
                                 }
                               >
                                 {row.remaining} / {row.allocated}
                               </span>
-                              <span className="text-[11px] text-clay-ink-muted">
+                              <span className="text-[11px] text-muted-foreground">
                                 used: {row.used}
                               </span>
                             </div>

@@ -120,12 +120,12 @@ export default function PinnedItemsPage() {
 
       {isLoading ? (
         <ClayCard>
-          <p className="text-[13px] text-clay-ink-muted">Loading…</p>
+          <p className="text-[13px] text-muted-foreground">Loading…</p>
         </ClayCard>
       ) : items.length === 0 ? (
         <ClayCard>
           <div className="text-center">
-            <p className="text-[13px] text-clay-ink-muted">
+            <p className="text-[13px] text-muted-foreground">
               Nothing pinned yet. Pin projects, deals, tasks or articles to
               have them show up here.
             </p>
@@ -138,13 +138,13 @@ export default function PinnedItemsPage() {
             <ClayCard key={type}>
               <div className="flex items-center justify-between pb-3">
                 <div className="flex items-center gap-2">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-clay-md bg-clay-surface-2">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary">
                     <Icon
-                      className="h-4 w-4 text-clay-ink"
+                      className="h-4 w-4 text-foreground"
                       strokeWidth={1.75}
                     />
                   </div>
-                  <h2 className="text-[15px] font-semibold capitalize text-clay-ink">
+                  <h2 className="text-[15px] font-semibold capitalize text-foreground">
                     {type}s
                   </h2>
                   <ClayBadge tone={TONES[type]}>{rows.length}</ClayBadge>
@@ -156,13 +156,13 @@ export default function PinnedItemsPage() {
                   return (
                     <li
                       key={r._id}
-                      className="flex items-start justify-between gap-2 rounded-clay-md border border-clay-border bg-white p-3"
+                      className="flex items-start justify-between gap-2 rounded-lg border border-border bg-white p-3"
                     >
                       <div className="min-w-0 flex-1">
                         {href ? (
                           <Link
                             href={href}
-                            className="text-[13px] font-medium text-clay-ink hover:underline"
+                            className="text-[13px] font-medium text-foreground hover:underline"
                           >
                             <span className="line-clamp-2">
                               {r.title ||
@@ -172,14 +172,14 @@ export default function PinnedItemsPage() {
                             </span>
                           </Link>
                         ) : (
-                          <p className="line-clamp-2 text-[13px] font-medium text-clay-ink">
+                          <p className="line-clamp-2 text-[13px] font-medium text-foreground">
                             {r.title ||
                               `${r.resource_type} ${String(
                                 r.resource_id,
                               ).slice(-6)}`}
                           </p>
                         )}
-                        <p className="mt-1 text-[11.5px] text-clay-ink-muted">
+                        <p className="mt-1 text-[11.5px] text-muted-foreground">
                           {new Date(
                             (r.pinned_at as any) || r.createdAt || Date.now(),
                           ).toLocaleString()}
@@ -191,7 +191,7 @@ export default function PinnedItemsPage() {
                         aria-label="Unpin"
                         onClick={() => handleUnpin(r._id)}
                       >
-                        <PinOff className="h-3.5 w-3.5 text-clay-red" />
+                        <PinOff className="h-3.5 w-3.5 text-destructive" />
                       </Button>
                     </li>
                   );
@@ -205,10 +205,10 @@ export default function PinnedItemsPage() {
       <ClayCard>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-[13px] font-medium text-clay-ink">
+            <p className="text-[13px] font-medium text-foreground">
               Tip: pin anything
             </p>
-            <p className="text-[12.5px] text-clay-ink-muted">
+            <p className="text-[12.5px] text-muted-foreground">
               Look for the pin icon on projects, deals, tasks, tickets or KB
               articles. Pins sync across your devices.
             </p>

@@ -142,7 +142,7 @@ export default function NewCreditNotePage() {
                 <div className="max-w-6xl mx-auto flex flex-col gap-6">
                     <header className="flex justify-between items-center mb-6">
                         <div>
-                            <Link href="/dashboard/crm/sales/credit-notes" className="inline-flex items-center gap-2 text-[13px] text-clay-ink-muted hover:text-clay-ink">
+                            <Link href="/dashboard/crm/sales/credit-notes" className="inline-flex items-center gap-2 text-[13px] text-muted-foreground hover:text-foreground">
                                 <ArrowLeft className="h-4 w-4" />Back to Credit Notes
                             </Link>
                         </div>
@@ -154,7 +154,7 @@ export default function NewCreditNotePage() {
                     <ClayCard variant="floating" padded={false} className="mx-auto max-w-4xl p-4 sm:p-8 md:p-12">
                         <div>
                             <header className="mb-8">
-                                <h1 className="text-[28px] font-semibold tracking-tight text-clay-ink">Credit Note</h1>
+                                <h1 className="text-[28px] font-semibold tracking-tight text-foreground">Credit Note</h1>
                             </header>
 
                             <Separator className="my-8" />

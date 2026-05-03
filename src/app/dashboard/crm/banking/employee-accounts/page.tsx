@@ -79,7 +79,7 @@ export default function EmployeeAccountsPage() {
     if (isLoading && accounts.length === 0) {
         return (
              <div className="flex justify-center items-center h-full">
-                <LoaderCircle className="h-8 w-8 animate-spin text-clay-ink-muted" />
+                <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />
              </div>
         )
     }
@@ -94,12 +94,12 @@ export default function EmployeeAccountsPage() {
                 />
                 <ClayCard variant="outline" className="border-dashed">
                     <div className="flex flex-col items-center gap-4 py-12 text-center">
-                        <div className="flex h-14 w-14 items-center justify-center rounded-clay-md bg-clay-rose-soft">
-                            <Users className="h-7 w-7 text-clay-rose-ink" strokeWidth={1.75} />
+                        <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-accent">
+                            <Users className="h-7 w-7 text-accent-foreground" strokeWidth={1.75} />
                         </div>
                         <div>
-                            <h3 className="text-[17px] font-semibold text-clay-ink">No Employee Accounts Found</h3>
-                            <p className="mt-1 text-[12.5px] text-clay-ink-muted">
+                            <h3 className="text-[17px] font-semibold text-foreground">No Employee Accounts Found</h3>
+                            <p className="mt-1 text-[12.5px] text-muted-foreground">
                                 Add accounts for employees to manage reimbursements, salary advances, and other payments.
                             </p>
                         </div>
@@ -131,25 +131,25 @@ export default function EmployeeAccountsPage() {
 
             <ClayCard>
                 <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-clay-ink">Your Employee Accounts</h2>
+                    <h2 className="text-[16px] font-semibold text-foreground">Your Employee Accounts</h2>
                 </div>
-                <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                <div className="overflow-x-auto rounded-lg border border-border">
                     <Table>
                         <TableHeader>
-                            <TableRow className="border-clay-border hover:bg-transparent">
-                                <TableHead className="text-clay-ink-muted">Account Name</TableHead>
-                                <TableHead className="text-clay-ink-muted">Account Type</TableHead>
-                                <TableHead className="text-right text-clay-ink-muted">Balance</TableHead>
-                                <TableHead className="text-clay-ink-muted">Status</TableHead>
-                                <TableHead className="text-right text-clay-ink-muted">Actions</TableHead>
+                            <TableRow className="border-border hover:bg-transparent">
+                                <TableHead className="text-muted-foreground">Account Name</TableHead>
+                                <TableHead className="text-muted-foreground">Account Type</TableHead>
+                                <TableHead className="text-right text-muted-foreground">Balance</TableHead>
+                                <TableHead className="text-muted-foreground">Status</TableHead>
+                                <TableHead className="text-right text-muted-foreground">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {accounts.map(account => (
-                                <TableRow key={account._id.toString()} className="border-clay-border">
-                                    <TableCell className="font-medium text-clay-ink">{account.accountName}</TableCell>
-                                    <TableCell className="capitalize text-[13px] text-clay-ink">{account.accountType}</TableCell>
-                                    <TableCell className="text-right font-semibold text-clay-ink">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: account.currency }).format(account.currentBalance || 0)}</TableCell>
+                                <TableRow key={account._id.toString()} className="border-border">
+                                    <TableCell className="font-medium text-foreground">{account.accountName}</TableCell>
+                                    <TableCell className="capitalize text-[13px] text-foreground">{account.accountType}</TableCell>
+                                    <TableCell className="text-right font-semibold text-foreground">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: account.currency }).format(account.currentBalance || 0)}</TableCell>
                                     <TableCell><ClayBadge tone={account.status === 'active' ? 'green' : 'rose-soft'}>{account.status}</ClayBadge></TableCell>
                                     <TableCell className="text-right">
                                         <Button variant="ghost" size="icon" disabled><Edit className="h-4 w-4"/></Button>

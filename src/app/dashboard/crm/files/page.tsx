@@ -54,10 +54,10 @@ function TreeNode({
       <button
         type="button"
         onClick={() => onSelect(id)}
-        className={`flex w-full items-center gap-2 rounded-clay-sm px-2 py-1.5 text-left text-[13px] transition-colors ${
+        className={`flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[13px] transition-colors ${
           isActive
-            ? 'bg-clay-rose-soft text-clay-rose-ink'
-            : 'text-clay-ink hover:bg-clay-surface-muted'
+            ? 'bg-accent text-accent-foreground'
+            : 'text-foreground hover:bg-muted'
         }`}
         style={{ paddingLeft: 8 + depth * 12 }}
       >
@@ -171,24 +171,24 @@ export default function CrmFilesPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
         <ClayCard>
           <div className="mb-3 flex items-center justify-between">
-            <h3 className="text-[13.5px] font-semibold text-clay-ink">Folders</h3>
+            <h3 className="text-[13.5px] font-semibold text-foreground">Folders</h3>
             <ClayBadge tone="neutral">{tree.length}</ClayBadge>
           </div>
           <div className="space-y-0.5">
             <button
               type="button"
               onClick={() => setSelected(null)}
-              className={`flex w-full items-center gap-2 rounded-clay-sm px-2 py-1.5 text-left text-[13px] transition-colors ${
+              className={`flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[13px] transition-colors ${
                 selected === null
-                  ? 'bg-clay-rose-soft text-clay-rose-ink'
-                  : 'text-clay-ink hover:bg-clay-surface-muted'
+                  ? 'bg-accent text-accent-foreground'
+                  : 'text-foreground hover:bg-muted'
               }`}
             >
               <Folder className="h-4 w-4" />
               All files
             </button>
             {tree.length === 0 ? (
-              <p className="mt-3 text-[12px] text-clay-ink-muted">
+              <p className="mt-3 text-[12px] text-muted-foreground">
                 No folders yet — add one under&nbsp;
                 <Link href="/dashboard/crm/files/folders" className="underline">
                   Manage folders
@@ -212,40 +212,40 @@ export default function CrmFilesPage() {
         <ClayCard>
           <div className="mb-4 flex items-center justify-between gap-3">
             <div>
-              <h2 className="text-[16px] font-semibold text-clay-ink">
+              <h2 className="text-[16px] font-semibold text-foreground">
                 {selectedLabel}
               </h2>
-              <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">
+              <p className="mt-0.5 text-[12.5px] text-muted-foreground">
                 {files.length} file{files.length === 1 ? '' : 's'} in this scope.
               </p>
             </div>
           </div>
 
-          <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+          <div className="overflow-x-auto rounded-lg border border-border">
             <Table>
               <TableHeader>
-                <TableRow className="border-clay-border hover:bg-transparent">
-                  <TableHead className="text-clay-ink-muted">Name</TableHead>
-                  <TableHead className="text-clay-ink-muted">Size</TableHead>
-                  <TableHead className="text-clay-ink-muted">Type</TableHead>
-                  <TableHead className="text-clay-ink-muted">Attached to</TableHead>
-                  <TableHead className="text-clay-ink-muted w-[140px]">Actions</TableHead>
+                <TableRow className="border-border hover:bg-transparent">
+                  <TableHead className="text-muted-foreground">Name</TableHead>
+                  <TableHead className="text-muted-foreground">Size</TableHead>
+                  <TableHead className="text-muted-foreground">Type</TableHead>
+                  <TableHead className="text-muted-foreground">Attached to</TableHead>
+                  <TableHead className="text-muted-foreground w-[140px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading && files.length === 0 ? (
                   [...Array(4)].map((_, i) => (
-                    <TableRow key={i} className="border-clay-border">
+                    <TableRow key={i} className="border-border">
                       <TableCell colSpan={5}>
                         <Skeleton className="h-10 w-full" />
                       </TableCell>
                     </TableRow>
                   ))
                 ) : files.length === 0 ? (
-                  <TableRow className="border-clay-border">
+                  <TableRow className="border-border">
                     <TableCell
                       colSpan={5}
-                      className="h-24 text-center text-[13px] text-clay-ink-muted"
+                      className="h-24 text-center text-[13px] text-muted-foreground"
                     >
                       No files in this folder.
                     </TableCell>
@@ -254,22 +254,22 @@ export default function CrmFilesPage() {
                   files.map((file) => (
                     <TableRow
                       key={String(file._id)}
-                      className="border-clay-border"
+                      className="border-border"
                     >
                       <TableCell>
                         <div className="flex flex-col">
-                          <span className="text-[13px] font-medium text-clay-ink">
+                          <span className="text-[13px] font-medium text-foreground">
                             {file.display_name || file.filename}
                           </span>
-                          <span className="text-[11.5px] text-clay-ink-muted">
+                          <span className="text-[11.5px] text-muted-foreground">
                             {file.filename}
                           </span>
                         </div>
                       </TableCell>
-                      <TableCell className="text-[12.5px] text-clay-ink">
+                      <TableCell className="text-[12.5px] text-foreground">
                         {formatFileSize(file.size_bytes)}
                       </TableCell>
-                      <TableCell className="text-[12.5px] text-clay-ink">
+                      <TableCell className="text-[12.5px] text-foreground">
                         {file.extension || file.mime_type || '—'}
                       </TableCell>
                       <TableCell>
@@ -278,7 +278,7 @@ export default function CrmFilesPage() {
                             {file.attached_to_type}
                           </ClayBadge>
                         ) : (
-                          <span className="text-[12.5px] text-clay-ink-muted">
+                          <span className="text-[12.5px] text-muted-foreground">
                             —
                           </span>
                         )}
@@ -290,7 +290,7 @@ export default function CrmFilesPage() {
                               href={file.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 text-[12px] font-medium text-clay-rose-ink hover:underline"
+                              className="inline-flex items-center gap-1 text-[12px] font-medium text-accent-foreground hover:underline"
                             >
                               <Download className="h-3.5 w-3.5" />
                               Open

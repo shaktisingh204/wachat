@@ -40,12 +40,12 @@ export function TelegramPlaceholder({
                     </div>
                     <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                            <h1 className="text-[22px] font-semibold leading-tight tracking-tight text-clay-ink">
+                            <h1 className="text-[22px] font-semibold leading-tight tracking-tight text-foreground">
                                 {title}
                             </h1>
                             {badge ? <ClayBadge tone="neutral">{badge}</ClayBadge> : null}
                         </div>
-                        <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-clay-ink-muted">
+                        <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-muted-foreground">
                             {description}
                         </p>
                     </div>
@@ -76,12 +76,12 @@ export function TelegramPlaceholder({
 
             {bullets && bullets.length > 0 ? (
                 <ClayCard variant="soft" padded>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-clay-ink-muted">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                         What this will do
                     </p>
                     <ul className="mt-3 flex flex-col gap-2.5">
                         {bullets.map((b) => (
-                            <li key={b} className="flex items-start gap-2 text-[13px] text-clay-ink">
+                            <li key={b} className="flex items-start gap-2 text-[13px] text-foreground">
                                 <span
                                     className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full"
                                     style={{ background: '#37BBFE' }}

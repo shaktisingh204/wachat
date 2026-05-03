@@ -22,13 +22,13 @@ function ProgressBar({ value }: { value: unknown }) {
   const pct = Math.min(100, Math.max(0, Number(value) || 0));
   return (
     <div className="flex items-center gap-2">
-      <div className="h-1.5 w-24 overflow-hidden rounded-full bg-clay-border">
+      <div className="h-1.5 w-24 overflow-hidden rounded-full bg-border">
         <div
-          className="h-full rounded-full bg-clay-amber"
+          className="h-full rounded-full bg-amber-500"
           style={{ width: `${pct}%` }}
         />
       </div>
-      <span className="text-[12px] tabular-nums text-clay-ink-muted">{pct}%</span>
+      <span className="text-[12px] tabular-nums text-muted-foreground">{pct}%</span>
     </div>
   );
 }
@@ -64,7 +64,7 @@ export default function OkrsPage() {
                 {t}
               </ClayBadge>
             ) : (
-              <span className="text-clay-ink-muted">—</span>
+              <span className="text-muted-foreground">—</span>
             );
           },
         },
@@ -73,7 +73,7 @@ export default function OkrsPage() {
           label: 'Due Date',
           render: (row) => {
             const d = (row as any).due_date;
-            if (!d) return <span className="text-clay-ink-muted">—</span>;
+            if (!d) return <span className="text-muted-foreground">—</span>;
             const parsed = new Date(d);
             return isNaN(parsed.getTime()) ? '—' : parsed.toISOString().slice(0, 10);
           },

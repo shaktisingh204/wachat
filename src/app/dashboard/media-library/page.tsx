@@ -83,10 +83,10 @@ export default function MediaLibraryPage() {
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">
+          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
             Media Library
           </h1>
-          <p className="mt-1.5 max-w-[720px] text-[13px] text-clay-ink-muted">
+          <p className="mt-1.5 max-w-[720px] text-[13px] text-muted-foreground">
             Store images, videos, documents, and audio for quick use in messages.
           </p>
         </div>
@@ -97,19 +97,19 @@ export default function MediaLibraryPage() {
 
       {showForm && (
         <ClayCard className="p-5">
-          <h3 className="text-sm font-medium text-clay-ink mb-3">Add Media Item</h3>
+          <h3 className="text-sm font-medium text-foreground mb-3">Add Media Item</h3>
           <div className="flex flex-wrap gap-3">
             <input
               type="text" value={name} onChange={(e) => setName(e.target.value)}
-              placeholder="Name" className="flex-1 min-w-[160px] rounded-lg border border-clay-border bg-clay-bg px-3 py-2 text-sm text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-accent focus:outline-none"
+              placeholder="Name" className="flex-1 min-w-[160px] rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none"
             />
             <input
               type="url" value={url} onChange={(e) => setUrl(e.target.value)}
-              placeholder="URL" className="flex-[2] min-w-[200px] rounded-lg border border-clay-border bg-clay-bg px-3 py-2 text-sm text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-accent focus:outline-none"
+              placeholder="URL" className="flex-[2] min-w-[200px] rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none"
             />
             <select
               value={type} onChange={(e) => setType(e.target.value)}
-              className="rounded-lg border border-clay-border bg-clay-bg px-3 py-2 text-sm text-clay-ink focus:border-clay-accent focus:outline-none"
+              className="rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none"
             >
               {TYPE_OPTIONS.map((t) => <option key={t} value={t}>{t}</option>)}
             </select>
@@ -125,27 +125,27 @@ export default function MediaLibraryPage() {
           {media.map((m) => (
             <ClayCard key={m._id} padded={false} className="flex flex-col p-5">
               {/* Preview */}
-              <div className="flex h-24 items-center justify-center rounded-lg bg-clay-bg-2 mb-4 overflow-hidden">
+              <div className="flex h-24 items-center justify-center rounded-lg bg-muted mb-4 overflow-hidden">
                 {m.type === 'image' ? (
                   <img src={m.url} alt={m.name} className="h-full w-full object-cover rounded-lg" />
                 ) : (
-                  <span className="text-clay-ink-muted">{typeIcon[m.type] ?? typeIcon.document}</span>
+                  <span className="text-muted-foreground">{typeIcon[m.type] ?? typeIcon.document}</span>
                 )}
               </div>
               <div className="flex items-center gap-2 mb-1">
-                <span className="flex-1 truncate text-[14px] font-semibold text-clay-ink">{m.name}</span>
+                <span className="flex-1 truncate text-[14px] font-semibold text-foreground">{m.name}</span>
                 <ClayBadge>{m.type}</ClayBadge>
               </div>
               <a
                 href={m.url} target="_blank" rel="noopener noreferrer"
-                className="flex items-center gap-1 text-[11px] text-clay-accent hover:underline mb-3 truncate"
+                className="flex items-center gap-1 text-[11px] text-accent hover:underline mb-3 truncate"
               >
                 <LuExternalLink className="h-3 w-3 shrink-0" /> {m.url}
               </a>
               <div className="mt-auto">
                 <button
                   onClick={() => handleDelete(m._id)} disabled={isPending}
-                  className="flex items-center gap-1 text-[12px] text-clay-ink-muted hover:text-red-500 transition-colors"
+                  className="flex items-center gap-1 text-[12px] text-muted-foreground hover:text-red-500 transition-colors"
                 >
                   <LuTrash2 className="h-3.5 w-3.5" /> Delete
                 </button>
@@ -156,8 +156,8 @@ export default function MediaLibraryPage() {
       ) : (
         !isPending && (
           <ClayCard className="p-12 text-center">
-            <LuImage className="mx-auto h-12 w-12 text-clay-ink-muted/30 mb-4" />
-            <p className="text-sm text-clay-ink-muted">No media items yet. Add one to get started.</p>
+            <LuImage className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
+            <p className="text-sm text-muted-foreground">No media items yet. Add one to get started.</p>
           </ClayCard>
         )
       )}

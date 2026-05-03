@@ -11,11 +11,11 @@ import { cn } from '@/lib/utils';
 const btnBase =
   'inline-flex h-9 w-full items-center justify-center gap-2 rounded-full px-4 text-[13px] font-medium leading-none transition-colors';
 const btnObsidian =
-  'bg-clay-obsidian text-white hover:bg-clay-obsidian-hover';
+  'bg-foreground text-white hover:bg-foreground/90';
 const btnRoseSoft =
-  'bg-clay-rose-soft text-clay-rose-ink border border-clay-rose-soft hover:brightness-[0.97]';
+  'bg-accent text-accent-foreground border border-accent hover:brightness-[0.97]';
 const btnDisabled =
-  'bg-clay-surface text-clay-ink-muted border border-clay-border opacity-60 pointer-events-none';
+  'bg-card text-muted-foreground border border-border opacity-60 pointer-events-none';
 
 type IntegrationStatus = 'connected' | 'available' | 'coming_soon';
 
@@ -83,17 +83,17 @@ export default async function IntegrationsPage() {
               <div className="flex items-start gap-3">
                 <div
                   className={
-                    'flex h-11 w-11 shrink-0 items-center justify-center rounded-clay-md ' +
+                    'flex h-11 w-11 shrink-0 items-center justify-center rounded-lg ' +
                     (connected
-                      ? 'bg-clay-green-soft text-clay-green'
-                      : 'bg-clay-rose-soft text-clay-rose-ink')
+                      ? 'bg-emerald-50 text-emerald-500'
+                      : 'bg-accent text-accent-foreground')
                   }
                 >
                   <Icon className="h-5 w-5" strokeWidth={1.75} />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <h3 className="text-[14.5px] font-semibold text-clay-ink">
+                    <h3 className="text-[14.5px] font-semibold text-foreground">
                       {integration.name}
                     </h3>
                     {connected ? (
@@ -102,7 +102,7 @@ export default async function IntegrationsPage() {
                       </ClayBadge>
                     ) : null}
                   </div>
-                  <p className="mt-1 text-[12.5px] leading-snug text-clay-ink-muted">
+                  <p className="mt-1 text-[12.5px] leading-snug text-muted-foreground">
                     {integration.description}
                   </p>
                 </div>

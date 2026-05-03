@@ -109,7 +109,7 @@ export function InviteClient({
             className="w-full max-w-[480px] overflow-hidden"
         >
             {/* Rose accent header */}
-            <div className="relative h-[6px] w-full bg-clay-rose" />
+            <div className="relative h-[6px] w-full bg-primary" />
 
             <div className="flex flex-col gap-6 p-7 sm:p-9">
                 {/* Top meta row */}
@@ -125,14 +125,14 @@ export function InviteClient({
                 </div>
 
                 <div className="flex flex-col gap-2">
-                    <h1 className="text-[26px] font-semibold tracking-[-0.015em] text-clay-ink">
+                    <h1 className="text-[26px] font-semibold tracking-[-0.015em] text-foreground">
                         You're invited to {invitation.projectName || 'the team'}
                     </h1>
-                    <p className="text-[13.5px] leading-relaxed text-clay-ink-muted">
-                        <span className="font-medium text-clay-ink">
+                    <p className="text-[13.5px] leading-relaxed text-muted-foreground">
+                        <span className="font-medium text-foreground">
                             {invitation.inviterName || invitation.inviterEmail || 'A SabNode user'}
                         </span>{' '}
-                        invited <span className="font-medium text-clay-ink">{invitation.inviteeEmail}</span> to join
+                        invited <span className="font-medium text-foreground">{invitation.inviteeEmail}</span> to join
                         as a{' '}
                         <ClayBadge tone="neutral" className="align-middle">
                             {prettyRole(invitation.role)}
@@ -202,8 +202,8 @@ export function InviteClient({
                         hint={`You'll join as ${auth.name || auth.email}.`}
                     />
                 ) : auth.kind === 'mismatch' ? (
-                    <div className="flex flex-col gap-4 rounded-clay-md border border-clay-amber-soft bg-clay-amber-soft/40 p-4">
-                        <p className="text-[13px] leading-relaxed text-clay-ink">
+                    <div className="flex flex-col gap-4 rounded-lg border border-amber-50 bg-amber-50/40 p-4">
+                        <p className="text-[13px] leading-relaxed text-foreground">
                             This invitation was sent to{' '}
                             <span className="font-medium">{invitation.inviteeEmail}</span>, but you're signed in as{' '}
                             <span className="font-medium">{auth.loggedInEmail}</span>.
@@ -259,9 +259,9 @@ export function InviteClient({
                     />
                 )}
 
-                <div className="border-t border-clay-border pt-4 text-[11.5px] leading-relaxed text-clay-ink-soft">
+                <div className="border-t border-border pt-4 text-[11.5px] leading-relaxed text-muted-foreground">
                     By accepting you agree to SabNode's terms. Only admins in{' '}
-                    <span className="text-clay-ink">{invitation.projectName || 'this workspace'}</span> can see your
+                    <span className="text-foreground">{invitation.projectName || 'this workspace'}</span> can see your
                     role and activity within the team.
                 </div>
             </div>
@@ -279,15 +279,15 @@ function MetaRow({
     value: string;
 }) {
     return (
-        <div className="flex items-center gap-2 rounded-clay-md border border-clay-border bg-clay-surface-2 px-3 py-2.5">
-            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-clay-surface text-clay-ink-muted">
+        <div className="flex items-center gap-2 rounded-lg border border-border bg-secondary px-3 py-2.5">
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-card text-muted-foreground">
                 {icon}
             </span>
             <div className="flex min-w-0 flex-col">
-                <span className="text-[10.5px] font-medium uppercase tracking-[0.06em] text-clay-ink-soft">
+                <span className="text-[10.5px] font-medium uppercase tracking-[0.06em] text-muted-foreground">
                     {label}
                 </span>
-                <span className="truncate text-[12.5px] text-clay-ink">{value}</span>
+                <span className="truncate text-[12.5px] text-foreground">{value}</span>
             </div>
         </div>
     );
@@ -308,7 +308,7 @@ function ActionBlock({
                 {primary}
                 {secondary}
             </div>
-            {hint ? <p className="text-[11.5px] text-clay-ink-soft">{hint}</p> : null}
+            {hint ? <p className="text-[11.5px] text-muted-foreground">{hint}</p> : null}
         </div>
     );
 }
@@ -332,14 +332,14 @@ function StatusBlock({ invitation }: { invitation: InvitationView }) {
                 tone: 'neutral' as const,
             };
     return (
-        <div className="flex flex-col gap-3 rounded-clay-md border border-clay-border bg-clay-surface-2 p-4">
+        <div className="flex flex-col gap-3 rounded-lg border border-border bg-secondary p-4">
             <div className="flex items-center gap-2">
                 <ClayBadge tone={copy.tone} dot>
                     {capitalize(invitation.status)}
                 </ClayBadge>
-                <span className="text-[13px] font-medium text-clay-ink">{copy.title}</span>
+                <span className="text-[13px] font-medium text-foreground">{copy.title}</span>
             </div>
-            <p className="text-[12.5px] text-clay-ink-muted">{copy.body}</p>
+            <p className="text-[12.5px] text-muted-foreground">{copy.body}</p>
             <Link href="/">
                 <ClayButton variant="pill" size="md" trailing={<LuArrowRight className="h-3.5 w-3.5" />}>
                     Back to SabNode

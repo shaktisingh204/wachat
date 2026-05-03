@@ -37,11 +37,11 @@ const fmt = (n: number) => `₹${n.toLocaleString('en-IN')}`;
 const StatCard = ({ title, value, icon: Icon, sub }: { title: string; value: string; icon: React.ElementType; sub?: string }) => (
     <ClayCard className="flex flex-col gap-1">
         <div className="flex items-center justify-between">
-            <p className="text-[12.5px] font-medium text-clay-ink-muted">{title}</p>
-            <Icon className="h-4 w-4 text-clay-ink-muted" strokeWidth={1.75} />
+            <p className="text-[12.5px] font-medium text-muted-foreground">{title}</p>
+            <Icon className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
         </div>
-        <p className="mt-1 text-2xl font-bold text-clay-ink">{value}</p>
-        {sub ? <p className="text-[11.5px] text-clay-ink-muted">{sub}</p> : null}
+        <p className="mt-1 text-2xl font-bold text-foreground">{value}</p>
+        {sub ? <p className="text-[11.5px] text-muted-foreground">{sub}</p> : null}
     </ClayCard>
 );
 
@@ -124,7 +124,7 @@ export default function PayrollSummaryPage() {
                                     <select
                                         value={selectedMonth}
                                         onChange={e => setSelectedMonth(Number(e.target.value))}
-                                        className="w-full rounded-clay-md border border-clay-border bg-clay-surface px-3 py-2 text-[13px] text-clay-ink focus:outline-none focus:ring-2 focus:ring-clay-rose/30"
+                                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-[13px] text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
                                     >
                                         {MONTHS.map((m, i) => <option key={m} value={i + 1}>{m}</option>)}
                                     </select>
@@ -134,7 +134,7 @@ export default function PayrollSummaryPage() {
                                     <select
                                         value={selectedYear}
                                         onChange={e => setSelectedYear(Number(e.target.value))}
-                                        className="w-full rounded-clay-md border border-clay-border bg-clay-surface px-3 py-2 text-[13px] text-clay-ink focus:outline-none focus:ring-2 focus:ring-clay-rose/30"
+                                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-[13px] text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
                                     >
                                         {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
                                     </select>
@@ -144,7 +144,7 @@ export default function PayrollSummaryPage() {
                                     <select
                                         value={selectedDept}
                                         onChange={e => setSelectedDept(e.target.value)}
-                                        className="w-full rounded-clay-md border border-clay-border bg-clay-surface px-3 py-2 text-[13px] text-clay-ink focus:outline-none focus:ring-2 focus:ring-clay-rose/30"
+                                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-[13px] text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
                                     >
                                         <option value="">All Departments</option>
                                         {departments.map(d => <option key={d._id} value={d._id}>{d.name}</option>)}
@@ -179,27 +179,27 @@ export default function PayrollSummaryPage() {
             <ClayCard>
                 <div className="mb-4 flex items-center justify-between">
                     <div>
-                        <h2 className="text-[16px] font-semibold text-clay-ink">Payroll Breakdown</h2>
-                        <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">
+                        <h2 className="text-[16px] font-semibold text-foreground">Payroll Breakdown</h2>
+                        <p className="mt-0.5 text-[12.5px] text-muted-foreground">
                             {MONTHS[selectedMonth - 1]} {selectedYear}
                         </p>
                     </div>
                     {rows.length > 0 && (
-                        <span className="text-[12.5px] text-clay-ink-muted">{rows.length} employee{rows.length !== 1 ? 's' : ''}</span>
+                        <span className="text-[12.5px] text-muted-foreground">{rows.length} employee{rows.length !== 1 ? 's' : ''}</span>
                     )}
                 </div>
 
-                <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                <div className="overflow-x-auto rounded-lg border border-border">
                     <table className="w-full text-left text-[13px]">
                         <thead>
-                            <tr className="border-b border-clay-border bg-clay-surface-2">
-                                <th className="px-4 py-3 font-medium text-clay-ink-muted">Employee</th>
-                                <th className="px-4 py-3 font-medium text-clay-ink-muted">Department</th>
-                                <th className="px-4 py-3 text-right font-medium text-clay-ink-muted">Gross Salary</th>
-                                <th className="px-4 py-3 text-right font-medium text-clay-ink-muted">PF</th>
-                                <th className="px-4 py-3 text-right font-medium text-clay-ink-muted">ESI</th>
-                                <th className="px-4 py-3 text-right font-medium text-clay-ink-muted">TDS</th>
-                                <th className="px-4 py-3 text-right font-medium text-clay-ink-muted">Prof. Tax</th>
+                            <tr className="border-b border-border bg-secondary">
+                                <th className="px-4 py-3 font-medium text-muted-foreground">Employee</th>
+                                <th className="px-4 py-3 font-medium text-muted-foreground">Department</th>
+                                <th className="px-4 py-3 text-right font-medium text-muted-foreground">Gross Salary</th>
+                                <th className="px-4 py-3 text-right font-medium text-muted-foreground">PF</th>
+                                <th className="px-4 py-3 text-right font-medium text-muted-foreground">ESI</th>
+                                <th className="px-4 py-3 text-right font-medium text-muted-foreground">TDS</th>
+                                <th className="px-4 py-3 text-right font-medium text-muted-foreground">Prof. Tax</th>
                                 <th className="px-4 py-3 text-right font-medium text-red-600">Total Deductions</th>
                                 <th className="px-4 py-3 text-right font-medium text-green-600">Net Pay</th>
                             </tr>
@@ -208,40 +208,40 @@ export default function PayrollSummaryPage() {
                             {isLoading ? (
                                 <tr>
                                     <td colSpan={9} className="h-48 text-center">
-                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-clay-ink-muted" />
+                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
                                     </td>
                                 </tr>
                             ) : rows.length > 0 ? (
                                 <>
                                     {rows.map(row => (
-                                        <tr key={row.employeeId} className="border-b border-clay-border last:border-0 hover:bg-clay-surface-2/50">
-                                            <td className="px-4 py-3 font-medium text-clay-ink">{row.employeeName}</td>
-                                            <td className="px-4 py-3 text-clay-ink-muted">{row.department}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-clay-ink">{fmt(row.grossSalary)}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-clay-ink">{fmt(row.pf)}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-clay-ink">{fmt(row.esi)}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-clay-ink">{fmt(row.tds)}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-clay-ink">{fmt(row.professionalTax)}</td>
+                                        <tr key={row.employeeId} className="border-b border-border last:border-0 hover:bg-secondary/50">
+                                            <td className="px-4 py-3 font-medium text-foreground">{row.employeeName}</td>
+                                            <td className="px-4 py-3 text-muted-foreground">{row.department}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-foreground">{fmt(row.grossSalary)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-foreground">{fmt(row.pf)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-foreground">{fmt(row.esi)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-foreground">{fmt(row.tds)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-foreground">{fmt(row.professionalTax)}</td>
                                             <td className="px-4 py-3 text-right font-mono font-semibold text-red-600">{fmt(row.totalDeductions)}</td>
                                             <td className="px-4 py-3 text-right font-mono font-bold text-green-600">{fmt(row.netPay)}</td>
                                         </tr>
                                     ))}
                                     {/* Totals row */}
-                                    <tr className="border-t-2 border-clay-border bg-clay-surface-2 font-semibold">
-                                        <td className="px-4 py-3 text-clay-ink">Totals</td>
+                                    <tr className="border-t-2 border-border bg-secondary font-semibold">
+                                        <td className="px-4 py-3 text-foreground">Totals</td>
                                         <td className="px-4 py-3" />
-                                        <td className="px-4 py-3 text-right font-mono text-clay-ink">{fmt(totals.grossSalary)}</td>
-                                        <td className="px-4 py-3 text-right font-mono text-clay-ink">{fmt(totals.pf)}</td>
-                                        <td className="px-4 py-3 text-right font-mono text-clay-ink">{fmt(totals.esi)}</td>
-                                        <td className="px-4 py-3 text-right font-mono text-clay-ink">{fmt(totals.tds)}</td>
-                                        <td className="px-4 py-3 text-right font-mono text-clay-ink">{fmt(totals.professionalTax)}</td>
+                                        <td className="px-4 py-3 text-right font-mono text-foreground">{fmt(totals.grossSalary)}</td>
+                                        <td className="px-4 py-3 text-right font-mono text-foreground">{fmt(totals.pf)}</td>
+                                        <td className="px-4 py-3 text-right font-mono text-foreground">{fmt(totals.esi)}</td>
+                                        <td className="px-4 py-3 text-right font-mono text-foreground">{fmt(totals.tds)}</td>
+                                        <td className="px-4 py-3 text-right font-mono text-foreground">{fmt(totals.professionalTax)}</td>
                                         <td className="px-4 py-3 text-right font-mono text-red-600">{fmt(totals.totalDeductions)}</td>
                                         <td className="px-4 py-3 text-right font-mono text-green-600">{fmt(totals.netPay)}</td>
                                     </tr>
                                 </>
                             ) : (
                                 <tr>
-                                    <td colSpan={9} className="h-24 text-center text-clay-ink-muted">
+                                    <td colSpan={9} className="h-24 text-center text-muted-foreground">
                                         No payroll data found for the selected period.
                                     </td>
                                 </tr>

@@ -113,7 +113,7 @@ export default function PusherIntegrationPage() {
 
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <Label htmlFor="app_id" className="text-clay-ink">
+              <Label htmlFor="app_id" className="text-foreground">
                 App ID
               </Label>
               <div className="mt-1.5">
@@ -121,13 +121,13 @@ export default function PusherIntegrationPage() {
                   id="app_id"
                   name="app_id"
                   defaultValue={v('app_id')}
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="cluster" className="text-clay-ink">
+              <Label htmlFor="cluster" className="text-foreground">
                 Cluster
               </Label>
               <div className="mt-1.5">
@@ -136,13 +136,13 @@ export default function PusherIntegrationPage() {
                   name="cluster"
                   defaultValue={v('cluster')}
                   placeholder="mt1"
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="app_key" className="text-clay-ink">
+              <Label htmlFor="app_key" className="text-foreground">
                 App Key
               </Label>
               <div className="mt-1.5">
@@ -150,13 +150,13 @@ export default function PusherIntegrationPage() {
                   id="app_key"
                   name="app_key"
                   defaultValue={v('app_key')}
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="app_secret" className="text-clay-ink">
+              <Label htmlFor="app_secret" className="text-foreground">
                 App Secret
               </Label>
               <div className="mt-1.5">
@@ -165,17 +165,17 @@ export default function PusherIntegrationPage() {
                   name="app_secret"
                   type="password"
                   defaultValue={v('app_secret')}
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
-            <div className="md:col-span-2 flex items-center justify-between rounded-clay-md border border-clay-border bg-clay-surface px-4 py-3">
+            <div className="md:col-span-2 flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3">
               <div>
-                <div className="text-[13px] font-medium text-clay-ink">
+                <div className="text-[13px] font-medium text-foreground">
                   Active
                 </div>
-                <div className="text-[12px] text-clay-ink-muted">
+                <div className="text-[12px] text-muted-foreground">
                   Enable Pusher realtime.
                 </div>
               </div>

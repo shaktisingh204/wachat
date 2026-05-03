@@ -43,13 +43,13 @@ export function ProposalSignForm({ token }: { token: string }) {
   return (
     <ClayCard>
       <div className="mb-3 flex items-center gap-2">
-        <FileSignature className="h-5 w-5 text-clay-rose-ink" />
-        <h2 className="text-[15px] font-semibold text-clay-ink">
+        <FileSignature className="h-5 w-5 text-accent-foreground" />
+        <h2 className="text-[15px] font-semibold text-foreground">
           Sign this proposal
         </h2>
       </div>
       <div className="grid gap-3 md:grid-cols-2">
-        <label className="flex flex-col gap-1 text-[12.5px] text-clay-ink">
+        <label className="flex flex-col gap-1 text-[12.5px] text-foreground">
           Full name
           <ClayInput
             value={name}
@@ -58,7 +58,7 @@ export function ProposalSignForm({ token }: { token: string }) {
             disabled={busy}
           />
         </label>
-        <label className="flex flex-col gap-1 text-[12.5px] text-clay-ink">
+        <label className="flex flex-col gap-1 text-[12.5px] text-foreground">
           Email
           <ClayInput
             type="email"
@@ -70,14 +70,14 @@ export function ProposalSignForm({ token }: { token: string }) {
         </label>
       </div>
       <div className="mt-3">
-        <p className="mb-1 text-[12.5px] text-clay-ink">Signature</p>
+        <p className="mb-1 text-[12.5px] text-foreground">Signature</p>
         <SignaturePad ref={padRef} />
-        <p className="mt-1 text-[11.5px] text-clay-ink-muted">
+        <p className="mt-1 text-[11.5px] text-muted-foreground">
           Use your mouse, stylus, or finger to draw your signature.
         </p>
       </div>
       {error ? (
-        <p className="mt-3 text-[12.5px] text-clay-rose-ink">{error}</p>
+        <p className="mt-3 text-[12.5px] text-accent-foreground">{error}</p>
       ) : null}
       <div className="mt-4 flex flex-wrap justify-end gap-2">
         <ClayButton

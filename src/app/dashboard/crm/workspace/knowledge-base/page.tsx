@@ -117,11 +117,11 @@ export default function KnowledgeBasePage() {
 
       {loading ? (
         <ClayCard className="flex items-center justify-center py-10">
-          <LoaderCircle className="h-5 w-5 animate-spin text-clay-ink-muted" />
+          <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />
         </ClayCard>
       ) : articles.length === 0 ? (
         <ClayCard>
-          <p className="text-center text-[13px] text-clay-ink-muted">
+          <p className="text-center text-[13px] text-muted-foreground">
             No articles yet — click New Article to get started.
           </p>
         </ClayCard>
@@ -132,8 +132,8 @@ export default function KnowledgeBasePage() {
             return (
               <ClayCard key={catId}>
                 <div className="mb-3 flex items-center gap-2">
-                  <Folder className="h-4 w-4 text-clay-ink-muted" strokeWidth={1.75} />
-                  <h3 className="text-[14px] font-semibold text-clay-ink">
+                  <Folder className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
+                  <h3 className="text-[14px] font-semibold text-foreground">
                     {cat?.name || 'Uncategorized'}
                   </h3>
                   <ClayBadge tone="neutral">{items.length}</ClayBadge>
@@ -148,14 +148,14 @@ export default function KnowledgeBasePage() {
                             href={`/dashboard/crm/workspace/knowledge-base/${a._id}`}
                             className="flex items-start gap-2"
                           >
-                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-clay-md bg-clay-rose-soft">
-                              <Icon className="h-4 w-4 text-clay-rose-ink" strokeWidth={1.75} />
+                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent">
+                              <Icon className="h-4 w-4 text-accent-foreground" strokeWidth={1.75} />
                             </div>
                             <div>
-                              <p className="text-[13.5px] font-semibold text-clay-ink">
+                              <p className="text-[13.5px] font-semibold text-foreground">
                                 {a.title}
                               </p>
-                              <p className="text-[11.5px] text-clay-ink-muted capitalize">
+                              <p className="text-[11.5px] text-muted-foreground capitalize">
                                 {a.type}
                               </p>
                             </div>

@@ -28,11 +28,11 @@ export default async function MessagesPage() {
         <ConversationsPane conversations={conversations} activePeerId={null} />
         <ClayCard className="flex min-h-[480px] items-center justify-center">
           <div className="text-center">
-            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-clay-md bg-clay-rose-soft">
-              <MessageSquare className="h-6 w-6 text-clay-rose-ink" strokeWidth={1.75} />
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-accent">
+              <MessageSquare className="h-6 w-6 text-accent-foreground" strokeWidth={1.75} />
             </div>
-            <p className="text-[14px] font-medium text-clay-ink">Select a conversation</p>
-            <p className="mt-1 text-[12.5px] text-clay-ink-muted">
+            <p className="text-[14px] font-medium text-foreground">Select a conversation</p>
+            <p className="mt-1 text-[12.5px] text-muted-foreground">
               Pick a teammate on the left to open the thread.
             </p>
           </div>

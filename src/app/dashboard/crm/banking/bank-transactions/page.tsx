@@ -168,7 +168,7 @@ export default function BankTransactionsExtPage() {
             value={filterBank || 'all'}
             onValueChange={(v) => setFilterBank(v === 'all' ? '' : v)}
           >
-            <SelectTrigger className="h-9 w-[220px] rounded-clay-md border-clay-border bg-clay-surface text-[12.5px]">
+            <SelectTrigger className="h-9 w-[220px] rounded-lg border-border bg-card text-[12.5px]">
               <SelectValue placeholder="All accounts" />
             </SelectTrigger>
             <SelectContent>
@@ -184,36 +184,36 @@ export default function BankTransactionsExtPage() {
 
         {isLoading && rows.length === 0 ? (
           <div className="flex justify-center py-10">
-            <LoaderCircle className="h-5 w-5 animate-spin text-clay-ink-muted" />
+            <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />
           </div>
         ) : rows.length === 0 ? (
-          <div className="py-10 text-center text-[13px] text-clay-ink-muted">
+          <div className="py-10 text-center text-[13px] text-muted-foreground">
             No transactions yet.
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+          <div className="overflow-x-auto rounded-lg border border-border">
             <Table>
               <TableHeader>
-                <TableRow className="border-clay-border hover:bg-transparent">
-                  <TableHead className="text-clay-ink-muted">Date</TableHead>
-                  <TableHead className="text-clay-ink-muted">Type</TableHead>
-                  <TableHead className="text-clay-ink-muted">
+                <TableRow className="border-border hover:bg-transparent">
+                  <TableHead className="text-muted-foreground">Date</TableHead>
+                  <TableHead className="text-muted-foreground">Type</TableHead>
+                  <TableHead className="text-muted-foreground">
                     Description
                   </TableHead>
-                  <TableHead className="text-clay-ink-muted">Category</TableHead>
-                  <TableHead className="text-right text-clay-ink-muted">
+                  <TableHead className="text-muted-foreground">Category</TableHead>
+                  <TableHead className="text-right text-muted-foreground">
                     Amount
                   </TableHead>
-                  <TableHead className="text-clay-ink-muted">Status</TableHead>
-                  <TableHead className="text-right text-clay-ink-muted">
+                  <TableHead className="text-muted-foreground">Status</TableHead>
+                  <TableHead className="text-right text-muted-foreground">
                     &nbsp;
                   </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {rows.map((r) => (
-                  <TableRow key={r._id} className="border-clay-border">
-                    <TableCell className="text-[12.5px] text-clay-ink">
+                  <TableRow key={r._id} className="border-border">
+                    <TableCell className="text-[12.5px] text-foreground">
                       {r.date ? new Date(r.date).toLocaleDateString() : '—'}
                     </TableCell>
                     <TableCell>
@@ -221,13 +221,13 @@ export default function BankTransactionsExtPage() {
                         {r.type}
                       </ClayBadge>
                     </TableCell>
-                    <TableCell className="text-[12.5px] text-clay-ink">
+                    <TableCell className="text-[12.5px] text-foreground">
                       {r.description || '—'}
                     </TableCell>
-                    <TableCell className="text-[12px] text-clay-ink-muted">
+                    <TableCell className="text-[12px] text-muted-foreground">
                       {r.category || '—'}
                     </TableCell>
-                    <TableCell className="text-right font-semibold text-clay-ink">
+                    <TableCell className="text-right font-semibold text-foreground">
                       {formatMoney(r.amount)}
                     </TableCell>
                     <TableCell>
@@ -287,7 +287,7 @@ export default function BankTransactionsExtPage() {
               >
                 <SelectTrigger
                   id="bank_account_id"
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 >
                   <SelectValue placeholder="Pick account" />
                 </SelectTrigger>
@@ -306,7 +306,7 @@ export default function BankTransactionsExtPage() {
                 <Select name="type" defaultValue={editing?.type || 'deposit'}>
                   <SelectTrigger
                     id="type"
-                    className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                    className="h-10 rounded-lg border-border bg-card text-[13px]"
                   >
                     <SelectValue />
                   </SelectTrigger>
@@ -328,7 +328,7 @@ export default function BankTransactionsExtPage() {
                       ? new Date(editing.date).toISOString().slice(0, 10)
                       : new Date().toISOString().slice(0, 10)
                   }
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
@@ -342,7 +342,7 @@ export default function BankTransactionsExtPage() {
                   step="0.01"
                   required
                   defaultValue={editing?.amount ?? ''}
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
               <div>
@@ -351,7 +351,7 @@ export default function BankTransactionsExtPage() {
                   id="category"
                   name="category"
                   defaultValue={editing?.category || ''}
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
@@ -361,7 +361,7 @@ export default function BankTransactionsExtPage() {
                 id="reference"
                 name="reference"
                 defaultValue={editing?.reference || ''}
-                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div>
@@ -371,15 +371,15 @@ export default function BankTransactionsExtPage() {
                 name="description"
                 rows={3}
                 defaultValue={editing?.description || ''}
-                className="rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="rounded-lg border-border bg-card text-[13px]"
               />
             </div>
-            <label className="inline-flex items-center gap-2 text-[12.5px] text-clay-ink">
+            <label className="inline-flex items-center gap-2 text-[12.5px] text-foreground">
               <input
                 type="checkbox"
                 name="reconciled"
                 defaultChecked={!!editing?.reconciled}
-                className="h-4 w-4 accent-clay-rose"
+                className="h-4 w-4 accent-primary"
               />
               Reconciled
             </label>

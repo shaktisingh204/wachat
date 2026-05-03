@@ -34,20 +34,20 @@ export function ClaySectionList({
           key={item.key}
           type="button"
           onClick={item.onClick}
-          className="group flex items-center justify-between gap-3 rounded-clay-md border border-clay-border bg-clay-surface px-3.5 py-3 text-left transition-colors hover:bg-clay-surface-2"
+          className="group flex items-center justify-between gap-3 rounded-lg border border-border bg-card px-3.5 py-3 text-left transition-colors hover:bg-secondary"
         >
           <div className="min-w-0 flex-1">
-            <div className="text-[13px] font-semibold text-clay-ink truncate">
+            <div className="text-[13px] font-semibold text-foreground truncate">
               {item.title}
             </div>
             {item.meta ? (
-              <div className="mt-0.5 text-[11px] text-clay-ink-muted">
+              <div className="mt-0.5 text-[11px] text-muted-foreground">
                 {item.meta}
               </div>
             ) : null}
           </div>
           <LuGripVertical
-            className="h-4 w-4 shrink-0 text-clay-ink-fade group-hover:text-clay-ink-muted transition-colors"
+            className="h-4 w-4 shrink-0 text-muted-foreground/70 group-hover:text-muted-foreground transition-colors"
             strokeWidth={1.75}
           />
         </button>

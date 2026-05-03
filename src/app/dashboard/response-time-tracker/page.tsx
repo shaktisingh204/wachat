@@ -61,8 +61,8 @@ export default function ResponseTimeTrackerPage() {
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">Response Time Tracker</h1>
-          <p className="mt-1.5 text-[13px] text-clay-ink-muted">Monitor how quickly your team responds to customer messages.</p>
+          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">Response Time Tracker</h1>
+          <p className="mt-1.5 text-[13px] text-muted-foreground">Monitor how quickly your team responds to customer messages.</p>
         </div>
         <ClayButton variant="pill" size="sm" onClick={load} disabled={isPending}>
           {isPending ? <LuLoader className="h-3.5 w-3.5 animate-spin" /> : 'Refresh'}
@@ -71,38 +71,38 @@ export default function ResponseTimeTrackerPage() {
 
       {isPending && agents.length === 0 ? (
         <div className="flex h-40 items-center justify-center gap-3">
-          <LuLoader className="h-5 w-5 animate-spin text-clay-ink-muted" />
-          <span className="text-[13px] text-clay-ink-muted">Loading performance data...</span>
+          <LuLoader className="h-5 w-5 animate-spin text-muted-foreground" />
+          <span className="text-[13px] text-muted-foreground">Loading performance data...</span>
         </div>
       ) : (
         <>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {stats.map((s) => (
               <ClayCard key={s.label} padded={false} className="flex items-center gap-4 p-5">
-                <span className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-clay-surface-2">
-                  <s.icon className="h-5 w-5 text-clay-ink-muted" strokeWidth={1.75} />
+                <span className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-secondary">
+                  <s.icon className="h-5 w-5 text-muted-foreground" strokeWidth={1.75} />
                 </span>
                 <div>
-                  <div className="text-[12px] text-clay-ink-muted">{s.label}</div>
-                  <div className="text-[22px] font-semibold text-clay-ink leading-tight">{s.value}</div>
+                  <div className="text-[12px] text-muted-foreground">{s.label}</div>
+                  <div className="text-[22px] font-semibold text-foreground leading-tight">{s.value}</div>
                 </div>
               </ClayCard>
             ))}
           </div>
 
           <ClayCard padded={false} className="overflow-x-auto">
-            <div className="px-5 py-4 border-b border-clay-border">
-              <h2 className="text-[15px] font-semibold text-clay-ink">Per-Agent Breakdown</h2>
+            <div className="px-5 py-4 border-b border-border">
+              <h2 className="text-[15px] font-semibold text-foreground">Per-Agent Breakdown</h2>
             </div>
             {agents.length === 0 ? (
-              <div className="px-5 py-12 text-center text-[13px] text-clay-ink-muted">
-                <LuCircleX className="mx-auto mb-3 h-8 w-8 text-clay-ink-muted/30" />
+              <div className="px-5 py-12 text-center text-[13px] text-muted-foreground">
+                <LuCircleX className="mx-auto mb-3 h-8 w-8 text-muted-foreground/30" />
                 No agent performance data found for this project yet.
               </div>
             ) : (
               <table className="w-full text-left text-sm">
                 <thead>
-                  <tr className="border-b border-clay-border text-[11px] font-semibold uppercase tracking-wide text-clay-ink-muted">
+                  <tr className="border-b border-border text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                     <th className="px-5 py-3">Agent</th>
                     <th className="px-5 py-3">Avg Response</th>
                     <th className="px-5 py-3 text-right">Messages Sent</th>
@@ -111,10 +111,10 @@ export default function ResponseTimeTrackerPage() {
                 </thead>
                 <tbody>
                   {agents.map((a: any) => (
-                    <tr key={a._id} className="border-b border-clay-border last:border-0">
-                      <td className="px-5 py-3 font-medium text-[13px] text-clay-ink">{a.agentName}</td>
-                      <td className="px-5 py-3 text-[13px] text-clay-ink tabular-nums">{fmtMs(a.avgResponseMs)}</td>
-                      <td className="px-5 py-3 text-right text-[13px] text-clay-ink tabular-nums">{a.messagesSent}</td>
+                    <tr key={a._id} className="border-b border-border last:border-0">
+                      <td className="px-5 py-3 font-medium text-[13px] text-foreground">{a.agentName}</td>
+                      <td className="px-5 py-3 text-[13px] text-foreground tabular-nums">{fmtMs(a.avgResponseMs)}</td>
+                      <td className="px-5 py-3 text-right text-[13px] text-foreground tabular-nums">{a.messagesSent}</td>
                       <td className="px-5 py-3 text-right">
                         <ClayBadge tone={(a.avgResponseMs || 0) < 60000 ? 'green' : (a.avgResponseMs || 0) < 300000 ? 'amber' : 'red'}>
                           {(a.avgResponseMs || 0) < 60000 ? 'Fast' : (a.avgResponseMs || 0) < 300000 ? 'Average' : 'Slow'}

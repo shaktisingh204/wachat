@@ -61,14 +61,14 @@ function HealthPill({ status }: { status?: string }) {
       isGreen && 'bg-emerald-500/10 text-emerald-600',
       isAmber && 'bg-amber-500/10 text-amber-600',
       isRed && 'bg-red-500/10 text-red-600',
-      !isGreen && !isAmber && !isRed && 'bg-clay-bg-2 text-clay-ink-muted',
+      !isGreen && !isAmber && !isRed && 'bg-muted text-muted-foreground',
     )}>
       <span className={cn(
         'h-1.5 w-1.5 rounded-full',
         isGreen && 'bg-emerald-500',
         isAmber && 'bg-amber-500',
         isRed && 'bg-red-500',
-        !isGreen && !isAmber && !isRed && 'bg-clay-ink-muted',
+        !isGreen && !isAmber && !isRed && 'bg-muted-foreground',
       )} />
       {status}
     </span>
@@ -83,7 +83,7 @@ function ProjectsSkeleton() {
       {Array.from({ length: 6 }).map((_, i) => (
         <div
           key={i}
-          className="h-[120px] animate-pulse rounded-clay-lg bg-clay-bg-2"
+          className="h-[120px] animate-pulse rounded-xl bg-muted"
         />
       ))}
     </div>
@@ -96,10 +96,10 @@ function EmptyState({ query, reloadProjects }: { query: string; reloadProjects: 
   if (query) {
     return (
       <ClayCard variant="soft" className="flex flex-col items-center gap-3 py-16 text-center">
-        <LuSearch className="h-8 w-8 text-clay-ink-muted/40" strokeWidth={1.5} />
+        <LuSearch className="h-8 w-8 text-muted-foreground/40" strokeWidth={1.5} />
         <div>
-          <p className="text-[15px] font-semibold text-clay-ink">No projects matched</p>
-          <p className="mt-1 text-[13px] text-clay-ink-muted">
+          <p className="text-[15px] font-semibold text-foreground">No projects matched</p>
+          <p className="mt-1 text-[13px] text-muted-foreground">
             Try a different search term or clear the filter.
           </p>
         </div>
@@ -109,14 +109,14 @@ function EmptyState({ query, reloadProjects }: { query: string; reloadProjects: 
 
   return (
     <ClayCard className="flex flex-col items-center gap-5 py-16 text-center">
-      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-clay-rose/10">
-        <LuSparkles className="h-7 w-7 text-clay-rose" strokeWidth={1.75} />
+      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
+        <LuSparkles className="h-7 w-7 text-primary" strokeWidth={1.75} />
       </div>
       <div>
-        <p className="text-[18px] font-semibold text-clay-ink">
+        <p className="text-[18px] font-semibold text-foreground">
           Connect your first project
         </p>
-        <p className="mx-auto mt-1.5 max-w-sm text-[13px] text-clay-ink-muted leading-relaxed">
+        <p className="mx-auto mt-1.5 max-w-sm text-[13px] text-muted-foreground leading-relaxed">
           Link your WhatsApp Business Account to start messaging, automating,
           and tracking performance.
         </p>
@@ -155,8 +155,8 @@ function ProjectRow({
       type="button"
       onClick={() => onSelect(project._id.toString())}
       className={cn(
-        'group flex items-center gap-4 rounded-clay-lg border border-clay-border bg-clay-surface p-4 text-left transition',
-        'hover:border-clay-rose/40 hover:shadow-clay-card',
+        'group flex items-center gap-4 rounded-xl border border-border bg-card p-4 text-left transition',
+        'hover:border-primary/40 hover:shadow-sm',
       )}
     >
       {/* Icon */}
@@ -165,7 +165,7 @@ function ProjectRow({
           'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl',
           connected
             ? 'bg-emerald-50 text-emerald-600'
-            : 'bg-clay-bg-2 text-clay-ink-muted',
+            : 'bg-muted text-muted-foreground',
         )}
       >
         <LuMessageSquare className="h-4.5 w-4.5" strokeWidth={2} />
@@ -174,17 +174,17 @@ function ProjectRow({
       {/* Info */}
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <p className="truncate text-[14px] font-semibold text-clay-ink">
+          <p className="truncate text-[14px] font-semibold text-foreground">
             {project.name || 'Untitled project'}
           </p>
           <HealthPill status={healthStatus} />
           {isRecent && (
-            <span className="flex items-center gap-1 rounded-full bg-clay-rose/10 px-2 py-0.5 text-[10px] font-medium text-clay-rose">
+            <span className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
               <LuClock className="h-2.5 w-2.5" /> Recent
             </span>
           )}
         </div>
-        <div className="mt-0.5 flex items-center gap-2 text-[12px] text-clay-ink-muted">
+        <div className="mt-0.5 flex items-center gap-2 text-[12px] text-muted-foreground">
           {connected ? (
             <>
               <LuWifi className="h-3 w-3 text-emerald-500" />
@@ -192,13 +192,13 @@ function ProjectRow({
             </>
           ) : (
             <>
-              <LuWifiOff className="h-3 w-3 text-clay-ink-muted/50" />
+              <LuWifiOff className="h-3 w-3 text-muted-foreground/50" />
               <span>Not connected</span>
             </>
           )}
           {project.groupName && (
             <>
-              <span className="text-clay-ink-muted/30">·</span>
+              <span className="text-muted-foreground/30">·</span>
               <span>{project.groupName}</span>
             </>
           )}
@@ -206,7 +206,7 @@ function ProjectRow({
       </div>
 
       {/* Arrow */}
-      <LuArrowRight className="h-4 w-4 shrink-0 text-clay-ink-muted/40 transition group-hover:translate-x-0.5 group-hover:text-clay-rose" />
+      <LuArrowRight className="h-4 w-4 shrink-0 text-muted-foreground/40 transition group-hover:translate-x-0.5 group-hover:text-primary" />
     </button>
   );
 }
@@ -305,10 +305,10 @@ export default function SelectProjectPage() {
       {/* Header */}
       <div className="mt-5 flex items-center justify-between gap-4">
         <div className="min-w-0">
-          <h1 className="text-[26px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.15]">
+          <h1 className="text-[26px] font-semibold tracking-[-0.015em] text-foreground leading-[1.15]">
             Your projects
           </h1>
-          <p className="mt-1 text-[13px] text-clay-ink-muted">
+          <p className="mt-1 text-[13px] text-muted-foreground">
             {projects.length} connected account{projects.length !== 1 ? 's' : ''} — select one to open.
           </p>
         </div>
@@ -327,7 +327,7 @@ export default function SelectProjectPage() {
       {projects.length > 0 && (
         <div className="mt-5 flex items-center gap-2">
           <div className="relative flex-1 max-w-md">
-            <LuSearch className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-clay-ink-muted/50" />
+            <LuSearch className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/50" />
             <ClayInput
               placeholder="Search projects..."
               value={search}
@@ -341,7 +341,7 @@ export default function SelectProjectPage() {
       {/* Recent projects */}
       {recentProjects.length > 0 && !search && (
         <div className="mt-6">
-          <p className="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-clay-ink-muted">
+          <p className="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
             Recently accessed
           </p>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -361,7 +361,7 @@ export default function SelectProjectPage() {
       {/* All projects */}
       <div className="mt-6">
         {recentProjects.length > 0 && !search && projects.length > recentProjects.length && (
-          <p className="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-clay-ink-muted">
+          <p className="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
             All projects
           </p>
         )}
@@ -388,8 +388,8 @@ export default function SelectProjectPage() {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="mt-6 flex items-center justify-between border-t border-clay-border pt-4">
-          <p className="text-[12px] text-clay-ink-muted tabular-nums">
+        <div className="mt-6 flex items-center justify-between border-t border-border pt-4">
+          <p className="text-[12px] text-muted-foreground tabular-nums">
             Page {page} of {totalPages} · {filtered.length} project{filtered.length !== 1 ? 's' : ''}
           </p>
           <div className="flex items-center gap-1.5">

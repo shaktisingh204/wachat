@@ -56,7 +56,7 @@ export default function VendorsPage() {
     if (isLoading && vendors.length === 0) {
         return (
              <div className="flex justify-center items-center h-full">
-                <LoaderCircle className="h-8 w-8 animate-spin text-clay-ink-muted" />
+                <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />
              </div>
         )
     }
@@ -77,30 +77,30 @@ export default function VendorsPage() {
             />
 
             <ClayCard>
-                <h2 className="text-[16px] font-semibold text-clay-ink">All Vendors</h2>
-                <div className="mt-4 overflow-x-auto rounded-clay-md border border-clay-border">
+                <h2 className="text-[16px] font-semibold text-foreground">All Vendors</h2>
+                <div className="mt-4 overflow-x-auto rounded-lg border border-border">
                     <Table>
                         <TableHeader>
-                            <TableRow className="border-clay-border hover:bg-transparent">
-                                <TableHead className="text-clay-ink-muted">Vendor Name</TableHead>
-                                <TableHead className="text-clay-ink-muted">Email</TableHead>
-                                <TableHead className="text-clay-ink-muted">Phone</TableHead>
-                                <TableHead className="text-clay-ink-muted">Type</TableHead>
-                                <TableHead className="text-clay-ink-muted text-right">Actions</TableHead>
+                            <TableRow className="border-border hover:bg-transparent">
+                                <TableHead className="text-muted-foreground">Vendor Name</TableHead>
+                                <TableHead className="text-muted-foreground">Email</TableHead>
+                                <TableHead className="text-muted-foreground">Phone</TableHead>
+                                <TableHead className="text-muted-foreground">Type</TableHead>
+                                <TableHead className="text-muted-foreground text-right">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {vendors.length > 0 ? (
                                 vendors.map(vendor => (
-                                    <TableRow key={vendor._id.toString()} className="border-clay-border">
-                                        <TableCell className="font-medium text-clay-ink">{vendor.name}</TableCell>
-                                        <TableCell className="text-clay-ink">{vendor.email || 'N/A'}</TableCell>
-                                        <TableCell className="text-clay-ink">{vendor.phone || 'N/A'}</TableCell>
+                                    <TableRow key={vendor._id.toString()} className="border-border">
+                                        <TableCell className="font-medium text-foreground">{vendor.name}</TableCell>
+                                        <TableCell className="text-foreground">{vendor.email || 'N/A'}</TableCell>
+                                        <TableCell className="text-foreground">{vendor.phone || 'N/A'}</TableCell>
                                         <TableCell><ClayBadge tone="neutral" className="capitalize">{vendor.vendorType}</ClayBadge></TableCell>
                                         <TableCell className="text-right">
                                             <AlertDialog>
                                                 <AlertDialogTrigger asChild>
-                                                    <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-clay-red"/></Button>
+                                                    <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive"/></Button>
                                                 </AlertDialogTrigger>
                                                 <AlertDialogContent>
                                                     <AlertDialogHeader>
@@ -117,8 +117,8 @@ export default function VendorsPage() {
                                     </TableRow>
                                 ))
                             ) : (
-                                <TableRow className="border-clay-border">
-                                    <TableCell colSpan={5} className="text-center h-24 text-clay-ink-muted">
+                                <TableRow className="border-border">
+                                    <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">
                                         No vendors have been added yet.
                                     </TableCell>
                                 </TableRow>

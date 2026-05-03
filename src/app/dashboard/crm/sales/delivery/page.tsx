@@ -45,7 +45,7 @@ export default function DeliveryChallansPage() {
     if (isLoading && challans.length === 0) {
         return (
             <div className="flex justify-center items-center h-full">
-                <LoaderCircle className="h-8 w-8 animate-spin text-clay-ink-muted" />
+                <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
         );
     }
@@ -60,11 +60,11 @@ export default function DeliveryChallansPage() {
                 />
                 <ClayCard variant="outline" className="border-dashed">
                     <div className="flex flex-col items-center gap-3 py-12 text-center">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-clay-md bg-clay-rose-soft">
-                            <Truck className="h-6 w-6 text-clay-rose-ink" strokeWidth={1.75} />
+                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent">
+                            <Truck className="h-6 w-6 text-accent-foreground" strokeWidth={1.75} />
                         </div>
-                        <h3 className="text-[15px] font-semibold text-clay-ink">Delivery Challans</h3>
-                        <p className="max-w-md text-[12.5px] text-clay-ink-muted">
+                        <h3 className="text-[15px] font-semibold text-foreground">Delivery Challans</h3>
+                        <p className="max-w-md text-[12.5px] text-muted-foreground">
                             Create, share, and track delivery challans for transportation or delivery of goods.
                         </p>
                         <Link href="/dashboard/crm/sales/delivery/new">
@@ -95,24 +95,24 @@ export default function DeliveryChallansPage() {
 
             <ClayCard>
                 <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-clay-ink">Recent Challans</h2>
+                    <h2 className="text-[16px] font-semibold text-foreground">Recent Challans</h2>
                 </div>
-                <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                <div className="overflow-x-auto rounded-lg border border-border">
                     <Table>
                         <TableHeader>
-                            <TableRow className="border-clay-border hover:bg-transparent">
-                                <TableHead className="text-clay-ink-muted">Challan #</TableHead>
-                                <TableHead className="text-clay-ink-muted">Client</TableHead>
-                                <TableHead className="text-clay-ink-muted">Date</TableHead>
-                                <TableHead className="text-clay-ink-muted">Status</TableHead>
+                            <TableRow className="border-border hover:bg-transparent">
+                                <TableHead className="text-muted-foreground">Challan #</TableHead>
+                                <TableHead className="text-muted-foreground">Client</TableHead>
+                                <TableHead className="text-muted-foreground">Date</TableHead>
+                                <TableHead className="text-muted-foreground">Status</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {challans.map(challan => (
-                                <TableRow key={challan._id.toString()} className="border-clay-border">
-                                    <TableCell className="font-medium text-clay-ink">{challan.challanNumber}</TableCell>
-                                    <TableCell className="text-clay-ink">{accountsMap.get(challan.accountId.toString()) || 'Unknown'}</TableCell>
-                                    <TableCell className="text-clay-ink">{new Date(challan.challanDate).toLocaleDateString()}</TableCell>
+                                <TableRow key={challan._id.toString()} className="border-border">
+                                    <TableCell className="font-medium text-foreground">{challan.challanNumber}</TableCell>
+                                    <TableCell className="text-foreground">{accountsMap.get(challan.accountId.toString()) || 'Unknown'}</TableCell>
+                                    <TableCell className="text-foreground">{new Date(challan.challanDate).toLocaleDateString()}</TableCell>
                                     <TableCell><ClayBadge tone={getStatusTone(challan.status)} dot>{challan.status}</ClayBadge></TableCell>
                                 </TableRow>
                             ))}

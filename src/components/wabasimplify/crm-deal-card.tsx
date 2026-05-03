@@ -31,17 +31,17 @@ export function CrmDealCard({ deal, contact, account, taskCount = 0, index }: Cr
     return (
         <div ref={setNodeRef} style={style} {...listeners} {...attributes}>
             <Link href={`/dashboard/crm/deals/${deal._id.toString()}`}>
-                <ClayCard padded={false} className="cursor-pointer block hover:shadow-clay-float transition-shadow">
+                <ClayCard padded={false} className="cursor-pointer block hover:shadow-md transition-shadow">
                     <div className="p-3">
-                        <h3 className="text-sm font-semibold text-clay-ink">{deal.name}</h3>
+                        <h3 className="text-sm font-semibold text-foreground">{deal.name}</h3>
                     </div>
                     <div className="p-3 pt-0 text-sm space-y-2">
-                        <p className="font-bold text-clay-rose">{new Intl.NumberFormat('en-US', { style: 'currency', currency: deal.currency || 'USD' }).format(deal.value)}</p>
-                        {account && <div className="flex items-center gap-2 text-xs text-clay-ink-muted"><Building className="h-3 w-3" /><span>{account.name}</span></div>}
-                        {contact && <div className="flex items-center gap-2 text-xs text-clay-ink-muted"><User className="h-3 w-3" /><span>{contact.name}</span></div>}
+                        <p className="font-bold text-primary">{new Intl.NumberFormat('en-US', { style: 'currency', currency: deal.currency || 'USD' }).format(deal.value)}</p>
+                        {account && <div className="flex items-center gap-2 text-xs text-muted-foreground"><Building className="h-3 w-3" /><span>{account.name}</span></div>}
+                        {contact && <div className="flex items-center gap-2 text-xs text-muted-foreground"><User className="h-3 w-3" /><span>{contact.name}</span></div>}
                     </div>
-                    <div className="p-3 flex justify-between items-center border-t border-clay-border">
-                         <div className="flex items-center gap-1 text-xs text-clay-ink-muted">
+                    <div className="p-3 flex justify-between items-center border-t border-border">
+                         <div className="flex items-center gap-1 text-xs text-muted-foreground">
                             <FolderKanban className="h-3 w-3" />
                             <span>{taskCount}</span>
                         </div>

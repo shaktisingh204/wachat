@@ -74,35 +74,35 @@ export function QuickAddProductDialog({ open, onOpenChange, onProductAdded, defa
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
-                    <DialogTitle className="text-clay-ink">Add New Product</DialogTitle>
-                    <DialogDescription className="text-clay-ink-muted">
+                    <DialogTitle className="text-foreground">Add New Product</DialogTitle>
+                    <DialogDescription className="text-muted-foreground">
                         Quickly add a new product. Edit full details later.
                     </DialogDescription>
                 </DialogHeader>
                 <form ref={formRef} action={formAction} className="grid gap-4 py-4">
                     <input type="hidden" name="quickAdd" value="true" /> {/* Optional flag if needed on server */}
                     <div className="grid gap-2">
-                        <Label htmlFor="name" className="text-clay-ink">Product Name *</Label>
+                        <Label htmlFor="name" className="text-foreground">Product Name *</Label>
                         <Input id="name" name="name" required defaultValue={defaultName} placeholder="e.g. Wireless Mouse" />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="grid gap-2">
-                            <Label htmlFor="sku" className="text-clay-ink">SKU *</Label>
+                            <Label htmlFor="sku" className="text-foreground">SKU *</Label>
                             <Input id="sku" name="sku" required placeholder="e.g. WM-001" />
                         </div>
                         <div className="grid gap-2">
-                            <Label htmlFor="sellingPrice" className="text-clay-ink">Selling Price *</Label>
+                            <Label htmlFor="sellingPrice" className="text-foreground">Selling Price *</Label>
                             <Input type="number" step="0.01" id="sellingPrice" name="sellingPrice" required />
                         </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="grid gap-2">
-                            <Label className="text-clay-ink">Category</Label>
+                            <Label className="text-foreground">Category</Label>
                             <input type="hidden" name="categoryId" value={categoryId} />
                             <SmartCategorySelect value={categoryId} onSelect={setCategoryId} />
                         </div>
                         <div className="grid gap-2">
-                            <Label className="text-clay-ink">Unit</Label>
+                            <Label className="text-foreground">Unit</Label>
                             <input type="hidden" name="unitId" value={unitId} />
                             <SmartUnitSelect value={unitId} onSelect={setUnitId} />
                         </div>

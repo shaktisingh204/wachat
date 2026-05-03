@@ -73,7 +73,7 @@ export default function EventsCalendarPage() {
 
       {loading ? (
         <ClayCard className="flex items-center justify-center py-10">
-          <LoaderCircle className="h-5 w-5 animate-spin text-clay-ink-muted" />
+          <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />
         </ClayCard>
       ) : (
         <ClayCard>
@@ -81,7 +81,7 @@ export default function EventsCalendarPage() {
             {DAYS.map((d) => (
               <div
                 key={d}
-                className="py-2 text-center text-[11.5px] font-semibold uppercase tracking-wide text-clay-ink-muted"
+                className="py-2 text-center text-[11.5px] font-semibold uppercase tracking-wide text-muted-foreground"
               >
                 {d}
               </div>
@@ -92,15 +92,15 @@ export default function EventsCalendarPage() {
                 <div
                   key={i}
                   className={
-                    'min-h-[88px] rounded-clay-md border p-1.5 text-[12px] ' +
+                    'min-h-[88px] rounded-lg border p-1.5 text-[12px] ' +
                     (d
-                      ? 'bg-clay-surface border-clay-border'
-                      : 'bg-clay-surface-2 border-transparent')
+                      ? 'bg-card border-border'
+                      : 'bg-secondary border-transparent')
                   }
                 >
                   {d ? (
                     <>
-                      <div className="mb-1 text-[11px] font-semibold text-clay-ink-muted">{d}</div>
+                      <div className="mb-1 text-[11px] font-semibold text-muted-foreground">{d}</div>
                       <div className="flex flex-col gap-1">
                         {dayEvents.slice(0, 3).map((e) => (
                           <Link
@@ -114,7 +114,7 @@ export default function EventsCalendarPage() {
                           </Link>
                         ))}
                         {dayEvents.length > 3 ? (
-                          <span className="text-[10.5px] text-clay-ink-muted">
+                          <span className="text-[10.5px] text-muted-foreground">
                             +{dayEvents.length - 3} more
                           </span>
                         ) : null}

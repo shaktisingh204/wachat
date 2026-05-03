@@ -48,7 +48,7 @@ function DeleteButton({ account, onDeleted }: { account: WithId<any>, onDeleted:
     return (
         <AlertDialog>
             <AlertDialogTrigger asChild>
-                <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-clay-red"/></Button>
+                <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive"/></Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
                 <AlertDialogHeader>
@@ -171,33 +171,33 @@ export default function ChartOfAccountsPage() {
 
 function AccountsTable({ accounts, isLoading, onEdit, onDelete }: { accounts: WithId<any>[], isLoading: boolean, onEdit: (acc: any) => void, onDelete: () => void }) {
     return (
-         <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+         <div className="overflow-x-auto rounded-lg border border-border">
             <Table>
                 <TableHeader>
-                    <TableRow className="border-clay-border hover:bg-transparent">
-                        <TableHead className="text-clay-ink-muted">Account Name</TableHead>
-                        <TableHead className="text-clay-ink-muted">Account Group</TableHead>
-                        <TableHead className="text-clay-ink-muted">Category</TableHead>
-                        <TableHead className="text-clay-ink-muted">Type</TableHead>
-                        <TableHead className="text-clay-ink-muted text-right">Opening Balance</TableHead>
-                        <TableHead className="text-clay-ink-muted text-right">Actions</TableHead>
+                    <TableRow className="border-border hover:bg-transparent">
+                        <TableHead className="text-muted-foreground">Account Name</TableHead>
+                        <TableHead className="text-muted-foreground">Account Group</TableHead>
+                        <TableHead className="text-muted-foreground">Category</TableHead>
+                        <TableHead className="text-muted-foreground">Type</TableHead>
+                        <TableHead className="text-muted-foreground text-right">Opening Balance</TableHead>
+                        <TableHead className="text-muted-foreground text-right">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {isLoading ? (
-                        <TableRow className="border-clay-border"><TableCell colSpan={6} className="h-24 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin text-clay-ink-muted"/></TableCell></TableRow>
+                        <TableRow className="border-border"><TableCell colSpan={6} className="h-24 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground"/></TableCell></TableRow>
                     ) : accounts.length > 0 ? (
                         accounts.map(acc => (
-                            <TableRow key={acc._id.toString()} className="border-clay-border">
+                            <TableRow key={acc._id.toString()} className="border-border">
                                 <TableCell className="font-medium">
-                                    <Link href={`/dashboard/crm/accounting/charts/${acc._id.toString()}`} className="hover:underline text-clay-rose-ink">
+                                    <Link href={`/dashboard/crm/accounting/charts/${acc._id.toString()}`} className="hover:underline text-accent-foreground">
                                         {acc.name}
                                     </Link>
                                 </TableCell>
-                                <TableCell className="text-clay-ink">{acc.accountGroupName || 'N/A'}</TableCell>
-                                <TableCell className="text-clay-ink">{acc.accountGroupCategory?.replace(/_/g, ' ')}</TableCell>
+                                <TableCell className="text-foreground">{acc.accountGroupName || 'N/A'}</TableCell>
+                                <TableCell className="text-foreground">{acc.accountGroupCategory?.replace(/_/g, ' ')}</TableCell>
                                 <TableCell><ClayBadge tone="neutral">{acc.accountGroupType}</ClayBadge></TableCell>
-                                <TableCell className="text-right font-mono text-clay-ink">
+                                <TableCell className="text-right font-mono text-foreground">
                                     {new Intl.NumberFormat('en-IN', { style: 'currency', currency: acc.currency || 'INR' }).format(acc.openingBalance)} {acc.balanceType || 'Dr'}
                                 </TableCell>
                                 <TableCell className="text-right">
@@ -207,7 +207,7 @@ function AccountsTable({ accounts, isLoading, onEdit, onDelete }: { accounts: Wi
                             </TableRow>
                         ))
                     ) : (
-                        <TableRow className="border-clay-border"><TableCell colSpan={6} className="h-24 text-center text-clay-ink-muted">No accounts in this category.</TableCell></TableRow>
+                        <TableRow className="border-border"><TableCell colSpan={6} className="h-24 text-center text-muted-foreground">No accounts in this category.</TableCell></TableRow>
                     )}
                 </TableBody>
             </Table>

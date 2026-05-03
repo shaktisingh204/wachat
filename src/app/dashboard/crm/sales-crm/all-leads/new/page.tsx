@@ -109,7 +109,7 @@ export default function AddLeadPage() {
     return (
         <div className="max-w-4xl">
             <div>
-                <Link href="/dashboard/crm/sales-crm/all-leads" className="inline-flex items-center gap-2 text-[13px] text-clay-ink-muted hover:text-clay-ink">
+                <Link href="/dashboard/crm/sales-crm/all-leads" className="inline-flex items-center gap-2 text-[13px] text-muted-foreground hover:text-foreground">
                     <ArrowLeft className="h-4 w-4" />Back to All Leads
                 </Link>
             </div>
@@ -117,24 +117,24 @@ export default function AddLeadPage() {
                 <input type="hidden" name="nextFollowUp" value={nextFollowUp?.toISOString() || ''} />
                 <ClayCard className="mt-4">
                     <div className="mb-6">
-                        <h2 className="text-[20px] font-semibold text-clay-ink flex items-center gap-2">
-                            <UserPlus className="h-5 w-5 text-clay-rose-ink" />
+                        <h2 className="text-[20px] font-semibold text-foreground flex items-center gap-2">
+                            <UserPlus className="h-5 w-5 text-accent-foreground" />
                             Add New Lead
                         </h2>
-                        <p className="mt-0.5 text-[13px] text-clay-ink-muted">Enter the details for your new sales lead.</p>
+                        <p className="mt-0.5 text-[13px] text-muted-foreground">Enter the details for your new sales lead.</p>
                     </div>
                     <div className="space-y-6">
                         <div className="space-y-2">
-                            <Label htmlFor="title" className="text-clay-ink">Lead Title / Subject *</Label>
-                            <Input id="title" name="title" required placeholder="e.g. Mobile App Development for Retail Client" className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                            <Label htmlFor="title" className="text-foreground">Lead Title / Subject *</Label>
+                            <Input id="title" name="title" required placeholder="e.g. Mobile App Development for Retail Client" className="h-10 rounded-lg border-border bg-card text-[13px]" />
                         </div>
                         <div className="grid md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="value" className="text-clay-ink">Estimated Value</Label>
-                                <Input id="value" name="value" type="number" placeholder="e.g. 50000" className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                                <Label htmlFor="value" className="text-foreground">Estimated Value</Label>
+                                <Input id="value" name="value" type="number" placeholder="e.g. 50000" className="h-10 rounded-lg border-border bg-card text-[13px]" />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="currency" className="text-clay-ink">Currency</Label>
+                                <Label htmlFor="currency" className="text-foreground">Currency</Label>
                                 <Select name="currency" defaultValue="INR">
                                     <SelectTrigger id="currency"><SelectValue /></SelectTrigger>
                                     <SelectContent><SelectItem value="INR">INR</SelectItem><SelectItem value="USD">USD</SelectItem></SelectContent>
@@ -142,30 +142,30 @@ export default function AddLeadPage() {
                             </div>
                         </div>
                         <Separator />
-                        <h3 className="text-[15px] font-semibold text-clay-ink pb-2">Contact Information</h3>
+                        <h3 className="text-[15px] font-semibold text-foreground pb-2">Contact Information</h3>
                         <div className="grid md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="contactName" className="text-clay-ink">Contact Name *</Label>
-                                <Input id="contactName" name="contactName" required placeholder="Full name of the lead contact" className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                                <Label htmlFor="contactName" className="text-foreground">Contact Name *</Label>
+                                <Input id="contactName" name="contactName" required placeholder="Full name of the lead contact" className="h-10 rounded-lg border-border bg-card text-[13px]" />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="email" className="text-clay-ink">Email *</Label>
-                                <Input id="email" name="email" type="email" required placeholder="Email address of the lead" className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                                <Label htmlFor="email" className="text-foreground">Email *</Label>
+                                <Input id="email" name="email" type="email" required placeholder="Email address of the lead" className="h-10 rounded-lg border-border bg-card text-[13px]" />
                             </div>
                         </div>
                         <div className="grid md:grid-cols-2 gap-4">
-                            <div className="space-y-2"><Label htmlFor="phone" className="text-clay-ink">Phone</Label><Input id="phone" name="phone" className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" /></div>
-                            <div className="space-y-2"><Label htmlFor="company" className="text-clay-ink">Company</Label><Input id="company" name="company" className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" /></div>
+                            <div className="space-y-2"><Label htmlFor="phone" className="text-foreground">Phone</Label><Input id="phone" name="phone" className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
+                            <div className="space-y-2"><Label htmlFor="company" className="text-foreground">Company</Label><Input id="company" name="company" className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
                         </div>
                         <div className="grid md:grid-cols-2 gap-4">
-                            <div className="space-y-2"><Label htmlFor="website" className="text-clay-ink">Website</Label><Input id="website" name="website" className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" /></div>
-                            <div className="space-y-2"><Label htmlFor="contactCountry" className="text-clay-ink">Contact Country</Label><Select name="contactCountry" defaultValue="India"><SelectTrigger id="contactCountry"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="India">India</SelectItem><SelectItem value="USA">United States</SelectItem></SelectContent></Select></div>
+                            <div className="space-y-2"><Label htmlFor="website" className="text-foreground">Website</Label><Input id="website" name="website" className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
+                            <div className="space-y-2"><Label htmlFor="contactCountry" className="text-foreground">Contact Country</Label><Select name="contactCountry" defaultValue="India"><SelectTrigger id="contactCountry"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="India">India</SelectItem><SelectItem value="USA">United States</SelectItem></SelectContent></Select></div>
                         </div>
                         <Separator />
-                        <h3 className="text-[15px] font-semibold text-clay-ink pb-2">Lead Status & Assignment</h3>
+                        <h3 className="text-[15px] font-semibold text-foreground pb-2">Lead Status & Assignment</h3>
                         <div className="grid md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="source" className="text-clay-ink">Lead Source</Label>
+                                <Label htmlFor="source" className="text-foreground">Lead Source</Label>
                                 <Select name="source">
                                     <SelectTrigger id="source"><SelectValue placeholder="Select lead source..." /></SelectTrigger>
                                     <SelectContent>
@@ -174,7 +174,7 @@ export default function AddLeadPage() {
                                 </Select>
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="status" className="text-clay-ink">Lead Status</Label>
+                                <Label htmlFor="status" className="text-foreground">Lead Status</Label>
                                 <Select name="status" defaultValue="New">
                                     <SelectTrigger id="status"><SelectValue /></SelectTrigger>
                                     <SelectContent>
@@ -185,7 +185,7 @@ export default function AddLeadPage() {
                         </div>
                         <div className="grid md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="pipelineId" className="text-clay-ink">Sales Pipeline</Label>
+                                <Label htmlFor="pipelineId" className="text-foreground">Sales Pipeline</Label>
                                 <input type="hidden" name="pipelineId" value={selectedPipelineId} />
                                 <SmartPipelineSelect
                                     value={selectedPipelineId}
@@ -198,7 +198,7 @@ export default function AddLeadPage() {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="stage" className="text-clay-ink">Pipeline Stage</Label>
+                                <Label htmlFor="stage" className="text-foreground">Pipeline Stage</Label>
                                 <Select name="stage">
                                     <SelectTrigger id="stage"><SelectValue placeholder="Select stage..." /></SelectTrigger>
                                     <SelectContent>
@@ -209,18 +209,18 @@ export default function AddLeadPage() {
                         </div>
                         <div className="grid md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="assignedTo" className="text-clay-ink">Assigned To</Label>
+                                <Label htmlFor="assignedTo" className="text-foreground">Assigned To</Label>
                                 <Select name="assignedTo"><SelectTrigger id="assignedTo"><SelectValue placeholder="Unassigned" /></SelectTrigger><SelectContent>
                                     <SelectItem value={user._id.toString()}>Me ({user.name})</SelectItem>
                                 </SelectContent></Select>
                             </div>
                             <div className="space-y-2">
-                                <Label className="text-clay-ink">Next Follow-up</Label>
+                                <Label className="text-foreground">Next Follow-up</Label>
                                 <DatePicker date={nextFollowUp} setDate={setNextFollowUp} />
                             </div>
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="description" className="text-clay-ink">Notes</Label>
+                            <Label htmlFor="description" className="text-foreground">Notes</Label>
                             <Textarea id="description" name="description" placeholder="Any additional notes or details about this lead..." />
                         </div>
                     </div>

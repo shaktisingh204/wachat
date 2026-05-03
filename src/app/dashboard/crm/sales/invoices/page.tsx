@@ -155,27 +155,27 @@ export default function InvoicesPage() {
 
             <ClayCard>
                 <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-clay-ink">Recent Invoices</h2>
-                    <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">A list of invoices you have created.</p>
+                    <h2 className="text-[16px] font-semibold text-foreground">Recent Invoices</h2>
+                    <p className="mt-0.5 text-[12.5px] text-muted-foreground">A list of invoices you have created.</p>
                 </div>
-                <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                <div className="overflow-x-auto rounded-lg border border-border">
                     <Table>
                         <TableHeader>
-                            <TableRow className="border-clay-border hover:bg-transparent">
-                                <TableHead className="text-clay-ink-muted">Invoice #</TableHead>
-                                <TableHead className="text-clay-ink-muted">Client</TableHead>
-                                <TableHead className="text-clay-ink-muted">Date</TableHead>
-                                <TableHead className="text-clay-ink-muted">Due Date</TableHead>
-                                <TableHead className="text-clay-ink-muted">Status</TableHead>
-                                <TableHead className="text-clay-ink-muted text-right">Amount</TableHead>
-                                <TableHead className="text-clay-ink-muted text-right w-[180px]">Actions</TableHead>
+                            <TableRow className="border-border hover:bg-transparent">
+                                <TableHead className="text-muted-foreground">Invoice #</TableHead>
+                                <TableHead className="text-muted-foreground">Client</TableHead>
+                                <TableHead className="text-muted-foreground">Date</TableHead>
+                                <TableHead className="text-muted-foreground">Due Date</TableHead>
+                                <TableHead className="text-muted-foreground">Status</TableHead>
+                                <TableHead className="text-muted-foreground text-right">Amount</TableHead>
+                                <TableHead className="text-muted-foreground text-right w-[180px]">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {isLoading ? (
-                                <TableRow className="border-clay-border">
+                                <TableRow className="border-border">
                                     <TableCell colSpan={7} className="text-center h-24">
-                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-clay-ink-muted" />
+                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
                                     </TableCell>
                                 </TableRow>
                             ) : invoices.length > 0 ? (
@@ -183,13 +183,13 @@ export default function InvoicesPage() {
                                     const invoiceId = q._id.toString();
                                     const isConverting = convertingId === invoiceId;
                                     return (
-                                    <TableRow key={invoiceId} className="border-clay-border">
-                                        <TableCell className="font-medium text-clay-ink">{q.invoiceNumber}</TableCell>
-                                        <TableCell className="text-clay-ink">{accountsMap.get(q.accountId.toString()) || 'Unknown Client'}</TableCell>
-                                        <TableCell className="text-clay-ink">{new Date(q.invoiceDate).toLocaleDateString()}</TableCell>
-                                        <TableCell className="text-clay-ink">{q.dueDate ? new Date(q.dueDate).toLocaleDateString() : 'N/A'}</TableCell>
+                                    <TableRow key={invoiceId} className="border-border">
+                                        <TableCell className="font-medium text-foreground">{q.invoiceNumber}</TableCell>
+                                        <TableCell className="text-foreground">{accountsMap.get(q.accountId.toString()) || 'Unknown Client'}</TableCell>
+                                        <TableCell className="text-foreground">{new Date(q.invoiceDate).toLocaleDateString()}</TableCell>
+                                        <TableCell className="text-foreground">{q.dueDate ? new Date(q.dueDate).toLocaleDateString() : 'N/A'}</TableCell>
                                         <TableCell><ClayBadge tone={getStatusTone(q.status)} dot>{q.status}</ClayBadge></TableCell>
-                                        <TableCell className="text-right font-medium text-clay-ink">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: q.currency || 'INR' }).format(q.total)}</TableCell>
+                                        <TableCell className="text-right font-medium text-foreground">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: q.currency || 'INR' }).format(q.total)}</TableCell>
                                         <TableCell className="text-right">
                                             <span className="mr-2 inline-block align-middle">
                                                 <SharePublicLinkButton
@@ -223,8 +223,8 @@ export default function InvoicesPage() {
                                                 </AlertDialogTrigger>
                                                 <AlertDialogContent>
                                                     <AlertDialogHeader>
-                                                        <AlertDialogTitle className="text-clay-ink">Convert to Credit Note?</AlertDialogTitle>
-                                                        <AlertDialogDescription className="text-clay-ink-muted">
+                                                        <AlertDialogTitle className="text-foreground">Convert to Credit Note?</AlertDialogTitle>
+                                                        <AlertDialogDescription className="text-muted-foreground">
                                                             This will create a new draft credit note from invoice {q.invoiceNumber}. The original invoice will remain unchanged.
                                                         </AlertDialogDescription>
                                                     </AlertDialogHeader>
@@ -241,8 +241,8 @@ export default function InvoicesPage() {
                                     );
                                 })
                             ) : (
-                                <TableRow className="border-clay-border">
-                                    <TableCell colSpan={7} className="h-24 text-center text-[13px] text-clay-ink-muted">
+                                <TableRow className="border-border">
+                                    <TableCell colSpan={7} className="h-24 text-center text-[13px] text-muted-foreground">
                                         No invoices found.
                                     </TableCell>
                                 </TableRow>
@@ -255,14 +255,14 @@ export default function InvoicesPage() {
             <Dialog open={editing !== null} onOpenChange={(open) => !open && setEditing(null)}>
                 <DialogContent className="sm:max-w-md">
                     <DialogHeader>
-                        <DialogTitle className="text-clay-ink">Edit Invoice</DialogTitle>
-                        <DialogDescription className="text-clay-ink-muted">
+                        <DialogTitle className="text-foreground">Edit Invoice</DialogTitle>
+                        <DialogDescription className="text-muted-foreground">
                             Update invoice number, dates, status, and notes.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-2">
                         <div className="space-y-1.5">
-                            <Label htmlFor="edit-inv-num" className="text-clay-ink">Invoice #</Label>
+                            <Label htmlFor="edit-inv-num" className="text-foreground">Invoice #</Label>
                             <Input
                                 id="edit-inv-num"
                                 value={editForm.invoiceNumber}
@@ -271,7 +271,7 @@ export default function InvoicesPage() {
                         </div>
                         <div className="grid grid-cols-2 gap-3">
                             <div className="space-y-1.5">
-                                <Label htmlFor="edit-inv-date" className="text-clay-ink">Invoice Date</Label>
+                                <Label htmlFor="edit-inv-date" className="text-foreground">Invoice Date</Label>
                                 <Input
                                     id="edit-inv-date"
                                     type="date"
@@ -280,7 +280,7 @@ export default function InvoicesPage() {
                                 />
                             </div>
                             <div className="space-y-1.5">
-                                <Label htmlFor="edit-due-date" className="text-clay-ink">Due Date</Label>
+                                <Label htmlFor="edit-due-date" className="text-foreground">Due Date</Label>
                                 <Input
                                     id="edit-due-date"
                                     type="date"
@@ -290,7 +290,7 @@ export default function InvoicesPage() {
                             </div>
                         </div>
                         <div className="space-y-1.5">
-                            <Label htmlFor="edit-status" className="text-clay-ink">Status</Label>
+                            <Label htmlFor="edit-status" className="text-foreground">Status</Label>
                             <Select
                                 value={editForm.status}
                                 onValueChange={(value) => setEditForm(f => ({ ...f, status: value }))}
@@ -306,7 +306,7 @@ export default function InvoicesPage() {
                             </Select>
                         </div>
                         <div className="space-y-1.5">
-                            <Label htmlFor="edit-notes" className="text-clay-ink">Notes</Label>
+                            <Label htmlFor="edit-notes" className="text-foreground">Notes</Label>
                             <Textarea
                                 id="edit-notes"
                                 rows={3}

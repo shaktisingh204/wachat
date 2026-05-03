@@ -44,7 +44,7 @@ export default function LeadPipelineStagesPage() {
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <label
           htmlFor="pipeline-filter"
-          className="text-[12px] text-clay-ink-muted"
+          className="text-[12px] text-muted-foreground"
         >
           Filter by pipeline:
         </label>
@@ -52,7 +52,7 @@ export default function LeadPipelineStagesPage() {
           id="pipeline-filter"
           value={pipelineFilter}
           onChange={(e) => setPipelineFilter(e.target.value)}
-          className="h-9 rounded-clay-md border border-clay-border bg-clay-surface px-2 text-[13px] text-clay-ink"
+          className="h-9 rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
         >
           <option value="">All</option>
           {pipelineOptions.map((o) => (
@@ -90,7 +90,7 @@ export default function LeadPipelineStagesPage() {
               return (
                 <span className="inline-flex items-center gap-2">
                   <span
-                    className="inline-block h-3 w-3 rounded-full border border-clay-border"
+                    className="inline-block h-3 w-3 rounded-full border border-border"
                     style={{ backgroundColor: color }}
                   />
                   <ClayBadge

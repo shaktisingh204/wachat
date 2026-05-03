@@ -51,20 +51,20 @@ function statusTone(status?: string): {
   const s = (status ?? '').toLowerCase();
   if (s === 'published')
     return {
-      dot: 'bg-clay-green',
+      dot: 'bg-emerald-500',
       label: 'Published',
       chip: 'bg-[#DCFCE7] text-[#166534] border-[#86EFAC]',
     };
   if (s === 'draft' || !s)
     return {
-      dot: 'bg-clay-ink-fade',
+      dot: 'bg-muted-foreground/70',
       label: 'Draft',
-      chip: 'bg-clay-bg-2 text-clay-ink-muted border-clay-border',
+      chip: 'bg-muted text-muted-foreground border-border',
     };
   return {
-    dot: 'bg-clay-red',
+    dot: 'bg-destructive',
     label: status!,
-    chip: 'bg-clay-red-soft text-clay-red border-clay-red/40',
+    chip: 'bg-rose-50 text-destructive border-destructive/40',
   };
 }
 
@@ -145,10 +145,10 @@ export default function MetaFlowsPage() {
       {/* Header */}
       <div className="flex items-center justify-between gap-6">
         <div className="min-w-0">
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">
+          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
             Meta Flows
           </h1>
-          <p className="mt-1.5 max-w-[720px] text-[13px] text-clay-ink-muted">
+          <p className="mt-1.5 max-w-[720px] text-[13px] text-muted-foreground">
             Interactive multi-step WhatsApp experiences — forms, bookings,
             order flows — managed directly from SabNode.
           </p>
@@ -197,13 +197,13 @@ export default function MetaFlowsPage() {
 
       {!activeProjectId ? (
         <ClayCard padded={false} className="p-10 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-clay-rose-soft text-clay-rose-ink">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-accent text-accent-foreground">
             <LuCircleAlert className="h-5 w-5" strokeWidth={1.5} />
           </div>
-          <div className="mt-4 text-[15px] font-semibold text-clay-ink">
+          <div className="mt-4 text-[15px] font-semibold text-foreground">
             No project selected
           </div>
-          <div className="mt-1.5 text-[12.5px] text-clay-ink-muted">
+          <div className="mt-1.5 text-[12.5px] text-muted-foreground">
             Please select a project from the main dashboard to manage Meta
             Flows.
           </div>
@@ -238,26 +238,26 @@ export default function MetaFlowsPage() {
             >
               {isLoading ? 'Refreshing…' : 'Refresh'}
             </ClayButton>
-            <span className="ml-auto text-[11.5px] tabular-nums text-clay-ink-muted">
+            <span className="ml-auto text-[11.5px] tabular-nums text-muted-foreground">
               {filteredFlows.length} / {flows.length} flows
             </span>
           </div>
 
           {/* Table / empty / skeleton */}
-          <div className="mt-5 overflow-hidden rounded-[12px] border border-clay-border">
+          <div className="mt-5 overflow-hidden rounded-[12px] border border-border">
             {isLoading && flows.length === 0 ? (
               <div className="flex h-40 items-center justify-center">
-                <div className="h-32 w-[85%] animate-pulse rounded-[10px] bg-clay-bg-2" />
+                <div className="h-32 w-[85%] animate-pulse rounded-[10px] bg-muted" />
               </div>
             ) : filteredFlows.length === 0 ? (
               <div className="flex flex-col items-center gap-2 px-4 py-12 text-center">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-clay-bg-2 text-clay-ink-muted">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
                   <LuServerCog className="h-5 w-5" strokeWidth={1.5} />
                 </div>
-                <div className="mt-2 text-[13px] font-semibold text-clay-ink">
+                <div className="mt-2 text-[13px] font-semibold text-foreground">
                   {searchQuery ? 'No matching flows' : 'No Meta Flows yet'}
                 </div>
-                <div className="max-w-[360px] text-[11.5px] text-clay-ink-muted">
+                <div className="max-w-[360px] text-[11.5px] text-muted-foreground">
                   {searchQuery
                     ? `Nothing matched "${searchQuery}". Try a different search.`
                     : 'Create a flow to let customers fill out forms, book slots, or order items inside a WhatsApp conversation.'}
@@ -278,7 +278,7 @@ export default function MetaFlowsPage() {
               </div>
             ) : (
               <table className="w-full text-[13px]">
-                <thead className="bg-clay-surface-2 border-b border-clay-border text-[11px] font-semibold uppercase tracking-wide text-clay-ink-muted">
+                <thead className="bg-secondary border-b border-border text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                   <tr>
                     <th className="px-4 py-3 text-left">Flow name</th>
                     <th className="px-4 py-3 text-left">Meta ID</th>
@@ -287,20 +287,20 @@ export default function MetaFlowsPage() {
                     <th className="px-4 py-3 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-clay-border">
+                <tbody className="divide-y divide-border">
                   {filteredFlows.map((flow) => {
                     const tone = statusTone(flow.status);
                     return (
                       <tr
                         key={flow._id.toString()}
-                        className="transition-colors hover:bg-clay-surface-2"
+                        className="transition-colors hover:bg-secondary"
                       >
                         <td className="px-4 py-3">
-                          <span className="font-medium text-clay-ink">
+                          <span className="font-medium text-foreground">
                             {flow.name}
                           </span>
                         </td>
-                        <td className="px-4 py-3 font-mono text-[12px] text-clay-ink-muted tabular-nums">
+                        <td className="px-4 py-3 font-mono text-[12px] text-muted-foreground tabular-nums">
                           {flow.metaId}
                         </td>
                         <td className="px-4 py-3">
@@ -308,7 +308,7 @@ export default function MetaFlowsPage() {
                             {flow.categories?.map((cat) => (
                               <span
                                 key={cat}
-                                className="inline-flex h-5 items-center rounded-full border border-clay-border bg-clay-bg-2 px-2 text-[10.5px] font-medium text-clay-ink-muted"
+                                className="inline-flex h-5 items-center rounded-full border border-border bg-muted px-2 text-[10.5px] font-medium text-muted-foreground"
                               >
                                 {cat}
                               </span>
@@ -337,7 +337,7 @@ export default function MetaFlowsPage() {
                               <button
                                 type="button"
                                 aria-label="Open menu"
-                                className="flex h-7 w-7 items-center justify-center rounded-md text-clay-ink-muted hover:bg-clay-bg-2 hover:text-clay-ink transition-colors"
+                                className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                               >
                                 <LuEllipsis className="h-4 w-4" />
                               </button>
@@ -398,22 +398,22 @@ function Stat({
   tint?: 'neutral' | 'green';
 }) {
   return (
-    <div className="rounded-[14px] border border-clay-border bg-clay-surface p-4">
-      <div className="text-[11px] font-medium uppercase tracking-wide text-clay-ink-muted">
+    <div className="rounded-[14px] border border-border bg-card p-4">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
         {label}
       </div>
       <div className="mt-2 flex items-baseline gap-2">
         <div
           className={cn(
             'text-[22px] font-semibold tracking-[-0.01em] leading-none',
-            tint === 'green' ? 'text-clay-green' : 'text-clay-ink',
+            tint === 'green' ? 'text-emerald-500' : 'text-foreground',
           )}
         >
           {value}
         </div>
       </div>
       {hint ? (
-        <div className="mt-1 text-[11px] text-clay-ink-muted leading-tight truncate">
+        <div className="mt-1 text-[11px] text-muted-foreground leading-tight truncate">
           {hint}
         </div>
       ) : null}

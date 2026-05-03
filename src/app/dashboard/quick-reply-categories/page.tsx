@@ -59,17 +59,17 @@ export default function QuickReplyCategoriesPage() {
       />
 
       <div>
-        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">
+        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
           Quick Reply Categories
         </h1>
-        <p className="mt-1.5 max-w-[720px] text-[13px] text-clay-ink-muted">
+        <p className="mt-1.5 max-w-[720px] text-[13px] text-muted-foreground">
           Organize your quick replies into categories for faster access during conversations.
         </p>
       </div>
 
       {/* Add form */}
       <ClayCard className="p-5">
-        <h3 className="text-sm font-medium text-clay-ink mb-3">Add Category</h3>
+        <h3 className="text-sm font-medium text-foreground mb-3">Add Category</h3>
         <div className="flex gap-3">
           <input
             type="text"
@@ -77,7 +77,7 @@ export default function QuickReplyCategoriesPage() {
             onChange={(e) => setName(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSave()}
             placeholder="Category name"
-            className="flex-1 rounded-lg border border-clay-border bg-clay-bg px-3 py-2 text-sm text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-accent focus:outline-none"
+            className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none"
           />
           <ClayButton size="sm" onClick={handleSave} disabled={isPending || !name.trim()}>
             <LuPlus className="mr-1.5 h-3.5 w-3.5" /> Save
@@ -88,7 +88,7 @@ export default function QuickReplyCategoriesPage() {
       {/* Categories list */}
       {categories.length > 0 ? (
         <ClayCard className="p-5">
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-clay-ink-muted mb-4">
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground mb-4">
             {categories.length} {categories.length === 1 ? 'category' : 'categories'}
           </div>
           <div className="flex flex-wrap gap-2">
@@ -100,8 +100,8 @@ export default function QuickReplyCategoriesPage() {
       ) : (
         !isPending && (
           <ClayCard className="p-12 text-center">
-            <LuTag className="mx-auto h-12 w-12 text-clay-ink-muted/30 mb-4" />
-            <p className="text-sm text-clay-ink-muted">No categories yet. Create one above.</p>
+            <LuTag className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
+            <p className="text-sm text-muted-foreground">No categories yet. Create one above.</p>
           </ClayCard>
         )
       )}

@@ -139,41 +139,41 @@ export default function LeaveTypesPage() {
 
       <ClayCard>
         {isLoadingList && types.length === 0 ? (
-          <div className="py-12 text-center text-[13px] text-clay-ink-muted">Loading…</div>
+          <div className="py-12 text-center text-[13px] text-muted-foreground">Loading…</div>
         ) : types.length === 0 ? (
-          <div className="py-12 text-center text-[13px] text-clay-ink-muted">
+          <div className="py-12 text-center text-[13px] text-muted-foreground">
             No leave types yet. Add one above.
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+          <div className="overflow-x-auto rounded-lg border border-border">
             <table className="w-full text-left text-[13px]">
               <thead>
-                <tr className="border-b border-clay-border">
-                  <th className="px-4 py-3 font-medium text-clay-ink-muted">Type</th>
-                  <th className="px-4 py-3 font-medium text-clay-ink-muted">Per Year</th>
-                  <th className="px-4 py-3 font-medium text-clay-ink-muted">Monthly Cap</th>
-                  <th className="px-4 py-3 font-medium text-clay-ink-muted">Unit</th>
-                  <th className="px-4 py-3 font-medium text-clay-ink-muted">Paid</th>
-                  <th className="px-4 py-3 font-medium text-clay-ink-muted">Status</th>
-                  <th className="px-4 py-3 text-right font-medium text-clay-ink-muted">Actions</th>
+                <tr className="border-b border-border">
+                  <th className="px-4 py-3 font-medium text-muted-foreground">Type</th>
+                  <th className="px-4 py-3 font-medium text-muted-foreground">Per Year</th>
+                  <th className="px-4 py-3 font-medium text-muted-foreground">Monthly Cap</th>
+                  <th className="px-4 py-3 font-medium text-muted-foreground">Unit</th>
+                  <th className="px-4 py-3 font-medium text-muted-foreground">Paid</th>
+                  <th className="px-4 py-3 font-medium text-muted-foreground">Status</th>
+                  <th className="px-4 py-3 text-right font-medium text-muted-foreground">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {types.map((t) => (
-                  <tr key={t._id} className="border-b border-clay-border last:border-0">
+                  <tr key={t._id} className="border-b border-border last:border-0">
                     <td className="px-4 py-3">
                       <span className="inline-flex items-center gap-2">
                         <span
                           aria-hidden
-                          className="inline-block h-3 w-3 rounded-full border border-clay-border"
+                          className="inline-block h-3 w-3 rounded-full border border-border"
                           style={{ backgroundColor: t.color || '#94A3B8' }}
                         />
-                        <span className="font-medium text-clay-ink">{t.type_name}</span>
+                        <span className="font-medium text-foreground">{t.type_name}</span>
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-clay-ink">{t.no_of_leaves}</td>
-                    <td className="px-4 py-3 text-clay-ink">{t.monthly_limit}</td>
-                    <td className="px-4 py-3 text-clay-ink capitalize">{t.leave_unit}</td>
+                    <td className="px-4 py-3 text-foreground">{t.no_of_leaves}</td>
+                    <td className="px-4 py-3 text-foreground">{t.monthly_limit}</td>
+                    <td className="px-4 py-3 text-foreground capitalize">{t.leave_unit}</td>
                     <td className="px-4 py-3">
                       <ClayBadge tone={t.paid ? 'green' : 'amber'}>
                         {t.paid ? 'Paid' : 'Unpaid'}
@@ -216,7 +216,7 @@ export default function LeaveTypesPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <ClayCard className="w-full max-w-lg">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-[16px] font-semibold text-clay-ink">
+              <h2 className="text-[16px] font-semibold text-foreground">
                 {editing ? 'Edit Leave Type' : 'Add Leave Type'}
               </h2>
               <ClayButton
@@ -236,66 +236,66 @@ export default function LeaveTypesPage() {
 
               {/* type_name — full width */}
               <div className="md:col-span-2">
-                <Label className="text-clay-ink">Type Name *</Label>
+                <Label className="text-foreground">Type Name *</Label>
                 <Input
                   name="type_name"
                   required
                   value={typeName}
                   onChange={(e) => setTypeName(e.target.value)}
-                  className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
 
               {/* no_of_leaves */}
               <div>
-                <Label className="text-clay-ink">Leaves Per Year</Label>
+                <Label className="text-foreground">Leaves Per Year</Label>
                 <Input
                   name="no_of_leaves"
                   type="number"
                   min="0"
                   value={noOfLeaves}
                   onChange={(e) => setNoOfLeaves(e.target.value)}
-                  className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
 
               {/* monthly_limit */}
               <div>
-                <Label className="text-clay-ink">Monthly Limit</Label>
+                <Label className="text-foreground">Monthly Limit</Label>
                 <Input
                   name="monthly_limit"
                   type="number"
                   min="0"
                   value={monthlyLimit}
                   onChange={(e) => setMonthlyLimit(e.target.value)}
-                  className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
 
               {/* color */}
               <div>
-                <Label className="text-clay-ink">Color</Label>
+                <Label className="text-foreground">Color</Label>
                 <div className="mt-1.5 flex items-center gap-2">
                   <input
                     type="color"
                     name="color"
                     value={color}
                     onChange={(e) => setColor(e.target.value)}
-                    className="h-10 w-12 cursor-pointer rounded-clay-md border border-clay-border bg-clay-surface p-1"
+                    className="h-10 w-12 cursor-pointer rounded-lg border border-border bg-card p-1"
                   />
-                  <span className="text-[13px] text-clay-ink-muted">{color}</span>
+                  <span className="text-[13px] text-muted-foreground">{color}</span>
                 </div>
               </div>
 
               {/* leave_unit */}
               <div>
-                <Label className="text-clay-ink">Leave Unit</Label>
+                <Label className="text-foreground">Leave Unit</Label>
                 <Select
                   value={leaveUnit}
                   onValueChange={(v) => setLeaveUnit(v as typeof leaveUnit)}
                   name="leave_unit"
                 >
-                  <SelectTrigger className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
+                  <SelectTrigger className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -310,9 +310,9 @@ export default function LeaveTypesPage() {
 
               {/* paid */}
               <div>
-                <Label className="text-clay-ink">Paid</Label>
+                <Label className="text-foreground">Paid</Label>
                 <Select value={paid} onValueChange={setPaid} name="paid">
-                  <SelectTrigger className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
+                  <SelectTrigger className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -325,13 +325,13 @@ export default function LeaveTypesPage() {
 
               {/* status */}
               <div>
-                <Label className="text-clay-ink">Status</Label>
+                <Label className="text-foreground">Status</Label>
                 <Select
                   value={status}
                   onValueChange={(v) => setStatus(v as typeof status)}
                   name="status"
                 >
-                  <SelectTrigger className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
+                  <SelectTrigger className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>

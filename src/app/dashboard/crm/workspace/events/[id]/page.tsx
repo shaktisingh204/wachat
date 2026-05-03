@@ -59,7 +59,7 @@ export default function EventDetailPage() {
   if (loading) {
     return (
       <div className="flex w-full items-center justify-center">
-        <LoaderCircle className="h-5 w-5 animate-spin text-clay-ink-muted" />
+        <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -68,7 +68,7 @@ export default function EventDetailPage() {
     return (
       <div className="flex w-full flex-col gap-4">
         <CrmPageHeader title="Event" subtitle="Not found" icon={Calendar} />
-        <ClayCard><p className="text-center text-[13px] text-clay-ink-muted">Event not found.</p></ClayCard>
+        <ClayCard><p className="text-center text-[13px] text-muted-foreground">Event not found.</p></ClayCard>
       </div>
     );
   }
@@ -95,12 +95,12 @@ export default function EventDetailPage() {
           {event.repeat ? <ClayBadge tone="amber">Repeats</ClayBadge> : null}
         </div>
         {event.where ? (
-          <p className="flex items-center gap-1 text-[13px] text-clay-ink-muted">
+          <p className="flex items-center gap-1 text-[13px] text-muted-foreground">
             <MapPin className="h-3.5 w-3.5" /> {event.where}
           </p>
         ) : null}
         {event.online_link ? (
-          <p className="flex items-center gap-1 text-[13px] text-clay-ink-muted">
+          <p className="flex items-center gap-1 text-[13px] text-muted-foreground">
             <LinkIcon className="h-3.5 w-3.5" />
             <a href={event.online_link} target="_blank" rel="noreferrer" className="underline">
               {event.online_link}
@@ -108,14 +108,14 @@ export default function EventDetailPage() {
           </p>
         ) : null}
         {event.description ? (
-          <p className="mt-3 whitespace-pre-wrap text-[14px] leading-relaxed text-clay-ink">
+          <p className="mt-3 whitespace-pre-wrap text-[14px] leading-relaxed text-foreground">
             {event.description}
           </p>
         ) : null}
       </ClayCard>
 
       <ClayCard>
-        <h3 className="mb-3 text-[14px] font-semibold text-clay-ink">RSVP</h3>
+        <h3 className="mb-3 text-[14px] font-semibold text-foreground">RSVP</h3>
         <div className="flex flex-wrap gap-2">
           {(['yes', 'no', 'maybe'] as WsEventAttendeeStatus[]).map((s) => (
             <ClayButton key={s} variant="pill" onClick={() => handleRsvp(s)}>
@@ -126,16 +126,16 @@ export default function EventDetailPage() {
       </ClayCard>
 
       <ClayCard>
-        <h3 className="mb-3 text-[14px] font-semibold text-clay-ink">
+        <h3 className="mb-3 text-[14px] font-semibold text-foreground">
           Attendees ({attendees.length})
         </h3>
         {attendees.length === 0 ? (
-          <p className="text-[13px] text-clay-ink-muted">No attendees yet.</p>
+          <p className="text-[13px] text-muted-foreground">No attendees yet.</p>
         ) : (
-          <ul className="divide-y divide-clay-border">
+          <ul className="divide-y divide-border">
             {attendees.map((a) => (
               <li key={String(a._id)} className="flex items-center justify-between py-2 text-[13px]">
-                <span className="text-clay-ink">{a.user_name || a.user_id}</span>
+                <span className="text-foreground">{a.user_name || a.user_id}</span>
                 <ClayBadge
                   tone={
                     a.status === 'yes'

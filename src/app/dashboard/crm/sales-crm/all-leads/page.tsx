@@ -85,7 +85,7 @@ export default function CrmAllLeadsPage() {
           <Link
             href="/dashboard/crm/sales-crm/all-leads/new"
             className={cn(
-              'inline-flex h-9 items-center gap-2 rounded-full bg-clay-obsidian px-4 text-[13px] font-medium text-white hover:bg-clay-obsidian-hover',
+              'inline-flex h-9 items-center gap-2 rounded-full bg-foreground px-4 text-[13px] font-medium text-white hover:bg-foreground/90',
             )}
           >
             <Plus className="h-4 w-4" strokeWidth={1.75} />
@@ -97,40 +97,40 @@ export default function CrmAllLeadsPage() {
       <ClayCard>
         <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 className="text-[16px] font-semibold text-clay-ink">Leads Directory</h2>
-            <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">
+            <h2 className="text-[16px] font-semibold text-foreground">Leads Directory</h2>
+            <p className="mt-0.5 text-[12.5px] text-muted-foreground">
               A list of all leads in your CRM.
             </p>
           </div>
           <div className="relative w-full max-w-sm">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-clay-ink-muted" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="Search by title, name, email, or company..."
-              className="h-10 rounded-clay-md border-clay-border bg-clay-surface pl-9 text-[13px]"
+              className="h-10 rounded-lg border-border bg-card pl-9 text-[13px]"
               onChange={(e) => handleSearch(e.target.value)}
             />
           </div>
         </div>
 
-        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <Table>
             <TableHeader>
-              <TableRow className="border-clay-border hover:bg-transparent">
-                <TableHead className="text-clay-ink-muted">Lead Title</TableHead>
-                <TableHead className="text-clay-ink-muted">Contact</TableHead>
-                <TableHead className="text-clay-ink-muted">Company</TableHead>
-                <TableHead className="text-clay-ink-muted">Stage</TableHead>
-                <TableHead className="text-clay-ink-muted">Value</TableHead>
-                <TableHead className="text-clay-ink-muted">Source</TableHead>
-                <TableHead className="text-clay-ink-muted">Created</TableHead>
-                <TableHead className="text-clay-ink-muted">Follow-up</TableHead>
-                <TableHead className="text-clay-ink-muted w-[160px]">Action</TableHead>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableHead className="text-muted-foreground">Lead Title</TableHead>
+                <TableHead className="text-muted-foreground">Contact</TableHead>
+                <TableHead className="text-muted-foreground">Company</TableHead>
+                <TableHead className="text-muted-foreground">Stage</TableHead>
+                <TableHead className="text-muted-foreground">Value</TableHead>
+                <TableHead className="text-muted-foreground">Source</TableHead>
+                <TableHead className="text-muted-foreground">Created</TableHead>
+                <TableHead className="text-muted-foreground">Follow-up</TableHead>
+                <TableHead className="text-muted-foreground w-[160px]">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 [...Array(5)].map((_, i) => (
-                  <TableRow key={i} className="border-clay-border">
+                  <TableRow key={i} className="border-border">
                     <TableCell colSpan={9}>
                       <Skeleton className="h-10 w-full" />
                     </TableCell>
@@ -140,40 +140,40 @@ export default function CrmAllLeadsPage() {
                 leads.map((lead) => {
                   const stage = lead.stage || lead.status || '';
                   return (
-                    <TableRow key={lead._id.toString()} className="border-clay-border">
-                      <TableCell className="font-medium text-clay-ink">{lead.title}</TableCell>
+                    <TableRow key={lead._id.toString()} className="border-border">
+                      <TableCell className="font-medium text-foreground">{lead.title}</TableCell>
                       <TableCell>
-                        <div className="text-[13px] font-medium text-clay-ink">
+                        <div className="text-[13px] font-medium text-foreground">
                           {lead.contactName}
                         </div>
-                        <div className="text-[11.5px] text-clay-ink-muted">{lead.email}</div>
+                        <div className="text-[11.5px] text-muted-foreground">{lead.email}</div>
                       </TableCell>
-                      <TableCell className="text-[13px] text-clay-ink">
+                      <TableCell className="text-[13px] text-foreground">
                         {lead.company || 'N/A'}
                       </TableCell>
                       <TableCell>
                         <ClayBadge tone={statusTone(stage)}>{stage}</ClayBadge>
                       </TableCell>
-                      <TableCell className="font-mono text-[13px] text-clay-ink">
+                      <TableCell className="font-mono text-[13px] text-foreground">
                         {new Intl.NumberFormat('en-IN', {
                           style: 'currency',
                           currency: lead.currency || 'INR',
                         }).format(lead.value)}
                       </TableCell>
-                      <TableCell className="text-[13px] text-clay-ink">
+                      <TableCell className="text-[13px] text-foreground">
                         {lead.source || 'N/A'}
                       </TableCell>
-                      <TableCell className="text-[13px] text-clay-ink">
+                      <TableCell className="text-[13px] text-foreground">
                         {new Date(lead.createdAt).toLocaleDateString()}
                       </TableCell>
-                      <TableCell className="text-[13px] text-clay-ink">
+                      <TableCell className="text-[13px] text-foreground">
                         {lead.nextFollowUp
                           ? new Date(lead.nextFollowUp).toLocaleDateString()
                           : 'N/A'}
                       </TableCell>
                       <TableCell>
                         {(lead.status as string) === 'Converted' ? (
-                          <span className="text-[11.5px] text-clay-ink-muted">
+                          <span className="text-[11.5px] text-muted-foreground">
                             Converted
                           </span>
                         ) : (
@@ -196,7 +196,7 @@ export default function CrmAllLeadsPage() {
                                 });
                               }
                             }}
-                            className="inline-flex items-center gap-1 rounded-clay-sm border border-clay-border px-2.5 py-1 text-[11.5px] font-medium text-clay-ink hover:bg-clay-surface-muted disabled:opacity-60"
+                            className="inline-flex items-center gap-1 rounded-md border border-border px-2.5 py-1 text-[11.5px] font-medium text-foreground hover:bg-muted disabled:opacity-60"
                           >
                             {convertingId === lead._id.toString() ? (
                               <LoaderCircle className="h-3 w-3 animate-spin" />
@@ -211,10 +211,10 @@ export default function CrmAllLeadsPage() {
                   );
                 })
               ) : (
-                <TableRow className="border-clay-border">
+                <TableRow className="border-border">
                   <TableCell
                     colSpan={9}
-                    className="h-24 text-center text-[13px] text-clay-ink-muted"
+                    className="h-24 text-center text-[13px] text-muted-foreground"
                   >
                     No leads found.
                   </TableCell>

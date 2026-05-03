@@ -77,10 +77,10 @@ export default function BillingPage() {
                             </div>
                             <div>
                                 <div className="flex items-center gap-2">
-                                    <p className="text-[16px] font-semibold text-clay-ink">{planName}</p>
+                                    <p className="text-[16px] font-semibold text-foreground">{planName}</p>
                                     <ClayBadge tone="blue">Current plan</ClayBadge>
                                 </div>
-                                <p className="mt-1 text-[12.5px] text-clay-ink-muted">
+                                <p className="mt-1 text-[12.5px] text-muted-foreground">
                                     {price > 0
                                         ? `${formatCurrency(price, currency)} billed monthly`
                                         : 'Free — upgrade anytime to unlock more seats and features.'}
@@ -106,15 +106,15 @@ export default function BillingPage() {
             {/* Features */}
             <ClayCard padded>
                 <div className="mb-4">
-                    <p className="text-[13.5px] font-semibold text-clay-ink">What&apos;s included</p>
-                    <p className="text-[12.5px] text-clay-ink-muted">
+                    <p className="text-[13.5px] font-semibold text-foreground">What&apos;s included</p>
+                    <p className="text-[12.5px] text-muted-foreground">
                         Feature entitlements that come with your current plan.
                     </p>
                 </div>
                 {loading ? (
                     <Skeleton className="h-40 w-full" />
                 ) : featureEntries.length === 0 ? (
-                    <div className="rounded-xl border border-dashed border-clay-border bg-clay-surface-subtle p-6 text-center text-[12.5px] text-clay-ink-muted">
+                    <div className="rounded-xl border border-dashed border-border bg-muted/50 p-6 text-center text-[12.5px] text-muted-foreground">
                         Your plan does not expose a feature matrix. Contact sales for custom entitlements.
                     </div>
                 ) : (
@@ -124,13 +124,13 @@ export default function BillingPage() {
                                 <div
                                     className={
                                         on
-                                            ? 'flex h-5 w-5 items-center justify-center rounded-full bg-clay-green-soft text-clay-green'
-                                            : 'flex h-5 w-5 items-center justify-center rounded-full bg-clay-surface-subtle text-clay-ink-muted'
+                                            ? 'flex h-5 w-5 items-center justify-center rounded-full bg-emerald-50 text-emerald-500'
+                                            : 'flex h-5 w-5 items-center justify-center rounded-full bg-muted/50 text-muted-foreground'
                                     }
                                 >
                                     {on ? <LuCheck className="h-3 w-3" /> : <LuX className="h-3 w-3" />}
                                 </div>
-                                <span className={on ? 'text-clay-ink' : 'text-clay-ink-muted line-through'}>
+                                <span className={on ? 'text-foreground' : 'text-muted-foreground line-through'}>
                                     {prettyFeature(name)}
                                 </span>
                             </div>
@@ -142,12 +142,12 @@ export default function BillingPage() {
             {/* Payment method */}
             <ClayCard padded>
                 <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-clay-rose-soft text-clay-rose">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-accent text-primary">
                         <LuCreditCard className="h-4 w-4" />
                     </div>
                     <div className="flex-1">
-                        <p className="text-[13.5px] font-semibold text-clay-ink">Payment method</p>
-                        <p className="text-[12.5px] text-clay-ink-muted">
+                        <p className="text-[13.5px] font-semibold text-foreground">Payment method</p>
+                        <p className="text-[12.5px] text-muted-foreground">
                             {user?.wallet?.balance
                                 ? `Wallet balance ${formatCurrency(
                                       (user.wallet.balance ?? 0) / 100,

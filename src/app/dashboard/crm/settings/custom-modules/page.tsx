@@ -189,45 +189,45 @@ export default function CustomModulesPage() {
       />
 
       <ClayCard>
-        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <Table>
             <TableHeader>
-              <TableRow className="border-clay-border hover:bg-transparent">
-                <TableHead className="text-clay-ink-muted">Name</TableHead>
-                <TableHead className="text-clay-ink-muted">Slug</TableHead>
-                <TableHead className="text-clay-ink-muted">Table</TableHead>
-                <TableHead className="text-clay-ink-muted">Icon</TableHead>
-                <TableHead className="w-[120px] text-right text-clay-ink-muted">
+              <TableRow className="border-border hover:bg-transparent">
+                <TableHead className="text-muted-foreground">Name</TableHead>
+                <TableHead className="text-muted-foreground">Slug</TableHead>
+                <TableHead className="text-muted-foreground">Table</TableHead>
+                <TableHead className="text-muted-foreground">Icon</TableHead>
+                <TableHead className="w-[120px] text-right text-muted-foreground">
                   Actions
                 </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading && rows.length === 0 ? (
-                <TableRow className="border-clay-border">
+                <TableRow className="border-border">
                   <TableCell
                     colSpan={5}
-                    className="h-20 text-center text-[13px] text-clay-ink-muted"
+                    className="h-20 text-center text-[13px] text-muted-foreground"
                   >
                     <LoaderCircle className="mx-auto h-4 w-4 animate-spin" />
                   </TableCell>
                 </TableRow>
               ) : rows.length === 0 ? (
-                <TableRow className="border-clay-border">
+                <TableRow className="border-border">
                   <TableCell
                     colSpan={5}
-                    className="h-20 text-center text-[13px] text-clay-ink-muted"
+                    className="h-20 text-center text-[13px] text-muted-foreground"
                   >
                     No custom modules yet.
                   </TableCell>
                 </TableRow>
               ) : (
                 rows.map((row) => (
-                  <TableRow key={row._id} className="border-clay-border">
-                    <TableCell className="text-[13px] font-medium text-clay-ink">
+                  <TableRow key={row._id} className="border-border">
+                    <TableCell className="text-[13px] font-medium text-foreground">
                       {row.display_name || row.name}
                       {row.description ? (
-                        <div className="text-[12px] text-clay-ink-muted">
+                        <div className="text-[12px] text-muted-foreground">
                           {row.description}
                         </div>
                       ) : null}
@@ -237,10 +237,10 @@ export default function CustomModulesPage() {
                         <code>{row.name}</code>
                       </ClayBadge>
                     </TableCell>
-                    <TableCell className="text-[12px] text-clay-ink-muted">
+                    <TableCell className="text-[12px] text-muted-foreground">
                       {row.table || '—'}
                     </TableCell>
-                    <TableCell className="text-[12px] text-clay-ink-muted">
+                    <TableCell className="text-[12px] text-muted-foreground">
                       {row.icon || '—'}
                     </TableCell>
                     <TableCell className="text-right">
@@ -262,7 +262,7 @@ export default function CustomModulesPage() {
                           onClick={() => setDeletingId(row._id)}
                           aria-label="Delete"
                         >
-                          <Trash2 className="h-3.5 w-3.5 text-clay-red" />
+                          <Trash2 className="h-3.5 w-3.5 text-destructive" />
                         </Button>
                       </div>
                     </TableCell>
@@ -276,11 +276,11 @@ export default function CustomModulesPage() {
 
       {rows.length > 0 && roles.length > 0 ? (
         <ClayCard>
-          <div className="border-b border-clay-border p-5">
-            <h2 className="text-[15px] font-semibold text-clay-ink">
+          <div className="border-b border-border p-5">
+            <h2 className="text-[15px] font-semibold text-foreground">
               Permission matrix
             </h2>
-            <p className="text-[13px] text-clay-ink-muted">
+            <p className="text-[13px] text-muted-foreground">
               For each custom module × role pair, toggle the CRUD flags.
               {isBusy ? (
                 <LoaderCircle className="ml-2 inline h-3 w-3 animate-spin" />
@@ -290,19 +290,19 @@ export default function CustomModulesPage() {
           <div className="overflow-x-auto p-5">
             <Table>
               <TableHeader>
-                <TableRow className="border-clay-border hover:bg-transparent">
-                  <TableHead className="text-clay-ink-muted">Module</TableHead>
-                  <TableHead className="text-clay-ink-muted">Role</TableHead>
-                  <TableHead className="text-center text-clay-ink-muted">
+                <TableRow className="border-border hover:bg-transparent">
+                  <TableHead className="text-muted-foreground">Module</TableHead>
+                  <TableHead className="text-muted-foreground">Role</TableHead>
+                  <TableHead className="text-center text-muted-foreground">
                     View
                   </TableHead>
-                  <TableHead className="text-center text-clay-ink-muted">
+                  <TableHead className="text-center text-muted-foreground">
                     Create
                   </TableHead>
-                  <TableHead className="text-center text-clay-ink-muted">
+                  <TableHead className="text-center text-muted-foreground">
                     Edit
                   </TableHead>
-                  <TableHead className="text-center text-clay-ink-muted">
+                  <TableHead className="text-center text-muted-foreground">
                     Delete
                   </TableHead>
                 </TableRow>
@@ -314,12 +314,12 @@ export default function CustomModulesPage() {
                     return (
                       <TableRow
                         key={`${m._id}:${r._id}`}
-                        className="border-clay-border"
+                        className="border-border"
                       >
-                        <TableCell className="text-[13px] text-clay-ink">
+                        <TableCell className="text-[13px] text-foreground">
                           {m.display_name || m.name}
                         </TableCell>
-                        <TableCell className="text-[13px] text-clay-ink-muted">
+                        <TableCell className="text-[13px] text-muted-foreground">
                           {r.display_name || r.name}
                         </TableCell>
                         {(
@@ -328,7 +328,7 @@ export default function CustomModulesPage() {
                           <TableCell key={key} className="text-center">
                             <input
                               type="checkbox"
-                              className="h-4 w-4 cursor-pointer accent-clay-ink"
+                              className="h-4 w-4 cursor-pointer accent-foreground"
                               checked={!!p?.[key]}
                               disabled={isBusy}
                               onChange={() => togglePerm(m._id, r._id, key)}
@@ -349,10 +349,10 @@ export default function CustomModulesPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle className="text-clay-ink">
+            <DialogTitle className="text-foreground">
               {editing ? 'Edit Custom Module' : 'Add Custom Module'}
             </DialogTitle>
-            <DialogDescription className="text-clay-ink-muted">
+            <DialogDescription className="text-muted-foreground">
               Custom modules are tenant-specific entities with their own
               permission matrix.
             </DialogDescription>
@@ -363,30 +363,30 @@ export default function CustomModulesPage() {
               <input type="hidden" name="_id" value={editing._id} />
             ) : null}
             <div>
-              <Label htmlFor="display_name" className="text-clay-ink">
-                Display name <span className="text-clay-red">*</span>
+              <Label htmlFor="display_name" className="text-foreground">
+                Display name <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="display_name"
                 name="display_name"
                 required
                 defaultValue={editing?.display_name || ''}
-                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div>
-              <Label htmlFor="name" className="text-clay-ink">
+              <Label htmlFor="name" className="text-foreground">
                 Slug
               </Label>
               <Input
                 id="name"
                 name="name"
                 defaultValue={editing?.name || ''}
-                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div>
-              <Label htmlFor="icon" className="text-clay-ink">
+              <Label htmlFor="icon" className="text-foreground">
                 Icon name (lucide)
               </Label>
               <Input
@@ -394,11 +394,11 @@ export default function CustomModulesPage() {
                 name="icon"
                 defaultValue={editing?.icon || ''}
                 placeholder="Layers"
-                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div>
-              <Label htmlFor="table" className="text-clay-ink">
+              <Label htmlFor="table" className="text-foreground">
                 Table / collection
               </Label>
               <Input
@@ -406,11 +406,11 @@ export default function CustomModulesPage() {
                 name="table"
                 defaultValue={editing?.table || ''}
                 placeholder="crm_custom_entity_x"
-                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div>
-              <Label htmlFor="description" className="text-clay-ink">
+              <Label htmlFor="description" className="text-foreground">
                 Description
               </Label>
               <Textarea
@@ -418,7 +418,7 @@ export default function CustomModulesPage() {
                 name="description"
                 rows={2}
                 defaultValue={editing?.description || ''}
-                className="rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <DialogFooter className="gap-2">
@@ -455,10 +455,10 @@ export default function CustomModulesPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-clay-ink">
+            <AlertDialogTitle className="text-foreground">
               Delete custom module?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-clay-ink-muted">
+            <AlertDialogDescription className="text-muted-foreground">
               Its role permissions will also be removed.
             </AlertDialogDescription>
           </AlertDialogHeader>

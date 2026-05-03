@@ -120,29 +120,29 @@ export default function ProposalsPage() {
       <ClayCard>
         <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 className="text-[16px] font-semibold text-clay-ink">
+            <h2 className="text-[16px] font-semibold text-foreground">
               All Proposals
             </h2>
-            <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">
+            <p className="mt-0.5 text-[12.5px] text-muted-foreground">
               {proposals.length} result{proposals.length === 1 ? '' : 's'} · Total{' '}
               {fmtCurrency(totalValue, proposals[0]?.currency)}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <div className="relative">
-              <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-clay-ink-muted" />
+              <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search title or number…"
-                className="h-9 w-56 rounded-clay-md border-clay-border bg-clay-surface pl-8 text-[13px]"
+                className="h-9 w-56 rounded-lg border-border bg-card pl-8 text-[13px]"
               />
             </div>
             <Select
               value={status}
               onValueChange={(v) => setStatus(v as WsProposalStatus | 'all')}
             >
-              <SelectTrigger className="h-9 w-36 rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
+              <SelectTrigger className="h-9 w-36 rounded-lg border-border bg-card text-[13px]">
                 <SelectValue placeholder="All statuses" />
               </SelectTrigger>
               <SelectContent>
@@ -157,30 +157,30 @@ export default function ProposalsPage() {
           </div>
         </div>
 
-        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <Table>
             <TableHeader>
-              <TableRow className="border-clay-border hover:bg-transparent">
-                <TableHead className="text-clay-ink-muted">Number</TableHead>
-                <TableHead className="text-clay-ink-muted">Title</TableHead>
-                <TableHead className="text-clay-ink-muted">Issued</TableHead>
-                <TableHead className="text-clay-ink-muted">Valid Until</TableHead>
-                <TableHead className="text-clay-ink-muted">Status</TableHead>
-                <TableHead className="text-right text-clay-ink-muted">Total</TableHead>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableHead className="text-muted-foreground">Number</TableHead>
+                <TableHead className="text-muted-foreground">Title</TableHead>
+                <TableHead className="text-muted-foreground">Issued</TableHead>
+                <TableHead className="text-muted-foreground">Valid Until</TableHead>
+                <TableHead className="text-muted-foreground">Status</TableHead>
+                <TableHead className="text-right text-muted-foreground">Total</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRow className="border-clay-border">
+                <TableRow className="border-border">
                   <TableCell colSpan={6} className="h-24 text-center">
-                    <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-clay-ink-muted" />
+                    <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
                   </TableCell>
                 </TableRow>
               ) : empty ? (
-                <TableRow className="border-clay-border">
+                <TableRow className="border-border">
                   <TableCell
                     colSpan={6}
-                    className="h-24 text-center text-[13px] text-clay-ink-muted"
+                    className="h-24 text-center text-[13px] text-muted-foreground"
                   >
                     No proposals found.
                   </TableCell>
@@ -189,9 +189,9 @@ export default function ProposalsPage() {
                 proposals.map((p) => (
                   <TableRow
                     key={p._id}
-                    className="cursor-pointer border-clay-border hover:bg-clay-surface-2"
+                    className="cursor-pointer border-border hover:bg-secondary"
                   >
-                    <TableCell className="font-medium text-clay-ink">
+                    <TableCell className="font-medium text-foreground">
                       <Link
                         href={`/dashboard/crm/sales/proposals/${p._id}`}
                         className="hover:underline"
@@ -199,7 +199,7 @@ export default function ProposalsPage() {
                         {p.proposal_number}
                       </Link>
                     </TableCell>
-                    <TableCell className="text-clay-ink">
+                    <TableCell className="text-foreground">
                       <Link
                         href={`/dashboard/crm/sales/proposals/${p._id}`}
                         className="hover:underline"
@@ -207,10 +207,10 @@ export default function ProposalsPage() {
                         {p.title || '—'}
                       </Link>
                     </TableCell>
-                    <TableCell className="text-clay-ink">
+                    <TableCell className="text-foreground">
                       {fmtDate(p.issue_date)}
                     </TableCell>
-                    <TableCell className="text-clay-ink">
+                    <TableCell className="text-foreground">
                       {fmtDate(p.valid_until)}
                     </TableCell>
                     <TableCell>
@@ -218,7 +218,7 @@ export default function ProposalsPage() {
                         {p.status}
                       </ClayBadge>
                     </TableCell>
-                    <TableCell className="text-right font-medium text-clay-ink">
+                    <TableCell className="text-right font-medium text-foreground">
                       {fmtCurrency(p.total || 0, p.currency)}
                     </TableCell>
                   </TableRow>

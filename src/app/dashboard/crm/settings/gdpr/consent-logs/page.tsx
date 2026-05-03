@@ -96,50 +96,50 @@ export default function ConsentLogsPage() {
           </TabsList>
 
           <TabsContent value="leads">
-            <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+            <div className="overflow-x-auto rounded-lg border border-border">
               <Table>
                 <TableHeader>
-                  <TableRow className="border-clay-border hover:bg-transparent">
-                    <TableHead className="text-clay-ink-muted">
+                  <TableRow className="border-border hover:bg-transparent">
+                    <TableHead className="text-muted-foreground">
                       Lead ID
                     </TableHead>
-                    <TableHead className="text-clay-ink-muted">
+                    <TableHead className="text-muted-foreground">
                       Purpose
                     </TableHead>
-                    <TableHead className="text-clay-ink-muted">
+                    <TableHead className="text-muted-foreground">
                       State
                     </TableHead>
-                    <TableHead className="text-clay-ink-muted">
+                    <TableHead className="text-muted-foreground">
                       Timestamp
                     </TableHead>
-                    <TableHead className="text-clay-ink-muted">IP</TableHead>
+                    <TableHead className="text-muted-foreground">IP</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {isLoading && leads.length === 0 ? (
                     [...Array(3)].map((_, i) => (
-                      <TableRow key={i} className="border-clay-border">
+                      <TableRow key={i} className="border-border">
                         <TableCell colSpan={5}>
                           <Skeleton className="h-8 w-full" />
                         </TableCell>
                       </TableRow>
                     ))
                   ) : leads.length === 0 ? (
-                    <TableRow className="border-clay-border">
+                    <TableRow className="border-border">
                       <TableCell
                         colSpan={5}
-                        className="h-24 text-center text-[13px] text-clay-ink-muted"
+                        className="h-24 text-center text-[13px] text-muted-foreground"
                       >
                         No lead consent entries yet.
                       </TableCell>
                     </TableRow>
                   ) : (
                     leads.map((row) => (
-                      <TableRow key={row._id} className="border-clay-border">
-                        <TableCell className="text-[13px] text-clay-ink">
+                      <TableRow key={row._id} className="border-border">
+                        <TableCell className="text-[13px] text-foreground">
                           {row.lead_id || '—'}
                         </TableCell>
-                        <TableCell className="text-[13px] text-clay-ink">
+                        <TableCell className="text-[13px] text-foreground">
                           {purposeTitle(row.purpose_consent_id)}
                         </TableCell>
                         <TableCell>
@@ -147,10 +147,10 @@ export default function ConsentLogsPage() {
                             {row.granted ? 'Granted' : 'Revoked'}
                           </ClayBadge>
                         </TableCell>
-                        <TableCell className="text-[13px] text-clay-ink-muted">
+                        <TableCell className="text-[13px] text-muted-foreground">
                           {formatDateTime(row.granted_at)}
                         </TableCell>
-                        <TableCell className="text-[13px] text-clay-ink-muted">
+                        <TableCell className="text-[13px] text-muted-foreground">
                           {row.ip_address || '—'}
                         </TableCell>
                       </TableRow>
@@ -162,50 +162,50 @@ export default function ConsentLogsPage() {
           </TabsContent>
 
           <TabsContent value="users">
-            <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+            <div className="overflow-x-auto rounded-lg border border-border">
               <Table>
                 <TableHeader>
-                  <TableRow className="border-clay-border hover:bg-transparent">
-                    <TableHead className="text-clay-ink-muted">
+                  <TableRow className="border-border hover:bg-transparent">
+                    <TableHead className="text-muted-foreground">
                       User ID
                     </TableHead>
-                    <TableHead className="text-clay-ink-muted">
+                    <TableHead className="text-muted-foreground">
                       Purpose
                     </TableHead>
-                    <TableHead className="text-clay-ink-muted">
+                    <TableHead className="text-muted-foreground">
                       State
                     </TableHead>
-                    <TableHead className="text-clay-ink-muted">
+                    <TableHead className="text-muted-foreground">
                       Timestamp
                     </TableHead>
-                    <TableHead className="text-clay-ink-muted">IP</TableHead>
+                    <TableHead className="text-muted-foreground">IP</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {isLoading && users.length === 0 ? (
                     [...Array(3)].map((_, i) => (
-                      <TableRow key={i} className="border-clay-border">
+                      <TableRow key={i} className="border-border">
                         <TableCell colSpan={5}>
                           <Skeleton className="h-8 w-full" />
                         </TableCell>
                       </TableRow>
                     ))
                   ) : users.length === 0 ? (
-                    <TableRow className="border-clay-border">
+                    <TableRow className="border-border">
                       <TableCell
                         colSpan={5}
-                        className="h-24 text-center text-[13px] text-clay-ink-muted"
+                        className="h-24 text-center text-[13px] text-muted-foreground"
                       >
                         No user consent entries yet.
                       </TableCell>
                     </TableRow>
                   ) : (
                     users.map((row) => (
-                      <TableRow key={row._id} className="border-clay-border">
-                        <TableCell className="text-[13px] text-clay-ink">
+                      <TableRow key={row._id} className="border-border">
+                        <TableCell className="text-[13px] text-foreground">
                           {row.target_user_id || '—'}
                         </TableCell>
-                        <TableCell className="text-[13px] text-clay-ink">
+                        <TableCell className="text-[13px] text-foreground">
                           {purposeTitle(row.purpose_consent_id)}
                         </TableCell>
                         <TableCell>
@@ -213,10 +213,10 @@ export default function ConsentLogsPage() {
                             {row.granted ? 'Granted' : 'Revoked'}
                           </ClayBadge>
                         </TableCell>
-                        <TableCell className="text-[13px] text-clay-ink-muted">
+                        <TableCell className="text-[13px] text-muted-foreground">
                           {formatDateTime(row.granted_at)}
                         </TableCell>
-                        <TableCell className="text-[13px] text-clay-ink-muted">
+                        <TableCell className="text-[13px] text-muted-foreground">
                           {row.ip_address || '—'}
                         </TableCell>
                       </TableRow>

@@ -102,7 +102,7 @@ export default function CareersPageConfigPage() {
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="md:col-span-2">
-                <Label htmlFor="headline" className="text-clay-ink">
+                <Label htmlFor="headline" className="text-foreground">
                   Headline
                 </Label>
                 <div className="mt-1.5">
@@ -110,13 +110,13 @@ export default function CareersPageConfigPage() {
                     id="headline"
                     name="headline"
                     defaultValue={value('headline')}
-                    className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                    className="h-10 rounded-lg border-border bg-card text-[13px]"
                   />
                 </div>
               </div>
 
               <div className="md:col-span-2">
-                <Label htmlFor="intro" className="text-clay-ink">
+                <Label htmlFor="intro" className="text-foreground">
                   Intro
                 </Label>
                 <div className="mt-1.5">
@@ -125,13 +125,13 @@ export default function CareersPageConfigPage() {
                     name="intro"
                     rows={3}
                     defaultValue={value('intro')}
-                    className="rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                    className="rounded-lg border-border bg-card text-[13px]"
                   />
                 </div>
               </div>
 
               <div>
-                <Label htmlFor="logoUrl" className="text-clay-ink">
+                <Label htmlFor="logoUrl" className="text-foreground">
                   Logo URL
                 </Label>
                 <div className="mt-1.5">
@@ -139,13 +139,13 @@ export default function CareersPageConfigPage() {
                     id="logoUrl"
                     name="logoUrl"
                     defaultValue={value('logoUrl')}
-                    className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                    className="h-10 rounded-lg border-border bg-card text-[13px]"
                   />
                 </div>
               </div>
 
               <div>
-                <Label htmlFor="primaryColor" className="text-clay-ink">
+                <Label htmlFor="primaryColor" className="text-foreground">
                   Primary Color
                 </Label>
                 <div className="mt-1.5">
@@ -154,13 +154,13 @@ export default function CareersPageConfigPage() {
                     name="primaryColor"
                     defaultValue={value('primaryColor')}
                     placeholder="#E11D48"
-                    className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                    className="h-10 rounded-lg border-border bg-card text-[13px]"
                   />
                 </div>
               </div>
 
               <div>
-                <Label htmlFor="ctaLabel" className="text-clay-ink">
+                <Label htmlFor="ctaLabel" className="text-foreground">
                   CTA Label
                 </Label>
                 <div className="mt-1.5">
@@ -168,13 +168,13 @@ export default function CareersPageConfigPage() {
                     id="ctaLabel"
                     name="ctaLabel"
                     defaultValue={value('ctaLabel')}
-                    className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                    className="h-10 rounded-lg border-border bg-card text-[13px]"
                   />
                 </div>
               </div>
 
               <div>
-                <Label htmlFor="slug" className="text-clay-ink">
+                <Label htmlFor="slug" className="text-foreground">
                   Slug
                 </Label>
                 <div className="mt-1.5">
@@ -182,13 +182,13 @@ export default function CareersPageConfigPage() {
                     id="slug"
                     name="slug"
                     defaultValue={value('slug')}
-                    className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                    className="h-10 rounded-lg border-border bg-card text-[13px]"
                   />
                 </div>
               </div>
 
               <div className="md:col-span-2">
-                <Label htmlFor="isPublished" className="text-clay-ink">
+                <Label htmlFor="isPublished" className="text-foreground">
                   Published
                 </Label>
                 <div className="mt-1.5">
@@ -200,7 +200,7 @@ export default function CareersPageConfigPage() {
                   >
                     <SelectTrigger
                       id="isPublished"
-                      className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                      className="h-10 rounded-lg border-border bg-card text-[13px]"
                     >
                       <SelectValue placeholder="Select" />
                     </SelectTrigger>

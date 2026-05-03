@@ -180,27 +180,27 @@ export default function NewProposalPage() {
       <ClayCard>
         <div className="grid gap-4 md:grid-cols-3">
           <div className="md:col-span-2">
-            <Label className="text-clay-ink">Title</Label>
+            <Label className="text-foreground">Title</Label>
             <Input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Website redesign – Phase 1"
-              className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+              className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
             />
           </div>
           <div>
-            <Label className="text-clay-ink">Currency</Label>
+            <Label className="text-foreground">Currency</Label>
             <Input
               value={currency}
               onChange={(e) => setCurrency(e.target.value.toUpperCase())}
-              className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+              className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
             />
           </div>
 
           <div>
-            <Label className="text-clay-ink">Client</Label>
+            <Label className="text-foreground">Client</Label>
             <Select value={clientId} onValueChange={setClientId}>
-              <SelectTrigger className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
+              <SelectTrigger className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]">
                 <SelectValue placeholder="Select client" />
               </SelectTrigger>
               <SelectContent>
@@ -219,36 +219,36 @@ export default function NewProposalPage() {
             </Select>
           </div>
           <div>
-            <Label className="text-clay-ink">Issue Date</Label>
+            <Label className="text-foreground">Issue Date</Label>
             <Input
               type="date"
               value={issueDate}
               onChange={(e) => setIssueDate(e.target.value)}
-              className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+              className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
             />
           </div>
           <div>
-            <Label className="text-clay-ink">Valid Until</Label>
+            <Label className="text-foreground">Valid Until</Label>
             <Input
               type="date"
               value={validUntil}
               onChange={(e) => setValidUntil(e.target.value)}
-              className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+              className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
             />
           </div>
         </div>
 
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-clay-md border border-dashed border-clay-border bg-clay-surface-2 p-3">
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-dashed border-border bg-secondary p-3">
           <div className="flex items-center gap-3">
             <LayoutTemplate
-              className="h-4 w-4 text-clay-ink-muted"
+              className="h-4 w-4 text-muted-foreground"
               strokeWidth={1.75}
             />
-            <span className="text-[12.5px] text-clay-ink">
+            <span className="text-[12.5px] text-foreground">
               Start from a template
             </span>
             <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
-              <SelectTrigger className="h-9 w-60 rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
+              <SelectTrigger className="h-9 w-60 rounded-lg border-border bg-card text-[13px]">
                 <SelectValue placeholder="Select template" />
               </SelectTrigger>
               <SelectContent>
@@ -288,7 +288,7 @@ export default function NewProposalPage() {
           />
           <Label
             htmlFor="signature_required"
-            className="cursor-pointer text-[13px] text-clay-ink"
+            className="cursor-pointer text-[13px] text-foreground"
           >
             Require e-signature on acceptance
           </Label>

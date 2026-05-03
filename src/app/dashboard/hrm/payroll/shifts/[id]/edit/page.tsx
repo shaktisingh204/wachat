@@ -31,11 +31,11 @@ export default function EditShiftPage() {
         icon={Clock}
       />
       {!loaded ? (
-        <div className="text-[13px] text-clay-ink-muted">Loading…</div>
+        <div className="text-[13px] text-muted-foreground">Loading…</div>
       ) : shift ? (
         <ShiftForm initial={shift} />
       ) : (
-        <div className="text-[13px] text-clay-red">Shift not found.</div>
+        <div className="text-[13px] text-destructive">Shift not found.</div>
       )}
     </div>
   );

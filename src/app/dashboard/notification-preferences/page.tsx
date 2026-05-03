@@ -65,7 +65,7 @@ export default function NotificationPreferencesPage() {
   if (isLoading) {
     return (
       <div className="flex min-h-[300px] items-center justify-center">
-        <LuLoader className="h-6 w-6 animate-spin text-clay-ink-muted" />
+        <LuLoader className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -80,28 +80,28 @@ export default function NotificationPreferencesPage() {
 
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">Notification Preferences</h1>
-          <p className="mt-1.5 text-[13px] text-clay-ink-muted">Control which notifications you receive from Wachat.</p>
+          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">Notification Preferences</h1>
+          <p className="mt-1.5 text-[13px] text-muted-foreground">Control which notifications you receive from Wachat.</p>
         </div>
         <ClayButton variant="obsidian" size="sm" onClick={handleSave} disabled={!dirty || isSaving}>
           {isSaving ? 'Saving...' : dirty ? 'Save Changes' : 'All Saved'}
         </ClayButton>
       </div>
 
-      <ClayCard padded={false} className="divide-y divide-clay-border">
+      <ClayCard padded={false} className="divide-y divide-border">
         {NOTIF_DEFS.map((def) => {
           const Icon = def.icon;
           return (
             <div key={def.id} className="flex items-center gap-4 px-5 py-4">
-              <span className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-clay-surface-2 shrink-0">
-                <Icon className="h-5 w-5 text-clay-ink-muted" strokeWidth={1.75} />
+              <span className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-secondary shrink-0">
+                <Icon className="h-5 w-5 text-muted-foreground" strokeWidth={1.75} />
               </span>
               <div className="flex-1 min-w-0">
-                <div className="text-[14px] font-semibold text-clay-ink">{def.label}</div>
-                <div className="text-[12.5px] text-clay-ink-muted">{def.description}</div>
+                <div className="text-[14px] font-semibold text-foreground">{def.label}</div>
+                <div className="text-[12.5px] text-muted-foreground">{def.description}</div>
               </div>
               <button type="button" onClick={() => toggle(def.id)}
-                className={`relative h-6 w-11 rounded-full transition-colors shrink-0 ${prefs[def.id] ? 'bg-emerald-500' : 'bg-clay-surface-2'}`}
+                className={`relative h-6 w-11 rounded-full transition-colors shrink-0 ${prefs[def.id] ? 'bg-emerald-500' : 'bg-secondary'}`}
                 aria-label={`Toggle ${def.label}`}>
                 <span className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${prefs[def.id] ? 'translate-x-5' : 'translate-x-0'}`} />
               </button>

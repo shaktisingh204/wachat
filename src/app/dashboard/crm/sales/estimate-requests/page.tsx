@@ -119,44 +119,44 @@ export default function EstimateRequestsPage() {
 
       {showForm ? (
         <ClayCard>
-          <h2 className="mb-3 text-[16px] font-semibold text-clay-ink">
+          <h2 className="mb-3 text-[16px] font-semibold text-foreground">
             New Estimate Request
           </h2>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <Label className="text-clay-ink">Requester Name</Label>
+              <Label className="text-foreground">Requester Name</Label>
               <Input
                 value={requesterName}
                 onChange={(e) => setRequesterName(e.target.value)}
-                className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div>
-              <Label className="text-clay-ink">Requester Email</Label>
+              <Label className="text-foreground">Requester Email</Label>
               <Input
                 type="email"
                 value={requesterEmail}
                 onChange={(e) => setRequesterEmail(e.target.value)}
-                className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div className="md:col-span-2">
-              <Label className="text-clay-ink">Description</Label>
+              <Label className="text-foreground">Description</Label>
               <Textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={4}
                 placeholder="What work is being estimated?"
-                className="mt-1.5 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="mt-1.5 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div>
-              <Label className="text-clay-ink">Desired Date</Label>
+              <Label className="text-foreground">Desired Date</Label>
               <Input
                 type="date"
                 value={desiredDate}
                 onChange={(e) => setDesiredDate(e.target.value)}
-                className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
           </div>
@@ -187,29 +187,29 @@ export default function EstimateRequestsPage() {
       ) : null}
 
       <ClayCard>
-        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <Table>
             <TableHeader>
-              <TableRow className="border-clay-border hover:bg-transparent">
-                <TableHead className="text-clay-ink-muted">Description</TableHead>
-                <TableHead className="text-clay-ink-muted">Requester</TableHead>
-                <TableHead className="text-clay-ink-muted">Desired Date</TableHead>
-                <TableHead className="text-clay-ink-muted">Status</TableHead>
-                <TableHead className="text-clay-ink-muted">Created</TableHead>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableHead className="text-muted-foreground">Description</TableHead>
+                <TableHead className="text-muted-foreground">Requester</TableHead>
+                <TableHead className="text-muted-foreground">Desired Date</TableHead>
+                <TableHead className="text-muted-foreground">Status</TableHead>
+                <TableHead className="text-muted-foreground">Created</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRow className="border-clay-border">
+                <TableRow className="border-border">
                   <TableCell colSpan={5} className="h-24 text-center">
-                    <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-clay-ink-muted" />
+                    <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
                   </TableCell>
                 </TableRow>
               ) : rows.length === 0 ? (
-                <TableRow className="border-clay-border">
+                <TableRow className="border-border">
                   <TableCell
                     colSpan={5}
-                    className="h-24 text-center text-[13px] text-clay-ink-muted"
+                    className="h-24 text-center text-[13px] text-muted-foreground"
                   >
                     No estimate requests yet.
                   </TableCell>
@@ -218,12 +218,12 @@ export default function EstimateRequestsPage() {
                 rows.map((r) => (
                   <TableRow
                     key={r._id}
-                    className="cursor-pointer border-clay-border hover:bg-clay-surface-2"
+                    className="cursor-pointer border-border hover:bg-secondary"
                     onClick={() =>
                       router.push(`/dashboard/crm/sales/estimate-requests/${r._id}`)
                     }
                   >
-                    <TableCell className="max-w-[320px] truncate text-clay-ink">
+                    <TableCell className="max-w-[320px] truncate text-foreground">
                       <Link
                         href={`/dashboard/crm/sales/estimate-requests/${r._id}`}
                         className="font-medium hover:underline"
@@ -231,15 +231,15 @@ export default function EstimateRequestsPage() {
                         {r.description}
                       </Link>
                     </TableCell>
-                    <TableCell className="text-clay-ink">
+                    <TableCell className="text-foreground">
                       {r.requester_name || '—'}
                       {r.requester_email ? (
-                        <span className="block text-[11.5px] text-clay-ink-muted">
+                        <span className="block text-[11.5px] text-muted-foreground">
                           {r.requester_email}
                         </span>
                       ) : null}
                     </TableCell>
-                    <TableCell className="text-clay-ink">
+                    <TableCell className="text-foreground">
                       {fmtDate(r.desired_date)}
                     </TableCell>
                     <TableCell>
@@ -247,7 +247,7 @@ export default function EstimateRequestsPage() {
                         {r.status}
                       </ClayBadge>
                     </TableCell>
-                    <TableCell className="text-clay-ink">
+                    <TableCell className="text-foreground">
                       {fmtDate(r.createdAt)}
                     </TableCell>
                   </TableRow>

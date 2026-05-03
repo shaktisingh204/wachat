@@ -238,7 +238,7 @@ export default function WeeklyTimesheetDetailPage({
       <div>
         <Link
           href="/dashboard/crm/time-tracking/weekly-timesheets"
-          className="inline-flex items-center gap-1.5 text-[12.5px] text-clay-ink-muted hover:text-clay-ink"
+          className="inline-flex items-center gap-1.5 text-[12.5px] text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.75} />
           Back to Weekly Timesheets
@@ -303,7 +303,7 @@ export default function WeeklyTimesheetDetailPage({
                   variant="pill"
                   leading={
                     <X
-                      className="h-4 w-4 text-clay-red"
+                      className="h-4 w-4 text-destructive"
                       strokeWidth={1.75}
                     />
                   }
@@ -323,14 +323,14 @@ export default function WeeklyTimesheetDetailPage({
         </ClayCard>
       ) : !ts ? (
         <ClayCard>
-          <p className="text-center text-[13px] text-clay-ink-muted">
+          <p className="text-center text-[13px] text-muted-foreground">
             Timesheet not found.
           </p>
         </ClayCard>
       ) : (
         <>
           {ts.reason ? (
-            <div className="rounded-clay-md border border-clay-red-soft bg-clay-red-soft/40 p-3 text-[12.5px] text-clay-red">
+            <div className="rounded-lg border border-rose-50 bg-rose-50/40 p-3 text-[12.5px] text-destructive">
               <span className="font-semibold">Rejection reason: </span>
               {ts.reason}
             </div>
@@ -339,14 +339,14 @@ export default function WeeklyTimesheetDetailPage({
           <ClayCard>
             <div className="mb-3 flex flex-wrap items-end gap-3">
               <div className="min-w-[220px] flex-1">
-                <Label className="text-[11px] uppercase tracking-[0.18em] text-clay-ink-muted">
+                <Label className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
                   Add Task Row
                 </Label>
                 <Input
                   value={newTaskId}
                   onChange={(e) => setNewTaskId(e.target.value)}
                   placeholder="Task ID (optional — leave blank for general)"
-                  className="mt-1 h-9 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="mt-1 h-9 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
               <ClayButton
@@ -358,25 +358,25 @@ export default function WeeklyTimesheetDetailPage({
               </ClayButton>
             </div>
 
-            <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+            <div className="overflow-x-auto rounded-lg border border-border">
               <table className="w-full text-[13px]">
-                <thead className="bg-clay-surface-2">
+                <thead className="bg-secondary">
                   <tr>
-                    <th className="p-3 text-left text-[11.5px] font-medium uppercase tracking-[0.1em] text-clay-ink-muted">
+                    <th className="p-3 text-left text-[11.5px] font-medium uppercase tracking-[0.1em] text-muted-foreground">
                       Task
                     </th>
                     {weekDates.map((d, i) => (
                       <th
                         key={d}
-                        className="p-3 text-center text-[11.5px] font-medium uppercase tracking-[0.1em] text-clay-ink-muted"
+                        className="p-3 text-center text-[11.5px] font-medium uppercase tracking-[0.1em] text-muted-foreground"
                       >
                         <div>{DAY_LABELS[i]}</div>
-                        <div className="text-[10.5px] normal-case tracking-normal text-clay-ink-muted">
+                        <div className="text-[10.5px] normal-case tracking-normal text-muted-foreground">
                           {d.slice(5)}
                         </div>
                       </th>
                     ))}
-                    <th className="p-3 text-right text-[11.5px] font-medium uppercase tracking-[0.1em] text-clay-ink-muted">
+                    <th className="p-3 text-right text-[11.5px] font-medium uppercase tracking-[0.1em] text-muted-foreground">
                       Total
                     </th>
                     <th className="w-10" />
@@ -387,7 +387,7 @@ export default function WeeklyTimesheetDetailPage({
                     <tr>
                       <td
                         colSpan={weekDates.length + 3}
-                        className="p-6 text-center text-[13px] text-clay-ink-muted"
+                        className="p-6 text-center text-[13px] text-muted-foreground"
                       >
                         No rows — add a task ID above to start logging.
                       </td>
@@ -402,11 +402,11 @@ export default function WeeklyTimesheetDetailPage({
                       return (
                         <tr
                           key={tid}
-                          className="border-t border-clay-border"
+                          className="border-t border-border"
                         >
-                          <td className="p-2 text-clay-ink">
+                          <td className="p-2 text-foreground">
                             {tid === '__no_task__' ? (
-                              <span className="text-clay-ink-muted">
+                              <span className="text-muted-foreground">
                                 (General)
                               </span>
                             ) : (
@@ -423,18 +423,18 @@ export default function WeeklyTimesheetDetailPage({
                                 onChange={(e) =>
                                   updateCell(tid, d, e.target.value)
                                 }
-                                className="h-9 w-20 rounded-clay-md border-clay-border bg-clay-surface text-center text-[13px] tabular-nums"
+                                className="h-9 w-20 rounded-lg border-border bg-card text-center text-[13px] tabular-nums"
                               />
                             </td>
                           ))}
-                          <td className="p-2 text-right font-mono tabular-nums text-clay-ink">
+                          <td className="p-2 text-right font-mono tabular-nums text-foreground">
                             {rowTotal.toFixed(2)}
                           </td>
                           <td className="p-2">
                             <button
                               type="button"
                               onClick={() => removeTaskRow(tid)}
-                              className="text-clay-ink-muted hover:text-clay-red"
+                              className="text-muted-foreground hover:text-destructive"
                               aria-label="Remove row"
                             >
                               <Trash2
@@ -448,20 +448,20 @@ export default function WeeklyTimesheetDetailPage({
                     })
                   )}
                 </tbody>
-                <tfoot className="bg-clay-surface-2">
-                  <tr className="border-t border-clay-border">
-                    <td className="p-3 text-[11.5px] uppercase tracking-[0.1em] text-clay-ink-muted">
+                <tfoot className="bg-secondary">
+                  <tr className="border-t border-border">
+                    <td className="p-3 text-[11.5px] uppercase tracking-[0.1em] text-muted-foreground">
                       Day totals
                     </td>
                     {weekDates.map((d) => (
                       <td
                         key={d}
-                        className="p-3 text-center font-mono tabular-nums text-clay-ink"
+                        className="p-3 text-center font-mono tabular-nums text-foreground"
                       >
                         {(totals.dayTotals[d] || 0).toFixed(2)}
                       </td>
                     ))}
-                    <td className="p-3 text-right font-mono font-semibold tabular-nums text-clay-ink">
+                    <td className="p-3 text-right font-mono font-semibold tabular-nums text-foreground">
                       {totals.grand.toFixed(2)}
                     </td>
                     <td />
@@ -484,8 +484,8 @@ export default function WeeklyTimesheetDetailPage({
       >
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-clay-ink">Reject timesheet</DialogTitle>
-            <DialogDescription className="text-clay-ink-muted">
+            <DialogTitle className="text-foreground">Reject timesheet</DialogTitle>
+            <DialogDescription className="text-muted-foreground">
               Give a reason so the employee can revise and resubmit.
             </DialogDescription>
           </DialogHeader>
@@ -494,7 +494,7 @@ export default function WeeklyTimesheetDetailPage({
             value={rejectReason}
             onChange={(e) => setRejectReason(e.target.value)}
             placeholder="Reason…"
-            className="rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+            className="rounded-lg border-border bg-card text-[13px]"
           />
           <DialogFooter className="gap-2">
             <ClayButton

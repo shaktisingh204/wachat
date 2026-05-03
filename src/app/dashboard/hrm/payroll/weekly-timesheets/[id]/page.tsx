@@ -156,14 +156,14 @@ export default function WeeklyTimesheetDetailPage() {
   if (isLoading && !sheet) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <LoaderCircle className="h-8 w-8 animate-spin text-clay-ink-muted" />
+        <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
 
   if (!sheet) {
     return (
-      <div className="py-12 text-center text-[13px] text-clay-ink-muted">
+      <div className="py-12 text-center text-[13px] text-muted-foreground">
         Timesheet not found.
       </div>
     );
@@ -223,7 +223,7 @@ export default function WeeklyTimesheetDetailPage() {
       {/* Summary bar */}
       <div className="flex flex-wrap gap-4">
         <ClayCard>
-          <p className="text-[12px] text-clay-ink-muted">Status</p>
+          <p className="text-[12px] text-muted-foreground">Status</p>
           <div className="mt-1">
             <ClayBadge tone={STATUS_TONE[sheet.status]} dot>
               {sheet.status}
@@ -231,52 +231,52 @@ export default function WeeklyTimesheetDetailPage() {
           </div>
         </ClayCard>
         <ClayCard>
-          <p className="text-[12px] text-clay-ink-muted">Total Hours</p>
-          <p className="mt-1 text-[22px] font-semibold text-clay-ink">
+          <p className="text-[12px] text-muted-foreground">Total Hours</p>
+          <p className="mt-1 text-[22px] font-semibold text-foreground">
             {sheet.total_hours}h {String(sheet.total_minutes ?? 0).padStart(2, '0')}m
           </p>
         </ClayCard>
         {sheet.reason && (
           <ClayCard>
-            <p className="text-[12px] text-clay-ink-muted">Rejection Reason</p>
-            <p className="mt-1 text-[13px] text-clay-red">{sheet.reason}</p>
+            <p className="text-[12px] text-muted-foreground">Rejection Reason</p>
+            <p className="mt-1 text-[13px] text-destructive">{sheet.reason}</p>
           </ClayCard>
         )}
       </div>
 
       {/* Timesheet grid */}
       <ClayCard>
-        <h2 className="mb-4 text-[16px] font-semibold text-clay-ink">Hours Grid</h2>
-        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+        <h2 className="mb-4 text-[16px] font-semibold text-foreground">Hours Grid</h2>
+        <div className="overflow-x-auto rounded-lg border border-border">
           <table className="w-full min-w-[700px] text-[13px]">
             <thead>
-              <tr className="border-b border-clay-border bg-clay-surface-2">
-                <th className="px-3 py-2 text-left text-[12px] font-medium text-clay-ink-muted">
+              <tr className="border-b border-border bg-secondary">
+                <th className="px-3 py-2 text-left text-[12px] font-medium text-muted-foreground">
                   Task / Description
                 </th>
                 {weekDays.map((d) => (
                   <th
                     key={d.toISOString()}
-                    className="border-l border-clay-border px-3 py-2 text-center text-[12px] font-medium text-clay-ink"
+                    className="border-l border-border px-3 py-2 text-center text-[12px] font-medium text-foreground"
                   >
                     <div>{format(d, 'EEE')}</div>
-                    <div className="text-[11px] text-clay-ink-muted">{format(d, 'MMM d')}</div>
+                    <div className="text-[11px] text-muted-foreground">{format(d, 'MMM d')}</div>
                   </th>
                 ))}
-                <th className="border-l border-clay-border px-3 py-2 text-center text-[12px] font-medium text-clay-ink-muted">
+                <th className="border-l border-border px-3 py-2 text-center text-[12px] font-medium text-muted-foreground">
                   Total
                 </th>
               </tr>
             </thead>
             <tbody>
-              <tr className="border-t border-clay-border">
-                <td className="px-3 py-2 text-[13px] text-clay-ink-muted">Hours logged</td>
+              <tr className="border-t border-border">
+                <td className="px-3 py-2 text-[13px] text-muted-foreground">Hours logged</td>
                 {weekDays.map((d) => {
                   const key = wsToISODate(d);
                   return (
                     <td
                       key={d.toISOString()}
-                      className="border-l border-clay-border px-2 py-1.5 text-center"
+                      className="border-l border-border px-2 py-1.5 text-center"
                     >
                       <input
                         type="number"
@@ -289,30 +289,30 @@ export default function WeeklyTimesheetDetailPage() {
                           setCellValues((prev) => ({ ...prev, [key]: e.target.value }))
                         }
                         onBlur={(e) => handleCellBlur(key, e.target.value)}
-                        className="w-16 rounded-clay-sm border border-clay-border bg-clay-surface px-2 py-1 text-center text-[13px] text-clay-ink disabled:opacity-60"
+                        className="w-16 rounded-md border border-border bg-card px-2 py-1 text-center text-[13px] text-foreground disabled:opacity-60"
                       />
                     </td>
                   );
                 })}
-                <td className="border-l border-clay-border px-3 py-2 text-center font-semibold text-clay-ink">
+                <td className="border-l border-border px-3 py-2 text-center font-semibold text-foreground">
                   {grandTotal.toFixed(1)}h
                 </td>
               </tr>
             </tbody>
             <tfoot>
-              <tr className="border-t border-clay-border bg-clay-surface-2">
-                <td className="px-3 py-2 text-[12px] font-medium text-clay-ink-muted">
+              <tr className="border-t border-border bg-secondary">
+                <td className="px-3 py-2 text-[12px] font-medium text-muted-foreground">
                   Daily Total
                 </td>
                 {columnTotals.map((h, i) => (
                   <td
                     key={i}
-                    className="border-l border-clay-border px-3 py-2 text-center text-[13px] font-semibold text-clay-ink"
+                    className="border-l border-border px-3 py-2 text-center text-[13px] font-semibold text-foreground"
                   >
                     {h.toFixed(1)}h
                   </td>
                 ))}
-                <td className="border-l border-clay-border px-3 py-2 text-center text-[13px] font-bold text-clay-ink">
+                <td className="border-l border-border px-3 py-2 text-center text-[13px] font-bold text-foreground">
                   {grandTotal.toFixed(1)}h
                 </td>
               </tr>
@@ -320,7 +320,7 @@ export default function WeeklyTimesheetDetailPage() {
           </table>
         </div>
         {!canEdit && (
-          <p className="mt-3 text-[12px] text-clay-ink-muted">
+          <p className="mt-3 text-[12px] text-muted-foreground">
             Timesheet is {sheet.status} — editing is disabled.
           </p>
         )}

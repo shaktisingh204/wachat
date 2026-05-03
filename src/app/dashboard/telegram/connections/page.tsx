@@ -41,10 +41,10 @@ export default function TelegramConnectionsPage() {
                     <Plug className="h-6 w-6 text-white" strokeWidth={1.75} />
                 </div>
                 <div>
-                    <h1 className="text-[22px] font-semibold leading-tight tracking-tight text-clay-ink">
+                    <h1 className="text-[22px] font-semibold leading-tight tracking-tight text-foreground">
                         Connections
                     </h1>
-                    <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-clay-ink-muted">
+                    <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-muted-foreground">
                         Link a Telegram Bot (for standard messaging) or MTProto user credentials
                         (for full client-level automation).
                     </p>
@@ -56,10 +56,10 @@ export default function TelegramConnectionsPage() {
                 <div className="flex items-center justify-between">
                     <div>
                         <div className="flex items-center gap-2">
-                            <h2 className="text-[15px] font-semibold text-clay-ink">Bot API</h2>
+                            <h2 className="text-[15px] font-semibold text-foreground">Bot API</h2>
                             <ClayBadge tone="blue">Recommended</ClayBadge>
                         </div>
-                        <p className="mt-1 text-[12.5px] text-clay-ink-muted">
+                        <p className="mt-1 text-[12.5px] text-muted-foreground">
                             Create a bot with @BotFather and paste the token below.
                         </p>
                     </div>
@@ -76,7 +76,7 @@ export default function TelegramConnectionsPage() {
                 </div>
                 <div className="mt-5 flex flex-col gap-4">
                     <label className="flex flex-col gap-1.5">
-                        <span className="text-[11.5px] font-semibold uppercase tracking-[0.1em] text-clay-ink-muted">
+                        <span className="text-[11.5px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
                             Bot token
                         </span>
                         <ClayInput
@@ -87,11 +87,11 @@ export default function TelegramConnectionsPage() {
                         />
                     </label>
                     <div>
-                        <p className="mb-1.5 text-[11.5px] font-semibold uppercase tracking-[0.1em] text-clay-ink-muted">
+                        <p className="mb-1.5 text-[11.5px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
                             Webhook URL
                         </p>
                         <div className="flex items-center gap-2">
-                            <code className="flex-1 truncate rounded-clay-md border border-clay-border bg-clay-surface-2 px-3 py-2 font-mono text-[12px] text-clay-ink">
+                            <code className="flex-1 truncate rounded-lg border border-border bg-secondary px-3 py-2 font-mono text-[12px] text-foreground">
                                 {webhookUrl}
                             </code>
                             <ClayButton
@@ -114,7 +114,7 @@ export default function TelegramConnectionsPage() {
                 {status ? (
                     <p
                         className={`mt-4 text-[12.5px] ${
-                            status.kind === 'ok' ? 'text-clay-green' : 'text-clay-red'
+                            status.kind === 'ok' ? 'text-emerald-500' : 'text-destructive'
                         }`}
                     >
                         {status.message}
@@ -156,12 +156,12 @@ export default function TelegramConnectionsPage() {
                 <div className="flex items-center justify-between">
                     <div>
                         <div className="flex items-center gap-2">
-                            <h2 className="text-[15px] font-semibold text-clay-ink">
+                            <h2 className="text-[15px] font-semibold text-foreground">
                                 Client API (MTProto)
                             </h2>
                             <ClayBadge tone="neutral">Advanced</ClayBadge>
                         </div>
-                        <p className="mt-1 text-[12.5px] text-clay-ink-muted">
+                        <p className="mt-1 text-[12.5px] text-muted-foreground">
                             Needed for user-account automation: reading channel history, bulk imports,
                             large file transfers, group calls.
                         </p>
@@ -179,7 +179,7 @@ export default function TelegramConnectionsPage() {
                 </div>
                 <div className="mt-5 grid gap-4 md:grid-cols-2">
                     <label className="flex flex-col gap-1.5">
-                        <span className="text-[11.5px] font-semibold uppercase tracking-[0.1em] text-clay-ink-muted">
+                        <span className="text-[11.5px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
                             api_id
                         </span>
                         <ClayInput
@@ -189,7 +189,7 @@ export default function TelegramConnectionsPage() {
                         />
                     </label>
                     <label className="flex flex-col gap-1.5">
-                        <span className="text-[11.5px] font-semibold uppercase tracking-[0.1em] text-clay-ink-muted">
+                        <span className="text-[11.5px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
                             api_hash
                         </span>
                         <ClayInput

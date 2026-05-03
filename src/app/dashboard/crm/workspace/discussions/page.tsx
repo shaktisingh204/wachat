@@ -52,7 +52,7 @@ export default function DiscussionsPage() {
             render: (row) => (
               <Link
                 href={`/dashboard/crm/workspace/discussions/${row._id}`}
-                className="font-medium text-clay-ink hover:underline"
+                className="font-medium text-foreground hover:underline"
               >
                 {row.title}
               </Link>

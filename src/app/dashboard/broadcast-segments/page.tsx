@@ -85,17 +85,17 @@ export default function BroadcastSegmentsPage() {
       />
 
       <div className="min-w-0">
-        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">
+        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
           Broadcast Segments
         </h1>
-        <p className="mt-1.5 text-[13px] text-clay-ink-muted">
+        <p className="mt-1.5 text-[13px] text-muted-foreground">
           Create audience segments to target specific groups in your broadcast campaigns.
         </p>
       </div>
 
       {/* Create form */}
       <ClayCard padded={false} className="p-6">
-        <h2 className="text-[16px] font-semibold text-clay-ink mb-4">Create a segment</h2>
+        <h2 className="text-[16px] font-semibold text-foreground mb-4">Create a segment</h2>
         <form action={formAction} className="flex flex-col gap-4 max-w-lg">
           <input type="hidden" name="projectId" value={projectId || ''} />
           <input type="hidden" name="filterLastActive" value={lastActive} />
@@ -129,25 +129,25 @@ export default function BroadcastSegmentsPage() {
 
       {/* Segments grid */}
       <div>
-        <h2 className="text-[22px] font-semibold tracking-tight text-clay-ink leading-none">
+        <h2 className="text-[22px] font-semibold tracking-tight text-foreground leading-none">
           Your Segments ({segments.length})
         </h2>
-        <p className="mt-1.5 text-[12.5px] text-clay-ink-muted">
+        <p className="mt-1.5 text-[12.5px] text-muted-foreground">
           Manage saved audience segments for broadcast targeting.
         </p>
       </div>
 
       {isLoading && segments.length === 0 ? (
         <div className="flex h-20 items-center justify-center">
-          <LuLoader className="h-5 w-5 animate-spin text-clay-ink-muted" strokeWidth={1.75} />
+          <LuLoader className="h-5 w-5 animate-spin text-muted-foreground" strokeWidth={1.75} />
         </div>
       ) : segments.length === 0 ? (
         <ClayCard padded={false} className="p-10 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-clay-bg-2 text-clay-ink-muted">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
             <LuUsers className="h-5 w-5" strokeWidth={1.5} />
           </div>
-          <div className="mt-4 text-[15px] font-semibold text-clay-ink">No segments yet</div>
-          <div className="mt-1.5 text-[12.5px] text-clay-ink-muted">Create your first segment above.</div>
+          <div className="mt-4 text-[15px] font-semibold text-foreground">No segments yet</div>
+          <div className="mt-1.5 text-[12.5px] text-muted-foreground">Create your first segment above.</div>
         </ClayCard>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -156,12 +156,12 @@ export default function BroadcastSegmentsPage() {
             return (
               <ClayCard key={seg._id} padded={false} className="p-5">
                 <div className="flex items-start justify-between gap-2">
-                  <h3 className="text-[15px] font-semibold text-clay-ink">{seg.name}</h3>
+                  <h3 className="text-[15px] font-semibold text-foreground">{seg.name}</h3>
                   <button
                     type="button"
                     onClick={() => handleDelete(seg._id)}
                     disabled={deletingId === seg._id}
-                    className="flex h-7 w-7 items-center justify-center rounded-md text-clay-red hover:bg-clay-red-soft transition-colors shrink-0"
+                    className="flex h-7 w-7 items-center justify-center rounded-md text-destructive hover:bg-rose-50 transition-colors shrink-0"
                     aria-label={`Delete ${seg.name}`}
                   >
                     <LuTrash2 className="h-3.5 w-3.5" strokeWidth={1.75} />
@@ -178,10 +178,10 @@ export default function BroadcastSegmentsPage() {
                     <Badge variant="outline" className="text-[11px]">City: {filters.city}</Badge>
                   )}
                   {!filters.tags?.length && !filters.lastActive && !filters.city && (
-                    <span className="text-[11.5px] text-clay-ink-muted">No filters</span>
+                    <span className="text-[11.5px] text-muted-foreground">No filters</span>
                   )}
                 </div>
-                <p className="mt-3 text-[11px] text-clay-ink-muted">
+                <p className="mt-3 text-[11px] text-muted-foreground">
                   Created {new Date(seg.createdAt).toLocaleDateString()}
                 </p>
               </ClayCard>

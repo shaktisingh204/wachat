@@ -42,11 +42,11 @@ export function ContractSignForm({ token }: { token: string }) {
 
   return (
     <ClayCard>
-      <h2 className="mb-3 text-[15px] font-semibold text-clay-ink">
+      <h2 className="mb-3 text-[15px] font-semibold text-foreground">
         Sign this contract
       </h2>
       <div className="grid gap-3 md:grid-cols-2">
-        <label className="flex flex-col gap-1 text-[12.5px] text-clay-ink">
+        <label className="flex flex-col gap-1 text-[12.5px] text-foreground">
           Full name
           <ClayInput
             value={name}
@@ -54,7 +54,7 @@ export function ContractSignForm({ token }: { token: string }) {
             disabled={busy}
           />
         </label>
-        <label className="flex flex-col gap-1 text-[12.5px] text-clay-ink">
+        <label className="flex flex-col gap-1 text-[12.5px] text-foreground">
           Email (optional)
           <ClayInput
             type="email"
@@ -65,11 +65,11 @@ export function ContractSignForm({ token }: { token: string }) {
         </label>
       </div>
       <div className="mt-3">
-        <p className="mb-1 text-[12.5px] text-clay-ink">Signature</p>
+        <p className="mb-1 text-[12.5px] text-foreground">Signature</p>
         <SignaturePad ref={padRef} />
       </div>
       {error ? (
-        <p className="mt-3 text-[12.5px] text-clay-rose-ink">{error}</p>
+        <p className="mt-3 text-[12.5px] text-accent-foreground">{error}</p>
       ) : null}
       <div className="mt-4 flex flex-wrap justify-end gap-2">
         <ClayButton

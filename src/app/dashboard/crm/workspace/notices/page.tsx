@@ -84,11 +84,11 @@ export default function NoticesPage() {
 
       {loading ? (
         <ClayCard className="flex items-center justify-center py-10">
-          <LoaderCircle className="h-5 w-5 animate-spin text-clay-ink-muted" />
+          <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />
         </ClayCard>
       ) : sorted.length === 0 ? (
         <ClayCard>
-          <p className="text-center text-[13px] text-clay-ink-muted">
+          <p className="text-center text-[13px] text-muted-foreground">
             No notices yet — click New Notice to publish your first.
           </p>
         </ClayCard>
@@ -103,7 +103,7 @@ export default function NoticesPage() {
                     <div className="flex flex-wrap items-center gap-2">
                       <Link
                         href={`/dashboard/crm/workspace/notices/${n._id}`}
-                        className="text-[14.5px] font-semibold text-clay-ink hover:underline"
+                        className="text-[14.5px] font-semibold text-foreground hover:underline"
                       >
                         {n.heading}
                       </Link>
@@ -125,10 +125,10 @@ export default function NoticesPage() {
                         </ClayBadge>
                       )}
                     </div>
-                    <p className="mt-1 line-clamp-2 text-[13px] text-clay-ink-muted">
+                    <p className="mt-1 line-clamp-2 text-[13px] text-muted-foreground">
                       {n.description}
                     </p>
-                    <p className="mt-1 text-[11.5px] text-clay-ink-muted">
+                    <p className="mt-1 text-[11.5px] text-muted-foreground">
                       {fmtDate(n.createdAt)}
                     </p>
                   </div>

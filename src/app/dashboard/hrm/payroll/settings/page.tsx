@@ -44,12 +44,12 @@ import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 const PlaceholderCard = ({ title, description }: { title: string, description: string }) => (
     <ClayCard>
         <div className="flex flex-col items-center gap-3 py-12 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-clay-md bg-clay-rose-soft">
-                <Settings className="h-6 w-6 text-clay-rose-ink" strokeWidth={1.75} />
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent">
+                <Settings className="h-6 w-6 text-accent-foreground" strokeWidth={1.75} />
             </div>
-            <h3 className="text-[15px] font-semibold text-clay-ink">{title}</h3>
-            <p className="text-[12.5px] text-clay-ink-muted">{description}</p>
-            <p className="mt-2 text-[11.5px] text-clay-ink-muted">This feature is under development and will be available soon.</p>
+            <h3 className="text-[15px] font-semibold text-foreground">{title}</h3>
+            <p className="text-[12.5px] text-muted-foreground">{description}</p>
+            <p className="mt-2 text-[11.5px] text-muted-foreground">This feature is under development and will be available soon.</p>
         </div>
     </ClayCard>
 );
@@ -112,7 +112,7 @@ function AddRoleDialog({ onRoleAdded }: { onRoleAdded: () => void }) {
                 </DialogHeader>
                 <div className="py-4">
                     <Label htmlFor="roleName">Role Name</Label>
-                    <Input id="roleName" value={roleName} onChange={(e) => setRoleName(e.target.value)} className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                    <Input id="roleName" value={roleName} onChange={(e) => setRoleName(e.target.value)} className="h-10 rounded-lg border-border bg-card text-[13px]" />
                 </div>
                 <DialogFooter>
                     <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
@@ -201,7 +201,7 @@ function AccessControlTab() {
     return (
         <form action={formAction}>
             <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-[15px] font-semibold text-clay-ink">Roles & Permissions</h3>
+                <h3 className="text-[15px] font-semibold text-foreground">Roles & Permissions</h3>
                 <AddRoleDialog onRoleAdded={fetchUser} />
             </div>
             <Accordion type="single" collapsible className="w-full space-y-4">
@@ -209,7 +209,7 @@ function AccessControlTab() {
                     const crmPermissions = (role as any).permissions || {};
 
                     return (
-                        <AccordionItem key={role.id} value={role.id} className="rounded-clay-md border border-clay-border bg-clay-surface">
+                        <AccordionItem key={role.id} value={role.id} className="rounded-lg border border-border bg-card">
                             <AccordionTrigger className="p-4 text-[14px] font-semibold hover:no-underline">
                                 <div className="flex items-center gap-2">
                                     {role.name}
@@ -220,15 +220,15 @@ function AccessControlTab() {
                                 <input type="hidden" name={`roleId`} value={role.id} />
                                 <Table>
                                     <TableHeader>
-                                        <TableRow className="border-clay-border">
-                                            <TableHead className="text-clay-ink-muted">Module</TableHead>
-                                            {actions.map(action => <TableHead key={action} className="text-center capitalize text-clay-ink-muted">{action}</TableHead>)}
+                                        <TableRow className="border-border">
+                                            <TableHead className="text-muted-foreground">Module</TableHead>
+                                            {actions.map(action => <TableHead key={action} className="text-center capitalize text-muted-foreground">{action}</TableHead>)}
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
                                         {crmModules.map(module => (
-                                            <TableRow key={module.id} className="border-clay-border">
-                                                <TableCell className="text-[13px] font-medium text-clay-ink">{module.name}</TableCell>
+                                            <TableRow key={module.id} className="border-border">
+                                                <TableCell className="text-[13px] font-medium text-foreground">{module.name}</TableCell>
                                                 {actions.map(action => (
                                                     <TableCell key={action} className="text-center">
                                                         <Checkbox
@@ -282,37 +282,37 @@ export default function HrmSettingsPage() {
             >
                 {activeTab === 'pay_cycle' && (
                     <div className="space-y-6">
-                        <h2 className="text-[20px] font-semibold tracking-tight text-clay-ink">Pay Cycle</h2>
+                        <h2 className="text-[20px] font-semibold tracking-tight text-foreground">Pay Cycle</h2>
                         <PlaceholderCard title="Pay Cycle Configuration" description="Define your company's pay period (e.g., monthly, weekly) and payroll processing dates." />
                     </div>
                 )}
                 {activeTab === 'attendance' && (
                     <div className="space-y-6">
-                        <h2 className="text-[20px] font-semibold tracking-tight text-clay-ink">Attendance</h2>
+                        <h2 className="text-[20px] font-semibold tracking-tight text-foreground">Attendance</h2>
                         <PlaceholderCard title="Attendance Rules" description="Set rules for late entry, early exit, overtime, and shift timings." />
                     </div>
                 )}
                 {activeTab === 'leave_policy' && (
                     <div className="space-y-6">
-                        <h2 className="text-[20px] font-semibold tracking-tight text-clay-ink">Leave Policy</h2>
+                        <h2 className="text-[20px] font-semibold tracking-tight text-foreground">Leave Policy</h2>
                         <PlaceholderCard title="Leave Policy Setup" description="Create and assign different leave types like Casual Leave (CL), Sick Leave (SL), and Paid Leave (PL)." />
                     </div>
                 )}
                 {activeTab === 'tax_deduction' && (
                     <div className="space-y-6">
-                        <h2 className="text-[20px] font-semibold tracking-tight text-clay-ink">Tax & Deductions</h2>
+                        <h2 className="text-[20px] font-semibold tracking-tight text-foreground">Tax & Deductions</h2>
                         <PlaceholderCard title="Tax & Deduction Rules" description="Manage formulas and rules for all statutory and custom deductions and allowances." />
                     </div>
                 )}
                 {activeTab === 'notifications' && (
                     <div className="space-y-6">
-                        <h2 className="text-[20px] font-semibold tracking-tight text-clay-ink">Notifications</h2>
+                        <h2 className="text-[20px] font-semibold tracking-tight text-foreground">Notifications</h2>
                         <PlaceholderCard title="Notification Settings" description="Configure email and SMS notification templates for HR-related events." />
                     </div>
                 )}
                 {activeTab === 'access_control' && (
                     <div className="space-y-6">
-                        <h2 className="text-[20px] font-semibold tracking-tight text-clay-ink">Access Control</h2>
+                        <h2 className="text-[20px] font-semibold tracking-tight text-foreground">Access Control</h2>
                         <AccessControlTab />
                     </div>
                 )}

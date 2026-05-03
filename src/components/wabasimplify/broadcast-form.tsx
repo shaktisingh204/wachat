@@ -422,7 +422,7 @@ export function BroadcastForm({
                     value={template._id.toString()}
                   >
                     {template.name}
-                    <span className="ml-2 text-[11px] capitalize text-clay-ink-soft">
+                    <span className="ml-2 text-[11px] capitalize text-muted-foreground">
                       {template.status
                         ? template.status.replace(/_/g, ' ').toLowerCase()
                         : 'n/a'}
@@ -430,7 +430,7 @@ export function BroadcastForm({
                   </SelectItem>
                 ))
               ) : (
-                <div className="px-2 py-4 text-center text-[12px] text-clay-ink-muted">
+                <div className="px-2 py-4 text-center text-[12px] text-muted-foreground">
                   No approved templates found. Sync with Meta or create a new
                   one.
                 </div>
@@ -457,7 +457,7 @@ export function BroadcastForm({
                   </SelectItem>
                 ))
               ) : (
-                <div className="px-2 py-4 text-center text-[12px] text-clay-ink-muted">
+                <div className="px-2 py-4 text-center text-[12px] text-muted-foreground">
                   No flows found. Sync with Meta or create a new one.
                 </div>
               )}
@@ -468,12 +468,12 @@ export function BroadcastForm({
 
       {/* ── Flow-only fields ── */}
       {broadcastType === 'flow' && (
-        <div className="grid gap-4 rounded-[14px] border border-clay-border bg-clay-surface-2 p-5 md:grid-cols-2">
+        <div className="grid gap-4 rounded-[14px] border border-border bg-secondary p-5 md:grid-cols-2">
           <div className="md:col-span-2">
-            <Label className="text-[11.5px] font-semibold uppercase tracking-wide text-clay-ink-muted">
+            <Label className="text-[11.5px] font-semibold uppercase tracking-wide text-muted-foreground">
               Flow entry message
             </Label>
-            <p className="mt-0.5 text-[11.5px] text-clay-ink-soft">
+            <p className="mt-0.5 text-[11.5px] text-muted-foreground">
               Define how the flow entry message looks to the user.
             </p>
           </div>
@@ -544,13 +544,13 @@ export function BroadcastForm({
         {audienceType === 'file' ? (
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between">
-              <Label className="text-[11.5px] font-semibold text-clay-ink-muted">
-                Contact file <span className="ml-1 text-clay-red">*</span>
+              <Label className="text-[11.5px] font-semibold text-muted-foreground">
+                Contact file <span className="ml-1 text-destructive">*</span>
               </Label>
               <button
                 type="button"
                 onClick={handleDownloadSample}
-                className="inline-flex items-center gap-1 text-[11px] font-medium text-clay-ink-muted transition-colors hover:text-clay-rose"
+                className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground transition-colors hover:text-primary"
               >
                 <LuDownload className="h-3 w-3" strokeWidth={2} />
                 Sample CSV
@@ -560,22 +560,22 @@ export function BroadcastForm({
               className={cn(
                 'group flex cursor-pointer flex-col items-center justify-center gap-2 rounded-[12px] border-2 border-dashed px-4 py-6 text-center transition-colors',
                 selectedFile
-                  ? 'border-clay-rose bg-clay-rose-soft/60'
-                  : 'border-clay-border-strong bg-clay-surface-2 hover:bg-clay-bg-2',
+                  ? 'border-primary bg-accent/60'
+                  : 'border-border bg-secondary hover:bg-muted',
               )}
             >
               <LuUpload
                 className={cn(
                   'h-5 w-5 transition-colors',
-                  selectedFile ? 'text-clay-rose-ink' : 'text-clay-ink-soft',
+                  selectedFile ? 'text-accent-foreground' : 'text-muted-foreground',
                 )}
                 strokeWidth={1.75}
               />
               <div className="flex flex-col gap-0.5">
-                <span className="text-[13px] font-medium text-clay-ink">
+                <span className="text-[13px] font-medium text-foreground">
                   {selectedFile?.name || 'Click to choose a file'}
                 </span>
-                <span className="text-[11px] text-clay-ink-soft">
+                <span className="text-[11px] text-muted-foreground">
                   {selectedFile ? 'Click to replace' : 'CSV or XLSX'}
                 </span>
               </div>
@@ -590,28 +590,28 @@ export function BroadcastForm({
                 className="sr-only"
               />
             </label>
-            <div className="mt-0.5 text-[11px] text-clay-ink-soft">
+            <div className="mt-0.5 text-[11px] text-muted-foreground">
               For variables, use column names that match your template (e.g.{' '}
-              <code className="rounded-[3px] bg-clay-bg-2 px-1 font-mono text-[10px] text-clay-rose-ink">
+              <code className="rounded-[3px] bg-muted px-1 font-mono text-[10px] text-accent-foreground">
                 variable1
               </code>
               ).
             </div>
 
             {isValidating ? (
-              <p className="mt-1 inline-flex items-center gap-1.5 text-[11.5px] text-clay-blue">
+              <p className="mt-1 inline-flex items-center gap-1.5 text-[11.5px] text-sky-500">
                 <LuLoader className="h-3 w-3 animate-spin" />
                 Validating file…
               </p>
             ) : null}
 
             {validationErrors.length > 0 && (
-              <div className="mt-2 rounded-[12px] border border-clay-red/40 bg-clay-red-soft p-3">
-                <div className="flex items-center gap-2 text-[12px] font-semibold text-clay-red">
+              <div className="mt-2 rounded-[12px] border border-destructive/40 bg-rose-50 p-3">
+                <div className="flex items-center gap-2 text-[12px] font-semibold text-destructive">
                   <LuCircleAlert className="h-3.5 w-3.5" strokeWidth={2} />
                   File error
                 </div>
-                <ul className="mt-1.5 list-disc space-y-0.5 pl-5 text-[11.5px] text-clay-red/90">
+                <ul className="mt-1.5 list-disc space-y-0.5 pl-5 text-[11.5px] text-destructive/90">
                   {validationErrors.slice(0, 5).map((err, i) => (
                     <li key={i}>{err}</li>
                   ))}
@@ -624,7 +624,7 @@ export function BroadcastForm({
           </div>
         ) : (
           <div className="flex flex-col gap-1.5">
-            <Label className="text-[11.5px] font-semibold text-clay-ink-muted">
+            <Label className="text-[11.5px] font-semibold text-muted-foreground">
               Contact tags
             </Label>
             <Popover>
@@ -633,8 +633,8 @@ export function BroadcastForm({
                   type="button"
                   role="combobox"
                   className={cn(
-                    'inline-flex h-10 w-full items-center justify-between gap-2 rounded-[10px] border border-clay-border bg-clay-surface px-3 text-[13px] font-medium transition-colors hover:border-clay-border-strong',
-                    selectedTagIds.length === 0 && 'text-clay-ink-soft',
+                    'inline-flex h-10 w-full items-center justify-between gap-2 rounded-[10px] border border-border bg-card px-3 text-[13px] font-medium transition-colors hover:border-border',
+                    selectedTagIds.length === 0 && 'text-muted-foreground',
                   )}
                 >
                   <span className="inline-flex items-center gap-1.5 truncate">
@@ -672,8 +672,8 @@ export function BroadcastForm({
                               className={cn(
                                 'mr-2 flex h-4 w-4 items-center justify-center rounded-[4px] border',
                                 isSelected
-                                  ? 'border-clay-rose bg-clay-rose text-white'
-                                  : 'border-clay-border',
+                                  ? 'border-primary bg-primary text-white'
+                                  : 'border-border',
                               )}
                             >
                               {isSelected ? (
@@ -696,7 +696,7 @@ export function BroadcastForm({
                 </Command>
               </PopoverContent>
             </Popover>
-            <div className="mt-0.5 text-[11px] text-clay-ink-soft">
+            <div className="mt-0.5 text-[11px] text-muted-foreground">
               Send this broadcast to every contact matching one or more of
               these tags.
             </div>
@@ -708,7 +708,7 @@ export function BroadcastForm({
       {broadcastType === 'template' && selectedTemplate && (
         <div className="flex flex-col gap-3">
           <StepLabel step={5} label="Template variables" />
-          <div className="rounded-[14px] border border-clay-border bg-clay-surface-2 p-5">
+          <div className="rounded-[14px] border border-border bg-secondary p-5">
             <TemplateInputRenderer
               template={selectedTemplate}
               variableOptions={variableOptions}
@@ -718,17 +718,17 @@ export function BroadcastForm({
       )}
 
       {/* ── Options ── */}
-      <div className="flex items-center gap-3 rounded-[14px] border border-clay-border bg-clay-surface-2 px-5 py-3">
+      <div className="flex items-center gap-3 rounded-[14px] border border-border bg-secondary px-5 py-3">
         <label className="flex items-center gap-2.5 cursor-pointer select-none">
           <input
             type="checkbox"
             checked={createContacts}
             onChange={(e) => setCreateContacts(e.target.checked)}
-            className="h-4 w-4 rounded border-clay-border text-clay-accent focus:ring-clay-accent"
+            className="h-4 w-4 rounded border-border text-accent focus:ring-accent"
           />
-          <span className="text-[12px] text-clay-ink font-medium">Create contacts in CRM</span>
+          <span className="text-[12px] text-foreground font-medium">Create contacts in CRM</span>
         </label>
-        <span className="text-[10px] text-clay-ink-muted">
+        <span className="text-[10px] text-muted-foreground">
           {createContacts
             ? 'New contacts will be added for each recipient not already in your CRM.'
             : 'Off — only existing contacts will be updated. No new contacts created.'}
@@ -736,28 +736,28 @@ export function BroadcastForm({
       </div>
 
       {/* ── Submit ── */}
-      <div className="flex flex-col items-stretch gap-3 border-t border-clay-border pt-5 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-2 text-[11.5px] text-clay-ink-muted">
+      <div className="flex flex-col items-stretch gap-3 border-t border-border pt-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2 text-[11.5px] text-muted-foreground">
           <LuFileText className="h-3.5 w-3.5" strokeWidth={2} />
           {selectedFile ? (
             <span>
               Ready:{' '}
-              <span className="font-medium text-clay-ink">
+              <span className="font-medium text-foreground">
                 {selectedFile.name}
               </span>{' '}
               {validationErrors.length > 0 ? (
-                <span className="text-clay-red">
+                <span className="text-destructive">
                   · {validationErrors.length} issue
                   {validationErrors.length === 1 ? '' : 's'}
                 </span>
               ) : (
-                <span className="text-clay-green">· validated</span>
+                <span className="text-emerald-500">· validated</span>
               )}
             </span>
           ) : audienceType === 'tags' && selectedTagIds.length > 0 ? (
             <span>
               Audience:{' '}
-              <span className="font-medium text-clay-ink">
+              <span className="font-medium text-foreground">
                 {selectedTagIds.length} tag
                 {selectedTagIds.length === 1 ? '' : 's'}
               </span>
@@ -789,8 +789,8 @@ export function BroadcastForm({
 
 function StepLabel({ step, label }: { step: number; label: string }) {
   return (
-    <span className="inline-flex items-center gap-2 text-[12.5px] font-semibold text-clay-ink">
-      <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-clay-rose-soft text-[10px] font-semibold tabular-nums text-clay-rose-ink">
+    <span className="inline-flex items-center gap-2 text-[12.5px] font-semibold text-foreground">
+      <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-accent text-[10px] font-semibold tabular-nums text-accent-foreground">
         {step}
       </span>
       {label}
@@ -817,16 +817,16 @@ function TypeOption({
       className={cn(
         'flex flex-1 cursor-pointer items-start gap-2.5 rounded-[12px] border px-3 py-2.5 transition-colors',
         active
-          ? 'border-clay-rose bg-clay-rose-soft/50'
-          : 'border-clay-border bg-clay-surface hover:bg-clay-surface-2',
+          ? 'border-primary bg-accent/50'
+          : 'border-border bg-card hover:bg-secondary',
       )}
     >
       <RadioGroupItem value={value} id={id} className="mt-0.5" />
       <div className="flex flex-col">
-        <span className="text-[13px] font-medium leading-tight text-clay-ink">
+        <span className="text-[13px] font-medium leading-tight text-foreground">
           {label}
         </span>
-        <span className="mt-0.5 text-[11px] leading-tight text-clay-ink-muted">
+        <span className="mt-0.5 text-[11px] leading-tight text-muted-foreground">
           {description}
         </span>
       </div>
@@ -851,12 +851,12 @@ function Field({
     <div className="flex flex-col gap-1.5">
       <Label
         htmlFor={htmlFor}
-        className="text-[11.5px] font-semibold text-clay-ink-muted"
+        className="text-[11.5px] font-semibold text-muted-foreground"
       >
         {label}
-        {required ? <span className="ml-1 text-clay-red">*</span> : null}
+        {required ? <span className="ml-1 text-destructive">*</span> : null}
         {optional ? (
-          <span className="ml-1 font-normal text-clay-ink-fade">
+          <span className="ml-1 font-normal text-muted-foreground/70">
             (optional)
           </span>
         ) : null}

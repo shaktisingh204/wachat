@@ -33,10 +33,10 @@ export default function WebhooksPage() {
 
       {/* Header */}
       <div>
-        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">
+        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
           Webhook configuration
         </h1>
-        <p className="mt-1.5 max-w-[720px] text-[13px] text-clay-ink-muted">
+        <p className="mt-1.5 max-w-[720px] text-[13px] text-muted-foreground">
           Point Meta&apos;s servers at your SabNode endpoint so deliveries,
           reads, and inbound messages flow back into the app in real time.
         </p>
@@ -48,21 +48,21 @@ export default function WebhooksPage() {
       {/* Setup guide */}
       <ClayCard padded={false} className="p-6">
         <div className="flex items-center gap-2.5">
-          <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-clay-rose-soft text-clay-rose-ink">
+          <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-accent text-accent-foreground">
             <LuWebhook className="h-4 w-4" strokeWidth={2} />
           </span>
           <div>
-            <div className="text-[15px] font-semibold text-clay-ink leading-tight">
+            <div className="text-[15px] font-semibold text-foreground leading-tight">
               Setup guide
             </div>
-            <div className="mt-0.5 text-[11.5px] text-clay-ink-muted">
+            <div className="mt-0.5 text-[11.5px] text-muted-foreground">
               Follow these steps in your Meta App dashboard to complete
               webhook registration.
             </div>
           </div>
         </div>
 
-        <ol className="mt-5 flex list-decimal flex-col gap-3 pl-5 text-[13px] leading-relaxed text-clay-ink">
+        <ol className="mt-5 flex list-decimal flex-col gap-3 pl-5 text-[13px] leading-relaxed text-foreground">
           <li>
             Go to your Meta App&apos;s dashboard and select the{' '}
             <strong>Webhooks</strong> product.
@@ -87,18 +87,18 @@ export default function WebhooksPage() {
           </li>
           <li>
             For full functionality, subscribe to all relevant events:
-            <ul className="mt-2 flex list-disc flex-col gap-1.5 pl-6 text-[12.5px] text-clay-ink-muted">
+            <ul className="mt-2 flex list-disc flex-col gap-1.5 pl-6 text-[12.5px] text-muted-foreground">
               <li>
-                <strong className="text-clay-ink">WhatsApp:</strong>{' '}
+                <strong className="text-foreground">WhatsApp:</strong>{' '}
                 <Code>messages</Code>, <Code>message_template_status_update</Code>,{' '}
                 <Code>phone_number_quality_update</Code>
               </li>
               <li>
-                <strong className="text-clay-ink">Facebook Pages:</strong>{' '}
+                <strong className="text-foreground">Facebook Pages:</strong>{' '}
                 <Code>feed</Code> (comments), <Code>messages</Code> (Messenger)
               </li>
               <li>
-                <strong className="text-clay-ink">E-Commerce:</strong>{' '}
+                <strong className="text-foreground">E-Commerce:</strong>{' '}
                 <Code>commerce_orders</Code>, <Code>catalog_product_events</Code>
               </li>
             </ul>
@@ -106,15 +106,15 @@ export default function WebhooksPage() {
         </ol>
 
         {/* Heads up callout */}
-        <div className="mt-5 flex items-start gap-3 rounded-[12px] border border-clay-border bg-clay-surface-2 p-4">
+        <div className="mt-5 flex items-start gap-3 rounded-[12px] border border-border bg-secondary p-4">
           <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[8px] bg-[#FEF3C7] text-[#92400E]">
             <LuLightbulb className="h-3.5 w-3.5" strokeWidth={2} />
           </span>
           <div className="min-w-0">
-            <div className="text-[13px] font-semibold text-clay-ink">
+            <div className="text-[13px] font-semibold text-foreground">
               Heads up
             </div>
-            <div className="mt-0.5 text-[12px] text-clay-ink-muted leading-relaxed">
+            <div className="mt-0.5 text-[12px] text-muted-foreground leading-relaxed">
               Your application must be deployed to a public URL for Meta&apos;s
               servers to reach the callback endpoint. Test events work from the
               dashboard, but real events require a public deployment.
@@ -126,10 +126,10 @@ export default function WebhooksPage() {
       {/* Webhook logs (shared component) */}
       <ClayCard padded={false} className="p-6">
         <div className="mb-4">
-          <div className="text-[15px] font-semibold text-clay-ink">
+          <div className="text-[15px] font-semibold text-foreground">
             Recent events
           </div>
-          <div className="mt-0.5 text-[11.5px] text-clay-ink-muted">
+          <div className="mt-0.5 text-[11.5px] text-muted-foreground">
             Live log of webhook events received for this project.
           </div>
         </div>
@@ -143,7 +143,7 @@ export default function WebhooksPage() {
 
 function Code({ children }: { children: React.ReactNode }) {
   return (
-    <code className="inline-flex items-center rounded-[4px] border border-clay-border bg-clay-surface px-1.5 py-0.5 font-mono text-[11px] text-clay-rose-ink">
+    <code className="inline-flex items-center rounded-[4px] border border-border bg-card px-1.5 py-0.5 font-mono text-[11px] text-accent-foreground">
       {children}
     </code>
   );

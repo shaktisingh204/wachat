@@ -56,7 +56,7 @@ const integrations: Integration[] = [
       'Connect your Razorpay account to accept payments directly from WhatsApp messages.',
     icon: <LuKey className="h-[18px] w-[18px]" strokeWidth={2} />,
     href: '/dashboard/integrations/razorpay',
-    accent: 'bg-clay-rose-soft text-clay-rose',
+    accent: 'bg-accent text-primary',
     status: 'ready',
   },
   {
@@ -125,19 +125,19 @@ export default function IntegrationsPage() {
               >
                 {integration.icon}
               </span>
-              <h3 className="text-[15px] font-semibold text-clay-ink">
+              <h3 className="text-[15px] font-semibold text-foreground">
                 {integration.title}
               </h3>
             </div>
 
-            <p className="flex-1 text-[13px] leading-relaxed text-clay-ink-muted">
+            <p className="flex-1 text-[13px] leading-relaxed text-muted-foreground">
               {integration.description}
             </p>
 
-            <div className="flex items-center justify-between border-t border-clay-border pt-4">
+            <div className="flex items-center justify-between border-t border-border pt-4">
               <span
                 className={`text-[11px] font-semibold uppercase tracking-[0.10em] ${
-                  integration.status === 'ready' ? 'text-emerald-600' : 'text-clay-ink-soft'
+                  integration.status === 'ready' ? 'text-emerald-600' : 'text-muted-foreground'
                 }`}
               >
                 {integration.status === 'ready' ? 'Ready to configure' : 'Coming soon'}
@@ -166,14 +166,14 @@ export default function IntegrationsPage() {
 
       {/* Footer hint */}
       <ClayCard variant="soft" className="mt-6 flex items-center gap-4 p-5">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-clay-rose-soft text-clay-rose">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent text-primary">
           <LuPuzzle className="h-[18px] w-[18px]" strokeWidth={2} />
         </span>
         <div className="flex-1">
-          <p className="text-[14px] font-semibold text-clay-ink">
+          <p className="text-[14px] font-semibold text-foreground">
             More integrations coming soon
           </p>
-          <p className="text-[12.5px] leading-snug text-clay-ink-muted">
+          <p className="text-[12.5px] leading-snug text-muted-foreground">
             Shopify, HubSpot, Zapier and Stripe are in the works. Need a
             specific one? Tell us.
           </p>

@@ -10,7 +10,7 @@ import { useEffect, useState } from 'react';
 function PageSkeleton() {
   return (
     <ClayCard>
-      <div className="animate-pulse h-96 rounded-clay-md bg-clay-border" />
+      <div className="animate-pulse h-96 rounded-lg bg-border" />
     </ClayCard>
   );
 }
@@ -48,7 +48,7 @@ export default function SabChatWidgetPage() {
           icon={MessageCircle}
         />
         <ClayCard>
-          <p className="text-[13px] text-clay-red">You must be logged in to configure the chat widget.</p>
+          <p className="text-[13px] text-destructive">You must be logged in to configure the chat widget.</p>
         </ClayCard>
       </div>
     );

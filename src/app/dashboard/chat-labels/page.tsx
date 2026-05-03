@@ -91,30 +91,30 @@ export default function ChatLabelsPage() {
       />
 
       <div className="min-w-0">
-        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">
+        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
           Chat Labels
         </h1>
-        <p className="mt-1.5 text-[13px] text-clay-ink-muted">
+        <p className="mt-1.5 text-[13px] text-muted-foreground">
           Create colored labels to organize and categorize your WhatsApp conversations.
         </p>
       </div>
 
       {/* Create form */}
       <ClayCard padded={false} className="p-6">
-        <h2 className="text-[16px] font-semibold text-clay-ink mb-4">Create a label</h2>
+        <h2 className="text-[16px] font-semibold text-foreground mb-4">Create a label</h2>
         <form action={formAction} className="flex flex-col gap-4">
           <input type="hidden" name="projectId" value={projectId || ''} />
           <input type="hidden" name="color" value={selectedColor} />
           <Input name="name" placeholder="Label name" required className="max-w-sm" />
           <div className="flex items-center gap-2">
-            <span className="text-[13px] text-clay-ink-muted mr-1">Color:</span>
+            <span className="text-[13px] text-muted-foreground mr-1">Color:</span>
             {PRESET_COLORS.map((c) => (
               <button
                 key={c.value}
                 type="button"
                 onClick={() => setSelectedColor(c.value)}
                 className={`h-7 w-7 rounded-full border-2 transition-all ${
-                  selectedColor === c.value ? 'border-clay-ink scale-110' : 'border-transparent'
+                  selectedColor === c.value ? 'border-foreground scale-110' : 'border-transparent'
                 }`}
                 style={{ backgroundColor: c.value }}
                 aria-label={c.name}
@@ -137,18 +137,18 @@ export default function ChatLabelsPage() {
 
       {/* Labels list */}
       <ClayCard padded={false} className="p-6">
-        <h2 className="text-[16px] font-semibold text-clay-ink mb-4">
+        <h2 className="text-[16px] font-semibold text-foreground mb-4">
           Your Labels ({labels.length})
         </h2>
         {isLoading && labels.length === 0 ? (
           <div className="flex h-20 items-center justify-center">
-            <LuLoader className="h-5 w-5 animate-spin text-clay-ink-muted" strokeWidth={1.75} />
+            <LuLoader className="h-5 w-5 animate-spin text-muted-foreground" strokeWidth={1.75} />
           </div>
         ) : labels.length === 0 ? (
-          <div className="flex flex-col items-center gap-2 rounded-clay-md border border-dashed border-clay-border bg-clay-surface-2 px-4 py-10 text-center">
-            <LuTag className="h-5 w-5 text-clay-ink-muted" strokeWidth={1.5} />
-            <div className="text-[13px] font-semibold text-clay-ink">No labels yet</div>
-            <div className="text-[11.5px] text-clay-ink-muted">Create your first label above.</div>
+          <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-border bg-secondary px-4 py-10 text-center">
+            <LuTag className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
+            <div className="text-[13px] font-semibold text-foreground">No labels yet</div>
+            <div className="text-[11.5px] text-muted-foreground">Create your first label above.</div>
           </div>
         ) : (
           <div className="flex flex-wrap gap-2">
@@ -168,7 +168,7 @@ export default function ChatLabelsPage() {
                   type="button"
                   onClick={() => handleDelete(label._id)}
                   disabled={isDeletingId === label._id}
-                  className="ml-1 rounded-full p-0.5 hover:bg-clay-bg-2 transition-colors"
+                  className="ml-1 rounded-full p-0.5 hover:bg-muted transition-colors"
                   aria-label={`Delete ${label.name}`}
                 >
                   <LuX className="h-3 w-3" />

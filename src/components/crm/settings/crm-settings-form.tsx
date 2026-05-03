@@ -73,30 +73,30 @@ export function CrmSettingsForm({ settings }: { settings: WithId<CrmSettings> })
                 {/* --- GENERAL SETTINGS --- */}
                 <TabsContent value="general" className="mt-6 space-y-6">
                     <ClayCard padded={false}>
-                        <div className="p-5 border-b border-clay-border">
-                            <h3 className="text-clay-ink font-semibold">Organization Profile</h3>
-                            <p className="text-sm text-clay-ink-muted">Details that will appear on your documents (Invoices, POs).</p>
+                        <div className="p-5 border-b border-border">
+                            <h3 className="text-foreground font-semibold">Organization Profile</h3>
+                            <p className="text-sm text-muted-foreground">Details that will appear on your documents (Invoices, POs).</p>
                         </div>
                         <div className="p-5 grid gap-6">
                             <div className="grid md:grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="companyName" className="text-clay-ink">Company Name</Label>
+                                    <Label htmlFor="companyName" className="text-foreground">Company Name</Label>
                                     <Input id="companyName" name="companyName" defaultValue={settings.companyName} placeholder="Acme Corp" required />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="companyPhone" className="text-clay-ink">Phone</Label>
+                                    <Label htmlFor="companyPhone" className="text-foreground">Phone</Label>
                                     <Input id="companyPhone" name="companyPhone" defaultValue={settings.companyPhone} placeholder="+91 99999 99999" />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="companyEmail" className="text-clay-ink">Email</Label>
+                                    <Label htmlFor="companyEmail" className="text-foreground">Email</Label>
                                     <Input id="companyEmail" name="companyEmail" defaultValue={settings.companyEmail} placeholder="info@acme.com" type="email" />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="gstin" className="text-clay-ink">GSTIN / Tax ID</Label>
+                                    <Label htmlFor="gstin" className="text-foreground">GSTIN / Tax ID</Label>
                                     <Input id="gstin" name="gstin" defaultValue={settings.gstin} placeholder="GSTIN Number" />
                                 </div>
                                 <div className="col-span-2 space-y-2">
-                                    <Label htmlFor="companyAddress" className="text-clay-ink">Address</Label>
+                                    <Label htmlFor="companyAddress" className="text-foreground">Address</Label>
                                     <Textarea id="companyAddress" name="companyAddress" defaultValue={settings.companyAddress} placeholder="Full business address" />
                                 </div>
                             </div>
@@ -104,13 +104,13 @@ export function CrmSettingsForm({ settings }: { settings: WithId<CrmSettings> })
                     </ClayCard>
 
                     <ClayCard padded={false}>
-                        <div className="p-5 border-b border-clay-border">
-                            <h3 className="text-clay-ink font-semibold">Regional Settings</h3>
-                            <p className="text-sm text-clay-ink-muted">Localization settings for your CRM.</p>
+                        <div className="p-5 border-b border-border">
+                            <h3 className="text-foreground font-semibold">Regional Settings</h3>
+                            <p className="text-sm text-muted-foreground">Localization settings for your CRM.</p>
                         </div>
                         <div className="p-5 grid gap-6 md:grid-cols-2">
                             <div className="space-y-2">
-                                <Label className="text-clay-ink">Currency</Label>
+                                <Label className="text-foreground">Currency</Label>
                                 <Select value={currency} onValueChange={setCurrency} name="currency">
                                     <SelectTrigger><SelectValue /></SelectTrigger>
                                     <SelectContent>
@@ -122,7 +122,7 @@ export function CrmSettingsForm({ settings }: { settings: WithId<CrmSettings> })
                                 </Select>
                             </div>
                             <div className="space-y-2">
-                                <Label className="text-clay-ink">Timezone</Label>
+                                <Label className="text-foreground">Timezone</Label>
                                 <Select value={timezone} onValueChange={setTimezone} name="timezone">
                                     <SelectTrigger><SelectValue /></SelectTrigger>
                                     <SelectContent>
@@ -134,7 +134,7 @@ export function CrmSettingsForm({ settings }: { settings: WithId<CrmSettings> })
                                 </Select>
                             </div>
                             <div className="space-y-2">
-                                <Label className="text-clay-ink">Date Format</Label>
+                                <Label className="text-foreground">Date Format</Label>
                                 <Select value={dateFormat} onValueChange={setDateFormat} name="dateFormat">
                                     <SelectTrigger><SelectValue /></SelectTrigger>
                                     <SelectContent>
@@ -145,7 +145,7 @@ export function CrmSettingsForm({ settings }: { settings: WithId<CrmSettings> })
                                 </Select>
                             </div>
                             <div className="space-y-2">
-                                <Label className="text-clay-ink">Financial Year Start</Label>
+                                <Label className="text-foreground">Financial Year Start</Label>
                                 <Select value={financialYear} onValueChange={setFinancialYear} name="financialYearStart">
                                     <SelectTrigger><SelectValue /></SelectTrigger>
                                     <SelectContent>
@@ -163,45 +163,45 @@ export function CrmSettingsForm({ settings }: { settings: WithId<CrmSettings> })
                 {/* --- SALES SETTINGS --- */}
                 <TabsContent value="sales" className="mt-6 space-y-6">
                     <ClayCard padded={false}>
-                        <div className="p-5 border-b border-clay-border">
-                            <h3 className="text-clay-ink font-semibold">Document Prefixes & Defaults</h3>
-                            <p className="text-sm text-clay-ink-muted">Automate your sales document generation.</p>
+                        <div className="p-5 border-b border-border">
+                            <h3 className="text-foreground font-semibold">Document Prefixes & Defaults</h3>
+                            <p className="text-sm text-muted-foreground">Automate your sales document generation.</p>
                         </div>
                         <div className="p-5 grid gap-6">
                             <div className="grid md:grid-cols-3 gap-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="invoicePrefix" className="text-clay-ink">Invoice Prefix</Label>
+                                    <Label htmlFor="invoicePrefix" className="text-foreground">Invoice Prefix</Label>
                                     <Input id="invoicePrefix" name="invoicePrefix" defaultValue={settings.invoicePrefix} placeholder="INV-" />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="quotationPrefix" className="text-clay-ink">Quotation Prefix</Label>
+                                    <Label htmlFor="quotationPrefix" className="text-foreground">Quotation Prefix</Label>
                                     <Input id="quotationPrefix" name="quotationPrefix" defaultValue={settings.quotationPrefix} placeholder="QUO-" />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="defaultTaxRate" className="text-clay-ink">Default GST/Tax %</Label>
+                                    <Label htmlFor="defaultTaxRate" className="text-foreground">Default GST/Tax %</Label>
                                     <Input id="defaultTaxRate" name="defaultTaxRate" type="number" defaultValue={settings.defaultTaxRate} placeholder="18" />
                                 </div>
                             </div>
-                            <Separator className="border-clay-border" />
+                            <Separator className="border-border" />
                             <div className="space-y-2">
-                                <Label htmlFor="defaultInvoiceTerms" className="text-clay-ink">Default Invoice Terms</Label>
+                                <Label htmlFor="defaultInvoiceTerms" className="text-foreground">Default Invoice Terms</Label>
                                 <Textarea id="defaultInvoiceTerms" name="defaultInvoiceTerms" defaultValue={settings.defaultInvoiceTerms} rows={3} />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="defaultQuotationTerms" className="text-clay-ink">Default Quotation Terms</Label>
+                                <Label htmlFor="defaultQuotationTerms" className="text-foreground">Default Quotation Terms</Label>
                                 <Textarea id="defaultQuotationTerms" name="defaultQuotationTerms" defaultValue={settings.defaultQuotationTerms} rows={3} />
                             </div>
                         </div>
                     </ClayCard>
                     <ClayCard padded={false}>
-                        <div className="p-5 border-b border-clay-border">
-                            <h3 className="text-clay-ink font-semibold">Sales Validation</h3>
+                        <div className="p-5 border-b border-border">
+                            <h3 className="text-foreground font-semibold">Sales Validation</h3>
                         </div>
                         <div className="p-5">
                             <div className="flex items-center justify-between">
                                 <div className="space-y-0.5">
-                                    <Label className="text-base text-clay-ink">Prevent Negative Stock</Label>
-                                    <p className="text-sm text-clay-ink-muted">Don't allow invoices if product stock is insufficient.</p>
+                                    <Label className="text-base text-foreground">Prevent Negative Stock</Label>
+                                    <p className="text-sm text-muted-foreground">Don't allow invoices if product stock is insufficient.</p>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <input type="hidden" name="enableStockValidation" value={stockValidation ? "on" : "off"} />
@@ -215,24 +215,24 @@ export function CrmSettingsForm({ settings }: { settings: WithId<CrmSettings> })
                 {/* --- INVENTORY SETTINGS --- */}
                 <TabsContent value="inventory" className="mt-6 space-y-6">
                     <ClayCard padded={false}>
-                        <div className="p-5 border-b border-clay-border">
-                            <h3 className="text-clay-ink font-semibold">Stock Management</h3>
-                            <p className="text-sm text-clay-ink-muted">Configure alerts and inventory behavior.</p>
+                        <div className="p-5 border-b border-border">
+                            <h3 className="text-foreground font-semibold">Stock Management</h3>
+                            <p className="text-sm text-muted-foreground">Configure alerts and inventory behavior.</p>
                         </div>
                         <div className="p-5 grid gap-6">
-                            <div className="flex items-center justify-between p-4 border border-clay-border rounded-clay-md">
+                            <div className="flex items-center justify-between p-4 border border-border rounded-lg">
                                 <div className="space-y-0.5">
-                                    <Label className="text-base text-clay-ink">Low Stock Alerts</Label>
-                                    <p className="text-sm text-clay-ink-muted">Show warnings when inventory drops below threshold.</p>
+                                    <Label className="text-base text-foreground">Low Stock Alerts</Label>
+                                    <p className="text-sm text-muted-foreground">Show warnings when inventory drops below threshold.</p>
                                 </div>
                                 <input type="hidden" name="enableLowStockAlerts" value={lowStockAlerts ? "on" : "off"} />
                                 <Switch checked={lowStockAlerts} onCheckedChange={setLowStockAlerts} />
                             </div>
                             {lowStockAlerts && (
                                 <div className="space-y-2 max-w-xs">
-                                    <Label htmlFor="lowStockThreshold" className="text-clay-ink">Low Stock Threshold</Label>
+                                    <Label htmlFor="lowStockThreshold" className="text-foreground">Low Stock Threshold</Label>
                                     <Input id="lowStockThreshold" name="lowStockThreshold" type="number" defaultValue={settings.lowStockThreshold} />
-                                    <p className="text-xs text-clay-ink-muted">Minimum quantity before flagging.</p>
+                                    <p className="text-xs text-muted-foreground">Minimum quantity before flagging.</p>
                                 </div>
                             )}
                         </div>
@@ -242,17 +242,17 @@ export function CrmSettingsForm({ settings }: { settings: WithId<CrmSettings> })
                 {/* --- HR SETTINGS --- */}
                 <TabsContent value="hr" className="mt-6 space-y-6">
                     <ClayCard padded={false}>
-                        <div className="p-5 border-b border-clay-border">
-                            <h3 className="text-clay-ink font-semibold">Work & Payroll Defaults</h3>
-                            <p className="text-sm text-clay-ink-muted">Define standard working parameters for employees.</p>
+                        <div className="p-5 border-b border-border">
+                            <h3 className="text-foreground font-semibold">Work & Payroll Defaults</h3>
+                            <p className="text-sm text-muted-foreground">Define standard working parameters for employees.</p>
                         </div>
                         <div className="p-5 grid gap-6 md:grid-cols-2">
                             <div className="space-y-2">
-                                <Label htmlFor="standardWorkingDays" className="text-clay-ink">Working Days per Week</Label>
+                                <Label htmlFor="standardWorkingDays" className="text-foreground">Working Days per Week</Label>
                                 <Input id="standardWorkingDays" name="standardWorkingDays" type="number" defaultValue={settings.standardWorkingDays} max={7} min={1} />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="dailyWorkingHours" className="text-clay-ink">Working Hours per Day</Label>
+                                <Label htmlFor="dailyWorkingHours" className="text-foreground">Working Hours per Day</Label>
                                 <Input id="dailyWorkingHours" name="dailyWorkingHours" type="number" defaultValue={settings.dailyWorkingHours} max={24} min={1} />
                             </div>
                         </div>
@@ -262,9 +262,9 @@ export function CrmSettingsForm({ settings }: { settings: WithId<CrmSettings> })
                 {/* --- MODULES --- */}
                 <TabsContent value="modules" className="mt-6 space-y-6">
                     <ClayCard padded={false}>
-                        <div className="p-5 border-b border-clay-border">
-                            <h3 className="text-clay-ink font-semibold">Feature Management</h3>
-                            <p className="text-sm text-clay-ink-muted">Enable or disable specific CRM modules.</p>
+                        <div className="p-5 border-b border-border">
+                            <h3 className="text-foreground font-semibold">Feature Management</h3>
+                            <p className="text-sm text-muted-foreground">Enable or disable specific CRM modules.</p>
                         </div>
                         <div className="p-5 grid gap-4">
                             {[
@@ -274,10 +274,10 @@ export function CrmSettingsForm({ settings }: { settings: WithId<CrmSettings> })
                                 { key: 'smsNotifications', label: 'SMS Notifications', desc: 'Send SMS alerts for invoices and payments.' },
                                 { key: 'emailNotifications', label: 'Email Notifications', desc: 'Send automatic email PDFs.' },
                             ].map((item) => (
-                                <div key={item.key} className="flex items-center justify-between p-3 border border-clay-border rounded-clay-md">
+                                <div key={item.key} className="flex items-center justify-between p-3 border border-border rounded-lg">
                                     <div className="space-y-0.5">
-                                        <Label className="text-base text-clay-ink">{item.label}</Label>
-                                        <p className="text-sm text-clay-ink-muted">{item.desc}</p>
+                                        <Label className="text-base text-foreground">{item.label}</Label>
+                                        <p className="text-sm text-muted-foreground">{item.desc}</p>
                                     </div>
                                     <input type="hidden" name={`module_${item.key}`} value={modules[item.key as keyof typeof modules] ? "on" : "off"} />
                                     <Switch

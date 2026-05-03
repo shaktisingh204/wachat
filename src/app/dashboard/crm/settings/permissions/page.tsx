@@ -141,26 +141,26 @@ export default function PermissionsPage() {
       {isLoading && groups.length === 0 ? (
         <ClayCard>
           <div className="flex h-40 items-center justify-center">
-            <LoaderCircle className="h-5 w-5 animate-spin text-clay-ink-muted" />
+            <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />
           </div>
         </ClayCard>
       ) : groups.length === 0 ? (
         <ClayCard>
-          <div className="p-8 text-center text-[13px] text-clay-ink-muted">
+          <div className="p-8 text-center text-[13px] text-muted-foreground">
             No permissions yet.
           </div>
         </ClayCard>
       ) : (
         groups.map((g, gi) => (
           <ClayCard key={g.module?._id || `orphan-${gi}`}>
-            <div className="flex items-center justify-between border-b border-clay-border p-4">
+            <div className="flex items-center justify-between border-b border-border p-4">
               <div>
-                <h2 className="text-[15px] font-semibold text-clay-ink">
+                <h2 className="text-[15px] font-semibold text-foreground">
                   {g.module?.display_name ||
                     g.module?.module_name ||
                     'Uncategorised'}
                 </h2>
-                <p className="text-[12px] text-clay-ink-muted">
+                <p className="text-[12px] text-muted-foreground">
                   {g.permissions.length} permission(s)
                 </p>
               </div>
@@ -168,37 +168,37 @@ export default function PermissionsPage() {
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow className="border-clay-border hover:bg-transparent">
-                    <TableHead className="text-clay-ink-muted">Name</TableHead>
-                    <TableHead className="text-clay-ink-muted">Slug</TableHead>
-                    <TableHead className="text-clay-ink-muted">Custom</TableHead>
-                    <TableHead className="w-[140px] text-right text-clay-ink-muted">
+                  <TableRow className="border-border hover:bg-transparent">
+                    <TableHead className="text-muted-foreground">Name</TableHead>
+                    <TableHead className="text-muted-foreground">Slug</TableHead>
+                    <TableHead className="text-muted-foreground">Custom</TableHead>
+                    <TableHead className="w-[140px] text-right text-muted-foreground">
                       Actions
                     </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {g.permissions.length === 0 ? (
-                    <TableRow className="border-clay-border">
+                    <TableRow className="border-border">
                       <TableCell
                         colSpan={4}
-                        className="h-14 text-center text-[13px] text-clay-ink-muted"
+                        className="h-14 text-center text-[13px] text-muted-foreground"
                       >
                         No permissions.
                       </TableCell>
                     </TableRow>
                   ) : (
                     g.permissions.map((p) => (
-                      <TableRow key={p._id} className="border-clay-border">
-                        <TableCell className="text-[13px] text-clay-ink">
+                      <TableRow key={p._id} className="border-border">
+                        <TableCell className="text-[13px] text-foreground">
                           {p.display_name || p.name}
                           {p.description ? (
-                            <div className="text-[12px] text-clay-ink-muted">
+                            <div className="text-[12px] text-muted-foreground">
                               {p.description}
                             </div>
                           ) : null}
                         </TableCell>
-                        <TableCell className="text-[12px] text-clay-ink-muted">
+                        <TableCell className="text-[12px] text-muted-foreground">
                           <code>{p.name}</code>
                         </TableCell>
                         <TableCell>
@@ -225,7 +225,7 @@ export default function PermissionsPage() {
                               onClick={() => setDeletingId(p._id)}
                               aria-label="Delete"
                             >
-                              <Trash2 className="h-3.5 w-3.5 text-clay-red" />
+                              <Trash2 className="h-3.5 w-3.5 text-destructive" />
                             </Button>
                           </div>
                         </TableCell>
@@ -242,10 +242,10 @@ export default function PermissionsPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle className="text-clay-ink">
+            <DialogTitle className="text-foreground">
               {editing ? 'Edit Permission' : 'Add Permission'}
             </DialogTitle>
-            <DialogDescription className="text-clay-ink-muted">
+            <DialogDescription className="text-muted-foreground">
               Permissions belong to a module and are assigned to roles with a
               type (all / added / owned / both / none).
             </DialogDescription>
@@ -256,19 +256,19 @@ export default function PermissionsPage() {
               <input type="hidden" name="_id" value={editing._id} />
             ) : null}
             <div>
-              <Label htmlFor="display_name" className="text-clay-ink">
-                Display name <span className="text-clay-red">*</span>
+              <Label htmlFor="display_name" className="text-foreground">
+                Display name <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="display_name"
                 name="display_name"
                 required
                 defaultValue={editing?.display_name || ''}
-                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div>
-              <Label htmlFor="name" className="text-clay-ink">
+              <Label htmlFor="name" className="text-foreground">
                 Slug
               </Label>
               <Input
@@ -276,18 +276,18 @@ export default function PermissionsPage() {
                 name="name"
                 defaultValue={editing?.name || ''}
                 placeholder="auto_generated"
-                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div>
-              <Label htmlFor="module_id" className="text-clay-ink">
+              <Label htmlFor="module_id" className="text-foreground">
                 Module
               </Label>
               <select
                 id="module_id"
                 name="module_id"
                 defaultValue={editing?.module_id ? String(editing.module_id) : ''}
-                className="h-10 w-full rounded-clay-md border border-clay-border bg-clay-surface px-3 text-[13px]"
+                className="h-10 w-full rounded-lg border border-border bg-card px-3 text-[13px]"
               >
                 <option value="">— None —</option>
                 {modules.map((m) => (
@@ -298,7 +298,7 @@ export default function PermissionsPage() {
               </select>
             </div>
             <div>
-              <Label htmlFor="description" className="text-clay-ink">
+              <Label htmlFor="description" className="text-foreground">
                 Description
               </Label>
               <Textarea
@@ -306,7 +306,7 @@ export default function PermissionsPage() {
                 name="description"
                 rows={3}
                 defaultValue={editing?.description || ''}
-                className="rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div className="flex items-center gap-2">
@@ -316,9 +316,9 @@ export default function PermissionsPage() {
                 name="is_custom"
                 value="true"
                 defaultChecked={!!editing?.is_custom}
-                className="h-4 w-4 accent-clay-ink"
+                className="h-4 w-4 accent-foreground"
               />
-              <Label htmlFor="is_custom" className="text-[13px] text-clay-ink">
+              <Label htmlFor="is_custom" className="text-[13px] text-foreground">
                 Custom (user-defined)
               </Label>
             </div>
@@ -357,10 +357,10 @@ export default function PermissionsPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-clay-ink">
+            <AlertDialogTitle className="text-foreground">
               Delete permission?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-clay-ink-muted">
+            <AlertDialogDescription className="text-muted-foreground">
               All role and user grants for this permission will be removed.
             </AlertDialogDescription>
           </AlertDialogHeader>

@@ -27,36 +27,36 @@ export function AnalyticsDashboard({ data }: { data: AnalyticsData }) {
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <ClayCard>
                     <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <h3 className="text-sm font-medium text-clay-ink-muted">Total Revenue</h3>
+                        <h3 className="text-sm font-medium text-muted-foreground">Total Revenue</h3>
                     </div>
                     <div>
-                        <div className="text-2xl font-bold text-clay-ink">₹{kpis.totalRevenue.toLocaleString()}</div>
+                        <div className="text-2xl font-bold text-foreground">₹{kpis.totalRevenue.toLocaleString()}</div>
                     </div>
                 </ClayCard>
                 <ClayCard>
                     <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <h3 className="text-sm font-medium text-clay-ink-muted">Total Expenses</h3>
+                        <h3 className="text-sm font-medium text-muted-foreground">Total Expenses</h3>
                     </div>
                     <div>
-                        <div className="text-2xl font-bold text-clay-ink">₹{kpis.totalExpense.toLocaleString()}</div>
+                        <div className="text-2xl font-bold text-foreground">₹{kpis.totalExpense.toLocaleString()}</div>
                     </div>
                 </ClayCard>
                 <ClayCard>
                     <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <h3 className="text-sm font-medium text-clay-ink-muted">Net Profit</h3>
+                        <h3 className="text-sm font-medium text-muted-foreground">Net Profit</h3>
                     </div>
                     <div>
-                        <div className={`text-2xl font-bold ${kpis.netProfit >= 0 ? 'text-clay-green' : 'text-clay-red'}`}>
+                        <div className={`text-2xl font-bold ${kpis.netProfit >= 0 ? 'text-emerald-500' : 'text-destructive'}`}>
                             ₹{kpis.netProfit.toLocaleString()}
                         </div>
                     </div>
                 </ClayCard>
                 <ClayCard>
                     <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <h3 className="text-sm font-medium text-clay-ink-muted">Total Leads</h3>
+                        <h3 className="text-sm font-medium text-muted-foreground">Total Leads</h3>
                     </div>
                     <div>
-                        <div className="text-2xl font-bold text-clay-ink">{kpis.totalLeads}</div>
+                        <div className="text-2xl font-bold text-foreground">{kpis.totalLeads}</div>
                     </div>
                 </ClayCard>
             </div>
@@ -64,8 +64,8 @@ export function AnalyticsDashboard({ data }: { data: AnalyticsData }) {
             {/* Charts */}
             <div className="grid gap-4 md:grid-cols-2">
                 <ClayCard className="col-span-1" padded={false}>
-                    <div className="p-5 border-b border-clay-border">
-                        <h3 className="text-clay-ink font-semibold">Financial Performance</h3>
+                    <div className="p-5 border-b border-border">
+                        <h3 className="text-foreground font-semibold">Financial Performance</h3>
                     </div>
                     <div className="p-5 h-[300px]">
                         <ResponsiveContainer width="100%" height="100%">
@@ -83,8 +83,8 @@ export function AnalyticsDashboard({ data }: { data: AnalyticsData }) {
                 </ClayCard>
 
                 <ClayCard className="col-span-1" padded={false}>
-                    <div className="p-5 border-b border-clay-border">
-                        <h3 className="text-clay-ink font-semibold">Lead Funnel</h3>
+                    <div className="p-5 border-b border-border">
+                        <h3 className="text-foreground font-semibold">Lead Funnel</h3>
                     </div>
                     <div className="p-5 h-[300px] flex justify-center">
                         {funnel.length > 0 ? (
@@ -108,7 +108,7 @@ export function AnalyticsDashboard({ data }: { data: AnalyticsData }) {
                                 </PieChart>
                             </ResponsiveContainer>
                         ) : (
-                            <div className="flex h-full items-center justify-center text-clay-ink-muted">
+                            <div className="flex h-full items-center justify-center text-muted-foreground">
                                 No lead data available
                             </div>
                         )}

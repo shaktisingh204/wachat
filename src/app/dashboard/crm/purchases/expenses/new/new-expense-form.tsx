@@ -82,17 +82,17 @@ export function NewExpenseForm() {
             <div className="grid gap-6">
                 <ClayCard>
                     <div className="mb-4">
-                        <h2 className="text-[15px] font-semibold text-clay-ink">Expense Information</h2>
+                        <h2 className="text-[15px] font-semibold text-foreground">Expense Information</h2>
                     </div>
                     <div className="grid gap-4">
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label className="text-clay-ink">Date *</Label>
+                                <Label className="text-foreground">Date *</Label>
                                 <DatePicker date={expenseDate} setDate={setExpenseDate} />
                                 <input type="hidden" name="expenseDate" value={expenseDate?.toISOString()} />
                             </div>
                             <div className="space-y-2">
-                                <Label className="text-clay-ink">Expense Account *</Label>
+                                <Label className="text-foreground">Expense Account *</Label>
                                 <Select name="expenseAccount" required>
                                     <SelectTrigger><SelectValue placeholder="Select Category" /></SelectTrigger>
                                     <SelectContent>
@@ -104,11 +104,11 @@ export function NewExpenseForm() {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label className="text-clay-ink">Amount *</Label>
+                                <Label className="text-foreground">Amount *</Label>
                                 <Input type="number" step="0.01" name="amount" required placeholder="0.00" />
                             </div>
                             <div className="space-y-2">
-                                <Label className="text-clay-ink">Currency</Label>
+                                <Label className="text-foreground">Currency</Label>
                                 <Select name="currency" defaultValue="INR">
                                     <SelectTrigger><SelectValue /></SelectTrigger>
                                     <SelectContent>
@@ -121,7 +121,7 @@ export function NewExpenseForm() {
                         </div>
 
                         <div className="space-y-2">
-                            <Label className="text-clay-ink">Vendor (Optional)</Label>
+                            <Label className="text-foreground">Vendor (Optional)</Label>
                             <SmartVendorSelect
                                 value={vendorId}
                                 onSelect={setVendorId}
@@ -130,24 +130,24 @@ export function NewExpenseForm() {
                         </div>
 
                         <div className="space-y-2">
-                            <Label className="text-clay-ink">Description</Label>
+                            <Label className="text-foreground">Description</Label>
                             <Textarea name="description" placeholder="Notes about this expense" />
                         </div>
 
                         <div className="space-y-2">
-                            <Label className="text-clay-ink">Reference #</Label>
+                            <Label className="text-foreground">Reference #</Label>
                             <Input name="referenceNumber" placeholder="e.g. INV-001" />
                         </div>
 
-                        <div className="border-t border-clay-border pt-4 mt-2 grid gap-4">
+                        <div className="border-t border-border pt-4 mt-2 grid gap-4">
                             <div className="flex items-center space-x-2">
                                 <Checkbox id="isBillable" name="isBillable" checked={isBillable} onCheckedChange={(c) => setIsBillable(c === true)} />
-                                <Label htmlFor="isBillable" className="text-clay-ink">Billable</Label>
+                                <Label htmlFor="isBillable" className="text-foreground">Billable</Label>
                             </div>
 
                             {isBillable && (
                                 <div className="space-y-2">
-                                    <Label className="text-clay-ink">Customer</Label>
+                                    <Label className="text-foreground">Customer</Label>
                                     <SmartClientSelect
                                         value={customerId}
                                         onSelect={setCustomerId}
@@ -157,7 +157,7 @@ export function NewExpenseForm() {
                             )}
                         </div>
                     </div>
-                    <div className="flex justify-end gap-2 mt-6 pt-4 border-t border-clay-border">
+                    <div className="flex justify-end gap-2 mt-6 pt-4 border-t border-border">
                         <ClayButton type="button" variant="pill" onClick={() => router.back()}>Cancel</ClayButton>
                         <SubmitButton />
                     </div>

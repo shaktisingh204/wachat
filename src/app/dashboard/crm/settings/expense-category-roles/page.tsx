@@ -47,7 +47,7 @@ type FormState = { message?: string; error?: string; id?: string };
 const initialState: FormState = {};
 
 const inputClass =
-  'h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]';
+  'h-10 rounded-lg border-border bg-card text-[13px]';
 
 type Row = WsExpenseCategoryRole & { _id: string };
 
@@ -146,12 +146,12 @@ export default function ExpenseCategoryRolesPage() {
 
       <ClayCard>
         <form action={formAction} className="space-y-4">
-          <h3 className="text-[13px] font-semibold uppercase tracking-wide text-clay-ink-muted">
+          <h3 className="text-[13px] font-semibold uppercase tracking-wide text-muted-foreground">
             Add Permission
           </h3>
           <div className="grid gap-4 md:grid-cols-4">
             <div>
-              <Label htmlFor="expense_category_id" className="text-[13px] text-clay-ink">
+              <Label htmlFor="expense_category_id" className="text-[13px] text-foreground">
                 Category
               </Label>
               <Select
@@ -175,7 +175,7 @@ export default function ExpenseCategoryRolesPage() {
               </Select>
             </div>
             <div>
-              <Label htmlFor="role_id" className="text-[13px] text-clay-ink">
+              <Label htmlFor="role_id" className="text-[13px] text-foreground">
                 Role
               </Label>
               <Select name="role_id" value={roleId} onValueChange={setRoleId}>
@@ -191,13 +191,13 @@ export default function ExpenseCategoryRolesPage() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex items-center gap-3 rounded-clay-md border border-clay-border bg-clay-surface/50 px-4">
+            <div className="flex items-center gap-3 rounded-lg border border-border bg-card/50 px-4">
               <Switch
                 id="can_create"
                 checked={canCreate}
                 onCheckedChange={setCanCreate}
               />
-              <Label htmlFor="can_create" className="text-[13px] text-clay-ink">
+              <Label htmlFor="can_create" className="text-[13px] text-foreground">
                 Can create
               </Label>
               <input
@@ -206,13 +206,13 @@ export default function ExpenseCategoryRolesPage() {
                 value={canCreate ? 'yes' : 'no'}
               />
             </div>
-            <div className="flex items-center gap-3 rounded-clay-md border border-clay-border bg-clay-surface/50 px-4">
+            <div className="flex items-center gap-3 rounded-lg border border-border bg-card/50 px-4">
               <Switch
                 id="can_approve"
                 checked={canApprove}
                 onCheckedChange={setCanApprove}
               />
-              <Label htmlFor="can_approve" className="text-[13px] text-clay-ink">
+              <Label htmlFor="can_approve" className="text-[13px] text-foreground">
                 Can approve
               </Label>
               <input
@@ -245,7 +245,7 @@ export default function ExpenseCategoryRolesPage() {
         {isLoading && rows.length === 0 ? (
           <Skeleton className="h-[200px] w-full" />
         ) : rows.length === 0 ? (
-          <div className="py-10 text-center text-[13px] text-clay-ink-muted">
+          <div className="py-10 text-center text-[13px] text-muted-foreground">
             No permissions configured yet.
           </div>
         ) : (
@@ -276,7 +276,7 @@ export default function ExpenseCategoryRolesPage() {
                         disabled={isDeleting && deletingId === String(row._id)}
                         onClick={() => handleDelete(String(row._id))}
                       >
-                        <Trash2 className="h-4 w-4 text-clay-ink-muted" />
+                        <Trash2 className="h-4 w-4 text-muted-foreground" />
                       </Button>
                     </TableCell>
                   </TableRow>

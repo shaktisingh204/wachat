@@ -62,14 +62,14 @@ function MetaFeatureLock() {
   const router = useRouter();
   return (
     <div className="flex flex-col items-center justify-center gap-5 py-24 text-center">
-      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-clay-bg-2">
-        <LuLock className="h-7 w-7 text-clay-ink-muted" strokeWidth={1.75} />
+      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted">
+        <LuLock className="h-7 w-7 text-muted-foreground" strokeWidth={1.75} />
       </div>
       <div>
-        <h2 className="text-[20px] font-semibold text-clay-ink">
+        <h2 className="text-[20px] font-semibold text-foreground">
           Meta Ads Manager is locked
         </h2>
-        <p className="mt-1.5 max-w-md text-[13px] text-clay-ink-muted leading-relaxed">
+        <p className="mt-1.5 max-w-md text-[13px] text-muted-foreground leading-relaxed">
           Upgrade your plan to access Facebook & Instagram ad campaigns,
           audiences, creative library, and performance insights.
         </p>
@@ -121,8 +121,8 @@ function DateRangeBar({
                   className={cn(
                     'text-left text-sm px-2 py-1.5 rounded transition',
                     preset === p.id
-                      ? 'bg-clay-rose/10 text-clay-rose font-medium'
-                      : 'hover:bg-clay-bg-2 text-clay-ink-muted',
+                      ? 'bg-primary/10 text-primary font-medium'
+                      : 'hover:bg-muted text-muted-foreground',
                   )}
                 >
                   {p.label}
@@ -199,7 +199,7 @@ export default function AdManagerLayout({ children }: { children: React.ReactNod
 
           {/* Search */}
           <div className="relative hidden sm:block">
-            <LuSearch className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-clay-ink-muted/50" />
+            <LuSearch className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground/50" />
             <ClayInput
               value={search}
               onChange={(e) => setSearch(e.target.value)}

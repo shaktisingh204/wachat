@@ -191,23 +191,23 @@ function Section({
 }) {
   return (
     <section className="flex flex-col gap-3">
-      <h2 className="text-[15px] font-semibold text-clay-ink">{title}</h2>
+      <h2 className="text-[15px] font-semibold text-foreground">{title}</h2>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {items.map(({ href, label, description, icon: Icon }) => (
           <a
             key={href}
             href={href}
-            className="group flex h-full flex-col rounded-clay-lg border border-clay-border bg-clay-surface p-5 shadow-clay-card transition-colors hover:border-clay-border-strong"
+            className="group flex h-full flex-col rounded-xl border border-border bg-card p-5 shadow-sm transition-colors hover:border-border"
           >
             <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-clay-md bg-clay-rose-soft">
-                <Icon className="h-5 w-5 text-clay-rose-ink" strokeWidth={1.75} />
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent">
+                <Icon className="h-5 w-5 text-accent-foreground" strokeWidth={1.75} />
               </div>
               <div className="min-w-0 flex-1">
-                <h3 className="text-[14.5px] font-semibold text-clay-ink">
+                <h3 className="text-[14.5px] font-semibold text-foreground">
                   {label}
                 </h3>
-                <p className="mt-1 text-[12.5px] leading-snug text-clay-ink-muted">
+                <p className="mt-1 text-[12.5px] leading-snug text-muted-foreground">
                   {description}
                 </p>
               </div>

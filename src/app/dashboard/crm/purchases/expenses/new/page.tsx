@@ -11,7 +11,7 @@ export default async function NewExpensePage() {
                 subtitle="Add a new expense entry."
                 icon={Wallet}
             />
-            <Suspense fallback={<div className="text-[13px] text-clay-ink-muted">Loading...</div>}>
+            <Suspense fallback={<div className="text-[13px] text-muted-foreground">Loading...</div>}>
                 <NewExpenseForm />
             </Suspense>
         </div>

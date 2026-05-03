@@ -75,14 +75,14 @@ const GATEWAY_PROVIDERS = [
 ];
 
 const COLORS: Record<string, string> = {
-  razorpay: 'bg-clay-blue-soft text-clay-blue',
-  stripe: 'bg-clay-rose-soft text-clay-rose-ink',
-  paypal: 'bg-clay-amber-soft text-clay-amber',
-  payfast: 'bg-clay-green-soft text-clay-green',
-  paytm: 'bg-clay-blue-soft text-clay-blue',
-  mollie: 'bg-clay-red-soft text-clay-red',
-  authorize_net: 'bg-clay-rose-soft text-clay-rose-ink',
-  square: 'bg-clay-obsidian text-white',
+  razorpay: 'bg-sky-50 text-sky-500',
+  stripe: 'bg-accent text-accent-foreground',
+  paypal: 'bg-amber-50 text-amber-500',
+  payfast: 'bg-emerald-50 text-emerald-500',
+  paytm: 'bg-sky-50 text-sky-500',
+  mollie: 'bg-rose-50 text-destructive',
+  authorize_net: 'bg-accent text-accent-foreground',
+  square: 'bg-foreground text-white',
 };
 
 function SecretInput({
@@ -102,12 +102,12 @@ function SecretInput({
         name={name}
         defaultValue={defaultValue || ''}
         type={show ? 'text' : 'password'}
-        className="h-10 rounded-clay-md border-clay-border bg-clay-surface pr-10 text-[13px]"
+        className="h-10 rounded-lg border-border bg-card pr-10 text-[13px]"
       />
       <button
         type="button"
         onClick={() => setShow((s) => !s)}
-        className="absolute right-2 top-1/2 -translate-y-1/2 text-clay-ink-muted hover:text-clay-ink"
+        className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
         aria-label={show ? 'Hide' : 'Show'}
       >
         {show ? (
@@ -211,24 +211,24 @@ export default function PaymentGatewaysPage() {
       <ClayCard>
         {isLoading && rows.length === 0 ? (
           <div className="flex justify-center py-10">
-            <LoaderCircle className="h-5 w-5 animate-spin text-clay-ink-muted" />
+            <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />
           </div>
         ) : rows.length === 0 ? (
-          <div className="py-10 text-center text-[13px] text-clay-ink-muted">
+          <div className="py-10 text-center text-[13px] text-muted-foreground">
             No gateway credentials configured yet.
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+          <div className="overflow-x-auto rounded-lg border border-border">
             <Table>
               <TableHeader>
-                <TableRow className="border-clay-border hover:bg-transparent">
-                  <TableHead className="text-clay-ink-muted">Gateway</TableHead>
-                  <TableHead className="text-clay-ink-muted">Mode</TableHead>
-                  <TableHead className="text-clay-ink-muted">
+                <TableRow className="border-border hover:bg-transparent">
+                  <TableHead className="text-muted-foreground">Gateway</TableHead>
+                  <TableHead className="text-muted-foreground">Mode</TableHead>
+                  <TableHead className="text-muted-foreground">
                     API Key
                   </TableHead>
-                  <TableHead className="text-clay-ink-muted">Active</TableHead>
-                  <TableHead className="text-right text-clay-ink-muted">
+                  <TableHead className="text-muted-foreground">Active</TableHead>
+                  <TableHead className="text-right text-muted-foreground">
                     &nbsp;
                   </TableHead>
                 </TableRow>
@@ -239,17 +239,17 @@ export default function PaymentGatewaysPage() {
                     .charAt(0)
                     .toUpperCase();
                   return (
-                    <TableRow key={r._id} className="border-clay-border">
+                    <TableRow key={r._id} className="border-border">
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <span
-                            className={`flex h-7 w-7 items-center justify-center rounded-clay-md text-[12px] font-semibold ${
-                              COLORS[r.gateway] || 'bg-clay-surface-2 text-clay-ink'
+                            className={`flex h-7 w-7 items-center justify-center rounded-lg text-[12px] font-semibold ${
+                              COLORS[r.gateway] || 'bg-secondary text-foreground'
                             }`}
                           >
                             {letter}
                           </span>
-                          <span className="font-medium text-clay-ink">
+                          <span className="font-medium text-foreground">
                             {r.gateway}
                           </span>
                         </div>
@@ -259,7 +259,7 @@ export default function PaymentGatewaysPage() {
                           {r.mode}
                         </ClayBadge>
                       </TableCell>
-                      <TableCell className="font-mono text-[12px] text-clay-ink">
+                      <TableCell className="font-mono text-[12px] text-foreground">
                         {r.api_key
                           ? `${String(r.api_key).slice(0, 6)}…`
                           : '—'}
@@ -328,7 +328,7 @@ export default function PaymentGatewaysPage() {
               >
                 <SelectTrigger
                   id="gateway"
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 >
                   <SelectValue />
                 </SelectTrigger>
@@ -349,7 +349,7 @@ export default function PaymentGatewaysPage() {
               >
                 <SelectTrigger
                   id="mode"
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 >
                   <SelectValue />
                 </SelectTrigger>
@@ -365,7 +365,7 @@ export default function PaymentGatewaysPage() {
                 id="api_key"
                 name="api_key"
                 defaultValue={editing?.api_key || ''}
-                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div>
@@ -384,21 +384,21 @@ export default function PaymentGatewaysPage() {
                 defaultValue={editing?.webhook_secret}
               />
             </div>
-            <label className="inline-flex items-center gap-2 text-[12.5px] text-clay-ink">
+            <label className="inline-flex items-center gap-2 text-[12.5px] text-foreground">
               <input
                 type="checkbox"
                 name="is_active"
                 defaultChecked={!!editing?.is_active}
-                className="h-4 w-4 accent-clay-rose"
+                className="h-4 w-4 accent-primary"
               />
               Active
             </label>
-            <label className="inline-flex items-center gap-2 text-[12.5px] text-clay-ink">
+            <label className="inline-flex items-center gap-2 text-[12.5px] text-foreground">
               <input
                 type="checkbox"
                 name="show_on_public"
                 defaultChecked={!!editing?.show_on_public}
-                className="h-4 w-4 accent-clay-rose"
+                className="h-4 w-4 accent-primary"
               />
               Show on public invoice/proposal pay pages
             </label>

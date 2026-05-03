@@ -124,7 +124,7 @@ export function ImportContactsDialog({
           Import
         </ClayButton>
       </DialogTrigger>
-      <DialogContent className="max-w-[520px] rounded-[18px] border border-clay-border bg-clay-surface p-0 shadow-clay-pop">
+      <DialogContent className="max-w-[520px] rounded-[18px] border border-border bg-card p-0 shadow-lg">
         <form action={formAction} ref={formRef}>
           <input type="hidden" name="projectId" value={project._id.toString()} />
           <input
@@ -133,15 +133,15 @@ export function ImportContactsDialog({
             value={selectedPhoneNumberId}
           />
 
-          <DialogHeader className="flex flex-row items-start gap-3 border-b border-clay-border px-6 py-5">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-clay-rose-soft text-clay-rose-ink">
+          <DialogHeader className="flex flex-row items-start gap-3 border-b border-border px-6 py-5">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-accent text-accent-foreground">
               <LuFileUp className="h-5 w-5" strokeWidth={2} />
             </span>
             <div className="min-w-0 flex-1">
-              <DialogTitle className="text-[16px] font-semibold text-clay-ink leading-tight">
+              <DialogTitle className="text-[16px] font-semibold text-foreground leading-tight">
                 Import contacts
               </DialogTitle>
-              <DialogDescription className="mt-0.5 text-[12px] text-clay-ink-muted leading-snug">
+              <DialogDescription className="mt-0.5 text-[12px] text-muted-foreground leading-snug">
                 Upload a CSV or XLSX file to add or update contacts. First
                 column must be the phone number (WhatsApp ID); second should
                 be the name.
@@ -152,7 +152,7 @@ export function ImportContactsDialog({
           <div className="flex flex-col gap-5 px-6 py-5">
             {/* WhatsApp number */}
             <div className="flex flex-col gap-1.5">
-              <Label className="text-[11.5px] font-semibold text-clay-ink-muted">
+              <Label className="text-[11.5px] font-semibold text-muted-foreground">
                 Associate with number
               </Label>
               <Select
@@ -175,13 +175,13 @@ export function ImportContactsDialog({
             {/* File drop */}
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between">
-                <Label className="text-[11.5px] font-semibold text-clay-ink-muted">
-                  Contact file <span className="ml-1 text-clay-red">*</span>
+                <Label className="text-[11.5px] font-semibold text-muted-foreground">
+                  Contact file <span className="ml-1 text-destructive">*</span>
                 </Label>
                 <button
                   type="button"
                   onClick={handleDownloadSample}
-                  className="inline-flex items-center gap-1 text-[11px] font-medium text-clay-ink-muted transition-colors hover:text-clay-rose"
+                  className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground transition-colors hover:text-primary"
                 >
                   <LuDownload className="h-3 w-3" strokeWidth={2} />
                   Sample CSV
@@ -192,22 +192,22 @@ export function ImportContactsDialog({
                 className={cn(
                   'group flex cursor-pointer flex-col items-center justify-center gap-2 rounded-[12px] border-2 border-dashed px-4 py-8 text-center transition-colors',
                   fileName
-                    ? 'border-clay-rose bg-clay-rose-soft/60'
-                    : 'border-clay-border-strong bg-clay-surface-2 hover:bg-clay-bg-2',
+                    ? 'border-primary bg-accent/60'
+                    : 'border-border bg-secondary hover:bg-muted',
                 )}
               >
                 <LuUpload
                   className={cn(
                     'h-6 w-6 transition-colors',
-                    fileName ? 'text-clay-rose-ink' : 'text-clay-ink-soft',
+                    fileName ? 'text-accent-foreground' : 'text-muted-foreground',
                   )}
                   strokeWidth={1.75}
                 />
                 <div className="flex flex-col gap-0.5">
-                  <span className="text-[13px] font-medium text-clay-ink">
+                  <span className="text-[13px] font-medium text-foreground">
                     {fileName || 'Click to choose a file'}
                   </span>
-                  <span className="text-[11px] text-clay-ink-soft">
+                  <span className="text-[11px] text-muted-foreground">
                     {fileName ? 'Click to replace' : 'CSV or XLSX, up to 10 MB'}
                   </span>
                 </div>
@@ -226,7 +226,7 @@ export function ImportContactsDialog({
             </div>
           </div>
 
-          <DialogFooter className="border-t border-clay-border px-6 py-4 sm:justify-end gap-2">
+          <DialogFooter className="border-t border-border px-6 py-4 sm:justify-end gap-2">
             <ClayButton
               type="button"
               variant="pill"

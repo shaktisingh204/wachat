@@ -102,12 +102,12 @@ export default function MessageSettingsIntegrationPage() {
             value={allowAttachments ? 'true' : 'false'}
           />
 
-          <div className="flex items-center justify-between rounded-clay-md border border-clay-border bg-clay-surface px-4 py-3">
+          <div className="flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3">
             <div>
-              <div className="text-[13px] font-medium text-clay-ink">
+              <div className="text-[13px] font-medium text-foreground">
                 Messages enabled
               </div>
-              <div className="text-[12px] text-clay-ink-muted">
+              <div className="text-[12px] text-muted-foreground">
                 Allow members to direct-message each other.
               </div>
             </div>
@@ -118,12 +118,12 @@ export default function MessageSettingsIntegrationPage() {
             />
           </div>
 
-          <div className="flex items-center justify-between rounded-clay-md border border-clay-border bg-clay-surface px-4 py-3">
+          <div className="flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3">
             <div>
-              <div className="text-[13px] font-medium text-clay-ink">
+              <div className="text-[13px] font-medium text-foreground">
                 Allow attachments
               </div>
-              <div className="text-[12px] text-clay-ink-muted">
+              <div className="text-[12px] text-muted-foreground">
                 Allow file attachments on messages.
               </div>
             </div>
@@ -136,7 +136,7 @@ export default function MessageSettingsIntegrationPage() {
 
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <Label htmlFor="max_file_size_mb" className="text-clay-ink">
+              <Label htmlFor="max_file_size_mb" className="text-foreground">
                 Max File Size (MB)
               </Label>
               <div className="mt-1.5">
@@ -146,7 +146,7 @@ export default function MessageSettingsIntegrationPage() {
                   type="number"
                   min={0}
                   defaultValue={v('max_file_size_mb') || '10'}
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>

@@ -174,49 +174,49 @@ export default function MenuSettingsPage() {
       />
 
       <ClayCard>
-        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <Table>
             <TableHeader>
-              <TableRow className="border-clay-border hover:bg-transparent">
-                <TableHead className="text-clay-ink-muted">Label</TableHead>
-                <TableHead className="text-clay-ink-muted">Route</TableHead>
-                <TableHead className="text-clay-ink-muted">Icon</TableHead>
-                <TableHead className="text-clay-ink-muted">Position</TableHead>
-                <TableHead className="text-clay-ink-muted">Visible</TableHead>
-                <TableHead className="w-[200px] text-right text-clay-ink-muted">
+              <TableRow className="border-border hover:bg-transparent">
+                <TableHead className="text-muted-foreground">Label</TableHead>
+                <TableHead className="text-muted-foreground">Route</TableHead>
+                <TableHead className="text-muted-foreground">Icon</TableHead>
+                <TableHead className="text-muted-foreground">Position</TableHead>
+                <TableHead className="text-muted-foreground">Visible</TableHead>
+                <TableHead className="w-[200px] text-right text-muted-foreground">
                   Actions
                 </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading && rows.length === 0 ? (
-                <TableRow className="border-clay-border">
+                <TableRow className="border-border">
                   <TableCell
                     colSpan={6}
-                    className="h-20 text-center text-[13px] text-clay-ink-muted"
+                    className="h-20 text-center text-[13px] text-muted-foreground"
                   >
                     <LoaderCircle className="mx-auto h-4 w-4 animate-spin" />
                   </TableCell>
                 </TableRow>
               ) : rows.length === 0 ? (
-                <TableRow className="border-clay-border">
+                <TableRow className="border-border">
                   <TableCell
                     colSpan={6}
-                    className="h-20 text-center text-[13px] text-clay-ink-muted"
+                    className="h-20 text-center text-[13px] text-muted-foreground"
                   >
                     No menu entries yet.
                   </TableCell>
                 </TableRow>
               ) : (
                 rows.map((row, idx) => (
-                  <TableRow key={row._id} className="border-clay-border">
-                    <TableCell className="text-[13px] font-medium text-clay-ink">
+                  <TableRow key={row._id} className="border-border">
+                    <TableCell className="text-[13px] font-medium text-foreground">
                       {row.label}
                     </TableCell>
-                    <TableCell className="text-[12px] text-clay-ink-muted">
+                    <TableCell className="text-[12px] text-muted-foreground">
                       <code>{row.route || '—'}</code>
                     </TableCell>
-                    <TableCell className="text-[12px] text-clay-ink-muted">
+                    <TableCell className="text-[12px] text-muted-foreground">
                       {row.icon || '—'}
                     </TableCell>
                     <TableCell>
@@ -267,7 +267,7 @@ export default function MenuSettingsPage() {
                           onClick={() => setDeletingId(row._id)}
                           aria-label="Delete"
                         >
-                          <Trash2 className="h-3.5 w-3.5 text-clay-red" />
+                          <Trash2 className="h-3.5 w-3.5 text-destructive" />
                         </Button>
                       </div>
                     </TableCell>
@@ -282,10 +282,10 @@ export default function MenuSettingsPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle className="text-clay-ink">
+            <DialogTitle className="text-foreground">
               {editing ? 'Edit Menu Entry' : 'Add Menu Entry'}
             </DialogTitle>
-            <DialogDescription className="text-clay-ink-muted">
+            <DialogDescription className="text-muted-foreground">
               Entries appear in the CRM sidebar in position order.
             </DialogDescription>
           </DialogHeader>
@@ -295,19 +295,19 @@ export default function MenuSettingsPage() {
               <input type="hidden" name="_id" value={editing._id} />
             ) : null}
             <div>
-              <Label htmlFor="label" className="text-clay-ink">
-                Label <span className="text-clay-red">*</span>
+              <Label htmlFor="label" className="text-foreground">
+                Label <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="label"
                 name="label"
                 required
                 defaultValue={editing?.label || ''}
-                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div>
-              <Label htmlFor="route" className="text-clay-ink">
+              <Label htmlFor="route" className="text-foreground">
                 Route
               </Label>
               <Input
@@ -315,11 +315,11 @@ export default function MenuSettingsPage() {
                 name="route"
                 defaultValue={editing?.route || ''}
                 placeholder="/dashboard/crm/leads"
-                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div>
-              <Label htmlFor="icon" className="text-clay-ink">
+              <Label htmlFor="icon" className="text-foreground">
                 Icon (lucide name)
               </Label>
               <Input
@@ -327,11 +327,11 @@ export default function MenuSettingsPage() {
                 name="icon"
                 defaultValue={editing?.icon || ''}
                 placeholder="Users"
-                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div>
-              <Label htmlFor="position" className="text-clay-ink">
+              <Label htmlFor="position" className="text-foreground">
                 Position
               </Label>
               <Input
@@ -339,7 +339,7 @@ export default function MenuSettingsPage() {
                 name="position"
                 type="number"
                 defaultValue={String(editing?.position ?? rows.length)}
-                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div className="flex items-center gap-2">
@@ -349,9 +349,9 @@ export default function MenuSettingsPage() {
                 name="is_visible"
                 value="true"
                 defaultChecked={editing?.is_visible ?? true}
-                className="h-4 w-4 accent-clay-ink"
+                className="h-4 w-4 accent-foreground"
               />
-              <Label htmlFor="is_visible" className="text-[13px] text-clay-ink">
+              <Label htmlFor="is_visible" className="text-[13px] text-foreground">
                 Visible
               </Label>
             </div>
@@ -390,10 +390,10 @@ export default function MenuSettingsPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-clay-ink">
+            <AlertDialogTitle className="text-foreground">
               Delete menu entry?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-clay-ink-muted">
+            <AlertDialogDescription className="text-muted-foreground">
               This cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>

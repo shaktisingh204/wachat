@@ -95,12 +95,12 @@ export default function PushNotificationsIntegrationPage() {
             value={enabled ? 'true' : 'false'}
           />
 
-          <div className="flex items-center justify-between rounded-clay-md border border-clay-border bg-clay-surface px-4 py-3">
+          <div className="flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3">
             <div>
-              <div className="text-[13px] font-medium text-clay-ink">
+              <div className="text-[13px] font-medium text-foreground">
                 Push notifications enabled
               </div>
-              <div className="text-[12px] text-clay-ink-muted">
+              <div className="text-[12px] text-muted-foreground">
                 Deliver realtime notifications via FCM.
               </div>
             </div>
@@ -112,7 +112,7 @@ export default function PushNotificationsIntegrationPage() {
           </div>
 
           <div>
-            <Label htmlFor="firebase_config" className="text-clay-ink">
+            <Label htmlFor="firebase_config" className="text-foreground">
               Firebase Config (JSON)
             </Label>
             <div className="mt-1.5">
@@ -122,7 +122,7 @@ export default function PushNotificationsIntegrationPage() {
                 rows={10}
                 defaultValue={firebaseConfigStr}
                 placeholder='{"apiKey":"...","projectId":"..."}'
-                className="rounded-clay-md border-clay-border bg-clay-surface font-mono text-[12.5px]"
+                className="rounded-lg border-border bg-card font-mono text-[12.5px]"
               />
             </div>
           </div>

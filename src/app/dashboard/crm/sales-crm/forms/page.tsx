@@ -58,11 +58,11 @@ export default function CrmFormsPage() {
                 />
                 <ClayCard variant="outline" className="border-dashed">
                     <div className="flex flex-col items-center gap-3 py-12 text-center">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-clay-md bg-clay-rose-soft">
-                            <ClipboardList className="h-6 w-6 text-clay-rose-ink" strokeWidth={1.75} />
+                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent">
+                            <ClipboardList className="h-6 w-6 text-accent-foreground" strokeWidth={1.75} />
                         </div>
-                        <h3 className="text-[15px] font-semibold text-clay-ink">Lead Capture Forms</h3>
-                        <p className="max-w-md text-[12.5px] text-clay-ink-muted">
+                        <h3 className="text-[15px] font-semibold text-foreground">Lead Capture Forms</h3>
+                        <p className="max-w-md text-[12.5px] text-muted-foreground">
                             Create and embed forms on your website to capture leads directly into your CRM.
                         </p>
                         <Link href="/dashboard/crm/sales-crm/forms/new">
@@ -94,35 +94,35 @@ export default function CrmFormsPage() {
             <ClayCard>
                 <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
                     <div>
-                        <h2 className="text-[16px] font-semibold text-clay-ink">All Forms</h2>
+                        <h2 className="text-[16px] font-semibold text-foreground">All Forms</h2>
                     </div>
                     <div className="relative w-full max-w-sm">
-                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-clay-ink-muted" />
+                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                         <Input
                             placeholder="Search by name..."
-                            className="h-10 rounded-clay-md border-clay-border bg-clay-surface pl-9 text-[13px]"
+                            className="h-10 rounded-lg border-border bg-card pl-9 text-[13px]"
                             onChange={(e) => handleSearch(e.target.value)}
                         />
                     </div>
                 </div>
-                <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                <div className="overflow-x-auto rounded-lg border border-border">
                     <Table>
                         <TableHeader>
-                            <TableRow className="border-clay-border hover:bg-transparent">
-                                <TableHead className="text-clay-ink-muted">Form Name</TableHead>
-                                <TableHead className="text-clay-ink-muted">Submissions</TableHead>
-                                <TableHead className="text-clay-ink-muted">Status</TableHead>
-                                <TableHead className="text-clay-ink-muted">Created</TableHead>
-                                <TableHead className="text-clay-ink-muted text-right">Actions</TableHead>
+                            <TableRow className="border-border hover:bg-transparent">
+                                <TableHead className="text-muted-foreground">Form Name</TableHead>
+                                <TableHead className="text-muted-foreground">Submissions</TableHead>
+                                <TableHead className="text-muted-foreground">Status</TableHead>
+                                <TableHead className="text-muted-foreground">Created</TableHead>
+                                <TableHead className="text-muted-foreground text-right">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {forms.map((form) => (
-                                <TableRow key={form._id.toString()} className="border-clay-border">
-                                    <TableCell className="font-medium text-clay-ink">{form.name}</TableCell>
-                                    <TableCell className="text-clay-ink">{form.submissionCount || 0}</TableCell>
+                                <TableRow key={form._id.toString()} className="border-border">
+                                    <TableCell className="font-medium text-foreground">{form.name}</TableCell>
+                                    <TableCell className="text-foreground">{form.submissionCount || 0}</TableCell>
                                     <TableCell><ClayBadge tone="green" dot>Published</ClayBadge></TableCell>
-                                    <TableCell className="text-clay-ink">{formatDistanceToNow(new Date(form.createdAt), { addSuffix: true })}</TableCell>
+                                    <TableCell className="text-foreground">{formatDistanceToNow(new Date(form.createdAt), { addSuffix: true })}</TableCell>
                                     <TableCell className="text-right">
                                         <a href={`/embed/crm-form/${form._id.toString()}`} target="_blank" rel="noopener noreferrer">
                                             <ClayButton variant="ghost" size="icon"><Eye className="h-4 w-4" /></ClayButton>

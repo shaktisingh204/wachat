@@ -11,7 +11,7 @@ import { ClayBreadcrumbs } from '@/components/clay';
 function PageSkeleton() {
   return (
     <div className="space-y-4">
-      <div className="h-64 w-full animate-pulse rounded-clay-lg bg-clay-bg-2" />
+      <div className="h-64 w-full animate-pulse rounded-xl bg-muted" />
     </div>
   );
 }
@@ -46,7 +46,7 @@ export default function RazorpayIntegrationPage() {
         {isLoading ? (
           <PageSkeleton />
         ) : !project ? (
-          <div className="flex items-center gap-3 rounded-clay-md border border-clay-red/20 bg-red-50 p-4 text-[13px] text-clay-red">
+          <div className="flex items-center gap-3 rounded-lg border border-destructive/20 bg-red-50 p-4 text-[13px] text-destructive">
             No project selected. Please select a project from the main
             dashboard.
           </div>

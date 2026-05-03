@@ -133,14 +133,14 @@ export default function SocialAuthIntegrationPage() {
 
           {PROVIDERS.map((p) => (
             <div key={p.title} className="space-y-3">
-              <h3 className="text-[13px] font-semibold text-clay-ink">
+              <h3 className="text-[13px] font-semibold text-foreground">
                 {p.title}
               </h3>
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
                   <Label
                     htmlFor={String(p.idKey)}
-                    className="text-clay-ink"
+                    className="text-foreground"
                   >
                     {p.idLabel}
                   </Label>
@@ -149,14 +149,14 @@ export default function SocialAuthIntegrationPage() {
                       id={String(p.idKey)}
                       name={String(p.idKey)}
                       defaultValue={v(p.idKey)}
-                      className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                      className="h-10 rounded-lg border-border bg-card text-[13px]"
                     />
                   </div>
                 </div>
                 <div>
                   <Label
                     htmlFor={String(p.secretKey)}
-                    className="text-clay-ink"
+                    className="text-foreground"
                   >
                     {p.secretLabel}
                   </Label>
@@ -166,7 +166,7 @@ export default function SocialAuthIntegrationPage() {
                       name={String(p.secretKey)}
                       type="password"
                       defaultValue={v(p.secretKey)}
-                      className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                      className="h-10 rounded-lg border-border bg-card text-[13px]"
                     />
                   </div>
                 </div>

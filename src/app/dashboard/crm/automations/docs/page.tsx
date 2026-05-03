@@ -65,7 +65,7 @@ export default function CrmAutomationDocsPage() {
     return (
         <div className="flex w-full flex-col gap-6">
             <div>
-                <Link href="/dashboard/crm/automations" className="inline-flex items-center gap-2 text-[13px] text-clay-ink-muted hover:text-clay-ink">
+                <Link href="/dashboard/crm/automations" className="inline-flex items-center gap-2 text-[13px] text-muted-foreground hover:text-foreground">
                     <ChevronLeft className="h-4 w-4" />
                     Back to Automations
                 </Link>
@@ -79,12 +79,12 @@ export default function CrmAutomationDocsPage() {
 
             <ClayCard>
                 <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-clay-ink">Using Variables</h2>
-                    <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">
+                    <h2 className="text-[16px] font-semibold text-foreground">Using Variables</h2>
+                    <p className="mt-0.5 text-[12.5px] text-muted-foreground">
                         Variables allow you to personalize your automations and use data dynamically.
                     </p>
                 </div>
-                <div className="text-[13px] text-clay-ink space-y-4">
+                <div className="text-[13px] text-foreground space-y-4">
                     <p>
                         Variables are placeholders for data. In the Automation builder, you use double curly braces to insert a variable, like this: <ClayBadge tone="neutral" className="font-mono">{'{{contact.name}}'}</ClayBadge>.
                     </p>
@@ -97,29 +97,29 @@ export default function CrmAutomationDocsPage() {
             <Separator />
 
             <div>
-                <h2 className="text-[20px] font-bold text-clay-ink">Automation Blocks</h2>
-                <p className="mt-1 text-[13px] text-clay-ink-muted">
+                <h2 className="text-[20px] font-bold text-foreground">Automation Blocks</h2>
+                <p className="mt-1 text-[13px] text-muted-foreground">
                     An overview of all available triggers and actions.
                 </p>
             </div>
 
             <Accordion type="single" collapsible className="w-full">
                 {blockDocs.map((doc, index) => (
-                     <AccordionItem value={`item-${index}`} key={index} className="border-clay-border">
+                     <AccordionItem value={`item-${index}`} key={index} className="border-border">
                         <AccordionTrigger className="text-[15px] font-semibold">{doc.title}</AccordionTrigger>
                         <AccordionContent className="space-y-4 pt-2">
-                             <p className="text-[13px] text-clay-ink-muted">{doc.description}</p>
+                             <p className="text-[13px] text-muted-foreground">{doc.description}</p>
                              <div className="space-y-2">
-                                 <h4 className="font-semibold text-clay-ink">Properties:</h4>
-                                 <ul className="list-disc list-inside space-y-1 text-[12.5px] text-clay-ink">
+                                 <h4 className="font-semibold text-foreground">Properties:</h4>
+                                 <ul className="list-disc list-inside space-y-1 text-[12.5px] text-foreground">
                                      {doc.properties.map((prop, pIndex) => (
                                         <li key={pIndex}><strong>{prop.name}:</strong> {prop.desc}</li>
                                      ))}
                                  </ul>
                              </div>
                              <div className="space-y-2">
-                                 <h4 className="font-semibold text-clay-ink">Outputs:</h4>
-                                 <ul className="list-disc list-inside space-y-1 text-[12.5px] text-clay-ink">
+                                 <h4 className="font-semibold text-foreground">Outputs:</h4>
+                                 <ul className="list-disc list-inside space-y-1 text-[12.5px] text-foreground">
                                      {doc.outputs.map((out, oIndex) => <li key={oIndex}>{out}</li>)}
                                  </ul>
                              </div>

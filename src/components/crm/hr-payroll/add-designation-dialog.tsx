@@ -65,18 +65,18 @@ export function AddDesignationDialog({ open, onOpenChange, onDesignationAdded, d
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle className="text-clay-ink">Add New Designation</DialogTitle>
-                    <DialogDescription className="text-clay-ink-muted">
+                    <DialogTitle className="text-foreground">Add New Designation</DialogTitle>
+                    <DialogDescription className="text-muted-foreground">
                         Create a new designation for your organization.
                     </DialogDescription>
                 </DialogHeader>
                 <form ref={formRef} action={formAction} className="grid gap-4 py-4">
                     <div className="grid gap-2">
-                        <Label htmlFor="name" className="text-clay-ink">Designation Name</Label>
+                        <Label htmlFor="name" className="text-foreground">Designation Name</Label>
                         <Input id="name" name="name" defaultValue={defaultName} required />
                     </div>
                     <div className="grid gap-2">
-                        <Label htmlFor="description" className="text-clay-ink">Description</Label>
+                        <Label htmlFor="description" className="text-foreground">Description</Label>
                         <Input id="description" name="description" />
                     </div>
                     <DialogFooter>

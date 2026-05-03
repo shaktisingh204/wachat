@@ -204,10 +204,10 @@ export default function TemplatesPage() {
       {/* Header */}
       <div className="flex items-center justify-between gap-6">
         <div className="min-w-0">
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">
+          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
             Message templates
           </h1>
-          <p className="mt-1.5 text-[13px] text-clay-ink-muted">
+          <p className="mt-1.5 text-[13px] text-muted-foreground">
             Manage and sync your WhatsApp message templates. Approved templates
             can be used in broadcasts and direct chats.
           </p>
@@ -274,13 +274,13 @@ export default function TemplatesPage() {
       {/* Project-not-selected state */}
       {!activeProjectId && isClient ? (
         <ClayCard padded={false} className="p-10 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-clay-rose-soft text-clay-rose-ink">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-accent text-accent-foreground">
             <LuCircleAlert className="h-5 w-5" strokeWidth={1.5} />
           </div>
-          <div className="mt-4 text-[15px] font-semibold text-clay-ink">
+          <div className="mt-4 text-[15px] font-semibold text-foreground">
             No project selected
           </div>
-          <div className="mt-1.5 text-[12.5px] text-clay-ink-muted">
+          <div className="mt-1.5 text-[12.5px] text-muted-foreground">
             Please select a project from the main dashboard to manage
             templates.
           </div>
@@ -408,7 +408,7 @@ export default function TemplatesPage() {
                 </DropdownMenu>
               ) : null}
 
-              <span className="ml-auto text-[11.5px] tabular-nums text-clay-ink-muted">
+              <span className="ml-auto text-[11.5px] tabular-nums text-muted-foreground">
                 {filteredTemplates.length} / {templates.length} templates
               </span>
             </div>
@@ -420,7 +420,7 @@ export default function TemplatesPage() {
               {Array.from({ length: 6 }).map((_, i) => (
                 <div
                   key={i}
-                  className="h-64 animate-pulse rounded-clay-lg bg-clay-bg-2"
+                  className="h-64 animate-pulse rounded-xl bg-muted"
                 />
               ))}
             </div>
@@ -436,15 +436,15 @@ export default function TemplatesPage() {
             </div>
           ) : (
             <ClayCard padded={false} className="p-10 text-center">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-clay-bg-2 text-clay-ink-muted">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
                 <LuFileText className="h-5 w-5" strokeWidth={1.5} />
               </div>
-              <div className="mt-4 text-[15px] font-semibold text-clay-ink">
+              <div className="mt-4 text-[15px] font-semibold text-foreground">
                 {templates.length > 0
                   ? 'No matching templates'
                   : 'No templates yet'}
               </div>
-              <div className="mt-1.5 text-[12.5px] text-clay-ink-muted">
+              <div className="mt-1.5 text-[12.5px] text-muted-foreground">
                 {templates.length > 0
                   ? 'Your filters did not match any templates. Try adjusting your search or clearing the filters.'
                   : 'Sync existing templates from Meta or create a new one to get started.'}
@@ -512,13 +512,13 @@ function Stat({
   tint: 'neutral' | 'green' | 'amber' | 'rose';
 }) {
   const chipClass: Record<typeof tint, string> = {
-    neutral: 'bg-clay-bg-2 text-clay-ink-muted',
+    neutral: 'bg-muted text-muted-foreground',
     green: 'bg-[#DCFCE7] text-[#166534]',
     amber: 'bg-[#FEF3C7] text-[#92400E]',
-    rose: 'bg-clay-rose-soft text-clay-rose-ink',
+    rose: 'bg-accent text-accent-foreground',
   };
   return (
-    <div className="rounded-[14px] border border-clay-border bg-clay-surface p-4">
+    <div className="rounded-[14px] border border-border bg-card p-4">
       <div className="flex items-start justify-between">
         <span
           className={cn(
@@ -529,10 +529,10 @@ function Stat({
           {icon}
         </span>
       </div>
-      <div className="mt-3 text-[11px] font-medium uppercase tracking-wide text-clay-ink-muted leading-none">
+      <div className="mt-3 text-[11px] font-medium uppercase tracking-wide text-muted-foreground leading-none">
         {label}
       </div>
-      <div className="mt-1.5 text-[22px] font-semibold tracking-[-0.01em] text-clay-ink leading-none">
+      <div className="mt-1.5 text-[22px] font-semibold tracking-[-0.01em] text-foreground leading-none">
         {value}
       </div>
     </div>

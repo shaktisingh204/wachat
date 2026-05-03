@@ -64,7 +64,7 @@ export default function PayslipsPage() {
                 actions={
                     <>
                         <Select value={String(month)} onValueChange={val => setMonth(Number(val))}>
-                            <SelectTrigger className="w-36 h-9 rounded-full border-clay-border bg-clay-surface text-[13px]">
+                            <SelectTrigger className="w-36 h-9 rounded-full border-border bg-card text-[13px]">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -72,7 +72,7 @@ export default function PayslipsPage() {
                             </SelectContent>
                         </Select>
                         <Select value={String(year)} onValueChange={val => setYear(Number(val))}>
-                            <SelectTrigger className="w-28 h-9 rounded-full border-clay-border bg-clay-surface text-[13px]">
+                            <SelectTrigger className="w-28 h-9 rounded-full border-border bg-card text-[13px]">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -88,44 +88,44 @@ export default function PayslipsPage() {
 
             <ClayCard>
                 <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-clay-ink">
+                    <h2 className="text-[16px] font-semibold text-foreground">
                         Payslips for {monthLabel}, {year}
                     </h2>
-                    <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">{payslips.length} payslips generated for this period.</p>
+                    <p className="mt-0.5 text-[12.5px] text-muted-foreground">{payslips.length} payslips generated for this period.</p>
                 </div>
-                <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                <div className="overflow-x-auto rounded-lg border border-border">
                     <table className="w-full text-left text-[13px]">
                         <thead>
-                            <tr className="border-b border-clay-border bg-clay-surface-2">
-                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Employee</th>
-                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Month / Year</th>
-                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Gross</th>
-                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Deductions</th>
-                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Net Pay</th>
-                                <th className="px-4 py-3 text-center text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Status</th>
-                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Download</th>
+                            <tr className="border-b border-border bg-secondary">
+                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Employee</th>
+                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Month / Year</th>
+                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Gross</th>
+                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Deductions</th>
+                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Net Pay</th>
+                                <th className="px-4 py-3 text-center text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Status</th>
+                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Download</th>
                             </tr>
                         </thead>
                         <tbody>
                             {isLoading ? (
                                 <tr>
                                     <td colSpan={7} className="h-48 text-center">
-                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-clay-ink-muted" />
+                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
                                     </td>
                                 </tr>
                             ) : payslips.length > 0 ? (
                                 payslips.map((p, idx) => (
-                                    <tr key={p._id?.toString() ?? idx} className="border-b border-clay-border last:border-0 hover:bg-clay-surface-2/50 transition-colors">
+                                    <tr key={p._id?.toString() ?? idx} className="border-b border-border last:border-0 hover:bg-secondary/50 transition-colors">
                                         <td className="px-4 py-3">
-                                            <div className="font-medium text-clay-ink">
+                                            <div className="font-medium text-foreground">
                                                 {p.employee?.firstName} {p.employee?.lastName}
                                             </div>
-                                            <div className="text-[11.5px] text-clay-ink-muted">{p.employee?.designationName ?? '—'}</div>
+                                            <div className="text-[11.5px] text-muted-foreground">{p.employee?.designationName ?? '—'}</div>
                                         </td>
-                                        <td className="px-4 py-3 text-clay-ink">{monthLabel}, {year}</td>
-                                        <td className="px-4 py-3 text-right font-mono text-clay-ink">₹{(p.grossSalary ?? 0).toLocaleString('en-IN')}</td>
-                                        <td className="px-4 py-3 text-right font-mono text-clay-red">₹{(p.totalDeductions ?? 0).toLocaleString('en-IN')}</td>
-                                        <td className="px-4 py-3 text-right font-mono font-semibold text-clay-ink">₹{(p.netPay ?? 0).toLocaleString('en-IN')}</td>
+                                        <td className="px-4 py-3 text-foreground">{monthLabel}, {year}</td>
+                                        <td className="px-4 py-3 text-right font-mono text-foreground">₹{(p.grossSalary ?? 0).toLocaleString('en-IN')}</td>
+                                        <td className="px-4 py-3 text-right font-mono text-destructive">₹{(p.totalDeductions ?? 0).toLocaleString('en-IN')}</td>
+                                        <td className="px-4 py-3 text-right font-mono font-semibold text-foreground">₹{(p.netPay ?? 0).toLocaleString('en-IN')}</td>
                                         <td className="px-4 py-3 text-center">{statusBadge(p.status)}</td>
                                         <td className="px-4 py-3 text-right">
                                             <ClayButton variant="pill" size="sm" leading={<Download className="h-3.5 w-3.5" />} disabled>
@@ -136,7 +136,7 @@ export default function PayslipsPage() {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan={7} className="h-24 text-center text-[13px] text-clay-ink-muted">
+                                    <td colSpan={7} className="h-24 text-center text-[13px] text-muted-foreground">
                                         No payslips generated for this period.
                                     </td>
                                 </tr>

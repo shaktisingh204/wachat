@@ -15,16 +15,16 @@ function AttendanceFilter({ month, year }: { month: number; year: number }) {
   return (
     <form
       method="get"
-      className="flex flex-wrap items-end gap-2 rounded-clay-md border border-clay-border bg-clay-surface px-3 py-2"
+      className="flex flex-wrap items-end gap-2 rounded-lg border border-border bg-card px-3 py-2"
     >
       <label className="flex flex-col gap-1">
-        <span className="text-[11px] uppercase tracking-wide text-clay-ink-muted">
+        <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
           Month
         </span>
         <select
           name="month"
           defaultValue={String(month)}
-          className="h-9 rounded-clay-md border border-clay-border bg-clay-surface px-2 text-[13px] text-clay-ink"
+          className="h-9 rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
         >
           {months.map((m, i) => (
             <option key={m} value={i + 1}>
@@ -34,13 +34,13 @@ function AttendanceFilter({ month, year }: { month: number; year: number }) {
         </select>
       </label>
       <label className="flex flex-col gap-1">
-        <span className="text-[11px] uppercase tracking-wide text-clay-ink-muted">
+        <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
           Year
         </span>
         <select
           name="year"
           defaultValue={String(year)}
-          className="h-9 rounded-clay-md border border-clay-border bg-clay-surface px-2 text-[13px] text-clay-ink"
+          className="h-9 rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
         >
           {years.map((y) => (
             <option key={y} value={y}>
@@ -57,10 +57,10 @@ function AttendanceFilter({ month, year }: { month: number; year: number }) {
 }
 
 const STATUS_GLYPH: Record<string, { char: string; cls: string; title: string }> = {
-  Present: { char: 'P', cls: 'bg-clay-green-soft text-clay-green', title: 'Present' },
-  Absent: { char: 'A', cls: 'bg-clay-red-soft text-clay-red', title: 'Absent' },
-  'Half Day': { char: 'H', cls: 'bg-clay-amber-soft text-clay-amber', title: 'Half Day' },
-  Leave: { char: 'L', cls: 'bg-clay-blue-soft text-clay-blue', title: 'Leave' },
+  Present: { char: 'P', cls: 'bg-emerald-50 text-emerald-500', title: 'Present' },
+  Absent: { char: 'A', cls: 'bg-rose-50 text-destructive', title: 'Absent' },
+  'Half Day': { char: 'H', cls: 'bg-amber-50 text-amber-500', title: 'Half Day' },
+  Leave: { char: 'L', cls: 'bg-sky-50 text-sky-500', title: 'Leave' },
 };
 
 export default async function AttendanceReportPage(props: {
@@ -99,24 +99,24 @@ export default async function AttendanceReportPage(props: {
           <table className="min-w-full border-collapse">
             <thead>
               <tr>
-                <th className="sticky left-0 z-10 bg-clay-surface px-3 py-2 text-left text-[12px] font-semibold text-clay-ink-muted">
+                <th className="sticky left-0 z-10 bg-card px-3 py-2 text-left text-[12px] font-semibold text-muted-foreground">
                   Employee
                 </th>
                 {Array.from({ length: daysInMonth }, (_, i) => (
                   <th
                     key={i}
-                    className="min-w-[26px] px-1 py-2 text-center text-[11px] font-medium text-clay-ink-muted"
+                    className="min-w-[26px] px-1 py-2 text-center text-[11px] font-medium text-muted-foreground"
                   >
                     {i + 1}
                   </th>
                 ))}
-                <th className="px-3 py-2 text-right text-[12px] font-semibold text-clay-ink-muted">
+                <th className="px-3 py-2 text-right text-[12px] font-semibold text-muted-foreground">
                   P
                 </th>
-                <th className="px-2 py-2 text-right text-[12px] font-semibold text-clay-ink-muted">
+                <th className="px-2 py-2 text-right text-[12px] font-semibold text-muted-foreground">
                   A
                 </th>
-                <th className="px-2 py-2 text-right text-[12px] font-semibold text-clay-ink-muted">
+                <th className="px-2 py-2 text-right text-[12px] font-semibold text-muted-foreground">
                   L
                 </th>
               </tr>
@@ -126,7 +126,7 @@ export default async function AttendanceReportPage(props: {
                 <tr>
                   <td
                     colSpan={daysInMonth + 4}
-                    className="py-8 text-center text-[13px] text-clay-ink-muted"
+                    className="py-8 text-center text-[13px] text-muted-foreground"
                   >
                     No employees found.
                   </td>
@@ -135,9 +135,9 @@ export default async function AttendanceReportPage(props: {
                 matrix.map((row) => (
                   <tr
                     key={row.employeeId}
-                    className="border-t border-clay-border"
+                    className="border-t border-border"
                   >
-                    <td className="sticky left-0 z-10 bg-clay-surface px-3 py-2 text-[13px] text-clay-ink">
+                    <td className="sticky left-0 z-10 bg-card px-3 py-2 text-[13px] text-foreground">
                       {row.employeeName}
                     </td>
                     {row.days.map((d, i) => {
@@ -155,18 +155,18 @@ export default async function AttendanceReportPage(props: {
                               {glyph.char}
                             </span>
                           ) : (
-                            <span className="text-clay-ink-soft">·</span>
+                            <span className="text-muted-foreground">·</span>
                           )}
                         </td>
                       );
                     })}
-                    <td className="px-3 py-2 text-right text-[12.5px] font-medium text-clay-green">
+                    <td className="px-3 py-2 text-right text-[12.5px] font-medium text-emerald-500">
                       {row.summary.present}
                     </td>
-                    <td className="px-2 py-2 text-right text-[12.5px] font-medium text-clay-red">
+                    <td className="px-2 py-2 text-right text-[12.5px] font-medium text-destructive">
                       {row.summary.absent}
                     </td>
-                    <td className="px-2 py-2 text-right text-[12.5px] font-medium text-clay-blue">
+                    <td className="px-2 py-2 text-right text-[12.5px] font-medium text-sky-500">
                       {row.summary.leave}
                     </td>
                   </tr>

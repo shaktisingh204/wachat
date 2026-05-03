@@ -71,10 +71,10 @@ export default function BlockedContactsPage() {
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">
+          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
             Blocked Contacts
           </h1>
-          <p className="mt-1.5 max-w-[720px] text-[13px] text-clay-ink-muted">
+          <p className="mt-1.5 max-w-[720px] text-[13px] text-muted-foreground">
             Manage contacts blocked from sending messages to this project.
           </p>
         </div>
@@ -85,17 +85,17 @@ export default function BlockedContactsPage() {
 
       {showForm && (
         <ClayCard className="p-5">
-          <h3 className="text-sm font-medium text-clay-ink mb-3">Block a Contact</h3>
+          <h3 className="text-sm font-medium text-foreground mb-3">Block a Contact</h3>
           <div className="flex flex-wrap gap-3">
             <input
               type="text" value={phone} onChange={(e) => setPhone(e.target.value)}
               placeholder="Phone number (e.g. +1234567890)"
-              className="flex-1 min-w-[200px] rounded-lg border border-clay-border bg-clay-bg px-3 py-2 text-sm text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-accent focus:outline-none"
+              className="flex-1 min-w-[200px] rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none"
             />
             <input
               type="text" value={reason} onChange={(e) => setReason(e.target.value)}
               placeholder="Reason (optional)"
-              className="flex-1 min-w-[200px] rounded-lg border border-clay-border bg-clay-bg px-3 py-2 text-sm text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-accent focus:outline-none"
+              className="flex-1 min-w-[200px] rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none"
             />
             <ClayButton size="sm" onClick={handleBlock} disabled={isPending || !phone.trim()}>
               <LuBan className="mr-1.5 h-3.5 w-3.5" /> Block
@@ -108,7 +108,7 @@ export default function BlockedContactsPage() {
         <ClayCard padded={false} className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-clay-border text-[11px] font-semibold uppercase tracking-wide text-clay-ink-muted">
+              <tr className="border-b border-border text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                 <th className="px-5 py-3">Phone</th>
                 <th className="px-5 py-3">Reason</th>
                 <th className="px-5 py-3">Blocked Date</th>
@@ -117,10 +117,10 @@ export default function BlockedContactsPage() {
             </thead>
             <tbody>
               {contacts.map((c) => (
-                <tr key={c._id} className="border-b border-clay-border last:border-0">
-                  <td className="px-5 py-3 font-mono text-[13px] text-clay-ink">{c.phone}</td>
-                  <td className="px-5 py-3 text-[13px] text-clay-ink-muted">{c.reason || '--'}</td>
-                  <td className="px-5 py-3 text-[13px] text-clay-ink-muted">
+                <tr key={c._id} className="border-b border-border last:border-0">
+                  <td className="px-5 py-3 font-mono text-[13px] text-foreground">{c.phone}</td>
+                  <td className="px-5 py-3 text-[13px] text-muted-foreground">{c.reason || '--'}</td>
+                  <td className="px-5 py-3 text-[13px] text-muted-foreground">
                     {c.blockedAt ? new Date(c.blockedAt).toLocaleDateString() : '--'}
                   </td>
                   <td className="px-5 py-3 text-right">
@@ -136,8 +136,8 @@ export default function BlockedContactsPage() {
       ) : (
         !isPending && (
           <ClayCard className="p-12 text-center">
-            <LuBan className="mx-auto h-12 w-12 text-clay-ink-muted/30 mb-4" />
-            <p className="text-sm text-clay-ink-muted">No blocked contacts.</p>
+            <LuBan className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
+            <p className="text-sm text-muted-foreground">No blocked contacts.</p>
           </ClayCard>
         )
       )}

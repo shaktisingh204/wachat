@@ -37,7 +37,7 @@ export default function DocumentsPage() {
             row.category ? (
               <ClayBadge tone="neutral">{row.category}</ClayBadge>
             ) : (
-              <span className="text-clay-ink-muted">—</span>
+              <span className="text-muted-foreground">—</span>
             ),
         },
         {
@@ -83,12 +83,12 @@ export default function DocumentsPage() {
                 href={String(row.url)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[12px] text-clay-rose-ink underline-offset-2 hover:underline"
+                className="text-[12px] text-accent-foreground underline-offset-2 hover:underline"
               >
                 View
               </a>
             ) : (
-              <span className="text-clay-ink-muted">—</span>
+              <span className="text-muted-foreground">—</span>
             ),
         },
       ]}

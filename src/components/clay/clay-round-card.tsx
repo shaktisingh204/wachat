@@ -26,19 +26,19 @@ const statusTone: Record<
   { dot: string; label: string; text: string }
 > = {
   completed: {
-    dot: 'bg-clay-green',
+    dot: 'bg-emerald-500',
     label: 'Completed',
-    text: 'text-clay-ink-muted',
+    text: 'text-muted-foreground',
   },
   'in-progress': {
-    dot: 'bg-clay-amber',
+    dot: 'bg-amber-500',
     label: 'In progress',
-    text: 'text-clay-ink-muted',
+    text: 'text-muted-foreground',
   },
   draft: {
-    dot: 'bg-clay-ink-fade',
+    dot: 'bg-muted-foreground/70',
     label: 'Draft',
-    text: 'text-clay-ink-muted',
+    text: 'text-muted-foreground',
   },
 };
 
@@ -76,17 +76,17 @@ export function ClayRoundCard({
       className={cn('rounded-[14px] p-4 min-w-[260px]', className)}
     >
       {/* meta row — subtle bullet-separated inline group */}
-      <div className="flex items-center gap-2.5 text-[11px] text-clay-ink-muted whitespace-nowrap">
+      <div className="flex items-center gap-2.5 text-[11px] text-muted-foreground whitespace-nowrap">
         <span className="inline-flex items-center gap-1">
           <LuCalendar className="h-3 w-3 opacity-75" strokeWidth={1.75} />
           {dateRange}
         </span>
-        <span aria-hidden className="text-clay-ink-fade">·</span>
+        <span aria-hidden className="text-muted-foreground/70">·</span>
         <span className="inline-flex items-center gap-1">
           <LuUsers className="h-3 w-3 opacity-75" strokeWidth={1.75} />
           {candidateCount} candidates
         </span>
-        <span aria-hidden className="text-clay-ink-fade">·</span>
+        <span aria-hidden className="text-muted-foreground/70">·</span>
         <span className={cn('inline-flex items-center gap-1', tone.text)}>
           <span className={cn('h-1.5 w-1.5 rounded-full', tone.dot)} />
           {tone.label}
@@ -95,11 +95,11 @@ export function ClayRoundCard({
 
       {/* title block */}
       <div className="mt-2.5">
-        <h3 className="text-[18px] font-semibold tracking-[-0.01em] text-clay-ink leading-[1.1]">
+        <h3 className="text-[18px] font-semibold tracking-[-0.01em] text-foreground leading-[1.1]">
           {title}
         </h3>
         {subtitle ? (
-          <p className="mt-0.5 text-[12px] text-clay-ink-muted leading-tight">
+          <p className="mt-0.5 text-[12px] text-muted-foreground leading-tight">
             {subtitle}
           </p>
         ) : null}

@@ -59,39 +59,39 @@ export default function SalesOrdersPage() {
 
             <ClayCard>
                 <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-clay-ink">Recent Sales Orders</h2>
+                    <h2 className="text-[16px] font-semibold text-foreground">Recent Sales Orders</h2>
                 </div>
-                <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                <div className="overflow-x-auto rounded-lg border border-border">
                     <Table>
                         <TableHeader>
-                            <TableRow className="border-clay-border hover:bg-transparent">
-                                <TableHead className="text-clay-ink-muted">Order #</TableHead>
-                                <TableHead className="text-clay-ink-muted">Client</TableHead>
-                                <TableHead className="text-clay-ink-muted">Date</TableHead>
-                                <TableHead className="text-clay-ink-muted">Status</TableHead>
-                                <TableHead className="text-clay-ink-muted text-right">Amount</TableHead>
+                            <TableRow className="border-border hover:bg-transparent">
+                                <TableHead className="text-muted-foreground">Order #</TableHead>
+                                <TableHead className="text-muted-foreground">Client</TableHead>
+                                <TableHead className="text-muted-foreground">Date</TableHead>
+                                <TableHead className="text-muted-foreground">Status</TableHead>
+                                <TableHead className="text-muted-foreground text-right">Amount</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {isLoading ? (
-                                <TableRow className="border-clay-border">
+                                <TableRow className="border-border">
                                     <TableCell colSpan={5} className="text-center h-24">
-                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-clay-ink-muted" />
+                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
                                     </TableCell>
                                 </TableRow>
                             ) : orders.length > 0 ? (
                                 orders.map(order => (
-                                    <TableRow key={order._id.toString()} className="border-clay-border cursor-pointer">
-                                        <TableCell className="font-medium text-clay-ink">{order.orderNumber}</TableCell>
-                                        <TableCell className="text-clay-ink">{accountsMap.get(order.accountId.toString()) || 'Unknown Client'}</TableCell>
-                                        <TableCell className="text-clay-ink">{new Date(order.orderDate).toLocaleDateString()}</TableCell>
+                                    <TableRow key={order._id.toString()} className="border-border cursor-pointer">
+                                        <TableCell className="font-medium text-foreground">{order.orderNumber}</TableCell>
+                                        <TableCell className="text-foreground">{accountsMap.get(order.accountId.toString()) || 'Unknown Client'}</TableCell>
+                                        <TableCell className="text-foreground">{new Date(order.orderDate).toLocaleDateString()}</TableCell>
                                         <TableCell><ClayBadge tone={getStatusTone(order.status)} dot>{order.status}</ClayBadge></TableCell>
-                                        <TableCell className="text-right font-medium text-clay-ink">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: order.currency || 'INR' }).format(order.total)}</TableCell>
+                                        <TableCell className="text-right font-medium text-foreground">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: order.currency || 'INR' }).format(order.total)}</TableCell>
                                     </TableRow>
                                 ))
                             ) : (
-                                <TableRow className="border-clay-border">
-                                    <TableCell colSpan={5} className="h-24 text-center text-[13px] text-clay-ink-muted">
+                                <TableRow className="border-border">
+                                    <TableCell colSpan={5} className="h-24 text-center text-[13px] text-muted-foreground">
                                         No sales orders found.
                                     </TableCell>
                                 </TableRow>

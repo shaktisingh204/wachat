@@ -27,10 +27,10 @@ import { CrmPageHeader } from '../../_components/crm-page-header';
 const StatCard = ({ title, value, icon: Icon }: { title: string; value: number; icon: React.ElementType }) => (
     <ClayCard>
         <div className="flex items-center justify-between">
-            <p className="text-[13px] font-medium text-clay-ink-muted">{title}</p>
-            <Icon className="h-4 w-4 text-clay-ink-muted" />
+            <p className="text-[13px] font-medium text-muted-foreground">{title}</p>
+            <Icon className="h-4 w-4 text-muted-foreground" />
         </div>
-        <div className="mt-2 text-[22px] font-bold text-clay-ink">
+        <div className="mt-2 text-[22px] font-bold text-foreground">
             {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(value)}
         </div>
     </ClayCard>
@@ -113,32 +113,32 @@ export default function AllPaymentAccountsPage() {
 
             <ClayCard>
                 <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-clay-ink">Accounts List</h2>
+                    <h2 className="text-[16px] font-semibold text-foreground">Accounts List</h2>
                 </div>
-                <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                <div className="overflow-x-auto rounded-lg border border-border">
                     <Table>
                         <TableHeader>
-                            <TableRow className="border-clay-border hover:bg-transparent">
-                                <TableHead className="text-clay-ink-muted">Account Name</TableHead>
-                                <TableHead className="text-clay-ink-muted">Account Type</TableHead>
-                                <TableHead className="text-clay-ink-muted">Bank</TableHead>
-                                <TableHead className="text-clay-ink-muted">Account Number</TableHead>
-                                <TableHead className="text-right text-clay-ink-muted">Balance</TableHead>
-                                <TableHead className="text-clay-ink-muted">Status</TableHead>
-                                <TableHead className="text-right text-clay-ink-muted">Actions</TableHead>
+                            <TableRow className="border-border hover:bg-transparent">
+                                <TableHead className="text-muted-foreground">Account Name</TableHead>
+                                <TableHead className="text-muted-foreground">Account Type</TableHead>
+                                <TableHead className="text-muted-foreground">Bank</TableHead>
+                                <TableHead className="text-muted-foreground">Account Number</TableHead>
+                                <TableHead className="text-right text-muted-foreground">Balance</TableHead>
+                                <TableHead className="text-muted-foreground">Status</TableHead>
+                                <TableHead className="text-right text-muted-foreground">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {isLoading ? (
-                                <TableRow className="border-clay-border"><TableCell colSpan={7} className="h-24 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin"/></TableCell></TableRow>
+                                <TableRow className="border-border"><TableCell colSpan={7} className="h-24 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin"/></TableCell></TableRow>
                             ) : accounts.length > 0 ? (
                                 accounts.map(account => (
-                                    <TableRow key={account._id.toString()} className="border-clay-border">
-                                        <TableCell className="font-medium text-clay-ink">{account.accountName}</TableCell>
-                                        <TableCell className="capitalize text-[13px] text-clay-ink">{account.accountType}</TableCell>
-                                        <TableCell className="text-[13px] text-clay-ink">{account.bankDetails?.bankName || 'N/A'}</TableCell>
-                                        <TableCell className="font-mono text-xs text-clay-ink">{account.bankDetails?.accountNumber || 'N/A'}</TableCell>
-                                        <TableCell className="text-right font-semibold text-clay-ink">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: account.currency }).format(account.currentBalance || 0)}</TableCell>
+                                    <TableRow key={account._id.toString()} className="border-border">
+                                        <TableCell className="font-medium text-foreground">{account.accountName}</TableCell>
+                                        <TableCell className="capitalize text-[13px] text-foreground">{account.accountType}</TableCell>
+                                        <TableCell className="text-[13px] text-foreground">{account.bankDetails?.bankName || 'N/A'}</TableCell>
+                                        <TableCell className="font-mono text-xs text-foreground">{account.bankDetails?.accountNumber || 'N/A'}</TableCell>
+                                        <TableCell className="text-right font-semibold text-foreground">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: account.currency }).format(account.currentBalance || 0)}</TableCell>
                                         <TableCell><ClayBadge tone={account.status === 'active' ? 'green' : 'rose-soft'}>{account.status}</ClayBadge></TableCell>
                                         <TableCell className="text-right">
                                             <Button variant="ghost" size="icon" disabled><Edit className="h-4 w-4"/></Button>
@@ -147,7 +147,7 @@ export default function AllPaymentAccountsPage() {
                                     </TableRow>
                                 ))
                             ) : (
-                                <TableRow className="border-clay-border"><TableCell colSpan={7} className="h-24 text-center text-[13px] text-clay-ink-muted">No payment accounts created yet.</TableCell></TableRow>
+                                <TableRow className="border-border"><TableCell colSpan={7} className="h-24 text-center text-[13px] text-muted-foreground">No payment accounts created yet.</TableCell></TableRow>
                             )}
                         </TableBody>
                     </Table>

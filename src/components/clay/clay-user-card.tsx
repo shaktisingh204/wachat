@@ -37,7 +37,7 @@ export function ClayUserCard({
         className,
       )}
     >
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-clay-bg-2 to-clay-border text-[12px] font-semibold text-clay-ink-muted clay-avatar-ring">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-muted to-border text-[12px] font-semibold text-muted-foreground clay-avatar-ring">
         {avatarSrc ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={avatarSrc} alt={name} className="h-full w-full object-cover" />
@@ -46,11 +46,11 @@ export function ClayUserCard({
         )}
       </div>
       <div className="min-w-0 flex-1">
-        <div className="truncate text-[13px] font-semibold text-clay-ink leading-[1.2]">
+        <div className="truncate text-[13px] font-semibold text-foreground leading-[1.2]">
           {name}
         </div>
         {email ? (
-          <div className="truncate text-[11px] text-clay-ink-muted leading-[1.25]">
+          <div className="truncate text-[11px] text-muted-foreground leading-[1.25]">
             {email}
           </div>
         ) : null}
@@ -59,7 +59,7 @@ export function ClayUserCard({
         type="button"
         onClick={onMenuClick}
         aria-label="User menu"
-        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-clay-ink-soft hover:bg-clay-surface hover:text-clay-ink transition-colors"
+        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-card hover:text-foreground transition-colors"
       >
         <LuEllipsis className="h-4 w-4" strokeWidth={2} />
       </button>

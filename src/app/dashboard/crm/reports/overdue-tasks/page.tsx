@@ -42,37 +42,37 @@ export default async function OverdueTasksPage() {
       </div>
 
       <ClayCard>
-        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <Table>
             <TableHeader>
-              <TableRow className="border-clay-border hover:bg-transparent">
-                <TableHead className="text-clay-ink-muted">Task</TableHead>
-                <TableHead className="text-clay-ink-muted">Due</TableHead>
-                <TableHead className="text-clay-ink-muted">Assignee</TableHead>
-                <TableHead className="text-clay-ink-muted">Priority</TableHead>
-                <TableHead className="text-clay-ink-muted">Status</TableHead>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableHead className="text-muted-foreground">Task</TableHead>
+                <TableHead className="text-muted-foreground">Due</TableHead>
+                <TableHead className="text-muted-foreground">Assignee</TableHead>
+                <TableHead className="text-muted-foreground">Priority</TableHead>
+                <TableHead className="text-muted-foreground">Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {rows.length === 0 ? (
-                <TableRow className="border-clay-border">
+                <TableRow className="border-border">
                   <TableCell
                     colSpan={5}
-                    className="h-20 text-center text-[13px] text-clay-ink-muted"
+                    className="h-20 text-center text-[13px] text-muted-foreground"
                   >
                     No overdue tasks — nice!
                   </TableCell>
                 </TableRow>
               ) : (
                 rows.map((r) => (
-                  <TableRow key={r._id} className="border-clay-border">
-                    <TableCell className="font-medium text-clay-ink">
+                  <TableRow key={r._id} className="border-border">
+                    <TableCell className="font-medium text-foreground">
                       {r.title}
                     </TableCell>
-                    <TableCell className="text-[13px] text-clay-red">
+                    <TableCell className="text-[13px] text-destructive">
                       {r.dueDate ? format(new Date(r.dueDate), 'PP') : '—'}
                     </TableCell>
-                    <TableCell className="text-[13px] text-clay-ink">
+                    <TableCell className="text-[13px] text-foreground">
                       {r.assignedTo || '—'}
                     </TableCell>
                     <TableCell className="text-[13px]">
@@ -80,7 +80,7 @@ export default async function OverdueTasksPage() {
                         {r.priority}
                       </ClayBadge>
                     </TableCell>
-                    <TableCell className="text-[13px] text-clay-ink">
+                    <TableCell className="text-[13px] text-foreground">
                       {r.status}
                     </TableCell>
                   </TableRow>

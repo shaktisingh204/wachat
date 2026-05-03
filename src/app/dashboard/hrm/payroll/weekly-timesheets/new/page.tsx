@@ -109,17 +109,17 @@ export default function NewWeeklyTimesheetPage() {
 
       <ClayCard>
         {isLoadingEmps ? (
-          <div className="py-12 text-center text-[13px] text-clay-ink-muted">
+          <div className="py-12 text-center text-[13px] text-muted-foreground">
             Loading employees…
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="grid gap-5 md:grid-cols-2">
             <div className="md:col-span-2">
-              <Label className="text-[12px] text-clay-ink-muted">
-                Employee <span className="text-clay-red">*</span>
+              <Label className="text-[12px] text-muted-foreground">
+                Employee <span className="text-destructive">*</span>
               </Label>
               <Select value={userId} onValueChange={setUserId}>
-                <SelectTrigger className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
+                <SelectTrigger className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]">
                   <SelectValue placeholder="Select employee" />
                 </SelectTrigger>
                 <SelectContent>
@@ -133,25 +133,25 @@ export default function NewWeeklyTimesheetPage() {
             </div>
 
             <div>
-              <Label className="text-[12px] text-clay-ink-muted">
-                Week Start <span className="text-clay-red">*</span>
+              <Label className="text-[12px] text-muted-foreground">
+                Week Start <span className="text-destructive">*</span>
               </Label>
               <Input
                 type="date"
                 value={weekStart}
                 onChange={(e) => setWeekStart(e.target.value)}
                 required
-                className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
 
             <div>
-              <Label className="text-[12px] text-clay-ink-muted">Week End (auto)</Label>
+              <Label className="text-[12px] text-muted-foreground">Week End (auto)</Label>
               <Input
                 type="date"
                 value={weekEnd}
                 readOnly
-                className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px] opacity-60"
+                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px] opacity-60"
               />
             </div>
 

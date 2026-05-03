@@ -26,7 +26,7 @@ export default function AgentsSettingsPage() {
     return (
       <div className="clay-enter flex min-h-full flex-col gap-6">
         <ClayBreadcrumbs items={[{ label: 'Wachat', href: '/home' }, { label: 'Settings' }, { label: 'Agents & Roles' }]} />
-        <div className="h-[420px] animate-pulse rounded-clay-lg bg-clay-bg-2" />
+        <div className="h-[420px] animate-pulse rounded-xl bg-muted" />
       </div>
     );
   }
@@ -36,8 +36,8 @@ export default function AgentsSettingsPage() {
       <div className="clay-enter flex min-h-full flex-col gap-6">
         <ClayBreadcrumbs items={[{ label: 'Wachat', href: '/home' }, { label: 'Settings' }]} />
         <ClayCard className="p-10 text-center">
-          <LuCircleAlert className="mx-auto h-10 w-10 text-clay-ink-muted/30 mb-4" />
-          <p className="text-sm text-clay-ink-muted">Select a project first.</p>
+          <LuCircleAlert className="mx-auto h-10 w-10 text-muted-foreground/30 mb-4" />
+          <p className="text-sm text-muted-foreground">Select a project first.</p>
           <ClayButton variant="obsidian" size="md" onClick={() => router.push('/dashboard')} className="mt-4">Choose a project</ClayButton>
         </ClayCard>
       </div>
@@ -53,10 +53,10 @@ export default function AgentsSettingsPage() {
       ]} />
 
       <div>
-        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">
+        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
           Agents & Roles
         </h1>
-        <p className="mt-1.5 max-w-[720px] text-[13px] text-clay-ink-muted">
+        <p className="mt-1.5 max-w-[720px] text-[13px] text-muted-foreground">
           Invite teammates and configure role-based permissions.
         </p>
       </div>
@@ -65,7 +65,7 @@ export default function AgentsSettingsPage() {
         {user ? (
           <AgentsRolesSettingsTab project={activeProject} user={user} />
         ) : (
-          <div className="h-40 w-full animate-pulse rounded-[10px] bg-clay-bg-2" />
+          <div className="h-40 w-full animate-pulse rounded-[10px] bg-muted" />
         )}
       </ClayCard>
     </div>

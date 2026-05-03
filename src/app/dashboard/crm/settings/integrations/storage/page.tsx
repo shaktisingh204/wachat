@@ -101,7 +101,7 @@ export default function StorageIntegrationPage() {
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="md:col-span-2">
-              <Label htmlFor="storage_driver" className="text-clay-ink">
+              <Label htmlFor="storage_driver" className="text-foreground">
                 Storage Driver
               </Label>
               <div className="mt-1.5">
@@ -112,7 +112,7 @@ export default function StorageIntegrationPage() {
                 >
                   <SelectTrigger
                     id="storage_driver"
-                    className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                    className="h-10 rounded-lg border-border bg-card text-[13px]"
                   >
                     <SelectValue placeholder="Select driver" />
                   </SelectTrigger>
@@ -129,7 +129,7 @@ export default function StorageIntegrationPage() {
             {driver === 's3' && (
               <>
                 <div>
-                  <Label htmlFor="aws_access_key" className="text-clay-ink">
+                  <Label htmlFor="aws_access_key" className="text-foreground">
                     AWS Access Key
                   </Label>
                   <div className="mt-1.5">
@@ -137,12 +137,12 @@ export default function StorageIntegrationPage() {
                       id="aws_access_key"
                       name="aws_access_key"
                       defaultValue={v('aws_access_key')}
-                      className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                      className="h-10 rounded-lg border-border bg-card text-[13px]"
                     />
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="aws_secret" className="text-clay-ink">
+                  <Label htmlFor="aws_secret" className="text-foreground">
                     AWS Secret
                   </Label>
                   <div className="mt-1.5">
@@ -151,12 +151,12 @@ export default function StorageIntegrationPage() {
                       name="aws_secret"
                       type="password"
                       defaultValue={v('aws_secret')}
-                      className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                      className="h-10 rounded-lg border-border bg-card text-[13px]"
                     />
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="aws_region" className="text-clay-ink">
+                  <Label htmlFor="aws_region" className="text-foreground">
                     AWS Region
                   </Label>
                   <div className="mt-1.5">
@@ -165,12 +165,12 @@ export default function StorageIntegrationPage() {
                       name="aws_region"
                       defaultValue={v('aws_region')}
                       placeholder="us-east-1"
-                      className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                      className="h-10 rounded-lg border-border bg-card text-[13px]"
                     />
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="aws_bucket" className="text-clay-ink">
+                  <Label htmlFor="aws_bucket" className="text-foreground">
                     AWS Bucket
                   </Label>
                   <div className="mt-1.5">
@@ -178,7 +178,7 @@ export default function StorageIntegrationPage() {
                       id="aws_bucket"
                       name="aws_bucket"
                       defaultValue={v('aws_bucket')}
-                      className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                      className="h-10 rounded-lg border-border bg-card text-[13px]"
                     />
                   </div>
                 </div>
@@ -188,7 +188,7 @@ export default function StorageIntegrationPage() {
             {driver === 'google-drive' && (
               <>
                 <div>
-                  <Label htmlFor="gd_client_id" className="text-clay-ink">
+                  <Label htmlFor="gd_client_id" className="text-foreground">
                     Google Drive Client ID
                   </Label>
                   <div className="mt-1.5">
@@ -196,12 +196,12 @@ export default function StorageIntegrationPage() {
                       id="gd_client_id"
                       name="gd_client_id"
                       defaultValue={v('gd_client_id')}
-                      className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                      className="h-10 rounded-lg border-border bg-card text-[13px]"
                     />
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="gd_client_secret" className="text-clay-ink">
+                  <Label htmlFor="gd_client_secret" className="text-foreground">
                     Google Drive Client Secret
                   </Label>
                   <div className="mt-1.5">
@@ -210,7 +210,7 @@ export default function StorageIntegrationPage() {
                       name="gd_client_secret"
                       type="password"
                       defaultValue={v('gd_client_secret')}
-                      className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                      className="h-10 rounded-lg border-border bg-card text-[13px]"
                     />
                   </div>
                 </div>
@@ -219,7 +219,7 @@ export default function StorageIntegrationPage() {
 
             {driver === 'azure' && (
               <div className="md:col-span-2">
-                <Label htmlFor="azure_account" className="text-clay-ink">
+                <Label htmlFor="azure_account" className="text-foreground">
                   Azure Account
                 </Label>
                 <div className="mt-1.5">
@@ -227,7 +227,7 @@ export default function StorageIntegrationPage() {
                     id="azure_account"
                     name="azure_account"
                     defaultValue={v('azure_account')}
-                    className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                    className="h-10 rounded-lg border-border bg-card text-[13px]"
                   />
                 </div>
               </div>

@@ -106,8 +106,8 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
       <DialogContent className="sm:max-w-2xl max-h-[85vh] flex flex-col overflow-hidden p-0">
         <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
           <DialogHeader className="px-6 pt-6 pb-2">
-            <DialogTitle className="text-clay-ink">Create a New Client</DialogTitle>
-            <DialogDescription className="text-clay-ink-muted">
+            <DialogTitle className="text-foreground">Create a New Client</DialogTitle>
+            <DialogDescription className="text-muted-foreground">
               Add a new client to your CRM. Required fields are marked with an asterisk.
             </DialogDescription>
           </DialogHeader>
@@ -253,41 +253,41 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
                 <AccordionContent className="space-y-4 pt-2">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="gstin" className="text-clay-ink">GSTIN</Label>
-                      <Input id="gstin" name="gstin" placeholder="08XXXXXXXX1Z5" maxLength={20} className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                      <Label htmlFor="gstin" className="text-foreground">GSTIN</Label>
+                      <Input id="gstin" name="gstin" placeholder="08XXXXXXXX1Z5" maxLength={20} className="h-10 rounded-lg border-border bg-card text-[13px]" />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="pan" className="text-clay-ink">PAN</Label>
-                      <Input id="pan" name="pan" placeholder="ABCDE1234F" maxLength={20} className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                      <Label htmlFor="pan" className="text-foreground">PAN</Label>
+                      <Input id="pan" name="pan" placeholder="ABCDE1234F" maxLength={20} className="h-10 rounded-lg border-border bg-card text-[13px]" />
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="billingAddress" className="text-clay-ink">Billing Address</Label>
-                    <Textarea id="billingAddress" name="billingAddress" rows={3} className="rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                    <Label htmlFor="billingAddress" className="text-foreground">Billing Address</Label>
+                    <Textarea id="billingAddress" name="billingAddress" rows={3} className="rounded-lg border-border bg-card text-[13px]" />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="shippingAddress" className="text-clay-ink">Shipping Address</Label>
-                    <Textarea id="shippingAddress" name="shippingAddress" rows={3} className="rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                    <Label htmlFor="shippingAddress" className="text-foreground">Shipping Address</Label>
+                    <Textarea id="shippingAddress" name="shippingAddress" rows={3} className="rounded-lg border-border bg-card text-[13px]" />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="annualRevenue" className="text-clay-ink">Annual Revenue</Label>
-                      <Input id="annualRevenue" name="annualRevenue" type="number" min={0} placeholder="e.g. 1000000" className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                      <Label htmlFor="annualRevenue" className="text-foreground">Annual Revenue</Label>
+                      <Input id="annualRevenue" name="annualRevenue" type="number" min={0} placeholder="e.g. 1000000" className="h-10 rounded-lg border-border bg-card text-[13px]" />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="employeeCount" className="text-clay-ink">Employee Count</Label>
-                      <Input id="employeeCount" name="employeeCount" type="number" min={0} placeholder="e.g. 250" className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                      <Label htmlFor="employeeCount" className="text-foreground">Employee Count</Label>
+                      <Input id="employeeCount" name="employeeCount" type="number" min={0} placeholder="e.g. 250" className="h-10 rounded-lg border-border bg-card text-[13px]" />
                     </div>
                   </div>
                   <div className="grid grid-cols-3 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="accountCurrency" className="text-clay-ink">Currency</Label>
-                      <Input id="accountCurrency" name="accountCurrency" defaultValue="INR" placeholder="INR" className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                      <Label htmlFor="accountCurrency" className="text-foreground">Currency</Label>
+                      <Input id="accountCurrency" name="accountCurrency" defaultValue="INR" placeholder="INR" className="h-10 rounded-lg border-border bg-card text-[13px]" />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="paymentTerms" className="text-clay-ink">Payment Terms</Label>
+                      <Label htmlFor="paymentTerms" className="text-foreground">Payment Terms</Label>
                       <Select name="paymentTerms" defaultValue="Net 30">
-                        <SelectTrigger id="paymentTerms" className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"><SelectValue /></SelectTrigger>
+                        <SelectTrigger id="paymentTerms" className="h-10 rounded-lg border-border bg-card text-[13px]"><SelectValue /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="Immediate">Immediate</SelectItem>
                           <SelectItem value="Net 15">Net 15</SelectItem>
@@ -298,9 +298,9 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="category" className="text-clay-ink">Category</Label>
+                      <Label htmlFor="category" className="text-foreground">Category</Label>
                       <Select name="category" defaultValue="regular">
-                        <SelectTrigger id="category" className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"><SelectValue /></SelectTrigger>
+                        <SelectTrigger id="category" className="h-10 rounded-lg border-border bg-card text-[13px]"><SelectValue /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="new">New</SelectItem>
                           <SelectItem value="strategic">Strategic</SelectItem>
@@ -314,7 +314,7 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
               </AccordionItem>
               <AccordionItem value="account-details">
                 <AccordionTrigger>Account Details (Optional)</AccordionTrigger>
-                <AccordionContent className="pt-2 text-center text-clay-ink-muted">
+                <AccordionContent className="pt-2 text-center text-muted-foreground">
                   <p className="text-sm">Enable Advanced Accounting to create or link ledger.</p>
                   <ClayButton variant="pill" size="sm" className="mt-2" disabled>Enable Now</ClayButton>
                 </AccordionContent>

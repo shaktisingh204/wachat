@@ -25,11 +25,11 @@ export default function PipelinesPage() {
 
       <ClayCard variant="outline" className="border-dashed">
         <div className="flex flex-col items-center gap-3 py-16 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-clay-md bg-clay-rose-soft">
-            <Columns3 className="h-6 w-6 text-clay-rose-ink" strokeWidth={1.75} />
+          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent">
+            <Columns3 className="h-6 w-6 text-accent-foreground" strokeWidth={1.75} />
           </div>
-          <h3 className="text-[15px] font-semibold text-clay-ink">No Pipelines Found</h3>
-          <p className="text-[12.5px] text-clay-ink-muted">
+          <h3 className="text-[15px] font-semibold text-foreground">No Pipelines Found</h3>
+          <p className="text-[12.5px] text-muted-foreground">
             You haven&apos;t created any pipelines yet. Head to the Sales CRM pipeline manager
             to create one.
           </p>

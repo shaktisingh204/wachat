@@ -87,12 +87,12 @@ export function NewDebitNoteForm() {
             <div className="grid gap-6">
                 <ClayCard>
                     <div className="mb-4">
-                        <h2 className="text-[15px] font-semibold text-clay-ink">Debit Note Details</h2>
-                        <p className="text-[12.5px] text-clay-ink-muted mt-1">Enter details for vendor return or adjustment.</p>
+                        <h2 className="text-[15px] font-semibold text-foreground">Debit Note Details</h2>
+                        <p className="text-[12.5px] text-muted-foreground mt-1">Enter details for vendor return or adjustment.</p>
                     </div>
                     <div className="grid md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label className="text-clay-ink">Vendor</Label>
+                            <Label className="text-foreground">Vendor</Label>
                             <SmartVendorSelect
                                 value={vendorId}
                                 onSelect={setVendorId}
@@ -102,7 +102,7 @@ export function NewDebitNoteForm() {
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label className="text-clay-ink">Currency</Label>
+                            <Label className="text-foreground">Currency</Label>
                             <Select name="currency" defaultValue="INR">
                                 <SelectTrigger><SelectValue /></SelectTrigger>
                                 <SelectContent>
@@ -113,12 +113,12 @@ export function NewDebitNoteForm() {
                             </Select>
                         </div>
                         <div className="space-y-2">
-                            <Label className="text-clay-ink">Date</Label>
+                            <Label className="text-foreground">Date</Label>
                             <DatePicker date={noteDate} setDate={setNoteDate} />
                             <input type="hidden" name="noteDate" value={noteDate?.toISOString()} />
                         </div>
                         <div className="space-y-2">
-                            <Label className="text-clay-ink">Reason</Label>
+                            <Label className="text-foreground">Reason</Label>
                             <Input name="reason" placeholder="e.g. Damaged Goods, Pricing Error" />
                         </div>
                     </div>
@@ -126,11 +126,11 @@ export function NewDebitNoteForm() {
 
                 <ClayCard>
                     <div className="mb-4">
-                        <h2 className="text-[15px] font-semibold text-clay-ink">Items</h2>
+                        <h2 className="text-[15px] font-semibold text-foreground">Items</h2>
                     </div>
                     <div className="space-y-4">
-                        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
-                            <div className="grid grid-cols-12 gap-2 bg-clay-surface-2 p-3 text-sm font-medium text-clay-ink">
+                        <div className="overflow-x-auto rounded-lg border border-border">
+                            <div className="grid grid-cols-12 gap-2 bg-secondary p-3 text-sm font-medium text-foreground">
                                 <div className="col-span-5">Description</div>
                                 <div className="col-span-2 text-right">Qty</div>
                                 <div className="col-span-2 text-right">Rate</div>
@@ -138,7 +138,7 @@ export function NewDebitNoteForm() {
                                 <div className="col-span-1"></div>
                             </div>
                             {lineItems.map((item, index) => (
-                                <div key={index} className="grid grid-cols-12 gap-2 p-3 border-t border-clay-border items-center">
+                                <div key={index} className="grid grid-cols-12 gap-2 p-3 border-t border-border items-center">
                                     <div className="col-span-5">
                                         <Input
                                             value={item.description}
@@ -182,7 +182,7 @@ export function NewDebitNoteForm() {
 
                         <div className="flex justify-end pt-4">
                             <div className="w-64 space-y-2">
-                                <div className="flex justify-between font-bold text-lg text-clay-ink">
+                                <div className="flex justify-between font-bold text-lg text-foreground">
                                     <span>Total</span>
                                     <span>{calculateTotal().toFixed(2)}</span>
                                 </div>
@@ -193,10 +193,10 @@ export function NewDebitNoteForm() {
 
                 <ClayCard>
                     <div className="mb-4">
-                        <h2 className="text-[15px] font-semibold text-clay-ink">Additional Notes</h2>
+                        <h2 className="text-[15px] font-semibold text-foreground">Additional Notes</h2>
                     </div>
                     <Textarea name="notes" placeholder="Any additional comments..." />
-                    <div className="flex justify-end gap-2 mt-6 pt-4 border-t border-clay-border">
+                    <div className="flex justify-end gap-2 mt-6 pt-4 border-t border-border">
                         <ClayButton type="button" variant="pill" onClick={() => router.back()}>Cancel</ClayButton>
                         <SubmitButton />
                     </div>

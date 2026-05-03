@@ -117,10 +117,10 @@ export default function QrCodesPage() {
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">
+          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
             WhatsApp QR Codes
           </h1>
-          <p className="mt-1.5 max-w-[720px] text-[13px] text-clay-ink-muted">
+          <p className="mt-1.5 max-w-[720px] text-[13px] text-muted-foreground">
             Create QR codes that open WhatsApp with a prefilled message when scanned.
           </p>
         </div>
@@ -139,14 +139,14 @@ export default function QrCodesPage() {
       {/* Create Form */}
       {showCreate && (
         <ClayCard className="p-5">
-          <h3 className="text-sm font-medium text-clay-ink mb-3">New QR Code</h3>
+          <h3 className="text-sm font-medium text-foreground mb-3">New QR Code</h3>
           <div className="flex gap-3">
             <input
               type="text"
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               placeholder="Enter prefilled message..."
-              className="flex-1 rounded-lg border border-clay-border bg-clay-bg px-3 py-2 text-sm text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-accent focus:outline-none"
+              className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none"
             />
             <ClayButton size="sm" onClick={handleCreate} disabled={isPending || !newMessage.trim()}>
               Create
@@ -164,20 +164,20 @@ export default function QrCodesPage() {
           {qrCodes.map((qr) => (
             <ClayCard key={qr.code} className="p-5">
               <div className="flex items-start justify-between mb-3">
-                <LuQrCode className="h-8 w-8 text-clay-ink-muted/50" />
+                <LuQrCode className="h-8 w-8 text-muted-foreground/50" />
                 <div className="flex gap-1">
                   <button
                     onClick={() => {
                       setEditingId(qr.code);
                       setEditMessage(qr.prefilled_message);
                     }}
-                    className="rounded p-1.5 text-clay-ink-muted hover:bg-clay-bg-2 hover:text-clay-ink"
+                    className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
                   >
                     <LuPencil className="h-3.5 w-3.5" />
                   </button>
                   <button
                     onClick={() => handleDelete(qr.code)}
-                    className="rounded p-1.5 text-clay-ink-muted hover:bg-red-500/10 hover:text-red-500"
+                    className="rounded p-1.5 text-muted-foreground hover:bg-red-500/10 hover:text-red-500"
                   >
                     <LuTrash2 className="h-3.5 w-3.5" />
                   </button>
@@ -190,7 +190,7 @@ export default function QrCodesPage() {
                     type="text"
                     value={editMessage}
                     onChange={(e) => setEditMessage(e.target.value)}
-                    className="flex-1 rounded border border-clay-border bg-clay-bg px-2 py-1.5 text-xs text-clay-ink focus:border-clay-accent focus:outline-none"
+                    className="flex-1 rounded border border-border bg-background px-2 py-1.5 text-xs text-foreground focus:border-accent focus:outline-none"
                   />
                   <ClayButton size="sm" onClick={() => handleUpdate(qr.code)} disabled={isPending}>
                     Save
@@ -200,13 +200,13 @@ export default function QrCodesPage() {
                   </ClayButton>
                 </div>
               ) : (
-                <p className="text-xs text-clay-ink-muted line-clamp-2">{qr.prefilled_message}</p>
+                <p className="text-xs text-muted-foreground line-clamp-2">{qr.prefilled_message}</p>
               )}
 
               {qr.deep_link_url && (
                 <button
                   onClick={() => { navigator.clipboard.writeText(qr.deep_link_url); toast({ title: 'Copied', description: 'Deep link copied to clipboard.' }); }}
-                  className="mt-3 flex items-center gap-1.5 text-[11px] text-clay-accent hover:underline"
+                  className="mt-3 flex items-center gap-1.5 text-[11px] text-accent hover:underline"
                 >
                   <LuCopy className="h-3 w-3" />
                   Copy link
@@ -218,8 +218,8 @@ export default function QrCodesPage() {
       ) : (
         !isPending && (
           <ClayCard className="p-12 text-center">
-            <LuQrCode className="mx-auto h-12 w-12 text-clay-ink-muted/30 mb-4" />
-            <p className="text-sm text-clay-ink-muted">No QR codes yet. Create one to get started.</p>
+            <LuQrCode className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
+            <p className="text-sm text-muted-foreground">No QR codes yet. Create one to get started.</p>
           </ClayCard>
         )
       )}

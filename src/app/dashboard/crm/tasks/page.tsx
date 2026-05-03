@@ -21,7 +21,7 @@ function TasksPageSkeleton() {
         <Skeleton className="h-8 w-64" />
         <Skeleton className="mt-2 h-4 w-96" />
       </div>
-      <Skeleton className="h-[500px] w-full rounded-clay-lg" />
+      <Skeleton className="h-[500px] w-full rounded-xl" />
     </div>
   );
 }
@@ -62,7 +62,7 @@ export default function TasksPage() {
 
       <ClayCard padded={false} className="flex min-h-0 flex-1 flex-col p-5">
         <Tabs defaultValue="todo" className="flex min-h-0 flex-1 flex-col">
-          <TabsList className="grid w-full grid-cols-3 bg-clay-surface-2">
+          <TabsList className="grid w-full grid-cols-3 bg-secondary">
             <TabsTrigger value="todo">To-Do ({todoTasks.length})</TabsTrigger>
             <TabsTrigger value="inProgress">In Progress ({inProgressTasks.length})</TabsTrigger>
             <TabsTrigger value="completed">Completed ({completedTasks.length})</TabsTrigger>

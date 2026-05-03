@@ -33,7 +33,7 @@ const STATUS_TONES: Record<string, 'green' | 'amber' | 'neutral' | 'red'> = {
 };
 
 const AVATAR_COLORS = [
-  'bg-clay-rose-soft text-clay-rose-ink',
+  'bg-accent text-accent-foreground',
   'bg-blue-100 text-blue-700',
   'bg-emerald-100 text-emerald-700',
   'bg-amber-100 text-amber-700',
@@ -92,14 +92,14 @@ function OrgNode({ node, depth }: { node: TreeNode; depth: number }) {
   const hasChildren = node.children.length > 0;
 
   return (
-    <div className={depth > 0 ? 'ml-6 border-l border-clay-border pl-4 pt-1' : ''}>
+    <div className={depth > 0 ? 'ml-6 border-l border-border pl-4 pt-1' : ''}>
       <div className="flex items-start gap-2 py-1.5 group">
         {/* Expand/collapse toggle */}
         <button
           type="button"
           onClick={() => hasChildren && setExpanded((v) => !v)}
-          className={`mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded text-clay-ink-muted transition-colors ${
-            hasChildren ? 'hover:text-clay-ink cursor-pointer' : 'opacity-0 pointer-events-none'
+          className={`mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded text-muted-foreground transition-colors ${
+            hasChildren ? 'hover:text-foreground cursor-pointer' : 'opacity-0 pointer-events-none'
           }`}
           aria-label={expanded ? 'Collapse' : 'Expand'}
         >
@@ -119,12 +119,12 @@ function OrgNode({ node, depth }: { node: TreeNode; depth: number }) {
 
         {/* Info */}
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-3 gap-y-0.5">
-          <span className="text-[13px] font-medium text-clay-ink">{name}</span>
+          <span className="text-[13px] font-medium text-foreground">{name}</span>
           {node.designationName && (
-            <span className="text-[12px] text-clay-ink-muted">{node.designationName}</span>
+            <span className="text-[12px] text-muted-foreground">{node.designationName}</span>
           )}
           {node.departmentName && (
-            <span className="hidden text-[11px] text-clay-ink-muted sm:inline">
+            <span className="hidden text-[11px] text-muted-foreground sm:inline">
               · {node.departmentName}
             </span>
           )}
@@ -134,7 +134,7 @@ function OrgNode({ node, depth }: { node: TreeNode; depth: number }) {
             </ClayBadge>
           )}
           {hasChildren && (
-            <span className="text-[11px] text-clay-ink-muted">
+            <span className="text-[11px] text-muted-foreground">
               {node.children.length} report{node.children.length !== 1 ? 's' : ''}
             </span>
           )}
@@ -199,16 +199,16 @@ export default function OrgChartPage() {
             ))}
           </div>
         ) : failed ? (
-          <div className="p-8 text-[13px] text-clay-ink-muted">
+          <div className="p-8 text-[13px] text-muted-foreground">
             Failed to load employee data. Please try refreshing.
           </div>
         ) : roots.length === 0 ? (
           <div className="flex flex-col items-start gap-3 p-8">
-            <div className="flex h-12 w-12 items-center justify-center rounded-clay-md bg-clay-rose-soft">
-              <Network className="h-6 w-6 text-clay-rose-ink" strokeWidth={1.75} />
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent">
+              <Network className="h-6 w-6 text-accent-foreground" strokeWidth={1.75} />
             </div>
-            <h3 className="text-[15px] font-semibold text-clay-ink">No employees yet</h3>
-            <p className="max-w-xl text-[13px] text-clay-ink-muted">
+            <h3 className="text-[15px] font-semibold text-foreground">No employees yet</h3>
+            <p className="max-w-xl text-[13px] text-muted-foreground">
               Add employees via HR-Payroll → Employees to see the org chart.
             </p>
             <Link href="/dashboard/hrm/hr/directory">
@@ -223,7 +223,7 @@ export default function OrgChartPage() {
         ) : (
           <div className="p-4">
             <div className="mb-3 flex items-center justify-between">
-              <p className="text-[12px] text-clay-ink-muted">
+              <p className="text-[12px] text-muted-foreground">
                 {total} employee{total !== 1 ? 's' : ''} · click rows to expand / collapse
               </p>
             </div>

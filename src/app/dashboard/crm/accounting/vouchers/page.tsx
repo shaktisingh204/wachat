@@ -87,35 +87,35 @@ export default function VoucherBooksPage() {
                 }
             />
             <ClayCard>
-                <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                <div className="overflow-x-auto rounded-lg border border-border">
                     <Table>
                         <TableHeader>
-                            <TableRow className="border-clay-border hover:bg-transparent">
-                                <TableHead className="text-clay-ink-muted">Voucher Book</TableHead>
-                                <TableHead className="text-clay-ink-muted">Voucher Book Type</TableHead>
-                                <TableHead className="text-clay-ink-muted">Entries</TableHead>
-                                <TableHead className="text-clay-ink-muted">Reversed Entries</TableHead>
-                                <TableHead className="text-clay-ink-muted">Last Entry Date</TableHead>
-                                <TableHead className="text-clay-ink-muted">Is Default</TableHead>
-                                <TableHead className="text-clay-ink-muted">Created By</TableHead>
-                                <TableHead className="text-clay-ink-muted text-right">Actions</TableHead>
+                            <TableRow className="border-border hover:bg-transparent">
+                                <TableHead className="text-muted-foreground">Voucher Book</TableHead>
+                                <TableHead className="text-muted-foreground">Voucher Book Type</TableHead>
+                                <TableHead className="text-muted-foreground">Entries</TableHead>
+                                <TableHead className="text-muted-foreground">Reversed Entries</TableHead>
+                                <TableHead className="text-muted-foreground">Last Entry Date</TableHead>
+                                <TableHead className="text-muted-foreground">Is Default</TableHead>
+                                <TableHead className="text-muted-foreground">Created By</TableHead>
+                                <TableHead className="text-muted-foreground text-right">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {isLoading ? (
-                                <TableRow className="border-clay-border"><TableCell colSpan={8} className="text-center h-24"><LoaderCircle className="h-6 w-6 animate-spin mx-auto text-clay-ink-muted"/></TableCell></TableRow>
+                                <TableRow className="border-border"><TableCell colSpan={8} className="text-center h-24"><LoaderCircle className="h-6 w-6 animate-spin mx-auto text-muted-foreground"/></TableCell></TableRow>
                             ) : books.length > 0 ? (
                                 books.map(book => (
-                                    <TableRow key={book._id.toString()} className="border-clay-border">
-                                        <TableCell className="font-medium text-clay-ink">{book.name}</TableCell>
+                                    <TableRow key={book._id.toString()} className="border-border">
+                                        <TableCell className="font-medium text-foreground">{book.name}</TableCell>
                                         <TableCell><ClayBadge tone="neutral">{book.type}</ClayBadge></TableCell>
-                                        <TableCell className="text-clay-ink">{book.entryCount || 0}</TableCell>
-                                        <TableCell className="text-clay-ink">0</TableCell>
-                                        <TableCell className="text-clay-ink">{book.lastEntryDate ? new Date(book.lastEntryDate).toLocaleDateString() : '-'}</TableCell>
+                                        <TableCell className="text-foreground">{book.entryCount || 0}</TableCell>
+                                        <TableCell className="text-foreground">0</TableCell>
+                                        <TableCell className="text-foreground">{book.lastEntryDate ? new Date(book.lastEntryDate).toLocaleDateString() : '-'}</TableCell>
                                         <TableCell>
-                                            {book.isDefault ? <CheckCircle className="h-5 w-5 text-clay-green" /> : <XCircle className="h-5 w-5 text-clay-ink-muted" />}
+                                            {book.isDefault ? <CheckCircle className="h-5 w-5 text-emerald-500" /> : <XCircle className="h-5 w-5 text-muted-foreground" />}
                                         </TableCell>
-                                        <TableCell className="text-clay-ink">System</TableCell>
+                                        <TableCell className="text-foreground">System</TableCell>
                                         <TableCell className="text-right">
                                             <div className="flex justify-end items-center gap-1">
                                                 <Button asChild variant="ghost" size="sm">
@@ -129,8 +129,8 @@ export default function VoucherBooksPage() {
                                     </TableRow>
                                 ))
                             ) : (
-                                 <TableRow className="border-clay-border">
-                                    <TableCell colSpan={8} className="h-24 text-center text-clay-ink-muted">
+                                 <TableRow className="border-border">
+                                    <TableCell colSpan={8} className="h-24 text-center text-muted-foreground">
                                         No voucher books found. Create one to get started.
                                     </TableCell>
                                 </TableRow>

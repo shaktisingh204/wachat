@@ -34,11 +34,11 @@ const fmt = (n: number) => `₹${n.toLocaleString('en-IN')}`;
 const StatCard = ({ title, value, icon: Icon, sub }: { title: string; value: string; icon: React.ElementType; sub?: string }) => (
     <ClayCard className="flex flex-col gap-1">
         <div className="flex items-center justify-between">
-            <p className="text-[12.5px] font-medium text-clay-ink-muted">{title}</p>
-            <Icon className="h-4 w-4 text-clay-ink-muted" strokeWidth={1.75} />
+            <p className="text-[12.5px] font-medium text-muted-foreground">{title}</p>
+            <Icon className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
         </div>
-        <p className="mt-1 text-2xl font-bold text-clay-ink">{value}</p>
-        {sub ? <p className="text-[11.5px] text-clay-ink-muted">{sub}</p> : null}
+        <p className="mt-1 text-2xl font-bold text-foreground">{value}</p>
+        {sub ? <p className="text-[11.5px] text-muted-foreground">{sub}</p> : null}
     </ClayCard>
 );
 
@@ -112,7 +112,7 @@ export default function SalaryRegisterPage() {
                                     <select
                                         value={selectedMonth}
                                         onChange={e => setSelectedMonth(Number(e.target.value))}
-                                        className="w-full rounded-clay-md border border-clay-border bg-clay-surface px-3 py-2 text-[13px] text-clay-ink focus:outline-none focus:ring-2 focus:ring-clay-rose/30"
+                                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-[13px] text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
                                     >
                                         {MONTHS.map((m, i) => <option key={m} value={i + 1}>{m}</option>)}
                                     </select>
@@ -122,7 +122,7 @@ export default function SalaryRegisterPage() {
                                     <select
                                         value={selectedYear}
                                         onChange={e => setSelectedYear(Number(e.target.value))}
-                                        className="w-full rounded-clay-md border border-clay-border bg-clay-surface px-3 py-2 text-[13px] text-clay-ink focus:outline-none focus:ring-2 focus:ring-clay-rose/30"
+                                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-[13px] text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
                                     >
                                         {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
                                     </select>
@@ -156,103 +156,103 @@ export default function SalaryRegisterPage() {
             <ClayCard>
                 <div className="mb-4 flex items-center justify-between">
                     <div>
-                        <h2 className="text-[16px] font-semibold text-clay-ink">Register Details</h2>
-                        <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">
+                        <h2 className="text-[16px] font-semibold text-foreground">Register Details</h2>
+                        <p className="mt-0.5 text-[12.5px] text-muted-foreground">
                             {MONTHS[selectedMonth - 1]} {selectedYear}
                         </p>
                     </div>
                     {reportData.length > 0 && (
-                        <span className="text-[12.5px] text-clay-ink-muted">{reportData.length} employee{reportData.length !== 1 ? 's' : ''}</span>
+                        <span className="text-[12.5px] text-muted-foreground">{reportData.length} employee{reportData.length !== 1 ? 's' : ''}</span>
                     )}
                 </div>
 
-                <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                <div className="overflow-x-auto rounded-lg border border-border">
                     <table className="w-full text-left text-[13px]">
                         <thead>
-                            <tr className="border-b border-clay-border bg-clay-surface-2">
-                                <th className="px-4 py-3 font-medium text-clay-ink-muted">Employee</th>
-                                <th className="px-4 py-3 font-medium text-clay-ink-muted">Department</th>
+                            <tr className="border-b border-border bg-secondary">
+                                <th className="px-4 py-3 font-medium text-muted-foreground">Employee</th>
+                                <th className="px-4 py-3 font-medium text-muted-foreground">Department</th>
                                 {/* Earnings */}
-                                <th className="border-l border-clay-border px-4 py-3 text-right font-medium text-green-600">Basic</th>
+                                <th className="border-l border-border px-4 py-3 text-right font-medium text-green-600">Basic</th>
                                 <th className="px-4 py-3 text-right font-medium text-green-600">HRA</th>
                                 <th className="px-4 py-3 text-right font-medium text-green-600">Spl. Allow.</th>
                                 <th className="px-4 py-3 text-right font-medium text-green-600">Other</th>
                                 <th className="px-4 py-3 text-right font-medium text-green-700">Total Gross</th>
                                 {/* Deductions */}
-                                <th className="border-l border-clay-border px-4 py-3 text-right font-medium text-red-500">PF</th>
+                                <th className="border-l border-border px-4 py-3 text-right font-medium text-red-500">PF</th>
                                 <th className="px-4 py-3 text-right font-medium text-red-500">ESI</th>
                                 <th className="px-4 py-3 text-right font-medium text-red-500">TDS</th>
                                 <th className="px-4 py-3 text-right font-medium text-red-600">Total Deductions</th>
                                 {/* Net */}
-                                <th className="border-l border-clay-border px-4 py-3 text-right font-medium text-clay-ink">Net Pay</th>
+                                <th className="border-l border-border px-4 py-3 text-right font-medium text-foreground">Net Pay</th>
                             </tr>
                         </thead>
                         <tbody>
                             {isLoading ? (
                                 <tr>
                                     <td colSpan={12} className="h-48 text-center">
-                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-clay-ink-muted" />
+                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
                                     </td>
                                 </tr>
                             ) : reportData.length > 0 ? (
                                 <>
                                     {reportData.map(row => (
-                                        <tr key={row.employeeId} className="border-b border-clay-border last:border-0 hover:bg-clay-surface-2/50">
-                                            <td className="px-4 py-3 font-medium text-clay-ink">{row.employeeName}</td>
-                                            <td className="px-4 py-3 text-clay-ink-muted">{row.department}</td>
+                                        <tr key={row.employeeId} className="border-b border-border last:border-0 hover:bg-secondary/50">
+                                            <td className="px-4 py-3 font-medium text-foreground">{row.employeeName}</td>
+                                            <td className="px-4 py-3 text-muted-foreground">{row.department}</td>
                                             {/* Earnings */}
-                                            <td className="border-l border-clay-border px-4 py-3 text-right font-mono text-clay-ink">{fmt(row.basic)}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-clay-ink">{fmt(row.hra)}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-clay-ink">{fmt(row.specialAllowance)}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-clay-ink">{fmt(row.otherEarnings)}</td>
+                                            <td className="border-l border-border px-4 py-3 text-right font-mono text-foreground">{fmt(row.basic)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-foreground">{fmt(row.hra)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-foreground">{fmt(row.specialAllowance)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-foreground">{fmt(row.otherEarnings)}</td>
                                             <td className="px-4 py-3 text-right font-mono font-semibold text-green-700">{fmt(row.totalGross)}</td>
                                             {/* Deductions */}
-                                            <td className="border-l border-clay-border px-4 py-3 text-right font-mono text-clay-ink">{fmt(row.pf)}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-clay-ink">{fmt(row.esi)}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-clay-ink">{fmt(row.tds)}</td>
+                                            <td className="border-l border-border px-4 py-3 text-right font-mono text-foreground">{fmt(row.pf)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-foreground">{fmt(row.esi)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-foreground">{fmt(row.tds)}</td>
                                             <td className="px-4 py-3 text-right font-mono font-semibold text-red-600">{fmt(row.totalDeductions)}</td>
                                             {/* Net */}
-                                            <td className="border-l border-clay-border px-4 py-3 text-right font-mono font-bold text-clay-ink">{fmt(row.netPay)}</td>
+                                            <td className="border-l border-border px-4 py-3 text-right font-mono font-bold text-foreground">{fmt(row.netPay)}</td>
                                         </tr>
                                     ))}
                                     {/* Totals row */}
-                                    <tr className="border-t-2 border-clay-border bg-clay-surface-2 font-semibold">
-                                        <td className="px-4 py-3 text-clay-ink" colSpan={2}>Totals</td>
-                                        <td className="border-l border-clay-border px-4 py-3 text-right font-mono text-clay-ink">
+                                    <tr className="border-t-2 border-border bg-secondary font-semibold">
+                                        <td className="px-4 py-3 text-foreground" colSpan={2}>Totals</td>
+                                        <td className="border-l border-border px-4 py-3 text-right font-mono text-foreground">
                                             {fmt(reportData.reduce((s, r) => s + r.basic, 0))}
                                         </td>
-                                        <td className="px-4 py-3 text-right font-mono text-clay-ink">
+                                        <td className="px-4 py-3 text-right font-mono text-foreground">
                                             {fmt(reportData.reduce((s, r) => s + r.hra, 0))}
                                         </td>
-                                        <td className="px-4 py-3 text-right font-mono text-clay-ink">
+                                        <td className="px-4 py-3 text-right font-mono text-foreground">
                                             {fmt(reportData.reduce((s, r) => s + r.specialAllowance, 0))}
                                         </td>
-                                        <td className="px-4 py-3 text-right font-mono text-clay-ink">
+                                        <td className="px-4 py-3 text-right font-mono text-foreground">
                                             {fmt(reportData.reduce((s, r) => s + r.otherEarnings, 0))}
                                         </td>
                                         <td className="px-4 py-3 text-right font-mono text-green-700">
                                             {fmt(summary.totalGross)}
                                         </td>
-                                        <td className="border-l border-clay-border px-4 py-3 text-right font-mono text-clay-ink">
+                                        <td className="border-l border-border px-4 py-3 text-right font-mono text-foreground">
                                             {fmt(reportData.reduce((s, r) => s + r.pf, 0))}
                                         </td>
-                                        <td className="px-4 py-3 text-right font-mono text-clay-ink">
+                                        <td className="px-4 py-3 text-right font-mono text-foreground">
                                             {fmt(reportData.reduce((s, r) => s + r.esi, 0))}
                                         </td>
-                                        <td className="px-4 py-3 text-right font-mono text-clay-ink">
+                                        <td className="px-4 py-3 text-right font-mono text-foreground">
                                             {fmt(reportData.reduce((s, r) => s + r.tds, 0))}
                                         </td>
                                         <td className="px-4 py-3 text-right font-mono text-red-600">
                                             {fmt(summary.totalDeductions)}
                                         </td>
-                                        <td className="border-l border-clay-border px-4 py-3 text-right font-mono text-clay-ink">
+                                        <td className="border-l border-border px-4 py-3 text-right font-mono text-foreground">
                                             {fmt(summary.totalNetPay)}
                                         </td>
                                     </tr>
                                 </>
                             ) : (
                                 <tr>
-                                    <td colSpan={12} className="h-24 text-center text-clay-ink-muted">
+                                    <td colSpan={12} className="h-24 text-center text-muted-foreground">
                                         No salary data found for the selected period.
                                     </td>
                                 </tr>

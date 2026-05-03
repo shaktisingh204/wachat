@@ -48,11 +48,11 @@ export default function NewPipelinePage() {
   return (
     <div className="max-w-4xl flex w-full flex-col gap-6">
       <div>
-        <Link href="/dashboard/crm/sales-crm/pipelines" className="inline-flex items-center gap-2 text-[13px] text-clay-ink-muted hover:text-clay-ink">
+        <Link href="/dashboard/crm/sales-crm/pipelines" className="inline-flex items-center gap-2 text-[13px] text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" /> Back to Pipelines
         </Link>
-        <h1 className="mt-2 text-[26px] font-semibold tracking-tight text-clay-ink flex items-center gap-3">
-          <Columns3 className="h-6 w-6 text-clay-rose-ink" />
+        <h1 className="mt-2 text-[26px] font-semibold tracking-tight text-foreground flex items-center gap-3">
+          <Columns3 className="h-6 w-6 text-accent-foreground" />
           Create New Pipeline
         </h1>
       </div>
@@ -60,19 +60,19 @@ export default function NewPipelinePage() {
       <ClayCard>
         <div className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="pipeline-name" className="text-clay-ink">Pipeline Name</Label>
+            <Label htmlFor="pipeline-name" className="text-foreground">Pipeline Name</Label>
             <Input
               id="pipeline-name"
-              className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+              className="h-10 rounded-lg border-border bg-card text-[13px]"
               value={pipelineName}
               onChange={e => setPipelineName(e.target.value)}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="description" className="text-clay-ink">Description</Label>
+            <Label htmlFor="description" className="text-foreground">Description</Label>
             <Input
               id="description"
-              className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+              className="h-10 rounded-lg border-border bg-card text-[13px]"
               value={description}
               onChange={e => setDescription(e.target.value)}
             />
@@ -82,27 +82,27 @@ export default function NewPipelinePage() {
 
       <ClayCard>
         <div className="mb-4">
-          <h2 className="text-[16px] font-semibold text-clay-ink">Edit Pipeline Stages</h2>
+          <h2 className="text-[16px] font-semibold text-foreground">Edit Pipeline Stages</h2>
         </div>
         <div className="space-y-4">
           <div className="space-y-2">
             {stages.map((stage, index) => (
-              <div key={stage.id} className="flex items-center gap-4 rounded-clay-md border border-clay-border bg-clay-surface-2 p-2">
+              <div key={stage.id} className="flex items-center gap-4 rounded-lg border border-border bg-secondary p-2">
                 <div className="flex-1 space-y-1">
-                  <Label htmlFor={`stage-name-${index}`} className="text-xs text-clay-ink-muted">Stage Name</Label>
+                  <Label htmlFor={`stage-name-${index}`} className="text-xs text-muted-foreground">Stage Name</Label>
                   <Input
                     id={`stage-name-${index}`}
-                    className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                    className="h-10 rounded-lg border-border bg-card text-[13px]"
                     value={stage.name}
                     onChange={e => handleStageChange(stage.id, 'name', e.target.value)}
                   />
                 </div>
                 <div className="w-32 space-y-1">
-                  <Label htmlFor={`stage-chance-${index}`} className="text-xs text-clay-ink-muted">Closure Chances (%)</Label>
+                  <Label htmlFor={`stage-chance-${index}`} className="text-xs text-muted-foreground">Closure Chances (%)</Label>
                   <Input
                     id={`stage-chance-${index}`}
                     type="number"
-                    className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                    className="h-10 rounded-lg border-border bg-card text-[13px]"
                     value={stage.chance}
                     onChange={e => handleStageChange(stage.id, 'chance', Number(e.target.value))}
                   />

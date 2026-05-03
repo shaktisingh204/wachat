@@ -46,7 +46,7 @@ function StatCard({
 }) {
   const toneMap = {
     green: 'bg-emerald-50 text-emerald-600',
-    rose: 'bg-clay-rose-soft text-clay-rose',
+    rose: 'bg-accent text-primary',
     red: 'bg-red-50 text-red-500',
   };
 
@@ -58,15 +58,15 @@ function StatCard({
         {icon}
       </span>
       <div className="min-w-0 flex-1">
-        <p className="text-[12px] font-medium text-clay-ink-muted">{label}</p>
+        <p className="text-[12px] font-medium text-muted-foreground">{label}</p>
         {loading ? (
-          <div className="mt-1 h-7 w-24 animate-pulse rounded-md bg-clay-bg-2" />
+          <div className="mt-1 h-7 w-24 animate-pulse rounded-md bg-muted" />
         ) : (
-          <p className="text-[22px] font-semibold tabular-nums text-clay-ink leading-tight">
+          <p className="text-[22px] font-semibold tabular-nums text-foreground leading-tight">
             {value}
           </p>
         )}
-        <p className="mt-0.5 text-[11px] text-clay-ink-soft">{hint}</p>
+        <p className="mt-0.5 text-[11px] text-muted-foreground">{hint}</p>
       </div>
     </ClayCard>
   );
@@ -143,7 +143,7 @@ export default function WhatsAppPayPage() {
 
   if (!activeProjectId) {
     return (
-      <div className="flex items-center gap-3 rounded-clay-md border border-clay-red/20 bg-red-50 p-4 text-[13px] text-clay-red">
+      <div className="flex items-center gap-3 rounded-lg border border-destructive/20 bg-red-50 p-4 text-[13px] text-destructive">
         No project selected. Please select a project from the main dashboard to
         manage its payments.
       </div>
@@ -215,10 +215,10 @@ export default function WhatsAppPayPage() {
 
       {/* Chart */}
       <ClayCard className="p-5">
-        <h3 className="text-[15px] font-semibold text-clay-ink">
+        <h3 className="text-[15px] font-semibold text-foreground">
           Transactions over time
         </h3>
-        <p className="mb-4 text-[12px] text-clay-ink-muted">
+        <p className="mb-4 text-[12px] text-muted-foreground">
           Revenue curve across the selected date range.
         </p>
         <TransactionChart transactions={transactions} dateRange={dateRange} />
@@ -226,10 +226,10 @@ export default function WhatsAppPayPage() {
 
       {/* Table */}
       <ClayCard className="p-5">
-        <h3 className="text-[15px] font-semibold text-clay-ink">
+        <h3 className="text-[15px] font-semibold text-foreground">
           Transaction history
         </h3>
-        <p className="mb-4 text-[12px] text-clay-ink-muted">
+        <p className="mb-4 text-[12px] text-muted-foreground">
           A detailed log of all payments initiated from this platform.
         </p>
         <TransactionTable data={tableData} />

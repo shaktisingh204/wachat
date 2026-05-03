@@ -216,7 +216,7 @@ export default function TimeLogsPage() {
           runningLog ? (
             <ClayButton
               variant="obsidian"
-              className="bg-clay-red text-white hover:bg-clay-red/90"
+              className="bg-destructive text-white hover:bg-destructive/90"
               leading={<Square className="h-4 w-4" strokeWidth={1.75} />}
               disabled={isBusy}
               onClick={() => runningLog._id && handleStop(runningLog._id)}
@@ -239,18 +239,18 @@ export default function TimeLogsPage() {
         <ClayCard>
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <p className="text-[11px] uppercase tracking-[0.18em] text-clay-ink-muted">
+              <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
                 Currently tracking
               </p>
-              <p className="mt-1 text-[14.5px] font-semibold text-clay-ink">
+              <p className="mt-1 text-[14.5px] font-semibold text-foreground">
                 {runningLog.memo || 'Untitled session'}
               </p>
             </div>
             <div className="text-right">
-              <p className="text-[11px] uppercase tracking-[0.18em] text-clay-ink-muted">
+              <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
                 Elapsed
               </p>
-              <p className="mt-1 font-mono text-[32px] font-semibold leading-none text-clay-ink tabular-nums">
+              <p className="mt-1 font-mono text-[32px] font-semibold leading-none text-foreground tabular-nums">
                 <LiveElapsed start={runningLog.start_time} />
               </p>
             </div>
@@ -261,7 +261,7 @@ export default function TimeLogsPage() {
       <ClayCard>
         <div className="flex flex-wrap items-end gap-3">
           <div className="min-w-[180px] flex-1">
-            <Label className="text-[11px] uppercase tracking-[0.18em] text-clay-ink-muted">
+            <Label className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
               Project ID
             </Label>
             <Input
@@ -270,11 +270,11 @@ export default function TimeLogsPage() {
                 setFilters((f) => ({ ...f, project_id: e.target.value }))
               }
               placeholder="Mongo ObjectId"
-              className="mt-1 h-9 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+              className="mt-1 h-9 rounded-lg border-border bg-card text-[13px]"
             />
           </div>
           <div className="min-w-[180px] flex-1">
-            <Label className="text-[11px] uppercase tracking-[0.18em] text-clay-ink-muted">
+            <Label className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
               Employee ID
             </Label>
             <Input
@@ -283,11 +283,11 @@ export default function TimeLogsPage() {
                 setFilters((f) => ({ ...f, user_id: e.target.value }))
               }
               placeholder="Mongo ObjectId"
-              className="mt-1 h-9 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+              className="mt-1 h-9 rounded-lg border-border bg-card text-[13px]"
             />
           </div>
           <div className="min-w-[140px] flex-1">
-            <Label className="text-[11px] uppercase tracking-[0.18em] text-clay-ink-muted">
+            <Label className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
               From
             </Label>
             <Input
@@ -296,11 +296,11 @@ export default function TimeLogsPage() {
               onChange={(e) =>
                 setFilters((f) => ({ ...f, from: e.target.value }))
               }
-              className="mt-1 h-9 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+              className="mt-1 h-9 rounded-lg border-border bg-card text-[13px]"
             />
           </div>
           <div className="min-w-[140px] flex-1">
-            <Label className="text-[11px] uppercase tracking-[0.18em] text-clay-ink-muted">
+            <Label className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
               To
             </Label>
             <Input
@@ -309,7 +309,7 @@ export default function TimeLogsPage() {
               onChange={(e) =>
                 setFilters((f) => ({ ...f, to: e.target.value }))
               }
-              className="mt-1 h-9 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+              className="mt-1 h-9 rounded-lg border-border bg-card text-[13px]"
             />
           </div>
           <ClayButton
@@ -332,18 +332,18 @@ export default function TimeLogsPage() {
       </ClayCard>
 
       <ClayCard>
-        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <Table>
             <TableHeader>
-              <TableRow className="border-clay-border hover:bg-transparent">
-                <TableHead className="text-clay-ink-muted">Memo</TableHead>
-                <TableHead className="text-clay-ink-muted">Project</TableHead>
-                <TableHead className="text-clay-ink-muted">Employee</TableHead>
-                <TableHead className="text-clay-ink-muted">Start</TableHead>
-                <TableHead className="text-clay-ink-muted">End</TableHead>
-                <TableHead className="text-clay-ink-muted">Duration</TableHead>
-                <TableHead className="text-clay-ink-muted">Status</TableHead>
-                <TableHead className="w-[200px] text-right text-clay-ink-muted">
+              <TableRow className="border-border hover:bg-transparent">
+                <TableHead className="text-muted-foreground">Memo</TableHead>
+                <TableHead className="text-muted-foreground">Project</TableHead>
+                <TableHead className="text-muted-foreground">Employee</TableHead>
+                <TableHead className="text-muted-foreground">Start</TableHead>
+                <TableHead className="text-muted-foreground">End</TableHead>
+                <TableHead className="text-muted-foreground">Duration</TableHead>
+                <TableHead className="text-muted-foreground">Status</TableHead>
+                <TableHead className="w-[200px] text-right text-muted-foreground">
                   Actions
                 </TableHead>
               </TableRow>
@@ -351,25 +351,25 @@ export default function TimeLogsPage() {
             <TableBody>
               {isLoading && rows.length === 0 ? (
                 [0, 1, 2].map((i) => (
-                  <TableRow key={i} className="border-clay-border">
+                  <TableRow key={i} className="border-border">
                     <TableCell colSpan={8}>
                       <Skeleton className="h-8 w-full" />
                     </TableCell>
                   </TableRow>
                 ))
               ) : rows.length === 0 ? (
-                <TableRow className="border-clay-border">
+                <TableRow className="border-border">
                   <TableCell
                     colSpan={8}
-                    className="h-24 text-center text-[13px] text-clay-ink-muted"
+                    className="h-24 text-center text-[13px] text-muted-foreground"
                   >
                     No time logs yet — start a timer to begin.
                   </TableCell>
                 </TableRow>
               ) : (
                 rows.map((log) => (
-                  <TableRow key={log._id} className="border-clay-border">
-                    <TableCell className="text-[13px] text-clay-ink">
+                  <TableRow key={log._id} className="border-border">
+                    <TableCell className="text-[13px] text-foreground">
                       <Link
                         href={`/dashboard/crm/time-tracking/time-logs/${log._id}`}
                         className="hover:underline"
@@ -377,19 +377,19 @@ export default function TimeLogsPage() {
                         {log.memo || '—'}
                       </Link>
                     </TableCell>
-                    <TableCell className="text-[13px] text-clay-ink-muted">
+                    <TableCell className="text-[13px] text-muted-foreground">
                       {log.project_id ? String(log.project_id) : '—'}
                     </TableCell>
-                    <TableCell className="text-[13px] text-clay-ink-muted">
+                    <TableCell className="text-[13px] text-muted-foreground">
                       {log.user_id ? String(log.user_id) : '—'}
                     </TableCell>
-                    <TableCell className="text-[13px] text-clay-ink-muted">
+                    <TableCell className="text-[13px] text-muted-foreground">
                       {formatDateTime(log.start_time)}
                     </TableCell>
-                    <TableCell className="text-[13px] text-clay-ink-muted">
+                    <TableCell className="text-[13px] text-muted-foreground">
                       {log.end_time ? formatDateTime(log.end_time) : '—'}
                     </TableCell>
-                    <TableCell className="text-[13px] text-clay-ink">
+                    <TableCell className="text-[13px] text-foreground">
                       {log.end_time
                         ? wsFormatDuration(log.start_time, log.end_time)
                         : (
@@ -407,7 +407,7 @@ export default function TimeLogsPage() {
                           <ClayButton
                             size="sm"
                             variant="obsidian"
-                            className="bg-clay-red text-white hover:bg-clay-red/90"
+                            className="bg-destructive text-white hover:bg-destructive/90"
                             onClick={() => log._id && handleStop(log._id)}
                             disabled={isBusy}
                           >
@@ -421,7 +421,7 @@ export default function TimeLogsPage() {
                               onClick={() => log._id && handleApprove(log._id)}
                               aria-label="Approve"
                             >
-                              <Check className="h-3.5 w-3.5 text-clay-green" strokeWidth={2} />
+                              <Check className="h-3.5 w-3.5 text-emerald-500" strokeWidth={2} />
                             </ClayButton>
                             <ClayButton
                               size="sm"
@@ -429,7 +429,7 @@ export default function TimeLogsPage() {
                               onClick={() => setRejecting(log)}
                               aria-label="Reject"
                             >
-                              <X className="h-3.5 w-3.5 text-clay-red" strokeWidth={2} />
+                              <X className="h-3.5 w-3.5 text-destructive" strokeWidth={2} />
                             </ClayButton>
                           </>
                         ) : null}
@@ -439,7 +439,7 @@ export default function TimeLogsPage() {
                           onClick={() => log._id && handleDelete(log._id)}
                           aria-label="Delete"
                         >
-                          <Trash2 className="h-3.5 w-3.5 text-clay-red" strokeWidth={1.75} />
+                          <Trash2 className="h-3.5 w-3.5 text-destructive" strokeWidth={1.75} />
                         </ClayButton>
                       </div>
                     </TableCell>
@@ -454,36 +454,36 @@ export default function TimeLogsPage() {
       <Dialog open={startDialog} onOpenChange={setStartDialog}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-clay-ink">Start a timer</DialogTitle>
-            <DialogDescription className="text-clay-ink-muted">
+            <DialogTitle className="text-foreground">Start a timer</DialogTitle>
+            <DialogDescription className="text-muted-foreground">
               Optionally pin the timer to a project or task.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
             <div>
-              <Label className="text-clay-ink">Project ID</Label>
+              <Label className="text-foreground">Project ID</Label>
               <Input
                 value={startForm.project_id}
                 onChange={(e) =>
                   setStartForm((f) => ({ ...f, project_id: e.target.value }))
                 }
                 placeholder="Optional — Mongo ObjectId"
-                className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div>
-              <Label className="text-clay-ink">Task ID</Label>
+              <Label className="text-foreground">Task ID</Label>
               <Input
                 value={startForm.task_id}
                 onChange={(e) =>
                   setStartForm((f) => ({ ...f, task_id: e.target.value }))
                 }
                 placeholder="Optional — Mongo ObjectId"
-                className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div>
-              <Label className="text-clay-ink">Memo</Label>
+              <Label className="text-foreground">Memo</Label>
               <Textarea
                 rows={3}
                 value={startForm.memo}
@@ -491,7 +491,7 @@ export default function TimeLogsPage() {
                   setStartForm((f) => ({ ...f, memo: e.target.value }))
                 }
                 placeholder="What are you working on?"
-                className="mt-1.5 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="mt-1.5 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
           </div>
@@ -531,8 +531,8 @@ export default function TimeLogsPage() {
       >
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-clay-ink">Reject log</DialogTitle>
-            <DialogDescription className="text-clay-ink-muted">
+            <DialogTitle className="text-foreground">Reject log</DialogTitle>
+            <DialogDescription className="text-muted-foreground">
               Give a reason for the rejection — the employee will see this.
             </DialogDescription>
           </DialogHeader>
@@ -541,7 +541,7 @@ export default function TimeLogsPage() {
             value={rejectReason}
             onChange={(e) => setRejectReason(e.target.value)}
             placeholder="Reason…"
-            className="rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+            className="rounded-lg border-border bg-card text-[13px]"
           />
           <DialogFooter className="gap-2">
             <ClayButton

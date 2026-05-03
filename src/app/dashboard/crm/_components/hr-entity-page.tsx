@@ -159,7 +159,7 @@ function renderField(field: HrField, value?: unknown) {
       <Textarea
         {...common}
         rows={3}
-        className="rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+        className="rounded-lg border-border bg-card text-[13px]"
       />
     );
   }
@@ -168,7 +168,7 @@ function renderField(field: HrField, value?: unknown) {
       <Select name={field.name} defaultValue={String(common.defaultValue || '')}>
         <SelectTrigger
           id={field.name}
-          className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+          className="h-10 rounded-lg border-border bg-card text-[13px]"
         >
           <SelectValue placeholder={field.placeholder || 'Select'} />
         </SelectTrigger>
@@ -186,7 +186,7 @@ function renderField(field: HrField, value?: unknown) {
     <Input
       {...common}
       type={field.type || 'text'}
-      className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+      className="h-10 rounded-lg border-border bg-card text-[13px]"
     />
   );
 }
@@ -267,7 +267,7 @@ function FieldArray({
       <input type="hidden" name={field.name} value={hiddenValue} />
 
       {rows.length === 0 ? (
-        <p className="rounded-clay-md border border-dashed border-clay-border bg-clay-surface-2 px-3 py-2.5 text-center text-[12px] text-clay-ink-muted">
+        <p className="rounded-lg border border-dashed border-border bg-secondary px-3 py-2.5 text-center text-[12px] text-muted-foreground">
           No rows yet — click Add below to start.
         </p>
       ) : (
@@ -275,7 +275,7 @@ function FieldArray({
           {rows.map((row, i) => (
             <div
               key={i}
-              className="flex flex-wrap items-end gap-2 rounded-clay-md border border-clay-border bg-clay-surface-2 p-2"
+              className="flex flex-wrap items-end gap-2 rounded-lg border border-border bg-secondary p-2"
             >
               {subs.map((s) => {
                 const fieldId = `${field.name}-${i}-${s.name}`;
@@ -284,7 +284,7 @@ function FieldArray({
                     <div key={s.name} className="min-w-[120px] flex-1">
                       <Label
                         htmlFor={fieldId}
-                        className="text-[11px] text-clay-ink-muted"
+                        className="text-[11px] text-muted-foreground"
                       >
                         {s.label}
                       </Label>
@@ -294,7 +294,7 @@ function FieldArray({
                       >
                         <SelectTrigger
                           id={fieldId}
-                          className="h-9 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                          className="h-9 rounded-lg border-border bg-card text-[13px]"
                         >
                           <SelectValue placeholder={s.placeholder || 'Select'} />
                         </SelectTrigger>
@@ -313,7 +313,7 @@ function FieldArray({
                   <div key={s.name} className="min-w-[120px] flex-1">
                     <Label
                       htmlFor={fieldId}
-                      className="text-[11px] text-clay-ink-muted"
+                      className="text-[11px] text-muted-foreground"
                     >
                       {s.label}
                     </Label>
@@ -324,7 +324,7 @@ function FieldArray({
                       placeholder={s.placeholder}
                       required={s.required}
                       onChange={(e) => updateRow(i, s.name, e.target.value)}
-                      className="h-9 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                      className="h-9 rounded-lg border-border bg-card text-[13px]"
                     />
                   </div>
                 );
@@ -334,7 +334,7 @@ function FieldArray({
                 variant="ghost"
                 size="sm"
                 onClick={() => removeRow(i)}
-                className="text-clay-red"
+                className="text-destructive"
                 aria-label="Remove row"
               >
                 <Trash2 className="h-3.5 w-3.5" />
@@ -349,14 +349,14 @@ function FieldArray({
         variant="outline"
         size="sm"
         onClick={addRow}
-        className="rounded-clay-md border-clay-border text-[12px]"
+        className="rounded-lg border-border text-[12px]"
       >
         <Plus className="mr-1.5 h-3.5 w-3.5" />
         {field.addLabel || 'Add row'}
       </Button>
 
       {field.help ? (
-        <p className="text-[11.5px] text-clay-ink-muted">{field.help}</p>
+        <p className="text-[11.5px] text-muted-foreground">{field.help}</p>
       ) : null}
     </div>
   );
@@ -461,19 +461,19 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
       />
 
       <ClayCard>
-        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <Table>
             <TableHeader>
-              <TableRow className="border-clay-border hover:bg-transparent">
+              <TableRow className="border-border hover:bg-transparent">
                 {columns.map((c) => (
                   <TableHead
                     key={c.key}
-                    className={'text-clay-ink-muted ' + (c.className || '')}
+                    className={'text-muted-foreground ' + (c.className || '')}
                   >
                     {c.label}
                   </TableHead>
                 ))}
-                <TableHead className="w-[120px] text-right text-clay-ink-muted">
+                <TableHead className="w-[120px] text-right text-muted-foreground">
                   Actions
                 </TableHead>
               </TableRow>
@@ -481,26 +481,26 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
             <TableBody>
               {isLoading && rows.length === 0 ? (
                 [...Array(3)].map((_, i) => (
-                  <TableRow key={i} className="border-clay-border">
+                  <TableRow key={i} className="border-border">
                     <TableCell colSpan={columns.length + 1}>
                       <Skeleton className="h-8 w-full" />
                     </TableCell>
                   </TableRow>
                 ))
               ) : rows.length === 0 ? (
-                <TableRow className="border-clay-border">
+                <TableRow className="border-border">
                   <TableCell
                     colSpan={columns.length + 1}
-                    className="h-24 text-center text-[13px] text-clay-ink-muted"
+                    className="h-24 text-center text-[13px] text-muted-foreground"
                   >
                     {emptyText || `No ${singular.toLowerCase()} yet — click Add to get started.`}
                   </TableCell>
                 </TableRow>
               ) : (
                 rows.map((row) => (
-                  <TableRow key={row._id} className="border-clay-border">
+                  <TableRow key={row._id} className="border-border">
                     {columns.map((c) => (
-                      <TableCell key={c.key} className="text-[13px] text-clay-ink">
+                      <TableCell key={c.key} className="text-[13px] text-foreground">
                         {c.render ? toNode(c.render(row)) : toNode(row[c.key])}
                       </TableCell>
                     ))}
@@ -529,7 +529,7 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
                           size="sm"
                           onClick={() => setDeletingId(row._id)}
                         >
-                          <Trash2 className="h-3.5 w-3.5 text-clay-red" />
+                          <Trash2 className="h-3.5 w-3.5 text-destructive" />
                         </Button>
                       </div>
                     </TableCell>
@@ -544,10 +544,10 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="text-clay-ink">
+            <DialogTitle className="text-foreground">
               {editing ? `Edit ${singular}` : `Add ${singular}`}
             </DialogTitle>
-            <DialogDescription className="text-clay-ink-muted">
+            <DialogDescription className="text-muted-foreground">
               {editing ? 'Update the details and save.' : `Fill in the details below.`}
             </DialogDescription>
           </DialogHeader>
@@ -563,9 +563,9 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
                   key={field.name}
                   className={field.fullWidth ? 'md:col-span-2' : ''}
                 >
-                  <Label htmlFor={field.name} className="text-clay-ink">
+                  <Label htmlFor={field.name} className="text-foreground">
                     {field.label}
-                    {field.required ? <span className="text-clay-red"> *</span> : null}
+                    {field.required ? <span className="text-destructive"> *</span> : null}
                   </Label>
                   <div className="mt-1.5">
                     {renderField(
@@ -612,8 +612,8 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-clay-ink">Delete {singular}?</AlertDialogTitle>
-            <AlertDialogDescription className="text-clay-ink-muted">
+            <AlertDialogTitle className="text-foreground">Delete {singular}?</AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground">
               This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>

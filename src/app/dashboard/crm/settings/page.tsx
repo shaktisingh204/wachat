@@ -13,7 +13,7 @@ export default async function CrmSettingsPage() {
   if (!crmSettings) {
     return (
       <ClayCard>
-        <p className="py-8 text-center text-[13px] text-clay-ink-muted">
+        <p className="py-8 text-center text-[13px] text-muted-foreground">
           Failed to load settings.
         </p>
       </ClayCard>

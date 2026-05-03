@@ -40,7 +40,7 @@ export default function NoticeDetailPage() {
   if (loading) {
     return (
       <div className="flex w-full items-center justify-center">
-        <LoaderCircle className="h-5 w-5 animate-spin text-clay-ink-muted" />
+        <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -50,7 +50,7 @@ export default function NoticeDetailPage() {
       <div className="flex w-full flex-col gap-4">
         <CrmPageHeader title="Notice" subtitle="Not found" icon={Megaphone} />
         <ClayCard>
-          <p className="text-center text-[13px] text-clay-ink-muted">Notice not found.</p>
+          <p className="text-center text-[13px] text-muted-foreground">Notice not found.</p>
         </ClayCard>
       </div>
     );
@@ -79,7 +79,7 @@ export default function NoticeDetailPage() {
             </ClayBadge>
           ) : null}
         </div>
-        <div className="whitespace-pre-wrap text-[14px] leading-relaxed text-clay-ink">
+        <div className="whitespace-pre-wrap text-[14px] leading-relaxed text-foreground">
           {notice.description}
         </div>
       </ClayCard>

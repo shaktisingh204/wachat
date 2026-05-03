@@ -83,7 +83,7 @@ export default function DiscussionDetailPage() {
   if (loading) {
     return (
       <div className="flex w-full items-center justify-center">
-        <LoaderCircle className="h-5 w-5 animate-spin text-clay-ink-muted" />
+        <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -92,7 +92,7 @@ export default function DiscussionDetailPage() {
     return (
       <div className="flex w-full flex-col gap-4">
         <CrmPageHeader title="Discussion" subtitle="Not found" icon={MessagesSquare} />
-        <ClayCard><p className="text-center text-[13px] text-clay-ink-muted">Discussion not found.</p></ClayCard>
+        <ClayCard><p className="text-center text-[13px] text-muted-foreground">Discussion not found.</p></ClayCard>
       </div>
     );
   }
@@ -113,26 +113,26 @@ export default function DiscussionDetailPage() {
       />
 
       <ClayCard>
-        <p className="whitespace-pre-wrap text-[14px] leading-relaxed text-clay-ink">
+        <p className="whitespace-pre-wrap text-[14px] leading-relaxed text-foreground">
           {discussion.description || 'No description.'}
         </p>
       </ClayCard>
 
       <ClayCard>
-        <h3 className="mb-3 text-[14px] font-semibold text-clay-ink">
+        <h3 className="mb-3 text-[14px] font-semibold text-foreground">
           Replies ({replies.length})
         </h3>
         <div className="flex flex-col gap-3">
           {replies.length === 0 ? (
-            <p className="text-[13px] text-clay-ink-muted">No replies yet — be the first.</p>
+            <p className="text-[13px] text-muted-foreground">No replies yet — be the first.</p>
           ) : (
             replies.map((r) => (
               <ClayCard key={r._id} variant="soft">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <p className="text-[12px] font-semibold text-clay-ink">{r.user_name || r.user_id}</p>
-                    <p className="text-[11px] text-clay-ink-muted">{fmt(r.createdAt)}</p>
-                    <p className="mt-1 whitespace-pre-wrap text-[13.5px] text-clay-ink">{r.body}</p>
+                    <p className="text-[12px] font-semibold text-foreground">{r.user_name || r.user_id}</p>
+                    <p className="text-[11px] text-muted-foreground">{fmt(r.createdAt)}</p>
+                    <p className="mt-1 whitespace-pre-wrap text-[13.5px] text-foreground">{r.body}</p>
                   </div>
                   <ClayButton variant="ghost" size="sm" onClick={() => handleDeleteReply(r._id)}>
                     Delete

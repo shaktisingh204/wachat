@@ -106,36 +106,36 @@ function statusTone(status: string | undefined): {
     return {
       label: 'Completed',
       chip: 'bg-[#DCFCE7] text-[#166534] border-[#86EFAC]',
-      dot: 'bg-clay-green',
+      dot: 'bg-emerald-500',
     };
   if (s === 'processing' || s === 'pending_processing' || s === 'queued')
     return {
       label: (status ?? '').replace(/_/g, ' ') || 'Processing',
       chip: 'bg-[#DBEAFE] text-[#1E40AF] border-[#93C5FD]',
-      dot: 'bg-clay-blue',
+      dot: 'bg-sky-500',
     };
   if (s === 'partial failure')
     return {
       label: 'Partial failure',
       chip: 'bg-[#FEF3C7] text-[#92400E] border-[#FCD34D]',
-      dot: 'bg-clay-amber',
+      dot: 'bg-amber-500',
     };
   if (s === 'failed')
     return {
       label: 'Failed',
-      chip: 'bg-clay-red-soft text-clay-red border-clay-red/40',
-      dot: 'bg-clay-red',
+      chip: 'bg-rose-50 text-destructive border-destructive/40',
+      dot: 'bg-destructive',
     };
   if (s === 'cancelled')
     return {
       label: 'Cancelled',
-      chip: 'bg-clay-bg-2 text-clay-ink-muted border-clay-border',
-      dot: 'bg-clay-ink-fade',
+      chip: 'bg-muted text-muted-foreground border-border',
+      dot: 'bg-muted-foreground/70',
     };
   return {
     label: status ?? 'Unknown',
-    chip: 'bg-clay-bg-2 text-clay-ink-muted border-clay-border',
-    dot: 'bg-clay-ink-fade',
+    chip: 'bg-muted text-muted-foreground border-border',
+    dot: 'bg-muted-foreground/70',
   };
 }
 
@@ -163,14 +163,14 @@ function attemptStatusChip(status: BroadcastAttempt['status']) {
       return {
         icon: <LuCircleX className="h-3 w-3" strokeWidth={2} />,
         label: 'Failed',
-        className: 'bg-clay-red-soft text-clay-red border-clay-red/40',
+        className: 'bg-rose-50 text-destructive border-destructive/40',
       };
     case 'PENDING':
     default:
       return {
         icon: <LuCircleDashed className="h-3 w-3" strokeWidth={2} />,
         label: 'Pending',
-        className: 'bg-clay-bg-2 text-clay-ink-muted border-clay-border',
+        className: 'bg-muted text-muted-foreground border-border',
       };
   }
 }
@@ -189,23 +189,23 @@ const FILTERS: Array<{ value: FilterStatus; label: string }> = [
 function ReportSkeleton() {
   return (
     <div className="flex flex-col gap-6 clay-enter">
-      <div className="h-3 w-56 animate-pulse rounded-full bg-clay-bg-2" />
+      <div className="h-3 w-56 animate-pulse rounded-full bg-muted" />
       <div className="flex items-center justify-between">
-        <div className="h-9 w-72 animate-pulse rounded-md bg-clay-bg-2" />
+        <div className="h-9 w-72 animate-pulse rounded-md bg-muted" />
         <div className="flex gap-2">
-          <div className="h-9 w-28 animate-pulse rounded-full bg-clay-bg-2" />
-          <div className="h-9 w-24 animate-pulse rounded-full bg-clay-bg-2" />
+          <div className="h-9 w-28 animate-pulse rounded-full bg-muted" />
+          <div className="h-9 w-24 animate-pulse rounded-full bg-muted" />
         </div>
       </div>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
         {Array.from({ length: 5 }).map((_, i) => (
           <div
             key={i}
-            className="h-[100px] animate-pulse rounded-[14px] bg-clay-bg-2"
+            className="h-[100px] animate-pulse rounded-[14px] bg-muted"
           />
         ))}
       </div>
-      <div className="h-[420px] animate-pulse rounded-clay-lg bg-clay-bg-2" />
+      <div className="h-[420px] animate-pulse rounded-xl bg-muted" />
     </div>
   );
 }
@@ -373,10 +373,10 @@ export default function BroadcastReportPage() {
     return (
       <div className="flex flex-col gap-6 clay-enter">
         <ClayCard padded={false} className="p-10 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-clay-rose-soft text-clay-rose-ink">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-accent text-accent-foreground">
             <LuTriangleAlert className="h-5 w-5" strokeWidth={1.5} />
           </div>
-          <div className="mt-4 text-[15px] font-semibold text-clay-ink">
+          <div className="mt-4 text-[15px] font-semibold text-foreground">
             Broadcast not found
           </div>
           <ClayButton
@@ -426,7 +426,7 @@ export default function BroadcastReportPage() {
       <div>
         <Link
           href="/dashboard/broadcasts"
-          className="inline-flex items-center gap-1.5 text-[11.5px] font-medium text-clay-ink-muted hover:text-clay-ink transition-colors"
+          className="inline-flex items-center gap-1.5 text-[11.5px] font-medium text-muted-foreground hover:text-foreground transition-colors"
         >
           <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
           Back to broadcasts
@@ -435,7 +435,7 @@ export default function BroadcastReportPage() {
         <div className="mt-2 flex flex-wrap items-center justify-between gap-6">
           <div className="min-w-0">
             <div className="flex items-center gap-3">
-              <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">
+              <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
                 {broadcast.templateName || 'Broadcast report'}
               </h1>
               <span
@@ -450,11 +450,11 @@ export default function BroadcastReportPage() {
                 {tone.label}
               </span>
             </div>
-            <div className="mt-1.5 flex flex-wrap items-center gap-3 text-[12.5px] text-clay-ink-muted">
+            <div className="mt-1.5 flex flex-wrap items-center gap-3 text-[12.5px] text-muted-foreground">
               {broadcast.fileName ? (
                 <span>
                   File:{' '}
-                  <span className="font-medium text-clay-ink">
+                  <span className="font-medium text-foreground">
                     {broadcast.fileName}
                   </span>
                 </span>
@@ -553,7 +553,7 @@ export default function BroadcastReportPage() {
 
       {/* Delivery funnel */}
       <ClayCard padded={false} className="p-6">
-        <div className="text-[14px] font-semibold text-clay-ink">
+        <div className="text-[14px] font-semibold text-foreground">
           Delivery funnel
         </div>
         <div className="mt-4 flex flex-col gap-3">
@@ -561,32 +561,32 @@ export default function BroadcastReportPage() {
             label="Queued"
             count={total}
             total={total}
-            color="bg-clay-ink/70"
+            color="bg-foreground/70"
           />
           <FunnelBar
             label="Sent"
             count={sent}
             total={total}
-            color="bg-clay-blue"
+            color="bg-sky-500"
           />
           <FunnelBar
             label="Delivered"
             count={delivered}
             total={total}
-            color="bg-clay-green"
+            color="bg-emerald-500"
           />
           <FunnelBar
             label="Read"
             count={read}
             total={total}
-            color="bg-clay-amber"
+            color="bg-amber-500"
           />
           {failed > 0 ? (
             <FunnelBar
               label="Failed"
               count={failed}
               total={total}
-              color="bg-clay-red"
+              color="bg-destructive"
             />
           ) : null}
         </div>
@@ -596,10 +596,10 @@ export default function BroadcastReportPage() {
       <div>
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-[22px] font-semibold tracking-tight text-clay-ink leading-none">
+            <h2 className="text-[22px] font-semibold tracking-tight text-foreground leading-none">
               Delivery results
             </h2>
-            <p className="mt-1.5 text-[12.5px] text-clay-ink-muted">
+            <p className="mt-1.5 text-[12.5px] text-muted-foreground">
               Live status for each contact. Auto-refreshes every 5 seconds
               while the campaign is still processing.
             </p>
@@ -619,8 +619,8 @@ export default function BroadcastReportPage() {
                   className={cn(
                     'inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[12px] font-medium transition-[background,border-color,color]',
                     active
-                      ? 'bg-clay-obsidian border-clay-obsidian text-white shadow-clay-card'
-                      : 'bg-clay-surface border-clay-border text-clay-ink-muted hover:text-clay-ink hover:border-clay-border-strong',
+                      ? 'bg-foreground border-foreground text-white shadow-sm'
+                      : 'bg-card border-border text-muted-foreground hover:text-foreground hover:border-border',
                   )}
                 >
                   {f.label}
@@ -630,23 +630,23 @@ export default function BroadcastReportPage() {
           </div>
 
           {/* Table */}
-          <div className="mt-5 overflow-hidden rounded-[12px] border border-clay-border">
+          <div className="mt-5 overflow-hidden rounded-[12px] border border-border">
             {isRefreshing && enrichedAttempts.length === 0 ? (
               <div className="flex h-40 items-center justify-center">
                 <LuLoader
-                  className="h-5 w-5 animate-spin text-clay-ink-muted"
+                  className="h-5 w-5 animate-spin text-muted-foreground"
                   strokeWidth={1.75}
                 />
               </div>
             ) : enrichedAttempts.length === 0 ? (
               <div className="flex flex-col items-center gap-2 px-4 py-12 text-center">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-clay-bg-2 text-clay-ink-muted">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
                   <LuCircleDashed className="h-5 w-5" strokeWidth={1.5} />
                 </div>
-                <div className="mt-2 text-[13px] font-semibold text-clay-ink">
+                <div className="mt-2 text-[13px] font-semibold text-foreground">
                   No {filter.toLowerCase()} results
                 </div>
-                <div className="max-w-[360px] text-[11.5px] text-clay-ink-muted">
+                <div className="max-w-[360px] text-[11.5px] text-muted-foreground">
                   Nothing matched this filter for the current broadcast.
                   Choose a different tab or refresh.
                 </div>
@@ -654,7 +654,7 @@ export default function BroadcastReportPage() {
             ) : (
               <div className="max-h-[60vh] overflow-y-auto">
                 <table className="w-full text-[13px]">
-                  <thead className="sticky top-0 z-10 bg-clay-surface-2 border-b border-clay-border text-[11px] font-semibold uppercase tracking-wide text-clay-ink-muted">
+                  <thead className="sticky top-0 z-10 bg-secondary border-b border-border text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                     <tr>
                       <th className="px-4 py-3 text-left">Phone number</th>
                       <th className="px-4 py-3 text-left">Status</th>
@@ -663,15 +663,15 @@ export default function BroadcastReportPage() {
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-clay-border bg-clay-surface">
+                  <tbody className="divide-y divide-border bg-card">
                     {enrichedAttempts.map((attempt) => {
                       const chip = attemptStatusChip(attempt.status);
                       return (
                         <tr
                           key={attempt._id}
-                          className="transition-colors hover:bg-clay-surface-2"
+                          className="transition-colors hover:bg-secondary"
                         >
-                          <td className="px-4 py-3 font-mono text-[12px] text-clay-ink tabular-nums">
+                          <td className="px-4 py-3 font-mono text-[12px] text-foreground tabular-nums">
                             {attempt.phone}
                           </td>
                           <td className="px-4 py-3">
@@ -685,7 +685,7 @@ export default function BroadcastReportPage() {
                               {chip.label}
                             </span>
                           </td>
-                          <td className="px-4 py-3 font-mono text-[11px] text-clay-ink-muted">
+                          <td className="px-4 py-3 font-mono text-[11px] text-muted-foreground">
                             {attempt.detail}
                           </td>
                         </tr>
@@ -699,8 +699,8 @@ export default function BroadcastReportPage() {
 
           {/* Pagination */}
           {totalPages > 1 ? (
-            <div className="mt-5 flex items-center justify-between gap-3 border-t border-clay-border pt-4">
-              <span className="text-[11.5px] tabular-nums text-clay-ink-muted">
+            <div className="mt-5 flex items-center justify-between gap-3 border-t border-border pt-4">
+              <span className="text-[11.5px] tabular-nums text-muted-foreground">
                 Page {currentPage} of {totalPages}
               </span>
               <div className="flex items-center gap-2">
@@ -738,12 +738,12 @@ export default function BroadcastReportPage() {
 type KpiTint = 'neutral' | 'blue' | 'green' | 'indigo' | 'rose' | 'amber';
 
 const kpiTints: Record<KpiTint, string> = {
-  neutral: 'bg-clay-bg-2 text-clay-ink-muted',
+  neutral: 'bg-muted text-muted-foreground',
   blue: 'bg-[#DBEAFE] text-[#1E40AF]',
   green: 'bg-[#DCFCE7] text-[#166534]',
   indigo: 'bg-[#E0E7FF] text-[#3730A3]',
   amber: 'bg-[#FEF3C7] text-[#92400E]',
-  rose: 'bg-clay-rose-soft text-clay-rose-ink',
+  rose: 'bg-accent text-accent-foreground',
 };
 
 function Kpi({
@@ -760,7 +760,7 @@ function Kpi({
   tint: KpiTint;
 }) {
   return (
-    <div className="rounded-[14px] border border-clay-border bg-clay-surface p-4 transition-[border-color,box-shadow] hover:border-clay-border-strong hover:shadow-clay-card">
+    <div className="rounded-[14px] border border-border bg-card p-4 transition-[border-color,box-shadow] hover:border-border hover:shadow-sm">
       <div className="flex items-start justify-between">
         <span
           className={cn(
@@ -773,14 +773,14 @@ function Kpi({
           </span>
         </span>
       </div>
-      <div className="mt-3.5 text-[11.5px] font-medium text-clay-ink-muted leading-none">
+      <div className="mt-3.5 text-[11.5px] font-medium text-muted-foreground leading-none">
         {label}
       </div>
-      <div className="mt-1.5 text-[22px] font-semibold tracking-[-0.01em] text-clay-ink leading-none">
+      <div className="mt-1.5 text-[22px] font-semibold tracking-[-0.01em] text-foreground leading-none">
         {value}
       </div>
       {hint ? (
-        <div className="mt-1 text-[11px] text-clay-ink-muted leading-tight truncate">
+        <div className="mt-1 text-[11px] text-muted-foreground leading-tight truncate">
           {hint}
         </div>
       ) : null}
@@ -803,12 +803,12 @@ function FunnelBar({
   return (
     <div>
       <div className="flex items-center justify-between text-[11.5px]">
-        <span className="font-medium text-clay-ink">{label}</span>
-        <span className="text-clay-ink-muted tabular-nums">
+        <span className="font-medium text-foreground">{label}</span>
+        <span className="text-muted-foreground tabular-nums">
           {count.toLocaleString()} · {width}%
         </span>
       </div>
-      <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-clay-bg-2">
+      <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-muted">
         <div
           className={cn(
             'h-full rounded-full transition-[width] duration-500',

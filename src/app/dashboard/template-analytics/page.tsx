@@ -74,10 +74,10 @@ export default function TemplateAnalyticsPage() {
 
       <div className="flex items-center justify-between gap-6">
         <div className="min-w-0">
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">
+          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
             Template Analytics
           </h1>
-          <p className="mt-1.5 text-[13px] text-clay-ink-muted">
+          <p className="mt-1.5 text-[13px] text-muted-foreground">
             Track delivery, read, and failure rates for your WhatsApp message templates.
           </p>
         </div>
@@ -94,21 +94,21 @@ export default function TemplateAnalyticsPage() {
 
       {/* Summary stats */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <div className="rounded-[14px] border border-clay-border bg-clay-surface p-4">
-          <div className="text-[11px] font-medium uppercase tracking-wide text-clay-ink-muted">Total Sent</div>
-          <div className="mt-2 text-[22px] font-semibold text-clay-ink leading-none">{totalSent.toLocaleString()}</div>
+        <div className="rounded-[14px] border border-border bg-card p-4">
+          <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Total Sent</div>
+          <div className="mt-2 text-[22px] font-semibold text-foreground leading-none">{totalSent.toLocaleString()}</div>
         </div>
-        <div className="rounded-[14px] border border-clay-border bg-clay-surface p-4">
-          <div className="text-[11px] font-medium uppercase tracking-wide text-clay-ink-muted">Delivered</div>
-          <div className="mt-2 text-[22px] font-semibold text-clay-ink leading-none">{totalDelivered.toLocaleString()}</div>
+        <div className="rounded-[14px] border border-border bg-card p-4">
+          <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Delivered</div>
+          <div className="mt-2 text-[22px] font-semibold text-foreground leading-none">{totalDelivered.toLocaleString()}</div>
         </div>
-        <div className="rounded-[14px] border border-clay-border bg-clay-surface p-4">
-          <div className="text-[11px] font-medium uppercase tracking-wide text-clay-ink-muted">Read</div>
-          <div className="mt-2 text-[22px] font-semibold text-clay-ink leading-none">{totalRead.toLocaleString()}</div>
+        <div className="rounded-[14px] border border-border bg-card p-4">
+          <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Read</div>
+          <div className="mt-2 text-[22px] font-semibold text-foreground leading-none">{totalRead.toLocaleString()}</div>
         </div>
-        <div className="rounded-[14px] border border-clay-border bg-clay-surface p-4">
-          <div className="text-[11px] font-medium uppercase tracking-wide text-clay-ink-muted">Failed</div>
-          <div className="mt-2 text-[22px] font-semibold text-clay-ink leading-none">{totalFailed.toLocaleString()}</div>
+        <div className="rounded-[14px] border border-border bg-card p-4">
+          <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Failed</div>
+          <div className="mt-2 text-[22px] font-semibold text-foreground leading-none">{totalFailed.toLocaleString()}</div>
         </div>
       </div>
 
@@ -116,13 +116,13 @@ export default function TemplateAnalyticsPage() {
       <ClayCard padded={false} className="p-6">
         {isLoading && analytics.length === 0 ? (
           <div className="flex h-20 items-center justify-center">
-            <LuLoader className="h-5 w-5 animate-spin text-clay-ink-muted" strokeWidth={1.75} />
+            <LuLoader className="h-5 w-5 animate-spin text-muted-foreground" strokeWidth={1.75} />
           </div>
         ) : analytics.length === 0 ? (
-          <div className="flex flex-col items-center gap-2 rounded-clay-md border border-dashed border-clay-border bg-clay-surface-2 px-4 py-10 text-center">
-            <LuChartBar className="h-5 w-5 text-clay-ink-muted" strokeWidth={1.5} />
-            <div className="text-[13px] font-semibold text-clay-ink">No analytics data</div>
-            <div className="text-[11.5px] text-clay-ink-muted">
+          <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-border bg-secondary px-4 py-10 text-center">
+            <LuChartBar className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
+            <div className="text-[13px] font-semibold text-foreground">No analytics data</div>
+            <div className="text-[11.5px] text-muted-foreground">
               Send template messages to start collecting delivery metrics.
             </div>
           </div>

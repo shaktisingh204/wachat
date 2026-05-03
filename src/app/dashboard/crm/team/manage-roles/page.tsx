@@ -96,7 +96,7 @@ function AddRoleDialog({ onRoleAdded }: { onRoleAdded: () => void }) {
                 </DialogHeader>
                 <div className="py-4">
                     <Label htmlFor="roleName">Role Name</Label>
-                    <Input id="roleName" value={roleName} onChange={(e) => setRoleName(e.target.value)} className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                    <Input id="roleName" value={roleName} onChange={(e) => setRoleName(e.target.value)} className="h-10 rounded-lg border-border bg-card text-[13px]" />
                 </div>
                 <DialogFooter>
                     <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
@@ -202,7 +202,7 @@ export default function ManageRolesPage() {
                         const crmPermissions = role.permissions || {};
 
                         return (
-                            <AccordionItem key={role.id} value={role.id} className="rounded-clay-md border border-clay-border bg-clay-surface">
+                            <AccordionItem key={role.id} value={role.id} className="rounded-lg border border-border bg-card">
                                 <AccordionTrigger className="p-4 font-semibold text-[15px] hover:no-underline">
                                     <div className="flex items-center gap-2">
                                         {role.name}
@@ -213,15 +213,15 @@ export default function ManageRolesPage() {
                                     <input type="hidden" name={`roleId`} value={role.id} />
                                     <Table>
                                         <TableHeader>
-                                            <TableRow className="border-clay-border hover:bg-transparent">
-                                                <TableHead className="text-clay-ink-muted">Module</TableHead>
-                                                {actions.map(action => <TableHead key={action} className="text-center capitalize text-clay-ink-muted">{action}</TableHead>)}
+                                            <TableRow className="border-border hover:bg-transparent">
+                                                <TableHead className="text-muted-foreground">Module</TableHead>
+                                                {actions.map(action => <TableHead key={action} className="text-center capitalize text-muted-foreground">{action}</TableHead>)}
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
                                             {crmModules.map(module => (
-                                                <TableRow key={module.id} className="border-clay-border">
-                                                    <TableCell className="font-medium text-clay-ink">{module.name}</TableCell>
+                                                <TableRow key={module.id} className="border-border">
+                                                    <TableCell className="font-medium text-foreground">{module.name}</TableCell>
                                                     {actions.map(action => (
                                                         <TableCell key={action} className="text-center">
                                                             <Checkbox

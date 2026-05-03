@@ -59,7 +59,7 @@ export default async function IssueDetailPage({
       <ClayCard>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <p className="text-[11px] uppercase tracking-wide text-clay-ink-muted">
+            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
               Status
             </p>
             <div className="mt-1">
@@ -67,7 +67,7 @@ export default async function IssueDetailPage({
             </div>
           </div>
           <div>
-            <p className="text-[11px] uppercase tracking-wide text-clay-ink-muted">
+            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
               Priority
             </p>
             <div className="mt-1">
@@ -75,34 +75,34 @@ export default async function IssueDetailPage({
             </div>
           </div>
           <div>
-            <p className="text-[11px] uppercase tracking-wide text-clay-ink-muted">
+            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
               Reporter
             </p>
-            <p className="mt-1 text-[13px] text-clay-ink">
+            <p className="mt-1 text-[13px] text-foreground">
               {issue.reporterName || '—'}
             </p>
           </div>
           <div>
-            <p className="text-[11px] uppercase tracking-wide text-clay-ink-muted">
+            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
               Assignee
             </p>
-            <p className="mt-1 text-[13px] text-clay-ink">
+            <p className="mt-1 text-[13px] text-foreground">
               {issue.assigneeName || '—'}
             </p>
           </div>
           <div>
-            <p className="text-[11px] uppercase tracking-wide text-clay-ink-muted">
+            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
               Project
             </p>
-            <p className="mt-1 text-[13px] text-clay-ink-muted">
+            <p className="mt-1 text-[13px] text-muted-foreground">
               {issue.projectId ? String(issue.projectId) : 'Unassigned'}
             </p>
           </div>
           <div>
-            <p className="text-[11px] uppercase tracking-wide text-clay-ink-muted">
+            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
               Created
             </p>
-            <p className="mt-1 text-[13px] text-clay-ink-muted">
+            <p className="mt-1 text-[13px] text-muted-foreground">
               {formatDate(issue.createdAt)}
             </p>
           </div>
@@ -110,10 +110,10 @@ export default async function IssueDetailPage({
 
         {issue.description ? (
           <div className="mt-6">
-            <p className="text-[11px] uppercase tracking-wide text-clay-ink-muted">
+            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
               Description
             </p>
-            <p className="mt-2 whitespace-pre-wrap text-[13px] text-clay-ink">
+            <p className="mt-2 whitespace-pre-wrap text-[13px] text-foreground">
               {issue.description}
             </p>
           </div>
@@ -121,8 +121,8 @@ export default async function IssueDetailPage({
       </ClayCard>
 
       <ClayCard>
-        <h2 className="text-[14px] font-semibold text-clay-ink">Comments</h2>
-        <p className="mt-2 text-[12.5px] text-clay-ink-muted">
+        <h2 className="text-[14px] font-semibold text-foreground">Comments</h2>
+        <p className="mt-2 text-[12.5px] text-muted-foreground">
           Lightweight comments are not yet wired up — plug in the shared
           comments subsystem when available.
         </p>

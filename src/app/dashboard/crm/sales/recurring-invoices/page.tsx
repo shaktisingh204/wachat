@@ -84,32 +84,32 @@ export default function RecurringInvoicesPage() {
 
       <ClayCard>
         <div className="mb-4">
-          <h2 className="text-[16px] font-semibold text-clay-ink">Schedules</h2>
+          <h2 className="text-[16px] font-semibold text-foreground">Schedules</h2>
         </div>
-        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <Table>
             <TableHeader>
-              <TableRow className="border-clay-border hover:bg-transparent">
-                <TableHead className="text-clay-ink-muted">Client</TableHead>
-                <TableHead className="text-clay-ink-muted">Frequency</TableHead>
-                <TableHead className="text-clay-ink-muted">Next Issue</TableHead>
-                <TableHead className="text-clay-ink-muted">Issued</TableHead>
-                <TableHead className="text-clay-ink-muted">Status</TableHead>
-                <TableHead className="text-clay-ink-muted text-right">Total</TableHead>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableHead className="text-muted-foreground">Client</TableHead>
+                <TableHead className="text-muted-foreground">Frequency</TableHead>
+                <TableHead className="text-muted-foreground">Next Issue</TableHead>
+                <TableHead className="text-muted-foreground">Issued</TableHead>
+                <TableHead className="text-muted-foreground">Status</TableHead>
+                <TableHead className="text-muted-foreground text-right">Total</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRow className="border-clay-border">
+                <TableRow className="border-border">
                   <TableCell colSpan={6} className="h-24 text-center">
-                    <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-clay-ink-muted" />
+                    <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
                   </TableCell>
                 </TableRow>
               ) : rows.length === 0 ? (
-                <TableRow className="border-clay-border">
+                <TableRow className="border-border">
                   <TableCell
                     colSpan={6}
-                    className="h-24 text-center text-[13px] text-clay-ink-muted"
+                    className="h-24 text-center text-[13px] text-muted-foreground"
                   >
                     No recurring invoices yet.
                   </TableCell>
@@ -118,9 +118,9 @@ export default function RecurringInvoicesPage() {
                 rows.map((row) => (
                   <TableRow
                     key={String(row._id)}
-                    className="cursor-pointer border-clay-border"
+                    className="cursor-pointer border-border"
                   >
-                    <TableCell className="text-clay-ink">
+                    <TableCell className="text-foreground">
                       <Link
                         href={`/dashboard/crm/sales/recurring-invoices/${row._id}`}
                         className="hover:underline"
@@ -133,10 +133,10 @@ export default function RecurringInvoicesPage() {
                         Every {row.frequency_count} {row.frequency}
                       </ClayBadge>
                     </TableCell>
-                    <TableCell className="text-clay-ink">
+                    <TableCell className="text-foreground">
                       {fmtDate(row.next_issue_date)}
                     </TableCell>
-                    <TableCell className="text-clay-ink">
+                    <TableCell className="text-foreground">
                       {row.issued_count || 0}
                       {row.stop_at_count ? ` / ${row.stop_at_count}` : ''}
                     </TableCell>
@@ -145,7 +145,7 @@ export default function RecurringInvoicesPage() {
                         {row.status}
                       </ClayBadge>
                     </TableCell>
-                    <TableCell className="text-right font-medium text-clay-ink">
+                    <TableCell className="text-right font-medium text-foreground">
                       {fmtMoney(row.total, row.currency)}
                     </TableCell>
                   </TableRow>

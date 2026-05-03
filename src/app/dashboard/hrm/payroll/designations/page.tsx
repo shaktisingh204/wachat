@@ -149,24 +149,24 @@ export default function DesignationsPage() {
 
             <ClayCard>
                 <div className="mb-4 flex items-center justify-between">
-                    <h2 className="text-[16px] font-semibold text-clay-ink">All Designations</h2>
+                    <h2 className="text-[16px] font-semibold text-foreground">All Designations</h2>
                     <ClayBadge tone="neutral">{designations.length} total</ClayBadge>
                 </div>
-                <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                <div className="overflow-x-auto rounded-lg border border-border">
                     <table className="w-full text-left text-[13px]">
                         <thead>
-                            <tr className="border-b border-clay-border bg-clay-surface-2">
-                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Designation</th>
-                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Department</th>
-                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Level / Grade</th>
-                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Actions</th>
+                            <tr className="border-b border-border bg-secondary">
+                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Designation</th>
+                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Department</th>
+                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Level / Grade</th>
+                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {isLoading ? (
                                 <tr>
                                     <td colSpan={4} className="h-24 text-center">
-                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-clay-ink-muted" />
+                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
                                     </td>
                                 </tr>
                             ) : designations.length > 0 ? (
@@ -175,19 +175,19 @@ export default function DesignationsPage() {
                                         ? deptNameById[(desig as any).department_id.toString()] ?? '—'
                                         : '—';
                                     return (
-                                        <tr key={desig._id.toString()} className="border-b border-clay-border last:border-0 hover:bg-clay-surface-2/50 transition-colors">
+                                        <tr key={desig._id.toString()} className="border-b border-border last:border-0 hover:bg-secondary/50 transition-colors">
                                             <td className="px-4 py-3">
-                                                <div className="font-medium text-clay-ink">{desig.name}</div>
+                                                <div className="font-medium text-foreground">{desig.name}</div>
                                                 {desig.description ? (
-                                                    <div className="text-[11.5px] text-clay-ink-muted">{desig.description}</div>
+                                                    <div className="text-[11.5px] text-muted-foreground">{desig.description}</div>
                                                 ) : null}
                                             </td>
-                                            <td className="px-4 py-3 text-clay-ink-muted">{deptName}</td>
+                                            <td className="px-4 py-3 text-muted-foreground">{deptName}</td>
                                             <td className="px-4 py-3">
                                                 {(desig as any).level ? (
                                                     <ClayBadge tone="blue">{(desig as any).level}</ClayBadge>
                                                 ) : (
-                                                    <span className="text-clay-ink-muted">—</span>
+                                                    <span className="text-muted-foreground">—</span>
                                                 )}
                                             </td>
                                             <td className="px-4 py-3">
@@ -216,7 +216,7 @@ export default function DesignationsPage() {
                                 })
                             ) : (
                                 <tr>
-                                    <td colSpan={4} className="h-24 text-center text-[13px] text-clay-ink-muted">
+                                    <td colSpan={4} className="h-24 text-center text-[13px] text-muted-foreground">
                                         No designations yet. Click "Add Designation" to create one.
                                     </td>
                                 </tr>
@@ -230,10 +230,10 @@ export default function DesignationsPage() {
             <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) setEditing(null); }}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle className="text-clay-ink">
+                        <DialogTitle className="text-foreground">
                             {editing ? 'Edit Designation' : 'Add Designation'}
                         </DialogTitle>
-                        <DialogDescription className="text-clay-ink-muted">
+                        <DialogDescription className="text-muted-foreground">
                             Fill in the designation details. Only the name is required.
                         </DialogDescription>
                     </DialogHeader>
@@ -247,7 +247,7 @@ export default function DesignationsPage() {
                         <input type="hidden" name="level" value={level === '__none__' ? '' : level} />
 
                         <div>
-                            <Label htmlFor="desig-name" className="text-[13px] text-clay-ink">
+                            <Label htmlFor="desig-name" className="text-[13px] text-foreground">
                                 Designation Name <span className="text-red-500">*</span>
                             </Label>
                             <Input
@@ -256,12 +256,12 @@ export default function DesignationsPage() {
                                 required
                                 defaultValue={editing?.name ?? ''}
                                 placeholder="e.g. Senior Software Engineer"
-                                className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
                             />
                         </div>
 
                         <div>
-                            <Label htmlFor="desig-desc" className="text-[13px] text-clay-ink">
+                            <Label htmlFor="desig-desc" className="text-[13px] text-foreground">
                                 Description
                             </Label>
                             <Textarea
@@ -270,18 +270,18 @@ export default function DesignationsPage() {
                                 rows={2}
                                 defaultValue={editing?.description ?? ''}
                                 placeholder="Optional description"
-                                className="mt-1.5 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                                className="mt-1.5 rounded-lg border-border bg-card text-[13px]"
                             />
                         </div>
 
                         <div>
-                            <Label htmlFor="desig-dept" className="text-[13px] text-clay-ink">
+                            <Label htmlFor="desig-dept" className="text-[13px] text-foreground">
                                 Department
                             </Label>
                             <Select value={deptId} onValueChange={setDeptId}>
                                 <SelectTrigger
                                     id="desig-dept"
-                                    className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                                    className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
                                 >
                                     <SelectValue placeholder="— No department —" />
                                 </SelectTrigger>
@@ -297,13 +297,13 @@ export default function DesignationsPage() {
                         </div>
 
                         <div>
-                            <Label htmlFor="desig-level" className="text-[13px] text-clay-ink">
+                            <Label htmlFor="desig-level" className="text-[13px] text-foreground">
                                 Level / Grade
                             </Label>
                             <Select value={level} onValueChange={setLevel}>
                                 <SelectTrigger
                                     id="desig-level"
-                                    className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                                    className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
                                 >
                                     <SelectValue placeholder="— No level —" />
                                 </SelectTrigger>

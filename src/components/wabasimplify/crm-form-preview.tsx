@@ -60,8 +60,8 @@ export function CrmFormPreview({ settings }: CrmFormPreviewProps) {
             <style>{dynamicStyles}</style>
             <div className="flex flex-col items-center text-center p-6 pb-4 gap-1.5">
                  {settings.logoUrl && <Image src={settings.logoUrl} alt="Logo" width={80} height={80} className="object-contain" />}
-                <h3 className="text-lg font-semibold text-clay-ink">{title}</h3>
-                <p className="text-sm text-clay-ink-muted">{description}</p>
+                <h3 className="text-lg font-semibold text-foreground">{title}</h3>
+                <p className="text-sm text-muted-foreground">{description}</p>
             </div>
             <div className="px-6 pb-4 grid grid-cols-12" style={{gap: `${settings.fieldSpacing || 24}px`}}>
                 {fields.map(field => {
@@ -87,10 +87,10 @@ export function CrmFormPreview({ settings }: CrmFormPreviewProps) {
 
                     return (
                         <div key={field.id} className={cn("space-y-2", widthClasses[field.columnWidth || '100%'], field.labelPosition === 'inline' && 'flex items-center gap-4')}>
-                            {field.labelPosition !== 'hidden' && <Label htmlFor={`preview-${field.id}`} className={cn('text-clay-ink', field.labelPosition === 'inline' && 'flex-shrink-0', field.type === 'checkbox' && 'hidden')}>{field.label}</Label>}
+                            {field.labelPosition !== 'hidden' && <Label htmlFor={`preview-${field.id}`} className={cn('text-foreground', field.labelPosition === 'inline' && 'flex-shrink-0', field.type === 'checkbox' && 'hidden')}>{field.label}</Label>}
                             <div className="w-full">
                                 {fieldContent()}
-                                {field.description && <p className="text-xs pt-1 text-clay-ink-muted">{field.description}</p>}
+                                {field.description && <p className="text-xs pt-1 text-muted-foreground">{field.description}</p>}
                             </div>
                         </div>
                     );
@@ -102,7 +102,7 @@ export function CrmFormPreview({ settings }: CrmFormPreviewProps) {
                     {settings.submitButtonText || 'Submit'}
                     {SubmitIcon && settings.buttonIconPosition === 'right' && <SubmitIcon className="ml-2 h-4 w-4" style={{marginLeft: `${settings.buttonIconSpacing || 8}px`}}/>}
                 </Button>
-                {settings.footerText && <p className="text-xs text-clay-ink-muted text-center pt-2" dangerouslySetInnerHTML={{ __html: settings.footerText }}></p>}
+                {settings.footerText && <p className="text-xs text-muted-foreground text-center pt-2" dangerouslySetInnerHTML={{ __html: settings.footerText }}></p>}
             </div>
         </ClayCard>
     );

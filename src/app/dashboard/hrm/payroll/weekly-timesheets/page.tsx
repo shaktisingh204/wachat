@@ -127,13 +127,13 @@ export default function WeeklyTimesheetsPage() {
       <ClayCard>
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 className="text-[16px] font-semibold text-clay-ink">All Timesheets</h2>
-            <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">
+            <h2 className="text-[16px] font-semibold text-foreground">All Timesheets</h2>
+            <p className="mt-0.5 text-[12.5px] text-muted-foreground">
               {filtered.length} timesheet{filtered.length === 1 ? '' : 's'}
             </p>
           </div>
           <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as any)}>
-            <SelectTrigger className="h-9 w-[160px] rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
+            <SelectTrigger className="h-9 w-[160px] rounded-lg border-border bg-card text-[13px]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -146,32 +146,32 @@ export default function WeeklyTimesheetsPage() {
           </Select>
         </div>
 
-        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <table className="w-full text-[13px]">
             <thead>
-              <tr className="border-b border-clay-border bg-clay-surface-2">
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Employee</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Week Start</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Week End</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Total Hours</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Status</th>
-                <th className="px-4 py-2.5 text-right text-[12px] font-medium text-clay-ink-muted">Actions</th>
+              <tr className="border-b border-border bg-secondary">
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Employee</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Week Start</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Week End</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Total Hours</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Status</th>
+                <th className="px-4 py-2.5 text-right text-[12px] font-medium text-muted-foreground">Actions</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
-                <tr><td colSpan={6} className="h-24 text-center text-[13px] text-clay-ink-muted">Loading…</td></tr>
+                <tr><td colSpan={6} className="h-24 text-center text-[13px] text-muted-foreground">Loading…</td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={6} className="h-24 text-center text-[13px] text-clay-ink-muted">No timesheets found.</td></tr>
+                <tr><td colSpan={6} className="h-24 text-center text-[13px] text-muted-foreground">No timesheets found.</td></tr>
               ) : (
                 filtered.map((s) => (
-                  <tr key={String(s._id)} className="border-t border-clay-border hover:bg-clay-surface-2/50">
-                    <td className="px-4 py-2.5 font-medium text-clay-ink">
+                  <tr key={String(s._id)} className="border-t border-border hover:bg-secondary/50">
+                    <td className="px-4 py-2.5 font-medium text-foreground">
                       {empMap.get(String(s.user_id)) || `…${String(s.user_id).slice(-6)}`}
                     </td>
-                    <td className="px-4 py-2.5 text-clay-ink">{fmtDate(s.week_start_date)}</td>
-                    <td className="px-4 py-2.5 text-clay-ink">{fmtDate(s.week_end_date)}</td>
-                    <td className="px-4 py-2.5 font-mono text-clay-ink">{fmtHours(s.total_hours, s.total_minutes)}</td>
+                    <td className="px-4 py-2.5 text-foreground">{fmtDate(s.week_start_date)}</td>
+                    <td className="px-4 py-2.5 text-foreground">{fmtDate(s.week_end_date)}</td>
+                    <td className="px-4 py-2.5 font-mono text-foreground">{fmtHours(s.total_hours, s.total_minutes)}</td>
                     <td className="px-4 py-2.5">
                       <ClayBadge tone={STATUS_TONE[s.status]} dot>{s.status}</ClayBadge>
                     </td>
@@ -190,10 +190,10 @@ export default function WeeklyTimesheetsPage() {
                         {s.status === 'submitted' && (
                           <>
                             <ClayButton variant="pill" size="sm" onClick={() => handleApprove(s._id)} title="Approve">
-                              <Check className="h-3.5 w-3.5 text-clay-green" />
+                              <Check className="h-3.5 w-3.5 text-emerald-500" />
                             </ClayButton>
                             <ClayButton variant="pill" size="sm" onClick={() => handleReject(s._id)} title="Reject">
-                              <X className="h-3.5 w-3.5 text-clay-red" />
+                              <X className="h-3.5 w-3.5 text-destructive" />
                             </ClayButton>
                           </>
                         )}

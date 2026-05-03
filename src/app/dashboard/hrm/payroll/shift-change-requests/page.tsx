@@ -155,24 +155,24 @@ export default function ShiftChangeRequestsPage() {
       />
 
       <ClayCard>
-        <h2 className="mb-3 text-[16px] font-semibold text-clay-ink">All Requests</h2>
-        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+        <h2 className="mb-3 text-[16px] font-semibold text-foreground">All Requests</h2>
+        <div className="overflow-x-auto rounded-lg border border-border">
           <table className="w-full border-collapse text-[13px]">
             <thead>
-              <tr className="border-b border-clay-border bg-clay-surface-2">
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Employee</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Date</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Current Shift</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Requested Shift</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Reason</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Status</th>
-                <th className="px-4 py-2.5 text-right text-[12px] font-medium text-clay-ink-muted">Actions</th>
+              <tr className="border-b border-border bg-secondary">
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Employee</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Date</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Current Shift</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Requested Shift</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Reason</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Status</th>
+                <th className="px-4 py-2.5 text-right text-[12px] font-medium text-muted-foreground">Actions</th>
               </tr>
             </thead>
             <tbody>
               {pending && requests.length === 0 ? (
-                <tr className="border-b border-clay-border">
-                  <td colSpan={7} className="h-24 text-center text-[13px] text-clay-ink-muted">
+                <tr className="border-b border-border">
+                  <td colSpan={7} className="h-24 text-center text-[13px] text-muted-foreground">
                     Loading…
                   </td>
                 </tr>
@@ -182,11 +182,11 @@ export default function ShiftChangeRequestsPage() {
                   const cur = shiftMap.get(r.current_shift_id);
                   const req = shiftMap.get(r.requested_shift_id);
                   return (
-                    <tr key={String(r._id)} className="border-b border-clay-border last:border-0 hover:bg-clay-surface-2/50">
-                      <td className="px-4 py-2.5 text-clay-ink">
+                    <tr key={String(r._id)} className="border-b border-border last:border-0 hover:bg-secondary/50">
+                      <td className="px-4 py-2.5 text-foreground">
                         {emp ? `${emp.firstName} ${emp.lastName}` : r.user_id}
                       </td>
-                      <td className="px-4 py-2.5 text-clay-ink">
+                      <td className="px-4 py-2.5 text-foreground">
                         {format(new Date(r.date), 'PP')}
                       </td>
                       <td className="px-4 py-2.5">
@@ -195,7 +195,7 @@ export default function ShiftChangeRequestsPage() {
                       <td className="px-4 py-2.5">
                         <ShiftCell shift={req} />
                       </td>
-                      <td className="max-w-[240px] truncate px-4 py-2.5 text-[12.5px] text-clay-ink-muted">
+                      <td className="max-w-[240px] truncate px-4 py-2.5 text-[12.5px] text-muted-foreground">
                         {r.reason || '—'}
                       </td>
                       <td className="px-4 py-2.5">
@@ -222,15 +222,15 @@ export default function ShiftChangeRequestsPage() {
                             </ClayButton>
                           </div>
                         ) : (
-                          <span className="text-[11.5px] text-clay-ink-muted">—</span>
+                          <span className="text-[11.5px] text-muted-foreground">—</span>
                         )}
                       </td>
                     </tr>
                   );
                 })
               ) : (
-                <tr className="border-b border-clay-border">
-                  <td colSpan={7} className="h-24 text-center text-[13px] text-clay-ink-muted">
+                <tr className="border-b border-border">
+                  <td colSpan={7} className="h-24 text-center text-[13px] text-muted-foreground">
                     No shift change requests.
                   </td>
                 </tr>
@@ -247,8 +247,8 @@ export default function ShiftChangeRequestsPage() {
           </DialogHeader>
           <form onSubmit={handleCreateRequest} className="flex flex-col gap-4 py-2">
             <div className="flex flex-col gap-1.5">
-              <Label className="text-[12px] text-clay-ink-muted">
-                Employee <span className="text-clay-red">*</span>
+              <Label className="text-[12px] text-muted-foreground">
+                Employee <span className="text-destructive">*</span>
               </Label>
               <Select value={newUserId} onValueChange={setNewUserId}>
                 <SelectTrigger>
@@ -265,8 +265,8 @@ export default function ShiftChangeRequestsPage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <Label className="text-[12px] text-clay-ink-muted">
-                Date <span className="text-clay-red">*</span>
+              <Label className="text-[12px] text-muted-foreground">
+                Date <span className="text-destructive">*</span>
               </Label>
               <Input
                 type="date"
@@ -278,8 +278,8 @@ export default function ShiftChangeRequestsPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="flex flex-col gap-1.5">
-                <Label className="text-[12px] text-clay-ink-muted">
-                  Current Shift <span className="text-clay-red">*</span>
+                <Label className="text-[12px] text-muted-foreground">
+                  Current Shift <span className="text-destructive">*</span>
                 </Label>
                 <Select value={newCurrentShiftId} onValueChange={setNewCurrentShiftId}>
                   <SelectTrigger>
@@ -296,8 +296,8 @@ export default function ShiftChangeRequestsPage() {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <Label className="text-[12px] text-clay-ink-muted">
-                  Requested Shift <span className="text-clay-red">*</span>
+                <Label className="text-[12px] text-muted-foreground">
+                  Requested Shift <span className="text-destructive">*</span>
                 </Label>
                 <Select value={newRequestedShiftId} onValueChange={setNewRequestedShiftId}>
                   <SelectTrigger>
@@ -315,18 +315,18 @@ export default function ShiftChangeRequestsPage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <Label className="text-[12px] text-clay-ink-muted">Reason (optional)</Label>
+              <Label className="text-[12px] text-muted-foreground">Reason (optional)</Label>
               <textarea
                 value={newReason}
                 onChange={(e) => setNewReason(e.target.value)}
                 rows={3}
                 placeholder="Explain the reason for the shift change…"
-                className="w-full resize-none rounded-clay-md border border-clay-border bg-clay-surface px-3 py-2 text-[13px] text-clay-ink placeholder:text-clay-ink-muted focus:outline-none focus:ring-1 focus:ring-clay-border-focus"
+                className="w-full resize-none rounded-lg border border-border bg-card px-3 py-2 text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
               />
             </div>
 
             {formError ? (
-              <div className="rounded-clay-md border border-clay-red-soft bg-clay-red-soft/50 px-3 py-2 text-[13px] text-clay-red">
+              <div className="rounded-lg border border-rose-50 bg-rose-50/50 px-3 py-2 text-[13px] text-destructive">
                 {formError}
               </div>
             ) : null}
@@ -352,12 +352,12 @@ export default function ShiftChangeRequestsPage() {
 
 function ShiftCell({ shift }: { shift?: WsEmployeeShift }) {
   if (!shift)
-    return <span className="text-[12.5px] text-clay-ink-muted">—</span>;
+    return <span className="text-[12.5px] text-muted-foreground">—</span>;
   return (
-    <span className="inline-flex items-center gap-2 text-[13px] text-clay-ink">
+    <span className="inline-flex items-center gap-2 text-[13px] text-foreground">
       <span
         aria-hidden
-        className="inline-block h-3 w-3 rounded-[3px] border border-clay-border"
+        className="inline-block h-3 w-3 rounded-[3px] border border-border"
         style={{ backgroundColor: shift.color_code || '#EAB308' }}
       />
       {shift.name}

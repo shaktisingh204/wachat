@@ -84,32 +84,32 @@ export default function RecurringExpensesPage() {
 
       <ClayCard>
         <div className="mb-4">
-          <h2 className="text-[16px] font-semibold text-clay-ink">Schedules</h2>
+          <h2 className="text-[16px] font-semibold text-foreground">Schedules</h2>
         </div>
-        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <Table>
             <TableHeader>
-              <TableRow className="border-clay-border hover:bg-transparent">
-                <TableHead className="text-clay-ink-muted">Name</TableHead>
-                <TableHead className="text-clay-ink-muted">Vendor</TableHead>
-                <TableHead className="text-clay-ink-muted">Frequency</TableHead>
-                <TableHead className="text-clay-ink-muted">Next Run</TableHead>
-                <TableHead className="text-clay-ink-muted">Status</TableHead>
-                <TableHead className="text-clay-ink-muted text-right">Amount</TableHead>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableHead className="text-muted-foreground">Name</TableHead>
+                <TableHead className="text-muted-foreground">Vendor</TableHead>
+                <TableHead className="text-muted-foreground">Frequency</TableHead>
+                <TableHead className="text-muted-foreground">Next Run</TableHead>
+                <TableHead className="text-muted-foreground">Status</TableHead>
+                <TableHead className="text-muted-foreground text-right">Amount</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRow className="border-clay-border">
+                <TableRow className="border-border">
                   <TableCell colSpan={6} className="h-24 text-center">
-                    <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-clay-ink-muted" />
+                    <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
                   </TableCell>
                 </TableRow>
               ) : rows.length === 0 ? (
-                <TableRow className="border-clay-border">
+                <TableRow className="border-border">
                   <TableCell
                     colSpan={6}
-                    className="h-24 text-center text-[13px] text-clay-ink-muted"
+                    className="h-24 text-center text-[13px] text-muted-foreground"
                   >
                     No recurring expenses yet.
                   </TableCell>
@@ -118,9 +118,9 @@ export default function RecurringExpensesPage() {
                 rows.map((row) => (
                   <TableRow
                     key={String(row._id)}
-                    className="cursor-pointer border-clay-border"
+                    className="cursor-pointer border-border"
                   >
-                    <TableCell className="text-clay-ink">
+                    <TableCell className="text-foreground">
                       <Link
                         href={`/dashboard/crm/purchases/recurring-expenses/${row._id}`}
                         className="hover:underline"
@@ -128,7 +128,7 @@ export default function RecurringExpensesPage() {
                         {row.name || '—'}
                       </Link>
                     </TableCell>
-                    <TableCell className="text-clay-ink">
+                    <TableCell className="text-foreground">
                       {row.vendor || '—'}
                     </TableCell>
                     <TableCell>
@@ -136,7 +136,7 @@ export default function RecurringExpensesPage() {
                         Every {row.frequency_count} {row.frequency}
                       </ClayBadge>
                     </TableCell>
-                    <TableCell className="text-clay-ink">
+                    <TableCell className="text-foreground">
                       {fmtDate(row.next_run_date)}
                     </TableCell>
                     <TableCell>
@@ -144,7 +144,7 @@ export default function RecurringExpensesPage() {
                         {row.status}
                       </ClayBadge>
                     </TableCell>
-                    <TableCell className="text-right font-medium text-clay-ink">
+                    <TableCell className="text-right font-medium text-foreground">
                       {fmtMoney(row.amount, row.currency)}
                     </TableCell>
                   </TableRow>

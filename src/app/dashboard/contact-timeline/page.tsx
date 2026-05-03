@@ -46,8 +46,8 @@ export default function ContactTimelinePage() {
       ]} />
 
       <div>
-        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">Contact Timeline</h1>
-        <p className="mt-1.5 text-[13px] text-clay-ink-muted">View the full interaction history of any contact.</p>
+        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">Contact Timeline</h1>
+        <p className="mt-1.5 text-[13px] text-muted-foreground">View the full interaction history of any contact.</p>
       </div>
 
       <ClayCard padded={false} className="p-5">
@@ -55,7 +55,7 @@ export default function ContactTimelinePage() {
           <input type="text" value={contactId} onChange={(e) => setContactId(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
             placeholder="Contact ID or phone number..."
-            className="flex-1 rounded-lg border border-clay-border bg-clay-bg px-3 py-2 text-sm text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-accent focus:outline-none" />
+            className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none" />
           <ClayButton size="sm" variant="obsidian" onClick={handleSearch} disabled={isLoading}>
             {isLoading ? <LuLoader className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <LuSearch className="mr-1.5 h-3.5 w-3.5" />}
             Load Timeline
@@ -65,14 +65,14 @@ export default function ContactTimelinePage() {
 
       {isLoading && (
         <div className="flex h-32 items-center justify-center gap-3">
-          <LuLoader className="h-5 w-5 animate-spin text-clay-ink-muted" />
-          <p className="text-[13px] text-clay-ink-muted">Loading timeline...</p>
+          <LuLoader className="h-5 w-5 animate-spin text-muted-foreground" />
+          <p className="text-[13px] text-muted-foreground">Loading timeline...</p>
         </div>
       )}
 
       {events && !isLoading && events.length > 0 && (
         <div className="relative pl-8">
-          <div className="absolute left-3.5 top-0 bottom-0 w-px bg-clay-border" />
+          <div className="absolute left-3.5 top-0 bottom-0 w-px bg-border" />
           <div className="space-y-4">
             {events.map((ev, i) => {
               const isNote = ev.type === 'note';
@@ -87,11 +87,11 @@ export default function ContactTimelinePage() {
                   <ClayCard padded={false} className="flex-1 p-4 ml-4">
                     <div className="flex items-center justify-between gap-2">
                       <ClayBadge tone={isNote ? 'amber' : isIn ? 'green' : 'blue'}>{isNote ? 'Note' : isIn ? 'Received' : 'Sent'}</ClayBadge>
-                      <span className="text-[11px] text-clay-ink-muted whitespace-nowrap">
+                      <span className="text-[11px] text-muted-foreground whitespace-nowrap">
                         {ev.timestamp ? new Date(ev.timestamp).toLocaleString() : ''}
                       </span>
                     </div>
-                    <p className="mt-1 text-[12px] text-clay-ink-muted">{ev.content || '--'}</p>
+                    <p className="mt-1 text-[12px] text-muted-foreground">{ev.content || '--'}</p>
                   </ClayCard>
                 </div>
               );
@@ -102,15 +102,15 @@ export default function ContactTimelinePage() {
 
       {events && !isLoading && events.length === 0 && (
         <ClayCard className="p-12 text-center">
-          <LuHistory className="mx-auto h-12 w-12 text-clay-ink-muted/30 mb-4" />
-          <p className="text-sm text-clay-ink-muted">No events found for this contact.</p>
+          <LuHistory className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
+          <p className="text-sm text-muted-foreground">No events found for this contact.</p>
         </ClayCard>
       )}
 
       {!events && !isLoading && (
         <ClayCard className="p-12 text-center">
-          <LuHistory className="mx-auto h-12 w-12 text-clay-ink-muted/30 mb-4" />
-          <p className="text-sm text-clay-ink-muted">Enter a contact ID to view their interaction timeline.</p>
+          <LuHistory className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
+          <p className="text-sm text-muted-foreground">Enter a contact ID to view their interaction timeline.</p>
         </ClayCard>
       )}
       <div className="h-6" />

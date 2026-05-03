@@ -26,7 +26,7 @@ export default async function AutoLeadsSetupPage() {
                         <DialogTrigger asChild>
                             <button
                                 type="button"
-                                className="inline-flex h-9 items-center justify-center gap-2 rounded-full bg-clay-obsidian px-4 text-[13px] font-medium text-white hover:bg-clay-obsidian-hover"
+                                className="inline-flex h-9 items-center justify-center gap-2 rounded-full bg-foreground px-4 text-[13px] font-medium text-white hover:bg-foreground/90"
                             >
                                 <Plus className="h-4 w-4" strokeWidth={1.75} />
                                 Add New Rule
@@ -41,7 +41,7 @@ export default async function AutoLeadsSetupPage() {
                                 <div className="grid gap-4 py-4">
                                     <div className="grid gap-2">
                                         <Label>Rule Name</Label>
-                                        <Input name="name" placeholder="e.g. Pricing Enquiry" required className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                                        <Input name="name" placeholder="e.g. Pricing Enquiry" required className="h-10 rounded-lg border-border bg-card text-[13px]" />
                                     </div>
                                     <div className="grid gap-2">
                                         <Label>Source Channel</Label>
@@ -56,11 +56,11 @@ export default async function AutoLeadsSetupPage() {
                                     </div>
                                     <div className="grid gap-2">
                                         <Label>Contains Keyword</Label>
-                                        <Input name="keyword" placeholder="e.g. price, quote, cost" required className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                                        <Input name="keyword" placeholder="e.g. price, quote, cost" required className="h-10 rounded-lg border-border bg-card text-[13px]" />
                                     </div>
                                     <div className="grid gap-2">
                                         <Label>Assign Lead Source</Label>
-                                        <Input name="leadSource" placeholder="e.g. Auto-Email" defaultValue="Auto-Generated" className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                                        <Input name="leadSource" placeholder="e.g. Auto-Email" defaultValue="Auto-Generated" className="h-10 rounded-lg border-border bg-card text-[13px]" />
                                     </div>
                                 </div>
                                 <DialogFooter>
@@ -74,38 +74,38 @@ export default async function AutoLeadsSetupPage() {
 
             <ClayCard>
                 <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-clay-ink">Active Rules</h2>
-                    <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">Incoming messages matching these rules will trigger lead creation.</p>
+                    <h2 className="text-[16px] font-semibold text-foreground">Active Rules</h2>
+                    <p className="mt-0.5 text-[12.5px] text-muted-foreground">Incoming messages matching these rules will trigger lead creation.</p>
                 </div>
-                <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                <div className="overflow-x-auto rounded-lg border border-border">
                     <Table>
                         <TableHeader>
-                            <TableRow className="border-clay-border hover:bg-transparent">
-                                <TableHead className="text-clay-ink-muted">Rule Name</TableHead>
-                                <TableHead className="text-clay-ink-muted">Channel</TableHead>
-                                <TableHead className="text-clay-ink-muted">Keyword</TableHead>
-                                <TableHead className="text-clay-ink-muted">Target Source</TableHead>
-                                <TableHead className="w-[100px] text-clay-ink-muted" />
+                            <TableRow className="border-border hover:bg-transparent">
+                                <TableHead className="text-muted-foreground">Rule Name</TableHead>
+                                <TableHead className="text-muted-foreground">Channel</TableHead>
+                                <TableHead className="text-muted-foreground">Keyword</TableHead>
+                                <TableHead className="text-muted-foreground">Target Source</TableHead>
+                                <TableHead className="w-[100px] text-muted-foreground" />
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {rules.length === 0 ? (
-                                <TableRow className="border-clay-border">
-                                    <TableCell colSpan={5} className="h-24 text-center text-[13px] text-clay-ink-muted">
+                                <TableRow className="border-border">
+                                    <TableCell colSpan={5} className="h-24 text-center text-[13px] text-muted-foreground">
                                         No rules configured. Add a rule to start automating lead generation.
                                     </TableCell>
                                 </TableRow>
                             ) : (
                                 rules.map((rule) => (
-                                    <TableRow key={rule._id.toString()} className="border-clay-border">
-                                        <TableCell className="font-medium text-clay-ink">{rule.name}</TableCell>
-                                        <TableCell className="text-[13px] text-clay-ink">{rule.source}</TableCell>
+                                    <TableRow key={rule._id.toString()} className="border-border">
+                                        <TableCell className="font-medium text-foreground">{rule.name}</TableCell>
+                                        <TableCell className="text-[13px] text-foreground">{rule.source}</TableCell>
                                         <TableCell>
-                                            <code className="relative rounded bg-clay-surface-2 px-[0.3rem] py-[0.2rem] font-mono text-[12.5px] text-clay-ink">
+                                            <code className="relative rounded bg-secondary px-[0.3rem] py-[0.2rem] font-mono text-[12.5px] text-foreground">
                                                 {rule.keyword}
                                             </code>
                                         </TableCell>
-                                        <TableCell className="text-[13px] text-clay-ink">{rule.leadSource}</TableCell>
+                                        <TableCell className="text-[13px] text-foreground">{rule.leadSource}</TableCell>
                                         <TableCell>
                                             <form action={async () => {
                                                 'use server';

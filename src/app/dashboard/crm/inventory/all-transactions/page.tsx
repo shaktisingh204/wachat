@@ -111,37 +111,37 @@ export default function AllTransactionsReportPage() {
             />
 
             <ClayCard>
-                <h2 className="text-[16px] font-semibold text-clay-ink">Transaction Log</h2>
-                <div className="mt-4 overflow-x-auto rounded-clay-md border border-clay-border">
+                <h2 className="text-[16px] font-semibold text-foreground">Transaction Log</h2>
+                <div className="mt-4 overflow-x-auto rounded-lg border border-border">
                     <Table>
                         <TableHeader>
-                            <TableRow className="border-clay-border hover:bg-transparent">
-                                <TableHead className="text-clay-ink-muted">Date</TableHead>
-                                <TableHead className="text-clay-ink-muted">Item Name</TableHead>
-                                <TableHead className="text-clay-ink-muted">Type</TableHead>
-                                <TableHead className="text-clay-ink-muted">Quantity</TableHead>
-                                <TableHead className="text-clay-ink-muted">Party</TableHead>
-                                <TableHead className="text-clay-ink-muted">Reference</TableHead>
-                                <TableHead className="text-clay-ink-muted">Warehouse</TableHead>
+                            <TableRow className="border-border hover:bg-transparent">
+                                <TableHead className="text-muted-foreground">Date</TableHead>
+                                <TableHead className="text-muted-foreground">Item Name</TableHead>
+                                <TableHead className="text-muted-foreground">Type</TableHead>
+                                <TableHead className="text-muted-foreground">Quantity</TableHead>
+                                <TableHead className="text-muted-foreground">Party</TableHead>
+                                <TableHead className="text-muted-foreground">Reference</TableHead>
+                                <TableHead className="text-muted-foreground">Warehouse</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {isLoading ? (
-                                <TableRow className="border-clay-border"><TableCell colSpan={7} className="h-48 text-center"><LoaderCircle className="mx-auto h-8 w-8 animate-spin text-clay-ink-muted"/></TableCell></TableRow>
+                                <TableRow className="border-border"><TableCell colSpan={7} className="h-48 text-center"><LoaderCircle className="mx-auto h-8 w-8 animate-spin text-muted-foreground"/></TableCell></TableRow>
                             ) : reportData.length > 0 ? (
                                 reportData.map((row, index) => (
-                                    <TableRow key={index} className="border-clay-border">
-                                        <TableCell className="text-[11.5px] text-clay-ink">{format(new Date(row.date), 'PP p')}</TableCell>
-                                        <TableCell className="font-medium text-clay-ink">{row.itemName}</TableCell>
+                                    <TableRow key={index} className="border-border">
+                                        <TableCell className="text-[11.5px] text-foreground">{format(new Date(row.date), 'PP p')}</TableCell>
+                                        <TableCell className="font-medium text-foreground">{row.itemName}</TableCell>
                                         <TableCell><ClayBadge tone={getTypeTone(row.type)}>{row.type}</ClayBadge></TableCell>
-                                        <TableCell className={`font-semibold ${row.quantity < 0 ? 'text-clay-red' : 'text-clay-green'}`}>{row.quantity}</TableCell>
-                                        <TableCell className="text-clay-ink">{row.partyName || 'N/A'}</TableCell>
-                                        <TableCell className="font-mono text-[11.5px] text-clay-ink">{row.reference}</TableCell>
-                                        <TableCell className="text-clay-ink">{row.warehouseName || 'Default'}</TableCell>
+                                        <TableCell className={`font-semibold ${row.quantity < 0 ? 'text-destructive' : 'text-emerald-500'}`}>{row.quantity}</TableCell>
+                                        <TableCell className="text-foreground">{row.partyName || 'N/A'}</TableCell>
+                                        <TableCell className="font-mono text-[11.5px] text-foreground">{row.reference}</TableCell>
+                                        <TableCell className="text-foreground">{row.warehouseName || 'Default'}</TableCell>
                                     </TableRow>
                                 ))
                             ) : (
-                                <TableRow className="border-clay-border"><TableCell colSpan={7} className="h-48 text-center text-clay-ink-muted">No transactions found for the selected filters.</TableCell></TableRow>
+                                <TableRow className="border-border"><TableCell colSpan={7} className="h-48 text-center text-muted-foreground">No transactions found for the selected filters.</TableCell></TableRow>
                             )}
                         </TableBody>
                     </Table>

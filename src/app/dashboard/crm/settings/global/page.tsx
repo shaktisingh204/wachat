@@ -30,7 +30,7 @@ type FormState = { message?: string; error?: string; id?: string };
 const initialState: FormState = {};
 
 const inputClass =
-  'h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]';
+  'h-10 rounded-lg border-border bg-card text-[13px]';
 
 export default function GlobalSettingsPage() {
   const { toast } = useToast();
@@ -85,7 +85,7 @@ export default function GlobalSettingsPage() {
           <form action={formAction} className="space-y-5">
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <Label htmlFor="business_name" className="text-[13px] text-clay-ink">
+                <Label htmlFor="business_name" className="text-[13px] text-foreground">
                   Business Name
                 </Label>
                 <Input
@@ -96,7 +96,7 @@ export default function GlobalSettingsPage() {
                 />
               </div>
               <div>
-                <Label htmlFor="timezone" className="text-[13px] text-clay-ink">
+                <Label htmlFor="timezone" className="text-[13px] text-foreground">
                   Timezone
                 </Label>
                 <Input
@@ -107,7 +107,7 @@ export default function GlobalSettingsPage() {
                 />
               </div>
               <div>
-                <Label htmlFor="currency_id" className="text-[13px] text-clay-ink">
+                <Label htmlFor="currency_id" className="text-[13px] text-foreground">
                   Default Currency
                 </Label>
                 <Select
@@ -129,7 +129,7 @@ export default function GlobalSettingsPage() {
               <div>
                 <Label
                   htmlFor="datepicker_format"
-                  className="text-[13px] text-clay-ink"
+                  className="text-[13px] text-foreground"
                 >
                   Date-picker Format
                 </Label>
@@ -141,7 +141,7 @@ export default function GlobalSettingsPage() {
                 />
               </div>
               <div>
-                <Label htmlFor="moment_format" className="text-[13px] text-clay-ink">
+                <Label htmlFor="moment_format" className="text-[13px] text-foreground">
                   Moment.js Format
                 </Label>
                 <Input
@@ -152,7 +152,7 @@ export default function GlobalSettingsPage() {
                 />
               </div>
               <div>
-                <Label htmlFor="rtl" className="text-[13px] text-clay-ink">
+                <Label htmlFor="rtl" className="text-[13px] text-foreground">
                   Right-to-left Layout
                 </Label>
                 <Select name="rtl" defaultValue={settings?.rtl ? 'yes' : 'no'}>
@@ -168,7 +168,7 @@ export default function GlobalSettingsPage() {
               <div>
                 <Label
                   htmlFor="strict_timezone"
-                  className="text-[13px] text-clay-ink"
+                  className="text-[13px] text-foreground"
                 >
                   Strict Timezone
                 </Label>
@@ -191,7 +191,7 @@ export default function GlobalSettingsPage() {
               <div>
                 <Label
                   htmlFor="email_verified"
-                  className="text-[13px] text-clay-ink"
+                  className="text-[13px] text-foreground"
                 >
                   Email Verified
                 </Label>

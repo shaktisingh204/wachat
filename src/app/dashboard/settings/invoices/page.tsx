@@ -63,16 +63,16 @@ export default function InvoicesPage() {
                     </div>
                 ) : rows.length === 0 ? (
                     <div className="p-10 text-center">
-                        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-clay-surface-subtle text-clay-ink-muted">
+                        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-muted/50 text-muted-foreground">
                             <LuReceipt className="h-5 w-5" />
                         </div>
-                        <p className="text-[13px] font-semibold text-clay-ink">No invoices yet</p>
-                        <p className="mt-1 text-[12.5px] text-clay-ink-muted">
+                        <p className="text-[13px] font-semibold text-foreground">No invoices yet</p>
+                        <p className="mt-1 text-[12.5px] text-muted-foreground">
                             Invoices appear here after your first plan purchase or wallet top-up.
                         </p>
                     </div>
                 ) : (
-                    <ul className="divide-y divide-clay-border">
+                    <ul className="divide-y divide-border">
                         {rows.map((tx, idx) => {
                             const t = tx as any;
                             const amount = Number(t.amount ?? 0) / 100;
@@ -86,19 +86,19 @@ export default function InvoicesPage() {
                                 >
                                     <div className="min-w-0 flex-1">
                                         <div className="flex items-center gap-2">
-                                            <p className="truncate text-[13.5px] font-semibold text-clay-ink">
+                                            <p className="truncate text-[13.5px] font-semibold text-foreground">
                                                 {prettyLabel(type)}
                                             </p>
                                             <StatusBadge status={status} />
                                         </div>
-                                        <p className="mt-1 flex items-center gap-1.5 text-[12px] text-clay-ink-muted">
+                                        <p className="mt-1 flex items-center gap-1.5 text-[12px] text-muted-foreground">
                                             <LuCalendar className="h-3 w-3" />
                                             {formatDate(t.createdAt ?? t.date ?? new Date())}
                                             {t.description && ` · ${t.description}`}
                                         </p>
                                     </div>
                                     <div className="flex items-center gap-3">
-                                        <span className="text-[14px] font-semibold text-clay-ink">
+                                        <span className="text-[14px] font-semibold text-foreground">
                                             {formatCurrency(amount, currency)}
                                         </span>
                                         <ClayButton

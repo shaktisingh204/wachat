@@ -123,12 +123,12 @@ export default function TeamNotificationsPage() {
             />
 
             <ClayCard variant="soft" padded className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-clay-rose-soft text-clay-rose">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-accent text-primary">
                     <LuMail className="h-4 w-4" />
                 </div>
                 <div>
-                    <p className="text-[13px] font-semibold text-clay-ink">Delivery channel</p>
-                    <p className="text-[12.5px] text-clay-ink-muted">
+                    <p className="text-[13px] font-semibold text-foreground">Delivery channel</p>
+                    <p className="text-[12.5px] text-muted-foreground">
                         Emails go to your account address. Push and Slack delivery arrive later.
                     </p>
                 </div>
@@ -137,22 +137,22 @@ export default function TeamNotificationsPage() {
             {GROUPS.map((group) => (
                 <ClayCard key={group.title} padded>
                     <div className="mb-4 flex items-start gap-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-clay-surface-subtle text-clay-ink-muted">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted/50 text-muted-foreground">
                             <LuBell className="h-4 w-4" />
                         </div>
                         <div>
-                            <p className="text-[13.5px] font-semibold text-clay-ink">{group.title}</p>
-                            <p className="text-[12.5px] text-clay-ink-muted">{group.description}</p>
+                            <p className="text-[13.5px] font-semibold text-foreground">{group.title}</p>
+                            <p className="text-[12.5px] text-muted-foreground">{group.description}</p>
                         </div>
                     </div>
-                    <ul className="divide-y divide-clay-border">
+                    <ul className="divide-y divide-border">
                         {group.keys.map((row) => (
                             <li key={row.id} className="flex items-start justify-between gap-4 py-3">
                                 <div>
-                                    <Label htmlFor={row.id} className="text-[13px] font-medium text-clay-ink">
+                                    <Label htmlFor={row.id} className="text-[13px] font-medium text-foreground">
                                         {row.label}
                                     </Label>
-                                    <p className="mt-0.5 text-[12px] text-clay-ink-muted">{row.description}</p>
+                                    <p className="mt-0.5 text-[12px] text-muted-foreground">{row.description}</p>
                                 </div>
                                 <Switch
                                     id={row.id}

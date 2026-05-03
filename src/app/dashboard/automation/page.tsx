@@ -123,10 +123,10 @@ export default function AutomationPage() {
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">
+          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
             Conversational Automation
           </h1>
-          <p className="mt-1.5 max-w-[720px] text-[13px] text-clay-ink-muted">
+          <p className="mt-1.5 max-w-[720px] text-[13px] text-muted-foreground">
             Configure Meta&apos;s native automation features: welcome messages, ice breakers, and chat commands.
           </p>
         </div>
@@ -149,8 +149,8 @@ export default function AutomationPage() {
             <LuMessageCircle className="h-4.5 w-4.5 text-green-500" />
           </div>
           <div>
-            <h2 className="text-sm font-medium text-clay-ink">Welcome Message</h2>
-            <p className="text-[11px] text-clay-ink-muted">Automatically greet customers when they start a conversation.</p>
+            <h2 className="text-sm font-medium text-foreground">Welcome Message</h2>
+            <p className="text-[11px] text-muted-foreground">Automatically greet customers when they start a conversation.</p>
           </div>
         </div>
         <label className="flex items-center gap-3 cursor-pointer">
@@ -158,9 +158,9 @@ export default function AutomationPage() {
             type="checkbox"
             checked={welcomeEnabled}
             onChange={(e) => setWelcomeEnabled(e.target.checked)}
-            className="h-4 w-4 rounded border-clay-border text-clay-accent focus:ring-clay-accent"
+            className="h-4 w-4 rounded border-border text-accent focus:ring-accent"
           />
-          <span className="text-sm text-clay-ink">Enable welcome message</span>
+          <span className="text-sm text-foreground">Enable welcome message</span>
         </label>
       </ClayCard>
 
@@ -171,16 +171,16 @@ export default function AutomationPage() {
             <LuSparkles className="h-4.5 w-4.5 text-blue-500" />
           </div>
           <div>
-            <h2 className="text-sm font-medium text-clay-ink">Ice Breakers</h2>
-            <p className="text-[11px] text-clay-ink-muted">Suggested prompts shown to customers when they first open the chat (max 4).</p>
+            <h2 className="text-sm font-medium text-foreground">Ice Breakers</h2>
+            <p className="text-[11px] text-muted-foreground">Suggested prompts shown to customers when they first open the chat (max 4).</p>
           </div>
         </div>
 
         <div className="space-y-2 mb-3">
           {prompts.map((prompt, i) => (
-            <div key={i} className="flex items-center gap-2 rounded-lg border border-clay-border bg-clay-bg px-3 py-2">
-              <span className="flex-1 text-sm text-clay-ink">{prompt}</span>
-              <button onClick={() => removePrompt(i)} className="text-clay-ink-muted hover:text-red-500">
+            <div key={i} className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2">
+              <span className="flex-1 text-sm text-foreground">{prompt}</span>
+              <button onClick={() => removePrompt(i)} className="text-muted-foreground hover:text-red-500">
                 <LuTrash2 className="h-3.5 w-3.5" />
               </button>
             </div>
@@ -195,7 +195,7 @@ export default function AutomationPage() {
               onChange={(e) => setNewPrompt(e.target.value)}
               placeholder="Add an ice breaker prompt..."
               maxLength={80}
-              className="flex-1 rounded-lg border border-clay-border bg-clay-bg px-3 py-2 text-sm text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-accent focus:outline-none"
+              className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none"
               onKeyDown={(e) => { if (e.key === 'Enter') addPrompt(); }}
             />
             <ClayButton size="sm" variant="ghost" onClick={addPrompt} disabled={!newPrompt.trim()}>
@@ -212,17 +212,17 @@ export default function AutomationPage() {
             <LuTerminal className="h-4.5 w-4.5 text-purple-500" />
           </div>
           <div>
-            <h2 className="text-sm font-medium text-clay-ink">Chat Commands</h2>
-            <p className="text-[11px] text-clay-ink-muted">Register slash commands that customers can use in the chat (max 30).</p>
+            <h2 className="text-sm font-medium text-foreground">Chat Commands</h2>
+            <p className="text-[11px] text-muted-foreground">Register slash commands that customers can use in the chat (max 30).</p>
           </div>
         </div>
 
         <div className="space-y-2 mb-3">
           {commands.map((cmd, i) => (
-            <div key={i} className="flex items-center gap-3 rounded-lg border border-clay-border bg-clay-bg px-3 py-2">
-              <span className="text-sm font-mono text-clay-accent">/{cmd.command_name}</span>
-              <span className="flex-1 text-sm text-clay-ink-muted">{cmd.command_description}</span>
-              <button onClick={() => removeCommand(i)} className="text-clay-ink-muted hover:text-red-500">
+            <div key={i} className="flex items-center gap-3 rounded-lg border border-border bg-background px-3 py-2">
+              <span className="text-sm font-mono text-accent">/{cmd.command_name}</span>
+              <span className="flex-1 text-sm text-muted-foreground">{cmd.command_description}</span>
+              <button onClick={() => removeCommand(i)} className="text-muted-foreground hover:text-red-500">
                 <LuTrash2 className="h-3.5 w-3.5" />
               </button>
             </div>
@@ -236,14 +236,14 @@ export default function AutomationPage() {
               value={newCommandName}
               onChange={(e) => setNewCommandName(e.target.value.replace(/[^a-z0-9_]/gi, '').toLowerCase())}
               placeholder="command_name"
-              className="w-40 rounded-lg border border-clay-border bg-clay-bg px-3 py-2 text-sm font-mono text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-accent focus:outline-none"
+              className="w-40 rounded-lg border border-border bg-background px-3 py-2 text-sm font-mono text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none"
             />
             <input
               type="text"
               value={newCommandDesc}
               onChange={(e) => setNewCommandDesc(e.target.value)}
               placeholder="Description of the command..."
-              className="flex-1 rounded-lg border border-clay-border bg-clay-bg px-3 py-2 text-sm text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-accent focus:outline-none"
+              className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none"
               onKeyDown={(e) => { if (e.key === 'Enter') addCommand(); }}
             />
             <ClayButton size="sm" variant="ghost" onClick={addCommand} disabled={!newCommandName.trim() || !newCommandDesc.trim()}>
@@ -255,8 +255,8 @@ export default function AutomationPage() {
 
       {!selectedPhoneId && (
         <ClayCard className="p-12 text-center">
-          <LuBot className="mx-auto h-12 w-12 text-clay-ink-muted/30 mb-4" />
-          <p className="text-sm text-clay-ink-muted">Select a project with a configured phone number to manage automation.</p>
+          <LuBot className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
+          <p className="text-sm text-muted-foreground">Select a project with a configured phone number to manage automation.</p>
         </ClayCard>
       )}
     </div>

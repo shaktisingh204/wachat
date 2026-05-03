@@ -94,7 +94,7 @@ export default function StickyNotesPage() {
             rows={3}
           />
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[12px] text-clay-ink-muted">Colour:</span>
+            <span className="text-[12px] text-muted-foreground">Colour:</span>
             {COLORS.map((c) => (
               <button
                 key={c.key}
@@ -105,7 +105,7 @@ export default function StickyNotesPage() {
                   'h-6 w-6 rounded-full border-2 transition ' +
                   c.bg +
                   ' ' +
-                  (colour === c.key ? 'border-clay-ink' : c.border)
+                  (colour === c.key ? 'border-foreground' : c.border)
                 }
               />
             ))}
@@ -131,11 +131,11 @@ export default function StickyNotesPage() {
 
       {loading ? (
         <ClayCard className="flex items-center justify-center py-10">
-          <LoaderCircle className="h-5 w-5 animate-spin text-clay-ink-muted" />
+          <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />
         </ClayCard>
       ) : notes.length === 0 ? (
         <ClayCard>
-          <p className="text-center text-[13px] text-clay-ink-muted">
+          <p className="text-center text-[13px] text-muted-foreground">
             No sticky notes yet — jot one down above.
           </p>
         </ClayCard>
@@ -148,7 +148,7 @@ export default function StickyNotesPage() {
               <ClayCard
                 key={n._id}
                 className={
-                  'flex flex-col gap-2 shadow-clay-float transform ' +
+                  'flex flex-col gap-2 shadow-md transform ' +
                   rotate +
                   ' ' +
                   meta.bg +
@@ -168,7 +168,7 @@ export default function StickyNotesPage() {
                     <button
                       type="button"
                       onClick={() => handlePin(n._id)}
-                      className="rounded p-1 text-clay-ink-muted hover:bg-white/40"
+                      className="rounded p-1 text-muted-foreground hover:bg-white/40"
                       aria-label="Toggle pin"
                     >
                       <Pin className="h-3.5 w-3.5" />
@@ -176,14 +176,14 @@ export default function StickyNotesPage() {
                     <button
                       type="button"
                       onClick={() => handleDelete(n._id)}
-                      className="rounded p-1 text-clay-ink-muted hover:bg-white/40"
+                      className="rounded p-1 text-muted-foreground hover:bg-white/40"
                       aria-label="Delete"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 </div>
-                <p className="whitespace-pre-wrap text-[13.5px] leading-relaxed text-clay-ink">
+                <p className="whitespace-pre-wrap text-[13.5px] leading-relaxed text-foreground">
                   {n.note_text}
                 </p>
               </ClayCard>

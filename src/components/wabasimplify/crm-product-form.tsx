@@ -125,7 +125,7 @@ export function CrmProductForm({ product }: CrmProductFormProps) {
                                 <div className="flex items-center space-x-2"><Switch id="batchTracking" name="batchTracking" defaultChecked={product?.batchTracking || false}/><Label htmlFor="batchTracking">Track inventory in batches</Label></div>
                                 <div className="space-y-3">
                                     {batches.map((batch, index) => (
-                                        <div key={batch.id} className="grid grid-cols-[1fr,1fr,auto,auto,auto] items-end gap-2 p-2 border border-clay-border rounded-md">
+                                        <div key={batch.id} className="grid grid-cols-[1fr,1fr,auto,auto,auto] items-end gap-2 p-2 border border-border rounded-md">
                                             <div className="space-y-1"><Label className="text-xs">Batch No.</Label><Input value={batch.batchNumber} onChange={e => handleBatchChange(batch.id, 'batchNumber', e.target.value)} /></div>
                                             <div className="space-y-1"><Label className="text-xs">Quantity</Label><Input type="number" value={batch.stock} onChange={e => handleBatchChange(batch.id, 'stock', Number(e.target.value))} /></div>
                                             <div className="space-y-1"><Label className="text-xs">Mfg. Date</Label><DatePicker date={batch.mfgDate ? new Date(batch.mfgDate) : undefined} setDate={(d: any) => handleBatchChange(batch.id, 'mfgDate', d)} /></div>
@@ -145,11 +145,11 @@ export function CrmProductForm({ product }: CrmProductFormProps) {
                         </AccordionItem>
                         <AccordionItem value="image"><AccordionTrigger>Image & Variants</AccordionTrigger>
                             <AccordionContent className="pt-4 space-y-6">
-                                <div className="space-y-2"><Label htmlFor="imageFile">Product Image</Label><Input id="imageFile" name="imageFile" type="file" accept="image/*" ref={fileInputRef} /><p className="text-xs text-clay-ink-muted">Current image is set. Uploading a new file will replace it.</p></div>
+                                <div className="space-y-2"><Label htmlFor="imageFile">Product Image</Label><Input id="imageFile" name="imageFile" type="file" accept="image/*" ref={fileInputRef} /><p className="text-xs text-muted-foreground">Current image is set. Uploading a new file will replace it.</p></div>
                                 <Separator />
                                 <div className="space-y-4">
                                     <div className="flex justify-between items-center"><Label>Variants (e.g., Size, Color)</Label><Button type="button" size="sm" variant="outline" onClick={handleAddVariant}><Plus className="mr-2 h-4 w-4"/>Add Variant</Button></div>
-                                    <div className="space-y-3">{variants.map(variant => (<div key={variant.id} className="grid grid-cols-[1fr,2fr,auto] items-center gap-2 p-2 border border-clay-border rounded-md"><Input placeholder="Name (e.g. Color)" value={variant.name} onChange={e => handleVariantChange(variant.id, 'name', e.target.value)} /><Input placeholder="Options (comma-separated)" value={variant.options} onChange={e => handleVariantChange(variant.id, 'options', e.target.value)} /><Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveVariant(variant.id)}><Trash2 className="h-4 w-4 text-destructive"/></Button></div>))}</div>
+                                    <div className="space-y-3">{variants.map(variant => (<div key={variant.id} className="grid grid-cols-[1fr,2fr,auto] items-center gap-2 p-2 border border-border rounded-md"><Input placeholder="Name (e.g. Color)" value={variant.name} onChange={e => handleVariantChange(variant.id, 'name', e.target.value)} /><Input placeholder="Options (comma-separated)" value={variant.options} onChange={e => handleVariantChange(variant.id, 'options', e.target.value)} /><Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveVariant(variant.id)}><Trash2 className="h-4 w-4 text-destructive"/></Button></div>))}</div>
                                 </div>
                             </AccordionContent>
                         </AccordionItem>

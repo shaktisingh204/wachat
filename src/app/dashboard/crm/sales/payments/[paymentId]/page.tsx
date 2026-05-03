@@ -90,14 +90,14 @@ export default function PaymentDetailPage() {
   if (loading) {
     return (
       <div className="flex justify-center">
-        <LoaderCircle className="h-5 w-5 animate-spin text-clay-ink-muted" />
+        <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />
       </div>
     );
   }
   if (!payment) {
     return (
       <div className="flex flex-col items-center gap-3 py-10 text-center">
-        <p className="text-[13px] text-clay-ink-muted">
+        <p className="text-[13px] text-muted-foreground">
           Payment not found.
         </p>
         <Link href="/dashboard/crm/sales/payments">
@@ -134,11 +134,11 @@ export default function PaymentDetailPage() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         <ClayCard>
-          <h3 className="mb-3 text-[15px] font-semibold text-clay-ink">
+          <h3 className="mb-3 text-[15px] font-semibold text-foreground">
             Details
           </h3>
           <dl className="grid grid-cols-2 gap-3 text-[13px]">
-            <dt className="text-clay-ink-muted">Status</dt>
+            <dt className="text-muted-foreground">Status</dt>
             <dd>
               <ClayBadge
                 tone={STATUS_TONES[payment.status] || 'neutral'}
@@ -148,49 +148,49 @@ export default function PaymentDetailPage() {
               </ClayBadge>
             </dd>
 
-            <dt className="text-clay-ink-muted">Gateway</dt>
-            <dd className="text-clay-ink">{payment.gateway}</dd>
+            <dt className="text-muted-foreground">Gateway</dt>
+            <dd className="text-foreground">{payment.gateway}</dd>
 
-            <dt className="text-clay-ink-muted">Amount</dt>
-            <dd className="font-semibold text-clay-ink">
+            <dt className="text-muted-foreground">Amount</dt>
+            <dd className="font-semibold text-foreground">
               {formatMoney(payment.amount, payment.currency)}
             </dd>
 
             {payment.refunded_amount ? (
               <>
-                <dt className="text-clay-ink-muted">Refunded</dt>
-                <dd className="text-clay-ink">
+                <dt className="text-muted-foreground">Refunded</dt>
+                <dd className="text-foreground">
                   {formatMoney(payment.refunded_amount, payment.currency)}
                 </dd>
               </>
             ) : null}
 
-            <dt className="text-clay-ink-muted">Paid on</dt>
-            <dd className="text-clay-ink">
+            <dt className="text-muted-foreground">Paid on</dt>
+            <dd className="text-foreground">
               {payment.paid_on
                 ? new Date(payment.paid_on).toLocaleDateString()
                 : '—'}
             </dd>
 
-            <dt className="text-clay-ink-muted">Transaction ID</dt>
-            <dd className="font-mono text-[12px] text-clay-ink">
+            <dt className="text-muted-foreground">Transaction ID</dt>
+            <dd className="font-mono text-[12px] text-foreground">
               {payment.transaction_id || '—'}
             </dd>
 
-            <dt className="text-clay-ink-muted">Client</dt>
-            <dd className="text-clay-ink">{payment.client_name || '—'}</dd>
+            <dt className="text-muted-foreground">Client</dt>
+            <dd className="text-foreground">{payment.client_name || '—'}</dd>
 
-            <dt className="text-clay-ink-muted">Remarks</dt>
-            <dd className="text-clay-ink">{payment.remarks || '—'}</dd>
+            <dt className="text-muted-foreground">Remarks</dt>
+            <dd className="text-foreground">{payment.remarks || '—'}</dd>
           </dl>
         </ClayCard>
 
         <ClayCard>
-          <h3 className="mb-3 text-[15px] font-semibold text-clay-ink">
+          <h3 className="mb-3 text-[15px] font-semibold text-foreground">
             Refund
           </h3>
           {refundable <= 0 ? (
-            <p className="text-[13px] text-clay-ink-muted">
+            <p className="text-[13px] text-muted-foreground">
               No refundable balance remaining on this payment.
             </p>
           ) : (
@@ -205,7 +205,7 @@ export default function PaymentDetailPage() {
                   step="0.01"
                   value={refundAmount}
                   onChange={(e) => setRefundAmount(e.target.value)}
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
               <div>
@@ -217,7 +217,7 @@ export default function PaymentDetailPage() {
                   rows={3}
                   value={refundReason}
                   onChange={(e) => setRefundReason(e.target.value)}
-                  className="rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
               <div className="flex justify-end">

@@ -63,7 +63,7 @@ export default function NewPaymentAccountPage() {
                 onSave={(details) => setBankDetails(details)}
             />
             <div>
-                <Link href="/dashboard/crm/banking/all" className="inline-flex items-center gap-2 text-[13px] text-clay-ink-muted hover:text-clay-ink">
+                <Link href="/dashboard/crm/banking/all" className="inline-flex items-center gap-2 text-[13px] text-muted-foreground hover:text-foreground">
                     <ArrowLeft className="h-4 w-4" />
                     Back to All Accounts
                 </Link>
@@ -95,14 +95,14 @@ export default function NewPaymentAccountPage() {
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="accountName">Account Name *</Label>
-                            <Input id="accountName" name="accountName" required className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                            <Input id="accountName" name="accountName" required className="h-10 rounded-lg border-border bg-card text-[13px]" />
                         </div>
 
                         {accountType === 'bank' && (
-                            <div className="p-4 rounded-clay-md border border-clay-border bg-clay-surface-2 space-y-3">
-                                <h4 className="font-semibold text-clay-ink">Bank Details</h4>
+                            <div className="p-4 rounded-lg border border-border bg-secondary space-y-3">
+                                <h4 className="font-semibold text-foreground">Bank Details</h4>
                                 {bankDetails.accountNumber ? (
-                                    <div className="text-[13px] text-clay-ink">
+                                    <div className="text-[13px] text-foreground">
                                         <p><strong>Holder:</strong> {bankDetails.accountHolder}</p>
                                         <p><strong>Account:</strong> {bankDetails.accountNumber}</p>
                                         <p><strong>IFSC:</strong> {bankDetails.ifsc}</p>
@@ -118,7 +118,7 @@ export default function NewPaymentAccountPage() {
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label>Opening Balance *</Label>
-                                <Input name="openingBalance" type="number" defaultValue="0" required className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                                <Input name="openingBalance" type="number" defaultValue="0" required className="h-10 rounded-lg border-border bg-card text-[13px]" />
                             </div>
                             <div className="space-y-2">
                                 <Label>As of *</Label>

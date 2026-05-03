@@ -249,9 +249,9 @@ export default function EmployeeProfilePage() {
       {/* Employee Selector */}
       <ClayCard>
         <div className="flex flex-col gap-1.5">
-          <Label className="text-clay-ink">Select Employee</Label>
+          <Label className="text-foreground">Select Employee</Label>
           <Select value={selectedEmpId} onValueChange={handleEmpChange}>
-            <SelectTrigger className="h-10 w-full max-w-sm rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
+            <SelectTrigger className="h-10 w-full max-w-sm rounded-lg border-border bg-card text-[13px]">
               <SelectValue placeholder="Choose an employee…" />
             </SelectTrigger>
             <SelectContent>
@@ -266,7 +266,7 @@ export default function EmployeeProfilePage() {
       </ClayCard>
 
       {isLoading && (
-        <div className="flex items-center justify-center py-10 text-[13px] text-clay-ink-muted">
+        <div className="flex items-center justify-center py-10 text-[13px] text-muted-foreground">
           <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
           Loading…
         </div>
@@ -276,14 +276,14 @@ export default function EmployeeProfilePage() {
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           {/* Section 1 — Personal Info */}
           <ClayCard>
-            <h2 className="mb-4 text-[15px] font-semibold text-clay-ink">Personal Info</h2>
+            <h2 className="mb-4 text-[15px] font-semibold text-foreground">Personal Info</h2>
             <div className="grid gap-4 md:grid-cols-2">
               <Field label="About Me" fullWidth>
                 <Textarea
                   rows={3}
                   value={form.about_me ?? ''}
                   onChange={(e) => set('about_me', e.target.value)}
-                  className="rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="rounded-lg border-border bg-card text-[13px]"
                 />
               </Field>
 
@@ -349,7 +349,7 @@ export default function EmployeeProfilePage() {
                   rows={2}
                   value={form.hobbies ?? ''}
                   onChange={(e) => set('hobbies', e.target.value)}
-                  className="rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="rounded-lg border-border bg-card text-[13px]"
                 />
               </Field>
 
@@ -358,7 +358,7 @@ export default function EmployeeProfilePage() {
                   rows={2}
                   value={form.address ?? ''}
                   onChange={(e) => set('address', e.target.value)}
-                  className="rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="rounded-lg border-border bg-card text-[13px]"
                 />
               </Field>
 
@@ -372,7 +372,7 @@ export default function EmployeeProfilePage() {
 
           {/* Section 2 — Employment */}
           <ClayCard>
-            <h2 className="mb-4 text-[15px] font-semibold text-clay-ink">Employment</h2>
+            <h2 className="mb-4 text-[15px] font-semibold text-foreground">Employment</h2>
             <div className="grid gap-4 md:grid-cols-2">
               <SelectField
                 label="Employment Type"
@@ -411,7 +411,7 @@ export default function EmployeeProfilePage() {
                   min="0"
                   value={form.notice_period ?? ''}
                   onChange={(e) => set('notice_period', e.target.value ? Number(e.target.value) : undefined)}
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </Field>
 
@@ -438,7 +438,7 @@ export default function EmployeeProfilePage() {
                   value={form.reporting_to ?? '__none__'}
                   onValueChange={(v) => set('reporting_to', v === '__none__' ? '' : v)}
                 >
-                  <SelectTrigger className="h-10 w-full rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
+                  <SelectTrigger className="h-10 w-full rounded-lg border-border bg-card text-[13px]">
                     <SelectValue placeholder="Select manager…" />
                   </SelectTrigger>
                   <SelectContent>
@@ -461,7 +461,7 @@ export default function EmployeeProfilePage() {
                   onChange={(e) =>
                     set('overtime_hourly_rate', e.target.value ? Number(e.target.value) : undefined)
                   }
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </Field>
 
@@ -474,7 +474,7 @@ export default function EmployeeProfilePage() {
                   onChange={(e) =>
                     set('hourly_rate', e.target.value ? Number(e.target.value) : undefined)
                   }
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </Field>
 
@@ -498,7 +498,7 @@ export default function EmployeeProfilePage() {
 
           {/* Section 3 — Banking & Tax */}
           <ClayCard>
-            <h2 className="mb-4 text-[15px] font-semibold text-clay-ink">Banking &amp; Tax</h2>
+            <h2 className="mb-4 text-[15px] font-semibold text-foreground">Banking &amp; Tax</h2>
             <div className="grid gap-4 md:grid-cols-2">
               <TextField
                 label="Bank Account Number"
@@ -559,7 +559,7 @@ function Field({
 }) {
   return (
     <div className={fullWidth ? 'md:col-span-2' : ''}>
-      <Label className="text-clay-ink">{label}</Label>
+      <Label className="text-foreground">{label}</Label>
       <div className="mt-1.5">{children}</div>
     </div>
   );
@@ -581,7 +581,7 @@ function TextField({
       <Input
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+        className="h-10 rounded-lg border-border bg-card text-[13px]"
       />
     </Field>
   );
@@ -602,7 +602,7 @@ function DateField({
         type="date"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+        className="h-10 rounded-lg border-border bg-card text-[13px]"
       />
     </Field>
   );
@@ -624,7 +624,7 @@ function SelectField({
   return (
     <Field label={label} fullWidth={fullWidth}>
       <Select value={value || '__none__'} onValueChange={(v) => onChange(v === '__none__' ? '' : v)}>
-        <SelectTrigger className="h-10 w-full rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
+        <SelectTrigger className="h-10 w-full rounded-lg border-border bg-card text-[13px]">
           <SelectValue placeholder="Select…" />
         </SelectTrigger>
         <SelectContent>

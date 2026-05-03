@@ -88,11 +88,11 @@ export function NotificationsInbox({ initialNotifications }: NotificationsInboxP
 
       {rows.length === 0 ? (
         <ClayCard className="flex items-center justify-center py-12">
-          <p className="text-[13px] text-clay-ink-muted">Your inbox is empty.</p>
+          <p className="text-[13px] text-muted-foreground">Your inbox is empty.</p>
         </ClayCard>
       ) : (
         <ClayCard padded={false}>
-          <ul className="divide-y divide-clay-border">
+          <ul className="divide-y divide-border">
             {rows.map((n) => {
               const read = Boolean(n.read_at);
               return (
@@ -100,25 +100,25 @@ export function NotificationsInbox({ initialNotifications }: NotificationsInboxP
                   key={n._id}
                   className={
                     'flex items-start gap-3 px-4 py-3 ' +
-                    (read ? '' : 'bg-clay-rose-soft/40')
+                    (read ? '' : 'bg-accent/40')
                   }
                 >
-                  <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-clay-surface-2">
-                    <Bell className="h-4 w-4 text-clay-ink-muted" strokeWidth={1.75} />
+                  <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary">
+                    <Bell className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-[13px] font-medium text-clay-ink">
+                      <span className="text-[13px] font-medium text-foreground">
                         {n.title}
                       </span>
                       <ClayBadge tone="neutral">{n.type}</ClayBadge>
                       {!read ? <ClayBadge tone="rose">New</ClayBadge> : null}
-                      <span className="ml-auto text-[11.5px] text-clay-ink-muted">
+                      <span className="ml-auto text-[11.5px] text-muted-foreground">
                         {formatStamp(n.createdAt)}
                       </span>
                     </div>
                     {n.body ? (
-                      <p className="mt-1 whitespace-pre-wrap text-[13px] text-clay-ink">
+                      <p className="mt-1 whitespace-pre-wrap text-[13px] text-foreground">
                         {n.body}
                       </p>
                     ) : null}

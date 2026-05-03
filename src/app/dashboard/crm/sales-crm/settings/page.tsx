@@ -31,7 +31,7 @@ export default function LeadSettingsPage() {
                 href={String(row.share_link)}
                 target="_blank"
                 rel="noreferrer"
-                className="text-clay-rose-ink underline"
+                className="text-accent-foreground underline"
               >
                 open
               </a>

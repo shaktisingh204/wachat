@@ -68,21 +68,21 @@ function NodeComponent({ node, onSelect, isSelected }: { node: CrmAutomationNode
             onClick={onSelect}
             padded={false}
             className={cn(
-                'w-80 cursor-pointer transition-shadow hover:shadow-clay-float',
-                isSelected && 'ring-2 ring-clay-rose',
+                'w-80 cursor-pointer transition-shadow hover:shadow-md',
+                isSelected && 'ring-2 ring-primary',
             )}
         >
             <div className="flex flex-row items-center gap-4 p-4">
-                <div className="rounded-clay-md bg-clay-surface-2 p-2">
-                    <BlockIcon className="h-5 w-5 text-clay-ink-muted" />
+                <div className="rounded-lg bg-secondary p-2">
+                    <BlockIcon className="h-5 w-5 text-muted-foreground" />
                 </div>
                 <div>
-                    <p className="text-[14px] font-semibold text-clay-ink">{node.data.label}</p>
+                    <p className="text-[14px] font-semibold text-foreground">{node.data.label}</p>
                     {node.type === 'triggerTagAdded' && node.data.tagName && (
-                        <p className="text-[12px] text-clay-ink-muted">Tag: {node.data.tagName}</p>
+                        <p className="text-[12px] text-muted-foreground">Tag: {node.data.tagName}</p>
                     )}
                     {node.type === 'delay' && (
-                        <p className="text-[12px] text-clay-ink-muted">
+                        <p className="text-[12px] text-muted-foreground">
                             Wait for {node.data.delayValue || 1} {node.data.delayUnit || 'days'}
                         </p>
                     )}
@@ -332,7 +332,7 @@ export default function CrmAutomationsPage() {
                   >
                     <div className="p-2">
                         <div className="flex items-center gap-2">
-                            <Wand2 className="h-5 w-5 shrink-0 text-clay-ink-muted" />
+                            <Wand2 className="h-5 w-5 shrink-0 text-muted-foreground" />
                             <Input
                                 placeholder="Describe your workflow and let AI build it..."
                                 className="border-none shadow-none focus-visible:ring-0"

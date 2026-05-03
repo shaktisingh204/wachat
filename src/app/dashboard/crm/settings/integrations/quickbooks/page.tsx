@@ -139,8 +139,8 @@ export default function QuickBooksIntegrationPage() {
             <ClayBadge tone={isConnected ? 'green' : 'neutral'}>
               {isConnected ? 'Connected' : 'Not Connected'}
             </ClayBadge>
-            <div className="text-[12.5px] text-clay-ink-muted">
-              Last synced: <span className="text-clay-ink">{lastSyncedAt}</span>
+            <div className="text-[12.5px] text-muted-foreground">
+              Last synced: <span className="text-foreground">{lastSyncedAt}</span>
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -211,7 +211,7 @@ export default function QuickBooksIntegrationPage() {
 
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <Label htmlFor="client_id" className="text-clay-ink">
+              <Label htmlFor="client_id" className="text-foreground">
                 Client ID
               </Label>
               <div className="mt-1.5">
@@ -219,13 +219,13 @@ export default function QuickBooksIntegrationPage() {
                   id="client_id"
                   name="client_id"
                   defaultValue={v('client_id')}
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="client_secret" className="text-clay-ink">
+              <Label htmlFor="client_secret" className="text-foreground">
                 Client Secret
               </Label>
               <div className="mt-1.5">
@@ -234,13 +234,13 @@ export default function QuickBooksIntegrationPage() {
                   name="client_secret"
                   type="password"
                   defaultValue={v('client_secret')}
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div className="md:col-span-2">
-              <Label htmlFor="redirect_uri" className="text-clay-ink">
+              <Label htmlFor="redirect_uri" className="text-foreground">
                 Redirect URI
               </Label>
               <div className="mt-1.5">
@@ -249,13 +249,13 @@ export default function QuickBooksIntegrationPage() {
                   name="redirect_uri"
                   defaultValue={v('redirect_uri')}
                   placeholder="https://example.com/oauth/quickbooks/callback"
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="realm_id" className="text-clay-ink">
+              <Label htmlFor="realm_id" className="text-foreground">
                 Realm ID
               </Label>
               <div className="mt-1.5">
@@ -263,13 +263,13 @@ export default function QuickBooksIntegrationPage() {
                   id="realm_id"
                   name="realm_id"
                   defaultValue={v('realm_id')}
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="environment" className="text-clay-ink">
+              <Label htmlFor="environment" className="text-foreground">
                 Environment
               </Label>
               <div className="mt-1.5">
@@ -280,7 +280,7 @@ export default function QuickBooksIntegrationPage() {
                 >
                   <SelectTrigger
                     id="environment"
-                    className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                    className="h-10 rounded-lg border-border bg-card text-[13px]"
                   >
                     <SelectValue placeholder="Select environment" />
                   </SelectTrigger>
@@ -293,7 +293,7 @@ export default function QuickBooksIntegrationPage() {
             </div>
 
             <div>
-              <Label htmlFor="access_token" className="text-clay-ink">
+              <Label htmlFor="access_token" className="text-foreground">
                 Access Token
               </Label>
               <div className="mt-1.5">
@@ -302,13 +302,13 @@ export default function QuickBooksIntegrationPage() {
                   name="access_token"
                   type="password"
                   defaultValue={v('access_token')}
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="refresh_token" className="text-clay-ink">
+              <Label htmlFor="refresh_token" className="text-foreground">
                 Refresh Token
               </Label>
               <div className="mt-1.5">
@@ -317,7 +317,7 @@ export default function QuickBooksIntegrationPage() {
                   name="refresh_token"
                   type="password"
                   defaultValue={v('refresh_token')}
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>

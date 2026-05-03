@@ -280,58 +280,58 @@ export default function AttendancePage() {
       {/* Summary stats */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <ClayCard>
-          <p className="text-[12px] text-clay-ink-muted">Present</p>
-          <p className="mt-1 text-[26px] font-semibold text-clay-ink">{presentCount}</p>
+          <p className="text-[12px] text-muted-foreground">Present</p>
+          <p className="mt-1 text-[26px] font-semibold text-foreground">{presentCount}</p>
         </ClayCard>
         <ClayCard>
-          <p className="text-[12px] text-clay-ink-muted">Late</p>
-          <p className="mt-1 text-[26px] font-semibold text-clay-ink">{lateCount}</p>
+          <p className="text-[12px] text-muted-foreground">Late</p>
+          <p className="mt-1 text-[26px] font-semibold text-foreground">{lateCount}</p>
         </ClayCard>
         <ClayCard>
-          <p className="text-[12px] text-clay-ink-muted">WFH</p>
-          <p className="mt-1 text-[26px] font-semibold text-clay-ink">{wfhCount}</p>
+          <p className="text-[12px] text-muted-foreground">WFH</p>
+          <p className="mt-1 text-[26px] font-semibold text-foreground">{wfhCount}</p>
         </ClayCard>
         <ClayCard>
-          <p className="text-[12px] text-clay-ink-muted">Total Employees</p>
-          <p className="mt-1 text-[26px] font-semibold text-clay-ink">{employees.length}</p>
+          <p className="text-[12px] text-muted-foreground">Total Employees</p>
+          <p className="mt-1 text-[26px] font-semibold text-foreground">{employees.length}</p>
         </ClayCard>
       </div>
 
       <ClayCard>
         <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 className="text-[16px] font-semibold text-clay-ink">
+            <h2 className="text-[16px] font-semibold text-foreground">
               Attendance — {date ? format(date, 'PPP') : '…'}
             </h2>
-            <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">
+            <p className="mt-0.5 text-[12.5px] text-muted-foreground">
               {records.length} record{records.length === 1 ? '' : 's'} for this date
             </p>
           </div>
         </div>
 
-        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <Table>
             <TableHeader>
-              <TableRow className="border-clay-border hover:bg-transparent">
-                <TableHead className="text-clay-ink-muted">Employee</TableHead>
-                <TableHead className="text-clay-ink-muted">Clock In</TableHead>
-                <TableHead className="text-clay-ink-muted">Clock Out</TableHead>
-                <TableHead className="text-clay-ink-muted">Working From</TableHead>
-                <TableHead className="text-clay-ink-muted">Hours</TableHead>
-                <TableHead className="text-clay-ink-muted">Flags</TableHead>
-                <TableHead className="text-right text-clay-ink-muted">Actions</TableHead>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableHead className="text-muted-foreground">Employee</TableHead>
+                <TableHead className="text-muted-foreground">Clock In</TableHead>
+                <TableHead className="text-muted-foreground">Clock Out</TableHead>
+                <TableHead className="text-muted-foreground">Working From</TableHead>
+                <TableHead className="text-muted-foreground">Hours</TableHead>
+                <TableHead className="text-muted-foreground">Flags</TableHead>
+                <TableHead className="text-right text-muted-foreground">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRow className="border-clay-border">
-                  <TableCell colSpan={7} className="h-24 text-center text-[13px] text-clay-ink-muted">
+                <TableRow className="border-border">
+                  <TableCell colSpan={7} className="h-24 text-center text-[13px] text-muted-foreground">
                     Loading…
                   </TableCell>
                 </TableRow>
               ) : employees.length === 0 ? (
-                <TableRow className="border-clay-border">
-                  <TableCell colSpan={7} className="h-24 text-center text-[13px] text-clay-ink-muted">
+                <TableRow className="border-border">
+                  <TableCell colSpan={7} className="h-24 text-center text-[13px] text-muted-foreground">
                     No employees found.
                   </TableCell>
                 </TableRow>
@@ -341,21 +341,21 @@ export default function AttendancePage() {
                   const isIn = !!rec?.clock_in_time;
                   const isOut = !!rec?.clock_out_time;
                   return (
-                    <TableRow key={emp._id} className="border-clay-border">
-                      <TableCell className="text-[13px] font-medium text-clay-ink">
+                    <TableRow key={emp._id} className="border-border">
+                      <TableCell className="text-[13px] font-medium text-foreground">
                         {[emp.firstName, emp.lastName].filter(Boolean).join(' ') || 'Unnamed'}
                       </TableCell>
-                      <TableCell className="text-[13px] text-clay-ink">
+                      <TableCell className="text-[13px] text-foreground">
                         {isIn ? (
                           <span className="flex items-center gap-1.5 text-green-600">
                             <LogIn className="h-3.5 w-3.5" />
                             {fmt(rec?.clock_in_time)}
                           </span>
                         ) : (
-                          <span className="text-clay-ink-muted">—</span>
+                          <span className="text-muted-foreground">—</span>
                         )}
                       </TableCell>
-                      <TableCell className="text-[13px] text-clay-ink">
+                      <TableCell className="text-[13px] text-foreground">
                         {isOut ? (
                           <span className="flex items-center gap-1.5 text-red-500">
                             <LogOut className="h-3.5 w-3.5" />
@@ -364,20 +364,20 @@ export default function AttendancePage() {
                         ) : isIn ? (
                           <span className="text-amber-500 text-[12px]">Active</span>
                         ) : (
-                          <span className="text-clay-ink-muted">—</span>
+                          <span className="text-muted-foreground">—</span>
                         )}
                       </TableCell>
-                      <TableCell className="text-[12.5px] capitalize text-clay-ink">
+                      <TableCell className="text-[12.5px] capitalize text-foreground">
                         {rec?.working_from ? (
                           <span className="flex items-center gap-1.5">
-                            <MapPin className="h-3 w-3 text-clay-ink-muted" />
+                            <MapPin className="h-3 w-3 text-muted-foreground" />
                             {rec.working_from}
                           </span>
                         ) : (
-                          <span className="text-clay-ink-muted">—</span>
+                          <span className="text-muted-foreground">—</span>
                         )}
                       </TableCell>
-                      <TableCell className="text-[13px] text-clay-ink">
+                      <TableCell className="text-[13px] text-foreground">
                         {fmtHours(rec?.working_hours)}
                       </TableCell>
                       <TableCell>
@@ -406,7 +406,7 @@ export default function AttendancePage() {
                             <ClayButton
                               variant="pill"
                               size="sm"
-                              leading={<LogOut className="h-3.5 w-3.5 text-clay-red" strokeWidth={1.75} />}
+                              leading={<LogOut className="h-3.5 w-3.5 text-destructive" strokeWidth={1.75} />}
                               onClick={() => handleClockOut(emp._id)}
                               disabled={isSaving}
                             >
@@ -423,7 +423,7 @@ export default function AttendancePage() {
                           </ClayButton>
                           {rec?._id && (
                             <ClayButton variant="pill" size="sm" onClick={() => handleDelete(rec._id)}>
-                              <Trash2 className="h-3.5 w-3.5 text-clay-red" />
+                              <Trash2 className="h-3.5 w-3.5 text-destructive" />
                             </ClayButton>
                           )}
                         </div>
@@ -449,8 +449,8 @@ export default function AttendancePage() {
           <div className="grid gap-4 py-4 md:grid-cols-2">
             {/* Employee display */}
             <div className="md:col-span-2">
-              <Label className="text-[12px] text-clay-ink-muted">Employee</Label>
-              <p className="mt-1 text-[13px] font-medium text-clay-ink">
+              <Label className="text-[12px] text-muted-foreground">Employee</Label>
+              <p className="mt-1 text-[13px] font-medium text-foreground">
                 {employees.find((e) => e._id === modal.employeeId)
                   ? [
                       employees.find((e) => e._id === modal.employeeId)?.firstName,
@@ -464,7 +464,7 @@ export default function AttendancePage() {
 
             {/* Working From */}
             <div>
-              <Label className="text-[12px] text-clay-ink-muted">Working From</Label>
+              <Label className="text-[12px] text-muted-foreground">Working From</Label>
               <Select
                 value={formState.working_from}
                 onValueChange={(v) => setFormState((p) => ({ ...p, working_from: v }))}
@@ -484,7 +484,7 @@ export default function AttendancePage() {
 
             {/* Shift */}
             <div>
-              <Label className="text-[12px] text-clay-ink-muted">Shift</Label>
+              <Label className="text-[12px] text-muted-foreground">Shift</Label>
               <Select
                 value={formState.shift_id}
                 onValueChange={(v) => setFormState((p) => ({ ...p, shift_id: v }))}
@@ -514,7 +514,7 @@ export default function AttendancePage() {
             {modal.mode === 'manual' && (
               <>
                 <div>
-                  <Label className="text-[12px] text-clay-ink-muted">Clock In Time</Label>
+                  <Label className="text-[12px] text-muted-foreground">Clock In Time</Label>
                   <Input
                     type="datetime-local"
                     value={formState.clock_in_time}
@@ -525,7 +525,7 @@ export default function AttendancePage() {
                   />
                 </div>
                 <div>
-                  <Label className="text-[12px] text-clay-ink-muted">Clock Out Time</Label>
+                  <Label className="text-[12px] text-muted-foreground">Clock Out Time</Label>
                   <Input
                     type="datetime-local"
                     value={formState.clock_out_time}
@@ -540,7 +540,7 @@ export default function AttendancePage() {
 
             {/* GPS */}
             <div>
-              <Label className="text-[12px] text-clay-ink-muted">Latitude (optional)</Label>
+              <Label className="text-[12px] text-muted-foreground">Latitude (optional)</Label>
               <Input
                 value={formState.latitude}
                 onChange={(e) => setFormState((p) => ({ ...p, latitude: e.target.value }))}
@@ -549,7 +549,7 @@ export default function AttendancePage() {
               />
             </div>
             <div>
-              <Label className="text-[12px] text-clay-ink-muted">Longitude (optional)</Label>
+              <Label className="text-[12px] text-muted-foreground">Longitude (optional)</Label>
               <Input
                 value={formState.longitude}
                 onChange={(e) => setFormState((p) => ({ ...p, longitude: e.target.value }))}
@@ -560,7 +560,7 @@ export default function AttendancePage() {
 
             {/* Flags */}
             <div className="flex items-center gap-4 md:col-span-2">
-              <label className="flex cursor-pointer items-center gap-2 text-[13px] text-clay-ink">
+              <label className="flex cursor-pointer items-center gap-2 text-[13px] text-foreground">
                 <input
                   type="checkbox"
                   checked={formState.late}
@@ -569,7 +569,7 @@ export default function AttendancePage() {
                 />
                 Mark as Late
               </label>
-              <label className="flex cursor-pointer items-center gap-2 text-[13px] text-clay-ink">
+              <label className="flex cursor-pointer items-center gap-2 text-[13px] text-foreground">
                 <input
                   type="checkbox"
                   checked={formState.half_day}
@@ -578,7 +578,7 @@ export default function AttendancePage() {
                 />
                 Half Day
               </label>
-              <label className="flex cursor-pointer items-center gap-2 text-[13px] text-clay-ink">
+              <label className="flex cursor-pointer items-center gap-2 text-[13px] text-foreground">
                 <input
                   type="checkbox"
                   checked={formState.overwrite}

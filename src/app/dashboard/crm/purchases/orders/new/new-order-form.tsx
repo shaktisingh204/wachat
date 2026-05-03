@@ -89,12 +89,12 @@ export function NewPurchaseOrderForm() {
             <div className="grid gap-6">
                 <ClayCard>
                     <div className="mb-4">
-                        <h2 className="text-[15px] font-semibold text-clay-ink">Order Details</h2>
-                        <p className="text-[12.5px] text-clay-ink-muted mt-1">Basic information about the purchase order.</p>
+                        <h2 className="text-[15px] font-semibold text-foreground">Order Details</h2>
+                        <p className="text-[12.5px] text-muted-foreground mt-1">Basic information about the purchase order.</p>
                     </div>
                     <div className="grid md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label className="text-clay-ink">Vendor</Label>
+                            <Label className="text-foreground">Vendor</Label>
                             <SmartVendorSelect
                                 value={vendorId}
                                 onSelect={setVendorId}
@@ -104,7 +104,7 @@ export function NewPurchaseOrderForm() {
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label className="text-clay-ink">Currency</Label>
+                            <Label className="text-foreground">Currency</Label>
                             <Select name="currency" defaultValue="INR">
                                 <SelectTrigger><SelectValue /></SelectTrigger>
                                 <SelectContent>
@@ -115,17 +115,17 @@ export function NewPurchaseOrderForm() {
                             </Select>
                         </div>
                         <div className="space-y-2">
-                            <Label className="text-clay-ink">Order Date</Label>
+                            <Label className="text-foreground">Order Date</Label>
                             <DatePicker date={orderDate} setDate={setOrderDate} />
                             <input type="hidden" name="orderDate" value={orderDate?.toISOString()} />
                         </div>
                         <div className="space-y-2">
-                            <Label className="text-clay-ink">Expected Delivery</Label>
+                            <Label className="text-foreground">Expected Delivery</Label>
                             <DatePicker date={deliveryDate} setDate={setDeliveryDate} />
                             <input type="hidden" name="expectedDeliveryDate" value={deliveryDate?.toISOString()} />
                         </div>
                         <div className="space-y-2">
-                            <Label className="text-clay-ink">Payment Terms</Label>
+                            <Label className="text-foreground">Payment Terms</Label>
                             <Input name="paymentTerms" placeholder="e.g. Net 30" />
                         </div>
                     </div>
@@ -133,11 +133,11 @@ export function NewPurchaseOrderForm() {
 
                 <ClayCard>
                     <div className="mb-4">
-                        <h2 className="text-[15px] font-semibold text-clay-ink">Items</h2>
+                        <h2 className="text-[15px] font-semibold text-foreground">Items</h2>
                     </div>
                     <div className="space-y-4">
-                        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
-                            <div className="grid grid-cols-12 gap-2 bg-clay-surface-2 p-3 text-sm font-medium text-clay-ink">
+                        <div className="overflow-x-auto rounded-lg border border-border">
+                            <div className="grid grid-cols-12 gap-2 bg-secondary p-3 text-sm font-medium text-foreground">
                                 <div className="col-span-5">Description</div>
                                 <div className="col-span-2 text-right">Qty</div>
                                 <div className="col-span-2 text-right">Rate</div>
@@ -145,7 +145,7 @@ export function NewPurchaseOrderForm() {
                                 <div className="col-span-1"></div>
                             </div>
                             {lineItems.map((item, index) => (
-                                <div key={index} className="grid grid-cols-12 gap-2 p-3 border-t border-clay-border items-center">
+                                <div key={index} className="grid grid-cols-12 gap-2 p-3 border-t border-border items-center">
                                     <div className="col-span-5">
                                         <div className="col-span-5">
                                             <SmartProductSelect
@@ -196,7 +196,7 @@ export function NewPurchaseOrderForm() {
 
                         <div className="flex justify-end pt-4">
                             <div className="w-64 space-y-2">
-                                <div className="flex justify-between font-bold text-lg text-clay-ink">
+                                <div className="flex justify-between font-bold text-lg text-foreground">
                                     <span>Total</span>
                                     <span>{calculateTotal().toFixed(2)}</span>
                                 </div>
@@ -207,10 +207,10 @@ export function NewPurchaseOrderForm() {
 
                 <ClayCard>
                     <div className="mb-4">
-                        <h2 className="text-[15px] font-semibold text-clay-ink">Additional Notes</h2>
+                        <h2 className="text-[15px] font-semibold text-foreground">Additional Notes</h2>
                     </div>
                     <Textarea name="notes" placeholder="Any shipping instructions or terms..." />
-                    <div className="flex justify-end gap-2 mt-6 pt-4 border-t border-clay-border">
+                    <div className="flex justify-end gap-2 mt-6 pt-4 border-t border-border">
                         <ClayButton type="button" variant="pill" onClick={() => router.back()}>Cancel</ClayButton>
                         <SubmitButton />
                     </div>

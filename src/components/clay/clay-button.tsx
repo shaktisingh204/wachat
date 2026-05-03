@@ -21,19 +21,19 @@ export interface ClayButtonProps
 }
 
 const base =
-  'inline-flex items-center justify-center gap-2 font-medium leading-none select-none transition-[background,border-color,transform,color] duration-150 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-rose/30 focus-visible:ring-offset-2 focus-visible:ring-offset-clay-bg';
+  'inline-flex items-center justify-center gap-2 font-medium leading-none select-none transition-[background,border-color,transform,color] duration-150 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2 focus-visible:ring-offset-background';
 
 const variantClass: Record<Variant, string> = {
   obsidian:
-    'bg-clay-obsidian text-white hover:bg-clay-obsidian-hover rounded-full',
+    'bg-foreground text-white hover:bg-foreground/90 rounded-full',
   rose:
-    'bg-clay-rose text-white hover:bg-clay-rose-hover rounded-full',
+    'bg-primary text-white hover:bg-primary rounded-full',
   'rose-soft':
-    'bg-clay-rose-soft text-clay-rose-ink hover:brightness-[0.97] rounded-full border border-clay-rose-soft',
+    'bg-accent text-accent-foreground hover:brightness-[0.97] rounded-full border border-accent',
   pill:
-    'bg-clay-surface text-clay-ink border border-clay-border hover:bg-clay-surface-2 hover:border-clay-border-strong rounded-full',
+    'bg-card text-foreground border border-border hover:bg-secondary hover:border-border rounded-full',
   ghost:
-    'bg-transparent text-clay-ink-muted hover:text-clay-ink hover:bg-clay-surface-2 rounded-clay-md',
+    'bg-transparent text-muted-foreground hover:text-foreground hover:bg-secondary rounded-lg',
 };
 
 const sizeClass: Record<Size, string> = {

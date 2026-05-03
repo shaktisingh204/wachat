@@ -67,7 +67,7 @@ export default function PayrollRunPage() {
                 actions={
                     <>
                         <Select value={String(month)} onValueChange={val => setMonth(Number(val))}>
-                            <SelectTrigger className="w-36 h-9 rounded-full border-clay-border bg-clay-surface text-[13px]">
+                            <SelectTrigger className="w-36 h-9 rounded-full border-border bg-card text-[13px]">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -75,7 +75,7 @@ export default function PayrollRunPage() {
                             </SelectContent>
                         </Select>
                         <Select value={String(year)} onValueChange={val => setYear(Number(val))}>
-                            <SelectTrigger className="w-28 h-9 rounded-full border-clay-border bg-clay-surface text-[13px]">
+                            <SelectTrigger className="w-28 h-9 rounded-full border-border bg-card text-[13px]">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -91,50 +91,50 @@ export default function PayrollRunPage() {
 
             <div className="grid gap-4 md:grid-cols-3">
                 <ClayCard>
-                    <p className="text-[12.5px] font-medium text-clay-ink-muted">Total Gross Salary</p>
-                    <div className="mt-2 text-2xl font-bold text-clay-ink">₹{totalGross.toLocaleString('en-IN')}</div>
-                    <p className="mt-1 text-[11.5px] text-clay-ink-muted">{payslips.length} employees</p>
+                    <p className="text-[12.5px] font-medium text-muted-foreground">Total Gross Salary</p>
+                    <div className="mt-2 text-2xl font-bold text-foreground">₹{totalGross.toLocaleString('en-IN')}</div>
+                    <p className="mt-1 text-[11.5px] text-muted-foreground">{payslips.length} employees</p>
                 </ClayCard>
                 <ClayCard>
-                    <p className="text-[12.5px] font-medium text-clay-ink-muted">Total Deductions</p>
-                    <div className="mt-2 text-2xl font-bold text-clay-ink">₹{totalDeductions.toLocaleString('en-IN')}</div>
-                    <p className="mt-1 text-[11.5px] text-clay-ink-muted">PF + ESI + TDS + PT</p>
+                    <p className="text-[12.5px] font-medium text-muted-foreground">Total Deductions</p>
+                    <div className="mt-2 text-2xl font-bold text-foreground">₹{totalDeductions.toLocaleString('en-IN')}</div>
+                    <p className="mt-1 text-[11.5px] text-muted-foreground">PF + ESI + TDS + PT</p>
                 </ClayCard>
                 <ClayCard>
-                    <p className="text-[12.5px] font-medium text-clay-ink-muted">Total Net Pay</p>
-                    <div className="mt-2 text-2xl font-bold text-clay-ink">₹{totalNet.toLocaleString('en-IN')}</div>
-                    <p className="mt-1 text-[11.5px] text-clay-ink-muted">Amount to be disbursed</p>
+                    <p className="text-[12.5px] font-medium text-muted-foreground">Total Net Pay</p>
+                    <div className="mt-2 text-2xl font-bold text-foreground">₹{totalNet.toLocaleString('en-IN')}</div>
+                    <p className="mt-1 text-[11.5px] text-muted-foreground">Amount to be disbursed</p>
                 </ClayCard>
             </div>
 
             <ClayCard>
                 <div className="mb-4 flex items-center justify-between">
                     <div>
-                        <h2 className="text-[16px] font-semibold text-clay-ink">Payroll Register — {periodLabel}</h2>
-                        <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">Review each employee's salary breakdown before disbursement.</p>
+                        <h2 className="text-[16px] font-semibold text-foreground">Payroll Register — {periodLabel}</h2>
+                        <p className="mt-0.5 text-[12.5px] text-muted-foreground">Review each employee's salary breakdown before disbursement.</p>
                     </div>
                     <ClayButton variant="pill" size="sm" leading={<CheckCircle className="h-3.5 w-3.5" />} disabled>
                         Mark All Paid
                     </ClayButton>
                 </div>
-                <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                <div className="overflow-x-auto rounded-lg border border-border">
                     <table className="w-full text-left text-[13px]">
                         <thead>
-                            <tr className="border-b border-clay-border bg-clay-surface-2">
-                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Employee</th>
-                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Designation</th>
-                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Basic Salary</th>
-                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Allowances</th>
-                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Deductions</th>
-                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Net Pay</th>
-                                <th className="px-4 py-3 text-center text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Status</th>
+                            <tr className="border-b border-border bg-secondary">
+                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Employee</th>
+                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Designation</th>
+                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Basic Salary</th>
+                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Allowances</th>
+                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Deductions</th>
+                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Net Pay</th>
+                                <th className="px-4 py-3 text-center text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Status</th>
                             </tr>
                         </thead>
                         <tbody>
                             {isLoading ? (
                                 <tr>
                                     <td colSpan={7} className="h-48 text-center">
-                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-clay-ink-muted" />
+                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
                                     </td>
                                 </tr>
                             ) : payslips.length > 0 ? (
@@ -142,25 +142,25 @@ export default function PayrollRunPage() {
                                     const basic = p.earnings?.find((e: any) => e.name?.toLowerCase().includes('basic'))?.amount ?? 0;
                                     const allowances = (p.grossSalary ?? 0) - basic;
                                     return (
-                                        <tr key={p._id?.toString() ?? idx} className="border-b border-clay-border last:border-0 hover:bg-clay-surface-2/50 transition-colors">
+                                        <tr key={p._id?.toString() ?? idx} className="border-b border-border last:border-0 hover:bg-secondary/50 transition-colors">
                                             <td className="px-4 py-3">
-                                                <div className="font-medium text-clay-ink">
+                                                <div className="font-medium text-foreground">
                                                     {p.employee?.firstName} {p.employee?.lastName}
                                                 </div>
-                                                <div className="text-[11.5px] text-clay-ink-muted">{p.employee?.employeeId ?? '—'}</div>
+                                                <div className="text-[11.5px] text-muted-foreground">{p.employee?.employeeId ?? '—'}</div>
                                             </td>
-                                            <td className="px-4 py-3 text-clay-ink">{p.employee?.designationName ?? '—'}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-clay-ink">₹{basic.toLocaleString('en-IN')}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-clay-ink">₹{allowances.toLocaleString('en-IN')}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-clay-red">₹{(p.totalDeductions ?? 0).toLocaleString('en-IN')}</td>
-                                            <td className="px-4 py-3 text-right font-mono font-semibold text-clay-ink">₹{(p.netPay ?? 0).toLocaleString('en-IN')}</td>
+                                            <td className="px-4 py-3 text-foreground">{p.employee?.designationName ?? '—'}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-foreground">₹{basic.toLocaleString('en-IN')}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-foreground">₹{allowances.toLocaleString('en-IN')}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-destructive">₹{(p.totalDeductions ?? 0).toLocaleString('en-IN')}</td>
+                                            <td className="px-4 py-3 text-right font-mono font-semibold text-foreground">₹{(p.netPay ?? 0).toLocaleString('en-IN')}</td>
                                             <td className="px-4 py-3 text-center">{statusBadge(p.status)}</td>
                                         </tr>
                                     );
                                 })
                             ) : (
                                 <tr>
-                                    <td colSpan={7} className="h-24 text-center text-clay-ink-muted">
+                                    <td colSpan={7} className="h-24 text-center text-muted-foreground">
                                         No payroll data for {periodLabel}. Click &ldquo;Run Payroll&rdquo; to generate.
                                     </td>
                                 </tr>
@@ -168,16 +168,16 @@ export default function PayrollRunPage() {
                         </tbody>
                         {payslips.length > 0 && (
                             <tfoot>
-                                <tr className="border-t-2 border-clay-border bg-clay-surface-2">
-                                    <td colSpan={2} className="px-4 py-3 text-[12.5px] font-semibold text-clay-ink">Totals</td>
-                                    <td className="px-4 py-3 text-right font-mono text-[12.5px] font-semibold text-clay-ink">
+                                <tr className="border-t-2 border-border bg-secondary">
+                                    <td colSpan={2} className="px-4 py-3 text-[12.5px] font-semibold text-foreground">Totals</td>
+                                    <td className="px-4 py-3 text-right font-mono text-[12.5px] font-semibold text-foreground">
                                         ₹{payslips.reduce((s, p) => s + (p.earnings?.find((e: any) => e.name?.toLowerCase().includes('basic'))?.amount ?? 0), 0).toLocaleString('en-IN')}
                                     </td>
-                                    <td className="px-4 py-3 text-right font-mono text-[12.5px] font-semibold text-clay-ink">
+                                    <td className="px-4 py-3 text-right font-mono text-[12.5px] font-semibold text-foreground">
                                         ₹{payslips.reduce((s, p) => { const basic = p.earnings?.find((e: any) => e.name?.toLowerCase().includes('basic'))?.amount ?? 0; return s + ((p.grossSalary ?? 0) - basic); }, 0).toLocaleString('en-IN')}
                                     </td>
-                                    <td className="px-4 py-3 text-right font-mono text-[12.5px] font-semibold text-clay-red">₹{totalDeductions.toLocaleString('en-IN')}</td>
-                                    <td className="px-4 py-3 text-right font-mono text-[12.5px] font-bold text-clay-ink">₹{totalNet.toLocaleString('en-IN')}</td>
+                                    <td className="px-4 py-3 text-right font-mono text-[12.5px] font-semibold text-destructive">₹{totalDeductions.toLocaleString('en-IN')}</td>
+                                    <td className="px-4 py-3 text-right font-mono text-[12.5px] font-bold text-foreground">₹{totalNet.toLocaleString('en-IN')}</td>
                                     <td />
                                 </tr>
                             </tfoot>

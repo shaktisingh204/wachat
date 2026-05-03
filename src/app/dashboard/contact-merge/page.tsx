@@ -62,11 +62,11 @@ export default function ContactMergePage() {
 
   const renderContact = (c: any, label: string) => (
     <div className="flex-1 min-w-[200px]">
-      <p className="text-[11px] font-semibold text-clay-ink-muted uppercase mb-2">{label}</p>
+      <p className="text-[11px] font-semibold text-muted-foreground uppercase mb-2">{label}</p>
       <div className="space-y-2 text-[13px]">
-        <p><span className="text-clay-ink-muted">Name:</span> <span className="text-clay-ink font-medium">{c.name || 'Unknown'}</span></p>
-        <p><span className="text-clay-ink-muted">Phone:</span> <span className="text-clay-ink font-mono">{c.waId || '--'}</span></p>
-        <p><span className="text-clay-ink-muted">Tags:</span> <span className="text-clay-ink">{c.tagIds?.length || 0}</span></p>
+        <p><span className="text-muted-foreground">Name:</span> <span className="text-foreground font-medium">{c.name || 'Unknown'}</span></p>
+        <p><span className="text-muted-foreground">Phone:</span> <span className="text-foreground font-mono">{c.waId || '--'}</span></p>
+        <p><span className="text-muted-foreground">Tags:</span> <span className="text-foreground">{c.tagIds?.length || 0}</span></p>
       </div>
     </div>
   );
@@ -80,17 +80,17 @@ export default function ContactMergePage() {
       ]} />
 
       <div>
-        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">Contact Merge</h1>
-        <p className="mt-1.5 text-[13px] text-clay-ink-muted">Find and merge duplicate contacts to keep your list clean.</p>
+        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">Contact Merge</h1>
+        <p className="mt-1.5 text-[13px] text-muted-foreground">Find and merge duplicate contacts to keep your list clean.</p>
       </div>
 
       <ClayCard padded={false} className="p-5">
         <div className="flex gap-3 items-center">
-          <LuSearch className="h-4 w-4 text-clay-ink-muted shrink-0" />
+          <LuSearch className="h-4 w-4 text-muted-foreground shrink-0" />
           <input type="text" value={query} onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
             placeholder="Search contacts by name or phone..."
-            className="flex-1 rounded-lg border border-clay-border bg-clay-bg px-3 py-2 text-sm text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-accent focus:outline-none" />
+            className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none" />
           <ClayButton size="sm" variant="pill" onClick={handleSearch} disabled={isPending}>
             {isPending ? <LuLoader className="h-3.5 w-3.5 animate-spin" /> : 'Search'}
           </ClayButton>
@@ -99,13 +99,13 @@ export default function ContactMergePage() {
 
       <ClayCard padded={false} className="overflow-x-auto">
         {contacts.length === 0 ? (
-          <div className="px-5 py-12 text-center text-[13px] text-clay-ink-muted">
+          <div className="px-5 py-12 text-center text-[13px] text-muted-foreground">
             {isPending ? 'Loading...' : 'No contacts found. Try a different search.'}
           </div>
         ) : (
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-clay-border text-[11px] font-semibold uppercase tracking-wide text-clay-ink-muted">
+              <tr className="border-b border-border text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                 <th className="px-5 py-3 w-8" />
                 <th className="px-5 py-3">Name</th>
                 <th className="px-5 py-3">Phone</th>
@@ -117,14 +117,14 @@ export default function ContactMergePage() {
                 const isSelected = selected.includes(c._id);
                 return (
                   <tr key={c._id} onClick={() => selectContact(c._id)}
-                    className={`border-b border-clay-border last:border-0 cursor-pointer transition-colors ${isSelected ? 'bg-clay-rose/5' : 'hover:bg-clay-bg-2'}`}>
+                    className={`border-b border-border last:border-0 cursor-pointer transition-colors ${isSelected ? 'bg-primary/5' : 'hover:bg-muted'}`}>
                     <td className="px-5 py-3">
-                      <div className={`h-5 w-5 rounded border-2 flex items-center justify-center transition-colors ${isSelected ? 'border-clay-rose bg-clay-rose' : 'border-clay-border'}`}>
+                      <div className={`h-5 w-5 rounded border-2 flex items-center justify-center transition-colors ${isSelected ? 'border-primary bg-primary' : 'border-border'}`}>
                         {isSelected && <LuCheck className="h-3 w-3 text-white" />}
                       </div>
                     </td>
-                    <td className="px-5 py-3 text-[13px] font-medium text-clay-ink">{c.name || 'Unknown'}</td>
-                    <td className="px-5 py-3 text-[13px] font-mono text-clay-ink-muted">{c.waId || '--'}</td>
+                    <td className="px-5 py-3 text-[13px] font-medium text-foreground">{c.name || 'Unknown'}</td>
+                    <td className="px-5 py-3 text-[13px] font-mono text-muted-foreground">{c.waId || '--'}</td>
                     <td className="px-5 py-3"><ClayBadge tone="neutral">{c.tagIds?.length || 0} tags</ClayBadge></td>
                   </tr>
                 );
@@ -136,10 +136,10 @@ export default function ContactMergePage() {
 
       {contactA && contactB && (
         <ClayCard padded={false} className="p-5">
-          <h2 className="text-[15px] font-semibold text-clay-ink mb-4">Compare & Merge</h2>
+          <h2 className="text-[15px] font-semibold text-foreground mb-4">Compare & Merge</h2>
           <div className="flex gap-6 flex-wrap">
             {renderContact(contactA, 'Primary (keep)')}
-            <div className="hidden sm:flex items-center"><LuMerge className="h-6 w-6 text-clay-ink-muted" /></div>
+            <div className="hidden sm:flex items-center"><LuMerge className="h-6 w-6 text-muted-foreground" /></div>
             {renderContact(contactB, 'Secondary (merge tags into primary)')}
           </div>
           <div className="mt-4">

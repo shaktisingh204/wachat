@@ -81,19 +81,19 @@ export function CrmAddVendorDialog({ onVendorAdded, defaultOpen = false, default
             </DialogTrigger>
             <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle className="text-clay-ink">Add New Vendor</DialogTitle>
-                    <DialogDescription className="text-clay-ink-muted">
+                    <DialogTitle className="text-foreground">Add New Vendor</DialogTitle>
+                    <DialogDescription className="text-muted-foreground">
                         Enter the details of the new vendor here. Click save when you're done.
                     </DialogDescription>
                 </DialogHeader>
                 <form ref={formRef} action={formAction} className="grid gap-4 py-4">
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label htmlFor="name" className="text-clay-ink">Business/Vendor Name *</Label>
+                            <Label htmlFor="name" className="text-foreground">Business/Vendor Name *</Label>
                             <Input id="name" name="name" required maxLength={100} defaultValue={defaultName} />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="displayName" className="text-clay-ink">Display Name</Label>
+                            <Label htmlFor="displayName" className="text-foreground">Display Name</Label>
                             <Input id="displayName" name="displayName" maxLength={100} placeholder="Nickname (Optional)" />
                         </div>
                     </div>
@@ -115,7 +115,7 @@ export function CrmAddVendorDialog({ onVendorAdded, defaultOpen = false, default
                                 </div>
                                 <div className="grid grid-cols-3 gap-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="country" className="text-clay-ink">Country</Label>
+                                        <Label htmlFor="country" className="text-foreground">Country</Label>
                                         <SmartLocationSelect
                                             type="country"
                                             value={country}
@@ -131,7 +131,7 @@ export function CrmAddVendorDialog({ onVendorAdded, defaultOpen = false, default
                                         <input type="hidden" name="country" value={countryName} />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="state" className="text-clay-ink">State</Label>
+                                        <Label htmlFor="state" className="text-foreground">State</Label>
                                         <SmartLocationSelect
                                             type="state"
                                             selectedCountryCode={country}
@@ -145,7 +145,7 @@ export function CrmAddVendorDialog({ onVendorAdded, defaultOpen = false, default
                                         <input type="hidden" name="state" value={selectedStateName} />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="city" className="text-clay-ink">City/Town</Label>
+                                        <Label htmlFor="city" className="text-foreground">City/Town</Label>
                                         <SmartLocationSelect
                                             type="city"
                                             selectedCountryCode={country}

@@ -33,7 +33,7 @@ type FormState = { message?: string; error?: string; id?: string };
 const initialState: FormState = {};
 
 const inputClass =
-  'h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]';
+  'h-10 rounded-lg border-border bg-card text-[13px]';
 
 function ToggleRow({
   name,
@@ -48,13 +48,13 @@ function ToggleRow({
 }) {
   const [checked, setChecked] = useState<boolean>(!!defaultChecked);
   return (
-    <div className="flex items-start justify-between gap-4 rounded-clay-md border border-clay-border bg-clay-surface/50 px-4 py-3">
+    <div className="flex items-start justify-between gap-4 rounded-lg border border-border bg-card/50 px-4 py-3">
       <div className="flex-1">
-        <Label htmlFor={name} className="text-[13px] font-medium text-clay-ink">
+        <Label htmlFor={name} className="text-[13px] font-medium text-foreground">
           {label}
         </Label>
         {description ? (
-          <p className="mt-0.5 text-[12px] text-clay-ink-muted">{description}</p>
+          <p className="mt-0.5 text-[12px] text-muted-foreground">{description}</p>
         ) : null}
       </div>
       <Switch id={name} checked={checked} onCheckedChange={setChecked} />
@@ -113,7 +113,7 @@ export default function ProjectSettingsPage() {
         <ClayCard>
           <form action={formAction} className="space-y-6">
             <section className="space-y-3">
-              <h3 className="text-[13px] font-semibold uppercase tracking-wide text-clay-ink-muted">
+              <h3 className="text-[13px] font-semibold uppercase tracking-wide text-muted-foreground">
                 Feature Toggles
               </h3>
               <div className="grid gap-3 md:grid-cols-2">
@@ -157,12 +157,12 @@ export default function ProjectSettingsPage() {
             </section>
 
             <section className="space-y-4">
-              <h3 className="text-[13px] font-semibold uppercase tracking-wide text-clay-ink-muted">
+              <h3 className="text-[13px] font-semibold uppercase tracking-wide text-muted-foreground">
                 Defaults
               </h3>
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
-                  <Label htmlFor="default_status" className="text-[13px] text-clay-ink">
+                  <Label htmlFor="default_status" className="text-[13px] text-foreground">
                     Default Status
                   </Label>
                   <Input
@@ -174,7 +174,7 @@ export default function ProjectSettingsPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="default_priority" className="text-[13px] text-clay-ink">
+                  <Label htmlFor="default_priority" className="text-[13px] text-foreground">
                     Default Priority
                   </Label>
                   <Select

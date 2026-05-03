@@ -35,23 +35,23 @@ function StatCard({
   tone?: 'rose' | 'green' | 'amber' | 'blue';
 }) {
   const toneBg: Record<string, string> = {
-    rose: 'bg-clay-rose-soft text-clay-rose-ink',
-    green: 'bg-clay-green-soft text-clay-green',
-    amber: 'bg-clay-amber-soft text-clay-amber',
-    blue: 'bg-clay-blue-soft text-clay-blue',
+    rose: 'bg-accent text-accent-foreground',
+    green: 'bg-emerald-50 text-emerald-500',
+    amber: 'bg-amber-50 text-amber-500',
+    blue: 'bg-sky-50 text-sky-500',
   };
 
   return (
     <ClayCard>
       <div className="flex items-start justify-between gap-3">
-        <p className="text-[12.5px] font-medium text-clay-ink-muted">{title}</p>
+        <p className="text-[12.5px] font-medium text-muted-foreground">{title}</p>
         <div
-          className={`flex h-8 w-8 items-center justify-center rounded-clay-md ${toneBg[tone]}`}
+          className={`flex h-8 w-8 items-center justify-center rounded-lg ${toneBg[tone]}`}
         >
           <Icon className="h-4 w-4" strokeWidth={1.75} />
         </div>
       </div>
-      <p className="mt-3 text-[26px] font-semibold leading-none tracking-tight text-clay-ink">
+      <p className="mt-3 text-[26px] font-semibold leading-none tracking-tight text-foreground">
         {value}
       </p>
     </ClayCard>
@@ -66,10 +66,10 @@ function PinnedQuickCard({ items }: { items: PinnedRow[] }) {
     <ClayCard>
       <div className="flex items-center justify-between pb-3">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-clay-md bg-clay-rose-soft">
-            <Pin className="h-4 w-4 text-clay-rose-ink" strokeWidth={1.75} />
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent">
+            <Pin className="h-4 w-4 text-accent-foreground" strokeWidth={1.75} />
           </div>
-          <h2 className="text-[15px] font-semibold text-clay-ink">Pinned</h2>
+          <h2 className="text-[15px] font-semibold text-foreground">Pinned</h2>
           <ClayBadge tone="rose-soft">{items.length}</ClayBadge>
         </div>
         <Link href="/dashboard/crm/pinned">
@@ -80,10 +80,10 @@ function PinnedQuickCard({ items }: { items: PinnedRow[] }) {
         {items.map((it) => (
           <li
             key={it._id}
-            className="flex items-center gap-2 rounded-clay-md border border-clay-border bg-white p-2"
+            className="flex items-center gap-2 rounded-lg border border-border bg-white p-2"
           >
             <ClayBadge tone="neutral">{it.resource_type}</ClayBadge>
-            <span className="min-w-0 flex-1 truncate text-[12.5px] text-clay-ink">
+            <span className="min-w-0 flex-1 truncate text-[12.5px] text-foreground">
               {it.title ||
                 `${it.resource_type} ${String(it.resource_id).slice(-6)}`}
             </span>
@@ -119,14 +119,14 @@ export default function CrmDashboardPage() {
           <Skeleton className="mt-2 h-4 w-96" />
         </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Skeleton className="h-28 w-full rounded-clay-lg" />
-          <Skeleton className="h-28 w-full rounded-clay-lg" />
-          <Skeleton className="h-28 w-full rounded-clay-lg" />
-          <Skeleton className="h-28 w-full rounded-clay-lg" />
+          <Skeleton className="h-28 w-full rounded-xl" />
+          <Skeleton className="h-28 w-full rounded-xl" />
+          <Skeleton className="h-28 w-full rounded-xl" />
+          <Skeleton className="h-28 w-full rounded-xl" />
         </div>
         <div className="grid gap-4 lg:grid-cols-3">
-          <Skeleton className="h-64 w-full rounded-clay-lg lg:col-span-2" />
-          <Skeleton className="h-64 w-full rounded-clay-lg" />
+          <Skeleton className="h-64 w-full rounded-xl lg:col-span-2" />
+          <Skeleton className="h-64 w-full rounded-xl" />
         </div>
       </div>
     );

@@ -29,7 +29,7 @@ function QuickTile({ href, label, description, icon: Icon }: QuickTileProps) {
             <ClayCard
                 variant="default"
                 padded
-                className="h-full transition-shadow hover:shadow-clay-float"
+                className="h-full transition-shadow hover:shadow-md"
             >
                 <div className="flex items-start gap-3">
                     <div
@@ -40,10 +40,10 @@ function QuickTile({ href, label, description, icon: Icon }: QuickTileProps) {
                     </div>
                     <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between gap-2">
-                            <p className="text-[13.5px] font-semibold text-clay-ink">{label}</p>
-                            <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-clay-ink-muted opacity-0 transition-opacity group-hover:opacity-100" />
+                            <p className="text-[13.5px] font-semibold text-foreground">{label}</p>
+                            <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
                         </div>
-                        <p className="mt-1 text-[12.5px] leading-relaxed text-clay-ink-muted">
+                        <p className="mt-1 text-[12.5px] leading-relaxed text-muted-foreground">
                             {description}
                         </p>
                     </div>
@@ -56,11 +56,11 @@ function QuickTile({ href, label, description, icon: Icon }: QuickTileProps) {
 function StatCard({ label, value, hint }: { label: string; value: string; hint?: string }) {
     return (
         <ClayCard variant="default" padded>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-clay-ink-muted">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                 {label}
             </p>
-            <p className="mt-2 text-[26px] font-semibold leading-none text-clay-ink">{value}</p>
-            {hint ? <p className="mt-2 text-[12px] text-clay-ink-muted">{hint}</p> : null}
+            <p className="mt-2 text-[26px] font-semibold leading-none text-foreground">{value}</p>
+            {hint ? <p className="mt-2 text-[12px] text-muted-foreground">{hint}</p> : null}
         </ClayCard>
     );
 }
@@ -82,14 +82,14 @@ export default function TelegramOverviewPage() {
                     </div>
                     <div>
                         <div className="flex items-center gap-2">
-                            <h1 className="text-[26px] font-semibold leading-tight tracking-tight text-clay-ink">
+                            <h1 className="text-[26px] font-semibold leading-tight tracking-tight text-foreground">
                                 Telegram
                             </h1>
                             <ClayBadge tone="blue" dot>
                                 Beta
                             </ClayBadge>
                         </div>
-                        <p className="mt-1.5 max-w-2xl text-[13.5px] leading-relaxed text-clay-ink-muted">
+                        <p className="mt-1.5 max-w-2xl text-[13.5px] leading-relaxed text-muted-foreground">
                             Connect Telegram bots and Business accounts to SabNode. Run
                             campaigns, automate replies, handle payments in Stars, and manage
                             channels — all from one place.
@@ -125,7 +125,7 @@ export default function TelegramOverviewPage() {
             {/* Quick actions */}
             <div>
                 <div className="mb-3 flex items-center justify-between">
-                    <h2 className="text-[15px] font-semibold tracking-tight text-clay-ink">
+                    <h2 className="text-[15px] font-semibold tracking-tight text-foreground">
                         Quick actions
                     </h2>
                 </div>
@@ -191,8 +191,8 @@ export default function TelegramOverviewPage() {
                         <Bot className="h-5 w-5 text-white" strokeWidth={1.75} />
                     </div>
                     <div className="min-w-0 flex-1">
-                        <h3 className="text-[14px] font-semibold text-clay-ink">Getting started</h3>
-                        <ol className="mt-2 flex flex-col gap-1.5 text-[13px] text-clay-ink">
+                        <h3 className="text-[14px] font-semibold text-foreground">Getting started</h3>
+                        <ol className="mt-2 flex flex-col gap-1.5 text-[13px] text-foreground">
                             <li>
                                 1. Chat with <span className="font-mono text-[12px]">@BotFather</span> on Telegram
                                 and create a new bot.
@@ -201,7 +201,7 @@ export default function TelegramOverviewPage() {
                                 2. Copy the bot token and paste it into{' '}
                                 <Link
                                     href="/dashboard/telegram/connections"
-                                    className="font-medium text-clay-blue hover:underline"
+                                    className="font-medium text-sky-500 hover:underline"
                                 >
                                     Connections
                                 </Link>

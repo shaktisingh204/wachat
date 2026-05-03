@@ -143,9 +143,9 @@ export default function EmployeeLeaveQuotasPage() {
       <ClayCard>
         {/* Filter */}
         <div className="mb-4 flex flex-wrap items-center gap-3">
-          <Label className="text-[12px] text-clay-ink-muted">Filter by Employee</Label>
+          <Label className="text-[12px] text-muted-foreground">Filter by Employee</Label>
           <Select value={filterEmp} onValueChange={setFilterEmp}>
-            <SelectTrigger className="h-9 w-[220px] rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
+            <SelectTrigger className="h-9 w-[220px] rounded-lg border-border bg-card text-[13px]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -153,34 +153,34 @@ export default function EmployeeLeaveQuotasPage() {
               {employees.map((e) => <SelectItem key={e._id} value={e._id}>{e.name}</SelectItem>)}
             </SelectContent>
           </Select>
-          <span className="text-[12px] text-clay-ink-muted">{filtered.length} quota{filtered.length !== 1 ? 's' : ''}</span>
+          <span className="text-[12px] text-muted-foreground">{filtered.length} quota{filtered.length !== 1 ? 's' : ''}</span>
         </div>
 
         {isLoading ? (
           <div className="flex h-32 items-center justify-center">
-            <LoaderCircle className="h-6 w-6 animate-spin text-clay-ink-muted" />
+            <LoaderCircle className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+          <div className="overflow-x-auto rounded-lg border border-border">
             <table className="w-full text-[13px]">
               <thead>
-                <tr className="border-b border-clay-border bg-clay-surface-2">
-                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Employee</th>
-                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Leave Type</th>
-                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Quota (days)</th>
-                  <th className="px-4 py-2.5 text-right text-[12px] font-medium text-clay-ink-muted">Actions</th>
+                <tr className="border-b border-border bg-secondary">
+                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Employee</th>
+                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Leave Type</th>
+                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Quota (days)</th>
+                  <th className="px-4 py-2.5 text-right text-[12px] font-medium text-muted-foreground">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.length === 0 ? (
-                  <tr><td colSpan={4} className="py-10 text-center text-[13px] text-clay-ink-muted">No leave quotas found.</td></tr>
+                  <tr><td colSpan={4} className="py-10 text-center text-[13px] text-muted-foreground">No leave quotas found.</td></tr>
                 ) : (
                   filtered.map((q) => (
-                    <tr key={String(q._id)} className="border-t border-clay-border hover:bg-clay-surface-2/50">
-                      <td className="px-4 py-2.5 font-medium text-clay-ink">{empMap.get(String(q.user_id)) || q.user_id}</td>
-                      <td className="px-4 py-2.5 text-clay-ink">{ltMap.get(String(q.leave_type_id)) || q.leave_type_id}</td>
+                    <tr key={String(q._id)} className="border-t border-border hover:bg-secondary/50">
+                      <td className="px-4 py-2.5 font-medium text-foreground">{empMap.get(String(q.user_id)) || q.user_id}</td>
+                      <td className="px-4 py-2.5 text-foreground">{ltMap.get(String(q.leave_type_id)) || q.leave_type_id}</td>
                       <td className="px-4 py-2.5">
-                        <span className="inline-flex h-6 min-w-[2rem] items-center justify-center rounded-clay-sm bg-clay-surface-2 px-2 text-[13px] font-semibold text-clay-ink">
+                        <span className="inline-flex h-6 min-w-[2rem] items-center justify-center rounded-md bg-secondary px-2 text-[13px] font-semibold text-foreground">
                           {q.no_of_leaves}
                         </span>
                       </td>
@@ -190,7 +190,7 @@ export default function EmployeeLeaveQuotasPage() {
                             <Pencil className="h-3.5 w-3.5" />
                           </ClayButton>
                           <ClayButton variant="pill" size="sm" onClick={() => handleDelete(String(q._id))}>
-                            <Trash2 className="h-3.5 w-3.5 text-clay-red" />
+                            <Trash2 className="h-3.5 w-3.5 text-destructive" />
                           </ClayButton>
                         </div>
                       </td>
@@ -204,15 +204,15 @@ export default function EmployeeLeaveQuotasPage() {
       </ClayCard>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-md border-clay-border bg-clay-surface">
+        <DialogContent className="max-w-md border-border bg-card">
           <DialogHeader>
-            <DialogTitle className="text-clay-ink">{form._id ? 'Edit Leave Quota' : 'Add Leave Quota'}</DialogTitle>
+            <DialogTitle className="text-foreground">{form._id ? 'Edit Leave Quota' : 'Add Leave Quota'}</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-2">
             <div>
-              <Label className="text-[12px] text-clay-ink-muted">Employee <span className="text-clay-red">*</span></Label>
+              <Label className="text-[12px] text-muted-foreground">Employee <span className="text-destructive">*</span></Label>
               <Select value={form.user_id || '__none__'} onValueChange={(v) => set('user_id', v === '__none__' ? '' : v)}>
-                <SelectTrigger className="mt-1.5 h-10 w-full rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
+                <SelectTrigger className="mt-1.5 h-10 w-full rounded-lg border-border bg-card text-[13px]">
                   <SelectValue placeholder="Select employee…" />
                 </SelectTrigger>
                 <SelectContent>
@@ -222,9 +222,9 @@ export default function EmployeeLeaveQuotasPage() {
               </Select>
             </div>
             <div>
-              <Label className="text-[12px] text-clay-ink-muted">Leave Type <span className="text-clay-red">*</span></Label>
+              <Label className="text-[12px] text-muted-foreground">Leave Type <span className="text-destructive">*</span></Label>
               <Select value={form.leave_type_id || '__none__'} onValueChange={(v) => set('leave_type_id', v === '__none__' ? '' : v)}>
-                <SelectTrigger className="mt-1.5 h-10 w-full rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
+                <SelectTrigger className="mt-1.5 h-10 w-full rounded-lg border-border bg-card text-[13px]">
                   <SelectValue placeholder="Select leave type…" />
                 </SelectTrigger>
                 <SelectContent>
@@ -234,8 +234,8 @@ export default function EmployeeLeaveQuotasPage() {
               </Select>
             </div>
             <div>
-              <Label className="text-[12px] text-clay-ink-muted">Number of Leaves <span className="text-clay-red">*</span></Label>
-              <Input type="number" min="0" value={form.no_of_leaves} onChange={(e) => set('no_of_leaves', e.target.value)} className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+              <Label className="text-[12px] text-muted-foreground">Number of Leaves <span className="text-destructive">*</span></Label>
+              <Input type="number" min="0" value={form.no_of_leaves} onChange={(e) => set('no_of_leaves', e.target.value)} className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]" />
             </div>
           </div>
           <DialogFooter className="gap-2">

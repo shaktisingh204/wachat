@@ -31,16 +31,16 @@ export default async function InvitePage({
             <InviteShell>
                 <ClayCard variant="floating" className="w-full max-w-[420px]">
                     <div className="flex flex-col items-center gap-4 text-center">
-                        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-clay-red-soft text-clay-red">
+                        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-rose-50 text-destructive">
                             <LuMailX className="h-5 w-5" strokeWidth={2} />
                         </span>
                         <ClayBadge tone="red" dot>
                             Invitation not found
                         </ClayBadge>
-                        <h1 className="text-[22px] font-semibold tracking-[-0.01em] text-clay-ink">
+                        <h1 className="text-[22px] font-semibold tracking-[-0.01em] text-foreground">
                             This invite link isn't valid
                         </h1>
-                        <p className="text-[13px] text-clay-ink-muted">
+                        <p className="text-[13px] text-muted-foreground">
                             The link may have been mistyped or the invitation was revoked.
                             Ask the sender to send a fresh invitation.
                         </p>
@@ -93,15 +93,15 @@ function InviteShell({ children }: { children: React.ReactNode }) {
             <div className="clay-enter flex w-full flex-col items-center gap-8">
                 <Link
                     href="/"
-                    className="inline-flex items-center gap-2 text-clay-ink hover:opacity-80 transition-opacity"
+                    className="inline-flex items-center gap-2 text-foreground hover:opacity-80 transition-opacity"
                 >
                     <SabNodeLogo className="h-8 w-8" />
                     <span className="text-[14px] font-semibold tracking-[-0.01em]">SabNode</span>
                 </Link>
                 {children}
-                <p className="text-[11px] text-clay-ink-soft">
+                <p className="text-[11px] text-muted-foreground">
                     Didn't expect this email?{' '}
-                    <Link href="/" className="text-clay-rose-ink underline-offset-2 hover:underline">
+                    <Link href="/" className="text-accent-foreground underline-offset-2 hover:underline">
                         Report it
                     </Link>
                 </p>

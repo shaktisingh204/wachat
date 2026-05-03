@@ -132,32 +132,32 @@ function palette(n: number): ClayAvatarStackItem[] {
 function HomeSkeleton() {
   return (
     <div className="mx-auto w-full max-w-[1320px] px-9 pt-7 pb-8">
-      <div className="h-3 w-52 animate-pulse rounded-full bg-clay-bg-2" />
+      <div className="h-3 w-52 animate-pulse rounded-full bg-muted" />
       <div className="mt-5 flex items-center justify-between">
-        <div className="h-9 w-56 animate-pulse rounded-md bg-clay-bg-2" />
+        <div className="h-9 w-56 animate-pulse rounded-md bg-muted" />
         <div className="flex gap-2">
           {Array.from({ length: 3 }).map((_, i) => (
             <div
               key={i}
-              className="h-9 w-28 animate-pulse rounded-full bg-clay-bg-2"
+              className="h-9 w-28 animate-pulse rounded-full bg-muted"
             />
           ))}
         </div>
       </div>
       <div className="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_280px]">
-        <div className="h-[150px] animate-pulse rounded-[14px] bg-clay-bg-2" />
-        <div className="h-[150px] animate-pulse rounded-[14px] bg-clay-bg-2" />
+        <div className="h-[150px] animate-pulse rounded-[14px] bg-muted" />
+        <div className="h-[150px] animate-pulse rounded-[14px] bg-muted" />
         <div className="flex flex-col gap-2">
-          <div className="h-11 animate-pulse rounded-[12px] bg-clay-bg-2" />
-          <div className="h-11 animate-pulse rounded-[12px] bg-clay-bg-2" />
-          <div className="h-11 animate-pulse rounded-[12px] bg-clay-bg-2" />
+          <div className="h-11 animate-pulse rounded-[12px] bg-muted" />
+          <div className="h-11 animate-pulse rounded-[12px] bg-muted" />
+          <div className="h-11 animate-pulse rounded-[12px] bg-muted" />
         </div>
       </div>
       <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
-        <div className="h-[400px] animate-pulse rounded-clay-lg bg-clay-bg-2" />
+        <div className="h-[400px] animate-pulse rounded-xl bg-muted" />
         <div className="flex flex-col gap-4">
-          <div className="h-24 animate-pulse rounded-clay-lg bg-clay-bg-2" />
-          <div className="h-56 animate-pulse rounded-clay-lg bg-clay-bg-2" />
+          <div className="h-24 animate-pulse rounded-xl bg-muted" />
+          <div className="h-56 animate-pulse rounded-xl bg-muted" />
         </div>
       </div>
     </div>
@@ -185,17 +185,17 @@ function OnboardingSetupCard({
   const totalSteps = ONBOARDING_STEPS.length;
 
   return (
-    <div className="mt-6 rounded-[14px] border border-clay-border bg-clay-bg-1 p-5">
+    <div className="mt-6 rounded-[14px] border border-border bg-background p-5">
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
             <LuRocket className="h-5 w-5 text-primary" strokeWidth={2} />
           </div>
           <div>
-            <h3 className="text-[15px] font-semibold text-clay-ink">
+            <h3 className="text-[15px] font-semibold text-foreground">
               Complete your setup
             </h3>
-            <p className="mt-0.5 text-[13px] text-clay-ink-muted">
+            <p className="mt-0.5 text-[13px] text-muted-foreground">
               {completedCount} of {totalSteps} steps done — finish setting up to unlock your full workspace.
             </p>
           </div>
@@ -220,16 +220,16 @@ function OnboardingSetupCard({
               key={step.key}
               className={cn(
                 'flex items-center gap-2 rounded-lg border px-3 py-2 text-[13px] transition',
-                isDone && 'border-primary/30 bg-primary/5 text-clay-ink',
-                isCurrent && 'border-primary bg-primary/10 text-clay-ink font-medium',
-                !isDone && !isCurrent && 'border-clay-border text-clay-ink-muted',
+                isDone && 'border-primary/30 bg-primary/5 text-foreground',
+                isCurrent && 'border-primary bg-primary/10 text-foreground font-medium',
+                !isDone && !isCurrent && 'border-border text-muted-foreground',
               )}
             >
               {isDone ? (
                 <LuCircleCheck className="h-4 w-4 shrink-0 text-primary" strokeWidth={2} />
               ) : (
                 <LuCircleDashed
-                  className={cn('h-4 w-4 shrink-0', isCurrent ? 'text-primary' : 'text-clay-ink-muted/50')}
+                  className={cn('h-4 w-4 shrink-0', isCurrent ? 'text-primary' : 'text-muted-foreground/50')}
                   strokeWidth={2}
                 />
               )}
@@ -439,10 +439,10 @@ export default function HomePage() {
       {/* ── Page header ── */}
       <div className="mt-5 flex items-center justify-between gap-6">
         <div className="min-w-0">
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">
+          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
             {greeting()}, {userName}
           </h1>
-          <p className="mt-1.5 text-[13px] text-clay-ink-muted">
+          <p className="mt-1.5 text-[13px] text-muted-foreground">
             {stats.totalProjects} project{stats.totalProjects !== 1 ? 's' : ''} ·{' '}
             {format(new Date(), 'EEEE, MMM d · HH:mm')}
           </p>
@@ -534,7 +534,7 @@ export default function HomePage() {
               {derived?.deliveryRate ?? 0}% delivered
             </>
           }
-          statusDot="bg-clay-green"
+          statusDot="bg-emerald-500"
           statusLabel={
             derived?.messagesTrend.up
               ? `+${derived?.messagesTrend.delta ?? 0}% vs prev 24h`
@@ -561,7 +561,7 @@ export default function HomePage() {
               {compact(stats.totalLeads)} leads
             </>
           }
-          statusDot={stats.dealsWon > 0 ? 'bg-clay-green' : 'bg-clay-amber'}
+          statusDot={stats.dealsWon > 0 ? 'bg-emerald-500' : 'bg-amber-500'}
           statusLabel={
             stats.dealsWon > 0
               ? `${stats.dealsWon} won`
@@ -586,10 +586,10 @@ export default function HomePage() {
           <button
             type="button"
             onClick={() => router.push('/dashboard/notifications')}
-            className="mt-1.5 flex items-center justify-between px-2 text-[11.5px] text-clay-ink-muted hover:text-clay-ink transition-colors"
+            className="mt-1.5 flex items-center justify-between px-2 text-[11.5px] text-muted-foreground hover:text-foreground transition-colors"
           >
             <span>See all notifications</span>
-            <span className="inline-flex items-center gap-1 rounded-full bg-clay-surface-2 border border-clay-border px-1.5 py-0.5 text-[10px] text-clay-ink-muted">
+            <span className="inline-flex items-center gap-1 rounded-full bg-secondary border border-border px-1.5 py-0.5 text-[10px] text-muted-foreground">
               <LuBell className="h-2.5 w-2.5" strokeWidth={2} />
               {unreadNotifications.length || 'Zero'}
             </span>
@@ -601,10 +601,10 @@ export default function HomePage() {
       <section className="mt-10">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-[22px] font-semibold tracking-tight text-clay-ink leading-none">
+            <h2 className="text-[22px] font-semibold tracking-tight text-foreground leading-none">
               All Apps
             </h2>
-            <p className="mt-1.5 text-[12.5px] text-clay-ink-muted">
+            <p className="mt-1.5 text-[12.5px] text-muted-foreground">
               Live counts across every SabNode module ·{' '}
               {compact(stats.totalActivityLogs7d)} actions this week
             </p>
@@ -787,10 +787,10 @@ export default function HomePage() {
       <section className="mt-10">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-[22px] font-semibold tracking-tight text-clay-ink leading-none">
+            <h2 className="text-[22px] font-semibold tracking-tight text-foreground leading-none">
               Performance
             </h2>
-            <p className="mt-1.5 text-[12.5px] text-clay-ink-muted">
+            <p className="mt-1.5 text-[12.5px] text-muted-foreground">
               Key metrics across every app in your account
             </p>
           </div>
@@ -945,13 +945,13 @@ export default function HomePage() {
         <ClayCard padded={false} className="p-5">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-clay-ink-muted">
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                 Current Plan
               </div>
-              <div className="mt-1.5 text-[18px] font-semibold text-clay-ink leading-tight">
+              <div className="mt-1.5 text-[18px] font-semibold text-foreground leading-tight">
                 {stats.planName || 'Free plan'}
               </div>
-              <div className="mt-1 text-[11.5px] text-clay-ink-muted leading-tight">
+              <div className="mt-1 text-[11.5px] text-muted-foreground leading-tight">
                 {compact(stats.credits)} credits ·{' '}
                 {stats.totalProjects} project
                 {stats.totalProjects !== 1 ? 's' : ''}
@@ -961,7 +961,7 @@ export default function HomePage() {
               type="button"
               aria-label="Manage billing"
               onClick={() => router.push('/dashboard/billing')}
-              className="flex h-7 w-7 items-center justify-center rounded-md text-clay-ink-muted hover:bg-clay-bg-2 hover:text-clay-ink transition-colors"
+              className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
             >
               <LuArrowRight className="h-3.5 w-3.5" strokeWidth={2} />
             </button>
@@ -996,7 +996,7 @@ export default function HomePage() {
         {/* Quick Modules */}
         <div>
           <div className="flex items-center justify-between pb-3">
-            <h3 className="text-[15px] font-semibold text-clay-ink">
+            <h3 className="text-[15px] font-semibold text-foreground">
               Quick Modules
             </h3>
             <ClayButton
@@ -1014,11 +1014,11 @@ export default function HomePage() {
         {/* Recent activity */}
         <ClayCard padded={false} className="p-5">
           <div className="flex items-center justify-between">
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-clay-ink-muted">
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
               Recent Activity
             </div>
             {recentActivity.length > 0 ? (
-              <span className="text-[10.5px] text-clay-ink-fade">
+              <span className="text-[10.5px] text-muted-foreground/70">
                 {recentActivity.length} events
               </span>
             ) : null}
@@ -1026,10 +1026,10 @@ export default function HomePage() {
           {recentActivity.length === 0 ? (
             <div className="mt-4 flex flex-col items-center gap-2 py-4 text-center">
               <LuSparkles
-                className="h-5 w-5 text-clay-ink-fade"
+                className="h-5 w-5 text-muted-foreground/70"
                 strokeWidth={1.75}
               />
-              <div className="text-[12px] text-clay-ink-muted">
+              <div className="text-[12px] text-muted-foreground">
                 No activity yet
               </div>
             </div>
@@ -1037,15 +1037,15 @@ export default function HomePage() {
             <ul className="mt-3 space-y-3">
               {recentActivity.slice(0, 5).map((a) => (
                 <li key={a._id} className="flex gap-2.5 text-[12px]">
-                  <span className="mt-[6px] h-1.5 w-1.5 shrink-0 rounded-full bg-clay-rose" />
+                  <span className="mt-[6px] h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-clay-ink leading-tight">
+                    <div className="truncate text-foreground leading-tight">
                       <span className="font-semibold">{a.userName}</span>{' '}
-                      <span className="text-clay-ink-muted">
+                      <span className="text-muted-foreground">
                         {a.action.replace(/_/g, ' ').toLowerCase()}
                       </span>
                     </div>
-                    <div className="mt-0.5 text-[10.5px] text-clay-ink-fade">
+                    <div className="mt-0.5 text-[10.5px] text-muted-foreground/70">
                       {formatDistanceToNow(new Date(a.createdAt), {
                         addSuffix: true,
                       })}
@@ -1098,12 +1098,12 @@ function BigStatCard({
       className="rounded-[14px] p-4 min-w-[260px]"
     >
       {/* meta row */}
-      <div className="flex items-center gap-2.5 text-[11px] text-clay-ink-muted whitespace-nowrap">
+      <div className="flex items-center gap-2.5 text-[11px] text-muted-foreground whitespace-nowrap">
         <span className="inline-flex items-center gap-1">{metaLeft}</span>
-        <span className="text-clay-ink-fade">·</span>
+        <span className="text-muted-foreground/70">·</span>
         <span className="inline-flex items-center gap-1">{metaRight}</span>
-        <span className="text-clay-ink-fade">·</span>
-        <span className="inline-flex items-center gap-1 text-clay-ink-muted">
+        <span className="text-muted-foreground/70">·</span>
+        <span className="inline-flex items-center gap-1 text-muted-foreground">
           <span className={cn('h-1.5 w-1.5 rounded-full', statusDot)} />
           {statusLabel}
         </span>
@@ -1111,10 +1111,10 @@ function BigStatCard({
 
       {/* title */}
       <div className="mt-2.5">
-        <h3 className="text-[18px] font-semibold tracking-[-0.01em] text-clay-ink leading-[1.1]">
+        <h3 className="text-[18px] font-semibold tracking-[-0.01em] text-foreground leading-[1.1]">
           {title}
         </h3>
-        <p className="mt-0.5 text-[12px] text-clay-ink-muted leading-tight">
+        <p className="mt-0.5 text-[12px] text-muted-foreground leading-tight">
           {subtitle}
         </p>
       </div>
@@ -1159,7 +1159,7 @@ type KpiAccent =
   | 'slate';
 
 const kpiAccentClass: Record<KpiAccent, string> = {
-  rose:   'bg-clay-rose-soft text-clay-rose-ink',
+  rose:   'bg-accent text-accent-foreground',
   green:  'bg-[#DCFCE7] text-[#166534]',
   teal:   'bg-[#CCFBF1] text-[#115E59]',
   violet: 'bg-[#EEE8FF] text-[#5B21B6]',
@@ -1190,7 +1190,7 @@ function KpiStatCard({
   accent?: KpiAccent;
 }) {
   return (
-    <div className="rounded-[14px] border border-clay-border bg-clay-surface p-4 transition-[border-color,box-shadow] hover:border-clay-border-strong hover:shadow-clay-card">
+    <div className="rounded-[14px] border border-border bg-card p-4 transition-[border-color,box-shadow] hover:border-border hover:shadow-sm">
       <div className="flex items-start justify-between">
         {icon ? (
           <span
@@ -1211,8 +1211,8 @@ function KpiStatCard({
             className={cn(
               'inline-flex items-center gap-0.5 rounded-full px-2 py-1 text-[10px] font-semibold leading-none',
               up
-                ? 'bg-clay-green-soft text-clay-green'
-                : 'bg-clay-red-soft text-clay-red',
+                ? 'bg-emerald-50 text-emerald-500'
+                : 'bg-rose-50 text-destructive',
             )}
           >
             {up ? (
@@ -1224,14 +1224,14 @@ function KpiStatCard({
           </span>
         ) : null}
       </div>
-      <div className="mt-3.5 text-[11.5px] font-medium text-clay-ink-muted leading-none">
+      <div className="mt-3.5 text-[11.5px] font-medium text-muted-foreground leading-none">
         {label}
       </div>
-      <div className="mt-1.5 text-[22px] font-semibold tracking-[-0.01em] text-clay-ink leading-none">
+      <div className="mt-1.5 text-[22px] font-semibold tracking-[-0.01em] text-foreground leading-none">
         {value}
       </div>
       {hint ? (
-        <div className="mt-1 text-[11px] text-clay-ink-muted leading-tight truncate">
+        <div className="mt-1 text-[11px] text-muted-foreground leading-tight truncate">
           {hint}
         </div>
       ) : null}

@@ -154,43 +154,43 @@ export default function VisaDetailsPage() {
       <ClayCard>
         {isLoading ? (
           <div className="flex h-32 items-center justify-center">
-            <LoaderCircle className="h-6 w-6 animate-spin text-clay-ink-muted" />
+            <LoaderCircle className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+          <div className="overflow-x-auto rounded-lg border border-border">
             <table className="w-full text-[13px]">
               <thead>
-                <tr className="border-b border-clay-border bg-clay-surface-2">
-                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Employee</th>
-                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Country</th>
-                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Visa #</th>
-                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Issued</th>
-                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Expires</th>
-                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">File</th>
-                  <th className="px-4 py-2.5 text-right text-[12px] font-medium text-clay-ink-muted">Actions</th>
+                <tr className="border-b border-border bg-secondary">
+                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Employee</th>
+                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Country</th>
+                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Visa #</th>
+                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Issued</th>
+                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Expires</th>
+                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">File</th>
+                  <th className="px-4 py-2.5 text-right text-[12px] font-medium text-muted-foreground">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {visas.length === 0 ? (
-                  <tr><td colSpan={7} className="py-10 text-center text-[13px] text-clay-ink-muted">No visa records found.</td></tr>
+                  <tr><td colSpan={7} className="py-10 text-center text-[13px] text-muted-foreground">No visa records found.</td></tr>
                 ) : (
                   visas.map((v) => (
-                    <tr key={String(v._id)} className="border-t border-clay-border hover:bg-clay-surface-2/50">
-                      <td className="px-4 py-2.5 font-medium text-clay-ink">{empMap.get(String(v.user_id)) || v.user_id}</td>
-                      <td className="px-4 py-2.5 text-clay-ink">{v.country}</td>
-                      <td className="px-4 py-2.5 font-mono text-[12px] text-clay-ink">{v.visa_number || '—'}</td>
-                      <td className="px-4 py-2.5 text-clay-ink-muted">{fmtDate(v.issue_date)}</td>
+                    <tr key={String(v._id)} className="border-t border-border hover:bg-secondary/50">
+                      <td className="px-4 py-2.5 font-medium text-foreground">{empMap.get(String(v.user_id)) || v.user_id}</td>
+                      <td className="px-4 py-2.5 text-foreground">{v.country}</td>
+                      <td className="px-4 py-2.5 font-mono text-[12px] text-foreground">{v.visa_number || '—'}</td>
+                      <td className="px-4 py-2.5 text-muted-foreground">{fmtDate(v.issue_date)}</td>
                       <td className="px-4 py-2.5">
                         {v.expiry_date ? (
                           <ClayBadge tone={expiryTone(v.expiry_date)}>{fmtDate(v.expiry_date)}</ClayBadge>
-                        ) : <span className="text-clay-ink-muted">—</span>}
+                        ) : <span className="text-muted-foreground">—</span>}
                       </td>
                       <td className="px-4 py-2.5">
                         {v.file ? (
-                          <a href={v.file} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[12px] text-clay-blue hover:underline">
+                          <a href={v.file} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[12px] text-sky-500 hover:underline">
                             <ExternalLink className="h-3 w-3" /> View
                           </a>
-                        ) : <span className="text-clay-ink-muted">—</span>}
+                        ) : <span className="text-muted-foreground">—</span>}
                       </td>
                       <td className="px-4 py-2.5 text-right">
                         <div className="flex justify-end gap-1">
@@ -198,7 +198,7 @@ export default function VisaDetailsPage() {
                             <Pencil className="h-3.5 w-3.5" />
                           </ClayButton>
                           <ClayButton variant="pill" size="sm" onClick={() => handleDelete(String(v._id))}>
-                            <Trash2 className="h-3.5 w-3.5 text-clay-red" />
+                            <Trash2 className="h-3.5 w-3.5 text-destructive" />
                           </ClayButton>
                         </div>
                       </td>
@@ -212,15 +212,15 @@ export default function VisaDetailsPage() {
       </ClayCard>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-lg border-clay-border bg-clay-surface">
+        <DialogContent className="max-w-lg border-border bg-card">
           <DialogHeader>
-            <DialogTitle className="text-clay-ink">{form._id ? 'Edit Visa Details' : 'Add Visa Details'}</DialogTitle>
+            <DialogTitle className="text-foreground">{form._id ? 'Edit Visa Details' : 'Add Visa Details'}</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-2 md:grid-cols-2">
             <div className="md:col-span-2">
-              <Label className="text-[12px] text-clay-ink-muted">Employee <span className="text-clay-red">*</span></Label>
+              <Label className="text-[12px] text-muted-foreground">Employee <span className="text-destructive">*</span></Label>
               <Select value={form.user_id || '__none__'} onValueChange={(v) => set('user_id', v === '__none__' ? '' : v)}>
-                <SelectTrigger className="mt-1.5 h-10 w-full rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
+                <SelectTrigger className="mt-1.5 h-10 w-full rounded-lg border-border bg-card text-[13px]">
                   <SelectValue placeholder="Select employee…" />
                 </SelectTrigger>
                 <SelectContent>
@@ -230,24 +230,24 @@ export default function VisaDetailsPage() {
               </Select>
             </div>
             <div>
-              <Label className="text-[12px] text-clay-ink-muted">Country <span className="text-clay-red">*</span></Label>
-              <Input value={form.country} onChange={(e) => set('country', e.target.value)} placeholder="e.g. United States" className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+              <Label className="text-[12px] text-muted-foreground">Country <span className="text-destructive">*</span></Label>
+              <Input value={form.country} onChange={(e) => set('country', e.target.value)} placeholder="e.g. United States" className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]" />
             </div>
             <div>
-              <Label className="text-[12px] text-clay-ink-muted">Visa Number</Label>
-              <Input value={form.visa_number} onChange={(e) => set('visa_number', e.target.value)} className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+              <Label className="text-[12px] text-muted-foreground">Visa Number</Label>
+              <Input value={form.visa_number} onChange={(e) => set('visa_number', e.target.value)} className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]" />
             </div>
             <div>
-              <Label className="text-[12px] text-clay-ink-muted">Issue Date</Label>
-              <Input type="date" value={form.issue_date} onChange={(e) => set('issue_date', e.target.value)} className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+              <Label className="text-[12px] text-muted-foreground">Issue Date</Label>
+              <Input type="date" value={form.issue_date} onChange={(e) => set('issue_date', e.target.value)} className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]" />
             </div>
             <div>
-              <Label className="text-[12px] text-clay-ink-muted">Expiry Date</Label>
-              <Input type="date" value={form.expiry_date} onChange={(e) => set('expiry_date', e.target.value)} className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+              <Label className="text-[12px] text-muted-foreground">Expiry Date</Label>
+              <Input type="date" value={form.expiry_date} onChange={(e) => set('expiry_date', e.target.value)} className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]" />
             </div>
             <div className="md:col-span-2">
-              <Label className="text-[12px] text-clay-ink-muted">File URL</Label>
-              <Input type="url" value={form.file} onChange={(e) => set('file', e.target.value)} placeholder="https://…" className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+              <Label className="text-[12px] text-muted-foreground">File URL</Label>
+              <Input type="url" value={form.file} onChange={(e) => set('file', e.target.value)} placeholder="https://…" className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]" />
             </div>
           </div>
           <DialogFooter className="gap-2">

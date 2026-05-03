@@ -109,14 +109,14 @@ export default function ShiftRotationDetailPage() {
       />
 
       {!rotation ? (
-        <div className="text-[13px] text-clay-ink-muted">Loading…</div>
+        <div className="text-[13px] text-muted-foreground">Loading…</div>
       ) : (
         <>
           <ClayCard>
-            <h2 className="mb-3 text-[16px] font-semibold text-clay-ink">Rotation Details</h2>
+            <h2 className="mb-3 text-[16px] font-semibold text-foreground">Rotation Details</h2>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="flex flex-col gap-1.5">
-                <Label className="text-[12px] text-clay-ink-muted">Name</Label>
+                <Label className="text-[12px] text-muted-foreground">Name</Label>
                 <Input
                   defaultValue={rotation.name}
                   onBlur={(e) =>
@@ -126,7 +126,7 @@ export default function ShiftRotationDetailPage() {
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <Label className="text-[12px] text-clay-ink-muted">Description</Label>
+                <Label className="text-[12px] text-muted-foreground">Description</Label>
                 <Input
                   defaultValue={rotation.description}
                   onBlur={(e) =>
@@ -135,7 +135,7 @@ export default function ShiftRotationDetailPage() {
                   }
                 />
               </div>
-              <label className="flex items-center gap-2 rounded-clay-md border border-clay-border bg-clay-surface px-3 py-2 text-[13px] text-clay-ink">
+              <label className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-[13px] text-foreground">
                 <Checkbox
                   checked={rotation.is_active}
                   onCheckedChange={(v) => saveRotation({ is_active: Boolean(v) })}
@@ -148,8 +148,8 @@ export default function ShiftRotationDetailPage() {
           <ClayCard>
             <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
               <div>
-                <h2 className="text-[16px] font-semibold text-clay-ink">Sequence</h2>
-                <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">
+                <h2 className="text-[16px] font-semibold text-foreground">Sequence</h2>
+                <p className="mt-0.5 text-[12.5px] text-muted-foreground">
                   Cycle length: {totalCycle} day{totalCycle === 1 ? '' : 's'}
                 </p>
               </div>
@@ -157,7 +157,7 @@ export default function ShiftRotationDetailPage() {
 
             <div className="flex flex-col gap-2">
               {sequences.length === 0 ? (
-                <div className="rounded-clay-md border border-dashed border-clay-border bg-clay-surface-2 p-4 text-center text-[13px] text-clay-ink-muted">
+                <div className="rounded-lg border border-dashed border-border bg-secondary p-4 text-center text-[13px] text-muted-foreground">
                   No sequence entries yet.
                 </div>
               ) : (
@@ -166,17 +166,17 @@ export default function ShiftRotationDetailPage() {
                   return (
                     <div
                       key={String(seq._id)}
-                      className="flex items-center gap-3 rounded-clay-md border border-clay-border bg-clay-surface px-3 py-2"
+                      className="flex items-center gap-3 rounded-lg border border-border bg-card px-3 py-2"
                     >
-                      <span className="w-6 text-[12px] font-medium text-clay-ink-muted">
+                      <span className="w-6 text-[12px] font-medium text-muted-foreground">
                         {i + 1}
                       </span>
                       <span
                         aria-hidden
-                        className="inline-block h-4 w-4 rounded-[4px] border border-clay-border"
+                        className="inline-block h-4 w-4 rounded-[4px] border border-border"
                         style={{ backgroundColor: sh?.color_code || '#999' }}
                       />
-                      <span className="flex-1 text-[13px] font-medium text-clay-ink">
+                      <span className="flex-1 text-[13px] font-medium text-foreground">
                         {sh?.name ?? 'Unknown shift'}
                       </span>
                       <ClayBadge tone="blue">
@@ -188,7 +188,7 @@ export default function ShiftRotationDetailPage() {
                         aria-label="Remove sequence step"
                         onClick={() => removeSeq(seq._id)}
                       >
-                        <Trash2 className="h-4 w-4 text-clay-red" />
+                        <Trash2 className="h-4 w-4 text-destructive" />
                       </ClayButton>
                     </div>
                   );
@@ -201,7 +201,7 @@ export default function ShiftRotationDetailPage() {
               className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-[2fr_1fr_auto]"
             >
               <div className="flex flex-col gap-1.5">
-                <Label className="text-[12px] text-clay-ink-muted">Shift</Label>
+                <Label className="text-[12px] text-muted-foreground">Shift</Label>
                 <Select value={newShiftId} onValueChange={setNewShiftId}>
                   <SelectTrigger>
                     <SelectValue placeholder="Choose shift" />
@@ -216,7 +216,7 @@ export default function ShiftRotationDetailPage() {
                 </Select>
               </div>
               <div className="flex flex-col gap-1.5">
-                <Label className="text-[12px] text-clay-ink-muted">Duration (days)</Label>
+                <Label className="text-[12px] text-muted-foreground">Duration (days)</Label>
                 <Input
                   type="number"
                   min={1}

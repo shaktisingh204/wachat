@@ -105,7 +105,7 @@ export default function ApiKeysPage() {
                 ) : keys.length === 0 ? (
                     <EmptyState onCreated={refresh} />
                 ) : (
-                    <ul className="divide-y divide-clay-border">
+                    <ul className="divide-y divide-border">
                         {keys.map((k) => (
                             <KeyRowItem key={k._id} row={k} onRevoked={refresh} />
                         ))}
@@ -115,13 +115,13 @@ export default function ApiKeysPage() {
 
             <ClayCard padded variant="soft">
                 <div className="flex items-start gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-clay-obsidian text-white">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-foreground text-white">
                         <LuKey className="h-4 w-4" />
                     </div>
                     <div>
-                        <p className="text-[13px] font-semibold text-clay-ink">Using your API key</p>
-                        <p className="mt-1 text-[12.5px] text-clay-ink-muted">
-                            Include the key in the <code className="rounded bg-clay-surface px-1">X-Api-Key</code> request
+                        <p className="text-[13px] font-semibold text-foreground">Using your API key</p>
+                        <p className="mt-1 text-[12.5px] text-muted-foreground">
+                            Include the key in the <code className="rounded bg-card px-1">X-Api-Key</code> request
                             header. Keys scope to your workspace — never expose them client-side.
                         </p>
                     </div>
@@ -192,7 +192,7 @@ function CreateKeyDialog({ onCreated }: { onCreated: () => void }) {
 
                 {newKey ? (
                     <div className="py-2">
-                        <Label className="mb-1.5 block text-[12.5px] font-medium text-clay-ink">
+                        <Label className="mb-1.5 block text-[12.5px] font-medium text-foreground">
                             Your new API key
                         </Label>
                         <ClayInput
@@ -202,7 +202,7 @@ function CreateKeyDialog({ onCreated }: { onCreated: () => void }) {
                                 <button
                                     type="button"
                                     onClick={copy}
-                                    className="flex items-center gap-1 rounded-md px-2 py-1 text-[12px] font-medium text-clay-ink-muted hover:text-clay-ink"
+                                    className="flex items-center gap-1 rounded-md px-2 py-1 text-[12px] font-medium text-muted-foreground hover:text-foreground"
                                 >
                                     {copied ? <LuCheck className="h-3.5 w-3.5" /> : <LuCopy className="h-3.5 w-3.5" />}
                                     {copied ? 'Copied' : 'Copy'}
@@ -212,7 +212,7 @@ function CreateKeyDialog({ onCreated }: { onCreated: () => void }) {
                     </div>
                 ) : (
                     <div className="py-2">
-                        <Label className="mb-1.5 block text-[12.5px] font-medium text-clay-ink">Key name</Label>
+                        <Label className="mb-1.5 block text-[12.5px] font-medium text-foreground">Key name</Label>
                         <ClayInput
                             placeholder="e.g. Production backend"
                             value={name}
@@ -268,14 +268,14 @@ function KeyRowItem({ row, onRevoked }: { row: KeyRow; onRevoked: () => void }) 
         <li className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
             <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                    <p className="truncate text-[13.5px] font-semibold text-clay-ink">{row.name}</p>
+                    <p className="truncate text-[13.5px] font-semibold text-foreground">{row.name}</p>
                     {row.revoked ? (
                         <ClayBadge tone="red">Revoked</ClayBadge>
                     ) : (
                         <ClayBadge tone="green">Active</ClayBadge>
                     )}
                 </div>
-                <p className="mt-1 text-[12px] text-clay-ink-muted">
+                <p className="mt-1 text-[12px] text-muted-foreground">
                     {row.requestCount.toLocaleString()} requests ·
                     {row.lastUsed ? ` last used ${formatDate(row.lastUsed)}` : ' never used'} · created{' '}
                     {formatDate(row.createdAt)}
@@ -320,11 +320,11 @@ function KeyRowItem({ row, onRevoked }: { row: KeyRow; onRevoked: () => void }) 
 function EmptyState({ onCreated }: { onCreated: () => void }) {
     return (
         <div className="p-10 text-center">
-            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-clay-surface-subtle text-clay-ink-muted">
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-muted/50 text-muted-foreground">
                 <LuKey className="h-5 w-5" />
             </div>
-            <p className="text-[13px] font-semibold text-clay-ink">No API keys yet</p>
-            <p className="mt-1 text-[12.5px] text-clay-ink-muted">
+            <p className="text-[13px] font-semibold text-foreground">No API keys yet</p>
+            <p className="mt-1 text-[12.5px] text-muted-foreground">
                 Generate your first key to start calling the SabNode APIs.
             </p>
             <div className="mt-4 inline-flex">
@@ -345,9 +345,9 @@ function StatCard({
 }) {
     return (
         <ClayCard variant="soft" padded>
-            <p className="text-[11.5px] font-medium uppercase tracking-wide text-clay-ink-muted">{label}</p>
+            <p className="text-[11.5px] font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
             <div className="mt-1 flex items-baseline gap-2">
-                <p className="text-[26px] font-semibold leading-none text-clay-ink">{value}</p>
+                <p className="text-[26px] font-semibold leading-none text-foreground">{value}</p>
                 {tone === 'green' && value > 0 && <ClayBadge tone="green">In use</ClayBadge>}
                 {tone === 'red' && value > 0 && <ClayBadge tone="red">Revoked</ClayBadge>}
             </div>

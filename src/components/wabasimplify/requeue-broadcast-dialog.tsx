@@ -128,26 +128,26 @@ export function RequeueBroadcastDialog({
         <button
           type="button"
           aria-label="Requeue broadcast"
-          className="flex h-7 w-7 items-center justify-center rounded-md text-clay-ink-muted hover:bg-clay-bg-2 hover:text-clay-ink transition-colors"
+          className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
         >
           <LuRotateCw className="h-3.5 w-3.5" strokeWidth={1.75} />
         </button>
       </DialogTrigger>
-      <DialogContent className="max-w-[540px] rounded-[18px] border border-clay-border bg-clay-surface p-0 shadow-clay-pop">
+      <DialogContent className="max-w-[540px] rounded-[18px] border border-border bg-card p-0 shadow-lg">
         <form ref={formRef} action={formAction}>
           <input type="hidden" name="broadcastId" value={broadcastId} />
           <input type="hidden" name="templateId" value={selectedTemplateId} />
           <input type="hidden" name="requeueScope" value={requeueScope} />
 
-          <DialogHeader className="flex flex-row items-start gap-3 border-b border-clay-border px-6 py-5">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-clay-rose-soft text-clay-rose-ink">
+          <DialogHeader className="flex flex-row items-start gap-3 border-b border-border px-6 py-5">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-accent text-accent-foreground">
               <LuRotateCw className="h-5 w-5" strokeWidth={2} />
             </span>
             <div className="min-w-0 flex-1">
-              <DialogTitle className="text-[16px] font-semibold text-clay-ink leading-tight">
+              <DialogTitle className="text-[16px] font-semibold text-foreground leading-tight">
                 Requeue broadcast
               </DialogTitle>
-              <DialogDescription className="mt-0.5 text-[12px] text-clay-ink-muted leading-snug">
+              <DialogDescription className="mt-0.5 text-[12px] text-muted-foreground leading-snug">
                 Send this campaign again to the same audience — all contacts
                 or only the ones that failed the first time.
               </DialogDescription>
@@ -157,8 +157,8 @@ export function RequeueBroadcastDialog({
           <div className="flex flex-col gap-5 px-6 py-5">
             {/* Template select */}
             <div className="flex flex-col gap-1.5">
-              <Label className="text-[11.5px] font-semibold text-clay-ink-muted">
-                Message template <span className="ml-1 text-clay-red">*</span>
+              <Label className="text-[11.5px] font-semibold text-muted-foreground">
+                Message template <span className="ml-1 text-destructive">*</span>
               </Label>
               <Select
                 value={selectedTemplateId}
@@ -175,7 +175,7 @@ export function RequeueBroadcastDialog({
                         value={template._id.toString()}
                       >
                         {template.name}
-                        <span className="ml-2 text-[11px] capitalize text-clay-ink-soft">
+                        <span className="ml-2 text-[11px] capitalize text-muted-foreground">
                           {template.status
                             ? template.status.replace(/_/g, ' ').toLowerCase()
                             : 'n/a'}
@@ -183,7 +183,7 @@ export function RequeueBroadcastDialog({
                       </SelectItem>
                     ))
                   ) : (
-                    <div className="px-2 py-4 text-center text-[12px] text-clay-ink-muted">
+                    <div className="px-2 py-4 text-center text-[12px] text-muted-foreground">
                       No approved templates found.
                     </div>
                   )}
@@ -196,10 +196,10 @@ export function RequeueBroadcastDialog({
               <div className="flex flex-col gap-1.5">
                 <Label
                   htmlFor="headerImageUrl"
-                  className="text-[11.5px] font-semibold text-clay-ink-muted"
+                  className="text-[11.5px] font-semibold text-muted-foreground"
                 >
                   Header media URL
-                  <span className="ml-1 text-clay-ink-fade font-normal">
+                  <span className="ml-1 text-muted-foreground/70 font-normal">
                     (optional)
                   </span>
                 </Label>
@@ -209,7 +209,7 @@ export function RequeueBroadcastDialog({
                   type="url"
                   placeholder="https://example.com/image.jpg"
                 />
-                <div className="text-[11px] text-clay-ink-soft">
+                <div className="text-[11px] text-muted-foreground">
                   Provide a new public media URL to override the template&apos;s
                   header image.
                 </div>
@@ -218,7 +218,7 @@ export function RequeueBroadcastDialog({
 
             {/* Scope radio group */}
             <div className="flex flex-col gap-2">
-              <Label className="text-[11.5px] font-semibold text-clay-ink-muted">
+              <Label className="text-[11.5px] font-semibold text-muted-foreground">
                 Target contacts
               </Label>
               <RadioGroup
@@ -246,7 +246,7 @@ export function RequeueBroadcastDialog({
             </div>
           </div>
 
-          <DialogFooter className="border-t border-clay-border px-6 py-4 sm:justify-end gap-2">
+          <DialogFooter className="border-t border-border px-6 py-4 sm:justify-end gap-2">
             <ClayButton
               type="button"
               variant="pill"
@@ -284,14 +284,14 @@ function ScopeOption({
       className={cn(
         'flex cursor-pointer items-center gap-2.5 rounded-[12px] border px-3 py-2.5 transition-colors',
         active
-          ? 'border-clay-rose bg-clay-rose-soft/50'
-          : 'border-clay-border bg-clay-surface hover:bg-clay-surface-2',
+          ? 'border-primary bg-accent/50'
+          : 'border-border bg-card hover:bg-secondary',
       )}
     >
       <RadioGroupItem value={value} id={id} />
       <div className="flex flex-col">
-        <span className="text-[13px] font-medium text-clay-ink">{title}</span>
-        <span className="text-[11px] text-clay-ink-muted">{description}</span>
+        <span className="text-[13px] font-medium text-foreground">{title}</span>
+        <span className="text-[11px] text-muted-foreground">{description}</span>
       </div>
     </label>
   );

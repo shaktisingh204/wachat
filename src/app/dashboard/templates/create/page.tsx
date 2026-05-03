@@ -119,11 +119,11 @@ type ButtonData = {
 function Field({ label, hint, required, children }: { label: string; hint?: string; required?: boolean; children: React.ReactNode }) {
   return (
     <div className="space-y-1.5">
-      <label className="text-[12px] font-semibold text-clay-ink uppercase tracking-wider">
+      <label className="text-[12px] font-semibold text-foreground uppercase tracking-wider">
         {label} {required && <span className="text-red-500">*</span>}
       </label>
       {children}
-      {hint && <p className="text-[11px] text-clay-ink-muted">{hint}</p>}
+      {hint && <p className="text-[11px] text-muted-foreground">{hint}</p>}
     </div>
   );
 }
@@ -132,7 +132,7 @@ function TextInput({ name, value, onChange, placeholder, required, className }: 
   return (
     <input
       name={name} value={value} onChange={onChange} placeholder={placeholder} required={required}
-      className={cn('w-full rounded-lg border border-clay-border bg-clay-bg px-3 py-2 text-[13px] text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-accent focus:outline-none', className)}
+      className={cn('w-full rounded-lg border border-border bg-background px-3 py-2 text-[13px] text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none', className)}
     />
   );
 }
@@ -141,7 +141,7 @@ function TextArea({ name, value, onChange, placeholder, required, rows = 4, clas
   return (
     <textarea
       name={name} value={value} onChange={onChange} placeholder={placeholder} required={required} rows={rows}
-      className={cn('w-full rounded-lg border border-clay-border bg-clay-bg px-3 py-2 text-[13px] text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-accent focus:outline-none resize-none', className)}
+      className={cn('w-full rounded-lg border border-border bg-background px-3 py-2 text-[13px] text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none resize-none', className)}
     />
   );
 }
@@ -150,7 +150,7 @@ function SelectInput({ name, value, onChange, options, placeholder, required }: 
   return (
     <select
       name={name} value={value} onChange={(e) => onChange(e.target.value)} required={required}
-      className="w-full rounded-lg border border-clay-border bg-clay-bg px-3 py-2 text-[13px] text-clay-ink focus:border-clay-accent focus:outline-none appearance-none"
+      className="w-full rounded-lg border border-border bg-background px-3 py-2 text-[13px] text-foreground focus:border-accent focus:outline-none appearance-none"
     >
       {placeholder && <option value="">{placeholder}</option>}
       {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
@@ -165,9 +165,9 @@ function PhonePreview({ headerFormat, headerText, body, footer, buttons, templat
 }) {
   return (
     <div className="mx-auto w-[280px]">
-      <div className="rounded-[24px] border-2 border-clay-border bg-[#e5ddd5] p-3 shadow-lg">
+      <div className="rounded-[24px] border-2 border-border bg-[#e5ddd5] p-3 shadow-lg">
         {/* Status bar */}
-        <div className="flex items-center justify-between px-2 py-1 text-[9px] text-clay-ink-muted">
+        <div className="flex items-center justify-between px-2 py-1 text-[9px] text-muted-foreground">
           <span>WhatsApp</span>
           <span>Preview</span>
         </div>
@@ -268,15 +268,15 @@ function AIBodyGenerator({ onGenerate }: { onGenerate: (text: string) => void })
 
   if (!open) {
     return (
-      <button type="button" onClick={() => setOpen(true)} className="flex items-center gap-1.5 text-[11px] text-clay-accent hover:underline">
+      <button type="button" onClick={() => setOpen(true)} className="flex items-center gap-1.5 text-[11px] text-accent hover:underline">
         <LuWand className="h-3 w-3" /> Generate with AI
       </button>
     );
   }
 
   return (
-    <div className="rounded-lg border border-clay-accent/30 bg-clay-accent/5 p-3 space-y-2">
-      <div className="flex items-center gap-1.5 text-[11px] font-semibold text-clay-accent">
+    <div className="rounded-lg border border-accent/30 bg-accent/5 p-3 space-y-2">
+      <div className="flex items-center gap-1.5 text-[11px] font-semibold text-accent">
         <LuSparkles className="h-3 w-3" /> AI Body Generator
       </div>
       <TextInput
@@ -286,7 +286,7 @@ function AIBodyGenerator({ onGenerate }: { onGenerate: (text: string) => void })
       />
       <div className="flex gap-2">
         <ClayButton size="sm" onClick={generate}>Generate</ClayButton>
-        <button type="button" onClick={() => setOpen(false)} className="text-[11px] text-clay-ink-muted hover:text-clay-ink">Cancel</button>
+        <button type="button" onClick={() => setOpen(false)} className="text-[11px] text-muted-foreground hover:text-foreground">Cancel</button>
       </div>
     </div>
   );
@@ -330,7 +330,7 @@ function MultiLanguageSelector({ selected, onChange }: { selected: string[]; onC
 
   if (!open) {
     return (
-      <button type="button" onClick={() => setOpen(true)} className="flex items-center gap-1.5 text-[11px] text-clay-accent hover:underline">
+      <button type="button" onClick={() => setOpen(true)} className="flex items-center gap-1.5 text-[11px] text-accent hover:underline">
         <LuGlobe className="h-3 w-3" /> Clone to multiple languages
       </button>
     );
@@ -342,9 +342,9 @@ function MultiLanguageSelector({ selected, onChange }: { selected: string[]; onC
         <p className="text-[11px] font-semibold text-blue-700">
           <LuGlobe className="inline h-3 w-3 mr-1" /> Multi-Language Cloning
         </p>
-        <button type="button" onClick={() => setOpen(false)} className="text-[10px] text-clay-ink-muted hover:text-clay-ink">Close</button>
+        <button type="button" onClick={() => setOpen(false)} className="text-[10px] text-muted-foreground hover:text-foreground">Close</button>
       </div>
-      <p className="text-[10px] text-clay-ink-muted">After creating the primary template, clones will be auto-created for selected languages.</p>
+      <p className="text-[10px] text-muted-foreground">After creating the primary template, clones will be auto-created for selected languages.</p>
       <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto">
         {LANGUAGES.map(l => {
           const isSelected = selected.includes(l.code);
@@ -355,7 +355,7 @@ function MultiLanguageSelector({ selected, onChange }: { selected: string[]; onC
               onClick={() => onChange(isSelected ? selected.filter(s => s !== l.code) : [...selected, l.code])}
               className={cn(
                 'rounded-full px-2 py-0.5 text-[10px] font-medium border transition-colors',
-                isSelected ? 'border-blue-500 bg-blue-500/10 text-blue-600' : 'border-clay-border text-clay-ink-muted hover:border-blue-500/30'
+                isSelected ? 'border-blue-500 bg-blue-500/10 text-blue-600' : 'border-border text-muted-foreground hover:border-blue-500/30'
               )}
             >
               {l.name}
@@ -482,8 +482,8 @@ function CreateTemplateContent() {
       <div className="clay-enter flex min-h-full flex-col gap-6">
         <ClayBreadcrumbs items={[{ label: 'Wachat', href: '/home' }, { label: 'Templates', href: '/dashboard/templates' }, { label: 'Create' }]} />
         <ClayCard className="p-10 text-center">
-          <LuCircleAlert className="mx-auto h-10 w-10 text-clay-ink-muted/30 mb-4" />
-          <p className="text-sm text-clay-ink-muted">Select a project first.</p>
+          <LuCircleAlert className="mx-auto h-10 w-10 text-muted-foreground/30 mb-4" />
+          <p className="text-sm text-muted-foreground">Select a project first.</p>
           <ClayButton variant="obsidian" size="md" onClick={() => router.push('/dashboard')} className="mt-4">Choose a project</ClayButton>
         </ClayCard>
       </div>
@@ -502,10 +502,10 @@ function CreateTemplateContent() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <button type="button" onClick={() => router.push('/dashboard/templates')} className="flex items-center gap-1 text-[12px] text-clay-ink-muted hover:text-clay-ink mb-2">
+          <button type="button" onClick={() => router.push('/dashboard/templates')} className="flex items-center gap-1 text-[12px] text-muted-foreground hover:text-foreground mb-2">
             <LuArrowLeft className="h-3 w-3" /> Back to Templates
           </button>
-          <h1 className="text-[26px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">
+          <h1 className="text-[26px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
             {action === 'clone' ? 'Clone Template' : 'Create Template'}
           </h1>
         </div>
@@ -514,7 +514,7 @@ function CreateTemplateContent() {
             type="button"
             onClick={() => setShowPreview(!showPreview)}
             className={cn('flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-medium transition-colors',
-              showPreview ? 'border-clay-accent bg-clay-accent/10 text-clay-accent' : 'border-clay-border text-clay-ink-muted hover:text-clay-ink'
+              showPreview ? 'border-accent bg-accent/10 text-accent' : 'border-border text-muted-foreground hover:text-foreground'
             )}
           >
             <LuEye className="h-3 w-3" /> Preview
@@ -531,13 +531,13 @@ function CreateTemplateContent() {
             className={cn(
               'flex flex-col items-center gap-1.5 rounded-xl border p-3 text-center transition-all',
               templateType === t.id
-                ? 'border-clay-accent bg-clay-accent/5 shadow-sm'
-                : 'border-clay-border hover:border-clay-accent/30'
+                ? 'border-accent bg-accent/5 shadow-sm'
+                : 'border-border hover:border-accent/30'
             )}
           >
-            <t.icon className={cn('h-5 w-5', templateType === t.id ? 'text-clay-accent' : 'text-clay-ink-muted')} />
-            <span className={cn('text-[11px] font-semibold', templateType === t.id ? 'text-clay-accent' : 'text-clay-ink')}>{t.name}</span>
-            <span className="text-[9px] text-clay-ink-muted leading-tight">{t.desc}</span>
+            <t.icon className={cn('h-5 w-5', templateType === t.id ? 'text-accent' : 'text-muted-foreground')} />
+            <span className={cn('text-[11px] font-semibold', templateType === t.id ? 'text-accent' : 'text-foreground')}>{t.name}</span>
+            <span className="text-[9px] text-muted-foreground leading-tight">{t.desc}</span>
           </button>
         ))}
       </div>
@@ -548,7 +548,7 @@ function CreateTemplateContent() {
 
           {/* Details */}
           <ClayCard className="p-5 space-y-4">
-            <h3 className="text-[13px] font-semibold text-clay-ink">Template Details</h3>
+            <h3 className="text-[13px] font-semibold text-foreground">Template Details</h3>
             <div className="grid gap-4 sm:grid-cols-3">
               <Field label="Name" required>
                 <TextInput value={name} onChange={(e: any) => setName(e.target.value)} placeholder="e.g., order_confirmation" required />
@@ -567,7 +567,7 @@ function CreateTemplateContent() {
           {/* ── AUTH Template ── */}
           {templateType === 'AUTH' && (
             <ClayCard className="p-5 space-y-4">
-              <h3 className="text-[13px] font-semibold text-clay-ink">Authentication Settings</h3>
+              <h3 className="text-[13px] font-semibold text-foreground">Authentication Settings</h3>
               <Field label="OTP Type">
                 <SelectInput value={otpType} onChange={(v) => setOtpType(v as any)} options={[
                   { value: 'COPY_CODE', label: 'Copy Code Button' },
@@ -578,8 +578,8 @@ function CreateTemplateContent() {
               <Field label="Code Expiry (minutes)">
                 <TextInput value={codeExpiry} onChange={(e: any) => setCodeExpiry(e.target.value)} placeholder="10" />
               </Field>
-              <div className="rounded-lg bg-clay-bg-2/50 p-3 text-[11px] text-clay-ink-muted">
-                <p className="font-medium text-clay-ink mb-1">Auto-generated body:</p>
+              <div className="rounded-lg bg-muted/50 p-3 text-[11px] text-muted-foreground">
+                <p className="font-medium text-foreground mb-1">Auto-generated body:</p>
                 <p className="font-mono">{`{{1}} is your verification code. This code expires in ${codeExpiry} minutes.`}</p>
               </div>
             </ClayCard>
@@ -588,7 +588,7 @@ function CreateTemplateContent() {
           {/* ── LTO Template ── */}
           {templateType === 'LTO' && (
             <ClayCard className="p-5 space-y-4">
-              <h3 className="text-[13px] font-semibold text-clay-ink">Limited Time Offer</h3>
+              <h3 className="text-[13px] font-semibold text-foreground">Limited Time Offer</h3>
               <Field label="Offer Expiry" hint="When the offer expires (shown as countdown)">
                 <TextInput type="datetime-local" value={ltoExpiry} onChange={(e: any) => setLtoExpiry(e.target.value)} />
               </Field>
@@ -601,7 +601,7 @@ function CreateTemplateContent() {
           {/* ── Standard / LTO Content ── */}
           {(templateType === 'STANDARD' || templateType === 'LTO' || templateType === 'CAROUSEL') && (
             <ClayCard className="p-5 space-y-4">
-              <h3 className="text-[13px] font-semibold text-clay-ink">
+              <h3 className="text-[13px] font-semibold text-foreground">
                 {templateType === 'CAROUSEL' ? 'Carousel Introduction' : 'Message Content'}
               </h3>
 
@@ -615,7 +615,7 @@ function CreateTemplateContent() {
                         onClick={() => setHeaderFormat(h.id)}
                         className={cn(
                           'flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-[11px] font-medium transition-colors',
-                          headerFormat === h.id ? 'border-clay-accent bg-clay-accent/5 text-clay-accent' : 'border-clay-border text-clay-ink-muted hover:text-clay-ink'
+                          headerFormat === h.id ? 'border-accent bg-accent/5 text-accent' : 'border-border text-muted-foreground hover:text-foreground'
                         )}
                       >
                         <h.icon className="h-3 w-3" /> {h.name}
@@ -633,12 +633,12 @@ function CreateTemplateContent() {
                   {['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerFormat) && (
                     <div className="mt-2 space-y-2">
                       <TextInput name="headerSampleUrl" value={headerSampleUrl} onChange={(e: any) => setHeaderSampleUrl(e.target.value)} placeholder="Media URL (https://...)" />
-                      <p className="text-[10px] text-clay-ink-muted">Direct link to the media file. Meta requires a sample for approval.</p>
+                      <p className="text-[10px] text-muted-foreground">Direct link to the media file. Meta requires a sample for approval.</p>
                     </div>
                   )}
 
                   {headerFormat === 'LOCATION' && (
-                    <p className="mt-2 text-[11px] text-clay-ink-muted">Location header will prompt the user to share or view a location.</p>
+                    <p className="mt-2 text-[11px] text-muted-foreground">Location header will prompt the user to share or view a location.</p>
                   )}
                 </Field>
               )}
@@ -661,14 +661,14 @@ function CreateTemplateContent() {
           {(templateType === 'STANDARD' || templateType === 'CAROUSEL') && (
             <ClayCard className="p-5 space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="text-[13px] font-semibold text-clay-ink">Buttons ({buttons.length}/10)</h3>
+                <h3 className="text-[13px] font-semibold text-foreground">Buttons ({buttons.length}/10)</h3>
               </div>
 
               {buttons.map((btn, i) => (
-                <div key={i} className="rounded-lg border border-clay-border bg-clay-bg-2/30 p-3 space-y-2">
+                <div key={i} className="rounded-lg border border-border bg-muted/30 p-3 space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-clay-ink-muted">{btn.type.replace('_', ' ')}</span>
-                    <button type="button" onClick={() => removeButton(i)} className="text-clay-ink-muted hover:text-red-500">
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{btn.type.replace('_', ' ')}</span>
+                    <button type="button" onClick={() => removeButton(i)} className="text-muted-foreground hover:text-red-500">
                       <LuTrash2 className="h-3.5 w-3.5" />
                     </button>
                   </div>
@@ -698,7 +698,7 @@ function CreateTemplateContent() {
                 <div className="flex flex-wrap gap-1.5">
                   {BUTTON_TYPES.map(bt => (
                     <button key={bt.id} type="button" onClick={() => addButton(bt.id)}
-                      className="flex items-center gap-1 rounded-lg border border-dashed border-clay-border px-2.5 py-1.5 text-[11px] text-clay-ink-muted hover:border-clay-accent hover:text-clay-accent transition-colors"
+                      className="flex items-center gap-1 rounded-lg border border-dashed border-border px-2.5 py-1.5 text-[11px] text-muted-foreground hover:border-accent hover:text-accent transition-colors"
                     >
                       <LuPlus className="h-3 w-3" /> {bt.name}
                     </button>
@@ -711,8 +711,8 @@ function CreateTemplateContent() {
           {/* ── SabNode Features ── */}
           <ClayCard className="p-5 space-y-3">
             <div className="flex items-center gap-2">
-              <LuSparkles className="h-4 w-4 text-clay-accent" />
-              <h3 className="text-[13px] font-semibold text-clay-ink">SabNode Features</h3>
+              <LuSparkles className="h-4 w-4 text-accent" />
+              <h3 className="text-[13px] font-semibold text-foreground">SabNode Features</h3>
             </div>
             <MultiLanguageSelector selected={cloneLanguages} onChange={setCloneLanguages} />
           </ClayCard>
@@ -731,7 +731,7 @@ function CreateTemplateContent() {
                 <><LuSend className="mr-1.5 h-3.5 w-3.5" /> Submit for Approval</>
               )}
             </ClayButton>
-            <button type="button" onClick={() => router.push('/dashboard/templates')} className="text-[12px] text-clay-ink-muted hover:text-clay-ink">
+            <button type="button" onClick={() => router.push('/dashboard/templates')} className="text-[12px] text-muted-foreground hover:text-foreground">
               Cancel
             </button>
           </div>
@@ -741,7 +741,7 @@ function CreateTemplateContent() {
         {showPreview && (
           <div className="hidden lg:block">
             <div className="sticky top-6 space-y-4">
-              <div className="flex items-center gap-2 text-[11px] font-semibold text-clay-ink-muted uppercase tracking-wider">
+              <div className="flex items-center gap-2 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
                 <LuSmartphone className="h-3.5 w-3.5" /> Live Preview
               </div>
               <PhonePreview
@@ -753,8 +753,8 @@ function CreateTemplateContent() {
                 templateType={templateType}
               />
               <div className="text-center space-y-1">
-                <p className="text-[10px] text-clay-ink-muted">{charCount}/1024 characters</p>
-                <p className="text-[10px] text-clay-ink-muted">{varCount} variable(s) detected</p>
+                <p className="text-[10px] text-muted-foreground">{charCount}/1024 characters</p>
+                <p className="text-[10px] text-muted-foreground">{varCount} variable(s) detected</p>
                 {cloneLanguages.length > 0 && (
                   <p className="text-[10px] text-blue-600">{cloneLanguages.length} language clone(s)</p>
                 )}
@@ -769,7 +769,7 @@ function CreateTemplateContent() {
 
 export default function CreateTemplatePage() {
   return (
-    <Suspense fallback={<div className="h-[400px] animate-pulse rounded-clay-lg bg-clay-bg-2" />}>
+    <Suspense fallback={<div className="h-[400px] animate-pulse rounded-xl bg-muted" />}>
       <CreateTemplateContent />
     </Suspense>
   );

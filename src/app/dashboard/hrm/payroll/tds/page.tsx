@@ -72,7 +72,7 @@ export default function TdsPage() {
                 actions={
                     <>
                         <Select value={String(month)} onValueChange={val => setMonth(Number(val))}>
-                            <SelectTrigger className="w-36 h-9 rounded-full border-clay-border bg-clay-surface text-[13px]">
+                            <SelectTrigger className="w-36 h-9 rounded-full border-border bg-card text-[13px]">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -80,7 +80,7 @@ export default function TdsPage() {
                             </SelectContent>
                         </Select>
                         <Select value={String(year)} onValueChange={val => setYear(Number(val))}>
-                            <SelectTrigger className="w-28 h-9 rounded-full border-clay-border bg-clay-surface text-[13px]">
+                            <SelectTrigger className="w-28 h-9 rounded-full border-border bg-card text-[13px]">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -93,71 +93,71 @@ export default function TdsPage() {
 
             <div className="grid gap-4 md:grid-cols-3">
                 <ClayCard>
-                    <p className="text-[12.5px] font-medium text-clay-ink-muted">Total TDS Collected</p>
-                    <div className="mt-2 text-2xl font-bold text-clay-ink">₹{totalTDS.toLocaleString('en-IN')}</div>
-                    <p className="mt-1 text-[11.5px] text-clay-ink-muted">{periodLabel}</p>
+                    <p className="text-[12.5px] font-medium text-muted-foreground">Total TDS Collected</p>
+                    <div className="mt-2 text-2xl font-bold text-foreground">₹{totalTDS.toLocaleString('en-IN')}</div>
+                    <p className="mt-1 text-[11.5px] text-muted-foreground">{periodLabel}</p>
                 </ClayCard>
                 <ClayCard>
-                    <p className="text-[12.5px] font-medium text-clay-ink-muted">Employees with TDS</p>
-                    <div className="mt-2 text-2xl font-bold text-clay-ink">{rows.filter(r => r.tds > 0).length}</div>
-                    <p className="mt-1 text-[11.5px] text-clay-ink-muted">out of {rows.length} employees</p>
+                    <p className="text-[12.5px] font-medium text-muted-foreground">Employees with TDS</p>
+                    <div className="mt-2 text-2xl font-bold text-foreground">{rows.filter(r => r.tds > 0).length}</div>
+                    <p className="mt-1 text-[11.5px] text-muted-foreground">out of {rows.length} employees</p>
                 </ClayCard>
                 <ClayCard>
-                    <p className="text-[12.5px] font-medium text-clay-ink-muted">Avg. TDS per Employee</p>
-                    <div className="mt-2 text-2xl font-bold text-clay-ink">
+                    <p className="text-[12.5px] font-medium text-muted-foreground">Avg. TDS per Employee</p>
+                    <div className="mt-2 text-2xl font-bold text-foreground">
                         ₹{rows.length > 0 ? Math.round(totalTDS / rows.filter(r => r.tds > 0).length || 0).toLocaleString('en-IN') : 0}
                     </div>
-                    <p className="mt-1 text-[11.5px] text-clay-ink-muted">among applicable employees</p>
+                    <p className="mt-1 text-[11.5px] text-muted-foreground">among applicable employees</p>
                 </ClayCard>
             </div>
 
             <ClayCard>
                 <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-clay-ink">TDS Deduction Details</h2>
-                    <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">Per-employee breakdown with PAN, tax regime, and deduction date.</p>
+                    <h2 className="text-[16px] font-semibold text-foreground">TDS Deduction Details</h2>
+                    <p className="mt-0.5 text-[12.5px] text-muted-foreground">Per-employee breakdown with PAN, tax regime, and deduction date.</p>
                 </div>
-                <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                <div className="overflow-x-auto rounded-lg border border-border">
                     <table className="w-full text-left text-[13px]">
                         <thead>
-                            <tr className="border-b border-clay-border bg-clay-surface-2">
-                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Employee</th>
-                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">PAN Number</th>
-                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Tax Regime</th>
-                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Gross Salary</th>
-                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">TDS Amount</th>
-                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Month</th>
-                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Deduction Date</th>
+                            <tr className="border-b border-border bg-secondary">
+                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Employee</th>
+                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">PAN Number</th>
+                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Tax Regime</th>
+                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Gross Salary</th>
+                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">TDS Amount</th>
+                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Month</th>
+                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Deduction Date</th>
                             </tr>
                         </thead>
                         <tbody>
                             {isLoading ? (
                                 <tr>
                                     <td colSpan={7} className="h-48 text-center">
-                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-clay-ink-muted" />
+                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
                                     </td>
                                 </tr>
                             ) : rows.length > 0 ? (
                                 rows.map((row, idx) => (
-                                    <tr key={row._id?.toString() ?? idx} className="border-b border-clay-border last:border-0 hover:bg-clay-surface-2/50 transition-colors">
+                                    <tr key={row._id?.toString() ?? idx} className="border-b border-border last:border-0 hover:bg-secondary/50 transition-colors">
                                         <td className="px-4 py-3">
-                                            <div className="font-medium text-clay-ink">
+                                            <div className="font-medium text-foreground">
                                                 {row.employee?.firstName} {row.employee?.lastName}
                                             </div>
-                                            <div className="text-[11.5px] text-clay-ink-muted">{row.employee?.designationName ?? '—'}</div>
+                                            <div className="text-[11.5px] text-muted-foreground">{row.employee?.designationName ?? '—'}</div>
                                         </td>
-                                        <td className="px-4 py-3 font-mono text-[12px] text-clay-ink">{row.pan}</td>
+                                        <td className="px-4 py-3 font-mono text-[12px] text-foreground">{row.pan}</td>
                                         <td className="px-4 py-3">{regimeBadge(row.taxRegime)}</td>
-                                        <td className="px-4 py-3 text-right font-mono text-clay-ink">₹{(row.grossSalary ?? 0).toLocaleString('en-IN')}</td>
-                                        <td className="px-4 py-3 text-right font-mono font-semibold text-clay-ink">
+                                        <td className="px-4 py-3 text-right font-mono text-foreground">₹{(row.grossSalary ?? 0).toLocaleString('en-IN')}</td>
+                                        <td className="px-4 py-3 text-right font-mono font-semibold text-foreground">
                                             {row.tds > 0 ? `₹${row.tds.toLocaleString('en-IN')}` : <ClayBadge tone="neutral">Nil</ClayBadge>}
                                         </td>
-                                        <td className="px-4 py-3 text-clay-ink">{periodLabel}</td>
-                                        <td className="px-4 py-3 text-clay-ink-muted">{row.deductionDate}</td>
+                                        <td className="px-4 py-3 text-foreground">{periodLabel}</td>
+                                        <td className="px-4 py-3 text-muted-foreground">{row.deductionDate}</td>
                                     </tr>
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan={7} className="h-24 text-center text-[13px] text-clay-ink-muted">
+                                    <td colSpan={7} className="h-24 text-center text-[13px] text-muted-foreground">
                                         No TDS data for {periodLabel}.
                                     </td>
                                 </tr>
@@ -165,9 +165,9 @@ export default function TdsPage() {
                         </tbody>
                         {rows.length > 0 && (
                             <tfoot>
-                                <tr className="border-t-2 border-clay-border bg-clay-surface-2">
-                                    <td colSpan={4} className="px-4 py-3 text-[12.5px] font-semibold text-clay-ink">Total TDS</td>
-                                    <td className="px-4 py-3 text-right font-mono text-[12.5px] font-bold text-clay-ink">₹{totalTDS.toLocaleString('en-IN')}</td>
+                                <tr className="border-t-2 border-border bg-secondary">
+                                    <td colSpan={4} className="px-4 py-3 text-[12.5px] font-semibold text-foreground">Total TDS</td>
+                                    <td className="px-4 py-3 text-right font-mono text-[12.5px] font-bold text-foreground">₹{totalTDS.toLocaleString('en-IN')}</td>
                                     <td colSpan={2} />
                                 </tr>
                             </tfoot>

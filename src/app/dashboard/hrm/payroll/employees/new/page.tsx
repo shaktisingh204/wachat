@@ -33,8 +33,8 @@ export default function NewEmployeePage() {
                         Back to Employee Directory
                     </ClayButton>
                 </Link>
-                <h1 className="mt-2 text-[26px] font-semibold leading-tight tracking-tight text-clay-ink">Add New Employee</h1>
-                <p className="mt-1 text-[13px] text-clay-ink-muted">Enter the details for the new employee.</p>
+                <h1 className="mt-2 text-[26px] font-semibold leading-tight tracking-tight text-foreground">Add New Employee</h1>
+                <p className="mt-1 text-[13px] text-muted-foreground">Enter the details for the new employee.</p>
             </div>
             <EmployeeForm departments={departments} designations={designations} managers={managers} />
         </div>

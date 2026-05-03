@@ -40,26 +40,26 @@ export function MentionRow({ mention }: MentionRowProps) {
 
   return (
     <li className="flex items-start gap-3 px-4 py-3">
-      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-clay-rose-soft">
-        <AtSign className="h-4 w-4 text-clay-rose-ink" strokeWidth={1.75} />
+      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent">
+        <AtSign className="h-4 w-4 text-accent-foreground" strokeWidth={1.75} />
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-[13px] font-medium text-clay-ink">
+          <span className="text-[13px] font-medium text-foreground">
             {mention.mentioner_user_id}
           </span>
-          <span className="text-[12px] text-clay-ink-muted">
+          <span className="text-[12px] text-muted-foreground">
             mentioned you in
           </span>
           <ClayBadge tone="neutral">{mention.resource_type}</ClayBadge>
           {!read ? <ClayBadge tone="rose">Unread</ClayBadge> : null}
         </div>
         {mention.body ? (
-          <p className="mt-1 whitespace-pre-wrap text-[13px] text-clay-ink">
+          <p className="mt-1 whitespace-pre-wrap text-[13px] text-foreground">
             {mention.body}
           </p>
         ) : null}
-        <p className="mt-1 text-[11.5px] text-clay-ink-muted">
+        <p className="mt-1 text-[11.5px] text-muted-foreground">
           {formatStamp(mention.createdAt)}
         </p>
       </div>

@@ -79,13 +79,13 @@ function budgetDisplay(c: Campaign): string {
 
 function TableSkeleton() {
   return (
-    <div className="divide-y divide-clay-border">
+    <div className="divide-y divide-border">
       {Array.from({ length: 6 }).map((_, i) => (
         <div key={i} className="flex items-center gap-4 px-5 py-4">
-          <div className="h-3.5 w-[180px] rounded-full bg-clay-bg-2 animate-pulse" />
-          <div className="h-3.5 w-[70px] rounded-full bg-clay-bg-2 animate-pulse" />
-          <div className="h-3.5 w-[100px] rounded-full bg-clay-bg-2 animate-pulse" />
-          <div className="ml-auto h-3.5 w-[80px] rounded-full bg-clay-bg-2 animate-pulse" />
+          <div className="h-3.5 w-[180px] rounded-full bg-muted animate-pulse" />
+          <div className="h-3.5 w-[70px] rounded-full bg-muted animate-pulse" />
+          <div className="h-3.5 w-[100px] rounded-full bg-muted animate-pulse" />
+          <div className="ml-auto h-3.5 w-[80px] rounded-full bg-muted animate-pulse" />
         </div>
       ))}
     </div>
@@ -98,12 +98,12 @@ function EmptyState() {
   const router = useRouter();
   return (
     <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
-      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-clay-bg-2">
-        <LuMegaphone className="h-6 w-6 text-clay-ink-muted" strokeWidth={1.75} />
+      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-muted">
+        <LuMegaphone className="h-6 w-6 text-muted-foreground" strokeWidth={1.75} />
       </div>
       <div>
-        <p className="text-[15px] font-semibold text-clay-ink">No campaigns yet</p>
-        <p className="mt-1 max-w-sm text-[13px] text-clay-ink-muted leading-relaxed">
+        <p className="text-[15px] font-semibold text-foreground">No campaigns yet</p>
+        <p className="mt-1 max-w-sm text-[13px] text-muted-foreground leading-relaxed">
           Create your first campaign to start reaching customers on Facebook and Instagram.
         </p>
       </div>
@@ -125,12 +125,12 @@ function NoAccountState() {
   const router = useRouter();
   return (
     <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
-      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-clay-bg-2">
-        <LuFilter className="h-6 w-6 text-clay-ink-muted" strokeWidth={1.75} />
+      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-muted">
+        <LuFilter className="h-6 w-6 text-muted-foreground" strokeWidth={1.75} />
       </div>
       <div>
-        <p className="text-[15px] font-semibold text-clay-ink">No ad account selected</p>
-        <p className="mt-1 max-w-sm text-[13px] text-clay-ink-muted leading-relaxed">
+        <p className="text-[15px] font-semibold text-foreground">No ad account selected</p>
+        <p className="mt-1 max-w-sm text-[13px] text-muted-foreground leading-relaxed">
           Connect or select a Meta ad account to view your campaigns.
         </p>
       </div>
@@ -177,7 +177,7 @@ function RowActions({
       <ClayButton
         variant="ghost"
         size="icon"
-        className="h-7 w-7 text-clay-ink-muted"
+        className="h-7 w-7 text-muted-foreground"
         onClick={(e) => {
           e.stopPropagation();
           setOpen((v) => !v);
@@ -187,10 +187,10 @@ function RowActions({
       </ClayButton>
 
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-1 min-w-[160px] rounded-clay-lg border border-clay-border bg-clay-surface shadow-clay-float py-1">
+        <div className="absolute right-0 top-full z-50 mt-1 min-w-[160px] rounded-xl border border-border bg-card shadow-md py-1">
           <button
             type="button"
-            className="flex w-full items-center gap-2 px-3 py-2 text-[13px] text-clay-ink hover:bg-clay-bg-2/50 transition-colors"
+            className="flex w-full items-center gap-2 px-3 py-2 text-[13px] text-foreground hover:bg-muted/50 transition-colors"
             onClick={(e) => {
               e.stopPropagation();
               setOpen(false);
@@ -206,17 +206,17 @@ function RowActions({
           </button>
           <button
             type="button"
-            className="flex w-full items-center gap-2 px-3 py-2 text-[13px] text-clay-ink hover:bg-clay-bg-2/50 transition-colors"
+            className="flex w-full items-center gap-2 px-3 py-2 text-[13px] text-foreground hover:bg-muted/50 transition-colors"
             onClick={(e) => {
               e.stopPropagation();
               setOpen(false);
               onDuplicate();
             }}
           >
-            <LuCopy className="h-3.5 w-3.5 text-clay-ink-muted" />
+            <LuCopy className="h-3.5 w-3.5 text-muted-foreground" />
             Duplicate
           </button>
-          <div className="my-1 h-px bg-clay-border" />
+          <div className="my-1 h-px bg-border" />
           <button
             type="button"
             className="flex w-full items-center gap-2 px-3 py-2 text-[13px] text-red-600 hover:bg-red-50 transition-colors"
@@ -345,11 +345,11 @@ export default function CampaignsPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-3">
-          <h1 className="text-[26px] font-semibold text-clay-ink leading-none">
+          <h1 className="text-[26px] font-semibold text-foreground leading-none">
             Campaigns
           </h1>
           {!loading && (
-            <span className="text-[11px] font-medium text-clay-ink-muted tabular-nums bg-clay-bg-2 px-2 py-0.5 rounded-full">
+            <span className="text-[11px] font-medium text-muted-foreground tabular-nums bg-muted px-2 py-0.5 rounded-full">
               {filtered.length}
             </span>
           )}
@@ -411,7 +411,7 @@ export default function CampaignsPage() {
           onClick={() => setRefreshKey((k) => k + 1)}
         >
           <LuRefreshCw
-            className={cn('h-3.5 w-3.5 text-clay-ink-muted', loading && 'animate-spin')}
+            className={cn('h-3.5 w-3.5 text-muted-foreground', loading && 'animate-spin')}
             strokeWidth={2}
           />
         </ClayButton>
@@ -426,42 +426,42 @@ export default function CampaignsPage() {
         ) : (
           <div className="overflow-x-auto">
             {/* Table header */}
-            <div className="flex items-center gap-4 px-5 py-3 border-b border-clay-border bg-clay-bg-2/30">
-              <span className="flex-1 min-w-[200px] text-[11px] font-medium text-clay-ink-muted uppercase tracking-wide">
+            <div className="flex items-center gap-4 px-5 py-3 border-b border-border bg-muted/30">
+              <span className="flex-1 min-w-[200px] text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
                 Name
               </span>
-              <span className="w-[90px] text-[11px] font-medium text-clay-ink-muted uppercase tracking-wide">
+              <span className="w-[90px] text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
                 Status
               </span>
-              <span className="w-[140px] text-[11px] font-medium text-clay-ink-muted uppercase tracking-wide">
+              <span className="w-[140px] text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
                 Objective
               </span>
-              <span className="w-[120px] text-[11px] font-medium text-clay-ink-muted uppercase tracking-wide text-right">
+              <span className="w-[120px] text-[11px] font-medium text-muted-foreground uppercase tracking-wide text-right">
                 Budget
               </span>
-              <span className="w-[80px] text-[11px] font-medium text-clay-ink-muted uppercase tracking-wide text-right">
+              <span className="w-[80px] text-[11px] font-medium text-muted-foreground uppercase tracking-wide text-right">
                 Results
               </span>
               <span className="w-[44px]" />
             </div>
 
             {/* Rows */}
-            <div className="divide-y divide-clay-border">
+            <div className="divide-y divide-border">
               {filtered.map((c) => (
                 <div
                   key={c.id}
                   className={cn(
-                    'flex items-center gap-4 px-5 py-3.5 cursor-pointer transition-colors hover:bg-clay-bg-2/50',
+                    'flex items-center gap-4 px-5 py-3.5 cursor-pointer transition-colors hover:bg-muted/50',
                     actionLoading === c.id && 'opacity-50 pointer-events-none',
                   )}
                   onClick={() => router.push(`/dashboard/ad-manager/campaigns/${c.id}`)}
                 >
                   {/* Name */}
                   <div className="flex-1 min-w-[200px] flex items-center gap-2.5">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-clay-lg bg-clay-bg-2">
-                      <LuMegaphone className="h-3.5 w-3.5 text-clay-ink-muted" strokeWidth={2} />
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-muted">
+                      <LuMegaphone className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={2} />
                     </div>
-                    <span className="text-[13px] font-medium text-clay-ink truncate">
+                    <span className="text-[13px] font-medium text-foreground truncate">
                       {c.name}
                     </span>
                   </div>
@@ -474,17 +474,17 @@ export default function CampaignsPage() {
                   </div>
 
                   {/* Objective */}
-                  <span className="w-[140px] text-[13px] text-clay-ink-muted truncate">
+                  <span className="w-[140px] text-[13px] text-muted-foreground truncate">
                     {objectiveLabel(c.objective)}
                   </span>
 
                   {/* Budget */}
-                  <span className="w-[120px] text-[13px] text-clay-ink tabular-nums text-right">
+                  <span className="w-[120px] text-[13px] text-foreground tabular-nums text-right">
                     {budgetDisplay(c)}
                   </span>
 
                   {/* Results */}
-                  <span className="w-[80px] text-[13px] text-clay-ink tabular-nums text-right">
+                  <span className="w-[80px] text-[13px] text-foreground tabular-nums text-right">
                     {c.results != null ? formatNumber(c.results) : '-'}
                   </span>
 

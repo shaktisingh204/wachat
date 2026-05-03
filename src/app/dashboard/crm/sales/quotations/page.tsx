@@ -59,40 +59,40 @@ export default function QuotationsPage() {
 
             <ClayCard>
                 <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-clay-ink">Recent Quotations</h2>
-                    <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">A list of quotations you have created.</p>
+                    <h2 className="text-[16px] font-semibold text-foreground">Recent Quotations</h2>
+                    <p className="mt-0.5 text-[12.5px] text-muted-foreground">A list of quotations you have created.</p>
                 </div>
-                <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                <div className="overflow-x-auto rounded-lg border border-border">
                     <Table>
                         <TableHeader>
-                            <TableRow className="border-clay-border hover:bg-transparent">
-                                <TableHead className="text-clay-ink-muted">Quotation #</TableHead>
-                                <TableHead className="text-clay-ink-muted">Client</TableHead>
-                                <TableHead className="text-clay-ink-muted">Date</TableHead>
-                                <TableHead className="text-clay-ink-muted">Status</TableHead>
-                                <TableHead className="text-clay-ink-muted text-right">Amount</TableHead>
+                            <TableRow className="border-border hover:bg-transparent">
+                                <TableHead className="text-muted-foreground">Quotation #</TableHead>
+                                <TableHead className="text-muted-foreground">Client</TableHead>
+                                <TableHead className="text-muted-foreground">Date</TableHead>
+                                <TableHead className="text-muted-foreground">Status</TableHead>
+                                <TableHead className="text-muted-foreground text-right">Amount</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {isLoading ? (
-                                <TableRow className="border-clay-border">
+                                <TableRow className="border-border">
                                     <TableCell colSpan={5} className="text-center h-24">
-                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-clay-ink-muted" />
+                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
                                     </TableCell>
                                 </TableRow>
                             ) : quotations.length > 0 ? (
                                 quotations.map(q => (
-                                    <TableRow key={q._id.toString()} className="border-clay-border cursor-pointer">
-                                        <TableCell className="font-medium text-clay-ink">{q.quotationNumber}</TableCell>
-                                        <TableCell className="text-clay-ink">{accountsMap.get(q.accountId.toString()) || 'Unknown Client'}</TableCell>
-                                        <TableCell className="text-clay-ink">{new Date(q.quotationDate).toLocaleDateString()}</TableCell>
+                                    <TableRow key={q._id.toString()} className="border-border cursor-pointer">
+                                        <TableCell className="font-medium text-foreground">{q.quotationNumber}</TableCell>
+                                        <TableCell className="text-foreground">{accountsMap.get(q.accountId.toString()) || 'Unknown Client'}</TableCell>
+                                        <TableCell className="text-foreground">{new Date(q.quotationDate).toLocaleDateString()}</TableCell>
                                         <TableCell><ClayBadge tone={getStatusTone(q.status)} dot>{q.status}</ClayBadge></TableCell>
-                                        <TableCell className="text-right font-medium text-clay-ink">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: q.currency || 'INR' }).format(q.total)}</TableCell>
+                                        <TableCell className="text-right font-medium text-foreground">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: q.currency || 'INR' }).format(q.total)}</TableCell>
                                     </TableRow>
                                 ))
                             ) : (
-                                <TableRow className="border-clay-border">
-                                    <TableCell colSpan={5} className="h-24 text-center text-[13px] text-clay-ink-muted">
+                                <TableRow className="border-border">
+                                    <TableCell colSpan={5} className="h-24 text-center text-[13px] text-muted-foreground">
                                         No quotations found.
                                     </TableCell>
                                 </TableRow>

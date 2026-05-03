@@ -100,7 +100,7 @@ export function EditPhoneNumberDialog({ isOpen, onOpenChange, project, phone, on
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[680px] max-h-[85vh] flex flex-col overflow-hidden p-0 rounded-[18px] border border-clay-border bg-clay-surface shadow-clay-pop">
+      <DialogContent className="max-w-[680px] max-h-[85vh] flex flex-col overflow-hidden p-0 rounded-[18px] border border-border bg-card shadow-lg">
         <form
           action={profileFormAction}
           ref={formRef}
@@ -109,15 +109,15 @@ export function EditPhoneNumberDialog({ isOpen, onOpenChange, project, phone, on
           <input type="hidden" name="projectId" value={project._id.toString()} />
           <input type="hidden" name="phoneNumberId" value={phone.id} />
 
-          <DialogHeader className="flex flex-row items-start gap-3 border-b border-clay-border px-6 py-5">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-clay-rose-soft text-clay-rose-ink">
+          <DialogHeader className="flex flex-row items-start gap-3 border-b border-border px-6 py-5">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-accent text-accent-foreground">
               <LuUserRound className="h-5 w-5" strokeWidth={2} />
             </span>
             <div className="min-w-0 flex-1">
-              <DialogTitle className="text-[16px] font-semibold text-clay-ink leading-tight">
+              <DialogTitle className="text-[16px] font-semibold text-foreground leading-tight">
                 Edit phone number profile
               </DialogTitle>
-              <DialogDescription className="mt-0.5 text-[12px] text-clay-ink-muted leading-snug">
+              <DialogDescription className="mt-0.5 text-[12px] text-muted-foreground leading-snug">
                 Update the public business profile details for{' '}
                 {phone.display_phone_number}.
               </DialogDescription>
@@ -130,7 +130,7 @@ export function EditPhoneNumberDialog({ isOpen, onOpenChange, project, phone, on
               {/* Top Section: Profile Pic & Basic Info */}
               <div className="grid grid-cols-1 md:grid-cols-[180px_1fr] gap-6">
                 <div className="flex flex-col items-center gap-3">
-                  <div className="group relative flex h-36 w-36 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-clay-border-strong bg-clay-surface-2 transition-colors hover:bg-clay-bg-2">
+                  <div className="group relative flex h-36 w-36 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-border bg-secondary transition-colors hover:bg-muted">
                     {previewUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
@@ -139,7 +139,7 @@ export function EditPhoneNumberDialog({ isOpen, onOpenChange, project, phone, on
                         className="h-full w-full object-cover"
                       />
                     ) : (
-                      <div className="flex flex-col items-center gap-1.5 text-clay-ink-soft">
+                      <div className="flex flex-col items-center gap-1.5 text-muted-foreground">
                         <LuCamera className="h-6 w-6" strokeWidth={1.75} />
                         <span className="text-[11px] font-medium">
                           Upload photo
@@ -148,7 +148,7 @@ export function EditPhoneNumberDialog({ isOpen, onOpenChange, project, phone, on
                     )}
                     <label
                       htmlFor="profilePicture"
-                      className="absolute inset-0 flex cursor-pointer items-center justify-center bg-clay-obsidian/60 text-[13px] font-medium text-white opacity-0 transition-opacity group-hover:opacity-100"
+                      className="absolute inset-0 flex cursor-pointer items-center justify-center bg-foreground/60 text-[13px] font-medium text-white opacity-0 transition-opacity group-hover:opacity-100"
                     >
                       Change
                     </label>
@@ -161,7 +161,7 @@ export function EditPhoneNumberDialog({ isOpen, onOpenChange, project, phone, on
                       onChange={handleImageChange}
                     />
                   </div>
-                  <p className="px-2 text-center text-[10.5px] text-clay-ink-soft">
+                  <p className="px-2 text-center text-[10.5px] text-muted-foreground">
                     Recommended: 500×500 px, JPG or PNG.
                   </p>
                 </div>
@@ -224,7 +224,7 @@ export function EditPhoneNumberDialog({ isOpen, onOpenChange, project, phone, on
             </div>
           </div>
 
-          <DialogFooter className="border-t border-clay-border px-6 py-4 sm:justify-end gap-2">
+          <DialogFooter className="border-t border-border px-6 py-4 sm:justify-end gap-2">
             <ClayButton
               type="button"
               variant="pill"

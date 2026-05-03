@@ -219,7 +219,7 @@ export default function RecurringInvoiceDetailPage(props: {
       <ClayCard>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-[12px] uppercase tracking-wide text-clay-ink-muted">
+            <p className="text-[12px] uppercase tracking-wide text-muted-foreground">
               Status
             </p>
             <ClayBadge tone={STATUS_TONES[doc.status] || 'neutral'} dot>
@@ -227,27 +227,27 @@ export default function RecurringInvoiceDetailPage(props: {
             </ClayBadge>
           </div>
           <div>
-            <p className="text-[12px] uppercase tracking-wide text-clay-ink-muted">
+            <p className="text-[12px] uppercase tracking-wide text-muted-foreground">
               Issued
             </p>
-            <p className="text-[15px] font-medium text-clay-ink">
+            <p className="text-[15px] font-medium text-foreground">
               {doc.issued_count || 0}
               {doc.stop_at_count ? ` / ${doc.stop_at_count}` : ''}
             </p>
           </div>
           <div>
-            <p className="text-[12px] uppercase tracking-wide text-clay-ink-muted">
+            <p className="text-[12px] uppercase tracking-wide text-muted-foreground">
               Last Issued
             </p>
-            <p className="text-[15px] font-medium text-clay-ink">
+            <p className="text-[15px] font-medium text-foreground">
               {fmtDate(doc.last_issued_at)}
             </p>
           </div>
           <div>
-            <p className="text-[12px] uppercase tracking-wide text-clay-ink-muted">
+            <p className="text-[12px] uppercase tracking-wide text-muted-foreground">
               Total
             </p>
-            <p className="text-[18px] font-semibold text-clay-ink">
+            <p className="text-[18px] font-semibold text-foreground">
               {fmtMoney(doc.total, doc.currency)}
             </p>
           </div>
@@ -255,15 +255,15 @@ export default function RecurringInvoiceDetailPage(props: {
       </ClayCard>
 
       <ClayCard>
-        <h2 className="mb-3 text-[15px] font-semibold text-clay-ink">Line Items</h2>
-        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+        <h2 className="mb-3 text-[15px] font-semibold text-foreground">Line Items</h2>
+        <div className="overflow-x-auto rounded-lg border border-border">
           <table className="w-full text-sm">
-            <thead className="bg-clay-surface-2">
-              <tr className="border-b border-clay-border text-left">
-                <th className="p-3 font-medium text-clay-ink">Item</th>
-                <th className="p-3 text-right font-medium text-clay-ink">Qty</th>
-                <th className="p-3 text-right font-medium text-clay-ink">Unit</th>
-                <th className="p-3 text-right font-medium text-clay-ink">Total</th>
+            <thead className="bg-secondary">
+              <tr className="border-b border-border text-left">
+                <th className="p-3 font-medium text-foreground">Item</th>
+                <th className="p-3 text-right font-medium text-foreground">Qty</th>
+                <th className="p-3 text-right font-medium text-foreground">Unit</th>
+                <th className="p-3 text-right font-medium text-foreground">Total</th>
               </tr>
             </thead>
             <tbody>
@@ -271,18 +271,18 @@ export default function RecurringInvoiceDetailPage(props: {
                 <tr>
                   <td
                     colSpan={4}
-                    className="p-4 text-center text-[13px] text-clay-ink-muted"
+                    className="p-4 text-center text-[13px] text-muted-foreground"
                   >
                     No items.
                   </td>
                 </tr>
               ) : (
                 items.map((it, idx) => (
-                  <tr key={idx} className="border-b border-clay-border">
-                    <td className="p-3 text-clay-ink">
+                  <tr key={idx} className="border-b border-border">
+                    <td className="p-3 text-foreground">
                       <div className="font-medium">{it.name || '—'}</div>
                       {it.description ? (
-                        <div className="text-[12px] text-clay-ink-muted">
+                        <div className="text-[12px] text-muted-foreground">
                           {it.description}
                         </div>
                       ) : null}
@@ -306,15 +306,15 @@ export default function RecurringInvoiceDetailPage(props: {
       </ClayCard>
 
       <ClayCard>
-        <h2 className="mb-3 text-[15px] font-semibold text-clay-ink">
+        <h2 className="mb-3 text-[15px] font-semibold text-foreground">
           Generated Invoices
         </h2>
         {generated.length === 0 ? (
-          <p className="text-[13px] text-clay-ink-muted">
+          <p className="text-[13px] text-muted-foreground">
             No invoices generated yet. Click <em>Run now</em> to create one.
           </p>
         ) : (
-          <ul className="space-y-1 text-[13px] text-clay-ink">
+          <ul className="space-y-1 text-[13px] text-foreground">
             {generated.map((inv, i) => (
               <li key={i} className="font-mono">
                 {String(inv)}

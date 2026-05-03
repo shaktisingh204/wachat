@@ -84,7 +84,7 @@ export function LeadFormRenderer({
         ))}
       </div>
       {error ? (
-        <p className="mt-3 text-[12.5px] text-clay-rose-ink">{error}</p>
+        <p className="mt-3 text-[12.5px] text-accent-foreground">{error}</p>
       ) : null}
       <div className="mt-4 flex justify-end">
         <ClayButton
@@ -118,10 +118,10 @@ function FieldInput({
   disabled?: boolean;
 }) {
   const label = (
-    <span className="text-[12.5px] text-clay-ink">
+    <span className="text-[12.5px] text-foreground">
       {labelize(field.field_name)}
       {field.is_required ? (
-        <span className="text-clay-rose-ink"> *</span>
+        <span className="text-accent-foreground"> *</span>
       ) : null}
     </span>
   );

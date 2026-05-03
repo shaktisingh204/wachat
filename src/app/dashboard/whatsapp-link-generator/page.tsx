@@ -53,40 +53,40 @@ export default function WhatsAppLinkGeneratorPage() {
       ]} />
 
       <div>
-        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">WhatsApp Link Generator</h1>
-        <p className="mt-1.5 text-[13px] text-clay-ink-muted">Generate wa.me links with pre-filled messages for easy sharing.</p>
+        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">WhatsApp Link Generator</h1>
+        <p className="mt-1.5 text-[13px] text-muted-foreground">Generate wa.me links with pre-filled messages for easy sharing.</p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <ClayCard padded={false} className="p-6 flex flex-col gap-4">
           <div>
-            <label className="text-[13px] font-medium text-clay-ink mb-1.5 block">Phone Number (with country code)</label>
+            <label className="text-[13px] font-medium text-foreground mb-1.5 block">Phone Number (with country code)</label>
             <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)}
               placeholder="919876543210"
-              className="w-full rounded-lg border border-clay-border bg-clay-bg px-3 py-2.5 text-sm text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-accent focus:outline-none font-mono" />
+              className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none font-mono" />
             {projectPhone && (
               <button onClick={() => setPhone(projectPhone.replace(/[^0-9]/g, ''))}
-                className="mt-1 text-[11px] text-clay-accent hover:underline">
+                className="mt-1 text-[11px] text-accent hover:underline">
                 Use project number
               </button>
             )}
           </div>
           <div>
-            <label className="text-[13px] font-medium text-clay-ink mb-1.5 block">Pre-filled Message (optional)</label>
+            <label className="text-[13px] font-medium text-foreground mb-1.5 block">Pre-filled Message (optional)</label>
             <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={4}
               placeholder="Hi! I am interested in your services..."
-              className="w-full rounded-lg border border-clay-border bg-clay-bg px-3 py-2 text-sm text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-accent focus:outline-none resize-none" />
-            <div className="text-right text-[11px] text-clay-ink-muted">{message.length}/1024</div>
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none resize-none" />
+            <div className="text-right text-[11px] text-muted-foreground">{message.length}/1024</div>
           </div>
 
           {generatedLink && (
-            <div className="rounded-[12px] border border-clay-border bg-clay-surface-2 p-4">
-              <div className="text-[12px] text-clay-ink-muted mb-2">Generated Link</div>
+            <div className="rounded-[12px] border border-border bg-secondary p-4">
+              <div className="text-[12px] text-muted-foreground mb-2">Generated Link</div>
               <div className="flex items-center gap-2">
-                <code className="flex-1 text-[13px] text-clay-accent break-all">{generatedLink}</code>
+                <code className="flex-1 text-[13px] text-accent break-all">{generatedLink}</code>
                 <button onClick={handleCopy}
-                  className="p-2 rounded-md hover:bg-clay-surface-2 transition-colors shrink-0" title="Copy link">
-                  {copied ? <LuCheck className="h-4 w-4 text-emerald-600" /> : <LuCopy className="h-4 w-4 text-clay-ink-muted" />}
+                  className="p-2 rounded-md hover:bg-secondary transition-colors shrink-0" title="Copy link">
+                  {copied ? <LuCheck className="h-4 w-4 text-emerald-600" /> : <LuCopy className="h-4 w-4 text-muted-foreground" />}
                 </button>
               </div>
             </div>
@@ -108,10 +108,10 @@ export default function WhatsAppLinkGeneratorPage() {
         <ClayCard padded={false} className="p-6 flex flex-col items-center justify-center">
           {qrUrl ? (
             <>
-              <div className="text-[12px] text-clay-ink-muted mb-4">Scan to open chat</div>
+              <div className="text-[12px] text-muted-foreground mb-4">Scan to open chat</div>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={qrUrl} alt="QR Code for WhatsApp link" width={200} height={200} className="rounded-lg" />
-              <p className="mt-4 text-[12px] text-clay-ink-muted text-center max-w-[240px]">
+              <p className="mt-4 text-[12px] text-muted-foreground text-center max-w-[240px]">
                 Share this QR code so customers can start chatting with you instantly.
               </p>
               <ClayButton variant="pill" size="sm" className="mt-3" onClick={() => { window.open(qrUrl, '_blank'); }}>
@@ -120,8 +120,8 @@ export default function WhatsAppLinkGeneratorPage() {
             </>
           ) : (
             <div className="text-center py-8">
-              <LuQrCode className="mx-auto h-16 w-16 text-clay-ink-muted/20 mb-4" />
-              <p className="text-[13px] text-clay-ink-muted">Enter a phone number to generate QR code</p>
+              <LuQrCode className="mx-auto h-16 w-16 text-muted-foreground/20 mb-4" />
+              <p className="text-[13px] text-muted-foreground">Enter a phone number to generate QR code</p>
             </div>
           )}
         </ClayCard>

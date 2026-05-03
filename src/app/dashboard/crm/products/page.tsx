@@ -24,7 +24,7 @@ function PageSkeleton() {
       <Skeleton className="h-4 w-96" />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {[...Array(3)].map((_, i) => (
-          <Skeleton key={i} className="h-80 w-full rounded-clay-lg" />
+          <Skeleton key={i} className="h-80 w-full rounded-xl" />
         ))}
       </div>
     </div>
@@ -114,11 +114,11 @@ export default function CrmProductsPage() {
         ) : (
           <ClayCard variant="outline" className="border-dashed">
             <div className="flex flex-col items-center gap-3 py-12 text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-clay-md bg-clay-rose-soft">
-                <ShoppingBag className="h-6 w-6 text-clay-rose-ink" strokeWidth={1.75} />
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent">
+                <ShoppingBag className="h-6 w-6 text-accent-foreground" strokeWidth={1.75} />
               </div>
-              <h3 className="text-[15px] font-semibold text-clay-ink">No Products Yet</h3>
-              <p className="text-[12.5px] text-clay-ink-muted">
+              <h3 className="text-[15px] font-semibold text-foreground">No Products Yet</h3>
+              <p className="text-[12.5px] text-muted-foreground">
                 Click &ldquo;Add Product&rdquo; to get started.
               </p>
             </div>

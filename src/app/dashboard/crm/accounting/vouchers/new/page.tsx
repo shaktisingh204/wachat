@@ -65,17 +65,17 @@ const LineItemsSection = ({ title, items, setItems, accounts, currency, setCurre
     return (
         <section>
             <div className="flex justify-between items-baseline mb-2">
-                <h3 className="text-[15px] font-semibold text-clay-ink">{title}</h3>
-                <p className="text-[13px] font-medium text-clay-ink">Total: {new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalAmount)}</p>
+                <h3 className="text-[15px] font-semibold text-foreground">{title}</h3>
+                <p className="text-[13px] font-medium text-foreground">Total: {new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalAmount)}</p>
             </div>
             <div className="space-y-3">
                 {items.map((item, index) => (
-                    <div key={item.id} className="p-3 border border-clay-border rounded-clay-md bg-clay-surface-2 space-y-3">
+                    <div key={item.id} className="p-3 border border-border rounded-lg bg-secondary space-y-3">
                         <div className="flex justify-between items-center">
                             <Label>Item {index + 1}</Label>
                             {items.length > 1 && (
                                 <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleRemoveItem(item.id)}>
-                                    <Trash2 className="h-4 w-4 text-clay-red" />
+                                    <Trash2 className="h-4 w-4 text-destructive" />
                                 </Button>
                             )}
                         </div>
@@ -174,7 +174,7 @@ export default function NewVoucherPage() {
 
             <div className="max-w-6xl mx-auto flex flex-col gap-6">
                 <header className="flex justify-between items-center">
-                    <Button variant="ghost" asChild className="-ml-4 text-clay-ink-muted hover:text-clay-ink">
+                    <Button variant="ghost" asChild className="-ml-4 text-muted-foreground hover:text-foreground">
                         <Link href="/dashboard/crm/accounting/vouchers"><ArrowLeft className="mr-2 h-4 w-4" />Back to Voucher Books</Link>
                     </Button>
                     <div className="flex items-center gap-2">
@@ -183,8 +183,8 @@ export default function NewVoucherPage() {
                 </header>
                 <ClayCard variant="floating" className="max-w-4xl mx-auto p-4 sm:p-8 md:p-12">
                     <header className="text-center mb-8">
-                        <h1 className="text-[26px] font-semibold text-clay-rose-ink">New Voucher Entry</h1>
-                        <p className="mt-1 text-[13px] text-clay-ink-muted">Record a new journal entry.</p>
+                        <h1 className="text-[26px] font-semibold text-accent-foreground">New Voucher Entry</h1>
+                        <p className="mt-1 text-[13px] text-muted-foreground">Record a new journal entry.</p>
                     </header>
 
                     {!businessProfile?.name && (
@@ -226,10 +226,10 @@ export default function NewVoucherPage() {
 
                     <div className="flex justify-end font-semibold text-[15px] p-4">
                         <div className="w-full max-w-sm space-y-2">
-                            <div className="flex justify-between text-clay-ink"><span>Total Debit</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalDebits)}</span></div>
-                            <div className="flex justify-between text-clay-ink"><span>Total Credit</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalCredits)}</span></div>
+                            <div className="flex justify-between text-foreground"><span>Total Debit</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalDebits)}</span></div>
+                            <div className="flex justify-between text-foreground"><span>Total Credit</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalCredits)}</span></div>
                             {difference !== 0 && (
-                                <div className="flex justify-between text-clay-red pt-2 border-t border-clay-border"><span>Difference</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(Math.abs(difference))}</span></div>
+                                <div className="flex justify-between text-destructive pt-2 border-t border-border"><span>Difference</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(Math.abs(difference))}</span></div>
                             )}
                         </div>
                     </div>

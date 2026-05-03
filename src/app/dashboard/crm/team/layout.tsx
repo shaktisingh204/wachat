@@ -84,8 +84,8 @@ function RemoveAgentButton({
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle className="text-clay-ink">Are you sure?</AlertDialogTitle>
-          <AlertDialogDescription className="text-clay-ink-muted">
+          <AlertDialogTitle className="text-foreground">Are you sure?</AlertDialogTitle>
+          <AlertDialogDescription className="text-muted-foreground">
             This will remove the agent&apos;s access from all of your projects. This action cannot
             be undone.
           </AlertDialogDescription>
@@ -125,8 +125,8 @@ function InviteAgentForm({ onAgentInvited }: { onAgentInvited: () => void }) {
   return (
     <ClayCard variant="outline" className="border-dashed">
       <div className="mb-4">
-        <h2 className="text-[16px] font-semibold text-clay-ink">Invite a New Team Member</h2>
-        <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">
+        <h2 className="text-[16px] font-semibold text-foreground">Invite a New Team Member</h2>
+        <p className="mt-0.5 text-[12.5px] text-muted-foreground">
           Assign a role to the new user. They must have an existing SabNode account. This will
           grant them access to all your current and future projects with the selected role.
         </p>
@@ -146,7 +146,7 @@ function InviteAgentForm({ onAgentInvited }: { onAgentInvited: () => void }) {
             type="email"
             placeholder="Enter agent's email"
             required
-            className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+            className="h-10 rounded-lg border-border bg-card text-[13px]"
           />
         </div>
         <div className="space-y-2">
@@ -156,7 +156,7 @@ function InviteAgentForm({ onAgentInvited }: { onAgentInvited: () => void }) {
           <Select name="role" defaultValue="agent">
             <SelectTrigger
               id="role"
-              className="h-10 w-full rounded-clay-md border-clay-border bg-clay-surface text-[13px] sm:w-[180px]"
+              className="h-10 w-full rounded-lg border-border bg-card text-[13px] sm:w-[180px]"
             >
               <SelectValue placeholder="Select role" />
             </SelectTrigger>
@@ -211,46 +211,46 @@ export default function ManageUsersPage() {
       />
 
       <InviteAgentForm onAgentInvited={fetchData} />
-      <Separator className="bg-clay-border" />
+      <Separator className="bg-border" />
 
       <ClayCard>
         <div className="mb-4">
-          <h2 className="text-[16px] font-semibold text-clay-ink">Team Members</h2>
-          <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">
+          <h2 className="text-[16px] font-semibold text-foreground">Team Members</h2>
+          <p className="mt-0.5 text-[12.5px] text-muted-foreground">
             A list of all users in your team.
           </p>
         </div>
         <div className="space-y-3">
           {isLoading ? (
             <>
-              <Skeleton className="h-16 w-full rounded-clay-md" />
-              <Skeleton className="h-16 w-full rounded-clay-md" />
+              <Skeleton className="h-16 w-full rounded-lg" />
+              <Skeleton className="h-16 w-full rounded-lg" />
             </>
           ) : teamMembers.length > 0 ? (
             teamMembers.map((agent: any) => (
               <div
                 key={agent._id.toString()}
-                className="flex items-center justify-between gap-4 rounded-clay-md border border-clay-border bg-clay-surface-2 p-4"
+                className="flex items-center justify-between gap-4 rounded-lg border border-border bg-secondary p-4"
               >
                 <div className="flex items-center gap-4">
-                  <Avatar className="border border-clay-border">
+                  <Avatar className="border border-border">
                     <AvatarImage
                       src={`https://i.pravatar.cc/150?u=${agent.email}`}
                       alt={agent.name}
                     />
-                    <AvatarFallback className="bg-clay-rose-soft text-[12px] text-clay-rose-ink">
+                    <AvatarFallback className="bg-accent text-[12px] text-accent-foreground">
                       {agent.name.substring(0, 2).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   <div className="space-y-0.5">
-                    <p className="text-[13px] font-medium leading-none text-clay-ink">
+                    <p className="text-[13px] font-medium leading-none text-foreground">
                       {agent.name}
                     </p>
-                    <p className="text-[12.5px] text-clay-ink-muted">{agent.email}</p>
+                    <p className="text-[12.5px] text-muted-foreground">{agent.email}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="text-[12.5px] text-clay-ink-muted">
+                  <div className="text-[12.5px] text-muted-foreground">
                     {agent.roles && Object.keys(agent.roles).length > 0
                       ? `Role: ${Object.values(agent.roles)[0]}`
                       : 'No specific project roles'}
@@ -263,7 +263,7 @@ export default function ManageUsersPage() {
               </div>
             ))
           ) : (
-            <p className="py-8 text-center text-[13px] text-clay-ink-muted">
+            <p className="py-8 text-center text-[13px] text-muted-foreground">
               No team members have been invited yet.
             </p>
           )}

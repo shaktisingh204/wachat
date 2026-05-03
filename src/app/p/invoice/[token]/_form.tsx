@@ -58,13 +58,13 @@ export function InvoicePayForm({
   return (
     <ClayCard>
       <div className="mb-3 flex items-center gap-2">
-        <CreditCard className="h-5 w-5 text-clay-rose-ink" />
-        <h2 className="text-[15px] font-semibold text-clay-ink">
+        <CreditCard className="h-5 w-5 text-accent-foreground" />
+        <h2 className="text-[15px] font-semibold text-foreground">
           Record payment
         </h2>
       </div>
       <div className="grid gap-3 md:grid-cols-3">
-        <label className="flex flex-col gap-1 text-[12.5px] text-clay-ink">
+        <label className="flex flex-col gap-1 text-[12.5px] text-foreground">
           Amount ({currency})
           <ClayInput
             type="number"
@@ -75,7 +75,7 @@ export function InvoicePayForm({
             disabled={busy}
           />
         </label>
-        <label className="flex flex-col gap-1 text-[12.5px] text-clay-ink">
+        <label className="flex flex-col gap-1 text-[12.5px] text-foreground">
           Gateway
           <ClaySelect
             options={GATEWAYS}
@@ -84,7 +84,7 @@ export function InvoicePayForm({
             disabled={busy}
           />
         </label>
-        <label className="flex flex-col gap-1 text-[12.5px] text-clay-ink">
+        <label className="flex flex-col gap-1 text-[12.5px] text-foreground">
           Transaction id
           <ClayInput
             value={txId}
@@ -95,7 +95,7 @@ export function InvoicePayForm({
         </label>
       </div>
       {error ? (
-        <p className="mt-3 text-[12.5px] text-clay-rose-ink">{error}</p>
+        <p className="mt-3 text-[12.5px] text-accent-foreground">{error}</p>
       ) : null}
       <div className="mt-4 flex justify-end">
         <ClayButton
@@ -113,7 +113,7 @@ export function InvoicePayForm({
           Submit payment
         </ClayButton>
       </div>
-      <p className="mt-2 text-[11.5px] text-clay-ink-muted">
+      <p className="mt-2 text-[11.5px] text-muted-foreground">
         Record a payment you have already completed via the selected gateway.
         Your merchant will reconcile the invoice shortly.
       </p>

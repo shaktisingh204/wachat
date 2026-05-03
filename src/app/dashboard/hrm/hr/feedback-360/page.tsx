@@ -30,7 +30,7 @@ function RatingDots({ value }: { value: unknown }) {
       {[1, 2, 3, 4, 5].map((i) => (
         <Star
           key={i}
-          className={`h-3 w-3 ${i <= n ? 'fill-yellow-400 text-yellow-400' : 'fill-transparent text-clay-border'}`}
+          className={`h-3 w-3 ${i <= n ? 'fill-yellow-400 text-yellow-400' : 'fill-transparent text-border'}`}
         />
       ))}
     </div>
@@ -77,7 +77,7 @@ export default function Feedback360Page() {
                 {t}
               </ClayBadge>
             ) : (
-              <span className="text-clay-ink-muted">—</span>
+              <span className="text-muted-foreground">—</span>
             );
           },
         },
@@ -96,7 +96,7 @@ export default function Feedback360Page() {
                 {s}
               </ClayBadge>
             ) : (
-              <span className="text-clay-ink-muted">—</span>
+              <span className="text-muted-foreground">—</span>
             );
           },
         },

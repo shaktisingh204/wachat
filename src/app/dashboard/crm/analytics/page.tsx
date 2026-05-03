@@ -26,7 +26,7 @@ export default async function AnalyticsPage(props: {
         <AnalyticsDashboard data={data} />
       ) : (
         <ClayCard>
-          <p className="py-8 text-center text-[13px] text-clay-ink-muted">
+          <p className="py-8 text-center text-[13px] text-muted-foreground">
             Unable to load analytics data.
           </p>
         </ClayCard>

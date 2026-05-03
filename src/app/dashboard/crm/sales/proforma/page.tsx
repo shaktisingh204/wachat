@@ -48,46 +48,46 @@ export default async function ProformaInvoicesPage({
             <ClayCard>
                 <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
                     <div>
-                        <h2 className="text-[16px] font-semibold text-clay-ink">All Proforma Invoices</h2>
+                        <h2 className="text-[16px] font-semibold text-foreground">All Proforma Invoices</h2>
                     </div>
                     <div className="relative w-full max-w-sm">
-                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-clay-ink-muted" />
+                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                         <Input
                             type="search"
                             placeholder="Search proforma..."
-                            className="h-10 rounded-clay-md border-clay-border bg-clay-surface pl-9 text-[13px]"
+                            className="h-10 rounded-lg border-border bg-card pl-9 text-[13px]"
                             defaultValue={query}
                         />
                     </div>
                 </div>
-                <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                <div className="overflow-x-auto rounded-lg border border-border">
                     <Table>
                         <TableHeader>
-                            <TableRow className="border-clay-border hover:bg-transparent">
-                                <TableHead className="text-clay-ink-muted">Proforma #</TableHead>
-                                <TableHead className="text-clay-ink-muted">Date</TableHead>
-                                <TableHead className="text-clay-ink-muted">Client</TableHead>
-                                <TableHead className="text-clay-ink-muted">Status</TableHead>
-                                <TableHead className="text-clay-ink-muted text-right">Amount</TableHead>
+                            <TableRow className="border-border hover:bg-transparent">
+                                <TableHead className="text-muted-foreground">Proforma #</TableHead>
+                                <TableHead className="text-muted-foreground">Date</TableHead>
+                                <TableHead className="text-muted-foreground">Client</TableHead>
+                                <TableHead className="text-muted-foreground">Status</TableHead>
+                                <TableHead className="text-muted-foreground text-right">Amount</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {invoices.length === 0 ? (
-                                <TableRow className="border-clay-border">
-                                    <TableCell colSpan={5} className="h-24 text-center text-[13px] text-clay-ink-muted">
+                                <TableRow className="border-border">
+                                    <TableCell colSpan={5} className="h-24 text-center text-[13px] text-muted-foreground">
                                         No proforma invoices found.
                                     </TableCell>
                                 </TableRow>
                             ) : (
                                 invoices.map((inv) => (
-                                    <TableRow key={inv._id.toString()} className="border-clay-border">
-                                        <TableCell className="font-medium text-clay-ink">{inv.proformaNumber}</TableCell>
-                                        <TableCell className="text-clay-ink">{format(new Date(inv.proformaDate), 'PP')}</TableCell>
-                                        <TableCell className="text-clay-ink">Client</TableCell>
+                                    <TableRow key={inv._id.toString()} className="border-border">
+                                        <TableCell className="font-medium text-foreground">{inv.proformaNumber}</TableCell>
+                                        <TableCell className="text-foreground">{format(new Date(inv.proformaDate), 'PP')}</TableCell>
+                                        <TableCell className="text-foreground">Client</TableCell>
                                         <TableCell>
                                             <ClayBadge tone="rose-soft">{inv.status}</ClayBadge>
                                         </TableCell>
-                                        <TableCell className="text-right font-medium text-clay-ink">
+                                        <TableCell className="text-right font-medium text-foreground">
                                             {inv.currency} {inv.total.toFixed(2)}
                                         </TableCell>
                                     </TableRow>
@@ -96,7 +96,7 @@ export default async function ProformaInvoicesPage({
                         </TableBody>
                     </Table>
                 </div>
-                <div className="mt-4 text-[11.5px] text-clay-ink-muted">
+                <div className="mt-4 text-[11.5px] text-muted-foreground">
                     Showing {invoices.length} of {total} records
                 </div>
             </ClayCard>

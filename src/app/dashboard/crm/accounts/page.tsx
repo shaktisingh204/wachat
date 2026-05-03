@@ -83,36 +83,36 @@ export default function CrmAccountsPage() {
       <ClayCard>
         <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 className="text-[16px] font-semibold text-clay-ink">All Accounts</h2>
-            <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">
+            <h2 className="text-[16px] font-semibold text-foreground">All Accounts</h2>
+            <p className="mt-0.5 text-[12.5px] text-muted-foreground">
               A list of all companies in your CRM.
             </p>
           </div>
           <div className="relative w-full max-w-sm">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-clay-ink-muted" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="Search by name, industry, or website..."
-              className="h-10 rounded-clay-md border-clay-border bg-clay-surface pl-9 text-[13px]"
+              className="h-10 rounded-lg border-border bg-card pl-9 text-[13px]"
               onChange={(e) => handleSearch(e.target.value)}
             />
           </div>
         </div>
 
-        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <Table>
             <TableHeader>
-              <TableRow className="border-clay-border hover:bg-transparent">
-                <TableHead className="text-clay-ink-muted">Account Name</TableHead>
-                <TableHead className="text-clay-ink-muted">Industry</TableHead>
-                <TableHead className="text-clay-ink-muted">Website</TableHead>
-                <TableHead className="text-clay-ink-muted">Created</TableHead>
-                <TableHead className="text-right text-clay-ink-muted">Actions</TableHead>
+              <TableRow className="border-border hover:bg-transparent">
+                <TableHead className="text-muted-foreground">Account Name</TableHead>
+                <TableHead className="text-muted-foreground">Industry</TableHead>
+                <TableHead className="text-muted-foreground">Website</TableHead>
+                <TableHead className="text-muted-foreground">Created</TableHead>
+                <TableHead className="text-right text-muted-foreground">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 [...Array(5)].map((_, i) => (
-                  <TableRow key={i} className="border-clay-border">
+                  <TableRow key={i} className="border-border">
                     <TableCell colSpan={5}>
                       <Skeleton className="h-10 w-full" />
                     </TableCell>
@@ -120,29 +120,29 @@ export default function CrmAccountsPage() {
                 ))
               ) : accounts.length > 0 ? (
                 accounts.map((account) => (
-                  <TableRow key={account._id.toString()} className="border-clay-border">
+                  <TableRow key={account._id.toString()} className="border-border">
                     <TableCell>
                       <Link
                         href={`/dashboard/crm/accounts/${account._id.toString()}`}
-                        className="flex items-center gap-2 text-[13px] font-medium text-clay-ink hover:underline"
+                        className="flex items-center gap-2 text-[13px] font-medium text-foreground hover:underline"
                       >
-                        <Building className="h-4 w-4 text-clay-ink-muted" strokeWidth={1.75} />
+                        <Building className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
                         {account.name}
                       </Link>
                     </TableCell>
-                    <TableCell className="text-[13px] text-clay-ink">
+                    <TableCell className="text-[13px] text-foreground">
                       {account.industry || 'N/A'}
                     </TableCell>
-                    <TableCell className="text-[13px] text-clay-ink">
+                    <TableCell className="text-[13px] text-foreground">
                       {account.website || 'N/A'}
                     </TableCell>
-                    <TableCell className="text-[13px] text-clay-ink-muted">
+                    <TableCell className="text-[13px] text-muted-foreground">
                       {formatDistanceToNow(new Date(account.createdAt), { addSuffix: true })}
                     </TableCell>
                     <TableCell className="text-right">
                       <Link
                         href={`/dashboard/crm/accounts/${account._id.toString()}/edit`}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-clay-md text-clay-ink-muted hover:bg-clay-surface-2 hover:text-clay-ink"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground"
                         aria-label="Edit account"
                       >
                         <Edit className="h-4 w-4" strokeWidth={1.75} />
@@ -151,10 +151,10 @@ export default function CrmAccountsPage() {
                   </TableRow>
                 ))
               ) : (
-                <TableRow className="border-clay-border">
+                <TableRow className="border-border">
                   <TableCell
                     colSpan={5}
-                    className="h-24 text-center text-[13px] text-clay-ink-muted"
+                    className="h-24 text-center text-[13px] text-muted-foreground"
                   >
                     No accounts found.
                   </TableCell>

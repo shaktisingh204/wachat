@@ -16,8 +16,8 @@ import { ClayBreadcrumbs, ClayCard, ClayButton } from '@/components/clay';
 function PageSkeleton() {
   return (
     <div className="space-y-4">
-      <div className="h-24 w-full animate-pulse rounded-clay-lg bg-clay-bg-2" />
-      <div className="h-80 w-full animate-pulse rounded-clay-lg bg-clay-bg-2" />
+      <div className="h-24 w-full animate-pulse rounded-xl bg-muted" />
+      <div className="h-80 w-full animate-pulse rounded-xl bg-muted" />
     </div>
   );
 }
@@ -33,12 +33,12 @@ function StatCard({
 }) {
   return (
     <ClayCard className="flex items-center gap-4 p-4">
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-clay-bg-2 text-clay-ink-muted">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground">
         {icon}
       </span>
       <div>
-        <p className="text-[12px] text-clay-ink-muted">{title}</p>
-        <p className="text-[20px] font-semibold tabular-nums text-clay-ink">
+        <p className="text-[12px] text-muted-foreground">{title}</p>
+        <p className="text-[20px] font-semibold tabular-nums text-foreground">
           {value.toLocaleString()}
         </p>
       </div>
@@ -87,7 +87,7 @@ export default function WhatsappWidgetGeneratorPage() {
         {isLoading ? (
           <PageSkeleton />
         ) : !project ? (
-          <div className="flex items-center gap-3 rounded-clay-md border border-clay-red/20 bg-red-50 p-4 text-[13px] text-clay-red">
+          <div className="flex items-center gap-3 rounded-lg border border-destructive/20 bg-red-50 p-4 text-[13px] text-destructive">
             No project selected. Please select a project from the main
             dashboard.
           </div>
@@ -95,7 +95,7 @@ export default function WhatsappWidgetGeneratorPage() {
           <>
             {/* Analytics strip */}
             <div className="flex items-center justify-between">
-              <h2 className="text-[15px] font-semibold text-clay-ink">
+              <h2 className="text-[15px] font-semibold text-foreground">
                 Widget Analytics
               </h2>
               <ClayButton

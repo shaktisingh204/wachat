@@ -43,22 +43,22 @@ export default function NewEventPage() {
       <ClayCard>
         <form action={formAction} className="grid gap-4 md:grid-cols-2">
           <div className="md:col-span-2">
-            <Label htmlFor="event_name" className="text-clay-ink">Event name *</Label>
+            <Label htmlFor="event_name" className="text-foreground">Event name *</Label>
             <Input id="event_name" name="event_name" required className="mt-1.5 h-10" />
           </div>
 
           <div className="md:col-span-2">
-            <Label htmlFor="description" className="text-clay-ink">Description</Label>
+            <Label htmlFor="description" className="text-foreground">Description</Label>
             <Textarea id="description" name="description" rows={4} className="mt-1.5" />
           </div>
 
           <div>
-            <Label htmlFor="where" className="text-clay-ink">Where</Label>
+            <Label htmlFor="where" className="text-foreground">Where</Label>
             <Input id="where" name="where" className="mt-1.5 h-10" />
           </div>
 
           <div>
-            <Label htmlFor="label_color" className="text-clay-ink">Label color</Label>
+            <Label htmlFor="label_color" className="text-foreground">Label color</Label>
             <Input
               id="label_color"
               name="label_color"
@@ -69,7 +69,7 @@ export default function NewEventPage() {
           </div>
 
           <div>
-            <Label htmlFor="start_date_time" className="text-clay-ink">Start *</Label>
+            <Label htmlFor="start_date_time" className="text-foreground">Start *</Label>
             <Input
               id="start_date_time"
               name="start_date_time"
@@ -79,7 +79,7 @@ export default function NewEventPage() {
             />
           </div>
           <div>
-            <Label htmlFor="end_date_time" className="text-clay-ink">End *</Label>
+            <Label htmlFor="end_date_time" className="text-foreground">End *</Label>
             <Input
               id="end_date_time"
               name="end_date_time"
@@ -90,7 +90,7 @@ export default function NewEventPage() {
           </div>
 
           <div>
-            <Label htmlFor="repeat" className="text-clay-ink">Repeat</Label>
+            <Label htmlFor="repeat" className="text-foreground">Repeat</Label>
             <Select name="repeat" defaultValue="false">
               <SelectTrigger id="repeat" className="mt-1.5 h-10"><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -100,7 +100,7 @@ export default function NewEventPage() {
             </Select>
           </div>
           <div>
-            <Label htmlFor="repeat_type" className="text-clay-ink">Repeat type</Label>
+            <Label htmlFor="repeat_type" className="text-foreground">Repeat type</Label>
             <Select name="repeat_type" defaultValue="week">
               <SelectTrigger id="repeat_type" className="mt-1.5 h-10"><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -112,16 +112,16 @@ export default function NewEventPage() {
             </Select>
           </div>
           <div>
-            <Label htmlFor="repeat_every" className="text-clay-ink">Repeat every</Label>
+            <Label htmlFor="repeat_every" className="text-foreground">Repeat every</Label>
             <Input id="repeat_every" name="repeat_every" type="number" min={1} defaultValue={1} className="mt-1.5 h-10" />
           </div>
           <div>
-            <Label htmlFor="repeat_cycles" className="text-clay-ink">Cycles</Label>
+            <Label htmlFor="repeat_cycles" className="text-foreground">Cycles</Label>
             <Input id="repeat_cycles" name="repeat_cycles" type="number" min={1} defaultValue={1} className="mt-1.5 h-10" />
           </div>
 
           <div>
-            <Label htmlFor="send_reminder" className="text-clay-ink">Send reminder</Label>
+            <Label htmlFor="send_reminder" className="text-foreground">Send reminder</Label>
             <Select name="send_reminder" defaultValue="false">
               <SelectTrigger id="send_reminder" className="mt-1.5 h-10"><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -131,11 +131,11 @@ export default function NewEventPage() {
             </Select>
           </div>
           <div>
-            <Label htmlFor="remind_time" className="text-clay-ink">Remind time</Label>
+            <Label htmlFor="remind_time" className="text-foreground">Remind time</Label>
             <Input id="remind_time" name="remind_time" type="number" min={0} className="mt-1.5 h-10" />
           </div>
           <div>
-            <Label htmlFor="remind_type" className="text-clay-ink">Remind type</Label>
+            <Label htmlFor="remind_type" className="text-foreground">Remind type</Label>
             <Select name="remind_type" defaultValue="hour">
               <SelectTrigger id="remind_type" className="mt-1.5 h-10"><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -146,7 +146,7 @@ export default function NewEventPage() {
           </div>
 
           <div>
-            <Label htmlFor="google_calendar" className="text-clay-ink">Google Calendar</Label>
+            <Label htmlFor="google_calendar" className="text-foreground">Google Calendar</Label>
             <Select name="google_calendar" defaultValue="false">
               <SelectTrigger id="google_calendar" className="mt-1.5 h-10"><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -156,7 +156,7 @@ export default function NewEventPage() {
             </Select>
           </div>
           <div>
-            <Label htmlFor="online_link" className="text-clay-ink">Online link</Label>
+            <Label htmlFor="online_link" className="text-foreground">Online link</Label>
             <Input id="online_link" name="online_link" type="url" className="mt-1.5 h-10" />
           </div>
 

@@ -40,10 +40,10 @@ export default async function ExpenseReportPage(props: {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <ClayCard>
           <div className="mb-3">
-            <h2 className="text-[16px] font-semibold text-clay-ink">By month</h2>
+            <h2 className="text-[16px] font-semibold text-foreground">By month</h2>
           </div>
           {byPeriod.length === 0 ? (
-            <div className="py-8 text-center text-[13px] text-clay-ink-muted">
+            <div className="py-8 text-center text-[13px] text-muted-foreground">
               No expenses.
             </div>
           ) : (
@@ -62,12 +62,12 @@ export default async function ExpenseReportPage(props: {
 
         <ClayCard>
           <div className="mb-3">
-            <h2 className="text-[16px] font-semibold text-clay-ink">
+            <h2 className="text-[16px] font-semibold text-foreground">
               By category
             </h2>
           </div>
           {byCategory.length === 0 ? (
-            <div className="py-8 text-center text-[13px] text-clay-ink-muted">
+            <div className="py-8 text-center text-[13px] text-muted-foreground">
               No expense categories.
             </div>
           ) : (

@@ -81,11 +81,11 @@ export default function CallingSettingsPage() {
   if (!activeProject) {
     return (
       <ClayCard className="p-10 text-center">
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-clay-bg-2 text-clay-ink-muted">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
           <LuPhone className="h-5 w-5" strokeWidth={1.5} />
         </div>
-        <h2 className="mt-4 text-[16px] font-semibold text-clay-ink">No project selected</h2>
-        <p className="mx-auto mt-1.5 max-w-[360px] text-[12.5px] text-clay-ink-muted">
+        <h2 className="mt-4 text-[16px] font-semibold text-foreground">No project selected</h2>
+        <p className="mx-auto mt-1.5 max-w-[360px] text-[12.5px] text-muted-foreground">
           Select a project from the home screen to configure its WhatsApp calling settings.
         </p>
       </ClayCard>
@@ -100,11 +100,11 @@ export default function CallingSettingsPage() {
       <div className="flex flex-col gap-6 lg:col-span-2">
         {phoneNumbers.length === 0 ? (
           <ClayCard className="p-10 text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-clay-bg-2 text-clay-ink-muted">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
               <LuPhone className="h-5 w-5" strokeWidth={1.5} />
             </div>
-            <h2 className="mt-4 text-[16px] font-semibold text-clay-ink">No phone numbers linked</h2>
-            <p className="mx-auto mt-1.5 max-w-[360px] text-[12.5px] text-clay-ink-muted">
+            <h2 className="mt-4 text-[16px] font-semibold text-foreground">No phone numbers linked</h2>
+            <p className="mx-auto mt-1.5 max-w-[360px] text-[12.5px] text-muted-foreground">
               Add a WhatsApp Business phone number to the project first, then come back here to configure calling.
             </p>
             <ClayButton
@@ -122,8 +122,8 @@ export default function CallingSettingsPage() {
             <ClayCard padded={false} className="p-5">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <h2 className="text-[16px] font-semibold text-clay-ink">Configure number</h2>
-                  <p className="mt-1 text-[12.5px] text-clay-ink-muted">
+                  <h2 className="text-[16px] font-semibold text-foreground">Configure number</h2>
+                  <p className="mt-1 text-[12.5px] text-muted-foreground">
                     Select a phone number to view and modify its calling configuration.
                   </p>
                 </div>
@@ -156,15 +156,15 @@ export default function CallingSettingsPage() {
                       className={cn(
                         'flex items-center justify-between gap-3 rounded-[12px] border px-4 py-3 text-left transition-colors',
                         active
-                          ? 'border-clay-obsidian bg-clay-obsidian/5 shadow-clay-card'
-                          : 'border-clay-border bg-clay-surface hover:border-clay-border-strong',
+                          ? 'border-foreground bg-foreground/5 shadow-sm'
+                          : 'border-border bg-card hover:border-border',
                       )}
                     >
                       <div className="min-w-0">
-                        <div className="truncate text-[13px] font-semibold text-clay-ink">
+                        <div className="truncate text-[13px] font-semibold text-foreground">
                           {phone.display_phone_number}
                         </div>
-                        <div className="truncate text-[11.5px] text-clay-ink-muted">
+                        <div className="truncate text-[11.5px] text-muted-foreground">
                           {phone.verified_name || 'Unverified'}
                         </div>
                       </div>
@@ -173,13 +173,13 @@ export default function CallingSettingsPage() {
                           'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10.5px] font-medium',
                           callingEnabled
                             ? 'bg-emerald-50 text-emerald-700'
-                            : 'bg-clay-bg-2 text-clay-ink-muted',
+                            : 'bg-muted text-muted-foreground',
                         )}
                       >
                         <span
                           className={cn(
                             'h-1.5 w-1.5 rounded-full',
-                            callingEnabled ? 'bg-emerald-500' : 'bg-clay-ink-fade',
+                            callingEnabled ? 'bg-emerald-500' : 'bg-muted-foreground/70',
                           )}
                         />
                         {callingEnabled ? 'On' : 'Off'}
@@ -208,7 +208,7 @@ export default function CallingSettingsPage() {
                 }}
               />
             ) : (
-              <ClayCard className="p-8 text-center text-[13px] text-clay-ink-muted">
+              <ClayCard className="p-8 text-center text-[13px] text-muted-foreground">
                 Select a phone number above to manage its settings.
               </ClayCard>
             )}
@@ -221,12 +221,12 @@ export default function CallingSettingsPage() {
         <ClayCard padded={false} className="p-5">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-clay-surface-2">
-                <LuFileText className="h-4 w-4 text-clay-ink-muted" strokeWidth={1.75} />
+              <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-secondary">
+                <LuFileText className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
               </span>
               <div>
-                <h3 className="text-[13.5px] font-semibold text-clay-ink">API call log</h3>
-                <p className="text-[11.5px] text-clay-ink-muted">Fetches and saves from this page.</p>
+                <h3 className="text-[13.5px] font-semibold text-foreground">API call log</h3>
+                <p className="text-[11.5px] text-muted-foreground">Fetches and saves from this page.</p>
               </div>
             </div>
             <ClayButton
@@ -243,15 +243,15 @@ export default function CallingSettingsPage() {
 
           <div className="mt-4 max-h-96 overflow-y-auto">
             {log.length === 0 ? (
-              <p className="py-8 text-center text-[12.5px] text-clay-ink-muted">
+              <p className="py-8 text-center text-[12.5px] text-muted-foreground">
                 Nothing logged yet. Fetches and saves will appear here.
               </p>
             ) : (
-              <ul className="divide-y divide-clay-border">
+              <ul className="divide-y divide-border">
                 {log.map((entry) => (
                   <li key={entry.id} className="py-2.5">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-[10.5px] text-clay-ink-muted">{entry.method}</span>
+                      <span className="font-mono text-[10.5px] text-muted-foreground">{entry.method}</span>
                       <span
                         className={cn(
                           'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium',
@@ -267,11 +267,11 @@ export default function CallingSettingsPage() {
                         )}
                         {entry.status}
                       </span>
-                      <span className="ml-auto text-[10.5px] text-clay-ink-muted">
+                      <span className="ml-auto text-[10.5px] text-muted-foreground">
                         {formatDistanceToNow(entry.createdAt, { addSuffix: true })}
                       </span>
                     </div>
-                    <div className="mt-1 text-[12.5px] text-clay-ink">{entry.summary}</div>
+                    <div className="mt-1 text-[12.5px] text-foreground">{entry.summary}</div>
                     {entry.status === 'ERROR' && entry.errorMessage ? (
                       <div className="mt-1 truncate text-[11.5px] text-rose-600">{entry.errorMessage}</div>
                     ) : null}
@@ -306,21 +306,21 @@ function StatusBanner({ phone }: { phone: PhoneNumber }) {
     <ClayCard padded={false} className="p-5">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h3 className="text-[14px] font-semibold text-clay-ink">Current status</h3>
-          <p className="mt-0.5 text-[12px] text-clay-ink-muted">
+          <h3 className="text-[14px] font-semibold text-foreground">Current status</h3>
+          <p className="mt-0.5 text-[12px] text-muted-foreground">
             Live configuration for {phone.display_phone_number}
           </p>
         </div>
         <span
           className={cn(
             'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11.5px] font-semibold uppercase tracking-wide',
-            enabled ? 'bg-emerald-50 text-emerald-700' : 'bg-clay-bg-2 text-clay-ink-muted',
+            enabled ? 'bg-emerald-50 text-emerald-700' : 'bg-muted text-muted-foreground',
           )}
         >
           <span
             className={cn(
               'h-2 w-2 rounded-full',
-              enabled ? 'bg-emerald-500' : 'bg-clay-ink-fade',
+              enabled ? 'bg-emerald-500' : 'bg-muted-foreground/70',
             )}
           />
           {enabled ? 'Enabled' : 'Disabled'}
@@ -330,12 +330,12 @@ function StatusBanner({ phone }: { phone: PhoneNumber }) {
         {checklist.map((item) => (
           <div
             key={item.label}
-            className="flex items-center gap-2 rounded-[10px] border border-clay-border bg-clay-surface-2 px-3 py-2"
+            className="flex items-center gap-2 rounded-[10px] border border-border bg-secondary px-3 py-2"
           >
             <span
               className={cn(
                 'flex h-5 w-5 items-center justify-center rounded-full',
-                item.ok ? 'bg-emerald-50 text-emerald-600' : 'bg-clay-bg-2 text-clay-ink-fade',
+                item.ok ? 'bg-emerald-50 text-emerald-600' : 'bg-muted text-muted-foreground/70',
               )}
             >
               {item.ok ? (
@@ -344,7 +344,7 @@ function StatusBanner({ phone }: { phone: PhoneNumber }) {
                 <LuCircleAlert className="h-3 w-3" strokeWidth={2.25} />
               )}
             </span>
-            <span className="truncate text-[12px] font-medium text-clay-ink">{item.label}</span>
+            <span className="truncate text-[12px] font-medium text-foreground">{item.label}</span>
           </div>
         ))}
       </div>

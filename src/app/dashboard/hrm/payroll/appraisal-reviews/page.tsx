@@ -64,10 +64,10 @@ function StarRating({ value }: { value: number }) {
       {[1, 2, 3, 4, 5].map((i) => (
         <Star
           key={i}
-          className={`h-3 w-3 ${i <= n ? 'fill-yellow-400 text-yellow-400' : 'fill-transparent text-clay-border'}`}
+          className={`h-3 w-3 ${i <= n ? 'fill-yellow-400 text-yellow-400' : 'fill-transparent text-border'}`}
         />
       ))}
-      <span className="ml-1 text-[12px] tabular-nums text-clay-ink-muted">
+      <span className="ml-1 text-[12px] tabular-nums text-muted-foreground">
         {value?.toFixed(1) ?? '—'}
       </span>
     </div>
@@ -113,10 +113,10 @@ function ReviewFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-clay-ink">
+          <DialogTitle className="text-foreground">
             {isEdit ? 'Edit Appraisal Review' : 'New Appraisal Review'}
           </DialogTitle>
-          <DialogDescription className="text-clay-ink-muted">
+          <DialogDescription className="text-muted-foreground">
             Complete the performance evaluation form below.
           </DialogDescription>
         </DialogHeader>
@@ -127,32 +127,32 @@ function ReviewFormDialog({
           {/* Core fields */}
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-1.5">
-              <Label className="text-clay-ink">
-                Employee ID <span className="text-clay-red">*</span>
+              <Label className="text-foreground">
+                Employee ID <span className="text-destructive">*</span>
               </Label>
               <Input
                 name="employeeId"
                 required
                 defaultValue={review?.employeeId?.toString() ?? ''}
                 placeholder="Employee ObjectId"
-                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-clay-ink">
-                Reviewer ID <span className="text-clay-red">*</span>
+              <Label className="text-foreground">
+                Reviewer ID <span className="text-destructive">*</span>
               </Label>
               <Input
                 name="reviewerId"
                 required
                 defaultValue={review?.reviewerId?.toString() ?? ''}
                 placeholder="Reviewer ObjectId"
-                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-clay-ink">
-                Period / Cycle <span className="text-clay-red">*</span>
+              <Label className="text-foreground">
+                Period / Cycle <span className="text-destructive">*</span>
               </Label>
               <Input
                 name="reviewDate"
@@ -163,16 +163,16 @@ function ReviewFormDialog({
                     ? new Date(review.reviewDate).toISOString().slice(0, 10)
                     : ''
                 }
-                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-clay-ink">Status</Label>
+              <Label className="text-foreground">Status</Label>
               <Select
                 name="status"
                 defaultValue={review?.status ?? 'Scheduled'}
               >
-                <SelectTrigger className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
+                <SelectTrigger className="h-10 rounded-lg border-border bg-card text-[13px]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -186,13 +186,13 @@ function ReviewFormDialog({
 
           {/* Ratings */}
           <div>
-            <p className="mb-2 text-[13px] font-semibold text-clay-ink">
+            <p className="mb-2 text-[13px] font-semibold text-foreground">
               Ratings (1 = Poor, 5 = Excellent)
             </p>
             <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
               {RATING_FIELDS.map(({ name, label }) => (
                 <div key={name} className="space-y-1.5">
-                  <Label className="text-clay-ink">{label}</Label>
+                  <Label className="text-foreground">{label}</Label>
                   <Input
                     name={name}
                     type="number"
@@ -203,7 +203,7 @@ function ReviewFormDialog({
                       review?.ratings?.[name.replace('rating_', '')] ?? ''
                     }
                     placeholder="1–5"
-                    className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                    className="h-10 rounded-lg border-border bg-card text-[13px]"
                   />
                 </div>
               ))}
@@ -213,33 +213,33 @@ function ReviewFormDialog({
           {/* Qualitative */}
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <Label className="text-clay-ink">Strengths</Label>
+              <Label className="text-foreground">Strengths</Label>
               <Textarea
                 name="strengths"
                 rows={3}
                 defaultValue={review?.strengths ?? ''}
                 placeholder="Key strengths demonstrated…"
-                className="rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-clay-ink">Areas of Improvement</Label>
+              <Label className="text-foreground">Areas of Improvement</Label>
               <Textarea
                 name="areasForImprovement"
                 rows={3}
                 defaultValue={review?.areasForImprovement ?? ''}
                 placeholder="Opportunities to grow…"
-                className="rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-clay-ink">Goals / Comments</Label>
+              <Label className="text-foreground">Goals / Comments</Label>
               <Textarea
                 name="reviewerComments"
                 rows={3}
                 defaultValue={review?.reviewerComments ?? ''}
                 placeholder="Goals for next period, additional comments…"
-                className="rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="rounded-lg border-border bg-card text-[13px]"
               />
             </div>
           </div>
@@ -320,8 +320,8 @@ export default function AppraisalReviewsPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-clay-ink">Delete Review?</AlertDialogTitle>
-            <AlertDialogDescription className="text-clay-ink-muted">
+            <AlertDialogTitle className="text-foreground">Delete Review?</AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground">
               This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -352,22 +352,22 @@ export default function AppraisalReviewsPage() {
         />
 
         <ClayCard>
-          <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+          <div className="overflow-x-auto rounded-lg border border-border">
             <table className="w-full text-left text-[13px]">
               <thead>
-                <tr className="border-b border-clay-border">
-                  <th className="px-4 py-3 text-[12px] font-medium text-clay-ink-muted">Employee</th>
-                  <th className="px-4 py-3 text-[12px] font-medium text-clay-ink-muted">Reviewer</th>
-                  <th className="px-4 py-3 text-[12px] font-medium text-clay-ink-muted">Period</th>
-                  <th className="px-4 py-3 text-[12px] font-medium text-clay-ink-muted">Status</th>
-                  <th className="px-4 py-3 text-[12px] font-medium text-clay-ink-muted">Overall Rating</th>
-                  <th className="px-4 py-3 text-right text-[12px] font-medium text-clay-ink-muted">Actions</th>
+                <tr className="border-b border-border">
+                  <th className="px-4 py-3 text-[12px] font-medium text-muted-foreground">Employee</th>
+                  <th className="px-4 py-3 text-[12px] font-medium text-muted-foreground">Reviewer</th>
+                  <th className="px-4 py-3 text-[12px] font-medium text-muted-foreground">Period</th>
+                  <th className="px-4 py-3 text-[12px] font-medium text-muted-foreground">Status</th>
+                  <th className="px-4 py-3 text-[12px] font-medium text-muted-foreground">Overall Rating</th>
+                  <th className="px-4 py-3 text-right text-[12px] font-medium text-muted-foreground">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {isLoading && reviews.length === 0 ? (
                   [0, 1, 2].map((i) => (
-                    <tr key={i} className="border-b border-clay-border">
+                    <tr key={i} className="border-b border-border">
                       <td colSpan={6} className="px-4 py-3">
                         <Skeleton className="h-5 w-full" />
                       </td>
@@ -377,7 +377,7 @@ export default function AppraisalReviewsPage() {
                   <tr>
                     <td
                       colSpan={6}
-                      className="px-4 py-12 text-center text-[13px] text-clay-ink-muted"
+                      className="px-4 py-12 text-center text-[13px] text-muted-foreground"
                     >
                       No appraisal reviews yet — click New Review to get started.
                     </td>
@@ -396,13 +396,13 @@ export default function AppraisalReviewsPage() {
                     return (
                       <tr
                         key={String(review._id)}
-                        className="border-b border-clay-border last:border-0"
+                        className="border-b border-border last:border-0"
                       >
-                        <td className="px-4 py-3 font-medium text-clay-ink">
+                        <td className="px-4 py-3 font-medium text-foreground">
                           {empName || '—'}
                         </td>
-                        <td className="px-4 py-3 text-clay-ink">{revName}</td>
-                        <td className="px-4 py-3 text-clay-ink-muted">{periodDate}</td>
+                        <td className="px-4 py-3 text-foreground">{revName}</td>
+                        <td className="px-4 py-3 text-muted-foreground">{periodDate}</td>
                         <td className="px-4 py-3">
                           <ClayBadge tone={STATUS_TONES[review.status] ?? 'neutral'} dot>
                             {review.status}
@@ -426,7 +426,7 @@ export default function AppraisalReviewsPage() {
                               variant="pill"
                               size="sm"
                               leading={
-                                <Trash2 className="h-3.5 w-3.5 text-clay-red" strokeWidth={1.75} />
+                                <Trash2 className="h-3.5 w-3.5 text-destructive" strokeWidth={1.75} />
                               }
                               onClick={() => setDeletingId(String(review._id))}
                             />

@@ -151,12 +151,12 @@ export default function CustomFieldsPage() {
 
       {isLoading && groups.length === 0 ? (
         <ClayCard>
-          <p className="text-[13px] text-clay-ink-muted">Loading…</p>
+          <p className="text-[13px] text-muted-foreground">Loading…</p>
         </ClayCard>
       ) : groups.length === 0 ? (
         <ClayCard>
           <div className="text-center">
-            <p className="text-[13px] text-clay-ink-muted">
+            <p className="text-[13px] text-muted-foreground">
               No groups yet. Create a group first, then add fields to it.
             </p>
             <div className="mt-4">
@@ -175,7 +175,7 @@ export default function CustomFieldsPage() {
             <ClayCard key={group._id}>
               <div className="flex flex-wrap items-center justify-between gap-3 pb-3">
                 <div className="flex items-center gap-2">
-                  <h2 className="text-[16px] font-semibold text-clay-ink">
+                  <h2 className="text-[16px] font-semibold text-foreground">
                     {group.name}
                   </h2>
                   <ClayBadge tone="rose-soft">{group.belongs_to}</ClayBadge>
@@ -192,37 +192,37 @@ export default function CustomFieldsPage() {
                 </Link>
               </div>
 
-              <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+              <div className="overflow-x-auto rounded-lg border border-border">
                 <Table>
                   <TableHeader>
-                    <TableRow className="border-clay-border hover:bg-transparent">
-                      <TableHead className="text-clay-ink-muted">Label</TableHead>
-                      <TableHead className="text-clay-ink-muted">Slug</TableHead>
-                      <TableHead className="text-clay-ink-muted">Type</TableHead>
-                      <TableHead className="text-clay-ink-muted">Required</TableHead>
-                      <TableHead className="text-clay-ink-muted">In Table</TableHead>
-                      <TableHead className="w-[180px] text-right text-clay-ink-muted">
+                    <TableRow className="border-border hover:bg-transparent">
+                      <TableHead className="text-muted-foreground">Label</TableHead>
+                      <TableHead className="text-muted-foreground">Slug</TableHead>
+                      <TableHead className="text-muted-foreground">Type</TableHead>
+                      <TableHead className="text-muted-foreground">Required</TableHead>
+                      <TableHead className="text-muted-foreground">In Table</TableHead>
+                      <TableHead className="w-[180px] text-right text-muted-foreground">
                         Actions
                       </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {groupFields.length === 0 ? (
-                      <TableRow className="border-clay-border">
+                      <TableRow className="border-border">
                         <TableCell
                           colSpan={6}
-                          className="h-20 text-center text-[13px] text-clay-ink-muted"
+                          className="h-20 text-center text-[13px] text-muted-foreground"
                         >
                           No fields yet.
                         </TableCell>
                       </TableRow>
                     ) : (
                       groupFields.map((field, idx) => (
-                        <TableRow key={field._id} className="border-clay-border">
-                          <TableCell className="text-[13px] text-clay-ink">
+                        <TableRow key={field._id} className="border-border">
+                          <TableCell className="text-[13px] text-foreground">
                             {field.label}
                           </TableCell>
-                          <TableCell className="text-[13px] text-clay-ink-muted">
+                          <TableCell className="text-[13px] text-muted-foreground">
                             {field.name}
                           </TableCell>
                           <TableCell>
@@ -281,7 +281,7 @@ export default function CustomFieldsPage() {
                                 onClick={() => setDeletingId(field._id)}
                                 aria-label="Delete"
                               >
-                                <Trash2 className="h-3.5 w-3.5 text-clay-red" />
+                                <Trash2 className="h-3.5 w-3.5 text-destructive" />
                               </Button>
                             </div>
                           </TableCell>
@@ -302,10 +302,10 @@ export default function CustomFieldsPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-clay-ink">
+            <AlertDialogTitle className="text-foreground">
               Delete custom field?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-clay-ink-muted">
+            <AlertDialogDescription className="text-muted-foreground">
               This will also invalidate the stored value for this slug on
               existing records.
             </AlertDialogDescription>

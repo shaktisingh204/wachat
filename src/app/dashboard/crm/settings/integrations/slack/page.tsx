@@ -116,7 +116,7 @@ export default function SlackIntegrationPage() {
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="md:col-span-2">
-              <Label htmlFor="webhook_url" className="text-clay-ink">
+              <Label htmlFor="webhook_url" className="text-foreground">
                 Webhook URL
               </Label>
               <div className="mt-1.5">
@@ -125,13 +125,13 @@ export default function SlackIntegrationPage() {
                   name="webhook_url"
                   defaultValue={v('webhook_url')}
                   placeholder="https://hooks.slack.com/services/..."
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="channel" className="text-clay-ink">
+              <Label htmlFor="channel" className="text-foreground">
                 Channel
               </Label>
               <div className="mt-1.5">
@@ -140,13 +140,13 @@ export default function SlackIntegrationPage() {
                   name="channel"
                   defaultValue={v('channel')}
                   placeholder="#general"
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="username" className="text-clay-ink">
+              <Label htmlFor="username" className="text-foreground">
                 Username
               </Label>
               <div className="mt-1.5">
@@ -155,17 +155,17 @@ export default function SlackIntegrationPage() {
                   name="username"
                   defaultValue={v('username')}
                   placeholder="SabNode"
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
-            <div className="md:col-span-2 flex items-center justify-between rounded-clay-md border border-clay-border bg-clay-surface px-4 py-3">
+            <div className="md:col-span-2 flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3">
               <div>
-                <div className="text-[13px] font-medium text-clay-ink">
+                <div className="text-[13px] font-medium text-foreground">
                   Active
                 </div>
-                <div className="text-[12px] text-clay-ink-muted">
+                <div className="text-[12px] text-muted-foreground">
                   Enable Slack notifications.
                 </div>
               </div>

@@ -109,20 +109,20 @@ export default function AnalyticsPage() {
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">
+          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
             Message Analytics
           </h1>
-          <p className="mt-1.5 max-w-[720px] text-[13px] text-clay-ink-muted">
+          <p className="mt-1.5 max-w-[720px] text-[13px] text-muted-foreground">
             Track your messaging performance, delivery rates, and broadcast metrics.
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex rounded-lg border border-clay-border overflow-hidden text-xs">
+          <div className="flex rounded-lg border border-border overflow-hidden text-xs">
             {(['7d', '30d', '90d'] as const).map((range) => (
               <button
                 key={range}
                 onClick={() => setDateRange(range)}
-                className={`px-3 py-1.5 transition-colors ${dateRange === range ? 'bg-clay-surface-2 text-clay-ink font-medium' : 'text-clay-ink-muted hover:bg-clay-bg-2'}`}
+                className={`px-3 py-1.5 transition-colors ${dateRange === range ? 'bg-secondary text-foreground font-medium' : 'text-muted-foreground hover:bg-muted'}`}
               >
                 {range === '7d' ? '7 Days' : range === '30d' ? '30 Days' : '90 Days'}
               </button>
@@ -141,9 +141,9 @@ export default function AnalyticsPage() {
           <ClayCard key={stat.label} className="p-4">
             <div className="flex items-center gap-2 mb-2">
               <stat.icon className={`h-4 w-4 ${stat.color}`} />
-              <span className="text-[11px] text-clay-ink-muted uppercase tracking-wider">{stat.label}</span>
+              <span className="text-[11px] text-muted-foreground uppercase tracking-wider">{stat.label}</span>
             </div>
-            <p className="text-2xl font-semibold text-clay-ink tabular-nums">
+            <p className="text-2xl font-semibold text-foreground tabular-nums">
               {stat.value.toLocaleString()}
             </p>
           </ClayCard>
@@ -153,22 +153,22 @@ export default function AnalyticsPage() {
       {/* Delivery Rate */}
       {analytics && analytics.totalSent > 0 && (
         <ClayCard className="p-6">
-          <h2 className="text-sm font-medium text-clay-ink mb-4">Delivery Performance</h2>
+          <h2 className="text-sm font-medium text-foreground mb-4">Delivery Performance</h2>
           <div className="grid grid-cols-3 gap-6">
             <div>
-              <p className="text-[11px] text-clay-ink-muted uppercase tracking-wider mb-1">Delivery Rate</p>
+              <p className="text-[11px] text-muted-foreground uppercase tracking-wider mb-1">Delivery Rate</p>
               <p className="text-3xl font-semibold text-green-500 tabular-nums">
                 {((analytics.totalDelivered / analytics.totalSent) * 100).toFixed(1)}%
               </p>
             </div>
             <div>
-              <p className="text-[11px] text-clay-ink-muted uppercase tracking-wider mb-1">Read Rate</p>
+              <p className="text-[11px] text-muted-foreground uppercase tracking-wider mb-1">Read Rate</p>
               <p className="text-3xl font-semibold text-emerald-500 tabular-nums">
                 {((analytics.totalRead / analytics.totalSent) * 100).toFixed(1)}%
               </p>
             </div>
             <div>
-              <p className="text-[11px] text-clay-ink-muted uppercase tracking-wider mb-1">Failure Rate</p>
+              <p className="text-[11px] text-muted-foreground uppercase tracking-wider mb-1">Failure Rate</p>
               <p className="text-3xl font-semibold text-red-500 tabular-nums">
                 {((analytics.totalFailed / analytics.totalSent) * 100).toFixed(1)}%
               </p>
@@ -180,7 +180,7 @@ export default function AnalyticsPage() {
       {/* Daily trend chart */}
       {analytics && analytics.dailyBreakdown.length > 0 && (
         <ClayCard className="p-6">
-          <h2 className="mb-4 text-sm font-medium text-clay-ink">Daily trend</h2>
+          <h2 className="mb-4 text-sm font-medium text-foreground">Daily trend</h2>
           <div className="h-[260px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={analytics.dailyBreakdown} margin={{ top: 5, right: 12, left: 0, bottom: 0 }}>
@@ -202,13 +202,13 @@ export default function AnalyticsPage() {
       {/* Daily Breakdown Table */}
       {analytics && analytics.dailyBreakdown.length > 0 && (
         <ClayCard padded={false}>
-          <div className="p-4 border-b border-clay-border">
-            <h2 className="text-sm font-medium text-clay-ink">Daily Breakdown</h2>
+          <div className="p-4 border-b border-border">
+            <h2 className="text-sm font-medium text-foreground">Daily Breakdown</h2>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
-                <tr className="border-b border-clay-border text-clay-ink-muted">
+                <tr className="border-b border-border text-muted-foreground">
                   <th className="px-4 py-2.5 text-left font-medium">Date</th>
                   <th className="px-4 py-2.5 text-right font-medium">Sent</th>
                   <th className="px-4 py-2.5 text-right font-medium">Delivered</th>
@@ -219,9 +219,9 @@ export default function AnalyticsPage() {
               </thead>
               <tbody>
                 {analytics.dailyBreakdown.slice().reverse().map((day) => (
-                  <tr key={day.date} className="border-b border-clay-border/50 hover:bg-clay-bg-2/50">
-                    <td className="px-4 py-2 text-clay-ink font-medium">{day.date}</td>
-                    <td className="px-4 py-2 text-right text-clay-ink tabular-nums">{day.sent}</td>
+                  <tr key={day.date} className="border-b border-border/50 hover:bg-muted/50">
+                    <td className="px-4 py-2 text-foreground font-medium">{day.date}</td>
+                    <td className="px-4 py-2 text-right text-foreground tabular-nums">{day.sent}</td>
                     <td className="px-4 py-2 text-right text-green-500 tabular-nums">{day.delivered}</td>
                     <td className="px-4 py-2 text-right text-emerald-500 tabular-nums">{day.read}</td>
                     <td className="px-4 py-2 text-right text-red-500 tabular-nums">{day.failed}</td>
@@ -237,22 +237,22 @@ export default function AnalyticsPage() {
       {/* Broadcast Performance */}
       {broadcastData && broadcastData.totalBroadcasts > 0 && (
         <ClayCard className="p-6">
-          <h2 className="text-sm font-medium text-clay-ink mb-4">Broadcast Performance</h2>
+          <h2 className="text-sm font-medium text-foreground mb-4">Broadcast Performance</h2>
           <div className="grid grid-cols-4 gap-6">
             <div>
-              <p className="text-[11px] text-clay-ink-muted uppercase tracking-wider mb-1">Total Campaigns</p>
-              <p className="text-2xl font-semibold text-clay-ink tabular-nums">{broadcastData.totalBroadcasts}</p>
+              <p className="text-[11px] text-muted-foreground uppercase tracking-wider mb-1">Total Campaigns</p>
+              <p className="text-2xl font-semibold text-foreground tabular-nums">{broadcastData.totalBroadcasts}</p>
             </div>
             <div>
-              <p className="text-[11px] text-clay-ink-muted uppercase tracking-wider mb-1">Total Recipients</p>
-              <p className="text-2xl font-semibold text-clay-ink tabular-nums">{broadcastData.totalContacts.toLocaleString()}</p>
+              <p className="text-[11px] text-muted-foreground uppercase tracking-wider mb-1">Total Recipients</p>
+              <p className="text-2xl font-semibold text-foreground tabular-nums">{broadcastData.totalContacts.toLocaleString()}</p>
             </div>
             <div>
-              <p className="text-[11px] text-clay-ink-muted uppercase tracking-wider mb-1">Successful</p>
+              <p className="text-[11px] text-muted-foreground uppercase tracking-wider mb-1">Successful</p>
               <p className="text-2xl font-semibold text-green-500 tabular-nums">{broadcastData.totalSuccess.toLocaleString()}</p>
             </div>
             <div>
-              <p className="text-[11px] text-clay-ink-muted uppercase tracking-wider mb-1">Failed</p>
+              <p className="text-[11px] text-muted-foreground uppercase tracking-wider mb-1">Failed</p>
               <p className="text-2xl font-semibold text-red-500 tabular-nums">{broadcastData.totalFailed.toLocaleString()}</p>
             </div>
           </div>
@@ -261,8 +261,8 @@ export default function AnalyticsPage() {
 
       {!analytics && !isPending && (
         <ClayCard className="p-12 text-center">
-          <LuActivity className="mx-auto h-12 w-12 text-clay-ink-muted/30 mb-4" />
-          <p className="text-sm text-clay-ink-muted">Select a project to view analytics</p>
+          <LuActivity className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
+          <p className="text-sm text-muted-foreground">Select a project to view analytics</p>
         </ClayCard>
       )}
     </div>

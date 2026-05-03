@@ -65,18 +65,18 @@ export function AddIndustryDialog({ open, onOpenChange, onIndustryAdded, default
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle className="text-clay-ink">Add Industry</DialogTitle>
-                    <DialogDescription className="text-clay-ink-muted">
+                    <DialogTitle className="text-foreground">Add Industry</DialogTitle>
+                    <DialogDescription className="text-muted-foreground">
                         Details about the industry.
                     </DialogDescription>
                 </DialogHeader>
                 <form ref={formRef} action={formAction} className="grid gap-4 py-4">
                     <div className="grid gap-2">
-                        <Label htmlFor="name" className="text-clay-ink">Name</Label>
+                        <Label htmlFor="name" className="text-foreground">Name</Label>
                         <Input id="name" name="name" required defaultValue={defaultName} />
                     </div>
                     <div className="grid gap-2">
-                        <Label htmlFor="description" className="text-clay-ink">Description (Optional)</Label>
+                        <Label htmlFor="description" className="text-foreground">Description (Optional)</Label>
                         <Textarea id="description" name="description" />
                     </div>
                     <DialogFooter>

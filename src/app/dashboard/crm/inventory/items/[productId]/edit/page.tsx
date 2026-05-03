@@ -31,7 +31,7 @@ export default function EditCrmItemPage() {
     }, [productId]);
 
     if (loading) {
-        return <Skeleton className="h-96 w-full rounded-clay-lg" />
+        return <Skeleton className="h-96 w-full rounded-xl" />
     }
 
     if (!product) {
@@ -41,13 +41,13 @@ export default function EditCrmItemPage() {
     return (
         <div className="max-w-4xl flex w-full flex-col gap-6">
             <div>
-                <Button variant="ghost" asChild className="-ml-4 text-clay-ink-muted hover:text-clay-ink">
+                <Button variant="ghost" asChild className="-ml-4 text-muted-foreground hover:text-foreground">
                     <Link href="/dashboard/crm/inventory/items">
                         <ArrowLeft className="mr-2 h-4 w-4" /> Back to All Items
                     </Link>
                 </Button>
-                <h1 className="mt-2 text-[26px] font-semibold tracking-tight text-clay-ink">Edit Item: {product.name}</h1>
-                <p className="mt-1 text-[13px] text-clay-ink-muted">Modify the details for this product or service.</p>
+                <h1 className="mt-2 text-[26px] font-semibold tracking-tight text-foreground">Edit Item: {product.name}</h1>
+                <p className="mt-1 text-[13px] text-muted-foreground">Modify the details for this product or service.</p>
             </div>
             <CrmProductForm product={product} />
         </div>

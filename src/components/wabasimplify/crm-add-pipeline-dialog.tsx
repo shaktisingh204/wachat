@@ -57,14 +57,14 @@ export function CrmAddPipelineDialog({ onPipelineAdded, defaultOpen = false, def
             <DialogContent className="sm:max-w-md">
                 <form onSubmit={handleSubmit}>
                     <DialogHeader>
-                        <DialogTitle className="text-clay-ink">Create New Pipeline</DialogTitle>
-                        <DialogDescription className="text-clay-ink-muted">
+                        <DialogTitle className="text-foreground">Create New Pipeline</DialogTitle>
+                        <DialogDescription className="text-muted-foreground">
                             Add a new sales pipeline to your CRM.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
-                            <Label htmlFor="name" className="text-clay-ink">Pipeline Name</Label>
+                            <Label htmlFor="name" className="text-foreground">Pipeline Name</Label>
                             <Input
                                 id="name"
                                 value={name}

@@ -11,7 +11,7 @@ export default async function NewPayoutPage() {
                 subtitle="Record a payment made to a vendor."
                 icon={ArrowUpRight}
             />
-            <Suspense fallback={<div className="text-[13px] text-clay-ink-muted">Loading...</div>}>
+            <Suspense fallback={<div className="text-[13px] text-muted-foreground">Loading...</div>}>
                 <NewPayoutForm />
             </Suspense>
         </div>

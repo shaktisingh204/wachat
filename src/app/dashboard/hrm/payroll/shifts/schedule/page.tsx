@@ -139,17 +139,17 @@ export default function ShiftSchedulePage() {
       <ClayCard>
         <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 className="text-[16px] font-semibold text-clay-ink">
+            <h2 className="text-[16px] font-semibold text-foreground">
               Week of {format(weekStart, 'MMM d, yyyy')}
             </h2>
-            <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">
+            <p className="mt-0.5 text-[12.5px] text-muted-foreground">
               {employees.length} employees · {shifts.length} shifts configured
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-[12px] text-clay-ink-muted">Shift to assign:</span>
+            <span className="text-[12px] text-muted-foreground">Shift to assign:</span>
             <Select value={selectedShiftId} onValueChange={setSelectedShiftId}>
-              <SelectTrigger className="h-9 w-[200px] rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
+              <SelectTrigger className="h-9 w-[200px] rounded-lg border-border bg-card text-[13px]">
                 <SelectValue placeholder="Choose shift" />
               </SelectTrigger>
               <SelectContent>
@@ -158,7 +158,7 @@ export default function ShiftSchedulePage() {
                     <span className="flex items-center gap-2">
                       <span
                         aria-hidden
-                        className="inline-block h-3 w-3 rounded-[3px] border border-clay-border"
+                        className="inline-block h-3 w-3 rounded-[3px] border border-border"
                         style={{ backgroundColor: s.color_code || '#EAB308' }}
                       />
                       {s.name}
@@ -171,15 +171,15 @@ export default function ShiftSchedulePage() {
         </div>
 
         {shifts.length === 0 ? (
-          <div className="rounded-clay-md border border-dashed border-clay-border bg-clay-surface-2 p-6 text-center text-[13px] text-clay-ink-muted">
+          <div className="rounded-lg border border-dashed border-border bg-secondary p-6 text-center text-[13px] text-muted-foreground">
             Create a shift first to start scheduling.
           </div>
         ) : employees.length === 0 ? (
-          <div className="rounded-clay-md border border-dashed border-clay-border bg-clay-surface-2 p-6 text-center text-[13px] text-clay-ink-muted">
+          <div className="rounded-lg border border-dashed border-border bg-secondary p-6 text-center text-[13px] text-muted-foreground">
             <Users className="mx-auto mb-2 h-5 w-5" /> No employees found.
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+          <div className="overflow-x-auto rounded-lg border border-border">
             <div
               className="grid min-w-[900px]"
               style={{
@@ -187,16 +187,16 @@ export default function ShiftSchedulePage() {
               }}
             >
               {/* Header row */}
-              <div className="border-b border-clay-border bg-clay-surface-2 px-3 py-2 text-[12px] font-medium text-clay-ink-muted">
+              <div className="border-b border-border bg-secondary px-3 py-2 text-[12px] font-medium text-muted-foreground">
                 Employee
               </div>
               {weekDays.map((d) => (
                 <div
                   key={d.toISOString()}
-                  className="border-b border-l border-clay-border bg-clay-surface-2 px-3 py-2 text-[12px] font-medium text-clay-ink"
+                  className="border-b border-l border-border bg-secondary px-3 py-2 text-[12px] font-medium text-foreground"
                 >
                   <div>{format(d, 'EEE')}</div>
-                  <div className="text-[11px] text-clay-ink-muted">{format(d, 'MMM d')}</div>
+                  <div className="text-[11px] text-muted-foreground">{format(d, 'MMM d')}</div>
                 </div>
               ))}
 
@@ -238,12 +238,12 @@ function Row({
   const empId = employee._id.toString();
   return (
     <>
-      <div className="flex items-center gap-2 border-t border-clay-border px-3 py-2 text-[13px] text-clay-ink">
+      <div className="flex items-center gap-2 border-t border-border px-3 py-2 text-[13px] text-foreground">
         <div className="min-w-0">
           <div className="truncate font-medium">
             {employee.firstName} {employee.lastName}
           </div>
-          <div className="truncate text-[11px] text-clay-ink-muted">
+          <div className="truncate text-[11px] text-muted-foreground">
             {employee.employeeId}
           </div>
         </div>
@@ -258,11 +258,11 @@ function Row({
             type="button"
             disabled={pending}
             onClick={() => onClick(empId, day)}
-            className="flex min-h-[52px] items-center justify-center border-l border-t border-clay-border bg-clay-surface px-2 py-1.5 text-left text-[12px] transition-colors hover:bg-clay-surface-2 disabled:opacity-70"
+            className="flex min-h-[52px] items-center justify-center border-l border-t border-border bg-card px-2 py-1.5 text-left text-[12px] transition-colors hover:bg-secondary disabled:opacity-70"
           >
             {shift ? (
               <span
-                className="w-full truncate rounded-clay-sm border px-2 py-1 text-[11.5px] font-medium"
+                className="w-full truncate rounded-md border px-2 py-1 text-[11.5px] font-medium"
                 style={{
                   backgroundColor: `${shift.color_code}22`,
                   borderColor: shift.color_code,
@@ -273,7 +273,7 @@ function Row({
                 {shift.name}
               </span>
             ) : (
-              <span className="text-[11px] text-clay-ink-muted">—</span>
+              <span className="text-[11px] text-muted-foreground">—</span>
             )}
           </button>
         );

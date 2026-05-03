@@ -68,7 +68,7 @@ export default function ContactBlacklistPage() {
   if (isLoading) {
     return (
       <div className="flex min-h-[300px] items-center justify-center">
-        <LuLoader className="h-6 w-6 animate-spin text-clay-ink-muted" />
+        <LuLoader className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -83,18 +83,18 @@ export default function ContactBlacklistPage() {
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">Contact Blacklist</h1>
-          <p className="mt-1.5 text-[13px] text-clay-ink-muted">Block phone numbers from sending messages to your project.</p>
+          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">Contact Blacklist</h1>
+          <p className="mt-1.5 text-[13px] text-muted-foreground">Block phone numbers from sending messages to your project.</p>
         </div>
         <ClayBadge tone="neutral">{numbers.length} blocked</ClayBadge>
       </div>
 
       <ClayCard padded={false} className="p-5">
-        <h2 className="text-[15px] font-semibold text-clay-ink mb-3">Add Number</h2>
+        <h2 className="text-[15px] font-semibold text-foreground mb-3">Add Number</h2>
         <div className="flex gap-3">
           <input type="text" value={phone} onChange={(e) => setPhone(e.target.value)}
             placeholder="+1234567890" onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
-            className="flex-1 rounded-lg border border-clay-border bg-clay-bg px-3 py-2 text-sm text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-accent focus:outline-none" />
+            className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none" />
           <ClayButton size="sm" onClick={handleAdd} disabled={!phone.trim() || isMutating}>
             <LuPlus className="mr-1.5 h-3.5 w-3.5" /> Add
           </ClayButton>
@@ -117,7 +117,7 @@ export default function ContactBlacklistPage() {
         <ClayCard padded={false} className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-clay-border text-[11px] font-semibold uppercase tracking-wide text-clay-ink-muted">
+              <tr className="border-b border-border text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                 <th className="px-5 py-3">#</th>
                 <th className="px-5 py-3">Phone Number</th>
                 <th className="px-5 py-3 text-right">Action</th>
@@ -125,9 +125,9 @@ export default function ContactBlacklistPage() {
             </thead>
             <tbody>
               {numbers.map((item, i) => (
-                <tr key={item._id} className="border-b border-clay-border last:border-0">
-                  <td className="px-5 py-3 text-[13px] text-clay-ink-muted">{i + 1}</td>
-                  <td className="px-5 py-3 font-mono text-[13px] text-clay-ink">{item.phone}</td>
+                <tr key={item._id} className="border-b border-border last:border-0">
+                  <td className="px-5 py-3 text-[13px] text-muted-foreground">{i + 1}</td>
+                  <td className="px-5 py-3 font-mono text-[13px] text-foreground">{item.phone}</td>
                   <td className="px-5 py-3 text-right">
                     <ClayButton size="sm" variant="ghost" onClick={() => handleRemove(item._id, item.phone)} disabled={isMutating}>
                       <LuTrash2 className="mr-1 h-3.5 w-3.5" /> Remove
@@ -140,8 +140,8 @@ export default function ContactBlacklistPage() {
         </ClayCard>
       ) : (
         <ClayCard className="p-12 text-center">
-          <LuShieldBan className="mx-auto h-12 w-12 text-clay-ink-muted/30 mb-4" />
-          <p className="text-sm text-clay-ink-muted">No numbers blacklisted.</p>
+          <LuShieldBan className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
+          <p className="text-sm text-muted-foreground">No numbers blacklisted.</p>
         </ClayCard>
       )}
       <div className="h-6" />

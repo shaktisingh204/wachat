@@ -346,7 +346,7 @@ export default function ProjectDetailPage(props: {
     return (
       <ClayCard variant="outline" className="border-dashed">
         <div className="flex flex-col items-center gap-3 py-12 text-center">
-          <p className="text-[13px] text-clay-ink-muted">Project not found.</p>
+          <p className="text-[13px] text-muted-foreground">Project not found.</p>
           <Link href="/dashboard/crm/projects">
             <ClayButton variant="pill" leading={<ArrowLeft className="h-4 w-4" />}>
               Back to Projects
@@ -408,21 +408,21 @@ export default function ProjectDetailPage(props: {
 
         <div className="mt-6 grid gap-4 md:grid-cols-3">
           <div className="flex flex-col">
-            <p className="text-[11.5px] text-clay-ink-muted">Status</p>
+            <p className="text-[11.5px] text-muted-foreground">Status</p>
             <ClayBadge tone="blue" dot>
               {project.status}
             </ClayBadge>
           </div>
           <div className="flex flex-col">
-            <p className="text-[11.5px] text-clay-ink-muted">Category</p>
-            <p className="text-[13px] font-medium text-clay-ink">
+            <p className="text-[11.5px] text-muted-foreground">Category</p>
+            <p className="text-[13px] font-medium text-foreground">
               {project.categoryName || '—'}
               {project.subCategoryName ? ` · ${project.subCategoryName}` : ''}
             </p>
           </div>
           <div className="flex flex-col">
-            <p className="text-[11.5px] text-clay-ink-muted">Department</p>
-            <p className="text-[13px] font-medium text-clay-ink">
+            <p className="text-[11.5px] text-muted-foreground">Department</p>
+            <p className="text-[13px] font-medium text-foreground">
               {project.departmentName || '—'}
             </p>
           </div>
@@ -430,14 +430,14 @@ export default function ProjectDetailPage(props: {
 
         <div className="mt-6">
           <div className="flex items-center justify-between">
-            <p className="text-[12.5px] font-medium text-clay-ink">
+            <p className="text-[12.5px] font-medium text-foreground">
               Progress ({doneCount}/{tasks.length} tasks done)
             </p>
             <ClayBadge tone="blue">{computedProgress}%</ClayBadge>
           </div>
-          <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-clay-surface-2">
+          <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-secondary">
             <div
-              className="h-full bg-clay-rose transition-all"
+              className="h-full bg-primary transition-all"
               style={{
                 width: `${Math.max(0, Math.min(100, computedProgress))}%`,
               }}
@@ -470,34 +470,34 @@ export default function ProjectDetailPage(props: {
           <TabsContent value="overview">
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <p className="text-[11.5px] uppercase tracking-wide text-clay-ink-muted">
+                <p className="text-[11.5px] uppercase tracking-wide text-muted-foreground">
                   Description
                 </p>
-                <p className="mt-1 whitespace-pre-wrap text-[13px] text-clay-ink">
+                <p className="mt-1 whitespace-pre-wrap text-[13px] text-foreground">
                   {project.description || project.projectSummary || '—'}
                 </p>
               </div>
               <div>
-                <p className="text-[11.5px] uppercase tracking-wide text-clay-ink-muted">
+                <p className="text-[11.5px] uppercase tracking-wide text-muted-foreground">
                   Notes
                 </p>
-                <p className="mt-1 whitespace-pre-wrap text-[13px] text-clay-ink">
+                <p className="mt-1 whitespace-pre-wrap text-[13px] text-foreground">
                   {project.notes || '—'}
                 </p>
               </div>
               <div>
-                <p className="text-[11.5px] uppercase tracking-wide text-clay-ink-muted">
+                <p className="text-[11.5px] uppercase tracking-wide text-muted-foreground">
                   Hours Allocated
                 </p>
-                <p className="mt-1 text-[13px] text-clay-ink">
+                <p className="mt-1 text-[13px] text-foreground">
                   {project.hoursAllocated ?? '—'}
                 </p>
               </div>
               <div>
-                <p className="text-[11.5px] uppercase tracking-wide text-clay-ink-muted">
+                <p className="text-[11.5px] uppercase tracking-wide text-muted-foreground">
                   Short Code
                 </p>
-                <p className="mt-1 text-[13px] text-clay-ink">
+                <p className="mt-1 text-[13px] text-foreground">
                   {project.projectShortCode || '—'}
                 </p>
               </div>
@@ -518,41 +518,41 @@ export default function ProjectDetailPage(props: {
                 Add Task
               </ClayButton>
             </div>
-            <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+            <div className="overflow-x-auto rounded-lg border border-border">
               <Table>
                 <TableHeader>
-                  <TableRow className="border-clay-border hover:bg-transparent">
-                    <TableHead className="text-clay-ink-muted">Title</TableHead>
-                    <TableHead className="text-clay-ink-muted">
+                  <TableRow className="border-border hover:bg-transparent">
+                    <TableHead className="text-muted-foreground">Title</TableHead>
+                    <TableHead className="text-muted-foreground">
                       Assignee
                     </TableHead>
-                    <TableHead className="text-clay-ink-muted">Status</TableHead>
-                    <TableHead className="text-clay-ink-muted">
+                    <TableHead className="text-muted-foreground">Status</TableHead>
+                    <TableHead className="text-muted-foreground">
                       Priority
                     </TableHead>
-                    <TableHead className="text-clay-ink-muted">Due</TableHead>
-                    <TableHead className="w-[120px] text-right text-clay-ink-muted">
+                    <TableHead className="text-muted-foreground">Due</TableHead>
+                    <TableHead className="w-[120px] text-right text-muted-foreground">
                       Actions
                     </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {tasks.length === 0 ? (
-                    <TableRow className="border-clay-border">
+                    <TableRow className="border-border">
                       <TableCell
                         colSpan={6}
-                        className="h-24 text-center text-[13px] text-clay-ink-muted"
+                        className="h-24 text-center text-[13px] text-muted-foreground"
                       >
                         No tasks yet — click Add Task to get started.
                       </TableCell>
                     </TableRow>
                   ) : (
                     tasks.map((t) => (
-                      <TableRow key={t._id} className="border-clay-border">
-                        <TableCell className="text-[13px] font-medium text-clay-ink">
+                      <TableRow key={t._id} className="border-border">
+                        <TableCell className="text-[13px] font-medium text-foreground">
                           {t.heading}
                         </TableCell>
-                        <TableCell className="text-[13px] text-clay-ink">
+                        <TableCell className="text-[13px] text-foreground">
                           {t.assigneeName || '—'}
                         </TableCell>
                         <TableCell>
@@ -575,7 +575,7 @@ export default function ProjectDetailPage(props: {
                             '—'
                           )}
                         </TableCell>
-                        <TableCell className="text-[13px] text-clay-ink">
+                        <TableCell className="text-[13px] text-foreground">
                           {fmtDate(t.dueDate)}
                         </TableCell>
                         <TableCell className="text-right">
@@ -595,7 +595,7 @@ export default function ProjectDetailPage(props: {
                               size="sm"
                               onClick={() => setDeletingTaskId(t._id)}
                             >
-                              <Trash2 className="h-3.5 w-3.5 text-clay-red" />
+                              <Trash2 className="h-3.5 w-3.5 text-destructive" />
                             </Button>
                           </div>
                         </TableCell>
@@ -625,13 +625,13 @@ export default function ProjectDetailPage(props: {
                 {milestones.map((m) => (
                   <li
                     key={m._id}
-                    className="flex flex-wrap items-center justify-between gap-2 rounded-clay-md border border-clay-border p-3"
+                    className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border p-3"
                   >
                     <div>
-                      <p className="text-[13px] font-medium text-clay-ink">
+                      <p className="text-[13px] font-medium text-foreground">
                         {m.milestoneTitle}
                       </p>
-                      <p className="text-[11.5px] text-clay-ink-muted">
+                      <p className="text-[11.5px] text-muted-foreground">
                         {fmtDate(m.startDate)} – {fmtDate(m.endDate)}
                         {m.cost ? ` · ${m.currency || 'INR'} ${m.cost}` : ''}
                       </p>
@@ -648,7 +648,7 @@ export default function ProjectDetailPage(props: {
                         size="sm"
                         onClick={() => handleDeleteMilestone(m._id)}
                       >
-                        <Trash2 className="h-3.5 w-3.5 text-clay-red" />
+                        <Trash2 className="h-3.5 w-3.5 text-destructive" />
                       </Button>
                     </div>
                   </li>
@@ -675,13 +675,13 @@ export default function ProjectDetailPage(props: {
                 {members.map((m) => (
                   <li
                     key={m._id}
-                    className="flex flex-wrap items-center justify-between gap-2 rounded-clay-md border border-clay-border p-3"
+                    className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border p-3"
                   >
                     <div>
-                      <p className="text-[13px] font-medium text-clay-ink">
+                      <p className="text-[13px] font-medium text-foreground">
                         {m.memberName || String(m.memberUserId)}
                       </p>
-                      <p className="text-[11.5px] text-clay-ink-muted">
+                      <p className="text-[11.5px] text-muted-foreground">
                         {m.memberEmail || m.role || '—'}
                       </p>
                     </div>
@@ -694,7 +694,7 @@ export default function ProjectDetailPage(props: {
                         size="sm"
                         onClick={() => handleDeleteMember(m._id)}
                       >
-                        <Trash2 className="h-3.5 w-3.5 text-clay-red" />
+                        <Trash2 className="h-3.5 w-3.5 text-destructive" />
                       </Button>
                     </div>
                   </li>
@@ -721,13 +721,13 @@ export default function ProjectDetailPage(props: {
                 {files.map((f) => (
                   <li
                     key={f._id}
-                    className="flex flex-wrap items-center justify-between gap-2 rounded-clay-md border border-clay-border p-3"
+                    className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border p-3"
                   >
                     <div>
-                      <p className="text-[13px] font-medium text-clay-ink">
+                      <p className="text-[13px] font-medium text-foreground">
                         {f.filename}
                       </p>
-                      <p className="text-[11.5px] text-clay-ink-muted">
+                      <p className="text-[11.5px] text-muted-foreground">
                         {f.description || f.externalLinkName || '—'}
                       </p>
                       {f.url || f.externalLink ? (
@@ -735,7 +735,7 @@ export default function ProjectDetailPage(props: {
                           href={f.url || f.externalLink}
                           target="_blank"
                           rel="noreferrer noopener"
-                          className="mt-0.5 inline-block text-[11.5px] text-clay-blue hover:underline"
+                          className="mt-0.5 inline-block text-[11.5px] text-sky-500 hover:underline"
                         >
                           Open link
                         </a>
@@ -746,7 +746,7 @@ export default function ProjectDetailPage(props: {
                       size="sm"
                       onClick={() => handleDeleteFile(f._id)}
                     >
-                      <Trash2 className="h-3.5 w-3.5 text-clay-red" />
+                      <Trash2 className="h-3.5 w-3.5 text-destructive" />
                     </Button>
                   </li>
                 ))}
@@ -772,10 +772,10 @@ export default function ProjectDetailPage(props: {
                 {notes.map((n) => (
                   <li
                     key={n._id}
-                    className="rounded-clay-md border border-clay-border p-3"
+                    className="rounded-lg border border-border p-3"
                   >
                     <div className="flex items-start justify-between gap-2">
-                      <p className="text-[13px] font-medium text-clay-ink">
+                      <p className="text-[13px] font-medium text-foreground">
                         {n.title}
                       </p>
                       <Button
@@ -783,10 +783,10 @@ export default function ProjectDetailPage(props: {
                         size="sm"
                         onClick={() => handleDeleteNote(n._id)}
                       >
-                        <Trash2 className="h-3.5 w-3.5 text-clay-red" />
+                        <Trash2 className="h-3.5 w-3.5 text-destructive" />
                       </Button>
                     </div>
-                    <p className="mt-1 whitespace-pre-wrap text-[12.5px] text-clay-ink-muted">
+                    <p className="mt-1 whitespace-pre-wrap text-[12.5px] text-muted-foreground">
                       {n.details || '—'}
                     </p>
                   </li>
@@ -804,15 +804,15 @@ export default function ProjectDetailPage(props: {
                 {activity.map((a) => (
                   <li
                     key={a._id}
-                    className="flex items-start gap-3 rounded-clay-md border border-clay-border p-3"
+                    className="flex items-start gap-3 rounded-lg border border-border p-3"
                   >
                     <ActivityIcon
-                      className="mt-0.5 h-4 w-4 text-clay-ink-muted"
+                      className="mt-0.5 h-4 w-4 text-muted-foreground"
                       strokeWidth={1.75}
                     />
                     <div>
-                      <p className="text-[13px] text-clay-ink">{a.activity}</p>
-                      <p className="text-[11px] text-clay-ink-muted">
+                      <p className="text-[13px] text-foreground">{a.activity}</p>
+                      <p className="text-[11px] text-muted-foreground">
                         {a.actorName ? `${a.actorName} · ` : ''}
                         {fmtDate(a.createdAt)}
                       </p>
@@ -826,8 +826,8 @@ export default function ProjectDetailPage(props: {
           {/* ── Gantt (simple task + dependency count view) ── */}
           <TabsContent value="gantt">
             <div className="mb-3 flex items-center gap-2">
-              <GanttChart className="h-4 w-4 text-clay-ink-muted" />
-              <p className="text-[12.5px] text-clay-ink-muted">
+              <GanttChart className="h-4 w-4 text-muted-foreground" />
+              <p className="text-[12.5px] text-muted-foreground">
                 {tasks.length} tasks · {ganttLinks.length} dependencies ·{' '}
                 {milestones.length} milestones
               </p>
@@ -835,14 +835,14 @@ export default function ProjectDetailPage(props: {
             {tasks.length === 0 ? (
               <EmptyRow text="No tasks to chart." />
             ) : (
-              <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+              <div className="overflow-x-auto rounded-lg border border-border">
                 <Table>
                   <TableHeader>
-                    <TableRow className="border-clay-border">
-                      <TableHead className="text-clay-ink-muted">Task</TableHead>
-                      <TableHead className="text-clay-ink-muted">Start</TableHead>
-                      <TableHead className="text-clay-ink-muted">Due</TableHead>
-                      <TableHead className="text-clay-ink-muted">Deps</TableHead>
+                    <TableRow className="border-border">
+                      <TableHead className="text-muted-foreground">Task</TableHead>
+                      <TableHead className="text-muted-foreground">Start</TableHead>
+                      <TableHead className="text-muted-foreground">Due</TableHead>
+                      <TableHead className="text-muted-foreground">Deps</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -851,17 +851,17 @@ export default function ProjectDetailPage(props: {
                         (g) => String(g.target) === t._id,
                       ).length;
                       return (
-                        <TableRow key={t._id} className="border-clay-border">
-                          <TableCell className="text-[13px] font-medium text-clay-ink">
+                        <TableRow key={t._id} className="border-border">
+                          <TableCell className="text-[13px] font-medium text-foreground">
                             {t.heading}
                           </TableCell>
-                          <TableCell className="text-[13px] text-clay-ink">
+                          <TableCell className="text-[13px] text-foreground">
                             {fmtDate(t.startDate)}
                           </TableCell>
-                          <TableCell className="text-[13px] text-clay-ink">
+                          <TableCell className="text-[13px] text-foreground">
                             {fmtDate(t.dueDate)}
                           </TableCell>
-                          <TableCell className="text-[13px] text-clay-ink">
+                          <TableCell className="text-[13px] text-foreground">
                             {deps}
                           </TableCell>
                         </TableRow>
@@ -879,10 +879,10 @@ export default function ProjectDetailPage(props: {
       <Dialog open={taskDialogOpen} onOpenChange={setTaskDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="text-clay-ink">
+            <DialogTitle className="text-foreground">
               {editingTask ? 'Edit Task' : 'Add Task'}
             </DialogTitle>
-            <DialogDescription className="text-clay-ink-muted">
+            <DialogDescription className="text-muted-foreground">
               Fill in the task details below.
             </DialogDescription>
           </DialogHeader>
@@ -893,31 +893,31 @@ export default function ProjectDetailPage(props: {
             <input type="hidden" name="projectId" value={projectId} />
             <div className="grid gap-4 md:grid-cols-2">
               <div className="md:col-span-2">
-                <Label className="text-clay-ink">
-                  Title <span className="text-clay-red">*</span>
+                <Label className="text-foreground">
+                  Title <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   name="heading"
                   required
                   defaultValue={editingTask?.heading || ''}
-                  className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
               <div>
-                <Label className="text-clay-ink">Assignee</Label>
+                <Label className="text-foreground">Assignee</Label>
                 <Input
                   name="assigneeName"
                   defaultValue={editingTask?.assigneeName || ''}
-                  className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
               <div>
-                <Label className="text-clay-ink">Status</Label>
+                <Label className="text-foreground">Status</Label>
                 <Select
                   name="status"
                   defaultValue={editingTask?.status || 'incomplete'}
                 >
-                  <SelectTrigger className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
+                  <SelectTrigger className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -930,12 +930,12 @@ export default function ProjectDetailPage(props: {
                 </Select>
               </div>
               <div>
-                <Label className="text-clay-ink">Priority</Label>
+                <Label className="text-foreground">Priority</Label>
                 <Select
                   name="priority"
                   defaultValue={editingTask?.priority || 'medium'}
                 >
-                  <SelectTrigger className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
+                  <SelectTrigger className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -947,7 +947,7 @@ export default function ProjectDetailPage(props: {
                 </Select>
               </div>
               <div>
-                <Label className="text-clay-ink">Start Date</Label>
+                <Label className="text-foreground">Start Date</Label>
                 <Input
                   type="date"
                   name="startDate"
@@ -958,11 +958,11 @@ export default function ProjectDetailPage(props: {
                           .slice(0, 10)
                       : ''
                   }
-                  className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
               <div>
-                <Label className="text-clay-ink">Due Date</Label>
+                <Label className="text-foreground">Due Date</Label>
                 <Input
                   type="date"
                   name="dueDate"
@@ -973,34 +973,34 @@ export default function ProjectDetailPage(props: {
                           .slice(0, 10)
                       : ''
                   }
-                  className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
               <div>
-                <Label className="text-clay-ink">Estimate Hours</Label>
+                <Label className="text-foreground">Estimate Hours</Label>
                 <Input
                   type="number"
                   name="estimatedHours"
                   defaultValue={editingTask?.estimatedHours ?? ''}
-                  className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
               <div>
-                <Label className="text-clay-ink">Actual Hours</Label>
+                <Label className="text-foreground">Actual Hours</Label>
                 <Input
                   type="number"
                   name="actualHours"
                   defaultValue={editingTask?.actualHours ?? ''}
-                  className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
               <div className="md:col-span-2">
-                <Label className="text-clay-ink">Description</Label>
+                <Label className="text-foreground">Description</Label>
                 <Textarea
                   name="description"
                   rows={3}
                   defaultValue={editingTask?.description || ''}
-                  className="mt-1.5 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="mt-1.5 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
@@ -1038,10 +1038,10 @@ export default function ProjectDetailPage(props: {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-clay-ink">
+            <AlertDialogTitle className="text-foreground">
               Delete task?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-clay-ink-muted">
+            <AlertDialogDescription className="text-muted-foreground">
               This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -1146,12 +1146,12 @@ function SummaryTile({
 }) {
   return (
     <div className="flex items-start gap-3">
-      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-clay-md bg-clay-rose-soft">
-        <Icon className="h-4 w-4 text-clay-rose-ink" strokeWidth={1.75} />
+      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent">
+        <Icon className="h-4 w-4 text-accent-foreground" strokeWidth={1.75} />
       </div>
       <div>
-        <p className="text-[11.5px] text-clay-ink-muted">{label}</p>
-        <p className="text-[13px] font-medium text-clay-ink">{value}</p>
+        <p className="text-[11.5px] text-muted-foreground">{label}</p>
+        <p className="text-[13px] font-medium text-foreground">{value}</p>
       </div>
     </div>
   );
@@ -1159,7 +1159,7 @@ function SummaryTile({
 
 function EmptyRow({ text }: { text: string }) {
   return (
-    <div className="rounded-clay-md border border-dashed border-clay-border p-8 text-center text-[13px] text-clay-ink-muted">
+    <div className="rounded-lg border border-dashed border-border p-8 text-center text-[13px] text-muted-foreground">
       {text}
     </div>
   );
@@ -1184,7 +1184,7 @@ function SimpleFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle className="text-clay-ink">{title}</DialogTitle>
+          <DialogTitle className="text-foreground">{title}</DialogTitle>
         </DialogHeader>
         <form action={action} className="space-y-3">
           {children}
@@ -1235,9 +1235,9 @@ function FormInput({
 }) {
   return (
     <div>
-      <Label className="text-clay-ink">
+      <Label className="text-foreground">
         {label}
-        {required ? <span className="text-clay-red"> *</span> : null}
+        {required ? <span className="text-destructive"> *</span> : null}
       </Label>
       {type === 'textarea' ? (
         <Textarea
@@ -1245,7 +1245,7 @@ function FormInput({
           required={required}
           placeholder={placeholder}
           defaultValue={defaultValue}
-          className="mt-1.5 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+          className="mt-1.5 rounded-lg border-border bg-card text-[13px]"
         />
       ) : (
         <Input
@@ -1254,7 +1254,7 @@ function FormInput({
           required={required}
           placeholder={placeholder}
           defaultValue={defaultValue}
-          className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+          className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
         />
       )}
     </div>
@@ -1274,9 +1274,9 @@ function FormSelect({
 }) {
   return (
     <div>
-      <Label className="text-clay-ink">{label}</Label>
+      <Label className="text-foreground">{label}</Label>
       <Select name={name} defaultValue={defaultValue}>
-        <SelectTrigger className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
+        <SelectTrigger className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>

@@ -68,10 +68,10 @@ export default function ShiftRotationsPage() {
       />
 
       <ClayCard>
-        <h2 className="mb-3 text-[16px] font-semibold text-clay-ink">Create Rotation</h2>
+        <h2 className="mb-3 text-[16px] font-semibold text-foreground">Create Rotation</h2>
         <form onSubmit={handleCreate} className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_2fr_auto]">
           <div className="flex flex-col gap-1.5">
-            <Label className="text-[12px] text-clay-ink-muted">Name</Label>
+            <Label className="text-[12px] text-muted-foreground">Name</Label>
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -80,7 +80,7 @@ export default function ShiftRotationsPage() {
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label className="text-[12px] text-clay-ink-muted">Description</Label>
+            <Label className="text-[12px] text-muted-foreground">Description</Label>
             <Input
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -101,31 +101,31 @@ export default function ShiftRotationsPage() {
       </ClayCard>
 
       <ClayCard>
-        <h2 className="mb-3 text-[16px] font-semibold text-clay-ink">All Rotations</h2>
-        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+        <h2 className="mb-3 text-[16px] font-semibold text-foreground">All Rotations</h2>
+        <div className="overflow-x-auto rounded-lg border border-border">
           <table className="w-full border-collapse text-[13px]">
             <thead>
-              <tr className="border-b border-clay-border bg-clay-surface-2">
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Name</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Description</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Status</th>
-                <th className="px-4 py-2.5 text-right text-[12px] font-medium text-clay-ink-muted">Actions</th>
+              <tr className="border-b border-border bg-secondary">
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Name</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Description</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Status</th>
+                <th className="px-4 py-2.5 text-right text-[12px] font-medium text-muted-foreground">Actions</th>
               </tr>
             </thead>
             <tbody>
               {pending && rotations.length === 0 ? (
-                <tr className="border-b border-clay-border">
-                  <td colSpan={4} className="h-24 text-center text-[13px] text-clay-ink-muted">
+                <tr className="border-b border-border">
+                  <td colSpan={4} className="h-24 text-center text-[13px] text-muted-foreground">
                     Loading…
                   </td>
                 </tr>
               ) : rotations.length > 0 ? (
                 rotations.map((r) => (
-                  <tr key={String(r._id)} className="border-b border-clay-border last:border-0 hover:bg-clay-surface-2/50">
-                    <td className="px-4 py-2.5 text-[13px] font-medium text-clay-ink">
+                  <tr key={String(r._id)} className="border-b border-border last:border-0 hover:bg-secondary/50">
+                    <td className="px-4 py-2.5 text-[13px] font-medium text-foreground">
                       {r.name}
                     </td>
-                    <td className="px-4 py-2.5 text-[13px] text-clay-ink-muted">
+                    <td className="px-4 py-2.5 text-[13px] text-muted-foreground">
                       {r.description || '—'}
                     </td>
                     <td className="px-4 py-2.5">
@@ -146,15 +146,15 @@ export default function ShiftRotationsPage() {
                           aria-label="Delete rotation"
                           onClick={() => handleDelete(r._id)}
                         >
-                          <Trash2 className="h-4 w-4 text-clay-red" />
+                          <Trash2 className="h-4 w-4 text-destructive" />
                         </ClayButton>
                       </div>
                     </td>
                   </tr>
                 ))
               ) : (
-                <tr className="border-b border-clay-border">
-                  <td colSpan={4} className="h-24 text-center text-[13px] text-clay-ink-muted">
+                <tr className="border-b border-border">
+                  <td colSpan={4} className="h-24 text-center text-[13px] text-muted-foreground">
                     No rotations yet.
                   </td>
                 </tr>

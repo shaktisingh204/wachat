@@ -253,12 +253,12 @@ export function EmployeeForm({ employee, departments, designations, managers, de
                                 <div className="grid gap-4 md:grid-cols-2">
                                     <div className="space-y-2 md:col-span-2">
                                         <Label>About Me</Label>
-                                        <Textarea name="about_me" rows={3} defaultValue={detail?.about_me || ''} className="rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                                        <Textarea name="about_me" rows={3} defaultValue={detail?.about_me || ''} className="rounded-lg border-border bg-card text-[13px]" />
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Gender</Label>
                                         <Select name="gender" defaultValue={detail?.gender || '__none__'}>
-                                            <SelectTrigger className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"><SelectValue placeholder="Select…" /></SelectTrigger>
+                                            <SelectTrigger className="h-10 rounded-lg border-border bg-card text-[13px]"><SelectValue placeholder="Select…" /></SelectTrigger>
                                             <SelectContent>
                                                 <SelectItem value="__none__">— None —</SelectItem>
                                                 <SelectItem value="male">Male</SelectItem>
@@ -270,7 +270,7 @@ export function EmployeeForm({ employee, departments, designations, managers, de
                                     <div className="space-y-2">
                                         <Label>Marital Status</Label>
                                         <Select name="marital_status" defaultValue={detail?.marital_status || '__none__'}>
-                                            <SelectTrigger className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"><SelectValue placeholder="Select…" /></SelectTrigger>
+                                            <SelectTrigger className="h-10 rounded-lg border-border bg-card text-[13px]"><SelectValue placeholder="Select…" /></SelectTrigger>
                                             <SelectContent>
                                                 <SelectItem value="__none__">— None —</SelectItem>
                                                 <SelectItem value="single">Single</SelectItem>
@@ -282,12 +282,12 @@ export function EmployeeForm({ employee, departments, designations, managers, de
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Date of Birth</Label>
-                                        <Input type="date" name="date_of_birth" defaultValue={toDateInput(detail?.date_of_birth)} className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                                        <Input type="date" name="date_of_birth" defaultValue={toDateInput(detail?.date_of_birth)} className="h-10 rounded-lg border-border bg-card text-[13px]" />
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Blood Group</Label>
                                         <Select name="blood_group" defaultValue={detail?.blood_group || '__none__'}>
-                                            <SelectTrigger className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"><SelectValue placeholder="Select…" /></SelectTrigger>
+                                            <SelectTrigger className="h-10 rounded-lg border-border bg-card text-[13px]"><SelectValue placeholder="Select…" /></SelectTrigger>
                                             <SelectContent>
                                                 <SelectItem value="__none__">— None —</SelectItem>
                                                 {['A+','A-','B+','B-','AB+','AB-','O+','O-'].map(g => <SelectItem key={g} value={g}>{g}</SelectItem>)}
@@ -296,27 +296,27 @@ export function EmployeeForm({ employee, departments, designations, managers, de
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Nationality</Label>
-                                        <Input name="nationality" defaultValue={detail?.nationality || ''} className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                                        <Input name="nationality" defaultValue={detail?.nationality || ''} className="h-10 rounded-lg border-border bg-card text-[13px]" />
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Religion</Label>
-                                        <Input name="religion" defaultValue={detail?.religion || ''} className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                                        <Input name="religion" defaultValue={detail?.religion || ''} className="h-10 rounded-lg border-border bg-card text-[13px]" />
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Languages (comma-separated)</Label>
-                                        <Input name="languages" defaultValue={detail?.languages || ''} className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                                        <Input name="languages" defaultValue={detail?.languages || ''} className="h-10 rounded-lg border-border bg-card text-[13px]" />
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Marriage Anniversary Date</Label>
-                                        <Input type="date" name="marriage_anniversary_date" defaultValue={toDateInput(detail?.marriage_anniversary_date)} className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                                        <Input type="date" name="marriage_anniversary_date" defaultValue={toDateInput(detail?.marriage_anniversary_date)} className="h-10 rounded-lg border-border bg-card text-[13px]" />
                                     </div>
                                     <div className="space-y-2 md:col-span-2">
                                         <Label>Hobbies</Label>
-                                        <Textarea name="hobbies" rows={2} defaultValue={detail?.hobbies || ''} className="rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                                        <Textarea name="hobbies" rows={2} defaultValue={detail?.hobbies || ''} className="rounded-lg border-border bg-card text-[13px]" />
                                     </div>
                                     <div className="space-y-2 md:col-span-2">
                                         <Label>Address</Label>
-                                        <Textarea name="address" rows={2} defaultValue={detail?.address || ''} className="rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                                        <Textarea name="address" rows={2} defaultValue={detail?.address || ''} className="rounded-lg border-border bg-card text-[13px]" />
                                     </div>
                                 </div>
                             </AccordionContent>
@@ -330,7 +330,7 @@ export function EmployeeForm({ employee, departments, designations, managers, de
                                     <div className="space-y-2">
                                         <Label>Employment Type</Label>
                                         <Select name="employment_type" defaultValue={detail?.employment_type || '__none__'}>
-                                            <SelectTrigger className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"><SelectValue placeholder="Select…" /></SelectTrigger>
+                                            <SelectTrigger className="h-10 rounded-lg border-border bg-card text-[13px]"><SelectValue placeholder="Select…" /></SelectTrigger>
                                             <SelectContent>
                                                 <SelectItem value="__none__">— None —</SelectItem>
                                                 <SelectItem value="full-time">Full-time</SelectItem>
@@ -344,7 +344,7 @@ export function EmployeeForm({ employee, departments, designations, managers, de
                                     <div className="space-y-2">
                                         <Label>Reporting To</Label>
                                         <Select value={reportingTo || '__none__'} onValueChange={(v) => setReportingTo(v === '__none__' ? '' : v)}>
-                                            <SelectTrigger className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"><SelectValue placeholder="Select manager…" /></SelectTrigger>
+                                            <SelectTrigger className="h-10 rounded-lg border-border bg-card text-[13px]"><SelectValue placeholder="Select manager…" /></SelectTrigger>
                                             <SelectContent>
                                                 <SelectItem value="__none__">— None —</SelectItem>
                                                 {managers
@@ -359,44 +359,44 @@ export function EmployeeForm({ employee, departments, designations, managers, de
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Probation End Date</Label>
-                                        <Input type="date" name="probation_end_date" defaultValue={toDateInput(detail?.probation_end_date)} className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                                        <Input type="date" name="probation_end_date" defaultValue={toDateInput(detail?.probation_end_date)} className="h-10 rounded-lg border-border bg-card text-[13px]" />
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Last Date</Label>
-                                        <Input type="date" name="last_date" defaultValue={toDateInput(detail?.last_date)} className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                                        <Input type="date" name="last_date" defaultValue={toDateInput(detail?.last_date)} className="h-10 rounded-lg border-border bg-card text-[13px]" />
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Notice Period (days)</Label>
-                                        <Input type="number" name="notice_period" min="0" defaultValue={detail?.notice_period ?? ''} className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                                        <Input type="number" name="notice_period" min="0" defaultValue={detail?.notice_period ?? ''} className="h-10 rounded-lg border-border bg-card text-[13px]" />
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Notice Period End Date</Label>
-                                        <Input type="date" name="notice_period_end_date" defaultValue={toDateInput(detail?.notice_period_end_date)} className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                                        <Input type="date" name="notice_period_end_date" defaultValue={toDateInput(detail?.notice_period_end_date)} className="h-10 rounded-lg border-border bg-card text-[13px]" />
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Internship End Date</Label>
-                                        <Input type="date" name="internship_end_date" defaultValue={toDateInput(detail?.internship_end_date)} className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                                        <Input type="date" name="internship_end_date" defaultValue={toDateInput(detail?.internship_end_date)} className="h-10 rounded-lg border-border bg-card text-[13px]" />
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Contract End Date</Label>
-                                        <Input type="date" name="contract_end_date" defaultValue={toDateInput(detail?.contract_end_date)} className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                                        <Input type="date" name="contract_end_date" defaultValue={toDateInput(detail?.contract_end_date)} className="h-10 rounded-lg border-border bg-card text-[13px]" />
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Hourly Rate</Label>
-                                        <Input type="number" name="hourly_rate" min="0" step="0.01" defaultValue={detail?.hourly_rate ?? ''} className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                                        <Input type="number" name="hourly_rate" min="0" step="0.01" defaultValue={detail?.hourly_rate ?? ''} className="h-10 rounded-lg border-border bg-card text-[13px]" />
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Overtime Hourly Rate</Label>
-                                        <Input type="number" name="overtime_hourly_rate" min="0" step="0.01" defaultValue={detail?.overtime_hourly_rate ?? ''} className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                                        <Input type="number" name="overtime_hourly_rate" min="0" step="0.01" defaultValue={detail?.overtime_hourly_rate ?? ''} className="h-10 rounded-lg border-border bg-card text-[13px]" />
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Slack Username</Label>
-                                        <Input name="slack_username" defaultValue={detail?.slack_username || ''} className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                                        <Input name="slack_username" defaultValue={detail?.slack_username || ''} className="h-10 rounded-lg border-border bg-card text-[13px]" />
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Work Anniversary Notified</Label>
                                         <Select name="work_anniversary_notified" defaultValue={detail?.work_anniversary_notified ? 'true' : 'false'}>
-                                            <SelectTrigger className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"><SelectValue /></SelectTrigger>
+                                            <SelectTrigger className="h-10 rounded-lg border-border bg-card text-[13px]"><SelectValue /></SelectTrigger>
                                             <SelectContent>
                                                 <SelectItem value="false">No</SelectItem>
                                                 <SelectItem value="true">Yes</SelectItem>
@@ -414,16 +414,16 @@ export function EmployeeForm({ employee, departments, designations, managers, de
                                 <div className="grid gap-4 md:grid-cols-2">
                                     <div className="space-y-2">
                                         <Label>Bank Account Number</Label>
-                                        <Input name="bank_account_number" defaultValue={detail?.bank_account_number || ''} className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                                        <Input name="bank_account_number" defaultValue={detail?.bank_account_number || ''} className="h-10 rounded-lg border-border bg-card text-[13px]" />
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Bank Name</Label>
-                                        <Input name="bank_name" defaultValue={detail?.bank_name || ''} className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                                        <Input name="bank_name" defaultValue={detail?.bank_name || ''} className="h-10 rounded-lg border-border bg-card text-[13px]" />
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Tax Regime</Label>
                                         <Select name="tax_regime" defaultValue={detail?.tax_regime || '__none__'}>
-                                            <SelectTrigger className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"><SelectValue placeholder="Select…" /></SelectTrigger>
+                                            <SelectTrigger className="h-10 rounded-lg border-border bg-card text-[13px]"><SelectValue placeholder="Select…" /></SelectTrigger>
                                             <SelectContent>
                                                 <SelectItem value="__none__">— None —</SelectItem>
                                                 <SelectItem value="old">Old</SelectItem>
@@ -433,7 +433,7 @@ export function EmployeeForm({ employee, departments, designations, managers, de
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Gross Salary</Label>
-                                        <Input type="number" name="grossSalary" min="0" defaultValue={(employee as any)?.salaryDetails?.grossSalary ?? ''} className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                                        <Input type="number" name="grossSalary" min="0" defaultValue={(employee as any)?.salaryDetails?.grossSalary ?? ''} className="h-10 rounded-lg border-border bg-card text-[13px]" />
                                     </div>
                                 </div>
                             </AccordionContent>
@@ -441,7 +441,7 @@ export function EmployeeForm({ employee, departments, designations, managers, de
                     </Accordion>
                 </div>
 
-                <div className="flex border-t border-clay-border p-6 pt-4">
+                <div className="flex border-t border-border p-6 pt-4">
                     <SubmitButton isEditing={isEditing} />
                 </div>
             </ClayCard>

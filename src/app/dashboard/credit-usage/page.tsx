@@ -59,8 +59,8 @@ export default function CreditUsagePage() {
 
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">Credit Usage</h1>
-          <p className="mt-1.5 text-[13px] text-clay-ink-muted">Monitor your messaging credit balance and daily usage.</p>
+          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">Credit Usage</h1>
+          <p className="mt-1.5 text-[13px] text-muted-foreground">Monitor your messaging credit balance and daily usage.</p>
         </div>
         <ClayButton
           variant="obsidian"
@@ -86,19 +86,19 @@ export default function CreditUsagePage() {
 
       {isLoading ? (
         <div className="flex h-32 items-center justify-center">
-          <LuLoader className="h-5 w-5 animate-spin text-clay-ink-muted" />
+          <LuLoader className="h-5 w-5 animate-spin text-muted-foreground" />
         </div>
       ) : (
         <>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             {stats.map((s) => (
               <ClayCard key={s.label} padded={false} className="flex items-center gap-4 p-5">
-                <span className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-clay-surface-2">
-                  <s.icon className="h-5 w-5 text-clay-ink-muted" strokeWidth={1.75} />
+                <span className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-secondary">
+                  <s.icon className="h-5 w-5 text-muted-foreground" strokeWidth={1.75} />
                 </span>
                 <div>
-                  <div className="text-[12px] text-clay-ink-muted">{s.label}</div>
-                  <div className="text-[22px] font-semibold text-clay-ink leading-tight tabular-nums">{s.value}</div>
+                  <div className="text-[12px] text-muted-foreground">{s.label}</div>
+                  <div className="text-[22px] font-semibold text-foreground leading-tight tabular-nums">{s.value}</div>
                 </div>
               </ClayCard>
             ))}
@@ -106,7 +106,7 @@ export default function CreditUsagePage() {
 
           {dailyUsage.length > 0 && (
             <ClayCard padded={false} className="p-5">
-              <h2 className="text-[15px] font-semibold text-clay-ink mb-4">Daily trend</h2>
+              <h2 className="text-[15px] font-semibold text-foreground mb-4">Daily trend</h2>
               <div className="mb-5 h-[220px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={dailyUsage.map((d) => ({ date: d._id, count: d.count }))} margin={{ top: 5, right: 12, left: 0, bottom: 0 }}>
@@ -119,15 +119,15 @@ export default function CreditUsagePage() {
                 </ResponsiveContainer>
               </div>
               <div className="space-y-2">
-                <div className="grid grid-cols-[100px_80px_1fr] gap-2 text-[11.5px] font-medium text-clay-ink-muted">
+                <div className="grid grid-cols-[100px_80px_1fr] gap-2 text-[11.5px] font-medium text-muted-foreground">
                   <span>Date</span><span className="text-right">Messages</span><span />
                 </div>
                 {dailyUsage.map((d) => (
-                  <div key={d._id} className="grid grid-cols-[100px_80px_1fr] items-center gap-2 text-[13px] text-clay-ink">
+                  <div key={d._id} className="grid grid-cols-[100px_80px_1fr] items-center gap-2 text-[13px] text-foreground">
                     <span className="font-medium">{d._id}</span>
                     <span className="text-right tabular-nums">{d.count}</span>
-                    <div className="h-5 w-full overflow-hidden rounded-full bg-clay-surface-2">
-                      <div className="h-full rounded-full bg-clay-rose transition-all" style={{ width: `${(d.count / maxUsed) * 100}%` }} />
+                    <div className="h-5 w-full overflow-hidden rounded-full bg-secondary">
+                      <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${(d.count / maxUsed) * 100}%` }} />
                     </div>
                   </div>
                 ))}

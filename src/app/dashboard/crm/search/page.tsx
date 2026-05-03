@@ -57,22 +57,22 @@ function GroupCard({ group }: { group: WsSearchGroup }) {
     <ClayCard>
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <h2 className="text-[16px] font-semibold text-clay-ink">{group.label}</h2>
+          <h2 className="text-[16px] font-semibold text-foreground">{group.label}</h2>
           <ClayBadge tone={tone}>{group.items.length}</ClayBadge>
         </div>
         {more > 0 ? (
-          <span className="text-[12px] text-clay-ink-muted">
+          <span className="text-[12px] text-muted-foreground">
             Showing 5 of {group.items.length}
           </span>
         ) : null}
       </div>
-      <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+      <div className="overflow-x-auto rounded-lg border border-border">
         <Table>
           <TableHeader>
-            <TableRow className="border-clay-border hover:bg-transparent">
-              <TableHead className="text-clay-ink-muted">Title</TableHead>
-              <TableHead className="text-clay-ink-muted">Description</TableHead>
-              <TableHead className="text-clay-ink-muted w-[110px]">Action</TableHead>
+            <TableRow className="border-border hover:bg-transparent">
+              <TableHead className="text-muted-foreground">Title</TableHead>
+              <TableHead className="text-muted-foreground">Description</TableHead>
+              <TableHead className="text-muted-foreground w-[110px]">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -83,18 +83,18 @@ function GroupCard({ group }: { group: WsSearchGroup }) {
               return (
                 <TableRow
                   key={String(item._id)}
-                  className="border-clay-border"
+                  className="border-border"
                 >
-                  <TableCell className="text-[13px] font-medium text-clay-ink">
+                  <TableCell className="text-[13px] font-medium text-foreground">
                     {item.title}
                   </TableCell>
-                  <TableCell className="text-[12.5px] text-clay-ink-muted">
+                  <TableCell className="text-[12.5px] text-muted-foreground">
                     {item.description || '—'}
                   </TableCell>
                   <TableCell>
                     <Link
                       href={url}
-                      className="text-[12.5px] font-medium text-clay-rose-ink hover:underline"
+                      className="text-[12.5px] font-medium text-accent-foreground hover:underline"
                     >
                       View
                     </Link>
@@ -188,21 +188,21 @@ export default function CrmUniversalSearchPage() {
 
       <ClayCard>
         <div className="flex flex-col gap-2">
-          <label className="text-[12.5px] font-medium text-clay-ink-muted">
+          <label className="text-[12.5px] font-medium text-muted-foreground">
             Search query
           </label>
           <div className="relative">
-            <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-clay-ink-muted" />
+            <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               defaultValue={initialQuery}
               placeholder="Type at least one character..."
-              className="h-11 rounded-clay-md border-clay-border bg-clay-surface pl-9 text-[13.5px]"
+              className="h-11 rounded-lg border-border bg-card pl-9 text-[13.5px]"
               onChange={(e) => handleChange(e.target.value)}
             />
           </div>
-          <p className="text-[11.5px] text-clay-ink-muted">
+          <p className="text-[11.5px] text-muted-foreground">
             Searches title, description and keywords in the universal index.
-            Run <span className="font-medium text-clay-ink">Reindex</span> to
+            Run <span className="font-medium text-foreground">Reindex</span> to
             rebuild from your CRM data.
           </p>
         </div>
@@ -216,8 +216,8 @@ export default function CrmUniversalSearchPage() {
       ) : state.query.length === 0 ? (
         <ClayCard>
           <div className="flex items-center gap-3">
-            <Sparkles className="h-5 w-5 text-clay-rose-ink" />
-            <p className="text-[13px] text-clay-ink-muted">
+            <Sparkles className="h-5 w-5 text-accent-foreground" />
+            <p className="text-[13px] text-muted-foreground">
               Start typing above to search across your CRM entities.
             </p>
           </div>
@@ -225,17 +225,17 @@ export default function CrmUniversalSearchPage() {
       ) : state.groups.length === 0 ? (
         <ClayCard>
           <div className="flex flex-col items-start gap-1">
-            <p className="text-[13px] font-medium text-clay-ink">
+            <p className="text-[13px] font-medium text-foreground">
               No results for &ldquo;{state.query}&rdquo;.
             </p>
-            <p className="text-[12.5px] text-clay-ink-muted">
+            <p className="text-[12.5px] text-muted-foreground">
               Try a different query or run a reindex if you&rsquo;ve recently added data.
             </p>
           </div>
         </ClayCard>
       ) : (
         <>
-          <div className="text-[12.5px] text-clay-ink-muted">
+          <div className="text-[12.5px] text-muted-foreground">
             {totalHits} result{totalHits === 1 ? '' : 's'} across{' '}
             {state.groups.length} group{state.groups.length === 1 ? '' : 's'}.
           </div>

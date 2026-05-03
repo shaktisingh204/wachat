@@ -103,7 +103,7 @@ export default function ProductPnlPage() {
     };
 
     const SortableHeader = ({ columnKey, label }: { columnKey: keyof ProductPnlData, label: string }) => (
-        <TableHead onClick={() => requestSort(columnKey)} className="cursor-pointer text-clay-ink-muted hover:text-clay-ink">
+        <TableHead onClick={() => requestSort(columnKey)} className="cursor-pointer text-muted-foreground hover:text-foreground">
             <div className="flex items-center gap-2">
                 {label}
                 <ArrowUpDown className="h-3 w-3" />
@@ -126,12 +126,12 @@ export default function ProductPnlPage() {
             />
 
             <ClayCard>
-                <h2 className="text-[16px] font-semibold text-clay-ink">Profitability Report</h2>
-                <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">All figures are in INR (₹)</p>
-                <div className="mt-4 overflow-x-auto rounded-clay-md border border-clay-border">
+                <h2 className="text-[16px] font-semibold text-foreground">Profitability Report</h2>
+                <p className="mt-0.5 text-[12.5px] text-muted-foreground">All figures are in INR (₹)</p>
+                <div className="mt-4 overflow-x-auto rounded-lg border border-border">
                     <Table>
                         <TableHeader>
-                            <TableRow className="border-clay-border hover:bg-transparent">
+                            <TableRow className="border-border hover:bg-transparent">
                                 <SortableHeader columnKey="productName" label="Product" />
                                 <SortableHeader columnKey="netSoldQty" label="Net Qty Sold" />
                                 <SortableHeader columnKey="totalRevenue" label="Total Revenue" />
@@ -143,24 +143,24 @@ export default function ProductPnlPage() {
                         </TableHeader>
                         <TableBody>
                             {isLoading ? (
-                                <TableRow className="border-clay-border"><TableCell colSpan={7} className="h-64 text-center"><LoaderCircle className="mx-auto animate-spin h-8 w-8 text-clay-ink-muted"/></TableCell></TableRow>
+                                <TableRow className="border-border"><TableCell colSpan={7} className="h-64 text-center"><LoaderCircle className="mx-auto animate-spin h-8 w-8 text-muted-foreground"/></TableCell></TableRow>
                             ) : sortedData.length > 0 ? (
                                 sortedData.map(item => (
-                                    <TableRow key={item.productId} className="border-clay-border">
+                                    <TableRow key={item.productId} className="border-border">
                                         <TableCell>
-                                            <p className="font-medium text-clay-ink">{item.productName}</p>
-                                            <p className="text-[11.5px] text-clay-ink-muted font-mono">{item.sku}</p>
+                                            <p className="font-medium text-foreground">{item.productName}</p>
+                                            <p className="text-[11.5px] text-muted-foreground font-mono">{item.sku}</p>
                                         </TableCell>
-                                        <TableCell className="text-center text-clay-ink">{item.netSoldQty}</TableCell>
-                                        <TableCell className="text-clay-ink">{formatCurrency(item.totalRevenue)}</TableCell>
-                                        <TableCell className="text-clay-ink">{formatCurrency(item.avgSellingPrice)}</TableCell>
-                                        <TableCell className="text-clay-ink">{formatCurrency(item.totalCogs)}</TableCell>
-                                        <TableCell className="font-semibold text-clay-ink">{formatCurrency(item.grossProfit)}</TableCell>
-                                        <TableCell className="font-semibold text-clay-ink">{item.grossMargin.toFixed(2)}%</TableCell>
+                                        <TableCell className="text-center text-foreground">{item.netSoldQty}</TableCell>
+                                        <TableCell className="text-foreground">{formatCurrency(item.totalRevenue)}</TableCell>
+                                        <TableCell className="text-foreground">{formatCurrency(item.avgSellingPrice)}</TableCell>
+                                        <TableCell className="text-foreground">{formatCurrency(item.totalCogs)}</TableCell>
+                                        <TableCell className="font-semibold text-foreground">{formatCurrency(item.grossProfit)}</TableCell>
+                                        <TableCell className="font-semibold text-foreground">{item.grossMargin.toFixed(2)}%</TableCell>
                                     </TableRow>
                                 ))
                             ) : (
-                                <TableRow className="border-clay-border"><TableCell colSpan={7} className="h-64 text-center text-clay-ink-muted">No sales data found to generate the report.</TableCell></TableRow>
+                                <TableRow className="border-border"><TableCell colSpan={7} className="h-64 text-center text-muted-foreground">No sales data found to generate the report.</TableCell></TableRow>
                             )}
                         </TableBody>
                     </Table>

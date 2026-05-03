@@ -127,7 +127,7 @@ export default function NewPaymentPage() {
               <Select value={invoiceId} onValueChange={setInvoiceId}>
                 <SelectTrigger
                   id="invoice_id"
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 >
                   <SelectValue placeholder="Pick an invoice" />
                 </SelectTrigger>
@@ -153,7 +153,7 @@ export default function NewPaymentPage() {
                 required
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
 
@@ -164,7 +164,7 @@ export default function NewPaymentPage() {
               <Select value={gateway} onValueChange={setGateway}>
                 <SelectTrigger
                   id="gateway"
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 >
                   <SelectValue />
                 </SelectTrigger>
@@ -187,7 +187,7 @@ export default function NewPaymentPage() {
                 type="date"
                 value={paidOn}
                 onChange={(e) => setPaidOn(e.target.value)}
-                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
 
@@ -199,7 +199,7 @@ export default function NewPaymentPage() {
                 id="transaction_id"
                 value={transactionId}
                 onChange={(e) => setTransactionId(e.target.value)}
-                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
 
@@ -213,7 +213,7 @@ export default function NewPaymentPage() {
               >
                 <SelectTrigger
                   id="bank_account_id"
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 >
                   <SelectValue placeholder="None" />
                 </SelectTrigger>
@@ -244,7 +244,7 @@ export default function NewPaymentPage() {
                 >
                   <SelectTrigger
                     id="offline_method_id"
-                    className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                    className="h-10 rounded-lg border-border bg-card text-[13px]"
                   >
                     <SelectValue placeholder="None" />
                   </SelectTrigger>
@@ -269,17 +269,17 @@ export default function NewPaymentPage() {
                 rows={3}
                 value={remarks}
                 onChange={(e) => setRemarks(e.target.value)}
-                className="rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="rounded-lg border-border bg-card text-[13px]"
               />
             </div>
 
             <div className="md:col-span-2">
-              <label className="inline-flex items-center gap-2 text-[12.5px] text-clay-ink">
+              <label className="inline-flex items-center gap-2 text-[12.5px] text-foreground">
                 <input
                   type="checkbox"
                   checked={createTxn}
                   onChange={(e) => setCreateTxn(e.target.checked)}
-                  className="h-4 w-4 accent-clay-rose"
+                  className="h-4 w-4 accent-primary"
                 />
                 Also create a bank-transaction entry for this payment
               </label>

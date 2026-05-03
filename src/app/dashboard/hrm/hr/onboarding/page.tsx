@@ -46,7 +46,7 @@ export default function OnboardingPage() {
             return v ? (
               <ClayBadge tone={CATEGORY_TONES[v] || 'neutral'}>{v}</ClayBadge>
             ) : (
-              <span className="text-clay-ink-muted">—</span>
+              <span className="text-muted-foreground">—</span>
             );
           },
         },

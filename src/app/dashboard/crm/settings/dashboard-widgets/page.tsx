@@ -211,12 +211,12 @@ export default function DashboardWidgetsPage() {
 
       {isLoading ? (
         <ClayCard>
-          <p className="text-[13px] text-clay-ink-muted">Loading…</p>
+          <p className="text-[13px] text-muted-foreground">Loading…</p>
         </ClayCard>
       ) : sorted.length === 0 ? (
         <ClayCard>
           <div className="text-center">
-            <p className="text-[13px] text-clay-ink-muted">
+            <p className="text-[13px] text-muted-foreground">
               No widgets yet. Add your first widget to start building your
               dashboard.
             </p>
@@ -245,7 +245,7 @@ export default function DashboardWidgetsPage() {
                 >
                   <div className="flex items-start justify-between gap-3 pb-3">
                     <div className="min-w-0">
-                      <p className="truncate text-[14px] font-semibold text-clay-ink">
+                      <p className="truncate text-[14px] font-semibold text-foreground">
                         {w.widget_name}
                       </p>
                       <div className="mt-1 flex flex-wrap items-center gap-1.5">
@@ -295,17 +295,17 @@ export default function DashboardWidgetsPage() {
                         onClick={() => setDeletingId(w._id)}
                         aria-label="Delete"
                       >
-                        <Trash2 className="h-3.5 w-3.5 text-clay-red" />
+                        <Trash2 className="h-3.5 w-3.5 text-destructive" />
                       </Button>
                     </div>
                   </div>
                   {w.config?.data_source ? (
-                    <p className="text-[12px] text-clay-ink-muted">
+                    <p className="text-[12px] text-muted-foreground">
                       Source:{' '}
                       <span className="font-mono">{w.config.data_source}</span>
                     </p>
                   ) : (
-                    <p className="text-[12px] text-clay-ink-muted">
+                    <p className="text-[12px] text-muted-foreground">
                       No data source configured.
                     </p>
                   )}
@@ -319,8 +319,8 @@ export default function DashboardWidgetsPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-clay-ink">Add widget</DialogTitle>
-            <DialogDescription className="text-clay-ink-muted">
+            <DialogTitle className="text-foreground">Add widget</DialogTitle>
+            <DialogDescription className="text-muted-foreground">
               Add a new widget to your dashboard grid.
             </DialogDescription>
           </DialogHeader>
@@ -410,10 +410,10 @@ export default function DashboardWidgetsPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-clay-ink">
+            <AlertDialogTitle className="text-foreground">
               Delete widget?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-clay-ink-muted">
+            <AlertDialogDescription className="text-muted-foreground">
               This permanently removes the widget from your dashboard.
             </AlertDialogDescription>
           </AlertDialogHeader>

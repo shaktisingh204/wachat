@@ -38,7 +38,7 @@ export default function EditAnnouncementPage() {
 
   if (loading) {
     return (
-      <div className="text-[13px] text-clay-ink-muted">Loading…</div>
+      <div className="text-[13px] text-muted-foreground">Loading…</div>
     );
   }
 

@@ -27,41 +27,41 @@ export default async function Gstr1Page(props: { searchParams: Promise<{ month?:
 
             <ClayCard>
                 <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-clay-ink">Sales Invoices</h2>
-                    <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">All recorded sales invoices for GSTR-1 filing.</p>
+                    <h2 className="text-[16px] font-semibold text-foreground">Sales Invoices</h2>
+                    <p className="mt-0.5 text-[12.5px] text-muted-foreground">All recorded sales invoices for GSTR-1 filing.</p>
                 </div>
-                <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                <div className="overflow-x-auto rounded-lg border border-border">
                     <Table>
                         <TableHeader>
-                            <TableRow className="border-clay-border hover:bg-transparent">
-                                <TableHead className="text-clay-ink-muted">Date</TableHead>
-                                <TableHead className="text-clay-ink-muted">Invoice No.</TableHead>
-                                <TableHead className="text-clay-ink-muted">Customer</TableHead>
-                                <TableHead className="text-right text-clay-ink-muted">Taxable Value</TableHead>
-                                <TableHead className="text-right text-clay-ink-muted">Total Amount</TableHead>
-                                <TableHead className="text-clay-ink-muted">Status</TableHead>
+                            <TableRow className="border-border hover:bg-transparent">
+                                <TableHead className="text-muted-foreground">Date</TableHead>
+                                <TableHead className="text-muted-foreground">Invoice No.</TableHead>
+                                <TableHead className="text-muted-foreground">Customer</TableHead>
+                                <TableHead className="text-right text-muted-foreground">Taxable Value</TableHead>
+                                <TableHead className="text-right text-muted-foreground">Total Amount</TableHead>
+                                <TableHead className="text-muted-foreground">Status</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {invoices.length === 0 ? (
-                                <TableRow className="border-clay-border">
-                                    <TableCell colSpan={6} className="h-24 text-center text-[13px] text-clay-ink-muted">
+                                <TableRow className="border-border">
+                                    <TableCell colSpan={6} className="h-24 text-center text-[13px] text-muted-foreground">
                                         No invoices found.
                                     </TableCell>
                                 </TableRow>
                             ) : (
                                 invoices.map((inv) => (
-                                    <TableRow key={inv._id.toString()} className="border-clay-border">
-                                        <TableCell className="text-[13px] text-clay-ink">{format(new Date(inv.invoiceDate), 'PP')}</TableCell>
-                                        <TableCell className="font-medium text-clay-ink">{inv.invoiceNumber}</TableCell>
-                                        <TableCell className="text-[13px] text-clay-ink">Client</TableCell>
-                                        <TableCell className="text-right text-[13px] text-clay-ink">
+                                    <TableRow key={inv._id.toString()} className="border-border">
+                                        <TableCell className="text-[13px] text-foreground">{format(new Date(inv.invoiceDate), 'PP')}</TableCell>
+                                        <TableCell className="font-medium text-foreground">{inv.invoiceNumber}</TableCell>
+                                        <TableCell className="text-[13px] text-foreground">Client</TableCell>
+                                        <TableCell className="text-right text-[13px] text-foreground">
                                             {inv.currency} {inv.subtotal?.toFixed(2) || inv.total.toFixed(2)}
                                         </TableCell>
-                                        <TableCell className="text-right text-[13px] text-clay-ink">
+                                        <TableCell className="text-right text-[13px] text-foreground">
                                             {inv.currency} {inv.total.toFixed(2)}
                                         </TableCell>
-                                        <TableCell className="text-[13px] text-clay-ink">{inv.status}</TableCell>
+                                        <TableCell className="text-[13px] text-foreground">{inv.status}</TableCell>
                                     </TableRow>
                                 ))
                             )}

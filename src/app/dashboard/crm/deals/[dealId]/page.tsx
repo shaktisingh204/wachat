@@ -36,10 +36,10 @@ function DealDetailPageSkeleton() {
       <Skeleton className="h-8 w-48" />
       <div className="grid gap-6 md:grid-cols-3">
         <div className="space-y-4 md:col-span-1">
-          <Skeleton className="h-48 w-full rounded-clay-lg" />
+          <Skeleton className="h-48 w-full rounded-xl" />
         </div>
         <div className="space-y-4 md:col-span-2">
-          <Skeleton className="h-96 w-full rounded-clay-lg" />
+          <Skeleton className="h-96 w-full rounded-xl" />
         </div>
       </div>
     </div>
@@ -105,7 +105,7 @@ export default function CrmDealDetailPage() {
       <div>
         <Link
           href="/dashboard/crm/deals"
-          className="inline-flex items-center gap-1.5 text-[12.5px] text-clay-ink-muted hover:text-clay-ink"
+          className="inline-flex items-center gap-1.5 text-[12.5px] text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.75} />
           Back to Deals Pipeline
@@ -161,7 +161,7 @@ export default function CrmDealDetailPage() {
         <div className="space-y-6 lg:col-span-1">
           <ClayCard>
             <div className="space-y-2">
-              <h2 className="text-[16px] font-semibold leading-tight text-clay-ink">
+              <h2 className="text-[16px] font-semibold leading-tight text-foreground">
                 {deal.name}
               </h2>
               <div>
@@ -169,10 +169,10 @@ export default function CrmDealDetailPage() {
               </div>
             </div>
 
-            <div className="mt-5 space-y-3 text-[13px] text-clay-ink">
+            <div className="mt-5 space-y-3 text-[13px] text-foreground">
               <div className="flex items-center gap-3">
-                <DollarSign className="h-4 w-4 text-clay-ink-muted" strokeWidth={1.75} />
-                <span className="text-[18px] font-semibold text-clay-ink">
+                <DollarSign className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
+                <span className="text-[18px] font-semibold text-foreground">
                   {new Intl.NumberFormat('en-US', {
                     style: 'currency',
                     currency: deal.currency,
@@ -180,7 +180,7 @@ export default function CrmDealDetailPage() {
                 </span>
               </div>
               <div className="flex items-center gap-3">
-                <Calendar className="h-4 w-4 text-clay-ink-muted" strokeWidth={1.75} />
+                <Calendar className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
                 <span>
                   Close Date:{' '}
                   {deal.closeDate ? new Date(deal.closeDate).toLocaleDateString() : 'N/A'}
@@ -188,10 +188,10 @@ export default function CrmDealDetailPage() {
               </div>
               {account && (
                 <div className="flex items-center gap-3">
-                  <Building className="h-4 w-4 text-clay-ink-muted" strokeWidth={1.75} />
+                  <Building className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
                   <Link
                     href={`/dashboard/crm/accounts/${account._id.toString()}`}
-                    className="text-clay-rose hover:underline"
+                    className="text-primary hover:underline"
                   >
                     {account.name}
                   </Link>
@@ -199,13 +199,13 @@ export default function CrmDealDetailPage() {
               )}
               {contacts.length > 0 && (
                 <div className="flex items-start gap-3">
-                  <Users className="mt-1 h-4 w-4 text-clay-ink-muted" strokeWidth={1.75} />
+                  <Users className="mt-1 h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
                   <div className="flex flex-col">
                     {contacts.map((c) => (
                       <Link
                         key={c._id.toString()}
                         href={`/dashboard/crm/contacts/${c._id.toString()}`}
-                        className="text-clay-rose hover:underline"
+                        className="text-primary hover:underline"
                       >
                         {c.name}
                       </Link>
@@ -227,8 +227,8 @@ export default function CrmDealDetailPage() {
           <ClayCard>
             <div className="mb-4 flex flex-row items-center justify-between">
               <div className="flex items-center gap-2">
-                <Handshake className="h-4 w-4 text-clay-ink-muted" strokeWidth={1.75} />
-                <h2 className="text-[16px] font-semibold text-clay-ink">Related Tasks</h2>
+                <Handshake className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
+                <h2 className="text-[16px] font-semibold text-foreground">Related Tasks</h2>
               </div>
               <CreateTaskDialog onTaskCreated={fetchData} dealId={deal._id.toString()} />
             </div>

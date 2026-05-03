@@ -161,25 +161,25 @@ export default function DepartmentsPage() {
 
             <ClayCard>
                 <div className="mb-4 flex items-center justify-between">
-                    <h2 className="text-[16px] font-semibold text-clay-ink">All Departments</h2>
+                    <h2 className="text-[16px] font-semibold text-foreground">All Departments</h2>
                     <ClayBadge tone="neutral">{departments.length} total</ClayBadge>
                 </div>
-                <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                <div className="overflow-x-auto rounded-lg border border-border">
                     <table className="w-full text-left text-[13px]">
                         <thead>
-                            <tr className="border-b border-clay-border bg-clay-surface-2">
-                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Department</th>
-                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Parent Dept.</th>
-                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Manager</th>
-                                <th className="px-4 py-3 text-center text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Employees</th>
-                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Actions</th>
+                            <tr className="border-b border-border bg-secondary">
+                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Department</th>
+                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Parent Dept.</th>
+                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Manager</th>
+                                <th className="px-4 py-3 text-center text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Employees</th>
+                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {isLoading ? (
                                 <tr>
                                     <td colSpan={5} className="h-24 text-center">
-                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-clay-ink-muted" />
+                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
                                     </td>
                                 </tr>
                             ) : departments.length > 0 ? (
@@ -192,15 +192,15 @@ export default function DepartmentsPage() {
                                         : '—';
                                     const count = empCountByDept[dept._id.toString()] ?? 0;
                                     return (
-                                        <tr key={dept._id.toString()} className="border-b border-clay-border last:border-0 hover:bg-clay-surface-2/50 transition-colors">
+                                        <tr key={dept._id.toString()} className="border-b border-border last:border-0 hover:bg-secondary/50 transition-colors">
                                             <td className="px-4 py-3">
-                                                <div className="font-medium text-clay-ink">{dept.name}</div>
+                                                <div className="font-medium text-foreground">{dept.name}</div>
                                                 {dept.description ? (
-                                                    <div className="text-[11.5px] text-clay-ink-muted">{dept.description}</div>
+                                                    <div className="text-[11.5px] text-muted-foreground">{dept.description}</div>
                                                 ) : null}
                                             </td>
-                                            <td className="px-4 py-3 text-clay-ink-muted">{parentName}</td>
-                                            <td className="px-4 py-3 text-clay-ink">{managerName}</td>
+                                            <td className="px-4 py-3 text-muted-foreground">{parentName}</td>
+                                            <td className="px-4 py-3 text-foreground">{managerName}</td>
                                             <td className="px-4 py-3 text-center">
                                                 <ClayBadge tone="neutral">{count}</ClayBadge>
                                             </td>
@@ -230,7 +230,7 @@ export default function DepartmentsPage() {
                                 })
                             ) : (
                                 <tr>
-                                    <td colSpan={5} className="h-24 text-center text-[13px] text-clay-ink-muted">
+                                    <td colSpan={5} className="h-24 text-center text-[13px] text-muted-foreground">
                                         No departments yet. Click "Add Department" to create one.
                                     </td>
                                 </tr>
@@ -244,10 +244,10 @@ export default function DepartmentsPage() {
             <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) setEditing(null); }}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle className="text-clay-ink">
+                        <DialogTitle className="text-foreground">
                             {editing ? 'Edit Department' : 'Add Department'}
                         </DialogTitle>
-                        <DialogDescription className="text-clay-ink-muted">
+                        <DialogDescription className="text-muted-foreground">
                             Fill in the department details. Only the name is required.
                         </DialogDescription>
                     </DialogHeader>
@@ -261,7 +261,7 @@ export default function DepartmentsPage() {
                         <input type="hidden" name="manager_id" value={managerId === '__none__' ? '' : managerId} />
 
                         <div>
-                            <Label htmlFor="dept-name" className="text-[13px] text-clay-ink">
+                            <Label htmlFor="dept-name" className="text-[13px] text-foreground">
                                 Department Name <span className="text-red-500">*</span>
                             </Label>
                             <Input
@@ -270,12 +270,12 @@ export default function DepartmentsPage() {
                                 required
                                 defaultValue={editing?.name ?? ''}
                                 placeholder="e.g. Engineering"
-                                className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
                             />
                         </div>
 
                         <div>
-                            <Label htmlFor="dept-desc" className="text-[13px] text-clay-ink">
+                            <Label htmlFor="dept-desc" className="text-[13px] text-foreground">
                                 Description
                             </Label>
                             <Textarea
@@ -284,18 +284,18 @@ export default function DepartmentsPage() {
                                 rows={2}
                                 defaultValue={editing?.description ?? ''}
                                 placeholder="Optional description"
-                                className="mt-1.5 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                                className="mt-1.5 rounded-lg border-border bg-card text-[13px]"
                             />
                         </div>
 
                         <div>
-                            <Label htmlFor="dept-parent" className="text-[13px] text-clay-ink">
+                            <Label htmlFor="dept-parent" className="text-[13px] text-foreground">
                                 Parent Department
                             </Label>
                             <Select value={parentId} onValueChange={setParentId}>
                                 <SelectTrigger
                                     id="dept-parent"
-                                    className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                                    className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
                                 >
                                     <SelectValue placeholder="— Root (no parent) —" />
                                 </SelectTrigger>
@@ -313,13 +313,13 @@ export default function DepartmentsPage() {
                         </div>
 
                         <div>
-                            <Label htmlFor="dept-manager" className="text-[13px] text-clay-ink">
+                            <Label htmlFor="dept-manager" className="text-[13px] text-foreground">
                                 Manager
                             </Label>
                             <Select value={managerId} onValueChange={setManagerId}>
                                 <SelectTrigger
                                     id="dept-manager"
-                                    className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                                    className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
                                 >
                                     <SelectValue placeholder="— No manager assigned —" />
                                 </SelectTrigger>

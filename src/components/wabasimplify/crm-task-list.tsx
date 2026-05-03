@@ -59,7 +59,7 @@ export function CrmTaskList({ tasks, onTaskUpdated }: { tasks: WithId<CrmTask>[]
     return (
         <ClayCard className="h-full" padded={false}>
             <div className="p-0">
-                <div className="border border-clay-border rounded-clay-md">
+                <div className="border border-border rounded-lg">
                     <Table>
                         <TableHeader>
                             <TableRow>
@@ -97,21 +97,21 @@ export function CrmTaskList({ tasks, onTaskUpdated }: { tasks: WithId<CrmTask>[]
                                                 </Select>
                                             </TableCell>
                                             <TableCell>
-                                                <p className={cn("font-medium text-clay-ink", task.status === 'Completed' && 'line-through text-clay-ink-muted')}>
+                                                <p className={cn("font-medium text-foreground", task.status === 'Completed' && 'line-through text-muted-foreground')}>
                                                     {task.title}
                                                 </p>
-                                                <p className="text-xs text-clay-ink-muted">{task.description}</p>
+                                                <p className="text-xs text-muted-foreground">{task.description}</p>
                                             </TableCell>
                                             <TableCell>
                                                  <TooltipProvider>
                                                     <Tooltip>
-                                                        <TooltipTrigger><TypeIcon className="h-4 w-4 text-clay-ink-muted"/></TooltipTrigger>
+                                                        <TooltipTrigger><TypeIcon className="h-4 w-4 text-muted-foreground"/></TooltipTrigger>
                                                         <TooltipContent>{task.type}</TooltipContent>
                                                     </Tooltip>
                                                  </TooltipProvider>
                                             </TableCell>
                                             <TableCell>
-                                                <span className={cn('text-sm', isOverdue ? 'text-clay-red font-semibold' : 'text-clay-ink')}>
+                                                <span className={cn('text-sm', isOverdue ? 'text-destructive font-semibold' : 'text-foreground')}>
                                                     {task.dueDate ? format(new Date(task.dueDate), 'PPP') : 'No due date'}
                                                 </span>
                                             </TableCell>
@@ -120,7 +120,7 @@ export function CrmTaskList({ tasks, onTaskUpdated }: { tasks: WithId<CrmTask>[]
                                             </TableCell>
                                             <TableCell className="text-right">
                                                 <Button variant="ghost" size="icon" onClick={() => handleDelete(task._id.toString())} disabled={isUpdating}>
-                                                    <Trash2 className="h-4 w-4 text-clay-red"/>
+                                                    <Trash2 className="h-4 w-4 text-destructive"/>
                                                 </Button>
                                             </TableCell>
                                         </TableRow>
@@ -128,7 +128,7 @@ export function CrmTaskList({ tasks, onTaskUpdated }: { tasks: WithId<CrmTask>[]
                                 })
                             ) : (
                                 <TableRow>
-                                    <TableCell colSpan={6} className="h-24 text-center text-clay-ink-muted">No tasks in this category.</TableCell>
+                                    <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">No tasks in this category.</TableCell>
                                 </TableRow>
                             )}
                         </TableBody>

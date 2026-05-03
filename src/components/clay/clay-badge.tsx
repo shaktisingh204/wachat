@@ -17,25 +17,25 @@ export interface ClayBadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
 }
 
 const tones: Record<Tone, string> = {
-  neutral:    'bg-clay-surface-2 text-clay-ink-muted border-clay-border',
-  rose:       'bg-clay-rose text-white border-clay-rose',
-  'rose-soft':'bg-clay-rose-soft text-clay-rose-ink border-clay-rose-soft',
-  obsidian:   'bg-clay-obsidian text-white border-clay-obsidian',
-  green:      'bg-clay-green-soft text-clay-green border-clay-green-soft',
-  amber:      'bg-clay-amber-soft text-clay-amber border-clay-amber-soft',
-  red:        'bg-clay-red-soft text-clay-red border-clay-red-soft',
-  blue:       'bg-clay-blue-soft text-clay-blue border-clay-blue-soft',
+  neutral:    'bg-secondary text-muted-foreground border-border',
+  rose:       'bg-primary text-white border-primary',
+  'rose-soft':'bg-accent text-accent-foreground border-accent',
+  obsidian:   'bg-foreground text-white border-foreground',
+  green:      'bg-emerald-50 text-emerald-500 border-emerald-50',
+  amber:      'bg-amber-50 text-amber-500 border-amber-50',
+  red:        'bg-rose-50 text-destructive border-rose-50',
+  blue:       'bg-sky-50 text-sky-500 border-sky-50',
 };
 
 const dotTones: Record<Tone, string> = {
-  neutral:    'bg-clay-ink-soft',
+  neutral:    'bg-muted-foreground',
   rose:       'bg-white',
-  'rose-soft':'bg-clay-rose',
+  'rose-soft':'bg-primary',
   obsidian:   'bg-white',
-  green:      'bg-clay-green',
-  amber:      'bg-clay-amber',
-  red:        'bg-clay-red',
-  blue:       'bg-clay-blue',
+  green:      'bg-emerald-500',
+  amber:      'bg-amber-500',
+  red:        'bg-destructive',
+  blue:       'bg-sky-500',
 };
 
 export const ClayBadge = React.forwardRef<HTMLSpanElement, ClayBadgeProps>(

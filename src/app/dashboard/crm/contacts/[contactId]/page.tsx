@@ -38,11 +38,11 @@ function ContactDetailPageSkeleton() {
       <Skeleton className="h-8 w-48" />
       <div className="grid gap-6 md:grid-cols-3">
         <div className="space-y-4 md:col-span-1">
-          <Skeleton className="h-64 w-full rounded-clay-lg" />
+          <Skeleton className="h-64 w-full rounded-xl" />
         </div>
         <div className="space-y-4 md:col-span-2">
-          <Skeleton className="h-48 w-full rounded-clay-lg" />
-          <Skeleton className="h-64 w-full rounded-clay-lg" />
+          <Skeleton className="h-48 w-full rounded-xl" />
+          <Skeleton className="h-64 w-full rounded-xl" />
         </div>
       </div>
     </div>
@@ -118,7 +118,7 @@ export default function CrmContactDetailPage() {
         <div>
           <Link
             href="/dashboard/crm/contacts"
-            className="inline-flex items-center gap-1.5 text-[12.5px] text-clay-ink-muted hover:text-clay-ink"
+            className="inline-flex items-center gap-1.5 text-[12.5px] text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.75} />
             Back to All Contacts
@@ -135,14 +135,14 @@ export default function CrmContactDetailPage() {
           <div className="space-y-6 lg:col-span-1">
             <ClayCard>
               <div className="flex flex-col items-center text-center">
-                <Avatar className="mb-3 h-24 w-24 border border-clay-border">
+                <Avatar className="mb-3 h-24 w-24 border border-border">
                   <AvatarImage src={contact.avatarUrl || ''} data-ai-hint="person avatar" />
-                  <AvatarFallback className="bg-clay-rose-soft text-[26px] text-clay-rose-ink">
+                  <AvatarFallback className="bg-accent text-[26px] text-accent-foreground">
                     {contact.name.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
-                <h2 className="text-[16px] font-semibold text-clay-ink">{contact.name}</h2>
-                <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">
+                <h2 className="text-[16px] font-semibold text-foreground">{contact.name}</h2>
+                <p className="mt-0.5 text-[12.5px] text-muted-foreground">
                   {contact.jobTitle || 'N/A'}
                 </p>
               </div>
@@ -181,28 +181,28 @@ export default function CrmContactDetailPage() {
                 </ClayButton>
               </div>
 
-              <Separator className="my-4 bg-clay-border" />
+              <Separator className="my-4 bg-border" />
 
-              <div className="space-y-2.5 text-[13px] text-clay-ink">
+              <div className="space-y-2.5 text-[13px] text-foreground">
                 <div className="flex items-center gap-3">
-                  <Mail className="h-4 w-4 text-clay-ink-muted" strokeWidth={1.75} />
+                  <Mail className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
                   <a
                     href={`mailto:${contact.email}`}
-                    className="text-clay-rose hover:underline"
+                    className="text-primary hover:underline"
                   >
                     {contact.email}
                   </a>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Phone className="h-4 w-4 text-clay-ink-muted" strokeWidth={1.75} />
+                  <Phone className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
                   <span>{contact.phone || 'N/A'}</span>
                 </div>
                 {account && (
                   <div className="flex items-center gap-3">
-                    <Briefcase className="h-4 w-4 text-clay-ink-muted" strokeWidth={1.75} />
+                    <Briefcase className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
                     <Link
                       href={`/dashboard/crm/accounts/${account._id.toString()}`}
-                      className="text-clay-rose hover:underline"
+                      className="text-primary hover:underline"
                     >
                       {account.name}
                     </Link>
@@ -210,22 +210,22 @@ export default function CrmContactDetailPage() {
                 )}
               </div>
 
-              <Separator className="my-4 bg-clay-border" />
+              <Separator className="my-4 bg-border" />
 
               <div className="space-y-3">
                 <div>
-                  <p className="text-[11.5px] uppercase tracking-wide text-clay-ink-muted">
+                  <p className="text-[11.5px] uppercase tracking-wide text-muted-foreground">
                     Lead Score
                   </p>
                   <div className="mt-1.5 flex items-center gap-2">
                     <ClayBadge tone={leadScoreTone(contact.leadScore || 0)} dot>
                       {contact.leadScore || 0}
                     </ClayBadge>
-                    <span className="text-[12.5px] text-clay-ink-muted">Hot Lead</span>
+                    <span className="text-[12.5px] text-muted-foreground">Hot Lead</span>
                   </div>
                 </div>
                 <div>
-                  <p className="text-[11.5px] uppercase tracking-wide text-clay-ink-muted">
+                  <p className="text-[11.5px] uppercase tracking-wide text-muted-foreground">
                     Status
                   </p>
                   <div className="mt-1.5">
@@ -245,18 +245,18 @@ export default function CrmContactDetailPage() {
           <div className="lg:col-span-2">
             <ClayCard>
               <div className="mb-4">
-                <h2 className="text-[16px] font-semibold text-clay-ink">Associated Deals</h2>
-                <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">
+                <h2 className="text-[16px] font-semibold text-foreground">Associated Deals</h2>
+                <p className="mt-0.5 text-[12.5px] text-muted-foreground">
                   Deals linked to this contact.
                 </p>
               </div>
-              <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+              <div className="overflow-x-auto rounded-lg border border-border">
                 <Table>
                   <TableHeader>
-                    <TableRow className="border-clay-border hover:bg-transparent">
-                      <TableHead className="text-clay-ink-muted">Deal Name</TableHead>
-                      <TableHead className="text-clay-ink-muted">Stage</TableHead>
-                      <TableHead className="text-right text-clay-ink-muted">Value</TableHead>
+                    <TableRow className="border-border hover:bg-transparent">
+                      <TableHead className="text-muted-foreground">Deal Name</TableHead>
+                      <TableHead className="text-muted-foreground">Stage</TableHead>
+                      <TableHead className="text-right text-muted-foreground">Value</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -267,15 +267,15 @@ export default function CrmContactDetailPage() {
                           onClick={() =>
                             router.push(`/dashboard/crm/deals/${deal._id.toString()}`)
                           }
-                          className="cursor-pointer border-clay-border"
+                          className="cursor-pointer border-border"
                         >
-                          <TableCell className="text-[13px] font-medium text-clay-ink">
+                          <TableCell className="text-[13px] font-medium text-foreground">
                             {deal.name}
                           </TableCell>
                           <TableCell>
                             <ClayBadge tone={dealStageTone(deal.stage)}>{deal.stage}</ClayBadge>
                           </TableCell>
-                          <TableCell className="text-right font-medium text-clay-ink">
+                          <TableCell className="text-right font-medium text-foreground">
                             {new Intl.NumberFormat('en-US', {
                               style: 'currency',
                               currency: deal.currency,
@@ -284,10 +284,10 @@ export default function CrmContactDetailPage() {
                         </TableRow>
                       ))
                     ) : (
-                      <TableRow className="border-clay-border">
+                      <TableRow className="border-border">
                         <TableCell
                           colSpan={3}
-                          className="h-24 text-center text-[13px] text-clay-ink-muted"
+                          className="h-24 text-center text-[13px] text-muted-foreground"
                         >
                           No deals associated with this contact.
                         </TableCell>

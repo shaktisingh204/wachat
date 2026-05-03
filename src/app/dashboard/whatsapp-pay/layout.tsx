@@ -50,13 +50,13 @@ export default function WhatsAppPayLayout({
       />
 
       <div>
-        <h1 className="flex items-center gap-3 text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">
-          <span className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-gradient-to-br from-[#FDE68A] to-[#B45309] text-white shadow-clay-card">
+        <h1 className="flex items-center gap-3 text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
+          <span className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-gradient-to-br from-[#FDE68A] to-[#B45309] text-white shadow-sm">
             <LuCreditCard className="h-5 w-5" strokeWidth={2} />
           </span>
           WhatsApp Pay
         </h1>
-        <p className="mt-1.5 max-w-[720px] text-[13px] text-clay-ink-muted">
+        <p className="mt-1.5 max-w-[720px] text-[13px] text-muted-foreground">
           Manage your WhatsApp Pay configurations and view transaction
           history for customers paying directly inside conversations.
         </p>
@@ -75,8 +75,8 @@ export default function WhatsAppPayLayout({
               className={cn(
                 'inline-flex items-center gap-2 rounded-full border px-3.5 py-2 text-[12.5px] font-medium transition-[background,border-color,color]',
                 active
-                  ? 'bg-clay-obsidian border-clay-obsidian text-white shadow-clay-card'
-                  : 'bg-clay-surface border-clay-border text-clay-ink-muted hover:text-clay-ink hover:border-clay-border-strong',
+                  ? 'bg-foreground border-foreground text-white shadow-sm'
+                  : 'bg-card border-border text-muted-foreground hover:text-foreground hover:border-border',
               )}
             >
               {t.icon}

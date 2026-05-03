@@ -64,15 +64,15 @@ function qualityTone(q?: string): { tone: Tone; label: string } {
 const toneChip: Record<Tone, string> = {
   ok: 'bg-[#DCFCE7] text-[#166534] border-[#86EFAC]',
   warn: 'bg-[#FEF3C7] text-[#92400E] border-[#FCD34D]',
-  off: 'bg-clay-bg-2 text-clay-ink-muted border-clay-border',
-  bad: 'bg-clay-red-soft text-clay-red border-clay-red/40',
+  off: 'bg-muted text-muted-foreground border-border',
+  bad: 'bg-rose-50 text-destructive border-destructive/40',
 };
 
 const toneDot: Record<Tone, string> = {
-  ok: 'bg-clay-green',
-  warn: 'bg-clay-amber',
-  off: 'bg-clay-ink-fade',
-  bad: 'bg-clay-red',
+  ok: 'bg-emerald-500',
+  warn: 'bg-amber-500',
+  off: 'bg-muted-foreground/70',
+  bad: 'bg-destructive',
 };
 
 /* ── page ───────────────────────────────────────────────────────── */
@@ -172,10 +172,10 @@ export default function NumbersPage() {
       {/* Header */}
       <div className="flex items-center justify-between gap-6">
         <div className="min-w-0">
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">
+          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
             Phone numbers
           </h1>
-          <p className="mt-1.5 text-[13px] text-clay-ink-muted">
+          <p className="mt-1.5 text-[13px] text-muted-foreground">
             {project
               ? `${phoneNumbers.length} registered WhatsApp number${phoneNumbers.length === 1 ? '' : 's'} for ${project.name}.`
               : "Manage your project's WhatsApp phone numbers."}
@@ -223,13 +223,13 @@ export default function NumbersPage() {
       {/* No project / loading / empty / grid */}
       {!activeProjectId ? (
         <ClayCard padded={false} className="p-10 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-clay-rose-soft text-clay-rose-ink">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-accent text-accent-foreground">
             <LuCircleAlert className="h-5 w-5" strokeWidth={1.5} />
           </div>
-          <div className="mt-4 text-[15px] font-semibold text-clay-ink">
+          <div className="mt-4 text-[15px] font-semibold text-foreground">
             No project selected
           </div>
-          <div className="mt-1.5 text-[12.5px] text-clay-ink-muted">
+          <div className="mt-1.5 text-[12.5px] text-muted-foreground">
             Please select a project from the main dashboard to see its phone
             numbers.
           </div>
@@ -247,19 +247,19 @@ export default function NumbersPage() {
           {Array.from({ length: 3 }).map((_, i) => (
             <div
               key={i}
-              className="h-[260px] animate-pulse rounded-clay-lg bg-clay-bg-2"
+              className="h-[260px] animate-pulse rounded-xl bg-muted"
             />
           ))}
         </div>
       ) : phoneNumbers.length === 0 ? (
         <ClayCard padded={false} className="p-10 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-clay-bg-2 text-clay-ink-muted">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
             <LuPhone className="h-5 w-5" strokeWidth={1.5} />
           </div>
-          <div className="mt-4 text-[15px] font-semibold text-clay-ink">
+          <div className="mt-4 text-[15px] font-semibold text-foreground">
             No phone numbers yet
           </div>
-          <div className="mt-1.5 text-[12.5px] text-clay-ink-muted">
+          <div className="mt-1.5 text-[12.5px] text-muted-foreground">
             Sync with Meta to pull the phone numbers from your WhatsApp
             Business Account.
           </div>
@@ -293,10 +293,10 @@ export default function NumbersPage() {
                         alt={phone.verified_name}
                         width={56}
                         height={56}
-                        className="rounded-full border-2 border-clay-rose-soft"
+                        className="rounded-full border-2 border-accent"
                       />
                     ) : (
-                      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-clay-rose-soft text-clay-rose-ink">
+                      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-accent text-accent-foreground">
                         <LuUserRound
                           className="h-6 w-6"
                           strokeWidth={1.75}
@@ -305,10 +305,10 @@ export default function NumbersPage() {
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-[15px] font-semibold text-clay-ink leading-tight">
+                    <div className="truncate text-[15px] font-semibold text-foreground leading-tight">
                       {phone.verified_name}
                     </div>
-                    <div className="mt-0.5 font-mono text-[12px] tabular-nums text-clay-ink-muted">
+                    <div className="mt-0.5 font-mono text-[12px] tabular-nums text-muted-foreground">
                       {phone.display_phone_number}
                     </div>
                   </div>
@@ -343,7 +343,7 @@ export default function NumbersPage() {
                   </DetailRow>
                   <DetailRow label="About">
                     <span
-                      className="max-w-[180px] truncate text-[12.5px] text-clay-ink"
+                      className="max-w-[180px] truncate text-[12.5px] text-foreground"
                       title={phone.profile?.about || 'Not set'}
                     >
                       {phone.profile?.about || 'Not set'}
@@ -393,7 +393,7 @@ function DetailRow({
 }) {
   return (
     <div className="flex items-center justify-between gap-3">
-      <span className="text-[10.5px] font-semibold uppercase tracking-wide text-clay-ink-soft">
+      <span className="text-[10.5px] font-semibold uppercase tracking-wide text-muted-foreground">
         {label}
       </span>
       {children}
@@ -415,12 +415,12 @@ function Stat({
   tint?: 'neutral' | 'green' | 'amber';
 }) {
   const chip = {
-    neutral: 'bg-clay-bg-2 text-clay-ink-muted',
+    neutral: 'bg-muted text-muted-foreground',
     green: 'bg-[#DCFCE7] text-[#166534]',
     amber: 'bg-[#FEF3C7] text-[#92400E]',
   } as const;
   return (
-    <div className="rounded-[14px] border border-clay-border bg-clay-surface p-4">
+    <div className="rounded-[14px] border border-border bg-card p-4">
       <div
         className={cn(
           'flex h-8 w-8 items-center justify-center rounded-[10px]',
@@ -429,14 +429,14 @@ function Stat({
       >
         {icon}
       </div>
-      <div className="mt-3 text-[11px] font-medium uppercase tracking-wide text-clay-ink-muted leading-none">
+      <div className="mt-3 text-[11px] font-medium uppercase tracking-wide text-muted-foreground leading-none">
         {label}
       </div>
-      <div className="mt-1.5 text-[22px] font-semibold tracking-[-0.01em] text-clay-ink leading-none">
+      <div className="mt-1.5 text-[22px] font-semibold tracking-[-0.01em] text-foreground leading-none">
         {value}
       </div>
       {hint ? (
-        <div className="mt-1 text-[11px] text-clay-ink-muted leading-tight truncate">
+        <div className="mt-1 text-[11px] text-muted-foreground leading-tight truncate">
           {hint}
         </div>
       ) : null}

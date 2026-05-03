@@ -115,29 +115,29 @@ export function TemplateEditor({ initial }: { initial?: TemplateEditorInitial })
       <ClayCard>
         <div className="grid gap-4 md:grid-cols-3">
           <div>
-            <Label className="text-clay-ink">Template Name</Label>
+            <Label className="text-foreground">Template Name</Label>
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Standard SaaS Proposal"
-              className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+              className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
             />
           </div>
           <div className="md:col-span-1">
-            <Label className="text-clay-ink">Default Title</Label>
+            <Label className="text-foreground">Default Title</Label>
             <Input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Proposal for <Client>"
-              className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+              className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
             />
           </div>
           <div>
-            <Label className="text-clay-ink">Currency</Label>
+            <Label className="text-foreground">Currency</Label>
             <Input
               value={currency}
               onChange={(e) => setCurrency(e.target.value.toUpperCase())}
-              className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+              className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
             />
           </div>
         </div>
@@ -150,7 +150,7 @@ export function TemplateEditor({ initial }: { initial?: TemplateEditorInitial })
           />
           <Label
             htmlFor="signature_required"
-            className="cursor-pointer text-[13px] text-clay-ink"
+            className="cursor-pointer text-[13px] text-foreground"
           >
             Require e-signature on acceptance
           </Label>

@@ -72,11 +72,11 @@ export default function EventsPage() {
 
       {loading ? (
         <ClayCard className="flex items-center justify-center py-10">
-          <LoaderCircle className="h-5 w-5 animate-spin text-clay-ink-muted" />
+          <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />
         </ClayCard>
       ) : events.length === 0 ? (
         <ClayCard>
-          <p className="text-center text-[13px] text-clay-ink-muted">
+          <p className="text-center text-[13px] text-muted-foreground">
             No events yet — click New Event to schedule one.
           </p>
         </ClayCard>
@@ -88,7 +88,7 @@ export default function EventsPage() {
                 <div className="min-w-0 flex-1">
                   <Link
                     href={`/dashboard/crm/workspace/events/${e._id}`}
-                    className="text-[14.5px] font-semibold text-clay-ink hover:underline"
+                    className="text-[14.5px] font-semibold text-foreground hover:underline"
                   >
                     {e.event_name}
                   </Link>
@@ -99,12 +99,12 @@ export default function EventsPage() {
                     {e.google_calendar ? <ClayBadge tone="rose-soft">Google</ClayBadge> : null}
                   </div>
                   {e.where ? (
-                    <p className="mt-1 flex items-center gap-1 text-[12px] text-clay-ink-muted">
+                    <p className="mt-1 flex items-center gap-1 text-[12px] text-muted-foreground">
                       <MapPin className="h-3 w-3" /> {e.where}
                     </p>
                   ) : null}
                   {e.online_link ? (
-                    <p className="mt-1 flex items-center gap-1 text-[12px] text-clay-ink-muted">
+                    <p className="mt-1 flex items-center gap-1 text-[12px] text-muted-foreground">
                       <LinkIcon className="h-3 w-3" />
                       <a href={e.online_link} target="_blank" rel="noreferrer" className="underline">
                         {e.online_link}

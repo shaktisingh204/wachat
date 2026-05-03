@@ -93,7 +93,7 @@ export function CannedMessageFormDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="max-w-[540px] rounded-[18px] border border-clay-border bg-clay-surface p-0 shadow-clay-pop">
+      <DialogContent className="max-w-[540px] rounded-[18px] border border-border bg-card p-0 shadow-lg">
         <form action={action} ref={formRef}>
           <input type="hidden" name="projectId" value={projectId} />
           {existingMessage && (
@@ -104,15 +104,15 @@ export function CannedMessageFormDialog({
             />
           )}
 
-          <DialogHeader className="flex flex-row items-start gap-3 border-b border-clay-border px-6 py-5">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-clay-rose-soft text-clay-rose-ink">
+          <DialogHeader className="flex flex-row items-start gap-3 border-b border-border px-6 py-5">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-accent text-accent-foreground">
               <LuBookmark className="h-5 w-5" strokeWidth={2} />
             </span>
             <div className="min-w-0 flex-1">
-              <DialogTitle className="text-[16px] font-semibold text-clay-ink leading-tight">
+              <DialogTitle className="text-[16px] font-semibold text-foreground leading-tight">
                 {existingMessage ? 'Edit canned message' : 'Create canned message'}
               </DialogTitle>
-              <DialogDescription className="mt-0.5 text-[12px] text-clay-ink-muted leading-snug">
+              <DialogDescription className="mt-0.5 text-[12px] text-muted-foreground leading-snug">
                 Save a message for quick use in live chat conversations.
               </DialogDescription>
             </div>
@@ -123,9 +123,9 @@ export function CannedMessageFormDialog({
             <div className="flex flex-col gap-1.5">
               <Label
                 htmlFor="name"
-                className="text-[11.5px] font-semibold text-clay-ink-muted"
+                className="text-[11.5px] font-semibold text-muted-foreground"
               >
-                Name <span className="ml-1 text-clay-red">*</span>
+                Name <span className="ml-1 text-destructive">*</span>
               </Label>
               <Input
                 id="name"
@@ -134,7 +134,7 @@ export function CannedMessageFormDialog({
                 defaultValue={existingMessage?.name}
                 required
               />
-              <p className="text-[11px] text-clay-ink-soft">
+              <p className="text-[11px] text-muted-foreground">
                 A unique name to identify this message.
               </p>
             </div>
@@ -143,9 +143,9 @@ export function CannedMessageFormDialog({
             <div className="flex flex-col gap-1.5">
               <Label
                 htmlFor="type"
-                className="text-[11.5px] font-semibold text-clay-ink-muted"
+                className="text-[11.5px] font-semibold text-muted-foreground"
               >
-                Type <span className="ml-1 text-clay-red">*</span>
+                Type <span className="ml-1 text-destructive">*</span>
               </Label>
               <Select
                 name="type"
@@ -173,9 +173,9 @@ export function CannedMessageFormDialog({
               <div className="flex flex-col gap-1.5">
                 <Label
                   htmlFor="text"
-                  className="text-[11.5px] font-semibold text-clay-ink-muted"
+                  className="text-[11.5px] font-semibold text-muted-foreground"
                 >
-                  Content <span className="ml-1 text-clay-red">*</span>
+                  Content <span className="ml-1 text-destructive">*</span>
                 </Label>
                 <Textarea
                   id="text"
@@ -191,9 +191,9 @@ export function CannedMessageFormDialog({
                 <div className="flex flex-col gap-1.5">
                   <Label
                     htmlFor="mediaUrl"
-                    className="text-[11.5px] font-semibold text-clay-ink-muted"
+                    className="text-[11.5px] font-semibold text-muted-foreground"
                   >
-                    Media URL <span className="ml-1 text-clay-red">*</span>
+                    Media URL <span className="ml-1 text-destructive">*</span>
                   </Label>
                   <Input
                     id="mediaUrl"
@@ -206,10 +206,10 @@ export function CannedMessageFormDialog({
                 <div className="flex flex-col gap-1.5">
                   <Label
                     htmlFor="caption"
-                    className="text-[11.5px] font-semibold text-clay-ink-muted"
+                    className="text-[11.5px] font-semibold text-muted-foreground"
                   >
                     Caption{' '}
-                    <span className="ml-1 text-clay-ink-fade font-normal">
+                    <span className="ml-1 text-muted-foreground/70 font-normal">
                       (optional)
                     </span>
                   </Label>
@@ -224,10 +224,10 @@ export function CannedMessageFormDialog({
                   <div className="flex flex-col gap-1.5">
                     <Label
                       htmlFor="fileName"
-                      className="text-[11.5px] font-semibold text-clay-ink-muted"
+                      className="text-[11.5px] font-semibold text-muted-foreground"
                     >
                       File name{' '}
-                      <span className="ml-1 text-clay-ink-fade font-normal">
+                      <span className="ml-1 text-muted-foreground/70 font-normal">
                         (optional)
                       </span>
                     </Label>
@@ -243,15 +243,15 @@ export function CannedMessageFormDialog({
             )}
 
             {/* Favourite toggle */}
-            <div className="flex items-center justify-between rounded-[12px] border border-clay-border bg-clay-surface-2 px-4 py-3">
+            <div className="flex items-center justify-between rounded-[12px] border border-border bg-secondary px-4 py-3">
               <div>
                 <Label
                   htmlFor="isFavourite"
-                  className="text-[13px] font-medium text-clay-ink"
+                  className="text-[13px] font-medium text-foreground"
                 >
                   Mark as favourite
                 </Label>
-                <div className="mt-0.5 text-[11px] text-clay-ink-muted">
+                <div className="mt-0.5 text-[11px] text-muted-foreground">
                   Pins this message to the top of the canned list.
                 </div>
               </div>
@@ -263,7 +263,7 @@ export function CannedMessageFormDialog({
             </div>
           </div>
 
-          <DialogFooter className="border-t border-clay-border px-6 py-4 sm:justify-end gap-2">
+          <DialogFooter className="border-t border-border px-6 py-4 sm:justify-end gap-2">
             <ClayButton
               type="button"
               variant="pill"

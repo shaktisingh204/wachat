@@ -46,18 +46,18 @@ export default async function TaxReportPage(props: {
       </div>
 
       <ClayCard>
-        <p className="text-[13px] text-clay-ink-muted">
+        <p className="text-[13px] text-muted-foreground">
           This is an overview. For line-item compliance reports see{' '}
           <a
             href="/dashboard/crm/reports/gstr-1"
-            className="text-clay-rose underline"
+            className="text-primary underline"
           >
             GSTR-1
           </a>{' '}
           and{' '}
           <a
             href="/dashboard/crm/reports/gstr-2b"
-            className="text-clay-rose underline"
+            className="text-primary underline"
           >
             GSTR-2B
           </a>

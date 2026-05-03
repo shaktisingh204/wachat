@@ -65,7 +65,7 @@ export function CrmNotes({ recordId, recordType, notes: initialNotes }: CrmNotes
     return (
         <ClayCard>
             <div className="mb-4">
-                <h2 className="text-lg font-semibold text-clay-ink">Notes &amp; Activity</h2>
+                <h2 className="text-lg font-semibold text-foreground">Notes &amp; Activity</h2>
             </div>
             <div>
                 <form action={formAction} ref={formRef}>
@@ -84,10 +84,10 @@ export function CrmNotes({ recordId, recordType, notes: initialNotes }: CrmNotes
                             <Avatar className="h-8 w-8 mt-1"><AvatarFallback>{note.author.charAt(0)}</AvatarFallback></Avatar>
                             <div className="flex-1">
                                 <div className="flex justify-between items-center">
-                                    <p className="font-semibold text-sm text-clay-ink">{note.author}</p>
-                                    <p className="text-xs text-clay-ink-muted">{new Date(note.createdAt).toLocaleDateString()}</p>
+                                    <p className="font-semibold text-sm text-foreground">{note.author}</p>
+                                    <p className="text-xs text-muted-foreground">{new Date(note.createdAt).toLocaleDateString()}</p>
                                 </div>
-                                <p className="text-sm text-clay-ink-muted whitespace-pre-wrap">{note.content}</p>
+                                <p className="text-sm text-muted-foreground whitespace-pre-wrap">{note.content}</p>
                             </div>
                         </div>
                     ))}

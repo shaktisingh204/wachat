@@ -91,16 +91,16 @@ function pct(num: number, den: number): number {
 /* Status colour tokens — keeps status badges on-brand */
 function statusTone(status: string | undefined) {
   const s = (status ?? '').toLowerCase();
-  if (s === 'completed') return { dot: 'bg-clay-green', label: 'Completed' };
+  if (s === 'completed') return { dot: 'bg-emerald-500', label: 'Completed' };
   if (s === 'processing' || s === 'pending_processing')
-    return { dot: 'bg-clay-blue', label: 'Processing' };
-  if (s === 'queued') return { dot: 'bg-clay-amber', label: 'Queued' };
+    return { dot: 'bg-sky-500', label: 'Processing' };
+  if (s === 'queued') return { dot: 'bg-amber-500', label: 'Queued' };
   if (s === 'partial failure')
-    return { dot: 'bg-clay-amber', label: 'Partial' };
-  if (s === 'failed') return { dot: 'bg-clay-red', label: 'Failed' };
+    return { dot: 'bg-amber-500', label: 'Partial' };
+  if (s === 'failed') return { dot: 'bg-destructive', label: 'Failed' };
   if (s === 'cancelled')
-    return { dot: 'bg-clay-ink-fade', label: 'Cancelled' };
-  return { dot: 'bg-clay-ink-fade', label: status || 'Unknown' };
+    return { dot: 'bg-muted-foreground/70', label: 'Cancelled' };
+  return { dot: 'bg-muted-foreground/70', label: status || 'Unknown' };
 }
 
 function getFormattedDate(item: any): Date | null {
@@ -151,7 +151,7 @@ function StopBroadcastButton({ broadcastId }: { broadcastId: string }) {
         <button
           type="button"
           aria-label="Stop broadcast"
-          className="flex h-7 w-7 items-center justify-center rounded-md text-clay-red hover:bg-clay-red-soft transition-colors"
+          className="flex h-7 w-7 items-center justify-center rounded-md text-destructive hover:bg-rose-50 transition-colors"
         >
           <LuCircleStop className="h-3.5 w-3.5" strokeWidth={1.75} />
         </button>
@@ -369,10 +369,10 @@ export default function BroadcastPage() {
       {/* ── Header ── */}
       <div className="flex items-center justify-between gap-6">
         <div className="min-w-0">
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">
+          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
             Campaigns
           </h1>
-          <p className="mt-1.5 text-[13px] text-clay-ink-muted">
+          <p className="mt-1.5 text-[13px] text-muted-foreground">
             Ship a WhatsApp template to a segmented list of contacts — upload a
             CSV, pick a tag, or reuse a previous audience.
           </p>
@@ -430,10 +430,10 @@ export default function BroadcastPage() {
       <div>
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-[22px] font-semibold tracking-tight text-clay-ink leading-none">
+            <h2 className="text-[22px] font-semibold tracking-tight text-foreground leading-none">
               New campaign
             </h2>
-            <p className="mt-1.5 text-[12.5px] text-clay-ink-muted">
+            <p className="mt-1.5 text-[12.5px] text-muted-foreground">
               Choose a template or flow, upload your audience, and queue the
               broadcast.
             </p>
@@ -441,7 +441,7 @@ export default function BroadcastPage() {
         </div>
         <ClayCard padded={false} className="mt-5 p-6">
           {isRefreshing && !activeProject ? (
-            <div className="h-40 w-full animate-pulse rounded-[12px] bg-clay-bg-2" />
+            <div className="h-40 w-full animate-pulse rounded-[12px] bg-muted" />
           ) : (
             <BroadcastForm
               templates={templates}
@@ -456,10 +456,10 @@ export default function BroadcastPage() {
       <div>
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-[22px] font-semibold tracking-tight text-clay-ink leading-none">
+            <h2 className="text-[22px] font-semibold tracking-tight text-foreground leading-none">
               Broadcast history
             </h2>
-            <p className="mt-1.5 text-[12.5px] text-clay-ink-muted">
+            <p className="mt-1.5 text-[12.5px] text-muted-foreground">
               A log of every broadcast campaign for{' '}
               {activeProject?.name || 'this project'}.
             </p>
@@ -515,21 +515,21 @@ export default function BroadcastPage() {
         <ClayCard padded={false} className="mt-5 p-6">
           {/* ── Filter bar ── */}
           {hasLoaded && history.length > 0 && (
-            <div className="mb-4 flex flex-wrap items-center gap-2 border-b border-clay-border pb-4">
+            <div className="mb-4 flex flex-wrap items-center gap-2 border-b border-border pb-4">
               <div className="relative min-w-[240px] flex-1">
-                <LuSearch className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-clay-ink-muted" strokeWidth={1.75} />
+                <LuSearch className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" strokeWidth={1.75} />
                 <input
                   type="text"
                   placeholder="Search by name or template..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="h-9 w-full rounded-[10px] border border-clay-border bg-clay-surface pl-9 pr-3 text-[13px] text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-border-strong focus:outline-none"
+                  className="h-9 w-full rounded-[10px] border border-border bg-card pl-9 pr-3 text-[13px] text-foreground placeholder:text-muted-foreground focus:border-border focus:outline-none"
                 />
               </div>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="h-9 rounded-[10px] border border-clay-border bg-clay-surface px-3 text-[13px] text-clay-ink focus:border-clay-border-strong focus:outline-none"
+                className="h-9 rounded-[10px] border border-border bg-card px-3 text-[13px] text-foreground focus:border-border focus:outline-none"
               >
                 <option value="all">All statuses</option>
                 <option value="live">Live (queued/processing)</option>
@@ -548,7 +548,7 @@ export default function BroadcastPage() {
                   Clear
                 </ClayButton>
               )}
-              <span className="ml-auto text-[11px] text-clay-ink-muted tabular-nums">
+              <span className="ml-auto text-[11px] text-muted-foreground tabular-nums">
                 {filteredHistory.length} of {history.length}
               </span>
             </div>
@@ -557,19 +557,19 @@ export default function BroadcastPage() {
           {!hasLoaded && isRefreshing ? (
             <div className="flex h-24 items-center justify-center">
               <LuLoader
-                className="h-5 w-5 animate-spin text-clay-ink-muted"
+                className="h-5 w-5 animate-spin text-muted-foreground"
                 strokeWidth={1.75}
               />
             </div>
           ) : !activeProjectId ? (
-            <div className="flex flex-col items-center gap-2 rounded-clay-md border border-dashed border-clay-border bg-clay-surface-2 px-4 py-10 text-center">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-clay-rose-soft text-clay-rose-ink">
+            <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-border bg-secondary px-4 py-10 text-center">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent text-accent-foreground">
                 <LuCircleAlert className="h-5 w-5" strokeWidth={1.5} />
               </div>
-              <div className="text-[13px] font-semibold text-clay-ink">
+              <div className="text-[13px] font-semibold text-foreground">
                 No project selected
               </div>
-              <div className="max-w-[340px] text-[11.5px] text-clay-ink-muted">
+              <div className="max-w-[340px] text-[11.5px] text-muted-foreground">
                 Please select a project from the main dashboard to view its
                 broadcast history.
               </div>
@@ -583,27 +583,27 @@ export default function BroadcastPage() {
               </ClayButton>
             </div>
           ) : history.length === 0 ? (
-            <div className="flex flex-col items-center gap-2 rounded-clay-md border border-dashed border-clay-border bg-clay-surface-2 px-4 py-10 text-center">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-clay-bg text-clay-ink-muted">
+            <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-border bg-secondary px-4 py-10 text-center">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-background text-muted-foreground">
                 <LuFileText className="h-5 w-5" strokeWidth={1.5} />
               </div>
-              <div className="text-[13px] font-semibold text-clay-ink">
+              <div className="text-[13px] font-semibold text-foreground">
                 No broadcasts yet
               </div>
-              <div className="max-w-[340px] text-[11.5px] text-clay-ink-muted">
+              <div className="max-w-[340px] text-[11.5px] text-muted-foreground">
                 Use the composer above to send your first WhatsApp broadcast —
                 it&apos;ll appear here with live delivery and read analytics.
               </div>
             </div>
           ) : filteredHistory.length === 0 ? (
-            <div className="flex flex-col items-center gap-2 rounded-clay-md border border-dashed border-clay-border bg-clay-surface-2 px-4 py-10 text-center">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-clay-bg text-clay-ink-muted">
+            <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-border bg-secondary px-4 py-10 text-center">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-background text-muted-foreground">
                 <LuSearch className="h-5 w-5" strokeWidth={1.5} />
               </div>
-              <div className="text-[13px] font-semibold text-clay-ink">
+              <div className="text-[13px] font-semibold text-foreground">
                 No broadcasts match
               </div>
-              <div className="max-w-[340px] text-[11.5px] text-clay-ink-muted">
+              <div className="max-w-[340px] text-[11.5px] text-muted-foreground">
                 Try clearing the search or status filter.
               </div>
             </div>
@@ -629,23 +629,23 @@ export default function BroadcastPage() {
                     meta={
                       <span className="flex flex-wrap items-center gap-2">
                         {item.templateName ? (
-                          <span className="font-medium text-clay-ink-2">
+                          <span className="font-medium text-foreground">
                             {item.templateName}
                           </span>
                         ) : null}
                         {item.templateName ? (
-                          <span className="text-clay-ink-fade">·</span>
+                          <span className="text-muted-foreground/70">·</span>
                         ) : null}
                         <span>
                           {date
                             ? formatDistanceToNow(date, { addSuffix: true })
                             : '—'}
                         </span>
-                        <span className="text-clay-ink-fade">·</span>
+                        <span className="text-muted-foreground/70">·</span>
                         <span>
                           {(item.contactCount ?? 0).toLocaleString()} contacts
                         </span>
-                        <span className="text-clay-ink-fade">·</span>
+                        <span className="text-muted-foreground/70">·</span>
                         <span className="inline-flex items-center gap-1">
                           <span
                             className={cn(
@@ -661,14 +661,14 @@ export default function BroadcastPage() {
                       <>
                         {/* Delivery rate summary */}
                         <div className="hidden flex-col items-end pr-1 text-[11.5px] sm:flex">
-                          <div className="font-semibold text-clay-ink">
+                          <div className="font-semibold text-foreground">
                             {pct(
                               item.deliveredCount ?? 0,
                               item.contactCount ?? 0,
                             )}
                             %
                           </div>
-                          <div className="text-[10.5px] text-clay-ink-muted">
+                          <div className="text-[10.5px] text-muted-foreground">
                             {compact(item.deliveredCount ?? 0)} /{' '}
                             {compact(item.contactCount ?? 0)}
                           </div>
@@ -700,7 +700,7 @@ export default function BroadcastPage() {
                         <Link
                           href={`/dashboard/broadcasts/${item._id.toString()}`}
                           aria-label="View report"
-                          className="flex h-7 w-7 items-center justify-center rounded-md text-clay-ink-muted hover:bg-clay-bg-2 hover:text-clay-ink transition-colors"
+                          className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                         >
                           <LuArrowUpRight
                             className="h-3.5 w-3.5"
@@ -720,8 +720,8 @@ export default function BroadcastPage() {
           )}
 
           {totalPages > 1 ? (
-            <div className="mt-5 flex items-center justify-between gap-3 border-t border-clay-border pt-4">
-              <span className="text-[11.5px] tabular-nums text-clay-ink-muted">
+            <div className="mt-5 flex items-center justify-between gap-3 border-t border-border pt-4">
+              <span className="text-[11.5px] tabular-nums text-muted-foreground">
                 Page {currentPage} of {totalPages} · {compact(totalCampaigns)}{' '}
                 campaigns
               </span>
@@ -769,15 +769,15 @@ function MiniStat({
   hint?: string;
 }) {
   return (
-    <div className="rounded-[14px] border border-clay-border bg-clay-surface p-4">
-      <div className="text-[11px] font-medium uppercase tracking-wide text-clay-ink-muted">
+    <div className="rounded-[14px] border border-border bg-card p-4">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
         {label}
       </div>
-      <div className="mt-2 text-[22px] font-semibold tracking-[-0.01em] text-clay-ink leading-none">
+      <div className="mt-2 text-[22px] font-semibold tracking-[-0.01em] text-foreground leading-none">
         {value}
       </div>
       {hint ? (
-        <div className="mt-1 text-[11px] text-clay-ink-muted leading-tight truncate">
+        <div className="mt-1 text-[11px] text-muted-foreground leading-tight truncate">
           {hint}
         </div>
       ) : null}

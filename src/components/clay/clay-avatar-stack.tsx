@@ -35,9 +35,9 @@ const overflowSize = {
 };
 
 const overflowClass = {
-  rose: 'bg-clay-rose text-white',
-  obsidian: 'bg-clay-obsidian text-white',
-  neutral: 'bg-clay-bg-2 text-clay-ink-muted',
+  rose: 'bg-primary text-white',
+  obsidian: 'bg-foreground text-white',
+  neutral: 'bg-muted text-muted-foreground',
 };
 
 /**
@@ -62,7 +62,7 @@ export function ClayAvatarStack({
           key={i}
           title={item.alt}
           className={cn(
-            'rounded-full clay-avatar-ring overflow-hidden flex items-center justify-center font-medium bg-clay-bg-2 text-clay-ink-muted',
+            'rounded-full clay-avatar-ring overflow-hidden flex items-center justify-center font-medium bg-muted text-muted-foreground',
             sizeClass[size],
           )}
           style={

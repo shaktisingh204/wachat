@@ -142,7 +142,7 @@ export default function ClayShowcasePage() {
       <div className="flex min-h-0 flex-1">
         {/* ── SIDEBAR ── */}
         <ClaySidebar
-          className="w-[244px] border-r border-clay-border px-4 pt-6"
+          className="w-[244px] border-r border-border px-4 pt-6"
           groupTitle="Rounds"
           groups={[
             {
@@ -234,7 +234,7 @@ export default function ClayShowcasePage() {
 
             {/* Page header — "Round" title + filter pills */}
             <div className="mt-5 flex items-center justify-between gap-6">
-              <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">
+              <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
                 Round
               </h1>
               <div className="flex items-center gap-2">
@@ -298,10 +298,10 @@ export default function ClayShowcasePage() {
                 />
                 <button
                   type="button"
-                  className="mt-1.5 flex items-center justify-between px-2 text-[11.5px] text-clay-ink-muted hover:text-clay-ink transition-colors"
+                  className="mt-1.5 flex items-center justify-between px-2 text-[11.5px] text-muted-foreground hover:text-foreground transition-colors"
                 >
                   <span>See all notifications</span>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-clay-surface-2 border border-clay-border px-1.5 py-0.5 text-[10px] text-clay-ink-muted">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-secondary border border-border px-1.5 py-0.5 text-[10px] text-muted-foreground">
                     <LuBellDot className="h-2.5 w-2.5" strokeWidth={2} />
                     News
                   </span>
@@ -314,7 +314,7 @@ export default function ClayShowcasePage() {
               {/* LEFT — Interview Overview card */}
               <div>
                 <div className="flex items-center justify-between">
-                  <h2 className="text-[22px] font-semibold tracking-tight text-clay-ink leading-none">
+                  <h2 className="text-[22px] font-semibold tracking-tight text-foreground leading-none">
                     Interview Overview
                   </h2>
                   <div className="flex items-center gap-1.5">
@@ -328,7 +328,7 @@ export default function ClayShowcasePage() {
                 </div>
 
                 <ClayCard padded={false} className="mt-5 p-6">
-                  <div className="text-[14px] font-semibold text-clay-ink">
+                  <div className="text-[14px] font-semibold text-foreground">
                     Previous Background
                   </div>
 
@@ -343,14 +343,14 @@ export default function ClayShowcasePage() {
                           <button
                             type="button"
                             aria-label="Edit"
-                            className="flex h-7 w-7 items-center justify-center rounded-md text-clay-ink-muted hover:bg-clay-bg-2 hover:text-clay-ink transition-colors"
+                            className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                           >
                             <LuPencil className="h-3.5 w-3.5" strokeWidth={1.75} />
                           </button>
                           <button
                             type="button"
                             aria-label="Delete"
-                            className="flex h-7 w-7 items-center justify-center rounded-md text-clay-ink-muted hover:bg-clay-bg-2 hover:text-clay-ink transition-colors"
+                            className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                           >
                             <LuTrash2 className="h-3.5 w-3.5" strokeWidth={1.75} />
                           </button>
@@ -403,23 +403,23 @@ export default function ClayShowcasePage() {
                       </div>
 
                       {/* Guidelines */}
-                      <div className="mt-5 rounded-clay-md border border-clay-border bg-clay-surface-2 p-4">
-                        <div className="text-[11.5px] font-semibold uppercase tracking-wide text-clay-ink-muted">
+                      <div className="mt-5 rounded-lg border border-border bg-secondary p-4">
+                        <div className="text-[11.5px] font-semibold uppercase tracking-wide text-muted-foreground">
                           Guidelines
                         </div>
-                        <div className="mt-1.5 text-[13px] font-semibold text-clay-ink leading-snug">
+                        <div className="mt-1.5 text-[13px] font-semibold text-foreground leading-snug">
                           Some of the key features of design are:
                         </div>
-                        <ul className="mt-2 space-y-1.5 text-[12.5px] leading-[1.55] text-clay-ink-muted">
+                        <ul className="mt-2 space-y-1.5 text-[12.5px] leading-[1.55] text-muted-foreground">
                           <li className="flex gap-2">
-                            <span className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-clay-ink-muted" />
+                            <span className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-muted-foreground" />
                             <span>
                               A line is a visual trace created by any writing tool or the
                               meeting point of two shapes
                             </span>
                           </li>
                           <li className="flex gap-2">
-                            <span className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-clay-ink-muted" />
+                            <span className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-muted-foreground" />
                             <span>
                               Size refers to how much actual space some element occupies
                               compared to other elements
@@ -448,17 +448,17 @@ export default function ClayShowcasePage() {
                 <ClayCard padded={false} className="p-4">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
-                      <div className="text-[13.5px] font-semibold text-clay-ink leading-tight">
+                      <div className="text-[13.5px] font-semibold text-foreground leading-tight">
                         Assigned Interviewers
                       </div>
-                      <div className="mt-1 text-[11px] text-clay-ink-muted leading-tight">
+                      <div className="mt-1 text-[11px] text-muted-foreground leading-tight">
                         Interview Panel for This Position
                       </div>
                     </div>
                     <button
                       type="button"
                       aria-label="Open panel"
-                      className="flex h-6 w-6 items-center justify-center rounded-md text-clay-ink-muted hover:bg-clay-bg-2 hover:text-clay-ink transition-colors"
+                      className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                     >
                       <LuArrowRight className="h-3.5 w-3.5" strokeWidth={2} />
                     </button>
@@ -482,7 +482,7 @@ export default function ClayShowcasePage() {
                 {/* Sections */}
                 <div>
                   <div className="flex items-center justify-between px-0.5 pb-3">
-                    <h3 className="text-[15px] font-semibold text-clay-ink">
+                    <h3 className="text-[15px] font-semibold text-foreground">
                       Sections
                     </h3>
                     <ClayButton
@@ -518,7 +518,7 @@ export default function ClayShowcasePage() {
 
 function BrandGlyph() {
   return (
-    <div className="flex h-9 w-9 items-center justify-center rounded-full border border-clay-border bg-clay-surface shadow-clay-xs">
+    <div className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card shadow-sm">
       <svg
         width="16"
         height="16"
@@ -528,7 +528,7 @@ function BrandGlyph() {
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className="text-clay-ink"
+        className="text-foreground"
         aria-hidden
       >
         <path d="M3 3v10h3" />
@@ -548,7 +548,7 @@ function FormField({
 }) {
   return (
     <label className="block">
-      <span className="mb-1.5 block text-[11px] font-semibold text-clay-ink-muted">
+      <span className="mb-1.5 block text-[11px] font-semibold text-muted-foreground">
         {label}
       </span>
       {children}

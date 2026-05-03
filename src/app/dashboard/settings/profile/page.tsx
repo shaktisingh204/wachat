@@ -96,14 +96,14 @@ export default function ProfileSettingsPage() {
                 <form action={formAction} className="flex flex-col gap-4">
                     <ClayCard padded>
                         <div className="mb-5 flex items-center gap-3">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-clay-rose-soft text-clay-rose">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent text-primary">
                                 <LuUser className="h-5 w-5" />
                             </div>
                             <div>
-                                <p className="text-[13.5px] font-semibold text-clay-ink">
+                                <p className="text-[13.5px] font-semibold text-foreground">
                                     {user.name ?? 'Unnamed user'}
                                 </p>
-                                <p className="text-[12.5px] text-clay-ink-muted">{user.email}</p>
+                                <p className="text-[12.5px] text-muted-foreground">{user.email}</p>
                             </div>
                         </div>
                         <div className="grid gap-4 sm:grid-cols-2">
@@ -167,7 +167,7 @@ export default function ProfileSettingsPage() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
     return (
         <div>
-            <Label className="mb-1.5 block text-[12.5px] font-medium text-clay-ink">{label}</Label>
+            <Label className="mb-1.5 block text-[12.5px] font-medium text-foreground">{label}</Label>
             {children}
         </div>
     );
@@ -176,8 +176,8 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 function SectionTitle({ title, description }: { title: string; description: string }) {
     return (
         <div className="mb-4">
-            <p className="text-[13.5px] font-semibold text-clay-ink">{title}</p>
-            <p className="text-[12.5px] text-clay-ink-muted">{description}</p>
+            <p className="text-[13.5px] font-semibold text-foreground">{title}</p>
+            <p className="text-[12.5px] text-muted-foreground">{description}</p>
         </div>
     );
 }

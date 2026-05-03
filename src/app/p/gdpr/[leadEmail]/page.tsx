@@ -20,13 +20,13 @@ export default async function PublicGdprPage({ params }: PageProps) {
   return (
     <div className="flex flex-col gap-5">
       <ClayCard>
-        <p className="text-[11.5px] uppercase tracking-wide text-clay-ink-muted">
+        <p className="text-[11.5px] uppercase tracking-wide text-muted-foreground">
           Privacy preferences
         </p>
-        <h1 className="mt-1 text-[18px] font-semibold text-clay-ink">
+        <h1 className="mt-1 text-[18px] font-semibold text-foreground">
           Manage your consent
         </h1>
-        <p className="mt-1 text-[12.5px] text-clay-ink-muted">
+        <p className="mt-1 text-[12.5px] text-muted-foreground">
           Review the purposes below and choose what you&apos;re comfortable with.
           Your preferences will be recorded against {ctx.lead.email}.
         </p>

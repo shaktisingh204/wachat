@@ -11,7 +11,7 @@ export default async function NewPurchaseOrderPage() {
                 subtitle="Add a new purchase order for your vendor."
                 icon={ShoppingBag}
             />
-            <Suspense fallback={<div className="text-[13px] text-clay-ink-muted">Loading...</div>}>
+            <Suspense fallback={<div className="text-[13px] text-muted-foreground">Loading...</div>}>
                 <NewPurchaseOrderForm />
             </Suspense>
         </div>

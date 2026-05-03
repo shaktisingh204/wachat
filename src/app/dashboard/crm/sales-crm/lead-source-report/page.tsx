@@ -87,13 +87,13 @@ export default function LeadSourceReportPage() {
 
             <ClayCard>
                 <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-clay-ink">Filters</h2>
+                    <h2 className="text-[16px] font-semibold text-foreground">Filters</h2>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    <div className="space-y-1"><Label className="text-clay-ink">Lead Created At</Label><DatePicker date={startDate} setDate={setStartDate as any} placeholder="Start Date" /></div>
+                    <div className="space-y-1"><Label className="text-foreground">Lead Created At</Label><DatePicker date={startDate} setDate={setStartDate as any} placeholder="Start Date" /></div>
                     <div className="space-y-1"><Label>&nbsp;</Label><DatePicker date={endDate} setDate={setEndDate as any} placeholder="End Date" /></div>
-                    <div className="space-y-1"><Label className="text-clay-ink">Pipeline</Label><Select value={pipelineId} onValueChange={setPipelineId}><SelectTrigger><SelectValue placeholder="All Pipelines" /></SelectTrigger><SelectContent><SelectItem value="sales">Sales Pipeline</SelectItem></SelectContent></Select></div>
-                    <div className="space-y-1"><Label className="text-clay-ink">Assigned To</Label><Select value={assigneeId} onValueChange={setAssigneeId}><SelectTrigger><SelectValue placeholder="All Assignees" /></SelectTrigger><SelectContent>{users.map(u => <SelectItem key={u.salespersonId} value={u.salespersonId}>{u.salespersonName}</SelectItem>)}</SelectContent></Select></div>
+                    <div className="space-y-1"><Label className="text-foreground">Pipeline</Label><Select value={pipelineId} onValueChange={setPipelineId}><SelectTrigger><SelectValue placeholder="All Pipelines" /></SelectTrigger><SelectContent><SelectItem value="sales">Sales Pipeline</SelectItem></SelectContent></Select></div>
+                    <div className="space-y-1"><Label className="text-foreground">Assigned To</Label><Select value={assigneeId} onValueChange={setAssigneeId}><SelectTrigger><SelectValue placeholder="All Assignees" /></SelectTrigger><SelectContent>{users.map(u => <SelectItem key={u.salespersonId} value={u.salespersonId}>{u.salespersonName}</SelectItem>)}</SelectContent></Select></div>
                 </div>
                 <div className="mt-4 flex gap-2">
                     <ClayButton variant="obsidian" onClick={fetchData} disabled={isLoading} leading={isLoading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : undefined}>
@@ -105,45 +105,45 @@ export default function LeadSourceReportPage() {
 
             <ClayCard>
                 <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-clay-ink">Report Data</h2>
-                    <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">Showing results for {reportData.length} lead source(s).</p>
+                    <h2 className="text-[16px] font-semibold text-foreground">Report Data</h2>
+                    <p className="mt-0.5 text-[12.5px] text-muted-foreground">Showing results for {reportData.length} lead source(s).</p>
                 </div>
-                <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                <div className="overflow-x-auto rounded-lg border border-border">
                     <Table>
                         <TableHeader>
-                            <TableRow className="border-clay-border hover:bg-transparent">
-                                <TableHead className="text-clay-ink-muted">Lead Source</TableHead>
-                                <TableHead className="text-clay-ink-muted">Total Revenue</TableHead>
-                                <TableHead className="text-clay-ink-muted">Lead Conversion Rate</TableHead>
-                                <TableHead className="text-clay-ink-muted">Leads Generated</TableHead>
-                                <TableHead className="text-clay-ink-muted">Open Leads</TableHead>
-                                <TableHead className="text-clay-ink-muted">Closed Leads</TableHead>
-                                <TableHead className="text-clay-ink-muted">Lost Leads</TableHead>
-                                <TableHead className="text-clay-ink-muted">Not Serviceable</TableHead>
-                                <TableHead className="text-clay-ink-muted">Avg. Deal Value</TableHead>
-                                <TableHead className="text-clay-ink-muted">Avg Lead Closure Time (Days)</TableHead>
+                            <TableRow className="border-border hover:bg-transparent">
+                                <TableHead className="text-muted-foreground">Lead Source</TableHead>
+                                <TableHead className="text-muted-foreground">Total Revenue</TableHead>
+                                <TableHead className="text-muted-foreground">Lead Conversion Rate</TableHead>
+                                <TableHead className="text-muted-foreground">Leads Generated</TableHead>
+                                <TableHead className="text-muted-foreground">Open Leads</TableHead>
+                                <TableHead className="text-muted-foreground">Closed Leads</TableHead>
+                                <TableHead className="text-muted-foreground">Lost Leads</TableHead>
+                                <TableHead className="text-muted-foreground">Not Serviceable</TableHead>
+                                <TableHead className="text-muted-foreground">Avg. Deal Value</TableHead>
+                                <TableHead className="text-muted-foreground">Avg Lead Closure Time (Days)</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {isLoading ? (
-                                <TableRow className="border-clay-border"><TableCell colSpan={10} className="h-24 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin text-clay-ink-muted" /></TableCell></TableRow>
+                                <TableRow className="border-border"><TableCell colSpan={10} className="h-24 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" /></TableCell></TableRow>
                             ) : reportData.length > 0 ? (
                                 reportData.map(row => (
-                                    <TableRow key={row.leadSource} className="border-clay-border">
-                                        <TableCell className="font-medium text-clay-ink">{row.leadSource}</TableCell>
-                                        <TableCell className="text-clay-ink">₹{row.totalRevenue.toLocaleString()}</TableCell>
-                                        <TableCell className="text-clay-ink">{row.leadConversionRate.toFixed(1)}%</TableCell>
-                                        <TableCell className="text-clay-ink">{row.leadsGenerated}</TableCell>
-                                        <TableCell className="text-clay-ink">{row.openLeads}</TableCell>
+                                    <TableRow key={row.leadSource} className="border-border">
+                                        <TableCell className="font-medium text-foreground">{row.leadSource}</TableCell>
+                                        <TableCell className="text-foreground">₹{row.totalRevenue.toLocaleString()}</TableCell>
+                                        <TableCell className="text-foreground">{row.leadConversionRate.toFixed(1)}%</TableCell>
+                                        <TableCell className="text-foreground">{row.leadsGenerated}</TableCell>
+                                        <TableCell className="text-foreground">{row.openLeads}</TableCell>
                                         <TableCell className="text-green-600">{row.closedLeads}</TableCell>
                                         <TableCell className="text-red-600">{row.lostLeads}</TableCell>
-                                        <TableCell className="text-clay-ink">{row.notServiceable}</TableCell>
-                                        <TableCell className="text-clay-ink">₹{row.avgDealValue.toLocaleString()}</TableCell>
-                                        <TableCell className="text-clay-ink">{row.avgLeadClosureTime}</TableCell>
+                                        <TableCell className="text-foreground">{row.notServiceable}</TableCell>
+                                        <TableCell className="text-foreground">₹{row.avgDealValue.toLocaleString()}</TableCell>
+                                        <TableCell className="text-foreground">{row.avgLeadClosureTime}</TableCell>
                                     </TableRow>
                                 ))
                             ) : (
-                                <TableRow className="border-clay-border"><TableCell colSpan={10} className="h-24 text-center text-[13px] text-clay-ink-muted">No data available for the selected filters.</TableCell></TableRow>
+                                <TableRow className="border-border"><TableCell colSpan={10} className="h-24 text-center text-[13px] text-muted-foreground">No data available for the selected filters.</TableCell></TableRow>
                             )}
                         </TableBody>
                     </Table>

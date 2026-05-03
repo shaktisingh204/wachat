@@ -60,12 +60,12 @@ export default function NewKnowledgeBasePage() {
       <ClayCard>
         <form action={formAction} className="grid gap-4 md:grid-cols-2">
           <div className="md:col-span-2">
-            <Label htmlFor="title" className="text-clay-ink">Title *</Label>
+            <Label htmlFor="title" className="text-foreground">Title *</Label>
             <Input id="title" name="title" required className="mt-1.5 h-10" />
           </div>
 
           <div className="md:col-span-2">
-            <Label htmlFor="description" className="text-clay-ink">Description</Label>
+            <Label htmlFor="description" className="text-foreground">Description</Label>
             <Textarea
               id="description"
               name="description"
@@ -76,7 +76,7 @@ export default function NewKnowledgeBasePage() {
           </div>
 
           <div>
-            <Label htmlFor="category_id" className="text-clay-ink">Category</Label>
+            <Label htmlFor="category_id" className="text-foreground">Category</Label>
             <Select name="category_id">
               <SelectTrigger id="category_id" className="mt-1.5 h-10">
                 <SelectValue placeholder="Select category" />
@@ -92,7 +92,7 @@ export default function NewKnowledgeBasePage() {
           </div>
 
           <div>
-            <Label htmlFor="type" className="text-clay-ink">Type *</Label>
+            <Label htmlFor="type" className="text-foreground">Type *</Label>
             <Select name="type" defaultValue="article">
               <SelectTrigger id="type" className="mt-1.5 h-10">
                 <SelectValue />
@@ -108,7 +108,7 @@ export default function NewKnowledgeBasePage() {
           </div>
 
           <div>
-            <Label htmlFor="to_do" className="text-clay-ink">To-do</Label>
+            <Label htmlFor="to_do" className="text-foreground">To-do</Label>
             <Select name="to_do" defaultValue="no">
               <SelectTrigger id="to_do" className="mt-1.5 h-10">
                 <SelectValue />
@@ -121,7 +121,7 @@ export default function NewKnowledgeBasePage() {
           </div>
 
           <div>
-            <Label htmlFor="pinned" className="text-clay-ink">Pinned</Label>
+            <Label htmlFor="pinned" className="text-foreground">Pinned</Label>
             <Select name="pinned" defaultValue="false">
               <SelectTrigger id="pinned" className="mt-1.5 h-10">
                 <SelectValue />

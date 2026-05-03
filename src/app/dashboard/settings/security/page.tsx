@@ -74,12 +74,12 @@ export default function SecuritySettingsPage() {
             {/* Password */}
             <ClayCard padded>
                 <div className="mb-4 flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-clay-rose-soft text-clay-rose">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-accent text-primary">
                         <LuLock className="h-4 w-4" />
                     </div>
                     <div>
-                        <p className="text-[13.5px] font-semibold text-clay-ink">Password</p>
-                        <p className="text-[12.5px] text-clay-ink-muted">
+                        <p className="text-[13.5px] font-semibold text-foreground">Password</p>
+                        <p className="text-[12.5px] text-muted-foreground">
                             Use a unique password at least 12 characters long.
                         </p>
                     </div>
@@ -103,28 +103,28 @@ export default function SecuritySettingsPage() {
             {/* 2FA */}
             <ClayCard padded>
                 <div className="mb-4 flex items-start gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-clay-rose-soft text-clay-rose">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-accent text-primary">
                         <LuShield className="h-4 w-4" />
                     </div>
                     <div className="flex-1">
                         <div className="flex items-center gap-2">
-                            <p className="text-[13.5px] font-semibold text-clay-ink">
+                            <p className="text-[13.5px] font-semibold text-foreground">
                                 Two-factor authentication
                             </p>
                             <ClayBadge tone={twoFactor ? 'green' : 'neutral'}>
                                 {twoFactor ? 'Enabled' : 'Disabled'}
                             </ClayBadge>
                         </div>
-                        <p className="text-[12.5px] text-clay-ink-muted">
+                        <p className="text-[12.5px] text-muted-foreground">
                             Add a second verification step using an authenticator app.
                         </p>
                     </div>
                     <Switch checked={twoFactor} onCheckedChange={setTwoFactor} />
                 </div>
-                <div className="flex items-start justify-between gap-4 rounded-xl border border-clay-border bg-clay-surface-subtle p-3">
+                <div className="flex items-start justify-between gap-4 rounded-xl border border-border bg-muted/50 p-3">
                     <div>
-                        <Label className="text-[13px] font-medium text-clay-ink">Alert on new sign-ins</Label>
-                        <p className="mt-0.5 text-[12px] text-clay-ink-muted">
+                        <Label className="text-[13px] font-medium text-foreground">Alert on new sign-ins</Label>
+                        <p className="mt-0.5 text-[12px] text-muted-foreground">
                             Email you whenever a new device signs in to your account.
                         </p>
                     </div>
@@ -135,17 +135,17 @@ export default function SecuritySettingsPage() {
             {/* Active sessions placeholder */}
             <ClayCard padded>
                 <div className="mb-4 flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-clay-rose-soft text-clay-rose">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-accent text-primary">
                         <LuLaptop className="h-4 w-4" />
                     </div>
                     <div>
-                        <p className="text-[13.5px] font-semibold text-clay-ink">Active sessions</p>
-                        <p className="text-[12.5px] text-clay-ink-muted">
+                        <p className="text-[13.5px] font-semibold text-foreground">Active sessions</p>
+                        <p className="text-[12.5px] text-muted-foreground">
                             Devices currently signed in to your account.
                         </p>
                     </div>
                 </div>
-                <div className="divide-y divide-clay-border rounded-xl border border-clay-border">
+                <div className="divide-y divide-border rounded-xl border border-border">
                     <SessionRow label="Current session" device="This browser" location="—" current />
                 </div>
             </ClayCard>
@@ -153,12 +153,12 @@ export default function SecuritySettingsPage() {
             {/* Recovery */}
             <ClayCard padded variant="soft">
                 <div className="flex items-start gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-clay-obsidian text-white">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-foreground text-white">
                         <LuKey className="h-4 w-4" />
                     </div>
                     <div className="flex-1">
-                        <p className="text-[13.5px] font-semibold text-clay-ink">Recovery codes</p>
-                        <p className="text-[12.5px] text-clay-ink-muted">
+                        <p className="text-[13.5px] font-semibold text-foreground">Recovery codes</p>
+                        <p className="text-[12.5px] text-muted-foreground">
                             Generate a new set of backup codes if you lose access to your authenticator.
                         </p>
                     </div>
@@ -174,7 +174,7 @@ export default function SecuritySettingsPage() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
     return (
         <div>
-            <Label className="mb-1.5 block text-[12.5px] font-medium text-clay-ink">{label}</Label>
+            <Label className="mb-1.5 block text-[12.5px] font-medium text-foreground">{label}</Label>
             {children}
         </div>
     );
@@ -195,10 +195,10 @@ function SessionRow({
         <div className="flex items-center justify-between px-4 py-3 text-[13px]">
             <div>
                 <div className="flex items-center gap-2">
-                    <p className="font-medium text-clay-ink">{label}</p>
+                    <p className="font-medium text-foreground">{label}</p>
                     {current && <ClayBadge tone="green">This device</ClayBadge>}
                 </div>
-                <p className="mt-0.5 text-[12px] text-clay-ink-muted">
+                <p className="mt-0.5 text-[12px] text-muted-foreground">
                     {device} · {location}
                 </p>
             </div>

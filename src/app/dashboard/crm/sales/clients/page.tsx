@@ -136,21 +136,21 @@ export default function CrmClientsPage() {
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
             <div>
-              <h2 className="text-[16px] font-semibold text-clay-ink">All Accounts</h2>
-              <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">
+              <h2 className="text-[16px] font-semibold text-foreground">All Accounts</h2>
+              <p className="mt-0.5 text-[12.5px] text-muted-foreground">
                 A list of all companies in your CRM.
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-3">
-              <TabsList className="bg-clay-surface-2">
+              <TabsList className="bg-secondary">
                 <TabsTrigger value="active">Active</TabsTrigger>
                 <TabsTrigger value="archived">Archived</TabsTrigger>
               </TabsList>
               <div className="relative w-full max-w-xs">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-clay-ink-muted" />
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   placeholder="Search by name, industry, or website..."
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface pl-9 text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card pl-9 text-[13px]"
                   onChange={(e) => handleSearch(e.target.value)}
                   defaultValue={searchQuery}
                 />
@@ -158,21 +158,21 @@ export default function CrmClientsPage() {
             </div>
           </div>
 
-          <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+          <div className="overflow-x-auto rounded-lg border border-border">
             <Table>
               <TableHeader>
-                <TableRow className="border-clay-border hover:bg-transparent">
-                  <TableHead className="text-clay-ink-muted">Account Name</TableHead>
-                  <TableHead className="text-clay-ink-muted">Industry</TableHead>
-                  <TableHead className="text-clay-ink-muted">Phone</TableHead>
-                  <TableHead className="text-clay-ink-muted">Status</TableHead>
-                  <TableHead className="text-right text-clay-ink-muted">Actions</TableHead>
+                <TableRow className="border-border hover:bg-transparent">
+                  <TableHead className="text-muted-foreground">Account Name</TableHead>
+                  <TableHead className="text-muted-foreground">Industry</TableHead>
+                  <TableHead className="text-muted-foreground">Phone</TableHead>
+                  <TableHead className="text-muted-foreground">Status</TableHead>
+                  <TableHead className="text-right text-muted-foreground">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading ? (
                   [...Array(5)].map((_, i) => (
-                    <TableRow key={i} className="border-clay-border">
+                    <TableRow key={i} className="border-border">
                       <TableCell colSpan={5}>
                         <Skeleton className="h-10 w-full" />
                       </TableCell>
@@ -180,20 +180,20 @@ export default function CrmClientsPage() {
                   ))
                 ) : accounts.length > 0 ? (
                   accounts.map((account) => (
-                    <TableRow key={account._id.toString()} className="border-clay-border">
+                    <TableRow key={account._id.toString()} className="border-border">
                       <TableCell>
                         <Link
                           href={`/dashboard/crm/accounts/${account._id.toString()}`}
-                          className="flex items-center gap-2 text-[13px] font-medium text-clay-ink hover:underline"
+                          className="flex items-center gap-2 text-[13px] font-medium text-foreground hover:underline"
                         >
-                          <Building className="h-4 w-4 text-clay-ink-muted" />
+                          <Building className="h-4 w-4 text-muted-foreground" />
                           {account.name}
                         </Link>
                       </TableCell>
-                      <TableCell className="text-[13px] text-clay-ink">
+                      <TableCell className="text-[13px] text-foreground">
                         {account.industry || 'N/A'}
                       </TableCell>
-                      <TableCell className="text-[13px] text-clay-ink">
+                      <TableCell className="text-[13px] text-foreground">
                         {account.phone || 'N/A'}
                       </TableCell>
                       <TableCell>
@@ -268,10 +268,10 @@ export default function CrmClientsPage() {
                     </TableRow>
                   ))
                 ) : (
-                  <TableRow className="border-clay-border">
+                  <TableRow className="border-border">
                     <TableCell
                       colSpan={5}
-                      className="h-24 text-center text-[13px] text-clay-ink-muted"
+                      className="h-24 text-center text-[13px] text-muted-foreground"
                     >
                       No accounts found.
                     </TableCell>

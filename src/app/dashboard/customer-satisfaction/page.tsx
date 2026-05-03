@@ -16,7 +16,7 @@ function Stars({ count }: { count: number }) {
   return (
     <span className="inline-flex gap-0.5">
       {[1, 2, 3, 4, 5].map((i) => (
-        <LuStar key={i} className={`h-3.5 w-3.5 ${i <= count ? 'fill-clay-amber text-clay-amber' : 'text-clay-border'}`} strokeWidth={1.75} />
+        <LuStar key={i} className={`h-3.5 w-3.5 ${i <= count ? 'fill-amber-500 text-amber-500' : 'text-border'}`} strokeWidth={1.75} />
       ))}
     </span>
   );
@@ -60,8 +60,8 @@ export default function CustomerSatisfactionPage() {
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">Customer Satisfaction</h1>
-          <p className="mt-1.5 text-[13px] text-clay-ink-muted">Track NPS scores and customer feedback from conversations.</p>
+          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">Customer Satisfaction</h1>
+          <p className="mt-1.5 text-[13px] text-muted-foreground">Track NPS scores and customer feedback from conversations.</p>
         </div>
         <ClayButton variant="pill" size="sm" onClick={load} disabled={isPending}>
           {isPending ? <LuLoader className="h-3.5 w-3.5 animate-spin" /> : 'Refresh'}
@@ -70,15 +70,15 @@ export default function CustomerSatisfactionPage() {
 
       {isPending && ratings.length === 0 ? (
         <div className="flex h-40 items-center justify-center gap-3">
-          <LuLoader className="h-5 w-5 animate-spin text-clay-ink-muted" />
-          <span className="text-[13px] text-clay-ink-muted">Loading satisfaction data...</span>
+          <LuLoader className="h-5 w-5 animate-spin text-muted-foreground" />
+          <span className="text-[13px] text-muted-foreground">Loading satisfaction data...</span>
         </div>
       ) : (
         <>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <ClayCard padded={false} className="p-5 text-center">
-              <div className="text-[12px] text-clay-ink-muted mb-1">NPS Score</div>
-              <div className="text-[40px] font-bold text-clay-ink leading-none">{total ? nps : '--'}</div>
+              <div className="text-[12px] text-muted-foreground mb-1">NPS Score</div>
+              <div className="text-[40px] font-bold text-foreground leading-none">{total ? nps : '--'}</div>
               <ClayBadge tone={nps >= 50 ? 'green' : nps >= 0 ? 'amber' : 'red'} className="mt-2">
                 {nps >= 50 ? 'Excellent' : nps >= 0 ? 'Good' : 'Needs Work'}
               </ClayBadge>
@@ -86,54 +86,54 @@ export default function CustomerSatisfactionPage() {
             <ClayCard padded={false} className="flex items-center gap-4 p-5">
               <LuCircleCheck className="h-8 w-8 text-emerald-500 shrink-0" />
               <div>
-                <div className="text-[12px] text-clay-ink-muted">Promoters (4-5)</div>
-                <div className="text-[22px] font-semibold text-clay-ink leading-tight">{promPct}%</div>
+                <div className="text-[12px] text-muted-foreground">Promoters (4-5)</div>
+                <div className="text-[22px] font-semibold text-foreground leading-tight">{promPct}%</div>
               </div>
             </ClayCard>
             <ClayCard padded={false} className="flex items-center gap-4 p-5">
               <LuTriangleAlert className="h-8 w-8 text-amber-500 shrink-0" />
               <div>
-                <div className="text-[12px] text-clay-ink-muted">Passives (3)</div>
-                <div className="text-[22px] font-semibold text-clay-ink leading-tight">{passPct}%</div>
+                <div className="text-[12px] text-muted-foreground">Passives (3)</div>
+                <div className="text-[22px] font-semibold text-foreground leading-tight">{passPct}%</div>
               </div>
             </ClayCard>
             <ClayCard padded={false} className="flex items-center gap-4 p-5">
               <LuCircleX className="h-8 w-8 text-red-400 shrink-0" />
               <div>
-                <div className="text-[12px] text-clay-ink-muted">Detractors (1-2)</div>
-                <div className="text-[22px] font-semibold text-clay-ink leading-tight">{detPct}%</div>
+                <div className="text-[12px] text-muted-foreground">Detractors (1-2)</div>
+                <div className="text-[22px] font-semibold text-foreground leading-tight">{detPct}%</div>
               </div>
             </ClayCard>
           </div>
 
           {total > 0 && (
             <ClayCard padded={false} className="p-5">
-              <h2 className="text-[15px] font-semibold text-clay-ink mb-3">Score Distribution</h2>
+              <h2 className="text-[15px] font-semibold text-foreground mb-3">Score Distribution</h2>
               <div className="flex h-6 w-full overflow-hidden rounded-full">
                 <div className="bg-emerald-400 transition-all" style={{ width: `${promPct}%` }} />
                 <div className="bg-amber-300 transition-all" style={{ width: `${passPct}%` }} />
                 <div className="bg-red-400 transition-all" style={{ width: `${detPct}%` }} />
               </div>
-              <div className="mt-2 flex justify-between text-[11px] text-clay-ink-muted">
+              <div className="mt-2 flex justify-between text-[11px] text-muted-foreground">
                 <span>Promoters {promPct}%</span><span>Passives {passPct}%</span><span>Detractors {detPct}%</span>
               </div>
             </ClayCard>
           )}
 
           <ClayCard padded={false} className="overflow-x-auto">
-            <div className="px-5 py-4 border-b border-clay-border">
-              <h2 className="text-[15px] font-semibold text-clay-ink">Recent Feedback ({ratings.length})</h2>
+            <div className="px-5 py-4 border-b border-border">
+              <h2 className="text-[15px] font-semibold text-foreground">Recent Feedback ({ratings.length})</h2>
             </div>
             {ratings.length === 0 ? (
-              <div className="px-5 py-12 text-center text-[13px] text-clay-ink-muted">No ratings yet.</div>
+              <div className="px-5 py-12 text-center text-[13px] text-muted-foreground">No ratings yet.</div>
             ) : (
-              <div className="divide-y divide-clay-border">
+              <div className="divide-y divide-border">
                 {ratings.slice(0, 20).map((r: any, i: number) => (
                   <div key={r._id || i} className="px-5 py-3 flex items-start gap-4">
                     <Stars count={r.rating} />
                     <div className="flex-1 min-w-0">
-                      <span className="text-[11px] text-clay-ink-muted">{r.createdAt ? new Date(r.createdAt).toLocaleDateString() : ''}</span>
-                      {r.feedback && <p className="text-[12.5px] text-clay-ink-muted leading-relaxed mt-0.5">{r.feedback}</p>}
+                      <span className="text-[11px] text-muted-foreground">{r.createdAt ? new Date(r.createdAt).toLocaleDateString() : ''}</span>
+                      {r.feedback && <p className="text-[12.5px] text-muted-foreground leading-relaxed mt-0.5">{r.feedback}</p>}
                     </div>
                   </div>
                 ))}

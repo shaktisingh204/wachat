@@ -39,7 +39,7 @@ export function ClayListRow({
   return (
     <div
       className={cn(
-        'flex flex-col rounded-clay-lg border border-clay-border bg-clay-surface-2',
+        'flex flex-col rounded-xl border border-border bg-secondary',
         className,
       )}
       {...props}
@@ -49,17 +49,17 @@ export function ClayListRow({
         <div
           className={cn(
             'flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[12px] font-semibold',
-            'bg-clay-bg-2 text-clay-ink-muted border border-clay-border',
+            'bg-muted text-muted-foreground border border-border',
           )}
         >
           {index}
         </div>
         <div className="min-w-0 flex-1 pt-[3px]">
-          <div className="text-[14px] font-medium text-clay-ink leading-tight">
+          <div className="text-[14px] font-medium text-foreground leading-tight">
             {title}
           </div>
           {meta ? (
-            <div className="mt-1 text-[12px] text-clay-ink-muted leading-tight">
+            <div className="mt-1 text-[12px] text-muted-foreground leading-tight">
               {meta}
             </div>
           ) : null}
@@ -71,7 +71,7 @@ export function ClayListRow({
         ) : null}
       </div>
       {expanded && children ? (
-        <div className="border-t border-clay-border px-4 py-4">{children}</div>
+        <div className="border-t border-border px-4 py-4">{children}</div>
       ) : null}
     </div>
   );

@@ -131,7 +131,7 @@ export default function GanttPage() {
 
       <ClayCard>
         <div className="mb-4 flex flex-wrap items-center gap-3">
-          <span className="text-[11.5px] text-clay-ink-muted">Legend:</span>
+          <span className="text-[11.5px] text-muted-foreground">Legend:</span>
           <ClayBadge tone="rose-soft" dot>
             Scheduled
           </ClayBadge>
@@ -142,23 +142,23 @@ export default function GanttPage() {
             Milestone complete
           </ClayBadge>
           <ClayBadge tone="neutral">No dates</ClayBadge>
-          <span className="ml-auto text-[11.5px] text-clay-ink-muted">
+          <span className="ml-auto text-[11.5px] text-muted-foreground">
             {projects.length} project{projects.length === 1 ? '' : 's'} ·{' '}
             {milestones.length} milestones
           </span>
         </div>
 
         {projects.length === 0 ? (
-          <div className="rounded-clay-md border border-dashed border-clay-border p-12 text-center">
-            <p className="text-[13px] text-clay-ink-muted">
+          <div className="rounded-lg border border-dashed border-border p-12 text-center">
+            <p className="text-[13px] text-muted-foreground">
               No projects to show.
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+          <div className="overflow-x-auto rounded-lg border border-border">
             <div className="min-w-[900px]">
-              <div className="grid grid-cols-[220px_1fr] border-b border-clay-border bg-clay-surface-2">
-                <div className="p-3 text-[11.5px] font-medium uppercase tracking-wide text-clay-ink-muted">
+              <div className="grid grid-cols-[220px_1fr] border-b border-border bg-secondary">
+                <div className="p-3 text-[11.5px] font-medium uppercase tracking-wide text-muted-foreground">
                   Project
                 </div>
                 <div
@@ -170,7 +170,7 @@ export default function GanttPage() {
                   {months.map((m) => (
                     <div
                       key={m.label}
-                      className="border-l border-clay-border p-3 text-center text-[11.5px] font-medium text-clay-ink-muted"
+                      className="border-l border-border p-3 text-center text-[11.5px] font-medium text-muted-foreground"
                     >
                       {m.label}
                     </div>
@@ -198,16 +198,16 @@ export default function GanttPage() {
                   return (
                     <div
                       key={project._id}
-                      className="grid grid-cols-[220px_1fr] border-b border-clay-border last:border-b-0"
+                      className="grid grid-cols-[220px_1fr] border-b border-border last:border-b-0"
                     >
                       <div className="flex flex-col justify-center p-3">
                         <Link
                           href={`/dashboard/crm/projects/${project._id}`}
-                          className="truncate text-[13px] font-medium text-clay-ink hover:underline"
+                          className="truncate text-[13px] font-medium text-foreground hover:underline"
                         >
                           {project.name || project.projectName}
                         </Link>
-                        <span className="text-[11px] text-clay-ink-muted">
+                        <span className="text-[11px] text-muted-foreground">
                           {project.clientName || '—'}
                         </span>
                       </div>
@@ -222,13 +222,13 @@ export default function GanttPage() {
                           {months.map((m) => (
                             <div
                               key={m.label}
-                              className="border-l border-clay-border"
+                              className="border-l border-border"
                             />
                           ))}
                         </div>
                         {bar ? (
                           <div
-                            className="absolute top-1/2 -translate-y-1/2 rounded-clay-md border border-clay-rose bg-clay-rose-soft px-2 py-1 text-[11.5px] text-clay-rose-ink"
+                            className="absolute top-1/2 -translate-y-1/2 rounded-lg border border-primary bg-accent px-2 py-1 text-[11.5px] text-accent-foreground"
                             style={{
                               left: `${bar.left}%`,
                               width: `${bar.width}%`,
@@ -243,7 +243,7 @@ export default function GanttPage() {
                             </span>
                           </div>
                         ) : (
-                          <div className="absolute inset-y-0 left-3 flex items-center text-[11px] text-clay-ink-muted">
+                          <div className="absolute inset-y-0 left-3 flex items-center text-[11px] text-muted-foreground">
                             No scheduled dates
                           </div>
                         )}
@@ -255,7 +255,7 @@ export default function GanttPage() {
                             title={mk.title}
                           >
                             <Flag
-                              className={`h-3.5 w-3.5 ${mk.done ? 'text-clay-green' : 'text-clay-amber'}`}
+                              className={`h-3.5 w-3.5 ${mk.done ? 'text-emerald-500' : 'text-amber-500'}`}
                               strokeWidth={2}
                             />
                           </div>

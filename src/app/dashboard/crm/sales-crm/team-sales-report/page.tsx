@@ -73,10 +73,10 @@ export default function TeamSalesReportPage() {
     };
 
     const ReportStat = ({ label, value, subValue }: { label: string, value: string | number, subValue?: string }) => (
-        <div className="rounded-clay-md border border-clay-border bg-clay-surface-2 p-3 text-center">
-            <p className="text-[13px] text-clay-ink-muted">{label}</p>
-            <p className="text-[22px] font-semibold text-clay-ink">{value}</p>
-            {subValue && <p className="text-[11.5px] text-clay-ink-muted">{subValue}</p>}
+        <div className="rounded-lg border border-border bg-secondary p-3 text-center">
+            <p className="text-[13px] text-muted-foreground">{label}</p>
+            <p className="text-[22px] font-semibold text-foreground">{value}</p>
+            {subValue && <p className="text-[11.5px] text-muted-foreground">{subValue}</p>}
         </div>
     );
 
@@ -90,13 +90,13 @@ export default function TeamSalesReportPage() {
 
             <ClayCard>
                 <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-clay-ink">Filters</h2>
+                    <h2 className="text-[16px] font-semibold text-foreground">Filters</h2>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="space-y-1"><Label className="text-clay-ink">Lead Created At</Label><DatePicker date={startDate} setDate={setStartDate as any} placeholder="Start Date" /></div>
+                    <div className="space-y-1"><Label className="text-foreground">Lead Created At</Label><DatePicker date={startDate} setDate={setStartDate as any} placeholder="Start Date" /></div>
                     <div className="space-y-1"><Label>&nbsp;</Label><DatePicker date={endDate} setDate={setEndDate as any} placeholder="End Date" /></div>
-                    <div className="space-y-1"><Label className="text-clay-ink">Pipeline</Label><Select value={pipelineId} onValueChange={setPipelineId}><SelectTrigger><SelectValue placeholder="All Pipelines" /></SelectTrigger><SelectContent><SelectItem value="sales">Sales Pipeline</SelectItem></SelectContent></Select></div>
-                    <div className="space-y-1"><Label className="text-clay-ink">Assigned To</Label><Select value={assigneeId} onValueChange={setAssigneeId}><SelectTrigger><SelectValue placeholder="All Assignees" /></SelectTrigger><SelectContent>{users.map(u => <SelectItem key={u._id} value={u._id}>{u.name}</SelectItem>)}</SelectContent></Select></div>
+                    <div className="space-y-1"><Label className="text-foreground">Pipeline</Label><Select value={pipelineId} onValueChange={setPipelineId}><SelectTrigger><SelectValue placeholder="All Pipelines" /></SelectTrigger><SelectContent><SelectItem value="sales">Sales Pipeline</SelectItem></SelectContent></Select></div>
+                    <div className="space-y-1"><Label className="text-foreground">Assigned To</Label><Select value={assigneeId} onValueChange={setAssigneeId}><SelectTrigger><SelectValue placeholder="All Assignees" /></SelectTrigger><SelectContent>{users.map(u => <SelectItem key={u._id} value={u._id}>{u.name}</SelectItem>)}</SelectContent></Select></div>
                 </div>
                 <div className="mt-4 flex gap-2">
                     <ClayButton variant="obsidian" onClick={fetchData} disabled={isLoading} leading={isLoading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : undefined}>
@@ -115,46 +115,46 @@ export default function TeamSalesReportPage() {
 
             <ClayCard>
                 <div className="mb-4 flex items-center justify-between">
-                    <h2 className="text-[16px] font-semibold text-clay-ink">Salesperson Performance</h2>
+                    <h2 className="text-[16px] font-semibold text-foreground">Salesperson Performance</h2>
                     <ClayButton variant="pill" leading={<Download className="h-4 w-4" strokeWidth={1.75} />} onClick={handleDownload}>
                         Download CSV
                     </ClayButton>
                 </div>
-                <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                <div className="overflow-x-auto rounded-lg border border-border">
                     <Table>
                         <TableHeader>
-                            <TableRow className="border-clay-border hover:bg-transparent">
-                                <TableHead className="text-clay-ink-muted">Salesperson</TableHead>
-                                <TableHead className="text-clay-ink-muted">Total Leads</TableHead>
-                                <TableHead className="text-clay-ink-muted">Open</TableHead>
-                                <TableHead className="text-clay-ink-muted">Closed</TableHead>
-                                <TableHead className="text-clay-ink-muted">Lost</TableHead>
-                                <TableHead className="text-clay-ink-muted">Conversion Rate</TableHead>
-                                <TableHead className="text-clay-ink-muted">Total Revenue</TableHead>
-                                <TableHead className="text-clay-ink-muted">Avg. Deal Value</TableHead>
+                            <TableRow className="border-border hover:bg-transparent">
+                                <TableHead className="text-muted-foreground">Salesperson</TableHead>
+                                <TableHead className="text-muted-foreground">Total Leads</TableHead>
+                                <TableHead className="text-muted-foreground">Open</TableHead>
+                                <TableHead className="text-muted-foreground">Closed</TableHead>
+                                <TableHead className="text-muted-foreground">Lost</TableHead>
+                                <TableHead className="text-muted-foreground">Conversion Rate</TableHead>
+                                <TableHead className="text-muted-foreground">Total Revenue</TableHead>
+                                <TableHead className="text-muted-foreground">Avg. Deal Value</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {isLoading ? (
-                                <TableRow className="border-clay-border"><TableCell colSpan={8} className="h-24 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin text-clay-ink-muted" /></TableCell></TableRow>
+                                <TableRow className="border-border"><TableCell colSpan={8} className="h-24 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" /></TableCell></TableRow>
                             ) : reportData.length > 0 ? (
                                 reportData.map(row => (
-                                    <TableRow key={row.salespersonId} className="border-clay-border">
+                                    <TableRow key={row.salespersonId} className="border-border">
                                         <TableCell>
-                                            <div className="font-medium text-clay-ink">{row.salespersonName}</div>
-                                            <div className="text-[11.5px] text-clay-ink-muted">{row.salespersonEmail}</div>
+                                            <div className="font-medium text-foreground">{row.salespersonName}</div>
+                                            <div className="text-[11.5px] text-muted-foreground">{row.salespersonEmail}</div>
                                         </TableCell>
-                                        <TableCell className="text-clay-ink">{row.totalLeads}</TableCell>
-                                        <TableCell className="text-clay-ink">{row.openLeads}</TableCell>
+                                        <TableCell className="text-foreground">{row.totalLeads}</TableCell>
+                                        <TableCell className="text-foreground">{row.openLeads}</TableCell>
                                         <TableCell className="font-semibold text-green-600">{row.closedLeads}</TableCell>
                                         <TableCell className="font-semibold text-red-600">{row.lostLeads}</TableCell>
-                                        <TableCell className="text-clay-ink">{row.conversionRate.toFixed(1)}%</TableCell>
-                                        <TableCell className="text-clay-ink">₹{row.totalRevenue.toLocaleString()}</TableCell>
-                                        <TableCell className="text-clay-ink">₹{row.avgDealValue.toLocaleString()}</TableCell>
+                                        <TableCell className="text-foreground">{row.conversionRate.toFixed(1)}%</TableCell>
+                                        <TableCell className="text-foreground">₹{row.totalRevenue.toLocaleString()}</TableCell>
+                                        <TableCell className="text-foreground">₹{row.avgDealValue.toLocaleString()}</TableCell>
                                     </TableRow>
                                 ))
                             ) : (
-                                <TableRow className="border-clay-border"><TableCell colSpan={8} className="h-24 text-center text-[13px] text-clay-ink-muted">No data available for the selected filters.</TableCell></TableRow>
+                                <TableRow className="border-border"><TableCell colSpan={8} className="h-24 text-center text-[13px] text-muted-foreground">No data available for the selected filters.</TableCell></TableRow>
                             )}
                         </TableBody>
                     </Table>

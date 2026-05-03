@@ -36,11 +36,11 @@ export default async function LeadsConversionPage(props: {
       </div>
 
       <ClayCard>
-        <p className="text-[13px] text-clay-ink-muted">
+        <p className="text-[13px] text-muted-foreground">
           Cycle time is measured from lead creation to conversion (using{' '}
-          <code className="rounded bg-clay-surface-2 px-1">convertedAt</code>{' '}
+          <code className="rounded bg-secondary px-1">convertedAt</code>{' '}
           or{' '}
-          <code className="rounded bg-clay-surface-2 px-1">updatedAt</code>).
+          <code className="rounded bg-secondary px-1">updatedAt</code>).
         </p>
       </ClayCard>
     </div>

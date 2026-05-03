@@ -27,23 +27,23 @@ export const ClayInput = React.forwardRef<HTMLInputElement, ClayInputProps>(
     return (
       <div
         className={cn(
-          'flex items-center gap-2 rounded-clay-md border border-clay-border bg-clay-surface transition-[border-color,box-shadow] focus-within:border-clay-rose focus-within:ring-[3px] focus-within:ring-clay-rose/15',
+          'flex items-center gap-2 rounded-lg border border-border bg-card transition-[border-color,box-shadow] focus-within:border-primary focus-within:ring-[3px] focus-within:ring-primary/15',
           sizeVariant === 'sm' ? 'h-8 px-2.5' : 'h-10 px-3',
           className,
         )}
       >
         {leading ? (
-          <span className="flex shrink-0 items-center text-clay-ink-soft">
+          <span className="flex shrink-0 items-center text-muted-foreground">
             {leading}
           </span>
         ) : null}
         <input
           ref={ref}
-          className="flex-1 bg-transparent text-[13px] text-clay-ink placeholder:text-clay-ink-soft focus:outline-none"
+          className="flex-1 bg-transparent text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none"
           {...props}
         />
         {trailing ? (
-          <span className="flex shrink-0 items-center text-clay-ink-soft">
+          <span className="flex shrink-0 items-center text-muted-foreground">
             {trailing}
           </span>
         ) : null}

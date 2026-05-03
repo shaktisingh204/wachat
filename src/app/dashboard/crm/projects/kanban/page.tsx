@@ -161,7 +161,7 @@ export default function KanbanPage() {
         <Skeleton className="h-10 w-64" />
         <div className="grid gap-4 md:grid-cols-4">
           {DEFAULT_COLUMNS.map((c) => (
-            <Skeleton key={c._id} className="h-[60vh] rounded-clay-lg" />
+            <Skeleton key={c._id} className="h-[60vh] rounded-xl" />
           ))}
         </div>
       </div>
@@ -178,7 +178,7 @@ export default function KanbanPage() {
           <>
             <div className="w-[220px]">
               <Select value={projectFilter} onValueChange={setProjectFilter}>
-                <SelectTrigger className="h-9 rounded-full border-clay-border bg-clay-surface text-[13px]">
+                <SelectTrigger className="h-9 rounded-full border-border bg-card text-[13px]">
                   <SelectValue placeholder="All projects" />
                 </SelectTrigger>
                 <SelectContent>
@@ -237,26 +237,26 @@ export default function KanbanPage() {
                     style={{ backgroundColor: col.labelColor }}
                     aria-hidden
                   />
-                  <p className="text-[13px] font-semibold text-clay-ink">
+                  <p className="text-[13px] font-semibold text-foreground">
                     {col.columnName}
                   </p>
                 </div>
-                <span className="text-[11.5px] text-clay-ink-muted">
+                <span className="text-[11.5px] text-muted-foreground">
                   {colTasks.length}
                 </span>
               </div>
               <div className="flex flex-col gap-2">
                 {colTasks.length === 0 ? (
-                  <div className="rounded-clay-md border border-dashed border-clay-border p-4 text-center text-[12px] text-clay-ink-muted">
+                  <div className="rounded-lg border border-dashed border-border p-4 text-center text-[12px] text-muted-foreground">
                     No tasks
                   </div>
                 ) : (
                   colTasks.map((task) => (
                     <ClayCard key={task._id} padded={false} className="p-3">
-                      <p className="text-[13px] font-medium text-clay-ink">
+                      <p className="text-[13px] font-medium text-foreground">
                         {task.heading}
                       </p>
-                      <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11.5px] text-clay-ink-muted">
+                      <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11.5px] text-muted-foreground">
                         {task.assigneeName ? (
                           <span>{task.assigneeName}</span>
                         ) : null}
@@ -279,7 +279,7 @@ export default function KanbanPage() {
                           <button
                             type="button"
                             onClick={() => moveTask(task._id, prevCol)}
-                            className="inline-flex h-7 w-7 items-center justify-center rounded-full text-clay-ink-muted hover:bg-clay-surface-2 hover:text-clay-ink"
+                            className="inline-flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary hover:text-foreground"
                             aria-label="Move left"
                           >
                             <ArrowLeft className="h-3.5 w-3.5" />
@@ -291,7 +291,7 @@ export default function KanbanPage() {
                           <button
                             type="button"
                             onClick={() => moveTask(task._id, nextCol)}
-                            className="inline-flex h-7 w-7 items-center justify-center rounded-full text-clay-ink-muted hover:bg-clay-surface-2 hover:text-clay-ink"
+                            className="inline-flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary hover:text-foreground"
                             aria-label="Move right"
                           >
                             <ArrowRight className="h-3.5 w-3.5" />

@@ -35,15 +35,15 @@ function truncate(text: string, n = 60): string {
 export function ConversationsPane({ conversations, activePeerId }: ConversationsPaneProps) {
   return (
     <ClayCard padded={false} className="overflow-hidden">
-      <div className="border-b border-clay-border px-4 py-3">
-        <p className="text-[12.5px] font-medium text-clay-ink-muted">Conversations</p>
+      <div className="border-b border-border px-4 py-3">
+        <p className="text-[12.5px] font-medium text-muted-foreground">Conversations</p>
       </div>
       {conversations.length === 0 ? (
-        <div className="flex h-40 items-center justify-center px-4 text-center text-[12.5px] text-clay-ink-muted">
+        <div className="flex h-40 items-center justify-center px-4 text-center text-[12.5px] text-muted-foreground">
           No conversations yet.
         </div>
       ) : (
-        <ul className="divide-y divide-clay-border">
+        <ul className="divide-y divide-border">
           {conversations.map((c) => {
             const active = c.peer_user_id === activePeerId;
             return (
@@ -52,22 +52,22 @@ export function ConversationsPane({ conversations, activePeerId }: Conversations
                   href={`/dashboard/crm/messages/${c.peer_user_id}`}
                   className={cn(
                     'flex items-start gap-3 px-4 py-3 transition',
-                    active ? 'bg-clay-rose-soft' : 'hover:bg-clay-surface-2',
+                    active ? 'bg-accent' : 'hover:bg-secondary',
                   )}
                 >
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-clay-surface-2">
-                    <UserCircle2 className="h-5 w-5 text-clay-ink-muted" />
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-secondary">
+                    <UserCircle2 className="h-5 w-5 text-muted-foreground" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="truncate text-[13px] font-medium text-clay-ink">
+                      <span className="truncate text-[13px] font-medium text-foreground">
                         {c.peer_user_id}
                       </span>
-                      <span className="shrink-0 text-[11px] text-clay-ink-muted">
+                      <span className="shrink-0 text-[11px] text-muted-foreground">
                         {formatTime(c.last_message_at)}
                       </span>
                     </div>
-                    <p className="mt-0.5 truncate text-[12px] text-clay-ink-muted">
+                    <p className="mt-0.5 truncate text-[12px] text-muted-foreground">
                       {truncate(c.last_message || '(attachment)')}
                     </p>
                   </div>

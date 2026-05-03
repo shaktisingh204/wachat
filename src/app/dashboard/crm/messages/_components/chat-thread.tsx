@@ -112,14 +112,14 @@ export function ChatThread({ peerUserId, currentUserId, initialMessages }: ChatT
 
   return (
     <ClayCard padded={false} className="flex min-h-[480px] flex-col">
-      <div className="border-b border-clay-border px-5 py-3">
-        <p className="text-[12.5px] text-clay-ink-muted">Conversation with</p>
-        <p className="truncate text-[14px] font-medium text-clay-ink">{peerUserId}</p>
+      <div className="border-b border-border px-5 py-3">
+        <p className="text-[12.5px] text-muted-foreground">Conversation with</p>
+        <p className="truncate text-[14px] font-medium text-foreground">{peerUserId}</p>
       </div>
 
       <div className="flex-1 space-y-3 overflow-y-auto px-5 py-4">
         {messages.length === 0 ? (
-          <p className="py-10 text-center text-[12.5px] text-clay-ink-muted">
+          <p className="py-10 text-center text-[12.5px] text-muted-foreground">
             No messages yet. Say hi.
           </p>
         ) : (
@@ -132,10 +132,10 @@ export function ChatThread({ peerUserId, currentUserId, initialMessages }: ChatT
               >
                 <div
                   className={cn(
-                    'max-w-[80%] rounded-clay-md px-3 py-2 text-[13px] leading-snug',
+                    'max-w-[80%] rounded-lg px-3 py-2 text-[13px] leading-snug',
                     own
-                      ? 'bg-clay-rose-soft text-clay-rose-ink'
-                      : 'bg-clay-surface-2 text-clay-ink',
+                      ? 'bg-accent text-accent-foreground'
+                      : 'bg-secondary text-foreground',
                   )}
                 >
                   {m.message ? (
@@ -159,7 +159,7 @@ export function ChatThread({ peerUserId, currentUserId, initialMessages }: ChatT
                     </ul>
                   ) : null}
                 </div>
-                <span className="mt-1 px-1 text-[10.5px] text-clay-ink-muted">
+                <span className="mt-1 px-1 text-[10.5px] text-muted-foreground">
                   {formatStamp(m.createdAt)}
                 </span>
               </div>
@@ -171,21 +171,21 @@ export function ChatThread({ peerUserId, currentUserId, initialMessages }: ChatT
 
       <form
         onSubmit={handleSend}
-        className="space-y-2 border-t border-clay-border px-5 py-3"
+        className="space-y-2 border-t border-border px-5 py-3"
       >
         {pending.length > 0 ? (
           <ul className="flex flex-wrap gap-2">
             {pending.map((p, i) => (
               <li
                 key={i}
-                className="flex items-center gap-1.5 rounded-clay-md border border-clay-border bg-clay-surface-2 px-2 py-1 text-[11.5px] text-clay-ink"
+                className="flex items-center gap-1.5 rounded-lg border border-border bg-secondary px-2 py-1 text-[11.5px] text-foreground"
               >
                 <Paperclip className="h-3 w-3" />
                 <span className="max-w-[160px] truncate">{p.filename}</span>
                 <button
                   type="button"
                   onClick={() => removePending(i)}
-                  className="text-clay-red"
+                  className="text-destructive"
                   aria-label="Remove attachment"
                 >
                   ×
@@ -200,20 +200,20 @@ export function ChatThread({ peerUserId, currentUserId, initialMessages }: ChatT
           onChange={(e) => setDraft(e.target.value)}
           placeholder="Write a message…"
           rows={2}
-          className="rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+          className="rounded-lg border-border bg-card text-[13px]"
         />
         <div className="flex flex-wrap items-center gap-2">
           <Input
             value={fileName}
             onChange={(e) => setFileName(e.target.value)}
             placeholder="File name (optional)"
-            className="h-8 w-44 rounded-clay-md border-clay-border bg-clay-surface text-[12px]"
+            className="h-8 w-44 rounded-lg border-border bg-card text-[12px]"
           />
           <Input
             value={fileUrl}
             onChange={(e) => setFileUrl(e.target.value)}
             placeholder="https://file-url"
-            className="h-8 flex-1 min-w-[180px] rounded-clay-md border-clay-border bg-clay-surface text-[12px]"
+            className="h-8 flex-1 min-w-[180px] rounded-lg border-border bg-card text-[12px]"
           />
           <ClayButton
             type="button"

@@ -19,9 +19,9 @@ const STATUS_TONES: Record<string, 'neutral' | 'green' | 'amber' | 'red'> = {
 };
 
 function formatDate(value: unknown): React.ReactNode {
-  if (!value) return <span className="text-clay-ink-muted">—</span>;
+  if (!value) return <span className="text-muted-foreground">—</span>;
   const d = new Date(value as any);
-  if (isNaN(d.getTime())) return <span className="text-clay-ink-muted">—</span>;
+  if (isNaN(d.getTime())) return <span className="text-muted-foreground">—</span>;
   return d.toISOString().slice(0, 10);
 }
 
@@ -68,9 +68,9 @@ export default function OneOnOnesPage() {
             const min =
               (row as any).duration_minutes ?? (row as any).durationMinutes;
             return min != null ? (
-              <span className="tabular-nums text-clay-ink-muted">{min}m</span>
+              <span className="tabular-nums text-muted-foreground">{min}m</span>
             ) : (
-              <span className="text-clay-ink-muted">—</span>
+              <span className="text-muted-foreground">—</span>
             );
           },
         },

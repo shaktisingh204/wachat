@@ -101,19 +101,19 @@ export default function ChatExportPage() {
       />
 
       <div className="min-w-0">
-        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">
+        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
           Chat Export
         </h1>
-        <p className="mt-1.5 text-[13px] text-clay-ink-muted">
+        <p className="mt-1.5 text-[13px] text-muted-foreground">
           Export chat history for any contact as JSON or CSV for record-keeping.
         </p>
       </div>
 
       <ClayCard padded={false} className="p-6">
-        <h2 className="text-[16px] font-semibold text-clay-ink mb-4">Export settings</h2>
+        <h2 className="text-[16px] font-semibold text-foreground mb-4">Export settings</h2>
         <form onSubmit={handleExport} className="flex flex-col gap-4 max-w-md">
           <div>
-            <label className="text-[13px] font-medium text-clay-ink mb-1.5 block">Contact ID</label>
+            <label className="text-[13px] font-medium text-foreground mb-1.5 block">Contact ID</label>
             <Input
               value={contactId}
               onChange={(e) => setContactId(e.target.value)}
@@ -122,7 +122,7 @@ export default function ChatExportPage() {
             />
           </div>
           <div>
-            <label className="text-[13px] font-medium text-clay-ink mb-1.5 block">Export format</label>
+            <label className="text-[13px] font-medium text-foreground mb-1.5 block">Export format</label>
             <Select value={format} onValueChange={setFormat}>
               <SelectTrigger className="w-full">
                 <SelectValue />
@@ -152,9 +152,9 @@ export default function ChatExportPage() {
         </form>
 
         {messageCount !== null && (
-          <div className="mt-6 flex items-center gap-2 rounded-[12px] border border-clay-border bg-clay-surface-2 p-4">
-            <LuFileText className="h-4 w-4 text-clay-ink-muted" strokeWidth={1.75} />
-            <span className="text-[13px] text-clay-ink">
+          <div className="mt-6 flex items-center gap-2 rounded-[12px] border border-border bg-secondary p-4">
+            <LuFileText className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
+            <span className="text-[13px] text-foreground">
               {messageCount === 0
                 ? 'No messages found for this contact.'
                 : `${messageCount} message${messageCount !== 1 ? 's' : ''} found and exported.`}

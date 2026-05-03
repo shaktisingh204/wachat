@@ -145,21 +145,21 @@ export default function FaqPage() {
       />
 
       <ClayCard>
-        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <table className="w-full border-collapse text-[13px]">
             <thead>
-              <tr className="border-b border-clay-border bg-clay-surface-2">
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Question</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Answer</th>
-                <th className="px-4 py-2.5 text-right text-[12px] font-medium text-clay-ink-muted">Actions</th>
+              <tr className="border-b border-border bg-secondary">
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Question</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Answer</th>
+                <th className="px-4 py-2.5 text-right text-[12px] font-medium text-muted-foreground">Actions</th>
               </tr>
             </thead>
             <tbody>
               {faqs.length > 0 ? (
                 faqs.map((faq) => (
-                  <tr key={faq._id.toString()} className="border-b border-clay-border last:border-0 hover:bg-clay-surface-2/50">
-                    <td className="px-4 py-2.5 text-[13px] font-medium text-clay-ink max-w-sm truncate">{faq.question}</td>
-                    <td className="px-4 py-2.5 text-[13px] text-clay-ink-muted max-w-sm truncate">{faq.answer}</td>
+                  <tr key={faq._id.toString()} className="border-b border-border last:border-0 hover:bg-secondary/50">
+                    <td className="px-4 py-2.5 text-[13px] font-medium text-foreground max-w-sm truncate">{faq.question}</td>
+                    <td className="px-4 py-2.5 text-[13px] text-muted-foreground max-w-sm truncate">{faq.answer}</td>
                     <td className="px-4 py-2.5 text-right">
                       <div className="flex items-center justify-end gap-1">
                         <ClayButton
@@ -172,7 +172,7 @@ export default function FaqPage() {
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <ClayButton variant="pill" size="icon">
-                              <Trash2 className="h-4 w-4 text-clay-red" />
+                              <Trash2 className="h-4 w-4 text-destructive" />
                             </ClayButton>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
@@ -196,7 +196,7 @@ export default function FaqPage() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={3} className="px-4 py-2.5 text-center h-24 text-[13px] text-clay-ink-muted">
+                  <td colSpan={3} className="px-4 py-2.5 text-center h-24 text-[13px] text-muted-foreground">
                     No FAQs added yet.
                   </td>
                 </tr>

@@ -75,7 +75,7 @@ export default function EditCrmAccountPage() {
   if (isLoading || !account) {
     return (
       <div className="w-full max-w-2xl">
-        <Skeleton className="h-96 w-full rounded-clay-lg" />
+        <Skeleton className="h-96 w-full rounded-xl" />
       </div>
     );
   }
@@ -85,7 +85,7 @@ export default function EditCrmAccountPage() {
       <div>
         <Link
           href={`/dashboard/crm/accounts/${accountId}`}
-          className="inline-flex items-center gap-1.5 text-[12.5px] text-clay-ink-muted hover:text-clay-ink"
+          className="inline-flex items-center gap-1.5 text-[12.5px] text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.75} />
           Back to Account
@@ -103,7 +103,7 @@ export default function EditCrmAccountPage() {
         <ClayCard>
           <div className="grid gap-4">
             <div className="space-y-2">
-              <Label htmlFor="name" className="text-[12.5px] text-clay-ink-muted">
+              <Label htmlFor="name" className="text-[12.5px] text-muted-foreground">
                 Company Name
               </Label>
               <Input
@@ -111,23 +111,23 @@ export default function EditCrmAccountPage() {
                 name="name"
                 required
                 defaultValue={account.name}
-                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="industry" className="text-[12.5px] text-clay-ink-muted">
+              <Label htmlFor="industry" className="text-[12.5px] text-muted-foreground">
                 Industry
               </Label>
               <Input
                 id="industry"
                 name="industry"
                 defaultValue={account.industry}
-                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="website" className="text-[12.5px] text-clay-ink-muted">
+                <Label htmlFor="website" className="text-[12.5px] text-muted-foreground">
                   Website
                 </Label>
                 <Input
@@ -136,23 +136,23 @@ export default function EditCrmAccountPage() {
                   type="url"
                   placeholder="https://example.com"
                   defaultValue={account.website}
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="phone" className="text-[12.5px] text-clay-ink-muted">
+                <Label htmlFor="phone" className="text-[12.5px] text-muted-foreground">
                   Phone
                 </Label>
                 <Input
                   id="phone"
                   name="phone"
                   defaultValue={account.phone}
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
           </div>
-          <div className="mt-6 flex justify-end border-t border-clay-border pt-4">
+          <div className="mt-6 flex justify-end border-t border-border pt-4">
             <SubmitButton />
           </div>
         </ClayCard>

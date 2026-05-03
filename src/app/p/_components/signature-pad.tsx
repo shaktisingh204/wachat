@@ -120,10 +120,10 @@ export const SignaturePad = forwardRef<SignaturePadHandle, SignaturePadProps>(
     );
 
     return (
-      <div className="rounded-clay-md border border-clay-border bg-white p-2">
+      <div className="rounded-lg border border-border bg-white p-2">
         <canvas
           ref={canvasRef}
-          className="block w-full touch-none rounded-clay-md bg-white"
+          className="block w-full touch-none rounded-lg bg-white"
           style={{ height }}
           onPointerDown={onDown}
           onPointerMove={onMove}

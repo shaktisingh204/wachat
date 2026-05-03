@@ -96,42 +96,42 @@ export default function RolesPage() {
       />
 
       <ClayCard>
-        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <Table>
             <TableHeader>
-              <TableRow className="border-clay-border hover:bg-transparent">
-                <TableHead className="text-clay-ink-muted">Role</TableHead>
-                <TableHead className="text-clay-ink-muted">Slug</TableHead>
-                <TableHead className="text-clay-ink-muted">Members</TableHead>
-                <TableHead className="text-clay-ink-muted">Type</TableHead>
-                <TableHead className="w-[180px] text-right text-clay-ink-muted">
+              <TableRow className="border-border hover:bg-transparent">
+                <TableHead className="text-muted-foreground">Role</TableHead>
+                <TableHead className="text-muted-foreground">Slug</TableHead>
+                <TableHead className="text-muted-foreground">Members</TableHead>
+                <TableHead className="text-muted-foreground">Type</TableHead>
+                <TableHead className="w-[180px] text-right text-muted-foreground">
                   Actions
                 </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading && rows.length === 0 ? (
-                <TableRow className="border-clay-border">
+                <TableRow className="border-border">
                   <TableCell
                     colSpan={5}
-                    className="h-20 text-center text-[13px] text-clay-ink-muted"
+                    className="h-20 text-center text-[13px] text-muted-foreground"
                   >
                     <LoaderCircle className="mx-auto h-4 w-4 animate-spin" />
                   </TableCell>
                 </TableRow>
               ) : rows.length === 0 ? (
-                <TableRow className="border-clay-border">
+                <TableRow className="border-border">
                   <TableCell
                     colSpan={5}
-                    className="h-20 text-center text-[13px] text-clay-ink-muted"
+                    className="h-20 text-center text-[13px] text-muted-foreground"
                   >
                     No roles yet — click Add Role to get started.
                   </TableCell>
                 </TableRow>
               ) : (
                 rows.map((row) => (
-                  <TableRow key={row._id} className="border-clay-border">
-                    <TableCell className="text-[13px] font-medium text-clay-ink">
+                  <TableRow key={row._id} className="border-border">
+                    <TableCell className="text-[13px] font-medium text-foreground">
                       <Link
                         href={`/dashboard/crm/settings/roles/${row._id}`}
                         className="hover:underline"
@@ -139,12 +139,12 @@ export default function RolesPage() {
                         {row.display_name || row.name}
                       </Link>
                       {row.description ? (
-                        <div className="text-[12px] text-clay-ink-muted">
+                        <div className="text-[12px] text-muted-foreground">
                           {row.description}
                         </div>
                       ) : null}
                     </TableCell>
-                    <TableCell className="text-[12px] text-clay-ink-muted">
+                    <TableCell className="text-[12px] text-muted-foreground">
                       <code>{row.name}</code>
                     </TableCell>
                     <TableCell>
@@ -186,7 +186,7 @@ export default function RolesPage() {
                           onClick={() => setDeletingId(row._id)}
                           aria-label="Delete"
                         >
-                          <Trash2 className="h-3.5 w-3.5 text-clay-red" />
+                          <Trash2 className="h-3.5 w-3.5 text-destructive" />
                         </Button>
                       </div>
                     </TableCell>
@@ -204,10 +204,10 @@ export default function RolesPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-clay-ink">
+            <AlertDialogTitle className="text-foreground">
               Delete role?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-clay-ink-muted">
+            <AlertDialogDescription className="text-muted-foreground">
               All member assignments and permission grants for this role will
               be removed. This cannot be undone.
             </AlertDialogDescription>

@@ -58,7 +58,7 @@ export default function BroadcastSchedulerPage() {
     }
   };
 
-  const inputCls = 'rounded-lg border border-clay-border bg-clay-bg px-3 py-2 text-sm text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-accent focus:outline-none w-full';
+  const inputCls = 'rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none w-full';
 
   return (
     <div className="clay-enter flex min-h-full flex-col gap-6">
@@ -69,12 +69,12 @@ export default function BroadcastSchedulerPage() {
       ]} />
 
       <div>
-        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">Broadcast Scheduler</h1>
-        <p className="mt-1.5 text-[13px] text-clay-ink-muted">Schedule broadcasts for future delivery.</p>
+        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">Broadcast Scheduler</h1>
+        <p className="mt-1.5 text-[13px] text-muted-foreground">Schedule broadcasts for future delivery.</p>
       </div>
 
       <ClayCard padded={false} className="p-5">
-        <h2 className="text-[15px] font-semibold text-clay-ink mb-4">New Schedule</h2>
+        <h2 className="text-[15px] font-semibold text-foreground mb-4">New Schedule</h2>
         <form action={formAction} className="grid gap-3 sm:grid-cols-2 max-w-2xl">
           <input type="hidden" name="projectId" value={projectId || ''} />
           <input className={inputCls} name="name" placeholder="Broadcast name *" required />
@@ -100,13 +100,13 @@ export default function BroadcastSchedulerPage() {
 
       {isLoading && schedules.length === 0 ? (
         <div className="flex h-20 items-center justify-center">
-          <LuLoader className="h-5 w-5 animate-spin text-clay-ink-muted" />
+          <LuLoader className="h-5 w-5 animate-spin text-muted-foreground" />
         </div>
       ) : schedules.length > 0 ? (
         <ClayCard padded={false} className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-clay-border text-[11px] font-semibold uppercase tracking-wide text-clay-ink-muted">
+              <tr className="border-b border-border text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                 <th className="px-5 py-3">Name</th>
                 <th className="px-5 py-3">Template</th>
                 <th className="px-5 py-3">Scheduled At</th>
@@ -116,10 +116,10 @@ export default function BroadcastSchedulerPage() {
             </thead>
             <tbody>
               {schedules.map((s) => (
-                <tr key={s._id} className="border-b border-clay-border last:border-0">
-                  <td className="px-5 py-3 text-[13px] font-medium text-clay-ink">{s.name}</td>
-                  <td className="px-5 py-3 text-[13px] text-clay-ink-muted">{s.templateName}</td>
-                  <td className="px-5 py-3 text-[13px] text-clay-ink-muted">{s.scheduledAt ? new Date(s.scheduledAt).toLocaleString() : '--'}</td>
+                <tr key={s._id} className="border-b border-border last:border-0">
+                  <td className="px-5 py-3 text-[13px] font-medium text-foreground">{s.name}</td>
+                  <td className="px-5 py-3 text-[13px] text-muted-foreground">{s.templateName}</td>
+                  <td className="px-5 py-3 text-[13px] text-muted-foreground">{s.scheduledAt ? new Date(s.scheduledAt).toLocaleString() : '--'}</td>
                   <td className="px-5 py-3">
                     <ClayBadge tone={s.status === 'scheduled' ? 'blue' : s.status === 'cancelled' ? 'red' : 'neutral'}>{s.status}</ClayBadge>
                   </td>
@@ -137,8 +137,8 @@ export default function BroadcastSchedulerPage() {
         </ClayCard>
       ) : (
         <ClayCard className="p-12 text-center">
-          <LuCalendarClock className="mx-auto h-12 w-12 text-clay-ink-muted/30 mb-4" />
-          <p className="text-sm text-clay-ink-muted">No scheduled broadcasts.</p>
+          <LuCalendarClock className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
+          <p className="text-sm text-muted-foreground">No scheduled broadcasts.</p>
         </ClayCard>
       )}
       <div className="h-6" />

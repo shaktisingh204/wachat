@@ -38,10 +38,10 @@ export default async function PaymentReportPage(props: {
 
       <ClayCard>
         <div className="mb-3">
-          <h2 className="text-[16px] font-semibold text-clay-ink">By gateway</h2>
+          <h2 className="text-[16px] font-semibold text-foreground">By gateway</h2>
         </div>
         {rows.length === 0 ? (
-          <div className="py-8 text-center text-[13px] text-clay-ink-muted">
+          <div className="py-8 text-center text-[13px] text-muted-foreground">
             No payments recorded.
           </div>
         ) : (

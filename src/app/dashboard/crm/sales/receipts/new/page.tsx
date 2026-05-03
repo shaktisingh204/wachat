@@ -42,12 +42,12 @@ function SaveButton({ disabled }: { disabled: boolean }) {
 
 const StepIndicator = ({ currentStep, step, title }: { currentStep: number, step: number, title: string }) => (
     <div className="flex items-center gap-3">
-        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep >= step ? 'bg-clay-obsidian text-white' : 'bg-clay-surface-2 border border-clay-border'}`}>
+        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep >= step ? 'bg-foreground text-white' : 'bg-secondary border border-border'}`}>
             {currentStep > step ? <Check className="h-5 w-5" /> : step}
         </div>
         <div>
-            <p className="text-sm text-clay-ink-muted">Step {step}</p>
-            <p className="font-semibold text-clay-ink">{title}</p>
+            <p className="text-sm text-muted-foreground">Step {step}</p>
+            <p className="font-semibold text-foreground">{title}</p>
         </div>
     </div>
 );
@@ -169,7 +169,7 @@ export default function RecordPaymentPage() {
                         <Link href="/dashboard/crm/sales/receipts">
                             <ClayButton variant="pill" size="sm" leading={<ArrowLeft className="h-4 w-4" />}>Back to Receipts</ClayButton>
                         </Link>
-                        <h1 className="text-[26px] font-semibold tracking-tight text-clay-ink mt-2">Record Payment Received</h1>
+                        <h1 className="text-[26px] font-semibold tracking-tight text-foreground mt-2">Record Payment Received</h1>
                     </div>
                 </div>
 
@@ -186,12 +186,12 @@ export default function RecordPaymentPage() {
                             <ClayCard padded={false}>
                                 <div className="p-6 space-y-6">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div className="space-y-1.5"><Label htmlFor="receiptNumber" className="text-clay-ink">Payment Receipt No *</Label><Input id="receiptNumber" name="receiptNumber" defaultValue="A00001" required maxLength={50} /></div>
-                                        <div className="space-y-1.5"><Label htmlFor="receiptDate" className="text-clay-ink">Receipt Date *</Label><DatePicker date={receiptDate} setDate={setReceiptDate} /></div>
+                                        <div className="space-y-1.5"><Label htmlFor="receiptNumber" className="text-foreground">Payment Receipt No *</Label><Input id="receiptNumber" name="receiptNumber" defaultValue="A00001" required maxLength={50} /></div>
+                                        <div className="space-y-1.5"><Label htmlFor="receiptDate" className="text-foreground">Receipt Date *</Label><DatePicker date={receiptDate} setDate={setReceiptDate} /></div>
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="space-y-1.5">
-                                            <Label htmlFor="client-select" className="text-clay-ink">Payment Received From *</Label>
+                                            <Label htmlFor="client-select" className="text-foreground">Payment Received From *</Label>
                                             <SmartClientSelect
                                                 value={selectedClientId}
                                                 onSelect={handleClientChange}
@@ -206,7 +206,7 @@ export default function RecordPaymentPage() {
                                             />
                                         </div>
                                         <div className="space-y-1.5">
-                                            <Label htmlFor="currency" className="text-clay-ink">Currency *</Label>
+                                            <Label htmlFor="currency" className="text-foreground">Currency *</Label>
                                             <Select name="currency" defaultValue={currency} onValueChange={setCurrency} required><SelectTrigger id="currency"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="INR">Indian Rupee (INR, ₹)</SelectItem><SelectItem value="USD">US Dollar (USD, $)</SelectItem></SelectContent></Select>
                                         </div>
                                     </div>
@@ -219,16 +219,16 @@ export default function RecordPaymentPage() {
                         {step === 2 && (
                             <ClayCard padded={false}>
                                 <div className="p-6">
-                                    <h2 className="text-[15px] font-semibold text-clay-ink">Record Payments</h2>
-                                    <p className="text-[12.5px] text-clay-ink-muted mt-1">Record multiple payments against multiple invoices.</p>
+                                    <h2 className="text-[15px] font-semibold text-foreground">Record Payments</h2>
+                                    <p className="text-[12.5px] text-muted-foreground mt-1">Record multiple payments against multiple invoices.</p>
                                 </div>
                                 <div className="space-y-4 px-6">
                                     {paymentRecords.map((record, index) => (
-                                        <div key={record.id} className="p-3 border border-clay-border rounded-clay-md space-y-3 relative bg-clay-surface-2">
+                                        <div key={record.id} className="p-3 border border-border rounded-lg space-y-3 relative bg-secondary">
                                             <Button variant="ghost" size="icon" className="absolute top-1 right-1 h-7 w-7" onClick={() => handleRemovePaymentRecord(record.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
-                                            <div className="grid md:grid-cols-2 gap-4"><div className="space-y-1.5"><Label className="text-clay-ink">Amount *</Label><Input type="number" value={record.amount} onChange={(e) => handleRecordChange(record.id, 'amount', e.target.value)} /></div><div className="space-y-1.5"><Label className="text-clay-ink">Payment Date *</Label><DatePicker date={record.date} setDate={(d: any) => handleRecordChange(record.id, 'date', d)} /></div></div>
-                                            <div className="space-y-1.5"><Label className="text-clay-ink">Mode *</Label><Select value={record.mode} onValueChange={(v) => handleRecordChange(record.id, 'mode', v)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="Bank Transfer">Bank Transfer</SelectItem><SelectItem value="Cash">Cash</SelectItem><SelectItem value="Cheque">Cheque</SelectItem></SelectContent></Select></div>
-                                            <div className="space-y-1.5"><Label className="text-clay-ink">Reference # (Optional)</Label><Input value={record.reference || ''} onChange={(e) => handleRecordChange(record.id, 'reference', e.target.value)} maxLength={100} /></div>
+                                            <div className="grid md:grid-cols-2 gap-4"><div className="space-y-1.5"><Label className="text-foreground">Amount *</Label><Input type="number" value={record.amount} onChange={(e) => handleRecordChange(record.id, 'amount', e.target.value)} /></div><div className="space-y-1.5"><Label className="text-foreground">Payment Date *</Label><DatePicker date={record.date} setDate={(d: any) => handleRecordChange(record.id, 'date', d)} /></div></div>
+                                            <div className="space-y-1.5"><Label className="text-foreground">Mode *</Label><Select value={record.mode} onValueChange={(v) => handleRecordChange(record.id, 'mode', v)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="Bank Transfer">Bank Transfer</SelectItem><SelectItem value="Cash">Cash</SelectItem><SelectItem value="Cheque">Cheque</SelectItem></SelectContent></Select></div>
+                                            <div className="space-y-1.5"><Label className="text-foreground">Reference # (Optional)</Label><Input value={record.reference || ''} onChange={(e) => handleRecordChange(record.id, 'reference', e.target.value)} maxLength={100} /></div>
                                         </div>
                                     ))}
                                     <ClayButton type="button" variant="pill" onClick={handleAddPaymentRecord} leading={<PlusCircle className="h-4 w-4" />}>Add New Payment Record</ClayButton>
@@ -242,22 +242,22 @@ export default function RecordPaymentPage() {
                         {step === 3 && (
                             <ClayCard padded={false}>
                                 <div className="p-6">
-                                    <h2 className="text-[15px] font-semibold text-clay-ink">Settle Unpaid Invoices</h2>
+                                    <h2 className="text-[15px] font-semibold text-foreground">Settle Unpaid Invoices</h2>
                                 </div>
                                 <div className="space-y-6 px-6">
-                                    <ClayCard variant="soft" padded={false} className="bg-clay-rose-soft/30 border-clay-rose-soft">
+                                    <ClayCard variant="soft" padded={false} className="bg-accent/30 border-accent">
                                         <div className="p-3 grid grid-cols-2 gap-4">
-                                            <div><Label className="text-xs text-clay-ink">Amount Received</Label><p className="font-bold text-lg text-clay-ink">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalAmountReceived)}</p></div>
-                                            <div><Label className="text-xs text-clay-ink">Amount to Settle</Label><p className="font-bold text-lg text-clay-ink">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalAmountSettled)}</p></div>
+                                            <div><Label className="text-xs text-foreground">Amount Received</Label><p className="font-bold text-lg text-foreground">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalAmountReceived)}</p></div>
+                                            <div><Label className="text-xs text-foreground">Amount to Settle</Label><p className="font-bold text-lg text-foreground">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalAmountSettled)}</p></div>
                                             <div className="col-span-2"><Separator /></div>
-                                            <div className="col-span-2"><Label className="text-xs text-clay-ink">Amount to be recorded as Advance</Label><p className="font-bold text-xl text-clay-rose-ink">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(advanceAmount)}</p></div>
+                                            <div className="col-span-2"><Label className="text-xs text-foreground">Amount to be recorded as Advance</Label><p className="font-bold text-xl text-accent-foreground">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(advanceAmount)}</p></div>
                                         </div>
                                     </ClayCard>
                                     {isDataLoading ? (<LoaderCircle className="animate-spin" />) : unpaidInvoices.length > 0 ? (
                                         <div className="space-y-2">
                                             {unpaidInvoices.map(invoice => (
-                                                <div key={invoice._id.toString()} className="flex items-center gap-2 p-2 border border-clay-border rounded-clay-md">
-                                                    <div className="flex-1 space-y-1"><p className="font-medium text-sm text-clay-ink">{invoice.invoiceNumber}</p><p className="text-xs text-clay-ink-muted">Due: {new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(invoice.total)}</p></div>
+                                                <div key={invoice._id.toString()} className="flex items-center gap-2 p-2 border border-border rounded-lg">
+                                                    <div className="flex-1 space-y-1"><p className="font-medium text-sm text-foreground">{invoice.invoiceNumber}</p><p className="text-xs text-muted-foreground">Due: {new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(invoice.total)}</p></div>
                                                     <Input type="number" placeholder="Settle Amount" className="w-32" max={invoice.total} onChange={(e) => handleSettlementChange(invoice._id.toString(), e.target.value)} />
                                                 </div>
                                             ))}
@@ -270,7 +270,7 @@ export default function RecordPaymentPage() {
                                         </Alert>
                                     )}
                                     <div className="space-y-2">
-                                        <Label htmlFor="notes" className="text-clay-ink">Notes (Optional)</Label>
+                                        <Label htmlFor="notes" className="text-foreground">Notes (Optional)</Label>
                                         <Textarea id="notes" name="notes" placeholder="e.g. Received via GPay" maxLength={500} />
                                     </div>
                                 </div>

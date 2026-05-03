@@ -98,10 +98,10 @@ export function ClayProjectGate({ children }: ClayProjectGateProps) {
 
       <div className="mt-5 flex items-center justify-between gap-6">
         <div className="min-w-0">
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">
+          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
             Select a project
           </h1>
-          <p className="mt-1.5 text-[13px] text-clay-ink-muted">
+          <p className="mt-1.5 text-[13px] text-muted-foreground">
             Wachat is scoped per WhatsApp Business Account. Pick the
             project you want to work in to continue.
           </p>
@@ -142,7 +142,7 @@ export function ClayProjectGate({ children }: ClayProjectGateProps) {
           {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
-              className="h-[118px] animate-pulse rounded-[14px] border border-clay-border bg-clay-bg-2"
+              className="h-[118px] animate-pulse rounded-[14px] border border-border bg-muted"
             />
           ))}
         </div>
@@ -150,13 +150,13 @@ export function ClayProjectGate({ children }: ClayProjectGateProps) {
         <ClayCard padded={false} className="mt-8 p-10 text-center">
           {filter ? (
             <>
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-clay-bg-2 text-clay-ink-muted">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
                 <LuSearch className="h-5 w-5" strokeWidth={1.5} />
               </div>
-              <div className="mt-4 text-[15px] font-semibold text-clay-ink">
+              <div className="mt-4 text-[15px] font-semibold text-foreground">
                 No projects match your search
               </div>
-              <div className="mt-1.5 text-[12.5px] text-clay-ink-muted">
+              <div className="mt-1.5 text-[12.5px] text-muted-foreground">
                 Try a different name, or clear the filter to see all your projects.
               </div>
               <ClayButton
@@ -173,10 +173,10 @@ export function ClayProjectGate({ children }: ClayProjectGateProps) {
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50">
                 <LuMessageSquare className="h-6 w-6 text-emerald-600" strokeWidth={1.75} />
               </div>
-              <div className="mt-4 text-[18px] font-semibold text-clay-ink">
+              <div className="mt-4 text-[18px] font-semibold text-foreground">
                 Connect your WhatsApp Business
               </div>
-              <div className="mx-auto mt-1.5 max-w-sm text-[13px] text-clay-ink-muted leading-relaxed">
+              <div className="mx-auto mt-1.5 max-w-sm text-[13px] text-muted-foreground leading-relaxed">
                 Link your WhatsApp Business Account via Meta to start sending
                 broadcasts, managing chats, and building automations.
               </div>
@@ -192,16 +192,16 @@ export function ClayProjectGate({ children }: ClayProjectGateProps) {
               </div>
               <div className="mx-auto mt-6 grid max-w-lg grid-cols-3 gap-4 text-left">
                 <div>
-                  <div className="text-[12px] font-semibold text-clay-ink">1. Click connect</div>
-                  <div className="mt-0.5 text-[11px] text-clay-ink-muted">Open the Meta guided signup</div>
+                  <div className="text-[12px] font-semibold text-foreground">1. Click connect</div>
+                  <div className="mt-0.5 text-[11px] text-muted-foreground">Open the Meta guided signup</div>
                 </div>
                 <div>
-                  <div className="text-[12px] font-semibold text-clay-ink">2. Login to Meta</div>
-                  <div className="mt-0.5 text-[11px] text-clay-ink-muted">Grant WhatsApp permissions</div>
+                  <div className="text-[12px] font-semibold text-foreground">2. Login to Meta</div>
+                  <div className="mt-0.5 text-[11px] text-muted-foreground">Grant WhatsApp permissions</div>
                 </div>
                 <div>
-                  <div className="text-[12px] font-semibold text-clay-ink">3. Auto-sync</div>
-                  <div className="mt-0.5 text-[11px] text-clay-ink-muted">Your WABA appears instantly</div>
+                  <div className="text-[12px] font-semibold text-foreground">3. Auto-sync</div>
+                  <div className="mt-0.5 text-[11px] text-muted-foreground">Your WABA appears instantly</div>
                 </div>
               </div>
             </>
@@ -220,40 +220,40 @@ export function ClayProjectGate({ children }: ClayProjectGateProps) {
                 type="button"
                 onClick={() => selectProject(id)}
                 className={cn(
-                  'group flex flex-col rounded-[14px] border border-clay-border bg-clay-surface p-4 text-left transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 hover:border-clay-border-strong hover:shadow-clay-float',
+                  'group flex flex-col rounded-[14px] border border-border bg-card p-4 text-left transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 hover:border-border hover:shadow-md',
                 )}
               >
                 <div className="flex items-start justify-between">
                   <div
                     className={cn(
                       'flex h-9 w-9 items-center justify-center rounded-[10px] text-[13px] font-semibold uppercase',
-                      'bg-clay-rose-soft text-clay-rose-ink',
+                      'bg-accent text-accent-foreground',
                     )}
                   >
                     {(p.name || '?').slice(0, 2)}
                   </div>
                   <LuArrowRight
-                    className="h-4 w-4 text-clay-ink-fade transition-[color,transform] group-hover:text-clay-ink group-hover:translate-x-0.5"
+                    className="h-4 w-4 text-muted-foreground/70 transition-[color,transform] group-hover:text-foreground group-hover:translate-x-0.5"
                     strokeWidth={2}
                   />
                 </div>
-                <div className="mt-3.5 text-[11.5px] font-medium text-clay-ink-muted">
+                <div className="mt-3.5 text-[11.5px] font-medium text-muted-foreground">
                   WhatsApp project
                 </div>
-                <div className="mt-1 text-[15px] font-semibold text-clay-ink leading-tight truncate">
+                <div className="mt-1 text-[15px] font-semibold text-foreground leading-tight truncate">
                   {p.name || 'Untitled project'}
                 </div>
-                <div className="mt-2 flex items-center gap-2 text-[11px] text-clay-ink-muted">
+                <div className="mt-2 flex items-center gap-2 text-[11px] text-muted-foreground">
                   <span
                     className={cn(
                       'inline-flex h-1.5 w-1.5 rounded-full',
-                      hasPhone ? 'bg-clay-green' : 'bg-clay-amber',
+                      hasPhone ? 'bg-emerald-500' : 'bg-amber-500',
                     )}
                   />
                   {hasPhone ? 'Phone connected' : 'Setup incomplete'}
                   {p.wabaId ? (
                     <>
-                      <span className="text-clay-ink-fade">·</span>
+                      <span className="text-muted-foreground/70">·</span>
                       <span className="truncate font-mono text-[10px]">
                         WABA {String(p.wabaId).slice(-6)}
                       </span>
@@ -266,7 +266,7 @@ export function ClayProjectGate({ children }: ClayProjectGateProps) {
         </div>
       )}
 
-      <div className="mt-8 flex items-center gap-2 text-[11.5px] text-clay-ink-muted">
+      <div className="mt-8 flex items-center gap-2 text-[11.5px] text-muted-foreground">
         <LuCheck className="h-3 w-3" strokeWidth={2.5} />
         Your selection is remembered on this device.
       </div>

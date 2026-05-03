@@ -159,11 +159,11 @@ export default function NewRecurringInvoicePage() {
       <ClayCard>
         <div className="grid gap-4 md:grid-cols-3">
           <div className="space-y-1.5 md:col-span-2">
-            <Label className="text-clay-ink">Client</Label>
+            <Label className="text-foreground">Client</Label>
             <Input value={clientName} onChange={(e) => setClientName(e.target.value)} />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-clay-ink">Currency</Label>
+            <Label className="text-foreground">Currency</Label>
             <Input
               value={currency}
               onChange={(e) => setCurrency(e.target.value.toUpperCase())}
@@ -172,7 +172,7 @@ export default function NewRecurringInvoicePage() {
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-clay-ink">Every</Label>
+            <Label className="text-foreground">Every</Label>
             <Input
               type="number"
               min={1}
@@ -181,7 +181,7 @@ export default function NewRecurringInvoicePage() {
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-clay-ink">Frequency</Label>
+            <Label className="text-foreground">Frequency</Label>
             <Select value={frequency} onValueChange={(v) => setFrequency(v as any)}>
               <SelectTrigger>
                 <SelectValue />
@@ -195,7 +195,7 @@ export default function NewRecurringInvoicePage() {
             </Select>
           </div>
           <div className="space-y-1.5">
-            <Label className="text-clay-ink">Start Date</Label>
+            <Label className="text-foreground">Start Date</Label>
             <Input
               type="date"
               value={startDate}
@@ -203,7 +203,7 @@ export default function NewRecurringInvoicePage() {
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-clay-ink">Until Date (optional)</Label>
+            <Label className="text-foreground">Until Date (optional)</Label>
             <Input
               type="date"
               value={untilDate}
@@ -211,7 +211,7 @@ export default function NewRecurringInvoicePage() {
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-clay-ink">Stop after N invoices (optional)</Label>
+            <Label className="text-foreground">Stop after N invoices (optional)</Label>
             <Input
               type="number"
               min={0}
@@ -224,7 +224,7 @@ export default function NewRecurringInvoicePage() {
 
       <ClayCard>
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-[15px] font-semibold text-clay-ink">Items</h2>
+          <h2 className="text-[15px] font-semibold text-foreground">Items</h2>
           <ClayButton
             type="button"
             variant="pill"
@@ -235,22 +235,22 @@ export default function NewRecurringInvoicePage() {
             Add line
           </ClayButton>
         </div>
-        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <table className="w-full text-sm">
-            <thead className="bg-clay-surface-2">
-              <tr className="border-b border-clay-border text-left">
-                <th className="p-2 font-medium text-clay-ink">Item</th>
-                <th className="p-2 font-medium text-clay-ink">Description</th>
-                <th className="p-2 text-right font-medium text-clay-ink">Qty</th>
-                <th className="p-2 text-right font-medium text-clay-ink">Unit</th>
-                <th className="p-2 text-right font-medium text-clay-ink">Tax %</th>
-                <th className="p-2 text-right font-medium text-clay-ink">Amount</th>
+            <thead className="bg-secondary">
+              <tr className="border-b border-border text-left">
+                <th className="p-2 font-medium text-foreground">Item</th>
+                <th className="p-2 font-medium text-foreground">Description</th>
+                <th className="p-2 text-right font-medium text-foreground">Qty</th>
+                <th className="p-2 text-right font-medium text-foreground">Unit</th>
+                <th className="p-2 text-right font-medium text-foreground">Tax %</th>
+                <th className="p-2 text-right font-medium text-foreground">Amount</th>
                 <th className="p-2" />
               </tr>
             </thead>
             <tbody>
               {items.map((row) => (
-                <tr key={row.id} className="border-b border-clay-border">
+                <tr key={row.id} className="border-b border-border">
                   <td className="p-2">
                     <Input
                       value={row.name}
@@ -304,7 +304,7 @@ export default function NewRecurringInvoicePage() {
                     <button
                       type="button"
                       onClick={() => removeRow(row.id)}
-                      className="text-clay-red"
+                      className="text-destructive"
                       aria-label="Remove row"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -314,8 +314,8 @@ export default function NewRecurringInvoicePage() {
               ))}
             </tbody>
             <tfoot>
-              <tr className="bg-clay-surface-2">
-                <td colSpan={5} className="p-3 text-right text-clay-ink-muted">
+              <tr className="bg-secondary">
+                <td colSpan={5} className="p-3 text-right text-muted-foreground">
                   Subtotal
                 </td>
                 <td className="p-3 text-right font-medium">
@@ -324,7 +324,7 @@ export default function NewRecurringInvoicePage() {
                 <td />
               </tr>
               <tr>
-                <td colSpan={5} className="p-3 text-right text-clay-ink-muted">
+                <td colSpan={5} className="p-3 text-right text-muted-foreground">
                   Tax
                 </td>
                 <td className="p-3 text-right font-medium">
@@ -333,7 +333,7 @@ export default function NewRecurringInvoicePage() {
                 <td />
               </tr>
               <tr>
-                <td colSpan={5} className="p-3 text-right text-clay-ink-muted">
+                <td colSpan={5} className="p-3 text-right text-muted-foreground">
                   Discount
                 </td>
                 <td className="p-3 text-right">
@@ -347,14 +347,14 @@ export default function NewRecurringInvoicePage() {
                 </td>
                 <td />
               </tr>
-              <tr className="bg-clay-surface-2">
+              <tr className="bg-secondary">
                 <td
                   colSpan={5}
-                  className="p-3 text-right font-semibold text-clay-ink"
+                  className="p-3 text-right font-semibold text-foreground"
                 >
                   Total
                 </td>
-                <td className="p-3 text-right font-semibold text-clay-ink">
+                <td className="p-3 text-right font-semibold text-foreground">
                   {fmtMoney(total, currency)}
                 </td>
                 <td />
@@ -365,7 +365,7 @@ export default function NewRecurringInvoicePage() {
       </ClayCard>
 
       <ClayCard>
-        <Label className="text-clay-ink">Notes</Label>
+        <Label className="text-foreground">Notes</Label>
         <Textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}

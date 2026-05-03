@@ -33,10 +33,10 @@ export default async function SalesDealsReportPage() {
 
       <ClayCard>
         <div className="mb-3">
-          <h2 className="text-[16px] font-semibold text-clay-ink">By stage</h2>
+          <h2 className="text-[16px] font-semibold text-foreground">By stage</h2>
         </div>
         {rows.length === 0 ? (
-          <div className="py-8 text-center text-[13px] text-clay-ink-muted">
+          <div className="py-8 text-center text-[13px] text-muted-foreground">
             No deals.
           </div>
         ) : (

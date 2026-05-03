@@ -58,8 +58,8 @@ export default function ConversationKanbanPage() {
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">Conversation Kanban</h1>
-          <p className="mt-1.5 text-[13px] text-clay-ink-muted">View conversations organized by status ({totalCards} contacts).</p>
+          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">Conversation Kanban</h1>
+          <p className="mt-1.5 text-[13px] text-muted-foreground">View conversations organized by status ({totalCards} contacts).</p>
         </div>
         <ClayButton variant="pill" size="sm" onClick={load} disabled={isPending}>
           {isPending ? <LuLoader className="h-3.5 w-3.5 animate-spin" /> : 'Refresh'}
@@ -68,8 +68,8 @@ export default function ConversationKanbanPage() {
 
       {isPending && columns.length === 0 ? (
         <div className="flex h-40 items-center justify-center gap-3">
-          <LuLoader className="h-5 w-5 animate-spin text-clay-ink-muted" />
-          <span className="text-[13px] text-clay-ink-muted">Loading contacts...</span>
+          <LuLoader className="h-5 w-5 animate-spin text-muted-foreground" />
+          <span className="text-[13px] text-muted-foreground">Loading contacts...</span>
         </div>
       ) : (
         <div className="flex gap-4 overflow-x-auto pb-4">
@@ -77,26 +77,26 @@ export default function ConversationKanbanPage() {
             <div key={col.id} className="flex-shrink-0 w-80">
               <div className="flex items-center gap-2 mb-3">
                 <span className={`h-3 w-3 rounded-full ${col.color}`} />
-                <h2 className="text-[15px] font-semibold text-clay-ink">{col.title}</h2>
+                <h2 className="text-[15px] font-semibold text-foreground">{col.title}</h2>
                 <ClayBadge tone="neutral" className="ml-auto">{col.items.length}</ClayBadge>
               </div>
               <div className="flex flex-col gap-3">
                 {col.items.map((item: any) => (
                   <ClayCard key={item._id} padded={false} className="p-4 hover:shadow-md transition-shadow">
                     <div className="flex items-center justify-between gap-2 mb-1">
-                      <span className="text-[14px] font-semibold text-clay-ink truncate">{item.name || item.waId || 'Unknown'}</span>
+                      <span className="text-[14px] font-semibold text-foreground truncate">{item.name || item.waId || 'Unknown'}</span>
                       {item.lastMessageTimestamp && (
-                        <span className="text-[11px] text-clay-ink-muted whitespace-nowrap">
+                        <span className="text-[11px] text-muted-foreground whitespace-nowrap">
                           {new Date(item.lastMessageTimestamp).toLocaleDateString()}
                         </span>
                       )}
                     </div>
-                    <p className="text-[12.5px] text-clay-ink-muted truncate flex items-center gap-1">
+                    <p className="text-[12.5px] text-muted-foreground truncate flex items-center gap-1">
                       <LuMessageCircle className="h-3 w-3 shrink-0" />
                       {item.waId || 'No phone'}
                     </p>
                     {item.tagIds?.length > 0 && (
-                      <div className="mt-2 flex items-center gap-1 text-[11px] text-clay-ink-muted">
+                      <div className="mt-2 flex items-center gap-1 text-[11px] text-muted-foreground">
                         <LuUser className="h-3 w-3" />
                         {item.tagIds.length} tag(s)
                       </div>
@@ -104,7 +104,7 @@ export default function ConversationKanbanPage() {
                   </ClayCard>
                 ))}
                 {col.items.length === 0 && (
-                  <div className="rounded-lg border border-dashed border-clay-border p-6 text-center text-[12px] text-clay-ink-muted">
+                  <div className="rounded-lg border border-dashed border-border p-6 text-center text-[12px] text-muted-foreground">
                     No conversations
                   </div>
                 )}

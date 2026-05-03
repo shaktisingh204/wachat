@@ -54,20 +54,20 @@ const LineItemsTable = ({ items, setItems, currency }: { items: SalesOrderLineIt
 
     return (
         <div className="mt-6">
-            <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+            <div className="overflow-x-auto rounded-lg border border-border">
                 <table className="w-full text-sm">
-                    <thead className="bg-clay-surface-2">
-                        <tr className="border-b border-clay-border">
-                            <th className="p-3 text-left font-medium text-clay-ink">Item</th>
-                            <th className="p-3 text-right font-medium text-clay-ink">Quantity</th>
-                            <th className="p-3 text-right font-medium text-clay-ink">Rate</th>
-                            <th className="p-3 text-right font-medium text-clay-ink">Amount</th>
+                    <thead className="bg-secondary">
+                        <tr className="border-b border-border">
+                            <th className="p-3 text-left font-medium text-foreground">Item</th>
+                            <th className="p-3 text-right font-medium text-foreground">Quantity</th>
+                            <th className="p-3 text-right font-medium text-foreground">Rate</th>
+                            <th className="p-3 text-right font-medium text-foreground">Amount</th>
                             <th className="p-3"></th>
                         </tr>
                     </thead>
                     <tbody>
                         {items.map((item, index) => (
-                            <tr key={item.id} className="border-b border-clay-border">
+                            <tr key={item.id} className="border-b border-border">
                                 <td className="p-2">
                                     <SmartProductSelect
                                         value={item.id.startsWith('item-') && !item.name ? '' : undefined}
@@ -95,7 +95,7 @@ const LineItemsTable = ({ items, setItems, currency }: { items: SalesOrderLineIt
             <Separator />
             <div className="p-4 flex justify-end">
                 <div className="w-full max-w-sm space-y-2">
-                    <div className="flex justify-between items-center"><span className="text-clay-ink-muted">Total ({currency})</span><span className="font-bold text-lg text-clay-ink">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalAmount)}</span></div>
+                    <div className="flex justify-between items-center"><span className="text-muted-foreground">Total ({currency})</span><span className="font-bold text-lg text-foreground">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalAmount)}</span></div>
                 </div>
             </div>
         </div>
@@ -154,14 +154,14 @@ export default function NewSalesOrderPage() {
                     <ClayCard variant="floating" padded={false} className="max-w-4xl mx-auto p-4 sm:p-8 md:p-12">
                         <div className="p-0">
                             <header className="mb-8">
-                                <h1 className="text-3xl font-bold text-clay-ink">Sales Order</h1>
+                                <h1 className="text-3xl font-bold text-foreground">Sales Order</h1>
                             </header>
 
                             <Separator className="my-8" />
 
                             <section className="grid md:grid-cols-2 gap-8 text-sm mb-8">
                                 <div>
-                                    <h3 className="font-semibold mb-2 text-clay-ink">Customer Details:</h3>
+                                    <h3 className="font-semibold mb-2 text-foreground">Customer Details:</h3>
                                     <SmartClientSelect
                                         value={selectedClientId}
                                         onSelect={setSelectedClientId}
@@ -174,17 +174,17 @@ export default function NewSalesOrderPage() {
                                         }}
                                     />
                                     {selectedClient && (
-                                        <div className="mt-2 text-clay-ink-muted">
+                                        <div className="mt-2 text-muted-foreground">
                                             <p>{selectedClient.phone}</p>
                                         </div>
                                     )}
                                 </div>
                                 <div>
                                     <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-1"><Label htmlFor="orderNumber" className="text-clay-ink">Order #</Label><Input id="orderNumber" name="orderNumber" placeholder="Leave blank to auto-generate" className="h-8" maxLength={50} /></div>
-                                        <div className="space-y-1"><Label className="text-xs text-clay-ink">Order Date *</Label><DatePicker date={orderDate} setDate={setOrderDate} /></div>
+                                        <div className="space-y-1"><Label htmlFor="orderNumber" className="text-foreground">Order #</Label><Input id="orderNumber" name="orderNumber" placeholder="Leave blank to auto-generate" className="h-8" maxLength={50} /></div>
+                                        <div className="space-y-1"><Label className="text-xs text-foreground">Order Date *</Label><DatePicker date={orderDate} setDate={setOrderDate} /></div>
                                     </div>
-                                    <div className="mt-2 space-y-1"><Label className="text-xs text-clay-ink">Expected Delivery Date</Label><DatePicker date={deliveryDate} setDate={setDeliveryDate} /></div>
+                                    <div className="mt-2 space-y-1"><Label className="text-xs text-foreground">Expected Delivery Date</Label><DatePicker date={deliveryDate} setDate={setDeliveryDate} /></div>
                                 </div>
                             </section>
 
@@ -196,17 +196,17 @@ export default function NewSalesOrderPage() {
 
                             <section className="grid md:grid-cols-2 gap-8 mt-8">
                                 <div className="space-y-4">
-                                    <div className="space-y-2"><Label className="font-semibold text-clay-ink">Payment Terms</Label><Textarea name="paymentTerms" placeholder="e.g. 50% advance, 50% on delivery." maxLength={500} /></div>
-                                    <div className="space-y-2"><Label className="font-semibold text-clay-ink">Shipping Address</Label><Textarea name="shippingAddress" placeholder="Ship to address (street, city, state, postal code, country)." maxLength={500} /></div>
-                                    <div className="space-y-2"><Label className="font-semibold text-clay-ink">Billing Address</Label><Textarea name="billingAddress" placeholder="Billing address (if different from shipping)." maxLength={500} /></div>
+                                    <div className="space-y-2"><Label className="font-semibold text-foreground">Payment Terms</Label><Textarea name="paymentTerms" placeholder="e.g. 50% advance, 50% on delivery." maxLength={500} /></div>
+                                    <div className="space-y-2"><Label className="font-semibold text-foreground">Shipping Address</Label><Textarea name="shippingAddress" placeholder="Ship to address (street, city, state, postal code, country)." maxLength={500} /></div>
+                                    <div className="space-y-2"><Label className="font-semibold text-foreground">Billing Address</Label><Textarea name="billingAddress" placeholder="Billing address (if different from shipping)." maxLength={500} /></div>
                                 </div>
                                 <div className="space-y-4">
                                     <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-2"><Label className="font-semibold text-clay-ink">Tax Rate (%)</Label><Input name="taxRate" type="number" step="0.01" placeholder="0" /></div>
-                                        <div className="space-y-2"><Label className="font-semibold text-clay-ink">Discount</Label><Input name="discount" type="number" step="0.01" placeholder="0" /></div>
+                                        <div className="space-y-2"><Label className="font-semibold text-foreground">Tax Rate (%)</Label><Input name="taxRate" type="number" step="0.01" placeholder="0" /></div>
+                                        <div className="space-y-2"><Label className="font-semibold text-foreground">Discount</Label><Input name="discount" type="number" step="0.01" placeholder="0" /></div>
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className="font-semibold text-clay-ink">Notes</Label>
+                                        <Label className="font-semibold text-foreground">Notes</Label>
                                         <Textarea placeholder="Any special instructions for this order..." value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={500} />
                                     </div>
                                 </div>

@@ -40,12 +40,12 @@ export default async function TaskReportPage(props: {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <ClayCard>
           <div className="mb-3">
-            <h2 className="text-[16px] font-semibold text-clay-ink">
+            <h2 className="text-[16px] font-semibold text-foreground">
               By assignee
             </h2>
           </div>
           {report.byAssignee.length === 0 ? (
-            <div className="py-6 text-center text-[13px] text-clay-ink-muted">
+            <div className="py-6 text-center text-[13px] text-muted-foreground">
               No tasks.
             </div>
           ) : (
@@ -64,7 +64,7 @@ export default async function TaskReportPage(props: {
 
         <ClayCard>
           <div className="mb-3">
-            <h2 className="text-[16px] font-semibold text-clay-ink">
+            <h2 className="text-[16px] font-semibold text-foreground">
               By status
             </h2>
           </div>
@@ -82,7 +82,7 @@ export default async function TaskReportPage(props: {
 
         <ClayCard>
           <div className="mb-3">
-            <h2 className="text-[16px] font-semibold text-clay-ink">
+            <h2 className="text-[16px] font-semibold text-foreground">
               By priority
             </h2>
           </div>

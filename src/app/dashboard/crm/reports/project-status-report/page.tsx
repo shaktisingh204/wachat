@@ -37,10 +37,10 @@ export default async function ProjectStatusReportPage() {
 
       <ClayCard>
         <div className="mb-3">
-          <h2 className="text-[16px] font-semibold text-clay-ink">By status</h2>
+          <h2 className="text-[16px] font-semibold text-foreground">By status</h2>
         </div>
         {rows.length === 0 ? (
-          <div className="py-8 text-center text-[13px] text-clay-ink-muted">
+          <div className="py-8 text-center text-[13px] text-muted-foreground">
             No projects.
           </div>
         ) : (

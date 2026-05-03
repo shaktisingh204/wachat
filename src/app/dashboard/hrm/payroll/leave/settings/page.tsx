@@ -63,7 +63,7 @@ export default function LeaveSettingsPage() {
       />
       <ClayCard>
         {isLoading ? (
-          <div className="py-12 text-center text-[13px] text-clay-ink-muted">
+          <div className="py-12 text-center text-[13px] text-muted-foreground">
             Loading…
           </div>
         ) : (
@@ -144,13 +144,13 @@ function Numeric({
 }) {
   return (
     <div>
-      <Label className="text-clay-ink">{label}</Label>
+      <Label className="text-foreground">{label}</Label>
       <Input
         type="number"
         min="0"
         value={value ?? 0}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+        className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
       />
     </div>
   );
@@ -166,8 +166,8 @@ function Toggle({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <div className="flex items-center justify-between rounded-clay-md border border-clay-border bg-clay-surface-2 px-3 py-2.5">
-      <Label className="text-[13px] text-clay-ink">{label}</Label>
+    <div className="flex items-center justify-between rounded-lg border border-border bg-secondary px-3 py-2.5">
+      <Label className="text-[13px] text-foreground">{label}</Label>
       <Switch checked={Boolean(checked)} onCheckedChange={onChange} />
     </div>
   );

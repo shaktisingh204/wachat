@@ -147,45 +147,45 @@ export default function ModulesPage() {
       />
 
       <ClayCard>
-        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <Table>
             <TableHeader>
-              <TableRow className="border-clay-border hover:bg-transparent">
-                <TableHead className="text-clay-ink-muted">Module</TableHead>
-                <TableHead className="text-clay-ink-muted">Slug</TableHead>
-                <TableHead className="text-clay-ink-muted">Active</TableHead>
-                <TableHead className="text-clay-ink-muted">In Menu</TableHead>
-                <TableHead className="w-[120px] text-right text-clay-ink-muted">
+              <TableRow className="border-border hover:bg-transparent">
+                <TableHead className="text-muted-foreground">Module</TableHead>
+                <TableHead className="text-muted-foreground">Slug</TableHead>
+                <TableHead className="text-muted-foreground">Active</TableHead>
+                <TableHead className="text-muted-foreground">In Menu</TableHead>
+                <TableHead className="w-[120px] text-right text-muted-foreground">
                   Actions
                 </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading && rows.length === 0 ? (
-                <TableRow className="border-clay-border">
+                <TableRow className="border-border">
                   <TableCell
                     colSpan={5}
-                    className="h-20 text-center text-[13px] text-clay-ink-muted"
+                    className="h-20 text-center text-[13px] text-muted-foreground"
                   >
                     <LoaderCircle className="mx-auto h-4 w-4 animate-spin" />
                   </TableCell>
                 </TableRow>
               ) : rows.length === 0 ? (
-                <TableRow className="border-clay-border">
+                <TableRow className="border-border">
                   <TableCell
                     colSpan={5}
-                    className="h-20 text-center text-[13px] text-clay-ink-muted"
+                    className="h-20 text-center text-[13px] text-muted-foreground"
                   >
                     No modules yet.
                   </TableCell>
                 </TableRow>
               ) : (
                 rows.map((row) => (
-                  <TableRow key={row._id} className="border-clay-border">
-                    <TableCell className="text-[13px] font-medium text-clay-ink">
+                  <TableRow key={row._id} className="border-border">
+                    <TableCell className="text-[13px] font-medium text-foreground">
                       {row.display_name || row.module_name}
                       {row.description ? (
-                        <div className="text-[12px] text-clay-ink-muted">
+                        <div className="text-[12px] text-muted-foreground">
                           {row.description}
                         </div>
                       ) : null}
@@ -230,7 +230,7 @@ export default function ModulesPage() {
                           onClick={() => setDeletingId(row._id)}
                           aria-label="Delete"
                         >
-                          <Trash2 className="h-3.5 w-3.5 text-clay-red" />
+                          <Trash2 className="h-3.5 w-3.5 text-destructive" />
                         </Button>
                       </div>
                     </TableCell>
@@ -245,10 +245,10 @@ export default function ModulesPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle className="text-clay-ink">
+            <DialogTitle className="text-foreground">
               {editing ? 'Edit Module' : 'Add Module'}
             </DialogTitle>
-            <DialogDescription className="text-clay-ink-muted">
+            <DialogDescription className="text-muted-foreground">
               Modules group related permissions (e.g. Leads, Tasks).
             </DialogDescription>
           </DialogHeader>
@@ -258,19 +258,19 @@ export default function ModulesPage() {
               <input type="hidden" name="_id" value={editing._id} />
             ) : null}
             <div>
-              <Label htmlFor="display_name" className="text-clay-ink">
-                Display name <span className="text-clay-red">*</span>
+              <Label htmlFor="display_name" className="text-foreground">
+                Display name <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="display_name"
                 name="display_name"
                 required
                 defaultValue={editing?.display_name || ''}
-                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div>
-              <Label htmlFor="module_name" className="text-clay-ink">
+              <Label htmlFor="module_name" className="text-foreground">
                 Slug
               </Label>
               <Input
@@ -278,11 +278,11 @@ export default function ModulesPage() {
                 name="module_name"
                 defaultValue={editing?.module_name || ''}
                 placeholder="leads"
-                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div>
-              <Label htmlFor="icon" className="text-clay-ink">
+              <Label htmlFor="icon" className="text-foreground">
                 Icon name (lucide)
               </Label>
               <Input
@@ -290,11 +290,11 @@ export default function ModulesPage() {
                 name="icon"
                 defaultValue={editing?.icon || ''}
                 placeholder="Users"
-                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div>
-              <Label htmlFor="description" className="text-clay-ink">
+              <Label htmlFor="description" className="text-foreground">
                 Description
               </Label>
               <Textarea
@@ -302,27 +302,27 @@ export default function ModulesPage() {
                 name="description"
                 rows={2}
                 defaultValue={editing?.description || ''}
-                className="rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div className="flex gap-4">
-              <label className="flex items-center gap-2 text-[13px] text-clay-ink">
+              <label className="flex items-center gap-2 text-[13px] text-foreground">
                 <input
                   type="checkbox"
                   name="is_active"
                   value="true"
                   defaultChecked={editing?.is_active ?? true}
-                  className="h-4 w-4 accent-clay-ink"
+                  className="h-4 w-4 accent-foreground"
                 />
                 Active
               </label>
-              <label className="flex items-center gap-2 text-[13px] text-clay-ink">
+              <label className="flex items-center gap-2 text-[13px] text-foreground">
                 <input
                   type="checkbox"
                   name="in_menu"
                   value="true"
                   defaultChecked={editing?.in_menu ?? true}
-                  className="h-4 w-4 accent-clay-ink"
+                  className="h-4 w-4 accent-foreground"
                 />
                 Show in menu
               </label>
@@ -362,10 +362,10 @@ export default function ModulesPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-clay-ink">
+            <AlertDialogTitle className="text-foreground">
               Delete module?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-clay-ink-muted">
+            <AlertDialogDescription className="text-muted-foreground">
               Permissions referencing this module will become uncategorised.
             </AlertDialogDescription>
           </AlertDialogHeader>

@@ -33,12 +33,12 @@ function SectionHead({
 }) {
   return (
     <div className="mb-4 flex items-start gap-3">
-      <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-clay-md bg-clay-rose-soft">
-        <Icon className="h-4 w-4 text-clay-rose-ink" strokeWidth={1.75} />
+      <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent">
+        <Icon className="h-4 w-4 text-accent-foreground" strokeWidth={1.75} />
       </div>
       <div className="min-w-0">
-        <h3 className="text-[15px] font-semibold leading-tight text-clay-ink">{title}</h3>
-        <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">{subtitle}</p>
+        <h3 className="text-[15px] font-semibold leading-tight text-foreground">{title}</h3>
+        <p className="mt-0.5 text-[12.5px] text-muted-foreground">{subtitle}</p>
       </div>
     </div>
   );
@@ -52,9 +52,9 @@ function EmptyState({
   text: string;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-clay-md bg-clay-surface-2 p-10 text-center">
-      <Icon className="mb-3 h-10 w-10 text-clay-ink-fade" strokeWidth={1.5} />
-      <p className="text-[13px] text-clay-ink-muted">{text}</p>
+    <div className="flex flex-col items-center justify-center rounded-lg bg-secondary p-10 text-center">
+      <Icon className="mb-3 h-10 w-10 text-muted-foreground/70" strokeWidth={1.5} />
+      <p className="text-[13px] text-muted-foreground">{text}</p>
     </div>
   );
 }
@@ -76,20 +76,20 @@ export const RecentDealsCard = ({ deals, currency }: RecentDealsCardProps) => (
     ) : (
       <Table>
         <TableHeader>
-          <TableRow className="border-clay-border hover:bg-transparent">
-            <TableHead className="text-clay-ink-muted">Deal Name</TableHead>
-            <TableHead className="text-clay-ink-muted">Stage</TableHead>
-            <TableHead className="text-right text-clay-ink-muted">Value</TableHead>
+          <TableRow className="border-border hover:bg-transparent">
+            <TableHead className="text-muted-foreground">Deal Name</TableHead>
+            <TableHead className="text-muted-foreground">Stage</TableHead>
+            <TableHead className="text-right text-muted-foreground">Value</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {deals.map((deal) => (
-            <TableRow key={deal._id} className="border-clay-border">
-              <TableCell className="font-medium text-clay-ink">{deal.name}</TableCell>
+            <TableRow key={deal._id} className="border-border">
+              <TableCell className="font-medium text-foreground">{deal.name}</TableCell>
               <TableCell>
                 <ClayBadge tone="rose-soft">{deal.stage}</ClayBadge>
               </TableCell>
-              <TableCell className="text-right font-medium text-clay-ink">
+              <TableCell className="text-right font-medium text-foreground">
                 {new Intl.NumberFormat('en-US', {
                   style: 'currency',
                   currency: deal.currency || currency || 'USD',
@@ -122,13 +122,13 @@ export const UpcomingTasksCard = ({ tasks }: UpcomingTasksCardProps) => (
           {tasks.map((task) => (
             <div
               key={task._id}
-              className="flex items-start justify-between gap-3 border-b border-clay-border pb-3 last:border-0 last:pb-0"
+              className="flex items-start justify-between gap-3 border-b border-border pb-3 last:border-0 last:pb-0"
             >
               <div className="min-w-0 space-y-1">
-                <p className="text-[13px] font-medium leading-tight text-clay-ink">
+                <p className="text-[13px] font-medium leading-tight text-foreground">
                   {task.title}
                 </p>
-                <div className="flex flex-wrap items-center gap-2 text-[11.5px] text-clay-ink-muted">
+                <div className="flex flex-wrap items-center gap-2 text-[11.5px] text-muted-foreground">
                   <ClayBadge tone={task.priority === 'High' ? 'red' : 'neutral'} dot>
                     {task.priority || 'Normal'}
                   </ClayBadge>
@@ -137,11 +137,11 @@ export const UpcomingTasksCard = ({ tasks }: UpcomingTasksCardProps) => (
                   )}
                 </div>
               </div>
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-clay-rose-soft">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent">
                 {task.type === 'Call' ? (
-                  <Users className="h-3 w-3 text-clay-rose-ink" strokeWidth={1.75} />
+                  <Users className="h-3 w-3 text-accent-foreground" strokeWidth={1.75} />
                 ) : (
-                  <FileText className="h-3 w-3 text-clay-rose-ink" strokeWidth={1.75} />
+                  <FileText className="h-3 w-3 text-accent-foreground" strokeWidth={1.75} />
                 )}
               </div>
             </div>
@@ -171,15 +171,15 @@ export const PipelineBreakdownCard = ({ stages, currency }: PipelineBreakdownCar
         {stages.map((item, index) => (
           <div
             key={index}
-            className="flex items-center gap-4 rounded-clay-md bg-clay-surface-2 px-4 py-3"
+            className="flex items-center gap-4 rounded-lg bg-secondary px-4 py-3"
           >
             <div className="min-w-0 flex-1 space-y-0.5">
-              <p className="text-[13px] font-medium leading-tight text-clay-ink">
+              <p className="text-[13px] font-medium leading-tight text-foreground">
                 {item.stage}
               </p>
-              <p className="text-[11.5px] text-clay-ink-muted">{item.count} deals</p>
+              <p className="text-[11.5px] text-muted-foreground">{item.count} deals</p>
             </div>
-            <div className="text-[14px] font-semibold text-clay-ink">
+            <div className="text-[14px] font-semibold text-foreground">
               {new Intl.NumberFormat('en-US', {
                 style: 'currency',
                 currency: currency || 'USD',
@@ -209,17 +209,17 @@ export const RecentContactsCard = ({ contacts }: RecentContactsCardProps) => (
       <div className="space-y-3">
         {contacts.map((contact) => (
           <div key={contact._id} className="flex items-center gap-3">
-            <Avatar className="h-9 w-9 border border-clay-border">
+            <Avatar className="h-9 w-9 border border-border">
               <AvatarImage src={contact.avatarUrl} alt={contact.name} />
-              <AvatarFallback className="bg-clay-rose-soft text-[12px] text-clay-rose-ink">
+              <AvatarFallback className="bg-accent text-[12px] text-accent-foreground">
                 {contact.name?.charAt(0) ?? '?'}
               </AvatarFallback>
             </Avatar>
             <div className="min-w-0">
-              <p className="truncate text-[13px] font-medium leading-tight text-clay-ink">
+              <p className="truncate text-[13px] font-medium leading-tight text-foreground">
                 {contact.name}
               </p>
-              <p className="truncate text-[11.5px] text-clay-ink-muted">{contact.email}</p>
+              <p className="truncate text-[11.5px] text-muted-foreground">{contact.email}</p>
             </div>
           </div>
         ))}
@@ -245,29 +245,29 @@ export const InvoiceSummaryCard = ({ stats, currency }: InvoiceStatsCardProps) =
         subtitle="Overview of pending payments"
       />
       <div className="space-y-3">
-        <div className="flex items-center justify-between gap-4 rounded-clay-md border border-clay-red-soft bg-clay-red-soft/60 px-4 py-3">
+        <div className="flex items-center justify-between gap-4 rounded-lg border border-rose-50 bg-rose-50/60 px-4 py-3">
           <div className="min-w-0">
-            <p className="text-[12px] font-medium text-clay-red">Overdue</p>
-            <p className="mt-0.5 text-[22px] font-semibold leading-none text-clay-red">
+            <p className="text-[12px] font-medium text-destructive">Overdue</p>
+            <p className="mt-0.5 text-[22px] font-semibold leading-none text-destructive">
               {fmt(stats.overdueAmount)}
             </p>
           </div>
           <div className="text-right">
-            <p className="text-[11px] text-clay-ink-muted">Invoices</p>
-            <p className="text-[15px] font-semibold text-clay-ink">{stats.overdueCount}</p>
+            <p className="text-[11px] text-muted-foreground">Invoices</p>
+            <p className="text-[15px] font-semibold text-foreground">{stats.overdueCount}</p>
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-4 rounded-clay-md border border-clay-blue-soft bg-clay-blue-soft/60 px-4 py-3">
+        <div className="flex items-center justify-between gap-4 rounded-lg border border-sky-50 bg-sky-50/60 px-4 py-3">
           <div className="min-w-0">
-            <p className="text-[12px] font-medium text-clay-blue">Sent (Due)</p>
-            <p className="mt-0.5 text-[22px] font-semibold leading-none text-clay-blue">
+            <p className="text-[12px] font-medium text-sky-500">Sent (Due)</p>
+            <p className="mt-0.5 text-[22px] font-semibold leading-none text-sky-500">
               {fmt(stats.sentAmount)}
             </p>
           </div>
           <div className="text-right">
-            <p className="text-[11px] text-clay-ink-muted">Invoices</p>
-            <p className="text-[15px] font-semibold text-clay-ink">{stats.sentCount}</p>
+            <p className="text-[11px] text-muted-foreground">Invoices</p>
+            <p className="text-[15px] font-semibold text-foreground">{stats.sentCount}</p>
           </div>
         </div>
       </div>

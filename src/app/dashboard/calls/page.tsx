@@ -13,7 +13,7 @@ export default function CallsRedirectPage() {
     router.replace('/dashboard/calls/logs');
   }, [router]);
   return (
-    <div className="flex min-h-[240px] items-center justify-center text-sm text-clay-ink-muted">
+    <div className="flex min-h-[240px] items-center justify-center text-sm text-muted-foreground">
       Redirecting to call logs...
     </div>
   );

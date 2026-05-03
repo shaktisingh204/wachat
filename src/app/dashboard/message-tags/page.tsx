@@ -63,7 +63,7 @@ export default function MessageTagsPage() {
   if (isLoading) {
     return (
       <div className="flex min-h-[300px] items-center justify-center">
-        <LuLoader className="h-6 w-6 animate-spin text-clay-ink-muted" />
+        <LuLoader className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -77,25 +77,25 @@ export default function MessageTagsPage() {
       ]} />
 
       <div>
-        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">Message Tags</h1>
-        <p className="mt-1.5 text-[13px] text-clay-ink-muted">Create and manage tags to organize your conversations.</p>
+        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">Message Tags</h1>
+        <p className="mt-1.5 text-[13px] text-muted-foreground">Create and manage tags to organize your conversations.</p>
       </div>
 
       <ClayCard padded={false} className="p-5">
-        <h2 className="text-[15px] font-semibold text-clay-ink mb-3">Add New Tag</h2>
+        <h2 className="text-[15px] font-semibold text-foreground mb-3">Add New Tag</h2>
         <div className="flex flex-wrap gap-3 items-end">
           <div className="flex-1 min-w-[180px]">
-            <label className="text-[12px] text-clay-ink-muted mb-1 block">Name</label>
+            <label className="text-[12px] text-muted-foreground mb-1 block">Name</label>
             <input type="text" value={name} onChange={(e) => setName(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleAdd()} placeholder="Tag name"
-              className="w-full rounded-lg border border-clay-border bg-clay-bg px-3 py-2 text-sm text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-accent focus:outline-none" />
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none" />
           </div>
           <div>
-            <label className="text-[12px] text-clay-ink-muted mb-1 block">Color</label>
+            <label className="text-[12px] text-muted-foreground mb-1 block">Color</label>
             <div className="flex gap-1.5">
               {COLORS.map((c) => (
                 <button key={c.value} type="button" onClick={() => setColor(c.value)}
-                  className={`h-8 w-8 rounded-full border-2 transition-all ${color === c.value ? 'border-clay-ink scale-110' : 'border-transparent'}`}
+                  className={`h-8 w-8 rounded-full border-2 transition-all ${color === c.value ? 'border-foreground scale-110' : 'border-transparent'}`}
                   style={{ backgroundColor: c.value }} title={c.label} />
               ))}
             </div>
@@ -108,12 +108,12 @@ export default function MessageTagsPage() {
       </ClayCard>
 
       {tags.length > 0 ? (
-        <ClayCard padded={false} className="divide-y divide-clay-border">
+        <ClayCard padded={false} className="divide-y divide-border">
           {tags.map((tag) => (
             <div key={tag._id} className="flex items-center gap-4 px-5 py-3">
               <span className="h-4 w-4 rounded-full shrink-0" style={{ backgroundColor: tag.color }} />
-              <span className="flex-1 text-[14px] font-medium text-clay-ink">{tag.name}</span>
-              <span className="text-[12px] text-clay-ink-muted tabular-nums">{tag.usageCount ?? 0} messages</span>
+              <span className="flex-1 text-[14px] font-medium text-foreground">{tag.name}</span>
+              <span className="text-[12px] text-muted-foreground tabular-nums">{tag.usageCount ?? 0} messages</span>
               <button onClick={() => handleDelete(tag._id, tag.name)} disabled={isMutating}
                 className="p-1.5 rounded-md hover:bg-red-50 transition-colors text-red-500" title="Delete">
                 <LuTrash2 className="h-3.5 w-3.5" />
@@ -123,8 +123,8 @@ export default function MessageTagsPage() {
         </ClayCard>
       ) : (
         <ClayCard className="p-12 text-center">
-          <LuTag className="mx-auto h-12 w-12 text-clay-ink-muted/30 mb-4" />
-          <p className="text-sm text-clay-ink-muted">No tags yet. Create one above.</p>
+          <LuTag className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
+          <p className="text-sm text-muted-foreground">No tags yet. Create one above.</p>
         </ClayCard>
       )}
       <div className="h-6" />

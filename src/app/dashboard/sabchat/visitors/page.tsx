@@ -14,7 +14,7 @@ function PageSkeleton() {
     <ClayCard>
       <div className="space-y-2">
         {[...Array(5)].map((_, i) => (
-          <div key={i} className="animate-pulse rounded-clay-md bg-clay-border" style={{ height: '3rem' }} />
+          <div key={i} className="animate-pulse rounded-lg bg-border" style={{ height: '3rem' }} />
         ))}
       </div>
     </ClayCard>
@@ -78,15 +78,15 @@ export default function SabChatVisitorsPage() {
       />
 
       <ClayCard>
-        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <table className="w-full border-collapse text-[13px]">
             <thead>
-              <tr className="border-b border-clay-border bg-clay-surface-2">
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Visitor</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Status</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Last Seen</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Location</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Action</th>
+              <tr className="border-b border-border bg-secondary">
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Visitor</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Status</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Last Seen</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Location</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -98,30 +98,30 @@ export default function SabChatVisitorsPage() {
                   const email = visitor.visitorInfo?.email;
 
                   return (
-                    <tr key={visitor._id.toString()} className="border-b border-clay-border last:border-0 hover:bg-clay-surface-2/50">
-                      <td className="px-4 py-2.5 text-[13px] text-clay-ink">
+                    <tr key={visitor._id.toString()} className="border-b border-border last:border-0 hover:bg-secondary/50">
+                      <td className="px-4 py-2.5 text-[13px] text-foreground">
                         <div className="flex flex-col">
-                          <span className="font-medium text-clay-ink">{name}</span>
-                          {email && <span className="text-[12px] text-clay-ink-muted">{email}</span>}
+                          <span className="font-medium text-foreground">{name}</span>
+                          {email && <span className="text-[12px] text-muted-foreground">{email}</span>}
                         </div>
                       </td>
-                      <td className="px-4 py-2.5 text-[13px] text-clay-ink">
+                      <td className="px-4 py-2.5 text-[13px] text-foreground">
                         <ClayBadge tone={isOnline ? 'green' : 'neutral'} dot>
                           {isOnline ? 'Online' : 'Offline'}
                         </ClayBadge>
                       </td>
-                      <td className="px-4 py-2.5 text-[13px] text-clay-ink">
+                      <td className="px-4 py-2.5 text-[13px] text-foreground">
                         {formatDistanceToNow(new Date(visitor.updatedAt), { addSuffix: true })}
                       </td>
-                      <td className="px-4 py-2.5 text-[13px] text-clay-ink">
+                      <td className="px-4 py-2.5 text-[13px] text-foreground">
                         <div className="flex flex-col gap-1">
-                          <span className="font-mono text-[12px] text-clay-ink">{visitor.visitorInfo?.ip}</span>
-                          <span className="max-w-[200px] truncate text-[12px] text-clay-ink-muted" title={visitor.visitorInfo?.page}>
+                          <span className="font-mono text-[12px] text-foreground">{visitor.visitorInfo?.ip}</span>
+                          <span className="max-w-[200px] truncate text-[12px] text-muted-foreground" title={visitor.visitorInfo?.page}>
                             {visitor.visitorInfo?.page}
                           </span>
                         </div>
                       </td>
-                      <td className="px-4 py-2.5 text-[13px] text-clay-ink">
+                      <td className="px-4 py-2.5 text-[13px] text-foreground">
                         <a href={`/dashboard/sabchat/inbox?sessionId=${visitor._id.toString()}`}>
                           <ClayButton
                             variant="obsidian"
@@ -137,7 +137,7 @@ export default function SabChatVisitorsPage() {
                 })
               ) : (
                 <tr>
-                  <td colSpan={5} className="px-4 py-2.5 text-[13px] text-clay-ink-muted h-24 text-center">
+                  <td colSpan={5} className="px-4 py-2.5 text-[13px] text-muted-foreground h-24 text-center">
                     No live visitors right now.
                   </td>
                 </tr>

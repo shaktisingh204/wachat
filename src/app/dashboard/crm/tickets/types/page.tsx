@@ -137,13 +137,13 @@ export default function TicketTypesPage() {
       />
 
       <ClayCard>
-        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <Table>
             <TableHeader>
-              <TableRow className="border-clay-border hover:bg-transparent">
-                <TableHead className="text-clay-ink-muted">Type</TableHead>
-                <TableHead className="text-clay-ink-muted">Colour</TableHead>
-                <TableHead className="w-[120px] text-right text-clay-ink-muted">
+              <TableRow className="border-border hover:bg-transparent">
+                <TableHead className="text-muted-foreground">Type</TableHead>
+                <TableHead className="text-muted-foreground">Colour</TableHead>
+                <TableHead className="w-[120px] text-right text-muted-foreground">
                   Actions
                 </TableHead>
               </TableRow>
@@ -151,35 +151,35 @@ export default function TicketTypesPage() {
             <TableBody>
               {isLoading && rows.length === 0 ? (
                 [...Array(3)].map((_, i) => (
-                  <TableRow key={i} className="border-clay-border">
+                  <TableRow key={i} className="border-border">
                     <TableCell colSpan={3}>
                       <Skeleton className="h-8 w-full" />
                     </TableCell>
                   </TableRow>
                 ))
               ) : rows.length === 0 ? (
-                <TableRow className="border-clay-border">
+                <TableRow className="border-border">
                   <TableCell
                     colSpan={3}
-                    className="h-24 text-center text-[13px] text-clay-ink-muted"
+                    className="h-24 text-center text-[13px] text-muted-foreground"
                   >
                     No types yet — click Add Type to get started.
                   </TableCell>
                 </TableRow>
               ) : (
                 rows.map((row) => (
-                  <TableRow key={row._id} className="border-clay-border">
-                    <TableCell className="text-[13px] text-clay-ink">
+                  <TableRow key={row._id} className="border-border">
+                    <TableCell className="text-[13px] text-foreground">
                       {row.type}
                     </TableCell>
-                    <TableCell className="text-[13px] text-clay-ink">
+                    <TableCell className="text-[13px] text-foreground">
                       <div className="flex items-center gap-2">
                         <span
-                          className="inline-block h-4 w-4 rounded-sm border border-clay-border"
+                          className="inline-block h-4 w-4 rounded-sm border border-border"
                           style={{ backgroundColor: row.color || '#6B7280' }}
                           aria-label={`Colour ${row.color || ''}`}
                         />
-                        <code className="text-[12px] text-clay-ink-muted">
+                        <code className="text-[12px] text-muted-foreground">
                           {row.color || '—'}
                         </code>
                       </div>
@@ -194,7 +194,7 @@ export default function TicketTypesPage() {
                           size="sm"
                           onClick={() => setDeletingId(row._id)}
                         >
-                          <Trash2 className="h-3.5 w-3.5 text-clay-red" />
+                          <Trash2 className="h-3.5 w-3.5 text-destructive" />
                         </Button>
                       </div>
                     </TableCell>
@@ -209,34 +209,34 @@ export default function TicketTypesPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-clay-ink">
+            <DialogTitle className="text-foreground">
               {editing ? 'Edit Type' : 'Add Type'}
             </DialogTitle>
-            <DialogDescription className="text-clay-ink-muted">
+            <DialogDescription className="text-muted-foreground">
               Assign a colour hex code to visually distinguish the type.
             </DialogDescription>
           </DialogHeader>
           <form action={saveFormAction} className="space-y-4">
             {editing?._id ? <input type="hidden" name="_id" value={editing._id} /> : null}
             <div>
-              <Label htmlFor="type" className="text-clay-ink">
-                Type <span className="text-clay-red">*</span>
+              <Label htmlFor="type" className="text-foreground">
+                Type <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="type"
                 name="type"
                 required
                 defaultValue={editing?.type || ''}
-                className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div>
-              <Label htmlFor="color" className="text-clay-ink">
+              <Label htmlFor="color" className="text-foreground">
                 Colour
               </Label>
               <div className="mt-1.5 flex items-center gap-2">
                 <span
-                  className="inline-block h-9 w-9 rounded-clay-md border border-clay-border"
+                  className="inline-block h-9 w-9 rounded-lg border border-border"
                   style={{ backgroundColor: color || '#6B7280' }}
                   aria-label="Colour preview"
                 />
@@ -246,7 +246,7 @@ export default function TicketTypesPage() {
                   value={color}
                   onChange={(e) => setColor(e.target.value)}
                   placeholder="#6B7280"
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
@@ -277,8 +277,8 @@ export default function TicketTypesPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-clay-ink">Delete Type?</AlertDialogTitle>
-            <AlertDialogDescription className="text-clay-ink-muted">
+            <AlertDialogTitle className="text-foreground">Delete Type?</AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground">
               This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>

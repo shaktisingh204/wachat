@@ -118,10 +118,10 @@ export default function FlowBuilderListPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">
+          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
             Bot Flows
           </h1>
-          <p className="mt-1.5 max-w-[720px] text-[13px] text-clay-ink-muted">
+          <p className="mt-1.5 max-w-[720px] text-[13px] text-muted-foreground">
             Automate replies with visual chatbot flows — trigger on keywords,
             branch on user input, and hand off to a human when needed.
           </p>
@@ -175,13 +175,13 @@ export default function FlowBuilderListPage() {
       {/* No project state */}
       {!activeProjectId ? (
         <ClayCard padded={false} className="p-10 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-clay-rose-soft text-clay-rose-ink">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-accent text-accent-foreground">
             <LuCircleAlert className="h-5 w-5" strokeWidth={1.5} />
           </div>
-          <div className="mt-4 text-[15px] font-semibold text-clay-ink">
+          <div className="mt-4 text-[15px] font-semibold text-foreground">
             No project selected
           </div>
-          <div className="mt-1.5 text-[12.5px] text-clay-ink-muted">
+          <div className="mt-1.5 text-[12.5px] text-muted-foreground">
             Please select a project from the main dashboard to manage bot
             flows.
           </div>
@@ -224,33 +224,33 @@ export default function FlowBuilderListPage() {
             >
               {isLoading ? 'Refreshing…' : 'Refresh'}
             </ClayButton>
-            <span className="ml-auto text-[11.5px] tabular-nums text-clay-ink-muted">
+            <span className="ml-auto text-[11.5px] tabular-nums text-muted-foreground">
               {filtered.length} / {flows.length} flows
             </span>
           </div>
 
           {/* Table / empty / skeleton — grows to fill remaining card space */}
-          <div className="mt-5 flex flex-1 flex-col overflow-hidden rounded-[12px] border border-clay-border">
+          <div className="mt-5 flex flex-1 flex-col overflow-hidden rounded-[12px] border border-border">
             {isLoading && flows.length === 0 ? (
-              <div className="flex flex-col gap-0 divide-y divide-clay-border">
+              <div className="flex flex-col gap-0 divide-y divide-border">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <div key={i} className="flex items-center gap-4 px-4 py-4">
-                    <div className="h-3 w-32 animate-pulse rounded-full bg-clay-bg-2" />
-                    <div className="h-3 w-16 animate-pulse rounded-full bg-clay-bg-2" />
-                    <div className="h-3 w-24 animate-pulse rounded-full bg-clay-bg-2" />
-                    <div className="ml-auto h-6 w-6 animate-pulse rounded-full bg-clay-bg-2" />
+                    <div className="h-3 w-32 animate-pulse rounded-full bg-muted" />
+                    <div className="h-3 w-16 animate-pulse rounded-full bg-muted" />
+                    <div className="h-3 w-24 animate-pulse rounded-full bg-muted" />
+                    <div className="ml-auto h-6 w-6 animate-pulse rounded-full bg-muted" />
                   </div>
                 ))}
               </div>
             ) : filtered.length === 0 ? (
               <div className="flex flex-1 flex-col items-center justify-center gap-2 px-4 py-14 text-center">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-clay-bg-2 text-clay-ink-muted">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
                   <LuServerCog className="h-5 w-5" strokeWidth={1.5} />
                 </div>
-                <div className="mt-2 text-[13px] font-semibold text-clay-ink">
+                <div className="mt-2 text-[13px] font-semibold text-foreground">
                   {query ? 'No matching flows' : 'No bot flows yet'}
                 </div>
-                <div className="max-w-[380px] text-[11.5px] text-clay-ink-muted">
+                <div className="max-w-[380px] text-[11.5px] text-muted-foreground">
                   {query
                     ? `Nothing matched "${query}". Try a different search.`
                     : 'Create your first flow to automate replies to common questions, book appointments, or route leads to the right agent.'}
@@ -280,7 +280,7 @@ export default function FlowBuilderListPage() {
               </div>
             ) : (
               <table className="w-full text-[13px]">
-                <thead className="bg-clay-surface-2 border-b border-clay-border text-[11px] font-semibold uppercase tracking-wide text-clay-ink-muted">
+                <thead className="bg-secondary border-b border-border text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                   <tr>
                     <th className="px-4 py-3 text-left">Flow name</th>
                     <th className="px-4 py-3 text-left">Status</th>
@@ -289,19 +289,19 @@ export default function FlowBuilderListPage() {
                     <th className="px-4 py-3 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-clay-border">
+                <tbody className="divide-y divide-border">
                   {filtered.map((flow) => {
                     const paused =
                       (flow.status ?? '').toUpperCase() === 'PAUSED';
                     return (
                       <tr
                         key={flow._id.toString()}
-                        className="transition-colors hover:bg-clay-surface-2"
+                        className="transition-colors hover:bg-secondary"
                       >
                         <td className="px-4 py-3">
                           <Link
                             href={`/dashboard/flow-builder/${flow._id.toString()}`}
-                            className="font-medium text-clay-ink hover:text-clay-rose transition-colors"
+                            className="font-medium text-foreground hover:text-primary transition-colors"
                           >
                             {flow.name}
                           </Link>
@@ -318,7 +318,7 @@ export default function FlowBuilderListPage() {
                             <span
                               className={cn(
                                 'h-1.5 w-1.5 rounded-full',
-                                paused ? 'bg-clay-amber' : 'bg-clay-green',
+                                paused ? 'bg-amber-500' : 'bg-emerald-500',
                               )}
                             />
                             {paused ? 'Paused' : 'Active'}
@@ -330,19 +330,19 @@ export default function FlowBuilderListPage() {
                               (flow.triggerKeywords || []).map((k, i) => (
                                 <span
                                   key={`${k}-${i}`}
-                                  className="inline-flex h-5 items-center rounded-full border border-clay-border bg-clay-bg-2 px-2 text-[10.5px] font-medium text-clay-ink-muted"
+                                  className="inline-flex h-5 items-center rounded-full border border-border bg-muted px-2 text-[10.5px] font-medium text-muted-foreground"
                                 >
                                   {k}
                                 </span>
                               ))
                             ) : (
-                              <span className="text-[11.5px] italic text-clay-ink-soft">
+                              <span className="text-[11.5px] italic text-muted-foreground">
                                 No triggers
                               </span>
                             )}
                           </div>
                         </td>
-                        <td className="px-4 py-3 text-[11.5px] text-clay-ink-muted">
+                        <td className="px-4 py-3 text-[11.5px] text-muted-foreground">
                           {flow.updatedAt
                             ? format(new Date(flow.updatedAt), 'MMM d, yyyy · HH:mm')
                             : 'N/A'}
@@ -353,7 +353,7 @@ export default function FlowBuilderListPage() {
                               <button
                                 type="button"
                                 aria-label="Open menu"
-                                className="flex h-7 w-7 items-center justify-center rounded-md text-clay-ink-muted hover:bg-clay-bg-2 hover:text-clay-ink transition-colors"
+                                className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                               >
                                 <LuEllipsis className="h-4 w-4" />
                               </button>
@@ -411,13 +411,13 @@ function Stat({
   tint?: 'neutral' | 'green' | 'amber' | 'rose';
 }) {
   const chip = {
-    neutral: 'bg-clay-bg-2 text-clay-ink-muted',
+    neutral: 'bg-muted text-muted-foreground',
     green: 'bg-[#DCFCE7] text-[#166534]',
     amber: 'bg-[#FEF3C7] text-[#92400E]',
-    rose: 'bg-clay-rose-soft text-clay-rose-ink',
+    rose: 'bg-accent text-accent-foreground',
   }[tint];
   return (
-    <div className="rounded-[14px] border border-clay-border bg-clay-surface p-4">
+    <div className="rounded-[14px] border border-border bg-card p-4">
       <div
         className={cn(
           'flex h-8 w-8 items-center justify-center rounded-[10px]',
@@ -426,14 +426,14 @@ function Stat({
       >
         {icon}
       </div>
-      <div className="mt-3 text-[11px] font-medium uppercase tracking-wide text-clay-ink-muted leading-none">
+      <div className="mt-3 text-[11px] font-medium uppercase tracking-wide text-muted-foreground leading-none">
         {label}
       </div>
-      <div className="mt-1.5 text-[22px] font-semibold tracking-[-0.01em] text-clay-ink leading-none">
+      <div className="mt-1.5 text-[22px] font-semibold tracking-[-0.01em] text-foreground leading-none">
         {value}
       </div>
       {hint ? (
-        <div className="mt-1 text-[11px] text-clay-ink-muted leading-tight truncate">
+        <div className="mt-1 text-[11px] text-muted-foreground leading-tight truncate">
           {hint}
         </div>
       ) : null}

@@ -127,13 +127,13 @@ export default function ContractTemplatesPage() {
       />
 
       <ClayCard>
-        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <Table>
             <TableHeader>
-              <TableRow className="border-clay-border hover:bg-transparent">
-                <TableHead className="text-clay-ink-muted">Name</TableHead>
-                <TableHead className="text-clay-ink-muted">Preview</TableHead>
-                <TableHead className="w-[160px] text-right text-clay-ink-muted">
+              <TableRow className="border-border hover:bg-transparent">
+                <TableHead className="text-muted-foreground">Name</TableHead>
+                <TableHead className="text-muted-foreground">Preview</TableHead>
+                <TableHead className="w-[160px] text-right text-muted-foreground">
                   Actions
                 </TableHead>
               </TableRow>
@@ -141,28 +141,28 @@ export default function ContractTemplatesPage() {
             <TableBody>
               {isLoading && rows.length === 0 ? (
                 [...Array(3)].map((_, i) => (
-                  <TableRow key={i} className="border-clay-border">
+                  <TableRow key={i} className="border-border">
                     <TableCell colSpan={3}>
                       <Skeleton className="h-8 w-full" />
                     </TableCell>
                   </TableRow>
                 ))
               ) : rows.length === 0 ? (
-                <TableRow className="border-clay-border">
+                <TableRow className="border-border">
                   <TableCell
                     colSpan={3}
-                    className="h-24 text-center text-[13px] text-clay-ink-muted"
+                    className="h-24 text-center text-[13px] text-muted-foreground"
                   >
                     No templates yet — click Add Template to get started.
                   </TableCell>
                 </TableRow>
               ) : (
                 rows.map((row) => (
-                  <TableRow key={row._id} className="border-clay-border">
-                    <TableCell className="text-[13px] text-clay-ink">
+                  <TableRow key={row._id} className="border-border">
+                    <TableCell className="text-[13px] text-foreground">
                       {row.name}
                     </TableCell>
-                    <TableCell className="max-w-[400px] truncate text-[13px] text-clay-ink-muted">
+                    <TableCell className="max-w-[400px] truncate text-[13px] text-muted-foreground">
                       {(row.body || '').slice(0, 120)}
                     </TableCell>
                     <TableCell className="text-right">
@@ -187,7 +187,7 @@ export default function ContractTemplatesPage() {
                           size="sm"
                           onClick={() => setDeletingId(row._id)}
                         >
-                          <Trash2 className="h-3.5 w-3.5 text-clay-red" />
+                          <Trash2 className="h-3.5 w-3.5 text-destructive" />
                         </Button>
                       </div>
                     </TableCell>
@@ -202,30 +202,30 @@ export default function ContractTemplatesPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="text-clay-ink">
+            <DialogTitle className="text-foreground">
               {editing ? 'Edit Template' : 'Add Template'}
             </DialogTitle>
-            <DialogDescription className="text-clay-ink-muted">
+            <DialogDescription className="text-muted-foreground">
               Placeholders like {'{{client_name}}'} are supported.
             </DialogDescription>
           </DialogHeader>
           <form action={saveFormAction} className="space-y-4">
             {editing?._id ? <input type="hidden" name="_id" value={editing._id} /> : null}
             <div>
-              <Label htmlFor="name" className="text-clay-ink">
-                Template Name <span className="text-clay-red">*</span>
+              <Label htmlFor="name" className="text-foreground">
+                Template Name <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="name"
                 name="name"
                 required
                 defaultValue={editing?.name || ''}
-                className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div>
-              <Label htmlFor="body" className="text-clay-ink">
-                Body <span className="text-clay-red">*</span>
+              <Label htmlFor="body" className="text-foreground">
+                Body <span className="text-destructive">*</span>
               </Label>
               <Textarea
                 id="body"
@@ -233,7 +233,7 @@ export default function ContractTemplatesPage() {
                 required
                 rows={10}
                 defaultValue={editing?.body || ''}
-                className="mt-1.5 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="mt-1.5 rounded-lg border-border bg-card text-[13px]"
                 placeholder="Contract body with placeholders like {{client_name}}, {{start_date}}…"
               />
             </div>
@@ -264,8 +264,8 @@ export default function ContractTemplatesPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-clay-ink">Delete Template?</AlertDialogTitle>
-            <AlertDialogDescription className="text-clay-ink-muted">
+            <AlertDialogTitle className="text-foreground">Delete Template?</AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground">
               This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>

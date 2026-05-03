@@ -96,17 +96,17 @@ export default function ScheduledMessagesPage() {
       />
 
       <div className="min-w-0">
-        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">
+        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
           Scheduled Messages
         </h1>
-        <p className="mt-1.5 text-[13px] text-clay-ink-muted">
+        <p className="mt-1.5 text-[13px] text-muted-foreground">
           Schedule WhatsApp messages to be sent at a future date and time.
         </p>
       </div>
 
       {/* Schedule form */}
       <ClayCard padded={false} className="p-6">
-        <h2 className="text-[16px] font-semibold text-clay-ink mb-4">Schedule a message</h2>
+        <h2 className="text-[16px] font-semibold text-foreground mb-4">Schedule a message</h2>
         <form action={formAction} className="flex flex-col gap-4 max-w-lg">
           <input type="hidden" name="projectId" value={projectId || ''} />
           <Input name="recipientPhone" placeholder="Recipient phone (e.g. +919876543210)" required />
@@ -129,7 +129,7 @@ export default function ScheduledMessagesPage() {
       {/* Messages table */}
       <ClayCard padded={false} className="p-6">
         <div className="mb-4 flex flex-wrap items-center gap-2">
-          <h2 className="text-[16px] font-semibold text-clay-ink">
+          <h2 className="text-[16px] font-semibold text-foreground">
             Messages ({messages.filter(m => statusFilter === 'all' || m.status === statusFilter).length})
           </h2>
           <div className="ml-auto flex gap-1">
@@ -137,7 +137,7 @@ export default function ScheduledMessagesPage() {
               <button
                 key={s}
                 onClick={() => setStatusFilter(s)}
-                className={`rounded-full px-2.5 py-1 text-[11px] capitalize transition-colors ${statusFilter === s ? 'bg-clay-ink text-white' : 'bg-clay-surface-2 text-clay-ink-muted hover:bg-clay-bg-2'}`}
+                className={`rounded-full px-2.5 py-1 text-[11px] capitalize transition-colors ${statusFilter === s ? 'bg-foreground text-white' : 'bg-secondary text-muted-foreground hover:bg-muted'}`}
               >
                 {s}
               </button>
@@ -146,13 +146,13 @@ export default function ScheduledMessagesPage() {
         </div>
         {isLoading && messages.length === 0 ? (
           <div className="flex h-20 items-center justify-center">
-            <LuLoader className="h-5 w-5 animate-spin text-clay-ink-muted" strokeWidth={1.75} />
+            <LuLoader className="h-5 w-5 animate-spin text-muted-foreground" strokeWidth={1.75} />
           </div>
         ) : messages.length === 0 ? (
-          <div className="flex flex-col items-center gap-2 rounded-clay-md border border-dashed border-clay-border bg-clay-surface-2 px-4 py-10 text-center">
-            <LuClock className="h-5 w-5 text-clay-ink-muted" strokeWidth={1.5} />
-            <div className="text-[13px] font-semibold text-clay-ink">No scheduled messages</div>
-            <div className="text-[11.5px] text-clay-ink-muted">Schedule your first message above.</div>
+          <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-border bg-secondary px-4 py-10 text-center">
+            <LuClock className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
+            <div className="text-[13px] font-semibold text-foreground">No scheduled messages</div>
+            <div className="text-[11.5px] text-muted-foreground">Schedule your first message above.</div>
           </div>
         ) : (
           <Table>
@@ -169,7 +169,7 @@ export default function ScheduledMessagesPage() {
               {messages.filter((m) => statusFilter === 'all' || m.status === statusFilter).map((msg) => (
                 <TableRow key={msg._id}>
                   <TableCell className="font-medium text-[13px]">{msg.recipientPhone}</TableCell>
-                  <TableCell className="max-w-[200px] truncate text-[13px] text-clay-ink-muted">
+                  <TableCell className="max-w-[200px] truncate text-[13px] text-muted-foreground">
                     {msg.messageText}
                   </TableCell>
                   <TableCell className="text-[13px]">

@@ -81,26 +81,26 @@ export function CreateTaskDialog({ onTaskCreated, contactId, dealId }: CrmCreate
           {dealId && <input type="hidden" name="dealId" value={dealId} />}
 
           <DialogHeader className="px-6 pt-6 pb-2">
-            <DialogTitle className="text-clay-ink">Create New Task</DialogTitle>
-            <DialogDescription className="text-clay-ink-muted">Add a new to-do item for your team.</DialogDescription>
+            <DialogTitle className="text-foreground">Create New Task</DialogTitle>
+            <DialogDescription className="text-muted-foreground">Add a new to-do item for your team.</DialogDescription>
           </DialogHeader>
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="grid gap-4">
               <div className="space-y-2">
-                <Label htmlFor="title" className="text-clay-ink">Title</Label>
+                <Label htmlFor="title" className="text-foreground">Title</Label>
                 <Input id="title" name="title" required placeholder="e.g., Follow up with Acme Corp" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="description" className="text-clay-ink">Description (Optional)</Label>
+                <Label htmlFor="description" className="text-foreground">Description (Optional)</Label>
                 <Textarea id="description" name="description" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-clay-ink">Due Date</Label>
+                  <Label className="text-foreground">Due Date</Label>
                   <DatePicker date={dueDate} setDate={setDueDate} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="priority" className="text-clay-ink">Priority</Label>
+                  <Label htmlFor="priority" className="text-foreground">Priority</Label>
                   <Select name="priority" defaultValue="Medium">
                     <SelectTrigger id="priority"><SelectValue /></SelectTrigger>
                     <SelectContent>
@@ -112,7 +112,7 @@ export function CreateTaskDialog({ onTaskCreated, contactId, dealId }: CrmCreate
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="type" className="text-clay-ink">Task Type</Label>
+                <Label htmlFor="type" className="text-foreground">Task Type</Label>
                 <Select name="type" defaultValue="Follow-up">
                   <SelectTrigger id="type"><SelectValue /></SelectTrigger>
                   <SelectContent>

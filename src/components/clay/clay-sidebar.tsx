@@ -74,7 +74,7 @@ export function ClaySidebar({
       <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden pr-1">
         {/* Primary group title */}
         <div className="px-2">
-          <h2 className="text-[17px] font-semibold tracking-tight text-clay-ink leading-none">
+          <h2 className="text-[17px] font-semibold tracking-tight text-foreground leading-none">
             {groupTitle}
           </h2>
         </div>
@@ -101,7 +101,7 @@ export function ClaySidebar({
                       type="button"
                       onClick={group.onAdd}
                       aria-label={`Add ${group.title}`}
-                      className="flex h-5 w-5 items-center justify-center rounded-md text-clay-ink-soft hover:bg-clay-surface hover:text-clay-ink transition-colors"
+                      className="flex h-5 w-5 items-center justify-center rounded-md text-muted-foreground hover:bg-card hover:text-foreground transition-colors"
                     >
                       <LuPlus className="h-3.5 w-3.5" strokeWidth={2} />
                     </button>

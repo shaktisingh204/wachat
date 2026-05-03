@@ -18,10 +18,10 @@ import { CrmPageHeader } from '../../_components/crm-page-header';
 
 
 const StatCard = ({ title, value, percentage, isProfit }: { title: string; value: string; percentage?: string, isProfit?: boolean }) => (
-    <div className="bg-clay-surface-2 border border-clay-border p-4 rounded-clay-md text-center">
-        <p className="text-[12.5px] text-clay-ink-muted">{title}</p>
-        <p className={`mt-1 text-[22px] font-semibold ${isProfit ? (parseFloat(value.replace(/[^0-9.-]+/g,"")) >= 0 ? 'text-clay-green' : 'text-clay-red') : 'text-clay-ink'}`}>{value}</p>
-        {percentage && <p className="text-[11.5px] text-clay-ink-muted">{percentage}</p>}
+    <div className="bg-secondary border border-border p-4 rounded-lg text-center">
+        <p className="text-[12.5px] text-muted-foreground">{title}</p>
+        <p className={`mt-1 text-[22px] font-semibold ${isProfit ? (parseFloat(value.replace(/[^0-9.-]+/g,"")) >= 0 ? 'text-emerald-500' : 'text-destructive') : 'text-foreground'}`}>{value}</p>
+        {percentage && <p className="text-[11.5px] text-muted-foreground">{percentage}</p>}
     </div>
 );
 
@@ -53,8 +53,8 @@ const PnlClient = ({ data, startDate, endDate }: { data: any, startDate?: Date, 
         <div className="flex w-full flex-col gap-6">
             <ClayCard>
                 <div className="flex justify-between items-center">
-                    <h2 className="text-[16px] font-semibold text-clay-ink">Summary</h2>
-                    <p className="text-[12.5px] text-clay-ink-muted">
+                    <h2 className="text-[16px] font-semibold text-foreground">Summary</h2>
+                    <p className="text-[12.5px] text-muted-foreground">
                         For period: {startDate ? format(startDate, 'dd MMM, yyyy') : '...'} - {endDate ? format(endDate, 'dd MMM, yyyy') : '...'}
                     </p>
                 </div>
@@ -81,21 +81,21 @@ const PnlClient = ({ data, startDate, endDate }: { data: any, startDate?: Date, 
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
-                <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                <div className="overflow-x-auto rounded-lg border border-border">
                     <Table>
                         <TableHeader>
-                            <TableRow className="border-clay-border hover:bg-transparent">
-                                <TableHead className="text-clay-ink-muted">Accounts</TableHead>
-                                <TableHead className="text-clay-ink-muted text-right">Amount</TableHead>
-                                <TableHead className="text-clay-ink-muted text-right">% of Total</TableHead>
+                            <TableRow className="border-border hover:bg-transparent">
+                                <TableHead className="text-muted-foreground">Accounts</TableHead>
+                                <TableHead className="text-muted-foreground text-right">Amount</TableHead>
+                                <TableHead className="text-muted-foreground text-right">% of Total</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {entries.map((entry: any, index: number) => (
-                                <TableRow key={index} className={`border-clay-border ${entry.isMain ? 'bg-clay-surface-2 font-semibold' : ''}`}>
-                                    <TableCell className="text-clay-ink">{index + 1}. {entry.account}</TableCell>
-                                    <TableCell className="text-right font-mono text-clay-ink">₹{entry.amount.toFixed(2)}</TableCell>
-                                    <TableCell className="text-right font-mono text-clay-ink">{summary.totalIncome > 0 ? ((entry.amount / summary.totalIncome) * 100).toFixed(2) : '0.00'}%</TableCell>
+                                <TableRow key={index} className={`border-border ${entry.isMain ? 'bg-secondary font-semibold' : ''}`}>
+                                    <TableCell className="text-foreground">{index + 1}. {entry.account}</TableCell>
+                                    <TableCell className="text-right font-mono text-foreground">₹{entry.amount.toFixed(2)}</TableCell>
+                                    <TableCell className="text-right font-mono text-foreground">{summary.totalIncome > 0 ? ((entry.amount / summary.totalIncome) * 100).toFixed(2) : '0.00'}%</TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
@@ -126,14 +126,14 @@ export default function PnlPage() {
     if (isLoading || !data) {
         return (
             <div className="flex justify-center items-center h-full">
-                <LoaderCircle className="h-8 w-8 animate-spin text-clay-ink-muted" />
+                <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
         );
     }
 
     if (!data.summary) {
         return (
-            <div className="text-center py-10 text-[13px] text-clay-ink-muted">
+            <div className="text-center py-10 text-[13px] text-muted-foreground">
                 <p>Could not generate Profit & Loss data. Please ensure you have income/expense accounts and transactions.</p>
             </div>
         )

@@ -73,14 +73,14 @@ export default function CrmSetupPage() {
   return (
     <div className="flex w-full max-w-5xl flex-col gap-8">
       <div className="flex flex-col items-center gap-3 text-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-clay-lg bg-clay-rose-soft">
-          <Wrench className="h-6 w-6 text-clay-rose-ink" strokeWidth={1.75} />
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent">
+          <Wrench className="h-6 w-6 text-accent-foreground" strokeWidth={1.75} />
         </div>
         <div>
-          <h1 className="text-[28px] font-semibold leading-tight tracking-tight text-clay-ink">
+          <h1 className="text-[28px] font-semibold leading-tight tracking-tight text-foreground">
             Welcome to the CRM Suite
           </h1>
-          <p className="mt-2 max-w-2xl text-[13.5px] text-clay-ink-muted">
+          <p className="mt-2 max-w-2xl text-[13.5px] text-muted-foreground">
             To get started, select the industry that best describes your business. We'll tailor
             the CRM — stages, templates, and reports — to match.
           </p>
@@ -98,29 +98,29 @@ export default function CrmSetupPage() {
               onClick={() => setSelectedIndustry(industry.name)}
               className={cn(
                 'group text-left transition-all',
-                'rounded-clay-lg border bg-clay-surface p-5 shadow-clay-card',
+                'rounded-xl border bg-card p-5 shadow-sm',
                 selected
-                  ? 'border-clay-rose ring-2 ring-clay-rose/30'
-                  : 'border-clay-border hover:border-clay-border-strong',
+                  ? 'border-primary ring-2 ring-primary/30'
+                  : 'border-border hover:border-border',
               )}
             >
               <div className="flex items-start justify-between gap-3">
                 <div
                   className={cn(
-                    'flex h-10 w-10 items-center justify-center rounded-clay-md',
-                    selected ? 'bg-clay-rose text-white' : 'bg-clay-surface-2 text-clay-ink-muted',
+                    'flex h-10 w-10 items-center justify-center rounded-lg',
+                    selected ? 'bg-primary text-white' : 'bg-secondary text-muted-foreground',
                   )}
                 >
                   <Icon className="h-5 w-5" strokeWidth={1.75} />
                 </div>
                 {selected ? (
-                  <Check className="h-5 w-5 text-clay-rose" strokeWidth={2} />
+                  <Check className="h-5 w-5 text-primary" strokeWidth={2} />
                 ) : null}
               </div>
-              <h3 className="mt-4 text-[14px] font-semibold leading-tight text-clay-ink">
+              <h3 className="mt-4 text-[14px] font-semibold leading-tight text-foreground">
                 {industry.name}
               </h3>
-              <p className="mt-1 text-[12px] leading-snug text-clay-ink-muted">
+              <p className="mt-1 text-[12px] leading-snug text-muted-foreground">
                 {industry.description}
               </p>
             </button>

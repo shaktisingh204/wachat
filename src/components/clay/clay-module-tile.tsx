@@ -34,8 +34,8 @@ export interface ClayModuleTileProps {
 }
 
 const accentClasses: Record<NonNullable<ClayModuleTileProps['accent']>, string> = {
-  rose:     'bg-clay-rose-soft text-clay-rose-ink',
-  obsidian: 'bg-clay-obsidian text-white',
+  rose:     'bg-accent text-accent-foreground',
+  obsidian: 'bg-foreground text-white',
   violet:   'bg-[#EEE8FF] text-[#5B21B6]',
   amber:    'bg-[#FEF3C7] text-[#92400E]',
   green:    'bg-[#DCFCE7] text-[#166534]',
@@ -49,9 +49,9 @@ const accentClasses: Record<NonNullable<ClayModuleTileProps['accent']>, string> 
 };
 
 const statusClasses = {
-  ok:   'bg-clay-green',
-  warn: 'bg-clay-amber',
-  off:  'bg-clay-ink-fade',
+  ok:   'bg-emerald-500',
+  warn: 'bg-amber-500',
+  off:  'bg-muted-foreground/70',
 };
 
 /**
@@ -73,7 +73,7 @@ export function ClayModuleTile({
     <Link
       href={href}
       className={cn(
-        'group relative flex flex-col rounded-[14px] border border-clay-border bg-clay-surface p-4 transition-[box-shadow,transform,border-color] duration-200 hover:-translate-y-0.5 hover:border-clay-border-strong hover:shadow-clay-float',
+        'group relative flex flex-col rounded-[14px] border border-border bg-card p-4 transition-[box-shadow,transform,border-color] duration-200 hover:-translate-y-0.5 hover:border-border hover:shadow-md',
         className,
       )}
     >
@@ -89,17 +89,17 @@ export function ClayModuleTile({
           </span>
         </span>
         <LuArrowUpRight
-          className="h-3.5 w-3.5 text-clay-ink-fade transition-[color,transform] group-hover:text-clay-ink group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+          className="h-3.5 w-3.5 text-muted-foreground/70 transition-[color,transform] group-hover:text-foreground group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
           strokeWidth={2}
         />
       </div>
 
-      <div className="mt-3.5 text-[12px] font-medium text-clay-ink-muted leading-none">
+      <div className="mt-3.5 text-[12px] font-medium text-muted-foreground leading-none">
         {name}
       </div>
 
       <div className="mt-1.5 flex items-baseline gap-1.5">
-        <div className="text-[20px] font-semibold tracking-[-0.01em] text-clay-ink leading-none">
+        <div className="text-[20px] font-semibold tracking-[-0.01em] text-foreground leading-none">
           {primary}
         </div>
         {status ? (
@@ -113,7 +113,7 @@ export function ClayModuleTile({
       </div>
 
       {secondary ? (
-        <div className="mt-1 text-[11px] text-clay-ink-muted leading-tight truncate">
+        <div className="mt-1 text-[11px] text-muted-foreground leading-tight truncate">
           {secondary}
         </div>
       ) : null}

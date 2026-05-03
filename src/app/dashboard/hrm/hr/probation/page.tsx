@@ -39,7 +39,7 @@ export default function ProbationPage() {
                 {id.length > 10 ? `${id.slice(0, 8)}…${id.slice(-4)}` : id}
               </span>
             ) : (
-              <span className="text-clay-ink-muted">—</span>
+              <span className="text-muted-foreground">—</span>
             );
           },
         },

@@ -20,13 +20,13 @@ export const ClayCard = React.forwardRef<HTMLDivElement, ClayCardProps>(
   ({ className, variant = 'default', padded = true, children, ...props }, ref) => {
     const variants: Record<Variant, string> = {
       default:
-        'bg-clay-surface border border-clay-border shadow-clay-card rounded-clay-lg',
+        'bg-card border border-border shadow-sm rounded-xl',
       soft:
-        'bg-clay-surface-2 border border-clay-border rounded-clay-lg',
+        'bg-secondary border border-border rounded-xl',
       floating:
-        'bg-clay-surface border border-clay-border shadow-clay-float rounded-clay-lg',
+        'bg-card border border-border shadow-md rounded-xl',
       outline:
-        'bg-clay-surface border border-clay-border rounded-clay-lg',
+        'bg-card border border-border rounded-xl',
     };
 
     return (

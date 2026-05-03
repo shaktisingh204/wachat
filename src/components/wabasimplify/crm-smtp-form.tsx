@@ -47,47 +47,47 @@ export function CrmSmtpForm({ settings }: CrmSmtpFormProps) {
         <form action={formAction}>
              <ClayCard padded={false}>
                 <div className="p-6 pb-4">
-                    <h2 className="flex items-center gap-2 text-clay-ink font-semibold text-lg"><Server className="h-5 w-5"/>Custom SMTP</h2>
-                    <p className="text-sm text-clay-ink-muted mt-1">Connect your own SMTP server to send emails. This gives you full control over your email delivery.</p>
+                    <h2 className="flex items-center gap-2 text-foreground font-semibold text-lg"><Server className="h-5 w-5"/>Custom SMTP</h2>
+                    <p className="text-sm text-muted-foreground mt-1">Connect your own SMTP server to send emails. This gives you full control over your email delivery.</p>
                 </div>
                 <div className="px-6 pb-6 space-y-6">
                     <div className="grid md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label htmlFor="fromName" className="text-clay-ink">From Name</Label>
+                            <Label htmlFor="fromName" className="text-foreground">From Name</Label>
                             <Input id="fromName" name="fromName" defaultValue={settings?.fromName} placeholder="e.g. SabNode Support" required/>
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="fromEmail" className="text-clay-ink">From Email</Label>
+                            <Label htmlFor="fromEmail" className="text-foreground">From Email</Label>
                             <Input id="fromEmail" name="fromEmail" type="email" defaultValue={settings?.fromEmail} placeholder="e.g. support@yourdomain.com" required/>
                         </div>
                     </div>
-                    <Separator className="bg-clay-border" />
+                    <Separator className="bg-border" />
                     <div className="grid md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label htmlFor="smtpHost" className="text-clay-ink">SMTP Host</Label>
+                            <Label htmlFor="smtpHost" className="text-foreground">SMTP Host</Label>
                             <Input id="smtpHost" name="smtpHost" defaultValue={settings?.smtp?.host} placeholder="smtp.example.com" required/>
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="smtpPort" className="text-clay-ink">SMTP Port</Label>
+                            <Label htmlFor="smtpPort" className="text-foreground">SMTP Port</Label>
                             <Input id="smtpPort" name="smtpPort" type="number" defaultValue={settings?.smtp?.port || 587} required />
                         </div>
                     </div>
                      <div className="grid md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label htmlFor="smtpUser" className="text-clay-ink">SMTP Username</Label>
+                            <Label htmlFor="smtpUser" className="text-foreground">SMTP Username</Label>
                             <Input id="smtpUser" name="smtpUser" defaultValue={settings?.smtp?.user} required />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="smtpPass" className="text-clay-ink">SMTP Password</Label>
+                            <Label htmlFor="smtpPass" className="text-foreground">SMTP Password</Label>
                             <Input id="smtpPass" name="smtpPass" type="password" defaultValue={settings?.smtp?.pass} required />
                         </div>
                     </div>
                     <div className="flex items-center space-x-2">
                         <Switch id="smtpSecure" name="smtpSecure" defaultChecked={settings?.smtp?.secure !== false}/>
-                        <Label htmlFor="smtpSecure" className="text-clay-ink">Use SSL/TLS Encryption</Label>
+                        <Label htmlFor="smtpSecure" className="text-foreground">Use SSL/TLS Encryption</Label>
                     </div>
                 </div>
-                <div className="px-6 py-4 border-t border-clay-border flex">
+                <div className="px-6 py-4 border-t border-border flex">
                     <SubmitButton />
                 </div>
             </ClayCard>

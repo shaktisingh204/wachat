@@ -235,8 +235,8 @@ const permissionCategories: Record<string, { label: string; modules: Array<{ id:
 function SaveBar() {
     const { pending } = useFormStatus();
     return (
-        <div className="sticky bottom-4 z-20 mt-6 flex items-center justify-between rounded-2xl border border-clay-border bg-clay-surface/95 p-3 shadow-clay-md backdrop-blur">
-            <p className="pl-2 text-[12.5px] text-clay-ink-muted">
+        <div className="sticky bottom-4 z-20 mt-6 flex items-center justify-between rounded-2xl border border-border bg-card/95 p-3 shadow-md backdrop-blur">
+            <p className="pl-2 text-[12.5px] text-muted-foreground">
                 Toggle permissions for every role, then save to sync all members.
             </p>
             <ClayButton
@@ -309,7 +309,7 @@ function AddRoleDialog({ onRoleAdded }: { onRoleAdded: () => void }) {
                     </DialogDescription>
                 </DialogHeader>
                 <div className="py-2">
-                    <Label htmlFor="roleName" className="mb-1.5 block text-[12.5px] font-medium text-clay-ink">
+                    <Label htmlFor="roleName" className="mb-1.5 block text-[12.5px] font-medium text-foreground">
                         Role name
                     </Label>
                     <ClayInput
@@ -363,7 +363,7 @@ function DeleteRoleButton({ role, onRoleDeleted }: { role: { id: string; name: s
             <AlertDialogTrigger asChild>
                 <button
                     type="button"
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-clay-border bg-clay-surface text-clay-ink-muted transition-colors hover:border-red-400 hover:text-red-600"
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:border-red-400 hover:text-red-600"
                     aria-label={`Delete ${role.name}`}
                     onClick={(e) => e.stopPropagation()}
                 >
@@ -428,16 +428,16 @@ function RoleCard({
                 onClick={() => setOpen((v) => !v)}
                 className={cn(
                     'flex w-full items-center justify-between gap-4 px-5 py-4 text-left transition-colors',
-                    open ? 'bg-clay-surface-subtle' : 'hover:bg-clay-surface-subtle/60',
+                    open ? 'bg-muted/50' : 'hover:bg-muted/50/60',
                 )}
             >
                 <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-clay-rose-soft text-clay-rose">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-accent text-primary">
                         <LuShieldCheck className="h-4 w-4" />
                     </div>
                     <div>
-                        <p className="text-[14px] font-semibold text-clay-ink">{role.name}</p>
-                        <p className="text-[12px] text-clay-ink-muted">
+                        <p className="text-[14px] font-semibold text-foreground">{role.name}</p>
+                        <p className="text-[12px] text-muted-foreground">
                             {enabledCount} permission{enabledCount === 1 ? '' : 's'} granted
                         </p>
                     </div>
@@ -448,16 +448,16 @@ function RoleCard({
                 <div className="flex items-center gap-2">
                     <DeleteRoleButton role={role} onRoleDeleted={onRoleDeleted} />
                     <LuChevronDown
-                        className={cn('h-5 w-5 text-clay-ink-muted transition-transform', open && 'rotate-180')}
+                        className={cn('h-5 w-5 text-muted-foreground transition-transform', open && 'rotate-180')}
                     />
                 </div>
             </button>
 
             {open && (
-                <div className="border-t border-clay-border bg-clay-surface">
+                <div className="border-t border-border bg-card">
                     <input type="hidden" name="roleId" value={role.id} />
                     <div className="grid grid-cols-1 md:grid-cols-[200px_1fr]">
-                        <aside className="border-b border-clay-border bg-clay-surface-subtle p-2 md:border-b-0 md:border-r">
+                        <aside className="border-b border-border bg-muted/50 p-2 md:border-b-0 md:border-r">
                             <div className="flex gap-2 overflow-x-auto md:flex-col">
                                 {Object.entries(permissionCategories).map(([key, cat]) => (
                                     <button
@@ -467,8 +467,8 @@ function RoleCard({
                                         className={cn(
                                             'shrink-0 rounded-lg px-3 py-2 text-left text-[12.5px] font-medium transition-colors md:w-full',
                                             activeCategory === key
-                                                ? 'bg-clay-obsidian text-white'
-                                                : 'text-clay-ink-muted hover:bg-clay-surface hover:text-clay-ink',
+                                                ? 'bg-foreground text-white'
+                                                : 'text-muted-foreground hover:bg-card hover:text-foreground',
                                         )}
                                     >
                                         {cat.label}
@@ -482,15 +482,15 @@ function RoleCard({
                                 return (
                                     <div key={key} className="space-y-3">
                                         <div className="flex items-center justify-between">
-                                            <h3 className="text-[13.5px] font-semibold text-clay-ink">
+                                            <h3 className="text-[13.5px] font-semibold text-foreground">
                                                 {cat.label} permissions
                                             </h3>
                                             <ClayBadge tone="neutral" dot>
                                                 {cat.modules.length} modules
                                             </ClayBadge>
                                         </div>
-                                        <div className="overflow-hidden rounded-xl border border-clay-border">
-                                            <div className="grid grid-cols-[minmax(180px,2fr)_repeat(4,80px)] gap-0 bg-clay-surface-subtle px-4 py-2.5 text-[11.5px] font-semibold uppercase tracking-wide text-clay-ink-muted">
+                                        <div className="overflow-hidden rounded-xl border border-border">
+                                            <div className="grid grid-cols-[minmax(180px,2fr)_repeat(4,80px)] gap-0 bg-muted/50 px-4 py-2.5 text-[11.5px] font-semibold uppercase tracking-wide text-muted-foreground">
                                                 <span>Module</span>
                                                 {actions.map((a) => (
                                                     <span key={a} className="text-center capitalize">
@@ -498,11 +498,11 @@ function RoleCard({
                                                     </span>
                                                 ))}
                                             </div>
-                                            <div className="divide-y divide-clay-border">
+                                            <div className="divide-y divide-border">
                                                 {cat.modules.map((mod) => (
                                                     <div
                                                         key={mod.id}
-                                                        className="grid grid-cols-[minmax(180px,2fr)_repeat(4,80px)] items-center px-4 py-2.5 text-[13px] text-clay-ink hover:bg-clay-surface-subtle/40"
+                                                        className="grid grid-cols-[minmax(180px,2fr)_repeat(4,80px)] items-center px-4 py-2.5 text-[13px] text-foreground hover:bg-muted/50/40"
                                                     >
                                                         <span className="font-medium">{mod.name}</span>
                                                         {actions.map((action) => (
@@ -601,22 +601,22 @@ export default function ManageRolesPage() {
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <ClayCard variant="soft" padded>
-                    <p className="text-[11.5px] font-medium uppercase tracking-wide text-clay-ink-muted">
+                    <p className="text-[11.5px] font-medium uppercase tracking-wide text-muted-foreground">
                         Roles
                     </p>
-                    <p className="mt-1 text-[22px] font-semibold text-clay-ink">{allRoles.length}</p>
+                    <p className="mt-1 text-[22px] font-semibold text-foreground">{allRoles.length}</p>
                 </ClayCard>
                 <ClayCard variant="soft" padded>
-                    <p className="text-[11.5px] font-medium uppercase tracking-wide text-clay-ink-muted">
+                    <p className="text-[11.5px] font-medium uppercase tracking-wide text-muted-foreground">
                         Permissions granted
                     </p>
-                    <p className="mt-1 text-[22px] font-semibold text-clay-ink">{totalGranted}</p>
+                    <p className="mt-1 text-[22px] font-semibold text-foreground">{totalGranted}</p>
                 </ClayCard>
                 <ClayCard variant="soft" padded>
-                    <p className="text-[11.5px] font-medium uppercase tracking-wide text-clay-ink-muted">
+                    <p className="text-[11.5px] font-medium uppercase tracking-wide text-muted-foreground">
                         Modules covered
                     </p>
-                    <p className="mt-1 text-[22px] font-semibold text-clay-ink">
+                    <p className="mt-1 text-[22px] font-semibold text-foreground">
                         {Object.values(permissionCategories).reduce((n, c) => n + c.modules.length, 0)}
                     </p>
                 </ClayCard>
@@ -637,12 +637,12 @@ export default function ManageRolesPage() {
             </form>
 
             <ClayCard variant="soft" padded className="flex items-start gap-3">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-clay-obsidian text-white">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-foreground text-white">
                     <LuCheck className="h-4 w-4" />
                 </div>
                 <div>
-                    <p className="text-[13px] font-semibold text-clay-ink">How permissions apply</p>
-                    <p className="mt-1 text-[12.5px] text-clay-ink-muted">
+                    <p className="text-[13px] font-semibold text-foreground">How permissions apply</p>
+                    <p className="mt-1 text-[12.5px] text-muted-foreground">
                         Changes take effect immediately. Members with a role pick up the updated module
                         access on their next navigation. System roles (e.g. Agent) cannot be deleted,
                         but their permissions can still be tuned per module.

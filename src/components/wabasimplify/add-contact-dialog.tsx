@@ -142,7 +142,7 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
 
       <DialogContent
         className={cn(
-          'max-w-[520px] rounded-[18px] border border-clay-border bg-clay-surface p-0 shadow-clay-pop',
+          'max-w-[520px] rounded-[18px] border border-border bg-card p-0 shadow-lg',
         )}
       >
         <form action={wrappedFormAction} ref={formRef}>
@@ -155,15 +155,15 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
           />
           <input type="hidden" name="countryCode" value={countryCode} />
 
-          <DialogHeader className="flex flex-row items-start gap-3 border-b border-clay-border px-6 py-5">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-clay-rose-soft text-clay-rose-ink">
+          <DialogHeader className="flex flex-row items-start gap-3 border-b border-border px-6 py-5">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-accent text-accent-foreground">
               <LuUserPlus className="h-5 w-5" strokeWidth={2} />
             </span>
             <div className="min-w-0 flex-1">
-              <DialogTitle className="text-[16px] font-semibold text-clay-ink leading-tight">
+              <DialogTitle className="text-[16px] font-semibold text-foreground leading-tight">
                 Add new contact
               </DialogTitle>
-              <DialogDescription className="mt-0.5 text-[12px] text-clay-ink-muted leading-snug">
+              <DialogDescription className="mt-0.5 text-[12px] text-muted-foreground leading-snug">
                 Manually add a contact to your project. They&apos;ll become
                 available for chat and broadcasts right away.
               </DialogDescription>
@@ -231,7 +231,7 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
 
             {/* Tags */}
             <div className="flex flex-col gap-1.5">
-              <Label className="text-[11.5px] font-semibold text-clay-ink-muted">
+              <Label className="text-[11.5px] font-semibold text-muted-foreground">
                 Tags
               </Label>
               <MultiSelectCombobox
@@ -243,7 +243,7 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
             </div>
           </div>
 
-          <DialogFooter className="border-t border-clay-border px-6 py-4 sm:justify-end gap-2">
+          <DialogFooter className="border-t border-border px-6 py-4 sm:justify-end gap-2">
             <ClayButton
               type="button"
               variant="pill"
@@ -277,10 +277,10 @@ function Field({
     <div className="flex flex-col gap-1.5">
       <Label
         htmlFor={htmlFor}
-        className="text-[11.5px] font-semibold text-clay-ink-muted"
+        className="text-[11.5px] font-semibold text-muted-foreground"
       >
         {label}
-        {required ? <span className="ml-1 text-clay-red">*</span> : null}
+        {required ? <span className="ml-1 text-destructive">*</span> : null}
       </Label>
       {children}
     </div>

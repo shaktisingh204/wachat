@@ -190,13 +190,13 @@ export default function OverviewPage() {
           ]}
         />
         <ClayCard padded={false} className="p-10 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-clay-bg text-clay-ink-muted">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-background text-muted-foreground">
             <LuInbox className="h-5 w-5" strokeWidth={1.5} />
           </div>
-          <h2 className="mt-4 text-[18px] font-semibold text-clay-ink">
+          <h2 className="mt-4 text-[18px] font-semibold text-foreground">
             Select a project to continue
           </h2>
-          <p className="mx-auto mt-1.5 max-w-[360px] text-[12.5px] text-clay-ink-muted">
+          <p className="mx-auto mt-1.5 max-w-[360px] text-[12.5px] text-muted-foreground">
             Overview stats are scoped to a single WhatsApp Business project. Pick one from the home screen.
           </p>
           <ClayButton
@@ -215,17 +215,17 @@ export default function OverviewPage() {
   if (loading && !stats) {
     return (
       <div className="flex flex-col gap-6">
-        <div className="h-3 w-52 animate-pulse rounded-full bg-clay-bg-2" />
-        <div className="h-9 w-64 animate-pulse rounded-md bg-clay-bg-2" />
+        <div className="h-3 w-52 animate-pulse rounded-full bg-muted" />
+        <div className="h-9 w-64 animate-pulse rounded-md bg-muted" />
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
             <div
               key={i}
-              className="h-[118px] animate-pulse rounded-[14px] bg-clay-bg-2"
+              className="h-[118px] animate-pulse rounded-[14px] bg-muted"
             />
           ))}
         </div>
-        <div className="h-[260px] animate-pulse rounded-clay-lg bg-clay-bg-2" />
+        <div className="h-[260px] animate-pulse rounded-xl bg-muted" />
       </div>
     );
   }
@@ -244,10 +244,10 @@ export default function OverviewPage() {
       {/* Header */}
       <div className="flex items-center justify-between gap-6">
         <div className="min-w-0">
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">
+          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
             Project overview
           </h1>
-          <p className="mt-1.5 text-[13px] text-clay-ink-muted">
+          <p className="mt-1.5 text-[13px] text-muted-foreground">
             {activeProject?.name
               ? `${activeProject.name} · Last 30 days of messaging activity`
               : 'Last 30 days of messaging activity'}
@@ -343,10 +343,10 @@ export default function OverviewPage() {
         <ClayCard padded={false} className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-[14px] font-semibold text-clay-ink">
+              <div className="text-[14px] font-semibold text-foreground">
                 Delivery funnel
               </div>
-              <div className="mt-1 text-[11.5px] text-clay-ink-muted">
+              <div className="mt-1 text-[11.5px] text-muted-foreground">
                 How your messages moved through WhatsApp
               </div>
             </div>
@@ -365,31 +365,31 @@ export default function OverviewPage() {
               label="Queued"
               count={stats?.totalMessages ?? 0}
               total={stats?.totalMessages ?? 0}
-              color="bg-clay-ink/70"
+              color="bg-foreground/70"
             />
             <FunnelBar
               label="Sent"
               count={stats?.totalSent ?? 0}
               total={stats?.totalMessages ?? 0}
-              color="bg-clay-blue"
+              color="bg-sky-500"
             />
             <FunnelBar
               label="Delivered"
               count={stats?.totalDelivered ?? 0}
               total={stats?.totalMessages ?? 0}
-              color="bg-clay-green"
+              color="bg-emerald-500"
             />
             <FunnelBar
               label="Read"
               count={stats?.totalRead ?? 0}
               total={stats?.totalMessages ?? 0}
-              color="bg-clay-amber"
+              color="bg-amber-500"
             />
             <FunnelBar
               label="Failed"
               count={stats?.totalFailed ?? 0}
               total={stats?.totalMessages ?? 0}
-              color="bg-clay-red"
+              color="bg-destructive"
             />
           </div>
         </ClayCard>
@@ -420,7 +420,7 @@ export default function OverviewPage() {
           <button
             type="button"
             onClick={() => router.push('/dashboard/integrations')}
-            className="mt-1.5 flex items-center justify-between px-2 text-[11.5px] text-clay-ink-muted hover:text-clay-ink transition-colors"
+            className="mt-1.5 flex items-center justify-between px-2 text-[11.5px] text-muted-foreground hover:text-foreground transition-colors"
           >
             <span>Connect an integration</span>
             <LuArrowUpRight className="h-3 w-3" strokeWidth={2} />
@@ -432,10 +432,10 @@ export default function OverviewPage() {
       <div>
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-[22px] font-semibold tracking-tight text-clay-ink leading-none">
+            <h2 className="text-[22px] font-semibold tracking-tight text-foreground leading-none">
               Recent Campaigns
             </h2>
-            <p className="mt-1.5 text-[12.5px] text-clay-ink-muted">
+            <p className="mt-1.5 text-[12.5px] text-muted-foreground">
               {stats?.totalCampaigns ?? 0} campaigns all-time ·{' '}
               {broadcasts.length} shown
             </p>
@@ -462,14 +462,14 @@ export default function OverviewPage() {
 
         <ClayCard padded={false} className="mt-5 p-6">
           {broadcasts.length === 0 ? (
-            <div className="flex flex-col items-center gap-2 rounded-clay-md border border-dashed border-clay-border bg-clay-surface-2 px-4 py-10 text-center">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-clay-bg text-clay-ink-muted">
+            <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-border bg-secondary px-4 py-10 text-center">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-background text-muted-foreground">
                 <LuMessagesSquare className="h-5 w-5" strokeWidth={1.5} />
               </div>
-              <div className="text-[13px] font-semibold text-clay-ink">
+              <div className="text-[13px] font-semibold text-foreground">
                 No campaigns yet
               </div>
-              <div className="max-w-[340px] text-[11.5px] text-clay-ink-muted">
+              <div className="max-w-[340px] text-[11.5px] text-muted-foreground">
                 Launch your first WhatsApp broadcast to reach your audience.
               </div>
               <ClayButton
@@ -490,10 +490,10 @@ export default function OverviewPage() {
                 const s = (b.status || '').toLowerCase();
                 const statusTone =
                   s === 'completed'
-                    ? 'bg-clay-green'
+                    ? 'bg-emerald-500'
                     : s === 'failed' || s === 'cancelled' || s === 'partial failure'
-                      ? 'bg-clay-red'
-                      : 'bg-clay-amber';
+                      ? 'bg-destructive'
+                      : 'bg-amber-500';
                 const createdDate = b.createdAt
                   ? new Date(b.createdAt as any)
                   : null;
@@ -505,12 +505,12 @@ export default function OverviewPage() {
                     meta={
                       <span className="flex items-center gap-2">
                         {b.templateName ? (
-                          <span className="font-medium text-clay-ink-2">
+                          <span className="font-medium text-foreground">
                             {b.templateName}
                           </span>
                         ) : null}
                         {b.templateName ? (
-                          <span className="text-clay-ink-fade">·</span>
+                          <span className="text-muted-foreground/70">·</span>
                         ) : null}
                         <span>
                           {createdDate
@@ -519,7 +519,7 @@ export default function OverviewPage() {
                               })
                             : 'unknown time'}
                         </span>
-                        <span className="text-clay-ink-fade">·</span>
+                        <span className="text-muted-foreground/70">·</span>
                         <span className="inline-flex items-center gap-1">
                           <span
                             className={cn(
@@ -534,10 +534,10 @@ export default function OverviewPage() {
                     trailing={
                       <>
                         <div className="flex flex-col items-end pr-1 text-[11.5px]">
-                          <div className="font-semibold text-clay-ink">
+                          <div className="font-semibold text-foreground">
                             {rate}%
                           </div>
-                          <div className="text-clay-ink-muted">
+                          <div className="text-muted-foreground">
                             {compact(delivered)}/{compact(total)}
                           </div>
                         </div>
@@ -549,7 +549,7 @@ export default function OverviewPage() {
                               `/dashboard/broadcasts/${b._id}/report`,
                             )
                           }
-                          className="flex h-7 w-7 items-center justify-center rounded-md text-clay-ink-muted hover:bg-clay-bg-2 hover:text-clay-ink transition-colors"
+                          className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                         >
                           <LuArrowUpRight
                             className="h-3.5 w-3.5"
@@ -583,7 +583,7 @@ type KpiAccent =
   | 'violet';
 
 const kpiAccent: Record<KpiAccent, string> = {
-  rose: 'bg-clay-rose-soft text-clay-rose-ink',
+  rose: 'bg-accent text-accent-foreground',
   green: 'bg-[#DCFCE7] text-[#166534]',
   teal: 'bg-[#CCFBF1] text-[#115E59]',
   indigo: 'bg-[#E0E7FF] text-[#3730A3]',
@@ -610,7 +610,7 @@ function Kpi({
   accent?: KpiAccent;
 }) {
   return (
-    <div className="rounded-[14px] border border-clay-border bg-clay-surface p-4 transition-[border-color,box-shadow] hover:border-clay-border-strong hover:shadow-clay-card">
+    <div className="rounded-[14px] border border-border bg-card p-4 transition-[border-color,box-shadow] hover:border-border hover:shadow-sm">
       <div className="flex items-start justify-between">
         <span
           className={cn(
@@ -627,8 +627,8 @@ function Kpi({
             className={cn(
               'inline-flex items-center gap-0.5 rounded-full px-2 py-1 text-[10px] font-semibold leading-none',
               up
-                ? 'bg-clay-green-soft text-clay-green'
-                : 'bg-clay-red-soft text-clay-red',
+                ? 'bg-emerald-50 text-emerald-500'
+                : 'bg-rose-50 text-destructive',
             )}
           >
             {up ? (
@@ -640,14 +640,14 @@ function Kpi({
           </span>
         ) : null}
       </div>
-      <div className="mt-3.5 text-[11.5px] font-medium text-clay-ink-muted leading-none">
+      <div className="mt-3.5 text-[11.5px] font-medium text-muted-foreground leading-none">
         {label}
       </div>
-      <div className="mt-1.5 text-[22px] font-semibold tracking-[-0.01em] text-clay-ink leading-none">
+      <div className="mt-1.5 text-[22px] font-semibold tracking-[-0.01em] text-foreground leading-none">
         {value}
       </div>
       {hint ? (
-        <div className="mt-1 text-[11px] text-clay-ink-muted leading-tight truncate">
+        <div className="mt-1 text-[11px] text-muted-foreground leading-tight truncate">
           {hint}
         </div>
       ) : null}
@@ -670,12 +670,12 @@ function FunnelBar({
   return (
     <div>
       <div className="flex items-center justify-between text-[11.5px]">
-        <span className="font-medium text-clay-ink">{label}</span>
-        <span className="text-clay-ink-muted">
+        <span className="font-medium text-foreground">{label}</span>
+        <span className="text-muted-foreground">
           {count.toLocaleString()} · {width}%
         </span>
       </div>
-      <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-clay-bg-2">
+      <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-muted">
         <div
           className={cn('h-full rounded-full transition-[width]', color)}
           style={{ width: `${width}%` }}

@@ -66,9 +66,9 @@ function SlabFormDialog({ onSave, slab }: { onSave: () => void; slab?: WithId<Cr
                     </DialogHeader>
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
-                            <Label>State <span className="text-clay-red">*</span></Label>
+                            <Label>State <span className="text-destructive">*</span></Label>
                             <Select name="state" required defaultValue={slab?.state}>
-                                <SelectTrigger className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
+                                <SelectTrigger className="h-10 rounded-lg border-border bg-card text-[13px]">
                                     <SelectValue placeholder="Select a state..." />
                                 </SelectTrigger>
                                 <SelectContent className="max-h-60">
@@ -78,20 +78,20 @@ function SlabFormDialog({ onSave, slab }: { onSave: () => void; slab?: WithId<Cr
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label>Min. Monthly Salary (₹) <span className="text-clay-red">*</span></Label>
+                                <Label>Min. Monthly Salary (₹) <span className="text-destructive">*</span></Label>
                                 <Input type="number" name="minSalary" defaultValue={slab?.minSalary} required
-                                    className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                                    className="h-10 rounded-lg border-border bg-card text-[13px]" />
                             </div>
                             <div className="space-y-2">
-                                <Label>Max. Monthly Salary (₹) <span className="text-clay-red">*</span></Label>
+                                <Label>Max. Monthly Salary (₹) <span className="text-destructive">*</span></Label>
                                 <Input type="number" name="maxSalary" defaultValue={slab?.maxSalary} required
-                                    className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                                    className="h-10 rounded-lg border-border bg-card text-[13px]" />
                             </div>
                         </div>
                         <div className="space-y-2">
-                            <Label>Monthly Tax Amount (₹) <span className="text-clay-red">*</span></Label>
+                            <Label>Monthly Tax Amount (₹) <span className="text-destructive">*</span></Label>
                             <Input type="number" name="taxAmount" defaultValue={slab?.taxAmount} required
-                                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                                className="h-10 rounded-lg border-border bg-card text-[13px]" />
                         </div>
                     </div>
                     <DialogFooter>
@@ -123,7 +123,7 @@ function DeleteSlabButton({ slabId, onDeleted }: { slabId: string; onDeleted: ()
     return (
         <AlertDialog>
             <AlertDialogTrigger asChild>
-                <ClayButton variant="ghost" size="icon" className="text-clay-red hover:text-clay-red">
+                <ClayButton variant="ghost" size="icon" className="text-destructive hover:text-destructive">
                     <Trash2 className="h-4 w-4" />
                 </ClayButton>
             </AlertDialogTrigger>
@@ -174,19 +174,19 @@ export default function ProfessionalTaxPage() {
 
             <div className="grid gap-4 md:grid-cols-3">
                 <ClayCard>
-                    <p className="text-[12.5px] font-medium text-clay-ink-muted">Total PT Liability</p>
-                    <div className="mt-2 text-2xl font-bold text-clay-ink">₹{totalPT.toLocaleString('en-IN')}</div>
-                    <p className="mt-1 text-[11.5px] text-clay-ink-muted">Current month across all employees</p>
+                    <p className="text-[12.5px] font-medium text-muted-foreground">Total PT Liability</p>
+                    <div className="mt-2 text-2xl font-bold text-foreground">₹{totalPT.toLocaleString('en-IN')}</div>
+                    <p className="mt-1 text-[11.5px] text-muted-foreground">Current month across all employees</p>
                 </ClayCard>
                 <ClayCard>
-                    <p className="text-[12.5px] font-medium text-clay-ink-muted">States Configured</p>
-                    <div className="mt-2 text-2xl font-bold text-clay-ink">{statesCount}</div>
-                    <p className="mt-1 text-[11.5px] text-clay-ink-muted">{slabs.length} total slabs defined</p>
+                    <p className="text-[12.5px] font-medium text-muted-foreground">States Configured</p>
+                    <div className="mt-2 text-2xl font-bold text-foreground">{statesCount}</div>
+                    <p className="mt-1 text-[11.5px] text-muted-foreground">{slabs.length} total slabs defined</p>
                 </ClayCard>
                 <ClayCard>
-                    <p className="text-[12.5px] font-medium text-clay-ink-muted">Employees Applicable</p>
-                    <div className="mt-2 text-2xl font-bold text-clay-ink">{report.length}</div>
-                    <p className="mt-1 text-[11.5px] text-clay-ink-muted">with matching state slab</p>
+                    <p className="text-[12.5px] font-medium text-muted-foreground">Employees Applicable</p>
+                    <div className="mt-2 text-2xl font-bold text-foreground">{report.length}</div>
+                    <p className="mt-1 text-[11.5px] text-muted-foreground">with matching state slab</p>
                 </ClayCard>
             </div>
 
@@ -195,53 +195,53 @@ export default function ProfessionalTaxPage() {
                 <div className="lg:col-span-2">
                     <ClayCard>
                         <div className="mb-4">
-                            <h2 className="text-[16px] font-semibold text-clay-ink">Professional Tax Report</h2>
-                            <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">
+                            <h2 className="text-[16px] font-semibold text-foreground">Professional Tax Report</h2>
+                            <p className="mt-0.5 text-[12.5px] text-muted-foreground">
                                 Calculated PT based on employee salary and defined state slabs.
                             </p>
                         </div>
-                        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                        <div className="overflow-x-auto rounded-lg border border-border">
                             <table className="w-full text-left text-[13px]">
                                 <thead>
-                                    <tr className="border-b border-clay-border bg-clay-surface-2">
-                                        <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Employee</th>
-                                        <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">State</th>
-                                        <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Gross Salary</th>
-                                        <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Applicable Slab</th>
-                                        <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Calculated PT</th>
+                                    <tr className="border-b border-border bg-secondary">
+                                        <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Employee</th>
+                                        <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">State</th>
+                                        <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Gross Salary</th>
+                                        <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Applicable Slab</th>
+                                        <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Calculated PT</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {isLoading ? (
                                         <tr>
                                             <td colSpan={5} className="h-48 text-center">
-                                                <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-clay-ink-muted" />
+                                                <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
                                             </td>
                                         </tr>
                                     ) : report.length > 0 ? (
                                         report.map((item, idx) => (
-                                            <tr key={item.employeeId ?? idx} className="border-b border-clay-border last:border-0 hover:bg-clay-surface-2/50 transition-colors">
+                                            <tr key={item.employeeId ?? idx} className="border-b border-border last:border-0 hover:bg-secondary/50 transition-colors">
                                                 <td className="px-4 py-3">
-                                                    <div className="font-medium text-clay-ink">{item.employeeName}</div>
-                                                    <div className="text-[11.5px] text-clay-ink-muted">{item.designation ?? '—'}</div>
+                                                    <div className="font-medium text-foreground">{item.employeeName}</div>
+                                                    <div className="text-[11.5px] text-muted-foreground">{item.designation ?? '—'}</div>
                                                 </td>
                                                 <td className="px-4 py-3">
                                                     <ClayBadge tone="neutral">{item.state}</ClayBadge>
                                                 </td>
-                                                <td className="px-4 py-3 text-right font-mono text-clay-ink">
+                                                <td className="px-4 py-3 text-right font-mono text-foreground">
                                                     {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(item.grossSalary)}
                                                 </td>
-                                                <td className="px-4 py-3 text-[12px] text-clay-ink-muted">
+                                                <td className="px-4 py-3 text-[12px] text-muted-foreground">
                                                     ₹{item.slabMin?.toLocaleString('en-IN') ?? '—'} – ₹{item.slabMax?.toLocaleString('en-IN') ?? '—'}
                                                 </td>
-                                                <td className="px-4 py-3 text-right font-mono font-semibold text-clay-ink">
+                                                <td className="px-4 py-3 text-right font-mono font-semibold text-foreground">
                                                     {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(item.taxAmount)}
                                                 </td>
                                             </tr>
                                         ))
                                     ) : (
                                         <tr>
-                                            <td colSpan={5} className="h-24 text-center text-[13px] text-clay-ink-muted">
+                                            <td colSpan={5} className="h-24 text-center text-[13px] text-muted-foreground">
                                                 No data. Add employees with salary and state info, then define slabs.
                                             </td>
                                         </tr>
@@ -249,9 +249,9 @@ export default function ProfessionalTaxPage() {
                                 </tbody>
                                 {report.length > 0 && (
                                     <tfoot>
-                                        <tr className="border-t-2 border-clay-border bg-clay-surface-2">
-                                            <td colSpan={4} className="px-4 py-3 text-[12.5px] font-semibold text-clay-ink">Total PT</td>
-                                            <td className="px-4 py-3 text-right font-mono text-[12.5px] font-bold text-clay-ink">
+                                        <tr className="border-t-2 border-border bg-secondary">
+                                            <td colSpan={4} className="px-4 py-3 text-[12.5px] font-semibold text-foreground">Total PT</td>
+                                            <td className="px-4 py-3 text-right font-mono text-[12.5px] font-bold text-foreground">
                                                 {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(totalPT)}
                                             </td>
                                         </tr>
@@ -267,29 +267,29 @@ export default function ProfessionalTaxPage() {
                     <ClayCard>
                         <div className="mb-4 flex items-center justify-between">
                             <div>
-                                <h2 className="text-[16px] font-semibold text-clay-ink">Tax Slabs</h2>
-                                <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">State-wise salary bands</p>
+                                <h2 className="text-[16px] font-semibold text-foreground">Tax Slabs</h2>
+                                <p className="mt-0.5 text-[12.5px] text-muted-foreground">State-wise salary bands</p>
                             </div>
                             <SlabFormDialog onSave={fetchData} />
                         </div>
 
                         {isLoading ? (
                             <div className="flex h-24 items-center justify-center">
-                                <LoaderCircle className="h-6 w-6 animate-spin text-clay-ink-muted" />
+                                <LoaderCircle className="h-6 w-6 animate-spin text-muted-foreground" />
                             </div>
                         ) : slabs.length > 0 ? (
                             <div className="space-y-2">
                                 {slabs.map(slab => (
-                                    <div key={slab._id.toString()} className="flex items-start justify-between rounded-clay-md border border-clay-border bg-clay-surface-2 p-3">
+                                    <div key={slab._id.toString()} className="flex items-start justify-between rounded-lg border border-border bg-secondary p-3">
                                         <div className="min-w-0 flex-1">
                                             <div className="flex items-center gap-2">
                                                 <ClayBadge tone="neutral">{slab.state}</ClayBadge>
                                             </div>
-                                            <p className="mt-1.5 text-[12px] text-clay-ink-muted">
+                                            <p className="mt-1.5 text-[12px] text-muted-foreground">
                                                 ₹{slab.minSalary.toLocaleString('en-IN')} – ₹{slab.maxSalary.toLocaleString('en-IN')}
                                             </p>
-                                            <p className="text-[13px] font-semibold text-clay-ink">
-                                                ₹{slab.taxAmount.toLocaleString('en-IN')}<span className="text-[11.5px] font-normal text-clay-ink-muted">/month</span>
+                                            <p className="text-[13px] font-semibold text-foreground">
+                                                ₹{slab.taxAmount.toLocaleString('en-IN')}<span className="text-[11.5px] font-normal text-muted-foreground">/month</span>
                                             </p>
                                         </div>
                                         <div className="flex items-center gap-0.5">
@@ -300,7 +300,7 @@ export default function ProfessionalTaxPage() {
                                 ))}
                             </div>
                         ) : (
-                            <div className="rounded-clay-md border border-dashed border-clay-border p-6 text-center text-[12.5px] text-clay-ink-muted">
+                            <div className="rounded-lg border border-dashed border-border p-6 text-center text-[12.5px] text-muted-foreground">
                                 No slabs configured. Click &ldquo;Add New Slab&rdquo; to start.
                             </div>
                         )}

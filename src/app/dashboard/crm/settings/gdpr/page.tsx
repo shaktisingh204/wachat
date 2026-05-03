@@ -134,7 +134,7 @@ export default function GdprSettingsPage() {
             ) : null}
 
             <section className="space-y-4">
-              <h2 className="text-[14px] font-semibold text-clay-ink">
+              <h2 className="text-[14px] font-semibold text-foreground">
                 Core controls
               </h2>
               <div className="grid gap-4 md:grid-cols-2">
@@ -142,7 +142,7 @@ export default function GdprSettingsPage() {
                   <div key={String(f.key)}>
                     <Label
                       htmlFor={String(f.key)}
-                      className="text-clay-ink"
+                      className="text-foreground"
                     >
                       {f.label}
                     </Label>
@@ -153,7 +153,7 @@ export default function GdprSettingsPage() {
                       >
                         <SelectTrigger
                           id={String(f.key)}
-                          className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                          className="h-10 rounded-lg border-border bg-card text-[13px]"
                         >
                           <SelectValue placeholder="Select" />
                         </SelectTrigger>
@@ -164,7 +164,7 @@ export default function GdprSettingsPage() {
                       </Select>
                     </div>
                     {f.hint ? (
-                      <p className="mt-1 text-[11.5px] text-clay-ink-muted">
+                      <p className="mt-1 text-[11.5px] text-muted-foreground">
                         {f.hint}
                       </p>
                     ) : null}
@@ -174,12 +174,12 @@ export default function GdprSettingsPage() {
             </section>
 
             <section className="space-y-4">
-              <h2 className="text-[14px] font-semibold text-clay-ink">
+              <h2 className="text-[14px] font-semibold text-foreground">
                 Cookie banner
               </h2>
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="md:col-span-2">
-                  <Label htmlFor="cookie_message" className="text-clay-ink">
+                  <Label htmlFor="cookie_message" className="text-foreground">
                     Cookie message
                   </Label>
                   <div className="mt-1.5">
@@ -188,7 +188,7 @@ export default function GdprSettingsPage() {
                       name="cookie_message"
                       rows={3}
                       defaultValue={value('cookie_message')}
-                      className="rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                      className="rounded-lg border-border bg-card text-[13px]"
                     />
                   </div>
                 </div>
@@ -196,7 +196,7 @@ export default function GdprSettingsPage() {
                 <div>
                   <Label
                     htmlFor="accept_cookie_btn_text"
-                    className="text-clay-ink"
+                    className="text-foreground"
                   >
                     Accept button text
                   </Label>
@@ -206,7 +206,7 @@ export default function GdprSettingsPage() {
                       name="accept_cookie_btn_text"
                       defaultValue={value('accept_cookie_btn_text')}
                       placeholder="Accept"
-                      className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                      className="h-10 rounded-lg border-border bg-card text-[13px]"
                     />
                   </div>
                 </div>
@@ -214,7 +214,7 @@ export default function GdprSettingsPage() {
                 <div>
                   <Label
                     htmlFor="decline_cookie_btn_text"
-                    className="text-clay-ink"
+                    className="text-foreground"
                   >
                     Decline button text
                   </Label>
@@ -224,7 +224,7 @@ export default function GdprSettingsPage() {
                       name="decline_cookie_btn_text"
                       defaultValue={value('decline_cookie_btn_text')}
                       placeholder="Decline"
-                      className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                      className="h-10 rounded-lg border-border bg-card text-[13px]"
                     />
                   </div>
                 </div>
@@ -232,7 +232,7 @@ export default function GdprSettingsPage() {
                 <div className="md:col-span-2">
                   <Label
                     htmlFor="privacy_policy_url"
-                    className="text-clay-ink"
+                    className="text-foreground"
                   >
                     Privacy policy URL
                   </Label>
@@ -243,7 +243,7 @@ export default function GdprSettingsPage() {
                       type="url"
                       defaultValue={value('privacy_policy_url')}
                       placeholder="https://example.com/privacy"
-                      className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                      className="h-10 rounded-lg border-border bg-card text-[13px]"
                     />
                   </div>
                 </div>
@@ -251,14 +251,14 @@ export default function GdprSettingsPage() {
             </section>
 
             <section className="space-y-4">
-              <h2 className="text-[14px] font-semibold text-clay-ink">
+              <h2 className="text-[14px] font-semibold text-foreground">
                 Data controller
               </h2>
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
                   <Label
                     htmlFor="data_controller_name"
-                    className="text-clay-ink"
+                    className="text-foreground"
                   >
                     Controller name
                   </Label>
@@ -267,7 +267,7 @@ export default function GdprSettingsPage() {
                       id="data_controller_name"
                       name="data_controller_name"
                       defaultValue={value('data_controller_name')}
-                      className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                      className="h-10 rounded-lg border-border bg-card text-[13px]"
                     />
                   </div>
                 </div>
@@ -275,7 +275,7 @@ export default function GdprSettingsPage() {
                 <div>
                   <Label
                     htmlFor="data_controller_email"
-                    className="text-clay-ink"
+                    className="text-foreground"
                   >
                     Controller email
                   </Label>
@@ -285,7 +285,7 @@ export default function GdprSettingsPage() {
                       name="data_controller_email"
                       type="email"
                       defaultValue={value('data_controller_email')}
-                      className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                      className="h-10 rounded-lg border-border bg-card text-[13px]"
                     />
                   </div>
                 </div>
@@ -293,7 +293,7 @@ export default function GdprSettingsPage() {
                 <div>
                   <Label
                     htmlFor="retention_period_days"
-                    className="text-clay-ink"
+                    className="text-foreground"
                   >
                     Retention period (days)
                   </Label>
@@ -305,7 +305,7 @@ export default function GdprSettingsPage() {
                       min={0}
                       defaultValue={value('retention_period_days')}
                       placeholder="365"
-                      className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                      className="h-10 rounded-lg border-border bg-card text-[13px]"
                     />
                   </div>
                 </div>

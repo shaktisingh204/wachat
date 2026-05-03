@@ -27,7 +27,7 @@ type FormState = { message?: string; error?: string; id?: string };
 const initialState: FormState = {};
 
 const inputClass =
-  'h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]';
+  'h-10 rounded-lg border-border bg-card text-[13px]';
 
 function ToggleRow({
   name,
@@ -42,13 +42,13 @@ function ToggleRow({
 }) {
   const [checked, setChecked] = useState<boolean>(!!defaultChecked);
   return (
-    <div className="flex items-start justify-between gap-4 rounded-clay-md border border-clay-border bg-clay-surface/50 px-4 py-3">
+    <div className="flex items-start justify-between gap-4 rounded-lg border border-border bg-card/50 px-4 py-3">
       <div className="flex-1">
-        <Label htmlFor={name} className="text-[13px] font-medium text-clay-ink">
+        <Label htmlFor={name} className="text-[13px] font-medium text-foreground">
           {label}
         </Label>
         {description ? (
-          <p className="mt-0.5 text-[12px] text-clay-ink-muted">{description}</p>
+          <p className="mt-0.5 text-[12px] text-muted-foreground">{description}</p>
         ) : null}
       </div>
       <Switch id={name} checked={checked} onCheckedChange={setChecked} />
@@ -109,12 +109,12 @@ export default function AttendanceSettingsPage() {
         <ClayCard>
           <form action={formAction} className="space-y-6">
             <section className="space-y-4">
-              <h3 className="text-[13px] font-semibold uppercase tracking-wide text-clay-ink-muted">
+              <h3 className="text-[13px] font-semibold uppercase tracking-wide text-muted-foreground">
                 Office Hours
               </h3>
               <div className="grid gap-4 md:grid-cols-3">
                 <div>
-                  <Label htmlFor="office_start_time" className="text-[13px] text-clay-ink">
+                  <Label htmlFor="office_start_time" className="text-[13px] text-foreground">
                     Start Time
                   </Label>
                   <Input
@@ -126,7 +126,7 @@ export default function AttendanceSettingsPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="office_end_time" className="text-[13px] text-clay-ink">
+                  <Label htmlFor="office_end_time" className="text-[13px] text-foreground">
                     End Time
                   </Label>
                   <Input
@@ -138,7 +138,7 @@ export default function AttendanceSettingsPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="office_hours" className="text-[13px] text-clay-ink">
+                  <Label htmlFor="office_hours" className="text-[13px] text-foreground">
                     Office Hours
                   </Label>
                   <Input
@@ -154,12 +154,12 @@ export default function AttendanceSettingsPage() {
             </section>
 
             <section className="space-y-4">
-              <h3 className="text-[13px] font-semibold uppercase tracking-wide text-clay-ink-muted">
+              <h3 className="text-[13px] font-semibold uppercase tracking-wide text-muted-foreground">
                 Lateness & Half-day Rules
               </h3>
               <div className="grid gap-4 md:grid-cols-3">
                 <div>
-                  <Label htmlFor="late_mark_after" className="text-[13px] text-clay-ink">
+                  <Label htmlFor="late_mark_after" className="text-[13px] text-foreground">
                     Late After (minutes)
                   </Label>
                   <Input
@@ -174,7 +174,7 @@ export default function AttendanceSettingsPage() {
                 <div>
                   <Label
                     htmlFor="early_clock_in_allowed"
-                    className="text-[13px] text-clay-ink"
+                    className="text-[13px] text-foreground"
                   >
                     Early Clock-in (minutes)
                   </Label>
@@ -188,7 +188,7 @@ export default function AttendanceSettingsPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="half_day_after" className="text-[13px] text-clay-ink">
+                  <Label htmlFor="half_day_after" className="text-[13px] text-foreground">
                     Half-day After (hours)
                   </Label>
                   <Input
@@ -205,7 +205,7 @@ export default function AttendanceSettingsPage() {
             </section>
 
             <section className="space-y-3">
-              <h3 className="text-[13px] font-semibold uppercase tracking-wide text-clay-ink-muted">
+              <h3 className="text-[13px] font-semibold uppercase tracking-wide text-muted-foreground">
                 Check-in Methods
               </h3>
               <div className="grid gap-3 md:grid-cols-2">
@@ -243,12 +243,12 @@ export default function AttendanceSettingsPage() {
             </section>
 
             <section className="space-y-2">
-              <h3 className="text-[13px] font-semibold uppercase tracking-wide text-clay-ink-muted">
+              <h3 className="text-[13px] font-semibold uppercase tracking-wide text-muted-foreground">
                 IP Whitelist
               </h3>
               <Label
                 htmlFor="allowed_ip_addresses"
-                className="text-[13px] text-clay-ink"
+                className="text-[13px] text-foreground"
               >
                 Allowed IP addresses
               </Label>
@@ -258,9 +258,9 @@ export default function AttendanceSettingsPage() {
                 rows={4}
                 placeholder="One IP per line, or comma-separated&#10;203.0.113.42&#10;203.0.113.43"
                 defaultValue={ipListInitial}
-                className="mt-1.5 rounded-clay-md border-clay-border bg-clay-surface text-[13px] font-mono"
+                className="mt-1.5 rounded-lg border-border bg-card text-[13px] font-mono"
               />
-              <p className="text-[12px] text-clay-ink-muted">
+              <p className="text-[12px] text-muted-foreground">
                 Leave empty to allow check-in from any network.
               </p>
             </section>

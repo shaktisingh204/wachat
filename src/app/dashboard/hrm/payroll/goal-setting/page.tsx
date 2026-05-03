@@ -84,13 +84,13 @@ const PRIORITY_TONES: Record<string, 'red' | 'amber' | 'neutral'> = {
 function ProgressBar({ value }: { value: number }) {
   const pct = Math.min(100, Math.max(0, value || 0));
   const color =
-    pct >= 100 ? 'bg-green-500' : pct >= 50 ? 'bg-clay-amber' : 'bg-clay-border-strong';
+    pct >= 100 ? 'bg-green-500' : pct >= 50 ? 'bg-amber-500' : 'bg-border';
   return (
     <div className="space-y-1">
-      <div className="h-1.5 w-full overflow-hidden rounded-full bg-clay-border">
+      <div className="h-1.5 w-full overflow-hidden rounded-full bg-border">
         <div className={`h-full rounded-full ${color}`} style={{ width: `${pct}%` }} />
       </div>
-      <p className="text-right text-[11.5px] tabular-nums text-clay-ink-muted">{pct}%</p>
+      <p className="text-right text-[11.5px] tabular-nums text-muted-foreground">{pct}%</p>
     </div>
   );
 }
@@ -131,49 +131,49 @@ function GoalFormDialog({
             <input type="hidden" name="id" value={goal._id.toString()} />
           )}
           <DialogHeader>
-            <DialogTitle className="text-clay-ink">
+            <DialogTitle className="text-foreground">
               {isEditing ? 'Edit Goal' : 'Create Goal'}
             </DialogTitle>
-            <DialogDescription className="text-clay-ink-muted">
+            <DialogDescription className="text-muted-foreground">
               Set a clear objective with a due date and priority.
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
             <div className="space-y-1.5">
-              <Label className="text-clay-ink">
-                Title <span className="text-clay-red">*</span>
+              <Label className="text-foreground">
+                Title <span className="text-destructive">*</span>
               </Label>
               <Input
                 name="title"
                 defaultValue={goal?.title}
                 required
                 placeholder="e.g. Launch new product feature"
-                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-clay-ink">Description</Label>
+              <Label className="text-foreground">Description</Label>
               <Textarea
                 name="description"
                 defaultValue={goal?.description}
                 rows={3}
                 placeholder="Describe the goal in detail…"
-                className="rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="rounded-lg border-border bg-card text-[13px]"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <Label className="text-clay-ink">
+                <Label className="text-foreground">
                   Assign To
                 </Label>
                 <Select
                   name="assigneeId"
                   defaultValue={goal?.assigneeId?.toString() ?? ''}
                 >
-                  <SelectTrigger className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
+                  <SelectTrigger className="h-10 rounded-lg border-border bg-card text-[13px]">
                     <SelectValue placeholder="Select employee…" />
                   </SelectTrigger>
                   <SelectContent>
@@ -187,8 +187,8 @@ function GoalFormDialog({
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-clay-ink">
-                  Due Date <span className="text-clay-red">*</span>
+                <Label className="text-foreground">
+                  Due Date <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   name="targetDate"
@@ -199,16 +199,16 @@ function GoalFormDialog({
                       ? new Date(goal.targetDate).toISOString().slice(0, 10)
                       : ''
                   }
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-1.5">
-                <Label className="text-clay-ink">Priority</Label>
+                <Label className="text-foreground">Priority</Label>
                 <Select name="priority" defaultValue={(goal as any)?.priority ?? 'medium'}>
-                  <SelectTrigger className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
+                  <SelectTrigger className="h-10 rounded-lg border-border bg-card text-[13px]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -222,12 +222,12 @@ function GoalFormDialog({
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-clay-ink">Status</Label>
+                <Label className="text-foreground">Status</Label>
                 <Select
                   name="status"
                   defaultValue={(goal?.status as string) ?? 'not-started'}
                 >
-                  <SelectTrigger className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
+                  <SelectTrigger className="h-10 rounded-lg border-border bg-card text-[13px]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -241,14 +241,14 @@ function GoalFormDialog({
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-clay-ink">Progress (%)</Label>
+                <Label className="text-foreground">Progress (%)</Label>
                 <Input
                   name="progress"
                   type="number"
                   min={0}
                   max={100}
                   defaultValue={goal?.progress ?? 0}
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
@@ -294,7 +294,7 @@ function GoalCard({
   return (
     <ClayCard className="flex flex-col gap-3">
       <div className="flex items-start justify-between gap-2">
-        <h3 className="text-[15px] font-semibold text-clay-ink">{goal.title}</h3>
+        <h3 className="text-[15px] font-semibold text-foreground">{goal.title}</h3>
         <div className="flex shrink-0 gap-1">
           {priority && (
             <ClayBadge tone={PRIORITY_TONES[priority] ?? 'neutral'}>
@@ -308,19 +308,19 @@ function GoalCard({
       </div>
 
       {goal.targetDate && (
-        <p className="text-[12.5px] text-clay-ink-muted">
+        <p className="text-[12.5px] text-muted-foreground">
           Due: {format(new Date(goal.targetDate), 'PPP')}
         </p>
       )}
 
       {goal.description && (
-        <p className="line-clamp-2 text-[13px] text-clay-ink-muted">{goal.description}</p>
+        <p className="line-clamp-2 text-[13px] text-muted-foreground">{goal.description}</p>
       )}
 
       <ProgressBar value={goal.progress ?? 0} />
 
       {(goal as any).assigneeInfo && (
-        <p className="text-[12.5px] text-clay-ink">
+        <p className="text-[12.5px] text-foreground">
           Assigned to:{' '}
           <span className="font-semibold">
             {(goal as any).assigneeInfo.firstName} {(goal as any).assigneeInfo.lastName}
@@ -332,7 +332,7 @@ function GoalCard({
         <ClayButton
           variant="pill"
           size="sm"
-          leading={<Trash2 className="h-3.5 w-3.5 text-clay-red" strokeWidth={1.75} />}
+          leading={<Trash2 className="h-3.5 w-3.5 text-destructive" strokeWidth={1.75} />}
           onClick={onDelete}
         />
         <ClayButton
@@ -404,8 +404,8 @@ export default function GoalSettingPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-clay-ink">Delete Goal?</AlertDialogTitle>
-            <AlertDialogDescription className="text-clay-ink-muted">
+            <AlertDialogTitle className="text-foreground">Delete Goal?</AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground">
               This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -436,7 +436,7 @@ export default function GoalSettingPage() {
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {[0, 1, 2].map((i) => (
               <ClayCard key={i}>
-                <div className="h-32 animate-pulse rounded-clay-md bg-clay-surface-2" />
+                <div className="h-32 animate-pulse rounded-lg bg-secondary" />
               </ClayCard>
             ))}
           </div>
@@ -454,11 +454,11 @@ export default function GoalSettingPage() {
         ) : (
           <ClayCard variant="outline" className="border-dashed">
             <div className="flex flex-col items-center gap-3 py-12 text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-clay-md bg-clay-rose-soft">
-                <Target className="h-6 w-6 text-clay-rose-ink" strokeWidth={1.75} />
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent">
+                <Target className="h-6 w-6 text-accent-foreground" strokeWidth={1.75} />
               </div>
-              <h3 className="text-[15px] font-semibold text-clay-ink">No Goals Yet</h3>
-              <p className="text-[12.5px] text-clay-ink-muted">
+              <h3 className="text-[15px] font-semibold text-foreground">No Goals Yet</h3>
+              <p className="text-[12.5px] text-muted-foreground">
                 Create a new goal to get started.
               </p>
               <ClayButton

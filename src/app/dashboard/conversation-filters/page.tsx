@@ -56,12 +56,12 @@ export default function ConversationFiltersPage() {
     });
   };
 
-  const inputCls = 'rounded-lg border border-clay-border bg-clay-bg px-3 py-2 text-sm text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-accent focus:outline-none';
+  const inputCls = 'rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none';
 
   if (isLoading) {
     return (
       <div className="flex min-h-[300px] items-center justify-center">
-        <LuLoader className="h-6 w-6 animate-spin text-clay-ink-muted" />
+        <LuLoader className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -76,8 +76,8 @@ export default function ConversationFiltersPage() {
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">Conversation Filters</h1>
-          <p className="mt-1.5 text-[13px] text-clay-ink-muted">Create saved filter presets to quickly find conversations.</p>
+          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">Conversation Filters</h1>
+          <p className="mt-1.5 text-[13px] text-muted-foreground">Create saved filter presets to quickly find conversations.</p>
         </div>
         <ClayButton size="sm" onClick={() => setShowForm(!showForm)}>
           <LuPlus className="mr-1.5 h-3.5 w-3.5" /> New Filter
@@ -86,7 +86,7 @@ export default function ConversationFiltersPage() {
 
       {showForm && (
         <ClayCard padded={false} className="p-5">
-          <h2 className="text-[15px] font-semibold text-clay-ink mb-4">Create Filter</h2>
+          <h2 className="text-[15px] font-semibold text-foreground mb-4">Create Filter</h2>
           <div className="grid gap-3 sm:grid-cols-2 max-w-2xl">
             <input className={inputCls} placeholder="Filter name *" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
             <select className={inputCls} value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
@@ -120,7 +120,7 @@ export default function ConversationFiltersPage() {
             return (
               <ClayCard key={f._id} padded={false} className="p-5">
                 <div className="flex items-start justify-between gap-2">
-                  <h3 className="text-[15px] font-semibold text-clay-ink">{f.name}</h3>
+                  <h3 className="text-[15px] font-semibold text-foreground">{f.name}</h3>
                   <button onClick={() => handleDelete(f._id)} disabled={isMutating}
                     className="flex h-7 w-7 items-center justify-center rounded-md text-red-500 hover:bg-red-50 transition-colors shrink-0" aria-label="Delete">
                     <LuTrash2 className="h-3.5 w-3.5" />
@@ -143,8 +143,8 @@ export default function ConversationFiltersPage() {
         </div>
       ) : (
         <ClayCard className="p-12 text-center">
-          <LuFilter className="mx-auto h-12 w-12 text-clay-ink-muted/30 mb-4" />
-          <p className="text-sm text-clay-ink-muted">No saved filters yet.</p>
+          <LuFilter className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
+          <p className="text-sm text-muted-foreground">No saved filters yet.</p>
         </ClayCard>
       )}
       <div className="h-6" />

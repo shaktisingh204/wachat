@@ -24,9 +24,9 @@ type ReconciliationData = {
 };
 
 const StatCard = ({ title, value }: { title: string; value: string | number }) => (
-    <div className="p-3 bg-clay-surface-2 rounded-clay-md border border-clay-border">
-        <p className="text-[12.5px] text-clay-ink-muted">{title}</p>
-        <p className="text-[18px] font-bold text-clay-ink">{typeof value === 'number' ? `₹${value.toLocaleString('en-IN')}` : value}</p>
+    <div className="p-3 bg-secondary rounded-lg border border-border">
+        <p className="text-[12.5px] text-muted-foreground">{title}</p>
+        <p className="text-[18px] font-bold text-foreground">{typeof value === 'number' ? `₹${value.toLocaleString('en-IN')}` : value}</p>
     </div>
 );
 
@@ -179,7 +179,7 @@ export default function BankReconciliationPage() {
                     <div className="space-y-2"><Label>Bank Account</Label><Select value={selectedAccountId} onValueChange={setSelectedAccountId}><SelectTrigger><SelectValue placeholder="Select Account..." /></SelectTrigger><SelectContent>{accounts.map(acc => <SelectItem key={acc._id.toString()} value={acc._id.toString()}>{acc.accountName}</SelectItem>)}</SelectContent></Select></div>
                     <div className="space-y-2"><Label>From</Label><DatePicker date={startDate} setDate={setStartDate} /></div>
                     <div className="space-y-2"><Label>To</Label><DatePicker date={endDate} setDate={setEndDate} /></div>
-                    <div className="space-y-2"><Label>Bank Statement (CSV)</Label><Input type="file" accept=".csv" onChange={(e) => setStatementFile(e.target.files?.[0] || null)} className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" /></div>
+                    <div className="space-y-2"><Label>Bank Statement (CSV)</Label><Input type="file" accept=".csv" onChange={(e) => setStatementFile(e.target.files?.[0] || null)} className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
                 </div>
                 <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
                     <div className="flex gap-2">
@@ -210,16 +210,16 @@ export default function BankReconciliationPage() {
 
 const TransactionTable = ({ title, entries, matchedIds, onMatchToggle, totalDebit, totalCredit, isBankStatement = false }: { title: string, entries: any[], matchedIds: Set<string>, onMatchToggle: (id: string) => void, totalDebit: number, totalCredit: number, isBankStatement?: boolean }) => (
     <ClayCard>
-        <h3 className="mb-4 text-[15px] font-semibold text-clay-ink">{title}</h3>
-        <div className="overflow-x-auto rounded-clay-md border border-clay-border max-h-96 overflow-y-auto">
+        <h3 className="mb-4 text-[15px] font-semibold text-foreground">{title}</h3>
+        <div className="overflow-x-auto rounded-lg border border-border max-h-96 overflow-y-auto">
             <Table>
-                <TableHeader className="sticky top-0 bg-clay-surface">
-                    <TableRow className="border-clay-border hover:bg-transparent">
-                        <TableHead className="w-10 text-clay-ink-muted"><Check className="h-4 w-4"/></TableHead>
-                        <TableHead className="text-clay-ink-muted">Date</TableHead>
-                        <TableHead className="text-clay-ink-muted">Description</TableHead>
-                        <TableHead className="text-right text-clay-ink-muted">Debit</TableHead>
-                        <TableHead className="text-right text-clay-ink-muted">Credit</TableHead>
+                <TableHeader className="sticky top-0 bg-card">
+                    <TableRow className="border-border hover:bg-transparent">
+                        <TableHead className="w-10 text-muted-foreground"><Check className="h-4 w-4"/></TableHead>
+                        <TableHead className="text-muted-foreground">Date</TableHead>
+                        <TableHead className="text-muted-foreground">Description</TableHead>
+                        <TableHead className="text-right text-muted-foreground">Debit</TableHead>
+                        <TableHead className="text-right text-muted-foreground">Credit</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -227,19 +227,19 @@ const TransactionTable = ({ title, entries, matchedIds, onMatchToggle, totalDebi
                          const debit = isBankStatement ? (entry.amount > 0 ? entry.amount : 0) : (entry.type === 'debit' ? entry.amount : 0);
                          const credit = isBankStatement ? (entry.amount < 0 ? Math.abs(entry.amount) : 0) : (entry.type === 'credit' ? entry.amount : 0);
                         return (
-                            <TableRow key={entry._id} className="border-clay-border" data-state={matchedIds.has(entry._id) ? 'selected' : ''}>
+                            <TableRow key={entry._id} className="border-border" data-state={matchedIds.has(entry._id) ? 'selected' : ''}>
                                 <TableCell><Checkbox checked={matchedIds.has(entry._id)} onCheckedChange={() => onMatchToggle(entry._id)} /></TableCell>
-                                <TableCell className="text-xs text-clay-ink">{format(new Date(entry.date), 'dd MMM')}</TableCell>
-                                <TableCell className="text-xs text-clay-ink">{entry.description}</TableCell>
-                                <TableCell className="text-right text-xs font-mono text-clay-ink">{debit > 0 ? debit.toFixed(2) : ''}</TableCell>
-                                <TableCell className="text-right text-xs font-mono text-clay-ink">{credit > 0 ? credit.toFixed(2) : ''}</TableCell>
+                                <TableCell className="text-xs text-foreground">{format(new Date(entry.date), 'dd MMM')}</TableCell>
+                                <TableCell className="text-xs text-foreground">{entry.description}</TableCell>
+                                <TableCell className="text-right text-xs font-mono text-foreground">{debit > 0 ? debit.toFixed(2) : ''}</TableCell>
+                                <TableCell className="text-right text-xs font-mono text-foreground">{credit > 0 ? credit.toFixed(2) : ''}</TableCell>
                             </TableRow>
                         )
                     })}
                 </TableBody>
             </Table>
         </div>
-        <div className="flex justify-end gap-6 mt-4 font-semibold text-[13px] pt-2 border-t border-clay-border text-clay-ink">
+        <div className="flex justify-end gap-6 mt-4 font-semibold text-[13px] pt-2 border-t border-border text-foreground">
             <div className="text-right">Debit: <span className="font-mono">₹{totalDebit.toFixed(2)}</span></div>
             <div className="text-right">Credit: <span className="font-mono">₹{totalCredit.toFixed(2)}</span></div>
         </div>

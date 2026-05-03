@@ -104,11 +104,11 @@ export default function TimeTrackingReportsPage() {
       <ClayCard>
         <div className="flex flex-wrap items-end gap-3">
           <div className="min-w-[180px] flex-1">
-            <Label className="text-[11px] uppercase tracking-[0.18em] text-clay-ink-muted">
+            <Label className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
               Group by
             </Label>
             <Select value={group} onValueChange={(v) => setGroup(v as Group)}>
-              <SelectTrigger className="mt-1 h-9 rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
+              <SelectTrigger className="mt-1 h-9 rounded-lg border-border bg-card text-[13px]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -119,25 +119,25 @@ export default function TimeTrackingReportsPage() {
             </Select>
           </div>
           <div className="min-w-[140px] flex-1">
-            <Label className="text-[11px] uppercase tracking-[0.18em] text-clay-ink-muted">
+            <Label className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
               From
             </Label>
             <Input
               type="date"
               value={from}
               onChange={(e) => setFrom(e.target.value)}
-              className="mt-1 h-9 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+              className="mt-1 h-9 rounded-lg border-border bg-card text-[13px]"
             />
           </div>
           <div className="min-w-[140px] flex-1">
-            <Label className="text-[11px] uppercase tracking-[0.18em] text-clay-ink-muted">
+            <Label className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
               To
             </Label>
             <Input
               type="date"
               value={to}
               onChange={(e) => setTo(e.target.value)}
-              className="mt-1 h-9 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+              className="mt-1 h-9 rounded-lg border-border bg-card text-[13px]"
             />
           </div>
           <ClayButton
@@ -162,13 +162,13 @@ export default function TimeTrackingReportsPage() {
       </ClayCard>
 
       <ClayCard>
-        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <Table>
             <TableHeader>
-              <TableRow className="border-clay-border hover:bg-transparent">
-                <TableHead className="text-clay-ink-muted">{groupLabel}</TableHead>
-                <TableHead className="text-clay-ink-muted">Entries</TableHead>
-                <TableHead className="text-right text-clay-ink-muted">
+              <TableRow className="border-border hover:bg-transparent">
+                <TableHead className="text-muted-foreground">{groupLabel}</TableHead>
+                <TableHead className="text-muted-foreground">Entries</TableHead>
+                <TableHead className="text-right text-muted-foreground">
                   Hours
                 </TableHead>
               </TableRow>
@@ -176,35 +176,35 @@ export default function TimeTrackingReportsPage() {
             <TableBody>
               {isLoading && rows.length === 0 ? (
                 [0, 1, 2].map((i) => (
-                  <TableRow key={i} className="border-clay-border">
+                  <TableRow key={i} className="border-border">
                     <TableCell colSpan={3}>
                       <Skeleton className="h-8 w-full" />
                     </TableCell>
                   </TableRow>
                 ))
               ) : rows.length === 0 ? (
-                <TableRow className="border-clay-border">
+                <TableRow className="border-border">
                   <TableCell
                     colSpan={3}
-                    className="h-24 text-center text-[13px] text-clay-ink-muted"
+                    className="h-24 text-center text-[13px] text-muted-foreground"
                   >
                     No logged time for the selected range.
                   </TableCell>
                 </TableRow>
               ) : (
                 rows.map((r) => (
-                  <TableRow key={r.key} className="border-clay-border">
-                    <TableCell className="text-[13px] text-clay-ink">
+                  <TableRow key={r.key} className="border-border">
+                    <TableCell className="text-[13px] text-foreground">
                       {r.label === 'unknown' ? (
-                        <span className="text-clay-ink-muted">(unassigned)</span>
+                        <span className="text-muted-foreground">(unassigned)</span>
                       ) : (
                         <span className="font-mono text-[12.5px]">{r.label}</span>
                       )}
                     </TableCell>
-                    <TableCell className="text-[13px] text-clay-ink-muted">
+                    <TableCell className="text-[13px] text-muted-foreground">
                       {r.entries}
                     </TableCell>
-                    <TableCell className="text-right font-mono tabular-nums text-[13px] text-clay-ink">
+                    <TableCell className="text-right font-mono tabular-nums text-[13px] text-foreground">
                       {r.totalHours}h {String(r.totalMinutes).padStart(2, '0')}m
                     </TableCell>
                   </TableRow>
@@ -213,11 +213,11 @@ export default function TimeTrackingReportsPage() {
             </TableBody>
           </Table>
           {rows.length > 0 ? (
-            <div className="flex items-center justify-between border-t border-clay-border bg-clay-surface-2 px-4 py-3 text-[13px]">
-              <span className="text-[11.5px] uppercase tracking-[0.1em] text-clay-ink-muted">
+            <div className="flex items-center justify-between border-t border-border bg-secondary px-4 py-3 text-[13px]">
+              <span className="text-[11.5px] uppercase tracking-[0.1em] text-muted-foreground">
                 Total
               </span>
-              <span className="font-mono font-semibold tabular-nums text-clay-ink">
+              <span className="font-mono font-semibold tabular-nums text-foreground">
                 {Math.floor(grandMinutes / 60)}h{' '}
                 {String(grandMinutes % 60).padStart(2, '0')}m
               </span>

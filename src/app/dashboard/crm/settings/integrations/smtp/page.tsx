@@ -106,7 +106,7 @@ export default function SmtpIntegrationPage() {
 
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <Label htmlFor="mail_driver" className="text-clay-ink">
+              <Label htmlFor="mail_driver" className="text-foreground">
                 Mail Driver
               </Label>
               <div className="mt-1.5">
@@ -115,13 +115,13 @@ export default function SmtpIntegrationPage() {
                   name="mail_driver"
                   defaultValue={v('mail_driver') || 'smtp'}
                   placeholder="smtp"
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="encryption" className="text-clay-ink">
+              <Label htmlFor="encryption" className="text-foreground">
                 Encryption
               </Label>
               <div className="mt-1.5">
@@ -130,13 +130,13 @@ export default function SmtpIntegrationPage() {
                   name="encryption"
                   defaultValue={v('encryption')}
                   placeholder="tls / ssl"
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="host" className="text-clay-ink">
+              <Label htmlFor="host" className="text-foreground">
                 Host
               </Label>
               <div className="mt-1.5">
@@ -145,13 +145,13 @@ export default function SmtpIntegrationPage() {
                   name="host"
                   defaultValue={v('host')}
                   placeholder="smtp.example.com"
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="port" className="text-clay-ink">
+              <Label htmlFor="port" className="text-foreground">
                 Port
               </Label>
               <div className="mt-1.5">
@@ -160,13 +160,13 @@ export default function SmtpIntegrationPage() {
                   name="port"
                   defaultValue={v('port')}
                   placeholder="587"
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="username" className="text-clay-ink">
+              <Label htmlFor="username" className="text-foreground">
                 Username
               </Label>
               <div className="mt-1.5">
@@ -174,13 +174,13 @@ export default function SmtpIntegrationPage() {
                   id="username"
                   name="username"
                   defaultValue={v('username')}
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="password" className="text-clay-ink">
+              <Label htmlFor="password" className="text-foreground">
                 Password
               </Label>
               <div className="mt-1.5">
@@ -189,13 +189,13 @@ export default function SmtpIntegrationPage() {
                   name="password"
                   type="password"
                   defaultValue={v('password')}
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="from_email" className="text-clay-ink">
+              <Label htmlFor="from_email" className="text-foreground">
                 From Email
               </Label>
               <div className="mt-1.5">
@@ -204,13 +204,13 @@ export default function SmtpIntegrationPage() {
                   name="from_email"
                   type="email"
                   defaultValue={v('from_email')}
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="from_name" className="text-clay-ink">
+              <Label htmlFor="from_name" className="text-foreground">
                 From Name
               </Label>
               <div className="mt-1.5">
@@ -218,7 +218,7 @@ export default function SmtpIntegrationPage() {
                   id="from_name"
                   name="from_name"
                   defaultValue={v('from_name')}
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>

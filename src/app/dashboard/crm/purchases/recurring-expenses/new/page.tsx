@@ -86,33 +86,33 @@ export default function NewRecurringExpensePage() {
       <ClayCard>
         <div className="grid gap-4 md:grid-cols-3">
           <div className="space-y-1.5 md:col-span-2">
-            <Label className="text-clay-ink">Name</Label>
+            <Label className="text-foreground">Name</Label>
             <Input name="name" required placeholder="e.g. AWS hosting" />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-clay-ink">Currency</Label>
+            <Label className="text-foreground">Currency</Label>
             <Input name="currency" defaultValue="INR" maxLength={5} />
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-clay-ink">Amount</Label>
+            <Label className="text-foreground">Amount</Label>
             <Input name="amount" type="number" step="0.01" required />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-clay-ink">Vendor</Label>
+            <Label className="text-foreground">Vendor</Label>
             <Input name="vendor" />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-clay-ink">Category</Label>
+            <Label className="text-foreground">Category</Label>
             <Input name="category_name" placeholder="e.g. Utilities" />
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-clay-ink">Every</Label>
+            <Label className="text-foreground">Every</Label>
             <Input name="frequency_count" type="number" min={1} defaultValue={1} />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-clay-ink">Frequency</Label>
+            <Label className="text-foreground">Frequency</Label>
             <Select value={frequency} onValueChange={(v) => setFrequency(v as any)}>
               <SelectTrigger>
                 <SelectValue />
@@ -126,25 +126,25 @@ export default function NewRecurringExpensePage() {
             </Select>
           </div>
           <div className="space-y-1.5">
-            <Label className="text-clay-ink">Start Date</Label>
+            <Label className="text-foreground">Start Date</Label>
             <Input name="start_date" type="date" defaultValue={startDate} />
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-clay-ink">Until Date (optional)</Label>
+            <Label className="text-foreground">Until Date (optional)</Label>
             <Input name="until_date" type="date" />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-clay-ink">Stop after N runs (optional)</Label>
+            <Label className="text-foreground">Stop after N runs (optional)</Label>
             <Input name="stop_at_count" type="number" min={0} />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-clay-ink">Payment Method</Label>
+            <Label className="text-foreground">Payment Method</Label>
             <Input name="payment_method" placeholder="Cash, Card, Bank, ..." />
           </div>
 
           <div className="space-y-1.5 md:col-span-3">
-            <Label className="text-clay-ink">Notes</Label>
+            <Label className="text-foreground">Notes</Label>
             <Textarea name="notes" rows={3} />
           </div>
         </div>

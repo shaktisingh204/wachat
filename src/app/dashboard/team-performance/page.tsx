@@ -59,10 +59,10 @@ export default function TeamPerformancePage() {
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">
+          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
             Team Performance
           </h1>
-          <p className="mt-1.5 max-w-[720px] text-[13px] text-clay-ink-muted">
+          <p className="mt-1.5 max-w-[720px] text-[13px] text-muted-foreground">
             Agent activity over the last 30 days — messages sent and average response time.
           </p>
         </div>
@@ -76,7 +76,7 @@ export default function TeamPerformancePage() {
         <ClayCard padded={false} className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-clay-border text-[11px] font-semibold uppercase tracking-wide text-clay-ink-muted">
+              <tr className="border-b border-border text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                 <th className="px-5 py-3">Agent</th>
                 <th className="px-5 py-3">Messages Sent</th>
                 <th className="px-5 py-3">Avg Response Time</th>
@@ -85,18 +85,18 @@ export default function TeamPerformancePage() {
             </thead>
             <tbody>
               {agents.map((a) => (
-                <tr key={a._id} className="border-b border-clay-border last:border-0">
-                  <td className="px-5 py-3 text-[13px] font-medium text-clay-ink">{a.agentName}</td>
-                  <td className="px-5 py-3 font-mono text-[13px] text-clay-ink tabular-nums">
+                <tr key={a._id} className="border-b border-border last:border-0">
+                  <td className="px-5 py-3 text-[13px] font-medium text-foreground">{a.agentName}</td>
+                  <td className="px-5 py-3 font-mono text-[13px] text-foreground tabular-nums">
                     {a.messagesSent ?? 0}
                   </td>
-                  <td className="px-5 py-3 text-[13px] text-clay-ink-muted">
+                  <td className="px-5 py-3 text-[13px] text-muted-foreground">
                     {formatResponseTime(a.avgResponseMs)}
                   </td>
                   <td className="px-5 py-3">
-                    <div className="h-3 w-full rounded-full bg-clay-bg-2">
+                    <div className="h-3 w-full rounded-full bg-muted">
                       <div
-                        className="h-3 rounded-full bg-gradient-to-r from-clay-rose to-clay-accent transition-all"
+                        className="h-3 rounded-full bg-gradient-to-r from-primary to-accent transition-all"
                         style={{ width: `${((a.messagesSent ?? 0) / maxMessages) * 100}%` }}
                       />
                     </div>
@@ -109,8 +109,8 @@ export default function TeamPerformancePage() {
       ) : (
         !isPending && (
           <ClayCard className="p-12 text-center">
-            <LuUsers className="mx-auto h-12 w-12 text-clay-ink-muted/30 mb-4" />
-            <p className="text-sm text-clay-ink-muted">No agent activity recorded yet.</p>
+            <LuUsers className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
+            <p className="text-sm text-muted-foreground">No agent activity recorded yet.</p>
           </ClayCard>
         )
       )}

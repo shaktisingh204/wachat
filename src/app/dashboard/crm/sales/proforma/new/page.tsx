@@ -60,20 +60,20 @@ const LineItemsTable = ({ items, setItems, currency }: { items: InvoiceLineItem[
 
     return (
         <div className="mt-6">
-            <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+            <div className="overflow-x-auto rounded-lg border border-border">
                 <table className="w-full text-sm">
-                    <thead className="bg-clay-surface-2">
-                        <tr className="border-b border-clay-border">
-                            <th className="p-3 text-left font-medium text-clay-ink">Item</th>
-                            <th className="p-3 text-right font-medium text-clay-ink">Quantity</th>
-                            <th className="p-3 text-right font-medium text-clay-ink">Rate</th>
-                            <th className="p-3 text-right font-medium text-clay-ink">Amount</th>
+                    <thead className="bg-secondary">
+                        <tr className="border-b border-border">
+                            <th className="p-3 text-left font-medium text-foreground">Item</th>
+                            <th className="p-3 text-right font-medium text-foreground">Quantity</th>
+                            <th className="p-3 text-right font-medium text-foreground">Rate</th>
+                            <th className="p-3 text-right font-medium text-foreground">Amount</th>
                             <th className="p-3"></th>
                         </tr>
                     </thead>
                     <tbody>
                         {items.map((item) => (
-                            <tr key={item.id} className="border-b border-clay-border">
+                            <tr key={item.id} className="border-b border-border">
                                 <td className="p-2"><Input placeholder="Name/SKU Id (Required)" value={item.name} onChange={e => handleItemChange(item.id, 'name', e.target.value)} required /></td>
                                 <td className="p-2"><Input type="number" className="w-24 text-right" value={item.quantity} onChange={e => handleItemChange(item.id, 'quantity', Number(e.target.value))} /></td>
                                 <td className="p-2"><Input type="number" className="w-32 text-right" value={item.rate} onChange={e => handleItemChange(item.id, 'rate', Number(e.target.value))} /></td>
@@ -90,7 +90,7 @@ const LineItemsTable = ({ items, setItems, currency }: { items: InvoiceLineItem[
             <Separator />
             <div className="p-4 flex justify-end">
                 <div className="w-full max-w-sm space-y-2">
-                    <div className="flex justify-between items-center"><span className="text-clay-ink-muted">Total ({currency})</span><span className="font-bold text-lg text-clay-ink">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalAmount)}</span></div>
+                    <div className="flex justify-between items-center"><span className="text-muted-foreground">Total ({currency})</span><span className="font-bold text-lg text-foreground">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalAmount)}</span></div>
                 </div>
             </div>
         </div>
@@ -152,19 +152,19 @@ export default function NewProformaInvoicePage() {
                     <ClayCard variant="floating" padded={false} className="max-w-4xl mx-auto p-4 sm:p-8 md:p-12">
                         <div className="p-0">
                             <header className="mb-8">
-                                <h1 className="text-3xl font-bold text-clay-ink">Proforma Invoice</h1>
+                                <h1 className="text-3xl font-bold text-foreground">Proforma Invoice</h1>
                             </header>
 
                             <Separator className="my-8" />
 
                             <section className="grid md:grid-cols-2 gap-8 text-sm mb-8">
                                 <div>
-                                    <h3 className="font-semibold mb-2 text-clay-ink">From:</h3>
+                                    <h3 className="font-semibold mb-2 text-foreground">From:</h3>
                                     <p className="font-bold">{yourBusinessDetails.name}</p>
-                                    <p className="text-clay-ink-muted">{yourBusinessDetails.address}</p>
+                                    <p className="text-muted-foreground">{yourBusinessDetails.address}</p>
                                 </div>
                                 <div>
-                                    <h3 className="font-semibold mb-2 text-clay-ink">To:</h3>
+                                    <h3 className="font-semibold mb-2 text-foreground">To:</h3>
                                     <SmartClientSelect
                                         value={selectedClientId}
                                         onSelect={setSelectedClientId}
@@ -180,9 +180,9 @@ export default function NewProformaInvoicePage() {
                             </section>
 
                             <section className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-                                <div className="space-y-1"><Label className="text-xs text-clay-ink">Proforma No.</Label><Input name="invoiceNumber" defaultValue="PI-00001" className="h-8" /></div>
-                                <div className="space-y-1"><Label className="text-xs text-clay-ink">Date</Label><DatePicker date={invoiceDate} setDate={setInvoiceDate} className="h-8" /></div>
-                                <div className="space-y-1"><Label className="text-xs text-clay-ink">Due Date</Label><DatePicker date={dueDate} setDate={setDueDate} className="h-8" /></div>
+                                <div className="space-y-1"><Label className="text-xs text-foreground">Proforma No.</Label><Input name="invoiceNumber" defaultValue="PI-00001" className="h-8" /></div>
+                                <div className="space-y-1"><Label className="text-xs text-foreground">Date</Label><DatePicker date={invoiceDate} setDate={setInvoiceDate} className="h-8" /></div>
+                                <div className="space-y-1"><Label className="text-xs text-foreground">Due Date</Label><DatePicker date={dueDate} setDate={setDueDate} className="h-8" /></div>
                             </section>
 
                             <section>

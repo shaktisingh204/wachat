@@ -49,31 +49,31 @@ export default async function AgentPerformancePage(props: {
       </div>
 
       <ClayCard>
-        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <Table>
             <TableHeader>
-              <TableRow className="border-clay-border hover:bg-transparent">
-                <TableHead className="text-clay-ink-muted">Agent</TableHead>
-                <TableHead className="text-right text-clay-ink-muted">
+              <TableRow className="border-border hover:bg-transparent">
+                <TableHead className="text-muted-foreground">Agent</TableHead>
+                <TableHead className="text-right text-muted-foreground">
                   Total
                 </TableHead>
-                <TableHead className="text-right text-clay-ink-muted">
+                <TableHead className="text-right text-muted-foreground">
                   Resolved
                 </TableHead>
-                <TableHead className="text-right text-clay-ink-muted">
+                <TableHead className="text-right text-muted-foreground">
                   Resolution rate
                 </TableHead>
-                <TableHead className="text-right text-clay-ink-muted">
+                <TableHead className="text-right text-muted-foreground">
                   Avg resolution
                 </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {rows.length === 0 ? (
-                <TableRow className="border-clay-border">
+                <TableRow className="border-border">
                   <TableCell
                     colSpan={5}
-                    className="h-20 text-center text-[13px] text-clay-ink-muted"
+                    className="h-20 text-center text-[13px] text-muted-foreground"
                   >
                     No tickets in this range.
                   </TableCell>
@@ -82,24 +82,24 @@ export default async function AgentPerformancePage(props: {
                 rows.map((r) => {
                   const rate = r.total ? (r.resolved / r.total) * 100 : 0;
                   return (
-                    <TableRow key={r.agent} className="border-clay-border">
-                      <TableCell className="font-medium text-clay-ink">
+                    <TableRow key={r.agent} className="border-border">
+                      <TableCell className="font-medium text-foreground">
                         {r.agent}
                       </TableCell>
-                      <TableCell className="text-right text-[13px] text-clay-ink">
+                      <TableCell className="text-right text-[13px] text-foreground">
                         {r.total}
                       </TableCell>
-                      <TableCell className="text-right text-[13px] text-clay-green">
+                      <TableCell className="text-right text-[13px] text-emerald-500">
                         {r.resolved}
                       </TableCell>
                       <TableCell
                         className={`text-right text-[13px] ${
-                          rate >= 70 ? 'text-clay-green' : 'text-clay-amber'
+                          rate >= 70 ? 'text-emerald-500' : 'text-amber-500'
                         }`}
                       >
                         {rate.toFixed(0)}%
                       </TableCell>
-                      <TableCell className="text-right text-[13px] text-clay-blue">
+                      <TableCell className="text-right text-[13px] text-sky-500">
                         {fmtMinutes(r.avgResolutionMinutes)}
                       </TableCell>
                     </TableRow>

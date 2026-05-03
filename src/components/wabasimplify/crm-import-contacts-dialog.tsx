@@ -70,15 +70,15 @@ export function CrmImportContactsDialog({ onImported }: CrmImportContactsDialogP
       <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden p-0">
         <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
           <DialogHeader className="px-6 pt-6 pb-2">
-            <DialogTitle className="text-clay-ink">Import Contacts</DialogTitle>
-            <DialogDescription className="text-clay-ink-muted">
+            <DialogTitle className="text-foreground">Import Contacts</DialogTitle>
+            <DialogDescription className="text-muted-foreground">
               Upload a CSV or XLSX file. Ensure columns match: `name`, `email`, `phone`, `company`, `jobTitle`, `status`, `leadScore`.
             </DialogDescription>
           </DialogHeader>
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="grid gap-4">
               <div className="space-y-2">
-                <Label htmlFor="contactFile" className="text-clay-ink">File</Label>
+                <Label htmlFor="contactFile" className="text-foreground">File</Label>
                 <Input id="contactFile" name="contactFile" type="file" accept=".csv,.xlsx" required />
               </div>
             </div>

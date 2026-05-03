@@ -66,10 +66,10 @@ export default function LinkTrackingPage() {
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">
+          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
             Link Tracking
           </h1>
-          <p className="mt-1.5 max-w-[720px] text-[13px] text-clay-ink-muted">
+          <p className="mt-1.5 max-w-[720px] text-[13px] text-muted-foreground">
             Track clicks on links sent through WhatsApp messages.
           </p>
         </div>
@@ -82,12 +82,12 @@ export default function LinkTrackingPage() {
       {/* Stat cards */}
       <div className="flex gap-4">
         <ClayCard className="p-5">
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-clay-ink-muted">Total Clicks</div>
-          <div className="mt-1 text-[28px] font-semibold text-clay-ink tabular-nums">{totalClicks}</div>
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Total Clicks</div>
+          <div className="mt-1 text-[28px] font-semibold text-foreground tabular-nums">{totalClicks}</div>
         </ClayCard>
         <ClayCard className="p-5">
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-clay-ink-muted">Unique Links</div>
-          <div className="mt-1 text-[28px] font-semibold text-clay-ink tabular-nums">{uniqueLinks}</div>
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Unique Links</div>
+          <div className="mt-1 text-[28px] font-semibold text-foreground tabular-nums">{uniqueLinks}</div>
         </ClayCard>
       </div>
 
@@ -95,7 +95,7 @@ export default function LinkTrackingPage() {
         <ClayCard padded={false} className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-clay-border text-[11px] font-semibold uppercase tracking-wide text-clay-ink-muted">
+              <tr className="border-b border-border text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                 <th className="px-5 py-3">URL</th>
                 <th className="px-5 py-3">Clicks</th>
                 <th className="px-5 py-3">Last Clicked</th>
@@ -103,19 +103,19 @@ export default function LinkTrackingPage() {
             </thead>
             <tbody>
               {grouped.map((g) => (
-                <tr key={g.url} className="border-b border-clay-border last:border-0">
+                <tr key={g.url} className="border-b border-border last:border-0">
                   <td className="px-5 py-3 max-w-[400px]">
                     <a
                       href={g.url} target="_blank" rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 text-[13px] text-clay-accent hover:underline truncate"
+                      className="flex items-center gap-1.5 text-[13px] text-accent hover:underline truncate"
                       title={g.url}
                     >
                       <LuLink className="h-3.5 w-3.5 shrink-0" />
                       {g.url.length > 60 ? `${g.url.slice(0, 60)}...` : g.url}
                     </a>
                   </td>
-                  <td className="px-5 py-3 font-mono text-[13px] text-clay-ink tabular-nums">{g.count}</td>
-                  <td className="px-5 py-3 text-[12px] text-clay-ink-muted whitespace-nowrap">
+                  <td className="px-5 py-3 font-mono text-[13px] text-foreground tabular-nums">{g.count}</td>
+                  <td className="px-5 py-3 text-[12px] text-muted-foreground whitespace-nowrap">
                     {g.lastClicked ? new Date(g.lastClicked).toLocaleString() : '--'}
                   </td>
                 </tr>
@@ -126,8 +126,8 @@ export default function LinkTrackingPage() {
       ) : (
         !isPending && (
           <ClayCard className="p-12 text-center">
-            <LuMousePointerClick className="mx-auto h-12 w-12 text-clay-ink-muted/30 mb-4" />
-            <p className="text-sm text-clay-ink-muted">No link clicks recorded yet.</p>
+            <LuMousePointerClick className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
+            <p className="text-sm text-muted-foreground">No link clicks recorded yet.</p>
           </ClayCard>
         )
       )}

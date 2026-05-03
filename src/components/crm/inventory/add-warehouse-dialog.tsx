@@ -87,15 +87,15 @@ export function AddWarehouseDialog({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle className="text-clay-ink">Add Warehouse</DialogTitle>
-                    <DialogDescription className="text-clay-ink-muted">
+                    <DialogTitle className="text-foreground">Add Warehouse</DialogTitle>
+                    <DialogDescription className="text-muted-foreground">
                         Create a new warehouse location.
                     </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit}>
                     <div className="grid gap-4 py-4">
                         <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="name" className="text-right text-clay-ink">
+                            <Label htmlFor="name" className="text-right text-foreground">
                                 Name
                             </Label>
                             <Input
@@ -107,7 +107,7 @@ export function AddWarehouseDialog({
                             />
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="location" className="text-right text-clay-ink">
+                            <Label htmlFor="location" className="text-right text-foreground">
                                 Location
                             </Label>
                             <Input

@@ -25,16 +25,16 @@ export function CrmPageHeader({
     <div className={cn('flex flex-wrap items-start justify-between gap-4', className)}>
       <div className="flex items-start gap-3">
         {Icon ? (
-          <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-clay-md bg-clay-rose-soft">
-            <Icon className="h-5 w-5 text-clay-rose-ink" strokeWidth={1.75} />
+          <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent">
+            <Icon className="h-5 w-5 text-accent-foreground" strokeWidth={1.75} />
           </div>
         ) : null}
         <div className="min-w-0">
-          <h1 className="text-[26px] font-semibold leading-tight tracking-tight text-clay-ink">
+          <h1 className="text-[26px] font-semibold leading-tight tracking-tight text-foreground">
             {title}
           </h1>
           {subtitle ? (
-            <p className="mt-1 text-[13px] text-clay-ink-muted">{subtitle}</p>
+            <p className="mt-1 text-[13px] text-muted-foreground">{subtitle}</p>
           ) : null}
         </div>
       </div>

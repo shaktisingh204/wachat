@@ -95,29 +95,29 @@ export default function AutoReplyRulesPage() {
       />
 
       <div className="min-w-0">
-        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">
+        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
           Auto-Reply Rules
         </h1>
-        <p className="mt-1.5 text-[13px] text-clay-ink-muted">
+        <p className="mt-1.5 text-[13px] text-muted-foreground">
           Set up keyword-based auto-reply rules for incoming WhatsApp messages.
         </p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 max-w-md">
-        <div className="rounded-[14px] border border-clay-border bg-clay-surface p-4">
-          <div className="text-[11px] font-medium uppercase tracking-wide text-clay-ink-muted">Total Rules</div>
-          <div className="mt-2 text-[22px] font-semibold text-clay-ink leading-none">{totalRules}</div>
+        <div className="rounded-[14px] border border-border bg-card p-4">
+          <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Total Rules</div>
+          <div className="mt-2 text-[22px] font-semibold text-foreground leading-none">{totalRules}</div>
         </div>
-        <div className="rounded-[14px] border border-clay-border bg-clay-surface p-4">
-          <div className="text-[11px] font-medium uppercase tracking-wide text-clay-ink-muted">Active Rules</div>
-          <div className="mt-2 text-[22px] font-semibold text-clay-ink leading-none">{activeRules}</div>
+        <div className="rounded-[14px] border border-border bg-card p-4">
+          <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Active Rules</div>
+          <div className="mt-2 text-[22px] font-semibold text-foreground leading-none">{activeRules}</div>
         </div>
       </div>
 
       {/* Create form */}
       <ClayCard padded={false} className="p-6">
-        <h2 className="text-[16px] font-semibold text-clay-ink mb-4">Create a rule</h2>
+        <h2 className="text-[16px] font-semibold text-foreground mb-4">Create a rule</h2>
         <form action={formAction} className="grid gap-4 sm:grid-cols-2 max-w-2xl">
           <input type="hidden" name="projectId" value={projectId || ''} />
           <input type="hidden" name="matchType" value={matchType} />
@@ -150,7 +150,7 @@ export default function AutoReplyRulesPage() {
           <Input name="timeTo" type="time" placeholder="Active to" />
           <div className="flex items-center gap-2 sm:col-span-2">
             <Switch checked={isActive} onCheckedChange={setIsActive} id="rule-active" />
-            <label htmlFor="rule-active" className="text-[13px] text-clay-ink">Active</label>
+            <label htmlFor="rule-active" className="text-[13px] text-foreground">Active</label>
           </div>
           <div className="sm:col-span-2">
             <ClayButton
@@ -168,16 +168,16 @@ export default function AutoReplyRulesPage() {
 
       {/* Rules table */}
       <ClayCard padded={false} className="p-6">
-        <h2 className="text-[16px] font-semibold text-clay-ink mb-4">Rules</h2>
+        <h2 className="text-[16px] font-semibold text-foreground mb-4">Rules</h2>
         {isLoading && rules.length === 0 ? (
           <div className="flex h-20 items-center justify-center">
-            <LuLoader className="h-5 w-5 animate-spin text-clay-ink-muted" strokeWidth={1.75} />
+            <LuLoader className="h-5 w-5 animate-spin text-muted-foreground" strokeWidth={1.75} />
           </div>
         ) : rules.length === 0 ? (
-          <div className="flex flex-col items-center gap-2 rounded-clay-md border border-dashed border-clay-border bg-clay-surface-2 px-4 py-10 text-center">
-            <LuBot className="h-5 w-5 text-clay-ink-muted" strokeWidth={1.5} />
-            <div className="text-[13px] font-semibold text-clay-ink">No rules yet</div>
-            <div className="text-[11.5px] text-clay-ink-muted">Create your first auto-reply rule above.</div>
+          <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-border bg-secondary px-4 py-10 text-center">
+            <LuBot className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
+            <div className="text-[13px] font-semibold text-foreground">No rules yet</div>
+            <div className="text-[11.5px] text-muted-foreground">Create your first auto-reply rule above.</div>
           </div>
         ) : (
           <Table>
@@ -205,8 +205,8 @@ export default function AutoReplyRulesPage() {
                       )}
                     </div>
                   </TableCell>
-                  <TableCell className="text-[13px] text-clay-ink-muted">{rule.matchType}</TableCell>
-                  <TableCell className="max-w-[160px] truncate text-[13px] text-clay-ink-muted">
+                  <TableCell className="text-[13px] text-muted-foreground">{rule.matchType}</TableCell>
+                  <TableCell className="max-w-[160px] truncate text-[13px] text-muted-foreground">
                     {rule.responseText || rule.templateName || '-'}
                   </TableCell>
                   <TableCell>
@@ -219,7 +219,7 @@ export default function AutoReplyRulesPage() {
                       type="button"
                       onClick={() => handleDelete(rule._id)}
                       disabled={deletingId === rule._id}
-                      className="flex h-7 w-7 items-center justify-center rounded-md text-clay-red hover:bg-clay-red-soft transition-colors ml-auto"
+                      className="flex h-7 w-7 items-center justify-center rounded-md text-destructive hover:bg-rose-50 transition-colors ml-auto"
                       aria-label="Delete rule"
                     >
                       <LuTrash2 className="h-3.5 w-3.5" strokeWidth={1.75} />

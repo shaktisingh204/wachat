@@ -31,18 +31,18 @@ export function ClayNotificationCard({
       className={cn(
         'group flex w-full items-center gap-2.5 rounded-[12px] border px-3 py-2.5 text-left transition-colors',
         tone === 'obsidian'
-          ? 'border-clay-obsidian bg-clay-obsidian text-white hover:bg-clay-obsidian-hover'
-          : 'border-clay-border bg-clay-surface text-clay-ink hover:bg-clay-surface-2',
+          ? 'border-foreground bg-foreground text-white hover:bg-foreground/90'
+          : 'border-border bg-card text-foreground hover:bg-secondary',
         className,
       )}
     >
       {icon ? (
         <span
           className={cn(
-            'flex h-7 w-7 shrink-0 items-center justify-center rounded-clay-sm',
+            'flex h-7 w-7 shrink-0 items-center justify-center rounded-md',
             tone === 'obsidian'
               ? 'bg-white/10 text-white'
-              : 'bg-clay-bg-2 text-clay-ink-muted',
+              : 'bg-muted text-muted-foreground',
           )}
         >
           {icon}
@@ -54,7 +54,7 @@ export function ClayNotificationCard({
       <LuArrowUpRight
         className={cn(
           'h-3.5 w-3.5 shrink-0 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5',
-          tone === 'obsidian' ? 'text-white/70' : 'text-clay-ink-fade',
+          tone === 'obsidian' ? 'text-white/70' : 'text-muted-foreground/70',
         )}
         strokeWidth={2}
       />

@@ -263,9 +263,9 @@ function StatTile({
     return (
         <ClayCard padded={false} className="flex items-center gap-3 p-4">
             <div>
-                <div className="text-[11px] font-medium uppercase tracking-[0.06em] text-clay-ink-soft">{label}</div>
+                <div className="text-[11px] font-medium uppercase tracking-[0.06em] text-muted-foreground">{label}</div>
                 <div className="flex items-center gap-2">
-                    <div className="text-[22px] font-semibold tracking-[-0.01em] text-clay-ink">{value}</div>
+                    <div className="text-[22px] font-semibold tracking-[-0.01em] text-foreground">{value}</div>
                     {tone === 'red' && value > 0 ? <ClayBadge tone="red" dot>Attention</ClayBadge> : null}
                 </div>
             </div>
@@ -318,8 +318,8 @@ function Column({
                 if (taskId) onMove(taskId, status);
             }}
             className={
-                'flex min-h-[300px] flex-col gap-3 rounded-clay-lg border border-clay-border bg-clay-surface p-4 transition-colors ' +
-                (dropActive ? 'border-clay-rose bg-clay-rose-soft/40' : '')
+                'flex min-h-[300px] flex-col gap-3 rounded-xl border border-border bg-card p-4 transition-colors ' +
+                (dropActive ? 'border-primary bg-accent/40' : '')
             }
         >
             <div className="flex items-center justify-between">
@@ -327,12 +327,12 @@ function Column({
                     <ClayBadge tone={tone[status]} dot>
                         {status}
                     </ClayBadge>
-                    <span className="text-[12px] text-clay-ink-muted">{tasks.length}</span>
+                    <span className="text-[12px] text-muted-foreground">{tasks.length}</span>
                 </div>
             </div>
 
             {tasks.length === 0 ? (
-                <div className="flex flex-1 items-center justify-center rounded-clay-md border border-dashed border-clay-border p-6 text-[12.5px] text-clay-ink-soft">
+                <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-border p-6 text-[12.5px] text-muted-foreground">
                     Drop tasks here
                 </div>
             ) : (
@@ -393,20 +393,20 @@ function TaskCard({
                 e.dataTransfer.setData('text/taskId', id);
                 e.dataTransfer.effectAllowed = 'move';
             }}
-            className="flex flex-col gap-2 rounded-clay-md border border-clay-border bg-clay-surface p-3 shadow-clay-xs transition-[transform,box-shadow] hover:-translate-y-0.5 hover:shadow-clay-float"
+            className="flex flex-col gap-2 rounded-lg border border-border bg-card p-3 shadow-sm transition-[transform,box-shadow] hover:-translate-y-0.5 hover:shadow-md"
         >
             <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0 flex-1">
-                    <div className="text-[13.5px] font-medium leading-snug text-clay-ink">{task.title}</div>
+                    <div className="text-[13.5px] font-medium leading-snug text-foreground">{task.title}</div>
                     {task.description ? (
-                        <div className="mt-0.5 line-clamp-2 text-[12px] text-clay-ink-muted">{task.description}</div>
+                        <div className="mt-0.5 line-clamp-2 text-[12px] text-muted-foreground">{task.description}</div>
                     ) : null}
                 </div>
                 {canDelete ? (
                     <button
                         type="button"
                         onClick={() => onDelete(id)}
-                        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-clay-ink-soft hover:bg-clay-red-soft/60 hover:text-clay-red"
+                        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-rose-50/60 hover:text-destructive"
                         aria-label="Delete task"
                     >
                         <LuTrash2 className="h-3.5 w-3.5" strokeWidth={1.75} />
@@ -460,11 +460,11 @@ function AssigneeChip({
             className={
                 'inline-flex items-center gap-1.5 rounded-full border px-2 h-6 text-[11.5px] ' +
                 (task.assignedTo
-                    ? 'border-clay-border bg-clay-surface-2 text-clay-ink'
-                    : 'border-dashed border-clay-border bg-clay-surface text-clay-ink-soft')
+                    ? 'border-border bg-secondary text-foreground'
+                    : 'border-dashed border-border bg-card text-muted-foreground')
             }
         >
-            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-clay-rose-soft text-[9px] font-semibold text-clay-rose-ink">
+            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[9px] font-semibold text-accent-foreground">
                 {task.assignedTo ? initial : '?'}
             </span>
             <span className="max-w-[120px] truncate">{name}</span>
@@ -478,9 +478,9 @@ function AssigneeChip({
                     {chip}
                 </button>
             </DialogTrigger>
-            <DialogContent className="max-w-sm border border-clay-border bg-clay-surface p-4 shadow-clay-pop">
+            <DialogContent className="max-w-sm border border-border bg-card p-4 shadow-lg">
                 <DialogHeader>
-                    <DialogTitle className="text-[15px] font-semibold text-clay-ink">Assign task</DialogTitle>
+                    <DialogTitle className="text-[15px] font-semibold text-foreground">Assign task</DialogTitle>
                 </DialogHeader>
                 <div className="mt-3 flex max-h-[280px] flex-col gap-1 overflow-auto">
                     <button
@@ -489,9 +489,9 @@ function AssigneeChip({
                             setOpen(false);
                             onReassign(null);
                         }}
-                        className="flex items-center justify-between rounded-clay-sm px-2 py-2 text-left text-[13px] hover:bg-clay-surface-2"
+                        className="flex items-center justify-between rounded-md px-2 py-2 text-left text-[13px] hover:bg-secondary"
                     >
-                        <span className="text-clay-ink-muted">Unassign</span>
+                        <span className="text-muted-foreground">Unassign</span>
                         {!task.assignedTo ? <LuCheck className="h-3.5 w-3.5" /> : null}
                     </button>
                     {assignees.map((a) => {
@@ -505,20 +505,20 @@ function AssigneeChip({
                                     onReassign(a._id);
                                 }}
                                 className={
-                                    'flex items-center justify-between rounded-clay-sm px-2 py-2 text-left text-[13px] hover:bg-clay-surface-2 ' +
-                                    (active ? 'bg-clay-rose-soft/40' : '')
+                                    'flex items-center justify-between rounded-md px-2 py-2 text-left text-[13px] hover:bg-secondary ' +
+                                    (active ? 'bg-accent/40' : '')
                                 }
                             >
                                 <span className="flex items-center gap-2">
-                                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-clay-surface-2 text-[10px] font-semibold text-clay-ink">
+                                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-secondary text-[10px] font-semibold text-foreground">
                                         {a.name.charAt(0).toUpperCase()}
                                     </span>
                                     <span>
-                                        <span className="block text-clay-ink">{a.name}</span>
-                                        <span className="block text-[11px] text-clay-ink-soft">{a.email}</span>
+                                        <span className="block text-foreground">{a.name}</span>
+                                        <span className="block text-[11px] text-muted-foreground">{a.email}</span>
                                     </span>
                                 </span>
-                                {active ? <LuCheck className="h-3.5 w-3.5 text-clay-rose-ink" /> : null}
+                                {active ? <LuCheck className="h-3.5 w-3.5 text-accent-foreground" /> : null}
                             </button>
                         );
                     })}
@@ -535,12 +535,12 @@ function StatusMenu({ status, onMove }: { status: Status; onMove: (s: Status) =>
             <DialogTrigger asChild>
                 <button
                     type="button"
-                    className="inline-flex h-6 items-center gap-1 rounded-full border border-clay-border bg-clay-surface-2 px-2 text-[11.5px] text-clay-ink-muted hover:text-clay-ink"
+                    className="inline-flex h-6 items-center gap-1 rounded-full border border-border bg-secondary px-2 text-[11.5px] text-muted-foreground hover:text-foreground"
                 >
                     Move <LuChevronDown className="h-3 w-3" />
                 </button>
             </DialogTrigger>
-            <DialogContent className="max-w-xs border border-clay-border bg-clay-surface p-3 shadow-clay-pop">
+            <DialogContent className="max-w-xs border border-border bg-card p-3 shadow-lg">
                 <div className="flex flex-col gap-1">
                     {STATUSES.map((s) => (
                         <button
@@ -551,12 +551,12 @@ function StatusMenu({ status, onMove }: { status: Status; onMove: (s: Status) =>
                                 onMove(s);
                             }}
                             className={
-                                'flex items-center justify-between rounded-clay-sm px-2 py-2 text-left text-[13px] hover:bg-clay-surface-2 ' +
-                                (s === status ? 'bg-clay-rose-soft/40' : '')
+                                'flex items-center justify-between rounded-md px-2 py-2 text-left text-[13px] hover:bg-secondary ' +
+                                (s === status ? 'bg-accent/40' : '')
                             }
                         >
                             <span>{s}</span>
-                            {s === status ? <LuCheck className="h-3.5 w-3.5 text-clay-rose-ink" /> : null}
+                            {s === status ? <LuCheck className="h-3.5 w-3.5 text-accent-foreground" /> : null}
                         </button>
                     ))}
                 </div>
@@ -610,11 +610,11 @@ function CreateTaskDialog({
                     New task
                 </ClayButton>
             </DialogTrigger>
-            <DialogContent className="max-w-md overflow-hidden border border-clay-border bg-clay-surface p-0 shadow-clay-pop">
-                <div className="h-[6px] w-full bg-clay-rose" />
+            <DialogContent className="max-w-md overflow-hidden border border-border bg-card p-0 shadow-lg">
+                <div className="h-[6px] w-full bg-primary" />
                 <div className="p-6">
                     <DialogHeader>
-                        <DialogTitle className="text-[20px] font-semibold tracking-[-0.01em] text-clay-ink">
+                        <DialogTitle className="text-[20px] font-semibold tracking-[-0.01em] text-foreground">
                             New task
                         </DialogTitle>
                     </DialogHeader>
@@ -686,7 +686,7 @@ function CreateTaskDialog({
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
     return (
         <div className="flex flex-col gap-1.5">
-            <label className="text-[11.5px] font-medium uppercase tracking-[0.06em] text-clay-ink-soft">{label}</label>
+            <label className="text-[11.5px] font-medium uppercase tracking-[0.06em] text-muted-foreground">{label}</label>
             {children}
         </div>
     );
@@ -696,10 +696,10 @@ function KanbanSkeleton() {
     return (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             {STATUSES.map((s) => (
-                <div key={s} className="flex h-[280px] flex-col gap-3 rounded-clay-lg border border-clay-border bg-clay-surface p-4">
-                    <div className="h-4 w-24 animate-pulse rounded-full bg-clay-surface-2" />
-                    <div className="h-16 animate-pulse rounded-clay-md bg-clay-surface-2" />
-                    <div className="h-16 animate-pulse rounded-clay-md bg-clay-surface-2" />
+                <div key={s} className="flex h-[280px] flex-col gap-3 rounded-xl border border-border bg-card p-4">
+                    <div className="h-4 w-24 animate-pulse rounded-full bg-secondary" />
+                    <div className="h-16 animate-pulse rounded-lg bg-secondary" />
+                    <div className="h-16 animate-pulse rounded-lg bg-secondary" />
                 </div>
             ))}
         </div>

@@ -82,7 +82,7 @@ export function ShiftForm({ initial }: { initial?: WsEmployeeShift }) {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <ClayCard>
-        <h2 className="mb-4 text-[16px] font-semibold text-clay-ink">Shift Details</h2>
+        <h2 className="mb-4 text-[16px] font-semibold text-foreground">Shift Details</h2>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <Field label="Shift Name" required>
             <Input
@@ -98,7 +98,7 @@ export function ShiftForm({ initial }: { initial?: WsEmployeeShift }) {
                 type="color"
                 value={form.color_code}
                 onChange={(e) => set('color_code', e.target.value)}
-                className="h-9 w-12 cursor-pointer rounded-clay-sm border border-clay-border bg-clay-surface p-1"
+                className="h-9 w-12 cursor-pointer rounded-md border border-border bg-card p-1"
               />
               <Input
                 value={form.color_code}
@@ -194,7 +194,7 @@ export function ShiftForm({ initial }: { initial?: WsEmployeeShift }) {
       </ClayCard>
 
       <ClayCard>
-        <h2 className="mb-4 text-[16px] font-semibold text-clay-ink">Half-Day Rules</h2>
+        <h2 className="mb-4 text-[16px] font-semibold text-foreground">Half-Day Rules</h2>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <Field label="Half-Day After (hours)">
             <Input
@@ -223,14 +223,14 @@ export function ShiftForm({ initial }: { initial?: WsEmployeeShift }) {
       </ClayCard>
 
       <ClayCard>
-        <h2 className="mb-4 text-[16px] font-semibold text-clay-ink">Office Open Days</h2>
+        <h2 className="mb-4 text-[16px] font-semibold text-foreground">Office Open Days</h2>
         <div className="flex flex-wrap gap-3">
           {WEEKDAYS.map((day) => {
             const checked = form.office_open_days?.includes(day) ?? false;
             return (
               <label
                 key={day}
-                className="flex items-center gap-2 rounded-clay-md border border-clay-border bg-clay-surface px-3 py-2 text-[13px] text-clay-ink"
+                className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-[13px] text-foreground"
               >
                 <Checkbox
                   checked={checked}
@@ -244,7 +244,7 @@ export function ShiftForm({ initial }: { initial?: WsEmployeeShift }) {
       </ClayCard>
 
       {error ? (
-        <div className="rounded-clay-md border border-clay-red-soft bg-clay-red-soft/50 px-3 py-2 text-[13px] text-clay-red">
+        <div className="rounded-lg border border-rose-50 bg-rose-50/50 px-3 py-2 text-[13px] text-destructive">
           {error}
         </div>
       ) : null}
@@ -276,9 +276,9 @@ function Field({
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <Label className="text-[12px] text-clay-ink-muted">
+      <Label className="text-[12px] text-muted-foreground">
         {label}
-        {required ? <span className="ml-0.5 text-clay-red">*</span> : null}
+        {required ? <span className="ml-0.5 text-destructive">*</span> : null}
       </Label>
       {children}
     </div>

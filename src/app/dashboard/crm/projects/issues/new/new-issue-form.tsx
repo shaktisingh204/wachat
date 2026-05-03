@@ -41,49 +41,49 @@ export function NewIssueForm() {
     <ClayCard>
       <form action={action} className="space-y-4">
         <div>
-          <Label htmlFor="title" className="text-clay-ink">
-            Title <span className="text-clay-red">*</span>
+          <Label htmlFor="title" className="text-foreground">
+            Title <span className="text-destructive">*</span>
           </Label>
           <Input
             id="title"
             name="title"
             required
-            className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+            className="h-10 rounded-lg border-border bg-card text-[13px]"
           />
         </div>
 
         <div>
-          <Label htmlFor="description" className="text-clay-ink">
+          <Label htmlFor="description" className="text-foreground">
             Description
           </Label>
           <Textarea
             id="description"
             name="description"
             rows={4}
-            className="rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+            className="rounded-lg border-border bg-card text-[13px]"
           />
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <Label htmlFor="projectId" className="text-clay-ink">
+            <Label htmlFor="projectId" className="text-foreground">
               Project ID
             </Label>
             <Input
               id="projectId"
               name="projectId"
               placeholder="optional"
-              className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+              className="h-10 rounded-lg border-border bg-card text-[13px]"
             />
           </div>
           <div>
-            <Label htmlFor="status" className="text-clay-ink">
+            <Label htmlFor="status" className="text-foreground">
               Status
             </Label>
             <Select name="status" defaultValue="open">
               <SelectTrigger
                 id="status"
-                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="h-10 rounded-lg border-border bg-card text-[13px]"
               >
                 <SelectValue />
               </SelectTrigger>
@@ -99,13 +99,13 @@ export function NewIssueForm() {
 
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <Label htmlFor="priority" className="text-clay-ink">
+            <Label htmlFor="priority" className="text-foreground">
               Priority
             </Label>
             <Select name="priority" defaultValue="medium">
               <SelectTrigger
                 id="priority"
-                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="h-10 rounded-lg border-border bg-card text-[13px]"
               >
                 <SelectValue />
               </SelectTrigger>
@@ -118,25 +118,25 @@ export function NewIssueForm() {
             </Select>
           </div>
           <div>
-            <Label htmlFor="assigneeName" className="text-clay-ink">
+            <Label htmlFor="assigneeName" className="text-foreground">
               Assignee
             </Label>
             <Input
               id="assigneeName"
               name="assigneeName"
-              className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+              className="h-10 rounded-lg border-border bg-card text-[13px]"
             />
           </div>
         </div>
 
         <div>
-          <Label htmlFor="reporterName" className="text-clay-ink">
+          <Label htmlFor="reporterName" className="text-foreground">
             Reporter
           </Label>
           <Input
             id="reporterName"
             name="reporterName"
-            className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+            className="h-10 rounded-lg border-border bg-card text-[13px]"
           />
         </div>
 

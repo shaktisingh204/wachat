@@ -137,7 +137,7 @@ export default function ProjectsPage() {
             render: (row) => (
               <Link
                 href={`/dashboard/crm/projects/${row._id}`}
-                className="font-medium text-clay-ink hover:underline"
+                className="font-medium text-foreground hover:underline"
               >
                 {row.name || row.projectName || '—'}
               </Link>

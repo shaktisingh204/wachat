@@ -48,17 +48,17 @@ export default function NewNoticePage() {
       <ClayCard>
         <form action={formAction} className="grid gap-4 md:grid-cols-2">
           <div className="md:col-span-2">
-            <Label htmlFor="heading" className="text-clay-ink">Heading *</Label>
+            <Label htmlFor="heading" className="text-foreground">Heading *</Label>
             <Input id="heading" name="heading" required className="mt-1.5 h-10" />
           </div>
 
           <div className="md:col-span-2">
-            <Label htmlFor="description" className="text-clay-ink">Description *</Label>
+            <Label htmlFor="description" className="text-foreground">Description *</Label>
             <Textarea id="description" name="description" rows={6} required className="mt-1.5" />
           </div>
 
           <div>
-            <Label htmlFor="notice_to" className="text-clay-ink">Audience</Label>
+            <Label htmlFor="notice_to" className="text-foreground">Audience</Label>
             <Select name="notice_to" defaultValue="all">
               <SelectTrigger id="notice_to" className="mt-1.5 h-10">
                 <SelectValue />
@@ -72,7 +72,7 @@ export default function NewNoticePage() {
           </div>
 
           <div>
-            <Label htmlFor="pinned" className="text-clay-ink">Pinned</Label>
+            <Label htmlFor="pinned" className="text-foreground">Pinned</Label>
             <Select name="pinned" defaultValue="false">
               <SelectTrigger id="pinned" className="mt-1.5 h-10">
                 <SelectValue />

@@ -90,16 +90,16 @@ export default function SalesPipelinePage() {
                 {pipelines.length > 0 ? (
                     <Accordion type="multiple" defaultValue={pipelines.map(p => p.id)} className="w-full space-y-4">
                         {pipelines.map(pipeline => (
-                            <AccordionItem key={pipeline.id} value={pipeline.id} className="rounded-clay-lg border border-clay-border bg-clay-surface">
-                                <AccordionTrigger className="p-4 text-[15px] font-semibold text-clay-ink hover:no-underline">
+                            <AccordionItem key={pipeline.id} value={pipeline.id} className="rounded-xl border border-border bg-card">
+                                <AccordionTrigger className="p-4 text-[15px] font-semibold text-foreground hover:no-underline">
                                     {pipeline.name}
                                 </AccordionTrigger>
                                 <AccordionContent className="p-4 pt-0">
                                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                                         {pipeline.stages.map((stage) => (
-                                            <div key={stage.id} className="rounded-clay-md border border-clay-border bg-clay-surface-2 p-3 text-center">
-                                                <p className="text-[13px] font-medium text-clay-ink">{stage.name}</p>
-                                                <p className="mt-1 text-[11.5px] text-clay-ink-muted">({stage.chance}% chance)</p>
+                                            <div key={stage.id} className="rounded-lg border border-border bg-secondary p-3 text-center">
+                                                <p className="text-[13px] font-medium text-foreground">{stage.name}</p>
+                                                <p className="mt-1 text-[11.5px] text-muted-foreground">({stage.chance}% chance)</p>
                                             </div>
                                         ))}
                                     </div>
@@ -117,11 +117,11 @@ export default function SalesPipelinePage() {
                 ) : (
                     <ClayCard variant="outline" className="border-dashed">
                         <div className="flex flex-col items-center gap-3 py-16 text-center">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-clay-md bg-clay-rose-soft">
-                                <Columns3 className="h-6 w-6 text-clay-rose-ink" strokeWidth={1.75} />
+                            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent">
+                                <Columns3 className="h-6 w-6 text-accent-foreground" strokeWidth={1.75} />
                             </div>
-                            <h3 className="text-[15px] font-semibold text-clay-ink">No Pipelines Found</h3>
-                            <p className="text-[12.5px] text-clay-ink-muted">You haven&apos;t created any pipelines yet.</p>
+                            <h3 className="text-[15px] font-semibold text-foreground">No Pipelines Found</h3>
+                            <p className="text-[12.5px] text-muted-foreground">You haven&apos;t created any pipelines yet.</p>
                             <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" strokeWidth={1.75} />} onClick={() => setIsCreateOpen(true)}>
                                 Create Your First Pipeline
                             </ClayButton>

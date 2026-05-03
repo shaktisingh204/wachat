@@ -25,43 +25,43 @@ export default async function TopClientsPage() {
       />
 
       <ClayCard>
-        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <Table>
             <TableHeader>
-              <TableRow className="border-clay-border hover:bg-transparent">
-                <TableHead className="w-10 text-clay-ink-muted">#</TableHead>
-                <TableHead className="text-clay-ink-muted">Client</TableHead>
-                <TableHead className="text-right text-clay-ink-muted">
+              <TableRow className="border-border hover:bg-transparent">
+                <TableHead className="w-10 text-muted-foreground">#</TableHead>
+                <TableHead className="text-muted-foreground">Client</TableHead>
+                <TableHead className="text-right text-muted-foreground">
                   Invoices
                 </TableHead>
-                <TableHead className="text-right text-clay-ink-muted">
+                <TableHead className="text-right text-muted-foreground">
                   Revenue
                 </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {rows.length === 0 ? (
-                <TableRow className="border-clay-border">
+                <TableRow className="border-border">
                   <TableCell
                     colSpan={4}
-                    className="h-20 text-center text-[13px] text-clay-ink-muted"
+                    className="h-20 text-center text-[13px] text-muted-foreground"
                   >
                     No clients yet.
                   </TableCell>
                 </TableRow>
               ) : (
                 rows.map((r, i) => (
-                  <TableRow key={`${r.clientId}-${i}`} className="border-clay-border">
-                    <TableCell className="text-clay-ink-muted">
+                  <TableRow key={`${r.clientId}-${i}`} className="border-border">
+                    <TableCell className="text-muted-foreground">
                       {i + 1}
                     </TableCell>
-                    <TableCell className="font-medium text-clay-ink">
+                    <TableCell className="font-medium text-foreground">
                       {r.clientName}
                     </TableCell>
-                    <TableCell className="text-right text-[13px] text-clay-ink">
+                    <TableCell className="text-right text-[13px] text-foreground">
                       {r.invoices}
                     </TableCell>
-                    <TableCell className="text-right text-[13px] font-medium text-clay-green">
+                    <TableCell className="text-right text-[13px] font-medium text-emerald-500">
                       {fmtMoney(r.revenue)}
                     </TableCell>
                   </TableRow>

@@ -36,32 +36,32 @@ export default async function WarehousesPage() {
             />
 
             <ClayCard>
-                <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                <div className="overflow-x-auto rounded-lg border border-border">
                     <Table>
                         <TableHeader>
-                            <TableRow className="border-clay-border hover:bg-transparent">
-                                <TableHead className="text-clay-ink-muted">Name</TableHead>
-                                <TableHead className="text-clay-ink-muted">Location</TableHead>
-                                <TableHead className="text-clay-ink-muted">Status</TableHead>
-                                <TableHead className="text-clay-ink-muted text-right">Actions</TableHead>
+                            <TableRow className="border-border hover:bg-transparent">
+                                <TableHead className="text-muted-foreground">Name</TableHead>
+                                <TableHead className="text-muted-foreground">Location</TableHead>
+                                <TableHead className="text-muted-foreground">Status</TableHead>
+                                <TableHead className="text-muted-foreground text-right">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {warehouses.length === 0 ? (
-                                <TableRow className="border-clay-border">
-                                    <TableCell colSpan={4} className="h-24 text-center text-clay-ink-muted">
+                                <TableRow className="border-border">
+                                    <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
                                         No warehouses found.
                                     </TableCell>
                                 </TableRow>
                             ) : (
                                 warehouses.map((warehouse) => (
-                                    <TableRow key={warehouse._id.toString()} className="border-clay-border">
+                                    <TableRow key={warehouse._id.toString()} className="border-border">
                                         <TableCell className="font-medium">
-                                            <span className="text-clay-ink">{warehouse.name}</span>
+                                            <span className="text-foreground">{warehouse.name}</span>
                                             {warehouse.isDefault && <ClayBadge tone="rose-soft" className="ml-2">Default</ClayBadge>}
                                         </TableCell>
                                         <TableCell>
-                                            <div className="flex items-center text-clay-ink-muted">
+                                            <div className="flex items-center text-muted-foreground">
                                                 <MapPin className="mr-1 h-3 w-3" />
                                                 {warehouse.address || (warehouse as any).location || '-'}
                                             </div>

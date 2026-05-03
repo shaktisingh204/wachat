@@ -28,7 +28,7 @@ export function ClayTopbar({
   return (
     <header
       className={cn(
-        'relative flex w-full shrink-0 items-center justify-between border-b border-clay-border',
+        'relative flex w-full shrink-0 items-center justify-between border-b border-border',
         'h-[68px] px-5',
         className,
       )}

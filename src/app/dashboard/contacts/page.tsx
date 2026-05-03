@@ -123,7 +123,7 @@ function TagsFilter({
             <CommandEmpty>No tags found.</CommandEmpty>
             <CommandGroup>
               {tags.length === 0 ? (
-                <div className="px-2 py-6 text-center text-[12px] text-clay-ink-muted">
+                <div className="px-2 py-6 text-center text-[12px] text-muted-foreground">
                   No tags defined on this project yet.
                 </div>
               ) : (
@@ -139,8 +139,8 @@ function TagsFilter({
                         className={cn(
                           'flex h-4 w-4 shrink-0 items-center justify-center rounded-[4px] border',
                           isSelected
-                            ? 'bg-clay-rose border-clay-rose text-white'
-                            : 'border-clay-border',
+                            ? 'bg-primary border-primary text-white'
+                            : 'border-border',
                         )}
                       >
                         {isSelected ? (
@@ -200,7 +200,7 @@ function DeleteContactButton({
         <button
           type="button"
           aria-label="Delete contact"
-          className="flex h-7 w-7 items-center justify-center rounded-md text-clay-red hover:bg-clay-red-soft transition-colors"
+          className="flex h-7 w-7 items-center justify-center rounded-md text-destructive hover:bg-rose-50 transition-colors"
         >
           <LuTrash2 className="h-3.5 w-3.5" strokeWidth={1.75} />
         </button>
@@ -338,10 +338,10 @@ export default function ContactsPage() {
       {/* Header */}
       <div className="flex items-center justify-between gap-6">
         <div className="min-w-0">
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">
+          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
             Contacts
           </h1>
-          <p className="mt-1.5 text-[13px] text-clay-ink-muted">
+          <p className="mt-1.5 text-[13px] text-muted-foreground">
             {activeProject
               ? `Manage the contact list for ${activeProject.name}${totalContacts > 0 ? ` · ${totalContacts.toLocaleString()} total contacts` : ''}`
               : 'Manage your customer contact list.'}
@@ -377,13 +377,13 @@ export default function ContactsPage() {
       {/* No project state */}
       {!activeProjectId ? (
         <ClayCard padded={false} className="p-10 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-clay-rose-soft text-clay-rose-ink">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-accent text-accent-foreground">
             <LuCircleAlert className="h-5 w-5" strokeWidth={1.5} />
           </div>
-          <div className="mt-4 text-[15px] font-semibold text-clay-ink">
+          <div className="mt-4 text-[15px] font-semibold text-foreground">
             No project selected
           </div>
-          <div className="mt-1.5 text-[12.5px] text-clay-ink-muted">
+          <div className="mt-1.5 text-[12.5px] text-muted-foreground">
             Please select a project from the main dashboard to manage contacts.
           </div>
           <ClayButton
@@ -415,31 +415,31 @@ export default function ContactsPage() {
                 updateSearchParam('tags', tags.join(','))
               }
             />
-            <span className="ml-auto text-[11.5px] tabular-nums text-clay-ink-muted">
+            <span className="ml-auto text-[11.5px] tabular-nums text-muted-foreground">
               {contacts.length} shown · {totalContacts.toLocaleString()} total
             </span>
           </div>
 
           {/* Table / empty / skeleton */}
-          <div className="mt-5 overflow-hidden rounded-[12px] border border-clay-border">
+          <div className="mt-5 overflow-hidden rounded-[12px] border border-border">
             {isLoadingInitial ? (
               <div className="flex h-40 items-center justify-center">
                 <LuLoader
-                  className="h-5 w-5 animate-spin text-clay-ink-muted"
+                  className="h-5 w-5 animate-spin text-muted-foreground"
                   strokeWidth={1.75}
                 />
               </div>
             ) : contacts.length === 0 ? (
               <div className="flex flex-col items-center gap-2 px-4 py-12 text-center">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-clay-bg-2 text-clay-ink-muted">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
                   <LuUsers className="h-5 w-5" strokeWidth={1.5} />
                 </div>
-                <div className="mt-2 text-[13px] font-semibold text-clay-ink">
+                <div className="mt-2 text-[13px] font-semibold text-foreground">
                   {searchQuery || selectedTags.length > 0
                     ? 'No matching contacts'
                     : 'No contacts yet'}
                 </div>
-                <div className="max-w-[360px] text-[11.5px] text-clay-ink-muted">
+                <div className="max-w-[360px] text-[11.5px] text-muted-foreground">
                   {searchQuery || selectedTags.length > 0
                     ? 'Try adjusting your search or tag filters.'
                     : 'Import a CSV or add contacts one at a time to build your audience.'}
@@ -447,7 +447,7 @@ export default function ContactsPage() {
               </div>
             ) : (
               <table className="w-full text-[13px]">
-                <thead className="bg-clay-surface-2 border-b border-clay-border text-[11px] font-semibold uppercase tracking-wide text-clay-ink-muted">
+                <thead className="bg-secondary border-b border-border text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                   <tr>
                     <th className="px-4 py-3 text-left">Name</th>
                     <th className="px-4 py-3 text-left">WhatsApp ID</th>
@@ -458,37 +458,37 @@ export default function ContactsPage() {
                     <th className="px-4 py-3 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-clay-border">
+                <tbody className="divide-y divide-border">
                   {contacts.map((contact) => (
                     <tr
                       key={contact._id.toString()}
-                      className="transition-colors hover:bg-clay-surface-2"
+                      className="transition-colors hover:bg-secondary"
                     >
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
-                          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-clay-rose-soft text-[11px] font-semibold text-clay-rose-ink">
+                          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-[11px] font-semibold text-accent-foreground">
                             {(contact.name || '?').slice(0, 2).toUpperCase()}
                           </span>
-                          <span className="font-medium text-clay-ink">
+                          <span className="font-medium text-foreground">
                             {contact.name}
                           </span>
                         </div>
                       </td>
-                      <td className="px-4 py-3 font-mono text-[12px] text-clay-ink-muted tabular-nums">
+                      <td className="px-4 py-3 font-mono text-[12px] text-muted-foreground tabular-nums">
                         {contact.waId}
                       </td>
-                      <td className="px-4 py-3 text-[12px] text-clay-ink-muted">
+                      <td className="px-4 py-3 text-[12px] text-muted-foreground">
                         {(contact as any).email || '—'}
                       </td>
                       <td className="px-4 py-3 text-[12px]">
                         {(contact as any).isOptedOut ? (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-clay-red-soft px-2 py-0.5 text-[10.5px] font-medium text-clay-red">
-                            <span className="h-1.5 w-1.5 rounded-full bg-clay-red" />
+                          <span className="inline-flex items-center gap-1 rounded-full bg-rose-50 px-2 py-0.5 text-[10.5px] font-medium text-destructive">
+                            <span className="h-1.5 w-1.5 rounded-full bg-destructive" />
                             Opted-out
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-clay-green-soft px-2 py-0.5 text-[10.5px] font-medium text-clay-green">
-                            <span className="h-1.5 w-1.5 rounded-full bg-clay-green" />
+                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10.5px] font-medium text-emerald-500">
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                             Opted-in
                           </span>
                         )}
@@ -519,7 +519,7 @@ export default function ContactsPage() {
                           })}
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-[12px] text-clay-ink-muted">
+                      <td className="px-4 py-3 text-[12px] text-muted-foreground">
                         {contact.lastMessageTimestamp
                           ? new Date(
                               contact.lastMessageTimestamp,
@@ -555,8 +555,8 @@ export default function ContactsPage() {
           </div>
 
           {totalPages > 1 ? (
-            <div className="mt-5 flex items-center justify-between gap-3 border-t border-clay-border pt-4">
-              <span className="text-[11.5px] tabular-nums text-clay-ink-muted">
+            <div className="mt-5 flex items-center justify-between gap-3 border-t border-border pt-4">
+              <span className="text-[11.5px] tabular-nums text-muted-foreground">
                 Page {currentPage} of {totalPages} ·{' '}
                 {compact(totalContacts)} contacts
               </span>
@@ -610,15 +610,15 @@ function Stat({
   hint?: string;
 }) {
   return (
-    <div className="rounded-[14px] border border-clay-border bg-clay-surface p-4">
-      <div className="text-[11px] font-medium uppercase tracking-wide text-clay-ink-muted">
+    <div className="rounded-[14px] border border-border bg-card p-4">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
         {label}
       </div>
-      <div className="mt-2 text-[22px] font-semibold tracking-[-0.01em] text-clay-ink leading-none">
+      <div className="mt-2 text-[22px] font-semibold tracking-[-0.01em] text-foreground leading-none">
         {value}
       </div>
       {hint ? (
-        <div className="mt-1 text-[11px] text-clay-ink-muted leading-tight truncate">
+        <div className="mt-1 text-[11px] text-muted-foreground leading-tight truncate">
           {hint}
         </div>
       ) : null}

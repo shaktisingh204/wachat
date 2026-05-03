@@ -113,15 +113,15 @@ export default function ApplyLeavePage() {
       />
       <ClayCard>
         {isLoading ? (
-          <div className="py-12 text-center text-[13px] text-clay-ink-muted">
+          <div className="py-12 text-center text-[13px] text-muted-foreground">
             Loading form…
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-2">
             <div>
-              <Label className="text-clay-ink">Employee *</Label>
+              <Label className="text-foreground">Employee *</Label>
               <Select value={userId} onValueChange={setUserId}>
-                <SelectTrigger className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
+                <SelectTrigger className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]">
                   <SelectValue placeholder="Select employee" />
                 </SelectTrigger>
                 <SelectContent>
@@ -134,9 +134,9 @@ export default function ApplyLeavePage() {
               </Select>
             </div>
             <div>
-              <Label className="text-clay-ink">Leave Type *</Label>
+              <Label className="text-foreground">Leave Type *</Label>
               <Select value={leaveTypeId} onValueChange={setLeaveTypeId}>
-                <SelectTrigger className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
+                <SelectTrigger className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]">
                   <SelectValue placeholder="Select leave type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -157,9 +157,9 @@ export default function ApplyLeavePage() {
             </div>
 
             <div>
-              <Label className="text-clay-ink">Duration</Label>
+              <Label className="text-foreground">Duration</Label>
               <Select value={duration} onValueChange={(v) => setDuration(v as WsLeaveDuration)}>
-                <SelectTrigger className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
+                <SelectTrigger className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -173,9 +173,9 @@ export default function ApplyLeavePage() {
 
             {duration === 'half-day' ? (
               <div>
-                <Label className="text-clay-ink">Half-day Type</Label>
+                <Label className="text-foreground">Half-day Type</Label>
                 <Select value={halfDayType} onValueChange={(v) => setHalfDayType(v as WsHalfDayType)}>
-                  <SelectTrigger className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
+                  <SelectTrigger className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -187,7 +187,7 @@ export default function ApplyLeavePage() {
             ) : null}
 
             <div>
-              <Label className="text-clay-ink">
+              <Label className="text-foreground">
                 {duration === 'multiple' ? 'Start Date *' : 'Leave Date *'}
               </Label>
               <Input
@@ -195,26 +195,26 @@ export default function ApplyLeavePage() {
                 value={leaveDate}
                 onChange={(e) => setLeaveDate(e.target.value)}
                 required
-                className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
 
             {duration === 'multiple' ? (
               <div>
-                <Label className="text-clay-ink">End Date *</Label>
+                <Label className="text-foreground">End Date *</Label>
                 <Input
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
                   required
-                  className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             ) : null}
 
             {duration === 'hours' ? (
               <div>
-                <Label className="text-clay-ink">Hours *</Label>
+                <Label className="text-foreground">Hours *</Label>
                 <Input
                   type="number"
                   step="0.5"
@@ -222,23 +222,23 @@ export default function ApplyLeavePage() {
                   value={hours}
                   onChange={(e) => setHours(e.target.value)}
                   required
-                  className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             ) : null}
 
             <div className="md:col-span-2">
-              <Label className="text-clay-ink">Reason</Label>
+              <Label className="text-foreground">Reason</Label>
               <Textarea
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 rows={3}
-                className="mt-1.5 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="mt-1.5 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
 
             <div>
-              <Label className="text-clay-ink">Days Count</Label>
+              <Label className="text-foreground">Days Count</Label>
               <Input
                 type="number"
                 step="0.5"
@@ -246,27 +246,27 @@ export default function ApplyLeavePage() {
                 value={daysCount}
                 onChange={(e) => setDaysCount(e.target.value)}
                 placeholder="Auto-calculated if left blank"
-                className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
 
             <div>
-              <Label className="text-clay-ink">Attachment Name</Label>
+              <Label className="text-foreground">Attachment Name</Label>
               <Input
                 value={attachmentName}
                 onChange={(e) => setAttachmentName(e.target.value)}
                 placeholder="doctor-note.pdf"
-                className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div>
-              <Label className="text-clay-ink">Attachment URL</Label>
+              <Label className="text-foreground">Attachment URL</Label>
               <Input
                 type="url"
                 value={attachmentUrl}
                 onChange={(e) => setAttachmentUrl(e.target.value)}
                 placeholder="https://…"
-                className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
 

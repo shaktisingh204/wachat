@@ -51,7 +51,7 @@ export default function AwayMessagesPage() {
   if (isLoading) {
     return (
       <div className="flex min-h-[300px] items-center justify-center">
-        <LuLoader className="h-6 w-6 animate-spin text-clay-ink-muted" />
+        <LuLoader className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -65,31 +65,31 @@ export default function AwayMessagesPage() {
       ]} />
 
       <div>
-        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">Away Messages</h1>
-        <p className="mt-1.5 text-[13px] text-clay-ink-muted">Set an auto-reply for when you are unavailable or outside business hours.</p>
+        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">Away Messages</h1>
+        <p className="mt-1.5 text-[13px] text-muted-foreground">Set an auto-reply for when you are unavailable or outside business hours.</p>
       </div>
 
       <ClayCard padded={false} className="p-5">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-[15px] font-semibold text-clay-ink">Enable Away Message</h2>
-            <p className="text-[12px] text-clay-ink-muted mt-0.5">Automatically reply when you are not available.</p>
+            <h2 className="text-[15px] font-semibold text-foreground">Enable Away Message</h2>
+            <p className="text-[12px] text-muted-foreground mt-0.5">Automatically reply when you are not available.</p>
           </div>
           <button type="button" onClick={() => setEnabled(!enabled)}
-            className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${enabled ? 'bg-clay-rose' : 'bg-clay-border'}`}>
+            className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${enabled ? 'bg-primary' : 'bg-border'}`}>
             <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${enabled ? 'left-[22px]' : 'left-0.5'}`} />
           </button>
         </div>
       </ClayCard>
 
       <ClayCard padded={false} className="p-5">
-        <h2 className="text-[15px] font-semibold text-clay-ink mb-3">Message</h2>
+        <h2 className="text-[15px] font-semibold text-foreground mb-3">Message</h2>
         <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={4}
           placeholder="Type your away message..." className="clay-input min-h-[96px] resize-y py-2.5 w-full" />
       </ClayCard>
 
       <ClayCard padded={false} className="p-5">
-        <h2 className="text-[15px] font-semibold text-clay-ink mb-3">Schedule</h2>
+        <h2 className="text-[15px] font-semibold text-foreground mb-3">Schedule</h2>
         <div className="space-y-2">
           {([
             { value: 'always', label: 'Always send', desc: 'Reply to every incoming message' },
@@ -97,24 +97,24 @@ export default function AwayMessagesPage() {
             { value: 'custom', label: 'Custom times', desc: 'Set specific active hours' },
           ] as const).map((opt) => (
             <label key={opt.value}
-              className={`flex cursor-pointer items-start gap-3 rounded-clay-md border p-3 transition-colors ${schedule === opt.value ? 'border-clay-rose bg-clay-rose/5' : 'border-clay-border'}`}>
+              className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors ${schedule === opt.value ? 'border-primary bg-primary/5' : 'border-border'}`}>
               <input type="radio" name="schedule" value={opt.value} checked={schedule === opt.value}
-                onChange={() => setSchedule(opt.value)} className="mt-0.5 accent-clay-rose" />
+                onChange={() => setSchedule(opt.value)} className="mt-0.5 accent-primary" />
               <div>
-                <span className="text-[13px] font-medium text-clay-ink">{opt.label}</span>
-                <p className="text-[11.5px] text-clay-ink-muted">{opt.desc}</p>
+                <span className="text-[13px] font-medium text-foreground">{opt.label}</span>
+                <p className="text-[11.5px] text-muted-foreground">{opt.desc}</p>
               </div>
             </label>
           ))}
         </div>
         {schedule === 'custom' && (
           <div className="mt-4 flex items-center gap-3">
-            <label className="text-[12px] text-clay-ink-muted">From</label>
+            <label className="text-[12px] text-muted-foreground">From</label>
             <input type="time" value={customStart} onChange={(e) => setCustomStart(e.target.value)}
-              className="rounded-lg border border-clay-border bg-clay-bg px-3 py-1.5 text-sm text-clay-ink" />
-            <label className="text-[12px] text-clay-ink-muted">To</label>
+              className="rounded-lg border border-border bg-background px-3 py-1.5 text-sm text-foreground" />
+            <label className="text-[12px] text-muted-foreground">To</label>
             <input type="time" value={customEnd} onChange={(e) => setCustomEnd(e.target.value)}
-              className="rounded-lg border border-clay-border bg-clay-bg px-3 py-1.5 text-sm text-clay-ink" />
+              className="rounded-lg border border-border bg-background px-3 py-1.5 text-sm text-foreground" />
           </div>
         )}
       </ClayCard>

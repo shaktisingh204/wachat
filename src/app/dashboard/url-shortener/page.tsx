@@ -94,7 +94,7 @@ function DeleteButton({ urlId, onDeleted }: { urlId: string; onDeleted: () => vo
       <AlertDialogTrigger asChild>
         <button
           type="button"
-          className="rounded p-1.5 text-clay-ink-muted hover:bg-red-500/10 hover:text-red-500"
+          className="rounded p-1.5 text-muted-foreground hover:bg-red-500/10 hover:text-red-500"
           aria-label="Delete"
         >
           <Trash2 className="h-3.5 w-3.5" />
@@ -142,7 +142,7 @@ function TagsSelector({
       <PopoverTrigger asChild>
         <button
           type="button"
-          className="flex h-10 w-full items-center justify-between gap-2 rounded-clay-md border border-clay-border bg-clay-surface px-3 text-[13px] text-clay-ink hover:border-clay-border-strong focus:outline-none focus:border-clay-rose focus:ring-[3px] focus:ring-clay-rose/15"
+          className="flex h-10 w-full items-center justify-between gap-2 rounded-lg border border-border bg-card px-3 text-[13px] text-foreground hover:border-border focus:outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/15"
         >
           <span className="truncate">
             {selectedTags.length > 0
@@ -152,7 +152,7 @@ function TagsSelector({
                   .join(', ')
               : placeholder || 'Select tags...'}
           </span>
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 text-clay-ink-soft" />
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 text-muted-foreground" />
         </button>
       </PopoverTrigger>
       <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
@@ -181,9 +181,9 @@ function TagsSelector({
 function StatCard({ label, value, hint }: { label: string; value: React.ReactNode; hint?: string }) {
   return (
     <ClayCard className="p-4">
-      <div className="text-[11px] font-medium uppercase tracking-wider text-clay-ink-muted">{label}</div>
-      <div className="mt-1.5 text-[22px] font-semibold text-clay-ink leading-tight">{value}</div>
-      {hint ? <div className="mt-0.5 text-[11px] text-clay-ink-muted">{hint}</div> : null}
+      <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{label}</div>
+      <div className="mt-1.5 text-[22px] font-semibold text-foreground leading-tight">{value}</div>
+      {hint ? <div className="mt-0.5 text-[11px] text-muted-foreground">{hint}</div> : null}
     </ClayCard>
   );
 }
@@ -195,11 +195,11 @@ function ShortenerPageSkeleton() {
       <Skeleton className="h-10 w-64" />
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {Array.from({ length: 4 }).map((_, i) => (
-          <Skeleton key={i} className="h-[88px] rounded-clay-lg" />
+          <Skeleton key={i} className="h-[88px] rounded-xl" />
         ))}
       </div>
-      <Skeleton className="h-40 w-full rounded-clay-lg" />
-      <Skeleton className="h-64 w-full rounded-clay-lg" />
+      <Skeleton className="h-40 w-full rounded-xl" />
+      <Skeleton className="h-64 w-full rounded-xl" />
     </div>
   );
 }
@@ -443,9 +443,9 @@ export default function UrlShortenerPage() {
       <div className="clay-enter flex min-h-full flex-col gap-6">
         {breadcrumbs}
         <ClayCard className="p-10 text-center">
-          <AlertCircle className="mx-auto h-10 w-10 text-clay-ink-muted/30 mb-4" />
-          <h3 className="text-sm font-medium text-clay-ink mb-1">Not logged in</h3>
-          <p className="text-xs text-clay-ink-muted">Please log in to use the URL Shortener.</p>
+          <AlertCircle className="mx-auto h-10 w-10 text-muted-foreground/30 mb-4" />
+          <h3 className="text-sm font-medium text-foreground mb-1">Not logged in</h3>
+          <p className="text-xs text-muted-foreground">Please log in to use the URL Shortener.</p>
         </ClayCard>
       </div>
     );
@@ -484,11 +484,11 @@ export default function UrlShortenerPage() {
 
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
-            <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1] flex items-center gap-3">
+            <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1] flex items-center gap-3">
               <LinkIcon className="h-7 w-7" />
               URL Shortener
             </h1>
-            <p className="mt-1.5 max-w-[720px] text-[13px] text-clay-ink-muted">
+            <p className="mt-1.5 max-w-[720px] text-[13px] text-muted-foreground">
               Create short, trackable links for your campaigns.
             </p>
           </div>
@@ -527,13 +527,13 @@ export default function UrlShortenerPage() {
           <form action={formAction} ref={formRef}>
             <input type="hidden" name="tagIds" value={createTagIds.join(',')} />
             <input type="hidden" name="expiresAt" value={expiresAt?.toISOString() || ''} />
-            <div className="border-b border-clay-border px-5 py-4">
-              <h2 className="text-[15px] font-semibold text-clay-ink">Create a new short link</h2>
+            <div className="border-b border-border px-5 py-4">
+              <h2 className="text-[15px] font-semibold text-foreground">Create a new short link</h2>
             </div>
             <div className="space-y-4 p-5">
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="originalUrl" className="text-[12.5px] text-clay-ink-muted">
+                  <Label htmlFor="originalUrl" className="text-[12.5px] text-muted-foreground">
                     Destination URL
                   </Label>
                   <ClayInput
@@ -545,7 +545,7 @@ export default function UrlShortenerPage() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="alias" className="text-[12.5px] text-clay-ink-muted">
+                  <Label htmlFor="alias" className="text-[12.5px] text-muted-foreground">
                     Custom Alias (Optional)
                   </Label>
                   <ClayInput id="alias" name="alias" placeholder="e.g., summer-sale" />
@@ -553,7 +553,7 @@ export default function UrlShortenerPage() {
               </div>
               <div className="grid md:grid-cols-3 gap-4">
                 <div className="space-y-1.5">
-                  <Label className="text-[12.5px] text-clay-ink-muted">Tags (Optional)</Label>
+                  <Label className="text-[12.5px] text-muted-foreground">Tags (Optional)</Label>
                   <TagsSelector
                     userTags={user?.tags || []}
                     selectedTags={createTagIds}
@@ -561,16 +561,16 @@ export default function UrlShortenerPage() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-[12.5px] text-clay-ink-muted">Expiration Date (Optional)</Label>
+                  <Label className="text-[12.5px] text-muted-foreground">Expiration Date (Optional)</Label>
                   <DatePicker date={expiresAt} setDate={setExpiresAt} />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-[12.5px] text-clay-ink-muted">Custom Domain (Optional)</Label>
+                  <Label className="text-[12.5px] text-muted-foreground">Custom Domain (Optional)</Label>
                   <ClaySelect name="domainId" options={domainOptions} defaultValue="none" />
                 </div>
               </div>
             </div>
-            <div className="flex items-center justify-between border-t border-clay-border bg-clay-surface-2 px-5 py-3 rounded-b-clay-lg">
+            <div className="flex items-center justify-between border-t border-border bg-secondary px-5 py-3 rounded-b-xl">
               <SubmitButton />
               <BulkImportDialog onImportComplete={fetchUrls} />
             </div>
@@ -579,7 +579,7 @@ export default function UrlShortenerPage() {
 
         {/* ── Links table with filters ── */}
         <ClayCard padded={false}>
-          <div className="flex flex-wrap items-center gap-3 border-b border-clay-border px-5 py-3.5">
+          <div className="flex flex-wrap items-center gap-3 border-b border-border px-5 py-3.5">
             <div className="flex-1 min-w-[220px]">
               <ClayInput
                 sizeVariant="sm"
@@ -618,8 +618,8 @@ export default function UrlShortenerPage() {
           </div>
 
           {selectedIds.size > 0 ? (
-            <div className="flex items-center justify-between gap-3 border-b border-clay-border bg-clay-rose-soft/40 px-5 py-2.5 text-[12.5px]">
-              <span className="text-clay-ink">
+            <div className="flex items-center justify-between gap-3 border-b border-border bg-accent/40 px-5 py-2.5 text-[12.5px]">
+              <span className="text-foreground">
                 <strong>{selectedIds.size}</strong> selected
               </span>
               <div className="flex items-center gap-2">
@@ -669,14 +669,14 @@ export default function UrlShortenerPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-[13px]">
               <thead>
-                <tr className="border-b border-clay-border text-left text-[12px] text-clay-ink-muted">
+                <tr className="border-b border-border text-left text-[12px] text-muted-foreground">
                   <th className="w-10 px-5 py-3">
                     <input
                       type="checkbox"
                       checked={allPageSelected}
                       onChange={toggleSelectPage}
                       aria-label="Select all on page"
-                      className="h-3.5 w-3.5 rounded border-clay-border"
+                      className="h-3.5 w-3.5 rounded border-border"
                     />
                   </th>
                   <th className="px-2 py-3 font-medium">Short URL</th>
@@ -703,8 +703,8 @@ export default function UrlShortenerPage() {
                       <tr
                         key={id}
                         className={cn(
-                          'border-b border-clay-border last:border-0 hover:bg-clay-surface-2',
-                          selected && 'bg-clay-rose-soft/30',
+                          'border-b border-border last:border-0 hover:bg-secondary',
+                          selected && 'bg-accent/30',
                         )}
                       >
                         <td className="w-10 px-5 py-3">
@@ -713,7 +713,7 @@ export default function UrlShortenerPage() {
                             checked={selected}
                             onChange={() => toggleSelect(id)}
                             aria-label="Select link"
-                            className="h-3.5 w-3.5 rounded border-clay-border"
+                            className="h-3.5 w-3.5 rounded border-border"
                           />
                         </td>
                         <td className="px-2 py-3 font-mono">
@@ -721,7 +721,7 @@ export default function UrlShortenerPage() {
                             href={shortUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-clay-accent hover:underline flex items-center gap-1"
+                            className="text-accent hover:underline flex items-center gap-1"
                           >
                             {shortUrl.replace(/^https?:\/\//, '')}
                             <button
@@ -730,18 +730,18 @@ export default function UrlShortenerPage() {
                                 e.preventDefault();
                                 handleCopy(id, shortUrl);
                               }}
-                              className="ml-1 rounded p-0.5 text-clay-ink-muted hover:bg-clay-bg-2 hover:text-clay-ink"
+                              className="ml-1 rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground"
                               aria-label="Copy link"
                             >
                               {copiedId === id ? (
-                                <Check className="h-3 w-3 text-clay-green" />
+                                <Check className="h-3 w-3 text-emerald-500" />
                               ) : (
                                 <Copy className="h-3 w-3" />
                               )}
                             </button>
                           </a>
                         </td>
-                        <td className="px-5 py-3 text-clay-ink-muted truncate max-w-[240px]">
+                        <td className="px-5 py-3 text-muted-foreground truncate max-w-[240px]">
                           {url.originalUrl}
                         </td>
                         <td className="px-5 py-3">
@@ -749,9 +749,9 @@ export default function UrlShortenerPage() {
                             className={cn(
                               'inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10.5px] font-medium',
                               status === 'active' &&
-                                'border-clay-green/40 bg-clay-green/10 text-clay-green',
+                                'border-emerald-500/40 bg-emerald-500/10 text-emerald-500',
                               status === 'expiring-soon' &&
-                                'border-clay-amber/40 bg-clay-amber/10 text-clay-amber',
+                                'border-amber-500/40 bg-amber-500/10 text-amber-500',
                               status === 'expired' &&
                                 'border-red-500/40 bg-red-500/10 text-red-500',
                             )}
@@ -759,8 +759,8 @@ export default function UrlShortenerPage() {
                             <span
                               className={cn(
                                 'inline-block h-1.5 w-1.5 rounded-full',
-                                status === 'active' && 'bg-clay-green',
-                                status === 'expiring-soon' && 'bg-clay-amber',
+                                status === 'active' && 'bg-emerald-500',
+                                status === 'expiring-soon' && 'bg-amber-500',
                                 status === 'expired' && 'bg-red-500',
                               )}
                             />
@@ -769,17 +769,17 @@ export default function UrlShortenerPage() {
                               : status[0].toUpperCase() + status.slice(1)}
                           </span>
                           {url.expiresAt ? (
-                            <div className="mt-0.5 text-[10.5px] text-clay-ink-muted">
+                            <div className="mt-0.5 text-[10.5px] text-muted-foreground">
                               {new Date(url.expiresAt).toLocaleDateString()}
                             </div>
                           ) : null}
                         </td>
-                        <td className="px-5 py-3 text-clay-ink font-medium">{url.clickCount || 0}</td>
+                        <td className="px-5 py-3 text-foreground font-medium">{url.clickCount || 0}</td>
                         <td className="px-5 py-3 text-right">
                           <div className="inline-flex items-center gap-1">
                             <Link
                               href={`/dashboard/url-shortener/${id}`}
-                              className="rounded p-1.5 text-clay-ink-muted hover:bg-clay-bg-2 hover:text-clay-ink"
+                              className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
                               aria-label="Analytics"
                             >
                               <BarChart className="h-3.5 w-3.5" />
@@ -787,7 +787,7 @@ export default function UrlShortenerPage() {
                             <button
                               type="button"
                               onClick={() => setSelectedUrlForQr(shortUrl)}
-                              className="rounded p-1.5 text-clay-ink-muted hover:bg-clay-bg-2 hover:text-clay-ink"
+                              className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
                               aria-label="QR Code"
                             >
                               <QrCode className="h-3.5 w-3.5" />
@@ -800,7 +800,7 @@ export default function UrlShortenerPage() {
                   })
                 ) : (
                   <tr>
-                    <td colSpan={6} className="px-5 py-12 text-center text-clay-ink-muted">
+                    <td colSpan={6} className="px-5 py-12 text-center text-muted-foreground">
                       {urls.length === 0
                         ? 'No links created yet.'
                         : 'No links match your filters.'}
@@ -813,13 +813,13 @@ export default function UrlShortenerPage() {
 
           {/* Pagination */}
           {filteredUrls.length > 0 ? (
-            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-clay-border px-5 py-3 text-[12px] text-clay-ink-muted">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-5 py-3 text-[12px] text-muted-foreground">
               <div className="flex items-center gap-2">
                 <span>Rows per page</span>
                 <select
                   value={pageSize}
                   onChange={(e) => setPageSize(Number(e.target.value))}
-                  className="h-7 rounded border border-clay-border bg-clay-surface px-2 text-[12px] text-clay-ink"
+                  className="h-7 rounded border border-border bg-card px-2 text-[12px] text-foreground"
                 >
                   {PAGE_SIZES.map((s) => (
                     <option key={s} value={s}>
@@ -838,7 +838,7 @@ export default function UrlShortenerPage() {
                     type="button"
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                     disabled={currentPage <= 1}
-                    className="rounded p-1 text-clay-ink-muted hover:bg-clay-bg-2 hover:text-clay-ink disabled:opacity-40 disabled:pointer-events-none"
+                    className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:pointer-events-none"
                     aria-label="Previous page"
                   >
                     <ChevronLeft className="h-4 w-4" />
@@ -850,7 +850,7 @@ export default function UrlShortenerPage() {
                     type="button"
                     onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
                     disabled={currentPage >= pageCount}
-                    className="rounded p-1 text-clay-ink-muted hover:bg-clay-bg-2 hover:text-clay-ink disabled:opacity-40 disabled:pointer-events-none"
+                    className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:pointer-events-none"
                     aria-label="Next page"
                   >
                     <ChevronRight className="h-4 w-4" />

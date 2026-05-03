@@ -100,7 +100,7 @@ export function HrFormPage({
     return (
       <ClayCard key={title}>
         <div className="mb-4">
-          <h2 className="text-[15px] font-semibold text-clay-ink">{title}</h2>
+          <h2 className="text-[15px] font-semibold text-foreground">{title}</h2>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           {sectionFields.map((field) => (
@@ -142,7 +142,7 @@ export function HrFormPage({
           <ClayCard>
             {sections ? (
               <div className="mb-4">
-                <h2 className="text-[15px] font-semibold text-clay-ink">
+                <h2 className="text-[15px] font-semibold text-foreground">
                   Additional details
                 </h2>
               </div>
@@ -189,15 +189,15 @@ function FieldCell({
   const raw = initial ? initial[field.name] : undefined;
   return (
     <div className={field.fullWidth ? 'md:col-span-2' : ''}>
-      <Label htmlFor={field.name} className="text-clay-ink">
+      <Label htmlFor={field.name} className="text-foreground">
         {field.label}
-        {field.required ? <span className="text-clay-red"> *</span> : null}
+        {field.required ? <span className="text-destructive"> *</span> : null}
       </Label>
       <div className="mt-1.5">
         {renderField(field, raw)}
       </div>
       {field.help ? (
-        <p className="mt-1 text-[11.5px] text-clay-ink-muted">{field.help}</p>
+        <p className="mt-1 text-[11.5px] text-muted-foreground">{field.help}</p>
       ) : null}
     </div>
   );
@@ -222,7 +222,7 @@ function renderField(field: HrField, raw?: unknown) {
       <Textarea
         {...common}
         rows={4}
-        className="rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+        className="rounded-lg border-border bg-card text-[13px]"
       />
     );
   }
@@ -231,7 +231,7 @@ function renderField(field: HrField, raw?: unknown) {
       <Select name={field.name} defaultValue={String(common.defaultValue || '')}>
         <SelectTrigger
           id={field.name}
-          className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+          className="h-10 rounded-lg border-border bg-card text-[13px]"
         >
           <SelectValue placeholder={field.placeholder || 'Select'} />
         </SelectTrigger>
@@ -249,7 +249,7 @@ function renderField(field: HrField, raw?: unknown) {
     <Input
       {...common}
       type={field.type || 'text'}
-      className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+      className="h-10 rounded-lg border-border bg-card text-[13px]"
     />
   );
 }
@@ -312,7 +312,7 @@ function FieldArray({
       <input type="hidden" name={field.name} value={hiddenValue} />
 
       {rows.length === 0 ? (
-        <p className="rounded-clay-md border border-dashed border-clay-border bg-clay-surface-2 px-3 py-2.5 text-center text-[12px] text-clay-ink-muted">
+        <p className="rounded-lg border border-dashed border-border bg-secondary px-3 py-2.5 text-center text-[12px] text-muted-foreground">
           No rows yet — click Add below to start.
         </p>
       ) : (
@@ -320,14 +320,14 @@ function FieldArray({
           {rows.map((row, i) => (
             <div
               key={i}
-              className="flex flex-wrap items-end gap-2 rounded-clay-md border border-clay-border bg-clay-surface-2 p-2"
+              className="flex flex-wrap items-end gap-2 rounded-lg border border-border bg-secondary p-2"
             >
               {subs.map((s) => {
                 const fieldId = `${field.name}-${i}-${s.name}`;
                 if (s.type === 'select') {
                   return (
                     <div key={s.name} className="min-w-[120px] flex-1">
-                      <Label htmlFor={fieldId} className="text-[11px] text-clay-ink-muted">
+                      <Label htmlFor={fieldId} className="text-[11px] text-muted-foreground">
                         {s.label}
                       </Label>
                       <Select
@@ -342,7 +342,7 @@ function FieldArray({
                       >
                         <SelectTrigger
                           id={fieldId}
-                          className="h-9 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                          className="h-9 rounded-lg border-border bg-card text-[13px]"
                         >
                           <SelectValue placeholder={s.placeholder || 'Select'} />
                         </SelectTrigger>
@@ -359,7 +359,7 @@ function FieldArray({
                 }
                 return (
                   <div key={s.name} className="min-w-[120px] flex-1">
-                    <Label htmlFor={fieldId} className="text-[11px] text-clay-ink-muted">
+                    <Label htmlFor={fieldId} className="text-[11px] text-muted-foreground">
                       {s.label}
                     </Label>
                     <Input
@@ -375,7 +375,7 @@ function FieldArray({
                           ),
                         )
                       }
-                      className="h-9 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                      className="h-9 rounded-lg border-border bg-card text-[13px]"
                     />
                   </div>
                 );
@@ -388,7 +388,7 @@ function FieldArray({
                   setRows((prev) => prev.filter((_, idx) => idx !== i))
                 }
               >
-                <Trash2 className="h-3.5 w-3.5 text-clay-red" />
+                <Trash2 className="h-3.5 w-3.5 text-destructive" />
               </ClayButton>
             </div>
           ))}

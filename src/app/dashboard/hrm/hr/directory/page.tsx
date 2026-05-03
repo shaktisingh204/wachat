@@ -58,7 +58,7 @@ function fmtDate(v: unknown): string {
 
 // Stable avatar color per employee based on first letter
 const AVATAR_COLORS = [
-  'bg-clay-rose-soft text-clay-rose-ink',
+  'bg-accent text-accent-foreground',
   'bg-blue-100 text-blue-700',
   'bg-emerald-100 text-emerald-700',
   'bg-amber-100 text-amber-700',
@@ -127,13 +127,13 @@ export default function DirectoryPage() {
       {/* Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-clay-ink-muted pointer-events-none" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
           <input
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by name, email, title, department…"
-            className="h-10 w-full rounded-full border border-clay-border bg-clay-surface pl-9 pr-4 text-[13px] text-clay-ink placeholder:text-clay-ink-muted focus:outline-none focus:ring-2 focus:ring-clay-rose/30"
+            className="h-10 w-full rounded-full border border-border bg-card pl-9 pr-4 text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
           />
         </div>
         <div className="flex items-center gap-1">
@@ -165,14 +165,14 @@ export default function DirectoryPage() {
           }
         >
           {[...Array(8)].map((_, i) => (
-            <Skeleton key={i} className={view === 'grid' ? 'h-48 w-full rounded-clay-md' : 'h-16 w-full'} />
+            <Skeleton key={i} className={view === 'grid' ? 'h-48 w-full rounded-lg' : 'h-16 w-full'} />
           ))}
         </div>
       ) : empty || failed ? (
         <ClayCard>
           <div className="flex flex-col items-start gap-3 p-8">
-            <h3 className="text-[15px] font-semibold text-clay-ink">No employees found</h3>
-            <p className="max-w-xl text-[13px] text-clay-ink-muted">
+            <h3 className="text-[15px] font-semibold text-foreground">No employees found</h3>
+            <p className="max-w-xl text-[13px] text-muted-foreground">
               {q
                 ? `No results match "${search}". Try a different search term.`
                 : 'Employee data will appear here once added via HR-Payroll → Employees.'}
@@ -217,25 +217,25 @@ export default function DirectoryPage() {
 
                   {/* Name + title */}
                   <div>
-                    <div className="text-[14px] font-semibold text-clay-ink leading-snug">
+                    <div className="text-[14px] font-semibold text-foreground leading-snug">
                       {name}
                     </div>
-                    <div className="mt-0.5 text-[12px] text-clay-ink-muted">
+                    <div className="mt-0.5 text-[12px] text-muted-foreground">
                       {e.designationName || '—'}
                     </div>
                     {e.departmentName && (
-                      <div className="mt-0.5 text-[11px] text-clay-ink-muted">
+                      <div className="mt-0.5 text-[11px] text-muted-foreground">
                         {e.departmentName}
                       </div>
                     )}
                   </div>
 
                   {/* Contact + meta */}
-                  <div className="flex flex-col gap-1 pt-1 border-t border-clay-border">
+                  <div className="flex flex-col gap-1 pt-1 border-t border-border">
                     {e.email && (
                       <a
                         href={`mailto:${e.email}`}
-                        className="inline-flex items-center gap-1.5 text-[12px] text-clay-ink-muted hover:text-clay-ink truncate"
+                        className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-foreground truncate"
                       >
                         <Mail className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} />
                         <span className="truncate">{e.email}</span>
@@ -244,20 +244,20 @@ export default function DirectoryPage() {
                     {e.phone && (
                       <a
                         href={`tel:${e.phone}`}
-                        className="inline-flex items-center gap-1.5 text-[12px] text-clay-ink-muted hover:text-clay-ink"
+                        className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-foreground"
                       >
                         <Phone className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} />
                         {e.phone}
                       </a>
                     )}
                     {e.workLocation && (
-                      <div className="inline-flex items-center gap-1.5 text-[12px] text-clay-ink-muted">
+                      <div className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground">
                         <MapPin className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} />
                         {e.workLocation}
                       </div>
                     )}
                     {e.joiningDate && (
-                      <div className="inline-flex items-center gap-1.5 text-[12px] text-clay-ink-muted">
+                      <div className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground">
                         <Calendar className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} />
                         Joined {fmtDate(e.joiningDate)}
                       </div>
@@ -274,12 +274,12 @@ export default function DirectoryPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-[13px]">
               <thead>
-                <tr className="border-b border-clay-border">
+                <tr className="border-b border-border">
                   {['Employee', 'Designation', 'Department', 'Email', 'Phone', 'Location', 'Joined', 'Status'].map(
                     (h) => (
                       <th
                         key={h}
-                        className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-clay-ink-muted whitespace-nowrap"
+                        className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground whitespace-nowrap"
                       >
                         {h}
                       </th>
@@ -287,7 +287,7 @@ export default function DirectoryPage() {
                   )}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-clay-border">
+              <tbody className="divide-y divide-border">
                 {rows.map((e) => {
                   const name =
                     [e.firstName, e.lastName].filter(Boolean).join(' ') ||
@@ -296,7 +296,7 @@ export default function DirectoryPage() {
                   const color = avatarColor(name);
                   const tone = STATUS_TONES[(e.status || '').toLowerCase()] || 'neutral';
                   return (
-                    <tr key={e._id} className="transition-colors hover:bg-clay-surface-2">
+                    <tr key={e._id} className="transition-colors hover:bg-secondary">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2.5">
                           <div
@@ -305,27 +305,27 @@ export default function DirectoryPage() {
                             {initials(name)}
                           </div>
                           <div>
-                            <div className="font-medium text-clay-ink">{name}</div>
+                            <div className="font-medium text-foreground">{name}</div>
                             {e.employeeId && (
-                              <div className="text-[11px] text-clay-ink-muted">{e.employeeId}</div>
+                              <div className="text-[11px] text-muted-foreground">{e.employeeId}</div>
                             )}
                           </div>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-clay-ink">{e.designationName || '—'}</td>
-                      <td className="px-4 py-3 text-clay-ink">{e.departmentName || '—'}</td>
-                      <td className="px-4 py-3 text-clay-ink-muted">
+                      <td className="px-4 py-3 text-foreground">{e.designationName || '—'}</td>
+                      <td className="px-4 py-3 text-foreground">{e.departmentName || '—'}</td>
+                      <td className="px-4 py-3 text-muted-foreground">
                         {e.email ? (
-                          <a href={`mailto:${e.email}`} className="hover:text-clay-ink truncate max-w-[160px] block">
+                          <a href={`mailto:${e.email}`} className="hover:text-foreground truncate max-w-[160px] block">
                             {e.email}
                           </a>
                         ) : (
                           '—'
                         )}
                       </td>
-                      <td className="px-4 py-3 text-clay-ink-muted">{e.phone || '—'}</td>
-                      <td className="px-4 py-3 text-clay-ink-muted">{e.workLocation || '—'}</td>
-                      <td className="px-4 py-3 text-clay-ink-muted whitespace-nowrap">
+                      <td className="px-4 py-3 text-muted-foreground">{e.phone || '—'}</td>
+                      <td className="px-4 py-3 text-muted-foreground">{e.workLocation || '—'}</td>
+                      <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">
                         {fmtDate(e.joiningDate) || '—'}
                       </td>
                       <td className="px-4 py-3">
@@ -348,7 +348,7 @@ export default function DirectoryPage() {
 
       {/* Result count */}
       {!isLoading && allRows.length > 0 && (
-        <p className="text-[12px] text-clay-ink-muted">
+        <p className="text-[12px] text-muted-foreground">
           Showing {rows.length} of {allRows.length} employee{allRows.length !== 1 ? 's' : ''}
           {q ? ` matching "${search}"` : ''}
         </p>

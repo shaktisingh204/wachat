@@ -175,29 +175,29 @@ export default function EmployeeDocumentsPage() {
       <ClayCard>
         {isLoading ? (
           <div className="flex h-32 items-center justify-center">
-            <LoaderCircle className="h-6 w-6 animate-spin text-clay-ink-muted" />
+            <LoaderCircle className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+          <div className="overflow-x-auto rounded-lg border border-border">
             <table className="w-full text-[13px]">
               <thead>
-                <tr className="border-b border-clay-border bg-clay-surface-2">
-                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">
+                <tr className="border-b border-border bg-secondary">
+                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">
                     Employee
                   </th>
-                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">
+                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">
                     Document
                   </th>
-                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">
+                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">
                     Uploaded
                   </th>
-                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">
+                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">
                     Expires
                   </th>
-                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">
+                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">
                     File
                   </th>
-                  <th className="px-4 py-2.5 text-right text-[12px] font-medium text-clay-ink-muted">
+                  <th className="px-4 py-2.5 text-right text-[12px] font-medium text-muted-foreground">
                     Actions
                   </th>
                 </tr>
@@ -205,7 +205,7 @@ export default function EmployeeDocumentsPage() {
               <tbody>
                 {docs.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="py-10 text-center text-[13px] text-clay-ink-muted">
+                    <td colSpan={6} className="py-10 text-center text-[13px] text-muted-foreground">
                       No documents found.
                     </td>
                   </tr>
@@ -213,13 +213,13 @@ export default function EmployeeDocumentsPage() {
                   docs.map((d) => (
                     <tr
                       key={String(d._id)}
-                      className="border-t border-clay-border hover:bg-clay-surface-2/50"
+                      className="border-t border-border hover:bg-secondary/50"
                     >
-                      <td className="px-4 py-2.5 font-medium text-clay-ink">
+                      <td className="px-4 py-2.5 font-medium text-foreground">
                         {empMap.get(String(d.user_id)) || d.user_id}
                       </td>
-                      <td className="px-4 py-2.5 text-clay-ink">{d.name}</td>
-                      <td className="px-4 py-2.5 text-clay-ink">
+                      <td className="px-4 py-2.5 text-foreground">{d.name}</td>
+                      <td className="px-4 py-2.5 text-foreground">
                         {d.uploaded_at ? new Date(d.uploaded_at).toLocaleDateString() : '—'}
                       </td>
                       <td className="px-4 py-2.5">
@@ -228,7 +228,7 @@ export default function EmployeeDocumentsPage() {
                             {expiryLabel(d.expiry_date)}
                           </ClayBadge>
                         ) : (
-                          <span className="text-clay-ink-muted">—</span>
+                          <span className="text-muted-foreground">—</span>
                         )}
                       </td>
                       <td className="px-4 py-2.5">
@@ -237,13 +237,13 @@ export default function EmployeeDocumentsPage() {
                             href={d.file}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-clay-rose-ink hover:underline"
+                            className="inline-flex items-center gap-1 text-accent-foreground hover:underline"
                           >
                             <ExternalLink className="h-3.5 w-3.5" strokeWidth={1.75} />
                             View
                           </a>
                         ) : (
-                          <span className="text-clay-ink-muted">—</span>
+                          <span className="text-muted-foreground">—</span>
                         )}
                       </td>
                       <td className="px-4 py-2.5 text-right">
@@ -256,7 +256,7 @@ export default function EmployeeDocumentsPage() {
                             size="sm"
                             onClick={() => handleDelete(String(d._id))}
                           >
-                            <Trash2 className="h-3.5 w-3.5 text-clay-red" />
+                            <Trash2 className="h-3.5 w-3.5 text-destructive" />
                           </ClayButton>
                         </div>
                       </td>
@@ -270,23 +270,23 @@ export default function EmployeeDocumentsPage() {
       </ClayCard>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-md border-clay-border bg-clay-surface">
+        <DialogContent className="max-w-md border-border bg-card">
           <DialogHeader>
-            <DialogTitle className="text-clay-ink">
+            <DialogTitle className="text-foreground">
               {form._id ? 'Edit Document' : 'Add Document'}
             </DialogTitle>
           </DialogHeader>
 
           <div className="grid gap-4 py-2">
             <div>
-              <Label className="text-[12px] text-clay-ink-muted">
-                Employee <span className="text-clay-red">*</span>
+              <Label className="text-[12px] text-muted-foreground">
+                Employee <span className="text-destructive">*</span>
               </Label>
               <Select
                 value={form.user_id || '__none__'}
                 onValueChange={(v) => set('user_id', v === '__none__' ? '' : v)}
               >
-                <SelectTrigger className="mt-1.5 h-10 w-full rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
+                <SelectTrigger className="mt-1.5 h-10 w-full rounded-lg border-border bg-card text-[13px]">
                   <SelectValue placeholder="Select employee…" />
                 </SelectTrigger>
                 <SelectContent>
@@ -301,45 +301,45 @@ export default function EmployeeDocumentsPage() {
             </div>
 
             <div>
-              <Label className="text-[12px] text-clay-ink-muted">
-                Document Name <span className="text-clay-red">*</span>
+              <Label className="text-[12px] text-muted-foreground">
+                Document Name <span className="text-destructive">*</span>
               </Label>
               <Input
                 value={form.name}
                 onChange={(e) => set('name', e.target.value)}
                 placeholder="e.g. Passport, ID Card…"
-                className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
 
             <div>
-              <Label className="text-[12px] text-clay-ink-muted">File URL</Label>
+              <Label className="text-[12px] text-muted-foreground">File URL</Label>
               <Input
                 type="url"
                 value={form.file}
                 onChange={(e) => set('file', e.target.value)}
                 placeholder="https://…"
-                className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label className="text-[12px] text-clay-ink-muted">Uploaded Date</Label>
+                <Label className="text-[12px] text-muted-foreground">Uploaded Date</Label>
                 <Input
                   type="date"
                   value={form.uploaded_at}
                   onChange={(e) => set('uploaded_at', e.target.value)}
-                  className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
               <div>
-                <Label className="text-[12px] text-clay-ink-muted">Expiry Date</Label>
+                <Label className="text-[12px] text-muted-foreground">Expiry Date</Label>
                 <Input
                   type="date"
                   value={form.expiry_date}
                   onChange={(e) => set('expiry_date', e.target.value)}
-                  className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>

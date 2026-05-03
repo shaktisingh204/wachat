@@ -196,7 +196,7 @@ export default function RemovalRequestsPage() {
             onClick={() => onApprove(id, variant)}
             aria-label="Approve"
           >
-            <CheckCircle2 className="h-3.5 w-3.5 text-clay-green" />
+            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
           </Button>
           <Button
             variant="ghost"
@@ -205,7 +205,7 @@ export default function RemovalRequestsPage() {
             onClick={() => setRejecting({ id, variant })}
             aria-label="Reject"
           >
-            <XCircle className="h-3.5 w-3.5 text-clay-red" />
+            <XCircle className="h-3.5 w-3.5 text-destructive" />
           </Button>
         </>
       ) : null}
@@ -217,7 +217,7 @@ export default function RemovalRequestsPage() {
           onClick={() => onComplete(id, variant)}
           aria-label="Complete"
         >
-          <CircleCheckBig className="h-3.5 w-3.5 text-clay-blue" />
+          <CircleCheckBig className="h-3.5 w-3.5 text-sky-500" />
         </Button>
       ) : null}
       <Button
@@ -227,16 +227,16 @@ export default function RemovalRequestsPage() {
         onClick={() => setDeleting({ id, variant })}
         aria-label="Delete"
       >
-        <Trash2 className="h-3.5 w-3.5 text-clay-red" />
+        <Trash2 className="h-3.5 w-3.5 text-destructive" />
       </Button>
     </div>
   );
 
   const emptyRow = (cols: number, label: string) => (
-    <TableRow className="border-clay-border">
+    <TableRow className="border-border">
       <TableCell
         colSpan={cols}
-        className="h-24 text-center text-[13px] text-clay-ink-muted"
+        className="h-24 text-center text-[13px] text-muted-foreground"
       >
         {label}
       </TableCell>
@@ -245,7 +245,7 @@ export default function RemovalRequestsPage() {
 
   const loadingRows = (cols: number) =>
     [...Array(3)].map((_, i) => (
-      <TableRow key={i} className="border-clay-border">
+      <TableRow key={i} className="border-border">
         <TableCell colSpan={cols}>
           <Skeleton className="h-8 w-full" />
         </TableCell>
@@ -272,26 +272,26 @@ export default function RemovalRequestsPage() {
           </TabsList>
 
           <TabsContent value="users">
-            <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+            <div className="overflow-x-auto rounded-lg border border-border">
               <Table>
                 <TableHeader>
-                  <TableRow className="border-clay-border hover:bg-transparent">
-                    <TableHead className="text-clay-ink-muted">
+                  <TableRow className="border-border hover:bg-transparent">
+                    <TableHead className="text-muted-foreground">
                       User ID
                     </TableHead>
-                    <TableHead className="text-clay-ink-muted">
+                    <TableHead className="text-muted-foreground">
                       Reason
                     </TableHead>
-                    <TableHead className="text-clay-ink-muted">
+                    <TableHead className="text-muted-foreground">
                       Status
                     </TableHead>
-                    <TableHead className="text-clay-ink-muted">
+                    <TableHead className="text-muted-foreground">
                       Submitted
                     </TableHead>
-                    <TableHead className="text-clay-ink-muted">
+                    <TableHead className="text-muted-foreground">
                       Handled
                     </TableHead>
-                    <TableHead className="w-[160px] text-right text-clay-ink-muted">
+                    <TableHead className="w-[160px] text-right text-muted-foreground">
                       Actions
                     </TableHead>
                   </TableRow>
@@ -304,12 +304,12 @@ export default function RemovalRequestsPage() {
                       : userRows.map((row) => (
                           <TableRow
                             key={row._id}
-                            className="border-clay-border"
+                            className="border-border"
                           >
-                            <TableCell className="text-[13px] text-clay-ink">
+                            <TableCell className="text-[13px] text-foreground">
                               {row.user_id || '—'}
                             </TableCell>
-                            <TableCell className="max-w-[280px] truncate text-[13px] text-clay-ink-muted">
+                            <TableCell className="max-w-[280px] truncate text-[13px] text-muted-foreground">
                               {row.reason || '—'}
                             </TableCell>
                             <TableCell>
@@ -318,10 +318,10 @@ export default function RemovalRequestsPage() {
                                   row.status.slice(1)}
                               </ClayBadge>
                             </TableCell>
-                            <TableCell className="text-[13px] text-clay-ink-muted">
+                            <TableCell className="text-[13px] text-muted-foreground">
                               {formatDate(row.submitted_at)}
                             </TableCell>
-                            <TableCell className="text-[13px] text-clay-ink-muted">
+                            <TableCell className="text-[13px] text-muted-foreground">
                               {formatDate(row.handled_at)}
                             </TableCell>
                             <TableCell className="text-right">
@@ -335,26 +335,26 @@ export default function RemovalRequestsPage() {
           </TabsContent>
 
           <TabsContent value="leads">
-            <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+            <div className="overflow-x-auto rounded-lg border border-border">
               <Table>
                 <TableHeader>
-                  <TableRow className="border-clay-border hover:bg-transparent">
-                    <TableHead className="text-clay-ink-muted">
+                  <TableRow className="border-border hover:bg-transparent">
+                    <TableHead className="text-muted-foreground">
                       Lead ID
                     </TableHead>
-                    <TableHead className="text-clay-ink-muted">
+                    <TableHead className="text-muted-foreground">
                       Email
                     </TableHead>
-                    <TableHead className="text-clay-ink-muted">
+                    <TableHead className="text-muted-foreground">
                       Reason
                     </TableHead>
-                    <TableHead className="text-clay-ink-muted">
+                    <TableHead className="text-muted-foreground">
                       Status
                     </TableHead>
-                    <TableHead className="text-clay-ink-muted">
+                    <TableHead className="text-muted-foreground">
                       Submitted
                     </TableHead>
-                    <TableHead className="w-[160px] text-right text-clay-ink-muted">
+                    <TableHead className="w-[160px] text-right text-muted-foreground">
                       Actions
                     </TableHead>
                   </TableRow>
@@ -367,15 +367,15 @@ export default function RemovalRequestsPage() {
                       : leadRows.map((row) => (
                           <TableRow
                             key={row._id}
-                            className="border-clay-border"
+                            className="border-border"
                           >
-                            <TableCell className="text-[13px] text-clay-ink">
+                            <TableCell className="text-[13px] text-foreground">
                               {row.lead_id || '—'}
                             </TableCell>
-                            <TableCell className="text-[13px] text-clay-ink-muted">
+                            <TableCell className="text-[13px] text-muted-foreground">
                               {row.requester_email || '—'}
                             </TableCell>
-                            <TableCell className="max-w-[260px] truncate text-[13px] text-clay-ink-muted">
+                            <TableCell className="max-w-[260px] truncate text-[13px] text-muted-foreground">
                               {row.reason || '—'}
                             </TableCell>
                             <TableCell>
@@ -384,7 +384,7 @@ export default function RemovalRequestsPage() {
                                   row.status.slice(1)}
                               </ClayBadge>
                             </TableCell>
-                            <TableCell className="text-[13px] text-clay-ink-muted">
+                            <TableCell className="text-[13px] text-muted-foreground">
                               {formatDate(row.submitted_at)}
                             </TableCell>
                             <TableCell className="text-right">
@@ -410,15 +410,15 @@ export default function RemovalRequestsPage() {
       >
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle className="text-clay-ink">
+            <DialogTitle className="text-foreground">
               Reject Removal Request
             </DialogTitle>
-            <DialogDescription className="text-clay-ink-muted">
+            <DialogDescription className="text-muted-foreground">
               Provide a reason the requester will see.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2">
-            <Label htmlFor="reject-reason" className="text-clay-ink">
+            <Label htmlFor="reject-reason" className="text-foreground">
               Reason
             </Label>
             <Textarea
@@ -427,7 +427,7 @@ export default function RemovalRequestsPage() {
               value={rejectReason}
               onChange={(e) => setRejectReason(e.target.value)}
               placeholder="Outstanding legal obligation…"
-              className="rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+              className="rounded-lg border-border bg-card text-[13px]"
             />
           </div>
           <DialogFooter className="gap-2">
@@ -467,10 +467,10 @@ export default function RemovalRequestsPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-clay-ink">
+            <AlertDialogTitle className="text-foreground">
               Delete request?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-clay-ink-muted">
+            <AlertDialogDescription className="text-muted-foreground">
               This cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>

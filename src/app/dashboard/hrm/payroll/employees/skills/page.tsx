@@ -99,17 +99,17 @@ export default function SkillsMasterPage() {
       <ClayCard>
         {isLoading ? (
           <div className="flex h-32 items-center justify-center">
-            <LoaderCircle className="h-6 w-6 animate-spin text-clay-ink-muted" />
+            <LoaderCircle className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+          <div className="overflow-x-auto rounded-lg border border-border">
             <table className="w-full text-[13px]">
               <thead>
-                <tr className="border-b border-clay-border bg-clay-surface-2">
-                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">
+                <tr className="border-b border-border bg-secondary">
+                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">
                     Skill Name
                   </th>
-                  <th className="px-4 py-2.5 text-right text-[12px] font-medium text-clay-ink-muted">
+                  <th className="px-4 py-2.5 text-right text-[12px] font-medium text-muted-foreground">
                     Actions
                   </th>
                 </tr>
@@ -117,7 +117,7 @@ export default function SkillsMasterPage() {
               <tbody>
                 {skills.length === 0 ? (
                   <tr>
-                    <td colSpan={2} className="py-10 text-center text-[13px] text-clay-ink-muted">
+                    <td colSpan={2} className="py-10 text-center text-[13px] text-muted-foreground">
                       No skills defined yet.
                     </td>
                   </tr>
@@ -125,9 +125,9 @@ export default function SkillsMasterPage() {
                   skills.map((s) => (
                     <tr
                       key={String(s._id)}
-                      className="border-t border-clay-border hover:bg-clay-surface-2/50"
+                      className="border-t border-border hover:bg-secondary/50"
                     >
-                      <td className="px-4 py-2.5 font-medium text-clay-ink">{s.name}</td>
+                      <td className="px-4 py-2.5 font-medium text-foreground">{s.name}</td>
                       <td className="px-4 py-2.5 text-right">
                         <div className="flex justify-end gap-1">
                           <ClayButton variant="pill" size="sm" onClick={() => openEdit(s)}>
@@ -138,7 +138,7 @@ export default function SkillsMasterPage() {
                             size="sm"
                             onClick={() => handleDelete(String(s._id))}
                           >
-                            <Trash2 className="h-3.5 w-3.5 text-clay-red" />
+                            <Trash2 className="h-3.5 w-3.5 text-destructive" />
                           </ClayButton>
                         </div>
                       </td>
@@ -152,23 +152,23 @@ export default function SkillsMasterPage() {
       </ClayCard>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-sm border-clay-border bg-clay-surface">
+        <DialogContent className="max-w-sm border-border bg-card">
           <DialogHeader>
-            <DialogTitle className="text-clay-ink">
+            <DialogTitle className="text-foreground">
               {form._id ? 'Edit Skill' : 'Add Skill'}
             </DialogTitle>
           </DialogHeader>
 
           <div className="py-2">
-            <Label className="text-[12px] text-clay-ink-muted">
-              Skill Name <span className="text-clay-red">*</span>
+            <Label className="text-[12px] text-muted-foreground">
+              Skill Name <span className="text-destructive">*</span>
             </Label>
             <Input
               value={form.name}
               onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
               onKeyDown={(e) => { if (e.key === 'Enter') handleSave(); }}
               placeholder="e.g. JavaScript, Project Management…"
-              className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+              className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
               autoFocus
             />
           </div>

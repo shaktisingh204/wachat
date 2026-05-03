@@ -69,53 +69,53 @@ export default function DayBookPage() {
             <div className="grid gap-4 md:grid-cols-3">
                 <ClayCard>
                     <div className="flex items-center justify-between">
-                        <p className="text-[12.5px] font-medium text-clay-ink-muted">Total In (Receipts)</p>
-                        <ArrowDownCircle className="h-4 w-4 text-clay-green" strokeWidth={1.75} />
+                        <p className="text-[12.5px] font-medium text-muted-foreground">Total In (Receipts)</p>
+                        <ArrowDownCircle className="h-4 w-4 text-emerald-500" strokeWidth={1.75} />
                     </div>
-                    <div className="mt-2 text-[24px] font-semibold text-clay-green">+{totals.in.toLocaleString()}</div>
+                    <div className="mt-2 text-[24px] font-semibold text-emerald-500">+{totals.in.toLocaleString()}</div>
                 </ClayCard>
                 <ClayCard>
                     <div className="flex items-center justify-between">
-                        <p className="text-[12.5px] font-medium text-clay-ink-muted">Total Out (Payouts/Exp)</p>
-                        <ArrowUpCircle className="h-4 w-4 text-clay-red" strokeWidth={1.75} />
+                        <p className="text-[12.5px] font-medium text-muted-foreground">Total Out (Payouts/Exp)</p>
+                        <ArrowUpCircle className="h-4 w-4 text-destructive" strokeWidth={1.75} />
                     </div>
-                    <div className="mt-2 text-[24px] font-semibold text-clay-red">-{totals.out.toLocaleString()}</div>
+                    <div className="mt-2 text-[24px] font-semibold text-destructive">-{totals.out.toLocaleString()}</div>
                 </ClayCard>
                 <ClayCard>
-                    <p className="text-[12.5px] font-medium text-clay-ink-muted">Net Cash Flow</p>
-                    <div className={cn("mt-2 text-[24px] font-semibold", (totals.in - totals.out) >= 0 ? "text-clay-green" : "text-clay-red")}>
+                    <p className="text-[12.5px] font-medium text-muted-foreground">Net Cash Flow</p>
+                    <div className={cn("mt-2 text-[24px] font-semibold", (totals.in - totals.out) >= 0 ? "text-emerald-500" : "text-destructive")}>
                         {(totals.in - totals.out).toLocaleString()}
                     </div>
                 </ClayCard>
             </div>
 
             <ClayCard>
-                <h2 className="text-[16px] font-semibold text-clay-ink">Transactions</h2>
-                <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">All financial activity for the selected day.</p>
+                <h2 className="text-[16px] font-semibold text-foreground">Transactions</h2>
+                <p className="mt-0.5 text-[12.5px] text-muted-foreground">All financial activity for the selected day.</p>
                 <div className="mt-4">
                     {loading ? (
                         <div className="flex justify-center py-8">
-                            <LoaderCircle className="animate-spin h-8 w-8 text-clay-ink-muted" />
+                            <LoaderCircle className="animate-spin h-8 w-8 text-muted-foreground" />
                         </div>
                     ) : transactions.length === 0 ? (
-                        <div className="text-center py-10 text-[13px] text-clay-ink-muted">
+                        <div className="text-center py-10 text-[13px] text-muted-foreground">
                             No transactions found for this date.
                         </div>
                     ) : (
                         <div className="space-y-4">
                             {transactions.map((tx) => (
-                                <div key={tx.id} className="flex items-center justify-between border-b border-clay-border pb-4 last:border-0 last:pb-0">
+                                <div key={tx.id} className="flex items-center justify-between border-b border-border pb-4 last:border-0 last:pb-0">
                                     <div className="flex items-start gap-3">
-                                        <div className={cn("p-2 rounded-full mt-1", tx.flow === 'In' ? "bg-clay-green-soft text-clay-green" : "bg-clay-red-soft text-clay-red")}>
+                                        <div className={cn("p-2 rounded-full mt-1", tx.flow === 'In' ? "bg-emerald-50 text-emerald-500" : "bg-rose-50 text-destructive")}>
                                             {tx.flow === 'In' ? <ArrowDownCircle className="h-4 w-4" /> : <ArrowUpCircle className="h-4 w-4" />}
                                         </div>
                                         <div>
-                                            <p className="text-[13px] font-medium text-clay-ink">{tx.partyName}</p>
-                                            <p className="text-[11.5px] text-clay-ink-muted">{tx.type} • {tx.number}</p>
+                                            <p className="text-[13px] font-medium text-foreground">{tx.partyName}</p>
+                                            <p className="text-[11.5px] text-muted-foreground">{tx.type} • {tx.number}</p>
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <p className={cn("font-semibold text-[13px]", tx.flow === 'In' ? "text-clay-green" : "text-clay-red")}>
+                                        <p className={cn("font-semibold text-[13px]", tx.flow === 'In' ? "text-emerald-500" : "text-destructive")}>
                                             {tx.flow === 'In' ? '+' : '-'}{tx.amount.toLocaleString()}
                                         </p>
                                         <ClayBadge tone="neutral" className="mt-1">{tx.status}</ClayBadge>

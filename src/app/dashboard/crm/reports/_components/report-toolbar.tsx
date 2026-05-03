@@ -18,28 +18,28 @@ export function ReportToolbar({
   return (
     <form
       method="get"
-      className="flex flex-wrap items-end gap-2 rounded-clay-md border border-clay-border bg-clay-surface px-3 py-2"
+      className="flex flex-wrap items-end gap-2 rounded-lg border border-border bg-card px-3 py-2"
     >
       <label className="flex flex-col gap-1">
-        <span className="text-[11px] uppercase tracking-wide text-clay-ink-muted">
+        <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
           From
         </span>
         <input
           type="date"
           name="from"
           defaultValue={from}
-          className="h-9 rounded-clay-md border border-clay-border bg-clay-surface px-2 text-[13px] text-clay-ink"
+          className="h-9 rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
         />
       </label>
       <label className="flex flex-col gap-1">
-        <span className="text-[11px] uppercase tracking-wide text-clay-ink-muted">
+        <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
           To
         </span>
         <input
           type="date"
           name="to"
           defaultValue={to}
-          className="h-9 rounded-clay-md border border-clay-border bg-clay-surface px-2 text-[13px] text-clay-ink"
+          className="h-9 rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
         />
       </label>
       {extra}
@@ -65,15 +65,15 @@ export function StatCard({
   tone?: 'default' | 'green' | 'red' | 'amber' | 'blue';
 }) {
   const toneClass: Record<NonNullable<typeof tone>, string> = {
-    default: 'text-clay-ink',
-    green: 'text-clay-green',
-    red: 'text-clay-red',
-    amber: 'text-clay-amber',
-    blue: 'text-clay-blue',
+    default: 'text-foreground',
+    green: 'text-emerald-500',
+    red: 'text-destructive',
+    amber: 'text-amber-500',
+    blue: 'text-sky-500',
   };
   return (
-    <div className="rounded-clay-lg border border-clay-border bg-clay-surface p-4 shadow-clay-card">
-      <div className="text-[11.5px] uppercase tracking-wide text-clay-ink-muted">
+    <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
+      <div className="text-[11.5px] uppercase tracking-wide text-muted-foreground">
         {label}
       </div>
       <div
@@ -82,7 +82,7 @@ export function StatCard({
         {value}
       </div>
       {hint ? (
-        <div className="mt-1 text-[12px] text-clay-ink-muted">{hint}</div>
+        <div className="mt-1 text-[12px] text-muted-foreground">{hint}</div>
       ) : null}
     </div>
   );
@@ -104,22 +104,22 @@ export function BarRow({
 }) {
   const pct = max > 0 ? Math.max(1, Math.round((value / max) * 100)) : 0;
   const toneBg: Record<string, string> = {
-    rose: 'bg-clay-rose',
-    obsidian: 'bg-clay-obsidian',
-    green: 'bg-clay-green',
-    amber: 'bg-clay-amber',
-    red: 'bg-clay-red',
-    blue: 'bg-clay-blue',
+    rose: 'bg-primary',
+    obsidian: 'bg-foreground',
+    green: 'bg-emerald-500',
+    amber: 'bg-amber-500',
+    red: 'bg-destructive',
+    blue: 'bg-sky-500',
   };
   return (
     <div className="py-2">
       <div className="flex items-center justify-between gap-3 text-[13px]">
-        <span className="truncate text-clay-ink">{label}</span>
-        <span className="font-medium text-clay-ink">
+        <span className="truncate text-foreground">{label}</span>
+        <span className="font-medium text-foreground">
           {rightLabel ?? value}
         </span>
       </div>
-      <div className="mt-1 h-2 w-full overflow-hidden rounded-full bg-clay-surface-2">
+      <div className="mt-1 h-2 w-full overflow-hidden rounded-full bg-secondary">
         <div
           className={`h-full rounded-full ${toneBg[tone] || toneBg.rose}`}
           style={{ width: `${pct}%` }}

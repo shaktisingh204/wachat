@@ -11,7 +11,7 @@ export default async function NewDebitNotePage() {
                 subtitle="Record a vendor return or adjustment."
                 icon={FileMinus}
             />
-            <Suspense fallback={<div className="text-[13px] text-clay-ink-muted">Loading...</div>}>
+            <Suspense fallback={<div className="text-[13px] text-muted-foreground">Loading...</div>}>
                 <NewDebitNoteForm />
             </Suspense>
         </div>

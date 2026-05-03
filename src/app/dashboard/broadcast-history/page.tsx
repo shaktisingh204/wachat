@@ -53,8 +53,8 @@ export default function BroadcastHistoryPage() {
       ]} />
 
       <div>
-        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">Broadcast History</h1>
-        <p className="mt-1.5 text-[13px] text-clay-ink-muted">View detailed history of all broadcast campaigns.</p>
+        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">Broadcast History</h1>
+        <p className="mt-1.5 text-[13px] text-muted-foreground">View detailed history of all broadcast campaigns.</p>
       </div>
 
       {broadcasts.length > 0 && (
@@ -85,8 +85,8 @@ export default function BroadcastHistoryPage() {
             },
           ].map((k) => (
             <ClayCard key={k.label} padded={false} className="p-5">
-              <div className="text-[11px] font-medium uppercase tracking-wide text-clay-ink-muted">{k.label}</div>
-              <div className="mt-2 text-[22px] font-semibold text-clay-ink leading-none">
+              <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">{k.label}</div>
+              <div className="mt-2 text-[22px] font-semibold text-foreground leading-none">
                 {typeof k.value === 'number' ? k.value.toLocaleString() : k.value}
               </div>
             </ClayCard>
@@ -96,18 +96,18 @@ export default function BroadcastHistoryPage() {
 
       {isLoading && broadcasts.length === 0 ? (
         <div className="flex h-32 items-center justify-center">
-          <LuLoader className="h-5 w-5 animate-spin text-clay-ink-muted" />
+          <LuLoader className="h-5 w-5 animate-spin text-muted-foreground" />
         </div>
       ) : broadcasts.length === 0 ? (
         <ClayCard className="p-12 text-center">
-          <LuRadio className="mx-auto h-12 w-12 text-clay-ink-muted/30 mb-4" />
-          <p className="text-sm text-clay-ink-muted">No broadcasts sent yet.</p>
+          <LuRadio className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
+          <p className="text-sm text-muted-foreground">No broadcasts sent yet.</p>
         </ClayCard>
       ) : (
         <ClayCard padded={false} className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-clay-border text-[11px] font-semibold uppercase tracking-wide text-clay-ink-muted">
+              <tr className="border-b border-border text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                 <th className="px-5 py-3 w-8" />
                 <th className="px-5 py-3">Broadcast</th>
                 <th className="px-5 py-3">Status</th>
@@ -123,27 +123,27 @@ export default function BroadcastHistoryPage() {
                 const isExpanded = expandedId === id;
                 return (
                   <React.Fragment key={id}>
-                    <tr className="border-b border-clay-border cursor-pointer hover:bg-clay-surface-2/50 transition-colors"
+                    <tr className="border-b border-border cursor-pointer hover:bg-secondary/50 transition-colors"
                       onClick={() => toggle(id)}>
                       <td className="px-5 py-3">
-                        {isExpanded ? <LuChevronDown className="h-4 w-4 text-clay-ink-muted" /> : <LuChevronRight className="h-4 w-4 text-clay-ink-muted" />}
+                        {isExpanded ? <LuChevronDown className="h-4 w-4 text-muted-foreground" /> : <LuChevronRight className="h-4 w-4 text-muted-foreground" />}
                       </td>
-                      <td className="px-5 py-3 font-medium text-[13px] text-clay-ink">{b.name || b.templateName || 'Broadcast'}</td>
+                      <td className="px-5 py-3 font-medium text-[13px] text-foreground">{b.name || b.templateName || 'Broadcast'}</td>
                       <td className="px-5 py-3"><ClayBadge tone={statusTone(b.status)}>{b.status || 'unknown'}</ClayBadge></td>
-                      <td className="px-5 py-3 text-right text-[13px] text-clay-ink tabular-nums">{(b.totalContacts || b.total || 0).toLocaleString()}</td>
+                      <td className="px-5 py-3 text-right text-[13px] text-foreground tabular-nums">{(b.totalContacts || b.total || 0).toLocaleString()}</td>
                       <td className="px-5 py-3 text-right text-[13px] text-emerald-600 tabular-nums">{(b.sentCount || b.sent || 0).toLocaleString()}</td>
                       <td className="px-5 py-3 text-right text-[13px] text-red-500 tabular-nums">{(b.failedCount || b.failed || 0).toLocaleString()}</td>
-                      <td className="px-5 py-3 text-[12px] text-clay-ink-muted whitespace-nowrap">
+                      <td className="px-5 py-3 text-[12px] text-muted-foreground whitespace-nowrap">
                         {b.createdAt ? new Date(b.createdAt).toLocaleString() : '--'}
                       </td>
                     </tr>
                     {isExpanded && (
-                      <tr className="border-b border-clay-border bg-clay-surface-2/30">
+                      <tr className="border-b border-border bg-secondary/30">
                         <td colSpan={7} className="px-10 py-4">
                           <div className="grid grid-cols-2 gap-4 max-w-md text-[13px]">
-                            <div><span className="text-clay-ink-muted">Template:</span> <span className="text-clay-ink font-mono">{b.templateName || '--'}</span></div>
-                            <div><span className="text-clay-ink-muted">Audience:</span> <span className="text-clay-ink">{b.audience || b.segmentName || '--'}</span></div>
-                            {b.completedAt && <div><span className="text-clay-ink-muted">Completed:</span> <span className="text-clay-ink">{new Date(b.completedAt).toLocaleString()}</span></div>}
+                            <div><span className="text-muted-foreground">Template:</span> <span className="text-foreground font-mono">{b.templateName || '--'}</span></div>
+                            <div><span className="text-muted-foreground">Audience:</span> <span className="text-foreground">{b.audience || b.segmentName || '--'}</span></div>
+                            {b.completedAt && <div><span className="text-muted-foreground">Completed:</span> <span className="text-foreground">{new Date(b.completedAt).toLocaleString()}</span></div>}
                           </div>
                         </td>
                       </tr>

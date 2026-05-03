@@ -208,15 +208,15 @@ export default function OrderDetailPage(props: {
       <ClayCard>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-[12px] uppercase tracking-wide text-clay-ink-muted">
+            <p className="text-[12px] uppercase tracking-wide text-muted-foreground">
               Client
             </p>
-            <p className="text-[15px] font-medium text-clay-ink">
+            <p className="text-[15px] font-medium text-foreground">
               {order.client_name || '—'}
             </p>
           </div>
           <div>
-            <p className="text-[12px] uppercase tracking-wide text-clay-ink-muted">
+            <p className="text-[12px] uppercase tracking-wide text-muted-foreground">
               Status
             </p>
             <ClayBadge tone={tone} dot>
@@ -224,10 +224,10 @@ export default function OrderDetailPage(props: {
             </ClayBadge>
           </div>
           <div>
-            <p className="text-[12px] uppercase tracking-wide text-clay-ink-muted">
+            <p className="text-[12px] uppercase tracking-wide text-muted-foreground">
               Total
             </p>
-            <p className="text-[18px] font-semibold text-clay-ink">
+            <p className="text-[18px] font-semibold text-foreground">
               {fmtMoney(order.total, order.currency)}
             </p>
           </div>
@@ -235,19 +235,19 @@ export default function OrderDetailPage(props: {
       </ClayCard>
 
       <ClayCard>
-        <h2 className="mb-3 text-[15px] font-semibold text-clay-ink">
+        <h2 className="mb-3 text-[15px] font-semibold text-foreground">
           Line Items
         </h2>
-        <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <table className="w-full text-sm">
-            <thead className="bg-clay-surface-2">
-              <tr className="border-b border-clay-border text-left">
-                <th className="p-3 font-medium text-clay-ink">Item</th>
-                <th className="p-3 text-right font-medium text-clay-ink">Qty</th>
-                <th className="p-3 text-right font-medium text-clay-ink">
+            <thead className="bg-secondary">
+              <tr className="border-b border-border text-left">
+                <th className="p-3 font-medium text-foreground">Item</th>
+                <th className="p-3 text-right font-medium text-foreground">Qty</th>
+                <th className="p-3 text-right font-medium text-foreground">
                   Unit price
                 </th>
-                <th className="p-3 text-right font-medium text-clay-ink">
+                <th className="p-3 text-right font-medium text-foreground">
                   Total
                 </th>
               </tr>
@@ -257,18 +257,18 @@ export default function OrderDetailPage(props: {
                 <tr>
                   <td
                     colSpan={4}
-                    className="p-4 text-center text-[13px] text-clay-ink-muted"
+                    className="p-4 text-center text-[13px] text-muted-foreground"
                   >
                     No line items on this order.
                   </td>
                 </tr>
               ) : (
                 items.map((it, idx) => (
-                  <tr key={idx} className="border-b border-clay-border">
-                    <td className="p-3 text-clay-ink">
+                  <tr key={idx} className="border-b border-border">
+                    <td className="p-3 text-foreground">
                       <div className="font-medium">{it.name || '—'}</div>
                       {it.description ? (
-                        <div className="text-[12px] text-clay-ink-muted">
+                        <div className="text-[12px] text-muted-foreground">
                           {it.description}
                         </div>
                       ) : null}
@@ -285,8 +285,8 @@ export default function OrderDetailPage(props: {
               )}
             </tbody>
             <tfoot>
-              <tr className="bg-clay-surface-2">
-                <td colSpan={3} className="p-3 text-right text-clay-ink-muted">
+              <tr className="bg-secondary">
+                <td colSpan={3} className="p-3 text-right text-muted-foreground">
                   Subtotal
                 </td>
                 <td className="p-3 text-right font-medium">
@@ -294,7 +294,7 @@ export default function OrderDetailPage(props: {
                 </td>
               </tr>
               <tr>
-                <td colSpan={3} className="p-3 text-right text-clay-ink-muted">
+                <td colSpan={3} className="p-3 text-right text-muted-foreground">
                   Tax
                 </td>
                 <td className="p-3 text-right font-medium">
@@ -302,18 +302,18 @@ export default function OrderDetailPage(props: {
                 </td>
               </tr>
               <tr>
-                <td colSpan={3} className="p-3 text-right text-clay-ink-muted">
+                <td colSpan={3} className="p-3 text-right text-muted-foreground">
                   Discount
                 </td>
                 <td className="p-3 text-right font-medium">
                   -{fmtMoney(order.discount, order.currency)}
                 </td>
               </tr>
-              <tr className="bg-clay-surface-2">
-                <td colSpan={3} className="p-3 text-right font-semibold text-clay-ink">
+              <tr className="bg-secondary">
+                <td colSpan={3} className="p-3 text-right font-semibold text-foreground">
                   Total
                 </td>
-                <td className="p-3 text-right font-semibold text-clay-ink">
+                <td className="p-3 text-right font-semibold text-foreground">
                   {fmtMoney(order.total, order.currency)}
                 </td>
               </tr>
@@ -325,37 +325,37 @@ export default function OrderDetailPage(props: {
       <ClayCard>
         <div className="grid gap-6 md:grid-cols-2">
           <div>
-            <h3 className="mb-2 text-[13px] font-semibold text-clay-ink">
+            <h3 className="mb-2 text-[13px] font-semibold text-foreground">
               Shipping Address
             </h3>
-            <p className="text-[13px] text-clay-ink-muted">
+            <p className="text-[13px] text-muted-foreground">
               {fmtAddress(order.shipping_address)}
             </p>
           </div>
           <div>
-            <h3 className="mb-2 text-[13px] font-semibold text-clay-ink">
+            <h3 className="mb-2 text-[13px] font-semibold text-foreground">
               Billing Address
             </h3>
-            <p className="text-[13px] text-clay-ink-muted">
+            <p className="text-[13px] text-muted-foreground">
               {fmtAddress(order.billing_address)}
             </p>
           </div>
           {order.payment_terms ? (
             <div className="md:col-span-2">
-              <h3 className="mb-2 text-[13px] font-semibold text-clay-ink">
+              <h3 className="mb-2 text-[13px] font-semibold text-foreground">
                 Payment Terms
               </h3>
-              <p className="whitespace-pre-wrap text-[13px] text-clay-ink-muted">
+              <p className="whitespace-pre-wrap text-[13px] text-muted-foreground">
                 {order.payment_terms}
               </p>
             </div>
           ) : null}
           {order.notes ? (
             <div className="md:col-span-2">
-              <h3 className="mb-2 text-[13px] font-semibold text-clay-ink">
+              <h3 className="mb-2 text-[13px] font-semibold text-foreground">
                 Notes
               </h3>
-              <p className="whitespace-pre-wrap text-[13px] text-clay-ink-muted">
+              <p className="whitespace-pre-wrap text-[13px] text-muted-foreground">
                 {order.notes}
               </p>
             </div>

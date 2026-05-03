@@ -78,62 +78,62 @@ function StructureFormDialog({ isOpen, onOpenChange, onSave, structure }: {
         return (
             <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                    <h4 className="text-[13px] font-semibold text-clay-ink capitalize">{type}s</h4>
+                    <h4 className="text-[13px] font-semibold text-foreground capitalize">{type}s</h4>
                     <ClayButton type="button" variant="pill" size="sm" leading={<Plus className="h-3.5 w-3.5" />} onClick={() => addComponent(type)}>
                         Add {type}
                     </ClayButton>
                 </div>
                 {filtered.length === 0 && (
-                    <p className="rounded-clay-md border border-dashed border-clay-border p-3 text-center text-[12.5px] text-clay-ink-muted">
+                    <p className="rounded-lg border border-dashed border-border p-3 text-center text-[12.5px] text-muted-foreground">
                         No {type}s defined yet.
                     </p>
                 )}
                 {filtered.map(comp => (
-                    <div key={comp.originalIndex} className="grid grid-cols-[1fr_auto_auto_auto_auto] items-end gap-2 rounded-clay-md border border-clay-border bg-clay-surface-2 p-3">
+                    <div key={comp.originalIndex} className="grid grid-cols-[1fr_auto_auto_auto_auto] items-end gap-2 rounded-lg border border-border bg-secondary p-3">
                         <div className="space-y-1">
-                            <Label className="text-[11.5px] text-clay-ink-muted">Component Name</Label>
+                            <Label className="text-[11.5px] text-muted-foreground">Component Name</Label>
                             <Input
                                 placeholder={type === 'earning' ? 'e.g. Basic Pay' : 'e.g. Prof. Tax'}
                                 value={comp.name}
                                 onChange={e => updateComponent(comp.originalIndex, 'name', e.target.value)}
-                                className="h-9 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                                className="h-9 rounded-lg border-border bg-card text-[13px]"
                             />
                         </div>
                         <div className="space-y-1">
-                            <Label className="text-[11.5px] text-clay-ink-muted">Calc. Type</Label>
+                            <Label className="text-[11.5px] text-muted-foreground">Calc. Type</Label>
                             <RadioGroup
                                 value={comp.calculationType}
                                 onValueChange={val => updateComponent(comp.originalIndex, 'calculationType', val)}
                                 className="flex h-9 items-center gap-3"
                             >
-                                <label className="flex items-center gap-1 cursor-pointer text-[12.5px] text-clay-ink">
+                                <label className="flex items-center gap-1 cursor-pointer text-[12.5px] text-foreground">
                                     <RadioGroupItem value="fixed" /> Fixed
                                 </label>
-                                <label className="flex items-center gap-1 cursor-pointer text-[12.5px] text-clay-ink">
+                                <label className="flex items-center gap-1 cursor-pointer text-[12.5px] text-foreground">
                                     <RadioGroupItem value="percentage" /> %
                                 </label>
                             </RadioGroup>
                         </div>
                         <div className="space-y-1">
-                            <Label className="text-[11.5px] text-clay-ink-muted">
+                            <Label className="text-[11.5px] text-muted-foreground">
                                 {comp.calculationType === 'percentage' ? 'Rate (%)' : 'Amount (₹)'}
                             </Label>
                             <Input
                                 type="number"
                                 value={comp.value}
                                 onChange={e => updateComponent(comp.originalIndex, 'value', Number(e.target.value))}
-                                className="h-9 w-24 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                                className="h-9 w-24 rounded-lg border-border bg-card text-[13px]"
                             />
                         </div>
                         <div className="space-y-1">
-                            <Label className="text-[11.5px] text-clay-ink-muted">Taxable</Label>
+                            <Label className="text-[11.5px] text-muted-foreground">Taxable</Label>
                             <button
                                 type="button"
                                 onClick={() => updateComponent(comp.originalIndex, 'taxable', !comp.taxable)}
-                                className="flex h-9 items-center text-clay-ink-muted hover:text-clay-ink transition-colors"
+                                className="flex h-9 items-center text-muted-foreground hover:text-foreground transition-colors"
                             >
                                 {comp.taxable
-                                    ? <CheckSquare className="h-4 w-4 text-clay-rose" />
+                                    ? <CheckSquare className="h-4 w-4 text-primary" />
                                     : <Square className="h-4 w-4" />
                                 }
                             </button>
@@ -143,7 +143,7 @@ function StructureFormDialog({ isOpen, onOpenChange, onSave, structure }: {
                             variant="ghost"
                             size="icon"
                             onClick={() => removeComponent(comp.originalIndex)}
-                            className="text-clay-red hover:text-clay-red"
+                            className="text-destructive hover:text-destructive"
                         >
                             <Trash2 className="h-4 w-4" />
                         </ClayButton>
@@ -165,18 +165,18 @@ function StructureFormDialog({ isOpen, onOpenChange, onSave, structure }: {
                     <div className="max-h-[70vh] space-y-4 overflow-y-auto py-4 pr-2">
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label>Structure Name <span className="text-clay-red">*</span></Label>
-                                <Input name="name" defaultValue={structure?.name} required className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                                <Label>Structure Name <span className="text-destructive">*</span></Label>
+                                <Input name="name" defaultValue={structure?.name} required className="h-10 rounded-lg border-border bg-card text-[13px]" />
                             </div>
                             <div className="space-y-2">
                                 <Label>Description</Label>
-                                <Input name="description" defaultValue={structure?.description} className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                                <Input name="description" defaultValue={structure?.description} className="h-10 rounded-lg border-border bg-card text-[13px]" />
                             </div>
                         </div>
-                        <div className="rounded-clay-md border border-clay-border bg-clay-surface p-4 space-y-4">
+                        <div className="rounded-lg border border-border bg-card p-4 space-y-4">
                             {renderComponents('earning')}
                         </div>
-                        <div className="rounded-clay-md border border-clay-border bg-clay-surface p-4 space-y-4">
+                        <div className="rounded-lg border border-border bg-card p-4 space-y-4">
                             {renderComponents('deduction')}
                         </div>
                     </div>
@@ -242,26 +242,26 @@ export default function SalaryStructurePage() {
                 />
                 <ClayCard>
                     <div className="mb-4">
-                        <h2 className="text-[16px] font-semibold text-clay-ink">Your Structures</h2>
-                        <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">{structures.length} structure{structures.length !== 1 ? 's' : ''} defined.</p>
+                        <h2 className="text-[16px] font-semibold text-foreground">Your Structures</h2>
+                        <p className="mt-0.5 text-[12.5px] text-muted-foreground">{structures.length} structure{structures.length !== 1 ? 's' : ''} defined.</p>
                     </div>
-                    <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                    <div className="overflow-x-auto rounded-lg border border-border">
                         <table className="w-full text-left text-[13px]">
                             <thead>
-                                <tr className="border-b border-clay-border bg-clay-surface-2">
-                                    <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Name</th>
-                                    <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Description</th>
-                                    <th className="px-4 py-3 text-center text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Earnings</th>
-                                    <th className="px-4 py-3 text-center text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Deductions</th>
-                                    <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Components</th>
-                                    <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-clay-ink-muted">Actions</th>
+                                <tr className="border-b border-border bg-secondary">
+                                    <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Name</th>
+                                    <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Description</th>
+                                    <th className="px-4 py-3 text-center text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Earnings</th>
+                                    <th className="px-4 py-3 text-center text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Deductions</th>
+                                    <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Components</th>
+                                    <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {isLoading ? (
                                     <tr>
                                         <td colSpan={6} className="h-24 text-center">
-                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-clay-ink-muted" />
+                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
                                         </td>
                                     </tr>
                                 ) : structures.length > 0 ? (
@@ -269,9 +269,9 @@ export default function SalaryStructurePage() {
                                         const earnings = s.components?.filter(c => c.type === 'earning') ?? [];
                                         const deductions = s.components?.filter(c => c.type === 'deduction') ?? [];
                                         return (
-                                            <tr key={s._id.toString()} className="border-b border-clay-border last:border-0 hover:bg-clay-surface-2/50 transition-colors">
-                                                <td className="px-4 py-3 font-medium text-clay-ink">{s.name}</td>
-                                                <td className="px-4 py-3 text-clay-ink-muted">{s.description ?? '—'}</td>
+                                            <tr key={s._id.toString()} className="border-b border-border last:border-0 hover:bg-secondary/50 transition-colors">
+                                                <td className="px-4 py-3 font-medium text-foreground">{s.name}</td>
+                                                <td className="px-4 py-3 text-muted-foreground">{s.description ?? '—'}</td>
                                                 <td className="px-4 py-3 text-center">
                                                     <ClayBadge tone="green">{earnings.length} earning{earnings.length !== 1 ? 's' : ''}</ClayBadge>
                                                 </td>
@@ -295,7 +295,7 @@ export default function SalaryStructurePage() {
                                                         </ClayButton>
                                                         <AlertDialog>
                                                             <AlertDialogTrigger asChild>
-                                                                <ClayButton variant="ghost" size="icon" className="text-clay-red hover:text-clay-red">
+                                                                <ClayButton variant="ghost" size="icon" className="text-destructive hover:text-destructive">
                                                                     <Trash2 className="h-4 w-4" />
                                                                 </ClayButton>
                                                             </AlertDialogTrigger>
@@ -319,7 +319,7 @@ export default function SalaryStructurePage() {
                                     })
                                 ) : (
                                     <tr>
-                                        <td colSpan={6} className="h-24 text-center text-[13px] text-clay-ink-muted">
+                                        <td colSpan={6} className="h-24 text-center text-[13px] text-muted-foreground">
                                             No salary structures created yet.
                                         </td>
                                     </tr>

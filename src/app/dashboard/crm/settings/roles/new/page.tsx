@@ -61,48 +61,48 @@ export default function NewRolePage() {
       <ClayCard>
         <form action={formAction} className="max-w-xl space-y-4 p-6">
           <div>
-            <Label htmlFor="display_name" className="text-clay-ink">
-              Display name <span className="text-clay-red">*</span>
+            <Label htmlFor="display_name" className="text-foreground">
+              Display name <span className="text-destructive">*</span>
             </Label>
             <Input
               id="display_name"
               name="display_name"
               required
               placeholder="e.g. Sales Manager"
-              className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+              className="h-10 rounded-lg border-border bg-card text-[13px]"
             />
           </div>
 
           <div>
-            <Label htmlFor="name" className="text-clay-ink">
+            <Label htmlFor="name" className="text-foreground">
               Slug
             </Label>
             <Input
               id="name"
               name="name"
               placeholder="auto-generated from display name"
-              className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+              className="h-10 rounded-lg border-border bg-card text-[13px]"
             />
-            <p className="mt-1 text-[12px] text-clay-ink-muted">
+            <p className="mt-1 text-[12px] text-muted-foreground">
               Lowercase identifier used in permission checks.
             </p>
           </div>
 
           <div>
-            <Label htmlFor="description" className="text-clay-ink">
+            <Label htmlFor="description" className="text-foreground">
               Description
             </Label>
             <Textarea
               id="description"
               name="description"
               rows={3}
-              className="rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+              className="rounded-lg border-border bg-card text-[13px]"
             />
           </div>
 
           <div className="flex items-center gap-2">
             <Checkbox id="is_admin" name="is_admin" value="true" />
-            <Label htmlFor="is_admin" className="text-[13px] text-clay-ink">
+            <Label htmlFor="is_admin" className="text-[13px] text-foreground">
               Admin role — grants all permissions automatically
             </Label>
           </div>

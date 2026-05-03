@@ -13,9 +13,9 @@ import { ClayCard, ClayButton } from '@/components/clay';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 const StatCard = ({ title, value }: { title: string; value: string }) => (
-    <div className="bg-clay-surface-2 border border-clay-border p-4 rounded-clay-md">
-        <p className="text-[12.5px] text-clay-ink-muted">{title}</p>
-        <p className="mt-1 text-[22px] font-semibold text-clay-ink">{value}</p>
+    <div className="bg-secondary border border-border p-4 rounded-lg">
+        <p className="text-[12.5px] text-muted-foreground">{title}</p>
+        <p className="mt-1 text-[22px] font-semibold text-foreground">{value}</p>
     </div>
 );
 
@@ -54,8 +54,8 @@ const BalanceSheetClient = ({ data }: { data: any }) => {
             />
 
             <ClayCard>
-                <h2 className="text-[16px] font-semibold text-clay-ink">Summary</h2>
-                <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">Figures are in INR (₹)</p>
+                <h2 className="text-[16px] font-semibold text-foreground">Summary</h2>
+                <p className="mt-0.5 text-[12.5px] text-muted-foreground">Figures are in INR (₹)</p>
                 <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
                     <StatCard title="Total Assets" value={`₹${summary.totalAssets.toFixed(2)}`} />
                     <StatCard title="Total Liabilities" value={`₹${summary.totalLiabilities.toFixed(2)}`} />
@@ -79,27 +79,27 @@ const BalanceSheetClient = ({ data }: { data: any }) => {
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
-                <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+                <div className="overflow-x-auto rounded-lg border border-border">
                     <Table>
                         <TableHeader>
-                            <TableRow className="border-clay-border hover:bg-transparent">
-                                <TableHead className="text-clay-ink-muted">Accounts</TableHead>
-                                <TableHead className="text-clay-ink-muted text-right">Amount</TableHead>
-                                <TableHead className="text-clay-ink-muted text-right">% of Total</TableHead>
+                            <TableRow className="border-border hover:bg-transparent">
+                                <TableHead className="text-muted-foreground">Accounts</TableHead>
+                                <TableHead className="text-muted-foreground text-right">Amount</TableHead>
+                                <TableHead className="text-muted-foreground text-right">% of Total</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {entries.map((entry: any, index: number) => (
-                                <TableRow key={index} className={`border-clay-border ${entry.isMain ? 'bg-clay-surface-2 font-semibold' : ''}`}>
-                                    <TableCell className={`text-clay-ink ${entry.isSub ? 'pl-8' : ''}`}>{entry.account}</TableCell>
-                                    <TableCell className="text-right font-mono text-clay-ink">₹{entry.amount.toFixed(2)}</TableCell>
-                                    <TableCell className="text-right font-mono text-clay-ink">{totalAll > 0 ? ((Math.abs(entry.amount) / totalAll) * 100).toFixed(2) : '0.00'}%</TableCell>
+                                <TableRow key={index} className={`border-border ${entry.isMain ? 'bg-secondary font-semibold' : ''}`}>
+                                    <TableCell className={`text-foreground ${entry.isSub ? 'pl-8' : ''}`}>{entry.account}</TableCell>
+                                    <TableCell className="text-right font-mono text-foreground">₹{entry.amount.toFixed(2)}</TableCell>
+                                    <TableCell className="text-right font-mono text-foreground">{totalAll > 0 ? ((Math.abs(entry.amount) / totalAll) * 100).toFixed(2) : '0.00'}%</TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
                     </Table>
                 </div>
-                <div className="flex items-center justify-between pt-4 text-[11.5px] text-clay-ink-muted">
+                <div className="flex items-center justify-between pt-4 text-[11.5px] text-muted-foreground">
                     <p>Showing 1 to {entries.length} of {entries.length} entries</p>
                     <p>* Reports are in your business currency INR</p>
                 </div>
@@ -126,14 +126,14 @@ export default function BalanceSheetPage() {
     if (isLoading || !data) {
         return (
             <div className="flex justify-center items-center h-full">
-                <LoaderCircle className="h-8 w-8 animate-spin text-clay-ink-muted" />
+                <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
         );
     }
 
     if (!data.summary) {
          return (
-            <div className="text-center py-10 text-[13px] text-clay-ink-muted">
+            <div className="text-center py-10 text-[13px] text-muted-foreground">
                 <p>Could not generate balance sheet data. Please ensure you have accounts and transactions.</p>
             </div>
         );

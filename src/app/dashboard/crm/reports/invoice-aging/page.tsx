@@ -40,7 +40,7 @@ export default async function InvoiceAgingPage() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <ClayCard>
           <div className="mb-3">
-            <h2 className="text-[16px] font-semibold text-clay-ink">
+            <h2 className="text-[16px] font-semibold text-foreground">
               Age buckets
             </h2>
           </div>
@@ -58,11 +58,11 @@ export default async function InvoiceAgingPage() {
 
         <ClayCard>
           <div className="mb-3">
-            <h2 className="text-[16px] font-semibold text-clay-ink">
+            <h2 className="text-[16px] font-semibold text-foreground">
               Breakdown
             </h2>
           </div>
-          <div className="flex flex-col divide-y divide-clay-border">
+          <div className="flex flex-col divide-y divide-border">
             {buckets.map((b) => (
               <div
                 key={b.bucket}
@@ -72,10 +72,10 @@ export default async function InvoiceAgingPage() {
                   {b.bucket} days
                 </ClayBadge>
                 <div className="flex items-center gap-4">
-                  <span className="text-[12.5px] text-clay-ink-muted">
+                  <span className="text-[12.5px] text-muted-foreground">
                     {b.count} invoice{b.count === 1 ? '' : 's'}
                   </span>
-                  <span className="text-[13px] font-medium text-clay-ink">
+                  <span className="text-[13px] font-medium text-foreground">
                     {fmtMoney(b.total)}
                   </span>
                 </div>

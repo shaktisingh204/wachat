@@ -28,7 +28,7 @@ export default function TaskLabelsPage() {
             r.color ? (
               <span className="inline-flex items-center gap-2">
                 <span
-                  className="h-3 w-3 rounded-full border border-clay-border"
+                  className="h-3 w-3 rounded-full border border-border"
                   style={{ backgroundColor: r.color }}
                 />
                 {r.color}

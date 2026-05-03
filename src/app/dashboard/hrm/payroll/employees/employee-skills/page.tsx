@@ -139,9 +139,9 @@ export default function EmployeeSkillsPage() {
       <ClayCard>
         {/* Filter bar */}
         <div className="mb-4 flex flex-wrap items-center gap-3">
-          <Label className="text-[12px] text-clay-ink-muted">Filter by Employee</Label>
+          <Label className="text-[12px] text-muted-foreground">Filter by Employee</Label>
           <Select value={filterEmp} onValueChange={setFilterEmp}>
-            <SelectTrigger className="h-9 w-[220px] rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
+            <SelectTrigger className="h-9 w-[220px] rounded-lg border-border bg-card text-[13px]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -149,30 +149,30 @@ export default function EmployeeSkillsPage() {
               {employees.map((e) => <SelectItem key={e._id} value={e._id}>{e.name}</SelectItem>)}
             </SelectContent>
           </Select>
-          <span className="text-[12px] text-clay-ink-muted">{filtered.length} assignment{filtered.length !== 1 ? 's' : ''}</span>
+          <span className="text-[12px] text-muted-foreground">{filtered.length} assignment{filtered.length !== 1 ? 's' : ''}</span>
         </div>
 
         {isLoading ? (
           <div className="flex h-32 items-center justify-center">
-            <LoaderCircle className="h-6 w-6 animate-spin text-clay-ink-muted" />
+            <LoaderCircle className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+          <div className="overflow-x-auto rounded-lg border border-border">
             <table className="w-full text-[13px]">
               <thead>
-                <tr className="border-b border-clay-border bg-clay-surface-2">
-                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Employee</th>
-                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-clay-ink-muted">Skill</th>
-                  <th className="px-4 py-2.5 text-right text-[12px] font-medium text-clay-ink-muted">Actions</th>
+                <tr className="border-b border-border bg-secondary">
+                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Employee</th>
+                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Skill</th>
+                  <th className="px-4 py-2.5 text-right text-[12px] font-medium text-muted-foreground">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.length === 0 ? (
-                  <tr><td colSpan={3} className="py-10 text-center text-[13px] text-clay-ink-muted">No skill assignments found.</td></tr>
+                  <tr><td colSpan={3} className="py-10 text-center text-[13px] text-muted-foreground">No skill assignments found.</td></tr>
                 ) : (
                   filtered.map((a) => (
-                    <tr key={String(a._id)} className="border-t border-clay-border hover:bg-clay-surface-2/50">
-                      <td className="px-4 py-2.5 font-medium text-clay-ink">{empMap.get(String(a.user_id)) || a.user_id}</td>
+                    <tr key={String(a._id)} className="border-t border-border hover:bg-secondary/50">
+                      <td className="px-4 py-2.5 font-medium text-foreground">{empMap.get(String(a.user_id)) || a.user_id}</td>
                       <td className="px-4 py-2.5">
                         <ClayBadge tone="neutral">{skillMap.get(String(a.skill_id)) || a.skill_id}</ClayBadge>
                       </td>
@@ -182,7 +182,7 @@ export default function EmployeeSkillsPage() {
                             <Pencil className="h-3.5 w-3.5" />
                           </ClayButton>
                           <ClayButton variant="pill" size="sm" onClick={() => handleDelete(String(a._id))}>
-                            <Trash2 className="h-3.5 w-3.5 text-clay-red" />
+                            <Trash2 className="h-3.5 w-3.5 text-destructive" />
                           </ClayButton>
                         </div>
                       </td>
@@ -196,15 +196,15 @@ export default function EmployeeSkillsPage() {
       </ClayCard>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-md border-clay-border bg-clay-surface">
+        <DialogContent className="max-w-md border-border bg-card">
           <DialogHeader>
-            <DialogTitle className="text-clay-ink">{form._id ? 'Edit Skill Assignment' : 'Assign Skill to Employee'}</DialogTitle>
+            <DialogTitle className="text-foreground">{form._id ? 'Edit Skill Assignment' : 'Assign Skill to Employee'}</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-2">
             <div>
-              <Label className="text-[12px] text-clay-ink-muted">Employee <span className="text-clay-red">*</span></Label>
+              <Label className="text-[12px] text-muted-foreground">Employee <span className="text-destructive">*</span></Label>
               <Select value={form.user_id || '__none__'} onValueChange={(v) => set('user_id', v === '__none__' ? '' : v)}>
-                <SelectTrigger className="mt-1.5 h-10 w-full rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
+                <SelectTrigger className="mt-1.5 h-10 w-full rounded-lg border-border bg-card text-[13px]">
                   <SelectValue placeholder="Select employee…" />
                 </SelectTrigger>
                 <SelectContent>
@@ -214,9 +214,9 @@ export default function EmployeeSkillsPage() {
               </Select>
             </div>
             <div>
-              <Label className="text-[12px] text-clay-ink-muted">Skill <span className="text-clay-red">*</span></Label>
+              <Label className="text-[12px] text-muted-foreground">Skill <span className="text-destructive">*</span></Label>
               <Select value={form.skill_id || '__none__'} onValueChange={(v) => set('skill_id', v === '__none__' ? '' : v)}>
-                <SelectTrigger className="mt-1.5 h-10 w-full rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
+                <SelectTrigger className="mt-1.5 h-10 w-full rounded-lg border-border bg-card text-[13px]">
                   <SelectValue placeholder="Select skill…" />
                 </SelectTrigger>
                 <SelectContent>

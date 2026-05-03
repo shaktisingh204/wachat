@@ -157,13 +157,13 @@ export default function LeaveDetailPage({
 
       {isLoading && !leave ? (
         <ClayCard>
-          <div className="py-12 text-center text-[13px] text-clay-ink-muted">
+          <div className="py-12 text-center text-[13px] text-muted-foreground">
             Loading…
           </div>
         </ClayCard>
       ) : !leave ? (
         <ClayCard>
-          <div className="py-12 text-center text-[13px] text-clay-ink-muted">
+          <div className="py-12 text-center text-[13px] text-muted-foreground">
             Leave application not found.
           </div>
         </ClayCard>
@@ -172,10 +172,10 @@ export default function LeaveDetailPage({
           <ClayCard>
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="space-y-1">
-                <div className="text-[12px] uppercase tracking-wide text-clay-ink-muted">
+                <div className="text-[12px] uppercase tracking-wide text-muted-foreground">
                   Employee
                 </div>
-                <div className="text-[18px] font-semibold text-clay-ink">
+                <div className="text-[18px] font-semibold text-foreground">
                   {employeeName}
                 </div>
               </div>
@@ -233,20 +233,20 @@ export default function LeaveDetailPage({
             </dl>
 
             <div className="mt-6">
-              <div className="text-[12px] uppercase tracking-wide text-clay-ink-muted">
+              <div className="text-[12px] uppercase tracking-wide text-muted-foreground">
                 Reason
               </div>
-              <p className="mt-1 whitespace-pre-wrap text-[13px] text-clay-ink">
+              <p className="mt-1 whitespace-pre-wrap text-[13px] text-foreground">
                 {leave.reason || '—'}
               </p>
             </div>
 
             {leave.reject_reason ? (
-              <div className="mt-4 rounded-clay-md border border-clay-red-soft bg-clay-red-soft p-3">
-                <div className="text-[12px] uppercase tracking-wide text-clay-red">
+              <div className="mt-4 rounded-lg border border-rose-50 bg-rose-50 p-3">
+                <div className="text-[12px] uppercase tracking-wide text-destructive">
                   Rejection reason
                 </div>
-                <p className="mt-1 whitespace-pre-wrap text-[13px] text-clay-red">
+                <p className="mt-1 whitespace-pre-wrap text-[13px] text-destructive">
                   {leave.reject_reason}
                 </p>
               </div>
@@ -255,12 +255,12 @@ export default function LeaveDetailPage({
             {leave.status === 'pending' ? (
               <div className="mt-6 flex flex-wrap items-end gap-3">
                 <div className="flex-1 min-w-[240px]">
-                  <Label className="text-clay-ink">Rejection reason (optional)</Label>
+                  <Label className="text-foreground">Rejection reason (optional)</Label>
                   <Textarea
                     rows={2}
                     value={rejectReason}
                     onChange={(e) => setRejectReason(e.target.value)}
-                    className="mt-1.5 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                    className="mt-1.5 rounded-lg border-border bg-card text-[13px]"
                   />
                 </div>
                 <div className="flex gap-2">
@@ -288,23 +288,23 @@ export default function LeaveDetailPage({
           </ClayCard>
 
           <ClayCard>
-            <h2 className="mb-4 text-[16px] font-semibold text-clay-ink">Attachments</h2>
+            <h2 className="mb-4 text-[16px] font-semibold text-foreground">Attachments</h2>
             {files.length === 0 ? (
-              <p className="text-[13px] text-clay-ink-muted">No attachments.</p>
+              <p className="text-[13px] text-muted-foreground">No attachments.</p>
             ) : (
               <ul className="space-y-2">
                 {files.map((f) => (
                   <li
                     key={String(f._id)}
-                    className="flex items-center justify-between rounded-clay-md border border-clay-border bg-clay-surface-2 px-3 py-2"
+                    className="flex items-center justify-between rounded-lg border border-border bg-secondary px-3 py-2"
                   >
                     <a
                       href={f.url}
                       target="_blank"
                       rel="noreferrer"
-                      className="flex items-center gap-2 text-[13px] text-clay-ink hover:underline"
+                      className="flex items-center gap-2 text-[13px] text-foreground hover:underline"
                     >
-                      <Paperclip className="h-4 w-4 text-clay-ink-muted" />
+                      <Paperclip className="h-4 w-4 text-muted-foreground" />
                       {f.filename}
                     </a>
                     <ClayButton
@@ -325,14 +325,14 @@ export default function LeaveDetailPage({
                 placeholder="File name"
                 value={fileName}
                 onChange={(e) => setFileName(e.target.value)}
-                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
               <Input
                 type="url"
                 placeholder="https://…"
                 value={fileUrl}
                 onChange={(e) => setFileUrl(e.target.value)}
-                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
               <ClayButton
                 type="submit"
@@ -358,10 +358,10 @@ function Field({
 }) {
   return (
     <div>
-      <dt className="text-[12px] uppercase tracking-wide text-clay-ink-muted">
+      <dt className="text-[12px] uppercase tracking-wide text-muted-foreground">
         {label}
       </dt>
-      <dd className="mt-1 text-[13px] text-clay-ink">{children}</dd>
+      <dd className="mt-1 text-[13px] text-foreground">{children}</dd>
     </div>
   );
 }

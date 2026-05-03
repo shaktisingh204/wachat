@@ -61,10 +61,10 @@ export default function AssignmentsPage() {
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">
+          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
             Conversation Assignments
           </h1>
-          <p className="mt-1.5 max-w-[720px] text-[13px] text-clay-ink-muted">
+          <p className="mt-1.5 max-w-[720px] text-[13px] text-muted-foreground">
             Assign unassigned conversations to agents for follow-up.
           </p>
         </div>
@@ -76,10 +76,10 @@ export default function AssignmentsPage() {
 
       {/* Stat */}
       <ClayCard className="p-5 w-fit">
-        <div className="text-[11px] font-semibold uppercase tracking-wide text-clay-ink-muted">
+        <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
           Unassigned Conversations
         </div>
-        <div className="mt-1 text-[28px] font-semibold text-clay-ink tabular-nums">
+        <div className="mt-1 text-[28px] font-semibold text-foreground tabular-nums">
           {contacts.length}
         </div>
       </ClayCard>
@@ -88,7 +88,7 @@ export default function AssignmentsPage() {
         <ClayCard padded={false} className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-clay-border text-[11px] font-semibold uppercase tracking-wide text-clay-ink-muted">
+              <tr className="border-b border-border text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                 <th className="px-5 py-3">Contact</th>
                 <th className="px-5 py-3">Last Message</th>
                 <th className="px-5 py-3">Time</th>
@@ -97,19 +97,19 @@ export default function AssignmentsPage() {
             </thead>
             <tbody>
               {contacts.map((c) => (
-                <tr key={c._id} className="border-b border-clay-border last:border-0">
+                <tr key={c._id} className="border-b border-border last:border-0">
                   <td className="px-5 py-3">
-                    <div className="text-[13px] font-medium text-clay-ink">{c.name || c.phone || 'Unknown'}</div>
+                    <div className="text-[13px] font-medium text-foreground">{c.name || c.phone || 'Unknown'}</div>
                     {c.phone && c.name && (
-                      <div className="text-[11px] text-clay-ink-muted font-mono">{c.phone}</div>
+                      <div className="text-[11px] text-muted-foreground font-mono">{c.phone}</div>
                     )}
                   </td>
                   <td className="px-5 py-3 max-w-[260px]">
-                    <p className="truncate text-[13px] text-clay-ink-muted">
+                    <p className="truncate text-[13px] text-muted-foreground">
                       {c.lastMessage || c.lastMessagePreview || '--'}
                     </p>
                   </td>
-                  <td className="px-5 py-3 text-[12px] text-clay-ink-muted whitespace-nowrap">
+                  <td className="px-5 py-3 text-[12px] text-muted-foreground whitespace-nowrap">
                     {c.lastMessageTimestamp ? new Date(c.lastMessageTimestamp).toLocaleString() : '--'}
                   </td>
                   <td className="px-5 py-3">
@@ -119,7 +119,7 @@ export default function AssignmentsPage() {
                         value={agentInputs[c._id] || ''}
                         onChange={(e) => setAgentInputs((p) => ({ ...p, [c._id]: e.target.value }))}
                         placeholder="Agent ID"
-                        className="w-[140px] rounded-lg border border-clay-border bg-clay-bg px-2 py-1.5 text-xs text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-accent focus:outline-none"
+                        className="w-[140px] rounded-lg border border-border bg-background px-2 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none"
                       />
                       <ClayButton size="sm" onClick={() => handleAssign(c._id)} disabled={isPending}>
                         <LuUserPlus className="mr-1 h-3.5 w-3.5" /> Assign
@@ -134,8 +134,8 @@ export default function AssignmentsPage() {
       ) : (
         !isPending && (
           <ClayCard className="p-12 text-center">
-            <LuInbox className="mx-auto h-12 w-12 text-clay-ink-muted/30 mb-4" />
-            <p className="text-sm text-clay-ink-muted">All conversations are assigned.</p>
+            <LuInbox className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
+            <p className="text-sm text-muted-foreground">All conversations are assigned.</p>
           </ClayCard>
         )
       )}

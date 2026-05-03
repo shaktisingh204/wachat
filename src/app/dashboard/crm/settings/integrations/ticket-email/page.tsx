@@ -98,7 +98,7 @@ export default function TicketEmailIntegrationPage() {
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="md:col-span-2">
-              <Label htmlFor="email_address" className="text-clay-ink">
+              <Label htmlFor="email_address" className="text-foreground">
                 Email Address
               </Label>
               <div className="mt-1.5">
@@ -108,13 +108,13 @@ export default function TicketEmailIntegrationPage() {
                   type="email"
                   defaultValue={v('email_address')}
                   placeholder="support@example.com"
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="imap_host" className="text-clay-ink">
+              <Label htmlFor="imap_host" className="text-foreground">
                 IMAP Host
               </Label>
               <div className="mt-1.5">
@@ -123,13 +123,13 @@ export default function TicketEmailIntegrationPage() {
                   name="imap_host"
                   defaultValue={v('imap_host')}
                   placeholder="imap.example.com"
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="imap_port" className="text-clay-ink">
+              <Label htmlFor="imap_port" className="text-foreground">
                 IMAP Port
               </Label>
               <div className="mt-1.5">
@@ -138,13 +138,13 @@ export default function TicketEmailIntegrationPage() {
                   name="imap_port"
                   defaultValue={v('imap_port')}
                   placeholder="993"
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="password" className="text-clay-ink">
+              <Label htmlFor="password" className="text-foreground">
                 Password
               </Label>
               <div className="mt-1.5">
@@ -153,13 +153,13 @@ export default function TicketEmailIntegrationPage() {
                   name="password"
                   type="password"
                   defaultValue={v('password')}
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="encryption" className="text-clay-ink">
+              <Label htmlFor="encryption" className="text-foreground">
                 Encryption
               </Label>
               <div className="mt-1.5">
@@ -168,17 +168,17 @@ export default function TicketEmailIntegrationPage() {
                   name="encryption"
                   defaultValue={v('encryption')}
                   placeholder="ssl / tls"
-                  className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
-            <div className="md:col-span-2 flex items-center justify-between rounded-clay-md border border-clay-border bg-clay-surface px-4 py-3">
+            <div className="md:col-span-2 flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3">
               <div>
-                <div className="text-[13px] font-medium text-clay-ink">
+                <div className="text-[13px] font-medium text-foreground">
                   Auto-reply
                 </div>
-                <div className="text-[12px] text-clay-ink-muted">
+                <div className="text-[12px] text-muted-foreground">
                   Send an automatic acknowledgement when a ticket is created.
                 </div>
               </div>
@@ -190,7 +190,7 @@ export default function TicketEmailIntegrationPage() {
             </div>
 
             <div className="md:col-span-2">
-              <Label htmlFor="auto_reply_body" className="text-clay-ink">
+              <Label htmlFor="auto_reply_body" className="text-foreground">
                 Auto-reply Body
               </Label>
               <div className="mt-1.5">
@@ -200,7 +200,7 @@ export default function TicketEmailIntegrationPage() {
                   rows={5}
                   defaultValue={v('auto_reply_body')}
                   placeholder="Thanks for contacting us — we'll reply shortly."
-                  className="rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>

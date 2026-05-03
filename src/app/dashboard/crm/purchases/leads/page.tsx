@@ -16,12 +16,12 @@ export default function VendorLeadsPage() {
 
             <ClayCard variant="outline" className="border-dashed">
                 <div className="flex flex-col items-center gap-4 py-12 text-center">
-                    <div className="flex h-14 w-14 items-center justify-center rounded-clay-md bg-clay-rose-soft">
-                        <Target className="h-7 w-7 text-clay-rose-ink" strokeWidth={1.75} />
+                    <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-accent">
+                        <Target className="h-7 w-7 text-accent-foreground" strokeWidth={1.75} />
                     </div>
                     <div>
-                        <h3 className="text-[17px] font-semibold text-clay-ink">Vendor Leads</h3>
-                        <p className="mt-1 max-w-md text-[12.5px] text-clay-ink-muted">
+                        <h3 className="text-[17px] font-semibold text-foreground">Vendor Leads</h3>
+                        <p className="mt-1 max-w-md text-[12.5px] text-muted-foreground">
                             Manage potential vendors and suppliers. Track leads, assign to team members, and convert them to vendors.
                         </p>
                     </div>

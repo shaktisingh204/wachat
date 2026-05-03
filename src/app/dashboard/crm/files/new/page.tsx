@@ -76,7 +76,7 @@ export default function NewFileRecordPage() {
     <div className="flex w-full max-w-3xl flex-col gap-6">
       <Link
         href="/dashboard/crm/files"
-        className="inline-flex items-center gap-2 text-[12.5px] text-clay-ink-muted hover:text-clay-ink"
+        className="inline-flex items-center gap-2 text-[12.5px] text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="h-3.5 w-3.5" />
         Back to files
@@ -119,7 +119,7 @@ export default function NewFileRecordPage() {
               required
               placeholder="https://..."
             />
-            <p className="text-[11.5px] text-clay-ink-muted">
+            <p className="text-[11.5px] text-muted-foreground">
               Paste the public URL where the file is hosted.
             </p>
           </div>
@@ -192,7 +192,7 @@ export default function NewFileRecordPage() {
             </Label>
           </div>
 
-          <div className="flex items-center justify-end gap-3 border-t border-clay-border pt-4">
+          <div className="flex items-center justify-end gap-3 border-t border-border pt-4">
             <Link href="/dashboard/crm/files">
               <ClayButton variant="ghost">Cancel</ClayButton>
             </Link>

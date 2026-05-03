@@ -80,16 +80,16 @@ export default function PhoneNumberSettingsPage() {
       ]} />
 
       <div>
-        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">Phone Number Settings</h1>
-        <p className="mt-1.5 text-[13px] text-clay-ink-muted">Manage business profile for each connected phone number.</p>
+        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">Phone Number Settings</h1>
+        <p className="mt-1.5 text-[13px] text-muted-foreground">Manage business profile for each connected phone number.</p>
       </div>
 
       {isLoading ? (
-        <div className="flex h-32 items-center justify-center"><LuLoader className="h-5 w-5 animate-spin text-clay-ink-muted" /></div>
+        <div className="flex h-32 items-center justify-center"><LuLoader className="h-5 w-5 animate-spin text-muted-foreground" /></div>
       ) : phones.length === 0 ? (
         <ClayCard className="p-12 text-center">
-          <LuPhone className="mx-auto h-12 w-12 text-clay-ink-muted/30 mb-4" />
-          <p className="text-sm text-clay-ink-muted">No phone numbers connected.</p>
+          <LuPhone className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
+          <p className="text-sm text-muted-foreground">No phone numbers connected.</p>
         </ClayCard>
       ) : (
         <>
@@ -104,25 +104,25 @@ export default function PhoneNumberSettingsPage() {
 
           <ClayCard padded={false} className="p-6">
             <div className="flex items-center gap-3 mb-6">
-              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-clay-surface-2">
-                <LuPhone className="h-6 w-6 text-clay-ink-muted" />
+              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary">
+                <LuPhone className="h-6 w-6 text-muted-foreground" />
               </span>
               <div>
-                <div className="text-[16px] font-semibold text-clay-ink">{current?.display_phone_number || current?.number || '--'}</div>
-                <div className="text-[12px] text-clay-ink-muted">{current?.verified_name || current?.displayName || ''}</div>
+                <div className="text-[16px] font-semibold text-foreground">{current?.display_phone_number || current?.number || '--'}</div>
+                <div className="text-[12px] text-muted-foreground">{current?.verified_name || current?.displayName || ''}</div>
               </div>
             </div>
 
             <div className="flex flex-col gap-4 max-w-lg">
               {fields.map((f) => (
                 <div key={f.key}>
-                  <label className="text-[13px] font-medium text-clay-ink mb-1.5 block">{f.label}</label>
+                  <label className="text-[13px] font-medium text-foreground mb-1.5 block">{f.label}</label>
                   {f.multiline ? (
                     <textarea value={profile[f.key] || ''} onChange={(e) => setProfile((prev) => ({ ...prev, [f.key]: e.target.value }))} rows={3}
-                      className="w-full rounded-lg border border-clay-border bg-clay-bg px-3 py-2 text-sm text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-accent focus:outline-none resize-none" />
+                      className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none resize-none" />
                   ) : (
                     <input type="text" value={profile[f.key] || ''} onChange={(e) => setProfile((prev) => ({ ...prev, [f.key]: e.target.value }))}
-                      className="w-full rounded-lg border border-clay-border bg-clay-bg px-3 py-2 text-sm text-clay-ink placeholder:text-clay-ink-muted focus:border-clay-accent focus:outline-none" />
+                      className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none" />
                   )}
                 </div>
               ))}

@@ -52,7 +52,7 @@ export default function GreetingMessagesPage() {
   if (isLoading) {
     return (
       <div className="flex min-h-[300px] items-center justify-center">
-        <LuLoader className="h-6 w-6 animate-spin text-clay-ink-muted" />
+        <LuLoader className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -68,10 +68,10 @@ export default function GreetingMessagesPage() {
       />
 
       <div>
-        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">
+        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
           Greeting Messages
         </h1>
-        <p className="mt-1.5 text-[13px] text-clay-ink-muted">
+        <p className="mt-1.5 text-[13px] text-muted-foreground">
           Configure the welcome message sent to contacts when they start a new conversation.
         </p>
       </div>
@@ -79,15 +79,15 @@ export default function GreetingMessagesPage() {
       <ClayCard padded={false} className="p-5">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-[15px] font-semibold text-clay-ink">Enable Greeting</h2>
-            <p className="text-[12px] text-clay-ink-muted mt-0.5">
+            <h2 className="text-[15px] font-semibold text-foreground">Enable Greeting</h2>
+            <p className="text-[12px] text-muted-foreground mt-0.5">
               Automatically send a greeting when a contact messages for the first time.
             </p>
           </div>
           <button
             type="button"
             onClick={() => setEnabled(!enabled)}
-            className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${enabled ? 'bg-clay-rose' : 'bg-clay-border'}`}
+            className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${enabled ? 'bg-primary' : 'bg-border'}`}
           >
             <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${enabled ? 'left-[22px]' : 'left-0.5'}`} />
           </button>
@@ -95,7 +95,7 @@ export default function GreetingMessagesPage() {
       </ClayCard>
 
       <ClayCard padded={false} className="p-5">
-        <h2 className="text-[15px] font-semibold text-clay-ink mb-3">Message</h2>
+        <h2 className="text-[15px] font-semibold text-foreground mb-3">Message</h2>
         <textarea
           value={greeting}
           onChange={(e) => setGreeting(e.target.value)}
@@ -104,13 +104,13 @@ export default function GreetingMessagesPage() {
           className="clay-input min-h-[96px] resize-y py-2.5 w-full"
         />
         <div className="mt-3 flex flex-wrap gap-2">
-          <span className="text-[12px] text-clay-ink-muted self-center">Insert:</span>
+          <span className="text-[12px] text-muted-foreground self-center">Insert:</span>
           {VARIABLES.map((v) => (
             <button
               key={v}
               type="button"
               onClick={() => setGreeting((prev) => prev + ' ' + v)}
-              className="rounded-md border border-clay-border bg-clay-bg px-2 py-1 text-[11px] font-mono text-clay-ink hover:bg-clay-bg-2 transition-colors"
+              className="rounded-md border border-border bg-background px-2 py-1 text-[11px] font-mono text-foreground hover:bg-muted transition-colors"
             >
               {v}
             </button>
@@ -120,15 +120,15 @@ export default function GreetingMessagesPage() {
 
       <ClayCard padded={false} className="p-5">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-[15px] font-semibold text-clay-ink">Preview</h2>
+          <h2 className="text-[15px] font-semibold text-foreground">Preview</h2>
           <ClayButton size="sm" variant="ghost" onClick={() => setShowPreview(!showPreview)}>
             <LuEye className="mr-1.5 h-3.5 w-3.5" /> {showPreview ? 'Hide' : 'Show'}
           </ClayButton>
         </div>
         {showPreview && (
-          <div className="rounded-clay-md border border-clay-border bg-clay-bg p-4">
-            <div className="inline-block max-w-[80%] rounded-xl rounded-tl-sm bg-clay-surface-2 px-4 py-2.5 text-[13px] text-clay-ink">
-              {rendered || <span className="text-clay-ink-muted italic">Empty message</span>}
+          <div className="rounded-lg border border-border bg-background p-4">
+            <div className="inline-block max-w-[80%] rounded-xl rounded-tl-sm bg-secondary px-4 py-2.5 text-[13px] text-foreground">
+              {rendered || <span className="text-muted-foreground italic">Empty message</span>}
             </div>
           </div>
         )}

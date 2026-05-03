@@ -191,16 +191,16 @@ export default function TicketsPage() {
       />
 
       <Tabs defaultValue="board">
-        <TabsList className="rounded-full bg-clay-surface-2 p-1">
+        <TabsList className="rounded-full bg-secondary p-1">
           <TabsTrigger
             value="board"
-            className="rounded-full data-[state=active]:bg-clay-surface data-[state=active]:text-clay-ink"
+            className="rounded-full data-[state=active]:bg-card data-[state=active]:text-foreground"
           >
             Board
           </TabsTrigger>
           <TabsTrigger
             value="list"
-            className="rounded-full data-[state=active]:bg-clay-surface data-[state=active]:text-clay-ink"
+            className="rounded-full data-[state=active]:bg-card data-[state=active]:text-foreground"
           >
             List
           </TabsTrigger>
@@ -210,7 +210,7 @@ export default function TicketsPage() {
           {isLoading && tickets.length === 0 ? (
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
               {STATUS_COLUMNS.map((c) => (
-                <Skeleton key={c.status} className="h-[50vh] rounded-clay-lg" />
+                <Skeleton key={c.status} className="h-[50vh] rounded-xl" />
               ))}
             </div>
           ) : (
@@ -227,13 +227,13 @@ export default function TicketsPage() {
                       <ClayBadge tone={col.tone} dot>
                         {col.label}
                       </ClayBadge>
-                      <span className="text-[11.5px] text-clay-ink-muted">
+                      <span className="text-[11.5px] text-muted-foreground">
                         {colTickets.length}
                       </span>
                     </div>
                     <div className="flex flex-col gap-2">
                       {colTickets.length === 0 ? (
-                        <div className="rounded-clay-md border border-dashed border-clay-border p-4 text-center text-[12px] text-clay-ink-muted">
+                        <div className="rounded-lg border border-dashed border-border p-4 text-center text-[12px] text-muted-foreground">
                           No tickets
                         </div>
                       ) : (
@@ -243,10 +243,10 @@ export default function TicketsPage() {
                             padded={false}
                             className="p-3"
                           >
-                            <p className="text-[13px] font-medium text-clay-ink">
+                            <p className="text-[13px] font-medium text-foreground">
                               {ticket.subject}
                             </p>
-                            <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11.5px] text-clay-ink-muted">
+                            <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11.5px] text-muted-foreground">
                               {ticket.clientName ? (
                                 <span>{ticket.clientName}</span>
                               ) : null}
@@ -269,7 +269,7 @@ export default function TicketsPage() {
                                   changeStatus(ticket._id, v as Ticket['status'])
                                 }
                               >
-                                <SelectTrigger className="h-8 rounded-full border-clay-border bg-clay-surface text-[11.5px]">
+                                <SelectTrigger className="h-8 rounded-full border-border bg-card text-[11.5px]">
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -294,16 +294,16 @@ export default function TicketsPage() {
 
         <TabsContent value="list" className="mt-4">
           <ClayCard>
-            <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+            <div className="overflow-x-auto rounded-lg border border-border">
               <Table>
                 <TableHeader>
-                  <TableRow className="border-clay-border hover:bg-transparent">
-                    <TableHead className="text-clay-ink-muted">Subject</TableHead>
-                    <TableHead className="text-clay-ink-muted">Client</TableHead>
-                    <TableHead className="text-clay-ink-muted">Priority</TableHead>
-                    <TableHead className="text-clay-ink-muted">Status</TableHead>
-                    <TableHead className="text-clay-ink-muted">Assignee</TableHead>
-                    <TableHead className="w-[120px] text-right text-clay-ink-muted">
+                  <TableRow className="border-border hover:bg-transparent">
+                    <TableHead className="text-muted-foreground">Subject</TableHead>
+                    <TableHead className="text-muted-foreground">Client</TableHead>
+                    <TableHead className="text-muted-foreground">Priority</TableHead>
+                    <TableHead className="text-muted-foreground">Status</TableHead>
+                    <TableHead className="text-muted-foreground">Assignee</TableHead>
+                    <TableHead className="w-[120px] text-right text-muted-foreground">
                       Actions
                     </TableHead>
                   </TableRow>
@@ -311,28 +311,28 @@ export default function TicketsPage() {
                 <TableBody>
                   {isLoading && tickets.length === 0 ? (
                     [...Array(3)].map((_, i) => (
-                      <TableRow key={i} className="border-clay-border">
+                      <TableRow key={i} className="border-border">
                         <TableCell colSpan={6}>
                           <Skeleton className="h-8 w-full" />
                         </TableCell>
                       </TableRow>
                     ))
                   ) : tickets.length === 0 ? (
-                    <TableRow className="border-clay-border">
+                    <TableRow className="border-border">
                       <TableCell
                         colSpan={6}
-                        className="h-24 text-center text-[13px] text-clay-ink-muted"
+                        className="h-24 text-center text-[13px] text-muted-foreground"
                       >
                         No tickets yet — click Add Ticket to get started.
                       </TableCell>
                     </TableRow>
                   ) : (
                     tickets.map((ticket) => (
-                      <TableRow key={ticket._id} className="border-clay-border">
-                        <TableCell className="text-[13px] font-medium text-clay-ink">
+                      <TableRow key={ticket._id} className="border-border">
+                        <TableCell className="text-[13px] font-medium text-foreground">
                           {ticket.subject}
                         </TableCell>
-                        <TableCell className="text-[13px] text-clay-ink">
+                        <TableCell className="text-[13px] text-foreground">
                           {ticket.clientName || '—'}
                         </TableCell>
                         <TableCell>
@@ -351,7 +351,7 @@ export default function TicketsPage() {
                             {ticket.status}
                           </ClayBadge>
                         </TableCell>
-                        <TableCell className="text-[13px] text-clay-ink">
+                        <TableCell className="text-[13px] text-foreground">
                           {ticket.assigneeName || '—'}
                         </TableCell>
                         <TableCell className="text-right">
@@ -371,7 +371,7 @@ export default function TicketsPage() {
                               size="sm"
                               onClick={() => setDeletingId(ticket._id)}
                             >
-                              <Trash2 className="h-3.5 w-3.5 text-clay-red" />
+                              <Trash2 className="h-3.5 w-3.5 text-destructive" />
                             </Button>
                           </div>
                         </TableCell>
@@ -388,10 +388,10 @@ export default function TicketsPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="text-clay-ink">
+            <DialogTitle className="text-foreground">
               {editing ? 'Edit Ticket' : 'Add Ticket'}
             </DialogTitle>
-            <DialogDescription className="text-clay-ink-muted">
+            <DialogDescription className="text-muted-foreground">
               Fill in the details below.
             </DialogDescription>
           </DialogHeader>
@@ -403,42 +403,42 @@ export default function TicketsPage() {
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="md:col-span-2">
-                <Label className="text-clay-ink">
-                  Subject <span className="text-clay-red">*</span>
+                <Label className="text-foreground">
+                  Subject <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   name="subject"
                   required
                   defaultValue={editing?.subject || ''}
-                  className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
               <div>
-                <Label className="text-clay-ink">Client Name</Label>
+                <Label className="text-foreground">Client Name</Label>
                 <Input
                   name="clientName"
                   defaultValue={editing?.clientName || ''}
-                  className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
               <div>
-                <Label className="text-clay-ink">Requester Email</Label>
+                <Label className="text-foreground">Requester Email</Label>
                 <Input
                   type="email"
                   name="requesterEmail"
                   defaultValue={editing?.requesterEmail || ''}
-                  className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
               <div>
-                <Label className="text-clay-ink">
-                  Priority <span className="text-clay-red">*</span>
+                <Label className="text-foreground">
+                  Priority <span className="text-destructive">*</span>
                 </Label>
                 <Select
                   name="priority"
                   defaultValue={editing?.priority || 'medium'}
                 >
-                  <SelectTrigger className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
+                  <SelectTrigger className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -450,14 +450,14 @@ export default function TicketsPage() {
                 </Select>
               </div>
               <div>
-                <Label className="text-clay-ink">
-                  Status <span className="text-clay-red">*</span>
+                <Label className="text-foreground">
+                  Status <span className="text-destructive">*</span>
                 </Label>
                 <Select
                   name="status"
                   defaultValue={editing?.status || 'open'}
                 >
-                  <SelectTrigger className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]">
+                  <SelectTrigger className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -470,28 +470,28 @@ export default function TicketsPage() {
                 </Select>
               </div>
               <div>
-                <Label className="text-clay-ink">Assignee</Label>
+                <Label className="text-foreground">Assignee</Label>
                 <Input
                   name="assigneeName"
                   defaultValue={editing?.assigneeName || ''}
-                  className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
               <div>
-                <Label className="text-clay-ink">Category</Label>
+                <Label className="text-foreground">Category</Label>
                 <Input
                   name="category"
                   defaultValue={editing?.category || ''}
-                  className="mt-1.5 h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
               <div className="md:col-span-2">
-                <Label className="text-clay-ink">Description</Label>
+                <Label className="text-foreground">Description</Label>
                 <Textarea
                   name="description"
                   rows={4}
                   defaultValue={editing?.description || ''}
-                  className="mt-1.5 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                  className="mt-1.5 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
@@ -530,10 +530,10 @@ export default function TicketsPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-clay-ink">
+            <AlertDialogTitle className="text-foreground">
               Delete ticket?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-clay-ink-muted">
+            <AlertDialogDescription className="text-muted-foreground">
               This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>

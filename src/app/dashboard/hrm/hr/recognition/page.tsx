@@ -42,7 +42,7 @@ export default function RecognitionPage() {
           label: 'Category',
           render: (row) => row.category ? (
             <ClayBadge tone="neutral">{row.category}</ClayBadge>
-          ) : <span className="text-clay-ink-muted">—</span>,
+          ) : <span className="text-muted-foreground">—</span>,
         },
         {
           key: 'message',
@@ -63,7 +63,7 @@ export default function RecognitionPage() {
             <ClayBadge tone={row.visibility === 'public' ? 'green' : row.visibility === 'private' ? 'neutral' : 'amber'}>
               {row.visibility}
             </ClayBadge>
-          ) : <span className="text-clay-ink-muted">—</span>,
+          ) : <span className="text-muted-foreground">—</span>,
         },
         {
           key: 'givenAt',

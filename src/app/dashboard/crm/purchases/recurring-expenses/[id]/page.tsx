@@ -220,7 +220,7 @@ export default function RecurringExpenseDetailPage(props: {
       <ClayCard>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-[12px] uppercase tracking-wide text-clay-ink-muted">
+            <p className="text-[12px] uppercase tracking-wide text-muted-foreground">
               Status
             </p>
             <ClayBadge tone={STATUS_TONES[doc.status] || 'neutral'} dot>
@@ -228,27 +228,27 @@ export default function RecurringExpenseDetailPage(props: {
             </ClayBadge>
           </div>
           <div>
-            <p className="text-[12px] uppercase tracking-wide text-clay-ink-muted">
+            <p className="text-[12px] uppercase tracking-wide text-muted-foreground">
               Runs
             </p>
-            <p className="text-[15px] font-medium text-clay-ink">
+            <p className="text-[15px] font-medium text-foreground">
               {doc.run_count || 0}
               {doc.stop_at_count ? ` / ${doc.stop_at_count}` : ''}
             </p>
           </div>
           <div>
-            <p className="text-[12px] uppercase tracking-wide text-clay-ink-muted">
+            <p className="text-[12px] uppercase tracking-wide text-muted-foreground">
               Last Run
             </p>
-            <p className="text-[15px] font-medium text-clay-ink">
+            <p className="text-[15px] font-medium text-foreground">
               {fmtDate(doc.last_run_date)}
             </p>
           </div>
           <div>
-            <p className="text-[12px] uppercase tracking-wide text-clay-ink-muted">
+            <p className="text-[12px] uppercase tracking-wide text-muted-foreground">
               Amount
             </p>
-            <p className="text-[18px] font-semibold text-clay-ink">
+            <p className="text-[18px] font-semibold text-foreground">
               {fmtMoney(doc.amount, doc.currency)}
             </p>
           </div>
@@ -258,35 +258,35 @@ export default function RecurringExpenseDetailPage(props: {
       <ClayCard>
         <div className="grid gap-6 md:grid-cols-2">
           <div>
-            <h3 className="mb-2 text-[13px] font-semibold text-clay-ink">Vendor</h3>
-            <p className="text-[13px] text-clay-ink-muted">{doc.vendor || '—'}</p>
+            <h3 className="mb-2 text-[13px] font-semibold text-foreground">Vendor</h3>
+            <p className="text-[13px] text-muted-foreground">{doc.vendor || '—'}</p>
           </div>
           <div>
-            <h3 className="mb-2 text-[13px] font-semibold text-clay-ink">Category</h3>
-            <p className="text-[13px] text-clay-ink-muted">
+            <h3 className="mb-2 text-[13px] font-semibold text-foreground">Category</h3>
+            <p className="text-[13px] text-muted-foreground">
               {doc.category_name || '—'}
             </p>
           </div>
           <div>
-            <h3 className="mb-2 text-[13px] font-semibold text-clay-ink">
+            <h3 className="mb-2 text-[13px] font-semibold text-foreground">
               Payment Method
             </h3>
-            <p className="text-[13px] text-clay-ink-muted">
+            <p className="text-[13px] text-muted-foreground">
               {doc.payment_method || '—'}
             </p>
           </div>
           <div>
-            <h3 className="mb-2 text-[13px] font-semibold text-clay-ink">
+            <h3 className="mb-2 text-[13px] font-semibold text-foreground">
               Start Date
             </h3>
-            <p className="text-[13px] text-clay-ink-muted">
+            <p className="text-[13px] text-muted-foreground">
               {fmtDate(doc.start_date)}
             </p>
           </div>
           {doc.notes ? (
             <div className="md:col-span-2">
-              <h3 className="mb-2 text-[13px] font-semibold text-clay-ink">Notes</h3>
-              <p className="whitespace-pre-wrap text-[13px] text-clay-ink-muted">
+              <h3 className="mb-2 text-[13px] font-semibold text-foreground">Notes</h3>
+              <p className="whitespace-pre-wrap text-[13px] text-muted-foreground">
                 {doc.notes}
               </p>
             </div>
@@ -295,15 +295,15 @@ export default function RecurringExpenseDetailPage(props: {
       </ClayCard>
 
       <ClayCard>
-        <h2 className="mb-3 text-[15px] font-semibold text-clay-ink">
+        <h2 className="mb-3 text-[15px] font-semibold text-foreground">
           Generated Expenses
         </h2>
         {generated.length === 0 ? (
-          <p className="text-[13px] text-clay-ink-muted">
+          <p className="text-[13px] text-muted-foreground">
             No expenses generated yet. Click <em>Run now</em> to record one.
           </p>
         ) : (
-          <ul className="space-y-1 text-[13px] text-clay-ink">
+          <ul className="space-y-1 text-[13px] text-foreground">
             {generated.map((exp, i) => (
               <li key={i} className="font-mono">
                 {String(exp)}

@@ -63,33 +63,33 @@ export default function AgentAvailabilityPage() {
       ]} />
 
       <div>
-        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-clay-ink leading-[1.1]">Agent Availability</h1>
-        <p className="mt-1.5 text-[13px] text-clay-ink-muted">View team status and manage agent availability.</p>
+        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">Agent Availability</h1>
+        <p className="mt-1.5 text-[13px] text-muted-foreground">View team status and manage agent availability.</p>
       </div>
 
       <div className="flex gap-4">
         {(['online', 'away', 'offline'] as const).map((s) => (
           <ClayCard key={s} padded={false} className="flex-1 p-4 text-center">
-            <p className="text-[22px] font-semibold text-clay-ink">{counts[s]}</p>
-            <p className="text-[11px] text-clay-ink-muted capitalize">{s}</p>
+            <p className="text-[22px] font-semibold text-foreground">{counts[s]}</p>
+            <p className="text-[11px] text-muted-foreground capitalize">{s}</p>
           </ClayCard>
         ))}
       </div>
 
       {isLoading && agents.length === 0 ? (
         <div className="flex h-32 items-center justify-center">
-          <LuLoader className="h-5 w-5 animate-spin text-clay-ink-muted" />
+          <LuLoader className="h-5 w-5 animate-spin text-muted-foreground" />
         </div>
       ) : agents.length === 0 ? (
         <ClayCard className="p-12 text-center">
-          <LuUsers className="mx-auto h-12 w-12 text-clay-ink-muted/30 mb-4" />
-          <p className="text-sm text-clay-ink-muted">No agents found.</p>
+          <LuUsers className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
+          <p className="text-sm text-muted-foreground">No agents found.</p>
         </ClayCard>
       ) : (
         <ClayCard padded={false} className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-clay-border text-[11px] font-semibold uppercase tracking-wide text-clay-ink-muted">
+              <tr className="border-b border-border text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                 <th className="px-5 py-3">Agent</th>
                 <th className="px-5 py-3">Status</th>
                 <th className="px-5 py-3">Email</th>
@@ -98,12 +98,12 @@ export default function AgentAvailabilityPage() {
             </thead>
             <tbody>
               {agents.map((agent) => (
-                <tr key={agent._id} className="border-b border-clay-border last:border-0">
-                  <td className="px-5 py-3 text-[13px] font-medium text-clay-ink">{agent.name || 'Agent'}</td>
+                <tr key={agent._id} className="border-b border-border last:border-0">
+                  <td className="px-5 py-3 text-[13px] font-medium text-foreground">{agent.name || 'Agent'}</td>
                   <td className="px-5 py-3">
                     <ClayBadge tone={STATUS_TONES[agent.status] || 'neutral'}>{agent.status || 'offline'}</ClayBadge>
                   </td>
-                  <td className="px-5 py-3 text-[13px] text-clay-ink-muted">{agent.email || '--'}</td>
+                  <td className="px-5 py-3 text-[13px] text-muted-foreground">{agent.email || '--'}</td>
                   <td className="px-5 py-3 text-right">
                     <ClayButton size="sm" variant="ghost" onClick={() => cycleStatus(agent)} disabled={togglingId === agent._id}>
                       {togglingId === agent._id ? 'Updating...' : 'Toggle Status'}

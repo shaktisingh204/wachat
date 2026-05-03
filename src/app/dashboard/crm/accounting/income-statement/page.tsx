@@ -30,9 +30,9 @@ type GroupData = {
 }
 
 const DataRow = ({ label, value, level = 0 }: { label: string; value?: number; level?: number }) => (
-    <TableRow className={`border-clay-border ${level === 0 ? 'font-semibold bg-clay-surface-2' : ''}`}>
-        <TableCell className="text-clay-ink" style={{ paddingLeft: `${1 + level * 1.5}rem` }}>{label}</TableCell>
-        <TableCell className="text-right font-mono text-clay-ink">
+    <TableRow className={`border-border ${level === 0 ? 'font-semibold bg-secondary' : ''}`}>
+        <TableCell className="text-foreground" style={{ paddingLeft: `${1 + level * 1.5}rem` }}>{label}</TableCell>
+        <TableCell className="text-right font-mono text-foreground">
             {value !== undefined ? new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(value) : ''}
         </TableCell>
     </TableRow>
@@ -122,7 +122,7 @@ export default function IncomeStatementPage() {
     if (isLoading || !data || !user) {
         return (
             <div className="flex justify-center items-center h-full">
-                <LoaderCircle className="h-8 w-8 animate-spin text-clay-ink-muted" />
+                <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
         );
     }
@@ -176,37 +176,37 @@ export default function IncomeStatementPage() {
 
             <ClayCard>
                 <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-clay-rose-soft text-clay-rose-ink flex items-center justify-center text-xl font-semibold">
+                    <div className="w-12 h-12 rounded-full bg-accent text-accent-foreground flex items-center justify-center text-xl font-semibold">
                         {businessProfile?.name?.charAt(0) || 'B'}
                     </div>
                     <div>
-                        <h2 className="text-[16px] font-semibold text-clay-ink">{businessProfile.name}</h2>
-                        <p className="text-[12.5px] text-clay-ink-muted">GSTIN: {businessProfile.gstin}</p>
+                        <h2 className="text-[16px] font-semibold text-foreground">{businessProfile.name}</h2>
+                        <p className="text-[12.5px] text-muted-foreground">GSTIN: {businessProfile.gstin}</p>
                     </div>
                 </div>
             </ClayCard>
 
             <ClayCard>
-                <h2 className="text-[16px] font-semibold text-clay-ink">Income Statement</h2>
-                <div className="mt-4 overflow-x-auto rounded-clay-md border border-clay-border">
+                <h2 className="text-[16px] font-semibold text-foreground">Income Statement</h2>
+                <div className="mt-4 overflow-x-auto rounded-lg border border-border">
                     <Table>
                         <TableHeader>
-                            <TableRow className="border-clay-border hover:bg-transparent">
-                                <TableHead className="text-clay-ink-muted">Account</TableHead>
-                                <TableHead className="text-clay-ink-muted text-right">Balance</TableHead>
+                            <TableRow className="border-border hover:bg-transparent">
+                                <TableHead className="text-muted-foreground">Account</TableHead>
+                                <TableHead className="text-muted-foreground text-right">Balance</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             <Section title="Income" data={incomeData} />
                             <Section title="Expense" data={expenseData} />
-                            <TableRow className="border-clay-border bg-clay-rose-soft font-semibold">
-                                <TableCell className="text-clay-rose-ink">Net Surplus</TableCell>
-                                <TableCell className="text-right font-mono text-clay-rose-ink">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(netSurplus)}</TableCell>
+                            <TableRow className="border-border bg-accent font-semibold">
+                                <TableCell className="text-accent-foreground">Net Surplus</TableCell>
+                                <TableCell className="text-right font-mono text-accent-foreground">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(netSurplus)}</TableCell>
                             </TableRow>
                         </TableBody>
                     </Table>
                 </div>
-                <p className="mt-4 text-[11.5px] text-clay-ink-muted">* Reports are in your business currency INR</p>
+                <p className="mt-4 text-[11.5px] text-muted-foreground">* Reports are in your business currency INR</p>
             </ClayCard>
         </div>
     )

@@ -56,7 +56,7 @@ export default function TrainingPage() {
             return t ? (
               <ClayBadge tone="neutral">{t}</ClayBadge>
             ) : (
-              <span className="text-clay-ink-muted">—</span>
+              <span className="text-muted-foreground">—</span>
             );
           },
         },
@@ -79,7 +79,7 @@ export default function TrainingPage() {
             return h != null ? (
               <span className="tabular-nums">{h}h</span>
             ) : (
-              <span className="text-clay-ink-muted">—</span>
+              <span className="text-muted-foreground">—</span>
             );
           },
         },
@@ -91,7 +91,7 @@ export default function TrainingPage() {
             return m != null ? (
               <span className="tabular-nums">{m}</span>
             ) : (
-              <span className="text-clay-ink-muted">—</span>
+              <span className="text-muted-foreground">—</span>
             );
           },
         },

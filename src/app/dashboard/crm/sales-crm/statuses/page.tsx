@@ -28,7 +28,7 @@ export default function LeadStatusesPage() {
             return (
               <span className="inline-flex items-center gap-2">
                 <span
-                  className="inline-block h-3 w-3 rounded-full border border-clay-border"
+                  className="inline-block h-3 w-3 rounded-full border border-border"
                   style={{ backgroundColor: color }}
                 />
                 <ClayBadge

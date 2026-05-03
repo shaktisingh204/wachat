@@ -79,18 +79,18 @@ export function AddAccountGroupDialog({ open, onOpenChange, onGroupAdded, defaul
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle className="text-clay-ink">Add Account Group</DialogTitle>
-                    <DialogDescription className="text-clay-ink-muted">
+                    <DialogTitle className="text-foreground">Add Account Group</DialogTitle>
+                    <DialogDescription className="text-muted-foreground">
                         Create a new group for your Chart of Accounts.
                     </DialogDescription>
                 </DialogHeader>
                 <form ref={formRef} action={formAction} className="grid gap-4 py-4">
                     <div className="grid gap-2">
-                        <Label htmlFor="name" className="text-clay-ink">Group Name</Label>
+                        <Label htmlFor="name" className="text-foreground">Group Name</Label>
                         <Input id="name" name="name" required defaultValue={defaultName} />
                     </div>
                     <div className="grid gap-2">
-                        <Label htmlFor="type" className="text-clay-ink">Type</Label>
+                        <Label htmlFor="type" className="text-foreground">Type</Label>
                         <Select name="type" required value={selectedType} onValueChange={setSelectedType}>
                             <SelectTrigger><SelectValue /></SelectTrigger>
                             <SelectContent>
@@ -103,7 +103,7 @@ export function AddAccountGroupDialog({ open, onOpenChange, onGroupAdded, defaul
                         </Select>
                     </div>
                     <div className="grid gap-2">
-                        <Label htmlFor="category" className="text-clay-ink">Category</Label>
+                        <Label htmlFor="category" className="text-foreground">Category</Label>
                         <Select name="category" required>
                             <SelectTrigger><SelectValue placeholder="Select Category" /></SelectTrigger>
                             <SelectContent>

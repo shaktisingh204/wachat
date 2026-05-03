@@ -189,7 +189,7 @@ export default function LeadConsentPage() {
       <ClayCard>
         <div className="flex flex-wrap items-end gap-3">
           <div className="min-w-[240px] flex-1">
-            <Label htmlFor="lead-id" className="text-clay-ink">
+            <Label htmlFor="lead-id" className="text-foreground">
               Lead ID
             </Label>
             <div className="mt-1.5">
@@ -198,7 +198,7 @@ export default function LeadConsentPage() {
                 value={leadId}
                 onChange={(e) => setLeadId(e.target.value)}
                 placeholder="Paste a lead _id"
-                className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]"
+                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
           </div>
@@ -212,7 +212,7 @@ export default function LeadConsentPage() {
         <>
           <ClayCard>
             <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-[14px] font-semibold text-clay-ink">
+              <h2 className="text-[14px] font-semibold text-foreground">
                 Active purposes
               </h2>
               <ClayButton
@@ -237,25 +237,25 @@ export default function LeadConsentPage() {
                 <Skeleton className="h-8 w-full" />
               </div>
             ) : purposes.length === 0 ? (
-              <p className="text-[13px] text-clay-ink-muted">
+              <p className="text-[13px] text-muted-foreground">
                 No active purposes configured yet.
               </p>
             ) : (
-              <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+              <div className="overflow-x-auto rounded-lg border border-border">
                 <Table>
                   <TableHeader>
-                    <TableRow className="border-clay-border hover:bg-transparent">
+                    <TableRow className="border-border hover:bg-transparent">
                       <TableHead className="w-[40px]" />
-                      <TableHead className="text-clay-ink-muted">
+                      <TableHead className="text-muted-foreground">
                         Purpose
                       </TableHead>
-                      <TableHead className="text-clay-ink-muted">
+                      <TableHead className="text-muted-foreground">
                         State
                       </TableHead>
-                      <TableHead className="text-clay-ink-muted">
+                      <TableHead className="text-muted-foreground">
                         Last updated
                       </TableHead>
-                      <TableHead className="w-[120px] text-right text-clay-ink-muted">
+                      <TableHead className="w-[120px] text-right text-muted-foreground">
                         Actions
                       </TableHead>
                     </TableRow>
@@ -267,7 +267,7 @@ export default function LeadConsentPage() {
                       return (
                         <TableRow
                           key={p._id}
-                          className="border-clay-border"
+                          className="border-border"
                         >
                           <TableCell>
                             <Checkbox
@@ -278,10 +278,10 @@ export default function LeadConsentPage() {
                               aria-label={`Select ${p.title}`}
                             />
                           </TableCell>
-                          <TableCell className="text-[13px] text-clay-ink">
+                          <TableCell className="text-[13px] text-foreground">
                             <div className="font-medium">{p.title}</div>
                             {p.description ? (
-                              <div className="text-[11.5px] text-clay-ink-muted">
+                              <div className="text-[11.5px] text-muted-foreground">
                                 {p.description}
                               </div>
                             ) : null}
@@ -297,7 +297,7 @@ export default function LeadConsentPage() {
                               <ClayBadge tone="neutral">No record</ClayBadge>
                             )}
                           </TableCell>
-                          <TableCell className="text-[13px] text-clay-ink-muted">
+                          <TableCell className="text-[13px] text-muted-foreground">
                             {formatDateTime(latest?.granted_at)}
                           </TableCell>
                           <TableCell className="text-right">
@@ -322,28 +322,28 @@ export default function LeadConsentPage() {
           </ClayCard>
 
           <ClayCard>
-            <h2 className="mb-3 text-[14px] font-semibold text-clay-ink">
+            <h2 className="mb-3 text-[14px] font-semibold text-foreground">
               History
             </h2>
             {history.length === 0 ? (
-              <p className="text-[13px] text-clay-ink-muted">
+              <p className="text-[13px] text-muted-foreground">
                 No consent events recorded for this lead yet.
               </p>
             ) : (
-              <div className="overflow-x-auto rounded-clay-md border border-clay-border">
+              <div className="overflow-x-auto rounded-lg border border-border">
                 <Table>
                   <TableHeader>
-                    <TableRow className="border-clay-border hover:bg-transparent">
-                      <TableHead className="text-clay-ink-muted">
+                    <TableRow className="border-border hover:bg-transparent">
+                      <TableHead className="text-muted-foreground">
                         Purpose
                       </TableHead>
-                      <TableHead className="text-clay-ink-muted">
+                      <TableHead className="text-muted-foreground">
                         State
                       </TableHead>
-                      <TableHead className="text-clay-ink-muted">
+                      <TableHead className="text-muted-foreground">
                         Timestamp
                       </TableHead>
-                      <TableHead className="text-clay-ink-muted">
+                      <TableHead className="text-muted-foreground">
                         IP
                       </TableHead>
                     </TableRow>
@@ -356,9 +356,9 @@ export default function LeadConsentPage() {
                       return (
                         <TableRow
                           key={row._id}
-                          className="border-clay-border"
+                          className="border-border"
                         >
-                          <TableCell className="text-[13px] text-clay-ink">
+                          <TableCell className="text-[13px] text-foreground">
                             {p ? p.title : row.purpose_consent_id}
                           </TableCell>
                           <TableCell>
@@ -368,10 +368,10 @@ export default function LeadConsentPage() {
                               {row.granted ? 'Granted' : 'Revoked'}
                             </ClayBadge>
                           </TableCell>
-                          <TableCell className="text-[13px] text-clay-ink-muted">
+                          <TableCell className="text-[13px] text-muted-foreground">
                             {formatDateTime(row.granted_at)}
                           </TableCell>
-                          <TableCell className="text-[13px] text-clay-ink-muted">
+                          <TableCell className="text-[13px] text-muted-foreground">
                             {row.ip_address || '—'}
                           </TableCell>
                         </TableRow>

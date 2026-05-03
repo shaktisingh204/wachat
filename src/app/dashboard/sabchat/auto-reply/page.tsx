@@ -72,17 +72,17 @@ export default function AutoReplyPage() {
         />
 
         <ClayCard>
-          <h2 className="mb-4 text-[15px] font-semibold text-clay-ink">Automated Messages</h2>
+          <h2 className="mb-4 text-[15px] font-semibold text-foreground">Automated Messages</h2>
 
           {/* Welcome Message */}
-          <div className="mb-4 rounded-clay-md border border-clay-border p-4">
+          <div className="mb-4 rounded-lg border border-border p-4">
             <div className="mb-2 flex items-center justify-between">
-              <Label htmlFor="welcomeEnabled" className="text-[13px] font-semibold text-clay-ink">
+              <Label htmlFor="welcomeEnabled" className="text-[13px] font-semibold text-foreground">
                 Welcome Message
               </Label>
               <Switch id="welcomeEnabled" name="welcomeEnabled" defaultChecked={settings.welcomeEnabled} />
             </div>
-            <p className="mb-3 text-[12px] text-clay-ink-muted">
+            <p className="mb-3 text-[12px] text-muted-foreground">
               The first message a visitor sees when they start a chat.
             </p>
             <Textarea
@@ -94,14 +94,14 @@ export default function AutoReplyPage() {
           </div>
 
           {/* Away Message */}
-          <div className="mb-4 rounded-clay-md border border-clay-border p-4">
+          <div className="mb-4 rounded-lg border border-border p-4">
             <div className="mb-2 flex items-center justify-between">
-              <Label htmlFor="awayMessageEnabled" className="text-[13px] font-semibold text-clay-ink">
+              <Label htmlFor="awayMessageEnabled" className="text-[13px] font-semibold text-foreground">
                 Away Message
               </Label>
               <Switch id="awayMessageEnabled" name="awayMessageEnabled" defaultChecked={settings.awayMessageEnabled} />
             </div>
-            <p className="mb-3 text-[12px] text-clay-ink-muted">
+            <p className="mb-3 text-[12px] text-muted-foreground">
               Sent automatically when a visitor messages you outside of office hours.
             </p>
             <Textarea
@@ -110,7 +110,7 @@ export default function AutoReplyPage() {
               placeholder="Away message..."
               className="min-h-24"
             />
-            <p className="mt-2 text-[12px] text-clay-ink-muted">
+            <p className="mt-2 text-[12px] text-muted-foreground">
               Office hours can be configured under general settings.
             </p>
           </div>

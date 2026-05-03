@@ -31,13 +31,13 @@ export default async function PublicInvoicePage({ params }: PageProps) {
       <ClayCard>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="text-[11.5px] uppercase tracking-wide text-clay-ink-muted">
+            <p className="text-[11.5px] uppercase tracking-wide text-muted-foreground">
               Invoice
             </p>
-            <h1 className="text-[18px] font-semibold text-clay-ink">
+            <h1 className="text-[18px] font-semibold text-foreground">
               {String(invoice.invoiceNumber || invoice.invoice_number || '')}
             </h1>
-            <p className="mt-1 text-[12.5px] text-clay-ink-muted">
+            <p className="mt-1 text-[12.5px] text-muted-foreground">
               Issued {fmtDate(invoice.invoiceDate || invoice.issue_date)} · Due{' '}
               {fmtDate(invoice.dueDate || invoice.due_date)}
             </p>
@@ -59,21 +59,21 @@ export default async function PublicInvoicePage({ params }: PageProps) {
 
       {payments.length ? (
         <ClayCard>
-          <h2 className="mb-2 text-[15px] font-semibold text-clay-ink">
+          <h2 className="mb-2 text-[15px] font-semibold text-foreground">
             Payment history
           </h2>
-          <div className="divide-y divide-clay-border">
+          <div className="divide-y divide-border">
             {payments.map((p, i) => (
               <div key={i} className="flex items-center justify-between py-2">
                 <div>
-                  <p className="text-[13px] font-medium text-clay-ink">
+                  <p className="text-[13px] font-medium text-foreground">
                     {fmtCurrency(Number(p.amount || 0), currency)}
                   </p>
-                  <p className="text-[11.5px] text-clay-ink-muted">
+                  <p className="text-[11.5px] text-muted-foreground">
                     {String(p.gateway || '')} · {fmtDateTime(p.paid_at || p.createdAt)}
                   </p>
                 </div>
-                <p className="text-[11.5px] text-clay-ink-muted">
+                <p className="text-[11.5px] text-muted-foreground">
                   {String(p.transaction_id || '')}
                 </p>
               </div>
@@ -84,7 +84,7 @@ export default async function PublicInvoicePage({ params }: PageProps) {
 
       {isPaid ? (
         <ClayCard>
-          <p className="text-[13px] text-clay-ink">
+          <p className="text-[13px] text-foreground">
             This invoice has been fully paid. Thank you!
           </p>
         </ClayCard>
@@ -109,13 +109,13 @@ function Stat({
   strong?: boolean;
 }) {
   return (
-    <div className="rounded-clay-md border border-clay-border bg-clay-surface-2 p-3">
-      <p className="text-[11.5px] text-clay-ink-muted">{label}</p>
+    <div className="rounded-lg border border-border bg-secondary p-3">
+      <p className="text-[11.5px] text-muted-foreground">{label}</p>
       <p
         className={
           strong
-            ? 'mt-1 text-[16px] font-semibold text-clay-ink'
-            : 'mt-1 text-[14px] font-medium text-clay-ink'
+            ? 'mt-1 text-[16px] font-semibold text-foreground'
+            : 'mt-1 text-[14px] font-medium text-foreground'
         }
       >
         {value}

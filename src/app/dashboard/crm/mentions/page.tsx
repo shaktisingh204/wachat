@@ -25,11 +25,11 @@ export default async function MentionsPage() {
 
       {mentions.length === 0 ? (
         <ClayCard className="flex items-center justify-center py-12">
-          <p className="text-[13px] text-clay-ink-muted">No mentions yet.</p>
+          <p className="text-[13px] text-muted-foreground">No mentions yet.</p>
         </ClayCard>
       ) : (
         <ClayCard padded={false}>
-          <ul className="divide-y divide-clay-border">
+          <ul className="divide-y divide-border">
             {mentions.map((m) => (
               <MentionRow key={m._id} mention={m} />
             ))}

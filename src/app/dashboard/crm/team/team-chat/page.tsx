@@ -103,15 +103,15 @@ function InviteAgentForm({ onAgentInvited }: { onAgentInvited: () => void }) {
     return (
         <ClayCard variant="outline" className="border-dashed">
             <div className="mb-4">
-                <h2 className="text-[16px] font-semibold text-clay-ink">Invite a New Team Member</h2>
-                <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">
+                <h2 className="text-[16px] font-semibold text-foreground">Invite a New Team Member</h2>
+                <p className="mt-0.5 text-[12.5px] text-muted-foreground">
                     Assign a role to the new user. They must have an existing SabNode account. This will grant them access to all your current and future projects with the selected role.
                 </p>
             </div>
             <form action={handleFormSubmit} ref={formRef} className="flex flex-col sm:flex-row gap-4">
                 <div className="space-y-2 flex-grow">
                     <Label htmlFor="email" className="sr-only">Email</Label>
-                    <Input id="email" name="email" type="email" placeholder="Enter agent's email" required className="h-10 rounded-clay-md border-clay-border bg-clay-surface text-[13px]" />
+                    <Input id="email" name="email" type="email" placeholder="Enter agent's email" required className="h-10 rounded-lg border-border bg-card text-[13px]" />
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="role" className="sr-only">Role</Label>
@@ -164,8 +164,8 @@ export default function TeamChatPage() {
 
             <ClayCard>
                 <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-clay-ink">Team Members</h2>
-                    <p className="mt-0.5 text-[12.5px] text-clay-ink-muted">A list of all users in your team.</p>
+                    <h2 className="text-[16px] font-semibold text-foreground">Team Members</h2>
+                    <p className="mt-0.5 text-[12.5px] text-muted-foreground">A list of all users in your team.</p>
                 </div>
                 <div className="space-y-4">
                     {isLoading ? (
@@ -175,19 +175,19 @@ export default function TeamChatPage() {
                         </div>
                     ) : teamMembers.length > 0 ? (
                         teamMembers.map((agent: any) => (
-                            <div key={agent._id.toString()} className="flex items-center justify-between gap-4 rounded-clay-md border border-clay-border p-4">
+                            <div key={agent._id.toString()} className="flex items-center justify-between gap-4 rounded-lg border border-border p-4">
                                 <div className="flex items-center gap-4">
                                     <Avatar>
                                         <AvatarImage src={`https://i.pravatar.cc/150?u=${agent.email}`} alt={agent.name} />
-                                        <AvatarFallback className="bg-clay-rose-soft text-clay-rose-ink">{agent.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+                                        <AvatarFallback className="bg-accent text-accent-foreground">{agent.name.substring(0, 2).toUpperCase()}</AvatarFallback>
                                     </Avatar>
                                     <div className="space-y-0.5">
-                                        <p className="text-[13px] font-medium leading-none text-clay-ink">{agent.name}</p>
-                                        <p className="text-[12.5px] text-clay-ink-muted">{agent.email}</p>
+                                        <p className="text-[13px] font-medium leading-none text-foreground">{agent.name}</p>
+                                        <p className="text-[12.5px] text-muted-foreground">{agent.email}</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <div className="text-[12.5px] text-clay-ink-muted">
+                                    <div className="text-[12.5px] text-muted-foreground">
                                         {agent.roles && Object.keys(agent.roles).length > 0
                                             ? `Role: ${Object.values(agent.roles)[0]}`
                                             : 'No specific project roles'
@@ -198,7 +198,7 @@ export default function TeamChatPage() {
                             </div>
                         ))
                     ) : (
-                        <p className="text-[13px] text-clay-ink-muted text-center py-8">No team members have been invited yet.</p>
+                        <p className="text-[13px] text-muted-foreground text-center py-8">No team members have been invited yet.</p>
                     )}
                 </div>
             </ClayCard>

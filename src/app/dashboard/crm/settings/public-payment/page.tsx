@@ -17,14 +17,14 @@ import {
 } from '@/app/actions/worksuite/payments.actions';
 
 const COLORS: Record<string, string> = {
-  razorpay: 'bg-clay-blue-soft text-clay-blue',
-  stripe: 'bg-clay-rose-soft text-clay-rose-ink',
-  paypal: 'bg-clay-amber-soft text-clay-amber',
-  payfast: 'bg-clay-green-soft text-clay-green',
-  paytm: 'bg-clay-blue-soft text-clay-blue',
-  mollie: 'bg-clay-red-soft text-clay-red',
-  authorize_net: 'bg-clay-rose-soft text-clay-rose-ink',
-  square: 'bg-clay-obsidian text-white',
+  razorpay: 'bg-sky-50 text-sky-500',
+  stripe: 'bg-accent text-accent-foreground',
+  paypal: 'bg-amber-50 text-amber-500',
+  payfast: 'bg-emerald-50 text-emerald-500',
+  paytm: 'bg-sky-50 text-sky-500',
+  mollie: 'bg-rose-50 text-destructive',
+  authorize_net: 'bg-accent text-accent-foreground',
+  square: 'bg-foreground text-white',
 };
 
 export default function PublicPaymentPage() {
@@ -69,14 +69,14 @@ export default function PublicPaymentPage() {
       <ClayCard>
         {isLoading && rows.length === 0 ? (
           <div className="flex justify-center py-10">
-            <LoaderCircle className="h-5 w-5 animate-spin text-clay-ink-muted" />
+            <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />
           </div>
         ) : rows.length === 0 ? (
-          <div className="py-10 text-center text-[13px] text-clay-ink-muted">
+          <div className="py-10 text-center text-[13px] text-muted-foreground">
             Configure at least one gateway to expose it publicly.
           </div>
         ) : (
-          <ul className="flex flex-col divide-y divide-clay-border">
+          <ul className="flex flex-col divide-y divide-border">
             {rows.map((r) => {
               const letter = (r.gateway || '?').charAt(0).toUpperCase();
               return (
@@ -86,16 +86,16 @@ export default function PublicPaymentPage() {
                 >
                   <div className="flex items-center gap-3">
                     <span
-                      className={`flex h-9 w-9 items-center justify-center rounded-clay-md text-[13px] font-semibold ${
+                      className={`flex h-9 w-9 items-center justify-center rounded-lg text-[13px] font-semibold ${
                         COLORS[r.gateway] ||
-                        'bg-clay-surface-2 text-clay-ink'
+                        'bg-secondary text-foreground'
                       }`}
                     >
                       {letter}
                     </span>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-medium text-clay-ink">
+                        <span className="font-medium text-foreground">
                           {r.gateway}
                         </span>
                         <ClayBadge
@@ -110,7 +110,7 @@ export default function PublicPaymentPage() {
                           {r.is_active ? 'active' : 'inactive'}
                         </ClayBadge>
                       </div>
-                      <p className="mt-0.5 text-[12px] text-clay-ink-muted">
+                      <p className="mt-0.5 text-[12px] text-muted-foreground">
                         {r.show_on_public
                           ? 'Visible on public pay pages'
                           : 'Hidden from public pay pages'}
