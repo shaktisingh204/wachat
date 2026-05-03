@@ -1,6 +1,38 @@
-import { ArrowRight, Loader2, Mail, Search, Settings, User } from "lucide-react";
+"use client";
+
+import * as React from "react";
+import {
+  ArrowRight,
+  Calendar,
+  Check,
+  CircleAlert,
+  CircleCheck,
+  Copy,
+  Inbox,
+  Info,
+  Loader2,
+  Mail,
+  MoreHorizontal,
+  Search,
+  Settings,
+  Sparkles,
+  Trash2,
+  User,
+} from "lucide-react";
 
 import {
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruAlertDialogTrigger,
+  ZoruAlertTitle,
   ZoruAvatar,
   ZoruAvatarFallback,
   ZoruAvatarImage,
@@ -8,9 +40,49 @@ import {
   ZoruBouncyToggle,
   ZoruButton,
   ZoruCheckbox,
+  ZoruCommandDialog,
+  ZoruCommandEmpty,
+  ZoruCommandGroup,
+  ZoruCommandInput,
+  ZoruCommandItem,
+  ZoruCommandList,
+  ZoruCommandShortcut,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogTrigger,
+  ZoruDrawer,
+  ZoruDrawerContent,
+  ZoruDrawerDescription,
+  ZoruDrawerFooter,
+  ZoruDrawerHeader,
+  ZoruDrawerTitle,
+  ZoruDrawerTrigger,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuCheckboxItem,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuLabel,
+  ZoruDropdownMenuSeparator,
+  ZoruDropdownMenuShortcut,
+  ZoruDropdownMenuTrigger,
+  ZoruHeroPill,
   ZoruInput,
   ZoruKbd,
   ZoruLabel,
+  ZoruMenubar,
+  ZoruMenubarContent,
+  ZoruMenubarItem,
+  ZoruMenubarMenu,
+  ZoruMenubarSeparator,
+  ZoruMenubarShortcut,
+  ZoruMenubarTrigger,
+  ZoruPopover,
+  ZoruPopoverContent,
+  ZoruPopoverTrigger,
   ZoruProgress,
   ZoruRadioCard,
   ZoruRadioGroup,
@@ -21,13 +93,23 @@ import {
   ZoruSelectTrigger,
   ZoruSelectValue,
   ZoruSeparator,
+  ZoruSheet,
+  ZoruSheetContent,
+  ZoruSheetDescription,
+  ZoruSheetFooter,
+  ZoruSheetHeader,
+  ZoruSheetTitle,
+  ZoruSheetTrigger,
   ZoruSkeleton,
+  ZoruStarIcon,
   ZoruSwitch,
   ZoruTextarea,
+  ZoruToaster,
   ZoruTooltip,
   ZoruTooltipContent,
   ZoruTooltipProvider,
   ZoruTooltipTrigger,
+  zoruToast,
 } from "@/components/zoruui";
 
 export default function ZoruuiGalleryPage() {
@@ -241,8 +323,280 @@ export default function ZoruuiGalleryPage() {
             <ZoruSkeleton className="h-4 w-3/4" />
           </div>
         </Section>
+
+        <Section step="Step 3" title="Hero pill + alerts">
+          <div className="flex flex-wrap items-center gap-3">
+            <ZoruHeroPill icon={<ZoruStarIcon />} text="New releases every week" />
+            <ZoruHeroPill icon={<Sparkles className="size-3" />} text="Now in beta" />
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <ZoruAlert variant="info">
+              <Info />
+              <ZoruAlertTitle>Heads up</ZoruAlertTitle>
+              <ZoruAlertDescription>
+                We bumped the rate limit on free plans to 1,000 requests/day.
+              </ZoruAlertDescription>
+            </ZoruAlert>
+            <ZoruAlert variant="success">
+              <CircleCheck />
+              <ZoruAlertTitle>All set</ZoruAlertTitle>
+              <ZoruAlertDescription>
+                Your workspace is provisioned and ready to use.
+              </ZoruAlertDescription>
+            </ZoruAlert>
+            <ZoruAlert variant="warning">
+              <CircleAlert />
+              <ZoruAlertTitle>Pending verification</ZoruAlertTitle>
+              <ZoruAlertDescription>
+                We&apos;re still verifying your business document.
+              </ZoruAlertDescription>
+            </ZoruAlert>
+            <ZoruAlert variant="destructive">
+              <CircleAlert />
+              <ZoruAlertTitle>Connection failed</ZoruAlertTitle>
+              <ZoruAlertDescription>
+                We couldn&apos;t reach the upstream provider. Retrying…
+              </ZoruAlertDescription>
+            </ZoruAlert>
+          </div>
+        </Section>
+
+        <Section step="Step 3" title="Dialog · Sheet · Drawer · Alert dialog">
+          <div className="flex flex-wrap items-center gap-3">
+            <ZoruDialog>
+              <ZoruDialogTrigger asChild>
+                <ZoruButton>Open dialog</ZoruButton>
+              </ZoruDialogTrigger>
+              <ZoruDialogContent>
+                <ZoruDialogHeader>
+                  <ZoruDialogTitle>Invite a teammate</ZoruDialogTitle>
+                  <ZoruDialogDescription>
+                    They&apos;ll get an email with a link to join your workspace.
+                  </ZoruDialogDescription>
+                </ZoruDialogHeader>
+                <div className="space-y-2">
+                  <ZoruLabel htmlFor="zoru-invite-email">Work email</ZoruLabel>
+                  <ZoruInput
+                    id="zoru-invite-email"
+                    type="email"
+                    placeholder="teammate@company.com"
+                    leadingSlot={<Mail />}
+                  />
+                </div>
+                <ZoruDialogFooter>
+                  <ZoruButton variant="ghost">Cancel</ZoruButton>
+                  <ZoruButton>Send invite</ZoruButton>
+                </ZoruDialogFooter>
+              </ZoruDialogContent>
+            </ZoruDialog>
+
+            <ZoruSheet>
+              <ZoruSheetTrigger asChild>
+                <ZoruButton variant="outline">Open sheet</ZoruButton>
+              </ZoruSheetTrigger>
+              <ZoruSheetContent side="right">
+                <ZoruSheetHeader>
+                  <ZoruSheetTitle>Filters</ZoruSheetTitle>
+                  <ZoruSheetDescription>
+                    Refine the list by status, owner, and date range.
+                  </ZoruSheetDescription>
+                </ZoruSheetHeader>
+                <div className="mt-6 space-y-4">
+                  <div className="flex items-center gap-3">
+                    <ZoruCheckbox id="zoru-flt-1" defaultChecked />
+                    <ZoruLabel htmlFor="zoru-flt-1">Open</ZoruLabel>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <ZoruCheckbox id="zoru-flt-2" />
+                    <ZoruLabel htmlFor="zoru-flt-2">Closed</ZoruLabel>
+                  </div>
+                </div>
+                <ZoruSheetFooter className="mt-6">
+                  <ZoruButton variant="ghost">Reset</ZoruButton>
+                  <ZoruButton>Apply</ZoruButton>
+                </ZoruSheetFooter>
+              </ZoruSheetContent>
+            </ZoruSheet>
+
+            <ZoruDrawer>
+              <ZoruDrawerTrigger asChild>
+                <ZoruButton variant="secondary">Open drawer</ZoruButton>
+              </ZoruDrawerTrigger>
+              <ZoruDrawerContent>
+                <ZoruDrawerHeader>
+                  <ZoruDrawerTitle>Quick actions</ZoruDrawerTitle>
+                  <ZoruDrawerDescription>
+                    Mobile-friendly bottom sheet powered by Vaul.
+                  </ZoruDrawerDescription>
+                </ZoruDrawerHeader>
+                <div className="px-4 pb-2 sm:px-6">
+                  <p className="text-sm text-zoru-ink-muted">
+                    Drawers are perfect for actions that need a moment of focus
+                    without leaving the page.
+                  </p>
+                </div>
+                <ZoruDrawerFooter>
+                  <ZoruButton>Got it</ZoruButton>
+                </ZoruDrawerFooter>
+              </ZoruDrawerContent>
+            </ZoruDrawer>
+
+            <ZoruAlertDialog>
+              <ZoruAlertDialogTrigger asChild>
+                <ZoruButton variant="destructive">Delete account</ZoruButton>
+              </ZoruAlertDialogTrigger>
+              <ZoruAlertDialogContent>
+                <ZoruAlertDialogHeader>
+                  <ZoruAlertDialogTitle>Delete account permanently?</ZoruAlertDialogTitle>
+                  <ZoruAlertDialogDescription>
+                    This action cannot be undone. All workspaces, contacts and
+                    history will be removed.
+                  </ZoruAlertDialogDescription>
+                </ZoruAlertDialogHeader>
+                <ZoruAlertDialogFooter>
+                  <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+                  <ZoruAlertDialogAction destructive>
+                    Yes, delete
+                  </ZoruAlertDialogAction>
+                </ZoruAlertDialogFooter>
+              </ZoruAlertDialogContent>
+            </ZoruAlertDialog>
+          </div>
+        </Section>
+
+        <Section step="Step 3" title="Popover · Dropdown · Menubar">
+          <div className="flex flex-wrap items-center gap-3">
+            <ZoruPopover>
+              <ZoruPopoverTrigger asChild>
+                <ZoruButton variant="outline">
+                  <Calendar /> Schedule
+                </ZoruButton>
+              </ZoruPopoverTrigger>
+              <ZoruPopoverContent>
+                <p className="text-sm font-medium text-zoru-ink">Pick a date</p>
+                <p className="mt-1 text-xs text-zoru-ink-muted">
+                  Calendar primitives ship in step 5.
+                </p>
+              </ZoruPopoverContent>
+            </ZoruPopover>
+
+            <ZoruDropdownMenu>
+              <ZoruDropdownMenuTrigger asChild>
+                <ZoruButton variant="outline" size="icon" aria-label="Row actions">
+                  <MoreHorizontal />
+                </ZoruButton>
+              </ZoruDropdownMenuTrigger>
+              <ZoruDropdownMenuContent align="end" className="w-52">
+                <ZoruDropdownMenuLabel>Row actions</ZoruDropdownMenuLabel>
+                <ZoruDropdownMenuItem>
+                  <Copy /> Duplicate
+                  <ZoruDropdownMenuShortcut>⌘D</ZoruDropdownMenuShortcut>
+                </ZoruDropdownMenuItem>
+                <ZoruDropdownMenuCheckboxItem checked>
+                  Show meta
+                </ZoruDropdownMenuCheckboxItem>
+                <ZoruDropdownMenuCheckboxItem>
+                  Group by status
+                </ZoruDropdownMenuCheckboxItem>
+                <ZoruDropdownMenuSeparator />
+                <ZoruDropdownMenuItem destructive>
+                  <Trash2 /> Delete
+                  <ZoruDropdownMenuShortcut>⌫</ZoruDropdownMenuShortcut>
+                </ZoruDropdownMenuItem>
+              </ZoruDropdownMenuContent>
+            </ZoruDropdownMenu>
+
+            <ZoruMenubar>
+              <ZoruMenubarMenu>
+                <ZoruMenubarTrigger>File</ZoruMenubarTrigger>
+                <ZoruMenubarContent>
+                  <ZoruMenubarItem>
+                    New project
+                    <ZoruMenubarShortcut>⌘N</ZoruMenubarShortcut>
+                  </ZoruMenubarItem>
+                  <ZoruMenubarItem>
+                    Open…
+                    <ZoruMenubarShortcut>⌘O</ZoruMenubarShortcut>
+                  </ZoruMenubarItem>
+                  <ZoruMenubarSeparator />
+                  <ZoruMenubarItem>Close window</ZoruMenubarItem>
+                </ZoruMenubarContent>
+              </ZoruMenubarMenu>
+              <ZoruMenubarMenu>
+                <ZoruMenubarTrigger>Edit</ZoruMenubarTrigger>
+                <ZoruMenubarContent>
+                  <ZoruMenubarItem>Undo</ZoruMenubarItem>
+                  <ZoruMenubarItem>Redo</ZoruMenubarItem>
+                </ZoruMenubarContent>
+              </ZoruMenubarMenu>
+            </ZoruMenubar>
+          </div>
+        </Section>
+
+        <Section step="Step 3" title="Command palette + toasts">
+          <CommandAndToastDemo />
+        </Section>
       </div>
+
+      <ZoruToaster />
     </ZoruTooltipProvider>
+  );
+}
+
+function CommandAndToastDemo() {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <div className="flex flex-wrap items-center gap-3">
+      <ZoruButton variant="outline" onClick={() => setOpen(true)}>
+        <Search /> Open command palette
+        <ZoruKbd>⌘K</ZoruKbd>
+      </ZoruButton>
+      <ZoruButton
+        onClick={() =>
+          zoruToast({
+            title: "Saved",
+            description: "Your changes are live.",
+          })
+        }
+      >
+        <Check /> Toast (default)
+      </ZoruButton>
+      <ZoruButton
+        variant="destructive"
+        onClick={() =>
+          zoruToast({
+            variant: "destructive",
+            title: "Failed to publish",
+            description: "Check the workspace status and try again.",
+          })
+        }
+      >
+        Toast (destructive)
+      </ZoruButton>
+
+      <ZoruCommandDialog open={open} onOpenChange={setOpen}>
+        <ZoruCommandInput placeholder="Type a command or search…" />
+        <ZoruCommandList>
+          <ZoruCommandEmpty>No results found.</ZoruCommandEmpty>
+          <ZoruCommandGroup heading="Quick actions">
+            <ZoruCommandItem>
+              <Inbox />
+              Open inbox
+              <ZoruCommandShortcut>⌘I</ZoruCommandShortcut>
+            </ZoruCommandItem>
+            <ZoruCommandItem>
+              <Settings />
+              Open settings
+              <ZoruCommandShortcut>⌘,</ZoruCommandShortcut>
+            </ZoruCommandItem>
+            <ZoruCommandItem>
+              <User />
+              Switch workspace
+            </ZoruCommandItem>
+          </ZoruCommandGroup>
+        </ZoruCommandList>
+      </ZoruCommandDialog>
+    </div>
   );
 }
 
