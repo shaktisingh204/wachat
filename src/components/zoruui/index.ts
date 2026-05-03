@@ -265,3 +265,147 @@ export {
   type ZoruSidebarLeaf,
   type ZoruHeaderProps,
 } from "./shell";
+
+// Data display & inputs
+export {
+  ZoruTable,
+  ZoruTableHeader,
+  ZoruTableBody,
+  ZoruTableFooter,
+  ZoruTableRow,
+  ZoruTableHead,
+  ZoruTableCell,
+  ZoruTableCaption,
+} from "./table";
+export {
+  ZoruDataTable,
+  type ZoruDataTableProps,
+} from "./data-table";
+export {
+  ZoruTableWithDialog,
+  type ZoruTableWithDialogProps,
+  type ZoruTableColumn,
+} from "./table-with-dialog";
+export { ZoruCalendar, type ZoruCalendarProps } from "./calendar";
+export {
+  ZoruCalendarLume,
+  type ZoruCalendarLumeProps,
+} from "./calendar-lume";
+export {
+  ZoruFullscreenCalendar,
+  type ZoruFullscreenCalendarEvent,
+  type ZoruFullscreenCalendarProps,
+} from "./fullscreen-calendar";
+export {
+  ZoruDatePicker,
+  ZoruDateRangePicker,
+  type ZoruDatePickerProps,
+  type ZoruDateRangePickerProps,
+} from "./date-picker";
+export {
+  ZoruFileUploadCard,
+  type ZoruFileUploadCardProps,
+  type ZoruFileUploadItem,
+} from "./file-upload-card";
+export {
+  ZoruFileCardCollections,
+  type ZoruFileCardCollectionsProps,
+  type ZoruFileCardItem,
+} from "./file-card-collections";
+export {
+  ZoruFilesPage,
+  ZoruFileToolbar,
+  ZoruFileGrid,
+  ZoruFileList,
+  ZoruFilePreviewDialog,
+  ZoruFileRenameDialog,
+  ZoruFileDeleteDialog,
+  ZoruFileShareDialog,
+  ZoruFileUploadDialog,
+  type ZoruFilesPageProps,
+  type ZoruFileToolbarProps,
+  type ZoruFileGridProps,
+  type ZoruFileListProps,
+  type ZoruFilePreviewDialogProps,
+  type ZoruFileRenameDialogProps,
+  type ZoruFileDeleteDialogProps,
+  type ZoruFileShareDialogProps,
+  type ZoruFileShareAccess,
+  type ZoruFileUploadDialogProps,
+  type ZoruFileEntity,
+  type ZoruFileView,
+} from "./files-module";
+export {
+  ZoruChart,
+  ZoruChartContainer,
+  ZoruChartTooltip,
+  ZORU_CHART_PALETTE,
+  type ZoruChartContainerProps,
+  type ZoruChartTooltipProps,
+} from "./chart";
+export { ZoruStatCard, type ZoruStatCardProps } from "./stat-card";
+export {
+  ZoruStatisticsCard1,
+  type ZoruStatisticsCard1Props,
+  type ZoruStatisticsCard1Item,
+} from "./statistics-card-1";
+export {
+  ZoruCarousel,
+  ZoruCarouselItem,
+  type ZoruCarouselProps,
+} from "./carousel";
+export {
+  ZoruColorPicker,
+  type ZoruColorPickerProps,
+} from "./color-picker";
+
+// Marketing & landing primitives
+export {
+  ZoruCallToAction,
+  type ZoruCallToActionProps,
+} from "./call-to-action";
+export {
+  ZoruTestimonialsColumns,
+  ZoruTestimonialsColumn,
+  ZoruTestimonialCard,
+  type ZoruTestimonial,
+  type ZoruTestimonialsColumnProps,
+  type ZoruTestimonialsColumnsProps,
+} from "./testimonials-columns";
+export {
+  ZoruLogos3,
+  type ZoruLogo,
+  type ZoruLogos3Props,
+} from "./logos3";
+export {
+  ZoruActionSearchBar,
+  type ZoruActionSearchAction,
+  type ZoruActionSearchBarProps,
+} from "./action-search-bar";
+export {
+  ZoruJobListing,
+  type ZoruJob,
+  type ZoruJobListingProps,
+} from "./joblisting";
+export {
+  ZoruPricingCard,
+  ZoruPricingTier,
+  type ZoruPricingCardProps,
+  type ZoruPricingTierProps,
+  type ZoruPricingFeature,
+} from "./pricing-card";
+export {
+  ZoruFeatureCard,
+  ZoruFeatureGrid,
+  type ZoruFeatureCardProps,
+  type ZoruFeatureGridProps,
+} from "./feature-grid";
+export {
+  ZoruWaterLoader,
+  type ZoruWaterLoaderProps,
+} from "./water-loader";
+export {
+  ZoruUserDropdown,
+  type ZoruUserDropdownProps,
+  type ZoruUserDropdownItem,
+} from "./user-dropdown";

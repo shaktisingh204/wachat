@@ -3,10 +3,17 @@
 import * as React from "react";
 import {
   ArrowRight,
+  Activity,
   Bell,
+  BookOpen,
   Briefcase,
   Calendar,
   Check,
+  CheckCircle2,
+  Heart,
+  Lightbulb,
+  Shield,
+  Zap,
   CircleAlert,
   CircleCheck,
   Compass,
@@ -29,6 +36,7 @@ import {
 } from "lucide-react";
 
 import {
+  ZORU_CHART_PALETTE,
   ZoruAccordion,
   ZoruAccordion03,
   ZoruAccordion03Content,
@@ -37,6 +45,7 @@ import {
   ZoruAccordionContent,
   ZoruAccordionItem,
   ZoruAccordionTrigger,
+  ZoruActionSearchBar,
   ZoruAlert,
   ZoruAlertDescription,
   ZoruAlertDialog,
@@ -63,12 +72,21 @@ import {
   ZoruBreadcrumbPage,
   ZoruBreadcrumbSeparator,
   ZoruButton,
+  ZoruCallToAction,
   ZoruCard,
   ZoruCardContent,
   ZoruCardDescription,
+  ZoruCalendar,
   ZoruCardFooter,
   ZoruCardHeader,
   ZoruCardTitle,
+  ZoruCarousel,
+  ZoruChart,
+  ZoruChartContainer,
+  ZoruChartTooltip,
+  ZoruColorPicker,
+  ZoruDatePicker,
+  ZoruDateRangePicker,
   ZoruCheckbox,
   ZoruCommandDialog,
   ZoruCommandEmpty,
@@ -100,9 +118,16 @@ import {
   ZoruDropdownMenuShortcut,
   ZoruDropdownMenuTrigger,
   ZoruEmptyState,
+  ZoruFeatureCard,
+  ZoruFeatureGrid,
+  ZoruFileUploadCard,
+  ZoruFilesPage,
+  ZoruFullscreenCalendar,
   ZoruHeader,
   ZoruHeroPill,
   ZoruInput,
+  ZoruJobListing,
+  ZoruLogos3,
   ZoruKbd,
   ZoruLabel,
   ZoruLimelightNav,
@@ -119,6 +144,8 @@ import {
   ZoruPageHeading,
   ZoruPageTitle,
   ZoruPopover,
+  ZoruPricingCard,
+  ZoruPricingTier,
   ZoruPopoverContent,
   ZoruPopoverTrigger,
   ZoruProgress,
@@ -126,12 +153,19 @@ import {
   ZoruRadioGroup,
   ZoruRadioGroupItem,
   ZoruScrollArea,
+  ZoruTestimonialsColumns,
+  ZoruUserDropdown,
+  ZoruWaterLoader,
   ZoruSelect,
+  ZoruStatCard,
+  ZoruStatisticsCard1,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
   ZoruSeparator,
+  ZoruTableWithDialog,
+  ZoruDataTable,
   ZoruSheet,
   ZoruSheetContent,
   ZoruSheetDescription,
@@ -886,6 +920,406 @@ export default function ZoruuiGalleryPage() {
             </div>
           </div>
         </Section>
+
+        <Section step="Step 5" title="Stat cards + chart">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <ZoruStatCard
+              label="Active conversations"
+              value="12,840"
+              delta={4.2}
+              period="vs last week"
+              icon={<Activity />}
+            />
+            <ZoruStatCard
+              label="Delivered"
+              value="98.4%"
+              delta={0.6}
+              period="last 24h"
+              icon={<CheckCircle2 />}
+            />
+            <ZoruStatCard
+              label="Failed"
+              value="0.7%"
+              delta={-0.2}
+              period="last 24h"
+              invertDelta
+              icon={<CircleAlert />}
+            />
+            <ZoruStatCard
+              label="Avg. response"
+              value="42s"
+              delta={-8.4}
+              period="last 7d"
+              invertDelta
+              icon={<Calendar />}
+            />
+          </div>
+
+          <ZoruStatisticsCard1
+            headline="Workspace overview"
+            value="48,201"
+            icon={<Activity />}
+            items={[
+              { label: "New", value: "1,204", delta: 6.2 },
+              { label: "Returning", value: "31,870", delta: 1.8 },
+              { label: "Churned", value: "412", delta: -2.4 },
+            ]}
+            footer="Last refreshed just now"
+          />
+
+          <ZoruCard>
+            <ZoruCardHeader>
+              <ZoruCardTitle>Messages per day</ZoruCardTitle>
+              <ZoruCardDescription>
+                Pure neutral palette — separation by stroke shape, not hue.
+              </ZoruCardDescription>
+            </ZoruCardHeader>
+            <ZoruCardContent>
+              <ZoruChartContainer height={240}>
+                <ZoruChart.LineChart data={CHART_DATA}>
+                  <ZoruChart.CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="hsl(var(--zoru-line))"
+                  />
+                  <ZoruChart.XAxis
+                    dataKey="day"
+                    tick={{ fontSize: 11, fill: "hsl(var(--zoru-ink-muted))" }}
+                    tickLine={false}
+                    axisLine={{ stroke: "hsl(var(--zoru-line))" }}
+                  />
+                  <ZoruChart.YAxis
+                    tick={{ fontSize: 11, fill: "hsl(var(--zoru-ink-muted))" }}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+                  <ZoruChart.Line
+                    type="monotone"
+                    dataKey="sent"
+                    name="Sent"
+                    stroke={ZORU_CHART_PALETTE[0]}
+                    strokeWidth={2}
+                    dot={false}
+                  />
+                  <ZoruChart.Line
+                    type="monotone"
+                    dataKey="delivered"
+                    name="Delivered"
+                    stroke={ZORU_CHART_PALETTE[2]}
+                    strokeWidth={2}
+                    strokeDasharray="4 4"
+                    dot={false}
+                  />
+                </ZoruChart.LineChart>
+              </ZoruChartContainer>
+            </ZoruCardContent>
+          </ZoruCard>
+        </Section>
+
+        <Section
+          step="Step 5"
+          title="Tables — basic, click-to-dialog, data-table"
+        >
+          <ZoruCard>
+            <ZoruCardHeader>
+              <ZoruCardTitle>Click a row to open the dialog</ZoruCardTitle>
+            </ZoruCardHeader>
+            <ZoruCardContent>
+              <ZoruTableWithDialog
+                rows={ROWS}
+                columns={[
+                  { key: "name", header: "Name" },
+                  { key: "owner", header: "Owner" },
+                  {
+                    key: "status",
+                    header: "Status",
+                    cell: (r) => (
+                      <ZoruBadge variant={r.status === "Active" ? "success" : "ghost"}>
+                        {r.status}
+                      </ZoruBadge>
+                    ),
+                  },
+                  { key: "updated", header: "Updated", align: "right" },
+                ]}
+                rowTitle={(r) => r.name}
+                rowDescription={(r) => `Owned by ${r.owner}`}
+                rowDialog={(r) => (
+                  <p className="text-sm text-zoru-ink-muted">
+                    Replace this body with the row detail editor for{" "}
+                    <span className="font-medium text-zoru-ink">{r.name}</span>.
+                  </p>
+                )}
+              />
+            </ZoruCardContent>
+          </ZoruCard>
+
+          <ZoruCard>
+            <ZoruCardHeader>
+              <ZoruCardTitle>Tanstack data-table</ZoruCardTitle>
+              <ZoruCardDescription>
+                Sort, filter, paginate, toggle columns.
+              </ZoruCardDescription>
+            </ZoruCardHeader>
+            <ZoruCardContent>
+              <ZoruDataTable
+                columns={DATA_TABLE_COLUMNS}
+                data={DATA_TABLE_ROWS}
+                filterColumn="name"
+                filterPlaceholder="Filter by name…"
+                pageSize={5}
+              />
+            </ZoruCardContent>
+          </ZoruCard>
+        </Section>
+
+        <Section step="Step 5" title="Dates: picker, range, calendar, fullscreen">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <DemoDatePicker />
+            <DemoDateRange />
+            <ZoruCard>
+              <ZoruCardContent className="pt-6">
+                <ZoruCalendar mode="single" />
+              </ZoruCardContent>
+            </ZoruCard>
+          </div>
+          <div className="h-[480px]">
+            <ZoruFullscreenCalendar
+              events={CALENDAR_EVENTS}
+            />
+          </div>
+        </Section>
+
+        <Section step="Step 5" title="File upload + files module">
+          <div className="grid gap-4 lg:grid-cols-2">
+            <ZoruCard>
+              <ZoruCardHeader>
+                <ZoruCardTitle>Drop zone</ZoruCardTitle>
+              </ZoruCardHeader>
+              <ZoruCardContent>
+                <ZoruFileUploadCard
+                  hint="PNG, JPG, PDF up to 5 MB"
+                  maxSize={5 * 1024 * 1024}
+                  items={[
+                    {
+                      id: "u1",
+                      file: new File([""], "brand-deck.pdf"),
+                      progress: 64,
+                      status: "uploading",
+                    },
+                    {
+                      id: "u2",
+                      file: new File([""], "logo-final.svg"),
+                      progress: 100,
+                      status: "done",
+                    },
+                  ]}
+                />
+              </ZoruCardContent>
+            </ZoruCard>
+            <ZoruCard>
+              <ZoruCardHeader>
+                <ZoruCardTitle>Files page (composed)</ZoruCardTitle>
+                <ZoruCardDescription>
+                  Toolbar + grid + 5 dialogs in one drop-in.
+                </ZoruCardDescription>
+              </ZoruCardHeader>
+              <ZoruCardContent>
+                <ZoruFilesPage files={SAMPLE_FILES} onUpload={() => {}} onRename={() => {}} onDelete={() => {}} />
+              </ZoruCardContent>
+            </ZoruCard>
+          </div>
+        </Section>
+
+        <Section step="Step 6" title="Action search bar + user dropdown + water loader">
+          <div className="flex flex-wrap items-center justify-between gap-6">
+            <ZoruActionSearchBar
+              actions={[
+                { id: "new-project", label: "Create new project", icon: <PlusCircle />, shortcut: <ZoruKbd>N</ZoruKbd> },
+                { id: "invite", label: "Invite teammate", icon: <User />, shortcut: <ZoruKbd>I</ZoruKbd> },
+                { id: "settings", label: "Open settings", icon: <Settings />, shortcut: <ZoruKbd>,</ZoruKbd> },
+                { id: "docs", label: "Read the docs", icon: <BookOpen /> },
+              ]}
+            />
+            <ZoruUserDropdown
+              name="Harsh Khandelwal"
+              email="harsh@sabnode.com"
+            />
+            <ZoruWaterLoader label="Loading…" />
+          </div>
+        </Section>
+
+        <Section step="Step 6" title="Logos strip + testimonials wall">
+          <ZoruLogos3
+            heading="Trusted by 8,000+ businesses"
+            logos={[
+              { id: "1", description: "Acme", image: "https://placehold.co/120x40?text=ACME" },
+              { id: "2", description: "Globex", image: "https://placehold.co/120x40?text=GLOBEX" },
+              { id: "3", description: "Initech", image: "https://placehold.co/120x40?text=INITECH" },
+              { id: "4", description: "Soylent", image: "https://placehold.co/120x40?text=SOYLENT" },
+              { id: "5", description: "Umbrella", image: "https://placehold.co/120x40?text=UMBRELLA" },
+              { id: "6", description: "Wonka", image: "https://placehold.co/120x40?text=WONKA" },
+            ]}
+          />
+
+          <ZoruTestimonialsColumns
+            testimonials={TESTIMONIALS}
+            columnCount={3}
+            height={520}
+          />
+        </Section>
+
+        <Section step="Step 6" title="Feature grid + pricing tier">
+          <ZoruFeatureGrid
+            heading="Everything you need to ship"
+            subhead="Each surface speaks the same language — calm, neutral, focused."
+            columns={3}
+          >
+            <ZoruFeatureCard
+              icon={<Zap />}
+              title="Fast by default"
+              description="Server Components, Cache Components, and Fluid Compute under the hood."
+            />
+            <ZoruFeatureCard
+              icon={<Shield />}
+              title="Secure"
+              description="Plan-gated, RBAC-guarded, audit-logged from day one."
+            />
+            <ZoruFeatureCard
+              icon={<Lightbulb />}
+              title="Composable"
+              description="One vocabulary across Wachat, SabFlow, CRM, SEO, and SabChat."
+            />
+          </ZoruFeatureGrid>
+
+          <ZoruPricingTier
+            heading="Pick a plan that fits"
+            subhead="Pricing in zoru is delivered with a heavy dose of restraint."
+          >
+            <ZoruPricingCard
+              name="Starter"
+              tagline="For a small team taking it for a spin."
+              price="$29"
+              period="/ month"
+              cta={
+                <ZoruButton variant="outline" block>
+                  Start free
+                </ZoruButton>
+              }
+              features={[
+                { label: "1,000 contacts" },
+                { label: "Email + WhatsApp inbox" },
+                { label: "Basic automations" },
+              ]}
+            />
+            <ZoruPricingCard
+              name="Pro"
+              tagline="For teams that ship every week."
+              price="$99"
+              period="/ month"
+              featured
+              cta={
+                <ZoruButton block className="bg-zoru-on-primary text-zoru-ink hover:bg-zoru-on-primary/90">
+                  Choose Pro
+                </ZoruButton>
+              }
+              features={[
+                { label: "Unlimited contacts" },
+                { label: "Live agents + routing" },
+                { label: "Workflow builder" },
+                { label: "Priority support" },
+              ]}
+            />
+            <ZoruPricingCard
+              name="Enterprise"
+              tagline="For complex orgs with real compliance asks."
+              price="Custom"
+              cta={
+                <ZoruButton variant="outline" block>
+                  Talk to sales
+                </ZoruButton>
+              }
+              features={[
+                { label: "SAML SSO + audit log" },
+                { label: "Dedicated CSM" },
+                { label: "On-prem option" },
+              ]}
+            />
+          </ZoruPricingTier>
+        </Section>
+
+        <Section step="Step 6" title="Job listing + call-to-action">
+          <ZoruJobListing
+            jobs={[
+              {
+                id: "j1",
+                company: "SabNode",
+                title: "Senior frontend engineer",
+                logo: <Briefcase />,
+                description:
+                  "Lead the zoruui rollout across all modules and own the design-system roadmap.",
+                salary: "$160k – $200k",
+                location: "Remote (IN, US)",
+                remote: "Remote",
+                schedule: "Full-time",
+              },
+              {
+                id: "j2",
+                company: "SabNode",
+                title: "Backend engineer (Node)",
+                logo: <Heart />,
+                description:
+                  "Own the SabFlow runtime — long-running, durable workflow orchestration.",
+                salary: "$140k – $180k",
+                location: "Remote (worldwide)",
+                remote: "Remote",
+                schedule: "Full-time",
+              },
+            ]}
+          />
+
+          <ZoruCallToAction
+            variant="inverted"
+            eyebrow="Ready when you are"
+            title="Bring your team to ZoruUI."
+            description="Every primitive is in place. Steps 7–10 wire the existing modules onto the new shell."
+            actions={
+              <>
+                <ZoruButton className="bg-zoru-on-primary text-zoru-ink hover:bg-zoru-on-primary/90">
+                  Start the migration
+                </ZoruButton>
+                <ZoruButton variant="ghost" className="text-zoru-on-primary hover:bg-zoru-on-primary/10">
+                  Read the plan →
+                </ZoruButton>
+              </>
+            }
+          />
+        </Section>
+
+        <Section step="Step 5" title="Carousel + color picker">
+          <ZoruCarousel className="px-2">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <ZoruCard
+                key={i}
+                className="w-72 shrink-0"
+                variant="elevated"
+              >
+                <ZoruCardHeader>
+                  <ZoruCardTitle>Slide {i + 1}</ZoruCardTitle>
+                  <ZoruCardDescription>
+                    CSS-snap carousel — zero deps.
+                  </ZoruCardDescription>
+                </ZoruCardHeader>
+                <ZoruCardContent>
+                  <ZoruSkeleton className="h-24 w-full" />
+                </ZoruCardContent>
+              </ZoruCard>
+            ))}
+          </ZoruCarousel>
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-zoru-ink-muted">Brand colour:</span>
+            <ZoruColorPicker value="#0F0F10" />
+          </div>
+        </Section>
       </div>
 
       <ZoruToaster />
@@ -1011,6 +1445,146 @@ function Field({
     </div>
   );
 }
+
+function DemoDatePicker() {
+  const [date, setDate] = React.useState<Date | undefined>();
+  return (
+    <ZoruCard>
+      <ZoruCardHeader>
+        <ZoruCardTitle>Date picker</ZoruCardTitle>
+      </ZoruCardHeader>
+      <ZoruCardContent>
+        <ZoruDatePicker value={date} onChange={setDate} />
+      </ZoruCardContent>
+    </ZoruCard>
+  );
+}
+
+function DemoDateRange() {
+  const [range, setRange] = React.useState<
+    import("react-day-picker").DateRange | undefined
+  >();
+  return (
+    <ZoruCard>
+      <ZoruCardHeader>
+        <ZoruCardTitle>Date range picker</ZoruCardTitle>
+      </ZoruCardHeader>
+      <ZoruCardContent>
+        <ZoruDateRangePicker value={range} onChange={setRange} numberOfMonths={1} />
+      </ZoruCardContent>
+    </ZoruCard>
+  );
+}
+
+const ROWS = [
+  { name: "Pricing-page redesign", owner: "Aria Patel", status: "Active", updated: "2h ago" },
+  { name: "Onboarding flow", owner: "Sam Chen", status: "Paused", updated: "1d ago" },
+  { name: "Q3 announcement", owner: "Lin Wu", status: "Active", updated: "4d ago" },
+];
+
+interface DataRow {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  joined: string;
+}
+
+const DATA_TABLE_ROWS: DataRow[] = Array.from({ length: 18 }).map((_, i) => ({
+  id: `${i}`,
+  name: `Member ${i + 1}`,
+  email: `member${i + 1}@example.com`,
+  role: i % 3 === 0 ? "Admin" : "Editor",
+  joined: `2026-0${(i % 9) + 1}-12`,
+}));
+
+const DATA_TABLE_COLUMNS: import("@tanstack/react-table").ColumnDef<DataRow>[] = [
+  { accessorKey: "name", header: "Name" },
+  { accessorKey: "email", header: "Email" },
+  { accessorKey: "role", header: "Role" },
+  { accessorKey: "joined", header: "Joined" },
+];
+
+const CHART_DATA = [
+  { day: "Mon", sent: 1240, delivered: 1198 },
+  { day: "Tue", sent: 1380, delivered: 1331 },
+  { day: "Wed", sent: 1520, delivered: 1489 },
+  { day: "Thu", sent: 1410, delivered: 1378 },
+  { day: "Fri", sent: 1690, delivered: 1648 },
+  { day: "Sat", sent: 1110, delivered: 1090 },
+  { day: "Sun", sent: 980, delivered: 962 },
+];
+
+const CALENDAR_EVENTS = [
+  { id: "e1", date: new Date(), title: "Standup" },
+  { id: "e2", date: new Date(Date.now() + 86400000 * 2), title: "Sprint review" },
+  { id: "e3", date: new Date(Date.now() + 86400000 * 5), title: "Customer call" },
+];
+
+const TESTIMONIALS = [
+  {
+    text: "ZoruUI made the dashboard feel calm again. Removing the multi-tab strip alone gave us back a third of the chrome.",
+    name: "Aria Patel",
+    role: "Head of Design, Acme",
+    image: "https://i.pravatar.cc/96?img=12",
+  },
+  {
+    text: "The neutral palette was a tougher sell than I thought — until our team saw how much faster scanning data tables got.",
+    name: "Sam Chen",
+    role: "Engineering Lead, Globex",
+    image: "https://i.pravatar.cc/96?img=15",
+  },
+  {
+    text: "Reusing the dock and dropping the URL-tab system meant migration risk dropped to almost zero.",
+    name: "Lin Wu",
+    role: "Staff Engineer, Initech",
+    image: "https://i.pravatar.cc/96?img=33",
+  },
+  {
+    text: "Cards finally look like cards. Tables finally look like tables. No more rainbow surfaces.",
+    name: "Mira Singh",
+    role: "Product Manager, Soylent",
+    image: "https://i.pravatar.cc/96?img=20",
+  },
+  {
+    text: "The data-table primitive replaced four bespoke implementations across our CRM in a single afternoon.",
+    name: "Diego Cruz",
+    role: "Senior Frontend, Umbrella",
+    image: "https://i.pravatar.cc/96?img=24",
+  },
+  {
+    text: "Quiet, fast, accessible — and the hero pill still ships.",
+    name: "Tomás Reyes",
+    role: "Founder, Wonka",
+    image: "https://i.pravatar.cc/96?img=27",
+  },
+];
+
+const SAMPLE_FILES = [
+  {
+    id: "f1",
+    name: "Brand deck.pdf",
+    mime: "application/pdf",
+    size: 4_200_000,
+    modified: new Date(),
+  },
+  {
+    id: "f2",
+    name: "Hero.png",
+    mime: "image/png",
+    size: 1_800_000,
+    modified: new Date(),
+    thumbnailUrl:
+      "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=400&q=60",
+  },
+  {
+    id: "f3",
+    name: "Soundtrack.mp3",
+    mime: "audio/mpeg",
+    size: 6_400_000,
+    modified: new Date(),
+  },
+];
 
 function SwatchCard({ label, varName }: { label: string; varName: string }) {
   return (
