@@ -1,5 +1,16 @@
 "use client";
 
+/**
+ * App dock — modern multicolour light variant.
+ *
+ *  - Each DockIcon accepts an optional `accent` (a Tailwind gradient pair) so
+ *    the dock surface can showcase per-module brand colour on hover/active.
+ *  - The hover tooltip is rendered with a vivid gradient chip and is allowed
+ *    to overflow vertically (parents must not clip — see SabNodeAppDock for
+ *    the wrapper that explicitly stays `overflow-visible`).
+ *  - Magnification is preserved from the original implementation.
+ */
+
 import * as React from "react";
 import { useRef } from "react";
 import Link from "next/link";
@@ -13,12 +24,24 @@ interface DockProps {
   iconSize?: number;
 }
 
+export type DockAccent = {
+  /** Tailwind class string for the active/hover gradient (e.g. "from-rose-500 to-pink-500"). */
+  gradient: string;
+  /** Foreground text/ink colour to pair with the soft tile (e.g. "text-rose-700"). */
+  ink: string;
+  /** Soft tile bg (e.g. "bg-rose-50"). */
+  soft: string;
+  /** Ring colour used on hover (e.g. "ring-rose-200/60"). */
+  ring: string;
+};
+
 interface DockIconProps {
   className?: string;
   src?: string;
   href: string;
   name: string;
   active?: boolean;
+  accent?: DockAccent;
   handleIconHover?: (e: React.MouseEvent<HTMLLIElement>) => void;
   children?: React.ReactNode;
   iconSize?: number;
@@ -36,17 +59,26 @@ export const scaleValue = function (
   return Math.floor(capped * scale + to[0]);
 };
 
+const DEFAULT_ACCENT: DockAccent = {
+  gradient: "from-zinc-700 to-zinc-900",
+  ink: "text-zinc-700",
+  soft: "bg-white",
+  ring: "ring-zinc-200/60",
+};
+
 export function DockIcon({
   className,
   src,
   href,
   name,
   active,
+  accent,
   handleIconHover,
   children,
   iconSize,
 }: DockIconProps) {
   const ref = useRef<HTMLLIElement | null>(null);
+  const a = accent ?? DEFAULT_ACCENT;
 
   return (
     <>
@@ -116,11 +148,47 @@ export function DockIcon({
           href={href}
           aria-label={name}
           aria-current={active ? "page" : undefined}
-          className="group/a relative aspect-square w-full rounded-[10px] border border-gray-100 bg-gradient-to-t from-neutral-100 to-white p-1.5 shadow-[rgba(0,_0,_0,_0.05)_0px_1px_0px_inset] after:absolute after:inset-0 after:rounded-[inherit] after:shadow-md after:shadow-zinc-800/10 dark:border-zinc-900 dark:from-zinc-900 dark:to-zinc-800 dark:shadow-[rgba(255,_255,_255,_0.3)_0px_1px_0px_inset]"
+          className={cn(
+            "group/a relative aspect-square w-full rounded-2xl p-1.5",
+            "bg-white/90 ring-1 ring-zinc-200/70",
+            "shadow-[0_1px_0_rgba(255,255,255,0.9)_inset,0_2px_8px_-3px_rgba(15,23,42,0.18)]",
+            "transition-all duration-200 ease-out",
+            "hover:ring-2 hover:-translate-y-0.5",
+            "hover:shadow-[0_1px_0_rgba(255,255,255,0.9)_inset,0_8px_24px_-6px_rgba(15,23,42,0.28)]",
+            a.ring,
+            active &&
+              cn(
+                "ring-2 bg-gradient-to-b text-white",
+                a.gradient,
+                "shadow-[0_1px_0_rgba(255,255,255,0.5)_inset,0_10px_22px_-8px_rgba(15,23,42,0.45)]",
+              ),
+          )}
         >
-          <span className="absolute -top-9 left-1/2 -translate-x-1/2 rounded-md border border-gray-100 bg-gradient-to-t from-neutral-100 to-white px-2 py-1 text-xs whitespace-nowrap text-black opacity-0 transition-opacity duration-200 group-hover/li:opacity-100 dark:border-zinc-800 dark:from-zinc-900 dark:to-zinc-800 dark:text-white">
+          {/* Tooltip pill — gradient chip floating above the dock. The
+              dock wrapper MUST be overflow-visible for this not to clip. */}
+          <span
+            className={cn(
+              "pointer-events-none absolute left-1/2 -top-10 -translate-x-1/2",
+              "whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-medium tracking-tight",
+              "text-white shadow-lg shadow-black/15",
+              "bg-gradient-to-r",
+              a.gradient,
+              "opacity-0 translate-y-1 transition-all duration-200 ease-out",
+              "group-hover/li:opacity-100 group-hover/li:translate-y-0",
+            )}
+          >
             {name}
+            {/* Triangle pointer */}
+            <span
+              aria-hidden
+              className={cn(
+                "absolute left-1/2 -bottom-1 h-2 w-2 -translate-x-1/2 rotate-45",
+                "bg-gradient-to-br",
+                a.gradient,
+              )}
+            />
           </span>
+
           {src ? (
             <img
               src={src}
@@ -128,7 +196,12 @@ export function DockIcon({
               className="h-full w-full rounded-[inherit]"
             />
           ) : (
-            <span className="flex h-full w-full items-center justify-center">
+            <span
+              className={cn(
+                "flex h-full w-full items-center justify-center",
+                active ? "text-white" : a.ink,
+              )}
+            >
               {children}
             </span>
           )}
@@ -136,7 +209,11 @@ export function DockIcon({
         {active && (
           <span
             aria-hidden
-            className="pointer-events-none absolute -bottom-1.5 left-1/2 size-1 -translate-x-1/2 rounded-full bg-rose-500"
+            className={cn(
+              "pointer-events-none absolute -bottom-1.5 left-1/2 h-1 w-5 -translate-x-1/2 rounded-full",
+              "bg-gradient-to-r shadow-sm",
+              a.gradient,
+            )}
           />
         )}
       </li>
@@ -178,21 +255,38 @@ export function Dock({
 
   return (
     <nav ref={dockRef} role="navigation" aria-label="App dock">
-      <ul
-        className={cn(
-          "flex items-center rounded-xl border border-gray-100 bg-gradient-to-t from-neutral-50 to-white p-1 dark:border-zinc-900 dark:from-zinc-950 dark:to-zinc-900",
-          className,
-        )}
-      >
-        {React.Children.map(children, (child) =>
-          React.isValidElement<DockIconProps>(child)
-            ? React.cloneElement(child as React.ReactElement<DockIconProps>, {
-                handleIconHover,
-                iconSize,
-              })
-            : child,
-        )}
-      </ul>
+      {/* Frosted-glass surface with multicolour rim glow */}
+      <div className="relative">
+        {/* Soft multicolour aurora behind the dock */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -inset-x-6 -inset-y-3 -z-10 rounded-[26px] opacity-70 blur-2xl"
+          style={{
+            background:
+              "radial-gradient(40% 80% at 15% 50%, rgba(244,114,182,0.35), transparent 70%)," +
+              "radial-gradient(40% 80% at 50% 50%, rgba(99,102,241,0.30), transparent 70%)," +
+              "radial-gradient(40% 80% at 85% 50%, rgba(45,212,191,0.32), transparent 70%)",
+          }}
+        />
+        <ul
+          className={cn(
+            "relative flex items-center gap-0.5 rounded-2xl p-1.5",
+            "bg-white/70 backdrop-blur-xl",
+            "ring-1 ring-zinc-200/70",
+            "shadow-[0_1px_0_rgba(255,255,255,0.9)_inset,0_10px_30px_-12px_rgba(15,23,42,0.35)]",
+            className,
+          )}
+        >
+          {React.Children.map(children, (child) =>
+            React.isValidElement<DockIconProps>(child)
+              ? React.cloneElement(child as React.ReactElement<DockIconProps>, {
+                  handleIconHover,
+                  iconSize,
+                })
+              : child,
+          )}
+        </ul>
+      </div>
     </nav>
   );
 }
