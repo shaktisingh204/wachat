@@ -50,6 +50,12 @@ declare module '@n8n/expression-runtime' {
     acquire(owner: unknown): Promise<void>;
     release(owner: unknown): Promise<void>;
     dispose(): Promise<void>;
+    evaluate(
+      expression: string,
+      data: unknown,
+      owner: unknown,
+      options?: unknown,
+    ): unknown;
   }
   // Concrete classes are referenced only inside `await import(...)` blocks
   // that we already wrap in try/catch — declare them as `any`-shaped.
