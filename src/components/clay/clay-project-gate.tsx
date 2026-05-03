@@ -5,29 +5,32 @@
  *
  * Every Wachat page is scoped to a single WhatsApp Business Account.
  * When the user has no `activeProjectId` selected, we intercept the
- * render and show a Clay-styled project picker instead of the page
- * content. Selecting a project updates the project context and the
- * gate falls through to the real page.
+ * render and show a project picker instead of the page content.
+ * Selecting a project updates the project context and the gate falls
+ * through to the real page.
  *
  * Routes allowlisted in `OPEN_ROUTES` are allowed to render without
  * a selected project (e.g. /dashboard itself is the list-all-projects
  * page).
+ *
+ * Note: gate / hook ordering / conditions are preserved exactly as
+ * they were before the shadcn restyle. Only the visual chrome was
+ * migrated to shadcn `Card` + `Button`.
  */
 
 import * as React from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   LuArrowRight,
-  LuBriefcase,
   LuCheck,
   LuPlus,
   LuSearch,
   LuMessageSquare,
 } from 'react-icons/lu';
 
+import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { useProject } from '@/context/project-context';
-import { ClayCard } from './clay-card';
 import { ClayButton } from './clay-button';
 import { ClayInput } from './clay-input';
 import { ClayBreadcrumbs } from './clay-breadcrumbs';
@@ -88,7 +91,7 @@ export function ClayProjectGate({ children }: ClayProjectGateProps) {
   };
 
   return (
-    <div className="clay-enter">
+    <div>
       <ClayBreadcrumbs
         items={[
           { label: 'Wachat', href: '/home' },
@@ -142,12 +145,12 @@ export function ClayProjectGate({ children }: ClayProjectGateProps) {
           {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
-              className="h-[118px] animate-pulse rounded-[14px] border border-border bg-muted"
+              className="h-[118px] animate-pulse rounded-[14px] bg-muted"
             />
           ))}
         </div>
       ) : filteredProjects.length === 0 ? (
-        <ClayCard padded={false} className="mt-8 p-10 text-center">
+        <Card variant="default" className="mt-8 p-10 text-center">
           {filter ? (
             <>
               <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
@@ -206,7 +209,7 @@ export function ClayProjectGate({ children }: ClayProjectGateProps) {
               </div>
             </>
           )}
-        </ClayCard>
+        </Card>
       ) : (
         <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filteredProjects.map((p) => {
@@ -219,47 +222,50 @@ export function ClayProjectGate({ children }: ClayProjectGateProps) {
                 key={id}
                 type="button"
                 onClick={() => selectProject(id)}
-                className={cn(
-                  'group flex flex-col rounded-[14px] border border-border bg-card p-4 text-left transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 hover:border-border hover:shadow-md',
-                )}
+                className={cn('group block w-full text-left')}
               >
-                <div className="flex items-start justify-between">
-                  <div
-                    className={cn(
-                      'flex h-9 w-9 items-center justify-center rounded-[10px] text-[13px] font-semibold uppercase',
-                      'bg-accent text-accent-foreground',
-                    )}
-                  >
-                    {(p.name || '?').slice(0, 2)}
+                <Card
+                  variant="default"
+                  className="flex flex-col p-4 transition-transform group-hover:-translate-y-0.5 group-hover:shadow-md"
+                >
+                  <div className="flex items-start justify-between">
+                    <div
+                      className={cn(
+                        'flex h-9 w-9 items-center justify-center rounded-[10px] text-[13px] font-semibold uppercase',
+                        'bg-accent text-accent-foreground',
+                      )}
+                    >
+                      {(p.name || '?').slice(0, 2)}
+                    </div>
+                    <LuArrowRight
+                      className="h-4 w-4 text-muted-foreground/70 transition-[color,transform] group-hover:text-foreground group-hover:translate-x-0.5"
+                      strokeWidth={2}
+                    />
                   </div>
-                  <LuArrowRight
-                    className="h-4 w-4 text-muted-foreground/70 transition-[color,transform] group-hover:text-foreground group-hover:translate-x-0.5"
-                    strokeWidth={2}
-                  />
-                </div>
-                <div className="mt-3.5 text-[11.5px] font-medium text-muted-foreground">
-                  WhatsApp project
-                </div>
-                <div className="mt-1 text-[15px] font-semibold text-foreground leading-tight truncate">
-                  {p.name || 'Untitled project'}
-                </div>
-                <div className="mt-2 flex items-center gap-2 text-[11px] text-muted-foreground">
-                  <span
-                    className={cn(
-                      'inline-flex h-1.5 w-1.5 rounded-full',
-                      hasPhone ? 'bg-emerald-500' : 'bg-amber-500',
-                    )}
-                  />
-                  {hasPhone ? 'Phone connected' : 'Setup incomplete'}
-                  {p.wabaId ? (
-                    <>
-                      <span className="text-muted-foreground/70">·</span>
-                      <span className="truncate font-mono text-[10px]">
-                        WABA {String(p.wabaId).slice(-6)}
-                      </span>
-                    </>
-                  ) : null}
-                </div>
+                  <div className="mt-3.5 text-[11.5px] font-medium text-muted-foreground">
+                    WhatsApp project
+                  </div>
+                  <div className="mt-1 text-[15px] font-semibold text-foreground leading-tight truncate">
+                    {p.name || 'Untitled project'}
+                  </div>
+                  <div className="mt-2 flex items-center gap-2 text-[11px] text-muted-foreground">
+                    <span
+                      className={cn(
+                        'inline-flex h-1.5 w-1.5 rounded-full',
+                        hasPhone ? 'bg-emerald-500' : 'bg-amber-500',
+                      )}
+                    />
+                    {hasPhone ? 'Phone connected' : 'Setup incomplete'}
+                    {p.wabaId ? (
+                      <>
+                        <span className="text-muted-foreground/70">·</span>
+                        <span className="truncate font-mono text-[10px]">
+                          WABA {String(p.wabaId).slice(-6)}
+                        </span>
+                      </>
+                    ) : null}
+                  </div>
+                </Card>
               </button>
             );
           })}

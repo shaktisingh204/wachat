@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 
 export interface ClayAvatarStackItem {
@@ -16,33 +17,30 @@ export interface ClayAvatarStackProps
   overflowTone?: 'rose' | 'obsidian' | 'neutral';
 }
 
-const sizeClass = {
-  sm: 'h-6 w-6 text-[10px] -ml-2 first:ml-0',
-  md: 'h-8 w-8 text-[11px] -ml-2.5 first:ml-0',
-  lg: 'h-10 w-10 text-[12px] -ml-3 first:ml-0',
+const sizeClass: Record<NonNullable<ClayAvatarStackProps['size']>, string> = {
+  sm: 'h-6 w-6 text-[10px]',
+  md: 'h-8 w-8 text-[11px]',
+  lg: 'h-10 w-10 text-[12px]',
 };
 
-/**
- * Overflow chip — in the reference this is NOT a circle. It's a wider
- * rose-colored oval/pill sitting slightly nested into the last avatar.
- * Dimensions are tuned to match the reference where the "+5" reads as
- * a ~32×22 pill, not a round badge.
- */
-const overflowSize = {
-  sm: 'h-6    min-w-[28px] px-1.5 text-[10px] -ml-2',
-  md: 'h-[26px] min-w-[34px] px-2 text-[11px] -ml-3',
-  lg: 'h-8    min-w-[40px] px-2.5 text-[12px] -ml-3',
+const overflowSize: Record<NonNullable<ClayAvatarStackProps['size']>, string> = {
+  sm: 'h-6 min-w-[28px] px-1.5 text-[10px]',
+  md: 'h-[26px] min-w-[34px] px-2 text-[11px]',
+  lg: 'h-8 min-w-[40px] px-2.5 text-[12px]',
 };
 
-const overflowClass = {
-  rose: 'bg-primary text-white',
-  obsidian: 'bg-foreground text-white',
+const overflowClass: Record<
+  NonNullable<ClayAvatarStackProps['overflowTone']>,
+  string
+> = {
+  rose: 'bg-primary text-primary-foreground',
+  obsidian: 'bg-foreground text-background',
   neutral: 'bg-muted text-muted-foreground',
 };
 
 /**
  * ClayAvatarStack — overlapped avatars with a trailing "+N" chip.
- * Mirrors the "10 candidates +5" pattern in the Round cards.
+ * Now delegates to shadcn Avatar primitives wrapped in a flex container.
  */
 export function ClayAvatarStack({
   items,
@@ -56,37 +54,53 @@ export function ClayAvatarStack({
   const overflow = items.length - visible.length;
 
   return (
-    <div className={cn('flex items-center', className)} {...props}>
-      {visible.map((item, i) => (
-        <div
-          key={i}
-          title={item.alt}
-          className={cn(
-            'rounded-full clay-avatar-ring overflow-hidden flex items-center justify-center font-medium bg-muted text-muted-foreground',
-            sizeClass[size],
-          )}
-          style={
-            item.hue !== undefined
-              ? { background: `hsl(${item.hue} 60% 88%)`, color: `hsl(${item.hue} 50% 30%)` }
-              : undefined
-          }
-        >
-          {item.src ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={item.src}
-              alt={item.alt || ''}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <span>{item.fallback ?? item.alt?.[0]?.toUpperCase() ?? '?'}</span>
-          )}
-        </div>
-      ))}
+    <div
+      className={cn('flex items-center -space-x-2', className)}
+      {...props}
+    >
+      {visible.map((item, i) => {
+        const fallbackText =
+          item.fallback ?? item.alt?.[0]?.toUpperCase() ?? '?';
+        return (
+          <Avatar
+            key={i}
+            title={item.alt}
+            className={cn(
+              'ring-2 ring-background font-medium',
+              sizeClass[size],
+            )}
+            style={
+              item.hue !== undefined
+                ? {
+                    background: `hsl(${item.hue} 60% 88%)`,
+                    color: `hsl(${item.hue} 50% 30%)`,
+                  }
+                : undefined
+            }
+          >
+            {item.src ? (
+              <AvatarImage src={item.src} alt={item.alt || ''} />
+            ) : null}
+            <AvatarFallback
+              className="bg-transparent text-inherit"
+              style={
+                item.hue !== undefined
+                  ? {
+                      background: `hsl(${item.hue} 60% 88%)`,
+                      color: `hsl(${item.hue} 50% 30%)`,
+                    }
+                  : undefined
+              }
+            >
+              {fallbackText}
+            </AvatarFallback>
+          </Avatar>
+        );
+      })}
       {overflow > 0 ? (
         <div
           className={cn(
-            'rounded-full clay-avatar-ring inline-flex items-center justify-center font-semibold',
+            'inline-flex items-center justify-center rounded-full font-semibold ring-2 ring-background',
             overflowSize[size],
             overflowClass[overflowTone],
           )}

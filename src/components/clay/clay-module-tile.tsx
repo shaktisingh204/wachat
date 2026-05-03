@@ -3,6 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { LuArrowUpRight } from 'react-icons/lu';
+import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
 export interface ClayModuleTileProps {
@@ -35,7 +36,7 @@ export interface ClayModuleTileProps {
 
 const accentClasses: Record<NonNullable<ClayModuleTileProps['accent']>, string> = {
   rose:     'bg-accent text-accent-foreground',
-  obsidian: 'bg-foreground text-white',
+  obsidian: 'bg-foreground text-background',
   violet:   'bg-[#EEE8FF] text-[#5B21B6]',
   amber:    'bg-[#FEF3C7] text-[#92400E]',
   green:    'bg-[#DCFCE7] text-[#166534]',
@@ -55,9 +56,9 @@ const statusClasses = {
 };
 
 /**
- * ClayModuleTile — a compact, clickable card surfacing one module's
- * primary metric. Used on /home's "All Apps" grid so every SabNode
- * module has presence on the dashboard regardless of depth of use.
+ * ClayModuleTile — compact, clickable tile surfacing one module's
+ * primary metric. Wraps the shadcn `Card` primitive in a `next/link`
+ * so the whole tile is navigable.
  */
 export function ClayModuleTile({
   icon,
@@ -70,53 +71,54 @@ export function ClayModuleTile({
   className,
 }: ClayModuleTileProps) {
   return (
-    <Link
-      href={href}
-      className={cn(
-        'group relative flex flex-col rounded-[14px] border border-border bg-card p-4 transition-[box-shadow,transform,border-color] duration-200 hover:-translate-y-0.5 hover:border-border hover:shadow-md',
-        className,
-      )}
-    >
-      <div className="flex items-start justify-between">
-        <span
-          className={cn(
-            'flex h-8 w-8 items-center justify-center rounded-[10px]',
-            accentClasses[accent],
-          )}
-        >
-          <span className="flex h-4 w-4 items-center justify-center">
-            {icon}
-          </span>
-        </span>
-        <LuArrowUpRight
-          className="h-3.5 w-3.5 text-muted-foreground/70 transition-[color,transform] group-hover:text-foreground group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-          strokeWidth={2}
-        />
-      </div>
-
-      <div className="mt-3.5 text-[12px] font-medium text-muted-foreground leading-none">
-        {name}
-      </div>
-
-      <div className="mt-1.5 flex items-baseline gap-1.5">
-        <div className="text-[20px] font-semibold tracking-[-0.01em] text-foreground leading-none">
-          {primary}
-        </div>
-        {status ? (
+    <Link href={href} className={cn('group block', className)}>
+      <Card
+        variant="default"
+        className={cn(
+          'flex flex-col p-4 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:shadow-md',
+        )}
+      >
+        <div className="flex items-start justify-between">
           <span
             className={cn(
-              'h-1.5 w-1.5 shrink-0 rounded-full',
-              statusClasses[status],
+              'flex h-8 w-8 items-center justify-center rounded-[10px]',
+              accentClasses[accent],
             )}
+          >
+            <span className="flex h-4 w-4 items-center justify-center">
+              {icon}
+            </span>
+          </span>
+          <LuArrowUpRight
+            className="h-3.5 w-3.5 text-muted-foreground/70 transition-[color,transform] group-hover:text-foreground group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+            strokeWidth={2}
           />
-        ) : null}
-      </div>
-
-      {secondary ? (
-        <div className="mt-1 text-[11px] text-muted-foreground leading-tight truncate">
-          {secondary}
         </div>
-      ) : null}
+
+        <div className="mt-3.5 text-xs font-medium text-muted-foreground leading-none">
+          {name}
+        </div>
+
+        <div className="mt-1.5 flex items-baseline gap-1.5">
+          <div className="text-xl font-semibold tracking-[-0.01em] text-foreground leading-none">
+            {primary}
+          </div>
+          {status ? (
+            <span
+              className={cn(
+                'h-1.5 w-1.5 shrink-0 rounded-full',
+                statusClasses[status],
+              )}
+            />
+          ) : null}
+        </div>
+
+        {secondary ? (
+          <div className="mt-1 text-[11px] text-muted-foreground leading-tight truncate">
+            {secondary}
+          </div>
+        ) : null}
+      </Card>
     </Link>
   );
 }

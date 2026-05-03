@@ -4,25 +4,19 @@ import { cn } from '@/lib/utils';
 export interface ClayShellProps
   extends React.HTMLAttributes<HTMLDivElement> {
   /**
-   * When true (default), children render inside a rounded
-   * floating panel on a slightly darker cream outer background —
-   * the pixel-accurate reference layout.
-   *
-   * Set to false for full-bleed pages (chat, builders) where the
-   * panel chrome would clip content.
+   * When true (default), children render inside a rounded floating
+   * panel on a slightly darker outer background. Set to false for
+   * full-bleed pages (chat, builders) where the panel chrome would
+   * clip content.
    */
   panelled?: boolean;
 }
 
 /**
- * ClayShell — the outermost layout primitive.
- *
- * Structure:
- *   <div class="clay-outer-shell">     ← darker cream page chrome
- *     <div class="clay-panel">          ← rounded 28px floating panel
- *       {children}
- *     </div>
- *   </div>
+ * ClayShell — outermost layout primitive. Now expressed entirely in
+ * shadcn tokens (`bg-background`, `bg-card`, `text-foreground`) so
+ * it inherits whatever theme the consumer has set rather than the
+ * legacy clay palette.
  */
 export const ClayShell = React.forwardRef<HTMLDivElement, ClayShellProps>(
   ({ className, panelled = true, children, ...props }, ref) => {
@@ -30,7 +24,10 @@ export const ClayShell = React.forwardRef<HTMLDivElement, ClayShellProps>(
       return (
         <div
           ref={ref}
-          className={cn('clay-outer-shell relative w-full', className)}
+          className={cn(
+            'relative w-full bg-background text-foreground',
+            className,
+          )}
           style={{ fontFamily: 'var(--font-sab-sans), system-ui, sans-serif' }}
           {...props}
         >
@@ -42,11 +39,18 @@ export const ClayShell = React.forwardRef<HTMLDivElement, ClayShellProps>(
     return (
       <div
         ref={ref}
-        className="clay-outer-shell relative w-full p-3 md:p-4"
+        className="relative w-full bg-background text-foreground p-3 md:p-4"
         style={{ fontFamily: 'var(--font-sab-sans), system-ui, sans-serif' }}
         {...props}
       >
-        <div className={cn('clay-panel', className)}>{children}</div>
+        <div
+          className={cn(
+            'rounded-3xl bg-card text-card-foreground shadow-sm overflow-hidden',
+            className,
+          )}
+        >
+          {children}
+        </div>
       </div>
     );
   },

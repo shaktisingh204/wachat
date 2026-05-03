@@ -2,8 +2,8 @@
 
 import * as React from 'react';
 import { LuCalendar, LuUsers } from 'react-icons/lu';
+import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { ClayCard } from './clay-card';
 import { ClayButton } from './clay-button';
 import { ClayAvatarStack, type ClayAvatarStackItem } from './clay-avatar-stack';
 
@@ -43,18 +43,10 @@ const statusTone: Record<
 };
 
 /**
- * ClayRoundCard — the "Round 1 / Initial Review / avatars / View candidates →"
- * card from the reference.
- *
- * Anatomy (pixel-matched):
- *   ┌───────────────────────────────────────┐
- *   │ 📅 June 12 – June 15  👥 10 cand  • Completed │
- *   │                                               │
- *   │ Round 1                                       │  22px semibold
- *   │ Initial Review                                │  13px muted
- *   │                                               │
- *   │ [●●●●+5]            [ View candidates → ]    │
- *   └───────────────────────────────────────┘
+ * ClayRoundCard — round summary card built on top of the shadcn
+ * `Card` primitive. Adds a meta row (date / candidate count / status),
+ * the title block, and a footer that pairs the avatar stack with a
+ * dark CTA button.
  */
 export function ClayRoundCard({
   title,
@@ -70,9 +62,8 @@ export function ClayRoundCard({
   const tone = statusTone[status];
 
   return (
-    <ClayCard
+    <Card
       variant="default"
-      padded={false}
       className={cn('rounded-[14px] p-4 min-w-[260px]', className)}
     >
       {/* meta row — subtle bullet-separated inline group */}
@@ -95,11 +86,11 @@ export function ClayRoundCard({
 
       {/* title block */}
       <div className="mt-2.5">
-        <h3 className="text-[18px] font-semibold tracking-[-0.01em] text-foreground leading-[1.1]">
+        <h3 className="text-lg font-semibold tracking-[-0.01em] text-foreground leading-[1.1]">
           {title}
         </h3>
         {subtitle ? (
-          <p className="mt-0.5 text-[12px] text-muted-foreground leading-tight">
+          <p className="mt-0.5 text-xs text-muted-foreground leading-tight">
             {subtitle}
           </p>
         ) : null}
@@ -122,6 +113,6 @@ export function ClayRoundCard({
           {ctaLabel}
         </ClayButton>
       </div>
-    </ClayCard>
+    </Card>
   );
 }

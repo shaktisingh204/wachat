@@ -2,8 +2,8 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { cn } from '@/lib/utils';
 import { LuPlus } from 'react-icons/lu';
+import { cn } from '@/lib/utils';
 
 export interface ClayNavItem {
   key: string;
@@ -29,17 +29,12 @@ export interface ClaySidebarProps extends React.HTMLAttributes<HTMLElement> {
 }
 
 /**
- * ClaySidebar — the full left column of the reference.
- * Structure:
- *   [Brand]
- *   [Group title: "Rounds"]
- *     [NavItem Dashboard]
- *     [NavItem Interviews]
- *     [NavItem Candidates]  (active — rose pill)
- *     [NavItem Settings]
- *   [Subsection: "Departments" + items w/ colored dot]
- *   ...
- *   [Footer: promo card + user card]
+ * ClaySidebar — left column for the dashboard. Active-state and nav
+ * item rendering logic is preserved verbatim; only the styling tokens
+ * have been migrated to shadcn (`bg-sidebar`, `bg-secondary`, etc.)
+ * The shadcn `Sidebar` primitive is intentionally not used here
+ * because its built-in collapsible/provider chrome would diverge
+ * from the simple props this component exposes.
  */
 export function ClaySidebar({
   brand,
@@ -54,25 +49,17 @@ export function ClaySidebar({
   return (
     <aside
       className={cn(
-        // Static full-height sidebar — fills the panel vertically,
-        // never scrolls as a whole, only its overflow area can scroll
-        // if the nav list is too tall.
         'sticky top-0 flex h-full max-h-full shrink-0 flex-col pb-5',
         'w-[244px] px-4 pt-6',
+        // Use the sidebar token if defined; fall back to muted background.
+        'bg-[hsl(var(--sidebar-background,36_18%_96%))]',
         className,
       )}
-      style={{
-        backgroundColor: 'hsl(36 18% 96%)', // subtly cooler than main canvas
-      }}
       {...props}
     >
       {brand ? <div className="px-2 pb-5 shrink-0">{brand}</div> : null}
 
-      {/* Scrollable nav area — primary group + sub-groups scroll
-          together when the sidebar overflows, while brand stays
-          pinned at top and footer stays pinned at bottom. */}
       <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden pr-1">
-        {/* Primary group title */}
         <div className="px-2">
           <h2 className="text-[17px] font-semibold tracking-tight text-foreground leading-none">
             {groupTitle}
@@ -89,13 +76,14 @@ export function ClaySidebar({
           </nav>
         ) : null}
 
-        {/* Sub-groups */}
         <div className="mt-7 flex flex-col gap-5 pb-2">
           {rest.map((group, i) => (
             <div key={i}>
               {group.title ? (
                 <div className="flex items-center justify-between px-2.5 pb-2">
-                  <span className="clay-section-label">{group.title}</span>
+                  <span className="text-[10.5px] uppercase tracking-[0.08em] font-semibold text-muted-foreground">
+                    {group.title}
+                  </span>
                   {group.addable ? (
                     <button
                       type="button"
@@ -118,13 +106,18 @@ export function ClaySidebar({
         </div>
       </div>
 
-      {/* Footer — promo + user card sit flush at the bottom of the column */}
       {footer ? (
         <div className="shrink-0 flex flex-col gap-3 pt-4">{footer}</div>
       ) : null}
     </aside>
   );
 }
+
+const navItemClass = cn(
+  'flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] font-medium leading-tight transition-colors',
+  'text-muted-foreground hover:bg-secondary hover:text-foreground',
+  'data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=true]:hover:bg-primary',
+);
 
 function NavItem({ item }: { item: ClayNavItem }) {
   const content = (
@@ -145,7 +138,7 @@ function NavItem({ item }: { item: ClayNavItem }) {
       <Link
         href={item.href}
         data-active={item.active ? 'true' : 'false'}
-        className="clay-nav-item w-full"
+        className={navItemClass}
       >
         {content}
       </Link>
@@ -156,7 +149,7 @@ function NavItem({ item }: { item: ClayNavItem }) {
       type="button"
       onClick={item.onClick}
       data-active={item.active ? 'true' : 'false'}
-      className="clay-nav-item w-full"
+      className={navItemClass}
     >
       {content}
     </button>

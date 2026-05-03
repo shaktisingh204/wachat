@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { Button, type ButtonProps } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 type Variant =
@@ -20,27 +21,39 @@ export interface ClayButtonProps
   trailing?: React.ReactNode;
 }
 
-const base =
-  'inline-flex items-center justify-center gap-2 font-medium leading-none select-none transition-[background,border-color,transform,color] duration-150 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2 focus-visible:ring-offset-background';
+/**
+ * Map clay variants → shadcn Button variants.
+ * `obsidian` and `rose` are SabNode's primary CTAs; both lean on
+ * shadcn's `default` (which is the indigo gradient) — we then layer
+ * tone-specific overrides so the buttons read the way the design
+ * reference expects.
+ */
+const variantToButton: Record<Variant, ButtonProps['variant']> = {
+  obsidian: 'default',
+  rose: 'default',
+  'rose-soft': 'outline',
+  pill: 'outline',
+  ghost: 'ghost',
+};
 
-const variantClass: Record<Variant, string> = {
+const variantOverride: Record<Variant, string> = {
   obsidian:
-    'bg-foreground text-white hover:bg-foreground/90 rounded-full',
+    'rounded-full bg-foreground text-background [background:none] hover:bg-foreground/90 hover:[background:none] shadow-none',
   rose:
-    'bg-primary text-white hover:bg-primary rounded-full',
+    'rounded-full bg-primary text-primary-foreground [background:none] hover:bg-primary/90 hover:[background:none] shadow-none',
   'rose-soft':
-    'bg-accent text-accent-foreground hover:brightness-[0.97] rounded-full border border-accent',
+    'rounded-full bg-accent text-accent-foreground border-accent hover:bg-accent/80 hover:border-accent',
   pill:
-    'bg-card text-foreground border border-border hover:bg-secondary hover:border-border rounded-full',
+    'rounded-full bg-card text-foreground hover:bg-secondary',
   ghost:
-    'bg-transparent text-muted-foreground hover:text-foreground hover:bg-secondary rounded-lg',
+    'rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary',
 };
 
 const sizeClass: Record<Size, string> = {
-  sm:   'h-8  px-3    text-[12.5px]',
-  md:   'h-9  px-4    text-[13px]',
-  lg:   'h-11 px-5    text-[14px]',
-  icon: 'h-9  w-9     text-[13px] p-0',
+  sm: 'h-8 px-3 text-[12.5px]',
+  md: 'h-9 px-4 text-[13px]',
+  lg: 'h-11 px-5 text-[14px]',
+  icon: 'h-9 w-9 p-0 text-[13px]',
 };
 
 export const ClayButton = React.forwardRef<HTMLButtonElement, ClayButtonProps>(
@@ -57,16 +70,28 @@ export const ClayButton = React.forwardRef<HTMLButtonElement, ClayButtonProps>(
     },
     ref,
   ) => (
-    <button
+    <Button
       ref={ref}
       type={type}
-      className={cn(base, variantClass[variant], sizeClass[size], className)}
+      noMotion
+      variant={variantToButton[variant]}
+      className={cn(
+        // gap and leading-none keep the leading/trailing icon spacing tight
+        'gap-2 font-medium leading-none',
+        sizeClass[size],
+        variantOverride[variant],
+        className,
+      )}
       {...props}
     >
-      {leading ? <span className="flex shrink-0 items-center">{leading}</span> : null}
+      {leading ? (
+        <span className="flex shrink-0 items-center">{leading}</span>
+      ) : null}
       {children}
-      {trailing ? <span className="flex shrink-0 items-center">{trailing}</span> : null}
-    </button>
+      {trailing ? (
+        <span className="flex shrink-0 items-center">{trailing}</span>
+      ) : null}
+    </Button>
   ),
 );
 ClayButton.displayName = 'ClayButton';

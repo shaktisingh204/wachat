@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { badgeVariants } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
 type Tone =
@@ -16,35 +17,57 @@ export interface ClayBadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
   dot?: boolean;
 }
 
-const tones: Record<Tone, string> = {
-  neutral:    'bg-secondary text-muted-foreground border-border',
-  rose:       'bg-primary text-white border-primary',
-  'rose-soft':'bg-accent text-accent-foreground border-accent',
-  obsidian:   'bg-foreground text-white border-foreground',
-  green:      'bg-emerald-50 text-emerald-500 border-emerald-50',
-  amber:      'bg-amber-50 text-amber-500 border-amber-50',
-  red:        'bg-rose-50 text-destructive border-rose-50',
-  blue:       'bg-sky-50 text-sky-500 border-sky-50',
+/**
+ * Map each ClayBadge tone onto a shadcn Badge variant. Two clay tones
+ * (`obsidian`, `rose-soft`) have no 1:1 shadcn variant, so we layer
+ * a small override on top of the closest match.
+ */
+const toneToVariant: Record<
+  Tone,
+  'default' | 'secondary' | 'destructive' | 'success' | 'warning' | 'info' | 'outline'
+> = {
+  neutral: 'secondary',
+  rose: 'default',
+  'rose-soft': 'secondary',
+  obsidian: 'default',
+  green: 'success',
+  amber: 'warning',
+  red: 'destructive',
+  blue: 'info',
+};
+
+const toneOverride: Partial<Record<Tone, string>> = {
+  obsidian:
+    'bg-foreground text-background hover:bg-foreground/90 [background:none]',
+  'rose-soft':
+    'bg-accent text-accent-foreground hover:bg-accent/80',
 };
 
 const dotTones: Record<Tone, string> = {
-  neutral:    'bg-muted-foreground',
-  rose:       'bg-white',
-  'rose-soft':'bg-primary',
-  obsidian:   'bg-white',
-  green:      'bg-emerald-500',
-  amber:      'bg-amber-500',
-  red:        'bg-destructive',
-  blue:       'bg-sky-500',
+  neutral: 'bg-muted-foreground',
+  rose: 'bg-primary-foreground',
+  'rose-soft': 'bg-primary',
+  obsidian: 'bg-background',
+  green: 'bg-[hsl(var(--prism-emerald))]',
+  amber: 'bg-[hsl(var(--prism-coral))]',
+  red: 'bg-destructive',
+  blue: 'bg-[hsl(var(--prism-sky))]',
 };
 
+/**
+ * ClayBadge — delegates visual styling to shadcn `badgeVariants` while
+ * keeping the original `<span>` element + `HTMLSpanElement` ref contract
+ * that callers depend on.
+ */
 export const ClayBadge = React.forwardRef<HTMLSpanElement, ClayBadgeProps>(
   ({ className, tone = 'neutral', dot = false, children, ...props }, ref) => (
     <span
       ref={ref}
       className={cn(
-        'inline-flex items-center gap-1.5 h-6 px-2.5 rounded-full border text-[11.5px] font-medium leading-none whitespace-nowrap',
-        tones[tone],
+        badgeVariants({ variant: toneToVariant[tone] }),
+        // ClayBadge's traditional sizing: 24px tall, slightly larger horizontal pad.
+        'h-6 px-2.5 text-[11.5px] gap-1.5 leading-none whitespace-nowrap',
+        toneOverride[tone],
         className,
       )}
       {...props}

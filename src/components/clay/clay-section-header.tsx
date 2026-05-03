@@ -12,8 +12,9 @@ export interface ClaySectionHeaderProps
 }
 
 /**
- * ClaySectionHeader — the "Round" / "Interview Overview" heading +
- * optional trailing action buttons (+ · ··· · pill).
+ * ClaySectionHeader — semantic <header> with shadcn typography classes.
+ * Renders a heading + optional subtitle on the left and a slot for
+ * trailing action buttons on the right.
  */
 export function ClaySectionHeader({
   title,
@@ -24,7 +25,7 @@ export function ClaySectionHeader({
   ...props
 }: ClaySectionHeaderProps) {
   return (
-    <div
+    <header
       className={cn('flex items-center justify-between gap-4', className)}
       {...props}
     >
@@ -32,18 +33,18 @@ export function ClaySectionHeader({
         <h2
           className={cn(
             'font-semibold tracking-tight text-foreground leading-none',
-            size === 'lg' ? 'text-[28px]' : 'text-[22px]',
+            size === 'lg' ? 'text-3xl' : 'text-2xl',
           )}
         >
           {title}
         </h2>
         {subtitle ? (
-          <p className="mt-1 text-[13px] text-muted-foreground">{subtitle}</p>
+          <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
         ) : null}
       </div>
       {actions ? (
         <div className="flex shrink-0 items-center gap-2">{actions}</div>
       ) : null}
-    </div>
+    </header>
   );
 }

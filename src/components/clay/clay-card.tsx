@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Card, type CardProps } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
 type Variant = 'default' | 'soft' | 'floating' | 'outline';
@@ -9,35 +10,41 @@ export interface ClayCardProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 /**
- * ClayCard — the pure-white rounded card used across the reference.
+ * ClayCard — delegates to the shadcn `Card` primitive.
  *
- * - `default`  white surface + hairline border + quiet shadow (most cards)
- * - `soft`     cream inset surface for nested content (e.g. the numbered rows)
- * - `floating` lifts on the page with a larger shadow
- * - `outline`  border-only, no shadow (for inline chips / lightweight groupings)
+ * The shadcn Card is **borderless** by design (shadow-only depth), so the
+ * mapping here intentionally adds NO border classes; instead each variant
+ * tunes the shadow level / fill via the existing shadcn cva variants.
+ *
+ *   default  → Card variant `default`     (cream surface, soft shadow on hover)
+ *   soft     → Card variant `default` + secondary fill for nested rows
+ *   floating → Card variant `elevated`    (lifted shadow)
+ *   outline  → Card variant `default`     (no border, no extra shadow)
  */
-export const ClayCard = React.forwardRef<HTMLDivElement, ClayCardProps>(
-  ({ className, variant = 'default', padded = true, children, ...props }, ref) => {
-    const variants: Record<Variant, string> = {
-      default:
-        'bg-card border border-border shadow-sm rounded-xl',
-      soft:
-        'bg-secondary border border-border rounded-xl',
-      floating:
-        'bg-card border border-border shadow-md rounded-xl',
-      outline:
-        'bg-card border border-border rounded-xl',
-    };
+const variantToCard: Record<Variant, CardProps['variant']> = {
+  default: 'default',
+  soft: 'default',
+  floating: 'elevated',
+  outline: 'default',
+};
 
-    return (
-      <div
-        ref={ref}
-        className={cn(variants[variant], padded && 'p-5', className)}
-        {...props}
-      >
-        {children}
-      </div>
-    );
-  },
+const variantExtra: Record<Variant, string> = {
+  default: '',
+  soft: 'bg-secondary',
+  floating: '',
+  outline: '',
+};
+
+export const ClayCard = React.forwardRef<HTMLDivElement, ClayCardProps>(
+  ({ className, variant = 'default', padded = true, children, ...props }, ref) => (
+    <Card
+      ref={ref}
+      variant={variantToCard[variant]}
+      className={cn(variantExtra[variant], padded && 'p-5', className)}
+      {...props}
+    >
+      {children}
+    </Card>
+  ),
 );
 ClayCard.displayName = 'ClayCard';

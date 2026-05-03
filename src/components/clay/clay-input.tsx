@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
 export interface ClayInputProps
@@ -8,14 +9,19 @@ export interface ClayInputProps
   sizeVariant?: 'sm' | 'md';
 }
 
+/**
+ * ClayInput — delegates to the shadcn `Input` primitive.
+ * When `leading`/`trailing` adornments are provided, we wrap the
+ * primitive in a flex container with focus-within styling so the
+ * decorations sit flush inside the same visual bounding box.
+ */
 export const ClayInput = React.forwardRef<HTMLInputElement, ClayInputProps>(
   ({ className, leading, trailing, sizeVariant = 'md', ...props }, ref) => {
     if (!leading && !trailing) {
       return (
-        <input
+        <Input
           ref={ref}
           className={cn(
-            'clay-input',
             sizeVariant === 'sm' && 'h-8 py-1.5 text-[12.5px]',
             sizeVariant === 'md' && 'h-10',
             className,
@@ -27,7 +33,9 @@ export const ClayInput = React.forwardRef<HTMLInputElement, ClayInputProps>(
     return (
       <div
         className={cn(
-          'flex items-center gap-2 rounded-lg border border-border bg-card transition-[border-color,box-shadow] focus-within:border-primary focus-within:ring-[3px] focus-within:ring-primary/15',
+          'flex items-center gap-2 rounded-md border border-input bg-background ring-offset-background transition-all duration-150',
+          'focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2',
+          'hover:border-[hsl(var(--prism-indigo)/0.4)] focus-within:border-[hsl(var(--prism-indigo)/0.5)]',
           sizeVariant === 'sm' ? 'h-8 px-2.5' : 'h-10 px-3',
           className,
         )}
@@ -39,7 +47,7 @@ export const ClayInput = React.forwardRef<HTMLInputElement, ClayInputProps>(
         ) : null}
         <input
           ref={ref}
-          className="flex-1 bg-transparent text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none"
+          className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
           {...props}
         />
         {trailing ? (
@@ -59,12 +67,19 @@ export interface ClaySelectProps
   sizeVariant?: 'sm' | 'md';
 }
 
+/**
+ * ClaySelect — native <select> styled to match the shadcn Input.
+ * (We deliberately keep this as a native element rather than the
+ * Radix-based shadcn Select primitive because the public API here
+ * accepts standard select HTML attributes plus a flat `options` list.)
+ */
 export const ClaySelect = React.forwardRef<HTMLSelectElement, ClaySelectProps>(
   ({ className, options, sizeVariant = 'md', ...props }, ref) => (
     <select
       ref={ref}
       className={cn(
-        'clay-input appearance-none bg-no-repeat pr-8',
+        'flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-all duration-150 placeholder:text-muted-foreground hover:border-[hsl(var(--prism-indigo)/0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:border-[hsl(var(--prism-indigo)/0.5)] disabled:cursor-not-allowed disabled:opacity-50',
+        'appearance-none bg-no-repeat pr-8',
         sizeVariant === 'sm' && 'h-8 py-1 text-[12.5px]',
         sizeVariant === 'md' && 'h-10',
         className,

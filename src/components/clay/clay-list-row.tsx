@@ -9,22 +9,17 @@ export interface ClayListRowProps extends React.HTMLAttributes<HTMLDivElement> {
   meta?: React.ReactNode;
   trailing?: React.ReactNode;
   /**
-   * Expanded state — shows children below the row. Still renders
-   * the row in the default soft treatment (NOT rose-tinted); the
-   * reference only lifts the index circle to a hairline-bordered
-   * cream circle when the row is the one being edited.
+   * Expanded state — shows children below the row.
    */
   expanded?: boolean;
   children?: React.ReactNode;
 }
 
 /**
- * ClayListRow — the numbered (1 / 2 / 3) rows in the "Previous Background"
- * / "Editing" section of the reference.
- *
- * Structure matches the reference exactly:
- *   [circle w/ number]  [title + meta]                 [trailing icons]
- *   ─────────── optional children (form, guidelines) ───────────
+ * ClayListRow — composed from shadcn-friendly tokens (`bg-card`,
+ * `bg-secondary`, etc.) without depending on a single primitive.
+ * The structure mirrors the original: numbered circle + title/meta +
+ * trailing slot + optional expanded children area.
  */
 export function ClayListRow({
   index,
@@ -39,27 +34,26 @@ export function ClayListRow({
   return (
     <div
       className={cn(
-        'flex flex-col rounded-xl border border-border bg-secondary',
+        'flex flex-col rounded-xl bg-secondary',
         className,
       )}
       {...props}
     >
       <div className="flex items-start gap-3 px-4 py-3.5">
-        {/* Numbered circle — reference uses a pure circle, not a square */}
         <div
           className={cn(
             'flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[12px] font-semibold',
-            'bg-muted text-muted-foreground border border-border',
+            'bg-muted text-muted-foreground',
           )}
         >
           {index}
         </div>
         <div className="min-w-0 flex-1 pt-[3px]">
-          <div className="text-[14px] font-medium text-foreground leading-tight">
+          <div className="text-sm font-medium text-foreground leading-tight">
             {title}
           </div>
           {meta ? (
-            <div className="mt-1 text-[12px] text-muted-foreground leading-tight">
+            <div className="mt-1 text-xs text-muted-foreground leading-tight">
               {meta}
             </div>
           ) : null}
@@ -71,7 +65,7 @@ export function ClayListRow({
         ) : null}
       </div>
       {expanded && children ? (
-        <div className="border-t border-border px-4 py-4">{children}</div>
+        <div className="px-4 py-4 border-t border-border/50">{children}</div>
       ) : null}
     </div>
   );
