@@ -14,7 +14,6 @@
  * Pure SVG + CSS — no JS animation loop, no canvas, GPU-accelerated.
  */
 
-import * as React from "react";
 import { cn } from "@/lib/utils";
 
 interface SabNodeWaterLoaderProps {

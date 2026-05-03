@@ -45,6 +45,14 @@ interface DockIconProps {
   handleIconHover?: (e: React.MouseEvent<HTMLLIElement>) => void;
   children?: React.ReactNode;
   iconSize?: number;
+  /**
+   * If provided, the icon's click is intercepted (preventDefault) and this
+   * callback runs instead of navigating via the Link. Used by the tabs
+   * system to open/focus a tab rather than perform a hard navigation.
+   * The Link is still rendered (so Cmd/Ctrl+click "open in new tab" and
+   * right-click "copy link" keep working).
+   */
+  onActivate?: (href: string, name: string) => void;
 }
 
 type ScaleValueParams = [number, number];
@@ -76,6 +84,7 @@ export function DockIcon({
   handleIconHover,
   children,
   iconSize,
+  onActivate,
 }: DockIconProps) {
   const ref = useRef<HTMLLIElement | null>(null);
   const a = accent ?? DEFAULT_ACCENT;
@@ -148,6 +157,14 @@ export function DockIcon({
           href={href}
           aria-label={name}
           aria-current={active ? "page" : undefined}
+          onClick={(e) => {
+            if (!onActivate) return;
+            // Honour browser shortcuts so users can still open in a new
+            // browser tab if they want.
+            if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
+            e.preventDefault();
+            onActivate(href, name);
+          }}
           className={cn(
             "group/a relative aspect-square w-full rounded-2xl p-1.5",
             "bg-white/90 ring-1 ring-zinc-200/70",

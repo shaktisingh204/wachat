@@ -27,6 +27,12 @@ import { ClayProjectGate } from '@/components/clay/clay-project-gate';
 import { getProjects } from '@/app/actions/project.actions';
 import { getSession } from '@/app/actions/user.actions';
 import { SabNodeSidebar } from '@/components/ui/sidebar-component';
+import {
+  TabsProvider,
+  TabsBar,
+  useTabRouteSync,
+  useTabsKeyboard,
+} from '@/components/tabs';
 
 /* ── Bootstrap cache (survives unmount/remount across navigations) ─── */
 
@@ -222,15 +228,37 @@ export function SabNodeDashboardShell({ children }: SabNodeDashboardShellProps) 
       user={data.user as Parameters<typeof ProjectProvider>[0]['user']}
     >
       <AdManagerProvider>
-        <div
-          className="flex min-h-screen w-full"
-          style={{ backgroundColor: 'hsl(36 15% 97%)' }}
-        >
-          <SabNodeSidebar />
-          <main className="flex-1 min-w-0 px-4 pt-4 pb-28 sm:px-6 sm:pt-6 sm:pb-32 lg:px-8 lg:pt-8 lg:pb-32">{main}</main>
-        </div>
+        <TabsProvider>
+          <ShellLayout>{main}</ShellLayout>
+        </TabsProvider>
       </AdManagerProvider>
     </ProjectProvider>
+  );
+}
+
+/**
+ * Inner layout — must live INSIDE TabsProvider so it can use the
+ * tab-aware hooks (route sync + keyboard shortcuts).
+ */
+function ShellLayout({ children }: { children: React.ReactNode }) {
+  // Keep the active tab's href synced with the URL the user is on.
+  useTabRouteSync();
+  // Browser-style keyboard shortcuts (Cmd+W close, Cmd+1..9 jump, etc.).
+  useTabsKeyboard();
+
+  return (
+    <div
+      className="flex min-h-screen w-full"
+      style={{ backgroundColor: 'hsl(36 15% 97%)' }}
+    >
+      <SabNodeSidebar />
+      <div className="flex-1 min-w-0 flex flex-col">
+        <TabsBar />
+        <main className="flex-1 min-w-0 px-4 pt-4 pb-28 sm:px-6 sm:pt-6 sm:pb-32 lg:px-8 lg:pt-8 lg:pb-32">
+          {children}
+        </main>
+      </div>
+    </div>
   );
 }
 

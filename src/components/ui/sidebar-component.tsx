@@ -58,6 +58,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { Dock, DockIcon, type DockAccent } from "@/components/ui/dock";
+import { useTabsOptional } from "@/components/tabs";
 import { cn } from "@/lib/utils";
 
 const COLLAPSED_KEY = "sabnode:two-line-sidebar:collapsed";
@@ -376,17 +377,40 @@ function IconRail({ active, compact = false }: { active: string; compact?: boole
 /* ── App Dock (floating bottom-center, replaces icon rail) ──────────── */
 
 function AppDock({ active }: { active: string }) {
+  // Optional — falls back to plain Link navigation if no TabsProvider is mounted.
+  const tabs = useTabsOptional();
+
+  function makeOnActivate(moduleId: string, label: string, hue: ModuleHue) {
+    if (!tabs) return undefined;
+    return (href: string) => {
+      tabs.openTab({
+        moduleId,
+        title: label,
+        href,
+        hue: {
+          gradient: hue.gradient,
+          ink: hue.ink,
+          soft: hue.soft,
+          ring: hue.ring,
+          hoverSoft: hue.hoverSoft,
+        },
+      });
+    };
+  }
+
   return (
     <Dock iconSize={44}>
       {appIcons.map((mod) => {
         const Icon = mod.icon as React.FC<{ className?: string; size?: number }>;
+        const hue = hueFor(mod.id);
         return (
           <DockIcon
             key={mod.id}
             name={mod.label}
             href={mod.href}
             active={active === mod.id}
-            accent={dockAccent(hueFor(mod.id))}
+            accent={dockAccent(hue)}
+            onActivate={makeOnActivate(mod.id, mod.label, hue)}
           >
             <Icon className="h-5 w-5" size={20} />
           </DockIcon>
@@ -397,6 +421,7 @@ function AppDock({ active }: { active: string }) {
         href="/dashboard/settings/general"
         active={active === "settings"}
         accent={dockAccent(hueFor("settings"))}
+        onActivate={makeOnActivate("settings", "Settings", hueFor("settings"))}
       >
         <SettingsIcon size={20} />
       </DockIcon>
@@ -409,6 +434,23 @@ function AppDock({ active }: { active: string }) {
           soft: "bg-fuchsia-50",
           ring: "ring-fuchsia-200/70",
         }}
+        onActivate={
+          tabs
+            ? (href) =>
+                tabs.openTab({
+                  moduleId: "profile",
+                  title: "Profile",
+                  href,
+                  hue: {
+                    gradient: "from-violet-500 via-fuchsia-500 to-rose-500",
+                    ink: "text-fuchsia-700",
+                    soft: "bg-fuchsia-50",
+                    ring: "ring-fuchsia-200/70",
+                    hoverSoft: "hover:bg-fuchsia-50",
+                  },
+                })
+            : undefined
+        }
       >
         <UserIcon size={20} />
       </DockIcon>
