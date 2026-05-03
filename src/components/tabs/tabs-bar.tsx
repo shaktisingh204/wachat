@@ -16,7 +16,7 @@
  */
 
 import * as React from "react";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { LuX, LuPin, LuPinOff, LuChevronDown } from "react-icons/lu";
 import { useTabs } from "./tabs-context";
@@ -95,27 +95,33 @@ function ContextMenu({
 
 /* ── TabChip ──────────────────────────────────────────────────────── */
 
-function TabChip({
-  tab,
-  active,
-  onFocus,
-  onClose,
-  onContextMenu,
-  draggable,
-  onDragStart,
-  onDragOver,
-  onDrop,
-}: {
-  tab: Tab;
-  active: boolean;
-  onFocus: () => void;
-  onClose: () => void;
-  onContextMenu: (pos: { x: number; y: number }) => void;
-  draggable: boolean;
-  onDragStart: (e: React.DragEvent<HTMLDivElement>) => void;
-  onDragOver: (e: React.DragEvent<HTMLDivElement>) => void;
-  onDrop: (e: React.DragEvent<HTMLDivElement>) => void;
-}) {
+const TabChip = React.forwardRef<
+  HTMLDivElement,
+  {
+    tab: Tab;
+    active: boolean;
+    onFocus: () => void;
+    onClose: () => void;
+    onContextMenu: (pos: { x: number; y: number }) => void;
+    draggable: boolean;
+    onDragStart: (e: React.DragEvent<HTMLDivElement>) => void;
+    onDragOver: (e: React.DragEvent<HTMLDivElement>) => void;
+    onDrop: (e: React.DragEvent<HTMLDivElement>) => void;
+  }
+>(function TabChip(
+  {
+    tab,
+    active,
+    onFocus,
+    onClose,
+    onContextMenu,
+    draggable,
+    onDragStart,
+    onDragOver,
+    onDrop,
+  },
+  ref,
+) {
   const handleAuxClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
       // Middle-click closes — matches browser convention.
@@ -129,6 +135,7 @@ function TabChip({
 
   return (
     <div
+      ref={ref}
       role="tab"
       aria-selected={active}
       tabIndex={0}
@@ -224,7 +231,7 @@ function TabChip({
       )}
     </div>
   );
-}
+});
 
 /* ── TabsBar ──────────────────────────────────────────────────────── */
 
@@ -249,6 +256,15 @@ export function TabsBar({ className }: { className?: string }) {
   } | null>(null);
   const dragId = useRef<string | null>(null);
   const scrollerRef = useRef<HTMLDivElement | null>(null);
+  const chipRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+
+  // Auto-scroll the active chip into view whenever it changes.
+  useEffect(() => {
+    if (!activeId) return;
+    const chip = chipRefs.current.get(activeId);
+    if (!chip) return;
+    chip.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
+  }, [activeId]);
 
   if (tabs.length === 0) {
     return (
@@ -292,6 +308,10 @@ export function TabsBar({ className }: { className?: string }) {
           return (
             <TabChip
               key={tab.id}
+              ref={(el) => {
+                if (el) chipRefs.current.set(tab.id, el);
+                else chipRefs.current.delete(tab.id);
+              }}
               tab={tab}
               active={active}
               onFocus={() => focusTab(tab.id)}

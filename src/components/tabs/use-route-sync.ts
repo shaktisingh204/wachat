@@ -3,35 +3,46 @@
 /**
  * useTabRouteSync — keeps the active tab's `href` in sync with the URL.
  *
- * Without it, navigating *inside* a tab (e.g. clicking a sub-link in
- * Wachat) would leave the tab's stored href stale; a reload would snap
- * back to the tab's original landing route. With it, every pathname
- * change writes through to the active tab's href.
+ * MUST react ONLY to URL changes (pathname / searchParams). If we also
+ * react to `activeTab` / `tabs` changes, the hook fires immediately after
+ * a `focusTab(B)` dispatch — *before* `router.push` has updated `pathname`.
+ * It then sees the OLD pathname, finds the OLD tab still matches it, and
+ * calls `focusTab(oldTab)` — silently undoing the user's click.
  *
- * If a different open tab already points at the same href, focus that
- * tab instead of mutating the current one — that's the natural "the user
- * clicked a link that belongs to another tab" behaviour.
+ * The fix is to drive the effect off URL deps only and read the latest
+ * context fields through a ref, so a state change inside the provider
+ * never causes this hook to re-fire.
  *
- * Mounted once at the dashboard layout level.
+ * Behaviour on a real URL change:
+ *  - If a different open tab already points at the new URL, focus it
+ *    (e.g. the user clicked an internal link that belongs to another tab).
+ *  - Otherwise update the active tab's `href` so it tracks the URL.
  */
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useTabs } from "./tabs-context";
+import type { TabsContextValue } from "./types";
 
 export function useTabRouteSync() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { activeTab, focusTab, tabs, updateActiveHref } = useTabs();
+  const ctx = useTabs();
+
+  // Stash the latest context fields in a ref so the effect can read them
+  // without listing them as dependencies (which would re-fire the effect
+  // on every state change inside the provider).
+  const ctxRef = useRef<TabsContextValue>(ctx);
+  ctxRef.current = ctx;
 
   useEffect(() => {
     if (!pathname) return;
-
     const search = searchParams?.toString();
     const fullHref = search ? `${pathname}?${search}` : pathname;
 
-    // If a tab already exists for this exact href and it isn't the active
-    // one, focus it (lets in-page links jump between tabs naturally).
+    const { activeTab, focusTab, tabs, updateActiveHref } = ctxRef.current;
+
+    // If a different tab already points at this URL, switch to it.
     const matching = tabs.find((t) => t.href === fullHref);
     if (matching && matching.id !== activeTab?.id) {
       focusTab(matching.id);
@@ -41,5 +52,5 @@ export function useTabRouteSync() {
     if (!activeTab) return;
     if (activeTab.href === fullHref) return;
     updateActiveHref(fullHref);
-  }, [pathname, searchParams, activeTab, focusTab, tabs, updateActiveHref]);
+  }, [pathname, searchParams]);
 }

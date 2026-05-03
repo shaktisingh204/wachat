@@ -238,10 +238,65 @@ export function TabsProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState);
   const hydratedRef = useRef(false);
 
-  // Hydrate once on mount so SSR + first paint match.
+  // Hydrate once on mount, and reconcile the saved state with the URL the
+  // user actually loaded — otherwise the URL-sync effect would push them
+  // off their current page back to whatever tab was active before.
   useEffect(() => {
     const persisted = loadPersisted();
-    if (persisted) dispatch({ type: "hydrate", state: persisted });
+    if (!persisted) {
+      hydratedRef.current = true;
+      return;
+    }
+
+    const path = window.location.pathname;
+    const search = window.location.search; // includes leading "?"
+    const currentHref = `${path}${search}`;
+
+    // 1) Exact match → focus that tab.
+    const exact = persisted.tabs.find((t) => t.href === currentHref);
+    if (exact) {
+      dispatch({
+        type: "hydrate",
+        state: { ...persisted, activeId: exact.id },
+      });
+      hydratedRef.current = true;
+      return;
+    }
+
+    // 2) Prefix match — user navigated within an existing tab's module
+    //    since the tab was saved. Re-point that tab at the current URL.
+    const prefix = persisted.tabs.find((t) => {
+      const base = t.href.split("?")[0];
+      return base !== "/" && currentHref.startsWith(base);
+    });
+    if (prefix) {
+      const next: TabsState = {
+        ...persisted,
+        activeId: prefix.id,
+        tabs: persisted.tabs.map((t) =>
+          t.id === prefix.id
+            ? { ...t, href: currentHref, lastActiveAt: Date.now() }
+            : t,
+        ),
+      };
+      dispatch({ type: "hydrate", state: next });
+      hydratedRef.current = true;
+      return;
+    }
+
+    // 3) No tab matches the URL. Don't bounce the user — leave them on
+    //    the page they loaded. If we still have a saved active tab, we
+    //    re-point it to the current URL so the URL-sync effect is a no-op.
+    const next: TabsState = persisted.activeId
+      ? {
+          ...persisted,
+          tabs: persisted.tabs.map((t) =>
+            t.id === persisted.activeId ? { ...t, href: currentHref } : t,
+          ),
+        }
+      : persisted;
+
+    dispatch({ type: "hydrate", state: next });
     hydratedRef.current = true;
   }, []);
 
