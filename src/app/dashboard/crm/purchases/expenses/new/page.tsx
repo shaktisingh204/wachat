@@ -5,7 +5,7 @@ import { CrmPageHeader } from '../../../_components/crm-page-header';
 
 export default async function NewExpensePage() {
     return (
-        <div className="flex flex-col gap-6 max-w-2xl mx-auto">
+        <div className="flex flex-col gap-6 max-w-2xl">
             <CrmPageHeader
                 title="Record Expense"
                 subtitle="Add a new expense entry."

@@ -16,7 +16,7 @@ import type { Metadata } from 'next';
 
 export default function ManualInstagramSetupDocsPage() {
   return (
-    <div className="flex flex-col gap-8 max-w-4xl mx-auto">
+    <div className="flex flex-col gap-8">
       <div>
         <Button variant="ghost" asChild className="mb-4 -ml-4">
           <Link href="/dashboard/instagram/setup">

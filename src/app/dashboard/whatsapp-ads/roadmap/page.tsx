@@ -42,7 +42,7 @@ const roadMapPhases = [
 
 export default function AdsRoadmapPage() {
   return (
-    <div className="flex flex-col gap-8 max-w-4xl mx-auto">
+    <div className="flex flex-col gap-8">
         <div>
             <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
                 <Route className="h-8 w-8"/>

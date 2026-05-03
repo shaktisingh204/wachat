@@ -227,7 +227,7 @@ export function SabNodeDashboardShell({ children }: SabNodeDashboardShellProps) 
           style={{ backgroundColor: 'hsl(36 15% 97%)' }}
         >
           <SabNodeSidebar />
-          <main className="flex-1 min-w-0">{main}</main>
+          <main className="flex-1 min-w-0 px-4 pt-4 pb-28 sm:px-6 sm:pt-6 sm:pb-32 lg:px-8 lg:pt-8 lg:pb-32">{main}</main>
         </div>
       </AdManagerProvider>
     </ProjectProvider>

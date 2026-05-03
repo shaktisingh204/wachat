@@ -49,7 +49,7 @@ export default function SeoCallbackPage() {
     }, [searchParams, router]);
 
     return (
-        <div className="h-screen w-full flex items-center justify-center p-4">
+        <div className="h-screen w-full flex items-center justify-center">
             <Card className="p-8 flex flex-col items-center gap-4">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 <p className="text-muted-foreground">{status}</p>

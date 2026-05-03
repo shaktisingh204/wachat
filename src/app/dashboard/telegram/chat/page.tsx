@@ -5,7 +5,7 @@ import { TelegramPlaceholder } from '../_components/telegram-placeholder';
 
 export default function TelegramChatPage() {
     return (
-        <div className="flex h-full w-full flex-col p-10">
+        <div className="flex h-full w-full flex-col">
             <TelegramPlaceholder
                 title="Live Chat"
                 description="Shared inbox for every Telegram chat your bot is part of. Agents can claim conversations, reply, and hand-off."

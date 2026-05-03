@@ -90,7 +90,7 @@ export default function MediaDetailsPage() {
                 projectId={projectId!}
                 onActionComplete={fetchData}
             />
-            <div className="max-w-4xl mx-auto space-y-6">
+            <div className="space-y-6">
                 <Button variant="ghost" asChild>
                     <Link href="/dashboard/instagram/feed">
                         <ArrowLeft className="mr-2 h-4 w-4" />

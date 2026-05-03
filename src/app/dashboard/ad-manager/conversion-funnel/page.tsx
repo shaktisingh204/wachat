@@ -53,7 +53,7 @@ export default function ConversionFunnelPage() {
 
     if (!activeAccount) {
         return (
-            <div className="p-8">
+            <div>
                 <Alert>
                     <LuCircleAlert className="h-4 w-4" />
                     <AlertTitle>No ad account selected</AlertTitle>
@@ -66,7 +66,7 @@ export default function ConversionFunnelPage() {
     const maxVal = funnel ? Math.max(funnel.impressions, 1) : 1;
 
     return (
-        <div className="p-6 space-y-6">
+        <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">

@@ -79,7 +79,7 @@ export default function CampaignCalendarPage() {
 
     if (!activeAccount) {
         return (
-            <div className="p-8">
+            <div>
                 <Alert>
                     <LuCircleAlert className="h-4 w-4" />
                     <AlertTitle>No ad account selected</AlertTitle>
@@ -97,7 +97,7 @@ export default function CampaignCalendarPage() {
     while (cells.length % 7 !== 0) cells.push(null);
 
     return (
-        <div className="p-6 space-y-6">
+        <div className="space-y-6">
             <div>
                 <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
                     <LuCalendarDays className="h-6 w-6" /> Campaign calendar

@@ -93,7 +93,7 @@ function InvitePanel({
   children: React.ReactNode;
 }) {
   return (
-    <div className="mx-auto flex min-h-[60vh] w-full max-w-md flex-col items-center justify-center gap-3 p-6 text-center">
+    <div className="mx-auto flex min-h-[60vh] w-full max-w-md flex-col items-center justify-center gap-3 text-center">
       <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
         {title}
       </h1>

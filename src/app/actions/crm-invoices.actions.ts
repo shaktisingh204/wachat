@@ -92,6 +92,53 @@ export async function saveInvoice(prevState: any, formData: FormData): Promise<{
     }
 }
 
+export async function updateInvoice(
+    invoiceId: string,
+    updates: {
+        invoiceNumber?: string;
+        invoiceDate?: string;
+        dueDate?: string | null;
+        status?: string;
+        notes?: string;
+        currency?: string;
+    },
+): Promise<{ success: boolean; error?: string }> {
+    if (!ObjectId.isValid(invoiceId)) return { success: false, error: 'Invalid invoice id' };
+
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied' };
+
+    try {
+        const set: Record<string, any> = { updatedAt: new Date() };
+        if (updates.invoiceNumber !== undefined) set.invoiceNumber = updates.invoiceNumber;
+        if (updates.invoiceDate !== undefined) set.invoiceDate = new Date(updates.invoiceDate);
+        if (updates.dueDate !== undefined) {
+            set.dueDate = updates.dueDate ? new Date(updates.dueDate) : null;
+        }
+        if (updates.status !== undefined) set.status = updates.status;
+        if (updates.notes !== undefined) set.notes = updates.notes;
+        if (updates.currency !== undefined) set.currency = updates.currency;
+
+        const { db } = await connectToDatabase();
+        const result = await db.collection('crm_invoices').updateOne(
+            {
+                _id: new ObjectId(invoiceId),
+                userId: new ObjectId(session.user._id),
+            },
+            { $set: set },
+        );
+
+        if (result.matchedCount === 0) {
+            return { success: false, error: 'Invoice not found' };
+        }
+
+        revalidatePath('/dashboard/crm/sales/invoices');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
 export async function getUnpaidInvoicesByAccount(accountId: string): Promise<WithId<CrmInvoice>[]> {
     const session = await getSession();
     if (!session?.user) return [];

@@ -7,7 +7,7 @@ import { Calendar } from 'lucide-react';
 
 export default function InstagramMessagesPage() {
     return (
-         <Card className="text-center py-20">
+         <Card className="text-center">
             <CardHeader>
                 <CardTitle>Coming Soon!</CardTitle>
             </CardHeader>

@@ -13,7 +13,7 @@ export default function InstagramSetupPage() {
 
   if (!appId) {
     return (
-        <Alert variant="destructive" className="max-w-lg mx-auto">
+        <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Configuration Error</AlertTitle>
             <AlertDescription>

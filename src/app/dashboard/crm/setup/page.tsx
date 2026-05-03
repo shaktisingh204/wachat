@@ -71,7 +71,7 @@ export default function CrmSetupPage() {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-8">
+    <div className="flex w-full max-w-5xl flex-col gap-8">
       <div className="flex flex-col items-center gap-3 text-center">
         <div className="flex h-12 w-12 items-center justify-center rounded-clay-lg bg-clay-rose-soft">
           <Wrench className="h-6 w-6 text-clay-rose-ink" strokeWidth={1.75} />

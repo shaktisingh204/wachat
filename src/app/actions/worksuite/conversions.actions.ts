@@ -182,12 +182,15 @@ export async function convertDealToInvoice(
   const value = Number((deal as any).value || 0);
   const currency = (deal as any).currency || 'INR';
   const name = (deal as any).name || 'Deal';
+  const dueDate = new Date(now);
+  dueDate.setDate(dueDate.getDate() + 30);
 
   const invoiceDoc = {
     userId,
     accountId: (deal as any).accountId || null,
     invoiceNumber: `INV-${Date.now().toString().slice(-6)}`,
     invoiceDate: now,
+    dueDate,
     lineItems: [
       {
         id: `item-${Date.now()}`,

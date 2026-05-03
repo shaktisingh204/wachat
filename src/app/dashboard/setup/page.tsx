@@ -64,7 +64,7 @@ export default function SetupPage() {
     /* Config error state */
     if (!appId || !configId) {
         return (
-            <div className="flex min-h-screen items-center justify-center p-6">
+            <div className="flex min-h-screen items-center justify-center">
                 <Alert variant="destructive" className="max-w-lg w-full rounded-2xl">
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle>Configuration Missing</AlertTitle>

@@ -26,7 +26,7 @@ export default function NewEmployeePage() {
     }, []);
 
     return (
-        <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
+        <div className="flex w-full max-w-4xl flex-col gap-6">
             <div>
                 <Link href="/dashboard/hrm/payroll/employees" className="inline-flex">
                     <ClayButton variant="ghost" leading={<ArrowLeft className="h-4 w-4" strokeWidth={1.75} />}>

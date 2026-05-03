@@ -11,7 +11,7 @@ function ChatPageSkeleton() {
 
 export default function SabChatInboxPage() {
     return (
-        <div className="h-full p-0 m-0">
+        <div className="h-full">
              <Suspense fallback={<ChatPageSkeleton />}>
                 <SabChatClient />
             </Suspense>

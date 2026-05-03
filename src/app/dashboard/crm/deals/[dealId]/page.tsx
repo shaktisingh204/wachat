@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
+import { useEffect, useRef, useState, useTransition } from 'react';
 import { useParams } from 'next/navigation';
 import { getCrmDealById } from '@/app/actions/crm-deals.actions';
 import { getCrmContactById } from '@/app/actions/crm.actions';
@@ -56,6 +56,7 @@ export default function CrmDealDetailPage() {
   const [tasks, setTasks] = useState<WithId<CrmTask>[]>([]);
   const [isLoading, startTransition] = useTransition();
   const [isCreatingInvoice, setIsCreatingInvoice] = useState(false);
+  const invoiceInFlightRef = useRef(false);
   const router = useRouter();
   const { toast } = useToast();
 
@@ -120,18 +121,27 @@ export default function CrmDealDetailPage() {
             variant="obsidian"
             disabled={isCreatingInvoice}
             onClick={async () => {
+              if (invoiceInFlightRef.current) return;
+              invoiceInFlightRef.current = true;
               setIsCreatingInvoice(true);
-              const res = await convertDealToInvoice(deal._id.toString());
-              setIsCreatingInvoice(false);
-              if (res.success) {
-                toast({ title: 'Invoice created' });
-                router.push('/dashboard/crm/sales/invoices');
-              } else {
-                toast({
-                  title: 'Error',
-                  description: res.error,
-                  variant: 'destructive',
-                });
+              try {
+                const res = await convertDealToInvoice(deal._id.toString());
+                if (res.success) {
+                  toast({ title: 'Invoice created' });
+                  router.push('/dashboard/crm/sales/invoices');
+                } else {
+                  toast({
+                    title: 'Error',
+                    description: res.error,
+                    variant: 'destructive',
+                  });
+                  invoiceInFlightRef.current = false;
+                  setIsCreatingInvoice(false);
+                }
+              } catch (e) {
+                invoiceInFlightRef.current = false;
+                setIsCreatingInvoice(false);
+                throw e;
               }
             }}
             leading={

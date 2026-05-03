@@ -107,7 +107,7 @@ export default function AddLeadPage() {
     }
 
     return (
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl">
             <div>
                 <Link href="/dashboard/crm/sales-crm/all-leads" className="inline-flex items-center gap-2 text-[13px] text-clay-ink-muted hover:text-clay-ink">
                     <ArrowLeft className="h-4 w-4" />Back to All Leads

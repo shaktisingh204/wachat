@@ -35,7 +35,7 @@ export default function EditPolicyPage() {
   }, [id]);
 
   if (loading) {
-    return <div className="p-6 text-[13px] text-clay-ink-muted">Loading…</div>;
+    return <div className="text-[13px] text-clay-ink-muted">Loading…</div>;
   }
 
   return (

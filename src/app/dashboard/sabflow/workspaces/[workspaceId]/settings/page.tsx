@@ -37,7 +37,7 @@ export default async function Page({
 
   if (!role) {
     return (
-      <div className="flex min-h-[50vh] flex-col items-center justify-center gap-2 p-8 text-center">
+      <div className="flex min-h-[50vh] flex-col items-center justify-center gap-2 text-center">
         <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
           Access denied
         </h1>

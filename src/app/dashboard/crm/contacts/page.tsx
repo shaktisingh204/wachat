@@ -6,9 +6,12 @@ import { useDebouncedCallback } from 'use-debounce';
 import { Search, Users, Mail, Phone, MoreHorizontal } from 'lucide-react';
 import type { WithId } from 'mongodb';
 
-import { getCrmContacts } from '@/app/actions/crm.actions';
+import { getCrmContacts, deleteCrmContact } from '@/app/actions/crm.actions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
-import type { CrmContact, CrmAccount } from '@/lib/definitions';
+import { getCrmPipelines } from '@/app/actions/crm-pipelines.actions';
+import { getSession } from '@/app/actions/user.actions';
+import { getDealStagesForIndustry } from '@/lib/crm-industry-stages';
+import type { CrmContact, CrmAccount, CrmPipeline } from '@/lib/definitions';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
@@ -20,7 +23,19 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { CrmAddContactDialog } from '@/components/wabasimplify/crm-add-contact-dialog';
+import { CreateDealDialog } from '@/components/wabasimplify/crm-create-deal-dialog';
+import { useToast } from '@/hooks/use-toast';
 
 import { ClayCard, ClayBadge } from '@/components/clay';
 import { CrmPageHeader } from '../_components/crm-page-header';
@@ -42,25 +57,55 @@ function ContactsPageSkeleton() {
 }
 
 export default function CrmContactsPage() {
+  const { toast } = useToast();
   const [contacts, setContacts] = useState<WithId<CrmContact>[]>([]);
   const [accounts, setAccounts] = useState<WithId<CrmAccount>[]>([]);
+  const [pipelines, setPipelines] = useState<CrmPipeline[]>([]);
+  const [crmIndustry, setCrmIndustry] = useState<string | undefined>();
   const [isLoading, startTransition] = useTransition();
 
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [totalPages, setTotalPages] = useState(0);
 
+  const [deleteContactId, setDeleteContactId] = useState<string | null>(null);
+  const [dealForContact, setDealForContact] = useState<WithId<CrmContact> | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const fetchData = useCallback(() => {
     startTransition(async () => {
-      const [contactsResponse, accountsResponse] = await Promise.all([
+      const [contactsResponse, accountsResponse, pipelinesData, sessionData] = await Promise.all([
         getCrmContacts(currentPage, CONTACTS_PER_PAGE, searchQuery),
         getCrmAccounts(1, 1000),
+        getCrmPipelines(),
+        getSession(),
       ]);
       setContacts(contactsResponse.contacts);
       setTotalPages(Math.ceil(contactsResponse.total / CONTACTS_PER_PAGE));
       setAccounts(accountsResponse.accounts);
+      setPipelines(pipelinesData);
+      setCrmIndustry((sessionData?.user as any)?.crmIndustry);
     });
   }, [currentPage, searchQuery]);
+
+  const handleDelete = async () => {
+    if (!deleteContactId) return;
+    setIsDeleting(true);
+    const res = await deleteCrmContact(deleteContactId);
+    setIsDeleting(false);
+    if (res.success) {
+      toast({ title: 'Contact deleted' });
+      setDeleteContactId(null);
+      fetchData();
+    } else {
+      toast({ title: 'Error', description: res.error, variant: 'destructive' });
+    }
+  };
+
+  const dealStages =
+    pipelines[0]?.stages.map((s) => s.name) ||
+    getDealStagesForIndustry(crmIndustry) ||
+    [];
 
   useEffect(() => {
     fetchData();
@@ -197,8 +242,15 @@ export default function CrmContactsPage() {
                               View Details
                             </Link>
                           </DropdownMenuItem>
-                          <DropdownMenuItem>Create Deal</DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+                          <DropdownMenuItem onSelect={() => setDealForContact(contact)}>
+                            Create Deal
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="text-destructive"
+                            onSelect={() => setDeleteContactId(contact._id.toString())}
+                          >
+                            Delete
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
@@ -215,6 +267,43 @@ export default function CrmContactsPage() {
           </Table>
         </div>
       </ClayCard>
+
+      <AlertDialog
+        open={deleteContactId !== null}
+        onOpenChange={(open) => !open && setDeleteContactId(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this contact?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. The contact will be permanently removed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
+              {isDeleting ? 'Deleting…' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {dealForContact ? (
+        <CreateDealDialog
+          contacts={contacts}
+          accounts={accounts}
+          dealStages={dealStages}
+          open={!!dealForContact}
+          onOpenChange={(open) => !open && setDealForContact(null)}
+          hideTrigger
+          defaultContactId={dealForContact._id.toString()}
+          defaultAccountId={dealForContact.accountId?.toString()}
+          onDealCreated={() => {
+            setDealForContact(null);
+            fetchData();
+          }}
+        />
+      ) : null}
     </div>
   );
 }

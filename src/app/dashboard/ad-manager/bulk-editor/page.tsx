@@ -115,7 +115,7 @@ export default function BulkEditorPage() {
 
     if (!activeAccount) {
         return (
-            <div className="p-8">
+            <div>
                 <Alert>
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle>No ad account selected</AlertTitle>
@@ -128,7 +128,7 @@ export default function BulkEditorPage() {
     const dirtyCount = rows.filter((r) => r.dirty).length;
 
     return (
-        <div className="p-6 space-y-6">
+        <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">

@@ -100,7 +100,7 @@ export default function UrlShortenerSettingsPage() {
     }, [addState, toast, fetchData]);
 
     return (
-        <div className="flex flex-col gap-8 max-w-5xl mx-auto">
+        <div className="flex flex-col gap-8 max-w-5xl">
             <div>
                 <h1 className="text-3xl font-bold font-headline">URL Shortener Settings</h1>
                 <p className="text-muted-foreground">Configure custom domains and developer settings for your short links.</p>

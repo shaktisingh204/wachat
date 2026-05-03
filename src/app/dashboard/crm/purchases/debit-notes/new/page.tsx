@@ -5,7 +5,7 @@ import { CrmPageHeader } from '../../../_components/crm-page-header';
 
 export default async function NewDebitNotePage() {
     return (
-        <div className="flex flex-col gap-6 max-w-5xl mx-auto">
+        <div className="flex flex-col gap-6 max-w-5xl">
             <CrmPageHeader
                 title="Create New Debit Note"
                 subtitle="Record a vendor return or adjustment."

@@ -495,7 +495,6 @@ export async function getMyNotifications(opts?: { unreadOnly?: boolean }) {
   if (!user) return [];
   const { db } = await connectToDatabase();
   const filter: Record<string, unknown> = {
-    userId: toObjectId(user._id),
     recipient_user_id: user._id,
   };
   if (opts?.unreadOnly) filter.read_at = null;
@@ -515,7 +514,6 @@ export async function markNotificationRead(id: string) {
   await db.collection(COLS.notification).updateOne(
     {
       _id: toObjectId(id),
-      userId: toObjectId(user._id),
       recipient_user_id: user._id,
     },
     { $set: { read_at: new Date(), updatedAt: new Date() } },
@@ -531,7 +529,6 @@ export async function markAllNotificationsRead() {
   const now = new Date();
   await db.collection(COLS.notification).updateMany(
     {
-      userId: toObjectId(user._id),
       recipient_user_id: user._id,
       read_at: null,
     },
@@ -546,7 +543,6 @@ export async function getUnreadNotificationCount(): Promise<number> {
   if (!user) return 0;
   const { db } = await connectToDatabase();
   const n = await db.collection(COLS.notification).countDocuments({
-    userId: toObjectId(user._id),
     recipient_user_id: user._id,
     read_at: null,
   });

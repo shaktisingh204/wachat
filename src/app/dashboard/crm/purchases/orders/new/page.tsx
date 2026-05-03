@@ -5,7 +5,7 @@ import { CrmPageHeader } from '../../../_components/crm-page-header';
 
 export default async function NewPurchaseOrderPage() {
     return (
-        <div className="flex flex-col gap-6 max-w-5xl mx-auto">
+        <div className="flex flex-col gap-6 max-w-5xl">
             <CrmPageHeader
                 title="Create New Purchase Order"
                 subtitle="Add a new purchase order for your vendor."

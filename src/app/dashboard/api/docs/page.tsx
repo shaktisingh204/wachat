@@ -130,7 +130,7 @@ const crmApiDocs = [
 
 export default function ApiDocsPage() {
     return (
-        <div className="max-w-4xl mx-auto space-y-8">
+        <div className="space-y-8">
              <div>
                 <Button variant="ghost" asChild className="mb-4 -ml-4">
                     <Link href="/dashboard/api">

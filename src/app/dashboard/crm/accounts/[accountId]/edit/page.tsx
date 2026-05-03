@@ -74,14 +74,14 @@ export default function EditCrmAccountPage() {
 
   if (isLoading || !account) {
     return (
-      <div className="mx-auto w-full max-w-2xl">
+      <div className="w-full max-w-2xl">
         <Skeleton className="h-96 w-full rounded-clay-lg" />
       </div>
     );
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
+    <div className="flex w-full max-w-2xl flex-col gap-6">
       <div>
         <Link
           href={`/dashboard/crm/accounts/${accountId}`}

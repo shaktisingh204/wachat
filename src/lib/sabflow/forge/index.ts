@@ -13,6 +13,9 @@ import './blocks/discord';
 import './blocks/github';
 import './blocks/twilio';
 import './blocks/sendgrid';
+import './blocks/agent-run';
+import './blocks/agent-tool';
+import './blocks/agent-conditional';
 
 export * from './types';
 export * from './registry';

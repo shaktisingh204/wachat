@@ -73,7 +73,7 @@ export default function NewFileRecordPage() {
   }, [state, router, toast]);
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
+    <div className="flex w-full max-w-3xl flex-col gap-6">
       <Link
         href="/dashboard/crm/files"
         className="inline-flex items-center gap-2 text-[12.5px] text-clay-ink-muted hover:text-clay-ink"

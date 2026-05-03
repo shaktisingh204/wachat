@@ -60,6 +60,7 @@ import {
 } from "@/config/dashboard-config";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
+import { Dock, DockIcon } from "@/components/ui/dock";
 import { cn } from "@/lib/utils";
 
 const COLLAPSED_KEY = "sabnode:two-line-sidebar:collapsed";
@@ -170,6 +171,7 @@ function SearchBar({
     <div className={cn("relative shrink-0 transition-all duration-300", collapsed ? "w-full flex justify-center" : "w-full")}>
       <div className={cn(
         "h-9 rounded-lg flex items-center transition-all duration-300 bg-clay-surface-2 border border-black/5",
+        "focus-within:ring-1 focus-within:ring-clay-rose/40 focus-within:ring-offset-1 focus-within:ring-offset-clay-surface focus-within:border-clay-rose/30",
         collapsed ? "w-9 min-w-9 justify-center" : "w-full",
       )}>
         <div className={cn("flex items-center justify-center shrink-0", collapsed ? "p-1" : "pl-2")}>
@@ -197,10 +199,10 @@ function BrandBadge() {
   return (
     <Link
       href="/dashboard"
-      className="block shrink-0 w-full rounded-md hover:bg-clay-surface-2 transition-colors"
+      className="block shrink-0 w-full rounded-md hover:bg-clay-surface-2 transition-colors mb-1"
       aria-label="SabNode home"
     >
-      <div className="flex items-center gap-2 p-1.5">
+      <div className="flex items-center gap-2 h-9 px-1">
         <div className="size-7 rounded-md bg-clay-ink flex items-center justify-center">
           <span className="text-clay-surface font-bold text-[12px]">S</span>
         </div>
@@ -213,7 +215,7 @@ function BrandBadge() {
 function AvatarCircle({ size = 28 }: { size?: number }) {
   return (
     <div
-      className="rounded-full bg-clay-rose flex items-center justify-center shrink-0 ring-1 ring-black/5"
+      className="rounded-full bg-gradient-to-br from-rose-400 to-rose-600 flex items-center justify-center shrink-0 ring-1 ring-black/5 shadow-sm"
       style={{ width: size, height: size }}
     >
       <UserIcon size={Math.max(12, size - 14)} className="text-white" />
@@ -237,9 +239,9 @@ function IconNavButton({
   children: React.ReactNode;
 }) {
   const className = cn(
-    "flex items-center justify-center rounded-lg size-9 min-w-9 transition-colors duration-150",
+    "flex items-center justify-center rounded-lg size-9 min-w-9 transition-colors duration-150 relative",
     active
-      ? "bg-clay-rose-soft text-clay-rose-ink"
+      ? "bg-clay-rose-soft text-clay-rose-ink shadow-[inset_2px_0_0_0_currentColor]"
       : "text-clay-ink-muted hover:bg-clay-surface-2 hover:text-clay-ink",
   );
   if (href) {
@@ -256,10 +258,13 @@ function IconNavButton({
   );
 }
 
-function IconRail({ active }: { active: string }) {
+function IconRail({ active, compact = false }: { active: string; compact?: boolean }) {
   return (
     <aside
-      className="flex flex-col gap-1.5 items-center px-2 py-3 w-14 shrink-0 min-h-screen border-r border-black/5"
+      className={cn(
+        "flex flex-col gap-1.5 items-center py-3 shrink-0 min-h-screen border-r border-black/5",
+        compact ? "w-12 px-1.5" : "w-14 px-2",
+      )}
       style={{ backgroundColor: "hsl(36 18% 96%)" }}
       aria-label="Module navigation"
     >
@@ -303,6 +308,51 @@ function IconRail({ active }: { active: string }) {
   );
 }
 
+/* ── App Dock (floating bottom-center, replaces icon rail) ──────────── */
+
+function AppDock({ active }: { active: string }) {
+  return (
+    <Dock iconSize={44}>
+      {appIcons.map((mod) => {
+        const Icon = mod.icon as React.FC<{ className?: string; size?: number }>;
+        return (
+          <DockIcon
+            key={mod.id}
+            name={mod.label}
+            href={mod.href}
+            active={active === mod.id}
+          >
+            <Icon className="h-5 w-5 text-clay-ink" size={20} />
+          </DockIcon>
+        );
+      })}
+      <DockIcon
+        name="Settings"
+        href="/dashboard/settings/general"
+        active={active === "settings"}
+      >
+        <SettingsIcon size={20} className="text-clay-ink" />
+      </DockIcon>
+      <DockIcon name="Profile" href="/dashboard/profile">
+        <UserIcon size={20} className="text-clay-ink" />
+      </DockIcon>
+    </Dock>
+  );
+}
+
+export function SabNodeAppDock() {
+  const pathname = usePathname();
+  const active = useMemo(() => detectActiveModule(pathname), [pathname]);
+  return (
+    <div
+      className="fixed bottom-4 left-1/2 z-40 -translate-x-1/2 max-w-[calc(100vw-1.5rem)] [overflow-x:auto] [overflow-y:visible]"
+      aria-label="App dock"
+    >
+      <AppDock active={active} />
+    </div>
+  );
+}
+
 /* ── Right rail (detail panel) ──────────────────────────────────────── */
 
 function SectionTitle({
@@ -320,10 +370,11 @@ function SectionTitle({
         <button
           type="button"
           aria-label="Expand sidebar"
+          aria-expanded={false}
           onClick={onToggle}
-          className="flex items-center justify-center rounded-lg size-9 min-w-9 hover:bg-clay-surface-2 text-clay-ink-muted hover:text-clay-ink transition-colors"
+          className="flex items-center justify-center rounded-lg size-9 min-w-9 hover:bg-clay-surface-2 active:bg-clay-surface-3 text-clay-ink-muted hover:text-clay-ink transition-colors duration-150 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-clay-rose/40 focus-visible:ring-offset-1"
         >
-          <ChevronDownIcon size={16} className="rotate-180" />
+          <ChevronDownIcon size={16} className="rotate-90 transition-transform duration-300" />
         </button>
       </div>
     );
@@ -336,10 +387,11 @@ function SectionTitle({
       <button
         type="button"
         aria-label="Collapse sidebar"
+        aria-expanded={true}
         onClick={onToggle}
-        className="flex items-center justify-center rounded-lg size-8 min-w-8 hover:bg-clay-surface-2 text-clay-ink-muted hover:text-clay-ink transition-colors"
+        className="flex items-center justify-center rounded-lg size-8 min-w-8 hover:bg-clay-surface-2 active:bg-clay-surface-3 text-clay-ink-muted hover:text-clay-ink transition-colors duration-150 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-clay-rose/40 focus-visible:ring-offset-1"
       >
-        <ChevronDownIcon size={16} className="-rotate-90" />
+        <ChevronDownIcon size={16} className="-rotate-90 transition-transform duration-300" />
       </button>
     </div>
   );
@@ -360,17 +412,23 @@ function MenuRow({
       className={cn(
         "rounded-lg flex items-center transition-colors duration-150",
         isActive
-          ? "bg-clay-rose-soft text-clay-rose-ink"
+          ? "bg-clay-rose-soft text-clay-rose-ink shadow-[inset_2px_0_0_0_currentColor]"
           : "text-clay-ink-2 hover:bg-clay-surface-2 hover:text-clay-ink",
         collapsed ? "w-9 min-w-9 h-9 justify-center p-0" : "w-full h-9 px-2.5",
       )}
       title={collapsed ? item.label : undefined}
     >
-      <span className="flex items-center justify-center shrink-0">
+      <span className="flex items-center justify-center shrink-0 w-4 h-4">
         {Icon ? (
           <Icon className="h-4 w-4" size={16} />
         ) : (
-          <span className="size-1.5 rounded-full bg-clay-ink-fade" />
+          <span
+            aria-hidden="true"
+            className={cn(
+              "block h-px w-2 rounded-full",
+              isActive ? "bg-clay-rose-ink/70" : "bg-clay-ink-fade",
+            )}
+          />
         )}
       </span>
       <span
@@ -382,7 +440,7 @@ function MenuRow({
         <span className="text-[13.5px] leading-[18px] truncate flex items-center gap-1.5">
           <span className="truncate">{item.label}</span>
           {item.beta && (
-            <span className="rounded bg-clay-ink/5 text-clay-ink-muted text-[10px] px-1 py-0.5 uppercase tracking-wide font-medium">
+            <span className="rounded bg-clay-ink/[0.08] text-clay-ink/70 text-[10px] px-1 py-0.5 uppercase tracking-wide font-medium">
               beta
             </span>
           )}
@@ -426,10 +484,10 @@ function SectionBlock({
   if (filtered.length === 0) return null;
 
   return (
-    <div className="flex flex-col w-full">
+    <div className={cn("flex flex-col w-full", collapsed ? "" : "first:mt-0 mt-1")}>
       <div className={cn("transition-all duration-300 overflow-hidden", collapsed ? "h-0 opacity-0" : "h-7 opacity-100")}>
         <div className="flex items-center h-7 px-2.5">
-          <span className="text-[11px] uppercase tracking-wider text-clay-ink-muted font-medium">
+          <span className="text-[11px] uppercase tracking-[0.08em] text-clay-ink-muted font-semibold">
             {section.title}
           </span>
         </div>
@@ -495,7 +553,7 @@ function DetailPanel({
       <SectionTitle title={title} collapsed={collapsed} onToggle={onToggleCollapse} />
       <SearchBar collapsed={collapsed} value={query} onChange={setQuery} />
 
-      <ScrollArea className="w-full flex-1">
+      <ScrollArea className="w-full flex-1 [mask-image:linear-gradient(to_bottom,transparent_0,black_12px,black_calc(100%-24px),transparent_100%)]">
         <div className={cn("flex flex-col w-full", collapsed ? "gap-0.5 items-center" : "gap-2.5 items-stretch")}>
           {sections.map((s, i) => (
             <SectionBlock
@@ -572,7 +630,6 @@ export function SabNodeTwoLineSidebar() {
 
   return (
     <div className="hidden lg:flex flex-row min-h-screen sticky top-0">
-      <IconRail active={active} />
       <DetailPanel active={active} collapsed={collapsed} onToggleCollapse={toggleCollapsed} />
     </div>
   );
@@ -601,12 +658,11 @@ export function SabNodeTwoLineSidebarMobile() {
         </SheetTrigger>
         <SheetContent
           side="left"
-          className="p-0 w-[336px] border-r border-black/5"
+          className="p-0 w-[360px] border-r border-black/5"
           style={{ backgroundColor: "hsl(36 18% 96%)" }}
         >
           <SheetTitle className="sr-only">SabNode navigation</SheetTitle>
           <div className="flex flex-row h-full">
-            <IconRail active={active} />
             <DetailPanel active={active} collapsed={false} onToggleCollapse={() => setOpen(false)} />
           </div>
         </SheetContent>
@@ -620,6 +676,7 @@ export function SabNodeSidebar() {
     <>
       <SabNodeTwoLineSidebar />
       <SabNodeTwoLineSidebarMobile />
+      <SabNodeAppDock />
     </>
   );
 }

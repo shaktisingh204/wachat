@@ -249,7 +249,7 @@ function EmailSettingsPageContent() {
     // LIST VIEW: Show all connected accounts
     if (view === 'list' && allSettings.length > 0) {
         return (
-            <div className="space-y-8 max-w-5xl mx-auto">
+            <div className="space-y-8">
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><Mail className="h-8 w-8" /> Email Suite</h1>
@@ -292,7 +292,7 @@ function EmailSettingsPageContent() {
     if (view === 'connect') {
         return (
             <EmailSuiteLayout>
-                <div className="flex flex-col items-center justify-center min-h-[60vh] max-w-4xl mx-auto gap-8">
+                <div className="flex flex-col items-center justify-center min-h-[60vh] gap-8">
                     <div className="w-full flex justify-start">
                         <Button variant="ghost" onClick={() => router.push('/dashboard/email')}>
                             <ArrowLeft className="mr-2 h-4 w-4" /> Back to Accounts

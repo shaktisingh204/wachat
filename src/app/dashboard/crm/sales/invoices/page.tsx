@@ -3,9 +3,9 @@
 import { useState, useEffect, useCallback, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Receipt, LoaderCircle, FileMinus } from "lucide-react";
+import { Plus, Receipt, LoaderCircle, FileMinus, Pencil, Save } from "lucide-react";
 import Link from 'next/link';
-import { getInvoices } from '@/app/actions/crm-invoices.actions';
+import { getInvoices, updateInvoice } from '@/app/actions/crm-invoices.actions';
 import { convertInvoiceToCreditNote } from '@/app/actions/crm-services.actions';
 import type { WithId, CrmInvoice } from '@/lib/definitions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
@@ -20,19 +20,80 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 
 import { ClayButton, ClayCard, ClayBadge } from '@/components/clay';
 import { SharePublicLinkButton } from '@/components/worksuite/share-public-link-button';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
+const INVOICE_STATUSES = ['Draft', 'Sent', 'Paid', 'Overdue', 'Partially Paid', 'Cancelled'];
+
+function toDateInput(value: unknown): string {
+    if (!value) return '';
+    const d = new Date(value as any);
+    if (isNaN(d.getTime())) return '';
+    return d.toISOString().slice(0, 10);
+}
+
 export default function InvoicesPage() {
     const [invoices, setInvoices] = useState<WithId<CrmInvoice>[]>([]);
     const [accountsMap, setAccountsMap] = useState<Map<string, string>>(new Map());
     const [isLoading, startTransition] = useTransition();
     const [convertingId, setConvertingId] = useState<string | null>(null);
+    const [editing, setEditing] = useState<WithId<CrmInvoice> | null>(null);
+    const [editForm, setEditForm] = useState({
+        invoiceNumber: '',
+        invoiceDate: '',
+        dueDate: '',
+        status: 'Draft',
+        notes: '',
+    });
+    const [isSaving, setIsSaving] = useState(false);
     const router = useRouter();
     const { toast } = useToast();
+
+    const openEdit = (invoice: WithId<CrmInvoice>) => {
+        setEditing(invoice);
+        setEditForm({
+            invoiceNumber: invoice.invoiceNumber || '',
+            invoiceDate: toDateInput(invoice.invoiceDate),
+            dueDate: toDateInput((invoice as any).dueDate),
+            status: invoice.status || 'Draft',
+            notes: invoice.notes || '',
+        });
+    };
+
+    const saveEdit = async () => {
+        if (!editing) return;
+        setIsSaving(true);
+        const res = await updateInvoice(editing._id.toString(), {
+            invoiceNumber: editForm.invoiceNumber,
+            invoiceDate: editForm.invoiceDate || undefined,
+            dueDate: editForm.dueDate || null,
+            status: editForm.status,
+            notes: editForm.notes,
+        });
+        setIsSaving(false);
+        if (res.success) {
+            toast({ title: 'Invoice updated' });
+            setEditing(null);
+            fetchData();
+        } else {
+            toast({ title: 'Error', description: res.error, variant: 'destructive' });
+        }
+    };
 
     const fetchData = useCallback(() => {
         startTransition(async () => {
@@ -136,6 +197,15 @@ export default function InvoicesPage() {
                                                     resourceId={invoiceId}
                                                 />
                                             </span>
+                                            <ClayButton
+                                                variant="pill"
+                                                size="sm"
+                                                onClick={() => openEdit(q)}
+                                                leading={<Pencil className="h-3.5 w-3.5" />}
+                                                className="mr-2"
+                                            >
+                                                Edit
+                                            </ClayButton>
                                             <AlertDialog>
                                                 <AlertDialogTrigger asChild>
                                                     <ClayButton
@@ -181,6 +251,89 @@ export default function InvoicesPage() {
                     </Table>
                 </div>
             </ClayCard>
+
+            <Dialog open={editing !== null} onOpenChange={(open) => !open && setEditing(null)}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="text-clay-ink">Edit Invoice</DialogTitle>
+                        <DialogDescription className="text-clay-ink-muted">
+                            Update invoice number, dates, status, and notes.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-2">
+                        <div className="space-y-1.5">
+                            <Label htmlFor="edit-inv-num" className="text-clay-ink">Invoice #</Label>
+                            <Input
+                                id="edit-inv-num"
+                                value={editForm.invoiceNumber}
+                                onChange={(e) => setEditForm(f => ({ ...f, invoiceNumber: e.target.value }))}
+                            />
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1.5">
+                                <Label htmlFor="edit-inv-date" className="text-clay-ink">Invoice Date</Label>
+                                <Input
+                                    id="edit-inv-date"
+                                    type="date"
+                                    value={editForm.invoiceDate}
+                                    onChange={(e) => setEditForm(f => ({ ...f, invoiceDate: e.target.value }))}
+                                />
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label htmlFor="edit-due-date" className="text-clay-ink">Due Date</Label>
+                                <Input
+                                    id="edit-due-date"
+                                    type="date"
+                                    value={editForm.dueDate}
+                                    onChange={(e) => setEditForm(f => ({ ...f, dueDate: e.target.value }))}
+                                />
+                            </div>
+                        </div>
+                        <div className="space-y-1.5">
+                            <Label htmlFor="edit-status" className="text-clay-ink">Status</Label>
+                            <Select
+                                value={editForm.status}
+                                onValueChange={(value) => setEditForm(f => ({ ...f, status: value }))}
+                            >
+                                <SelectTrigger id="edit-status">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {INVOICE_STATUSES.map(s => (
+                                        <SelectItem key={s} value={s}>{s}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-1.5">
+                            <Label htmlFor="edit-notes" className="text-clay-ink">Notes</Label>
+                            <Textarea
+                                id="edit-notes"
+                                rows={3}
+                                value={editForm.notes}
+                                onChange={(e) => setEditForm(f => ({ ...f, notes: e.target.value }))}
+                            />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <ClayButton variant="pill" onClick={() => setEditing(null)} disabled={isSaving}>
+                            Cancel
+                        </ClayButton>
+                        <ClayButton
+                            variant="obsidian"
+                            onClick={saveEdit}
+                            disabled={isSaving}
+                            leading={isSaving ? (
+                                <LoaderCircle className="h-4 w-4 animate-spin" />
+                            ) : (
+                                <Save className="h-4 w-4" />
+                            )}
+                        >
+                            Save Changes
+                        </ClayButton>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

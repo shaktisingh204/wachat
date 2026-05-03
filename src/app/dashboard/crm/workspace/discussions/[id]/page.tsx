@@ -82,7 +82,7 @@ export default function DiscussionDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex w-full items-center justify-center py-10">
+      <div className="flex w-full items-center justify-center">
         <LoaderCircle className="h-5 w-5 animate-spin text-clay-ink-muted" />
       </div>
     );

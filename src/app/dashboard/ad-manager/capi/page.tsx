@@ -58,7 +58,7 @@ export default function CapiPage() {
         : 'https://graph.facebook.com/v23.0/{pixel_id}/events';
 
     return (
-        <div className="p-6 space-y-6 max-w-4xl">
+        <div className="space-y-6 max-w-4xl">
             <div>
                 <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
                     <ShieldCheck className="h-6 w-6" /> Conversions API (CAPI)

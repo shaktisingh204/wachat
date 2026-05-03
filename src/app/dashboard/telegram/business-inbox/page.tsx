@@ -5,7 +5,7 @@ import { TelegramPlaceholder } from '../_components/telegram-placeholder';
 
 export default function TelegramBusinessInboxPage() {
     return (
-        <div className="flex h-full w-full flex-col p-10">
+        <div className="flex h-full w-full flex-col">
             <TelegramPlaceholder
                 title="Business Inbox"
                 description="Handle chats on behalf of a Telegram Premium Business user. Your bot receives business_connection updates and can reply, edit, and delete messages."

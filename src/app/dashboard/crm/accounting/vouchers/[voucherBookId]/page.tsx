@@ -56,7 +56,7 @@ export default function AccountDetailPage(props: { params: Promise<{ accountId: 
     }, [fetchData]);
 
     if (isLoading && !account) {
-        return <div className="flex justify-center py-10"><LoaderCircle className="h-8 w-8 animate-spin text-clay-ink-muted"/></div>;
+        return <div className="flex justify-center"><LoaderCircle className="h-8 w-8 animate-spin text-clay-ink-muted"/></div>;
     }
 
     if (!account) {

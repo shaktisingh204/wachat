@@ -56,7 +56,7 @@ export default function NewPaymentAccountPage() {
     }, [state, toast, router]);
 
     return (
-        <div className="max-w-2xl mx-auto flex w-full flex-col gap-6">
+        <div className="max-w-2xl flex w-full flex-col gap-6">
             <CrmAddBankAccountDialog
                 isOpen={isBankDialogOpen}
                 onOpenChange={setIsBankDialogOpen}

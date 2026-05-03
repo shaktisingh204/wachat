@@ -6,7 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 export default function InstagramReelsPage() {
     return (
-         <Card className="text-center py-20">
+         <Card className="text-center">
             <CardHeader>
                 <CardTitle>Coming Soon!</CardTitle>
             </CardHeader>

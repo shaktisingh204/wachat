@@ -45,36 +45,62 @@ interface CreateDealDialogProps {
   accounts: WithId<CrmAccount>[];
   onDealCreated: () => void;
   dealStages: string[];
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  hideTrigger?: boolean;
+  defaultContactId?: string;
+  defaultAccountId?: string;
 }
 
-export function CreateDealDialog({ contacts, accounts, onDealCreated, dealStages }: CreateDealDialogProps) {
-  const [open, setOpen] = useState(false);
+export function CreateDealDialog({
+  contacts,
+  accounts,
+  onDealCreated,
+  dealStages,
+  open: controlledOpen,
+  onOpenChange,
+  hideTrigger = false,
+  defaultContactId,
+  defaultAccountId,
+}: CreateDealDialogProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? !!controlledOpen : internalOpen;
+  const setOpen = (next: boolean) => {
+    if (!isControlled) setInternalOpen(next);
+    onOpenChange?.(next);
+  };
   const [state, formAction] = useActionState(createCrmDeal, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const [closeDate, setCloseDate] = useState<Date | undefined>();
+  const lastHandledRef = useRef<typeof state | null>(null);
 
   useEffect(() => {
+    if (lastHandledRef.current === state) return;
     if (state.message) {
+      lastHandledRef.current = state;
       toast({ title: 'Success!', description: state.message });
       formRef.current?.reset();
       setCloseDate(undefined);
       setOpen(false);
       onDealCreated();
-    }
-    if (state.error) {
+    } else if (state.error) {
+      lastHandledRef.current = state;
       toast({ title: 'Error', description: state.error, variant: 'destructive' });
     }
   }, [state, toast, onDealCreated]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Create Deal
-        </Button>
-      </DialogTrigger>
+      {hideTrigger ? null : (
+        <DialogTrigger asChild>
+          <Button>
+            <Plus className="mr-2 h-4 w-4" />
+            Create Deal
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
         <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
           <input type="hidden" name="closeDate" value={closeDate?.toISOString()} />
@@ -104,8 +130,8 @@ export function CreateDealDialog({ contacts, accounts, onDealCreated, dealStages
                 <div className="space-y-2"><Label className="text-clay-ink">Expected Close Date</Label><DatePicker date={closeDate} setDate={setCloseDate} /></div>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2"><Label htmlFor="accountId" className="text-clay-ink">Account</Label><Select name="accountId" required><SelectTrigger id="accountId"><SelectValue placeholder="Select an account..." /></SelectTrigger><SelectContent>{accounts.map(acc => <SelectItem key={acc._id.toString()} value={acc._id.toString()}>{acc.name}</SelectItem>)}</SelectContent></Select></div>
-                <div className="space-y-2"><Label htmlFor="contactId" className="text-clay-ink">Primary Contact</Label><Select name="contactId" required><SelectTrigger id="contactId"><SelectValue placeholder="Select a contact..." /></SelectTrigger><SelectContent>{contacts.map(c => <SelectItem key={c._id.toString()} value={c._id.toString()}>{c.name}</SelectItem>)}</SelectContent></Select></div>
+                <div className="space-y-2"><Label htmlFor="accountId" className="text-clay-ink">Account</Label><Select name="accountId" required defaultValue={defaultAccountId}><SelectTrigger id="accountId"><SelectValue placeholder="Select an account..." /></SelectTrigger><SelectContent>{accounts.map(acc => <SelectItem key={acc._id.toString()} value={acc._id.toString()}>{acc.name}</SelectItem>)}</SelectContent></Select></div>
+                <div className="space-y-2"><Label htmlFor="contactId" className="text-clay-ink">Primary Contact</Label><Select name="contactId" required defaultValue={defaultContactId}><SelectTrigger id="contactId"><SelectValue placeholder="Select a contact..." /></SelectTrigger><SelectContent>{contacts.map(c => <SelectItem key={c._id.toString()} value={c._id.toString()}>{c.name}</SelectItem>)}</SelectContent></Select></div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">

@@ -39,7 +39,7 @@ export default function EditProductPage() {
     }
 
     return (
-        <div className="max-w-4xl mx-auto space-y-6">
+        <div className="space-y-6">
             <div>
                 <Button variant="ghost" asChild className="-ml-4">
                     <Link href={`/dashboard/catalog/${catalogId}`}>

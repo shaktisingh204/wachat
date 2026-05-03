@@ -20,7 +20,7 @@ export default function ShopManageIndexPage() {
 
     // Render a loading state while redirecting
     return (
-        <div className="flex items-center justify-center h-full p-8">
+        <div className="flex items-center justify-center h-full">
             <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />
             <p className="ml-4">Redirecting to shop settings...</p>
         </div>

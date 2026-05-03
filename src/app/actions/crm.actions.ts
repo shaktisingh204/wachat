@@ -64,6 +64,30 @@ export async function getCrmContacts(
     }
 }
 
+export async function deleteCrmContact(contactId: string): Promise<{ success: boolean; error?: string }> {
+    if (!ObjectId.isValid(contactId)) return { success: false, error: 'Invalid contact id' };
+
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const result = await db.collection('crm_contacts').deleteOne({
+            _id: new ObjectId(contactId),
+            userId: new ObjectId(session.user._id),
+        });
+
+        if (result.deletedCount === 0) {
+            return { success: false, error: 'Contact not found' };
+        }
+
+        revalidatePath('/dashboard/crm/contacts');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
 export async function getCrmContactById(contactId: string): Promise<WithId<CrmContact> | null> {
     if (!ObjectId.isValid(contactId)) return null;
 

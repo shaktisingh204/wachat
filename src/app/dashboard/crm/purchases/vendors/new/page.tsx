@@ -64,7 +64,7 @@ export default function NewVendorPage() {
     }, [state, toast, router]);
 
     return (
-        <div className="max-w-4xl mx-auto flex w-full flex-col gap-6">
+        <div className="max-w-4xl flex w-full flex-col gap-6">
             <CrmAddBankAccountDialog
                 isOpen={isBankDialogOpen}
                 onOpenChange={setIsBankDialogOpen}

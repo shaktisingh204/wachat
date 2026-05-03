@@ -39,7 +39,7 @@ export default function EditCrmItemPage() {
     }
 
     return (
-        <div className="max-w-4xl mx-auto flex w-full flex-col gap-6">
+        <div className="max-w-4xl flex w-full flex-col gap-6">
             <div>
                 <Button variant="ghost" asChild className="-ml-4 text-clay-ink-muted hover:text-clay-ink">
                     <Link href="/dashboard/crm/inventory/items">

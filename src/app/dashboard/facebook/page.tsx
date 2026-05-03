@@ -266,7 +266,7 @@ export default function FacebookDashboardPage() {
 
     if (!pageDetails) {
         return (
-            <div className="flex items-center justify-center h-full p-4">
+            <div className="flex items-center justify-center h-full">
                 <Card className="max-w-xl text-center">
                     <CardHeader>
                         <div className="mx-auto bg-destructive/10 p-3 rounded-full w-fit mb-2">

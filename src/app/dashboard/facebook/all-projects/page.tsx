@@ -261,7 +261,7 @@ export default function AllFacebookPagesPage() {
     if (isLoading) return <PageSkeleton />;
 
     return (
-        <div className="flex flex-col gap-8 max-w-[1400px] mx-auto">
+        <div className="flex flex-col gap-8">
 
             {/* ── Hero header ── */}
             <div className="relative overflow-hidden rounded-3xl border border-blue-200/40 bg-gradient-to-br from-blue-50 via-white to-indigo-50/40 px-6 py-8 md:px-10 shadow-sm">
