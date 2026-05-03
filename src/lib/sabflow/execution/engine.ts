@@ -1,10 +1,8 @@
 import type { SabFlowDoc, Group, EdgeFrom, ScriptOptions } from '@/lib/sabflow/types';
 import type { FlowSession, ChatMessage, ExecutionStep } from './types';
-import {
-  evaluateCondition,
-  substituteVariables,
-} from '@/lib/sabflow/engine';
-import type { Condition } from '@/lib/sabflow/engine';
+import { evaluateCondition } from '@/lib/sabflow/engine/evaluateCondition';
+import { substituteVariables } from '@/lib/sabflow/engine/substituteVariables';
+import type { Condition } from '@/lib/sabflow/engine/evaluateCondition';
 import { runScript } from './sandbox';
 import type { SandboxContext, SandboxLogEntry } from './sandbox';
 
