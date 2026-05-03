@@ -3,24 +3,40 @@
 import * as React from "react";
 import {
   ArrowRight,
+  Bell,
+  Briefcase,
   Calendar,
   Check,
   CircleAlert,
   CircleCheck,
+  Compass,
   Copy,
+  FolderOpen,
+  Home as HomeIcon,
   Inbox,
   Info,
+  LayoutDashboard,
   Loader2,
   Mail,
   MoreHorizontal,
+  PlusCircle,
   Search,
   Settings,
   Sparkles,
   Trash2,
   User,
+  Workflow,
 } from "lucide-react";
 
 import {
+  ZoruAccordion,
+  ZoruAccordion03,
+  ZoruAccordion03Content,
+  ZoruAccordion03Item,
+  ZoruAccordion03Trigger,
+  ZoruAccordionContent,
+  ZoruAccordionItem,
+  ZoruAccordionTrigger,
   ZoruAlert,
   ZoruAlertDescription,
   ZoruAlertDialog,
@@ -33,12 +49,26 @@ import {
   ZoruAlertDialogTitle,
   ZoruAlertDialogTrigger,
   ZoruAlertTitle,
+  ZoruAppRail,
+  ZoruAppSidebar,
   ZoruAvatar,
   ZoruAvatarFallback,
   ZoruAvatarImage,
   ZoruBadge,
   ZoruBouncyToggle,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
   ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardFooter,
+  ZoruCardHeader,
+  ZoruCardTitle,
   ZoruCheckbox,
   ZoruCommandDialog,
   ZoruCommandEmpty,
@@ -69,10 +99,13 @@ import {
   ZoruDropdownMenuSeparator,
   ZoruDropdownMenuShortcut,
   ZoruDropdownMenuTrigger,
+  ZoruEmptyState,
+  ZoruHeader,
   ZoruHeroPill,
   ZoruInput,
   ZoruKbd,
   ZoruLabel,
+  ZoruLimelightNav,
   ZoruMenubar,
   ZoruMenubarContent,
   ZoruMenubarItem,
@@ -80,6 +113,11 @@ import {
   ZoruMenubarSeparator,
   ZoruMenubarShortcut,
   ZoruMenubarTrigger,
+  ZoruPageActions,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
   ZoruPopover,
   ZoruPopoverContent,
   ZoruPopoverTrigger,
@@ -87,6 +125,7 @@ import {
   ZoruRadioCard,
   ZoruRadioGroup,
   ZoruRadioGroupItem,
+  ZoruScrollArea,
   ZoruSelect,
   ZoruSelectContent,
   ZoruSelectItem,
@@ -103,6 +142,12 @@ import {
   ZoruSkeleton,
   ZoruStarIcon,
   ZoruSwitch,
+  ZoruTabs,
+  ZoruTabsContent,
+  ZoruTabsList,
+  ZoruTabsListUnderline,
+  ZoruTabsTrigger,
+  ZoruTabsTriggerUnderline,
   ZoruTextarea,
   ZoruToaster,
   ZoruTooltip,
@@ -535,6 +580,311 @@ export default function ZoruuiGalleryPage() {
 
         <Section step="Step 3" title="Command palette + toasts">
           <CommandAndToastDemo />
+        </Section>
+
+        <Section
+          step="Step 4"
+          title="Page header + breadcrumb"
+          subtitle="Standard top-of-page block — eyebrow, title, description, actions."
+        >
+          <ZoruPageHeader>
+            <ZoruPageHeading>
+              <ZoruBreadcrumb>
+                <ZoruBreadcrumbList>
+                  <ZoruBreadcrumbItem>
+                    <ZoruBreadcrumbLink href="/zoruui">ZoruUI</ZoruBreadcrumbLink>
+                  </ZoruBreadcrumbItem>
+                  <ZoruBreadcrumbSeparator />
+                  <ZoruBreadcrumbItem>
+                    <ZoruBreadcrumbPage>Layout primitives</ZoruBreadcrumbPage>
+                  </ZoruBreadcrumbItem>
+                </ZoruBreadcrumbList>
+              </ZoruBreadcrumb>
+              <ZoruPageTitle>Layout primitives</ZoruPageTitle>
+              <ZoruPageDescription>
+                Cards, page headers, breadcrumbs, tabs, accordions, scroll areas
+                and resizable panels — every layout building block needed for
+                step 7 onwards.
+              </ZoruPageDescription>
+            </ZoruPageHeading>
+            <ZoruPageActions>
+              <ZoruButton variant="ghost">Export</ZoruButton>
+              <ZoruButton>
+                <PlusCircle /> New project
+              </ZoruButton>
+            </ZoruPageActions>
+          </ZoruPageHeader>
+        </Section>
+
+        <Section step="Step 4" title="Cards (5 variants)">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <ZoruCard>
+              <ZoruCardHeader>
+                <ZoruCardTitle>Default card</ZoruCardTitle>
+                <ZoruCardDescription>Bordered, subtle.</ZoruCardDescription>
+              </ZoruCardHeader>
+              <ZoruCardContent>
+                <p className="text-sm text-zoru-ink-muted">
+                  Quiet container for grouped content.
+                </p>
+              </ZoruCardContent>
+            </ZoruCard>
+            <ZoruCard variant="soft">
+              <ZoruCardHeader>
+                <ZoruCardTitle>Soft</ZoruCardTitle>
+                <ZoruCardDescription>Borderless, surface tint.</ZoruCardDescription>
+              </ZoruCardHeader>
+              <ZoruCardContent>
+                <p className="text-sm text-zoru-ink-muted">Use inside dense layouts.</p>
+              </ZoruCardContent>
+            </ZoruCard>
+            <ZoruCard variant="elevated">
+              <ZoruCardHeader>
+                <ZoruCardTitle>Elevated</ZoruCardTitle>
+                <ZoruCardDescription>Drop shadow on idle.</ZoruCardDescription>
+              </ZoruCardHeader>
+              <ZoruCardContent>
+                <p className="text-sm text-zoru-ink-muted">Stands off the canvas.</p>
+              </ZoruCardContent>
+            </ZoruCard>
+            <ZoruCard variant="outline">
+              <ZoruCardHeader>
+                <ZoruCardTitle>Outline</ZoruCardTitle>
+                <ZoruCardDescription>Stronger border, no shadow.</ZoruCardDescription>
+              </ZoruCardHeader>
+            </ZoruCard>
+            <ZoruCard interactive>
+              <ZoruCardHeader>
+                <ZoruCardTitle>Interactive</ZoruCardTitle>
+                <ZoruCardDescription>Hover lifts the shadow.</ZoruCardDescription>
+              </ZoruCardHeader>
+              <ZoruCardFooter>
+                <ZoruButton variant="link">Open project →</ZoruButton>
+              </ZoruCardFooter>
+            </ZoruCard>
+          </div>
+        </Section>
+
+        <Section step="Step 4" title="Tabs (pill + underline)">
+          <ZoruTabs defaultValue="overview">
+            <ZoruTabsList>
+              <ZoruTabsTrigger value="overview">Overview</ZoruTabsTrigger>
+              <ZoruTabsTrigger value="activity">Activity</ZoruTabsTrigger>
+              <ZoruTabsTrigger value="settings">Settings</ZoruTabsTrigger>
+            </ZoruTabsList>
+            <ZoruTabsContent value="overview">
+              <p className="text-sm text-zoru-ink-muted">
+                Pill tabs — for compact, in-page section switches.
+              </p>
+            </ZoruTabsContent>
+            <ZoruTabsContent value="activity">
+              <p className="text-sm text-zoru-ink-muted">Activity feed lives here.</p>
+            </ZoruTabsContent>
+            <ZoruTabsContent value="settings">
+              <p className="text-sm text-zoru-ink-muted">Settings form lives here.</p>
+            </ZoruTabsContent>
+          </ZoruTabs>
+
+          <ZoruTabs defaultValue="all" className="mt-6">
+            <ZoruTabsListUnderline>
+              <ZoruTabsTriggerUnderline value="all">All</ZoruTabsTriggerUnderline>
+              <ZoruTabsTriggerUnderline value="open">Open</ZoruTabsTriggerUnderline>
+              <ZoruTabsTriggerUnderline value="closed">Closed</ZoruTabsTriggerUnderline>
+              <ZoruTabsTriggerUnderline value="archived">
+                Archived
+              </ZoruTabsTriggerUnderline>
+            </ZoruTabsListUnderline>
+            <ZoruTabsContent value="all">
+              <p className="text-sm text-zoru-ink-muted">
+                Underline tabs — for module-level navigation that needs to feel
+                quieter than the pill variant.
+              </p>
+            </ZoruTabsContent>
+          </ZoruTabs>
+        </Section>
+
+        <Section step="Step 4" title="Accordion (default + boxed)">
+          <div className="grid gap-6 lg:grid-cols-2">
+            <ZoruAccordion type="single" collapsible>
+              <ZoruAccordionItem value="a">
+                <ZoruAccordionTrigger>What is ZoruUI?</ZoruAccordionTrigger>
+                <ZoruAccordionContent>
+                  A pure black-and-white component system parallel to the
+                  existing UI — see ZORUUI_TASKS.md for the 10-step plan.
+                </ZoruAccordionContent>
+              </ZoruAccordionItem>
+              <ZoruAccordionItem value="b">
+                <ZoruAccordionTrigger>Does it replace the dock?</ZoruAccordionTrigger>
+                <ZoruAccordionContent>
+                  No. The existing dock is reused via re-export.
+                </ZoruAccordionContent>
+              </ZoruAccordionItem>
+              <ZoruAccordionItem value="c">
+                <ZoruAccordionTrigger>What about the multi-tab strip?</ZoruAccordionTrigger>
+                <ZoruAccordionContent>
+                  Removed from the new shell, by request.
+                </ZoruAccordionContent>
+              </ZoruAccordionItem>
+            </ZoruAccordion>
+
+            <ZoruAccordion03 type="single" collapsible className="space-y-3">
+              <ZoruAccordion03Item value="a">
+                <ZoruAccordion03Trigger>How do I switch a page to zoru?</ZoruAccordion03Trigger>
+                <ZoruAccordion03Content>
+                  Wrap the page (or layout) in <code>&lt;ZoruProvider&gt;</code>
+                  and replace <code>@/components/ui/*</code> imports with
+                  <code> @/components/zoruui/*</code>.
+                </ZoruAccordion03Content>
+              </ZoruAccordion03Item>
+              <ZoruAccordion03Item value="b">
+                <ZoruAccordion03Trigger>Can I keep my existing forms?</ZoruAccordion03Trigger>
+                <ZoruAccordion03Content>
+                  Yes — react-hook-form + zod stay. Only the input components
+                  change.
+                </ZoruAccordion03Content>
+              </ZoruAccordion03Item>
+            </ZoruAccordion03>
+          </div>
+        </Section>
+
+        <Section step="Step 4" title="Scroll area + empty state + limelight">
+          <div className="grid gap-6 lg:grid-cols-2">
+            <ZoruCard>
+              <ZoruCardHeader>
+                <ZoruCardTitle>Scroll area</ZoruCardTitle>
+                <ZoruCardDescription>240px tall, custom scrollbar.</ZoruCardDescription>
+              </ZoruCardHeader>
+              <ZoruCardContent>
+                <ZoruScrollArea className="h-60 rounded-[var(--zoru-radius)] border border-zoru-line p-3">
+                  <ul className="space-y-2 text-sm text-zoru-ink">
+                    {Array.from({ length: 24 }).map((_, i) => (
+                      <li
+                        key={i}
+                        className="rounded-[var(--zoru-radius-sm)] bg-zoru-surface px-3 py-2"
+                      >
+                        Row {i + 1}
+                      </li>
+                    ))}
+                  </ul>
+                </ZoruScrollArea>
+              </ZoruCardContent>
+            </ZoruCard>
+
+            <ZoruEmptyState
+              icon={<FolderOpen />}
+              title="No projects yet"
+              description="Create your first project to start tracking conversations and broadcasts."
+              action={
+                <ZoruButton>
+                  <PlusCircle /> New project
+                </ZoruButton>
+              }
+            />
+          </div>
+
+          <div className="flex justify-center">
+            <ZoruLimelightNav
+              items={[
+                { id: "home", icon: <HomeIcon />, label: "Home" },
+                { id: "explore", icon: <Compass />, label: "Explore" },
+                { id: "inbox", icon: <Inbox />, label: "Inbox" },
+                { id: "alerts", icon: <Bell />, label: "Alerts" },
+              ]}
+            />
+          </div>
+        </Section>
+
+        <Section
+          step="Step 4"
+          title="Shell preview"
+          subtitle="The composable rail + sidebar + header + dock-slot — no multi-tab strip. Step 8 wires the admin instance, step 9 the dashboard."
+        >
+          <div className="overflow-hidden rounded-[var(--zoru-radius-lg)] border border-zoru-line">
+            <div className="flex h-[420px] w-full bg-zoru-bg">
+              <ZoruAppRail
+                brand={
+                  <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-ink text-xs font-semibold text-zoru-on-primary">
+                    Z
+                  </span>
+                }
+                items={[
+                  { id: "dash", icon: <LayoutDashboard />, label: "Dashboard", active: true },
+                  { id: "flow", icon: <Workflow />, label: "Flows" },
+                  { id: "crm", icon: <Briefcase />, label: "CRM" },
+                  { id: "mail", icon: <Mail />, label: "Email" },
+                ]}
+                footer={[
+                  { id: "settings", icon: <Settings />, label: "Settings" },
+                ]}
+              />
+              <ZoruAppSidebar
+                heading="Dashboard"
+                caption="Overview"
+                groups={[
+                  {
+                    id: "main",
+                    label: "Main",
+                    items: [
+                      { id: "home", label: "Home", icon: <HomeIcon />, active: true },
+                      { id: "activity", label: "Activity", icon: <Bell /> },
+                      { id: "inbox", label: "Inbox", icon: <Inbox />, badge: "12" },
+                    ],
+                  },
+                  {
+                    id: "manage",
+                    label: "Manage",
+                    items: [
+                      { id: "projects", label: "Projects", icon: <FolderOpen /> },
+                      { id: "team", label: "Team", icon: <User /> },
+                    ],
+                  },
+                ]}
+              />
+              <div className="flex min-w-0 flex-1 flex-col">
+                <ZoruHeader
+                  sticky={false}
+                  leading={
+                    <ZoruBreadcrumb>
+                      <ZoruBreadcrumbList>
+                        <ZoruBreadcrumbItem>
+                          <ZoruBreadcrumbLink href="#">Dashboard</ZoruBreadcrumbLink>
+                        </ZoruBreadcrumbItem>
+                        <ZoruBreadcrumbSeparator />
+                        <ZoruBreadcrumbItem>
+                          <ZoruBreadcrumbPage>Overview</ZoruBreadcrumbPage>
+                        </ZoruBreadcrumbItem>
+                      </ZoruBreadcrumbList>
+                    </ZoruBreadcrumb>
+                  }
+                  center={
+                    <ZoruInput
+                      placeholder="Search anything…"
+                      leadingSlot={<Search />}
+                      trailingSlot={<ZoruKbd>⌘K</ZoruKbd>}
+                    />
+                  }
+                  trailing={
+                    <>
+                      <ZoruButton variant="ghost" size="icon" aria-label="Notifications">
+                        <Bell />
+                      </ZoruButton>
+                      <ZoruAvatar>
+                        <ZoruAvatarFallback>HK</ZoruAvatarFallback>
+                      </ZoruAvatar>
+                    </>
+                  }
+                />
+                <main className="flex-1 overflow-y-auto p-6">
+                  <ZoruEmptyState
+                    icon={<Sparkles />}
+                    title="Your shell is ready"
+                    description="No multi-tab strip. The dock slot is wired but empty — step 9 will fill it in for the dashboard."
+                    compact
+                  />
+                </main>
+              </div>
+            </div>
+          </div>
         </Section>
       </div>
 

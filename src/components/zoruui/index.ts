@@ -185,3 +185,83 @@ export {
   ZoruStarIcon,
   type ZoruHeroPillProps,
 } from "./hero-pill";
+
+// Layout & navigation
+export {
+  ZoruCard,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruCardDescription,
+  ZoruCardContent,
+  ZoruCardFooter,
+  zoruCardVariants,
+  type ZoruCardProps,
+} from "./card";
+export {
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageEyebrow,
+  ZoruPageTitle,
+  ZoruPageDescription,
+  ZoruPageActions,
+  type ZoruPageHeaderProps,
+} from "./page-header";
+export {
+  ZoruBreadcrumb,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruBreadcrumbEllipsis,
+} from "./breadcrumb";
+export {
+  ZoruTabs,
+  ZoruTabsList,
+  ZoruTabsTrigger,
+  ZoruTabsContent,
+  ZoruTabsListUnderline,
+  ZoruTabsTriggerUnderline,
+} from "./tabs";
+export {
+  ZoruAccordion,
+  ZoruAccordionItem,
+  ZoruAccordionTrigger,
+  ZoruAccordionContent,
+  ZoruAccordion03,
+  ZoruAccordion03Item,
+  ZoruAccordion03Trigger,
+  ZoruAccordion03Content,
+} from "./accordion";
+export {
+  ZoruCollapsible,
+  ZoruCollapsibleTrigger,
+  ZoruCollapsibleContent,
+} from "./collapsible";
+export { ZoruScrollArea, ZoruScrollBar } from "./scroll-area";
+export {
+  ZoruResizablePanelGroup,
+  ZoruResizablePanel,
+  ZoruResizableHandle,
+} from "./resizable";
+export { ZoruEmptyState, type ZoruEmptyStateProps } from "./empty-state";
+export {
+  ZoruLimelightNav,
+  type ZoruLimelightItem,
+  type ZoruLimelightNavProps,
+} from "./limelight-nav";
+
+// Shell — composable dashboard chrome (no multi-tab strip)
+export {
+  ZoruShell,
+  ZoruAppRail,
+  ZoruAppSidebar,
+  ZoruHeader,
+  type ZoruShellProps,
+  type ZoruAppRailItem,
+  type ZoruAppRailProps,
+  type ZoruAppSidebarProps,
+  type ZoruSidebarGroup,
+  type ZoruSidebarLeaf,
+  type ZoruHeaderProps,
+} from "./shell";
