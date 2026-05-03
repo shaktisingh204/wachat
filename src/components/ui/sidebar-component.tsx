@@ -30,7 +30,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Search as SearchIcon,
-  ChevronDown as ChevronDownIcon,
   User as UserIcon,
   Settings as SettingsIcon,
   Menu as MenuIcon,
@@ -440,58 +439,41 @@ export function SabNodeAppDock() {
 function SectionTitle({
   title,
   collapsed,
-  onToggle,
   hue,
 }: {
   title: string;
   collapsed: boolean;
-  onToggle: () => void;
   hue: ModuleHue;
 }) {
+  // Minimize / expand chevrons removed per product direction — the rail is
+  // always shown at its module width on desktop, and the mobile sheet is
+  // dismissed with the sheet's built-in close affordance.
   if (collapsed) {
     return (
-      <div className="w-full flex justify-center">
-        <button
-          type="button"
-          aria-label="Expand sidebar"
-          aria-expanded={false}
-          onClick={onToggle}
-          className={cn(
-            "flex items-center justify-center rounded-lg size-9 min-w-9 transition-all duration-150 text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100",
-            "focus-visible:outline-none focus-visible:ring-2", hue.ring,
-          )}
-        >
-          <ChevronDownIcon size={16} className="rotate-90 transition-transform duration-300" />
-        </button>
+      <div
+        className={cn(
+          "w-full flex items-center justify-center rounded-xl py-2",
+          hue.soft,
+        )}
+      >
+        <span
+          aria-hidden
+          className={cn("size-2.5 rounded-full bg-gradient-to-br shadow-sm", hue.gradient)}
+        />
       </div>
     );
   }
   return (
     <div
       className={cn(
-        "w-full rounded-xl px-2.5 py-2 flex items-center justify-between gap-2",
+        "w-full rounded-xl px-2.5 py-2 flex items-center gap-2",
         hue.soft,
       )}
     >
-      <div className="flex items-center gap-2 min-w-0">
-        <span className={cn("size-2 rounded-full bg-gradient-to-br shadow-sm", hue.gradient)} aria-hidden />
-        <h2 className={cn("text-[13px] font-semibold tracking-tight leading-none truncate", hue.ink)}>
-          {title}
-        </h2>
-      </div>
-      <button
-        type="button"
-        aria-label="Collapse sidebar"
-        aria-expanded={true}
-        onClick={onToggle}
-        className={cn(
-          "flex items-center justify-center rounded-lg size-7 min-w-7 transition-all duration-150",
-          hue.inkMuted, "hover:bg-white/70",
-          "focus-visible:outline-none focus-visible:ring-2", hue.ring,
-        )}
-      >
-        <ChevronDownIcon size={14} className="-rotate-90 transition-transform duration-300" />
-      </button>
+      <span className={cn("size-2 rounded-full bg-gradient-to-br shadow-sm", hue.gradient)} aria-hidden />
+      <h2 className={cn("text-[13px] font-bold tracking-tight leading-none truncate", hue.ink)}>
+        {title}
+      </h2>
     </div>
   );
 }
@@ -632,11 +614,9 @@ function SectionBlock({
 function DetailPanel({
   active,
   collapsed,
-  onToggleCollapse,
 }: {
   active: string;
   collapsed: boolean;
-  onToggleCollapse: () => void;
 }) {
   const pathname = usePathname();
   const [query, setQuery] = useState("");
@@ -665,10 +645,15 @@ function DetailPanel({
   return (
     <aside
       className={cn(
-        "relative flex flex-col gap-2.5 items-stretch py-3 transition-all duration-300 min-h-screen",
+        // h-screen + sticky pin the rail to the viewport so the inner flex
+        // column has a fixed bound — the ScrollArea's flex-1 + min-h-0 then
+        // makes ONLY the menu list scroll while the brand/section/search
+        // header and the account footer stay static.
+        "relative sticky top-0 h-screen flex flex-col gap-2.5 items-stretch py-3 transition-all duration-300",
         "bg-white border-r border-zinc-200/70",
-        // 60% of original (was w-72 lg:w-80 → 288px / 320px)
-        collapsed ? "w-12 min-w-12 px-1.5" : "w-44 lg:w-48 px-2.5",
+        // 60% of the original (`w-72 lg:w-80`) +15% — lands at w-52 / w-56
+        // (208 / 224 px), close to 202 / 221 px exact.
+        collapsed ? "w-12 min-w-12 px-1.5" : "w-52 lg:w-56 px-2.5",
       )}
       aria-label={`${title} navigation`}
     >
@@ -681,11 +666,14 @@ function DetailPanel({
         )}
       />
 
-      {!collapsed && <BrandBadge />}
-      <SectionTitle title={title} collapsed={collapsed} onToggle={onToggleCollapse} hue={hue} />
-      <SearchBar collapsed={collapsed} value={query} onChange={setQuery} hue={hue} />
+      {/* Static header — pinned at the top of the rail. */}
+      <div className="shrink-0 flex flex-col gap-2.5">
+        {!collapsed && <BrandBadge />}
+        <SectionTitle title={title} collapsed={collapsed} hue={hue} />
+        <SearchBar collapsed={collapsed} value={query} onChange={setQuery} hue={hue} />
+      </div>
 
-      <ScrollArea className="w-full flex-1 [mask-image:linear-gradient(to_bottom,transparent_0,black_12px,black_calc(100%-24px),transparent_100%)]">
+      <ScrollArea className="w-full min-h-0 flex-1 [mask-image:linear-gradient(to_bottom,transparent_0,black_12px,black_calc(100%-24px),transparent_100%)]">
         <div className={cn("flex flex-col w-full", collapsed ? "gap-0.5 items-center" : "gap-2 items-stretch")}>
           {sections.map((s, i) => (
             <SectionBlock
@@ -705,8 +693,9 @@ function DetailPanel({
         </div>
       </ScrollArea>
 
+      {/* Static footer — pinned at the bottom of the rail. */}
       {!collapsed && (
-        <div className="w-full pt-2 border-t border-zinc-200/70">
+        <div className="shrink-0 w-full pt-2 border-t border-zinc-200/70">
           <Link
             href="/dashboard/profile"
             className={cn(
@@ -737,36 +726,22 @@ function readCollapsed(): boolean {
   }
 }
 
-function writeCollapsed(v: boolean) {
-  try {
-    window.localStorage.setItem(COLLAPSED_KEY, v ? "true" : "false");
-  } catch {
-    /* noop */
-  }
-}
-
 /* ── Public exports: desktop + mobile + composite ───────────────────── */
 
 export function SabNodeTwoLineSidebar() {
   const pathname = usePathname();
   const active = useMemo(() => detectActiveModule(pathname), [pathname]);
+  // Persisted collapsed-state is still read so users who collapsed the rail
+  // before the toggle was removed don't suddenly see the wide layout. There
+  // is no longer a UI to flip it; ignore writes.
   const [collapsed, setCollapsed] = useState(false);
-
   useEffect(() => {
     setCollapsed(readCollapsed());
   }, []);
 
-  const toggleCollapsed = () => {
-    setCollapsed((s) => {
-      const next = !s;
-      writeCollapsed(next);
-      return next;
-    });
-  };
-
   return (
-    <div className="hidden lg:flex flex-row min-h-screen sticky top-0">
-      <DetailPanel active={active} collapsed={collapsed} onToggleCollapse={toggleCollapsed} />
+    <div className="hidden lg:flex flex-row h-screen sticky top-0">
+      <DetailPanel active={active} collapsed={collapsed} />
     </div>
   );
 }
@@ -798,7 +773,7 @@ export function SabNodeTwoLineSidebarMobile() {
         >
           <SheetTitle className="sr-only">SabNode navigation</SheetTitle>
           <div className="flex flex-row h-full">
-            <DetailPanel active={active} collapsed={false} onToggleCollapse={() => setOpen(false)} />
+            <DetailPanel active={active} collapsed={false} />
           </div>
         </SheetContent>
       </Sheet>
