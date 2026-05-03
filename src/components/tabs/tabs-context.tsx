@@ -32,7 +32,7 @@ import {
   useReducer,
   useRef,
 } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
 import type {
   OpenTabInput,
@@ -234,6 +234,7 @@ const TabsContext = createContext<TabsContextValue | null>(null);
 export function TabsProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [state, dispatch] = useReducer(reducer, initialState);
   const hydratedRef = useRef(false);
 
@@ -269,14 +270,18 @@ export function TabsProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // After every state change, ensure the URL matches the active tab's href.
-  // This is what makes tab focus/open/close actually change pages.
+  // This is what makes tab focus/open/close actually change pages. We compare
+  // including search params so a tab like `/x?foo=bar` doesn't trigger an
+  // infinite push loop against `pathname = "/x"`.
   useEffect(() => {
     if (!hydratedRef.current) return;
     const active = state.tabs.find((t) => t.id === state.activeId);
     if (!active) return;
-    if (active.href === pathname) return;
+    const search = searchParams?.toString();
+    const currentHref = search ? `${pathname}?${search}` : pathname;
+    if (active.href === currentHref) return;
     router.push(active.href);
-  }, [state.activeId, state.tabs, router, pathname]);
+  }, [state.activeId, state.tabs, router, pathname, searchParams]);
 
   const openTab = useCallback(
     (input: OpenTabInput): Tab => {
