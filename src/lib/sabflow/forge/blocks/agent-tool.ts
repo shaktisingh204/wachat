@@ -78,14 +78,18 @@ async function runToolAction(ctx: ForgeActionContext): Promise<ForgeActionResult
 
   // Resolve the tool through the agents module. Falls back gracefully when
   // Impl 4 hasn't shipped yet.
+  // The `typeof window === 'undefined'` guard keeps webpack/turbopack from
+  // bundling `@/lib/agents` (and its mongodb/genkit deps) into client chunks.
   let tool: { name: string; run: (args: unknown, ctx: unknown) => Promise<unknown> } | undefined;
-  try {
-    const mod = (await import('@/lib/agents')) as {
-      getTool?: (name: string) => typeof tool;
-    };
-    if (typeof mod.getTool === 'function') tool = mod.getTool(toolName);
-  } catch {
-    // module unavailable
+  if (typeof window === 'undefined') {
+    try {
+      const mod = (await import('@/lib/agents')) as {
+        getTool?: (name: string) => typeof tool;
+      };
+      if (typeof mod.getTool === 'function') tool = mod.getTool(toolName);
+    } catch {
+      // module unavailable
+    }
   }
 
   if (!tool) {

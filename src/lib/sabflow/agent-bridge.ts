@@ -158,22 +158,26 @@ let cachedRunner: AgentRunner | null = null;
  */
 async function resolveDefaultRunner(): Promise<AgentRunner> {
   if (cachedRunner) return cachedRunner;
-  try {
-    const mod = (await import('@/lib/agents')) as AgentsModule;
-    if (typeof mod.runAgent === 'function') {
-      const realRunner = mod.runAgent;
-      cachedRunner = async (agentId, input, options) => {
-        const run = await realRunner(agentId, input, {
-          tenantId: options.tenantId,
-          userId: options.userId,
-          meta: options.meta,
-        });
-        return run;
-      };
-      return cachedRunner;
+  // Server-only branch — `typeof window === 'undefined'` lets the bundler
+  // tree-shake `@/lib/agents` (and its mongodb/genkit deps) out of client chunks.
+  if (typeof window === 'undefined') {
+    try {
+      const mod = (await import('@/lib/agents')) as AgentsModule;
+      if (typeof mod.runAgent === 'function') {
+        const realRunner = mod.runAgent;
+        cachedRunner = async (agentId, input, options) => {
+          const run = await realRunner(agentId, input, {
+            tenantId: options.tenantId,
+            userId: options.userId,
+            meta: options.meta,
+          });
+          return run;
+        };
+        return cachedRunner;
+      }
+    } catch {
+      // fall through to stub
     }
-  } catch {
-    // fall through to stub
   }
   console.warn(
     '[sabflow/agent-bridge] @/lib/agents.runAgent unavailable — using stub runner. ' +

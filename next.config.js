@@ -16,6 +16,24 @@ const nextConfig = {
       bodySizeLimit: '50mb',
     },
   },
+  // Heavy CJS packages that ship Node-only requires (`fs`, `dgram`, native
+  // bindings, optional deps). Listed here so Next treats them as runtime
+  // externals on the server side rather than trying to bundle them.
+  serverExternalPackages: [
+    'genkit',
+    '@genkit-ai/core',
+    '@genkit-ai/ai',
+    '@genkit-ai/googleai',
+    'mongodb',
+    'mongoose',
+    'jaeger-client',
+    'thriftrw',
+    '@opentelemetry/exporter-jaeger',
+    '@opentelemetry/sdk-node',
+    '@opentelemetry/instrumentation',
+    'express',
+    'send',
+  ],
   turbopack: {},
 
   typescript: {
