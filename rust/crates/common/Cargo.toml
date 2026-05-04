@@ -1,0 +1,22 @@
+[package]
+name = "sabnode-common"
+version = "0.1.0"
+edition = "2024"
+description = "Shared utilities for the SabNode Rust backend (errors, config, tracing)."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "sabnode_common"
+path = "src/lib.rs"
+
+[dependencies]
+thiserror = "2.0"
+anyhow = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+axum = { version = "0.8", default-features = false, features = ["json", "http1"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json", "fmt"] }
+figment = { version = "0.10", features = ["env", "toml"] }
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }

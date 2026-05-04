@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * Wachat WhatsApp Pay — Clay-styled tab layout.
+ * Wachat WhatsApp Pay — ZoruUI tab layout.
  *
  * Two tabs: Transactions · Setup. Each tab's content is rendered
  * by its child route.
@@ -10,23 +10,30 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LuCreditCard, LuHistory, LuSettings } from 'react-icons/lu';
+import { CreditCard, History, Settings } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
-import { cn } from '@/lib/utils';
-import { ClayBreadcrumbs } from '@/components/clay';
+import {
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  cn,
+} from '@/components/zoruui';
 
 const TABS = [
   {
     href: '/wachat/whatsapp-pay',
     label: 'Transactions',
-    icon: <LuHistory className="h-3.5 w-3.5" strokeWidth={2} />,
+    icon: <History className="h-3.5 w-3.5" />,
     exact: true,
   },
   {
     href: '/wachat/whatsapp-pay/settings',
     label: 'Setup',
-    icon: <LuSettings className="h-3.5 w-3.5" strokeWidth={2} />,
+    icon: <Settings className="h-3.5 w-3.5" />,
     exact: false,
   },
 ];
@@ -40,25 +47,37 @@ export default function WhatsAppPayLayout({
   const { activeProject } = useProject();
 
   return (
-    <div className="flex flex-col gap-6 clay-enter">
-      <ClayBreadcrumbs
-        items={[
-          { label: 'Wachat', href: '/dashboard' },
-          { label: activeProject?.name || 'Project', href: '/wachat' },
-          { label: 'WhatsApp Pay' },
-        ]}
-      />
+    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>
+              {activeProject?.name
+                ? `${activeProject.name} · WhatsApp Pay`
+                : 'WhatsApp Pay'}
+            </ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
 
       <div>
-        <h1 className="flex items-center gap-3 text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
-          <span className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-gradient-to-br from-[#FDE68A] to-[#B45309] text-white shadow-sm">
-            <LuCreditCard className="h-5 w-5" strokeWidth={2} />
+        <h1 className="flex items-center gap-3 text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
+          <span className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink">
+            <CreditCard className="h-5 w-5" />
           </span>
           WhatsApp Pay
         </h1>
-        <p className="mt-1.5 max-w-[720px] text-[13px] text-muted-foreground">
-          Manage your WhatsApp Pay configurations and view transaction
-          history for customers paying directly inside conversations.
+        <p className="mt-1.5 max-w-[720px] text-[13px] text-zoru-ink-muted">
+          Manage your WhatsApp Pay configurations and view transaction history
+          for customers paying directly inside conversations.
         </p>
       </div>
 
@@ -75,8 +94,8 @@ export default function WhatsAppPayLayout({
               className={cn(
                 'inline-flex items-center gap-2 rounded-full border px-3.5 py-2 text-[12.5px] font-medium transition-[background,border-color,color]',
                 active
-                  ? 'bg-foreground border-foreground text-white shadow-sm'
-                  : 'bg-card border-border text-muted-foreground hover:text-foreground hover:border-border',
+                  ? 'bg-zoru-ink border-zoru-ink text-zoru-on-primary'
+                  : 'bg-zoru-bg border-zoru-line text-zoru-ink-muted hover:text-zoru-ink hover:bg-zoru-surface-2',
               )}
             >
               {t.icon}

@@ -1,12 +1,63 @@
 'use client';
 
+/**
+ * /wachat/saved-replies — manage shortcut replies for conversations.
+ * ZoruUI: ZoruPageHeader + ZoruBreadcrumb, ZoruDataTable per category,
+ * dialog for create/edit, ZoruEmptyState for zero rows.
+ */
+
 import * as React from 'react';
-import { useEffect, useState, useTransition, useCallback } from 'react';
-import { LuPlus, LuPencil, LuTrash2, LuMessageSquare, LuLoader } from 'react-icons/lu';
+import { useEffect, useState, useTransition, useCallback, useMemo } from 'react';
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  MessageSquare,
+} from 'lucide-react';
+import type { ColumnDef } from '@tanstack/react-table';
+
 import { useProject } from '@/context/project-context';
-import { useToast } from '@/hooks/use-toast';
-import { ClayBreadcrumbs, ClayButton, ClayCard, ClayInput, ClaySelect, ClayBadge } from '@/components/clay';
-import { getSavedReplies, saveSavedReply, deleteSavedReply } from '@/app/actions/wachat-features.actions';
+import {
+  getSavedReplies,
+  saveSavedReply,
+  deleteSavedReply,
+} from '@/app/actions/wachat-features.actions';
+
+import {
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruDataTable,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruEmptyState,
+  ZoruInput,
+  ZoruLabel,
+  ZoruPageActions,
+  ZoruPageDescription,
+  ZoruPageEyebrow,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSkeleton,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
 
 const CATEGORIES = [
   { value: 'General', label: 'General' },
@@ -16,133 +67,304 @@ const CATEGORIES = [
   { value: 'Billing', label: 'Billing' },
 ];
 
-const catTone: Record<string, 'neutral' | 'blue' | 'green' | 'amber' | 'rose-soft' | 'red'> = {
-  General: 'neutral', Sales: 'blue', Support: 'green', Onboarding: 'amber', Billing: 'rose-soft',
-};
+interface Reply {
+  _id: string;
+  shortcut: string;
+  title: string;
+  body: string;
+  category: string;
+  mediaUrl?: string;
+}
 
 export default function SavedRepliesPage() {
   const { activeProject } = useProject();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [isPending, startTransition] = useTransition();
-  const [replies, setReplies] = useState<any[]>([]);
-  const [editId, setEditId] = useState<string | null>(null);
+  const [replies, setReplies] = useState<Reply[]>([]);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editing, setEditing] = useState<Reply | null>(null);
 
   const load = useCallback(() => {
     if (!activeProject?._id) return;
     startTransition(async () => {
       const res = await getSavedReplies(String(activeProject._id));
-      if (res.error) { toast({ title: 'Error', description: res.error, variant: 'destructive' }); return; }
-      setReplies(res.replies ?? []);
+      if (res.error) {
+        toast({ title: 'Error', description: res.error, variant: 'destructive' });
+        return;
+      }
+      setReplies((res.replies ?? []) as Reply[]);
     });
   }, [activeProject?._id, toast]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const openCreate = () => {
+    setEditing(null);
+    setDialogOpen(true);
+  };
+
+  const openEdit = (reply: Reply) => {
+    setEditing(reply);
+    setDialogOpen(true);
+  };
 
   const handleSave = async (fd: FormData) => {
     fd.set('projectId', String(activeProject?._id ?? ''));
-    if (editId) fd.set('replyId', editId);
+    if (editing?._id) fd.set('replyId', editing._id);
     const res = await saveSavedReply(null, fd);
-    if (res.error) { toast({ title: 'Error', description: res.error, variant: 'destructive' }); return; }
-    toast({ title: res.message });
-    setEditId(null);
+    if (res.error) {
+      toast({ title: 'Error', description: res.error, variant: 'destructive' });
+      return;
+    }
+    toast({ title: res.message ?? 'Reply saved.' });
+    setDialogOpen(false);
+    setEditing(null);
     load();
   };
 
   const handleDelete = (id: string) => {
     startTransition(async () => {
       const res = await deleteSavedReply(id);
-      if (!res.success) { toast({ title: 'Error', description: res.error, variant: 'destructive' }); return; }
+      if (!res.success) {
+        toast({ title: 'Error', description: res.error, variant: 'destructive' });
+        return;
+      }
       toast({ title: 'Reply deleted.' });
       load();
     });
   };
 
-  const editing = editId ? replies.find((r) => r._id === editId) : null;
-  const grouped = replies.reduce<Record<string, any[]>>((acc, r) => {
-    const cat = r.category || 'General';
-    (acc[cat] ??= []).push(r);
-    return acc;
-  }, {});
+  const columns = useMemo<ColumnDef<Reply>[]>(
+    () => [
+      {
+        accessorKey: 'shortcut',
+        header: 'Shortcut',
+        cell: ({ row }) => (
+          <span className="font-mono text-[12px] text-zoru-ink">
+            {row.original.shortcut}
+          </span>
+        ),
+      },
+      {
+        accessorKey: 'title',
+        header: 'Title',
+        cell: ({ row }) => (
+          <span className="truncate text-zoru-ink">{row.original.title}</span>
+        ),
+      },
+      {
+        accessorKey: 'body',
+        header: 'Body',
+        cell: ({ row }) => (
+          <span className="line-clamp-1 text-zoru-ink-muted">
+            {row.original.body}
+          </span>
+        ),
+      },
+      {
+        accessorKey: 'category',
+        header: 'Category',
+        cell: ({ row }) => (
+          <ZoruBadge variant="outline">{row.original.category}</ZoruBadge>
+        ),
+      },
+      {
+        id: 'actions',
+        header: '',
+        cell: ({ row }) => (
+          <div className="flex items-center justify-end gap-1">
+            <ZoruButton
+              variant="ghost"
+              size="icon-sm"
+              aria-label="Edit"
+              onClick={() => openEdit(row.original)}
+            >
+              <Pencil />
+            </ZoruButton>
+            <ZoruButton
+              variant="ghost"
+              size="icon-sm"
+              aria-label="Delete"
+              onClick={() => handleDelete(row.original._id)}
+            >
+              <Trash2 />
+            </ZoruButton>
+          </div>
+        ),
+      },
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
 
   return (
-    <div className="clay-enter flex min-h-full flex-col gap-6">
-      <ClayBreadcrumbs items={[
-        { label: 'Wachat', href: '/dashboard' },
-        { label: activeProject?.name || 'Project', href: '/wachat' },
-        { label: 'Saved Replies' },
-      ]} />
+    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Saved Replies</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
 
-      <div>
-        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">Saved Replies</h1>
-        <p className="mt-1.5 text-[13px] text-muted-foreground">Create shortcut replies your team can use in conversations.</p>
-      </div>
+      <ZoruPageHeader className="mt-5">
+        <ZoruPageHeading>
+          <ZoruPageEyebrow>WaChat</ZoruPageEyebrow>
+          <ZoruPageTitle>Saved Replies</ZoruPageTitle>
+          <ZoruPageDescription>
+            Create shortcut replies your team can use in conversations.
+          </ZoruPageDescription>
+        </ZoruPageHeading>
+        <ZoruPageActions>
+          <ZoruButton onClick={openCreate}>
+            <Plus /> New reply
+          </ZoruButton>
+        </ZoruPageActions>
+      </ZoruPageHeader>
 
-      {/* Create / edit form */}
-      <ClayCard padded={false} className="p-5">
-        <h2 className="mb-4 text-[15px] font-semibold text-foreground">{editId ? 'Edit Reply' : 'New Reply'}</h2>
-        <form action={handleSave} className="flex flex-col gap-3">
-          <div className="flex flex-wrap gap-3">
-            <label className="flex flex-col gap-1.5 text-[12px] font-medium text-muted-foreground">
-              Shortcut <ClayInput name="shortcut" placeholder="/greeting" required defaultValue={editing?.shortcut ?? ''} className="w-40" />
-            </label>
-            <label className="flex flex-1 flex-col gap-1.5 text-[12px] font-medium text-muted-foreground">
-              Title <ClayInput name="title" placeholder="Quick hello" defaultValue={editing?.title ?? ''} className="w-full" />
-            </label>
-            <label className="flex flex-col gap-1.5 text-[12px] font-medium text-muted-foreground">
-              Category <ClaySelect name="category" options={CATEGORIES} defaultValue={editing?.category ?? 'General'} className="w-36" />
-            </label>
-          </div>
-          <label className="flex flex-col gap-1.5 text-[12px] font-medium text-muted-foreground">
-            Body
-            <textarea name="body" required rows={3} defaultValue={editing?.body ?? ''} placeholder="Type the reply body..."
-              className="clay-input min-h-[72px] resize-y py-2.5" />
-          </label>
-          <label className="flex flex-col gap-1.5 text-[12px] font-medium text-muted-foreground">
-            Media URL (optional) <ClayInput name="mediaUrl" placeholder="https://..." defaultValue={editing?.mediaUrl ?? ''} />
-          </label>
-          <div className="flex gap-2">
-            <ClayButton type="submit" variant="obsidian" size="sm" leading={<LuPlus className="h-3.5 w-3.5" />}>
-              {editId ? 'Update' : 'Create'}
-            </ClayButton>
-            {editId && <ClayButton size="sm" onClick={() => setEditId(null)}>Cancel</ClayButton>}
-          </div>
-        </form>
-      </ClayCard>
-
-      {/* Grouped list */}
-      {isPending && replies.length === 0 && (
-        <div className="flex justify-center py-12"><LuLoader className="h-5 w-5 animate-spin text-muted-foreground" /></div>
-      )}
-      {Object.entries(grouped).map(([cat, items]) => (
-        <ClayCard key={cat} padded={false} className="p-5">
-          <h3 className="mb-3 text-[14px] font-semibold text-foreground">{cat}</h3>
-          <div className="space-y-1">
-            <div className="grid grid-cols-[100px_1fr_2fr_90px_72px] gap-3 pb-2 text-[11.5px] font-medium text-muted-foreground">
-              <span>Shortcut</span><span>Title</span><span>Body</span><span>Category</span><span />
-            </div>
-            {items.map((r: any) => (
-              <div key={r._id} className="grid grid-cols-[100px_1fr_2fr_90px_72px] items-center gap-3 rounded-lg px-1 py-2 text-[13px] text-foreground hover:bg-secondary">
-                <span className="font-mono text-[12px] text-accent-foreground">{r.shortcut}</span>
-                <span className="truncate font-medium">{r.title}</span>
-                <span className="truncate text-muted-foreground">{r.body}</span>
-                <ClayBadge tone={catTone[r.category] ?? 'neutral'}>{r.category}</ClayBadge>
-                <div className="flex gap-1">
-                  <ClayButton variant="ghost" size="icon" className="h-7 w-7" onClick={() => setEditId(r._id)}>
-                    <LuPencil className="h-3.5 w-3.5" />
-                  </ClayButton>
-                  <ClayButton variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => handleDelete(r._id)}>
-                    <LuTrash2 className="h-3.5 w-3.5" />
-                  </ClayButton>
-                </div>
-              </div>
+      <div className="mt-6">
+        {isPending && replies.length === 0 ? (
+          <div className="flex flex-col gap-2">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <ZoruSkeleton key={i} className="h-12" />
             ))}
           </div>
-        </ClayCard>
-      ))}
-      {!isPending && replies.length === 0 && (
-        <p className="py-8 text-center text-[13px] text-muted-foreground">No saved replies yet.</p>
-      )}
-      <div className="h-6" />
+        ) : replies.length === 0 ? (
+          <ZoruEmptyState
+            icon={<MessageSquare />}
+            title="No saved replies yet"
+            description="Create shortcuts your team can drop into any conversation."
+            action={
+              <ZoruButton onClick={openCreate}>
+                <Plus /> New reply
+              </ZoruButton>
+            }
+          />
+        ) : (
+          <ZoruCard className="p-4">
+            <ZoruDataTable
+              columns={columns}
+              data={replies}
+              filterColumn="title"
+              filterPlaceholder="Search replies…"
+            />
+          </ZoruCard>
+        )}
+      </div>
+
+      {/* Create / edit dialog */}
+      <ZoruDialog
+        open={dialogOpen}
+        onOpenChange={(open) => {
+          setDialogOpen(open);
+          if (!open) setEditing(null);
+        }}
+      >
+        <ZoruDialogContent>
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>
+              {editing ? 'Edit reply' : 'New reply'}
+            </ZoruDialogTitle>
+            <ZoruDialogDescription>
+              Fill in the shortcut and body. Optional media URL is supported.
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
+
+          <form
+            action={handleSave}
+            className="flex flex-col gap-4"
+            id="saved-reply-form"
+          >
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="flex flex-col gap-1.5">
+                <ZoruLabel htmlFor="shortcut">Shortcut</ZoruLabel>
+                <ZoruInput
+                  id="shortcut"
+                  name="shortcut"
+                  placeholder="/greeting"
+                  required
+                  defaultValue={editing?.shortcut ?? ''}
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <ZoruLabel htmlFor="title">Title</ZoruLabel>
+                <ZoruInput
+                  id="title"
+                  name="title"
+                  placeholder="Quick hello"
+                  defaultValue={editing?.title ?? ''}
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <ZoruLabel htmlFor="category">Category</ZoruLabel>
+              <ZoruSelect
+                name="category"
+                defaultValue={editing?.category ?? 'General'}
+              >
+                <ZoruSelectTrigger id="category">
+                  <ZoruSelectValue placeholder="Pick a category" />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                  {CATEGORIES.map((c) => (
+                    <ZoruSelectItem key={c.value} value={c.value}>
+                      {c.label}
+                    </ZoruSelectItem>
+                  ))}
+                </ZoruSelectContent>
+              </ZoruSelect>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <ZoruLabel htmlFor="body">Body</ZoruLabel>
+              <ZoruTextarea
+                id="body"
+                name="body"
+                rows={4}
+                required
+                defaultValue={editing?.body ?? ''}
+                placeholder="Type the reply body…"
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <ZoruLabel htmlFor="mediaUrl">Media URL (optional)</ZoruLabel>
+              <ZoruInput
+                id="mediaUrl"
+                name="mediaUrl"
+                placeholder="https://…"
+                defaultValue={editing?.mediaUrl ?? ''}
+              />
+            </div>
+          </form>
+
+          <ZoruDialogFooter>
+            <ZoruButton
+              variant="outline"
+              onClick={() => {
+                setDialogOpen(false);
+                setEditing(null);
+              }}
+            >
+              Cancel
+            </ZoruButton>
+            <ZoruButton type="submit" form="saved-reply-form">
+              {editing ? 'Save changes' : 'Create reply'}
+            </ZoruButton>
+          </ZoruDialogFooter>
+        </ZoruDialogContent>
+      </ZoruDialog>
     </div>
   );
 }

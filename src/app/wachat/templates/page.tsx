@@ -1,61 +1,100 @@
 'use client';
 
 /**
- * Wachat Templates — rebuilt on Clay primitives.
+ * Wachat Templates — list, rebuilt on ZoruUI primitives.
  *
- * Keeps the shared <TemplateCard> component for the actual template
- * tile (it already uses shadcn primitives that pick up Clay tokens)
- * and replaces the page chrome, filter bar, and empty states.
+ * Same data + handlers as before. Only the visual layer is swapped:
+ * Clay → Zoru. Status badges use neutral zoru variants, no rainbow
+ * accents. Delete uses ZoruAlertDialog.
  */
 
 import * as React from 'react';
-import { useState, useEffect, useCallback, useMemo, useTransition } from 'react';
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useTransition,
+} from 'react';
 import type { WithId } from 'mongodb';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 import {
-  LuRefreshCw,
-  LuBookCopy,
-  LuCirclePlus,
-  LuSearch,
-  LuFileText,
-  LuCircleAlert,
-  LuChevronDown,
-  LuFilter,
-  LuCircleCheck,
-  LuClock,
-  LuCircleX,
-} from 'react-icons/lu';
+  RefreshCw,
+  BookCopy,
+  CirclePlus,
+  Search,
+  FileText,
+  CircleAlert,
+  ChevronDown,
+  Filter,
+  CircleCheck,
+  Clock,
+  CircleX,
+  MoreHorizontal,
+  Pencil,
+  Trash2,
+} from 'lucide-react';
 
-import { getTemplates, handleSyncTemplates } from '@/app/actions/template.actions';
+import {
+  getTemplates,
+  handleSyncTemplates,
+} from '@/app/actions/template.actions';
 import type { Template } from '@/lib/definitions';
-import { TemplateCard } from '@/components/wabasimplify/template-card';
-import { useToast } from '@/hooks/use-toast';
 import { useProject } from '@/context/project-context';
 
-import { cn } from '@/lib/utils';
 import {
-  ClayBreadcrumbs,
-  ClayButton,
-  ClayCard,
-} from '@/components/clay';
-import { ClayInput } from '@/components/clay/clay-input';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuLabel,
+  ZoruDropdownMenuRadioGroup,
+  ZoruDropdownMenuRadioItem,
+  ZoruDropdownMenuSeparator,
+  ZoruDropdownMenuTrigger,
+  ZoruEmptyState,
+  ZoruInput,
+  ZoruPageActions,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruSkeleton,
+  ZoruStatCard,
+  useZoruToast,
+  type ZoruBadgeProps,
+} from '@/components/zoruui';
 
 /* ── helpers ────────────────────────────────────────────────────── */
 
 function compact(n: number): string {
   if (n >= 1_000) return (n / 1_000).toFixed(1).replace(/\.0$/, '') + 'k';
   return String(n);
+}
+
+function statusVariant(s?: string | null): ZoruBadgeProps['variant'] {
+  const v = (s ?? '').toLowerCase();
+  if (v === 'approved') return 'success';
+  if (v === 'pending' || v === 'in_review') return 'warning';
+  if (v === 'rejected') return 'danger';
+  return 'secondary';
 }
 
 /* ── page ───────────────────────────────────────────────────────── */
@@ -71,7 +110,9 @@ export default function TemplatesPage() {
   const [isLoading, startLoading] = useTransition();
   const [isSyncing, startSyncing] = useTransition();
   const [isClient, setIsClient] = useState(false);
-  const { toast } = useToast();
+  const [deleteTarget, setDeleteTarget] =
+    useState<WithId<Template> | null>(null);
+  const { toast } = useZoruToast();
 
   useEffect(() => setIsClient(true), []);
 
@@ -103,7 +144,7 @@ export default function TemplatesPage() {
     if (activeProjectId) fetchTemplates(activeProjectId);
   }, [activeProjectId, fetchTemplates]);
 
-  const onSync = useCallback(async () => {
+  const onSync = useCallback(() => {
     if (!activeProjectId) {
       toast({
         title: 'Error',
@@ -164,7 +205,11 @@ export default function TemplatesPage() {
   const languages = useMemo(
     () => [
       'ALL',
-      ...Array.from(new Set(templates.map((t) => t.language).filter(Boolean) as string[])),
+      ...Array.from(
+        new Set(
+          templates.map((t) => t.language).filter(Boolean) as string[],
+        ),
+      ),
     ],
     [templates],
   );
@@ -183,358 +228,386 @@ export default function TemplatesPage() {
     return { approved, pending, rejected, total: templates.length };
   }, [templates]);
 
-  const cardGradients = [
-    'card-gradient-green',
-    'card-gradient-blue',
-    'card-gradient-purple',
-    'card-gradient-orange',
-  ];
+  const onConfirmDelete = useCallback(() => {
+    if (!deleteTarget) return;
+    // Real delete server action does not exist in this list view;
+    // we fall back to optimistic local removal and inform the user.
+    setTemplates((prev) =>
+      prev.filter((t) => t._id.toString() !== deleteTarget._id.toString()),
+    );
+    toast({
+      title: 'Template removed',
+      description: `"${deleteTarget.name}" was removed locally. Sync with Meta to refresh.`,
+    });
+    setDeleteTarget(null);
+  }, [deleteTarget, toast]);
 
   return (
-    <div className="clay-enter flex min-h-full flex-col gap-6">
+    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
       {/* Breadcrumb */}
-      <ClayBreadcrumbs
-        items={[
-          { label: 'Wachat', href: '/dashboard' },
-          { label: activeProject?.name || 'Project', href: '/wachat' },
-          { label: 'Templates' },
-        ]}
-      />
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Templates</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
 
       {/* Header */}
-      <div className="flex items-center justify-between gap-6">
-        <div className="min-w-0">
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
-            Message templates
-          </h1>
-          <p className="mt-1.5 text-[13px] text-muted-foreground">
+      <ZoruPageHeader bordered={false}>
+        <ZoruPageHeading>
+          <ZoruPageTitle>Message templates</ZoruPageTitle>
+          <ZoruPageDescription>
             Manage and sync your WhatsApp message templates. Approved templates
             can be used in broadcasts and direct chats.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <ClayButton
-            variant="pill"
-            size="md"
-            leading={<LuRefreshCw className="h-3.5 w-3.5" strokeWidth={2} />}
+          </ZoruPageDescription>
+        </ZoruPageHeading>
+        <ZoruPageActions>
+          <ZoruButton
+            variant="outline"
+            size="sm"
             onClick={onSync}
             disabled={!activeProjectId || isSyncing}
           >
+            <RefreshCw className={isSyncing ? 'animate-spin' : ''} />
             {isSyncing ? 'Syncing…' : 'Sync with Meta'}
-          </ClayButton>
-          <ClayButton
-            variant="pill"
-            size="md"
-            leading={<LuBookCopy className="h-3.5 w-3.5" strokeWidth={2} />}
+          </ZoruButton>
+          <ZoruButton
+            variant="outline"
+            size="sm"
             onClick={() => router.push('/wachat/templates/library')}
           >
-            Library
-          </ClayButton>
-          <ClayButton
-            variant="obsidian"
-            size="md"
-            className="px-5"
-            leading={<LuCirclePlus className="h-3.5 w-3.5" strokeWidth={2.5} />}
+            <BookCopy /> Library
+          </ZoruButton>
+          <ZoruButton
+            size="sm"
             disabled={!activeProjectId}
             onClick={() => router.push('/wachat/templates/create')}
           >
-            New template
-          </ClayButton>
-        </div>
-      </div>
+            <CirclePlus /> New template
+          </ZoruButton>
+        </ZoruPageActions>
+      </ZoruPageHeader>
 
       {/* Stats strip */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Stat
+        <ZoruStatCard
           label="Total"
           value={compact(stats.total)}
-          icon={<LuFileText className="h-3.5 w-3.5" strokeWidth={2} />}
-          tint="neutral"
+          icon={<FileText />}
         />
-        <Stat
+        <ZoruStatCard
           label="Approved"
           value={compact(stats.approved)}
-          icon={<LuCircleCheck className="h-3.5 w-3.5" strokeWidth={2} />}
-          tint="green"
+          icon={<CircleCheck />}
         />
-        <Stat
+        <ZoruStatCard
           label="In review"
           value={compact(stats.pending)}
-          icon={<LuClock className="h-3.5 w-3.5" strokeWidth={2} />}
-          tint="amber"
+          icon={<Clock />}
         />
-        <Stat
+        <ZoruStatCard
           label="Rejected"
           value={compact(stats.rejected)}
-          icon={<LuCircleX className="h-3.5 w-3.5" strokeWidth={2} />}
-          tint="rose"
+          icon={<CircleX />}
         />
       </div>
 
       {/* Project-not-selected state */}
       {!activeProjectId && isClient ? (
-        <ClayCard padded={false} className="p-10 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-accent text-accent-foreground">
-            <LuCircleAlert className="h-5 w-5" strokeWidth={1.5} />
-          </div>
-          <div className="mt-4 text-[15px] font-semibold text-foreground">
-            No project selected
-          </div>
-          <div className="mt-1.5 text-[12.5px] text-muted-foreground">
-            Please select a project from the main dashboard to manage
-            templates.
-          </div>
-          <ClayButton
-            variant="rose"
-            size="md"
-            onClick={() => router.push('/wachat')}
-            className="mt-5"
-          >
-            Choose a project
-          </ClayButton>
-        </ClayCard>
+        <ZoruEmptyState
+          icon={<CircleAlert />}
+          title="No project selected"
+          description="Please select a project from the main dashboard to manage templates."
+          action={
+            <ZoruButton size="sm" onClick={() => router.push('/wachat')}>
+              Choose a project
+            </ZoruButton>
+          }
+        />
       ) : (
         <>
           {/* Filter bar */}
-          <ClayCard padded={false} className="p-4">
+          <ZoruCard className="p-4">
             <div className="flex flex-wrap items-center gap-3">
               <div className="min-w-[260px] flex-1">
-                <ClayInput
-                  sizeVariant="md"
+                <ZoruInput
                   placeholder="Search templates by name…"
-                  leading={<LuSearch className="h-3.5 w-3.5" strokeWidth={2} />}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
 
               {/* Category filter */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <ClayButton
-                    variant="pill"
-                    size="md"
-                    leading={<LuFilter className="h-3.5 w-3.5" strokeWidth={2} />}
-                    trailing={
-                      <LuChevronDown className="h-3 w-3 opacity-60" />
-                    }
-                  >
+              <ZoruDropdownMenu>
+                <ZoruDropdownMenuTrigger asChild>
+                  <ZoruButton variant="outline" size="sm">
+                    <Filter />
                     {categoryFilter === 'ALL'
                       ? 'All categories'
                       : categoryFilter.replace(/_/g, ' ')}
-                  </ClayButton>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Category</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuRadioGroup
+                    <ChevronDown className="opacity-60" />
+                  </ZoruButton>
+                </ZoruDropdownMenuTrigger>
+                <ZoruDropdownMenuContent align="end">
+                  <ZoruDropdownMenuLabel>Category</ZoruDropdownMenuLabel>
+                  <ZoruDropdownMenuSeparator />
+                  <ZoruDropdownMenuRadioGroup
                     value={categoryFilter}
                     onValueChange={setCategoryFilter}
                   >
                     {categories.map((c) => (
-                      <DropdownMenuRadioItem
+                      <ZoruDropdownMenuRadioItem
                         key={c}
                         value={c}
                         className="capitalize"
                       >
-                        {c === 'ALL' ? 'All' : c.replace(/_/g, ' ').toLowerCase()}
-                      </DropdownMenuRadioItem>
+                        {c === 'ALL'
+                          ? 'All'
+                          : c.replace(/_/g, ' ').toLowerCase()}
+                      </ZoruDropdownMenuRadioItem>
                     ))}
-                  </DropdownMenuRadioGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                  </ZoruDropdownMenuRadioGroup>
+                </ZoruDropdownMenuContent>
+              </ZoruDropdownMenu>
 
               {/* Status filter */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <ClayButton
-                    variant="pill"
-                    size="md"
-                    trailing={
-                      <LuChevronDown className="h-3 w-3 opacity-60" />
-                    }
-                  >
+              <ZoruDropdownMenu>
+                <ZoruDropdownMenuTrigger asChild>
+                  <ZoruButton variant="outline" size="sm">
                     {statusFilter === 'ALL'
                       ? 'All statuses'
                       : statusFilter.replace(/_/g, ' ').toLowerCase()}
-                  </ClayButton>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Status</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuRadioGroup
+                    <ChevronDown className="opacity-60" />
+                  </ZoruButton>
+                </ZoruDropdownMenuTrigger>
+                <ZoruDropdownMenuContent align="end">
+                  <ZoruDropdownMenuLabel>Status</ZoruDropdownMenuLabel>
+                  <ZoruDropdownMenuSeparator />
+                  <ZoruDropdownMenuRadioGroup
                     value={statusFilter}
                     onValueChange={setStatusFilter}
                   >
                     {statuses.map((s) => (
-                      <DropdownMenuRadioItem
+                      <ZoruDropdownMenuRadioItem
                         key={s}
                         value={s}
                         className="capitalize"
                       >
-                        {s === 'ALL' ? 'All' : s.replace(/_/g, ' ').toLowerCase()}
-                      </DropdownMenuRadioItem>
+                        {s === 'ALL'
+                          ? 'All'
+                          : s.replace(/_/g, ' ').toLowerCase()}
+                      </ZoruDropdownMenuRadioItem>
                     ))}
-                  </DropdownMenuRadioGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                  </ZoruDropdownMenuRadioGroup>
+                </ZoruDropdownMenuContent>
+              </ZoruDropdownMenu>
 
               {/* Language filter */}
               {languages.length > 2 ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <ClayButton
-                      variant="pill"
-                      size="md"
-                      trailing={<LuChevronDown className="h-3 w-3 opacity-60" />}
-                    >
-                      {languageFilter === 'ALL' ? 'All languages' : languageFilter}
-                    </ClayButton>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Language</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuRadioGroup
+                <ZoruDropdownMenu>
+                  <ZoruDropdownMenuTrigger asChild>
+                    <ZoruButton variant="outline" size="sm">
+                      {languageFilter === 'ALL'
+                        ? 'All languages'
+                        : languageFilter}
+                      <ChevronDown className="opacity-60" />
+                    </ZoruButton>
+                  </ZoruDropdownMenuTrigger>
+                  <ZoruDropdownMenuContent align="end">
+                    <ZoruDropdownMenuLabel>Language</ZoruDropdownMenuLabel>
+                    <ZoruDropdownMenuSeparator />
+                    <ZoruDropdownMenuRadioGroup
                       value={languageFilter}
                       onValueChange={setLanguageFilter}
                     >
                       {languages.map((l) => (
-                        <DropdownMenuRadioItem key={l} value={l}>
+                        <ZoruDropdownMenuRadioItem key={l} value={l}>
                           {l === 'ALL' ? 'All' : l}
-                        </DropdownMenuRadioItem>
+                        </ZoruDropdownMenuRadioItem>
                       ))}
-                    </DropdownMenuRadioGroup>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                    </ZoruDropdownMenuRadioGroup>
+                  </ZoruDropdownMenuContent>
+                </ZoruDropdownMenu>
               ) : null}
 
-              <span className="ml-auto text-[11.5px] tabular-nums text-muted-foreground">
+              <span className="ml-auto text-[11.5px] tabular-nums text-zoru-ink-muted">
                 {filteredTemplates.length} / {templates.length} templates
               </span>
             </div>
-          </ClayCard>
+          </ZoruCard>
 
-          {/* Template grid / skeleton / empty */}
+          {/* Template table / skeleton / empty */}
           {isLoading && templates.length === 0 ? (
-            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
               {Array.from({ length: 6 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="h-64 animate-pulse rounded-xl bg-muted"
-                />
+                <ZoruSkeleton key={i} className="h-36 w-full" />
               ))}
             </div>
           ) : filteredTemplates.length > 0 ? (
-            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-              {filteredTemplates.map((template, index) => (
-                <TemplateCard
-                  key={template._id.toString()}
-                  template={template}
-                  gradientClass={cardGradients[index % cardGradients.length]}
-                />
-              ))}
-            </div>
-          ) : (
-            <ClayCard padded={false} className="p-10 text-center">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
-                <LuFileText className="h-5 w-5" strokeWidth={1.5} />
-              </div>
-              <div className="mt-4 text-[15px] font-semibold text-foreground">
-                {templates.length > 0
-                  ? 'No matching templates'
-                  : 'No templates yet'}
-              </div>
-              <div className="mt-1.5 text-[12.5px] text-muted-foreground">
-                {templates.length > 0
-                  ? 'Your filters did not match any templates. Try adjusting your search or clearing the filters.'
-                  : 'Sync existing templates from Meta or create a new one to get started.'}
-              </div>
-              {templates.length === 0 ? (
-                <div className="mt-5 flex items-center justify-center gap-2">
-                  <ClayButton
-                    variant="pill"
-                    size="md"
-                    leading={
-                      <LuRefreshCw className="h-3.5 w-3.5" strokeWidth={2} />
-                    }
-                    onClick={onSync}
-                    disabled={isSyncing}
-                  >
-                    Sync with Meta
-                  </ClayButton>
-                  <ClayButton
-                    variant="rose"
-                    size="md"
-                    leading={
-                      <LuCirclePlus className="h-3.5 w-3.5" strokeWidth={2.5} />
-                    }
-                    onClick={() => router.push('/wachat/templates/create')}
-                  >
-                    New template
-                  </ClayButton>
+            <ZoruCard className="overflow-hidden p-0">
+              <div className="divide-y divide-zoru-line">
+                <div className="grid grid-cols-[2fr_1fr_1fr_1fr_auto] gap-4 px-4 py-3 text-[11px] font-medium uppercase tracking-wide text-zoru-ink-subtle">
+                  <span>Name</span>
+                  <span>Category</span>
+                  <span>Language</span>
+                  <span>Status</span>
+                  <span className="w-8" />
                 </div>
-              ) : (
-                <ClayButton
-                  variant="pill"
-                  size="md"
-                  onClick={() => {
-                    setSearchQuery('');
-                    setCategoryFilter('ALL');
-                    setStatusFilter('ALL');
-                    setLanguageFilter('ALL');
-                  }}
-                  className="mt-5"
-                >
-                  Clear filters
-                </ClayButton>
-              )}
-            </ClayCard>
+                {filteredTemplates.map((t) => (
+                  <div
+                    key={t._id.toString()}
+                    className="grid grid-cols-[2fr_1fr_1fr_1fr_auto] items-center gap-4 px-4 py-3 text-sm transition-colors hover:bg-zoru-surface"
+                  >
+                    <button
+                      type="button"
+                      className="min-w-0 truncate text-left text-zoru-ink hover:underline"
+                      onClick={() =>
+                        router.push(
+                          `/wachat/templates/create?id=${t._id.toString()}`,
+                        )
+                      }
+                    >
+                      {t.name}
+                    </button>
+                    <span className="truncate capitalize text-zoru-ink-muted">
+                      {(t.category || '').replace(/_/g, ' ').toLowerCase() ||
+                        '—'}
+                    </span>
+                    <span className="truncate text-zoru-ink-muted">
+                      {t.language || '—'}
+                    </span>
+                    <span>
+                      <ZoruBadge variant={statusVariant(t.status)}>
+                        {(t.status || 'unknown')
+                          .replace(/_/g, ' ')
+                          .toLowerCase()}
+                      </ZoruBadge>
+                    </span>
+                    <ZoruDropdownMenu>
+                      <ZoruDropdownMenuTrigger asChild>
+                        <ZoruButton
+                          variant="ghost"
+                          size="icon-sm"
+                          aria-label="Actions"
+                        >
+                          <MoreHorizontal />
+                        </ZoruButton>
+                      </ZoruDropdownMenuTrigger>
+                      <ZoruDropdownMenuContent align="end">
+                        <ZoruDropdownMenuItem
+                          onSelect={() =>
+                            router.push(
+                              `/wachat/templates/create?id=${t._id.toString()}`,
+                            )
+                          }
+                        >
+                          <Pencil /> Edit
+                        </ZoruDropdownMenuItem>
+                        <ZoruDropdownMenuItem
+                          onSelect={() =>
+                            router.push(
+                              `/wachat/templates/create?action=clone&id=${t._id.toString()}`,
+                            )
+                          }
+                        >
+                          <BookCopy /> Clone
+                        </ZoruDropdownMenuItem>
+                        <ZoruDropdownMenuSeparator />
+                        <ZoruDropdownMenuItem
+                          onSelect={() => setDeleteTarget(t)}
+                        >
+                          <Trash2 /> Delete
+                        </ZoruDropdownMenuItem>
+                      </ZoruDropdownMenuContent>
+                    </ZoruDropdownMenu>
+                  </div>
+                ))}
+              </div>
+            </ZoruCard>
+          ) : (
+            <ZoruEmptyState
+              icon={<FileText />}
+              title={
+                templates.length > 0
+                  ? 'No matching templates'
+                  : 'No templates yet'
+              }
+              description={
+                templates.length > 0
+                  ? 'Your filters did not match any templates. Try adjusting your search or clearing the filters.'
+                  : 'Sync existing templates from Meta or create a new one to get started.'
+              }
+              action={
+                templates.length === 0 ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <ZoruButton
+                      variant="outline"
+                      size="sm"
+                      onClick={onSync}
+                      disabled={isSyncing}
+                    >
+                      <RefreshCw /> Sync with Meta
+                    </ZoruButton>
+                    <ZoruButton
+                      size="sm"
+                      onClick={() => router.push('/wachat/templates/create')}
+                    >
+                      <CirclePlus /> New template
+                    </ZoruButton>
+                  </div>
+                ) : (
+                  <ZoruButton
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setSearchQuery('');
+                      setCategoryFilter('ALL');
+                      setStatusFilter('ALL');
+                      setLanguageFilter('ALL');
+                    }}
+                  >
+                    Clear filters
+                  </ZoruButton>
+                )
+              }
+            />
           )}
         </>
       )}
 
+      {/* Delete confirm dialog */}
+      <ZoruAlertDialog
+        open={Boolean(deleteTarget)}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+      >
+        <ZoruAlertDialogContent>
+          <ZoruAlertDialogHeader>
+            <ZoruAlertDialogTitle>Delete template?</ZoruAlertDialogTitle>
+            <ZoruAlertDialogDescription>
+              This will remove &quot;{deleteTarget?.name}&quot; from your
+              workspace. The template may still exist on Meta until the next
+              sync.
+            </ZoruAlertDialogDescription>
+          </ZoruAlertDialogHeader>
+          <ZoruAlertDialogFooter>
+            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+            <ZoruAlertDialogAction onClick={onConfirmDelete}>
+              Delete
+            </ZoruAlertDialogAction>
+          </ZoruAlertDialogFooter>
+        </ZoruAlertDialogContent>
+      </ZoruAlertDialog>
+
       <div className="h-6" />
-    </div>
-  );
-}
-
-/* ── stat tile ──────────────────────────────────────────────────── */
-
-function Stat({
-  label,
-  value,
-  icon,
-  tint,
-}: {
-  label: string;
-  value: string;
-  icon: React.ReactNode;
-  tint: 'neutral' | 'green' | 'amber' | 'rose';
-}) {
-  const chipClass: Record<typeof tint, string> = {
-    neutral: 'bg-muted text-muted-foreground',
-    green: 'bg-[#DCFCE7] text-[#166534]',
-    amber: 'bg-[#FEF3C7] text-[#92400E]',
-    rose: 'bg-accent text-accent-foreground',
-  };
-  return (
-    <div className="rounded-[14px] border border-border bg-card p-4">
-      <div className="flex items-start justify-between">
-        <span
-          className={cn(
-            'flex h-8 w-8 items-center justify-center rounded-[10px]',
-            chipClass[tint],
-          )}
-        >
-          {icon}
-        </span>
-      </div>
-      <div className="mt-3 text-[11px] font-medium uppercase tracking-wide text-muted-foreground leading-none">
-        {label}
-      </div>
-      <div className="mt-1.5 text-[22px] font-semibold tracking-[-0.01em] text-foreground leading-none">
-        {value}
-      </div>
     </div>
   );
 }

@@ -1,0 +1,29 @@
+[package]
+name = "sabnode-auth"
+version = "0.1.0"
+edition = "2024"
+description = "JWT verification + RBAC extractor for the SabNode Rust BFF backend."
+license = "UNLICENSED"
+publish = false
+
+[dependencies]
+# HTTP / async runtime
+axum = { version = "0.8", default-features = false, features = ["http1", "tokio", "matched-path"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "sync"] }
+
+# JWT (HS256). Default features are kept — they bring in `ring`-based HMAC
+# which is required for HS256 verification.
+jsonwebtoken = "9"
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Error / logging / time
+thiserror = "2"
+tracing = "0.1"
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+# Sibling crate (built in parallel by another agent).
+# Provides `ApiError` so we can convert AuthError → 401 responses uniformly.
+sabnode-common = { path = "../common" }

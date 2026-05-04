@@ -215,14 +215,9 @@ export {
   ZoruBreadcrumbSeparator,
   ZoruBreadcrumbEllipsis,
 } from "./breadcrumb";
-export {
-  ZoruTabs,
-  ZoruTabsList,
-  ZoruTabsTrigger,
-  ZoruTabsContent,
-  ZoruTabsListUnderline,
-  ZoruTabsTriggerUnderline,
-} from "./tabs";
+// Note: tab UI (`ZoruTabs` and friends) is intentionally NOT exported.
+// Per the no-tab-ui directive, zoruui has no tab primitive — use
+// segmented buttons, numbered steppers, or distinct routes instead.
 export {
   ZoruAccordion,
   ZoruAccordionItem,

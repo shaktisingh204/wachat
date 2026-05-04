@@ -1,40 +1,104 @@
 'use client';
 
 /**
- * Wachat Auto-Reply Rules — create keyword-based auto-reply rules,
- * built on Clay primitives.
+ * /wachat/auto-reply-rules — keyword-based auto-reply rules (ZoruUI).
+ *
+ * Rule list (with create/edit sheet + delete confirm) — server actions and
+ * data are unchanged from the Clay version.
+ *
+ * TODO: drag-reorder. Stubbed — list renders in insertion order; reorder
+ * persistence not implemented in this phase.
  */
 
 import * as React from 'react';
-import { useEffect, useState, useTransition, useCallback, useActionState } from 'react';
-import { LuBot, LuLoader, LuTrash2, LuPlus } from 'react-icons/lu';
+import {
+  useActionState,
+  useCallback,
+  useEffect,
+  useState,
+  useTransition,
+} from 'react';
+import { Bot, Loader, Plus, Trash2 } from 'lucide-react';
+
 import { useProject } from '@/context/project-context';
-import { useToast } from '@/hooks/use-toast';
-import { ClayBreadcrumbs, ClayButton, ClayCard } from '@/components/clay';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from '@/components/ui/select';
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from '@/components/ui/table';
-import {
+  deleteAutoReplyRule,
   getAutoReplyRules,
   saveAutoReplyRule,
-  deleteAutoReplyRule,
 } from '@/app/actions/wachat-features.actions';
+
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruEmptyState,
+  ZoruInput,
+  ZoruLabel,
+  ZoruPageActions,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSheet,
+  ZoruSheetContent,
+  ZoruSheetDescription,
+  ZoruSheetFooter,
+  ZoruSheetHeader,
+  ZoruSheetTitle,
+  ZoruSwitch,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
+
+type AutoReplyRule = {
+  _id: string;
+  name: string;
+  keywords?: string[];
+  matchType: string;
+  responseType?: string;
+  responseText?: string;
+  templateName?: string;
+  timeFrom?: string;
+  timeTo?: string;
+  isActive?: boolean;
+};
 
 export default function AutoReplyRulesPage() {
   const { activeProject } = useProject();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const projectId = activeProject?._id?.toString();
 
-  const [rules, setRules] = useState<any[]>([]);
+  const [rules, setRules] = useState<AutoReplyRule[]>([]);
   const [isLoading, startLoading] = useTransition();
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<AutoReplyRule | null>(null);
+  const [isDeleting, startDeleting] = useTransition();
+
   const [responseType, setResponseType] = useState('text');
   const [matchType, setMatchType] = useState('contains');
   const [isActive, setIsActive] = useState(true);
@@ -48,7 +112,7 @@ export default function AutoReplyRulesPage() {
         if (res.error) {
           toast({ title: 'Error', description: res.error, variant: 'destructive' });
         } else {
-          setRules(res.rules || []);
+          setRules((res.rules || []) as AutoReplyRule[]);
         }
       });
     },
@@ -61,7 +125,8 @@ export default function AutoReplyRulesPage() {
 
   useEffect(() => {
     if (formState?.message) {
-      toast({ title: 'Success', description: formState.message });
+      toast({ title: 'Saved', description: formState.message });
+      setCreateOpen(false);
       if (projectId) fetchRules(projectId);
     }
     if (formState?.error) {
@@ -69,168 +134,312 @@ export default function AutoReplyRulesPage() {
     }
   }, [formState, toast, projectId, fetchRules]);
 
-  const handleDelete = async (ruleId: string) => {
-    setDeletingId(ruleId);
-    const res = await deleteAutoReplyRule(ruleId);
-    setDeletingId(null);
-    if (res.error) {
-      toast({ title: 'Error', description: res.error, variant: 'destructive' });
-    } else {
-      setRules((prev) => prev.filter((r) => r._id !== ruleId));
-      toast({ title: 'Deleted', description: 'Rule removed.' });
-    }
+  const handleConfirmDelete = () => {
+    if (!deleteTarget) return;
+    const target = deleteTarget;
+    startDeleting(async () => {
+      const res = await deleteAutoReplyRule(target._id);
+      if (res.error) {
+        toast({ title: 'Error', description: res.error, variant: 'destructive' });
+      } else {
+        setRules((prev) => prev.filter((r) => r._id !== target._id));
+        toast({ title: 'Deleted', description: 'Rule removed.' });
+      }
+      setDeleteTarget(null);
+    });
   };
 
   const totalRules = rules.length;
   const activeRules = rules.filter((r) => r.isActive).length;
 
   return (
-    <div className="clay-enter flex min-h-full flex-col gap-6">
-      <ClayBreadcrumbs
-        items={[
-          { label: 'Wachat', href: '/dashboard' },
-          { label: activeProject?.name || 'Project', href: '/wachat' },
-          { label: 'Auto-Reply Rules' },
-        ]}
-      />
+    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Auto-Reply Rules</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
 
-      <div className="min-w-0">
-        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
-          Auto-Reply Rules
-        </h1>
-        <p className="mt-1.5 text-[13px] text-muted-foreground">
-          Set up keyword-based auto-reply rules for incoming WhatsApp messages.
-        </p>
-      </div>
+      <ZoruPageHeader className="mt-5">
+        <ZoruPageHeading>
+          <ZoruPageTitle>Auto-Reply Rules</ZoruPageTitle>
+          <ZoruPageDescription>
+            Set up keyword-based auto-reply rules for incoming WhatsApp messages.
+          </ZoruPageDescription>
+        </ZoruPageHeading>
+        <ZoruPageActions>
+          <ZoruButton
+            size="sm"
+            onClick={() => setCreateOpen(true)}
+            disabled={!projectId}
+          >
+            <Plus /> Create rule
+          </ZoruButton>
+        </ZoruPageActions>
+      </ZoruPageHeader>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 max-w-md">
-        <div className="rounded-[14px] border border-border bg-card p-4">
-          <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Total Rules</div>
-          <div className="mt-2 text-[22px] font-semibold text-foreground leading-none">{totalRules}</div>
-        </div>
-        <div className="rounded-[14px] border border-border bg-card p-4">
-          <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Active Rules</div>
-          <div className="mt-2 text-[22px] font-semibold text-foreground leading-none">{activeRules}</div>
-        </div>
+      <div className="mt-6 grid max-w-md grid-cols-2 gap-3">
+        <ZoruCard className="p-4">
+          <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+            Total rules
+          </div>
+          <div className="mt-2 text-[22px] text-zoru-ink leading-none">
+            {totalRules}
+          </div>
+        </ZoruCard>
+        <ZoruCard className="p-4">
+          <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+            Active rules
+          </div>
+          <div className="mt-2 text-[22px] text-zoru-ink leading-none">
+            {activeRules}
+          </div>
+        </ZoruCard>
       </div>
 
-      {/* Create form */}
-      <ClayCard padded={false} className="p-6">
-        <h2 className="text-[16px] font-semibold text-foreground mb-4">Create a rule</h2>
-        <form action={formAction} className="grid gap-4 sm:grid-cols-2 max-w-2xl">
-          <input type="hidden" name="projectId" value={projectId || ''} />
-          <input type="hidden" name="matchType" value={matchType} />
-          <input type="hidden" name="responseType" value={responseType} />
-          <input type="hidden" name="isActive" value={isActive ? 'on' : ''} />
-          <Input name="name" placeholder="Rule name" required />
-          <Input name="keywords" placeholder="Keywords (comma-separated)" required />
-          <Select value={matchType} onValueChange={setMatchType}>
-            <SelectTrigger><SelectValue placeholder="Match type" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="contains">Contains</SelectItem>
-              <SelectItem value="exact">Exact</SelectItem>
-              <SelectItem value="starts_with">Starts with</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={responseType} onValueChange={setResponseType}>
-            <SelectTrigger><SelectValue placeholder="Response type" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="text">Text</SelectItem>
-              <SelectItem value="template">Template</SelectItem>
-            </SelectContent>
-          </Select>
-          <div className="sm:col-span-2">
-            <Textarea name="responseText" placeholder="Response text..." rows={2} />
-          </div>
-          {responseType === 'template' && (
-            <Input name="templateName" placeholder="Template name" className="sm:col-span-2" />
+      {/* Rules list (drag-reorder TODO) */}
+      <ZoruCard className="mt-6 p-5">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-[15px] text-zoru-ink">Rules</h2>
+          {isLoading && (
+            <Loader className="h-4 w-4 animate-spin text-zoru-ink-muted" />
           )}
-          <Input name="timeFrom" type="time" placeholder="Active from" />
-          <Input name="timeTo" type="time" placeholder="Active to" />
-          <div className="flex items-center gap-2 sm:col-span-2">
-            <Switch checked={isActive} onCheckedChange={setIsActive} id="rule-active" />
-            <label htmlFor="rule-active" className="text-[13px] text-foreground">Active</label>
-          </div>
-          <div className="sm:col-span-2">
-            <ClayButton
-              type="submit"
-              variant="obsidian"
-              size="md"
-              disabled={isPending || !projectId}
-              leading={<LuPlus className="h-3.5 w-3.5" strokeWidth={2.5} />}
-            >
-              {isPending ? 'Saving...' : 'Create Rule'}
-            </ClayButton>
-          </div>
-        </form>
-      </ClayCard>
+        </div>
 
-      {/* Rules table */}
-      <ClayCard padded={false} className="p-6">
-        <h2 className="text-[16px] font-semibold text-foreground mb-4">Rules</h2>
         {isLoading && rules.length === 0 ? (
           <div className="flex h-20 items-center justify-center">
-            <LuLoader className="h-5 w-5 animate-spin text-muted-foreground" strokeWidth={1.75} />
+            <Loader className="h-5 w-5 animate-spin text-zoru-ink-muted" />
           </div>
         ) : rules.length === 0 ? (
-          <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-border bg-secondary px-4 py-10 text-center">
-            <LuBot className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
-            <div className="text-[13px] font-semibold text-foreground">No rules yet</div>
-            <div className="text-[11.5px] text-muted-foreground">Create your first auto-reply rule above.</div>
-          </div>
+          <ZoruEmptyState
+            icon={<Bot />}
+            title="No rules yet"
+            description="Create your first auto-reply rule to handle keyword-triggered responses."
+            action={
+              <ZoruButton size="sm" onClick={() => setCreateOpen(true)}>
+                <Plus /> Create rule
+              </ZoruButton>
+            }
+          />
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Keywords</TableHead>
-                <TableHead>Match</TableHead>
-                <TableHead>Response</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Action</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+          <ZoruTable>
+            <ZoruTableHeader>
+              <ZoruTableRow>
+                <ZoruTableHead>Name</ZoruTableHead>
+                <ZoruTableHead>Keywords</ZoruTableHead>
+                <ZoruTableHead>Match</ZoruTableHead>
+                <ZoruTableHead>Response</ZoruTableHead>
+                <ZoruTableHead>Status</ZoruTableHead>
+                <ZoruTableHead className="text-right">Action</ZoruTableHead>
+              </ZoruTableRow>
+            </ZoruTableHeader>
+            <ZoruTableBody>
               {rules.map((rule) => (
-                <TableRow key={rule._id}>
-                  <TableCell className="font-medium text-[13px]">{rule.name}</TableCell>
-                  <TableCell>
+                <ZoruTableRow key={rule._id}>
+                  <ZoruTableCell className="text-[13px] text-zoru-ink">
+                    {rule.name}
+                  </ZoruTableCell>
+                  <ZoruTableCell>
                     <div className="flex flex-wrap gap-1">
-                      {(rule.keywords || []).slice(0, 3).map((kw: string) => (
-                        <Badge key={kw} variant="secondary" className="text-[11px]">{kw}</Badge>
+                      {(rule.keywords || []).slice(0, 3).map((kw) => (
+                        <ZoruBadge key={kw} variant="secondary">
+                          {kw}
+                        </ZoruBadge>
                       ))}
                       {(rule.keywords || []).length > 3 && (
-                        <Badge variant="outline" className="text-[11px]">+{rule.keywords.length - 3}</Badge>
+                        <ZoruBadge variant="outline">
+                          +{(rule.keywords || []).length - 3}
+                        </ZoruBadge>
                       )}
                     </div>
-                  </TableCell>
-                  <TableCell className="text-[13px] text-muted-foreground">{rule.matchType}</TableCell>
-                  <TableCell className="max-w-[160px] truncate text-[13px] text-muted-foreground">
+                  </ZoruTableCell>
+                  <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                    {rule.matchType}
+                  </ZoruTableCell>
+                  <ZoruTableCell className="max-w-[200px] truncate text-[13px] text-zoru-ink-muted">
                     {rule.responseText || rule.templateName || '-'}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={rule.isActive ? 'default' : 'secondary'} className={rule.isActive ? 'bg-green-100 text-green-800' : 'bg-zinc-100 text-zinc-500'}>
+                  </ZoruTableCell>
+                  <ZoruTableCell>
+                    <ZoruBadge variant={rule.isActive ? 'success' : 'secondary'}>
                       {rule.isActive ? 'Active' : 'Inactive'}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(rule._id)}
-                      disabled={deletingId === rule._id}
-                      className="flex h-7 w-7 items-center justify-center rounded-md text-destructive hover:bg-rose-50 transition-colors ml-auto"
+                    </ZoruBadge>
+                  </ZoruTableCell>
+                  <ZoruTableCell className="text-right">
+                    <ZoruButton
+                      variant="ghost"
+                      size="icon-sm"
+                      onClick={() => setDeleteTarget(rule)}
                       aria-label="Delete rule"
                     >
-                      <LuTrash2 className="h-3.5 w-3.5" strokeWidth={1.75} />
-                    </button>
-                  </TableCell>
-                </TableRow>
+                      <Trash2 />
+                    </ZoruButton>
+                  </ZoruTableCell>
+                </ZoruTableRow>
               ))}
-            </TableBody>
-          </Table>
+            </ZoruTableBody>
+          </ZoruTable>
         )}
-      </ClayCard>
+      </ZoruCard>
+
+      {/* Create-rule sheet */}
+      <ZoruSheet open={createOpen} onOpenChange={setCreateOpen}>
+        <ZoruSheetContent side="right" className="sm:max-w-lg">
+          <ZoruSheetHeader>
+            <ZoruSheetTitle>Create auto-reply rule</ZoruSheetTitle>
+            <ZoruSheetDescription>
+              Trigger a response when an incoming message matches your keywords.
+            </ZoruSheetDescription>
+          </ZoruSheetHeader>
+
+          <form action={formAction} className="mt-6 space-y-4">
+            <input type="hidden" name="projectId" value={projectId || ''} />
+            <input type="hidden" name="matchType" value={matchType} />
+            <input type="hidden" name="responseType" value={responseType} />
+            <input type="hidden" name="isActive" value={isActive ? 'on' : ''} />
+
+            <div className="grid gap-2">
+              <ZoruLabel htmlFor="rule-name">Rule name</ZoruLabel>
+              <ZoruInput id="rule-name" name="name" placeholder="Welcome new customers" required />
+            </div>
+
+            <div className="grid gap-2">
+              <ZoruLabel htmlFor="rule-keywords">Keywords</ZoruLabel>
+              <ZoruInput
+                id="rule-keywords"
+                name="keywords"
+                placeholder="hi, hello, hey"
+                required
+              />
+              <p className="text-[11.5px] text-zoru-ink-muted">
+                Comma-separated. Matching is case-insensitive.
+              </p>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid gap-2">
+                <ZoruLabel>Match type</ZoruLabel>
+                <ZoruSelect value={matchType} onValueChange={setMatchType}>
+                  <ZoruSelectTrigger>
+                    <ZoruSelectValue placeholder="Match type" />
+                  </ZoruSelectTrigger>
+                  <ZoruSelectContent>
+                    <ZoruSelectItem value="contains">Contains</ZoruSelectItem>
+                    <ZoruSelectItem value="exact">Exact</ZoruSelectItem>
+                    <ZoruSelectItem value="starts_with">Starts with</ZoruSelectItem>
+                  </ZoruSelectContent>
+                </ZoruSelect>
+              </div>
+              <div className="grid gap-2">
+                <ZoruLabel>Response type</ZoruLabel>
+                <ZoruSelect value={responseType} onValueChange={setResponseType}>
+                  <ZoruSelectTrigger>
+                    <ZoruSelectValue placeholder="Response type" />
+                  </ZoruSelectTrigger>
+                  <ZoruSelectContent>
+                    <ZoruSelectItem value="text">Text</ZoruSelectItem>
+                    <ZoruSelectItem value="template">Template</ZoruSelectItem>
+                  </ZoruSelectContent>
+                </ZoruSelect>
+              </div>
+            </div>
+
+            <div className="grid gap-2">
+              <ZoruLabel htmlFor="rule-response">Response text</ZoruLabel>
+              <ZoruTextarea
+                id="rule-response"
+                name="responseText"
+                placeholder="Hi! Thanks for reaching out..."
+                rows={3}
+              />
+            </div>
+
+            {responseType === 'template' && (
+              <div className="grid gap-2">
+                <ZoruLabel htmlFor="rule-template">Template name</ZoruLabel>
+                <ZoruInput
+                  id="rule-template"
+                  name="templateName"
+                  placeholder="welcome_template"
+                />
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="grid gap-2">
+                <ZoruLabel htmlFor="rule-from">Active from</ZoruLabel>
+                <ZoruInput id="rule-from" name="timeFrom" type="time" />
+              </div>
+              <div className="grid gap-2">
+                <ZoruLabel htmlFor="rule-to">Active to</ZoruLabel>
+                <ZoruInput id="rule-to" name="timeTo" type="time" />
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <ZoruSwitch
+                id="rule-active"
+                checked={isActive}
+                onCheckedChange={setIsActive}
+              />
+              <ZoruLabel htmlFor="rule-active">Active</ZoruLabel>
+            </div>
+
+            <ZoruSheetFooter className="pt-2">
+              <ZoruButton
+                type="button"
+                variant="ghost"
+                onClick={() => setCreateOpen(false)}
+              >
+                Cancel
+              </ZoruButton>
+              <ZoruButton type="submit" disabled={isPending || !projectId}>
+                {isPending ? 'Saving…' : 'Create rule'}
+              </ZoruButton>
+            </ZoruSheetFooter>
+          </form>
+        </ZoruSheetContent>
+      </ZoruSheet>
+
+      {/* Delete-rule confirm */}
+      <ZoruAlertDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null);
+        }}
+      >
+        <ZoruAlertDialogContent>
+          <ZoruAlertDialogHeader>
+            <ZoruAlertDialogTitle>Delete this rule?</ZoruAlertDialogTitle>
+            <ZoruAlertDialogDescription>
+              {deleteTarget?.name
+                ? `“${deleteTarget.name}” will stop responding to incoming messages.`
+                : 'This rule will stop responding to incoming messages.'}{' '}
+              This action cannot be undone.
+            </ZoruAlertDialogDescription>
+          </ZoruAlertDialogHeader>
+          <ZoruAlertDialogFooter>
+            <ZoruAlertDialogCancel disabled={isDeleting}>Cancel</ZoruAlertDialogCancel>
+            <ZoruAlertDialogAction
+              destructive
+              onClick={handleConfirmDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting ? 'Deleting…' : 'Yes, delete'}
+            </ZoruAlertDialogAction>
+          </ZoruAlertDialogFooter>
+        </ZoruAlertDialogContent>
+      </ZoruAlertDialog>
 
       <div className="h-6" />
     </div>

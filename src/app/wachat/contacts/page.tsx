@@ -1,11 +1,12 @@
 'use client';
 
 /**
- * Wachat Contacts — rebuilt on Clay primitives.
+ * Wachat Contacts — rebuilt on ZoruUI primitives (phase 2).
  *
- * Keeps the shared ImportContactsDialog + AddContactDialog components
- * (they implement the actual upload/create flows) and replaces the
- * page chrome, filter bar, and contact table.
+ * Same data, same handlers, same server actions. Only the visual
+ * primitives are swapped to ZoruUI. The shared AddContactDialog +
+ * ImportContactsDialog handle the create/import flows and remain
+ * unchanged (their internals will be migrated separately).
  */
 
 import * as React from 'react';
@@ -21,18 +22,19 @@ import type { WithId } from 'mongodb';
 import { useDebouncedCallback } from 'use-debounce';
 
 import {
-  LuCircleAlert,
-  LuSearch,
-  LuUsers,
-  LuLoader,
-  LuMessageSquare,
-  LuTrash2,
-  LuTag,
-  LuChevronLeft,
-  LuChevronRight,
-  LuChevronDown,
-  LuCheck,
-} from 'react-icons/lu';
+  AlertCircle,
+  Search,
+  Users,
+  Loader2,
+  MessageSquare,
+  Trash2,
+  Tag as TagIcon,
+  ChevronLeft,
+  ChevronRight,
+  ChevronDown,
+  Check,
+  Plus,
+} from 'lucide-react';
 
 import { getContactsPageData, deleteContact } from '@/app/actions/contact.actions';
 import type { Contact, Tag } from '@/lib/definitions';
@@ -41,30 +43,39 @@ import { ImportContactsDialog } from '@/components/wabasimplify/import-contacts-
 import { useProject } from '@/context/project-context';
 import { useToast } from '@/hooks/use-toast';
 
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-
-import { cn } from '@/lib/utils';
-import { ClayBreadcrumbs, ClayButton, ClayCard } from '@/components/clay';
-import { ClayInput } from '@/components/clay/clay-input';
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruAlertDialogTrigger,
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruCommand,
+  ZoruCommandEmpty,
+  ZoruCommandGroup,
+  ZoruCommandInput,
+  ZoruCommandItem,
+  ZoruCommandList,
+  ZoruEmptyState,
+  ZoruInput,
+  ZoruPopover,
+  ZoruPopoverContent,
+  ZoruPopoverTrigger,
+  ZoruSkeleton,
+  cn,
+} from '@/components/zoruui';
 
 const CONTACTS_PER_PAGE = 20;
 
@@ -76,7 +87,7 @@ function compact(n: number): string {
   return String(n);
 }
 
-/* ── Tag filter (Clay-styled popover of tags) ───────────────────── */
+/* ── Tag filter (Zoru popover of tags) ──────────────────────────── */
 
 function TagsFilter({
   tags,
@@ -105,32 +116,28 @@ function TagsFilter({
         : `${selectedTags.length} tags`;
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <ClayButton
-          variant="pill"
-          size="md"
-          leading={<LuTag className="h-3.5 w-3.5" strokeWidth={2} />}
-          trailing={<LuChevronDown className="h-3 w-3 opacity-60" />}
-        >
-          {label}
-        </ClayButton>
-      </PopoverTrigger>
-      <PopoverContent className="w-[240px] p-0" align="end">
-        <Command>
-          <CommandInput placeholder="Search tags…" />
-          <CommandList>
-            <CommandEmpty>No tags found.</CommandEmpty>
-            <CommandGroup>
+    <ZoruPopover open={open} onOpenChange={setOpen}>
+      <ZoruPopoverTrigger asChild>
+        <ZoruButton variant="outline" size="sm">
+          <TagIcon /> {label}
+          <ChevronDown className="opacity-60" />
+        </ZoruButton>
+      </ZoruPopoverTrigger>
+      <ZoruPopoverContent className="w-[240px] p-0" align="end">
+        <ZoruCommand>
+          <ZoruCommandInput placeholder="Search tags…" />
+          <ZoruCommandList>
+            <ZoruCommandEmpty>No tags found.</ZoruCommandEmpty>
+            <ZoruCommandGroup>
               {tags.length === 0 ? (
-                <div className="px-2 py-6 text-center text-[12px] text-muted-foreground">
+                <div className="px-2 py-6 text-center text-[12px] text-zoru-ink-muted">
                   No tags defined on this project yet.
                 </div>
               ) : (
                 tags.map((tag) => {
                   const isSelected = selectedTags.includes(tag._id);
                   return (
-                    <CommandItem
+                    <ZoruCommandItem
                       key={tag._id}
                       onSelect={() => toggle(tag._id)}
                       className="flex items-center gap-2"
@@ -139,34 +146,30 @@ function TagsFilter({
                         className={cn(
                           'flex h-4 w-4 shrink-0 items-center justify-center rounded-[4px] border',
                           isSelected
-                            ? 'bg-primary border-primary text-white'
-                            : 'border-border',
+                            ? 'border-zoru-ink bg-zoru-ink text-zoru-on-primary'
+                            : 'border-zoru-line',
                         )}
                       >
                         {isSelected ? (
-                          <LuCheck className="h-3 w-3" strokeWidth={3} />
+                          <Check className="h-3 w-3" strokeWidth={3} />
                         ) : null}
                       </span>
-                      <span
-                        className="h-2 w-2 shrink-0 rounded-full"
-                        style={{ background: tag.color }}
-                      />
-                      <span className="flex-1 truncate text-[13px]">
+                      <span className="flex-1 truncate text-[13px] text-zoru-ink">
                         {tag.name}
                       </span>
-                    </CommandItem>
+                    </ZoruCommandItem>
                   );
                 })
               )}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
+            </ZoruCommandGroup>
+          </ZoruCommandList>
+        </ZoruCommand>
+      </ZoruPopoverContent>
+    </ZoruPopover>
   );
 }
 
-/* ── Delete confirmation button (Clay styled) ───────────────────── */
+/* ── Delete confirmation ──────────────────────────────────────── */
 
 function DeleteContactButton({
   contact,
@@ -195,35 +198,38 @@ function DeleteContactButton({
   };
 
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <button
-          type="button"
+    <ZoruAlertDialog>
+      <ZoruAlertDialogTrigger asChild>
+        <ZoruButton
+          variant="ghost"
+          size="icon-sm"
           aria-label="Delete contact"
-          className="flex h-7 w-7 items-center justify-center rounded-md text-destructive hover:bg-rose-50 transition-colors"
+          className="text-zoru-danger hover:bg-zoru-danger/10"
         >
-          <LuTrash2 className="h-3.5 w-3.5" strokeWidth={1.75} />
-        </button>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Delete contact?</AlertDialogTitle>
-          <AlertDialogDescription>
+          <Trash2 />
+        </ZoruButton>
+      </ZoruAlertDialogTrigger>
+      <ZoruAlertDialogContent>
+        <ZoruAlertDialogHeader>
+          <ZoruAlertDialogTitle>Delete contact?</ZoruAlertDialogTitle>
+          <ZoruAlertDialogDescription>
             Are you sure you want to delete {contact.name}? This action cannot
             be undone.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleDelete} disabled={isPending}>
-            {isPending ? (
-              <LuLoader className="mr-2 h-4 w-4 animate-spin" />
-            ) : null}
+          </ZoruAlertDialogDescription>
+        </ZoruAlertDialogHeader>
+        <ZoruAlertDialogFooter>
+          <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+          <ZoruAlertDialogAction
+            destructive
+            onClick={handleDelete}
+            disabled={isPending}
+          >
+            {isPending ? <Loader2 className="mr-2 animate-spin" /> : null}
             Delete
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+          </ZoruAlertDialogAction>
+        </ZoruAlertDialogFooter>
+      </ZoruAlertDialogContent>
+    </ZoruAlertDialog>
   );
 }
 
@@ -268,7 +274,8 @@ export default function ContactsPage() {
       } catch {
         toast({
           title: 'Error',
-          description: 'Failed to load contacts. Please ensure a project is selected.',
+          description:
+            'Failed to load contacts. Please ensure a project is selected.',
           variant: 'destructive',
         });
       }
@@ -325,23 +332,31 @@ export default function ContactsPage() {
   }, [contacts]);
 
   return (
-    <div className="clay-enter flex min-h-full flex-col gap-6">
+    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
       {/* Breadcrumb */}
-      <ClayBreadcrumbs
-        items={[
-          { label: 'Wachat', href: '/dashboard' },
-          { label: activeProject?.name || 'Project', href: '/wachat' },
-          { label: 'Contacts' },
-        ]}
-      />
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Contacts</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
 
       {/* Header */}
-      <div className="flex items-center justify-between gap-6">
+      <div className="flex items-end justify-between gap-6">
         <div className="min-w-0">
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
+          <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
             Contacts
           </h1>
-          <p className="mt-1.5 text-[13px] text-muted-foreground">
+          <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
             {activeProject
               ? `Manage the contact list for ${activeProject.name}${totalContacts > 0 ? ` · ${totalContacts.toLocaleString()} total contacts` : ''}`
               : 'Manage your customer contact list.'}
@@ -349,7 +364,10 @@ export default function ContactsPage() {
         </div>
         {activeProject ? (
           <div className="flex items-center gap-2">
-            <ImportContactsDialog project={activeProject} onImported={fetchData} />
+            <ImportContactsDialog
+              project={activeProject}
+              onImported={fetchData}
+            />
             <AddContactDialog
               key={refreshKey}
               project={activeProject}
@@ -376,36 +394,28 @@ export default function ContactsPage() {
 
       {/* No project state */}
       {!activeProjectId ? (
-        <ClayCard padded={false} className="p-10 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-accent text-accent-foreground">
-            <LuCircleAlert className="h-5 w-5" strokeWidth={1.5} />
-          </div>
-          <div className="mt-4 text-[15px] font-semibold text-foreground">
-            No project selected
-          </div>
-          <div className="mt-1.5 text-[12.5px] text-muted-foreground">
-            Please select a project from the main dashboard to manage contacts.
-          </div>
-          <ClayButton
-            variant="rose"
-            size="md"
-            onClick={() => router.push('/wachat')}
-            className="mt-5"
-          >
-            Choose a project
-          </ClayButton>
-        </ClayCard>
+        <ZoruEmptyState
+          icon={<AlertCircle />}
+          title="No project selected"
+          description="Please select a project from the main dashboard to manage contacts."
+          action={
+            <ZoruButton size="sm" onClick={() => router.push('/wachat')}>
+              Choose a project
+            </ZoruButton>
+          }
+        />
       ) : (
-        <ClayCard padded={false} className="p-6">
+        <ZoruCard className="p-6">
           {/* Filter bar */}
           <div className="flex flex-wrap items-center gap-3">
             <div className="min-w-[260px] flex-1">
-              <ClayInput
-                sizeVariant="md"
+              <ZoruInput
                 placeholder="Search by name or WhatsApp ID…"
-                leading={<LuSearch className="h-3.5 w-3.5" strokeWidth={2} />}
+                leadingSlot={<Search />}
                 defaultValue={searchQuery}
-                onChange={(e) => updateSearchParam('query', e.target.value)}
+                onChange={(e) =>
+                  updateSearchParam('query', e.target.value)
+                }
               />
             </div>
             <TagsFilter
@@ -415,39 +425,37 @@ export default function ContactsPage() {
                 updateSearchParam('tags', tags.join(','))
               }
             />
-            <span className="ml-auto text-[11.5px] tabular-nums text-muted-foreground">
+            <span className="ml-auto text-[11.5px] tabular-nums text-zoru-ink-muted">
               {contacts.length} shown · {totalContacts.toLocaleString()} total
             </span>
           </div>
 
           {/* Table / empty / skeleton */}
-          <div className="mt-5 overflow-hidden rounded-[12px] border border-border">
+          <div className="mt-5 overflow-hidden rounded-[var(--zoru-radius-lg)] border border-zoru-line">
             {isLoadingInitial ? (
-              <div className="flex h-40 items-center justify-center">
-                <LuLoader
-                  className="h-5 w-5 animate-spin text-muted-foreground"
-                  strokeWidth={1.75}
-                />
+              <div className="flex flex-col gap-2 p-4">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <ZoruSkeleton key={i} className="h-10 w-full" />
+                ))}
               </div>
             ) : contacts.length === 0 ? (
-              <div className="flex flex-col items-center gap-2 px-4 py-12 text-center">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
-                  <LuUsers className="h-5 w-5" strokeWidth={1.5} />
-                </div>
-                <div className="mt-2 text-[13px] font-semibold text-foreground">
-                  {searchQuery || selectedTags.length > 0
+              <ZoruEmptyState
+                icon={<Users />}
+                title={
+                  searchQuery || selectedTags.length > 0
                     ? 'No matching contacts'
-                    : 'No contacts yet'}
-                </div>
-                <div className="max-w-[360px] text-[11.5px] text-muted-foreground">
-                  {searchQuery || selectedTags.length > 0
+                    : 'No contacts yet'
+                }
+                description={
+                  searchQuery || selectedTags.length > 0
                     ? 'Try adjusting your search or tag filters.'
-                    : 'Import a CSV or add contacts one at a time to build your audience.'}
-                </div>
-              </div>
+                    : 'Import a CSV or add contacts one at a time to build your audience.'
+                }
+                className="border-0"
+              />
             ) : (
               <table className="w-full text-[13px]">
-                <thead className="bg-secondary border-b border-border text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                <thead className="border-b border-zoru-line bg-zoru-surface text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                   <tr>
                     <th className="px-4 py-3 text-left">Name</th>
                     <th className="px-4 py-3 text-left">WhatsApp ID</th>
@@ -458,39 +466,39 @@ export default function ContactsPage() {
                     <th className="px-4 py-3 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border">
+                <tbody className="divide-y divide-zoru-line">
                   {contacts.map((contact) => (
                     <tr
                       key={contact._id.toString()}
-                      className="transition-colors hover:bg-secondary"
+                      className="transition-colors hover:bg-zoru-surface"
                     >
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
-                          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-[11px] font-semibold text-accent-foreground">
+                          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-zoru-surface-2 text-[11px] text-zoru-ink">
                             {(contact.name || '?').slice(0, 2).toUpperCase()}
                           </span>
-                          <span className="font-medium text-foreground">
+                          <span className="text-zoru-ink">
                             {contact.name}
                           </span>
                         </div>
                       </td>
-                      <td className="px-4 py-3 font-mono text-[12px] text-muted-foreground tabular-nums">
+                      <td className="px-4 py-3 font-mono text-[12px] text-zoru-ink-muted tabular-nums">
                         {contact.waId}
                       </td>
-                      <td className="px-4 py-3 text-[12px] text-muted-foreground">
+                      <td className="px-4 py-3 text-[12px] text-zoru-ink-muted">
                         {(contact as any).email || '—'}
                       </td>
                       <td className="px-4 py-3 text-[12px]">
                         {(contact as any).isOptedOut ? (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-rose-50 px-2 py-0.5 text-[10.5px] font-medium text-destructive">
-                            <span className="h-1.5 w-1.5 rounded-full bg-destructive" />
+                          <ZoruBadge variant="danger">
+                            <span className="h-1.5 w-1.5 rounded-full bg-zoru-danger" />
                             Opted-out
-                          </span>
+                          </ZoruBadge>
                         ) : (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10.5px] font-medium text-emerald-500">
-                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                          <ZoruBadge variant="success">
+                            <span className="h-1.5 w-1.5 rounded-full bg-zoru-success" />
                             Opted-in
-                          </span>
+                          </ZoruBadge>
                         )}
                       </td>
                       <td className="px-4 py-3">
@@ -500,26 +508,18 @@ export default function ContactsPage() {
                               (t) => t._id === tagId.toString(),
                             );
                             return tag ? (
-                              <span
+                              <ZoruBadge
                                 key={tagId.toString()}
-                                className="inline-flex h-5 items-center gap-1 rounded-full border px-2 text-[10.5px] font-medium"
-                                style={{
-                                  background: `${tag.color}18`,
-                                  color: tag.color,
-                                  borderColor: `${tag.color}38`,
-                                }}
+                                variant="secondary"
                               >
-                                <span
-                                  className="h-1.5 w-1.5 rounded-full"
-                                  style={{ background: tag.color }}
-                                />
+                                <span className="h-1.5 w-1.5 rounded-full bg-zoru-ink-muted" />
                                 {tag.name}
-                              </span>
+                              </ZoruBadge>
                             ) : null;
                           })}
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-[12px] text-muted-foreground">
+                      <td className="px-4 py-3 text-[12px] text-zoru-ink-muted">
                         {contact.lastMessageTimestamp
                           ? new Date(
                               contact.lastMessageTimestamp,
@@ -528,19 +528,13 @@ export default function ContactsPage() {
                       </td>
                       <td className="px-4 py-3 text-right">
                         <div className="flex items-center justify-end gap-1">
-                          <ClayButton
-                            variant="pill"
+                          <ZoruButton
+                            variant="outline"
                             size="sm"
-                            leading={
-                              <LuMessageSquare
-                                className="h-3 w-3"
-                                strokeWidth={2}
-                              />
-                            }
                             onClick={() => handleMessageContact(contact)}
                           >
-                            Message
-                          </ClayButton>
+                            <MessageSquare /> Message
+                          </ZoruButton>
                           <DeleteContactButton
                             contact={contact}
                             onDeleted={fetchData}
@@ -555,42 +549,36 @@ export default function ContactsPage() {
           </div>
 
           {totalPages > 1 ? (
-            <div className="mt-5 flex items-center justify-between gap-3 border-t border-border pt-4">
-              <span className="text-[11.5px] tabular-nums text-muted-foreground">
+            <div className="mt-5 flex items-center justify-between gap-3 border-t border-zoru-line pt-4">
+              <span className="text-[11.5px] tabular-nums text-zoru-ink-muted">
                 Page {currentPage} of {totalPages} ·{' '}
                 {compact(totalContacts)} contacts
               </span>
               <div className="flex items-center gap-2">
-                <ClayButton
-                  variant="pill"
+                <ZoruButton
+                  variant="outline"
                   size="sm"
-                  leading={
-                    <LuChevronLeft className="h-3 w-3" strokeWidth={2} />
-                  }
                   onClick={() =>
                     updateSearchParam('page', String(currentPage - 1))
                   }
                   disabled={currentPage <= 1 || isLoading}
                 >
-                  Previous
-                </ClayButton>
-                <ClayButton
-                  variant="pill"
+                  <ChevronLeft /> Previous
+                </ZoruButton>
+                <ZoruButton
+                  variant="outline"
                   size="sm"
-                  trailing={
-                    <LuChevronRight className="h-3 w-3" strokeWidth={2} />
-                  }
                   onClick={() =>
                     updateSearchParam('page', String(currentPage + 1))
                   }
                   disabled={currentPage >= totalPages || isLoading}
                 >
-                  Next
-                </ClayButton>
+                  Next <ChevronRight />
+                </ZoruButton>
               </div>
             </div>
           ) : null}
-        </ClayCard>
+        </ZoruCard>
       )}
 
       <div className="h-6" />
@@ -610,18 +598,18 @@ function Stat({
   hint?: string;
 }) {
   return (
-    <div className="rounded-[14px] border border-border bg-card p-4">
-      <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+    <ZoruCard className="p-4">
+      <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
         {label}
       </div>
-      <div className="mt-2 text-[22px] font-semibold tracking-[-0.01em] text-foreground leading-none">
+      <div className="mt-2 text-[22px] tracking-[-0.01em] text-zoru-ink leading-none">
         {value}
       </div>
       {hint ? (
-        <div className="mt-1 text-[11px] text-muted-foreground leading-tight truncate">
+        <div className="mt-1 truncate text-[11px] text-zoru-ink-muted leading-tight">
           {hint}
         </div>
       ) : null}
-    </div>
+    </ZoruCard>
   );
 }

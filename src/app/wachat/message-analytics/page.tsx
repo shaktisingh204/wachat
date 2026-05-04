@@ -1,29 +1,94 @@
 'use client';
 
+/**
+ * Wachat Message Analytics — ZoruUI rebuild.
+ *
+ * KPI strip + line chart + breakdown table. Greyscale-only chart palette
+ * via ZORU_CHART_PALETTE; series differentiated by stroke-dasharray.
+ */
+
 import * as React from 'react';
 import { useEffect, useState, useTransition, useCallback } from 'react';
-import { LuChartBar, LuArrowUpRight, LuArrowDownLeft, LuClock, LuLoader } from 'react-icons/lu';
+import {
+  ArrowDownLeft,
+  ArrowUpRight,
+  ChevronDown,
+  Clock,
+  Download,
+  Inbox,
+  Loader2,
+} from 'lucide-react';
+
 import { useProject } from '@/context/project-context';
 import { useToast } from '@/hooks/use-toast';
-import { ClayBreadcrumbs, ClayButton, ClayCard, ClayBadge } from '@/components/clay';
 import { getMessageAnalytics } from '@/app/actions/wachat-features.actions';
-import { ResponsiveContainer, LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, Legend } from 'recharts';
+
+import {
+  ZORU_CHART_PALETTE,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruChart,
+  ZoruChartContainer,
+  ZoruChartTooltip,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuLabel,
+  ZoruDropdownMenuRadioGroup,
+  ZoruDropdownMenuRadioItem,
+  ZoruDropdownMenuTrigger,
+  ZoruEmptyState,
+  ZoruSkeleton,
+  ZoruStatCard,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
 
 type DailyRow = { date: string; outgoing: number; incoming: number };
+type Period = 7 | 30 | 90;
+
+const PERIOD_LABELS: Record<Period, string> = {
+  7: 'Last 7 days',
+  30: 'Last 30 days',
+  90: 'Last 90 days',
+};
 
 export default function MessageAnalyticsPage() {
   const { activeProject } = useProject();
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
-  const [period, setPeriod] = useState<number>(7);
+  const [period, setPeriod] = useState<Period>(7);
   const [rows, setRows] = useState<DailyRow[]>([]);
   const [totals, setTotals] = useState({ out: 0, inc: 0, avgMs: 0 });
+  const [exportOpen, setExportOpen] = useState(false);
 
   const load = useCallback(() => {
     if (!activeProject?._id) return;
     startTransition(async () => {
       const res = await getMessageAnalytics(String(activeProject._id), period);
-      if (res.error) { toast({ title: 'Error', description: res.error, variant: 'destructive' }); return; }
+      if (res.error) {
+        toast({ title: 'Error', description: res.error, variant: 'destructive' });
+        return;
+      }
       const map = new Map<string, { out: number; inc: number }>();
       (res.dailyData ?? []).forEach((d: any) => {
         const key = d._id.date;
@@ -43,9 +108,9 @@ export default function MessageAnalyticsPage() {
     });
   }, [activeProject?._id, period, toast]);
 
-  useEffect(() => { load(); }, [load]);
-
-  const maxTotal = Math.max(...rows.map((r) => r.outgoing + r.incoming), 1);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const fmtTime = (ms: number) => {
     if (!ms) return '--';
@@ -53,96 +118,233 @@ export default function MessageAnalyticsPage() {
     return `${(ms / 60000).toFixed(1)}m`;
   };
 
-  const periods = [7, 30, 90] as const;
+  const handleExport = useCallback(() => {
+    const header = ['date', 'outgoing', 'incoming', 'total'].join(',');
+    const body = rows
+      .map((r) => [r.date, r.outgoing, r.incoming, r.outgoing + r.incoming].join(','))
+      .join('\n');
+    const csv = `${header}\n${body}`;
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `message-analytics-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    setExportOpen(false);
+  }, [rows]);
 
   return (
-    <div className="clay-enter flex min-h-full flex-col gap-6">
-      <ClayBreadcrumbs items={[
-        { label: 'Wachat', href: '/dashboard' },
-        { label: activeProject?.name || 'Project', href: '/wachat' },
-        { label: 'Message Analytics' },
-      ]} />
+    <div className="flex min-h-full flex-col gap-6">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Message Analytics</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
 
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">Message Analytics</h1>
-          <p className="mt-1.5 text-[13px] text-muted-foreground">Track outgoing and incoming message volume over time.</p>
+          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-zoru-ink leading-[1.1]">
+            Message Analytics
+          </h1>
+          <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
+            Track outgoing and incoming message volume over time.
+          </p>
         </div>
-        <div className="flex gap-2">
-          {periods.map((d) => (
-            <ClayButton key={d} variant={period === d ? 'obsidian' : 'pill'} size="sm" onClick={() => setPeriod(d)}>
-              {d} days
-            </ClayButton>
-          ))}
+        <div className="flex items-center gap-2">
+          <ZoruDropdownMenu>
+            <ZoruDropdownMenuTrigger asChild>
+              <ZoruButton variant="outline" size="sm">
+                {PERIOD_LABELS[period]}
+                <ChevronDown className="opacity-60" />
+              </ZoruButton>
+            </ZoruDropdownMenuTrigger>
+            <ZoruDropdownMenuContent align="end">
+              <ZoruDropdownMenuLabel>Time range</ZoruDropdownMenuLabel>
+              <ZoruDropdownMenuRadioGroup
+                value={String(period)}
+                onValueChange={(v) => setPeriod(Number(v) as Period)}
+              >
+                <ZoruDropdownMenuRadioItem value="7">Last 7 days</ZoruDropdownMenuRadioItem>
+                <ZoruDropdownMenuRadioItem value="30">Last 30 days</ZoruDropdownMenuRadioItem>
+                <ZoruDropdownMenuRadioItem value="90">Last 90 days</ZoruDropdownMenuRadioItem>
+              </ZoruDropdownMenuRadioGroup>
+            </ZoruDropdownMenuContent>
+          </ZoruDropdownMenu>
+          <ZoruButton
+            variant="outline"
+            size="sm"
+            onClick={() => setExportOpen(true)}
+            disabled={rows.length === 0}
+          >
+            <Download /> Export
+          </ZoruButton>
         </div>
       </div>
 
       {/* Stat cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        {[
-          { label: 'Total Outgoing', value: totals.out, icon: LuArrowUpRight, tone: 'blue' as const },
-          { label: 'Total Incoming', value: totals.inc, icon: LuArrowDownLeft, tone: 'green' as const },
-          { label: 'Avg Response Time', value: fmtTime(totals.avgMs), icon: LuClock, tone: 'amber' as const },
-        ].map((s) => (
-          <ClayCard key={s.label} padded={false} className="flex items-center gap-4 p-5">
-            <span className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-secondary">
-              <s.icon className="h-5 w-5 text-muted-foreground" strokeWidth={1.75} />
-            </span>
-            <div>
-              <div className="text-[12px] text-muted-foreground">{s.label}</div>
-              <div className="text-[22px] font-semibold text-foreground leading-tight">{typeof s.value === 'number' ? s.value.toLocaleString() : s.value}</div>
-            </div>
-          </ClayCard>
-        ))}
+        <ZoruStatCard
+          label="Total Outgoing"
+          value={totals.out.toLocaleString()}
+          icon={<ArrowUpRight />}
+          period={PERIOD_LABELS[period]}
+        />
+        <ZoruStatCard
+          label="Total Incoming"
+          value={totals.inc.toLocaleString()}
+          icon={<ArrowDownLeft />}
+          period={PERIOD_LABELS[period]}
+        />
+        <ZoruStatCard
+          label="Avg Response Time"
+          value={fmtTime(totals.avgMs)}
+          icon={<Clock />}
+          period="Lower is better"
+        />
       </div>
 
       {/* Daily breakdown */}
-      <ClayCard padded={false} className="p-5">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-[15px] font-semibold text-foreground">Daily Breakdown</h2>
-          {isPending && <LuLoader className="h-4 w-4 animate-spin text-muted-foreground" />}
-        </div>
-        {rows.length === 0 && !isPending && (
-          <p className="py-8 text-center text-[13px] text-muted-foreground">No data for this period.</p>
-        )}
-        {rows.length > 0 && (
-          <>
-            <div className="mb-5 h-[240px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={rows} margin={{ top: 5, right: 12, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" />
-                  <XAxis dataKey="date" stroke="#a1a1aa" tick={{ fontSize: 10 }} />
-                  <YAxis stroke="#a1a1aa" tick={{ fontSize: 10 }} />
-                  <Tooltip />
-                  <Legend wrapperStyle={{ fontSize: 11 }} />
-                  <Line type="monotone" dataKey="outgoing" stroke="#18181b" strokeWidth={2} dot={false} name="Outgoing" />
-                  <Line type="monotone" dataKey="incoming" stroke="#10b981" strokeWidth={2} dot={false} name="Incoming" />
-                </LineChart>
-              </ResponsiveContainer>
+      <ZoruCard>
+        <ZoruCardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <ZoruCardTitle>Daily Breakdown</ZoruCardTitle>
+              <ZoruCardDescription>
+                Outgoing vs incoming volume per day.
+              </ZoruCardDescription>
             </div>
-          <div className="space-y-2">
-            {/* Header */}
-            <div className="grid grid-cols-[110px_80px_80px_80px_1fr] gap-2 text-[11.5px] font-medium text-muted-foreground">
-              <span>Date</span><span className="text-right">Out</span><span className="text-right">In</span><span className="text-right">Total</span><span />
-            </div>
-            {rows.map((r) => {
-              const total = r.outgoing + r.incoming;
-              return (
-                <div key={r.date} className="grid grid-cols-[110px_80px_80px_80px_1fr] items-center gap-2 text-[13px] text-foreground">
-                  <span className="font-medium">{r.date}</span>
-                  <span className="text-right">{r.outgoing}</span>
-                  <span className="text-right">{r.incoming}</span>
-                  <span className="text-right font-semibold">{total}</span>
-                  <div className="h-5 w-full overflow-hidden rounded-full bg-secondary">
-                    <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${(total / maxTotal) * 100}%` }} />
-                  </div>
-                </div>
-              );
-            })}
+            {isPending && (
+              <Loader2 className="h-4 w-4 animate-spin text-zoru-ink-muted" />
+            )}
           </div>
-          </>
-        )}
-      </ClayCard>
+        </ZoruCardHeader>
+        <ZoruCardContent>
+          {isPending && rows.length === 0 ? (
+            <div className="space-y-3">
+              <ZoruSkeleton className="h-[240px] w-full" />
+              <ZoruSkeleton className="h-8 w-full" />
+              <ZoruSkeleton className="h-8 w-full" />
+              <ZoruSkeleton className="h-8 w-full" />
+            </div>
+          ) : rows.length === 0 ? (
+            <ZoruEmptyState
+              icon={<Inbox />}
+              title="No data for this period"
+              description="Once messages are exchanged, daily volume will appear here."
+            />
+          ) : (
+            <>
+              <ZoruChartContainer height={240}>
+                <ZoruChart.LineChart
+                  data={rows}
+                  margin={{ top: 5, right: 12, left: 0, bottom: 0 }}
+                >
+                  <ZoruChart.CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="hsl(var(--zoru-line))"
+                  />
+                  <ZoruChart.XAxis
+                    dataKey="date"
+                    tick={{ fontSize: 11, fill: 'hsl(var(--zoru-ink-muted))' }}
+                    tickLine={false}
+                    axisLine={{ stroke: 'hsl(var(--zoru-line))' }}
+                  />
+                  <ZoruChart.YAxis
+                    tick={{ fontSize: 11, fill: 'hsl(var(--zoru-ink-muted))' }}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
+                  <ZoruChart.Legend wrapperStyle={{ fontSize: 11 }} />
+                  <ZoruChart.Line
+                    type="monotone"
+                    dataKey="outgoing"
+                    name="Outgoing"
+                    stroke={ZORU_CHART_PALETTE[0]}
+                    strokeWidth={2}
+                    dot={false}
+                  />
+                  <ZoruChart.Line
+                    type="monotone"
+                    dataKey="incoming"
+                    name="Incoming"
+                    stroke={ZORU_CHART_PALETTE[2]}
+                    strokeWidth={2}
+                    strokeDasharray="4 4"
+                    dot={false}
+                  />
+                </ZoruChart.LineChart>
+              </ZoruChartContainer>
+
+              <div className="mt-5">
+                <ZoruTable>
+                  <ZoruTableHeader>
+                    <ZoruTableRow className="hover:bg-transparent">
+                      <ZoruTableHead>Date</ZoruTableHead>
+                      <ZoruTableHead className="text-right">Outgoing</ZoruTableHead>
+                      <ZoruTableHead className="text-right">Incoming</ZoruTableHead>
+                      <ZoruTableHead className="text-right">Total</ZoruTableHead>
+                    </ZoruTableRow>
+                  </ZoruTableHeader>
+                  <ZoruTableBody>
+                    {rows.map((r) => {
+                      const total = r.outgoing + r.incoming;
+                      return (
+                        <ZoruTableRow key={r.date}>
+                          <ZoruTableCell className="font-medium">{r.date}</ZoruTableCell>
+                          <ZoruTableCell className="text-right tabular-nums">
+                            {r.outgoing.toLocaleString()}
+                          </ZoruTableCell>
+                          <ZoruTableCell className="text-right tabular-nums">
+                            {r.incoming.toLocaleString()}
+                          </ZoruTableCell>
+                          <ZoruTableCell className="text-right font-semibold tabular-nums">
+                            {total.toLocaleString()}
+                          </ZoruTableCell>
+                        </ZoruTableRow>
+                      );
+                    })}
+                  </ZoruTableBody>
+                </ZoruTable>
+              </div>
+            </>
+          )}
+        </ZoruCardContent>
+      </ZoruCard>
+
+      {/* Export CSV dialog */}
+      <ZoruDialog open={exportOpen} onOpenChange={setExportOpen}>
+        <ZoruDialogContent>
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>Export analytics</ZoruDialogTitle>
+            <ZoruDialogDescription>
+              Download the daily breakdown as a CSV file ({rows.length} rows).
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
+          <ZoruDialogFooter>
+            <ZoruButton variant="ghost" onClick={() => setExportOpen(false)}>
+              Cancel
+            </ZoruButton>
+            <ZoruButton onClick={handleExport}>
+              <Download /> Download CSV
+            </ZoruButton>
+          </ZoruDialogFooter>
+        </ZoruDialogContent>
+      </ZoruDialog>
+
       <div className="h-6" />
     </div>
   );

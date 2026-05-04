@@ -1,12 +1,10 @@
 'use client';
 
 /**
- * Wachat Calls -- Logs tab.
+ * Wachat Calls — Logs tab (ZoruUI).
  *
- * Clay-styled call logs with:
- *   - KPI tiles (total, inbound, outbound, answered, missed, avg duration)
- *   - Filters: direction, status, date range, phone search
- *   - Sortable table, CSV export, refresh
+ * KPI tiles, filters, sortable table, CSV export, refresh.
+ * Per-call detail sheet for transcript / recording metadata.
  *
  * Data: crm_call_logs collection via getCallLogs().
  */
@@ -14,25 +12,43 @@
 import * as React from 'react';
 import { useEffect, useMemo, useState, useTransition, useCallback } from 'react';
 import {
-  LuArrowDownLeft,
-  LuArrowUpRight,
-  LuCheck,
-  LuClock,
-  LuLoader,
-  LuPhone,
-  LuPhoneMissed,
-  LuRefreshCw,
-  LuSearch,
-  LuX,
-  LuDownload,
-} from 'react-icons/lu';
-import { formatDistanceToNow } from 'date-fns';
+  ArrowDownLeft,
+  ArrowUpRight,
+  Check,
+  Clock,
+  Loader2,
+  Phone,
+  PhoneMissed,
+  RefreshCw,
+  Search,
+  X,
+  Download,
+} from 'lucide-react';
+import { formatDistanceToNow, format } from 'date-fns';
 
 import { getCallLogs } from '@/app/actions/calling.actions';
 import { useProject } from '@/context/project-context';
-import { useToast } from '@/hooks/use-toast';
-import { ClayButton, ClayCard } from '@/components/clay';
-import { cn } from '@/lib/utils';
+
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruEmptyState,
+  ZoruInput,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSheet,
+  ZoruSheetContent,
+  ZoruSheetDescription,
+  ZoruSheetHeader,
+  ZoruSheetTitle,
+  ZoruSkeleton,
+  cn,
+  useZoruToast,
+} from '@/components/zoruui';
 
 type CallLog = {
   _id: string;
@@ -45,20 +61,24 @@ type CallLog = {
   createdAt: string | Date;
 };
 
+function isInbound(direction?: string) {
+  return (
+    (direction || '').includes('USER_INITIATED') ||
+    (direction || '').toLowerCase() === 'inbound'
+  );
+}
+
 function DirectionPill({ direction }: { direction?: string }) {
-  const inbound = direction?.includes('USER_INITIATED') || direction?.toLowerCase() === 'inbound';
+  const inbound = isInbound(direction);
   return (
     <span
-      className={cn(
-        'inline-flex h-7 w-7 items-center justify-center rounded-full',
-        inbound ? 'bg-emerald-50 text-emerald-600' : 'bg-blue-50 text-blue-600',
-      )}
+      className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink"
       aria-label={inbound ? 'Inbound' : 'Outbound'}
     >
       {inbound ? (
-        <LuArrowDownLeft className="h-3.5 w-3.5" strokeWidth={2.25} />
+        <ArrowDownLeft className="h-3.5 w-3.5" />
       ) : (
-        <LuArrowUpRight className="h-3.5 w-3.5" strokeWidth={2.25} />
+        <ArrowUpRight className="h-3.5 w-3.5" />
       )}
     </span>
   );
@@ -66,22 +86,27 @@ function DirectionPill({ direction }: { direction?: string }) {
 
 function StatusBadge({ status }: { status?: string }) {
   const s = (status ?? '').toLowerCase();
-  const map: Record<string, { bg: string; fg: string; Icon: React.ComponentType<any>; label: string }> = {
-    completed: { bg: 'bg-emerald-50', fg: 'text-emerald-700', Icon: LuCheck, label: 'Completed' },
-    answered: { bg: 'bg-emerald-50', fg: 'text-emerald-700', Icon: LuCheck, label: 'Answered' },
-    'no-answer': { bg: 'bg-amber-50', fg: 'text-amber-700', Icon: LuPhoneMissed, label: 'No Answer' },
-    missed: { bg: 'bg-amber-50', fg: 'text-amber-700', Icon: LuPhoneMissed, label: 'Missed' },
-    failed: { bg: 'bg-rose-50', fg: 'text-rose-700', Icon: LuX, label: 'Failed' },
-    canceled: { bg: 'bg-rose-50', fg: 'text-rose-700', Icon: LuX, label: 'Cancelled' },
-    cancelled: { bg: 'bg-rose-50', fg: 'text-rose-700', Icon: LuX, label: 'Cancelled' },
+  type Variant = 'success' | 'warning' | 'danger' | 'ghost';
+  const map: Record<
+    string,
+    { variant: Variant; Icon: React.ComponentType<{ className?: string }>; label: string }
+  > = {
+    completed: { variant: 'success', Icon: Check, label: 'Completed' },
+    answered: { variant: 'success', Icon: Check, label: 'Answered' },
+    'no-answer': { variant: 'warning', Icon: PhoneMissed, label: 'No Answer' },
+    missed: { variant: 'warning', Icon: PhoneMissed, label: 'Missed' },
+    failed: { variant: 'danger', Icon: X, label: 'Failed' },
+    canceled: { variant: 'danger', Icon: X, label: 'Cancelled' },
+    cancelled: { variant: 'danger', Icon: X, label: 'Cancelled' },
   };
-  const entry = map[s] ?? { bg: 'bg-muted', fg: 'text-muted-foreground', Icon: LuClock, label: status || 'Unknown' };
-  const { bg, fg, Icon, label } = entry;
+  const entry =
+    map[s] ?? { variant: 'ghost' as Variant, Icon: Clock, label: status || 'Unknown' };
+  const { variant, Icon, label } = entry;
   return (
-    <span className={cn('inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium capitalize', bg, fg)}>
-      <Icon className="h-3 w-3" strokeWidth={2} />
+    <ZoruBadge variant={variant} className="capitalize">
+      <Icon className="h-3 w-3" />
       {label}
-    </span>
+    </ZoruBadge>
   );
 }
 
@@ -105,7 +130,9 @@ function downloadCsv(rows: CallLog[]) {
         r.status ?? '',
         r.duration ?? 0,
         r.callId ?? '',
-        typeof r.createdAt === 'string' ? r.createdAt : new Date(r.createdAt).toISOString(),
+        typeof r.createdAt === 'string'
+          ? r.createdAt
+          : new Date(r.createdAt).toISOString(),
       ]
         .map((v) => `"${String(v).replace(/"/g, '""')}"`)
         .join(','),
@@ -124,7 +151,7 @@ function downloadCsv(rows: CallLog[]) {
 
 export default function CallLogsPage() {
   const { activeProjectId } = useProject();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [logs, setLogs] = useState<CallLog[]>([]);
   const [isLoading, startTransition] = useTransition();
 
@@ -133,6 +160,7 @@ export default function CallLogsPage() {
   const [status, setStatus] = useState<string>('all');
   const [fromDate, setFromDate] = useState<string>('');
   const [toDate, setToDate] = useState<string>('');
+  const [detailLog, setDetailLog] = useState<CallLog | null>(null);
 
   const fetchData = useCallback(
     (silent = false) => {
@@ -141,9 +169,15 @@ export default function CallLogsPage() {
         try {
           const data = await getCallLogs(activeProjectId);
           setLogs((data as unknown as CallLog[]) || []);
-          if (!silent) toast({ title: 'Refreshed', description: `${data?.length ?? 0} calls loaded.` });
-        } catch (err: any) {
-          toast({ title: 'Error', description: err?.message || 'Failed to load call logs.', variant: 'destructive' });
+          if (!silent)
+            toast({
+              title: 'Refreshed',
+              description: `${data?.length ?? 0} calls loaded.`,
+            });
+        } catch (err: unknown) {
+          const message =
+            err instanceof Error ? err.message : 'Failed to load call logs.';
+          toast({ title: 'Error', description: message, variant: 'destructive' });
         }
       });
     },
@@ -159,14 +193,17 @@ export default function CallLogsPage() {
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     const from = fromDate ? new Date(fromDate).getTime() : null;
-    const to = toDate ? new Date(toDate).getTime() + 24 * 60 * 60 * 1000 : null;
+    const to = toDate
+      ? new Date(toDate).getTime() + 24 * 60 * 60 * 1000
+      : null;
     return logs.filter((l) => {
       if (direction !== 'all') {
-        const inbound = (l.direction || '').includes('USER_INITIATED') || (l.direction || '').toLowerCase() === 'inbound';
+        const inbound = isInbound(l.direction);
         if (direction === 'inbound' && !inbound) return false;
         if (direction === 'outbound' && inbound) return false;
       }
-      if (status !== 'all' && (l.status || '').toLowerCase() !== status) return false;
+      if (status !== 'all' && (l.status || '').toLowerCase() !== status)
+        return false;
       if (q) {
         const hay = `${l.from || ''} ${l.to || ''} ${l.callId || ''}`.toLowerCase();
         if (!hay.includes(q)) return false;
@@ -183,11 +220,17 @@ export default function CallLogsPage() {
   /* ── KPIs derived from ALL logs (not filtered) ─────────── */
   const kpis = useMemo(() => {
     const total = logs.length;
-    const inbound = logs.filter((l) => (l.direction || '').includes('USER_INITIATED') || (l.direction || '').toLowerCase() === 'inbound').length;
+    const inbound = logs.filter((l) => isInbound(l.direction)).length;
     const outbound = total - inbound;
-    const answered = logs.filter((l) => ['completed', 'answered'].includes((l.status || '').toLowerCase())).length;
-    const missed = logs.filter((l) => ['no-answer', 'missed'].includes((l.status || '').toLowerCase())).length;
-    const failed = logs.filter((l) => ['failed', 'canceled', 'cancelled'].includes((l.status || '').toLowerCase())).length;
+    const answered = logs.filter((l) =>
+      ['completed', 'answered'].includes((l.status || '').toLowerCase()),
+    ).length;
+    const missed = logs.filter((l) =>
+      ['no-answer', 'missed'].includes((l.status || '').toLowerCase()),
+    ).length;
+    const failed = logs.filter((l) =>
+      ['failed', 'canceled', 'cancelled'].includes((l.status || '').toLowerCase()),
+    ).length;
     const totalDuration = logs.reduce((s, l) => s + (l.duration || 0), 0);
     const avg = total > 0 ? Math.round(totalDuration / total) : 0;
     return { total, inbound, outbound, answered, missed, failed, avg };
@@ -201,79 +244,85 @@ export default function CallLogsPage() {
 
   if (!activeProjectId) {
     return (
-      <ClayCard className="p-10 text-center">
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
-          <LuPhone className="h-5 w-5" strokeWidth={1.5} />
-        </div>
-        <h2 className="mt-4 text-[16px] font-semibold text-foreground">No project selected</h2>
-        <p className="mx-auto mt-1.5 max-w-[360px] text-[12.5px] text-muted-foreground">
-          Select a project from the home screen to view its call logs.
-        </p>
-      </ClayCard>
+      <ZoruEmptyState
+        icon={<Phone />}
+        title="No project selected"
+        description="Select a project from the home screen to view its call logs."
+      />
     );
   }
+
+  const filtersActive =
+    search || direction !== 'all' || status !== 'all' || fromDate || toDate;
 
   return (
     <div className="flex flex-col gap-6">
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
         <Kpi label="Total calls" value={kpis.total.toLocaleString()} />
-        <Kpi label="Inbound" value={kpis.inbound.toLocaleString()} accent="emerald" />
-        <Kpi label="Outbound" value={kpis.outbound.toLocaleString()} accent="blue" />
-        <Kpi label="Answered" value={kpis.answered.toLocaleString()} accent="emerald" />
-        <Kpi label="Missed / failed" value={(kpis.missed + kpis.failed).toLocaleString()} accent="rose" />
+        <Kpi label="Inbound" value={kpis.inbound.toLocaleString()} />
+        <Kpi label="Outbound" value={kpis.outbound.toLocaleString()} />
+        <Kpi label="Answered" value={kpis.answered.toLocaleString()} />
+        <Kpi
+          label="Missed / failed"
+          value={(kpis.missed + kpis.failed).toLocaleString()}
+        />
         <Kpi label="Avg duration" value={formatDuration(kpis.avg)} />
       </div>
 
       {/* Filter bar */}
-      <ClayCard padded={false} className="p-4">
+      <ZoruCard className="p-4">
         <div className="flex flex-wrap items-center gap-2">
-          <div className="relative min-w-[220px] flex-1">
-            <LuSearch className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" strokeWidth={1.75} />
-            <input
+          <div className="min-w-[220px] flex-1">
+            <ZoruInput
               type="text"
               placeholder="Search by phone or Call SID..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="h-9 w-full rounded-[10px] border border-border bg-card pl-9 pr-3 text-[13px] text-foreground placeholder:text-muted-foreground focus:border-border focus:outline-none"
+              leadingSlot={<Search />}
             />
           </div>
-          <select
+          <ZoruSelect
             value={direction}
-            onChange={(e) => setDirection(e.target.value as typeof direction)}
-            className="h-9 rounded-[10px] border border-border bg-card px-3 text-[13px] text-foreground focus:border-border focus:outline-none"
+            onValueChange={(v) => setDirection(v as typeof direction)}
           >
-            <option value="all">All directions</option>
-            <option value="inbound">Inbound</option>
-            <option value="outbound">Outbound</option>
-          </select>
-          <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            className="h-9 rounded-[10px] border border-border bg-card px-3 text-[13px] text-foreground capitalize focus:border-border focus:outline-none"
-          >
-            {statusOptions.map((s) => (
-              <option key={s} value={s}>
-                {s === 'all' ? 'All statuses' : s}
-              </option>
-            ))}
-          </select>
-          <input
+            <ZoruSelectTrigger className="h-9 w-[160px]">
+              <ZoruSelectValue placeholder="All directions" />
+            </ZoruSelectTrigger>
+            <ZoruSelectContent>
+              <ZoruSelectItem value="all">All directions</ZoruSelectItem>
+              <ZoruSelectItem value="inbound">Inbound</ZoruSelectItem>
+              <ZoruSelectItem value="outbound">Outbound</ZoruSelectItem>
+            </ZoruSelectContent>
+          </ZoruSelect>
+          <ZoruSelect value={status} onValueChange={setStatus}>
+            <ZoruSelectTrigger className="h-9 w-[160px] capitalize">
+              <ZoruSelectValue placeholder="All statuses" />
+            </ZoruSelectTrigger>
+            <ZoruSelectContent>
+              {statusOptions.map((s) => (
+                <ZoruSelectItem key={s} value={s} className="capitalize">
+                  {s === 'all' ? 'All statuses' : s}
+                </ZoruSelectItem>
+              ))}
+            </ZoruSelectContent>
+          </ZoruSelect>
+          <ZoruInput
             type="date"
             value={fromDate}
             onChange={(e) => setFromDate(e.target.value)}
-            className="h-9 rounded-[10px] border border-border bg-card px-3 text-[13px] text-foreground focus:border-border focus:outline-none"
             aria-label="From date"
+            className="w-[150px]"
           />
-          <input
+          <ZoruInput
             type="date"
             value={toDate}
             onChange={(e) => setToDate(e.target.value)}
-            className="h-9 rounded-[10px] border border-border bg-card px-3 text-[13px] text-foreground focus:border-border focus:outline-none"
             aria-label="To date"
+            className="w-[150px]"
           />
-          {(search || direction !== 'all' || status !== 'all' || fromDate || toDate) && (
-            <ClayButton
+          {filtersActive ? (
+            <ZoruButton
               variant="ghost"
               size="sm"
               onClick={() => {
@@ -285,62 +334,66 @@ export default function CallLogsPage() {
               }}
             >
               Clear
-            </ClayButton>
-          )}
+            </ZoruButton>
+          ) : null}
           <div className="ml-auto flex items-center gap-2">
-            <ClayButton
-              variant="pill"
+            <ZoruButton
+              variant="outline"
               size="sm"
-              leading={<LuDownload className="h-3.5 w-3.5" strokeWidth={2} />}
               onClick={() => downloadCsv(filtered)}
               disabled={filtered.length === 0}
             >
-              Export CSV
-            </ClayButton>
-            <ClayButton
-              variant="pill"
+              <Download /> Export CSV
+            </ZoruButton>
+            <ZoruButton
+              variant="outline"
               size="sm"
-              leading={isLoading ? <LuLoader className="h-3.5 w-3.5 animate-spin" /> : <LuRefreshCw className="h-3.5 w-3.5" strokeWidth={2} />}
               onClick={() => fetchData(false)}
               disabled={isLoading}
             >
+              {isLoading ? (
+                <Loader2 className="animate-spin" />
+              ) : (
+                <RefreshCw />
+              )}
               Refresh
-            </ClayButton>
+            </ZoruButton>
           </div>
         </div>
-        <div className="mt-3 flex items-center gap-2 border-t border-border pt-3 text-[11.5px] text-muted-foreground">
+        <div className="mt-3 flex items-center gap-2 border-t border-zoru-line pt-3 text-[11.5px] text-zoru-ink-muted">
           <span>{filtered.length}</span>
           <span>of</span>
           <span>{logs.length} calls</span>
         </div>
-      </ClayCard>
+      </ZoruCard>
 
       {/* Table */}
-      <ClayCard padded={false} className="overflow-hidden">
+      <ZoruCard className="overflow-hidden p-0">
         {isLoading && logs.length === 0 ? (
-          <div className="flex h-40 items-center justify-center">
-            <LuLoader className="h-5 w-5 animate-spin text-muted-foreground" />
+          <div className="flex flex-col gap-2 p-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <ZoruSkeleton key={i} className="h-10" />
+            ))}
           </div>
         ) : filtered.length === 0 ? (
-          <div className="flex flex-col items-center gap-2 px-4 py-14 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
-              <LuPhone className="h-5 w-5" strokeWidth={1.5} />
-            </div>
-            <div className="text-[13px] font-semibold text-foreground">
-              {logs.length === 0 ? 'No calls yet' : 'No calls match your filters'}
-            </div>
-            <div className="max-w-[360px] text-[11.5px] text-muted-foreground">
-              {logs.length === 0
+          <ZoruEmptyState
+            icon={<Phone />}
+            className="border-0"
+            title={
+              logs.length === 0 ? 'No calls yet' : 'No calls match your filters'
+            }
+            description={
+              logs.length === 0
                 ? 'Call logs will appear here once your WhatsApp Business Calling is enabled and active.'
-                : 'Try adjusting your search or clearing the filters.'}
-            </div>
-          </div>
+                : 'Try adjusting your search or clearing the filters.'
+            }
+          />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-[13px]">
-              <thead className="bg-secondary border-b border-border text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              <thead className="border-b border-zoru-line bg-zoru-surface text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                 <tr>
-                  <th className="px-4 py-3 text-left w-10" />
+                  <th className="w-10 px-4 py-3 text-left" />
                   <th className="px-4 py-3 text-left">From</th>
                   <th className="px-4 py-3 text-left">To</th>
                   <th className="px-4 py-3 text-left">Duration</th>
@@ -349,56 +402,131 @@ export default function CallLogsPage() {
                   <th className="px-4 py-3 text-left">Call SID</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border">
+              <tbody className="divide-y divide-zoru-line">
                 {filtered.map((log) => (
-                  <tr key={log._id} className="transition-colors hover:bg-secondary">
+                  <tr
+                    key={log._id}
+                    className={cn(
+                      'cursor-pointer transition-colors hover:bg-zoru-surface',
+                    )}
+                    onClick={() => setDetailLog(log)}
+                  >
                     <td className="px-4 py-3">
                       <DirectionPill direction={log.direction} />
                     </td>
-                    <td className="px-4 py-3 font-mono text-[12px] text-foreground">{log.from || '—'}</td>
-                    <td className="px-4 py-3 font-mono text-[12px] text-foreground">{log.to || '—'}</td>
-                    <td className="px-4 py-3 tabular-nums text-foreground">{formatDuration(log.duration)}</td>
+                    <td className="px-4 py-3 font-mono text-[12px] text-zoru-ink">
+                      {log.from || '—'}
+                    </td>
+                    <td className="px-4 py-3 font-mono text-[12px] text-zoru-ink">
+                      {log.to || '—'}
+                    </td>
+                    <td className="px-4 py-3 tabular-nums text-zoru-ink">
+                      {formatDuration(log.duration)}
+                    </td>
                     <td className="px-4 py-3">
                       <StatusBadge status={log.status} />
                     </td>
-                    <td className="px-4 py-3 text-[12px] text-muted-foreground whitespace-nowrap">
-                      {log.createdAt ? formatDistanceToNow(new Date(log.createdAt), { addSuffix: true }) : '—'}
+                    <td className="whitespace-nowrap px-4 py-3 text-[12px] text-zoru-ink-muted">
+                      {log.createdAt
+                        ? formatDistanceToNow(new Date(log.createdAt), {
+                            addSuffix: true,
+                          })
+                        : '—'}
                     </td>
-                    <td className="px-4 py-3 font-mono text-[11px] text-muted-foreground">{log.callId || '—'}</td>
+                    <td className="px-4 py-3 font-mono text-[11px] text-zoru-ink-muted">
+                      {log.callId || '—'}
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         )}
-      </ClayCard>
+      </ZoruCard>
+
+      {/* Per-call detail sheet (transcript / recording metadata) */}
+      <ZoruSheet
+        open={detailLog !== null}
+        onOpenChange={(open) => {
+          if (!open) setDetailLog(null);
+        }}
+      >
+        <ZoruSheetContent side="right" className="w-full max-w-md">
+          <ZoruSheetHeader>
+            <ZoruSheetTitle>Call detail</ZoruSheetTitle>
+            <ZoruSheetDescription>
+              Transcript and recording metadata for this call.
+            </ZoruSheetDescription>
+          </ZoruSheetHeader>
+          {detailLog ? (
+            <div className="mt-6 flex flex-col gap-4">
+              <DetailRow label="Direction">
+                {isInbound(detailLog.direction) ? 'Inbound' : 'Outbound'}
+              </DetailRow>
+              <DetailRow label="From">
+                <span className="font-mono">{detailLog.from || '—'}</span>
+              </DetailRow>
+              <DetailRow label="To">
+                <span className="font-mono">{detailLog.to || '—'}</span>
+              </DetailRow>
+              <DetailRow label="Status">
+                <StatusBadge status={detailLog.status} />
+              </DetailRow>
+              <DetailRow label="Duration">
+                {formatDuration(detailLog.duration)}
+              </DetailRow>
+              <DetailRow label="When">
+                {detailLog.createdAt
+                  ? format(
+                      new Date(detailLog.createdAt),
+                      'PPpp',
+                    )
+                  : '—'}
+              </DetailRow>
+              <DetailRow label="Call SID">
+                <span className="font-mono break-all">
+                  {detailLog.callId || '—'}
+                </span>
+              </DetailRow>
+              <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface p-4 text-[12px] text-zoru-ink-muted">
+                Recording and transcript playback are not yet available for this
+                call. They will appear here once Meta exposes them via the
+                Calling API.
+              </div>
+            </div>
+          ) : null}
+        </ZoruSheetContent>
+      </ZoruSheet>
     </div>
   );
 }
 
 /* ── KPI tile ───────────────────────────────────────────────────── */
 
-function Kpi({
-  label,
-  value,
-  accent = 'neutral',
-}: {
-  label: string;
-  value: string;
-  accent?: 'neutral' | 'emerald' | 'blue' | 'rose';
-}) {
-  const tint: Record<typeof accent, string> = {
-    neutral: 'text-foreground',
-    emerald: 'text-emerald-700',
-    blue: 'text-blue-700',
-    rose: 'text-rose-700',
-  };
+function Kpi({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-[14px] border border-border bg-card p-4">
-      <div className="text-[10.5px] font-medium uppercase tracking-wide text-muted-foreground">{label}</div>
-      <div className={cn('mt-2 text-[22px] font-semibold tracking-[-0.01em] leading-none tabular-nums', tint[accent])}>
+    <div className="rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-4">
+      <div className="text-[10.5px] uppercase tracking-wide text-zoru-ink-muted">
+        {label}
+      </div>
+      <div className="mt-2 text-[22px] tracking-[-0.01em] leading-none tabular-nums text-zoru-ink">
         {value}
       </div>
+    </div>
+  );
+}
+
+function DetailRow({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-start justify-between gap-4 border-b border-zoru-line pb-3 text-[13px]">
+      <span className="text-zoru-ink-muted">{label}</span>
+      <span className="text-right text-zoru-ink">{children}</span>
     </div>
   );
 }

@@ -1,0 +1,32 @@
+# Build artefacts — must never be shipped into the build context, they would
+# invalidate cargo-chef's recipe-based caching and balloon the image.
+target/
+**/target/
+
+# VCS / editor noise
+.git/
+.gitignore
+.github/
+.idea/
+.vscode/
+
+# Node / Next.js side of the monorepo (not part of the Rust build context).
+node_modules/
+.next/
+out/
+dist/
+
+# Local env files — secrets MUST be passed via Docker `--env-file` or runtime.
+.env
+.env.*
+!.env.example
+
+# Documentation & misc
+*.md
+docs/
+LICENSE
+LICENSE-*
+
+# OS
+.DS_Store
+Thumbs.db

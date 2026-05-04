@@ -1,26 +1,75 @@
 'use client';
 
 /**
- * Wachat Template Analytics — view delivery and read metrics per template,
- * built on Clay primitives.
+ * Wachat Template Analytics — view delivery and read metrics per
+ * template, rebuilt on ZoruUI primitives. Greyscale chart palette.
  */
 
 import * as React from 'react';
-import { useEffect, useState, useTransition, useCallback } from 'react';
-import { LuChartBar, LuLoader, LuRefreshCw } from 'react-icons/lu';
-import { useProject } from '@/context/project-context';
-import { useToast } from '@/hooks/use-toast';
-import { ClayBreadcrumbs, ClayButton, ClayCard } from '@/components/clay';
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from '@/components/ui/table';
-import { getTemplateAnalytics } from '@/app/actions/wachat-features.actions';
-import { cn } from '@/lib/utils';
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+  useCallback,
+} from 'react';
+import {
+  BarChart3,
+  Loader2,
+  RefreshCw,
+  Send,
+  CircleCheck,
+  Eye,
+  CircleX,
+} from 'lucide-react';
 
-function rateColor(rate: number): string {
-  if (rate >= 80) return 'text-green-600';
-  if (rate >= 50) return 'text-amber-600';
-  return 'text-red-600';
+import { useProject } from '@/context/project-context';
+import { getTemplateAnalytics } from '@/app/actions/wachat-features.actions';
+
+import {
+  ZORU_CHART_PALETTE,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruChart,
+  ZoruChartContainer,
+  ZoruChartTooltip,
+  ZoruEmptyState,
+  ZoruPageActions,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruSkeleton,
+  ZoruStatCard,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  cn,
+  useZoruToast,
+} from '@/components/zoruui';
+
+type AnalyticsRow = {
+  _id?: string;
+  sent?: number;
+  delivered?: number;
+  read?: number;
+  failed?: number;
+};
+
+function rateClass(rate: number): string {
+  if (rate >= 80) return 'text-zoru-success';
+  if (rate >= 50) return 'text-zoru-warning';
+  return 'text-zoru-danger';
 }
 
 function pct(num: number, den: number): number {
@@ -30,10 +79,10 @@ function pct(num: number, den: number): number {
 
 export default function TemplateAnalyticsPage() {
   const { activeProject } = useProject();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const projectId = activeProject?._id?.toString();
 
-  const [analytics, setAnalytics] = useState<any[]>([]);
+  const [analytics, setAnalytics] = useState<AnalyticsRow[]>([]);
   const [isLoading, startLoading] = useTransition();
 
   const fetchAnalytics = useCallback(
@@ -41,11 +90,18 @@ export default function TemplateAnalyticsPage() {
       startLoading(async () => {
         const res = await getTemplateAnalytics(pid);
         if (res.error) {
-          toast({ title: 'Error', description: res.error, variant: 'destructive' });
+          toast({
+            title: 'Error',
+            description: res.error,
+            variant: 'destructive',
+          });
         } else {
           setAnalytics(res.analytics || []);
           if (showToast) {
-            toast({ title: 'Refreshed', description: 'Analytics data updated.' });
+            toast({
+              title: 'Refreshed',
+              description: 'Analytics data updated.',
+            });
           }
         }
       });
@@ -57,122 +113,248 @@ export default function TemplateAnalyticsPage() {
     if (projectId) fetchAnalytics(projectId);
   }, [projectId, fetchAnalytics]);
 
-  const totalSent = analytics.reduce((s, a) => s + (a.sent || 0), 0);
-  const totalDelivered = analytics.reduce((s, a) => s + (a.delivered || 0), 0);
-  const totalRead = analytics.reduce((s, a) => s + (a.read || 0), 0);
-  const totalFailed = analytics.reduce((s, a) => s + (a.failed || 0), 0);
+  const totals = useMemo(() => {
+    const totalSent = analytics.reduce((s, a) => s + (a.sent || 0), 0);
+    const totalDelivered = analytics.reduce(
+      (s, a) => s + (a.delivered || 0),
+      0,
+    );
+    const totalRead = analytics.reduce((s, a) => s + (a.read || 0), 0);
+    const totalFailed = analytics.reduce((s, a) => s + (a.failed || 0), 0);
+    return { totalSent, totalDelivered, totalRead, totalFailed };
+  }, [analytics]);
+
+  const chartData = useMemo(
+    () =>
+      analytics.slice(0, 10).map((row) => ({
+        name: (row._id || 'Unknown').slice(0, 18),
+        Sent: row.sent || 0,
+        Delivered: row.delivered || 0,
+        Read: row.read || 0,
+      })),
+    [analytics],
+  );
 
   return (
-    <div className="clay-enter flex min-h-full flex-col gap-6">
-      <ClayBreadcrumbs
-        items={[
-          { label: 'Wachat', href: '/dashboard' },
-          { label: activeProject?.name || 'Project', href: '/wachat' },
-          { label: 'Template Analytics' },
-        ]}
-      />
+    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/wachat/templates">
+              Templates
+            </ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Analytics</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
 
-      <div className="flex items-center justify-between gap-6">
-        <div className="min-w-0">
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
-            Template Analytics
-          </h1>
-          <p className="mt-1.5 text-[13px] text-muted-foreground">
-            Track delivery, read, and failure rates for your WhatsApp message templates.
-          </p>
-        </div>
-        <ClayButton
-          variant="pill"
-          size="md"
-          leading={<LuRefreshCw className="h-3.5 w-3.5" strokeWidth={2} />}
-          onClick={() => projectId && fetchAnalytics(projectId, true)}
-          disabled={!projectId || isLoading}
-        >
-          {isLoading ? 'Refreshing...' : 'Refresh'}
-        </ClayButton>
-      </div>
+      <ZoruPageHeader bordered={false}>
+        <ZoruPageHeading>
+          <ZoruPageTitle>Template analytics</ZoruPageTitle>
+          <ZoruPageDescription>
+            Track delivery, read, and failure rates for your WhatsApp message
+            templates.
+          </ZoruPageDescription>
+        </ZoruPageHeading>
+        <ZoruPageActions>
+          <ZoruButton
+            variant="outline"
+            size="sm"
+            onClick={() => projectId && fetchAnalytics(projectId, true)}
+            disabled={!projectId || isLoading}
+          >
+            <RefreshCw className={isLoading ? 'animate-spin' : ''} />
+            {isLoading ? 'Refreshing…' : 'Refresh'}
+          </ZoruButton>
+        </ZoruPageActions>
+      </ZoruPageHeader>
 
-      {/* Summary stats */}
+      {/* KPI strip */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <div className="rounded-[14px] border border-border bg-card p-4">
-          <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Total Sent</div>
-          <div className="mt-2 text-[22px] font-semibold text-foreground leading-none">{totalSent.toLocaleString()}</div>
-        </div>
-        <div className="rounded-[14px] border border-border bg-card p-4">
-          <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Delivered</div>
-          <div className="mt-2 text-[22px] font-semibold text-foreground leading-none">{totalDelivered.toLocaleString()}</div>
-        </div>
-        <div className="rounded-[14px] border border-border bg-card p-4">
-          <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Read</div>
-          <div className="mt-2 text-[22px] font-semibold text-foreground leading-none">{totalRead.toLocaleString()}</div>
-        </div>
-        <div className="rounded-[14px] border border-border bg-card p-4">
-          <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Failed</div>
-          <div className="mt-2 text-[22px] font-semibold text-foreground leading-none">{totalFailed.toLocaleString()}</div>
-        </div>
+        <ZoruStatCard
+          label="Total sent"
+          value={totals.totalSent.toLocaleString()}
+          icon={<Send />}
+        />
+        <ZoruStatCard
+          label="Delivered"
+          value={totals.totalDelivered.toLocaleString()}
+          icon={<CircleCheck />}
+        />
+        <ZoruStatCard
+          label="Read"
+          value={totals.totalRead.toLocaleString()}
+          icon={<Eye />}
+        />
+        <ZoruStatCard
+          label="Failed"
+          value={totals.totalFailed.toLocaleString()}
+          icon={<CircleX />}
+        />
       </div>
 
-      {/* Analytics table */}
-      <ClayCard padded={false} className="p-6">
-        {isLoading && analytics.length === 0 ? (
-          <div className="flex h-20 items-center justify-center">
-            <LuLoader className="h-5 w-5 animate-spin text-muted-foreground" strokeWidth={1.75} />
-          </div>
-        ) : analytics.length === 0 ? (
-          <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-border bg-secondary px-4 py-10 text-center">
-            <LuChartBar className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
-            <div className="text-[13px] font-semibold text-foreground">No analytics data</div>
-            <div className="text-[11.5px] text-muted-foreground">
-              Send template messages to start collecting delivery metrics.
+      {/* Engagement chart */}
+      <ZoruCard>
+        <ZoruCardContent className="pt-6">
+          <div className="mb-4 flex items-center justify-between">
+            <div>
+              <h3 className="text-[15px] font-semibold text-zoru-ink">
+                Engagement by template
+              </h3>
+              <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+                Top 10 templates by send volume
+              </p>
             </div>
           </div>
-        ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Template Name</TableHead>
-                <TableHead className="text-right">Sent</TableHead>
-                <TableHead className="text-right">Delivered</TableHead>
-                <TableHead className="text-right">Read</TableHead>
-                <TableHead className="text-right">Failed</TableHead>
-                <TableHead className="text-right">Delivery %</TableHead>
-                <TableHead className="text-right">Read %</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {analytics.map((row) => {
-                const deliveryRate = pct(row.delivered, row.sent);
-                const readRate = pct(row.read, row.sent);
-                return (
-                  <TableRow key={row._id || 'unknown'}>
-                    <TableCell className="font-medium text-[13px]">
-                      {row._id || 'Unknown'}
-                    </TableCell>
-                    <TableCell className="text-right text-[13px] tabular-nums">
-                      {(row.sent || 0).toLocaleString()}
-                    </TableCell>
-                    <TableCell className="text-right text-[13px] tabular-nums">
-                      {(row.delivered || 0).toLocaleString()}
-                    </TableCell>
-                    <TableCell className="text-right text-[13px] tabular-nums">
-                      {(row.read || 0).toLocaleString()}
-                    </TableCell>
-                    <TableCell className="text-right text-[13px] tabular-nums">
-                      {(row.failed || 0).toLocaleString()}
-                    </TableCell>
-                    <TableCell className={cn('text-right text-[13px] font-semibold tabular-nums', rateColor(deliveryRate))}>
-                      {deliveryRate}%
-                    </TableCell>
-                    <TableCell className={cn('text-right text-[13px] font-semibold tabular-nums', rateColor(readRate))}>
-                      {readRate}%
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        )}
-      </ClayCard>
+          {isLoading && analytics.length === 0 ? (
+            <ZoruSkeleton className="h-[280px] w-full" />
+          ) : chartData.length === 0 ? (
+            <ZoruEmptyState
+              compact
+              icon={<BarChart3 />}
+              title="No engagement data"
+              description="Send template messages to begin collecting metrics."
+            />
+          ) : (
+            <ZoruChartContainer height={280}>
+              <ZoruChart.BarChart data={chartData}>
+                <ZoruChart.CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="hsl(var(--zoru-line))"
+                />
+                <ZoruChart.XAxis
+                  dataKey="name"
+                  stroke="hsl(var(--zoru-ink-muted))"
+                  fontSize={11}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <ZoruChart.YAxis
+                  stroke="hsl(var(--zoru-ink-muted))"
+                  fontSize={11}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <ZoruChart.Tooltip
+                  content={(props: any) => <ZoruChartTooltip {...props} />}
+                  cursor={{ fill: 'hsl(var(--zoru-surface))' }}
+                />
+                <ZoruChart.Legend
+                  iconType="circle"
+                  wrapperStyle={{ fontSize: 11 }}
+                />
+                <ZoruChart.Bar
+                  dataKey="Sent"
+                  fill={ZORU_CHART_PALETTE[0]}
+                  radius={[4, 4, 0, 0]}
+                />
+                <ZoruChart.Bar
+                  dataKey="Delivered"
+                  fill={ZORU_CHART_PALETTE[1]}
+                  radius={[4, 4, 0, 0]}
+                />
+                <ZoruChart.Bar
+                  dataKey="Read"
+                  fill={ZORU_CHART_PALETTE[2]}
+                  radius={[4, 4, 0, 0]}
+                />
+              </ZoruChart.BarChart>
+            </ZoruChartContainer>
+          )}
+        </ZoruCardContent>
+      </ZoruCard>
+
+      {/* Per-template table */}
+      <ZoruCard>
+        <ZoruCardContent className="pt-6">
+          <div className="mb-4">
+            <h3 className="text-[15px] font-semibold text-zoru-ink">
+              Per-template breakdown
+            </h3>
+            <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+              Delivery and read rates for every template that sent messages.
+            </p>
+          </div>
+          {isLoading && analytics.length === 0 ? (
+            <div className="flex h-20 items-center justify-center">
+              <Loader2 className="h-5 w-5 animate-spin text-zoru-ink-muted" />
+            </div>
+          ) : analytics.length === 0 ? (
+            <ZoruEmptyState
+              compact
+              icon={<BarChart3 />}
+              title="No analytics data"
+              description="Send template messages to start collecting delivery metrics."
+            />
+          ) : (
+            <ZoruTable>
+              <ZoruTableHeader>
+                <ZoruTableRow>
+                  <ZoruTableHead>Template name</ZoruTableHead>
+                  <ZoruTableHead className="text-right">Sent</ZoruTableHead>
+                  <ZoruTableHead className="text-right">Delivered</ZoruTableHead>
+                  <ZoruTableHead className="text-right">Read</ZoruTableHead>
+                  <ZoruTableHead className="text-right">Failed</ZoruTableHead>
+                  <ZoruTableHead className="text-right">Delivery %</ZoruTableHead>
+                  <ZoruTableHead className="text-right">Read %</ZoruTableHead>
+                </ZoruTableRow>
+              </ZoruTableHeader>
+              <ZoruTableBody>
+                {analytics.map((row) => {
+                  const deliveryRate = pct(row.delivered || 0, row.sent || 0);
+                  const readRate = pct(row.read || 0, row.sent || 0);
+                  return (
+                    <ZoruTableRow key={row._id || 'unknown'}>
+                      <ZoruTableCell className="text-[13px] font-medium">
+                        {row._id || 'Unknown'}
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-right text-[13px] tabular-nums">
+                        {(row.sent || 0).toLocaleString()}
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-right text-[13px] tabular-nums">
+                        {(row.delivered || 0).toLocaleString()}
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-right text-[13px] tabular-nums">
+                        {(row.read || 0).toLocaleString()}
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-right text-[13px] tabular-nums">
+                        {(row.failed || 0).toLocaleString()}
+                      </ZoruTableCell>
+                      <ZoruTableCell
+                        className={cn(
+                          'text-right text-[13px] font-semibold tabular-nums',
+                          rateClass(deliveryRate),
+                        )}
+                      >
+                        {deliveryRate}%
+                      </ZoruTableCell>
+                      <ZoruTableCell
+                        className={cn(
+                          'text-right text-[13px] font-semibold tabular-nums',
+                          rateClass(readRate),
+                        )}
+                      >
+                        {readRate}%
+                      </ZoruTableCell>
+                    </ZoruTableRow>
+                  );
+                })}
+              </ZoruTableBody>
+            </ZoruTable>
+          )}
+        </ZoruCardContent>
+      </ZoruCard>
 
       <div className="h-6" />
     </div>

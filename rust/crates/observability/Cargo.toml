@@ -1,0 +1,33 @@
+[package]
+name = "sabnode-observability"
+version = "0.1.0"
+edition = "2024"
+description = "Tracing + OpenTelemetry initialisation for the SabNode Rust backend."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "sabnode_observability"
+path = "src/lib.rs"
+
+[dependencies]
+# Logging / structured tracing.
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json", "fmt"] }
+
+# OpenTelemetry bridge for the `tracing` ecosystem.
+tracing-opentelemetry = "0.28"
+
+# Core OTel SDK + OTLP exporter (HTTP/proto via reqwest).
+opentelemetry = { version = "0.27", features = ["trace"] }
+opentelemetry_sdk = { version = "0.27", features = ["rt-tokio", "trace"] }
+opentelemetry-otlp = { version = "0.27", default-features = false, features = [
+    "http-proto",
+    "reqwest-client",
+    "trace",
+] }
+opentelemetry-semantic-conventions = "0.27"
+
+# Async runtime + error handling.
+tokio = { version = "1", features = ["rt", "rt-multi-thread", "macros"] }
+anyhow = "1.0"

@@ -54,7 +54,7 @@ interface DockApp {
 
 const DOCK_APPS: DockApp[] = [
   { id: "home", name: "Home", href: "/dashboard", icon: <Home className="h-5 w-5" />, isActive: (p) => p === "/dashboard" },
-  { id: "wachat", name: "WaChat", href: "/wachat", icon: <Smartphone className="h-5 w-5" />, isActive: (p) => p === "/wachat" },
+  { id: "wachat", name: "WaChat", href: "/wachat", icon: <Smartphone className="h-5 w-5" />, isActive: (p) => p === "/wachat" || !!p?.startsWith("/wachat/") },
   { id: "sabflow", name: "SabFlow", href: "/dashboard/sabflow", icon: <Workflow className="h-5 w-5" />, isActive: (p) => !!p?.startsWith("/dashboard/sabflow") },
   { id: "facebook", name: "Meta Suite", href: "/dashboard/facebook/all-projects", icon: <Globe className="h-5 w-5" />, isActive: (p) => !!p?.startsWith("/dashboard/facebook") },
   { id: "ad-manager", name: "Ad Manager", href: "/dashboard/ad-manager/ad-accounts", icon: <Megaphone className="h-5 w-5" />, isActive: (p) => !!p?.startsWith("/dashboard/ad-manager") },

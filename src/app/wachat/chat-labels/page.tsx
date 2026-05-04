@@ -1,31 +1,50 @@
 'use client';
 
 /**
- * Wachat Chat Labels — create and manage colored labels for chat
- * organization, built on Clay primitives.
+ * /wachat/chat-labels — Manage colored labels for chat organization,
+ * rebuilt on ZoruUI primitives. Color picker uses neutral swatches only.
  */
 
 import * as React from 'react';
 import { useEffect, useState, useTransition, useCallback, useActionState } from 'react';
-import { LuTag, LuX, LuLoader, LuPlus } from 'react-icons/lu';
+import { Tag, X, Loader2, Plus } from 'lucide-react';
+
 import { useProject } from '@/context/project-context';
 import { useToast } from '@/hooks/use-toast';
-import { ClayBreadcrumbs, ClayButton, ClayCard } from '@/components/clay';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import {
   getChatLabels,
   saveChatLabel,
   deleteChatLabel,
 } from '@/app/actions/wachat-features.actions';
 
+import {
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruEmptyState,
+  ZoruBadge,
+  cn,
+} from '@/components/zoruui';
+
+/**
+ * Neutral palette swatches — labels still encode their accent color via
+ * a small dot but the palette is restricted to greys/zoru-ink shades so
+ * the surface stays palette-locked.
+ */
 const PRESET_COLORS = [
-  { name: 'Blue', value: '#3b82f6' },
-  { name: 'Green', value: '#22c55e' },
-  { name: 'Red', value: '#ef4444' },
-  { name: 'Amber', value: '#f59e0b' },
-  { name: 'Purple', value: '#a855f7' },
-  { name: 'Pink', value: '#ec4899' },
+  { name: 'Slate', value: '#475569' },
+  { name: 'Stone', value: '#78716c' },
+  { name: 'Zinc', value: '#52525b' },
+  { name: 'Graphite', value: '#1f2937' },
+  { name: 'Charcoal', value: '#0f172a' },
+  { name: 'Mist', value: '#94a3b8' },
 ];
 
 export default function ChatLabelsPage() {
@@ -81,83 +100,99 @@ export default function ChatLabelsPage() {
   };
 
   return (
-    <div className="clay-enter flex min-h-full flex-col gap-6">
-      <ClayBreadcrumbs
-        items={[
-          { label: 'Wachat', href: '/dashboard' },
-          { label: activeProject?.name || 'Project', href: '/wachat' },
-          { label: 'Chat Labels' },
-        ]}
-      />
+    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Chat Labels</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
 
       <div className="min-w-0">
-        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
+        <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
           Chat Labels
         </h1>
-        <p className="mt-1.5 text-[13px] text-muted-foreground">
-          Create colored labels to organize and categorize your WhatsApp conversations.
+        <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
+          Create labels to organize and categorize your WhatsApp conversations.
         </p>
       </div>
 
-      {/* Create form */}
-      <ClayCard padded={false} className="p-6">
-        <h2 className="text-[16px] font-semibold text-foreground mb-4">Create a label</h2>
+      <ZoruCard className="p-6">
+        <h2 className="mb-4 text-[16px] text-zoru-ink">Create a label</h2>
         <form action={formAction} className="flex flex-col gap-4">
           <input type="hidden" name="projectId" value={projectId || ''} />
           <input type="hidden" name="color" value={selectedColor} />
-          <Input name="name" placeholder="Label name" required className="max-w-sm" />
-          <div className="flex items-center gap-2">
-            <span className="text-[13px] text-muted-foreground mr-1">Color:</span>
+          <div className="flex flex-col gap-1.5">
+            <ZoruLabel htmlFor="label-name">Label name</ZoruLabel>
+            <ZoruInput
+              id="label-name"
+              name="name"
+              placeholder="Label name"
+              required
+              className="max-w-sm"
+            />
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="mr-1 text-[13px] text-zoru-ink-muted">Color:</span>
             {PRESET_COLORS.map((c) => (
               <button
                 key={c.value}
                 type="button"
                 onClick={() => setSelectedColor(c.value)}
-                className={`h-7 w-7 rounded-full border-2 transition-all ${
-                  selectedColor === c.value ? 'border-foreground scale-110' : 'border-transparent'
-                }`}
+                className={cn(
+                  'h-7 w-7 rounded-full border-2 transition-all',
+                  selectedColor === c.value
+                    ? 'scale-110 border-zoru-ink'
+                    : 'border-transparent',
+                )}
                 style={{ backgroundColor: c.value }}
                 aria-label={c.name}
               />
             ))}
           </div>
           <div>
-            <ClayButton
+            <ZoruButton
               type="submit"
-              variant="obsidian"
               size="md"
               disabled={isPending || !projectId}
-              leading={<LuPlus className="h-3.5 w-3.5" strokeWidth={2.5} />}
             >
+              <Plus />
               {isPending ? 'Saving...' : 'Create Label'}
-            </ClayButton>
+            </ZoruButton>
           </div>
         </form>
-      </ClayCard>
+      </ZoruCard>
 
-      {/* Labels list */}
-      <ClayCard padded={false} className="p-6">
-        <h2 className="text-[16px] font-semibold text-foreground mb-4">
+      <ZoruCard className="p-6">
+        <h2 className="mb-4 text-[16px] text-zoru-ink">
           Your Labels ({labels.length})
         </h2>
         {isLoading && labels.length === 0 ? (
           <div className="flex h-20 items-center justify-center">
-            <LuLoader className="h-5 w-5 animate-spin text-muted-foreground" strokeWidth={1.75} />
+            <Loader2 className="h-5 w-5 animate-spin text-zoru-ink-muted" />
           </div>
         ) : labels.length === 0 ? (
-          <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-border bg-secondary px-4 py-10 text-center">
-            <LuTag className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
-            <div className="text-[13px] font-semibold text-foreground">No labels yet</div>
-            <div className="text-[11.5px] text-muted-foreground">Create your first label above.</div>
-          </div>
+          <ZoruEmptyState
+            icon={<Tag />}
+            title="No labels yet"
+            description="Create your first label using the form above."
+            compact
+          />
         ) : (
           <div className="flex flex-wrap gap-2">
             {labels.map((label) => (
-              <Badge
+              <span
                 key={label._id}
-                variant="outline"
-                className="flex items-center gap-1.5 px-3 py-1.5 text-[13px]"
-                style={{ borderColor: label.color, color: label.color }}
+                className="inline-flex items-center gap-1.5 rounded-full border border-zoru-line bg-zoru-bg px-3 py-1.5 text-[13px] text-zoru-ink"
               >
                 <span
                   className="h-2.5 w-2.5 rounded-full"
@@ -168,16 +203,16 @@ export default function ChatLabelsPage() {
                   type="button"
                   onClick={() => handleDelete(label._id)}
                   disabled={isDeletingId === label._id}
-                  className="ml-1 rounded-full p-0.5 hover:bg-muted transition-colors"
+                  className="ml-1 rounded-full p-0.5 text-zoru-ink-muted transition-colors hover:bg-zoru-surface-2 hover:text-zoru-ink"
                   aria-label={`Delete ${label.name}`}
                 >
-                  <LuX className="h-3 w-3" />
+                  <X className="h-3 w-3" />
                 </button>
-              </Badge>
+              </span>
             ))}
           </div>
         )}
-      </ClayCard>
+      </ZoruCard>
 
       <div className="h-6" />
     </div>

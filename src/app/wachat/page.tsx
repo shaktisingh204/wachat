@@ -1,11 +1,10 @@
 'use client';
 
 /**
- * /dashboard — Wachat project selector built on Clay primitives.
+ * /wachat — WhatsApp project picker, rebuilt on ZoruUI primitives.
  *
- * Lists all connected WhatsApp Business Account projects. Selecting
- * one sets it as the active project and navigates to the overview.
- * Uses the Clay design system and sits inside the Wachat sidebar.
+ * Same project data, same select handler, same recent/health logic.
+ * Visual swap only — neutral palette, no clay-* utilities.
  */
 
 import * as React from 'react';
@@ -13,29 +12,37 @@ import { useEffect, useMemo, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
-  LuPlus,
-  LuSearch,
-  LuArrowRight,
-  LuMessageSquare,
-  LuClock,
-  LuSparkles,
-  LuRefreshCw,
-  LuWifi,
-  LuWifiOff,
-  LuChevronLeft,
-  LuChevronRight,
-} from 'react-icons/lu';
+  Plus,
+  Search,
+  ArrowRight,
+  MessageSquare,
+  Clock,
+  Sparkles,
+  Wifi,
+  WifiOff,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react';
 
-import { cn } from '@/lib/utils';
 import { useProject } from '@/context/project-context';
 import { getWabaHealthStatus } from '@/app/actions/whatsapp.actions';
 import { SyncProjectsDialog } from '@/components/wabasimplify/sync-projects-dialog';
+
 import {
-  ClayBreadcrumbs,
-  ClayButton,
-  ClayCard,
-  ClayInput,
-} from '@/components/clay';
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruBadge,
+  ZoruEmptyState,
+  ZoruSkeleton,
+  cn,
+} from '@/components/zoruui';
 
 /* ── helpers ───────────────────────────────────────────────────── */
 
@@ -55,23 +62,24 @@ function HealthPill({ status }: { status?: string }) {
   const isAmber = s === 'limited' || s === 'flagged';
   const isRed = s === 'blocked' || s === 'restricted';
 
+  let variant: 'success' | 'warning' | 'danger' | 'ghost' = 'ghost';
+  if (isGreen) variant = 'success';
+  else if (isAmber) variant = 'warning';
+  else if (isRed) variant = 'danger';
+
   return (
-    <span className={cn(
-      'inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[9.5px] font-semibold uppercase tracking-wider leading-none',
-      isGreen && 'bg-emerald-500/10 text-emerald-600',
-      isAmber && 'bg-amber-500/10 text-amber-600',
-      isRed && 'bg-red-500/10 text-red-600',
-      !isGreen && !isAmber && !isRed && 'bg-muted text-muted-foreground',
-    )}>
-      <span className={cn(
-        'h-1.5 w-1.5 rounded-full',
-        isGreen && 'bg-emerald-500',
-        isAmber && 'bg-amber-500',
-        isRed && 'bg-red-500',
-        !isGreen && !isAmber && !isRed && 'bg-muted-foreground',
-      )} />
+    <ZoruBadge variant={variant} className="text-[9.5px] uppercase tracking-wider">
+      <span
+        className={cn(
+          'h-1.5 w-1.5 rounded-full',
+          isGreen && 'bg-zoru-success',
+          isAmber && 'bg-zoru-warning',
+          isRed && 'bg-zoru-danger',
+          !isGreen && !isAmber && !isRed && 'bg-zoru-ink-muted',
+        )}
+      />
       {status}
-    </span>
+    </ZoruBadge>
   );
 }
 
@@ -81,10 +89,7 @@ function ProjectsSkeleton() {
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
       {Array.from({ length: 6 }).map((_, i) => (
-        <div
-          key={i}
-          className="h-[120px] animate-pulse rounded-xl bg-muted"
-        />
+        <ZoruSkeleton key={i} className="h-[120px]" />
       ))}
     </div>
   );
@@ -92,49 +97,44 @@ function ProjectsSkeleton() {
 
 /* ── empty state ───────────────────────────────────────────────── */
 
-function EmptyState({ query, reloadProjects }: { query: string; reloadProjects: () => Promise<void> }) {
+function EmptyState({
+  query,
+  reloadProjects,
+}: {
+  query: string;
+  reloadProjects: () => Promise<void>;
+}) {
   if (query) {
     return (
-      <ClayCard variant="soft" className="flex flex-col items-center gap-3 py-16 text-center">
-        <LuSearch className="h-8 w-8 text-muted-foreground/40" strokeWidth={1.5} />
-        <div>
-          <p className="text-[15px] font-semibold text-foreground">No projects matched</p>
-          <p className="mt-1 text-[13px] text-muted-foreground">
-            Try a different search term or clear the filter.
-          </p>
-        </div>
-      </ClayCard>
+      <ZoruEmptyState
+        icon={<Search />}
+        title="No projects matched"
+        description="Try a different search term or clear the filter."
+      />
     );
   }
 
   return (
-    <ClayCard className="flex flex-col items-center gap-5 py-16 text-center">
-      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
-        <LuSparkles className="h-7 w-7 text-primary" strokeWidth={1.75} />
-      </div>
-      <div>
-        <p className="text-[18px] font-semibold text-foreground">
-          Connect your first project
-        </p>
-        <p className="mx-auto mt-1.5 max-w-sm text-[13px] text-muted-foreground leading-relaxed">
-          Link your WhatsApp Business Account to start messaging, automating,
-          and tracking performance.
-        </p>
-      </div>
-      <div className="flex items-center gap-2.5">
-        <Link href="/dashboard/setup">
-          <ClayButton variant="obsidian" size="md">
-            <LuPlus className="mr-1.5 h-3.5 w-3.5" />
-            Connect account
-          </ClayButton>
-        </Link>
-        <SyncProjectsDialog onSuccess={reloadProjects} />
-      </div>
-    </ClayCard>
+    <ZoruEmptyState
+      icon={<Sparkles />}
+      title="Connect your first project"
+      description="Link your WhatsApp Business Account to start messaging, automating, and tracking performance."
+      action={
+        <div className="flex items-center gap-2.5">
+          <Link href="/dashboard/setup">
+            <ZoruButton size="md">
+              <Plus />
+              Connect account
+            </ZoruButton>
+          </Link>
+          <SyncProjectsDialog onSuccess={reloadProjects} />
+        </div>
+      }
+    />
   );
 }
 
-/* ── project card ──────────────────────────────────────────────── */
+/* ── project row ───────────────────────────────────────────────── */
 
 function ProjectRow({
   project,
@@ -155,94 +155,96 @@ function ProjectRow({
       type="button"
       onClick={() => onSelect(project._id.toString())}
       className={cn(
-        'group flex items-center gap-4 rounded-xl border border-border bg-card p-4 text-left transition',
-        'hover:border-primary/40 hover:shadow-sm',
+        'group flex items-center gap-4 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-4 text-left transition',
+        'hover:border-zoru-line-strong hover:shadow-[var(--zoru-shadow-sm)]',
       )}
     >
-      {/* Icon */}
       <div
         className={cn(
-          'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl',
-          connected
-            ? 'bg-emerald-50 text-emerald-600'
-            : 'bg-muted text-muted-foreground',
+          'flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)]',
+          connected ? 'bg-zoru-surface-2 text-zoru-ink' : 'bg-zoru-surface text-zoru-ink-muted',
         )}
       >
-        <LuMessageSquare className="h-4.5 w-4.5" strokeWidth={2} />
+        <MessageSquare className="h-4 w-4" />
       </div>
 
-      {/* Info */}
       <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <p className="truncate text-[14px] font-semibold text-foreground">
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="truncate text-[14px] text-zoru-ink">
             {project.name || 'Untitled project'}
           </p>
           <HealthPill status={healthStatus} />
           {isRecent && (
-            <span className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
-              <LuClock className="h-2.5 w-2.5" /> Recent
-            </span>
+            <ZoruBadge variant="ghost" className="text-[10px]">
+              <Clock className="h-2.5 w-2.5" /> Recent
+            </ZoruBadge>
           )}
         </div>
-        <div className="mt-0.5 flex items-center gap-2 text-[12px] text-muted-foreground">
+        <div className="mt-0.5 flex items-center gap-2 text-[12px] text-zoru-ink-muted">
           {connected ? (
             <>
-              <LuWifi className="h-3 w-3 text-emerald-500" />
+              <Wifi className="h-3 w-3 text-zoru-success" />
               <span>{formatPhone(phone)}</span>
             </>
           ) : (
             <>
-              <LuWifiOff className="h-3 w-3 text-muted-foreground/50" />
+              <WifiOff className="h-3 w-3 text-zoru-ink-subtle" />
               <span>Not connected</span>
             </>
           )}
           {project.groupName && (
             <>
-              <span className="text-muted-foreground/30">·</span>
+              <span className="text-zoru-ink-subtle">·</span>
               <span>{project.groupName}</span>
             </>
           )}
         </div>
       </div>
 
-      {/* Arrow */}
-      <LuArrowRight className="h-4 w-4 shrink-0 text-muted-foreground/40 transition group-hover:translate-x-0.5 group-hover:text-primary" />
+      <ArrowRight className="h-4 w-4 shrink-0 text-zoru-ink-subtle transition group-hover:translate-x-0.5 group-hover:text-zoru-ink" />
     </button>
   );
 }
 
-/* ── page ───────────────────────────────────────────────────────── */
+/* ── page ──────────────────────────────────────────────────────── */
 
 const PAGE_SIZE = 24;
 
 export default function SelectProjectPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { projects: allProjects, reloadProjects, isLoadingProject, setActiveProjectId } = useProject();
+  const {
+    projects: allProjects,
+    reloadProjects,
+    isLoadingProject,
+    setActiveProjectId,
+  } = useProject();
   const [, startHealthTransition] = useTransition();
 
-  const projects = useMemo(() => allProjects.filter((p) => !!p.wabaId), [allProjects]);
+  const projects = useMemo(
+    () => allProjects.filter((p) => !!p.wabaId),
+    [allProjects],
+  );
 
   const [search, setSearch] = useState(searchParams.get('query') || '');
   const [page, setPage] = useState(1);
 
-  // Health status map: projectId → can_send_message status
   const [healthMap, setHealthMap] = useState<Record<string, string>>({});
 
-  // Recent projects from localStorage
   const [recentIds, setRecentIds] = useState<string[]>([]);
   useEffect(() => {
     try {
       const raw = localStorage.getItem('recentProjects');
       if (raw) setRecentIds(JSON.parse(raw));
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }, []);
 
   useEffect(() => {
     document.title = 'Projects · Wachat';
   }, []);
 
-  // Fetch health status for all projects in background
   useEffect(() => {
     if (projects.length === 0) return;
     startHealthTransition(async () => {
@@ -254,15 +256,20 @@ export default function SelectProjectPage() {
             if (healthStatus?.can_send_message) {
               results[p._id.toString()] = healthStatus.can_send_message;
             }
-          } catch { /* ignore */ }
-        })
+          } catch {
+            /* ignore */
+          }
+        }),
       );
       setHealthMap(results);
     });
   }, [projects]);
 
   const recentProjects = useMemo(
-    () => projects.filter((p) => recentIds.includes(p._id.toString())).slice(0, 4),
+    () =>
+      projects
+        .filter((p) => recentIds.includes(p._id.toString()))
+        .slice(0, 4),
     [projects, recentIds],
   );
 
@@ -284,64 +291,73 @@ export default function SelectProjectPage() {
   );
 
   const handleSelect = (projectId: string) => {
-    // Save to recent
-    const updated = [projectId, ...recentIds.filter((id) => id !== projectId)].slice(0, 8);
+    const updated = [
+      projectId,
+      ...recentIds.filter((id) => id !== projectId),
+    ].slice(0, 8);
     localStorage.setItem('recentProjects', JSON.stringify(updated));
     setActiveProjectId(projectId);
     router.push('/dashboard/overview');
   };
 
   return (
-    <>
-      {/* Breadcrumbs */}
-      <ClayBreadcrumbs
-        items={[
-          { label: 'SabNode', href: '/dashboard' },
-          { label: 'Wachat' },
-          { label: 'Projects' },
-        ]}
-      />
+    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Projects</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
 
-      {/* Header */}
       <div className="mt-5 flex items-center justify-between gap-4">
         <div className="min-w-0">
-          <h1 className="text-[26px] font-semibold tracking-[-0.015em] text-foreground leading-[1.15]">
+          <h1 className="text-[26px] tracking-[-0.015em] text-zoru-ink leading-[1.15]">
             Your projects
           </h1>
-          <p className="mt-1 text-[13px] text-muted-foreground">
-            {projects.length} connected account{projects.length !== 1 ? 's' : ''} — select one to open.
+          <p className="mt-1 text-[13px] text-zoru-ink-muted">
+            {projects.length} connected account
+            {projects.length !== 1 ? 's' : ''} — select one to open.
           </p>
         </div>
         <div className="flex items-center gap-2">
           <SyncProjectsDialog onSuccess={reloadProjects} />
           <Link href="/dashboard/setup">
-            <ClayButton variant="obsidian" size="md">
-              <LuPlus className="mr-1.5 h-3.5 w-3.5" />
+            <ZoruButton size="md">
+              <Plus />
               Connect new
-            </ClayButton>
+            </ZoruButton>
           </Link>
         </div>
       </div>
 
-      {/* Search bar */}
       {projects.length > 0 && (
         <div className="mt-5 flex items-center gap-2">
-          <div className="relative flex-1 max-w-md">
-            <LuSearch className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/50" />
-            <ClayInput
+          <div className="max-w-md flex-1">
+            <ZoruInput
+              leadingSlot={<Search />}
               placeholder="Search projects..."
               value={search}
-              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-              className="pl-9"
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
             />
           </div>
         </div>
       )}
 
-      {/* Recent projects */}
       {recentProjects.length > 0 && !search && (
         <div className="mt-6">
-          <p className="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+          <p className="mb-2.5 text-[11px] uppercase tracking-[0.12em] text-zoru-ink-muted">
             Recently accessed
           </p>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -358,13 +374,14 @@ export default function SelectProjectPage() {
         </div>
       )}
 
-      {/* All projects */}
       <div className="mt-6">
-        {recentProjects.length > 0 && !search && projects.length > recentProjects.length && (
-          <p className="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-            All projects
-          </p>
-        )}
+        {recentProjects.length > 0 &&
+          !search &&
+          projects.length > recentProjects.length && (
+            <p className="mb-2.5 text-[11px] uppercase tracking-[0.12em] text-zoru-ink-muted">
+              All projects
+            </p>
+          )}
 
         {isLoadingProject ? (
           <ProjectsSkeleton />
@@ -386,32 +403,34 @@ export default function SelectProjectPage() {
         )}
       </div>
 
-      {/* Pagination */}
       {totalPages > 1 && (
-        <div className="mt-6 flex items-center justify-between border-t border-border pt-4">
-          <p className="text-[12px] text-muted-foreground tabular-nums">
-            Page {page} of {totalPages} · {filtered.length} project{filtered.length !== 1 ? 's' : ''}
+        <div className="mt-6 flex items-center justify-between border-t border-zoru-line pt-4">
+          <p className="text-[12px] text-zoru-ink-muted tabular-nums">
+            Page {page} of {totalPages} · {filtered.length} project
+            {filtered.length !== 1 ? 's' : ''}
           </p>
           <div className="flex items-center gap-1.5">
-            <ClayButton
-              variant="pill"
-              size="sm"
+            <ZoruButton
+              variant="outline"
+              size="icon-sm"
+              aria-label="Previous page"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page <= 1}
             >
-              <LuChevronLeft className="h-3.5 w-3.5" />
-            </ClayButton>
-            <ClayButton
-              variant="pill"
-              size="sm"
+              <ChevronLeft />
+            </ZoruButton>
+            <ZoruButton
+              variant="outline"
+              size="icon-sm"
+              aria-label="Next page"
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page >= totalPages}
             >
-              <LuChevronRight className="h-3.5 w-3.5" />
-            </ClayButton>
+              <ChevronRight />
+            </ZoruButton>
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }

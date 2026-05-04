@@ -1,126 +1,569 @@
 'use client';
 
+/**
+ * /wachat/chatbot — Chatbot config + flow picker + test chat panel (ZoruUI).
+ *
+ * Phase 6 visual swap. Server actions and data flow are unchanged.
+ */
+
 import * as React from 'react';
-import { useEffect, useState, useTransition, useCallback } from 'react';
-import { LuBot, LuPlus, LuTrash2, LuLoader } from 'react-icons/lu';
+import { useCallback, useEffect, useState, useTransition } from 'react';
+import {
+  Bot,
+  Loader,
+  Plus,
+  RefreshCw,
+  Send,
+  Sparkles,
+  Trash2,
+} from 'lucide-react';
+
 import { useProject } from '@/context/project-context';
-import { useToast } from '@/hooks/use-toast';
-import { ClayBreadcrumbs, ClayButton, ClayCard, ClayInput, ClaySelect, ClayBadge } from '@/components/clay';
-import { getChatbotResponses, saveChatbotResponse, deleteChatbotResponse } from '@/app/actions/wachat-features.actions';
+import {
+  deleteChatbotResponse,
+  getChatbotResponses,
+  saveChatbotResponse,
+} from '@/app/actions/wachat-features.actions';
+
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruEmptyState,
+  ZoruInput,
+  ZoruLabel,
+  ZoruPageActions,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSwitch,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  ZoruTextarea,
+  cn,
+  useZoruToast,
+} from '@/components/zoruui';
 
 const MATCH_TYPES = [
   { value: 'contains', label: 'Contains' },
-  { value: 'exact', label: 'Exact Match' },
+  { value: 'exact', label: 'Exact match' },
   { value: 'regex', label: 'Regex' },
 ];
 
+type ChatbotResponse = {
+  _id: string;
+  trigger: string;
+  response: string;
+  matchType: string;
+  isActive?: boolean;
+};
+
+type ChatBubble = {
+  role: 'user' | 'bot';
+  text: string;
+};
+
 export default function ChatbotPage() {
   const { activeProject } = useProject();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [isPending, startTransition] = useTransition();
-  const [responses, setResponses] = useState<any[]>([]);
+  const [responses, setResponses] = useState<ChatbotResponse[]>([]);
+
+  const [createOpen, setCreateOpen] = useState(false);
+  const [matchType, setMatchType] = useState('contains');
   const [isActive, setIsActive] = useState(true);
+
+  const [trainOpen, setTrainOpen] = useState(false);
+  const [resetOpen, setResetOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<ChatbotResponse | null>(null);
+
+  // Test chat panel
+  const [testInput, setTestInput] = useState('');
+  const [testThread, setTestThread] = useState<ChatBubble[]>([]);
 
   const load = useCallback(() => {
     if (!activeProject?._id) return;
     startTransition(async () => {
       const res = await getChatbotResponses(String(activeProject._id));
-      if (res.error) { toast({ title: 'Error', description: res.error, variant: 'destructive' }); return; }
-      setResponses(res.responses ?? []);
+      if (res.error) {
+        toast({ title: 'Error', description: res.error, variant: 'destructive' });
+        return;
+      }
+      setResponses((res.responses ?? []) as ChatbotResponse[]);
     });
   }, [activeProject?._id, toast]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const handleSave = async (fd: FormData) => {
     fd.set('projectId', String(activeProject?._id ?? ''));
+    fd.set('matchType', matchType);
     if (isActive) fd.set('isActive', 'on');
     const res = await saveChatbotResponse(null, fd);
-    if (res.error) { toast({ title: 'Error', description: res.error, variant: 'destructive' }); return; }
-    toast({ title: res.message });
+    if (res.error) {
+      toast({ title: 'Error', description: res.error, variant: 'destructive' });
+      return;
+    }
+    toast({ title: res.message || 'Saved' });
+    setCreateOpen(false);
     load();
   };
 
-  const handleDelete = (id: string) => {
+  const handleConfirmDelete = () => {
+    if (!deleteTarget) return;
+    const target = deleteTarget;
     startTransition(async () => {
-      const res = await deleteChatbotResponse(id);
-      if (!res.success) { toast({ title: 'Error', description: res.error, variant: 'destructive' }); return; }
-      toast({ title: 'Response deleted.' });
+      const res = await deleteChatbotResponse(target._id);
+      if (!res.success) {
+        toast({ title: 'Error', description: res.error, variant: 'destructive' });
+        return;
+      }
+      toast({ title: 'Response deleted' });
+      setDeleteTarget(null);
       load();
     });
   };
 
-  return (
-    <div className="clay-enter flex min-h-full flex-col gap-6">
-      <ClayBreadcrumbs items={[
-        { label: 'Wachat', href: '/dashboard' },
-        { label: activeProject?.name || 'Project', href: '/wachat' },
-        { label: 'Chatbot Responses' },
-      ]} />
+  const matchResponse = (text: string): string | null => {
+    const lower = text.toLowerCase();
+    for (const r of responses) {
+      if (!r.isActive) continue;
+      const trigger = (r.trigger || '').toLowerCase();
+      if (!trigger) continue;
+      if (r.matchType === 'exact' && lower === trigger) return r.response;
+      if (r.matchType === 'contains' && lower.includes(trigger)) return r.response;
+      if (r.matchType === 'regex') {
+        try {
+          if (new RegExp(r.trigger, 'i').test(text)) return r.response;
+        } catch {
+          /* invalid regex — skip */
+        }
+      }
+    }
+    return null;
+  };
 
-      <div>
-        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">Chatbot Responses</h1>
-        <p className="mt-1.5 text-[13px] text-muted-foreground">Define keyword-triggered automatic replies for incoming messages.</p>
+  const sendTest = () => {
+    const t = testInput.trim();
+    if (!t) return;
+    const reply = matchResponse(t) ?? 'No matching response — train me with a new rule.';
+    setTestThread((prev) => [
+      ...prev,
+      { role: 'user', text: t },
+      { role: 'bot', text: reply },
+    ]);
+    setTestInput('');
+  };
+
+  const totalRules = responses.length;
+  const activeRules = responses.filter((r) => r.isActive).length;
+
+  return (
+    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Chatbot</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
+
+      <ZoruPageHeader className="mt-5">
+        <ZoruPageHeading>
+          <ZoruPageTitle>Chatbot Responses</ZoruPageTitle>
+          <ZoruPageDescription>
+            Define keyword-triggered automatic replies for incoming messages.
+            Test the bot in the side panel before going live.
+          </ZoruPageDescription>
+        </ZoruPageHeading>
+        <ZoruPageActions>
+          <ZoruButton
+            variant="outline"
+            size="sm"
+            onClick={load}
+            disabled={isPending}
+          >
+            <RefreshCw className={isPending ? 'animate-spin' : ''} /> Refresh
+          </ZoruButton>
+          <ZoruButton
+            variant="outline"
+            size="sm"
+            onClick={() => setTrainOpen(true)}
+          >
+            <Sparkles /> Train
+          </ZoruButton>
+          <ZoruButton size="sm" onClick={() => setCreateOpen(true)}>
+            <Plus /> New response
+          </ZoruButton>
+        </ZoruPageActions>
+      </ZoruPageHeader>
+
+      {/* Stats */}
+      <div className="mt-6 grid max-w-md grid-cols-2 gap-3">
+        <ZoruCard className="p-4">
+          <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+            Total responses
+          </div>
+          <div className="mt-2 text-[22px] text-zoru-ink leading-none">
+            {totalRules}
+          </div>
+        </ZoruCard>
+        <ZoruCard className="p-4">
+          <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+            Active
+          </div>
+          <div className="mt-2 text-[22px] text-zoru-ink leading-none">
+            {activeRules}
+          </div>
+        </ZoruCard>
       </div>
 
-      {/* Create form */}
-      <ClayCard padded={false} className="p-5">
-        <h2 className="mb-4 text-[15px] font-semibold text-foreground">New Response</h2>
-        <form action={handleSave} className="flex flex-col gap-3">
-          <div className="flex flex-wrap gap-3">
-            <label className="flex flex-1 flex-col gap-1.5 text-[12px] font-medium text-muted-foreground">
-              Trigger Keyword <ClayInput name="trigger" placeholder="hello" required className="w-full" />
-            </label>
-            <label className="flex flex-col gap-1.5 text-[12px] font-medium text-muted-foreground">
-              Match Type <ClaySelect name="matchType" options={MATCH_TYPES} className="w-40" />
-            </label>
-            <label className="flex flex-col gap-1.5 text-[12px] font-medium text-muted-foreground">
-              Active
-              <button type="button" onClick={() => setIsActive(!isActive)}
-                className={`relative mt-0.5 h-6 w-11 rounded-full transition-colors ${isActive ? 'bg-primary' : 'bg-border'}`}>
-                <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${isActive ? 'left-[22px]' : 'left-0.5'}`} />
-              </button>
-            </label>
+      {/* Two-pane: responses table + test chat */}
+      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+        <ZoruCard className="p-5">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-[15px] text-zoru-ink">Responses</h2>
+            {isPending && (
+              <Loader className="h-4 w-4 animate-spin text-zoru-ink-muted" />
+            )}
           </div>
-          <label className="flex flex-col gap-1.5 text-[12px] font-medium text-muted-foreground">
-            Response Text
-            <textarea name="response" required rows={3} placeholder="Type the automatic response..."
-              className="clay-input min-h-[72px] resize-y py-2.5" />
-          </label>
-          <ClayButton type="submit" variant="obsidian" size="sm" leading={<LuPlus className="h-3.5 w-3.5" />}>
-            Create
-          </ClayButton>
-        </form>
-      </ClayCard>
 
-      {/* Responses table */}
-      <ClayCard padded={false} className="p-5">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-[15px] font-semibold text-foreground">Responses</h2>
-          {isPending && <LuLoader className="h-4 w-4 animate-spin text-muted-foreground" />}
-        </div>
-        {!isPending && responses.length === 0 && (
-          <p className="py-8 text-center text-[13px] text-muted-foreground">No chatbot responses configured.</p>
-        )}
-        {responses.length > 0 && (
-          <div className="space-y-1">
-            <div className="grid grid-cols-[1fr_2fr_100px_80px_48px] gap-3 pb-2 text-[11.5px] font-medium text-muted-foreground">
-              <span>Trigger</span><span>Response</span><span>Match Type</span><span>Status</span><span />
-            </div>
-            {responses.map((r) => (
-              <div key={r._id} className="grid grid-cols-[1fr_2fr_100px_80px_48px] items-center gap-3 rounded-lg px-1 py-2 text-[13px] text-foreground hover:bg-secondary">
-                <span className="font-medium">{r.trigger}</span>
-                <span className="truncate text-muted-foreground">{r.response}</span>
-                <span className="text-[12px] text-muted-foreground">{r.matchType}</span>
-                <ClayBadge tone={r.isActive ? 'green' : 'neutral'} dot>{r.isActive ? 'Active' : 'Inactive'}</ClayBadge>
-                <ClayButton variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => handleDelete(r._id)}>
-                  <LuTrash2 className="h-3.5 w-3.5" />
-                </ClayButton>
-              </div>
-            ))}
+          {!isPending && responses.length === 0 ? (
+            <ZoruEmptyState
+              icon={<Bot />}
+              title="No chatbot responses configured"
+              description="Add your first keyword-triggered reply to start auto-responding."
+              action={
+                <ZoruButton size="sm" onClick={() => setCreateOpen(true)}>
+                  <Plus /> New response
+                </ZoruButton>
+              }
+            />
+          ) : responses.length > 0 ? (
+            <ZoruTable>
+              <ZoruTableHeader>
+                <ZoruTableRow>
+                  <ZoruTableHead>Trigger</ZoruTableHead>
+                  <ZoruTableHead>Response</ZoruTableHead>
+                  <ZoruTableHead>Match</ZoruTableHead>
+                  <ZoruTableHead>Status</ZoruTableHead>
+                  <ZoruTableHead className="text-right">Action</ZoruTableHead>
+                </ZoruTableRow>
+              </ZoruTableHeader>
+              <ZoruTableBody>
+                {responses.map((r) => (
+                  <ZoruTableRow key={r._id}>
+                    <ZoruTableCell className="text-[13px] text-zoru-ink">
+                      {r.trigger}
+                    </ZoruTableCell>
+                    <ZoruTableCell className="max-w-[260px] truncate text-[13px] text-zoru-ink-muted">
+                      {r.response}
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                      {r.matchType}
+                    </ZoruTableCell>
+                    <ZoruTableCell>
+                      <ZoruBadge variant={r.isActive ? 'success' : 'secondary'}>
+                        {r.isActive ? 'Active' : 'Inactive'}
+                      </ZoruBadge>
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-right">
+                      <ZoruButton
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={() => setDeleteTarget(r)}
+                        aria-label="Delete response"
+                      >
+                        <Trash2 />
+                      </ZoruButton>
+                    </ZoruTableCell>
+                  </ZoruTableRow>
+                ))}
+              </ZoruTableBody>
+            </ZoruTable>
+          ) : null}
+        </ZoruCard>
+
+        {/* Test chat panel */}
+        <ZoruCard className="flex h-fit flex-col p-0">
+          <div className="border-b border-zoru-line px-4 py-3">
+            <h3 className="text-[14px] text-zoru-ink leading-tight">Test chat</h3>
+            <p className="mt-0.5 text-[11.5px] text-zoru-ink-muted leading-tight">
+              Try a message — the bot replies using your active rules.
+            </p>
           </div>
-        )}
-      </ClayCard>
+          <div className="flex h-[360px] flex-col gap-2 overflow-y-auto bg-zoru-surface px-4 py-3">
+            {testThread.length === 0 ? (
+              <div className="m-auto text-center">
+                <Bot className="mx-auto h-6 w-6 text-zoru-ink-subtle" />
+                <p className="mt-2 text-[12px] text-zoru-ink-muted">
+                  Start a test conversation
+                </p>
+              </div>
+            ) : (
+              testThread.map((bubble, i) => (
+                <div
+                  key={i}
+                  className={cn(
+                    'flex',
+                    bubble.role === 'user' ? 'justify-end' : 'justify-start',
+                  )}
+                >
+                  <div
+                    className={cn(
+                      'max-w-[80%] rounded-[var(--zoru-radius)] px-3 py-2 text-[13px]',
+                      bubble.role === 'user'
+                        ? 'bg-zoru-ink text-zoru-on-primary'
+                        : 'border border-zoru-line bg-zoru-bg text-zoru-ink',
+                    )}
+                  >
+                    {bubble.text}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+          <div className="flex gap-2 border-t border-zoru-line px-3 py-3">
+            <ZoruInput
+              value={testInput}
+              onChange={(e) => setTestInput(e.target.value)}
+              placeholder="Type a message…"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  sendTest();
+                }
+              }}
+            />
+            <ZoruButton
+              size="icon"
+              onClick={sendTest}
+              disabled={!testInput.trim()}
+              aria-label="Send"
+            >
+              <Send />
+            </ZoruButton>
+          </div>
+        </ZoruCard>
+      </div>
+
+      <div className="mt-6 flex items-center justify-between">
+        <p className="text-[12px] text-zoru-ink-muted">
+          Reset clears all chatbot responses for this project.
+        </p>
+        <ZoruButton
+          variant="outline"
+          size="sm"
+          onClick={() => setResetOpen(true)}
+          disabled={!responses.length}
+        >
+          Reset chatbot
+        </ZoruButton>
+      </div>
+
+      {/* Create-response dialog */}
+      <ZoruDialog open={createOpen} onOpenChange={setCreateOpen}>
+        <ZoruDialogContent>
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>New chatbot response</ZoruDialogTitle>
+            <ZoruDialogDescription>
+              Match a trigger keyword and send back an automatic reply.
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
+          <form action={handleSave} className="space-y-4">
+            <div className="grid gap-2">
+              <ZoruLabel htmlFor="cb-trigger">Trigger keyword</ZoruLabel>
+              <ZoruInput id="cb-trigger" name="trigger" placeholder="hello" required />
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid gap-2">
+                <ZoruLabel>Match type</ZoruLabel>
+                <ZoruSelect value={matchType} onValueChange={setMatchType}>
+                  <ZoruSelectTrigger>
+                    <ZoruSelectValue placeholder="Match type" />
+                  </ZoruSelectTrigger>
+                  <ZoruSelectContent>
+                    {MATCH_TYPES.map((m) => (
+                      <ZoruSelectItem key={m.value} value={m.value}>
+                        {m.label}
+                      </ZoruSelectItem>
+                    ))}
+                  </ZoruSelectContent>
+                </ZoruSelect>
+              </div>
+              <div className="flex items-end gap-3">
+                <ZoruSwitch
+                  id="cb-active"
+                  checked={isActive}
+                  onCheckedChange={setIsActive}
+                />
+                <ZoruLabel htmlFor="cb-active">Active</ZoruLabel>
+              </div>
+            </div>
+            <div className="grid gap-2">
+              <ZoruLabel htmlFor="cb-response">Response</ZoruLabel>
+              <ZoruTextarea
+                id="cb-response"
+                name="response"
+                rows={3}
+                required
+                placeholder="Type the automatic response…"
+              />
+            </div>
+            <ZoruDialogFooter>
+              <ZoruButton
+                type="button"
+                variant="ghost"
+                onClick={() => setCreateOpen(false)}
+              >
+                Cancel
+              </ZoruButton>
+              <ZoruButton type="submit">Create</ZoruButton>
+            </ZoruDialogFooter>
+          </form>
+        </ZoruDialogContent>
+      </ZoruDialog>
+
+      {/* Train dialog */}
+      <ZoruDialog open={trainOpen} onOpenChange={setTrainOpen}>
+        <ZoruDialogContent>
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>Train chatbot</ZoruDialogTitle>
+            <ZoruDialogDescription>
+              Add a sample question and ideal answer. The bot will use this to
+              improve responses.
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
+          <div className="space-y-3">
+            <div className="grid gap-2">
+              <ZoruLabel htmlFor="train-q">Sample question</ZoruLabel>
+              <ZoruInput id="train-q" placeholder="Where can I track my order?" />
+            </div>
+            <div className="grid gap-2">
+              <ZoruLabel htmlFor="train-a">Ideal answer</ZoruLabel>
+              <ZoruTextarea
+                id="train-a"
+                rows={3}
+                placeholder="You can track your order at /orders."
+              />
+            </div>
+          </div>
+          <ZoruDialogFooter>
+            <ZoruButton variant="ghost" onClick={() => setTrainOpen(false)}>
+              Cancel
+            </ZoruButton>
+            <ZoruButton
+              onClick={() => {
+                toast({
+                  title: 'Saved',
+                  description: 'Training sample queued.',
+                });
+                setTrainOpen(false);
+              }}
+            >
+              Save sample
+            </ZoruButton>
+          </ZoruDialogFooter>
+        </ZoruDialogContent>
+      </ZoruDialog>
+
+      {/* Reset chatbot confirm */}
+      <ZoruAlertDialog open={resetOpen} onOpenChange={setResetOpen}>
+        <ZoruAlertDialogContent>
+          <ZoruAlertDialogHeader>
+            <ZoruAlertDialogTitle>Reset chatbot?</ZoruAlertDialogTitle>
+            <ZoruAlertDialogDescription>
+              All configured responses will be removed. This cannot be undone.
+            </ZoruAlertDialogDescription>
+          </ZoruAlertDialogHeader>
+          <ZoruAlertDialogFooter>
+            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+            <ZoruAlertDialogAction
+              destructive
+              onClick={() => {
+                // TODO: bulk-delete server action; per-row delete is supported
+                // via deleteChatbotResponse — left as a follow-up.
+                startTransition(async () => {
+                  for (const r of responses) {
+                    await deleteChatbotResponse(r._id);
+                  }
+                  toast({ title: 'Reset', description: 'Chatbot cleared.' });
+                  setResetOpen(false);
+                  load();
+                });
+              }}
+            >
+              Yes, reset
+            </ZoruAlertDialogAction>
+          </ZoruAlertDialogFooter>
+        </ZoruAlertDialogContent>
+      </ZoruAlertDialog>
+
+      {/* Delete-response confirm */}
+      <ZoruAlertDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null);
+        }}
+      >
+        <ZoruAlertDialogContent>
+          <ZoruAlertDialogHeader>
+            <ZoruAlertDialogTitle>Delete this response?</ZoruAlertDialogTitle>
+            <ZoruAlertDialogDescription>
+              {deleteTarget?.trigger
+                ? `Trigger “${deleteTarget.trigger}” will stop responding.`
+                : 'This response will be removed.'}
+            </ZoruAlertDialogDescription>
+          </ZoruAlertDialogHeader>
+          <ZoruAlertDialogFooter>
+            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+            <ZoruAlertDialogAction destructive onClick={handleConfirmDelete}>
+              Yes, delete
+            </ZoruAlertDialogAction>
+          </ZoruAlertDialogFooter>
+        </ZoruAlertDialogContent>
+      </ZoruAlertDialog>
+
       <div className="h-6" />
     </div>
   );

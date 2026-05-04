@@ -1,34 +1,52 @@
 'use client';
 
+/**
+ * Wachat WhatsApp Pay — Setup tab (ZoruUI).
+ *
+ * Setup instructions card + payment configuration list. Verify-merchant
+ * dialog opens when the user requests OAuth regeneration. Existing
+ * wabasimplify dialogs (Create / Update / Regenerate / Delete) handle
+ * the actual flows — we keep them so server actions remain unchanged.
+ */
+
+import * as React from 'react';
 import { useEffect, useState, useTransition, useCallback } from 'react';
 import {
-  LuExternalLink,
-  LuRefreshCw,
-  LuLoader,
-  LuCirclePlus,
-  LuSettings,
-  LuCircleAlert,
-} from 'react-icons/lu';
+  ExternalLink,
+  RefreshCw,
+  Loader2,
+  CirclePlus,
+  Settings,
+  AlertCircle,
+} from 'lucide-react';
 
 import { getPaymentConfigurations } from '@/app/actions/whatsapp-pay.actions';
 import { getProjectById } from '@/app/actions/index';
 import { useProject } from '@/context/project-context';
-import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
 import type { PaymentConfiguration, Project } from '@/lib/definitions';
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
 import { CreatePaymentConfigDialog } from '@/components/wabasimplify/create-payment-config-dialog';
 import { RegenerateOauthDialog } from '@/components/wabasimplify/regenerate-oauth-dialog';
 import { UpdateDataEndpointDialog } from '@/components/wabasimplify/update-data-endpoint-dialog';
 import { DeletePaymentConfigButton } from '@/components/wabasimplify/delete-payment-config-button';
 
+import {
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruEmptyState,
+  ZoruSkeleton,
+  useZoruToast,
+} from '@/components/zoruui';
+
 /* ── helpers ──────────────────────────────────────────────────── */
 
 function PageSkeleton() {
   return (
-    <div className="space-y-4">
-      <div className="h-64 w-full animate-pulse rounded-xl bg-muted" />
-      <div className="h-48 w-full animate-pulse rounded-xl bg-muted" />
+    <div className="flex flex-col gap-4">
+      <ZoruSkeleton className="h-64 w-full" />
+      <ZoruSkeleton className="h-48 w-full" />
     </div>
   );
 }
@@ -41,19 +59,21 @@ function InfoRow({
   value: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center justify-between border-b border-border py-2.5 text-[13px]">
-      <span className="text-muted-foreground">{label}</span>
-      <span className="font-medium text-foreground">{value}</span>
+    <div className="flex items-center justify-between border-b border-zoru-line py-2.5 text-[13px] last:border-b-0">
+      <span className="text-zoru-ink-muted">{label}</span>
+      <span className="text-zoru-ink">{value}</span>
     </div>
   );
 }
 
-function statusTone(status: string): 'green' | 'amber' | 'red' {
-  if (!status) return 'red';
+function statusVariant(
+  status: string,
+): 'success' | 'warning' | 'danger' | 'ghost' {
+  if (!status) return 'danger';
   const s = status.toLowerCase();
-  if (s === 'active') return 'green';
-  if (s.includes('needs')) return 'amber';
-  return 'red';
+  if (s === 'active') return 'success';
+  if (s.includes('needs')) return 'warning';
+  return 'danger';
 }
 
 /* ── page ──────────────────────────────────────────────────────── */
@@ -64,7 +84,7 @@ export default function WhatsAppPaySetupPage() {
   const [configs, setConfigs] = useState<PaymentConfiguration[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, startLoading] = useTransition();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   const activeProjectId = activeProject?._id?.toString() ?? null;
@@ -82,13 +102,15 @@ export default function WhatsAppPaySetupPage() {
           const { configurations, error: fetchError } =
             await getPaymentConfigurations(activeProjectId);
           if (fetchError) setError(fetchError);
-          else setConfigs(configurations);
+          else {
+            setError(null);
+            setConfigs(configurations);
+          }
         }
         if (showToast) {
           toast({
             title: 'Refreshed',
-            description:
-              'Payment configurations have been updated from Meta.',
+            description: 'Payment configurations have been updated from Meta.',
           });
         }
       });
@@ -107,11 +129,13 @@ export default function WhatsAppPaySetupPage() {
 
   if (!project) {
     return (
-      <div className="flex items-center gap-3 rounded-lg border border-destructive/20 bg-red-50 p-4 text-[13px] text-destructive">
-        <LuCircleAlert className="h-4 w-4 shrink-0" />
-        No project selected. Please select a project to manage its payment
-        settings.
-      </div>
+      <ZoruAlert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <ZoruAlertDescription>
+          No project selected. Please select a project to manage its payment
+          settings.
+        </ZoruAlertDescription>
+      </ZoruAlert>
     );
   }
 
@@ -126,98 +150,88 @@ export default function WhatsAppPaySetupPage() {
       )}
 
       {/* Setup instructions */}
-      <ClayCard className="p-5">
-        <h3 className="text-[15px] font-semibold text-foreground">
-          WhatsApp Pay Setup
-        </h3>
-        <p className="mt-1 text-[13px] text-muted-foreground">
-          To enable WhatsApp Pay, configure a payment provider (like Razorpay or
-          PayU) within your Meta Commerce Manager.
+      <ZoruCard className="p-5">
+        <h3 className="text-[15px] text-zoru-ink">WhatsApp Pay Setup</h3>
+        <p className="mt-1 text-[13px] text-zoru-ink-muted">
+          To enable WhatsApp Pay, configure a payment provider (like Razorpay
+          or PayU) within your Meta Commerce Manager.
         </p>
-        <ol className="mt-4 list-inside list-decimal space-y-1.5 text-[13px] text-muted-foreground">
+        <ol className="mt-4 list-inside list-decimal space-y-1.5 text-[13px] text-zoru-ink-muted">
           <li>Navigate to your Meta Commerce Manager.</li>
           <li>
-            Go to the <strong className="text-foreground">Settings</strong> tab.
+            Go to the <span className="text-zoru-ink">Settings</span> tab.
           </li>
           <li>
-            Select <strong className="text-foreground">Payment Method</strong> and
-            add your preferred provider.
+            Select <span className="text-zoru-ink">Payment Method</span> and add
+            your preferred provider.
           </li>
           <li>
             Once configured, click &quot;Refresh&quot; below to see your setup.
           </li>
         </ol>
         <div className="mt-5">
-          <a href={commerceManagerUrl} target="_blank" rel="noopener noreferrer">
-            <ClayButton
-              variant="obsidian"
-              size="sm"
-              trailing={
-                <LuExternalLink className="h-3.5 w-3.5" strokeWidth={2} />
-              }
-            >
+          <a
+            href={commerceManagerUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <ZoruButton size="sm">
               Go to Commerce Manager
-            </ClayButton>
+              <ExternalLink />
+            </ZoruButton>
           </a>
         </div>
-      </ClayCard>
+      </ZoruCard>
 
       {/* Configurations list */}
-      <ClayCard className="p-5">
+      <ZoruCard className="p-5">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <h3 className="text-[15px] font-semibold text-foreground">
+            <h3 className="text-[15px] text-zoru-ink">
               Your Payment Configurations
             </h3>
-            <p className="mt-0.5 text-[12px] text-muted-foreground">
+            <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
               Payment providers linked to your WABA.
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <ClayButton
-              variant="pill"
+            <ZoruButton
+              variant="outline"
               size="sm"
-              leading={
-                isLoading ? (
-                  <LuLoader className="h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <LuRefreshCw className="h-3.5 w-3.5" strokeWidth={2} />
-                )
-              }
               onClick={() => fetchData(true)}
+              disabled={isLoading}
             >
+              {isLoading ? (
+                <Loader2 className="animate-spin" />
+              ) : (
+                <RefreshCw />
+              )}
               Refresh
-            </ClayButton>
-            <ClayButton
-              variant="obsidian"
-              size="sm"
-              leading={
-                <LuCirclePlus className="h-3.5 w-3.5" strokeWidth={2} />
-              }
-              onClick={() => setIsCreateOpen(true)}
-            >
+            </ZoruButton>
+            <ZoruButton size="sm" onClick={() => setIsCreateOpen(true)}>
+              <CirclePlus />
               Create
-            </ClayButton>
+            </ZoruButton>
           </div>
         </div>
 
         <div className="mt-5">
           {error ? (
-            <div className="flex items-center gap-3 rounded-lg border border-destructive/20 bg-red-50 p-4 text-[13px] text-destructive">
-              <LuCircleAlert className="h-4 w-4 shrink-0" />
-              {error}
-            </div>
+            <ZoruAlert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <ZoruAlertDescription>{error}</ZoruAlertDescription>
+            </ZoruAlert>
           ) : configs.length > 0 ? (
             <div className="grid gap-4 md:grid-cols-2">
               {configs.map((config) => (
-                <ClayCard
+                <ZoruCard
                   key={config.configuration_name}
                   variant="soft"
                   className="p-4"
                 >
                   <div className="flex items-center gap-2">
-                    <LuSettings className="h-4 w-4 text-muted-foreground" />
-                    <h4 className="text-[14px] font-semibold text-foreground">
+                    <Settings className="h-4 w-4 text-zoru-ink-muted" />
+                    <h4 className="text-[14px] text-zoru-ink">
                       {config.configuration_name}
                     </h4>
                   </div>
@@ -233,9 +247,9 @@ export default function WhatsAppPaySetupPage() {
                     <InfoRow
                       label="Status"
                       value={
-                        <ClayBadge tone={statusTone(config.status)}>
+                        <ZoruBadge variant={statusVariant(config.status)}>
                           {config.status}
-                        </ClayBadge>
+                        </ZoruBadge>
                       }
                     />
                     <InfoRow
@@ -266,16 +280,24 @@ export default function WhatsAppPaySetupPage() {
                       onSuccess={fetchData}
                     />
                   </div>
-                </ClayCard>
+                </ZoruCard>
               ))}
             </div>
           ) : (
-            <p className="py-8 text-center text-[13px] text-muted-foreground">
-              No payment configurations found for this WABA.
-            </p>
+            <ZoruEmptyState
+              icon={<Settings />}
+              title="No payment configurations"
+              description="No payment providers are linked to this WABA yet. Create one to get started."
+              action={
+                <ZoruButton size="sm" onClick={() => setIsCreateOpen(true)}>
+                  <CirclePlus />
+                  Create configuration
+                </ZoruButton>
+              }
+            />
           )}
         </div>
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

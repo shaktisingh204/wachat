@@ -698,44 +698,6 @@ export default function ZoruuiGalleryPage() {
           </div>
         </Section>
 
-        <Section step="Step 4" title="Tabs (pill + underline)">
-          <ZoruTabs defaultValue="overview">
-            <ZoruTabsList>
-              <ZoruTabsTrigger value="overview">Overview</ZoruTabsTrigger>
-              <ZoruTabsTrigger value="activity">Activity</ZoruTabsTrigger>
-              <ZoruTabsTrigger value="settings">Settings</ZoruTabsTrigger>
-            </ZoruTabsList>
-            <ZoruTabsContent value="overview">
-              <p className="text-sm text-zoru-ink-muted">
-                Pill tabs — for compact, in-page section switches.
-              </p>
-            </ZoruTabsContent>
-            <ZoruTabsContent value="activity">
-              <p className="text-sm text-zoru-ink-muted">Activity feed lives here.</p>
-            </ZoruTabsContent>
-            <ZoruTabsContent value="settings">
-              <p className="text-sm text-zoru-ink-muted">Settings form lives here.</p>
-            </ZoruTabsContent>
-          </ZoruTabs>
-
-          <ZoruTabs defaultValue="all" className="mt-6">
-            <ZoruTabsListUnderline>
-              <ZoruTabsTriggerUnderline value="all">All</ZoruTabsTriggerUnderline>
-              <ZoruTabsTriggerUnderline value="open">Open</ZoruTabsTriggerUnderline>
-              <ZoruTabsTriggerUnderline value="closed">Closed</ZoruTabsTriggerUnderline>
-              <ZoruTabsTriggerUnderline value="archived">
-                Archived
-              </ZoruTabsTriggerUnderline>
-            </ZoruTabsListUnderline>
-            <ZoruTabsContent value="all">
-              <p className="text-sm text-zoru-ink-muted">
-                Underline tabs — for module-level navigation that needs to feel
-                quieter than the pill variant.
-              </p>
-            </ZoruTabsContent>
-          </ZoruTabs>
-        </Section>
-
         <Section step="Step 4" title="Accordion (default + boxed)">
           <div className="grid gap-6 lg:grid-cols-2">
             <ZoruAccordion type="single" collapsible>

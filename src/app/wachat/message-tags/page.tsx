@@ -1,133 +1,386 @@
 'use client';
 
-import * as React from 'react';
-import { useEffect, useState, useTransition, useCallback } from 'react';
-import { LuTag, LuPlus, LuTrash2, LuLoader } from 'react-icons/lu';
-import { useProject } from '@/context/project-context';
-import { useToast } from '@/hooks/use-toast';
-import { ClayBreadcrumbs, ClayButton, ClayCard } from '@/components/clay';
-import { getMessageTags, saveMessageTag, deleteMessageTag } from '@/app/actions/wachat-features.actions';
+/**
+ * /wachat/message-tags — manage conversation tags.
+ * ZoruUI: header + breadcrumb, ZoruDataTable, ZoruColorPicker (neutral
+ * palette), edit-tag dialog, delete alert dialog.
+ */
 
-const COLORS = [
-  { label: 'Red', value: '#ef4444' },
-  { label: 'Orange', value: '#f97316' },
-  { label: 'Amber', value: '#f59e0b' },
-  { label: 'Green', value: '#22c55e' },
-  { label: 'Blue', value: '#3b82f6' },
-  { label: 'Violet', value: '#8b5cf6' },
-  { label: 'Pink', value: '#ec4899' },
+import * as React from 'react';
+import { useEffect, useState, useTransition, useCallback, useMemo } from 'react';
+import { Plus, Pencil, Trash2, Tag } from 'lucide-react';
+import type { ColumnDef } from '@tanstack/react-table';
+
+import { useProject } from '@/context/project-context';
+import {
+  getMessageTags,
+  saveMessageTag,
+  deleteMessageTag,
+} from '@/app/actions/wachat-features.actions';
+
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruColorPicker,
+  ZoruDataTable,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruEmptyState,
+  ZoruInput,
+  ZoruLabel,
+  ZoruPageActions,
+  ZoruPageDescription,
+  ZoruPageEyebrow,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruSkeleton,
+  useZoruToast,
+} from '@/components/zoruui';
+
+interface Tag {
+  _id: string;
+  name: string;
+  color: string;
+  usageCount?: number;
+}
+
+// Neutral-only palette — no rainbow accents.
+const NEUTRAL_PRESETS = [
+  '#0F0F10',
+  '#27272A',
+  '#3F3F46',
+  '#52525B',
+  '#71717A',
+  '#A1A1AA',
+  '#D4D4D8',
+  '#E4E4E7',
+  '#F4F4F5',
 ];
 
 export default function MessageTagsPage() {
   const { activeProject } = useProject();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const projectId = activeProject?._id?.toString();
-  const [tags, setTags] = useState<any[]>([]);
-  const [name, setName] = useState('');
-  const [color, setColor] = useState(COLORS[0].value);
+  const [tags, setTags] = useState<Tag[]>([]);
   const [isLoading, startTransition] = useTransition();
   const [isMutating, startMutateTransition] = useTransition();
+
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editing, setEditing] = useState<Tag | null>(null);
+  const [name, setName] = useState('');
+  const [color, setColor] = useState(NEUTRAL_PRESETS[0]);
+
+  const [deleting, setDeleting] = useState<Tag | null>(null);
 
   const fetchData = useCallback(() => {
     if (!projectId) return;
     startTransition(async () => {
       const res = await getMessageTags(projectId);
-      if (res.error) { toast({ title: 'Error', description: res.error, variant: 'destructive' }); return; }
-      setTags(res.tags ?? []);
+      if (res.error) {
+        toast({ title: 'Error', description: res.error, variant: 'destructive' });
+        return;
+      }
+      setTags((res.tags ?? []) as Tag[]);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId]);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
-  const handleAdd = () => {
+  const openCreate = () => {
+    setEditing(null);
+    setName('');
+    setColor(NEUTRAL_PRESETS[0]);
+    setDialogOpen(true);
+  };
+
+  const openEdit = (tag: Tag) => {
+    setEditing(tag);
+    setName(tag.name);
+    setColor(tag.color || NEUTRAL_PRESETS[0]);
+    setDialogOpen(true);
+  };
+
+  const handleSave = () => {
     if (!name.trim() || !projectId) return;
     startMutateTransition(async () => {
       const res = await saveMessageTag(projectId, name.trim(), color);
-      if (res.error) { toast({ title: 'Error', description: res.error, variant: 'destructive' }); return; }
-      toast({ title: 'Tag Created', description: res.message });
+      if (res.error) {
+        toast({ title: 'Error', description: res.error, variant: 'destructive' });
+        return;
+      }
+      toast({
+        title: editing ? 'Tag updated' : 'Tag created',
+        description: res.message ?? 'Saved.',
+      });
       setName('');
+      setDialogOpen(false);
+      setEditing(null);
       fetchData();
     });
   };
 
-  const handleDelete = (tagId: string, tagName: string) => {
-    if (!window.confirm(`Delete tag "${tagName}"? This cannot be undone.`)) return;
+  const handleDelete = () => {
+    if (!deleting) return;
     startMutateTransition(async () => {
-      const res = await deleteMessageTag(tagId);
-      if (res.error) { toast({ title: 'Error', description: res.error, variant: 'destructive' }); return; }
+      const res = await deleteMessageTag(deleting._id);
+      if (res.error) {
+        toast({ title: 'Error', description: res.error, variant: 'destructive' });
+        return;
+      }
       toast({ title: 'Deleted', description: 'Tag removed.' });
+      setDeleting(null);
       fetchData();
     });
   };
 
-  if (isLoading) {
+  const columns = useMemo<ColumnDef<Tag>[]>(
+    () => [
+      {
+        id: 'swatch',
+        header: '',
+        cell: ({ row }) => (
+          <span
+            className="block h-4 w-4 rounded-full border border-zoru-line"
+            style={{ backgroundColor: row.original.color }}
+            aria-label={`Tag color ${row.original.color}`}
+          />
+        ),
+      },
+      {
+        accessorKey: 'name',
+        header: 'Name',
+        cell: ({ row }) => (
+          <span className="text-zoru-ink">{row.original.name}</span>
+        ),
+      },
+      {
+        accessorKey: 'usageCount',
+        header: 'Messages',
+        cell: ({ row }) => (
+          <span className="tabular-nums text-zoru-ink-muted">
+            {row.original.usageCount ?? 0}
+          </span>
+        ),
+      },
+      {
+        id: 'actions',
+        header: '',
+        cell: ({ row }) => (
+          <div className="flex items-center justify-end gap-1">
+            <ZoruButton
+              variant="ghost"
+              size="icon-sm"
+              aria-label="Edit"
+              onClick={() => openEdit(row.original)}
+            >
+              <Pencil />
+            </ZoruButton>
+            <ZoruButton
+              variant="ghost"
+              size="icon-sm"
+              aria-label="Delete"
+              onClick={() => setDeleting(row.original)}
+            >
+              <Trash2 />
+            </ZoruButton>
+          </div>
+        ),
+      },
+    ],
+    [],
+  );
+
+  if (isLoading && tags.length === 0) {
     return (
-      <div className="flex min-h-[300px] items-center justify-center">
-        <LuLoader className="h-6 w-6 animate-spin text-muted-foreground" />
+      <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
+        <ZoruSkeleton className="h-3 w-52" />
+        <div className="mt-5 space-y-3">
+          <ZoruSkeleton className="h-9 w-72" />
+          <ZoruSkeleton className="h-4 w-96" />
+        </div>
+        <div className="mt-8 grid gap-2">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <ZoruSkeleton key={i} className="h-12" />
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="clay-enter flex min-h-full flex-col gap-6">
-      <ClayBreadcrumbs items={[
-        { label: 'Wachat', href: '/dashboard' },
-        { label: activeProject?.name || 'Project', href: '/wachat' },
-        { label: 'Message Tags' },
-      ]} />
+    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Message Tags</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
 
-      <div>
-        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">Message Tags</h1>
-        <p className="mt-1.5 text-[13px] text-muted-foreground">Create and manage tags to organize your conversations.</p>
+      <ZoruPageHeader className="mt-5">
+        <ZoruPageHeading>
+          <ZoruPageEyebrow>
+            WaChat · {activeProject?.name ?? 'Project'}
+          </ZoruPageEyebrow>
+          <ZoruPageTitle>Message Tags</ZoruPageTitle>
+          <ZoruPageDescription>
+            Create and manage tags to organize your conversations.
+          </ZoruPageDescription>
+        </ZoruPageHeading>
+        <ZoruPageActions>
+          <ZoruButton onClick={openCreate}>
+            <Plus /> New tag
+          </ZoruButton>
+        </ZoruPageActions>
+      </ZoruPageHeader>
+
+      <div className="mt-6">
+        {tags.length === 0 ? (
+          <ZoruEmptyState
+            icon={<Tag />}
+            title="No tags yet"
+            description="Create tags to keep conversations organized and easy to filter."
+            action={
+              <ZoruButton onClick={openCreate}>
+                <Plus /> New tag
+              </ZoruButton>
+            }
+          />
+        ) : (
+          <ZoruCard className="p-4">
+            <ZoruDataTable
+              columns={columns}
+              data={tags}
+              filterColumn="name"
+              filterPlaceholder="Search tags…"
+            />
+          </ZoruCard>
+        )}
       </div>
 
-      <ClayCard padded={false} className="p-5">
-        <h2 className="text-[15px] font-semibold text-foreground mb-3">Add New Tag</h2>
-        <div className="flex flex-wrap gap-3 items-end">
-          <div className="flex-1 min-w-[180px]">
-            <label className="text-[12px] text-muted-foreground mb-1 block">Name</label>
-            <input type="text" value={name} onChange={(e) => setName(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleAdd()} placeholder="Tag name"
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none" />
-          </div>
-          <div>
-            <label className="text-[12px] text-muted-foreground mb-1 block">Color</label>
-            <div className="flex gap-1.5">
-              {COLORS.map((c) => (
-                <button key={c.value} type="button" onClick={() => setColor(c.value)}
-                  className={`h-8 w-8 rounded-full border-2 transition-all ${color === c.value ? 'border-foreground scale-110' : 'border-transparent'}`}
-                  style={{ backgroundColor: c.value }} title={c.label} />
-              ))}
-            </div>
-          </div>
-          <ClayButton size="sm" onClick={handleAdd} disabled={!name.trim() || isMutating}
-            leading={<LuPlus className="h-3.5 w-3.5" />}>
-            Add Tag
-          </ClayButton>
-        </div>
-      </ClayCard>
+      {/* Create / edit tag dialog */}
+      <ZoruDialog
+        open={dialogOpen}
+        onOpenChange={(open) => {
+          setDialogOpen(open);
+          if (!open) {
+            setEditing(null);
+            setName('');
+          }
+        }}
+      >
+        <ZoruDialogContent>
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>
+              {editing ? 'Edit tag' : 'New tag'}
+            </ZoruDialogTitle>
+            <ZoruDialogDescription>
+              Pick a name and a neutral color to make this tag easy to spot.
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
 
-      {tags.length > 0 ? (
-        <ClayCard padded={false} className="divide-y divide-border">
-          {tags.map((tag) => (
-            <div key={tag._id} className="flex items-center gap-4 px-5 py-3">
-              <span className="h-4 w-4 rounded-full shrink-0" style={{ backgroundColor: tag.color }} />
-              <span className="flex-1 text-[14px] font-medium text-foreground">{tag.name}</span>
-              <span className="text-[12px] text-muted-foreground tabular-nums">{tag.usageCount ?? 0} messages</span>
-              <button onClick={() => handleDelete(tag._id, tag.name)} disabled={isMutating}
-                className="p-1.5 rounded-md hover:bg-red-50 transition-colors text-red-500" title="Delete">
-                <LuTrash2 className="h-3.5 w-3.5" />
-              </button>
-            </div>
-          ))}
-        </ClayCard>
-      ) : (
-        <ClayCard className="p-12 text-center">
-          <LuTag className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
-          <p className="text-sm text-muted-foreground">No tags yet. Create one above.</p>
-        </ClayCard>
-      )}
-      <div className="h-6" />
+          <div className="flex flex-col gap-1.5">
+            <ZoruLabel htmlFor="tag-name">Name</ZoruLabel>
+            <ZoruInput
+              id="tag-name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleSave();
+              }}
+              placeholder="Tag name"
+              autoFocus
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <ZoruLabel>Color</ZoruLabel>
+            <ZoruColorPicker
+              value={color}
+              onChange={setColor}
+              presets={NEUTRAL_PRESETS}
+            />
+          </div>
+
+          <ZoruDialogFooter>
+            <ZoruButton
+              variant="outline"
+              onClick={() => {
+                setDialogOpen(false);
+                setEditing(null);
+                setName('');
+              }}
+            >
+              Cancel
+            </ZoruButton>
+            <ZoruButton
+              onClick={handleSave}
+              disabled={isMutating || !name.trim()}
+            >
+              {editing ? 'Save changes' : 'Create tag'}
+            </ZoruButton>
+          </ZoruDialogFooter>
+        </ZoruDialogContent>
+      </ZoruDialog>
+
+      {/* Delete tag alert */}
+      <ZoruAlertDialog
+        open={!!deleting}
+        onOpenChange={(open) => {
+          if (!open) setDeleting(null);
+        }}
+      >
+        <ZoruAlertDialogContent>
+          <ZoruAlertDialogHeader>
+            <ZoruAlertDialogTitle>
+              Delete &ldquo;{deleting?.name}&rdquo;?
+            </ZoruAlertDialogTitle>
+            <ZoruAlertDialogDescription>
+              This removes the tag and detaches it from any conversations using
+              it. This cannot be undone.
+            </ZoruAlertDialogDescription>
+          </ZoruAlertDialogHeader>
+          <ZoruAlertDialogFooter>
+            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+            <ZoruAlertDialogAction
+              onClick={handleDelete}
+              disabled={isMutating}
+            >
+              Delete
+            </ZoruAlertDialogAction>
+          </ZoruAlertDialogFooter>
+        </ZoruAlertDialogContent>
+      </ZoruAlertDialog>
     </div>
   );
 }

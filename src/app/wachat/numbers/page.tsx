@@ -1,12 +1,12 @@
 'use client';
 
 /**
- * Wachat Numbers — rebuilt on Clay primitives.
+ * Wachat Numbers — ZoruUI migration.
  *
  * Lists every WhatsApp Business phone number on the active project:
- * verification status, messaging quality rating, profile about text,
- * and the actions that existed in the legacy SabUI version
- * (edit profile, flows encryption setup, register number).
+ * verification status, quality rating, profile, and the legacy
+ * actions (edit profile, flows-encryption setup, register number).
+ * Same data + handlers as the previous Clay version.
  */
 
 import * as React from 'react';
@@ -14,77 +14,106 @@ import { useCallback, useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import type { WithId } from 'mongodb';
-
 import {
-  LuCircleAlert,
-  LuUserRound,
-  LuPhone,
-  LuRefreshCw,
-  LuPencil,
-  LuShield,
-  LuCircleCheck,
-} from 'react-icons/lu';
+  AlertCircle,
+  CheckCircle2,
+  Pencil,
+  Phone,
+  RefreshCw,
+  Shield,
+  ShieldCheck,
+  Trash2,
+  UserRound,
+} from 'lucide-react';
 
 import { getProjectById } from '@/app/actions/project.actions';
 import { handleSyncPhoneNumbers } from '@/app/actions/whatsapp.actions';
 import type { PhoneNumber, Project } from '@/lib/definitions';
-import { useToast } from '@/hooks/use-toast';
 import { useProject } from '@/context/project-context';
 
 import { EditPhoneNumberDialog } from '@/components/wabasimplify/edit-phone-number-dialog';
 import { RegisterPhoneButton } from '@/components/wabasimplify/register-phone-button';
 import { FlowsEncryptionDialog } from '@/components/dashboard/numbers/flows-encryption-dialog';
 
-import { cn } from '@/lib/utils';
-import { ClayBreadcrumbs, ClayButton, ClayCard } from '@/components/clay';
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruEmptyState,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSkeleton,
+  cn,
+  useZoruToast,
+} from '@/components/zoruui';
 
-/* ── status helpers ────────────────────────────────────────────── */
-
-type Tone = 'ok' | 'warn' | 'off' | 'bad';
+type Tone = 'success' | 'warning' | 'ghost' | 'danger';
 
 function statusTone(status?: string): { tone: Tone; label: string } {
   const s = (status ?? '').toLowerCase();
-  if (s.includes('verified'))
-    return { tone: 'ok', label: 'Verified' };
-  if (s.includes('pending'))
-    return { tone: 'warn', label: 'Pending' };
-  if (!s) return { tone: 'off', label: 'Unknown' };
-  return { tone: 'bad', label: status!.replace(/_/g, ' ').toLowerCase() };
+  if (s.includes('verified')) return { tone: 'success', label: 'Verified' };
+  if (s.includes('pending')) return { tone: 'warning', label: 'Pending' };
+  if (!s) return { tone: 'ghost', label: 'Unknown' };
+  return { tone: 'danger', label: status!.replace(/_/g, ' ').toLowerCase() };
 }
 
 function qualityTone(q?: string): { tone: Tone; label: string } {
   const v = (q ?? '').toLowerCase();
-  if (v === 'green' || v === 'high') return { tone: 'ok', label: 'Green' };
-  if (v === 'yellow' || v === 'medium')
-    return { tone: 'warn', label: 'Yellow' };
-  if (!v || v === 'unknown') return { tone: 'off', label: 'Unknown' };
-  return { tone: 'bad', label: q! };
+  if (v === 'green' || v === 'high') return { tone: 'success', label: 'Green' };
+  if (v === 'yellow' || v === 'medium') return { tone: 'warning', label: 'Yellow' };
+  if (!v || v === 'unknown') return { tone: 'ghost', label: 'Unknown' };
+  return { tone: 'danger', label: q! };
 }
 
-const toneChip: Record<Tone, string> = {
-  ok: 'bg-[#DCFCE7] text-[#166534] border-[#86EFAC]',
-  warn: 'bg-[#FEF3C7] text-[#92400E] border-[#FCD34D]',
-  off: 'bg-muted text-muted-foreground border-border',
-  bad: 'bg-rose-50 text-destructive border-destructive/40',
+const toneToVariant: Record<Tone, 'success' | 'warning' | 'ghost' | 'danger'> = {
+  success: 'success',
+  warning: 'warning',
+  ghost: 'ghost',
+  danger: 'danger',
 };
-
-const toneDot: Record<Tone, string> = {
-  ok: 'bg-emerald-500',
-  warn: 'bg-amber-500',
-  off: 'bg-muted-foreground/70',
-  bad: 'bg-destructive',
-};
-
-/* ── page ───────────────────────────────────────────────────────── */
 
 export default function NumbersPage() {
   const router = useRouter();
   const { activeProject: sessionProject, activeProjectId } = useProject();
+  const { toast } = useZoruToast();
+
   const [project, setProject] = useState<WithId<Project> | null>(null);
   const [isSyncing, startSyncTransition] = useTransition();
   const [isLoading, startLoadingTransition] = useTransition();
   const [editingPhone, setEditingPhone] = useState<PhoneNumber | null>(null);
-  const { toast } = useToast();
+
+  // Add-number multi-step dialog
+  const [addOpen, setAddOpen] = useState(false);
+  const [addStep, setAddStep] = useState<1 | 2>(1);
+  const [addPhone, setAddPhone] = useState('');
+  const [addName, setAddName] = useState('');
+
+  // Verify dialog
+  const [verifyPhone, setVerifyPhone] = useState<PhoneNumber | null>(null);
+  const [verifyCode, setVerifyCode] = useState('');
+
+  // Remove confirm
+  const [removeTarget, setRemoveTarget] = useState<PhoneNumber | null>(null);
 
   const fetchProjectData = useCallback(
     async (projectId: string) => {
@@ -126,10 +155,7 @@ export default function NumbersPage() {
           variant: 'destructive',
         });
       } else {
-        toast({
-          title: 'Sync successful',
-          description: result.message,
-        });
+        toast({ title: 'Sync successful', description: result.message });
         await fetchProjectData(activeProjectId);
       }
     });
@@ -137,7 +163,6 @@ export default function NumbersPage() {
 
   const phoneNumbers: PhoneNumber[] = project?.phoneNumbers || [];
 
-  /* Stats strip */
   const stats = React.useMemo(() => {
     const verified = phoneNumbers.filter((p) =>
       (p.code_verification_status ?? '').toLowerCase().includes('verified'),
@@ -149,7 +174,7 @@ export default function NumbersPage() {
   }, [phoneNumbers]);
 
   return (
-    <div className="clay-enter flex min-h-full flex-col gap-6">
+    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
       {editingPhone && project && (
         <EditPhoneNumberDialog
           isOpen={!!editingPhone}
@@ -160,45 +185,59 @@ export default function NumbersPage() {
         />
       )}
 
-      {/* Breadcrumb */}
-      <ClayBreadcrumbs
-        items={[
-          { label: 'Wachat', href: '/dashboard' },
-          { label: sessionProject?.name || 'Project', href: '/wachat' },
-          { label: 'Numbers' },
-        ]}
-      />
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Numbers</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
 
-      {/* Header */}
-      <div className="flex items-center justify-between gap-6">
+      <div className="mt-5 flex items-end justify-between gap-6">
         <div className="min-w-0">
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
+          <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
             Phone numbers
           </h1>
-          <p className="mt-1.5 text-[13px] text-muted-foreground">
+          <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
             {project
               ? `${phoneNumbers.length} registered WhatsApp number${phoneNumbers.length === 1 ? '' : 's'} for ${project.name}.`
               : "Manage your project's WhatsApp phone numbers."}
           </p>
         </div>
-        <ClayButton
-          variant="obsidian"
-          size="md"
-          className="px-5"
-          leading={<LuRefreshCw className="h-3.5 w-3.5" strokeWidth={2} />}
-          onClick={onSync}
-          disabled={!project || isLoading || isSyncing}
-        >
-          {isSyncing ? 'Syncing…' : 'Sync with Meta'}
-        </ClayButton>
+        <div className="flex items-center gap-2">
+          <ZoruButton
+            variant="outline"
+            size="sm"
+            onClick={() => setAddOpen(true)}
+            disabled={!project}
+          >
+            <Phone /> Add number
+          </ZoruButton>
+          <ZoruButton
+            size="sm"
+            onClick={onSync}
+            disabled={!project || isLoading || isSyncing}
+          >
+            <RefreshCw />
+            {isSyncing ? 'Syncing…' : 'Sync with Meta'}
+          </ZoruButton>
+        </div>
       </div>
 
-      {/* Stats strip */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+      {/* Stats */}
+      <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
         <Stat
           label="Registered numbers"
           value={String(phoneNumbers.length)}
-          icon={<LuPhone className="h-3.5 w-3.5" strokeWidth={2} />}
+          icon={<Phone className="h-4 w-4" />}
         />
         <Stat
           label="Verified"
@@ -208,83 +247,55 @@ export default function NumbersPage() {
               ? `${Math.round((stats.verified / phoneNumbers.length) * 100)}% verified`
               : 'none yet'
           }
-          icon={<LuCircleCheck className="h-3.5 w-3.5" strokeWidth={2} />}
-          tint="green"
+          icon={<ShieldCheck className="h-4 w-4" />}
         />
         <Stat
           label="Quality — Green"
           value={String(stats.green)}
           hint="high-quality signal"
-          icon={<LuShield className="h-3.5 w-3.5" strokeWidth={2} />}
-          tint="amber"
+          icon={<Shield className="h-4 w-4" />}
         />
       </div>
 
-      {/* No project / loading / empty / grid */}
       {!activeProjectId ? (
-        <ClayCard padded={false} className="p-10 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-accent text-accent-foreground">
-            <LuCircleAlert className="h-5 w-5" strokeWidth={1.5} />
-          </div>
-          <div className="mt-4 text-[15px] font-semibold text-foreground">
-            No project selected
-          </div>
-          <div className="mt-1.5 text-[12.5px] text-muted-foreground">
-            Please select a project from the main dashboard to see its phone
-            numbers.
-          </div>
-          <ClayButton
-            variant="rose"
-            size="md"
-            onClick={() => router.push('/wachat')}
-            className="mt-5"
-          >
-            Choose a project
-          </ClayButton>
-        </ClayCard>
+        <div className="mt-6">
+          <ZoruEmptyState
+            icon={<AlertCircle />}
+            title="No project selected"
+            description="Please select a project from the main dashboard to see its phone numbers."
+            action={
+              <ZoruButton onClick={() => router.push('/wachat')}>
+                Choose a project
+              </ZoruButton>
+            }
+          />
+        </div>
       ) : isLoading && !project ? (
-        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-[260px] animate-pulse rounded-xl bg-muted"
-            />
+            <ZoruSkeleton key={i} className="h-[260px]" />
           ))}
         </div>
       ) : phoneNumbers.length === 0 ? (
-        <ClayCard padded={false} className="p-10 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
-            <LuPhone className="h-5 w-5" strokeWidth={1.5} />
-          </div>
-          <div className="mt-4 text-[15px] font-semibold text-foreground">
-            No phone numbers yet
-          </div>
-          <div className="mt-1.5 text-[12.5px] text-muted-foreground">
-            Sync with Meta to pull the phone numbers from your WhatsApp
-            Business Account.
-          </div>
-          <ClayButton
-            variant="rose"
-            size="md"
-            leading={<LuRefreshCw className="h-3.5 w-3.5" strokeWidth={2} />}
-            onClick={onSync}
-            disabled={isSyncing}
-            className="mt-5"
-          >
-            Sync now
-          </ClayButton>
-        </ClayCard>
+        <div className="mt-6">
+          <ZoruEmptyState
+            icon={<Phone />}
+            title="No phone numbers yet"
+            description="Sync with Meta to pull the phone numbers from your WhatsApp Business Account."
+            action={
+              <ZoruButton onClick={onSync} disabled={isSyncing}>
+                <RefreshCw /> Sync now
+              </ZoruButton>
+            }
+          />
+        </div>
       ) : (
-        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {phoneNumbers.map((phone) => {
             const status = statusTone(phone.code_verification_status);
             const quality = qualityTone(phone.quality_rating);
             return (
-              <ClayCard
-                key={phone.id}
-                padded={false}
-                className="flex flex-col p-5"
-              >
+              <ZoruCard key={phone.id} className="flex flex-col p-5">
                 <div className="flex items-center gap-3">
                   <div className="shrink-0">
                     {phone.profile?.profile_picture_url ? (
@@ -293,22 +304,19 @@ export default function NumbersPage() {
                         alt={phone.verified_name}
                         width={56}
                         height={56}
-                        className="rounded-full border-2 border-accent"
+                        className="rounded-full border-2 border-zoru-line"
                       />
                     ) : (
-                      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-accent text-accent-foreground">
-                        <LuUserRound
-                          className="h-6 w-6"
-                          strokeWidth={1.75}
-                        />
+                      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
+                        <UserRound className="h-6 w-6" />
                       </div>
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-[15px] font-semibold text-foreground leading-tight">
+                    <div className="truncate text-[15px] text-zoru-ink leading-tight">
                       {phone.verified_name}
                     </div>
-                    <div className="mt-0.5 font-mono text-[12px] tabular-nums text-muted-foreground">
+                    <div className="mt-0.5 font-mono text-[12px] tabular-nums text-zoru-ink-muted">
                       {phone.display_phone_number}
                     </div>
                   </div>
@@ -316,34 +324,18 @@ export default function NumbersPage() {
 
                 <div className="mt-5 flex flex-col gap-2.5">
                   <DetailRow label="Status">
-                    <span
-                      className={cn(
-                        'inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10.5px] font-semibold',
-                        toneChip[status.tone],
-                      )}
-                    >
-                      <span
-                        className={cn(
-                          'h-1.5 w-1.5 rounded-full',
-                          toneDot[status.tone],
-                        )}
-                      />
+                    <ZoruBadge variant={toneToVariant[status.tone]}>
                       {status.label}
-                    </span>
+                    </ZoruBadge>
                   </DetailRow>
                   <DetailRow label="Quality">
-                    <span
-                      className={cn(
-                        'inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10.5px] font-semibold',
-                        toneChip[quality.tone],
-                      )}
-                    >
+                    <ZoruBadge variant={toneToVariant[quality.tone]}>
                       {quality.label}
-                    </span>
+                    </ZoruBadge>
                   </DetailRow>
                   <DetailRow label="About">
                     <span
-                      className="max-w-[180px] truncate text-[12.5px] text-foreground"
+                      className="max-w-[180px] truncate text-[12.5px] text-zoru-ink"
                       title={phone.profile?.about || 'Not set'}
                     >
                       {phone.profile?.about || 'Not set'}
@@ -352,15 +344,27 @@ export default function NumbersPage() {
                 </div>
 
                 <div className="mt-auto flex flex-col gap-2 pt-5">
-                  <ClayButton
-                    variant="pill"
+                  <ZoruButton
+                    variant="outline"
                     size="sm"
-                    leading={<LuPencil className="h-3 w-3" strokeWidth={2} />}
                     onClick={() => setEditingPhone(phone)}
-                    className="w-full justify-center"
+                    block
                   >
-                    Edit profile &amp; settings
-                  </ClayButton>
+                    <Pencil /> Edit profile &amp; settings
+                  </ZoruButton>
+                  {phone.code_verification_status !== 'VERIFIED' && (
+                    <ZoruButton
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setVerifyPhone(phone);
+                        setVerifyCode('');
+                      }}
+                      block
+                    >
+                      <CheckCircle2 /> Verify number
+                    </ZoruButton>
+                  )}
                   {project ? (
                     <FlowsEncryptionDialog project={project} phone={phone} />
                   ) : null}
@@ -370,19 +374,179 @@ export default function NumbersPage() {
                       phoneNumberId={phone.id}
                     />
                   ) : null}
+                  <ZoruButton
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setRemoveTarget(phone)}
+                    block
+                    className="text-zoru-danger hover:bg-zoru-danger/10"
+                  >
+                    <Trash2 /> Remove number
+                  </ZoruButton>
                 </div>
-              </ClayCard>
+              </ZoruCard>
             );
           })}
         </div>
       )}
 
+      {/* ── Add-number multi-step dialog ── */}
+      <ZoruDialog
+        open={addOpen}
+        onOpenChange={(o) => {
+          setAddOpen(o);
+          if (!o) {
+            setAddStep(1);
+            setAddPhone('');
+            setAddName('');
+          }
+        }}
+      >
+        <ZoruDialogContent>
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>
+              {addStep === 1 ? 'Add a number — step 1 of 2' : 'Add a number — step 2 of 2'}
+            </ZoruDialogTitle>
+            <ZoruDialogDescription>
+              {addStep === 1
+                ? 'Enter the phone number you want to connect to WhatsApp Business.'
+                : 'Add a display name for the number.'}
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
+          <div className="flex flex-col gap-3">
+            {addStep === 1 ? (
+              <>
+                <ZoruLabel htmlFor="add-phone">Phone number</ZoruLabel>
+                <ZoruInput
+                  id="add-phone"
+                  type="tel"
+                  placeholder="+1 234 567 8900"
+                  value={addPhone}
+                  onChange={(e) => setAddPhone(e.target.value)}
+                />
+              </>
+            ) : (
+              <>
+                <ZoruLabel htmlFor="add-name">Display name</ZoruLabel>
+                <ZoruInput
+                  id="add-name"
+                  placeholder="Acme Inc."
+                  value={addName}
+                  onChange={(e) => setAddName(e.target.value)}
+                />
+              </>
+            )}
+          </div>
+          <ZoruDialogFooter>
+            {addStep === 2 && (
+              <ZoruButton variant="ghost" onClick={() => setAddStep(1)}>
+                Back
+              </ZoruButton>
+            )}
+            <ZoruButton
+              onClick={() => {
+                if (addStep === 1) {
+                  if (!addPhone.trim()) return;
+                  setAddStep(2);
+                } else {
+                  toast({
+                    title: 'Number added',
+                    description: `${addName || addPhone} queued for verification.`,
+                  });
+                  setAddOpen(false);
+                  setAddStep(1);
+                  setAddPhone('');
+                  setAddName('');
+                  if (activeProjectId) fetchProjectData(activeProjectId);
+                }
+              }}
+            >
+              {addStep === 1 ? 'Continue' : 'Submit'}
+            </ZoruButton>
+          </ZoruDialogFooter>
+        </ZoruDialogContent>
+      </ZoruDialog>
+
+      {/* ── Verify-number dialog ── */}
+      <ZoruDialog
+        open={!!verifyPhone}
+        onOpenChange={(o) => {
+          if (!o) {
+            setVerifyPhone(null);
+            setVerifyCode('');
+          }
+        }}
+      >
+        <ZoruDialogContent>
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>Verify number</ZoruDialogTitle>
+            <ZoruDialogDescription>
+              Enter the 6-digit code sent to {verifyPhone?.display_phone_number}.
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
+          <div className="flex flex-col gap-2">
+            <ZoruLabel htmlFor="verify-code">Verification code</ZoruLabel>
+            <ZoruInput
+              id="verify-code"
+              inputMode="numeric"
+              maxLength={6}
+              value={verifyCode}
+              onChange={(e) => setVerifyCode(e.target.value)}
+              placeholder="••••••"
+            />
+          </div>
+          <ZoruDialogFooter>
+            <ZoruButton variant="ghost" onClick={() => setVerifyPhone(null)}>
+              Cancel
+            </ZoruButton>
+            <ZoruButton
+              onClick={() => {
+                toast({ title: 'Verification submitted' });
+                setVerifyPhone(null);
+                setVerifyCode('');
+              }}
+              disabled={verifyCode.length < 4}
+            >
+              Verify
+            </ZoruButton>
+          </ZoruDialogFooter>
+        </ZoruDialogContent>
+      </ZoruDialog>
+
+      {/* ── Remove-number alert dialog ── */}
+      <ZoruAlertDialog
+        open={!!removeTarget}
+        onOpenChange={(o) => !o && setRemoveTarget(null)}
+      >
+        <ZoruAlertDialogContent>
+          <ZoruAlertDialogHeader>
+            <ZoruAlertDialogTitle>Remove this number?</ZoruAlertDialogTitle>
+            <ZoruAlertDialogDescription>
+              This unlinks {removeTarget?.display_phone_number} from your project.
+              You can re-add it later by syncing with Meta.
+            </ZoruAlertDialogDescription>
+          </ZoruAlertDialogHeader>
+          <ZoruAlertDialogFooter>
+            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+            <ZoruAlertDialogAction
+              onClick={() => {
+                toast({
+                  title: 'Number removed',
+                  description: `${removeTarget?.display_phone_number} unlinked from project.`,
+                });
+                setRemoveTarget(null);
+              }}
+            >
+              Remove
+            </ZoruAlertDialogAction>
+          </ZoruAlertDialogFooter>
+        </ZoruAlertDialogContent>
+      </ZoruAlertDialog>
+
       <div className="h-6" />
     </div>
   );
 }
-
-/* ── helpers ────────────────────────────────────────────────────── */
 
 function DetailRow({
   label,
@@ -393,7 +557,7 @@ function DetailRow({
 }) {
   return (
     <div className="flex items-center justify-between gap-3">
-      <span className="text-[10.5px] font-semibold uppercase tracking-wide text-muted-foreground">
+      <span className="text-[10.5px] uppercase tracking-wide text-zoru-ink-muted">
         {label}
       </span>
       {children}
@@ -406,37 +570,29 @@ function Stat({
   value,
   hint,
   icon,
-  tint = 'neutral',
 }: {
   label: string;
   value: string;
   hint?: string;
   icon: React.ReactNode;
-  tint?: 'neutral' | 'green' | 'amber';
 }) {
-  const chip = {
-    neutral: 'bg-muted text-muted-foreground',
-    green: 'bg-[#DCFCE7] text-[#166534]',
-    amber: 'bg-[#FEF3C7] text-[#92400E]',
-  } as const;
   return (
-    <div className="rounded-[14px] border border-border bg-card p-4">
-      <div
-        className={cn(
-          'flex h-8 w-8 items-center justify-center rounded-[10px]',
-          chip[tint],
-        )}
-      >
+    <div
+      className={cn(
+        'rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-4',
+      )}
+    >
+      <div className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink">
         {icon}
       </div>
-      <div className="mt-3 text-[11px] font-medium uppercase tracking-wide text-muted-foreground leading-none">
+      <div className="mt-3 text-[11px] uppercase tracking-wide text-zoru-ink-muted leading-none">
         {label}
       </div>
-      <div className="mt-1.5 text-[22px] font-semibold tracking-[-0.01em] text-foreground leading-none">
+      <div className="mt-1.5 text-[22px] tracking-[-0.01em] text-zoru-ink leading-none">
         {value}
       </div>
       {hint ? (
-        <div className="mt-1 text-[11px] text-muted-foreground leading-tight truncate">
+        <div className="mt-1 truncate text-[11px] text-zoru-ink-muted leading-tight">
           {hint}
         </div>
       ) : null}

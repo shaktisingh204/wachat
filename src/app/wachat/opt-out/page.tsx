@@ -1,37 +1,97 @@
 'use client';
 
+/**
+ * Wachat Opt-Out / DND — ZoruUI migration.
+ * Single-add form, bulk-paste, list, export CSV, per-keyword stats.
+ */
+
 import * as React from 'react';
 import { useEffect, useState, useTransition, useCallback } from 'react';
-import { LuShieldOff, LuPlus, LuTrash2, LuLoader, LuDownload, LuUpload } from 'react-icons/lu';
+import {
+  Download,
+  Loader2,
+  Plus,
+  ShieldOff,
+  Trash2,
+  Upload,
+} from 'lucide-react';
+
 import { useProject } from '@/context/project-context';
-import { useToast } from '@/hooks/use-toast';
-import { ClayBreadcrumbs, ClayButton, ClayCard, ClayInput } from '@/components/clay';
-import { getOptOutList, addToOptOut, removeFromOptOut } from '@/app/actions/wachat-features.actions';
+import {
+  addToOptOut,
+  getOptOutList,
+  removeFromOptOut,
+} from '@/app/actions/wachat-features.actions';
+
+import {
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruEmptyState,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSkeleton,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
+
+type OptOutItem = {
+  _id: string;
+  phone: string;
+  reason?: string;
+  optedOutAt?: string;
+};
 
 export default function OptOutPage() {
   const { activeProject } = useProject();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [isPending, startTransition] = useTransition();
-  const [list, setList] = useState<any[]>([]);
+  const [list, setList] = useState<OptOutItem[]>([]);
   const [phone, setPhone] = useState('');
   const [reason, setReason] = useState('');
+  const [bulkText, setBulkText] = useState('');
 
   const load = useCallback(() => {
     if (!activeProject?._id) return;
     startTransition(async () => {
       const res = await getOptOutList(String(activeProject._id));
-      if (res.error) { toast({ title: 'Error', description: res.error, variant: 'destructive' }); return; }
-      setList(res.optOuts ?? []);
+      if (res.error) {
+        toast({
+          title: 'Error',
+          description: res.error,
+          variant: 'destructive',
+        });
+        return;
+      }
+      setList((res.optOuts as OptOutItem[]) ?? []);
     });
   }, [activeProject?._id, toast]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!phone.trim()) return;
-    const res = await addToOptOut(String(activeProject?._id ?? ''), phone.trim(), reason.trim() || undefined);
-    if (!res.success) { toast({ title: 'Error', description: res.error, variant: 'destructive' }); return; }
+    const res = await addToOptOut(
+      String(activeProject?._id ?? ''),
+      phone.trim(),
+      reason.trim() || undefined,
+    );
+    if (!res.success) {
+      toast({
+        title: 'Error',
+        description: res.error,
+        variant: 'destructive',
+      });
+      return;
+    }
     toast({ title: 'Number added to opt-out list.' });
     setPhone('');
     setReason('');
@@ -41,14 +101,21 @@ export default function OptOutPage() {
   const handleRemove = (id: string) => {
     startTransition(async () => {
       const res = await removeFromOptOut(id);
-      if (!res.success) { toast({ title: 'Error', description: res.error, variant: 'destructive' }); return; }
+      if (!res.success) {
+        toast({
+          title: 'Error',
+          description: res.error,
+          variant: 'destructive',
+        });
+        return;
+      }
       toast({ title: 'Removed from opt-out list.' });
       load();
     });
   };
 
-  const handleBulkPaste = async (raw: string) => {
-    const phones = raw
+  const handleBulkPaste = async () => {
+    const phones = bulkText
       .split(/[\n,;\s]+/)
       .map((p) => p.trim())
       .filter(Boolean);
@@ -60,7 +127,11 @@ export default function OptOutPage() {
       if (res.success) ok++;
       else fail++;
     }
-    toast({ title: `Bulk add complete`, description: `${ok} added, ${fail} failed.` });
+    toast({
+      title: 'Bulk add complete',
+      description: `${ok} added, ${fail} failed.`,
+    });
+    setBulkText('');
     load();
   };
 
@@ -70,7 +141,12 @@ export default function OptOutPage() {
       return;
     }
     const header = 'phone,reason,opted_out_at\n';
-    const rows = list.map((i) => `"${i.phone}","${(i.reason || '').replace(/"/g, '""')}","${i.optedOutAt || ''}"`).join('\n');
+    const rows = list
+      .map(
+        (i) =>
+          `"${i.phone}","${(i.reason || '').replace(/"/g, '""')}","${i.optedOutAt || ''}"`,
+      )
+      .join('\n');
     const blob = new Blob([header + rows], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -82,107 +158,186 @@ export default function OptOutPage() {
     URL.revokeObjectURL(url);
   };
 
-  return (
-    <div className="clay-enter flex min-h-full flex-col gap-6">
-      <ClayBreadcrumbs items={[
-        { label: 'Wachat', href: '/dashboard' },
-        { label: activeProject?.name || 'Project', href: '/wachat' },
-        { label: 'Opt-Out / DND' },
-      ]} />
+  // Per-keyword stats from reasons
+  const keywordStats = React.useMemo(() => {
+    const map = new Map<string, number>();
+    list.forEach((item) => {
+      const key = (item.reason || 'No reason').trim() || 'No reason';
+      map.set(key, (map.get(key) ?? 0) + 1);
+    });
+    return Array.from(map.entries()).sort((a, b) => b[1] - a[1]);
+  }, [list]);
 
-      <div>
-        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">Opt-Out / DND Management</h1>
-        <p className="mt-1.5 text-[13px] text-muted-foreground">Manage numbers that have opted out of receiving messages.</p>
+  return (
+    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Opt-out / DND</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
+
+      <div className="mt-5">
+        <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
+          Opt-out / DND management
+        </h1>
+        <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
+          Manage numbers that have opted out of receiving messages.
+        </p>
       </div>
 
       {/* Add form */}
-      <ClayCard padded={false} className="p-5">
-        <h2 className="mb-4 text-[15px] font-semibold text-foreground">Add to Opt-Out List</h2>
+      <ZoruCard className="mt-6 p-5">
+        <h2 className="mb-4 text-[15px] text-zoru-ink">Add to opt-out list</h2>
         <form onSubmit={handleAdd} className="flex flex-wrap items-end gap-3">
-          <label className="flex flex-col gap-1.5 text-[12px] font-medium text-muted-foreground">
-            Phone Number
-            <ClayInput value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+1 234 567 8900" required className="w-52" />
-          </label>
-          <label className="flex flex-1 flex-col gap-1.5 text-[12px] font-medium text-muted-foreground">
-            Reason
-            <ClayInput value={reason} onChange={(e) => setReason(e.target.value)} placeholder="e.g. User requested" className="w-full" />
-          </label>
-          <ClayButton type="submit" variant="obsidian" size="sm" leading={<LuPlus className="h-3.5 w-3.5" />}>
-            Add
-          </ClayButton>
+          <div className="flex flex-col gap-1.5">
+            <ZoruLabel htmlFor="opt-phone">Phone number</ZoruLabel>
+            <ZoruInput
+              id="opt-phone"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="+1 234 567 8900"
+              required
+              className="w-52"
+            />
+          </div>
+          <div className="flex flex-1 flex-col gap-1.5">
+            <ZoruLabel htmlFor="opt-reason">Reason</ZoruLabel>
+            <ZoruInput
+              id="opt-reason"
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder="e.g. User requested"
+            />
+          </div>
+          <ZoruButton type="submit" size="sm">
+            <Plus /> Add
+          </ZoruButton>
         </form>
-      </ClayCard>
+      </ZoruCard>
 
       {/* Bulk paste */}
-      <ClayCard padded={false} className="p-5">
-        <h2 className="mb-3 text-[15px] font-semibold text-foreground">Bulk add</h2>
-        <p className="mb-2 text-[12px] text-muted-foreground">Paste multiple phone numbers separated by newlines or commas.</p>
-        <textarea
-          id="bulk-opt-out"
+      <ZoruCard className="mt-4 p-5">
+        <h2 className="mb-3 text-[15px] text-zoru-ink">Bulk add</h2>
+        <p className="mb-2 text-[12px] text-zoru-ink-muted">
+          Paste multiple phone numbers separated by newlines or commas.
+        </p>
+        <ZoruTextarea
           rows={4}
           placeholder={'+919876543210\n+919876543211\n+919876543212'}
-          className="w-full rounded-[10px] border border-border bg-card p-3 text-[13px] text-foreground placeholder:text-muted-foreground focus:border-border focus:outline-none"
+          value={bulkText}
+          onChange={(e) => setBulkText(e.target.value)}
         />
-        <ClayButton
-          variant="pill"
+        <ZoruButton
+          variant="outline"
           size="sm"
           className="mt-3"
-          leading={<LuUpload className="h-3.5 w-3.5" strokeWidth={2} />}
-          onClick={() => {
-            const el = document.getElementById('bulk-opt-out') as HTMLTextAreaElement | null;
-            if (el) {
-              handleBulkPaste(el.value);
-              el.value = '';
-            }
-          }}
+          onClick={handleBulkPaste}
+          disabled={!bulkText.trim()}
         >
-          Bulk add
-        </ClayButton>
-      </ClayCard>
+          <Upload /> Bulk add
+        </ZoruButton>
+      </ZoruCard>
+
+      {/* Per-keyword stats */}
+      {keywordStats.length > 0 && (
+        <ZoruCard className="mt-4 p-5">
+          <h2 className="mb-3 text-[15px] text-zoru-ink">Per-reason stats</h2>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+            {keywordStats.slice(0, 8).map(([k, n]) => (
+              <div
+                key={k}
+                className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-3 py-2"
+              >
+                <div className="truncate text-[11.5px] text-zoru-ink-muted">
+                  {k}
+                </div>
+                <div className="mt-0.5 text-[18px] text-zoru-ink leading-none">
+                  {n}
+                </div>
+              </div>
+            ))}
+          </div>
+        </ZoruCard>
+      )}
 
       {/* List */}
-      <ClayCard padded={false} className="p-5">
+      <ZoruCard className="mt-4 p-5">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-[15px] font-semibold text-foreground">Opt-Out Numbers</h2>
-          <ClayButton
-            variant="pill"
+          <h2 className="text-[15px] text-zoru-ink">Opt-out numbers</h2>
+          <ZoruButton
+            variant="outline"
             size="sm"
-            leading={<LuDownload className="h-3.5 w-3.5" strokeWidth={2} />}
             onClick={handleExport}
             disabled={list.length === 0}
           >
-            Export CSV
-          </ClayButton>
+            <Download /> Export CSV
+          </ZoruButton>
         </div>
-        {isPending && list.length === 0 && (
-          <div className="flex justify-center py-8"><LuLoader className="h-5 w-5 animate-spin text-muted-foreground" /></div>
-        )}
-        {!isPending && list.length === 0 && (
-          <div className="flex flex-col items-center gap-2 py-8 text-center">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-muted-foreground">
-              <LuShieldOff className="h-5 w-5" strokeWidth={1.5} />
-            </div>
-            <p className="text-[13px] text-muted-foreground">No opt-out numbers recorded.</p>
+        {isPending && list.length === 0 ? (
+          <div className="flex flex-col gap-2">
+            <ZoruSkeleton className="h-8 w-full" />
+            <ZoruSkeleton className="h-8 w-full" />
+            <ZoruSkeleton className="h-8 w-full" />
           </div>
-        )}
-        {list.length > 0 && (
+        ) : !isPending && list.length === 0 ? (
+          <ZoruEmptyState
+            compact
+            icon={<ShieldOff />}
+            title="No opt-out numbers recorded"
+            description="Numbers added here will be skipped from outbound campaigns."
+          />
+        ) : (
           <div className="space-y-1">
-            <div className="grid grid-cols-[1fr_1fr_140px_48px] gap-3 pb-2 text-[11.5px] font-medium text-muted-foreground">
-              <span>Phone</span><span>Reason</span><span>Opted Out</span><span />
+            <div className="grid grid-cols-[1fr_1fr_140px_48px] gap-3 pb-2 text-[11.5px] text-zoru-ink-muted">
+              <span>Phone</span>
+              <span>Reason</span>
+              <span>Opted out</span>
+              <span />
             </div>
             {list.map((item) => (
-              <div key={item._id} className="grid grid-cols-[1fr_1fr_140px_48px] items-center gap-3 rounded-lg px-1 py-2 text-[13px] text-foreground hover:bg-secondary">
-                <span className="font-medium">{item.phone}</span>
-                <span className="text-muted-foreground">{item.reason || '--'}</span>
-                <span className="text-[12px] text-muted-foreground">{item.optedOutAt ? new Date(item.optedOutAt).toLocaleDateString() : '--'}</span>
-                <ClayButton variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => handleRemove(item._id)}>
-                  <LuTrash2 className="h-3.5 w-3.5" />
-                </ClayButton>
+              <div
+                key={item._id}
+                className="grid grid-cols-[1fr_1fr_140px_48px] items-center gap-3 rounded-[var(--zoru-radius)] px-1 py-2 text-[13px] text-zoru-ink hover:bg-zoru-surface"
+              >
+                <span>{item.phone}</span>
+                <span className="text-zoru-ink-muted">
+                  {item.reason || '--'}
+                </span>
+                <span className="text-[12px] text-zoru-ink-muted">
+                  {item.optedOutAt
+                    ? new Date(item.optedOutAt).toLocaleDateString()
+                    : '--'}
+                </span>
+                <ZoruButton
+                  variant="ghost"
+                  size="icon-sm"
+                  className="text-zoru-ink-muted hover:text-zoru-danger"
+                  onClick={() => handleRemove(item._id)}
+                  disabled={isPending}
+                  aria-label={`Remove ${item.phone}`}
+                >
+                  {isPending ? (
+                    <Loader2 className="animate-spin" />
+                  ) : (
+                    <Trash2 />
+                  )}
+                </ZoruButton>
               </div>
             ))}
           </div>
         )}
-      </ClayCard>
+      </ZoruCard>
+
       <div className="h-6" />
     </div>
   );

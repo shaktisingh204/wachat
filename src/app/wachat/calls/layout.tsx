@@ -1,31 +1,38 @@
 'use client';
 
 /**
- * Wachat Calls — Clay-styled tab layout.
+ * Wachat Calls — ZoruUI layout.
  *
- * Two tabs: Call Logs · Call Setup. Each tab's content is rendered
- * by its respective child route (/wachat/calls/logs, /settings).
+ * Two sub-pages: Call Logs · Call Setup. Sub-nav uses ZoruButton
+ * variants (no tab UI per the no-tab-ui directive). Each sub-page's
+ * content is rendered by its child route.
  */
 
 import * as React from 'react';
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LuHistory, LuPhone, LuSettings } from 'react-icons/lu';
+import { History, Phone, Settings } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
-import { cn } from '@/lib/utils';
-import { ClayBreadcrumbs } from '@/components/clay';
+import {
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+} from '@/components/zoruui';
 
-const TABS = [
+const SECTIONS = [
   {
     href: '/wachat/calls/logs',
     label: 'Call Logs',
-    icon: <LuHistory className="h-3.5 w-3.5" strokeWidth={2} />,
+    icon: <History />,
   },
   {
     href: '/wachat/calls/settings',
     label: 'Call Setup',
-    icon: <LuSettings className="h-3.5 w-3.5" strokeWidth={2} />,
+    icon: <Settings />,
   },
 ];
 
@@ -38,53 +45,61 @@ export default function CallsLayout({
   const { activeProject } = useProject();
 
   return (
-    <div className="flex flex-col gap-6 clay-enter">
-      <ClayBreadcrumbs
-        items={[
-          { label: 'Wachat', href: '/dashboard' },
-          { label: activeProject?.name || 'Project', href: '/wachat' },
-          { label: 'Calls' },
-        ]}
-      />
+    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>
+              {activeProject?.name ? `${activeProject.name} · Calls` : 'Calls'}
+            </ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
 
       <div>
-        <h1 className="flex items-center gap-3 text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
-          <span className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-accent text-accent-foreground">
-            <LuPhone className="h-5 w-5" strokeWidth={2} />
+        <h1 className="flex items-center gap-3 text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
+          <span className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink">
+            <Phone className="h-5 w-5" />
           </span>
           WhatsApp Calling
         </h1>
-        <p className="mt-1.5 max-w-[720px] text-[13px] text-muted-foreground">
+        <p className="mt-1.5 max-w-[720px] text-[13px] text-zoru-ink-muted">
           Configure and monitor your WhatsApp calling features — review call
           logs, tweak voicemail prompts, and enable business calling on
           specific numbers.
         </p>
       </div>
 
-      {/* Tab pills */}
-      <div className="flex flex-wrap gap-2">
-        {TABS.map((t) => {
+      {/* Sub-page nav (no tab UI). Active section uses solid button,
+          inactive uses outline. */}
+      <nav className="flex flex-wrap gap-2">
+        {SECTIONS.map((s) => {
           const active =
-            pathname === t.href || pathname.startsWith(t.href + '/');
+            pathname === s.href || pathname.startsWith(s.href + '/');
           return (
-            <Link
-              key={t.href}
-              href={t.href}
-              className={cn(
-                'inline-flex items-center gap-2 rounded-full border px-3.5 py-2 text-[12.5px] font-medium transition-[background,border-color,color]',
-                active
-                  ? 'bg-foreground border-foreground text-white shadow-sm'
-                  : 'bg-card border-border text-muted-foreground hover:text-foreground hover:border-border',
-              )}
+            <ZoruButton
+              key={s.href}
+              variant={active ? 'default' : 'outline'}
+              size="sm"
+              asChild
             >
-              {t.icon}
-              {t.label}
-            </Link>
+              <a href={s.href}>
+                {s.icon}
+                {s.label}
+              </a>
+            </ZoruButton>
           );
         })}
-      </div>
+      </nav>
 
-      {/* Tab body */}
       <div>{children}</div>
     </div>
   );

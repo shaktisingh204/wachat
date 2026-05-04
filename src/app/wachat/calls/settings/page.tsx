@@ -1,24 +1,23 @@
 'use client';
 
 /**
- * Wachat Calls -- Setup tab.
+ * Wachat Calls — Setup tab (ZoruUI).
  *
- * Select a phone number, view a status summary, edit Meta calling settings
- * (status, icon visibility, country restriction, callback prompt, business
- * hours, SIP), and see a live API call log tracking every fetch/save.
+ * Phone picker, status banner, calling settings form, and live API call
+ * log tracking every fetch/save.
  */
 
 import * as React from 'react';
 import { useState, useEffect, useTransition, useCallback, useMemo } from 'react';
 import {
-  LuPhone,
-  LuCircleAlert,
-  LuCircleCheck,
-  LuFileText,
-  LuRefreshCw,
-  LuLoader,
-  LuTrash2,
-} from 'react-icons/lu';
+  Phone,
+  AlertCircle,
+  CheckCircle2,
+  FileText,
+  RefreshCw,
+  Loader2,
+  Trash2,
+} from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 import { getProjectById } from '@/app/actions/index.ts';
@@ -26,10 +25,21 @@ import type { PhoneNumber } from '@/lib/definitions';
 
 import { CallingSettingsForm } from '@/components/wabasimplify/calling-settings-form';
 import { useProject } from '@/context/project-context';
-import { useToast } from '@/hooks/use-toast';
-import { ClayButton, ClayCard } from '@/components/clay';
-import { cn } from '@/lib/utils';
-import { recordApiCall, clearApiLog, subscribeApiLog, getApiLog, type ApiLogEntry } from '@/lib/calls/api-log';
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruEmptyState,
+  cn,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  recordApiCall,
+  clearApiLog,
+  subscribeApiLog,
+  getApiLog,
+  type ApiLogEntry,
+} from '@/lib/calls/api-log';
 
 function useApiLog() {
   const [log, setLog] = useState<ApiLogEntry[]>(getApiLog());
@@ -41,7 +51,7 @@ function useApiLog() {
 
 export default function CallingSettingsPage() {
   const { activeProject, activeProjectId } = useProject();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [isLoading, startLoadingTransition] = useTransition();
   const [selectedPhoneId, setSelectedPhoneId] = useState<string | null>(null);
   const log = useApiLog();
@@ -60,13 +70,19 @@ export default function CallingSettingsPage() {
     startLoadingTransition(async () => {
       try {
         await getProjectById(activeProjectId);
-        recordApiCall({ method: 'GET', status: 'SUCCESS', summary: 'Reloaded project' });
-      } catch (err: any) {
+        recordApiCall({
+          method: 'GET',
+          status: 'SUCCESS',
+          summary: 'Reloaded project',
+        });
+      } catch (err: unknown) {
+        const message =
+          err instanceof Error ? err.message : String(err);
         recordApiCall({
           method: 'GET',
           status: 'ERROR',
           summary: 'Project reload failed',
-          errorMessage: err?.message || String(err),
+          errorMessage: message,
         });
       }
     });
@@ -80,15 +96,11 @@ export default function CallingSettingsPage() {
 
   if (!activeProject) {
     return (
-      <ClayCard className="p-10 text-center">
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
-          <LuPhone className="h-5 w-5" strokeWidth={1.5} />
-        </div>
-        <h2 className="mt-4 text-[16px] font-semibold text-foreground">No project selected</h2>
-        <p className="mx-auto mt-1.5 max-w-[360px] text-[12.5px] text-muted-foreground">
-          Select a project from the home screen to configure its WhatsApp calling settings.
-        </p>
-      </ClayCard>
+      <ZoruEmptyState
+        icon={<Phone />}
+        title="No project selected"
+        description="Select a project from the home screen to configure its WhatsApp calling settings."
+      />
     );
   }
 
@@ -99,101 +111,91 @@ export default function CallingSettingsPage() {
       {/* Left column: picker + status banner + form */}
       <div className="flex flex-col gap-6 lg:col-span-2">
         {phoneNumbers.length === 0 ? (
-          <ClayCard className="p-10 text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
-              <LuPhone className="h-5 w-5" strokeWidth={1.5} />
-            </div>
-            <h2 className="mt-4 text-[16px] font-semibold text-foreground">No phone numbers linked</h2>
-            <p className="mx-auto mt-1.5 max-w-[360px] text-[12.5px] text-muted-foreground">
-              Add a WhatsApp Business phone number to the project first, then come back here to configure calling.
-            </p>
-            <ClayButton
-              variant="obsidian"
-              size="md"
-              className="mt-4"
-              onClick={() => (window.location.href = '/wachat/numbers')}
-            >
-              Manage numbers
-            </ClayButton>
-          </ClayCard>
+          <ZoruEmptyState
+            icon={<Phone />}
+            title="No phone numbers linked"
+            description="Add a WhatsApp Business phone number to the project first, then come back here to configure calling."
+            action={
+              <ZoruButton
+                onClick={() => (window.location.href = '/wachat/numbers')}
+              >
+                Manage numbers
+              </ZoruButton>
+            }
+          />
         ) : (
           <>
             {/* Phone picker card */}
-            <ClayCard padded={false} className="p-5">
+            <ZoruCard className="p-5">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <h2 className="text-[16px] font-semibold text-foreground">Configure number</h2>
-                  <p className="mt-1 text-[12.5px] text-muted-foreground">
-                    Select a phone number to view and modify its calling configuration.
+                  <h2 className="text-[16px] text-zoru-ink">Configure number</h2>
+                  <p className="mt-1 text-[12.5px] text-zoru-ink-muted">
+                    Select a phone number to view and modify its calling
+                    configuration.
                   </p>
                 </div>
-                <ClayButton
+                <ZoruButton
                   variant="ghost"
                   size="sm"
-                  leading={
-                    isLoading ? (
-                      <LuLoader className="h-3.5 w-3.5 animate-spin" />
-                    ) : (
-                      <LuRefreshCw className="h-3.5 w-3.5" strokeWidth={2} />
-                    )
-                  }
                   onClick={refreshProject}
                   disabled={isLoading}
                 >
+                  {isLoading ? (
+                    <Loader2 className="animate-spin" />
+                  ) : (
+                    <RefreshCw />
+                  )}
                   Reload
-                </ClayButton>
+                </ZoruButton>
               </div>
 
               <div className="mt-4 grid gap-2 sm:grid-cols-2">
                 {phoneNumbers.map((phone) => {
                   const active = phone.id === selectedPhone?.id;
-                  const callingEnabled = phone.callingSettings?.status === 'ENABLED';
+                  const callingEnabled =
+                    phone.callingSettings?.status === 'ENABLED';
                   return (
                     <button
                       key={phone.id}
                       type="button"
                       onClick={() => setSelectedPhoneId(phone.id)}
                       className={cn(
-                        'flex items-center justify-between gap-3 rounded-[12px] border px-4 py-3 text-left transition-colors',
+                        'flex items-center justify-between gap-3 rounded-[var(--zoru-radius)] border px-4 py-3 text-left transition-colors focus-visible:outline-none',
                         active
-                          ? 'border-foreground bg-foreground/5 shadow-sm'
-                          : 'border-border bg-card hover:border-border',
+                          ? 'border-zoru-ink bg-zoru-surface-2'
+                          : 'border-zoru-line bg-zoru-bg hover:bg-zoru-surface',
                       )}
                     >
                       <div className="min-w-0">
-                        <div className="truncate text-[13px] font-semibold text-foreground">
+                        <div className="truncate text-[13px] text-zoru-ink">
                           {phone.display_phone_number}
                         </div>
-                        <div className="truncate text-[11.5px] text-muted-foreground">
+                        <div className="truncate text-[11.5px] text-zoru-ink-muted">
                           {phone.verified_name || 'Unverified'}
                         </div>
                       </div>
-                      <span
-                        className={cn(
-                          'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10.5px] font-medium',
-                          callingEnabled
-                            ? 'bg-emerald-50 text-emerald-700'
-                            : 'bg-muted text-muted-foreground',
-                        )}
+                      <ZoruBadge
+                        variant={callingEnabled ? 'success' : 'ghost'}
                       >
                         <span
                           className={cn(
                             'h-1.5 w-1.5 rounded-full',
-                            callingEnabled ? 'bg-emerald-500' : 'bg-muted-foreground/70',
+                            callingEnabled
+                              ? 'bg-zoru-success'
+                              : 'bg-zoru-ink-subtle',
                           )}
                         />
                         {callingEnabled ? 'On' : 'Off'}
-                      </span>
+                      </ZoruBadge>
                     </button>
                   );
                 })}
               </div>
-            </ClayCard>
+            </ZoruCard>
 
             {/* Status banner */}
-            {selectedPhone ? (
-              <StatusBanner phone={selectedPhone} />
-            ) : null}
+            {selectedPhone ? <StatusBanner phone={selectedPhone} /> : null}
 
             {/* Form */}
             {selectedPhone ? (
@@ -202,15 +204,22 @@ export default function CallingSettingsPage() {
                 project={activeProject}
                 phone={selectedPhone}
                 onSuccess={() => {
-                  recordApiCall({ method: 'POST', status: 'SUCCESS', summary: `Saved settings for ${selectedPhone.display_phone_number}` });
-                  toast({ title: 'Saved', description: 'Calling settings were updated in Meta.' });
+                  recordApiCall({
+                    method: 'POST',
+                    status: 'SUCCESS',
+                    summary: `Saved settings for ${selectedPhone.display_phone_number}`,
+                  });
+                  toast({
+                    title: 'Saved',
+                    description: 'Calling settings were updated in Meta.',
+                  });
                   refreshProject();
                 }}
               />
             ) : (
-              <ClayCard className="p-8 text-center text-[13px] text-muted-foreground">
+              <ZoruCard className="p-8 text-center text-[13px] text-zoru-ink-muted">
                 Select a phone number above to manage its settings.
-              </ClayCard>
+              </ZoruCard>
             )}
           </>
         )}
@@ -218,69 +227,75 @@ export default function CallingSettingsPage() {
 
       {/* Right column: API log */}
       <div className="lg:col-span-1">
-        <ClayCard padded={false} className="p-5">
+        <ZoruCard className="p-5">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-secondary">
-                <LuFileText className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
+              <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2">
+                <FileText className="h-4 w-4 text-zoru-ink-muted" />
               </span>
               <div>
-                <h3 className="text-[13.5px] font-semibold text-foreground">API call log</h3>
-                <p className="text-[11.5px] text-muted-foreground">Fetches and saves from this page.</p>
+                <h3 className="text-[13.5px] text-zoru-ink">API call log</h3>
+                <p className="text-[11.5px] text-zoru-ink-muted">
+                  Fetches and saves from this page.
+                </p>
               </div>
             </div>
-            <ClayButton
+            <ZoruButton
               variant="ghost"
-              size="icon"
+              size="icon-sm"
               aria-label="Clear log"
               onClick={clearApiLog}
               disabled={log.length === 0}
-              className="h-7 w-7"
             >
-              <LuTrash2 className="h-3.5 w-3.5" />
-            </ClayButton>
+              <Trash2 />
+            </ZoruButton>
           </div>
 
           <div className="mt-4 max-h-96 overflow-y-auto">
             {log.length === 0 ? (
-              <p className="py-8 text-center text-[12.5px] text-muted-foreground">
+              <p className="py-8 text-center text-[12.5px] text-zoru-ink-muted">
                 Nothing logged yet. Fetches and saves will appear here.
               </p>
             ) : (
-              <ul className="divide-y divide-border">
+              <ul className="divide-y divide-zoru-line">
                 {log.map((entry) => (
                   <li key={entry.id} className="py-2.5">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-[10.5px] text-muted-foreground">{entry.method}</span>
-                      <span
-                        className={cn(
-                          'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium',
-                          entry.status === 'SUCCESS'
-                            ? 'bg-emerald-50 text-emerald-700'
-                            : 'bg-rose-50 text-rose-700',
-                        )}
+                      <span className="font-mono text-[10.5px] text-zoru-ink-muted">
+                        {entry.method}
+                      </span>
+                      <ZoruBadge
+                        variant={
+                          entry.status === 'SUCCESS' ? 'success' : 'danger'
+                        }
                       >
                         {entry.status === 'SUCCESS' ? (
-                          <LuCircleCheck className="h-3 w-3" strokeWidth={2} />
+                          <CheckCircle2 className="h-3 w-3" />
                         ) : (
-                          <LuCircleAlert className="h-3 w-3" strokeWidth={2} />
+                          <AlertCircle className="h-3 w-3" />
                         )}
                         {entry.status}
-                      </span>
-                      <span className="ml-auto text-[10.5px] text-muted-foreground">
-                        {formatDistanceToNow(entry.createdAt, { addSuffix: true })}
+                      </ZoruBadge>
+                      <span className="ml-auto text-[10.5px] text-zoru-ink-muted">
+                        {formatDistanceToNow(entry.createdAt, {
+                          addSuffix: true,
+                        })}
                       </span>
                     </div>
-                    <div className="mt-1 text-[12.5px] text-foreground">{entry.summary}</div>
+                    <div className="mt-1 text-[12.5px] text-zoru-ink">
+                      {entry.summary}
+                    </div>
                     {entry.status === 'ERROR' && entry.errorMessage ? (
-                      <div className="mt-1 truncate text-[11.5px] text-rose-600">{entry.errorMessage}</div>
+                      <div className="mt-1 truncate text-[11.5px] text-zoru-danger">
+                        {entry.errorMessage}
+                      </div>
                     ) : null}
                   </li>
                 ))}
               </ul>
             )}
           </div>
-        </ClayCard>
+        </ZoruCard>
       </div>
     </div>
   );
@@ -303,51 +318,50 @@ function StatusBanner({ phone }: { phone: PhoneNumber }) {
   ];
 
   return (
-    <ClayCard padded={false} className="p-5">
+    <ZoruCard className="p-5">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h3 className="text-[14px] font-semibold text-foreground">Current status</h3>
-          <p className="mt-0.5 text-[12px] text-muted-foreground">
+          <h3 className="text-[14px] text-zoru-ink">Current status</h3>
+          <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
             Live configuration for {phone.display_phone_number}
           </p>
         </div>
-        <span
-          className={cn(
-            'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11.5px] font-semibold uppercase tracking-wide',
-            enabled ? 'bg-emerald-50 text-emerald-700' : 'bg-muted text-muted-foreground',
-          )}
-        >
+        <ZoruBadge variant={enabled ? 'success' : 'ghost'}>
           <span
             className={cn(
               'h-2 w-2 rounded-full',
-              enabled ? 'bg-emerald-500' : 'bg-muted-foreground/70',
+              enabled ? 'bg-zoru-success' : 'bg-zoru-ink-subtle',
             )}
           />
           {enabled ? 'Enabled' : 'Disabled'}
-        </span>
+        </ZoruBadge>
       </div>
       <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
         {checklist.map((item) => (
           <div
             key={item.label}
-            className="flex items-center gap-2 rounded-[10px] border border-border bg-secondary px-3 py-2"
+            className="flex items-center gap-2 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface px-3 py-2"
           >
             <span
               className={cn(
                 'flex h-5 w-5 items-center justify-center rounded-full',
-                item.ok ? 'bg-emerald-50 text-emerald-600' : 'bg-muted text-muted-foreground/70',
+                item.ok
+                  ? 'bg-zoru-success/10 text-zoru-success'
+                  : 'bg-zoru-surface-2 text-zoru-ink-subtle',
               )}
             >
               {item.ok ? (
-                <LuCircleCheck className="h-3 w-3" strokeWidth={2.25} />
+                <CheckCircle2 className="h-3 w-3" />
               ) : (
-                <LuCircleAlert className="h-3 w-3" strokeWidth={2.25} />
+                <AlertCircle className="h-3 w-3" />
               )}
             </span>
-            <span className="truncate text-[12px] font-medium text-foreground">{item.label}</span>
+            <span className="truncate text-[12px] text-zoru-ink">
+              {item.label}
+            </span>
           </div>
         ))}
       </div>
-    </ClayCard>
+    </ZoruCard>
   );
 }

@@ -1,23 +1,47 @@
 'use client';
 
 /**
- * Wachat Contact Notes — look up a contact and manage notes,
- * built on Clay primitives.
+ * Wachat Contact Notes — rebuilt on ZoruUI primitives (phase 2).
+ *
+ * Same data, same handlers. Visual primitives swapped to ZoruUI.
  */
 
 import * as React from 'react';
 import { useState, useTransition, useCallback, useActionState } from 'react';
-import { LuSearch, LuLoader, LuStickyNote, LuTrash2, LuPlus } from 'react-icons/lu';
+import { Search, Loader2, StickyNote, Trash2, Plus } from 'lucide-react';
+
 import { useProject } from '@/context/project-context';
 import { useToast } from '@/hooks/use-toast';
-import { ClayBreadcrumbs, ClayButton, ClayCard } from '@/components/clay';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import {
   getContactNotes,
   addContactNote,
   deleteContactNote,
 } from '@/app/actions/wachat-features.actions';
+
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruAlertDialogTrigger,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruEmptyState,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSkeleton,
+  ZoruTextarea,
+} from '@/components/zoruui';
 
 export default function ContactNotesPage() {
   const { activeProject } = useProject();
@@ -30,7 +54,10 @@ export default function ContactNotesPage() {
   const [hasSearched, setHasSearched] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const [formState, formAction, isPending] = useActionState(addContactNote, null);
+  const [formState, formAction, isPending] = useActionState(
+    addContactNote,
+    null,
+  );
 
   const fetchNotes = useCallback(
     (cid: string) => {
@@ -38,7 +65,11 @@ export default function ContactNotesPage() {
         setHasSearched(true);
         const res = await getContactNotes(cid);
         if (res.error) {
-          toast({ title: 'Error', description: res.error, variant: 'destructive' });
+          toast({
+            title: 'Error',
+            description: res.error,
+            variant: 'destructive',
+          });
           setNotes([]);
         } else {
           setNotes(res.notes || []);
@@ -59,7 +90,11 @@ export default function ContactNotesPage() {
       if (contactId.trim()) fetchNotes(contactId.trim());
     }
     if (formState?.error) {
-      toast({ title: 'Error', description: formState.error, variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: formState.error,
+        variant: 'destructive',
+      });
     }
   }, [formState, toast, contactId, fetchNotes]);
 
@@ -68,7 +103,11 @@ export default function ContactNotesPage() {
     const res = await deleteContactNote(noteId);
     setDeletingId(null);
     if (res.error) {
-      toast({ title: 'Error', description: res.error, variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: res.error,
+        variant: 'destructive',
+      });
     } else {
       setNotes((prev) => prev.filter((n) => n._id !== noteId));
       toast({ title: 'Deleted', description: 'Note removed.' });
@@ -76,113 +115,174 @@ export default function ContactNotesPage() {
   };
 
   return (
-    <div className="clay-enter flex min-h-full flex-col gap-6">
-      <ClayBreadcrumbs
-        items={[
-          { label: 'Wachat', href: '/dashboard' },
-          { label: activeProject?.name || 'Project', href: '/wachat' },
-          { label: 'Contact Notes' },
-        ]}
-      />
+    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/wachat/contacts">
+              Contacts
+            </ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Notes</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
 
       <div className="min-w-0">
-        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
+        <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
           Contact Notes
         </h1>
-        <p className="mt-1.5 text-[13px] text-muted-foreground">
+        <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
           Look up a contact by ID or phone number and manage private notes.
         </p>
       </div>
 
       {/* Search */}
-      <ClayCard padded={false} className="p-6">
-        <h2 className="text-[16px] font-semibold text-foreground mb-4">Look up contact</h2>
-        <form onSubmit={handleSearch} className="flex items-center gap-3 max-w-md">
-          <Input
-            value={contactId}
-            onChange={(e) => setContactId(e.target.value)}
-            placeholder="Contact ID or phone number"
-            required
-          />
-          <ClayButton
+      <ZoruCard className="p-6">
+        <h2 className="mb-4 text-[15px] text-zoru-ink">Look up contact</h2>
+        <form
+          onSubmit={handleSearch}
+          className="flex max-w-md items-end gap-3"
+        >
+          <div className="flex flex-1 flex-col gap-1.5">
+            <ZoruLabel htmlFor="cn-contact">
+              Contact ID or phone number
+            </ZoruLabel>
+            <ZoruInput
+              id="cn-contact"
+              value={contactId}
+              onChange={(e) => setContactId(e.target.value)}
+              placeholder="Contact ID or phone number"
+              required
+            />
+          </div>
+          <ZoruButton
             type="submit"
-            variant="obsidian"
-            size="md"
             disabled={isSearching || !contactId.trim()}
-            leading={<LuSearch className="h-3.5 w-3.5" strokeWidth={2} />}
           >
-            {isSearching ? 'Searching...' : 'Search'}
-          </ClayButton>
+            {isSearching ? <Loader2 className="animate-spin" /> : <Search />}
+            {isSearching ? 'Searching…' : 'Search'}
+          </ZoruButton>
         </form>
-      </ClayCard>
+      </ZoruCard>
 
       {/* Notes list */}
       {hasSearched && (
-        <ClayCard padded={false} className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-[16px] font-semibold text-foreground">
+        <ZoruCard className="p-6">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-[15px] text-zoru-ink">
               Notes for {contactId} ({notes.length})
             </h2>
           </div>
 
           {isSearching ? (
-            <div className="flex h-20 items-center justify-center">
-              <LuLoader className="h-5 w-5 animate-spin text-muted-foreground" strokeWidth={1.75} />
+            <div className="flex flex-col gap-2">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <ZoruSkeleton key={i} className="h-16 w-full" />
+              ))}
             </div>
           ) : notes.length === 0 ? (
-            <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-border bg-secondary px-4 py-10 text-center mb-6">
-              <LuStickyNote className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
-              <div className="text-[13px] font-semibold text-foreground">No notes yet</div>
-              <div className="text-[11.5px] text-muted-foreground">Add your first note below.</div>
-            </div>
+            <ZoruEmptyState
+              icon={<StickyNote />}
+              title="No notes yet"
+              description="Add your first note below."
+              compact
+              className="mb-6"
+            />
           ) : (
-            <div className="flex flex-col gap-3 mb-6">
+            <div className="mb-6 flex flex-col gap-3">
               {notes.map((note) => (
                 <div
                   key={note._id}
-                  className="flex items-start justify-between gap-3 rounded-[12px] border border-border bg-secondary p-4"
+                  className="flex items-start justify-between gap-3 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-surface p-4"
                 >
                   <div className="min-w-0 flex-1">
-                    <p className="text-[13px] text-foreground whitespace-pre-wrap">{note.text}</p>
-                    <p className="mt-1.5 text-[11px] text-muted-foreground">
+                    <p className="whitespace-pre-wrap text-[13px] text-zoru-ink">
+                      {note.text}
+                    </p>
+                    <p className="mt-1.5 text-[11px] text-zoru-ink-muted">
                       {new Date(note.createdAt).toLocaleString()}
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(note._id)}
-                    disabled={deletingId === note._id}
-                    className="flex h-7 w-7 items-center justify-center rounded-md text-destructive hover:bg-rose-50 transition-colors shrink-0"
-                    aria-label="Delete note"
-                  >
-                    <LuTrash2 className="h-3.5 w-3.5" strokeWidth={1.75} />
-                  </button>
+                  <ZoruAlertDialog>
+                    <ZoruAlertDialogTrigger asChild>
+                      <ZoruButton
+                        variant="ghost"
+                        size="icon-sm"
+                        disabled={deletingId === note._id}
+                        aria-label="Delete note"
+                        className="text-zoru-danger hover:bg-zoru-danger/10"
+                      >
+                        <Trash2 />
+                      </ZoruButton>
+                    </ZoruAlertDialogTrigger>
+                    <ZoruAlertDialogContent>
+                      <ZoruAlertDialogHeader>
+                        <ZoruAlertDialogTitle>
+                          Delete note?
+                        </ZoruAlertDialogTitle>
+                        <ZoruAlertDialogDescription>
+                          This note will be permanently removed.
+                        </ZoruAlertDialogDescription>
+                      </ZoruAlertDialogHeader>
+                      <ZoruAlertDialogFooter>
+                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+                        <ZoruAlertDialogAction
+                          destructive
+                          onClick={() => handleDelete(note._id)}
+                        >
+                          Delete
+                        </ZoruAlertDialogAction>
+                      </ZoruAlertDialogFooter>
+                    </ZoruAlertDialogContent>
+                  </ZoruAlertDialog>
                 </div>
               ))}
             </div>
           )}
 
           {/* Add note form */}
-          <div className="border-t border-border pt-4">
-            <h3 className="text-[14px] font-semibold text-foreground mb-3">Add a note</h3>
-            <form action={formAction} className="flex flex-col gap-3 max-w-lg">
+          <div className="border-t border-zoru-line pt-4">
+            <h3 className="mb-3 text-[14px] text-zoru-ink">Add a note</h3>
+            <form
+              action={formAction}
+              className="flex max-w-lg flex-col gap-3"
+            >
               <input type="hidden" name="contactId" value={contactId} />
-              <input type="hidden" name="projectId" value={projectId || ''} />
-              <Textarea name="text" placeholder="Write a note..." rows={3} required />
+              <input
+                type="hidden"
+                name="projectId"
+                value={projectId || ''}
+              />
+              <ZoruTextarea
+                name="text"
+                placeholder="Write a note…"
+                rows={3}
+                required
+              />
               <div>
-                <ClayButton
-                  type="submit"
-                  variant="obsidian"
-                  size="md"
-                  disabled={isPending}
-                  leading={<LuPlus className="h-3.5 w-3.5" strokeWidth={2.5} />}
-                >
-                  {isPending ? 'Adding...' : 'Add Note'}
-                </ClayButton>
+                <ZoruButton type="submit" disabled={isPending}>
+                  {isPending ? (
+                    <Loader2 className="animate-spin" />
+                  ) : (
+                    <Plus />
+                  )}
+                  {isPending ? 'Adding…' : 'Add note'}
+                </ZoruButton>
               </div>
             </form>
           </div>
-        </ClayCard>
+        </ZoruCard>
       )}
 
       <div className="h-6" />

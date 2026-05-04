@@ -1,12 +1,11 @@
 'use client';
 
 /**
- * Wachat Broadcasts — list + create, rebuilt on Clay primitives.
+ * Wachat Broadcasts — campaign list, ZoruUI rebuild.
  *
- * Keeps the existing BroadcastForm (the composer is a beast I don't
- * want to touch), StopBroadcastButton, and RequeueBroadcastDialog —
- * just replaces the page chrome, stats strip, and history table with
- * Clay cards / list rows.
+ * Same data + handlers as before (getBroadcasts, getTemplates,
+ * handleSyncTemplates, handleStopBroadcast, RequeueBroadcastDialog).
+ * Visual layer fully on Zoru primitives — neutral palette, no rainbow.
  */
 
 import * as React from 'react';
@@ -17,21 +16,21 @@ import type { WithId } from 'mongodb';
 import { formatDistanceToNow } from 'date-fns';
 
 import {
-  LuRefreshCw,
-  LuClock,
-  LuCircleAlert,
-  LuFileText,
-  LuLoader,
-  LuCircleStop,
-  LuArrowUpRight,
-  LuChevronLeft,
-  LuChevronRight,
-  LuPlus,
-  LuEllipsis,
-  LuBookCopy,
-  LuUsers,
-  LuSearch,
-} from 'react-icons/lu';
+  ArrowUpRight,
+  BookCopy,
+  ChevronLeft,
+  ChevronRight,
+  CircleAlert,
+  CircleStop,
+  Clock,
+  Ellipsis,
+  FileText,
+  Loader2,
+  Plus,
+  RefreshCw,
+  Search,
+  Users,
+} from 'lucide-react';
 
 import { getTemplates, handleStopBroadcast } from '@/app/actions/index.ts';
 import { handleSyncTemplates } from '@/app/actions/template.actions';
@@ -44,33 +43,42 @@ import { useProject } from '@/context/project-context';
 
 import { BroadcastForm } from '@/components/wabasimplify/broadcast-form';
 import { RequeueBroadcastDialog } from '@/components/wabasimplify/requeue-broadcast-dialog';
-import { Progress } from '@/components/ui/progress';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
 
-import { cn } from '@/lib/utils';
 import {
-  ClayBreadcrumbs,
-  ClayButton,
-  ClayCard,
-  ClayListRow,
-} from '@/components/clay';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruAlertDialogTrigger,
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuSeparator,
+  ZoruDropdownMenuTrigger,
+  ZoruEmptyState,
+  ZoruInput,
+  ZoruProgress,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruStatCard,
+  cn,
+} from '@/components/zoruui';
 
 const BROADCASTS_PER_PAGE = 10;
 
@@ -88,19 +96,33 @@ function pct(num: number, den: number): number {
   return Math.round((num / den) * 1000) / 10;
 }
 
-/* Status colour tokens — keeps status badges on-brand */
-function statusTone(status: string | undefined) {
+function statusTone(status: string | undefined): {
+  label: string;
+  variant: 'success' | 'info' | 'warning' | 'danger' | 'secondary';
+  dot: string;
+} {
   const s = (status ?? '').toLowerCase();
-  if (s === 'completed') return { dot: 'bg-emerald-500', label: 'Completed' };
+  if (s === 'completed')
+    return { label: 'Completed', variant: 'success', dot: 'bg-zoru-success' };
   if (s === 'processing' || s === 'pending_processing')
-    return { dot: 'bg-sky-500', label: 'Processing' };
-  if (s === 'queued') return { dot: 'bg-amber-500', label: 'Queued' };
+    return { label: 'Processing', variant: 'info', dot: 'bg-zoru-info' };
+  if (s === 'queued')
+    return { label: 'Queued', variant: 'warning', dot: 'bg-zoru-warning' };
   if (s === 'partial failure')
-    return { dot: 'bg-amber-500', label: 'Partial' };
-  if (s === 'failed') return { dot: 'bg-destructive', label: 'Failed' };
+    return { label: 'Partial', variant: 'warning', dot: 'bg-zoru-warning' };
+  if (s === 'failed')
+    return { label: 'Failed', variant: 'danger', dot: 'bg-zoru-danger' };
   if (s === 'cancelled')
-    return { dot: 'bg-muted-foreground/70', label: 'Cancelled' };
-  return { dot: 'bg-muted-foreground/70', label: status || 'Unknown' };
+    return {
+      label: 'Cancelled',
+      variant: 'secondary',
+      dot: 'bg-zoru-ink-subtle',
+    };
+  return {
+    label: status || 'Unknown',
+    variant: 'secondary',
+    dot: 'bg-zoru-ink-subtle',
+  };
 }
 
 function getFormattedDate(item: any): Date | null {
@@ -146,36 +168,37 @@ function StopBroadcastButton({ broadcastId }: { broadcastId: string }) {
   };
 
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <button
-          type="button"
+    <ZoruAlertDialog>
+      <ZoruAlertDialogTrigger asChild>
+        <ZoruButton
+          variant="ghost"
+          size="icon-sm"
           aria-label="Stop broadcast"
-          className="flex h-7 w-7 items-center justify-center rounded-md text-destructive hover:bg-rose-50 transition-colors"
+          className="text-zoru-danger hover:bg-zoru-danger/10 hover:text-zoru-danger"
         >
-          <LuCircleStop className="h-3.5 w-3.5" strokeWidth={1.75} />
-        </button>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Stop this broadcast?</AlertDialogTitle>
-          <AlertDialogDescription>
+          <CircleStop className="h-3.5 w-3.5" />
+        </ZoruButton>
+      </ZoruAlertDialogTrigger>
+      <ZoruAlertDialogContent>
+        <ZoruAlertDialogHeader>
+          <ZoruAlertDialogTitle>Stop this broadcast?</ZoruAlertDialogTitle>
+          <ZoruAlertDialogDescription>
             Stopping will cancel any pending messages. Messages already sent
             cannot be unsent.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm} disabled={isStopping}>
+          </ZoruAlertDialogDescription>
+        </ZoruAlertDialogHeader>
+        <ZoruAlertDialogFooter>
+          <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+          <ZoruAlertDialogAction onClick={onConfirm} disabled={isStopping}>
             {isStopping ? 'Stopping…' : 'Stop broadcast'}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+          </ZoruAlertDialogAction>
+        </ZoruAlertDialogFooter>
+      </ZoruAlertDialogContent>
+    </ZoruAlertDialog>
   );
 }
 
-/* ── IST clock chip (topbar-style pill) ─────────────────────────── */
+/* ── IST clock chip ─────────────────────────────────────────────── */
 
 function ISTClock() {
   const [now, setNow] = useState<Date | null>(null);
@@ -193,13 +216,10 @@ function ISTClock() {
     hour12: false,
   });
   return (
-    <ClayButton
-      variant="pill"
-      size="md"
-      leading={<LuClock className="h-3.5 w-3.5" strokeWidth={2} />}
-    >
+    <ZoruButton variant="outline" size="sm" disabled>
+      <Clock className="h-3.5 w-3.5" />
       {ist} IST
-    </ClayButton>
+    </ZoruButton>
   );
 }
 
@@ -275,7 +295,7 @@ export default function BroadcastPage() {
     if (!hasActive) return;
     const interval = setInterval(() => {
       fetchData(activeProjectId, currentPage, false);
-    }, 15000); // Poll every 15s to reduce server load
+    }, 15000);
     return () => clearInterval(interval);
   }, [history, activeProjectId, currentPage, fetchData, isRefreshing]);
 
@@ -316,7 +336,6 @@ export default function BroadcastPage() {
     }
   };
 
-  /* ── derived stats strip ─────────────────────────────────────── */
   const stats = React.useMemo(() => {
     const totalContacts = history.reduce(
       (s, h) => s + (h.contactCount || 0),
@@ -339,15 +358,22 @@ export default function BroadcastPage() {
     };
   }, [history]);
 
-  /* ── client-side filters over current page ─────────────────── */
   const filteredHistory = React.useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     return history.filter((h) => {
       if (statusFilter !== 'all') {
         const s = (h.status || '').toLowerCase();
-        if (statusFilter === 'live' && !['queued', 'processing', 'pending_processing'].includes(s)) return false;
+        if (
+          statusFilter === 'live' &&
+          !['queued', 'processing', 'pending_processing'].includes(s)
+        )
+          return false;
         if (statusFilter === 'completed' && s !== 'completed') return false;
-        if (statusFilter === 'failed' && !['failed', 'cancelled', 'partial failure'].includes(s)) return false;
+        if (
+          statusFilter === 'failed' &&
+          !['failed', 'cancelled', 'partial failure'].includes(s)
+        )
+          return false;
       }
       if (!q) return true;
       const hay = `${h.name || ''} ${h.fileName || ''} ${h.templateName || ''}`.toLowerCase();
@@ -356,92 +382,102 @@ export default function BroadcastPage() {
   }, [history, searchQuery, statusFilter]);
 
   return (
-    <div className="clay-enter flex min-h-full flex-col gap-6">
+    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
       {/* ── Breadcrumb ── */}
-      <ClayBreadcrumbs
-        items={[
-          { label: 'Wachat', href: '/dashboard' },
-          { label: activeProject?.name || 'Project', href: '/wachat' },
-          { label: 'Campaigns' },
-        ]}
-      />
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Campaigns</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
 
       {/* ── Header ── */}
-      <div className="flex items-center justify-between gap-6">
+      <div className="flex flex-wrap items-end justify-between gap-6">
         <div className="min-w-0">
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
+          <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
             Campaigns
           </h1>
-          <p className="mt-1.5 text-[13px] text-muted-foreground">
+          <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
             Ship a WhatsApp template to a segmented list of contacts — upload a
             CSV, pick a tag, or reuse a previous audience.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <ISTClock />
-          <ClayButton
-            variant="pill"
-            size="md"
-            leading={<LuBookCopy className="h-3.5 w-3.5" strokeWidth={2} />}
+          <ZoruButton
+            variant="outline"
+            size="sm"
             onClick={onSyncTemplates}
             disabled={!activeProjectId || isSyncingTemplates}
           >
+            <BookCopy className="h-3.5 w-3.5" />
             {isSyncingTemplates ? 'Syncing…' : 'Sync templates'}
-          </ClayButton>
-          <ClayButton
-            variant="pill"
-            size="md"
-            leading={<LuRefreshCw className="h-3.5 w-3.5" strokeWidth={2} />}
+          </ZoruButton>
+          <ZoruButton
+            variant="outline"
+            size="sm"
             onClick={() =>
               activeProjectId && fetchData(activeProjectId, currentPage, true)
             }
             disabled={!activeProjectId || isRefreshing}
           >
+            <RefreshCw className={cn('h-3.5 w-3.5', isRefreshing && 'animate-spin')} />
             {isRefreshing ? 'Refreshing…' : 'Refresh'}
-          </ClayButton>
+          </ZoruButton>
         </div>
       </div>
 
       {/* ── Stats strip ── */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <MiniStat
+        <ZoruStatCard
           label="All-time campaigns"
           value={compact(totalCampaigns)}
-          hint="across this project"
+          period="across this project"
         />
-        <MiniStat
+        <ZoruStatCard
           label="Messages sent"
           value={compact(stats.totalSent)}
-          hint="sum of this page"
+          period="sum of this page"
         />
-        <MiniStat
+        <ZoruStatCard
           label="Delivery rate"
           value={`${stats.deliveryRate}%`}
-          hint={`${compact(stats.totalDelivered)} delivered`}
+          period={`${compact(stats.totalDelivered)} delivered`}
         />
-        <MiniStat
+        <ZoruStatCard
           label="Live now"
           value={String(stats.processing)}
-          hint={stats.processing > 0 ? 'polling every 15s' : 'nothing running'}
+          period={
+            stats.processing > 0 ? 'polling every 15s' : 'nothing running'
+          }
         />
       </div>
 
       {/* ── New campaign form ── */}
-      <div>
-        <div className="flex items-center justify-between">
+      <section>
+        <div className="flex items-end justify-between">
           <div>
-            <h2 className="text-[22px] font-semibold tracking-tight text-foreground leading-none">
+            <h2 className="text-[22px] tracking-tight text-zoru-ink leading-none">
               New campaign
             </h2>
-            <p className="mt-1.5 text-[12.5px] text-muted-foreground">
+            <p className="mt-1.5 text-[12.5px] text-zoru-ink-muted">
               Choose a template or flow, upload your audience, and queue the
               broadcast.
             </p>
           </div>
         </div>
-        <ClayCard padded={false} className="mt-5 p-6">
+        <ZoruCard className="mt-5 p-6">
           {isRefreshing && !activeProject ? (
-            <div className="h-40 w-full animate-pulse rounded-[12px] bg-muted" />
+            <div className="h-40 w-full animate-pulse rounded-[var(--zoru-radius)] bg-zoru-surface-2" />
           ) : (
             <BroadcastForm
               templates={templates}
@@ -449,95 +485,103 @@ export default function BroadcastPage() {
               onSuccess={onBroadcastSuccess}
             />
           )}
-        </ClayCard>
-      </div>
+        </ZoruCard>
+      </section>
 
       {/* ── Broadcast history ── */}
-      <div>
-        <div className="flex items-center justify-between">
+      <section>
+        <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 className="text-[22px] font-semibold tracking-tight text-foreground leading-none">
+            <h2 className="text-[22px] tracking-tight text-zoru-ink leading-none">
               Broadcast history
             </h2>
-            <p className="mt-1.5 text-[12.5px] text-muted-foreground">
+            <p className="mt-1.5 text-[12.5px] text-zoru-ink-muted">
               A log of every broadcast campaign for{' '}
               {activeProject?.name || 'this project'}.
             </p>
           </div>
           <div className="flex items-center gap-1.5">
-            <ClayButton
-              variant="pill"
-              size="icon"
+            <ZoruButton
+              variant="outline"
+              size="icon-sm"
               aria-label="New campaign"
               onClick={() => {
                 const el = document.querySelector('h2');
                 el?.scrollIntoView({ behavior: 'smooth' });
               }}
             >
-              <LuPlus className="h-4 w-4" />
-            </ClayButton>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <ClayButton variant="pill" size="icon" aria-label="More">
-                  <LuEllipsis className="h-4 w-4" />
-                </ClayButton>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem
+              <Plus />
+            </ZoruButton>
+            <ZoruDropdownMenu>
+              <ZoruDropdownMenuTrigger asChild>
+                <ZoruButton variant="outline" size="icon-sm" aria-label="More">
+                  <Ellipsis />
+                </ZoruButton>
+              </ZoruDropdownMenuTrigger>
+              <ZoruDropdownMenuContent align="end">
+                <ZoruDropdownMenuItem
                   onSelect={() =>
                     activeProjectId &&
                     fetchData(activeProjectId, currentPage, true)
                   }
                 >
-                  <LuRefreshCw className="mr-2 h-4 w-4" /> Refresh list
-                </DropdownMenuItem>
-                <DropdownMenuItem
+                  <RefreshCw /> Refresh list
+                </ZoruDropdownMenuItem>
+                <ZoruDropdownMenuItem
                   onSelect={() => router.push('/wachat/templates')}
                 >
-                  <LuBookCopy className="mr-2 h-4 w-4" /> Manage templates
-                </DropdownMenuItem>
-                <DropdownMenuItem
+                  <BookCopy /> Manage templates
+                </ZoruDropdownMenuItem>
+                <ZoruDropdownMenuItem
                   onSelect={() => router.push('/wachat/contacts')}
                 >
-                  <LuUsers className="mr-2 h-4 w-4" /> Manage contacts
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
+                  <Users /> Manage contacts
+                </ZoruDropdownMenuItem>
+                <ZoruDropdownMenuSeparator />
+                <ZoruDropdownMenuItem
                   onSelect={() => router.push('/dashboard/analytics')}
                 >
-                  <LuArrowUpRight className="mr-2 h-4 w-4" /> Open analytics
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  <ArrowUpRight /> Open analytics
+                </ZoruDropdownMenuItem>
+              </ZoruDropdownMenuContent>
+            </ZoruDropdownMenu>
           </div>
         </div>
 
-        <ClayCard padded={false} className="mt-5 p-6">
+        <ZoruCard className="mt-5 p-6">
           {/* ── Filter bar ── */}
           {hasLoaded && history.length > 0 && (
-            <div className="mb-4 flex flex-wrap items-center gap-2 border-b border-border pb-4">
+            <div className="mb-4 flex flex-wrap items-center gap-2 border-b border-zoru-line pb-4">
               <div className="relative min-w-[240px] flex-1">
-                <LuSearch className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" strokeWidth={1.75} />
-                <input
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zoru-ink-muted" />
+                <ZoruInput
                   type="text"
                   placeholder="Search by name or template..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="h-9 w-full rounded-[10px] border border-border bg-card pl-9 pr-3 text-[13px] text-foreground placeholder:text-muted-foreground focus:border-border focus:outline-none"
+                  className="pl-9"
                 />
               </div>
-              <select
+              <ZoruSelect
                 value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="h-9 rounded-[10px] border border-border bg-card px-3 text-[13px] text-foreground focus:border-border focus:outline-none"
+                onValueChange={(v) => setStatusFilter(v)}
               >
-                <option value="all">All statuses</option>
-                <option value="live">Live (queued/processing)</option>
-                <option value="completed">Completed</option>
-                <option value="failed">Failed / cancelled</option>
-              </select>
+                <ZoruSelectTrigger className="w-[200px]">
+                  <ZoruSelectValue placeholder="Status" />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                  <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
+                  <ZoruSelectItem value="live">
+                    Live (queued/processing)
+                  </ZoruSelectItem>
+                  <ZoruSelectItem value="completed">Completed</ZoruSelectItem>
+                  <ZoruSelectItem value="failed">
+                    Failed / cancelled
+                  </ZoruSelectItem>
+                </ZoruSelectContent>
+              </ZoruSelect>
               {(searchQuery || statusFilter !== 'all') && (
-                <ClayButton
+                <ZoruButton
                   variant="ghost"
                   size="sm"
                   onClick={() => {
@@ -546,9 +590,9 @@ export default function BroadcastPage() {
                   }}
                 >
                   Clear
-                </ClayButton>
+                </ZoruButton>
               )}
-              <span className="ml-auto text-[11px] text-muted-foreground tabular-nums">
+              <span className="ml-auto text-[11px] text-zoru-ink-muted tabular-nums">
                 {filteredHistory.length} of {history.length}
               </span>
             </div>
@@ -556,57 +600,31 @@ export default function BroadcastPage() {
 
           {!hasLoaded && isRefreshing ? (
             <div className="flex h-24 items-center justify-center">
-              <LuLoader
-                className="h-5 w-5 animate-spin text-muted-foreground"
-                strokeWidth={1.75}
-              />
+              <Loader2 className="h-5 w-5 animate-spin text-zoru-ink-muted" />
             </div>
           ) : !activeProjectId ? (
-            <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-border bg-secondary px-4 py-10 text-center">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent text-accent-foreground">
-                <LuCircleAlert className="h-5 w-5" strokeWidth={1.5} />
-              </div>
-              <div className="text-[13px] font-semibold text-foreground">
-                No project selected
-              </div>
-              <div className="max-w-[340px] text-[11.5px] text-muted-foreground">
-                Please select a project from the main dashboard to view its
-                broadcast history.
-              </div>
-              <ClayButton
-                variant="rose"
-                size="sm"
-                onClick={() => router.push('/wachat')}
-                className="mt-1"
-              >
-                Choose a project
-              </ClayButton>
-            </div>
+            <ZoruEmptyState
+              icon={<CircleAlert />}
+              title="No project selected"
+              description="Please select a project from the main dashboard to view its broadcast history."
+              action={
+                <ZoruButton size="sm" onClick={() => router.push('/wachat')}>
+                  Choose a project
+                </ZoruButton>
+              }
+            />
           ) : history.length === 0 ? (
-            <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-border bg-secondary px-4 py-10 text-center">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-background text-muted-foreground">
-                <LuFileText className="h-5 w-5" strokeWidth={1.5} />
-              </div>
-              <div className="text-[13px] font-semibold text-foreground">
-                No broadcasts yet
-              </div>
-              <div className="max-w-[340px] text-[11.5px] text-muted-foreground">
-                Use the composer above to send your first WhatsApp broadcast —
-                it&apos;ll appear here with live delivery and read analytics.
-              </div>
-            </div>
+            <ZoruEmptyState
+              icon={<FileText />}
+              title="No broadcasts yet"
+              description="Use the composer above to send your first WhatsApp broadcast — it'll appear here with live delivery and read analytics."
+            />
           ) : filteredHistory.length === 0 ? (
-            <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-border bg-secondary px-4 py-10 text-center">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-background text-muted-foreground">
-                <LuSearch className="h-5 w-5" strokeWidth={1.5} />
-              </div>
-              <div className="text-[13px] font-semibold text-foreground">
-                No broadcasts match
-              </div>
-              <div className="max-w-[340px] text-[11.5px] text-muted-foreground">
-                Try clearing the search or status filter.
-              </div>
-            </div>
+            <ZoruEmptyState
+              icon={<Search />}
+              title="No broadcasts match"
+              description="Try clearing the search or status filter."
+            />
           ) : (
             <div className="flex flex-col gap-3">
               {filteredHistory.map((item, i) => {
@@ -620,61 +638,66 @@ export default function BroadcastPage() {
                       item.contactCount
                     : 0;
                 const date = getFormattedDate(item);
-                const index = (currentPage - 1) * BROADCASTS_PER_PAGE + i + 1;
+                const index =
+                  (currentPage - 1) * BROADCASTS_PER_PAGE + i + 1;
                 return (
-                  <ClayListRow
+                  <div
                     key={item._id.toString()}
-                    index={index}
-                    title={item.name || item.templateName || item.fileName || 'Untitled'}
-                    meta={
-                      <span className="flex flex-wrap items-center gap-2">
-                        {item.templateName ? (
-                          <span className="font-medium text-foreground">
-                            {item.templateName}
-                          </span>
-                        ) : null}
-                        {item.templateName ? (
-                          <span className="text-muted-foreground/70">·</span>
-                        ) : null}
-                        <span>
-                          {date
-                            ? formatDistanceToNow(date, { addSuffix: true })
-                            : '—'}
-                        </span>
-                        <span className="text-muted-foreground/70">·</span>
-                        <span>
-                          {(item.contactCount ?? 0).toLocaleString()} contacts
-                        </span>
-                        <span className="text-muted-foreground/70">·</span>
-                        <span className="inline-flex items-center gap-1">
-                          <span
-                            className={cn(
-                              'h-1.5 w-1.5 rounded-full',
-                              tone.dot,
-                            )}
-                          />
-                          {tone.label}
-                        </span>
+                    className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-4 transition-colors hover:bg-zoru-surface"
+                  >
+                    <div className="flex items-start gap-3">
+                      <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-zoru-surface-2 text-[11px] text-zoru-ink-muted tabular-nums">
+                        {index}
                       </span>
-                    }
-                    trailing={
-                      <>
-                        {/* Delivery rate summary */}
-                        <div className="hidden flex-col items-end pr-1 text-[11.5px] sm:flex">
-                          <div className="font-semibold text-foreground">
-                            {pct(
-                              item.deliveredCount ?? 0,
-                              item.contactCount ?? 0,
-                            )}
-                            %
-                          </div>
-                          <div className="text-[10.5px] text-muted-foreground">
-                            {compact(item.deliveredCount ?? 0)} /{' '}
-                            {compact(item.contactCount ?? 0)}
-                          </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="text-sm text-zoru-ink truncate">
+                            {item.name ||
+                              item.templateName ||
+                              item.fileName ||
+                              'Untitled'}
+                          </p>
+                          <ZoruBadge variant={tone.variant}>
+                            <span
+                              className={cn('h-1.5 w-1.5 rounded-full', tone.dot)}
+                            />
+                            {tone.label}
+                          </ZoruBadge>
                         </div>
-
-                        {/* Stop / Requeue / Report action cluster */}
+                        <div className="mt-1 flex flex-wrap items-center gap-2 text-[11.5px] text-zoru-ink-muted">
+                          {item.templateName ? (
+                            <span className="text-zoru-ink">
+                              {item.templateName}
+                            </span>
+                          ) : null}
+                          {item.templateName ? (
+                            <span className="text-zoru-ink-subtle">·</span>
+                          ) : null}
+                          <span>
+                            {date
+                              ? formatDistanceToNow(date, { addSuffix: true })
+                              : '—'}
+                          </span>
+                          <span className="text-zoru-ink-subtle">·</span>
+                          <span>
+                            {(item.contactCount ?? 0).toLocaleString()} contacts
+                          </span>
+                        </div>
+                      </div>
+                      <div className="hidden flex-col items-end pr-1 text-[11.5px] sm:flex">
+                        <div className="text-zoru-ink">
+                          {pct(
+                            item.deliveredCount ?? 0,
+                            item.contactCount ?? 0,
+                          )}
+                          %
+                        </div>
+                        <div className="text-[10.5px] text-zoru-ink-muted">
+                          {compact(item.deliveredCount ?? 0)} /{' '}
+                          {compact(item.contactCount ?? 0)}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1">
                         {[
                           'QUEUED',
                           'PROCESSING',
@@ -697,90 +720,63 @@ export default function BroadcastPage() {
                             templates={templates}
                           />
                         )}
-                        <Link
-                          href={`/wachat/broadcasts/${item._id.toString()}`}
+                        <ZoruButton
+                          variant="ghost"
+                          size="icon-sm"
+                          asChild
                           aria-label="View report"
-                          className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                         >
-                          <LuArrowUpRight
-                            className="h-3.5 w-3.5"
-                            strokeWidth={1.75}
-                          />
-                        </Link>
-                      </>
-                    }
-                  >
+                          <Link
+                            href={`/wachat/broadcasts/${item._id.toString()}`}
+                          >
+                            <ArrowUpRight className="h-3.5 w-3.5" />
+                          </Link>
+                        </ZoruButton>
+                      </div>
+                    </div>
                     {processing ? (
-                      <Progress value={progress} className="h-1" />
-                    ) : undefined}
-                  </ClayListRow>
+                      <ZoruProgress value={progress} className="mt-3 h-1" />
+                    ) : null}
+                  </div>
                 );
               })}
             </div>
           )}
 
           {totalPages > 1 ? (
-            <div className="mt-5 flex items-center justify-between gap-3 border-t border-border pt-4">
-              <span className="text-[11.5px] tabular-nums text-muted-foreground">
+            <div className="mt-5 flex items-center justify-between gap-3 border-t border-zoru-line pt-4">
+              <span className="text-[11.5px] tabular-nums text-zoru-ink-muted">
                 Page {currentPage} of {totalPages} · {compact(totalCampaigns)}{' '}
                 campaigns
               </span>
               <div className="flex items-center gap-2">
-                <ClayButton
-                  variant="pill"
+                <ZoruButton
+                  variant="outline"
                   size="sm"
-                  leading={<LuChevronLeft className="h-3 w-3" strokeWidth={2} />}
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage <= 1 || isRefreshing}
                 >
+                  <ChevronLeft className="h-3 w-3" />
                   Previous
-                </ClayButton>
-                <ClayButton
-                  variant="pill"
+                </ZoruButton>
+                <ZoruButton
+                  variant="outline"
                   size="sm"
-                  trailing={<LuChevronRight className="h-3 w-3" strokeWidth={2} />}
                   onClick={() =>
                     setCurrentPage((p) => Math.min(totalPages, p + 1))
                   }
                   disabled={currentPage >= totalPages || isRefreshing}
                 >
                   Next
-                </ClayButton>
+                  <ChevronRight className="h-3 w-3" />
+                </ZoruButton>
               </div>
             </div>
           ) : null}
-        </ClayCard>
-      </div>
+        </ZoruCard>
+      </section>
 
       <div className="h-6" />
-    </div>
-  );
-}
-
-/* ── tiny inline KPI tile ───────────────────────────────────────── */
-
-function MiniStat({
-  label,
-  value,
-  hint,
-}: {
-  label: string;
-  value: string;
-  hint?: string;
-}) {
-  return (
-    <div className="rounded-[14px] border border-border bg-card p-4">
-      <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-        {label}
-      </div>
-      <div className="mt-2 text-[22px] font-semibold tracking-[-0.01em] text-foreground leading-none">
-        {value}
-      </div>
-      {hint ? (
-        <div className="mt-1 text-[11px] text-muted-foreground leading-tight truncate">
-          {hint}
-        </div>
-      ) : null}
     </div>
   );
 }

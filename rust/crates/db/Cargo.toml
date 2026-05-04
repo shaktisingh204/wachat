@@ -1,0 +1,41 @@
+[package]
+name = "sabnode-db"
+version = "0.1.0"
+edition = "2024"
+description = "MongoDB and Redis client wrappers shared by SabNode business-logic crates."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "sabnode_db"
+path = "src/lib.rs"
+
+[dependencies]
+# MongoDB official driver + BSON. The driver re-exports a compatible bson but
+# we depend on it directly so callers can build documents without going through
+# `mongodb::bson` re-exports.
+mongodb = "3.2"
+bson = "2.13"
+
+# Redis client. fred ships its own connection pool and supports cluster +
+# pubsub out of the box. enable-rustls keeps us off OpenSSL.
+fred = { version = "10.1", default-features = true, features = ["enable-rustls"] }
+
+# Async + serialization stack (matches the rest of the workspace).
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "time"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Error and logging plumbing.
+thiserror = "2.0"
+anyhow = "1.0"
+tracing = "0.1"
+
+# Shared types — declared even though it may be built in parallel; cargo will
+# pick it up from the workspace path once the workspace root is wired.
+sabnode-common = { path = "../common" }
+
+[dev-dependencies]
+testcontainers = "0.23"
+testcontainers-modules = { version = "0.11", features = ["mongo", "redis"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }

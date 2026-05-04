@@ -13,7 +13,7 @@ export default function CallsRedirectPage() {
     router.replace('/wachat/calls/logs');
   }, [router]);
   return (
-    <div className="flex min-h-[240px] items-center justify-center text-sm text-muted-foreground">
+    <div className="flex min-h-[240px] items-center justify-center text-sm text-zoru-ink-muted">
       Redirecting to call logs...
     </div>
   );

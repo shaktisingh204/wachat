@@ -1,21 +1,35 @@
 'use client';
 
 /**
- * Wachat Chat Export — export chat history for a contact as JSON or CSV,
- * built on Clay primitives.
+ * /wachat/chat-export — Export chat history as JSON / CSV / TXT,
+ * rebuilt on ZoruUI primitives.
  */
 
 import * as React from 'react';
 import { useState, useTransition } from 'react';
-import { LuDownload, LuLoader, LuFileText } from 'react-icons/lu';
+import { Download, Loader2, FileText } from 'lucide-react';
+
 import { useProject } from '@/context/project-context';
 import { useToast } from '@/hooks/use-toast';
-import { ClayBreadcrumbs, ClayButton, ClayCard } from '@/components/clay';
-import { Input } from '@/components/ui/input';
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from '@/components/ui/select';
 import { exportChatHistory } from '@/app/actions/wachat-features.actions';
+
+import {
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+} from '@/components/zoruui';
 
 function downloadFile(content: string, filename: string, type: string) {
   const blob = new Blob([content], { type });
@@ -86,82 +100,89 @@ export default function ChatExportPage() {
       } else {
         downloadFile(messagesToCsv(messages), `chat-${contactId}-${timestamp}.csv`, 'text/csv');
       }
-      toast({ title: 'Exported', description: `${messages.length} messages exported as ${format.toUpperCase()}.` });
+      toast({
+        title: 'Exported',
+        description: `${messages.length} messages exported as ${format.toUpperCase()}.`,
+      });
     });
   };
 
   return (
-    <div className="clay-enter flex min-h-full flex-col gap-6">
-      <ClayBreadcrumbs
-        items={[
-          { label: 'Wachat', href: '/dashboard' },
-          { label: activeProject?.name || 'Project', href: '/wachat' },
-          { label: 'Chat Export' },
-        ]}
-      />
+    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Chat Export</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
 
       <div className="min-w-0">
-        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
+        <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
           Chat Export
         </h1>
-        <p className="mt-1.5 text-[13px] text-muted-foreground">
+        <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
           Export chat history for any contact as JSON or CSV for record-keeping.
         </p>
       </div>
 
-      <ClayCard padded={false} className="p-6">
-        <h2 className="text-[16px] font-semibold text-foreground mb-4">Export settings</h2>
-        <form onSubmit={handleExport} className="flex flex-col gap-4 max-w-md">
-          <div>
-            <label className="text-[13px] font-medium text-foreground mb-1.5 block">Contact ID</label>
-            <Input
+      <ZoruCard className="p-6">
+        <h2 className="mb-4 text-[16px] text-zoru-ink">Export settings</h2>
+        <form onSubmit={handleExport} className="flex max-w-md flex-col gap-4">
+          <div className="flex flex-col gap-1.5">
+            <ZoruLabel htmlFor="export-contact-id">Contact ID</ZoruLabel>
+            <ZoruInput
+              id="export-contact-id"
               value={contactId}
               onChange={(e) => setContactId(e.target.value)}
               placeholder="Contact ID or phone number"
               required
             />
           </div>
-          <div>
-            <label className="text-[13px] font-medium text-foreground mb-1.5 block">Export format</label>
-            <Select value={format} onValueChange={setFormat}>
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="json">JSON</SelectItem>
-                <SelectItem value="csv">CSV</SelectItem>
-                <SelectItem value="txt">Plain text (TXT)</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="flex flex-col gap-1.5">
+            <ZoruLabel htmlFor="export-format">Export format</ZoruLabel>
+            <ZoruSelect value={format} onValueChange={setFormat}>
+              <ZoruSelectTrigger id="export-format" className="w-full">
+                <ZoruSelectValue />
+              </ZoruSelectTrigger>
+              <ZoruSelectContent>
+                <ZoruSelectItem value="json">JSON</ZoruSelectItem>
+                <ZoruSelectItem value="csv">CSV</ZoruSelectItem>
+                <ZoruSelectItem value="txt">Plain text (TXT)</ZoruSelectItem>
+              </ZoruSelectContent>
+            </ZoruSelect>
           </div>
           <div>
-            <ClayButton
+            <ZoruButton
               type="submit"
-              variant="obsidian"
               size="md"
               disabled={isExporting || !projectId || !contactId.trim()}
-              leading={
-                isExporting
-                  ? <LuLoader className="h-3.5 w-3.5 animate-spin" strokeWidth={2} />
-                  : <LuDownload className="h-3.5 w-3.5" strokeWidth={2} />
-              }
             >
+              {isExporting ? <Loader2 className="animate-spin" /> : <Download />}
               {isExporting ? 'Exporting...' : 'Export Chat'}
-            </ClayButton>
+            </ZoruButton>
           </div>
         </form>
 
         {messageCount !== null && (
-          <div className="mt-6 flex items-center gap-2 rounded-[12px] border border-border bg-secondary p-4">
-            <LuFileText className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
-            <span className="text-[13px] text-foreground">
+          <div className="mt-6 flex items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-4">
+            <FileText className="h-4 w-4 text-zoru-ink-muted" />
+            <span className="text-[13px] text-zoru-ink">
               {messageCount === 0
                 ? 'No messages found for this contact.'
                 : `${messageCount} message${messageCount !== 1 ? 's' : ''} found and exported.`}
             </span>
           </div>
         )}
-      </ClayCard>
+      </ZoruCard>
 
       <div className="h-6" />
     </div>

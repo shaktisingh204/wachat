@@ -1,19 +1,39 @@
 'use client';
 
 /**
- * Wachat Conversation Assignments — assign unassigned chats to agents.
+ * /wachat/assignments — Assign unassigned conversations to agents,
+ * rebuilt on ZoruUI primitives.
  */
 
 import * as React from 'react';
 import { useEffect, useState, useTransition, useCallback } from 'react';
-import { LuInbox, LuUserPlus, LuRefreshCw } from 'react-icons/lu';
+import { Inbox, UserPlus, RefreshCw, Loader2 } from 'lucide-react';
+
 import { useProject } from '@/context/project-context';
 import { useToast } from '@/hooks/use-toast';
 import {
   getUnassignedConversations,
   assignConversation,
 } from '@/app/actions/wachat-features.actions';
-import { ClayBreadcrumbs, ClayButton, ClayCard } from '@/components/clay';
+
+import {
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruEmptyState,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,117 +48,171 @@ export default function AssignmentsPage() {
     if (!activeProjectId) return;
     startTransition(async () => {
       const res = await getUnassignedConversations(activeProjectId);
-      if (res.error) toast({ title: 'Error', description: res.error, variant: 'destructive' });
-      else setContacts(res.contacts ?? []);
+      if (res.error) {
+        toast({ title: 'Error', description: res.error, variant: 'destructive' });
+      } else {
+        setContacts(res.contacts ?? []);
+      }
     });
   }, [activeProjectId, toast]);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleAssign = (contactId: string) => {
     const agentId = agentInputs[contactId]?.trim();
-    if (!agentId) { toast({ title: 'Error', description: 'Enter an agent ID.', variant: 'destructive' }); return; }
+    if (!agentId) {
+      toast({
+        title: 'Error',
+        description: 'Enter an agent ID.',
+        variant: 'destructive',
+      });
+      return;
+    }
     startTransition(async () => {
       const res = await assignConversation(contactId, agentId);
-      if (res.error) toast({ title: 'Error', description: res.error, variant: 'destructive' });
-      else {
-        toast({ title: 'Assigned', description: 'Conversation assigned to agent.' });
-        setAgentInputs((prev) => { const n = { ...prev }; delete n[contactId]; return n; });
+      if (res.error) {
+        toast({ title: 'Error', description: res.error, variant: 'destructive' });
+      } else {
+        toast({
+          title: 'Assigned',
+          description: 'Conversation assigned to agent.',
+        });
+        setAgentInputs((prev) => {
+          const n = { ...prev };
+          delete n[contactId];
+          return n;
+        });
         fetchData();
       }
     });
   };
 
   return (
-    <div className="clay-enter flex min-h-full flex-col gap-6">
-      <ClayBreadcrumbs
-        items={[
-          { label: 'Wachat', href: '/dashboard' },
-          { label: activeProject?.name || 'Project', href: '/wachat' },
-          { label: 'Assignments' },
-        ]}
-      />
+    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Assignments</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
+          <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
             Conversation Assignments
           </h1>
-          <p className="mt-1.5 max-w-[720px] text-[13px] text-muted-foreground">
+          <p className="mt-1.5 max-w-[720px] text-[13px] text-zoru-ink-muted">
             Assign unassigned conversations to agents for follow-up.
           </p>
         </div>
-        <ClayButton size="sm" variant="ghost" onClick={fetchData} disabled={isPending}>
-          <LuRefreshCw className={`mr-1.5 h-3.5 w-3.5 ${isPending ? 'animate-spin' : ''}`} />
+        <ZoruButton
+          size="sm"
+          variant="ghost"
+          onClick={fetchData}
+          disabled={isPending}
+        >
+          <RefreshCw className={isPending ? 'animate-spin' : ''} />
           Refresh
-        </ClayButton>
+        </ZoruButton>
       </div>
 
-      {/* Stat */}
-      <ClayCard className="p-5 w-fit">
-        <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+      <ZoruCard className="w-fit p-5">
+        <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
           Unassigned Conversations
         </div>
-        <div className="mt-1 text-[28px] font-semibold text-foreground tabular-nums">
+        <div className="mt-1 text-[28px] tabular-nums text-zoru-ink">
           {contacts.length}
         </div>
-      </ClayCard>
+      </ZoruCard>
+
+      {isPending && contacts.length === 0 && (
+        <div className="flex h-20 items-center justify-center">
+          <Loader2 className="h-5 w-5 animate-spin text-zoru-ink-muted" />
+        </div>
+      )}
 
       {contacts.length > 0 ? (
-        <ClayCard padded={false} className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-border text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                <th className="px-5 py-3">Contact</th>
-                <th className="px-5 py-3">Last Message</th>
-                <th className="px-5 py-3">Time</th>
-                <th className="px-5 py-3">Assign</th>
-              </tr>
-            </thead>
-            <tbody>
+        <ZoruCard className="overflow-x-auto p-0">
+          <ZoruTable>
+            <ZoruTableHeader>
+              <ZoruTableRow>
+                <ZoruTableHead>Contact</ZoruTableHead>
+                <ZoruTableHead>Last Message</ZoruTableHead>
+                <ZoruTableHead>Time</ZoruTableHead>
+                <ZoruTableHead>Assign</ZoruTableHead>
+              </ZoruTableRow>
+            </ZoruTableHeader>
+            <ZoruTableBody>
               {contacts.map((c) => (
-                <tr key={c._id} className="border-b border-border last:border-0">
-                  <td className="px-5 py-3">
-                    <div className="text-[13px] font-medium text-foreground">{c.name || c.phone || 'Unknown'}</div>
+                <ZoruTableRow key={c._id}>
+                  <ZoruTableCell>
+                    <div className="text-[13px] text-zoru-ink">
+                      {c.name || c.phone || 'Unknown'}
+                    </div>
                     {c.phone && c.name && (
-                      <div className="text-[11px] text-muted-foreground font-mono">{c.phone}</div>
+                      <div className="font-mono text-[11px] text-zoru-ink-muted">
+                        {c.phone}
+                      </div>
                     )}
-                  </td>
-                  <td className="px-5 py-3 max-w-[260px]">
-                    <p className="truncate text-[13px] text-muted-foreground">
+                  </ZoruTableCell>
+                  <ZoruTableCell className="max-w-[260px]">
+                    <p className="truncate text-[13px] text-zoru-ink-muted">
                       {c.lastMessage || c.lastMessagePreview || '--'}
                     </p>
-                  </td>
-                  <td className="px-5 py-3 text-[12px] text-muted-foreground whitespace-nowrap">
-                    {c.lastMessageTimestamp ? new Date(c.lastMessageTimestamp).toLocaleString() : '--'}
-                  </td>
-                  <td className="px-5 py-3">
+                  </ZoruTableCell>
+                  <ZoruTableCell className="whitespace-nowrap text-[12px] text-zoru-ink-muted">
+                    {c.lastMessageTimestamp
+                      ? new Date(c.lastMessageTimestamp).toLocaleString()
+                      : '--'}
+                  </ZoruTableCell>
+                  <ZoruTableCell>
                     <div className="flex items-center gap-2">
-                      <input
-                        type="text"
+                      <ZoruInput
                         value={agentInputs[c._id] || ''}
-                        onChange={(e) => setAgentInputs((p) => ({ ...p, [c._id]: e.target.value }))}
+                        onChange={(e) =>
+                          setAgentInputs((p) => ({
+                            ...p,
+                            [c._id]: e.target.value,
+                          }))
+                        }
                         placeholder="Agent ID"
-                        className="w-[140px] rounded-lg border border-border bg-background px-2 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none"
+                        className="h-8 w-[140px] text-xs"
                       />
-                      <ClayButton size="sm" onClick={() => handleAssign(c._id)} disabled={isPending}>
-                        <LuUserPlus className="mr-1 h-3.5 w-3.5" /> Assign
-                      </ClayButton>
+                      <ZoruButton
+                        size="sm"
+                        onClick={() => handleAssign(c._id)}
+                        disabled={isPending}
+                      >
+                        <UserPlus /> Assign
+                      </ZoruButton>
                     </div>
-                  </td>
-                </tr>
+                  </ZoruTableCell>
+                </ZoruTableRow>
               ))}
-            </tbody>
-          </table>
-        </ClayCard>
+            </ZoruTableBody>
+          </ZoruTable>
+        </ZoruCard>
       ) : (
         !isPending && (
-          <ClayCard className="p-12 text-center">
-            <LuInbox className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
-            <p className="text-sm text-muted-foreground">All conversations are assigned.</p>
-          </ClayCard>
+          <ZoruEmptyState
+            icon={<Inbox />}
+            title="All caught up"
+            description="All conversations are currently assigned."
+          />
         )
       )}
+      <div className="h-6" />
     </div>
   );
 }

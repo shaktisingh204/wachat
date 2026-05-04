@@ -1,0 +1,20 @@
+[workspace]
+resolver = "3"
+members = [
+    "crates/api",
+    "crates/auth",
+    "crates/common",
+    "crates/db",
+    "crates/observability",
+    "crates/users",
+]
+
+[workspace.package]
+edition = "2024"
+license = "UNLICENSED"
+publish = false
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = "symbols"

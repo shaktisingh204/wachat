@@ -490,6 +490,23 @@ export async function handleChangePassword(prevState: { message?: string; error?
 }
 
 
-
-
+/**
+ * Phase 0 Rust BFF cutover — proof of concept.
+ *
+ * Mirrors `getSession()` semantics but routes the lookup through the new Rust
+ * `users` crate (`GET /v1/me`) instead of hitting Mongo from Node directly.
+ * Gated behind `USE_RUST_BACKEND=true` so we can flip individual endpoints
+ * without a deploy.
+ *
+ * Returns the parsed `MeResponse` from the Rust handler. Throws on failure
+ * (the caller is expected to handle); we deliberately do NOT swallow errors
+ * here so flag-on regressions are loud during the migration.
+ */
+export async function getCurrentUserViaRust() {
+    if (process.env.USE_RUST_BACKEND !== 'true') {
+        throw new Error('USE_RUST_BACKEND flag is off');
+    }
+    const { rustClient } = await import('@/lib/rust-client');
+    return rustClient.users.me();
+}
 

@@ -1,12 +1,47 @@
 'use client';
 
+/**
+ * Wachat Business Hours — ZoruUI migration.
+ * Weekly schedule + holiday list + offline auto-reply config.
+ */
+
 import * as React from 'react';
 import { useEffect, useState, useTransition, useCallback } from 'react';
-import { LuClock, LuSave, LuLoader } from 'react-icons/lu';
+import { CalendarOff, Loader2, Plus, Save, Trash2 } from 'lucide-react';
+
 import { useProject } from '@/context/project-context';
-import { useToast } from '@/hooks/use-toast';
-import { ClayBreadcrumbs, ClayButton, ClayCard, ClayInput, ClaySelect } from '@/components/clay';
-import { getBusinessHours, saveBusinessHours } from '@/app/actions/wachat-features.actions';
+import {
+  getBusinessHours,
+  saveBusinessHours,
+} from '@/app/actions/wachat-features.actions';
+
+import {
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruEmptyState,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSwitch,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
 
 const TIMEZONES = [
   { value: 'UTC', label: 'UTC' },
@@ -20,37 +55,87 @@ const TIMEZONES = [
   { value: 'Australia/Sydney', label: 'AEST (Australia/Sydney)' },
 ];
 
-const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as const;
+// 30-min increments for the schedule grid time pickers
+const TIME_OPTIONS = (() => {
+  const arr: string[] = [];
+  for (let h = 0; h < 24; h++) {
+    for (const m of [0, 30]) {
+      arr.push(
+        `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`,
+      );
+    }
+  }
+  return arr;
+})();
+
+const DAYS = [
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+  'Sunday',
+] as const;
+
 type DaySchedule = { open: boolean; start: string; end: string };
 type WeekSchedule = Record<string, DaySchedule>;
+type Holiday = { id: string; name: string; date: string };
 
 const defaultSchedule = (): WeekSchedule =>
-  Object.fromEntries(DAYS.map((d) => [d, { open: d !== 'Saturday' && d !== 'Sunday', start: '09:00', end: '18:00' }]));
+  Object.fromEntries(
+    DAYS.map((d) => [
+      d,
+      {
+        open: d !== 'Saturday' && d !== 'Sunday',
+        start: '09:00',
+        end: '18:00',
+      },
+    ]),
+  );
 
 export default function BusinessHoursPage() {
   const { activeProject } = useProject();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [isPending, startTransition] = useTransition();
   const [timezone, setTimezone] = useState('UTC');
   const [schedule, setSchedule] = useState<WeekSchedule>(defaultSchedule);
   const [offlineMsg, setOfflineMsg] = useState('');
+  const [holidays, setHolidays] = useState<Holiday[]>([]);
+  const [editingHoliday, setEditingHoliday] = useState<Holiday | null>(null);
+  const [holidayDraft, setHolidayDraft] = useState<{
+    name: string;
+    date: string;
+  }>({ name: '', date: '' });
 
   const load = useCallback(() => {
     if (!activeProject?._id) return;
     startTransition(async () => {
       const res = await getBusinessHours(String(activeProject._id));
-      if (res.error) { toast({ title: 'Error', description: res.error, variant: 'destructive' }); return; }
+      if (res.error) {
+        toast({
+          title: 'Error',
+          description: res.error,
+          variant: 'destructive',
+        });
+        return;
+      }
       if (res.hours) {
         setTimezone(res.hours.timezone || 'UTC');
         setOfflineMsg(res.hours.offlineMessage || '');
         if (res.hours.schedule && typeof res.hours.schedule === 'object') {
           setSchedule((prev) => ({ ...prev, ...res.hours.schedule }));
         }
+        if (Array.isArray((res.hours as any).holidays)) {
+          setHolidays((res.hours as any).holidays as Holiday[]);
+        }
       }
     });
   }, [activeProject?._id, toast]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const updateDay = (day: string, patch: Partial<DaySchedule>) => {
     setSchedule((prev) => ({ ...prev, [day]: { ...prev[day], ...patch } }));
@@ -63,77 +148,293 @@ export default function BusinessHoursPage() {
     fd.set('timezone', timezone);
     fd.set('offlineMessage', offlineMsg);
     fd.set('schedule', JSON.stringify(schedule));
+    fd.set('holidays', JSON.stringify(holidays));
     const res = await saveBusinessHours(null, fd);
-    if (res.error) { toast({ title: 'Error', description: res.error, variant: 'destructive' }); return; }
+    if (res.error) {
+      toast({
+        title: 'Error',
+        description: res.error,
+        variant: 'destructive',
+      });
+      return;
+    }
     toast({ title: res.message });
   };
 
-  return (
-    <div className="clay-enter flex min-h-full flex-col gap-6">
-      <ClayBreadcrumbs items={[
-        { label: 'Wachat', href: '/dashboard' },
-        { label: activeProject?.name || 'Project', href: '/wachat' },
-        { label: 'Business Hours' },
-      ]} />
+  const openHolidayDialog = (h: Holiday | null) => {
+    if (h) {
+      setEditingHoliday(h);
+      setHolidayDraft({ name: h.name, date: h.date });
+    } else {
+      setEditingHoliday({ id: '', name: '', date: '' });
+      setHolidayDraft({ name: '', date: '' });
+    }
+  };
 
-      <div>
-        <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">Business Hours</h1>
-        <p className="mt-1.5 text-[13px] text-muted-foreground">Set your operating hours and offline auto-reply message.</p>
+  const saveHoliday = () => {
+    if (!holidayDraft.name.trim() || !holidayDraft.date) return;
+    if (editingHoliday && editingHoliday.id) {
+      setHolidays((prev) =>
+        prev.map((h) =>
+          h.id === editingHoliday.id ? { ...h, ...holidayDraft } : h,
+        ),
+      );
+    } else {
+      setHolidays((prev) => [
+        ...prev,
+        { id: crypto.randomUUID(), ...holidayDraft },
+      ]);
+    }
+    setEditingHoliday(null);
+  };
+
+  const removeHoliday = (id: string) => {
+    setHolidays((prev) => prev.filter((h) => h.id !== id));
+  };
+
+  return (
+    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Business hours</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
+
+      <div className="mt-5">
+        <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
+          Business hours
+        </h1>
+        <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
+          Set your operating hours, holidays, and offline auto-reply message.
+        </p>
       </div>
 
-      <form onSubmit={handleSave} className="flex flex-col gap-6">
+      <form onSubmit={handleSave} className="mt-6 flex flex-col gap-6">
         {/* Timezone */}
-        <ClayCard padded={false} className="p-5">
-          <label className="flex flex-col gap-1.5 text-[12px] font-medium text-muted-foreground">
-            Timezone
-            <ClaySelect options={TIMEZONES} value={timezone} onChange={(e) => setTimezone(e.target.value)} className="w-72" />
-          </label>
-        </ClayCard>
+        <ZoruCard className="p-5">
+          <ZoruLabel>Timezone</ZoruLabel>
+          <ZoruSelect value={timezone} onValueChange={setTimezone}>
+            <ZoruSelectTrigger className="mt-2 w-72">
+              <ZoruSelectValue placeholder="Select timezone" />
+            </ZoruSelectTrigger>
+            <ZoruSelectContent>
+              {TIMEZONES.map((tz) => (
+                <ZoruSelectItem key={tz.value} value={tz.value}>
+                  {tz.label}
+                </ZoruSelectItem>
+              ))}
+            </ZoruSelectContent>
+          </ZoruSelect>
+        </ZoruCard>
 
         {/* Weekly schedule */}
-        <ClayCard padded={false} className="p-5">
-          <h2 className="mb-4 text-[15px] font-semibold text-foreground">Weekly Schedule</h2>
+        <ZoruCard className="p-5">
+          <h2 className="mb-4 text-[15px] text-zoru-ink">Weekly schedule</h2>
           <div className="space-y-3">
             {DAYS.map((day) => {
               const d = schedule[day];
               return (
-                <div key={day} className="flex flex-wrap items-center gap-4 rounded-lg border border-border p-3">
-                  <span className="w-24 text-[13px] font-medium text-foreground">{day}</span>
-                  <button type="button" onClick={() => updateDay(day, { open: !d.open })}
-                    className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${d.open ? 'bg-primary' : 'bg-border'}`}>
-                    <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${d.open ? 'left-[22px]' : 'left-0.5'}`} />
-                  </button>
-                  <span className="text-[12px] text-muted-foreground">{d.open ? 'Open' : 'Closed'}</span>
+                <div
+                  key={day}
+                  className="flex flex-wrap items-center gap-4 rounded-[var(--zoru-radius)] border border-zoru-line p-3"
+                >
+                  <span className="w-24 text-[13px] text-zoru-ink">{day}</span>
+                  <ZoruSwitch
+                    checked={d.open}
+                    onCheckedChange={(v) => updateDay(day, { open: v })}
+                    aria-label={`${day} open`}
+                  />
+                  <span className="text-[12px] text-zoru-ink-muted">
+                    {d.open ? 'Open' : 'Closed'}
+                  </span>
                   {d.open && (
                     <>
-                      <ClayInput type="time" value={d.start} onChange={(e) => updateDay(day, { start: e.target.value })} sizeVariant="sm" className="w-32" />
-                      <span className="text-[12px] text-muted-foreground">to</span>
-                      <ClayInput type="time" value={d.end} onChange={(e) => updateDay(day, { end: e.target.value })} sizeVariant="sm" className="w-32" />
+                      <ZoruSelect
+                        value={d.start}
+                        onValueChange={(v) => updateDay(day, { start: v })}
+                      >
+                        <ZoruSelectTrigger className="w-28">
+                          <ZoruSelectValue />
+                        </ZoruSelectTrigger>
+                        <ZoruSelectContent>
+                          {TIME_OPTIONS.map((t) => (
+                            <ZoruSelectItem key={t} value={t}>
+                              {t}
+                            </ZoruSelectItem>
+                          ))}
+                        </ZoruSelectContent>
+                      </ZoruSelect>
+                      <span className="text-[12px] text-zoru-ink-muted">to</span>
+                      <ZoruSelect
+                        value={d.end}
+                        onValueChange={(v) => updateDay(day, { end: v })}
+                      >
+                        <ZoruSelectTrigger className="w-28">
+                          <ZoruSelectValue />
+                        </ZoruSelectTrigger>
+                        <ZoruSelectContent>
+                          {TIME_OPTIONS.map((t) => (
+                            <ZoruSelectItem key={t} value={t}>
+                              {t}
+                            </ZoruSelectItem>
+                          ))}
+                        </ZoruSelectContent>
+                      </ZoruSelect>
                     </>
                   )}
                 </div>
               );
             })}
           </div>
-        </ClayCard>
+        </ZoruCard>
+
+        {/* Holidays */}
+        <ZoruCard className="p-5">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-[15px] text-zoru-ink">Holidays</h2>
+            <ZoruButton
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => openHolidayDialog(null)}
+            >
+              <Plus /> Add holiday
+            </ZoruButton>
+          </div>
+          {holidays.length === 0 ? (
+            <ZoruEmptyState
+              compact
+              icon={<CalendarOff />}
+              title="No holidays added"
+              description="Add observed holidays so auto-replies kick in even on closed days."
+            />
+          ) : (
+            <ul className="flex flex-col gap-2">
+              {holidays.map((h) => (
+                <li
+                  key={h.id}
+                  className="flex items-center justify-between gap-3 rounded-[var(--zoru-radius)] border border-zoru-line px-3 py-2"
+                >
+                  <div className="min-w-0">
+                    <div className="text-[13px] text-zoru-ink">{h.name}</div>
+                    <div className="text-[11.5px] text-zoru-ink-muted">
+                      {h.date}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <ZoruButton
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => openHolidayDialog(h)}
+                    >
+                      Edit
+                    </ZoruButton>
+                    <ZoruButton
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label="Remove holiday"
+                      onClick={() => removeHoliday(h.id)}
+                    >
+                      <Trash2 />
+                    </ZoruButton>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </ZoruCard>
 
         {/* Offline message */}
-        <ClayCard padded={false} className="p-5">
-          <label className="flex flex-col gap-1.5 text-[12px] font-medium text-muted-foreground">
-            Offline Message
-            <textarea value={offlineMsg} onChange={(e) => setOfflineMsg(e.target.value)} rows={3}
-              placeholder="e.g. Thanks for reaching out! We are currently offline and will get back to you during business hours."
-              className="clay-input min-h-[72px] resize-y py-2.5" />
-          </label>
-        </ClayCard>
+        <ZoruCard className="p-5">
+          <ZoruLabel htmlFor="offline-msg">Offline message</ZoruLabel>
+          <ZoruTextarea
+            id="offline-msg"
+            value={offlineMsg}
+            onChange={(e) => setOfflineMsg(e.target.value)}
+            rows={3}
+            placeholder="e.g. Thanks for reaching out! We are currently offline and will get back to you during business hours."
+            className="mt-2"
+          />
+        </ZoruCard>
 
         <div className="flex items-center gap-3">
-          <ClayButton type="submit" variant="obsidian" leading={<LuSave className="h-4 w-4" />} disabled={isPending}>
-            {isPending ? 'Saving...' : 'Save Business Hours'}
-          </ClayButton>
-          {isPending && <LuLoader className="h-4 w-4 animate-spin text-muted-foreground" />}
+          <ZoruButton type="submit" disabled={isPending}>
+            {isPending ? <Loader2 className="animate-spin" /> : <Save />}
+            {isPending ? 'Saving…' : 'Save business hours'}
+          </ZoruButton>
         </div>
       </form>
+
+      {/* ── Edit holiday dialog ── */}
+      <ZoruDialog
+        open={!!editingHoliday}
+        onOpenChange={(o) => !o && setEditingHoliday(null)}
+      >
+        <ZoruDialogContent>
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>
+              {editingHoliday?.id ? 'Edit holiday' : 'Add holiday'}
+            </ZoruDialogTitle>
+            <ZoruDialogDescription>
+              Holidays apply across every connected WhatsApp number.
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-1.5">
+              <ZoruLabel htmlFor="holiday-name">Name</ZoruLabel>
+              <ZoruInput
+                id="holiday-name"
+                value={holidayDraft.name}
+                onChange={(e) =>
+                  setHolidayDraft((prev) => ({
+                    ...prev,
+                    name: e.target.value,
+                  }))
+                }
+                placeholder="New Year's Day"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <ZoruLabel htmlFor="holiday-date">Date</ZoruLabel>
+              <ZoruInput
+                id="holiday-date"
+                type="date"
+                value={holidayDraft.date}
+                onChange={(e) =>
+                  setHolidayDraft((prev) => ({
+                    ...prev,
+                    date: e.target.value,
+                  }))
+                }
+              />
+            </div>
+          </div>
+          <ZoruDialogFooter>
+            <ZoruButton variant="ghost" onClick={() => setEditingHoliday(null)}>
+              Cancel
+            </ZoruButton>
+            <ZoruButton
+              onClick={saveHoliday}
+              disabled={!holidayDraft.name.trim() || !holidayDraft.date}
+            >
+              Save
+            </ZoruButton>
+          </ZoruDialogFooter>
+        </ZoruDialogContent>
+      </ZoruDialog>
+
       <div className="h-6" />
     </div>
   );

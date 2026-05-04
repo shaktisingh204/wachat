@@ -1,12 +1,56 @@
 'use client';
 
+/**
+ * Wachat Contact Blacklist — rebuilt on ZoruUI primitives (phase 2).
+ *
+ * Same data, same handlers. Visual primitives swapped to ZoruUI.
+ */
+
 import * as React from 'react';
 import { useEffect, useState, useTransition, useCallback } from 'react';
-import { LuShieldBan, LuPlus, LuTrash2, LuUpload, LuLoader } from 'react-icons/lu';
+import { ShieldBan, Plus, Trash2, Upload, Loader2 } from 'lucide-react';
+
 import { useProject } from '@/context/project-context';
 import { useToast } from '@/hooks/use-toast';
-import { ClayBreadcrumbs, ClayButton, ClayCard, ClayBadge } from '@/components/clay';
-import { getBlacklist, addToBlacklist, removeFromBlacklist, bulkAddToBlacklist } from '@/app/actions/wachat-features.actions';
+import {
+  getBlacklist,
+  addToBlacklist,
+  removeFromBlacklist,
+  bulkAddToBlacklist,
+} from '@/app/actions/wachat-features.actions';
+
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruAlertDialogTrigger,
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogTrigger,
+  ZoruEmptyState,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSkeleton,
+  ZoruTextarea,
+} from '@/components/zoruui';
 
 export default function ContactBlacklistPage() {
   const { activeProject } = useProject();
@@ -15,7 +59,7 @@ export default function ContactBlacklistPage() {
   const [numbers, setNumbers] = useState<any[]>([]);
   const [phone, setPhone] = useState('');
   const [bulkText, setBulkText] = useState('');
-  const [showBulk, setShowBulk] = useState(false);
+  const [bulkOpen, setBulkOpen] = useState(false);
   const [isLoading, startTransition] = useTransition();
   const [isMutating, startMutateTransition] = useTransition();
 
@@ -23,19 +67,35 @@ export default function ContactBlacklistPage() {
     if (!projectId) return;
     startTransition(async () => {
       const res = await getBlacklist(projectId);
-      if (res.error) { toast({ title: 'Error', description: res.error, variant: 'destructive' }); return; }
+      if (res.error) {
+        toast({
+          title: 'Error',
+          description: res.error,
+          variant: 'destructive',
+        });
+        return;
+      }
       setNumbers(res.numbers ?? []);
     });
-  }, [projectId]);
+  }, [projectId, toast]);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleAdd = () => {
     const trimmed = phone.trim();
     if (!trimmed || !projectId) return;
     startMutateTransition(async () => {
       const res = await addToBlacklist(projectId, trimmed);
-      if (res.error) { toast({ title: 'Error', description: res.error, variant: 'destructive' }); return; }
+      if (res.error) {
+        toast({
+          title: 'Error',
+          description: res.error,
+          variant: 'destructive',
+        });
+        return;
+      }
       setPhone('');
       toast({ title: 'Added', description: `${trimmed} blacklisted.` });
       fetchData();
@@ -44,14 +104,27 @@ export default function ContactBlacklistPage() {
 
   const handleBulkAdd = () => {
     if (!projectId) return;
-    const phones = bulkText.split('\n').map((l) => l.trim()).filter(Boolean);
+    const phones = bulkText
+      .split('\n')
+      .map((l) => l.trim())
+      .filter(Boolean);
     if (phones.length === 0) return;
     startMutateTransition(async () => {
       const res = await bulkAddToBlacklist(projectId, phones);
-      if (res.error) { toast({ title: 'Error', description: res.error, variant: 'destructive' }); return; }
+      if (res.error) {
+        toast({
+          title: 'Error',
+          description: res.error,
+          variant: 'destructive',
+        });
+        return;
+      }
       setBulkText('');
-      setShowBulk(false);
-      toast({ title: 'Added', description: `${res.count} numbers blacklisted.` });
+      setBulkOpen(false);
+      toast({
+        title: 'Added',
+        description: `${res.count} numbers blacklisted.`,
+      });
       fetchData();
     });
   };
@@ -59,90 +132,200 @@ export default function ContactBlacklistPage() {
   const handleRemove = (id: string, phoneNum: string) => {
     startMutateTransition(async () => {
       const res = await removeFromBlacklist(id);
-      if (res.error) { toast({ title: 'Error', description: res.error, variant: 'destructive' }); return; }
-      toast({ title: 'Removed', description: `${phoneNum} removed from blacklist.` });
+      if (res.error) {
+        toast({
+          title: 'Error',
+          description: res.error,
+          variant: 'destructive',
+        });
+        return;
+      }
+      toast({
+        title: 'Removed',
+        description: `${phoneNum} removed from blacklist.`,
+      });
       fetchData();
     });
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex min-h-[300px] items-center justify-center">
-        <LuLoader className="h-6 w-6 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
+  const isLoadingInitial = isLoading && numbers.length === 0;
 
   return (
-    <div className="clay-enter flex min-h-full flex-col gap-6">
-      <ClayBreadcrumbs items={[
-        { label: 'Wachat', href: '/dashboard' },
-        { label: activeProject?.name || 'Project', href: '/wachat' },
-        { label: 'Contact Blacklist' },
-      ]} />
+    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/wachat/contacts">
+              Contacts
+            </ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Blacklist</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
 
-      <div className="flex items-center justify-between">
+      <div className="flex items-end justify-between gap-6">
         <div>
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">Contact Blacklist</h1>
-          <p className="mt-1.5 text-[13px] text-muted-foreground">Block phone numbers from sending messages to your project.</p>
+          <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
+            Contact Blacklist
+          </h1>
+          <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
+            Block phone numbers from sending messages to your project.
+          </p>
         </div>
-        <ClayBadge tone="neutral">{numbers.length} blocked</ClayBadge>
+        <ZoruBadge variant="secondary">{numbers.length} blocked</ZoruBadge>
       </div>
 
-      <ClayCard padded={false} className="p-5">
-        <h2 className="text-[15px] font-semibold text-foreground mb-3">Add Number</h2>
-        <div className="flex gap-3">
-          <input type="text" value={phone} onChange={(e) => setPhone(e.target.value)}
-            placeholder="+1234567890" onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
-            className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none" />
-          <ClayButton size="sm" onClick={handleAdd} disabled={!phone.trim() || isMutating}>
-            <LuPlus className="mr-1.5 h-3.5 w-3.5" /> Add
-          </ClayButton>
-          <ClayButton size="sm" variant="ghost" onClick={() => setShowBulk(!showBulk)}>
-            <LuUpload className="mr-1.5 h-3.5 w-3.5" /> Bulk
-          </ClayButton>
-        </div>
-        {showBulk && (
-          <div className="mt-4">
-            <textarea value={bulkText} onChange={(e) => setBulkText(e.target.value)} rows={4}
-              placeholder="One phone number per line..." className="clay-input min-h-[80px] resize-y py-2.5 w-full" />
-            <ClayButton size="sm" className="mt-2" onClick={handleBulkAdd} disabled={!bulkText.trim() || isMutating}>
-              Add All
-            </ClayButton>
+      {/* Add form */}
+      <ZoruCard className="p-5">
+        <h2 className="mb-3 text-[15px] text-zoru-ink">Add a number</h2>
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="flex min-w-[260px] flex-1 flex-col gap-1.5">
+            <ZoruLabel htmlFor="bl-phone">Phone number</ZoruLabel>
+            <ZoruInput
+              id="bl-phone"
+              type="text"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="+1234567890"
+              onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
+            />
           </div>
-        )}
-      </ClayCard>
+          <div className="flex items-center gap-2">
+            <ZoruButton
+              size="sm"
+              onClick={handleAdd}
+              disabled={!phone.trim() || isMutating}
+            >
+              <Plus /> Add
+            </ZoruButton>
 
-      {numbers.length > 0 ? (
-        <ClayCard padded={false} className="overflow-x-auto">
+            <ZoruDialog open={bulkOpen} onOpenChange={setBulkOpen}>
+              <ZoruDialogTrigger asChild>
+                <ZoruButton variant="outline" size="sm">
+                  <Upload /> Bulk
+                </ZoruButton>
+              </ZoruDialogTrigger>
+              <ZoruDialogContent>
+                <ZoruDialogHeader>
+                  <ZoruDialogTitle>Bulk add to blacklist</ZoruDialogTitle>
+                  <ZoruDialogDescription>
+                    Paste one phone number per line. All numbers will be
+                    blocked from contacting this project.
+                  </ZoruDialogDescription>
+                </ZoruDialogHeader>
+                <ZoruTextarea
+                  rows={6}
+                  value={bulkText}
+                  onChange={(e) => setBulkText(e.target.value)}
+                  placeholder="+1234567890&#10;+19876543210&#10;…"
+                  className="min-h-[160px]"
+                />
+                <ZoruDialogFooter>
+                  <ZoruButton
+                    variant="outline"
+                    onClick={() => setBulkOpen(false)}
+                  >
+                    Cancel
+                  </ZoruButton>
+                  <ZoruButton
+                    onClick={handleBulkAdd}
+                    disabled={!bulkText.trim() || isMutating}
+                  >
+                    {isMutating ? (
+                      <Loader2 className="animate-spin" />
+                    ) : null}
+                    Add all
+                  </ZoruButton>
+                </ZoruDialogFooter>
+              </ZoruDialogContent>
+            </ZoruDialog>
+          </div>
+        </div>
+      </ZoruCard>
+
+      {isLoadingInitial ? (
+        <div className="flex flex-col gap-2">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <ZoruSkeleton key={i} className="h-12 w-full" />
+          ))}
+        </div>
+      ) : numbers.length > 0 ? (
+        <ZoruCard className="overflow-x-auto p-0">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-border text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              <tr className="border-b border-zoru-line text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                 <th className="px-5 py-3">#</th>
                 <th className="px-5 py-3">Phone Number</th>
                 <th className="px-5 py-3 text-right">Action</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-zoru-line">
               {numbers.map((item, i) => (
-                <tr key={item._id} className="border-b border-border last:border-0">
-                  <td className="px-5 py-3 text-[13px] text-muted-foreground">{i + 1}</td>
-                  <td className="px-5 py-3 font-mono text-[13px] text-foreground">{item.phone}</td>
+                <tr key={item._id}>
+                  <td className="px-5 py-3 text-[13px] text-zoru-ink-muted tabular-nums">
+                    {i + 1}
+                  </td>
+                  <td className="px-5 py-3 font-mono text-[13px] text-zoru-ink">
+                    {item.phone}
+                  </td>
                   <td className="px-5 py-3 text-right">
-                    <ClayButton size="sm" variant="ghost" onClick={() => handleRemove(item._id, item.phone)} disabled={isMutating}>
-                      <LuTrash2 className="mr-1 h-3.5 w-3.5" /> Remove
-                    </ClayButton>
+                    <ZoruAlertDialog>
+                      <ZoruAlertDialogTrigger asChild>
+                        <ZoruButton
+                          variant="ghost"
+                          size="sm"
+                          className="text-zoru-danger hover:bg-zoru-danger/10"
+                          disabled={isMutating}
+                        >
+                          <Trash2 /> Remove
+                        </ZoruButton>
+                      </ZoruAlertDialogTrigger>
+                      <ZoruAlertDialogContent>
+                        <ZoruAlertDialogHeader>
+                          <ZoruAlertDialogTitle>
+                            Remove from blacklist?
+                          </ZoruAlertDialogTitle>
+                          <ZoruAlertDialogDescription>
+                            {item.phone} will be allowed to message your
+                            project again.
+                          </ZoruAlertDialogDescription>
+                        </ZoruAlertDialogHeader>
+                        <ZoruAlertDialogFooter>
+                          <ZoruAlertDialogCancel>
+                            Cancel
+                          </ZoruAlertDialogCancel>
+                          <ZoruAlertDialogAction
+                            destructive
+                            onClick={() => handleRemove(item._id, item.phone)}
+                          >
+                            Remove
+                          </ZoruAlertDialogAction>
+                        </ZoruAlertDialogFooter>
+                      </ZoruAlertDialogContent>
+                    </ZoruAlertDialog>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </ClayCard>
+        </ZoruCard>
       ) : (
-        <ClayCard className="p-12 text-center">
-          <LuShieldBan className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
-          <p className="text-sm text-muted-foreground">No numbers blacklisted.</p>
-        </ClayCard>
+        <ZoruEmptyState
+          icon={<ShieldBan />}
+          title="No numbers blacklisted"
+          description="Add phone numbers above to block them from contacting this project."
+        />
       )}
       <div className="h-6" />
     </div>
