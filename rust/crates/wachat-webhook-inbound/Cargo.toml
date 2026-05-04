@@ -1,0 +1,53 @@
+# Standalone-package marker. Phase 2 slices ship one crate at a time and the
+# orchestrator wires them into `rust/Cargo.toml` as a batch — until then this
+# empty `[workspace]` table tells cargo "I'm intentionally not a member of the
+# enclosing workspace" so `cargo check --manifest-path …` works in isolation.
+[workspace]
+
+[package]
+name = "wachat-webhook-inbound"
+version = "0.1.0"
+edition = "2024"
+description = "Phase-2 webhook processor: persists `change.value.messages[]` (inbound user messages) into the `incoming_messages` Mongo collection. Idempotent on Meta `wamid`. Does NOT execute SabFlow — flow dispatch is a future phase."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "wachat_webhook_inbound"
+path = "src/lib.rs"
+
+[dependencies]
+# Async runtime. Mongo writes are awaited; no spawning or channels here.
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+# Serde + JSON for serializing the original Meta payload into the `content`
+# field of the stored document (matches TS shape line 1512: `content: message`).
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# BSON document construction + Mongo driver. We build the upsert document
+# manually (`doc! { ... }`) rather than serializing a struct because the
+# stored shape mixes `ObjectId` foreign keys with `serde_json::Value` content
+# and it's clearer to spell that out at the write site.
+bson = { version = "2.13", features = ["chrono-0_4"] }
+mongodb = "3"
+
+# Logging + error glue.
+tracing = "0.1"
+anyhow = "1"
+
+# Timestamps. Meta sends `timestamp` as a unix-second string; we parse to
+# `DateTime<Utc>` and persist via the `bson` chrono interop feature above.
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+# Sibling workspace crates. Path deps; the orchestrator wires these into
+# `members` of the workspace root after Phase 2 lands.
+sabnode-common = { path = "../common" }      # ApiError envelope
+sabnode-db = { path = "../db" }               # MongoHandle
+wachat-types = { path = "../wachat-types" }   # Project (read-only here)
+wachat-meta-dto = { path = "../wachat-meta-dto" } # ChangeValue / InboundMessage
+
+[dev-dependencies]
+# Test runtime + JSON literal builder for fixture documents.
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+serde_json = "1"

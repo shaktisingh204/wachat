@@ -1,0 +1,71 @@
+# Empty [workspace] table makes this crate buildable standalone while it
+# waits to be added to the parent workspace's `members` list (per the
+# Phase 2 slice contract: do not modify the workspace Cargo.toml).
+[workspace]
+
+[package]
+name = "wachat-webhook-dlq"
+version = "0.1.0"
+edition = "2024"
+description = "Dead-letter queue for failed Meta webhook events. Persists every webhook to the `webhook_logs` Mongo collection and enqueues failed entries to the `wachat-webhook-dlq` BullMQ queue so a future Rust DLQ consumer can replay them."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "wachat_webhook_dlq"
+path = "src/lib.rs"
+
+[dependencies]
+# Async runtime — required for `async fn send_to_dlq` and the Mongo / Redis
+# driver futures used inside it.
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+# Serialization. The webhook payload is opaque JSON we just persist verbatim,
+# so we depend on `serde` + `serde_json::Value` rather than a typed DTO.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# BSON document construction (`doc! { ... }`) and `ObjectId` minting for the
+# `webhook_logs._id` field. Pinned to the same major as `sabnode-db` so the
+# `Collection<Document>` types line up across crates.
+bson = { version = "2.13", features = ["chrono-0_4"] }
+
+# Mongo driver — used for `Collection::insert_one` against `webhook_logs`.
+mongodb = "3.2"
+
+# Tracing for fail-soft logs (Mongo insert failure must NOT poison the
+# webhook ack path; the safety net is the Redis enqueue).
+tracing = "0.1"
+
+# Error plumbing — anyhow funnels into `ApiError::Internal` via its `From` impl;
+# thiserror powers the local `DlqError` variants.
+anyhow = "1"
+thiserror = "2"
+
+# Chrono for `receivedAt` / `attemptedAt`. The TS uses `new Date()` (UTC); we
+# mirror with `Utc::now()`. The `serde` feature lets BSON serialize via chrono.
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+# Sibling workspace crates: `ApiError` for the public Result shape,
+# `MongoHandle` for the `webhook_logs` insert, `BullProducer` for the
+# `wachat-webhook-dlq` queue enqueue.
+sabnode-common = { path = "../common" }
+sabnode-db = { path = "../db" }
+wachat-queue = { path = "../wachat-queue" }
+
+[dev-dependencies]
+# Testcontainers for the Mongo + Redis integration test.
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+testcontainers = "0.23"
+testcontainers-modules = { version = "0.11", features = ["mongo", "redis"] }
+serde_json = "1"
+bson = { version = "2.13", features = ["chrono-0_4"] }
+# fred is needed in the test to inspect the BullMQ Redis state directly
+# (HGETALL on the job hash, LLEN on the wait list).
+fred = { version = "10.1", default-features = true, features = [
+    "enable-rustls",
+    "i-keys",
+    "i-hashes",
+    "i-lists",
+    "i-sorted-sets",
+] }

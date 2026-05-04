@@ -1,369 +1,744 @@
+"use client";
 
+/**
+ * /dashboard/facebook — Meta Suite root / overview.
+ *
+ * Rebuilt on ZoruUI primitives. Same data — `getProjectById`,
+ * `getPageDetails`, `getPageInsights`, `getFacebookPosts`,
+ * `getInstagramAccountForPage` — and the same handlers as before.
+ * Visual layer is pure zoru tokens, no rainbow accents.
+ */
 
-'use client';
-
-import { useEffect, useState, useTransition, useCallback, useMemo } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { getProjectById } from '@/app/actions/project.actions';
-import { getPageDetails, getPageInsights, getFacebookPosts, getInstagramAccountForPage } from '@/app/actions/facebook.actions';
-import type { FacebookPageDetails, PageInsights, FacebookPost, FacebookComment, Project, WithId } from '@/lib/definitions';
-import { AlertCircle, Users, ThumbsUp, Newspaper, Megaphone, Settings, MessageSquare, Wrench, Edit, TrendingUp, Handshake, Star, Calendar, Search, SlidersHorizontal, Plus, MoreHorizontal, Share2, ArrowRight } from 'lucide-react';
-import { FacebookIcon } from '@/components/wabasimplify/custom-sidebar-components';
-import { RadialBarChart, RadialBar, PolarAngleAxis } from "recharts"
-import { ChartContainer } from "@/components/ui/chart"
-import Image from 'next/image';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { formatDistanceToNow } from 'date-fns';
-import { PermissionErrorDialog } from '@/components/wabasimplify/permission-error-dialog';
-import { WhatsAppIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
+import * as React from "react";
+import { useEffect, useState, useTransition, useCallback, useMemo } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { formatDistanceToNow } from "date-fns";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { FacebookEmbeddedSignup } from '@/components/wabasimplify/facebook-embedded-signup';
+  AlertCircle,
+  ArrowRight,
+  Calendar,
+  Edit,
+  MessageSquare,
+  MoreHorizontal,
+  Megaphone,
+  Newspaper,
+  Plus,
+  Search,
+  Settings,
+  Share2,
+  SlidersHorizontal,
+  Sparkles,
+  Star,
+  ThumbsUp,
+  TrendingUp,
+  Users,
+} from "lucide-react";
 
-const StatCard = ({ title, value, icon: Icon, description }: { title: string, value: string | number, icon: React.ElementType, description?: string }) => (
-    <Card className="card-gradient card-gradient-blue">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{title}</CardTitle>
-            <Icon className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-            <div className="text-2xl font-bold">{typeof value === 'number' ? value.toLocaleString() : value}</div>
-            {description && <p className="text-xs text-muted-foreground">{description}</p>}
-        </CardContent>
-    </Card>
-);
+import { getProjectById } from "@/app/actions/project.actions";
+import {
+  getPageDetails,
+  getPageInsights,
+  getFacebookPosts,
+  getInstagramAccountForPage,
+} from "@/app/actions/facebook.actions";
+import type {
+  FacebookComment,
+  FacebookPageDetails,
+  FacebookPost,
+  PageInsights,
+  Project,
+  WithId,
+} from "@/lib/definitions";
 
-const RadialChartCard = ({ value, label, description }: { value: number, label: string, description: string }) => {
-    const chartData = [{ name: 'engagement', value, fill: 'hsl(var(--primary))' }];
-    return (
-        <Card className="flex flex-col card-gradient card-gradient-green">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">{label}</CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent className="flex-1 flex flex-col items-center justify-center">
-                <ChartContainer config={{}} className="mx-auto aspect-square h-full w-full max-h-[120px]">
-                    <RadialBarChart
-                        data={chartData}
-                        startAngle={-90}
-                        endAngle={270}
-                        innerRadius="75%"
-                        outerRadius="100%"
-                        barSize={12}
-                    >
-                        <PolarAngleAxis type="number" domain={[0, 100]} angleAxisId={0} tick={false} />
-                        <RadialBar dataKey="value" background={{ fill: 'hsl(var(--muted))' }} cornerRadius={10} />
-                        <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" className="text-2xl font-bold fill-foreground">
-                            {value}%
-                        </text>
-                    </RadialBarChart>
-                </ChartContainer>
-                <p className="text-xs text-muted-foreground mt-2">{description}</p>
-            </CardContent>
-        </Card>
-    );
-};
+import {
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruAlertTitle,
+  ZoruAvatar,
+  ZoruAvatarFallback,
+  ZoruAvatarImage,
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuLabel,
+  ZoruDropdownMenuSeparator,
+  ZoruDropdownMenuTrigger,
+  ZoruEmptyState,
+  ZoruInput,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruSkeleton,
+} from "@/components/zoruui";
 
-const PostColumn = ({ title, count, children }: { title: string, count: number, children: React.ReactNode }) => (
-    <div className="space-y-4">
-        <div className="flex justify-between items-center px-2">
-            <h3 className="font-semibold">{title} <Badge variant="secondary" className="ml-1">{count}</Badge></h3>
-        </div>
-        <div className="space-y-4">{children}</div>
+import { PermissionErrorDialog } from "./_components/permission-error-dialog";
+import {
+  FacebookGlyph,
+  InstagramGlyph,
+  WhatsAppGlyph,
+} from "./_components/icons";
+
+/* ── helpers ─────────────────────────────────────────────────────── */
+
+function compact(n: number | null | undefined): string {
+  const v = typeof n === "number" && Number.isFinite(n) ? n : 0;
+  if (v >= 1_000_000) return (v / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
+  if (v >= 1_000) return (v / 1_000).toFixed(1).replace(/\.0$/, "") + "k";
+  return v.toLocaleString();
+}
+
+/* ── skeleton ────────────────────────────────────────────────────── */
+
+function OverviewSkeleton() {
+  return (
+    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
+      <ZoruSkeleton className="h-3 w-52" />
+      <div className="mt-5 flex items-end justify-between gap-4">
+        <ZoruSkeleton className="h-9 w-72" />
+        <ZoruSkeleton className="h-9 w-36" />
+      </div>
+      <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <ZoruSkeleton key={i} className="h-28" />
+        ))}
+      </div>
+      <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <ZoruSkeleton key={i} className="h-96" />
+        ))}
+      </div>
     </div>
-);
-
-const PostItemCard = ({ post }: { post: FacebookPost }) => {
-    const copyLink = () => {
-        if (post.permalink_url) {
-            navigator.clipboard.writeText(post.permalink_url);
-        }
-    };
-
-    return (
-        <Card className="hover:shadow-md transition-shadow card-gradient card-gradient-blue">
-            <CardHeader className="flex flex-row justify-between items-start p-3">
-                <CardTitle className="text-base font-semibold leading-snug">{post.message || "Media Post"}</CardTitle>
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0"><MoreHorizontal className="h-4 w-4" /></Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        {post.permalink_url && (
-                            <DropdownMenuItem asChild>
-                                <a href={post.permalink_url} target="_blank" rel="noopener noreferrer">
-                                    <ArrowRight className="h-4 w-4 mr-2" /> View on Facebook
-                                </a>
-                            </DropdownMenuItem>
-                        )}
-                        <DropdownMenuItem onClick={copyLink}>
-                            <Share2 className="h-4 w-4 mr-2" /> Copy Link
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                            <a href={`/dashboard/facebook/posts`}>
-                                <Edit className="h-4 w-4 mr-2" /> Edit Post
-                            </a>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                            <a href={`/dashboard/facebook/insights`}>
-                                <TrendingUp className="h-4 w-4 mr-2" /> View Insights
-                            </a>
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            </CardHeader>
-            {post.full_picture && (
-                <CardContent className="p-3 pt-0">
-                    <Image src={post.full_picture} alt="Post image" width={400} height={225} className="rounded-md object-cover w-full" data-ai-hint="social media post" />
-                </CardContent>
-            )}
-            <CardFooter className="p-3 pt-0 flex justify-between items-center text-xs text-muted-foreground">
-                <span className="font-mono">{new Date(post.created_time).toLocaleDateString(undefined, { day: '2-digit', month: 'short' })}</span>
-                <div className="flex gap-3">
-                    <span className="flex items-center gap-1"><MessageSquare className="h-3 w-3" />{post.comments?.summary?.total_count || 0}</span>
-                    <span className="flex items-center gap-1"><ThumbsUp className="h-3 w-3" />{post.reactions?.summary?.total_count || 0}</span>
-                    <span className="flex items-center gap-1"><Share2 className="h-3 w-3" />{post.shares?.count || 0}</span>
-                </div>
-            </CardFooter>
-        </Card>
-    );
+  );
 }
 
-const CommentItemCard = ({ comment, postLink }: { comment: FacebookComment, postLink: string }) => (
-    <Card className="hover:shadow-md transition-shadow card-gradient card-gradient-purple">
-        <CardContent className="p-3">
-            <div className="flex items-start gap-3">
-                <Avatar className="h-9 w-9">
-                    <AvatarImage src={`https://graph.facebook.com/${comment.from.id}/picture`} alt={comment.from.name} data-ai-hint="person avatar" />
-                    <AvatarFallback>{comment.from.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                    <div className="flex justify-between items-center">
-                        <p className="font-semibold text-sm">{comment.from.name}</p>
-                        <p className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(comment.created_time), { addSuffix: true })}</p>
-                    </div>
-                    <p className="text-sm text-muted-foreground line-clamp-2 mt-0.5">
-                        "{comment.message}"
-                    </p>
-                </div>
-            </div>
-        </CardContent>
-    </Card>
-);
+/* ── stat tile ───────────────────────────────────────────────────── */
 
-
-function DashboardSkeleton() {
-    return (
-        <div className="space-y-8">
-            <Skeleton className="h-10 w-full" />
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-32" />)}
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <Skeleton className="h-96" /><Skeleton className="h-96" /><Skeleton className="h-96" /><Skeleton className="h-96" />
-            </div>
+function StatTile({
+  label,
+  value,
+  hint,
+  icon,
+}: {
+  label: string;
+  value: string;
+  hint?: string;
+  icon: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-4">
+      <div className="flex items-start justify-between">
+        <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink [&_svg]:size-4">
+          {icon}
+        </span>
+      </div>
+      <div className="mt-3 text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+        {label}
+      </div>
+      <div className="mt-1 text-[22px] tracking-[-0.01em] text-zoru-ink leading-none">
+        {value}
+      </div>
+      {hint ? (
+        <div className="mt-1 truncate text-[11px] text-zoru-ink-muted">
+          {hint}
         </div>
-    );
+      ) : null}
+    </div>
+  );
 }
 
-export default function FacebookDashboardPage() {
-    const [project, setProject] = useState<WithId<Project> | null>(null);
-    const [pageDetails, setPageDetails] = useState<FacebookPageDetails | null>(null);
-    const [insights, setInsights] = useState<PageInsights | null>(null);
-    const [posts, setPosts] = useState<FacebookPost[]>([]);
-    const [totalPosts, setTotalPosts] = useState(0);
-    const [instagramId, setInstagramId] = useState<string | null>(null);
-    const [error, setError] = useState<string | null>(null);
-    const [permissionError, setPermissionError] = useState<string | null>(null);
-    const [isLoading, startLoading] = useTransition();
-    const [projectId, setProjectId] = useState<string | null>(null);
+/* ── post tile ───────────────────────────────────────────────────── */
 
-    const fetchPageData = useCallback((id: string) => {
-        startLoading(async () => {
-            const projectData = await getProjectById(id);
-            setProject(projectData);
-            if (!projectData) {
-                setError("Project not found or you don't have access.");
-                return;
-            }
-            const [detailsResult, insightsResult, postsResult, igResult] = await Promise.all([
-                getPageDetails(id),
-                getPageInsights(id),
-                getFacebookPosts(id),
-                getInstagramAccountForPage(id)
-            ]);
+function PostItemCard({ post }: { post: FacebookPost }) {
+  const copyLink = () => {
+    if (post.permalink_url) {
+      navigator.clipboard.writeText(post.permalink_url);
+    }
+  };
+  return (
+    <ZoruCard className="overflow-hidden p-0">
+      <div className="flex items-start justify-between gap-2 p-3">
+        <p className="line-clamp-3 text-[13px] text-zoru-ink leading-snug">
+          {post.message || "Media Post"}
+        </p>
+        <ZoruDropdownMenu>
+          <ZoruDropdownMenuTrigger asChild>
+            <ZoruButton variant="ghost" size="icon-sm" aria-label="Post actions">
+              <MoreHorizontal />
+            </ZoruButton>
+          </ZoruDropdownMenuTrigger>
+          <ZoruDropdownMenuContent align="end">
+            <ZoruDropdownMenuLabel>Actions</ZoruDropdownMenuLabel>
+            <ZoruDropdownMenuSeparator />
+            {post.permalink_url ? (
+              <ZoruDropdownMenuItem asChild>
+                <a
+                  href={post.permalink_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <ArrowRight /> View on Facebook
+                </a>
+              </ZoruDropdownMenuItem>
+            ) : null}
+            <ZoruDropdownMenuItem onSelect={copyLink}>
+              <Share2 /> Copy link
+            </ZoruDropdownMenuItem>
+            <ZoruDropdownMenuItem asChild>
+              <Link href="/dashboard/facebook/posts">
+                <Edit /> Edit post
+              </Link>
+            </ZoruDropdownMenuItem>
+            <ZoruDropdownMenuItem asChild>
+              <Link href="/dashboard/facebook/insights">
+                <TrendingUp /> Insights
+              </Link>
+            </ZoruDropdownMenuItem>
+          </ZoruDropdownMenuContent>
+        </ZoruDropdownMenu>
+      </div>
+      {post.full_picture ? (
+        <div className="px-3">
+          <Image
+            src={post.full_picture}
+            alt="Post image"
+            width={400}
+            height={225}
+            className="h-auto w-full rounded-[var(--zoru-radius-sm)] object-cover"
+            data-ai-hint="social media post"
+          />
+        </div>
+      ) : null}
+      <div className="flex items-center justify-between p-3 text-[11px] text-zoru-ink-muted">
+        <span className="font-mono">
+          {new Date(post.created_time).toLocaleDateString(undefined, {
+            day: "2-digit",
+            month: "short",
+          })}
+        </span>
+        <div className="flex gap-3">
+          <span className="inline-flex items-center gap-1">
+            <MessageSquare className="h-3 w-3" />
+            {post.comments?.summary?.total_count || 0}
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <ThumbsUp className="h-3 w-3" />
+            {post.reactions?.summary?.total_count || 0}
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <Share2 className="h-3 w-3" />
+            {post.shares?.count || 0}
+          </span>
+        </div>
+      </div>
+    </ZoruCard>
+  );
+}
 
-            const firstError = detailsResult.error || insightsResult.error || postsResult.error || igResult.error;
-            if (firstError) {
-                if (firstError.includes('permission') || firstError.includes('(#100)') || firstError.includes('(#200)')) {
-                    setPermissionError(firstError); setError(null);
-                } else { setError(firstError); }
-            }
+function CommentItemCard({ comment }: { comment: FacebookComment }) {
+  return (
+    <ZoruCard className="p-3">
+      <div className="flex items-start gap-3">
+        <ZoruAvatar className="h-9 w-9">
+          <ZoruAvatarImage
+            src={`https://graph.facebook.com/${comment.from.id}/picture`}
+            alt={comment.from.name}
+          />
+          <ZoruAvatarFallback>{comment.from.name.charAt(0)}</ZoruAvatarFallback>
+        </ZoruAvatar>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center justify-between gap-2">
+            <p className="truncate text-[13px] text-zoru-ink">
+              {comment.from.name}
+            </p>
+            <p className="shrink-0 text-[10.5px] text-zoru-ink-subtle">
+              {formatDistanceToNow(new Date(comment.created_time), {
+                addSuffix: true,
+              })}
+            </p>
+          </div>
+          <p className="mt-0.5 line-clamp-2 text-[12.5px] text-zoru-ink-muted">
+            “{comment.message}”
+          </p>
+        </div>
+      </div>
+    </ZoruCard>
+  );
+}
 
-            if (detailsResult.page) setPageDetails(detailsResult.page);
-            if (insightsResult.insights) setInsights(insightsResult.insights);
-            if (postsResult.posts) {
-                setPosts(postsResult.posts);
-                setTotalPosts(postsResult.totalCount || postsResult.posts.length);
-            }
-            if (igResult.instagramAccount?.id) setInstagramId(igResult.instagramAccount.id);
-        });
-    }, []);
+function PostColumn({
+  title,
+  count,
+  children,
+}: {
+  title: string;
+  count: number;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex items-center justify-between px-1">
+        <h3 className="text-[13px] text-zoru-ink">{title}</h3>
+        <ZoruBadge variant="secondary">{count}</ZoruBadge>
+      </div>
+      <div className="flex flex-col gap-3">{children}</div>
+    </div>
+  );
+}
 
-    useEffect(() => {
-        const storedProjectId = localStorage.getItem('activeProjectId');
-        setProjectId(storedProjectId);
-    }, []);
+/* ── page ────────────────────────────────────────────────────────── */
 
-    useEffect(() => {
-        if (projectId) {
-            fetchPageData(projectId);
+export default function FacebookOverviewPage() {
+  const [project, setProject] = useState<WithId<Project> | null>(null);
+  const [pageDetails, setPageDetails] = useState<FacebookPageDetails | null>(
+    null,
+  );
+  const [insights, setInsights] = useState<PageInsights | null>(null);
+  const [posts, setPosts] = useState<FacebookPost[]>([]);
+  const [totalPosts, setTotalPosts] = useState(0);
+  const [instagramId, setInstagramId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [permissionError, setPermissionError] = useState<string | null>(null);
+  const [isLoading, startLoading] = useTransition();
+  const [projectId, setProjectId] = useState<string | null>(null);
+
+  const fetchPageData = useCallback((id: string) => {
+    startLoading(async () => {
+      const projectData = await getProjectById(id);
+      setProject(projectData);
+      if (!projectData) {
+        setError("Project not found or you don't have access.");
+        return;
+      }
+      const [detailsResult, insightsResult, postsResult, igResult] =
+        await Promise.all([
+          getPageDetails(id),
+          getPageInsights(id),
+          getFacebookPosts(id),
+          getInstagramAccountForPage(id),
+        ]);
+
+      const firstError =
+        detailsResult.error ||
+        insightsResult.error ||
+        postsResult.error ||
+        igResult.error;
+      if (firstError) {
+        if (
+          firstError.includes("permission") ||
+          firstError.includes("(#100)") ||
+          firstError.includes("(#200)")
+        ) {
+          setPermissionError(firstError);
+          setError(null);
+        } else {
+          setError(firstError);
         }
-    }, [projectId, fetchPageData]);
+      }
 
-    const onSuccessfulReconnect = () => {
-        setPermissionError(null);
-        if (projectId) {
-            fetchPageData(projectId);
-        }
-    }
+      if (detailsResult.page) setPageDetails(detailsResult.page);
+      if (insightsResult.insights) setInsights(insightsResult.insights);
+      if (postsResult.posts) {
+        setPosts(postsResult.posts);
+        setTotalPosts(postsResult.totalCount || postsResult.posts.length);
+      }
+      if (igResult.instagramAccount?.id)
+        setInstagramId(igResult.instagramAccount.id);
+    });
+  }, []);
 
-    const engagementRate = (insights && insights.pageReach > 0) ? Math.round((insights.postEngagement / insights.pageReach) * 100) : 0;
-    const { topPosts, recentComments } = useMemo(() => {
-        if (!posts || posts.length === 0) return { topPosts: [], recentComments: [] };
-        const calculatedTopPosts = [...posts].map(post => ({ ...post, engagementScore: (post.reactions?.summary?.total_count || 0) + (post.comments?.summary?.total_count || 0) })).sort((a, b) => b.engagementScore - a.engagementScore).slice(0, 3);
-        const allComments = posts.flatMap(post => (post.comments?.data || []).map(comment => ({ ...comment, postLink: post.permalink_url }))).sort((a, b) => new Date(b.created_time).getTime() - new Date(a.created_time).getTime()).slice(0, 5);
-        return { topPosts: calculatedTopPosts, recentComments: allComments };
-    }, [posts]);
+  useEffect(() => {
+    const stored = localStorage.getItem("activeProjectId");
+    setProjectId(stored);
+  }, []);
 
-    if (isLoading && !pageDetails) {
-        return <DashboardSkeleton />;
-    }
+  useEffect(() => {
+    if (projectId) fetchPageData(projectId);
+  }, [projectId, fetchPageData]);
 
-    if (!projectId) {
-        return (
-            <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" /><AlertTitle>No Project Selected</AlertTitle>
-                <AlertDescription>Please select a project from the main dashboard to view its Facebook overview.</AlertDescription>
-            </Alert>
-        )
-    }
+  const onSuccessfulReconnect = () => {
+    setPermissionError(null);
+    if (projectId) fetchPageData(projectId);
+  };
 
-    if (!pageDetails) {
-        return (
-            <div className="flex items-center justify-center h-full">
-                <Card className="max-w-xl text-center">
-                    <CardHeader>
-                        <div className="mx-auto bg-destructive/10 p-3 rounded-full w-fit mb-2">
-                            <AlertCircle className="h-8 w-8 text-destructive" />
-                        </div>
-                        <CardTitle>Connection Issue</CardTitle>
-                        <CardDescription>
-                            We couldn't fetch details for this page. This is usually because the necessary permissions were not granted during the initial connection.
-                        </CardDescription>
-                    </CardHeader>
-                    {(permissionError || error) && (
-                        <CardContent>
-                            <Alert variant="destructive">
-                                <AlertCircle className="h-4 w-4" />
-                                <AlertTitle>Error from Meta</AlertTitle>
-                                <AlertDescription>
-                                    {permissionError || error}
-                                </AlertDescription>
-                            </Alert>
-                        </CardContent>
-                    )}
-                    <CardFooter className="flex flex-col gap-4">
-                        <p className="text-sm text-center text-muted-foreground">
-                            To resolve this, please re-authorize the connection and make sure to approve all requested permissions.
-                        </p>
-                        {project && (
-                            <Button asChild size="lg" className="bg-[#1877F2] hover:bg-[#1877F2]/90 w-full">
-                                <a href={`/api/auth/meta-suite/login?reauthorize=true&state=facebook_reauth`}>
-                                    <FacebookIcon className="mr-2 h-5 w-5" />
-                                    Re-authorize Connection
-                                </a>
-                            </Button>
-                        )}
-                    </CardFooter>
-                </Card>
-            </div>
-        );
-    }
+  const engagementRate =
+    insights && insights.pageReach > 0
+      ? Math.round((insights.postEngagement / insights.pageReach) * 100)
+      : 0;
 
+  const { topPosts, recentComments } = useMemo(() => {
+    if (!posts || posts.length === 0)
+      return { topPosts: [] as FacebookPost[], recentComments: [] as Array<FacebookComment & { postLink?: string }> };
+    const calculatedTopPosts = [...posts]
+      .map((post) => ({
+        ...post,
+        engagementScore:
+          (post.reactions?.summary?.total_count || 0) +
+          (post.comments?.summary?.total_count || 0),
+      }))
+      .sort((a, b) => b.engagementScore - a.engagementScore)
+      .slice(0, 3);
+    const allComments = posts
+      .flatMap((post) =>
+        (post.comments?.data || []).map((comment) => ({
+          ...comment,
+          postLink: post.permalink_url,
+        })),
+      )
+      .sort(
+        (a, b) =>
+          new Date(b.created_time).getTime() -
+          new Date(a.created_time).getTime(),
+      )
+      .slice(0, 5);
+    return { topPosts: calculatedTopPosts, recentComments: allComments };
+  }, [posts]);
+
+  if (isLoading && !pageDetails) {
+    return <OverviewSkeleton />;
+  }
+
+  /* ── no project selected ── */
+  if (!projectId) {
     return (
-        <>
-            <PermissionErrorDialog isOpen={!!permissionError} onOpenChange={() => setPermissionError(null)} error={permissionError} project={project} onSuccess={onSuccessfulReconnect} />
-            <div className="flex flex-col gap-8">
-                <div className="flex flex-wrap items-center justify-between gap-4">
-                    <h2 className="text-2xl font-bold font-headline flex items-center gap-3">
-                        <span>{pageDetails.name} Dashboard</span>
-                        {project?.wabaId && <WhatsAppIcon className="h-6 w-6 text-green-500" />}
-                        {instagramId && <InstagramIcon className="h-6 w-6 text-instagram" />}
-                    </h2>
-                    <div className="flex items-center gap-2">
-                        <div className="relative"><Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" /><Input placeholder="Search..." className="pl-8" /></div>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="outline"><SlidersHorizontal className="mr-2 h-4 w-4" />Filters</Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Filter Posts</DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem>Image Posts</DropdownMenuItem>
-                                <DropdownMenuItem>Video Posts</DropdownMenuItem>
-                                <DropdownMenuItem>Text Posts</DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                        <Button asChild><Link href="/dashboard/facebook/create-post"><Plus className="mr-2 h-4 w-4" />Create Post</Link></Button>
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                    <StatCard title="Followers" value={pageDetails.followers_count || 0} icon={Users} description="+20.1% from last month" />
-                    <StatCard title="Page Likes" value={pageDetails.fan_count || 0} icon={Star} description="Total page likes" />
-                    <StatCard title="Post Engagements" value={insights?.postEngagement || 0} icon={ThumbsUp} description="Last 28 days" />
-                    <StatCard title="Posts" value={totalPosts} icon={Newspaper} description="Total posts on page" />
-                    <RadialChartCard value={engagementRate} label="Engagement Rate" description="Daily engagement / daily reach" />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <PostColumn title="Latest Posts" count={posts.slice(0, 3).length}>
-                        {posts.slice(0, 3).map(post => <PostItemCard key={post.id} post={post} />)}
-                    </PostColumn>
-                    <PostColumn title="Top Posts" count={topPosts.length}>
-                        {topPosts.map(post => <PostItemCard key={post.id} post={post} />)}
-                    </PostColumn>
-                    <PostColumn title="Recent Comments" count={recentComments.length}>
-                        {recentComments.map(comment => <CommentItemCard key={comment.id} comment={comment} postLink={comment.postLink} />)}
-                    </PostColumn>
-                    <PostColumn title="Quick Links" count={0}>
-                        <Card><CardContent className="p-3 space-y-2">
-                            {[
-                                { href: '/dashboard/facebook/posts', title: 'Manage Posts', icon: Newspaper },
-                                { href: '/dashboard/ad-manager', title: 'Ads Manager', icon: Megaphone },
-                                { href: '/dashboard/facebook/messages', title: 'Live Chat', icon: MessageSquare },
-                                { href: '/dashboard/facebook/settings', title: 'Settings', icon: Settings }
-                            ].map(link => <Button key={link.href} variant="ghost" className="w-full justify-start" asChild><Link href={link.href}><link.icon className="mr-2 h-4 w-4" />{link.title}</Link></Button>)}
-                        </CardContent></Card>
-                    </PostColumn>
-                </div>
-            </div>
-        </>
+      <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
+        <ZoruBreadcrumb>
+          <ZoruBreadcrumbList>
+            <ZoruBreadcrumbItem>
+              <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+            </ZoruBreadcrumbItem>
+            <ZoruBreadcrumbSeparator />
+            <ZoruBreadcrumbItem>
+              <ZoruBreadcrumbPage>Meta Suite</ZoruBreadcrumbPage>
+            </ZoruBreadcrumbItem>
+          </ZoruBreadcrumbList>
+        </ZoruBreadcrumb>
+        <div className="mt-6">
+          <ZoruEmptyState
+            icon={<FacebookGlyph />}
+            title="No project selected"
+            description="Open a connected Facebook Page to see its overview, posts and engagement."
+            action={
+              <ZoruButton asChild>
+                <Link href="/dashboard/facebook/all-projects">
+                  View connected pages <ArrowRight />
+                </Link>
+              </ZoruButton>
+            }
+          />
+        </div>
+      </div>
     );
+  }
+
+  /* ── connection broken ── */
+  if (!pageDetails) {
+    return (
+      <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
+        <ZoruBreadcrumb>
+          <ZoruBreadcrumbList>
+            <ZoruBreadcrumbItem>
+              <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+            </ZoruBreadcrumbItem>
+            <ZoruBreadcrumbSeparator />
+            <ZoruBreadcrumbItem>
+              <ZoruBreadcrumbLink href="/dashboard/facebook/all-projects">
+                Meta Suite
+              </ZoruBreadcrumbLink>
+            </ZoruBreadcrumbItem>
+            <ZoruBreadcrumbSeparator />
+            <ZoruBreadcrumbItem>
+              <ZoruBreadcrumbPage>Connection issue</ZoruBreadcrumbPage>
+            </ZoruBreadcrumbItem>
+          </ZoruBreadcrumbList>
+        </ZoruBreadcrumb>
+        <div className="mt-6 flex justify-center">
+          <ZoruCard className="max-w-xl p-6 text-center">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-zoru-danger/10 text-zoru-danger">
+              <AlertCircle className="h-6 w-6" />
+            </div>
+            <h2 className="mt-4 text-[18px] text-zoru-ink">Connection issue</h2>
+            <p className="mt-1 text-[12.5px] text-zoru-ink-muted">
+              We couldn’t fetch details for this page. This is usually because
+              the necessary permissions were not granted during the initial
+              connection.
+            </p>
+            {permissionError || error ? (
+              <div className="mt-4 text-left">
+                <ZoruAlert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <ZoruAlertTitle>Error from Meta</ZoruAlertTitle>
+                  <ZoruAlertDescription>
+                    {permissionError || error}
+                  </ZoruAlertDescription>
+                </ZoruAlert>
+              </div>
+            ) : null}
+            <div className="mt-5 flex flex-col gap-2">
+              <ZoruButton asChild size="lg">
+                <a href="/api/auth/meta-suite/login?reauthorize=true&state=facebook_reauth">
+                  <FacebookGlyph className="h-4 w-4" /> Re-authorize
+                </a>
+              </ZoruButton>
+              <ZoruButton asChild variant="outline" size="sm">
+                <Link href="/dashboard/facebook/all-projects">
+                  Back to connected pages
+                </Link>
+              </ZoruButton>
+            </div>
+          </ZoruCard>
+        </div>
+      </div>
+    );
+  }
+
+  /* ── normal overview ── */
+  return (
+    <>
+      <PermissionErrorDialog
+        isOpen={!!permissionError}
+        onOpenChange={(o) => {
+          if (!o) {
+            setPermissionError(null);
+            onSuccessfulReconnect();
+          }
+        }}
+        error={permissionError}
+        project={project}
+      />
+
+      <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
+        <ZoruBreadcrumb>
+          <ZoruBreadcrumbList>
+            <ZoruBreadcrumbItem>
+              <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+            </ZoruBreadcrumbItem>
+            <ZoruBreadcrumbSeparator />
+            <ZoruBreadcrumbItem>
+              <ZoruBreadcrumbLink href="/dashboard/facebook/all-projects">
+                Meta Suite
+              </ZoruBreadcrumbLink>
+            </ZoruBreadcrumbItem>
+            <ZoruBreadcrumbSeparator />
+            <ZoruBreadcrumbItem>
+              <ZoruBreadcrumbPage>{pageDetails.name}</ZoruBreadcrumbPage>
+            </ZoruBreadcrumbItem>
+          </ZoruBreadcrumbList>
+        </ZoruBreadcrumb>
+
+        <ZoruPageHeader className="mt-5" bordered={false}>
+          <ZoruPageHeading>
+            <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-zoru-ink-subtle">
+              Page overview
+            </p>
+            <div className="flex items-center gap-3">
+              <ZoruPageTitle>{pageDetails.name}</ZoruPageTitle>
+              {project?.wabaId ? (
+                <span
+                  title="WhatsApp linked"
+                  className="flex h-6 w-6 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted"
+                >
+                  <WhatsAppGlyph className="h-3.5 w-3.5" />
+                </span>
+              ) : null}
+              {instagramId ? (
+                <span
+                  title="Instagram linked"
+                  className="flex h-6 w-6 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted"
+                >
+                  <InstagramGlyph className="h-3.5 w-3.5" />
+                </span>
+              ) : null}
+            </div>
+            <ZoruPageDescription>
+              Followers, engagement and the latest activity across this Page.
+            </ZoruPageDescription>
+          </ZoruPageHeading>
+
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zoru-ink-subtle" />
+              <ZoruInput
+                placeholder="Search posts…"
+                className="h-9 w-56 pl-8"
+              />
+            </div>
+            <ZoruDropdownMenu>
+              <ZoruDropdownMenuTrigger asChild>
+                <ZoruButton variant="outline" size="sm">
+                  <SlidersHorizontal /> Filters
+                </ZoruButton>
+              </ZoruDropdownMenuTrigger>
+              <ZoruDropdownMenuContent align="end">
+                <ZoruDropdownMenuLabel>Filter posts</ZoruDropdownMenuLabel>
+                <ZoruDropdownMenuItem>Image posts</ZoruDropdownMenuItem>
+                <ZoruDropdownMenuItem>Video posts</ZoruDropdownMenuItem>
+                <ZoruDropdownMenuItem>Text posts</ZoruDropdownMenuItem>
+              </ZoruDropdownMenuContent>
+            </ZoruDropdownMenu>
+            <ZoruButton asChild size="sm">
+              <Link href="/dashboard/facebook/create-post">
+                <Plus /> Create post
+              </Link>
+            </ZoruButton>
+          </div>
+        </ZoruPageHeader>
+
+        {error ? (
+          <div className="mt-5">
+            <ZoruAlert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <ZoruAlertTitle>Error</ZoruAlertTitle>
+              <ZoruAlertDescription>{error}</ZoruAlertDescription>
+            </ZoruAlert>
+          </div>
+        ) : null}
+
+        {/* ── Stats ── */}
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          <StatTile
+            label="Followers"
+            value={compact(pageDetails.followers_count || 0)}
+            hint="Total followers"
+            icon={<Users />}
+          />
+          <StatTile
+            label="Page likes"
+            value={compact(pageDetails.fan_count || 0)}
+            hint="Total page likes"
+            icon={<Star />}
+          />
+          <StatTile
+            label="Engagements"
+            value={compact(insights?.postEngagement || 0)}
+            hint="Last 28 days"
+            icon={<ThumbsUp />}
+          />
+          <StatTile
+            label="Posts"
+            value={compact(totalPosts)}
+            hint="Total on page"
+            icon={<Newspaper />}
+          />
+          <StatTile
+            label="Engagement rate"
+            value={`${engagementRate}%`}
+            hint="Daily / reach"
+            icon={<TrendingUp />}
+          />
+        </div>
+
+        {/* ── Activity columns ── */}
+        <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-4">
+          <PostColumn title="Latest posts" count={posts.slice(0, 3).length}>
+            {posts.slice(0, 3).length === 0 ? (
+              <ZoruEmptyState
+                compact
+                icon={<Newspaper />}
+                title="No posts yet"
+                description="Create your first post to see it here."
+              />
+            ) : (
+              posts.slice(0, 3).map((post) => (
+                <PostItemCard key={post.id} post={post} />
+              ))
+            )}
+          </PostColumn>
+
+          <PostColumn title="Top posts" count={topPosts.length}>
+            {topPosts.length === 0 ? (
+              <ZoruEmptyState
+                compact
+                icon={<Sparkles />}
+                title="No top posts"
+                description="Engagement insights appear once your posts collect reactions."
+              />
+            ) : (
+              topPosts.map((post) => (
+                <PostItemCard key={post.id} post={post} />
+              ))
+            )}
+          </PostColumn>
+
+          <PostColumn title="Recent comments" count={recentComments.length}>
+            {recentComments.length === 0 ? (
+              <ZoruEmptyState
+                compact
+                icon={<MessageSquare />}
+                title="No comments yet"
+                description="Replies and comments on your posts will show up here."
+              />
+            ) : (
+              recentComments.map((comment) => (
+                <CommentItemCard key={comment.id} comment={comment} />
+              ))
+            )}
+          </PostColumn>
+
+          <PostColumn title="Quick links" count={4}>
+            <ZoruCard className="divide-y divide-zoru-line p-0">
+              {[
+                {
+                  href: "/dashboard/facebook/posts",
+                  title: "Manage posts",
+                  icon: Newspaper,
+                },
+                {
+                  href: "/dashboard/facebook/calendar",
+                  title: "Content calendar",
+                  icon: Calendar,
+                },
+                {
+                  href: "/dashboard/facebook/messages",
+                  title: "Messenger inbox",
+                  icon: MessageSquare,
+                },
+                {
+                  href: "/dashboard/facebook/settings",
+                  title: "Page settings",
+                  icon: Settings,
+                },
+              ].map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="flex items-center gap-3 px-3 py-2.5 text-[13px] text-zoru-ink transition-colors hover:bg-zoru-surface"
+                >
+                  <span className="flex h-7 w-7 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 [&_svg]:size-3.5">
+                    <link.icon />
+                  </span>
+                  <span className="flex-1">{link.title}</span>
+                  <ArrowRight className="h-3.5 w-3.5 text-zoru-ink-subtle" />
+                </Link>
+              ))}
+            </ZoruCard>
+
+            <ZoruCard className="p-3">
+              <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                Run a campaign
+              </p>
+              <p className="mt-1 text-[12.5px] text-zoru-ink-muted">
+                Reach new audiences with Meta Ads.
+              </p>
+              <ZoruButton asChild size="sm" variant="outline" className="mt-3">
+                <Link href="/dashboard/ad-manager">
+                  <Megaphone /> Open Ads Manager
+                </Link>
+              </ZoruButton>
+            </ZoruCard>
+          </PostColumn>
+        </div>
+      </div>
+    </>
+  );
 }

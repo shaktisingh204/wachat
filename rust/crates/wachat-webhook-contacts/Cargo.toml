@@ -1,0 +1,67 @@
+# Empty [workspace] table makes this crate buildable standalone while it
+# waits to be added to the parent workspace's `members` list (per the
+# Phase 2 slice contract: do not modify the workspace Cargo.toml).
+[workspace]
+
+[package]
+name = "wachat-webhook-contacts"
+version = "0.1.0"
+edition = "2024"
+description = "Upsert WaContact Mongo documents from Meta webhook inbound messages — refreshes profile name, phone, and last-seen timestamp idempotently."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "wachat_webhook_contacts"
+path = "src/lib.rs"
+
+[dependencies]
+# Async runtime — needed for `async fn upsert_from_inbound` and Mongo driver futures.
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+# Standard serialization stack used across the workspace.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# BSON document construction (`doc! { ... }`) for Mongo filters/updates,
+# matching the `bson` version pinned in `sabnode-db`. The `chrono-0_4`
+# feature enables BSON `Date` ⇄ `chrono::DateTime<Utc>` conversion, which
+# is load-bearing for `lastMessageTimestamp` / `updatedAt` / `createdAt`.
+bson = { version = "2.13", features = ["chrono-0_4"] }
+
+# Mongo driver — used for `Collection::update_one` and the `UpdateResult` type.
+mongodb = "3.2"
+
+# Tracing for fail-soft logging when phone normalization rejects a wa_id.
+tracing = "0.1"
+
+# Error plumbing — `anyhow::Error` funnels into `ApiError::Internal` via its
+# `From` impl on the common crate.
+anyhow = "1"
+
+# Chrono for `Utc::now()` populating `lastMessageTimestamp` / `updatedAt`
+# / `createdAt`. Must match the BSON feature above so the doc! macro
+# serializes `DateTime<Utc>` as a real BSON Date, not a string.
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+# Sibling crates — domain types, the shared error envelope, and the
+# Mongo handle.
+sabnode-common = { path = "../common" }
+sabnode-db = { path = "../db" }
+wachat-types = { path = "../wachat-types" }
+wachat-meta-dto = { path = "../wachat-meta-dto" }
+wachat-phone = { path = "../wachat-phone" }
+
+[dev-dependencies]
+# Tokio macros for `#[tokio::test(flavor = "multi_thread")]`.
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+serde_json = "1"
+bson = { version = "2.13", features = ["chrono-0_4"] }
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+# Mongo integration tests use testcontainers, gated by `SKIP_TESTCONTAINERS=1`
+# (mirrors the convention from `sabnode-db` / `wachat-queue` / `wachat-rate-limit`).
+# Pinned to the same versions those crates use so a workspace-level run can
+# share the container layer cache.
+testcontainers = "0.23"
+testcontainers-modules = { version = "0.11", features = ["mongo"] }

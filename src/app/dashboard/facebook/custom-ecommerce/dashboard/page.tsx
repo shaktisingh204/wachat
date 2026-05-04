@@ -1,20 +1,33 @@
+"use client";
 
-'use client';
+/**
+ * /dashboard/facebook/custom-ecommerce/dashboard
+ *
+ * Legacy entry point — preserved as a redirect to the canonical shop list
+ * (the new account-level overview lives at the parent route). Restyled
+ * with neutral zoru tokens.
+ */
 
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-import { LoaderCircle } from 'lucide-react';
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { LoaderCircle } from "lucide-react";
 
-export default function RedirectToNewDashboard() {
-    const router = useRouter();
+import { ZoruSkeleton } from "@/components/zoruui";
 
-    useEffect(() => {
-        router.replace('/dashboard/facebook/custom-ecommerce');
-    }, [router]);
+export default function CustomEcommerceDashboardRedirect() {
+  const router = useRouter();
 
-    return (
-        <div className="flex items-center justify-center h-full">
-            <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />
-        </div>
-    );
+  useEffect(() => {
+    router.replace("/dashboard/facebook/custom-ecommerce");
+  }, [router]);
+
+  return (
+    <div className="mx-auto flex w-full max-w-[1320px] flex-col items-center justify-center gap-3 px-6 pt-24 pb-10">
+      <LoaderCircle className="h-8 w-8 animate-spin text-zoru-ink-muted" />
+      <p className="text-[13px] text-zoru-ink-muted">
+        Redirecting to your shops…
+      </p>
+      <ZoruSkeleton className="h-4 w-40" />
+    </div>
+  );
 }

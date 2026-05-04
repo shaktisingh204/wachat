@@ -1,0 +1,67 @@
+# Standalone-package marker. Phase 2 slices ship one crate at a time and the
+# orchestrator wires them into `rust/Cargo.toml` as a batch — until then this
+# empty `[workspace]` table tells cargo "I'm intentionally not a member of the
+# enclosing workspace" so `cargo check --manifest-path …` works in isolation.
+[workspace]
+
+[package]
+name = "wachat-webhook"
+version = "0.1.0"
+edition = "2024"
+description = "HTTP receiver crate for Meta WhatsApp webhooks. Verifies signature, parses payload, dispatches each `change.field` to a sibling processor crate. Always 200s back to Meta after signature+parse succeed; processor failures route to DLQ."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "wachat_webhook"
+path = "src/lib.rs"
+
+[dependencies]
+# HTTP framework + async runtime — same versions as every other workspace crate.
+axum = { version = "0.8", default-features = false, features = ["http1", "json", "query"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "sync"] }
+
+# Serde stack — webhook bodies are JSON, and we need raw `serde_json::Value`
+# round-trips to forward unhandled payloads to DLQ untouched.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# `bytes::Bytes` is what `VerifiedBody` hands us back; we deserialize from the
+# raw bytes (never from a re-serialized value, which would invalidate signing).
+bytes = "1"
+
+# Logging plumbing.
+tracing = "0.1"
+
+# Used for joining sibling processor futures across multiple entries/changes.
+futures = "0.3"
+
+# Standard error / time stack.
+anyhow = "1"
+thiserror = "2"
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+# Mongo BSON — we look up `Project` by `wabaId` via `MongoHandle`.
+bson = "2.13"
+
+# Sibling workspace crates — public APIs only. Path deps; the orchestrator
+# wires these into `members` of the workspace root after Phase 2 lands.
+sabnode-common = { path = "../common" }
+sabnode-db = { path = "../db" }
+wachat-types = { path = "../wachat-types" }
+wachat-meta-dto = { path = "../wachat-meta-dto" }
+wachat-webhook-verify = { path = "../wachat-webhook-verify" }
+
+# Phase 2 sibling processor crates — built in parallel by other agents. Paths
+# resolve once the orchestrator merges all slices into the workspace root.
+wachat-webhook-status = { path = "../wachat-webhook-status" }
+wachat-webhook-inbound = { path = "../wachat-webhook-inbound" }
+wachat-webhook-account = { path = "../wachat-webhook-account" }
+wachat-webhook-template-events = { path = "../wachat-webhook-template-events" }
+wachat-webhook-dlq = { path = "../wachat-webhook-dlq" }
+wachat-webhook-contacts = { path = "../wachat-webhook-contacts" }
+wachat-webhook-conversations = { path = "../wachat-webhook-conversations" }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+serde_json = "1"

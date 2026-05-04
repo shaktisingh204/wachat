@@ -1,0 +1,60 @@
+# Standalone-package marker. Phase 2 slices ship one crate at a time and the
+# orchestrator wires them into `rust/Cargo.toml` as a batch — until then this
+# empty `[workspace]` table tells cargo "I'm intentionally not a member of the
+# enclosing workspace" so `cargo check --manifest-path …` works in isolation.
+[workspace]
+
+[package]
+name = "wachat-webhook-parity"
+version = "0.1.0"
+edition = "2024"
+description = "Parity test harness: replays captured Meta webhook payloads against the legacy Next.js receiver and the new Rust receiver, then diffs the resulting Mongo state to prove behavioural equivalence."
+license = "UNLICENSED"
+publish = false
+
+# Binary-only crate. The CLI is the public surface — no library API.
+[[bin]]
+name = "wachat-parity"
+path = "src/main.rs"
+
+[dependencies]
+# HTTP client to fire payloads at both endpoints. rustls-tls keeps us off the
+# host's openssl install; json feature is unused for sending (we ship raw bytes
+# so signatures stay valid) but kept for response decoding.
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "json"] }
+
+# Async runtime. `full` is justified here because the CLI does I/O of every
+# flavour (TCP, file, signals) and the binary is short-lived.
+tokio = { version = "1", features = ["full"] }
+
+# Serde stack — fixtures are JSON, snapshots are JSON, the diff report is JSON.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# CLI parsing.
+clap = { version = "4", features = ["derive"] }
+
+# Logging plumbing.
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Standard error / time stack.
+anyhow = "1"
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+# Mongo BSON — needed to read `webhook_logs` and snapshot the four collections
+# that any webhook can mutate.
+bson = { version = "2.13", features = ["chrono-0_4"] }
+# Mongo driver. We rely on default features (rustls-tls is the default TLS
+# stack as of mongodb 3.x) to match every other crate in the workspace.
+mongodb = "3.2"
+
+# HMAC-SHA256 for signing replayed bodies with the Meta app secret.
+sha2 = "0.10"
+hmac = "0.12"
+hex = "0.4"
+
+[dev-dependencies]
+# Smoke test boots the CLI via `assert_cmd`-style env detection; we just need
+# clap's `try_parse_from` which is in the main dep tree.
+clap = { version = "4", features = ["derive"] }

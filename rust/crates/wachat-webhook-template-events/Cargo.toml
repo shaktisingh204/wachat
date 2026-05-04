@@ -1,0 +1,56 @@
+# Empty [workspace] table makes this crate buildable standalone while it
+# waits to be added to the parent workspace's `members` list (per the
+# Phase 2 slice contract: do not modify the workspace Cargo.toml).
+[workspace]
+
+[package]
+name = "wachat-webhook-template-events"
+version = "0.1.0"
+edition = "2024"
+description = "Process Meta WhatsApp webhook template events (message_template_status_update / quality_update / components_update) into MongoDB updates on the `templates` collection."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "wachat_webhook_template_events"
+path = "src/lib.rs"
+
+[dependencies]
+# Async runtime — needed for `async fn process(...)` and Mongo driver futures.
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+# Standard serialization stack used across the workspace. We round-trip
+# `ChangeValue` through `serde_json::Value` to read template-event fields
+# (`event`, `message_template_id`, etc.) that are not modeled on the shared
+# DTO struct (see `wachat-meta-dto::webhook::ChangeValue`).
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# BSON document construction (`doc! { ... }`) for Mongo filters/updates,
+# matching the `bson` version pinned in `sabnode-db`.
+bson = { version = "2.13", features = ["chrono-0_4"] }
+
+# Mongo driver — `Collection::update_one` / `insert_one` on the `templates`
+# and `template_events` collections.
+mongodb = "3.2"
+
+# Tracing for warn-on-unknown-event and structured per-event logs.
+tracing = "0.1"
+
+# Error plumbing — anyhow funnels into `ApiError::Internal` via its `From` impl.
+anyhow = "1"
+
+# Chrono for the `statusUpdatedAt` / `lastEventAt` timestamps. The TS uses
+# `new Date()` (UTC), we mirror with `Utc::now()`.
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+# Sibling crates — domain types and the shared error envelope.
+sabnode-common = { path = "../common" }
+sabnode-db = { path = "../db" }
+wachat-types = { path = "../wachat-types" }
+wachat-meta-dto = { path = "../wachat-meta-dto" }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+serde_json = "1"
+bson = { version = "2.13", features = ["chrono-0_4"] }

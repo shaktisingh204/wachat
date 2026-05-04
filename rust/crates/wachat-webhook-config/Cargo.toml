@@ -1,0 +1,59 @@
+# Empty [workspace] table makes this crate buildable standalone while it
+# waits to be added to the parent workspace's `members` list (per the
+# Phase 2 slice contract: do not modify the workspace Cargo.toml).
+[workspace]
+
+[package]
+name = "wachat-webhook-config"
+version = "0.1.0"
+edition = "2024"
+description = "Admin HTTP surface for inspecting and managing the wachat webhook log: list, fetch payload, mark-for-reprocess, and bulk-clear processed entries."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "wachat_webhook_config"
+path = "src/lib.rs"
+
+[dependencies]
+# Axum HTTP — `Router`, `State`, `Path`, `Query`, `Json` extractors.
+# Same feature set used in `sabnode-users` so the router slots into the
+# same outer state without forcing extra features at the binary level.
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+# Standard serialization stack used across the workspace.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# BSON document construction (`doc! { ... }`) for Mongo filters/updates,
+# matching the `bson` version pinned in `sabnode-db`.
+bson = { version = "2.13", features = ["chrono-0_4"] }
+
+# Mongo driver — `Collection`, `find`, `find_one`, `update_one`, `delete_many`.
+mongodb = "3.2"
+
+# `TryStreamExt` for paging the `find()` cursor row-by-row so a single
+# malformed document doesn't fail the whole list response.
+futures = "0.3"
+
+# Tracing for fail-soft logging on bad cursors / parse errors.
+tracing = "0.1"
+
+# Error plumbing — anyhow funnels into `ApiError::Internal` via its `From` impl.
+anyhow = "1"
+
+# Chrono for `received_at` (mirrors the TS `createdAt` / `Date`). `serde`
+# feature so BSON serializes via chrono.
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+# Sibling crates — shared error envelope, JWT extractor, and Mongo handle.
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+
+[dev-dependencies]
+# Tokio macros for `#[tokio::test(...)]`.
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+# Re-pulled so test fixtures can build typed `Router<TestState>`.
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }

@@ -1,10 +1,18 @@
+"use client";
 
-'use client';
+/**
+ * /dashboard/facebook layout — Meta Suite chrome.
+ *
+ * Inherits the parent /dashboard ZoruHomeShell (sidebar + dock + header).
+ * This layout adds only the floating "Create Post" FAB. No bespoke
+ * sidebar — Meta Suite navigation lives inside each page header.
+ */
 
-import React from 'react';
-import Link from 'next/link';
-import { Pencil } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import * as React from "react";
+import Link from "next/link";
+import { Pencil } from "lucide-react";
+
+import { ZoruButton } from "@/components/zoruui";
 
 export default function FacebookLayout({
   children,
@@ -14,13 +22,12 @@ export default function FacebookLayout({
   return (
     <div className="relative h-full">
       {children}
-      <div className="fixed bottom-8 right-8 z-50">
-          <Button asChild size="lg" className="rounded-full h-16 w-16 shadow-lg">
-              <Link href="/dashboard/facebook/create-post">
-                  <Pencil className="h-6 w-6" />
-                  <span className="sr-only">Create Post</span>
-              </Link>
-          </Button>
+      <div className="fixed bottom-24 right-6 z-40">
+        <ZoruButton asChild size="lg" className="h-14 w-14 rounded-full shadow-[var(--zoru-shadow-lg)]">
+          <Link href="/dashboard/facebook/create-post" aria-label="Create Post">
+            <Pencil className="h-5 w-5" />
+          </Link>
+        </ZoruButton>
       </div>
     </div>
   );

@@ -214,6 +214,13 @@ async function processWebhookInline(db: Db, project: any, payload: any) {
 /* ── Route handlers ─────────────────────────────────────────────── */
 
 export async function GET(request: NextRequest) {
+    if (process.env.USE_RUST_BACKEND === 'true') {
+        const rustBase = process.env.RUST_API_URL || 'http://localhost:8080';
+        const rustUrl = rustBase + '/v1/wachat/webhook/meta' + (request.nextUrl.search || '');
+        const proxied = await fetch(rustUrl, { method: 'GET' });
+        return new Response(await proxied.text(), { status: proxied.status });
+    }
+
     const searchParams = request.nextUrl.searchParams;
     const mode = searchParams.get('hub.mode');
     const token = searchParams.get('hub.verify_token');
@@ -226,6 +233,22 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+    if (process.env.USE_RUST_BACKEND === 'true') {
+        const rustUrl = (process.env.RUST_API_URL || 'http://localhost:8080') + '/v1/wachat/webhook/meta';
+        const rawBody = await request.text();
+        const sig = request.headers.get('x-hub-signature-256') ?? '';
+        const proxied = await fetch(rustUrl, {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json',
+                'x-hub-signature-256': sig,
+            },
+            body: rawBody,
+        });
+        // Echo Rust's status to Meta so retries behave identically.
+        return new Response(await proxied.text(), { status: proxied.status });
+    }
+
     try {
         const payloadText = await request.text();
         if (!payloadText) {
