@@ -20,6 +20,7 @@ import { getSession } from "@/app/actions/user.actions";
 import { getProjects } from "@/app/actions/project.actions";
 import { RBACGuard } from "@/components/wabasimplify/rbac-guard";
 import { ZoruHomeShell } from "@/components/zoruui";
+import { ProjectProvider } from "@/context/project-context";
 
 export default async function WachatLayout({
   children,
@@ -37,11 +38,13 @@ export default async function WachatLayout({
   if (onboarding && onboarding.status !== "complete") {
     redirect("/onboarding");
   }
-  if (!onboarding || onboarding.status !== "complete") {
-    const projects = await getProjects();
-    if (!projects || projects.length === 0) {
-      redirect("/onboarding");
-    }
+
+  const projects = (await getProjects()) || [];
+  if (
+    (!onboarding || onboarding.status !== "complete") &&
+    projects.length === 0
+  ) {
+    redirect("/onboarding");
   }
 
   const credits = user?.credits;
@@ -57,19 +60,21 @@ export default async function WachatLayout({
 
   return (
     <RBACGuard>
-      <ZoruHomeShell
-        user={{
-          name: user?.name,
-          email: user?.email,
-          avatar: user?.image,
-        }}
-        plan={{
-          name: user?.plan?.name,
-          credits: totalCredits,
-        }}
-      >
-        {children}
-      </ZoruHomeShell>
+      <ProjectProvider initialProjects={projects} user={user}>
+        <ZoruHomeShell
+          user={{
+            name: user?.name,
+            email: user?.email,
+            avatar: user?.image,
+          }}
+          plan={{
+            name: user?.plan?.name,
+            credits: totalCredits,
+          }}
+        >
+          {children}
+        </ZoruHomeShell>
+      </ProjectProvider>
     </RBACGuard>
   );
 }
