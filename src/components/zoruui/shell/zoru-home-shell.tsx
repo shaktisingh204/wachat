@@ -19,12 +19,10 @@ import {
   Settings,
   Smartphone,
   Sparkles,
-  Users,
   Workflow,
 } from "lucide-react";
 
 import { cn } from "../lib/cn";
-import { ZoruAppRail, type ZoruAppRailItem } from "./zoru-app-rail";
 import { ZoruAppSidebar, type ZoruSidebarGroup } from "./zoru-app-sidebar";
 import { ZoruDock, ZoruDockIcon } from "./zoru-dock";
 import { ZoruHeader } from "./zoru-header";
@@ -46,37 +44,39 @@ export interface ZoruHomeShellProps {
   children: React.ReactNode;
 }
 
+interface DockApp {
+  id: string;
+  name: string;
+  href: string;
+  icon: React.ReactNode;
+  isActive: (pathname: string | null) => boolean;
+}
+
+const DOCK_APPS: DockApp[] = [
+  { id: "home", name: "Home", href: "/home", icon: <Home className="h-5 w-5" />, isActive: (p) => p === "/home" },
+  { id: "wachat", name: "WaChat", href: "/dashboard", icon: <Smartphone className="h-5 w-5" />, isActive: (p) => p === "/dashboard" },
+  { id: "sabflow", name: "SabFlow", href: "/dashboard/sabflow", icon: <Workflow className="h-5 w-5" />, isActive: (p) => !!p?.startsWith("/dashboard/sabflow") },
+  { id: "facebook", name: "Meta Suite", href: "/dashboard/facebook/all-projects", icon: <Globe className="h-5 w-5" />, isActive: (p) => !!p?.startsWith("/dashboard/facebook") },
+  { id: "ad-manager", name: "Ad Manager", href: "/dashboard/ad-manager/ad-accounts", icon: <Megaphone className="h-5 w-5" />, isActive: (p) => !!p?.startsWith("/dashboard/ad-manager") },
+  { id: "telegram", name: "Telegram", href: "/dashboard/telegram", icon: <Send className="h-5 w-5" />, isActive: (p) => !!p?.startsWith("/dashboard/telegram") },
+  { id: "instagram", name: "Instagram", href: "/dashboard/instagram/connections", icon: <Instagram className="h-5 w-5" />, isActive: (p) => !!p?.startsWith("/dashboard/instagram") },
+  { id: "crm", name: "CRM", href: "/dashboard/crm", icon: <Briefcase className="h-5 w-5" />, isActive: (p) => !!p?.startsWith("/dashboard/crm") },
+  { id: "email", name: "Email", href: "/dashboard/email", icon: <Mail className="h-5 w-5" />, isActive: (p) => !!p?.startsWith("/dashboard/email") },
+  { id: "sabchat", name: "SabChat", href: "/dashboard/sabchat", icon: <Bot className="h-5 w-5" />, isActive: (p) => !!p?.startsWith("/dashboard/sabchat") },
+  { id: "seo", name: "SEO Suite", href: "/dashboard/seo", icon: <Search className="h-5 w-5" />, isActive: (p) => !!p?.startsWith("/dashboard/seo") },
+  { id: "url", name: "URL Shortener", href: "/dashboard/url-shortener", icon: <LinkIcon className="h-5 w-5" />, isActive: (p) => !!p?.startsWith("/dashboard/url-shortener") },
+  { id: "qr", name: "QR Code", href: "/dashboard/qr-code-maker", icon: <QrCode className="h-5 w-5" />, isActive: (p) => !!p?.startsWith("/dashboard/qr-code-maker") },
+  { id: "settings", name: "Settings", href: "/dashboard/settings", icon: <Settings className="h-5 w-5" />, isActive: (p) => !!p?.startsWith("/dashboard/settings") },
+];
+
 /**
- * ZoruHomeShell — wires the generic zoruui shell pieces with the
- * SabNode app catalog. Drop into any /home-style route to render
- * rail + sidebar + header + dock + main.
- *
- * Crucially: NO TabsProvider / TabsBar (the URL-synced multi-tab
- * strip is intentionally absent in zoruui).
+ * ZoruHomeShell — sidebar + header + main + dock. The vertical app
+ * rail is intentionally absent; every app lives in the bottom dock
+ * per the zoru directive. The URL-synced multi-tab strip is also
+ * absent (hard constraint from the project plan).
  */
 export function ZoruHomeShell({ user, plan, children }: ZoruHomeShellProps) {
   const pathname = usePathname();
-
-  const railItems: ZoruAppRailItem[] = [
-    { id: "home", label: "Home", icon: <Home />, href: "/home", active: pathname === "/home" },
-    { id: "sabflow", label: "SabFlow", icon: <Workflow />, href: "/dashboard/sabflow", active: pathname?.startsWith("/dashboard/sabflow") },
-    { id: "wachat", label: "WaChat", icon: <Smartphone />, href: "/dashboard", active: pathname === "/dashboard" || pathname?.startsWith("/dashboard/contacts") },
-    { id: "facebook", label: "Meta Suite", icon: <Globe />, href: "/dashboard/facebook/all-projects", active: pathname?.startsWith("/dashboard/facebook") },
-    { id: "ad-manager", label: "Ad Manager", icon: <Megaphone />, href: "/dashboard/ad-manager/ad-accounts", active: pathname?.startsWith("/dashboard/ad-manager") },
-    { id: "telegram", label: "Telegram", icon: <Send />, href: "/dashboard/telegram", active: pathname?.startsWith("/dashboard/telegram") },
-    { id: "instagram", label: "Instagram", icon: <Instagram />, href: "/dashboard/instagram/connections", active: pathname?.startsWith("/dashboard/instagram") },
-    { id: "crm", label: "CRM", icon: <Briefcase />, href: "/dashboard/crm", active: pathname?.startsWith("/dashboard/crm") },
-    { id: "team", label: "Team", icon: <Users />, href: "/dashboard/team", active: pathname?.startsWith("/dashboard/team") },
-    { id: "email", label: "Email", icon: <Mail />, href: "/dashboard/email", active: pathname?.startsWith("/dashboard/email") },
-    { id: "sabchat", label: "SabChat", icon: <Bot />, href: "/dashboard/sabchat", active: pathname?.startsWith("/dashboard/sabchat") },
-    { id: "seo", label: "SEO Suite", icon: <Search />, href: "/dashboard/seo", active: pathname?.startsWith("/dashboard/seo") },
-    { id: "url", label: "URL Shortener", icon: <LinkIcon />, href: "/dashboard/url-shortener", active: pathname?.startsWith("/dashboard/url-shortener") },
-    { id: "qr", label: "QR Code", icon: <QrCode />, href: "/dashboard/qr-code-maker", active: pathname?.startsWith("/dashboard/qr-code-maker") },
-  ];
-
-  const railFooter: ZoruAppRailItem[] = [
-    { id: "settings", label: "Settings", icon: <Settings />, href: "/dashboard/settings", active: pathname?.startsWith("/dashboard/settings") },
-  ];
 
   const sidebarGroups: ZoruSidebarGroup[] = [
     {
@@ -102,9 +102,7 @@ export function ZoruHomeShell({ user, plan, children }: ZoruHomeShellProps) {
   const planFooter = plan?.name || plan?.credits !== undefined ? (
     <div className="flex flex-col gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-medium text-zoru-ink">
-          {plan?.name ?? "Free plan"}
-        </span>
+        <span className="text-xs text-zoru-ink">{plan?.name ?? "Free plan"}</span>
         {plan?.credits !== undefined && (
           <span className="text-[11px] text-zoru-ink-muted">
             {plan.credits.toLocaleString()} credits
@@ -119,20 +117,6 @@ export function ZoruHomeShell({ user, plan, children }: ZoruHomeShellProps) {
 
   return (
     <div className="zoruui flex h-screen w-full overflow-hidden bg-zoru-bg text-zoru-ink">
-      <ZoruAppRail
-        brand={
-          <a
-            href="/home"
-            aria-label="SabNode home"
-            className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-ink text-xs font-semibold text-zoru-on-primary"
-          >
-            S
-          </a>
-        }
-        items={railItems}
-        footer={railFooter}
-      />
-
       <ZoruAppSidebar
         heading="Home"
         caption={user?.name ?? user?.email ?? "Workspace"}
@@ -140,10 +124,21 @@ export function ZoruHomeShell({ user, plan, children }: ZoruHomeShellProps) {
         footer={planFooter}
       />
 
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="relative flex min-w-0 flex-1 flex-col">
         <ZoruHeader
           leading={
-            <span className="text-sm font-medium text-zoru-ink">Home</span>
+            <a
+              href="/home"
+              aria-label="SabNode home"
+              className="inline-flex items-center gap-2"
+            >
+              <span className="flex h-7 w-7 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-ink text-xs text-zoru-on-primary">
+                S
+              </span>
+              <span className="hidden text-sm text-zoru-ink sm:inline">
+                SabNode
+              </span>
+            </a>
           }
           center={
             <ZoruInput
@@ -177,43 +172,26 @@ export function ZoruHomeShell({ user, plan, children }: ZoruHomeShellProps) {
           }
         />
 
-        <main className={cn("flex-1 overflow-y-auto px-6 py-6")}>
+        <main className={cn("flex-1 overflow-y-auto px-6 py-6 pb-24")}>
           {children}
         </main>
 
-        <div className="flex justify-center border-t border-zoru-line bg-zoru-bg px-4 py-3">
-          <ZoruDock iconSize={48}>
-            <ZoruDockIcon name="Home" href="/home" active={pathname === "/home"}>
-              <Home className="h-5 w-5" />
-            </ZoruDockIcon>
-            <ZoruDockIcon name="WaChat" href="/dashboard" active={pathname === "/dashboard"}>
-              <Smartphone className="h-5 w-5" />
-            </ZoruDockIcon>
-            <ZoruDockIcon name="SabFlow" href="/dashboard/sabflow" active={!!pathname?.startsWith("/dashboard/sabflow")}>
-              <Workflow className="h-5 w-5" />
-            </ZoruDockIcon>
-            <ZoruDockIcon name="CRM" href="/dashboard/crm" active={!!pathname?.startsWith("/dashboard/crm")}>
-              <Briefcase className="h-5 w-5" />
-            </ZoruDockIcon>
-            <ZoruDockIcon name="Email" href="/dashboard/email" active={!!pathname?.startsWith("/dashboard/email")}>
-              <Mail className="h-5 w-5" />
-            </ZoruDockIcon>
-            <ZoruDockIcon name="Telegram" href="/dashboard/telegram" active={!!pathname?.startsWith("/dashboard/telegram")}>
-              <Send className="h-5 w-5" />
-            </ZoruDockIcon>
-            <ZoruDockIcon name="Instagram" href="/dashboard/instagram/connections" active={!!pathname?.startsWith("/dashboard/instagram")}>
-              <Instagram className="h-5 w-5" />
-            </ZoruDockIcon>
-            <ZoruDockIcon name="Ad Manager" href="/dashboard/ad-manager/ad-accounts" active={!!pathname?.startsWith("/dashboard/ad-manager")}>
-              <Megaphone className="h-5 w-5" />
-            </ZoruDockIcon>
-            <ZoruDockIcon name="SEO Suite" href="/dashboard/seo" active={!!pathname?.startsWith("/dashboard/seo")}>
-              <Search className="h-5 w-5" />
-            </ZoruDockIcon>
-            <ZoruDockIcon name="Settings" href="/dashboard/settings" active={!!pathname?.startsWith("/dashboard/settings")}>
-              <Settings className="h-5 w-5" />
-            </ZoruDockIcon>
-          </ZoruDock>
+        {/* Bottom-anchored, centered dock — every app lives here now. */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-3 z-30 flex justify-center">
+          <div className="pointer-events-auto rounded-[26px] border border-zoru-line bg-zoru-bg/95 p-1 shadow-[var(--zoru-shadow-lg)] backdrop-blur">
+            <ZoruDock iconSize={48}>
+              {DOCK_APPS.map((app) => (
+                <ZoruDockIcon
+                  key={app.id}
+                  name={app.name}
+                  href={app.href}
+                  active={app.isActive(pathname)}
+                >
+                  {app.icon}
+                </ZoruDockIcon>
+              ))}
+            </ZoruDock>
+          </div>
         </div>
       </div>
     </div>

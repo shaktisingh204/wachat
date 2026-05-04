@@ -47,6 +47,7 @@ import {
   ZoruAccordionTrigger,
   ZoruActionSearchBar,
   ZoruAlert,
+  ZoruAppSidebar,
   ZoruAlertDescription,
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -58,8 +59,6 @@ import {
   ZoruAlertDialogTitle,
   ZoruAlertDialogTrigger,
   ZoruAlertTitle,
-  ZoruAppRail,
-  ZoruAppSidebar,
   ZoruAvatar,
   ZoruAvatarFallback,
   ZoruAvatarImage,
@@ -831,26 +830,10 @@ export default function ZoruuiGalleryPage() {
         <Section
           step="Step 4"
           title="Shell preview"
-          subtitle="The composable rail + sidebar + header + dock-slot — no multi-tab strip. Step 8 wires the admin instance, step 9 the dashboard."
+          subtitle="Sidebar + header + dock — no vertical app rail (apps live in the dock now), no multi-tab strip. Step 8 wires the admin instance, step 9 the dashboard."
         >
           <div className="overflow-hidden rounded-[var(--zoru-radius-lg)] border border-zoru-line">
             <div className="flex h-[420px] w-full bg-zoru-bg">
-              <ZoruAppRail
-                brand={
-                  <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-ink text-xs font-semibold text-zoru-on-primary">
-                    Z
-                  </span>
-                }
-                items={[
-                  { id: "dash", icon: <LayoutDashboard />, label: "Dashboard", active: true },
-                  { id: "flow", icon: <Workflow />, label: "Flows" },
-                  { id: "crm", icon: <Briefcase />, label: "CRM" },
-                  { id: "mail", icon: <Mail />, label: "Email" },
-                ]}
-                footer={[
-                  { id: "settings", icon: <Settings />, label: "Settings" },
-                ]}
-              />
               <ZoruAppSidebar
                 heading="Dashboard"
                 caption="Overview"

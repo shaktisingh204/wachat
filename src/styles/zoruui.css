@@ -89,6 +89,26 @@
   background-color: hsl(var(--zoru-bg));
   color: hsl(var(--zoru-ink));
   font-feature-settings: "cv11", "ss01";
+
+  /* ── Bold-by-default — per the zoru directive every glyph renders
+   * at 700. Components that wanted lighter text (`font-normal` /
+   * `font-medium`) inside `.zoruui` are overridden below so the
+   * directive holds end-to-end. Form inputs are kept at 500 so user
+   * input doesn't read as a heading. */
+  font-weight: 700;
+}
+
+.zoruui :where(p, span, div, li, td, th, label, button, a, h1, h2, h3, h4, h5, h6, dt, dd, figcaption, blockquote, code, kbd, small, strong) {
+  font-weight: 700;
+}
+
+/* Keep raw user data (form inputs, textareas) at a readable medium so
+ * typed text doesn't read like a banner. Placeholders stay bold. */
+.zoruui :where(input, textarea, select) {
+  font-weight: 500;
+}
+.zoruui :where(input, textarea)::placeholder {
+  font-weight: 700;
 }
 
 /* Default focus ring used by zoru primitives */

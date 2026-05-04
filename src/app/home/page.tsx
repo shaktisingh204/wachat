@@ -1,95 +1,92 @@
-'use client';
+"use client";
 
 /**
- * /home — SabNode account dashboard, rebuilt on the Clay design system.
+ * /home — SabNode account dashboard, rebuilt in ZoruUI.
  *
- * Every value on this page is real data from getAccountHomeData(), which
- * aggregates across ALL projects the user owns or is an agent in. No mocks.
+ * Same real data as before (getAccountHomeData), no mocks. Pure neutral
+ * palette — module tiles, stat cards, and notifications all sit on the
+ * zoru surface tokens. No rainbow accents.
  */
 
-import * as React from 'react';
-import { useEffect, useMemo, useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
-import { format, formatDistanceToNow } from 'date-fns';
+import * as React from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { format, formatDistanceToNow } from "date-fns";
 import {
-  LuSend,
-  LuCheckCheck,
-  LuUsers,
-  LuBriefcase,
-  LuBell,
-  LuSparkles,
-  LuTrendingUp,
-  LuTrendingDown,
-  LuChevronDown,
-  LuPlus,
-  LuEllipsis,
-  LuDownload,
-  LuFilter,
-  LuArrowRight,
-  LuAlarmClock,
-  LuArrowUpRight,
-  /* ── All-apps grid icons ── */
-  LuMessageSquare,
-  LuWorkflow,
-  LuBot,
-  LuMail,
-  LuSmartphone,
-  LuGlobe,
-  LuShoppingBag,
-  LuLink,
-  LuQrCode,
-  LuLayoutTemplate,
-  LuMegaphone,
-  LuEarth,
-  LuCircleCheck,
-  LuCircleDashed,
-  LuRocket,
-} from 'react-icons/lu';
+  AlarmClock,
+  ArrowDownRight,
+  ArrowRight,
+  ArrowUpRight,
+  Bell,
+  Bot,
+  Briefcase,
+  ChevronDown,
+  CircleCheck,
+  CircleDashed,
+  Download,
+  Earth,
+  Filter,
+  Globe,
+  LayoutTemplate,
+  Link as LinkIcon,
+  Mail,
+  Megaphone,
+  MessageSquare,
+  MoreHorizontal,
+  Plus,
+  QrCode,
+  Rocket,
+  Send,
+  ShoppingBag,
+  Smartphone,
+  Sparkles,
+  Users,
+  Workflow,
+} from "lucide-react";
 
-import { cn } from '@/lib/utils';
 import {
   getAccountHomeData,
   type AccountHomeData,
-} from '@/app/actions/home.actions';
-import { getSession } from '@/app/actions/user.actions';
+} from "@/app/actions/home.actions";
+import { getSession } from "@/app/actions/user.actions";
 import {
   getOnboardingState,
   type OnboardingState,
-} from '@/app/actions/onboarding-flow.actions';
+} from "@/app/actions/onboarding-flow.actions";
 
 import {
-  ClayBreadcrumbs,
-  ClayButton,
-  ClayCard,
-  ClayNotificationCard,
-  ClaySectionList,
-  ClayAvatarStack,
-  ClayModuleTile,
-  type ClayAvatarStackItem,
-} from '@/components/clay';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuLabel,
+  ZoruDropdownMenuRadioGroup,
+  ZoruDropdownMenuRadioItem,
+  ZoruDropdownMenuSeparator,
+  ZoruDropdownMenuTrigger,
+  ZoruSkeleton,
+  cn,
+} from "@/components/zoruui";
 
-/* ── helpers ────────────────────────────────────────────────────── */
+/* ── helpers ─────────────────────────────────────────────────────── */
 
 function compact(n: number | null | undefined): string {
-  const v = typeof n === 'number' && Number.isFinite(n) ? n : 0;
-  if (v >= 1_000_000) return (v / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
-  if (v >= 1_000) return (v / 1_000).toFixed(1).replace(/\.0$/, '') + 'k';
+  const v = typeof n === "number" && Number.isFinite(n) ? n : 0;
+  if (v >= 1_000_000) return (v / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
+  if (v >= 1_000) return (v / 1_000).toFixed(1).replace(/\.0$/, "") + "k";
   return v.toString();
 }
 
-function curr(n: number | null | undefined, c = 'INR'): string {
-  const sym = c === 'INR' ? '₹' : '$';
-  const v = typeof n === 'number' && Number.isFinite(n) ? n : 0;
+function curr(n: number | null | undefined, c = "INR"): string {
+  const sym = c === "INR" ? "₹" : "$";
+  const v = typeof n === "number" && Number.isFinite(n) ? n : 0;
   if (v >= 1_000_000) return `${sym}${(v / 1_000_000).toFixed(1)}M`;
   if (v >= 1_000) return `${sym}${(v / 1_000).toFixed(1)}k`;
   return `${sym}${v.toLocaleString()}`;
@@ -108,109 +105,88 @@ function trend(cur: number, prev: number) {
 
 function greeting(): string {
   const h = new Date().getHours();
-  if (h < 5) return 'Still up';
-  if (h < 12) return 'Good morning';
-  if (h < 17) return 'Good afternoon';
-  if (h < 21) return 'Good evening';
-  return 'Good night';
+  if (h < 5) return "Still up";
+  if (h < 12) return "Good morning";
+  if (h < 17) return "Good afternoon";
+  if (h < 21) return "Good evening";
+  return "Good night";
 }
 
-/* ── avatar palette for overlapping project/contact bubbles ────── */
-
-function palette(n: number): ClayAvatarStackItem[] {
-  const hues = [12, 210, 150, 40, 280, 330, 190, 60, 120, 0];
-  const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
-  return Array.from({ length: n }, (_, i) => ({
-    alt: letters[i % 10],
-    fallback: letters[i % 10],
-    hue: hues[i % hues.length],
-  }));
-}
-
-/* ── skeleton ───────────────────────────────────────────────────── */
+/* ── skeleton ────────────────────────────────────────────────────── */
 
 function HomeSkeleton() {
   return (
-    <div className="mx-auto w-full max-w-[1320px] px-9 pt-7 pb-8">
-      <div className="h-3 w-52 animate-pulse rounded-full bg-muted" />
+    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
+      <ZoruSkeleton className="h-3 w-52" />
       <div className="mt-5 flex items-center justify-between">
-        <div className="h-9 w-56 animate-pulse rounded-md bg-muted" />
+        <ZoruSkeleton className="h-9 w-56" />
         <div className="flex gap-2">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-9 w-28 animate-pulse rounded-full bg-muted"
-            />
+            <ZoruSkeleton key={i} className="h-9 w-28 rounded-full" />
           ))}
         </div>
       </div>
-      <div className="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_280px]">
-        <div className="h-[150px] animate-pulse rounded-[14px] bg-muted" />
-        <div className="h-[150px] animate-pulse rounded-[14px] bg-muted" />
+      <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_280px]">
+        <ZoruSkeleton className="h-[150px]" />
+        <ZoruSkeleton className="h-[150px]" />
         <div className="flex flex-col gap-2">
-          <div className="h-11 animate-pulse rounded-[12px] bg-muted" />
-          <div className="h-11 animate-pulse rounded-[12px] bg-muted" />
-          <div className="h-11 animate-pulse rounded-[12px] bg-muted" />
+          <ZoruSkeleton className="h-11" />
+          <ZoruSkeleton className="h-11" />
+          <ZoruSkeleton className="h-11" />
         </div>
       </div>
-      <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
-        <div className="h-[400px] animate-pulse rounded-xl bg-muted" />
-        <div className="flex flex-col gap-4">
-          <div className="h-24 animate-pulse rounded-xl bg-muted" />
-          <div className="h-56 animate-pulse rounded-xl bg-muted" />
+      <div className="mt-10">
+        <ZoruSkeleton className="h-5 w-32" />
+        <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <ZoruSkeleton key={i} className="h-24" />
+          ))}
         </div>
       </div>
     </div>
   );
 }
 
-/* ── onboarding setup card ──────────────────────────────────────── */
+/* ── onboarding banner ───────────────────────────────────────────── */
 
 const ONBOARDING_STEPS = [
-  { key: 'profile', label: 'Tell us about you' },
-  { key: 'business', label: 'Your business details' },
-  { key: 'requirements', label: 'Choose your modules' },
-  { key: 'plan', label: 'Pick a plan' },
+  { key: "profile", label: "Tell us about you" },
+  { key: "business", label: "Your business details" },
+  { key: "requirements", label: "Choose your modules" },
+  { key: "plan", label: "Pick a plan" },
 ] as const;
 
 function OnboardingSetupCard({
   status,
 }: {
-  status: 'profile' | 'business' | 'requirements' | 'plan' | 'complete';
+  status: "profile" | "business" | "requirements" | "plan" | "complete";
 }) {
   const router = useRouter();
-  const statusOrder = ['profile', 'business', 'requirements', 'plan', 'complete'];
+  const statusOrder = ["profile", "business", "requirements", "plan", "complete"];
   const currentIdx = statusOrder.indexOf(status);
   const completedCount = currentIdx;
   const totalSteps = ONBOARDING_STEPS.length;
 
   return (
-    <div className="mt-6 rounded-[14px] border border-border bg-background p-5">
+    <div className="mt-6 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-5">
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
-            <LuRocket className="h-5 w-5 text-primary" strokeWidth={2} />
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
+            <Rocket className="h-5 w-5" />
           </div>
           <div>
-            <h3 className="text-[15px] font-semibold text-foreground">
-              Complete your setup
-            </h3>
-            <p className="mt-0.5 text-[13px] text-muted-foreground">
-              {completedCount} of {totalSteps} steps done — finish setting up to unlock your full workspace.
+            <h3 className="text-[15px] text-zoru-ink">Complete your setup</h3>
+            <p className="mt-0.5 text-[13px] text-zoru-ink-muted">
+              {completedCount} of {totalSteps} steps done — finish setting up to
+              unlock your full workspace.
             </p>
           </div>
         </div>
-        <ClayButton
-          variant="obsidian"
-          size="md"
-          trailing={<LuArrowRight className="h-3.5 w-3.5" />}
-          onClick={() => router.push('/onboarding')}
-        >
-          Continue setup
-        </ClayButton>
+        <ZoruButton onClick={() => router.push("/onboarding")}>
+          Continue setup <ArrowRight />
+        </ZoruButton>
       </div>
 
-      {/* Step progress */}
       <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
         {ONBOARDING_STEPS.map((step, idx) => {
           const isDone = idx < currentIdx;
@@ -219,18 +195,23 @@ function OnboardingSetupCard({
             <div
               key={step.key}
               className={cn(
-                'flex items-center gap-2 rounded-lg border px-3 py-2 text-[13px] transition',
-                isDone && 'border-primary/30 bg-primary/5 text-foreground',
-                isCurrent && 'border-primary bg-primary/10 text-foreground font-medium',
-                !isDone && !isCurrent && 'border-border text-muted-foreground',
+                "flex items-center gap-2 rounded-[var(--zoru-radius)] border px-3 py-2 text-[13px]",
+                isDone && "border-zoru-line-strong bg-zoru-surface text-zoru-ink",
+                isCurrent &&
+                  "border-zoru-ink bg-zoru-surface-2 text-zoru-ink",
+                !isDone &&
+                  !isCurrent &&
+                  "border-zoru-line text-zoru-ink-muted",
               )}
             >
               {isDone ? (
-                <LuCircleCheck className="h-4 w-4 shrink-0 text-primary" strokeWidth={2} />
+                <CircleCheck className="h-4 w-4 shrink-0 text-zoru-ink" />
               ) : (
-                <LuCircleDashed
-                  className={cn('h-4 w-4 shrink-0', isCurrent ? 'text-primary' : 'text-muted-foreground/50')}
-                  strokeWidth={2}
+                <CircleDashed
+                  className={cn(
+                    "h-4 w-4 shrink-0",
+                    isCurrent ? "text-zoru-ink" : "text-zoru-ink-subtle",
+                  )}
                 />
               )}
               {step.label}
@@ -242,43 +223,43 @@ function OnboardingSetupCard({
   );
 }
 
-/* ── page ───────────────────────────────────────────────────────── */
+/* ── page ────────────────────────────────────────────────────────── */
 
-type TimeRange = '24h' | '7d' | '30d' | 'all';
+type TimeRange = "24h" | "7d" | "30d" | "all";
 
 const TIME_RANGE_LABELS: Record<TimeRange, string> = {
-  '24h': 'Last 24 hours',
-  '7d': 'Last 7 days',
-  '30d': 'Last 30 days',
-  all: 'All time',
+  "24h": "Last 24 hours",
+  "7d": "Last 7 days",
+  "30d": "Last 30 days",
+  all: "All time",
 };
 
 export default function HomePage() {
   const router = useRouter();
   const [data, setData] = useState<AccountHomeData | null>(null);
-  const [userName, setUserName] = useState<string>('there');
+  const [userName, setUserName] = useState<string>("there");
   const [loading, startTransition] = useTransition();
-  const [timeRange, setTimeRange] = useState<TimeRange>('7d');
+  const [timeRange, setTimeRange] = useState<TimeRange>("7d");
   const [onboardingStatus, setOnboardingStatus] = useState<OnboardingState | null>(null);
   const [onboardingChecked, setOnboardingChecked] = useState(false);
 
   useEffect(() => {
-    document.title = 'Home · SabNode';
+    document.title = "Home · SabNode";
   }, []);
 
   const fetchHome = React.useCallback(() => {
     startTransition(() => {
-      Promise.all([getAccountHomeData(), getSession(), getOnboardingState()]).then(
-        ([home, session, obState]) => {
-          setData(home);
-          const u: any = session?.user;
-          if (u) {
-            setUserName(u.name || u.email?.split('@')[0] || 'there');
-          }
-          setOnboardingStatus(obState.onboarding);
-          setOnboardingChecked(true);
-        },
-      );
+      Promise.all([
+        getAccountHomeData(),
+        getSession(),
+        getOnboardingState(),
+      ]).then(([home, session, obState]) => {
+        setData(home);
+        const u: any = session?.user;
+        if (u) setUserName(u.name || u.email?.split("@")[0] || "there");
+        setOnboardingStatus(obState.onboarding);
+        setOnboardingChecked(true);
+      });
     });
   }, []);
 
@@ -286,11 +267,6 @@ export default function HomePage() {
     fetchHome();
   }, [fetchHome]);
 
-  /**
-   * handleExport — serializes the entire AccountHomeData payload to a
-   * JSON file and triggers a client-side download. Works for both the
-   * page-header Export button and the Performance section Export button.
-   */
   const handleExport = React.useCallback(() => {
     if (!data) return;
     const payload = {
@@ -300,10 +276,10 @@ export default function HomePage() {
       ...data,
     };
     const blob = new Blob([JSON.stringify(payload, null, 2)], {
-      type: 'application/json',
+      type: "application/json",
     });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = `sabnode-home-${new Date().toISOString().slice(0, 10)}.json`;
     document.body.appendChild(a);
@@ -336,700 +312,677 @@ export default function HomePage() {
     currency,
   } = data;
 
-  const projectAvatars = palette(Math.min(stats.totalProjects || 1, 8));
-  const leadAvatars = palette(Math.min(stats.totalLeads || 1, 8));
-
   /* ── notification column content ── */
-  const notificationCards: Array<{
+  type NoteCard = {
     icon: React.ReactNode;
     title: string;
-    tone?: 'default' | 'obsidian';
+    tone?: "default" | "inverted";
     onClick?: () => void;
-  }> = [];
+  };
+  const notificationCards: NoteCard[] = [];
 
-  // AI insight pinned on top if any
   if (insights[0]) {
     notificationCards.push({
-      icon: <LuSparkles className="h-3.5 w-3.5" strokeWidth={2} />,
-      title: insights[0].length > 48 ? insights[0].slice(0, 48) + '…' : insights[0],
+      icon: <Sparkles className="h-3.5 w-3.5" />,
+      title: insights[0].length > 48 ? insights[0].slice(0, 48) + "…" : insights[0],
     });
   }
-  // Real unread notifications
   unreadNotifications.slice(0, 2).forEach((n) => {
     notificationCards.push({
-      icon: <LuBell className="h-3.5 w-3.5" strokeWidth={2} />,
-      title: n.message.length > 48 ? n.message.slice(0, 48) + '…' : n.message,
-      onClick: () => router.push('/dashboard/notifications'),
+      icon: <Bell className="h-3.5 w-3.5" />,
+      title: n.message.length > 48 ? n.message.slice(0, 48) + "…" : n.message,
+      onClick: () => router.push("/dashboard/notifications"),
     });
   });
-  // Deadline / trend card (obsidian) — only if we have something meaningful
   if (velocity.broadcastsLast7d === 0 && stats.totalCampaigns > 0) {
     notificationCards.push({
-      icon: <LuAlarmClock className="h-3.5 w-3.5" strokeWidth={2} />,
-      title: 'No broadcasts this week',
-      tone: 'obsidian',
-      onClick: () => router.push('/dashboard/broadcasts'),
+      icon: <AlarmClock className="h-3.5 w-3.5" />,
+      title: "No broadcasts this week",
+      tone: "inverted",
+      onClick: () => router.push("/dashboard/broadcasts"),
     });
   } else if (velocity.messagesLast24h > 0) {
     notificationCards.push({
-      icon: <LuAlarmClock className="h-3.5 w-3.5" strokeWidth={2} />,
+      icon: <AlarmClock className="h-3.5 w-3.5" />,
       title: `${compact(velocity.messagesLast24h)} msgs in 24h`,
-      tone: 'obsidian',
-      onClick: () => router.push('/dashboard/analytics'),
+      tone: "inverted",
+      onClick: () => router.push("/dashboard/analytics"),
     });
   }
-  // Fallback placeholder if nothing queued
   while (notificationCards.length < 3) {
     notificationCards.push({
-      icon: <LuSparkles className="h-3.5 w-3.5" strokeWidth={2} />,
+      icon: <Sparkles className="h-3.5 w-3.5" />,
       title:
         notificationCards.length === 0
-          ? 'Welcome to SabNode'
+          ? "Welcome to SabNode"
           : notificationCards.length === 1
-            ? 'Create your first broadcast'
-            : 'Invite your team',
+            ? "Create your first broadcast"
+            : "Invite your team",
       onClick: () =>
         router.push(
           notificationCards.length === 1
-            ? '/dashboard/broadcasts'
-            : '/dashboard/team',
+            ? "/dashboard/broadcasts"
+            : "/dashboard/team",
         ),
     });
   }
 
-  /* ── quick modules list (right rail bottom) ── */
   const moduleRows = [
     {
-      key: 'contacts',
-      title: 'Wachat Contacts',
+      key: "contacts",
+      title: "Wachat Contacts",
       meta: `${compact(stats.totalContacts)} · +${velocity.contactsLast7d} this week`,
-      onClick: () => router.push('/dashboard/wachat/contacts'),
+      onClick: () => router.push("/dashboard/wachat/contacts"),
     },
     {
-      key: 'flows',
-      title: 'SabFlow Automations',
+      key: "flows",
+      title: "SabFlow Automations",
       meta: `${stats.activeFlows} active · ${stats.totalFlows} total`,
-      onClick: () => router.push('/dashboard/sabflow'),
+      onClick: () => router.push("/dashboard/sabflow"),
     },
     {
-      key: 'sabchat',
-      title: 'SabChat Sessions',
+      key: "sabchat",
+      title: "SabChat Sessions",
       meta: `${compact(stats.totalSabChatSessions)} · AI chatbot`,
-      onClick: () => router.push('/dashboard/sabchat'),
+      onClick: () => router.push("/dashboard/sabchat"),
     },
     {
-      key: 'sms',
-      title: 'SMS Campaigns',
+      key: "sms",
+      title: "SMS Campaigns",
       meta: `${compact(stats.totalSmsSent)} sent · ${derived?.smsDeliveryRate ?? 0}% delivered`,
-      onClick: () => router.push('/dashboard/sms'),
+      onClick: () => router.push("/dashboard/sms"),
     },
   ];
 
+  const projectInitials = Array.from({
+    length: Math.min(stats.totalProjects || 1, 5),
+  }).map((_, i) => String.fromCharCode(65 + i));
+
   return (
-    <div className="mx-auto w-full max-w-[1320px] px-9 pt-7 pb-10 clay-enter">
+    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
       {/* ── Breadcrumb ── */}
-      <ClayBreadcrumbs
-        items={[
-          { label: 'SabNode', href: '/home' },
-          { label: 'Account', href: '/home' },
-          { label: 'Overview' },
-        ]}
-      />
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/home">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/home">Account</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Overview</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
 
       {/* ── Page header ── */}
-      <div className="mt-5 flex items-center justify-between gap-6">
+      <div className="mt-5 flex items-end justify-between gap-6">
         <div className="min-w-0">
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
+          <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
             {greeting()}, {userName}
           </h1>
-          <p className="mt-1.5 text-[13px] text-muted-foreground">
-            {stats.totalProjects} project{stats.totalProjects !== 1 ? 's' : ''} ·{' '}
-            {format(new Date(), 'EEEE, MMM d · HH:mm')}
+          <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
+            {stats.totalProjects} project{stats.totalProjects !== 1 ? "s" : ""}{" "}
+            · {format(new Date(), "EEEE, MMM d · HH:mm")}
           </p>
         </div>
         <div className="flex items-center gap-2">
-          {/* Plan pill → billing */}
-          <ClayButton
-            variant="pill"
-            size="md"
-            trailing={<LuChevronDown className="h-3 w-3 opacity-60" />}
-            onClick={() => router.push('/dashboard/billing')}
+          <ZoruButton
+            variant="outline"
+            size="sm"
+            onClick={() => router.push("/dashboard/billing")}
           >
-            {stats.planName || 'Free plan'}
-          </ClayButton>
-
-          {/* Export pill → download stats as JSON */}
-          <ClayButton
-            variant="pill"
-            size="md"
-            leading={<LuDownload className="h-3.5 w-3.5" strokeWidth={2} />}
-            onClick={handleExport}
-          >
-            Export
-          </ClayButton>
-
-          {/* Filter pill → dropdown to jump into filtered views */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <ClayButton
-                variant="pill"
-                size="md"
-                leading={<LuFilter className="h-3.5 w-3.5" strokeWidth={2} />}
+            {stats.planName || "Free plan"}
+            <ChevronDown className="opacity-60" />
+          </ZoruButton>
+          <ZoruButton variant="outline" size="sm" onClick={handleExport}>
+            <Download /> Export
+          </ZoruButton>
+          <ZoruDropdownMenu>
+            <ZoruDropdownMenuTrigger asChild>
+              <ZoruButton variant="outline" size="sm">
+                <Filter /> Filter
+              </ZoruButton>
+            </ZoruDropdownMenuTrigger>
+            <ZoruDropdownMenuContent align="end" className="w-56">
+              <ZoruDropdownMenuLabel>Filter by</ZoruDropdownMenuLabel>
+              <ZoruDropdownMenuItem
+                onSelect={() => router.push("/dashboard/analytics")}
               >
-                Filter
-              </ClayButton>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>Filter by</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onSelect={() => router.push('/dashboard/analytics')}
+                <Send /> Messages &amp; delivery
+              </ZoruDropdownMenuItem>
+              <ZoruDropdownMenuItem
+                onSelect={() => router.push("/dashboard/crm/sales-crm/leads")}
               >
-                <LuSend className="mr-2 h-4 w-4" /> Messages &amp; delivery
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onSelect={() => router.push('/dashboard/crm/sales-crm/leads')}
+                <Briefcase /> CRM pipeline
+              </ZoruDropdownMenuItem>
+              <ZoruDropdownMenuItem
+                onSelect={() => router.push("/dashboard/sabflow")}
               >
-                <LuBriefcase className="mr-2 h-4 w-4" /> CRM pipeline
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onSelect={() => router.push('/dashboard/sabflow')}
+                <Workflow /> Active flows
+              </ZoruDropdownMenuItem>
+              <ZoruDropdownMenuItem
+                onSelect={() => router.push("/dashboard/notifications")}
               >
-                <LuWorkflow className="mr-2 h-4 w-4" /> Active flows
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onSelect={() => router.push('/dashboard/notifications')}
-              >
-                <LuBell className="mr-2 h-4 w-4" /> Unread notifications
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onSelect={fetchHome}>
-                <LuAlarmClock className="mr-2 h-4 w-4" /> Refresh data
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                <Bell /> Unread notifications
+              </ZoruDropdownMenuItem>
+              <ZoruDropdownMenuSeparator />
+              <ZoruDropdownMenuItem onSelect={fetchHome}>
+                <AlarmClock /> Refresh data
+              </ZoruDropdownMenuItem>
+            </ZoruDropdownMenuContent>
+          </ZoruDropdownMenu>
         </div>
       </div>
 
       {/* ── Onboarding pending banner ── */}
-      {onboardingChecked && onboardingStatus && onboardingStatus.status !== 'complete' && (
-        <OnboardingSetupCard status={onboardingStatus.status} />
-      )}
+      {onboardingChecked &&
+        onboardingStatus &&
+        onboardingStatus.status !== "complete" && (
+          <OnboardingSetupCard status={onboardingStatus.status} />
+        )}
 
       {/* ── Big cards row ── */}
-      <div className="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_280px]">
-        {/* Card 1 — WhatsApp stats */}
+      <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_280px]">
         <BigStatCard
           title="WhatsApp"
           subtitle="Last 30 days"
           metaLeft={
             <>
-              <LuSend className="h-3 w-3 opacity-75" strokeWidth={1.75} />
+              <Send className="h-3 w-3" />
               {compact(stats.totalMessages)} sent
             </>
           }
           metaRight={
             <>
-              <LuCheckCheck className="h-3 w-3 opacity-75" strokeWidth={1.75} />
+              <CircleCheck className="h-3 w-3" />
               {derived?.deliveryRate ?? 0}% delivered
             </>
           }
-          statusDot="bg-emerald-500"
           statusLabel={
             derived?.messagesTrend.up
               ? `+${derived?.messagesTrend.delta ?? 0}% vs prev 24h`
               : `${derived?.messagesTrend.delta ?? 0}% vs prev 24h`
           }
-          avatars={projectAvatars}
+          statusOk
+          tokens={projectInitials}
           ctaLabel="View analytics"
-          onCtaClick={() => router.push('/dashboard/analytics')}
+          onCtaClick={() => router.push("/dashboard/analytics")}
         />
 
-        {/* Card 2 — CRM pipeline */}
         <BigStatCard
           title="CRM Pipeline"
           subtitle={`${curr(stats.pipelineValue, currency)} total value`}
           metaLeft={
             <>
-              <LuBriefcase className="h-3 w-3 opacity-75" strokeWidth={1.75} />
+              <Briefcase className="h-3 w-3" />
               {stats.totalDeals} deals
             </>
           }
           metaRight={
             <>
-              <LuUsers className="h-3 w-3 opacity-75" strokeWidth={1.75} />
+              <Users className="h-3 w-3" />
               {compact(stats.totalLeads)} leads
             </>
           }
-          statusDot={stats.dealsWon > 0 ? 'bg-emerald-500' : 'bg-amber-500'}
           statusLabel={
             stats.dealsWon > 0
               ? `${stats.dealsWon} won`
               : `${velocity.leadsLast7d} new this week`
           }
-          avatars={leadAvatars}
+          statusOk={stats.dealsWon > 0}
+          tokens={["L1", "L2", "L3", "L4", "L5"]}
           ctaLabel="View pipeline"
-          onCtaClick={() => router.push('/dashboard/crm/sales-crm/leads')}
+          onCtaClick={() => router.push("/dashboard/crm/sales-crm/leads")}
         />
 
-        {/* Notifications column */}
         <div className="flex flex-col gap-2">
           {notificationCards.slice(0, 3).map((n, i) => (
-            <ClayNotificationCard
+            <NotificationCard
               key={i}
               icon={n.icon}
               title={n.title}
-              tone={n.tone}
+              inverted={n.tone === "inverted"}
               onClick={n.onClick}
             />
           ))}
           <button
             type="button"
-            onClick={() => router.push('/dashboard/notifications')}
-            className="mt-1.5 flex items-center justify-between px-2 text-[11.5px] text-muted-foreground hover:text-foreground transition-colors"
+            onClick={() => router.push("/dashboard/notifications")}
+            className="mt-1.5 flex items-center justify-between px-2 text-[11.5px] text-zoru-ink-muted transition-colors hover:text-zoru-ink"
           >
             <span>See all notifications</span>
-            <span className="inline-flex items-center gap-1 rounded-full bg-secondary border border-border px-1.5 py-0.5 text-[10px] text-muted-foreground">
-              <LuBell className="h-2.5 w-2.5" strokeWidth={2} />
-              {unreadNotifications.length || 'Zero'}
+            <span className="inline-flex items-center gap-1 rounded-full border border-zoru-line bg-zoru-surface px-1.5 py-0.5 text-[10px]">
+              <Bell className="h-2.5 w-2.5" />
+              {unreadNotifications.length || "Zero"}
             </span>
           </button>
         </div>
       </div>
 
-      {/* ── All Apps overview — one live tile per SabNode module ── */}
+      {/* ── All Apps overview ── */}
       <section className="mt-10">
-        <div className="flex items-center justify-between">
+        <div className="flex items-end justify-between">
           <div>
-            <h2 className="text-[22px] font-semibold tracking-tight text-foreground leading-none">
+            <h2 className="text-[22px] tracking-tight text-zoru-ink leading-none">
               All Apps
             </h2>
-            <p className="mt-1.5 text-[12.5px] text-muted-foreground">
-              Live counts across every SabNode module ·{' '}
+            <p className="mt-1.5 text-[12.5px] text-zoru-ink-muted">
+              Live counts across every SabNode module ·{" "}
               {compact(stats.totalActivityLogs7d)} actions this week
             </p>
           </div>
           <div className="flex items-center gap-1.5">
-            <ClayButton
-              variant="pill"
+            <ZoruButton
+              variant="outline"
               size="sm"
-              onClick={() => router.push('/dashboard/integrations')}
+              onClick={() => router.push("/dashboard/integrations")}
             >
               Integrations
-            </ClayButton>
-            <ClayButton
-              variant="pill"
-              size="icon"
+            </ZoruButton>
+            <ZoruButton
+              variant="outline"
+              size="icon-sm"
               aria-label="More"
-              onClick={() => router.push('/dashboard/settings')}
+              onClick={() => router.push("/dashboard/settings")}
             >
-              <LuEllipsis className="h-4 w-4" />
-            </ClayButton>
+              <MoreHorizontal />
+            </ZoruButton>
           </div>
         </div>
 
         <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-          <ClayModuleTile
-            icon={<LuSend className="h-4 w-4" strokeWidth={2} />}
+          <ModuleTile
+            icon={<Send />}
             name="Wachat Broadcasts"
             primary={`${compact(stats.totalMessages)} sent`}
             secondary={`${compact(stats.totalCampaigns)} campaigns · ${derived?.deliveryRate ?? 0}% delivered`}
             href="/dashboard/broadcasts"
-            accent="green"
-            status={stats.totalSent > 0 ? 'ok' : 'off'}
+            status={stats.totalSent > 0 ? "ok" : "off"}
           />
-          <ClayModuleTile
-            icon={<LuMessageSquare className="h-4 w-4" strokeWidth={2} />}
+          <ModuleTile
+            icon={<MessageSquare />}
             name="Wachat Chat"
             primary={compact(stats.totalContacts)}
             secondary={`contacts · +${velocity.contactsLast7d} this week`}
             href="/dashboard/chat"
-            accent="teal"
-            status={stats.totalContacts > 0 ? 'ok' : 'off'}
+            status={stats.totalContacts > 0 ? "ok" : "off"}
           />
-          <ClayModuleTile
-            icon={<LuWorkflow className="h-4 w-4" strokeWidth={2} />}
+          <ModuleTile
+            icon={<Workflow />}
             name="SabFlow"
             primary={`${stats.activeFlows}/${stats.totalFlows}`}
             secondary={`${compact(stats.totalFlowExecutions)} executions`}
             href="/dashboard/sabflow"
-            accent="violet"
-            status={stats.activeFlows > 0 ? 'ok' : stats.totalFlows > 0 ? 'warn' : 'off'}
+            status={
+              stats.activeFlows > 0
+                ? "ok"
+                : stats.totalFlows > 0
+                  ? "warn"
+                  : "off"
+            }
           />
-          <ClayModuleTile
-            icon={<LuBriefcase className="h-4 w-4" strokeWidth={2} />}
+          <ModuleTile
+            icon={<Briefcase />}
             name="CRM Pipeline"
             primary={curr(stats.pipelineValue, currency)}
             secondary={`${stats.totalDeals} deals · ${compact(stats.totalLeads)} leads`}
             href="/dashboard/crm/sales-crm/leads"
-            accent="orange"
-            status={stats.totalDeals > 0 ? 'ok' : stats.totalLeads > 0 ? 'warn' : 'off'}
+            status={
+              stats.totalDeals > 0
+                ? "ok"
+                : stats.totalLeads > 0
+                  ? "warn"
+                  : "off"
+            }
           />
 
-          <ClayModuleTile
-            icon={<LuMail className="h-4 w-4" strokeWidth={2} />}
+          <ModuleTile
+            icon={<Mail />}
             name="Email"
             primary={compact(stats.totalEmailCampaigns)}
             secondary={`${compact(stats.totalEmailContacts)} contacts`}
             href="/dashboard/email"
-            accent="blue"
-            status={stats.totalEmailCampaigns > 0 ? 'ok' : 'off'}
+            status={stats.totalEmailCampaigns > 0 ? "ok" : "off"}
           />
-          <ClayModuleTile
-            icon={<LuSmartphone className="h-4 w-4" strokeWidth={2} />}
+          <ModuleTile
+            icon={<Smartphone />}
             name="SMS"
             primary={compact(stats.totalSmsSent)}
             secondary={`${derived?.smsDeliveryRate ?? 0}% delivered`}
             href="/dashboard/sms"
-            accent="lime"
-            status={stats.totalSmsSent > 0 ? 'ok' : 'off'}
+            status={stats.totalSmsSent > 0 ? "ok" : "off"}
           />
-          <ClayModuleTile
-            icon={<LuBot className="h-4 w-4" strokeWidth={2} />}
+          <ModuleTile
+            icon={<Bot />}
             name="SabChat"
             primary={compact(stats.totalSabChatSessions)}
             secondary="AI chatbot sessions"
             href="/dashboard/sabchat"
-            accent="pink"
-            status={stats.totalSabChatSessions > 0 ? 'ok' : 'off'}
+            status={stats.totalSabChatSessions > 0 ? "ok" : "off"}
           />
-          <ClayModuleTile
-            icon={<LuGlobe className="h-4 w-4" strokeWidth={2} />}
+          <ModuleTile
+            icon={<Globe />}
             name="SEO Suite"
-            primary={`${stats.totalSeoProjects} ${stats.totalSeoProjects === 1 ? 'site' : 'sites'}`}
+            primary={`${stats.totalSeoProjects} ${stats.totalSeoProjects === 1 ? "site" : "sites"}`}
             secondary={`${compact(stats.totalSeoAudits)} audits · ${compact(stats.totalSeoKeywords)} keywords`}
             href="/dashboard/seo"
-            accent="indigo"
-            status={stats.totalSeoAudits > 0 ? 'ok' : stats.totalSeoProjects > 0 ? 'warn' : 'off'}
+            status={
+              stats.totalSeoAudits > 0
+                ? "ok"
+                : stats.totalSeoProjects > 0
+                  ? "warn"
+                  : "off"
+            }
           />
 
-          <ClayModuleTile
-            icon={<LuLayoutTemplate className="h-4 w-4" strokeWidth={2} />}
+          <ModuleTile
+            icon={<LayoutTemplate />}
             name="Templates"
             primary={compact(stats.totalTemplates)}
             secondary={`${compact(stats.totalLibraryTemplates)} in library`}
             href="/dashboard/templates"
-            accent="rose"
-            status={stats.totalTemplates > 0 ? 'ok' : 'off'}
+            status={stats.totalTemplates > 0 ? "ok" : "off"}
           />
-          <ClayModuleTile
-            icon={<LuShoppingBag className="h-4 w-4" strokeWidth={2} />}
+          <ModuleTile
+            icon={<ShoppingBag />}
             name="E-commerce"
             primary={compact(stats.totalEcommOrders)}
             secondary={`${compact(stats.totalEcommProducts)} products`}
             href="/dashboard/shop"
-            accent="amber"
-            status={stats.totalEcommOrders > 0 ? 'ok' : stats.totalEcommProducts > 0 ? 'warn' : 'off'}
+            status={
+              stats.totalEcommOrders > 0
+                ? "ok"
+                : stats.totalEcommProducts > 0
+                  ? "warn"
+                  : "off"
+            }
           />
-          <ClayModuleTile
-            icon={<LuLink className="h-4 w-4" strokeWidth={2} />}
+          <ModuleTile
+            icon={<LinkIcon />}
             name="URL Shortener"
             primary={compact(stats.totalShortUrls)}
             secondary="short links created"
             href="/dashboard/url-shortener"
-            accent="slate"
-            status={stats.totalShortUrls > 0 ? 'ok' : 'off'}
+            status={stats.totalShortUrls > 0 ? "ok" : "off"}
           />
-          <ClayModuleTile
-            icon={<LuQrCode className="h-4 w-4" strokeWidth={2} />}
+          <ModuleTile
+            icon={<QrCode />}
             name="QR Codes"
             primary={compact(stats.totalQrCodes)}
             secondary="codes generated"
             href="/dashboard/qr-code-maker"
-            accent="obsidian"
-            status={stats.totalQrCodes > 0 ? 'ok' : 'off'}
+            status={stats.totalQrCodes > 0 ? "ok" : "off"}
           />
 
-          <ClayModuleTile
-            icon={<LuMegaphone className="h-4 w-4" strokeWidth={2} />}
+          <ModuleTile
+            icon={<Megaphone />}
             name="Facebook Suite"
             primary={compact(stats.totalFacebookBroadcasts)}
             secondary={`${compact(stats.totalFacebookSubscribers)} subscribers`}
             href="/dashboard/facebook/all-projects"
-            accent="blue"
-            status={stats.totalFacebookBroadcasts > 0 ? 'ok' : 'off'}
+            status={stats.totalFacebookBroadcasts > 0 ? "ok" : "off"}
           />
-          <ClayModuleTile
-            icon={<LuEarth className="h-4 w-4" strokeWidth={2} />}
+          <ModuleTile
+            icon={<Earth />}
             name="Website Builder"
             primary={compact(stats.totalSites)}
             secondary="published sites"
             href="/dashboard/website-builder"
-            accent="teal"
-            status={stats.totalSites > 0 ? 'ok' : 'off'}
+            status={stats.totalSites > 0 ? "ok" : "off"}
           />
-          <ClayModuleTile
-            icon={<LuUsers className="h-4 w-4" strokeWidth={2} />}
+          <ModuleTile
+            icon={<Users />}
             name="Team"
             primary={compact(stats.totalTeamMessages)}
             secondary={
               stats.totalPendingInvitations > 0
                 ? `${stats.totalPendingInvitations} pending invites`
-                : 'team messages'
+                : "team messages"
             }
             href="/dashboard/team"
-            accent="rose"
-            status={stats.totalPendingInvitations > 0 ? 'warn' : 'ok'}
+            status={stats.totalPendingInvitations > 0 ? "warn" : "ok"}
           />
-          <ClayModuleTile
-            icon={<LuBell className="h-4 w-4" strokeWidth={2} />}
+          <ModuleTile
+            icon={<Bell />}
             name="Notifications"
             primary={compact(unreadNotifications.length)}
-            secondary={unreadNotifications.length > 0 ? 'unread' : 'all caught up'}
+            secondary={
+              unreadNotifications.length > 0 ? "unread" : "all caught up"
+            }
             href="/dashboard/notifications"
-            accent="amber"
-            status={unreadNotifications.length > 0 ? 'warn' : 'ok'}
+            status={unreadNotifications.length > 0 ? "warn" : "ok"}
           />
         </div>
       </section>
 
-      {/* ── Section 2: Performance KPIs (replaces Recent Broadcasts) ── */}
+      {/* ── Performance KPIs ── */}
       <section className="mt-10">
-        <div className="flex items-center justify-between">
+        <div className="flex items-end justify-between">
           <div>
-            <h2 className="text-[22px] font-semibold tracking-tight text-foreground leading-none">
+            <h2 className="text-[22px] tracking-tight text-zoru-ink leading-none">
               Performance
             </h2>
-            <p className="mt-1.5 text-[12.5px] text-muted-foreground">
+            <p className="mt-1.5 text-[12.5px] text-zoru-ink-muted">
               Key metrics across every app in your account
             </p>
           </div>
           <div className="flex items-center gap-1.5">
-            {/* Time range radio dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <ClayButton
-                  variant="pill"
-                  size="md"
-                  trailing={<LuChevronDown className="h-3 w-3 opacity-60" />}
-                >
+            <ZoruDropdownMenu>
+              <ZoruDropdownMenuTrigger asChild>
+                <ZoruButton variant="outline" size="sm">
                   {TIME_RANGE_LABELS[timeRange]}
-                </ClayButton>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Time range</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuRadioGroup
+                  <ChevronDown className="opacity-60" />
+                </ZoruButton>
+              </ZoruDropdownMenuTrigger>
+              <ZoruDropdownMenuContent align="end">
+                <ZoruDropdownMenuLabel>Time range</ZoruDropdownMenuLabel>
+                <ZoruDropdownMenuRadioGroup
                   value={timeRange}
                   onValueChange={(v) => setTimeRange(v as TimeRange)}
                 >
-                  <DropdownMenuRadioItem value="24h">
+                  <ZoruDropdownMenuRadioItem value="24h">
                     Last 24 hours
-                  </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="7d">
+                  </ZoruDropdownMenuRadioItem>
+                  <ZoruDropdownMenuRadioItem value="7d">
                     Last 7 days
-                  </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="30d">
+                  </ZoruDropdownMenuRadioItem>
+                  <ZoruDropdownMenuRadioItem value="30d">
                     Last 30 days
-                  </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="all">
+                  </ZoruDropdownMenuRadioItem>
+                  <ZoruDropdownMenuRadioItem value="all">
                     All time
-                  </DropdownMenuRadioItem>
-                </DropdownMenuRadioGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onSelect={() => router.push('/dashboard/analytics')}
+                  </ZoruDropdownMenuRadioItem>
+                </ZoruDropdownMenuRadioGroup>
+                <ZoruDropdownMenuSeparator />
+                <ZoruDropdownMenuItem
+                  onSelect={() => router.push("/dashboard/analytics")}
                 >
-                  <LuArrowUpRight className="mr-2 h-4 w-4" /> Open analytics
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  <ArrowUpRight /> Open analytics
+                </ZoruDropdownMenuItem>
+              </ZoruDropdownMenuContent>
+            </ZoruDropdownMenu>
 
-            <ClayButton
-              variant="pill"
-              size="md"
-              leading={<LuDownload className="h-3.5 w-3.5" strokeWidth={2} />}
-              onClick={handleExport}
-            >
-              Export
-            </ClayButton>
+            <ZoruButton variant="outline" size="sm" onClick={handleExport}>
+              <Download /> Export
+            </ZoruButton>
           </div>
         </div>
 
-        {/* 4-col × 3-row KPI grid — 12 stats pulled from every module */}
         <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-          <KpiStatCard
+          <KpiTile
             label="Messages 24h"
             value={compact(velocity.messagesLast24h)}
             hint={`${compact(stats.totalMessages)} all time`}
             delta={derived?.messagesTrend.delta}
             up={derived?.messagesTrend.up}
-            icon={<LuSend className="h-4 w-4" strokeWidth={2} />}
-            accent="green"
+            icon={<Send />}
           />
-          <KpiStatCard
+          <KpiTile
             label="Delivery rate"
             value={`${derived?.deliveryRate ?? 0}%`}
             hint={`${compact(stats.totalDelivered)} / ${compact(stats.totalSent)}`}
-            icon={<LuCheckCheck className="h-4 w-4" strokeWidth={2} />}
-            accent="teal"
+            icon={<CircleCheck />}
           />
-          <KpiStatCard
+          <KpiTile
             label="Pipeline value"
             value={curr(stats.pipelineValue, currency)}
             hint={`${stats.totalDeals} open deals`}
-            icon={<LuBriefcase className="h-4 w-4" strokeWidth={2} />}
-            accent="orange"
+            icon={<Briefcase />}
           />
-          <KpiStatCard
+          <KpiTile
             label="Deals won"
             value={compact(stats.dealsWon)}
-            hint={`${derived?.dealsWonRate ?? 0}% win rate`}
-            icon={<LuTrendingUp className="h-4 w-4" strokeWidth={2} />}
-            accent="amber"
+            hint={`${derived?.dealsWonRate ?? 0}% conversion`}
+            icon={<CircleCheck />}
           />
 
-          <KpiStatCard
+          <KpiTile
             label="New leads"
             value={compact(velocity.leadsLast7d)}
             hint={`${compact(stats.totalLeads)} total`}
-            icon={<LuUsers className="h-4 w-4" strokeWidth={2} />}
-            accent="violet"
+            icon={<Users />}
           />
-          <KpiStatCard
+          <KpiTile
             label="Contacts"
             value={compact(stats.totalContacts)}
             hint={`+${velocity.contactsLast7d} this week`}
-            icon={<LuMessageSquare className="h-4 w-4" strokeWidth={2} />}
-            accent="blue"
+            icon={<MessageSquare />}
           />
-          <KpiStatCard
+          <KpiTile
             label="Active flows"
             value={`${stats.activeFlows}/${stats.totalFlows}`}
             hint={`${compact(stats.totalFlowExecutions)} executions`}
-            icon={<LuWorkflow className="h-4 w-4" strokeWidth={2} />}
-            accent="indigo"
+            icon={<Workflow />}
           />
-          <KpiStatCard
+          <KpiTile
             label="SabChat sessions"
             value={compact(stats.totalSabChatSessions)}
             hint="AI chatbot"
-            icon={<LuBot className="h-4 w-4" strokeWidth={2} />}
-            accent="pink"
+            icon={<Bot />}
           />
 
-          <KpiStatCard
+          <KpiTile
             label="SMS delivered"
             value={`${derived?.smsDeliveryRate ?? 0}%`}
             hint={`${compact(stats.totalSmsSent)} sent`}
-            icon={<LuSmartphone className="h-4 w-4" strokeWidth={2} />}
-            accent="lime"
+            icon={<Smartphone />}
           />
-          <KpiStatCard
+          <KpiTile
             label="Email campaigns"
             value={compact(stats.totalEmailCampaigns)}
             hint={`${compact(stats.totalEmailContacts)} contacts`}
-            icon={<LuMail className="h-4 w-4" strokeWidth={2} />}
-            accent="blue"
+            icon={<Mail />}
           />
-          <KpiStatCard
+          <KpiTile
             label="SEO audits"
             value={compact(stats.totalSeoAudits)}
-            hint={`${stats.totalSeoProjects} site${stats.totalSeoProjects !== 1 ? 's' : ''}`}
-            icon={<LuGlobe className="h-4 w-4" strokeWidth={2} />}
-            accent="teal"
+            hint={`${stats.totalSeoProjects} site${stats.totalSeoProjects !== 1 ? "s" : ""}`}
+            icon={<Globe />}
           />
-          <KpiStatCard
+          <KpiTile
             label="Activity 7d"
             value={compact(stats.totalActivityLogs7d)}
-            hint={`${stats.totalProjects} project${stats.totalProjects !== 1 ? 's' : ''}`}
-            icon={<LuSparkles className="h-4 w-4" strokeWidth={2} />}
-            accent="rose"
+            hint={`${stats.totalProjects} project${stats.totalProjects !== 1 ? "s" : ""}`}
+            icon={<Sparkles />}
           />
         </div>
       </section>
 
-      {/* ── Section 3: Plan + Activity + Quick Modules ── */}
-      <section className="mt-10 grid grid-cols-1 gap-5 lg:grid-cols-3">
-        {/* Plan & Credits */}
-        <ClayCard padded={false} className="p-5">
+      {/* ── Plan + Quick Modules + Recent Activity ── */}
+      <section className="mt-10 grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <ZoruCard className="p-5">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                 Current Plan
               </div>
-              <div className="mt-1.5 text-[18px] font-semibold text-foreground leading-tight">
-                {stats.planName || 'Free plan'}
+              <div className="mt-1.5 text-[18px] text-zoru-ink leading-tight">
+                {stats.planName || "Free plan"}
               </div>
-              <div className="mt-1 text-[11.5px] text-muted-foreground leading-tight">
-                {compact(stats.credits)} credits ·{' '}
+              <div className="mt-1 text-[11.5px] text-zoru-ink-muted leading-tight">
+                {compact(stats.credits)} credits ·{" "}
                 {stats.totalProjects} project
-                {stats.totalProjects !== 1 ? 's' : ''}
+                {stats.totalProjects !== 1 ? "s" : ""}
               </div>
             </div>
             <button
               type="button"
               aria-label="Manage billing"
-              onClick={() => router.push('/dashboard/billing')}
-              className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+              onClick={() => router.push("/dashboard/billing")}
+              className="flex h-7 w-7 items-center justify-center rounded-[var(--zoru-radius-sm)] text-zoru-ink-muted transition-colors hover:bg-zoru-surface-2 hover:text-zoru-ink"
             >
-              <LuArrowRight className="h-3.5 w-3.5" strokeWidth={2} />
+              <ArrowRight className="h-3.5 w-3.5" />
             </button>
           </div>
-          <ClayAvatarStack
-            className="mt-4"
-            size="sm"
-            max={4}
-            overflowTone="rose"
-            items={projectAvatars}
-          />
+          <InitialsStack initials={projectInitials} className="mt-4" />
           <div className="mt-4 flex items-center gap-2">
-            <ClayButton
-              variant="obsidian"
+            <ZoruButton
               size="sm"
-              onClick={() => router.push('/dashboard/billing')}
-              className="flex-1 justify-center"
+              className="flex-1"
+              onClick={() => router.push("/dashboard/billing")}
             >
               Manage billing
-            </ClayButton>
-            <ClayButton
-              variant="pill"
+            </ZoruButton>
+            <ZoruButton
+              variant="outline"
               size="sm"
-              onClick={() => router.push('/dashboard/profile')}
-              className="flex-1 justify-center"
+              className="flex-1"
+              onClick={() => router.push("/dashboard/profile")}
             >
               Profile
-            </ClayButton>
+            </ZoruButton>
           </div>
-        </ClayCard>
+        </ZoruCard>
 
-        {/* Quick Modules */}
         <div>
           <div className="flex items-center justify-between pb-3">
-            <h3 className="text-[15px] font-semibold text-foreground">
-              Quick Modules
-            </h3>
-            <ClayButton
-              variant="pill"
+            <h3 className="text-[15px] text-zoru-ink">Quick Modules</h3>
+            <ZoruButton
+              variant="outline"
               size="sm"
-              leading={<LuPlus className="h-3 w-3" strokeWidth={2.25} />}
-              onClick={() => router.push('/dashboard/integrations')}
+              onClick={() => router.push("/dashboard/integrations")}
             >
-              Add app
-            </ClayButton>
+              <Plus /> Add app
+            </ZoruButton>
           </div>
-          <ClaySectionList items={moduleRows} />
+          <ZoruCard className="divide-y divide-zoru-line p-0">
+            {moduleRows.map((row) => (
+              <button
+                key={row.key}
+                type="button"
+                onClick={row.onClick}
+                className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-zoru-surface focus-visible:outline-none"
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-sm text-zoru-ink">{row.title}</p>
+                  <p className="mt-0.5 truncate text-[11.5px] text-zoru-ink-muted">
+                    {row.meta}
+                  </p>
+                </div>
+                <ArrowRight className="h-3.5 w-3.5 shrink-0 text-zoru-ink-subtle" />
+              </button>
+            ))}
+          </ZoruCard>
         </div>
 
-        {/* Recent activity */}
-        <ClayCard padded={false} className="p-5">
+        <ZoruCard className="p-5">
           <div className="flex items-center justify-between">
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+            <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
               Recent Activity
             </div>
             {recentActivity.length > 0 ? (
-              <span className="text-[10.5px] text-muted-foreground/70">
+              <span className="text-[10.5px] text-zoru-ink-subtle">
                 {recentActivity.length} events
               </span>
             ) : null}
           </div>
           {recentActivity.length === 0 ? (
             <div className="mt-4 flex flex-col items-center gap-2 py-4 text-center">
-              <LuSparkles
-                className="h-5 w-5 text-muted-foreground/70"
-                strokeWidth={1.75}
-              />
-              <div className="text-[12px] text-muted-foreground">
+              <Sparkles className="h-5 w-5 text-zoru-ink-subtle" />
+              <div className="text-[12px] text-zoru-ink-muted">
                 No activity yet
               </div>
             </div>
@@ -1037,15 +990,15 @@ export default function HomePage() {
             <ul className="mt-3 space-y-3">
               {recentActivity.slice(0, 5).map((a) => (
                 <li key={a._id} className="flex gap-2.5 text-[12px]">
-                  <span className="mt-[6px] h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                  <span className="mt-[6px] h-1.5 w-1.5 shrink-0 rounded-full bg-zoru-ink" />
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-foreground leading-tight">
-                      <span className="font-semibold">{a.userName}</span>{' '}
-                      <span className="text-muted-foreground">
-                        {a.action.replace(/_/g, ' ').toLowerCase()}
+                    <div className="truncate text-zoru-ink leading-tight">
+                      <span>{a.userName}</span>{" "}
+                      <span className="text-zoru-ink-muted">
+                        {a.action.replace(/_/g, " ").toLowerCase()}
                       </span>
                     </div>
-                    <div className="mt-0.5 text-[10.5px] text-muted-foreground/70">
+                    <div className="mt-0.5 text-[10.5px] text-zoru-ink-subtle">
                       {formatDistanceToNow(new Date(a.createdAt), {
                         addSuffix: true,
                       })}
@@ -1055,29 +1008,26 @@ export default function HomePage() {
               ))}
             </ul>
           )}
-        </ClayCard>
+        </ZoruCard>
       </section>
 
-      {/* bottom spacer */}
       <div className="h-6" />
     </div>
   );
 }
 
-/* ════════════════════════════════════════════════════════════════
-   Helper components — kept local to /home because they're not yet
-   shared across routes. Promote to src/components/clay/ if reused.
-   ════════════════════════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════════════════════════
+   Local helper components — neutral, zoru-only.
+   ════════════════════════════════════════════════════════════════════ */
 
-/** Big reference-style card used for the two top KPIs (WhatsApp + CRM). */
 function BigStatCard({
   title,
   subtitle,
   metaLeft,
   metaRight,
-  statusDot,
   statusLabel,
-  avatars,
+  statusOk,
+  tokens,
   ctaLabel,
   onCtaClick,
 }: {
@@ -1085,101 +1035,153 @@ function BigStatCard({
   subtitle: string;
   metaLeft: React.ReactNode;
   metaRight: React.ReactNode;
-  statusDot: string;
   statusLabel: string;
-  avatars: ClayAvatarStackItem[];
+  statusOk?: boolean;
+  tokens: string[];
   ctaLabel: string;
   onCtaClick: () => void;
 }) {
   return (
-    <ClayCard
-      variant="default"
-      padded={false}
-      className="rounded-[14px] p-4 min-w-[260px]"
-    >
-      {/* meta row */}
-      <div className="flex items-center gap-2.5 text-[11px] text-muted-foreground whitespace-nowrap">
+    <ZoruCard className="min-w-[260px] p-4">
+      <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[11px] text-zoru-ink-muted">
         <span className="inline-flex items-center gap-1">{metaLeft}</span>
-        <span className="text-muted-foreground/70">·</span>
+        <span className="text-zoru-ink-subtle">·</span>
         <span className="inline-flex items-center gap-1">{metaRight}</span>
-        <span className="text-muted-foreground/70">·</span>
-        <span className="inline-flex items-center gap-1 text-muted-foreground">
-          <span className={cn('h-1.5 w-1.5 rounded-full', statusDot)} />
+        <span className="text-zoru-ink-subtle">·</span>
+        <span className="inline-flex items-center gap-1">
+          <span
+            className={cn(
+              "h-1.5 w-1.5 rounded-full",
+              statusOk ? "bg-zoru-success" : "bg-zoru-ink-muted",
+            )}
+          />
           {statusLabel}
         </span>
       </div>
 
-      {/* title */}
       <div className="mt-2.5">
-        <h3 className="text-[18px] font-semibold tracking-[-0.01em] text-foreground leading-[1.1]">
+        <h3 className="text-[18px] tracking-[-0.01em] text-zoru-ink leading-[1.1]">
           {title}
         </h3>
-        <p className="mt-0.5 text-[12px] text-muted-foreground leading-tight">
+        <p className="mt-0.5 text-[12px] text-zoru-ink-muted leading-tight">
           {subtitle}
         </p>
       </div>
 
-      {/* footer — avatars + CTA */}
       <div className="mt-3.5 flex items-center justify-between gap-3">
-        <ClayAvatarStack
-          items={avatars}
-          max={4}
-          size="md"
-          overflowTone="rose"
-        />
-        <ClayButton
-          variant="obsidian"
-          size="sm"
-          onClick={onCtaClick}
-          trailing={<span aria-hidden className="ml-0.5">→</span>}
-        >
-          {ctaLabel}
-        </ClayButton>
+        <InitialsStack initials={tokens} />
+        <ZoruButton size="sm" onClick={onCtaClick}>
+          {ctaLabel} <ArrowRight />
+        </ZoruButton>
       </div>
-    </ClayCard>
+    </ZoruCard>
   );
 }
 
-/**
- * KpiStatCard — medium-sized KPI tile used on the /home Performance grid.
- * Larger than ClayModuleTile (more breathing room, larger number, optional
- * trend badge) but shares the same visual language.
- */
-type KpiAccent =
-  | 'rose'
-  | 'green'
-  | 'teal'
-  | 'violet'
-  | 'blue'
-  | 'orange'
-  | 'amber'
-  | 'pink'
-  | 'indigo'
-  | 'lime'
-  | 'slate';
+function NotificationCard({
+  icon,
+  title,
+  inverted,
+  onClick,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  inverted?: boolean;
+  onClick?: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "flex w-full items-center gap-2 rounded-[var(--zoru-radius)] border px-3 py-2.5 text-left transition-colors",
+        inverted
+          ? "border-zoru-ink bg-zoru-ink text-zoru-on-primary hover:bg-zoru-ink/90"
+          : "border-zoru-line bg-zoru-bg text-zoru-ink hover:bg-zoru-surface",
+        "focus-visible:outline-none",
+      )}
+    >
+      <span
+        className={cn(
+          "flex h-6 w-6 shrink-0 items-center justify-center rounded-full",
+          inverted
+            ? "bg-zoru-on-primary/15 text-zoru-on-primary"
+            : "bg-zoru-surface-2 text-zoru-ink-muted",
+        )}
+      >
+        {icon}
+      </span>
+      <span className="min-w-0 flex-1 truncate text-[12.5px]">{title}</span>
+      <ArrowRight
+        className={cn(
+          "h-3 w-3 shrink-0",
+          inverted ? "text-zoru-on-primary/70" : "text-zoru-ink-subtle",
+        )}
+      />
+    </button>
+  );
+}
 
-const kpiAccentClass: Record<KpiAccent, string> = {
-  rose:   'bg-accent text-accent-foreground',
-  green:  'bg-[#DCFCE7] text-[#166534]',
-  teal:   'bg-[#CCFBF1] text-[#115E59]',
-  violet: 'bg-[#EEE8FF] text-[#5B21B6]',
-  blue:   'bg-[#DBEAFE] text-[#1E40AF]',
-  orange: 'bg-[#FFEDD5] text-[#9A3412]',
-  amber:  'bg-[#FEF3C7] text-[#92400E]',
-  pink:   'bg-[#FCE7F3] text-[#9D174D]',
-  indigo: 'bg-[#E0E7FF] text-[#3730A3]',
-  lime:   'bg-[#ECFCCB] text-[#3F6212]',
-  slate:  'bg-[#F1F5F9] text-[#334155]',
-};
+function ModuleTile({
+  icon,
+  name,
+  primary,
+  secondary,
+  href,
+  status = "ok",
+}: {
+  icon: React.ReactNode;
+  name: string;
+  primary: string;
+  secondary: string;
+  href: string;
+  status?: "ok" | "warn" | "off";
+}) {
+  const router = useRouter();
+  const dotClass =
+    status === "ok"
+      ? "bg-zoru-success"
+      : status === "warn"
+        ? "bg-zoru-warning"
+        : "bg-zoru-ink-subtle";
 
-function KpiStatCard({
+  return (
+    <button
+      type="button"
+      onClick={() => router.push(href)}
+      className="group flex flex-col gap-3 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-4 text-left transition-shadow hover:shadow-[var(--zoru-shadow-md)] focus-visible:outline-none"
+    >
+      <div className="flex items-center justify-between">
+        <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink [&_svg]:size-4">
+          {icon}
+        </span>
+        <span className="inline-flex items-center gap-1 text-[10.5px] text-zoru-ink-muted">
+          <span className={cn("h-1.5 w-1.5 rounded-full", dotClass)} />
+          {status === "ok" ? "Live" : status === "warn" ? "Pending" : "Idle"}
+        </span>
+      </div>
+      <div className="flex flex-col gap-0.5">
+        <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+          {name}
+        </p>
+        <p className="text-[18px] tracking-tight text-zoru-ink leading-none">
+          {primary}
+        </p>
+        <p className="mt-0.5 truncate text-[11.5px] text-zoru-ink-muted">
+          {secondary}
+        </p>
+      </div>
+    </button>
+  );
+}
+
+function KpiTile({
   label,
   value,
   hint,
   delta,
   up,
   icon,
-  accent = 'rose',
 }: {
   label: string;
   value: string;
@@ -1187,21 +1189,13 @@ function KpiStatCard({
   delta?: number;
   up?: boolean;
   icon?: React.ReactNode;
-  accent?: KpiAccent;
 }) {
   return (
-    <div className="rounded-[14px] border border-border bg-card p-4 transition-[border-color,box-shadow] hover:border-border hover:shadow-sm">
+    <div className="rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-4 transition-shadow hover:shadow-[var(--zoru-shadow-sm)]">
       <div className="flex items-start justify-between">
         {icon ? (
-          <span
-            className={cn(
-              'flex h-8 w-8 items-center justify-center rounded-[10px]',
-              kpiAccentClass[accent],
-            )}
-          >
-            <span className="flex h-4 w-4 items-center justify-center">
-              {icon}
-            </span>
+          <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink [&_svg]:size-4">
+            {icon}
           </span>
         ) : (
           <span className="h-8 w-8" />
@@ -1209,32 +1203,62 @@ function KpiStatCard({
         {delta !== undefined ? (
           <span
             className={cn(
-              'inline-flex items-center gap-0.5 rounded-full px-2 py-1 text-[10px] font-semibold leading-none',
+              "inline-flex items-center gap-0.5 rounded-full border px-2 py-1 text-[10px] leading-none",
               up
-                ? 'bg-emerald-50 text-emerald-500'
-                : 'bg-rose-50 text-destructive',
+                ? "border-zoru-success/40 bg-zoru-success/5 text-zoru-success"
+                : "border-zoru-danger/40 bg-zoru-danger/5 text-zoru-danger",
             )}
           >
             {up ? (
-              <LuTrendingUp className="h-2.5 w-2.5" strokeWidth={2.5} />
+              <ArrowUpRight className="h-2.5 w-2.5" />
             ) : (
-              <LuTrendingDown className="h-2.5 w-2.5" strokeWidth={2.5} />
+              <ArrowDownRight className="h-2.5 w-2.5" />
             )}
             {Math.abs(delta)}%
           </span>
         ) : null}
       </div>
-      <div className="mt-3.5 text-[11.5px] font-medium text-muted-foreground leading-none">
+      <div className="mt-3.5 text-[11.5px] text-zoru-ink-muted leading-none">
         {label}
       </div>
-      <div className="mt-1.5 text-[22px] font-semibold tracking-[-0.01em] text-foreground leading-none">
+      <div className="mt-1.5 text-[22px] tracking-[-0.01em] text-zoru-ink leading-none">
         {value}
       </div>
       {hint ? (
-        <div className="mt-1 text-[11px] text-muted-foreground leading-tight truncate">
+        <div className="mt-1 truncate text-[11px] text-zoru-ink-muted leading-tight">
           {hint}
         </div>
       ) : null}
     </div>
   );
 }
+
+function InitialsStack({
+  initials,
+  className,
+}: {
+  initials: string[];
+  className?: string;
+}) {
+  if (initials.length === 0) return null;
+  const visible = initials.slice(0, 4);
+  const overflow = initials.length - visible.length;
+  return (
+    <div className={cn("flex items-center -space-x-2", className)}>
+      {visible.map((s, i) => (
+        <span
+          key={`${s}-${i}`}
+          className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-zoru-bg bg-zoru-surface-2 text-[10px] text-zoru-ink"
+        >
+          {s}
+        </span>
+      ))}
+      {overflow > 0 && (
+        <span className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-zoru-bg bg-zoru-ink text-[10px] text-zoru-on-primary">
+          +{overflow}
+        </span>
+      )}
+    </div>
+  );
+}
+
