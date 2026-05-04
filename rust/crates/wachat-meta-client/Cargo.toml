@@ -1,0 +1,40 @@
+[package]
+name = "wachat-meta-client"
+version = "0.1.0"
+edition = "2024"
+description = "Thin retry-aware HTTP client for the Meta Cloud API (graph.facebook.com). Token-agnostic — token storage/refresh is owned by `wachat-meta-auth`."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "wachat_meta_client"
+path = "src/lib.rs"
+
+[dependencies]
+# HTTP client. `rustls-tls` keeps us off OpenSSL on every platform.
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "gzip"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "time"] }
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Error / logging
+thiserror = "2"
+anyhow = "1"
+tracing = "0.1"
+
+# URL building (Meta paths are appended onto a base url)
+url = "2"
+
+# Used internally for body buffering in retry helpers.
+bytes = "1"
+
+# Sibling crate — exposes `ApiError`. Built in parallel by Phase 0 agents.
+sabnode-common = { path = "../common" }
+
+[dev-dependencies]
+# `wiremock` is the standard async HTTP mock server for reqwest tests.
+wiremock = "0.6"
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "time"] }
+serde_json = "1"

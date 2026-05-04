@@ -16,7 +16,7 @@ import {
 import { Loader2, Pencil, Plus, Trash2, Users } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
-import { useToast } from '@/hooks/use-toast';
+import { useZoruToast } from '@/components/zoruui';
 
 import {
   ZoruAlertDialog,
@@ -170,7 +170,7 @@ function SegmentSheet({
 
 export default function BroadcastSegmentsPage() {
   const { activeProject } = useProject();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const projectId = activeProject?._id?.toString();
 
   const [segments, setSegments] = useState<any[]>([]);

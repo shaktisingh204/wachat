@@ -1,0 +1,45 @@
+# Standalone-package marker. Phase 1 slices ship one crate at a time and the
+# orchestrator wires them into `rust/Cargo.toml` as a batch — until then this
+# empty `[workspace]` table tells cargo "I'm intentionally not a member of the
+# enclosing workspace" so `cargo check --manifest-path …` works in isolation.
+[package]
+name = "wachat-rate-limit"
+version = "0.1.0"
+edition = "2024"
+description = "Redis token-bucket rate limiter, primarily for per-broadcast Meta API MPS throttling. Wire-compatible with the existing Node `src/workers/broadcast/rate-limiter.js` so a Rust producer and Node worker share the same bucket without drift."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "wachat_rate_limit"
+path = "src/lib.rs"
+
+[dependencies]
+# Async stack — matches the rest of the workspace.
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "time", "sync"] }
+
+# Serialization. We don't currently serialize anything across the wire, but
+# `serde::Serialize` on the result enums is convenient for callers that want
+# to log them or surface them in JSON (e.g. broadcast worker telemetry).
+serde = { version = "1", features = ["derive"] }
+
+# Standard error / logging plumbing used everywhere in this workspace.
+thiserror = "2"
+anyhow = "1"
+tracing = "0.1"
+
+# Redis client — re-using the same `fred` version that `sabnode-db` exposes
+# via `RedisHandle` so we share the same Client type without coercion. The
+# `i-scripts` feature enables `LuaInterface` + `Script` (gated in fred 10.x);
+# we need it for `EVALSHA` of the atomic acquire script.
+fred = { version = "10.1", default-features = true, features = ["enable-rustls", "i-scripts", "sha-1"] }
+
+# Sibling workspace crates — `ApiError` for the public Result shape and
+# `RedisHandle` so callers can hand us the already-pooled client they own.
+sabnode-common = { path = "../common" }
+sabnode-db = { path = "../db" }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "time"] }
+testcontainers = "0.23"
+testcontainers-modules = { version = "0.11", features = ["redis"] }

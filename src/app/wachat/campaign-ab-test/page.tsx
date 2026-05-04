@@ -15,7 +15,7 @@ import {
 import { ChartBar, Loader2, Send, Square } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
-import { useToast } from '@/hooks/use-toast';
+import { useZoruToast } from '@/components/zoruui';
 
 import {
   ZoruAlertDialog,
@@ -64,7 +64,7 @@ interface TestResult {
 
 export default function CampaignAbTestPage() {
   const { activeProject } = useProject();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [isPending, startTransition] = useTransition();
   const [segments, setSegments] = useState<any[]>([]);
   const [variantA, setVariantA] = useState(TEMPLATES[0]);

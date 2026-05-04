@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
-import { useToast } from '@/hooks/use-toast';
+import { useZoruToast } from '@/components/zoruui';
 import { getAgentPerformance } from '@/app/actions/wachat-features.actions';
 
 import {
@@ -75,7 +75,7 @@ function speedLabel(ms: number) {
 
 export default function ResponseTimeTrackerPage() {
   const { activeProject } = useProject();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [isPending, startTransition] = useTransition();
   const [agents, setAgents] = useState<any[]>([]);
   const [drillAgent, setDrillAgent] = useState<any | null>(null);

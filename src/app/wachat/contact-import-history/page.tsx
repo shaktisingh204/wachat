@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
-import { useToast } from '@/hooks/use-toast';
+import { useZoruToast } from '@/components/zoruui';
 import { getImportHistory } from '@/app/actions/wachat-features.actions';
 
 import {
@@ -67,7 +67,7 @@ function StatusBadge({ status }: { status: string }) {
 
 export default function ContactImportHistoryPage() {
   const { activeProject } = useProject();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const projectId = activeProject?._id?.toString();
   const [imports, setImports] = useState<any[]>([]);
   const [isLoading, startTransition] = useTransition();

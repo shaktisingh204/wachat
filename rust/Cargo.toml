@@ -7,6 +7,16 @@ members = [
     "crates/db",
     "crates/observability",
     "crates/users",
+    "crates/wachat-media",
+    "crates/wachat-meta-auth",
+    "crates/wachat-meta-client",
+    "crates/wachat-meta-dto",
+    "crates/wachat-phone",
+    "crates/wachat-queue",
+    "crates/wachat-rate-limit",
+    "crates/wachat-templates-engine",
+    "crates/wachat-types",
+    "crates/wachat-webhook-verify",
 ]
 
 [workspace.package]

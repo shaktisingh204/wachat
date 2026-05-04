@@ -1,0 +1,38 @@
+[package]
+name = "wachat-meta-auth"
+version = "0.1.0"
+edition = "2024"
+description = "Storage and rotation of Meta system-user / WABA access tokens for SabNode wachat."
+license = "UNLICENSED"
+publish = false
+
+# Detach from the parent `rust/Cargo.toml` workspace: this Phase-1 slice ships
+# as an isolated crate so the workspace root manifest stays untouched until
+# all Phase-1 slices land. Remove this stanza when the crate is added to
+# `workspace.members` upstream.
+[lib]
+name = "wachat_meta_auth"
+path = "src/lib.rs"
+
+[dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+thiserror = "1"
+tracing = "0.1"
+anyhow = "1"
+
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+bson = { version = "2", features = ["chrono-0_4"] }
+mongodb = { version = "3" }
+
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+
+sabnode-common = { path = "../common" }
+sabnode-db = { path = "../db" }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }

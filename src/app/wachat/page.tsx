@@ -26,7 +26,7 @@ import {
 
 import { useProject } from '@/context/project-context';
 import { getWabaHealthStatus } from '@/app/actions/whatsapp.actions';
-import { SyncProjectsDialog } from '@/components/wabasimplify/sync-projects-dialog';
+import { SyncProjectsDialog } from '@/app/wachat/_components/sync-projects-dialog';
 
 import {
   ZoruBreadcrumb,

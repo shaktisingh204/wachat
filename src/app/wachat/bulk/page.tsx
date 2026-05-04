@@ -15,7 +15,7 @@ import { getProjects } from '@/app/actions/project.actions';
 import { getTemplates } from '@/app/actions/template.actions';
 import type { WithId, Project, Template } from '@/lib/definitions';
 
-import { BulkActionsClient } from '@/components/wabasimplify/bulk-actions-client';
+import { BulkActionsClient } from '@/app/wachat/_components/bulk-actions-client';
 
 import {
   ZoruBreadcrumb,

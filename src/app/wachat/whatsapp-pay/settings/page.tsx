@@ -24,10 +24,12 @@ import { getPaymentConfigurations } from '@/app/actions/whatsapp-pay.actions';
 import { getProjectById } from '@/app/actions/index';
 import { useProject } from '@/context/project-context';
 import type { PaymentConfiguration, Project } from '@/lib/definitions';
-import { CreatePaymentConfigDialog } from '@/components/wabasimplify/create-payment-config-dialog';
-import { RegenerateOauthDialog } from '@/components/wabasimplify/regenerate-oauth-dialog';
-import { UpdateDataEndpointDialog } from '@/components/wabasimplify/update-data-endpoint-dialog';
-import { DeletePaymentConfigButton } from '@/components/wabasimplify/delete-payment-config-button';
+import {
+  CreatePaymentConfigDialog,
+  DeletePaymentConfigButton,
+  RegenerateOauthDialog,
+  UpdateDataEndpointDialog,
+} from '@/app/wachat/_components/payment-config-dialogs';
 
 import {
   ZoruAlert,

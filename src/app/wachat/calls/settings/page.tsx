@@ -23,7 +23,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { getProjectById } from '@/app/actions/index.ts';
 import type { PhoneNumber } from '@/lib/definitions';
 
-import { CallingSettingsForm } from '@/components/wabasimplify/calling-settings-form';
+import { CallingSettingsForm } from '@/app/wachat/_components/calling-settings-form';
 import { useProject } from '@/context/project-context';
 import {
   ZoruBadge,

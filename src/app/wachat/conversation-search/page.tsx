@@ -11,7 +11,7 @@ import Link from 'next/link';
 import { Search, MessageCircle, Loader2 } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
-import { useToast } from '@/hooks/use-toast';
+import { useZoruToast } from '@/components/zoruui';
 import { searchConversations } from '@/app/actions/wachat-features.actions';
 
 import {
@@ -29,7 +29,7 @@ import {
 
 export default function ConversationSearchPage() {
   const { activeProject } = useProject();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const projectId = activeProject?._id?.toString();
 
   const [query, setQuery] = useState('');

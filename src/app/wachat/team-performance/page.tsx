@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
-import { useToast } from '@/hooks/use-toast';
+import { useZoruToast } from '@/components/zoruui';
 import { getAgentPerformance } from '@/app/actions/wachat-features.actions';
 
 import {
@@ -79,7 +79,7 @@ function formatResponseTime(ms: number | null | undefined): string {
 
 export default function TeamPerformancePage() {
   const { activeProject, activeProjectId } = useProject();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [isPending, startTransition] = useTransition();
   const [agents, setAgents] = useState<any[]>([]);
   const [timeRange, setTimeRange] = useState<TimeRange>('30d');

@@ -1,0 +1,24 @@
+[package]
+name = "wachat-meta-dto"
+version = "0.1.0"
+edition = "2024"
+description = "Typed request/response DTOs for the Meta WhatsApp Cloud API used by SabNode wachat. Pure data — no I/O, no async."
+license = "UNLICENSED"
+publish = false
+
+# Detach from the parent `rust/Cargo.toml` workspace: this Phase-1 slice ships
+# as an isolated crate so the workspace root manifest stays untouched until
+# all Phase-1 slices land. Remove this stanza when the crate is added to
+# `workspace.members` upstream.
+[lib]
+name = "wachat_meta_dto"
+path = "src/lib.rs"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "1"
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+[dev-dependencies]
+serde_json = "1"

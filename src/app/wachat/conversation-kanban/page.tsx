@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
-import { useToast } from '@/hooks/use-toast';
+import { useZoruToast } from '@/components/zoruui';
 import { getContactsPageData } from '@/app/actions/contact.actions';
 
 import {
@@ -58,7 +58,7 @@ function groupContacts(contacts: any[]): Column[] {
 
 export default function ConversationKanbanPage() {
   const { activeProject } = useProject();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [isPending, startTransition] = useTransition();
   const [columns, setColumns] = useState<Column[]>([]);
 

@@ -28,7 +28,7 @@ import { getProjectById } from '@/app/actions/index';
 import { getTransactionsForProject } from '@/app/actions/whatsapp.actions';
 import type { Project, Transaction } from '@/lib/definitions';
 import { useProject } from '@/context/project-context';
-import { TransactionChart } from '@/components/wabasimplify/whatsapp-pay/transaction-chart';
+import { TransactionChart } from '@/app/wachat/_components/transaction-chart';
 
 import {
   ZoruAlertDialog,

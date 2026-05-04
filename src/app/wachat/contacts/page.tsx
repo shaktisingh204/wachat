@@ -38,10 +38,10 @@ import {
 
 import { getContactsPageData, deleteContact } from '@/app/actions/contact.actions';
 import type { Contact, Tag } from '@/lib/definitions';
-import { AddContactDialog } from '@/components/wabasimplify/add-contact-dialog';
-import { ImportContactsDialog } from '@/components/wabasimplify/import-contacts-dialog';
+import { AddContactDialog } from '@/app/wachat/_components/add-contact-dialog';
+import { ImportContactsDialog } from '@/app/wachat/_components/import-contacts-dialog';
 import { useProject } from '@/context/project-context';
-import { useToast } from '@/hooks/use-toast';
+import { useZoruToast } from '@/components/zoruui';
 
 import {
   ZoruAlertDialog,
@@ -179,7 +179,7 @@ function DeleteContactButton({
   onDeleted: () => void;
 }) {
   const [isPending, startTransition] = useTransition();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
 
   const handleDelete = () => {
     startTransition(async () => {
@@ -254,7 +254,7 @@ export default function ContactsPage() {
 
   const [totalContacts, setTotalContacts] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [refreshKey, setRefreshKey] = useState(0);
 
   const fetchData = useCallback(() => {

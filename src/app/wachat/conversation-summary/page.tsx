@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
-import { useToast } from '@/hooks/use-toast';
+import { useZoruToast } from '@/components/zoruui';
 import { getContactTimeline } from '@/app/actions/wachat-features.actions';
 import { getContactsPageData } from '@/app/actions/contact.actions';
 
@@ -35,7 +35,7 @@ import {
 
 export default function ConversationSummaryPage() {
   const { activeProject } = useProject();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [isPending, startTransition] = useTransition();
   const [contacts, setContacts] = useState<any[]>([]);
   const [searchQ, setSearchQ] = useState('');

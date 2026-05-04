@@ -11,7 +11,7 @@ import { useEffect, useState, useTransition, useCallback } from 'react';
 import { Plus, Trash2, Users, Loader2 } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
-import { useToast } from '@/hooks/use-toast';
+import { useZoruToast } from '@/components/zoruui';
 import {
   getContactGroups,
   saveContactGroup,
@@ -53,7 +53,7 @@ import {
 
 export default function ContactGroupsPage() {
   const { activeProject } = useProject();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [isPending, startTransition] = useTransition();
   const [groups, setGroups] = useState<any[]>([]);
   const [createOpen, setCreateOpen] = useState(false);

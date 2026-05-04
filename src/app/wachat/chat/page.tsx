@@ -1,14 +1,14 @@
 /**
  * /wachat/chat — Live chat workspace.
  *
- * The 3-pane chat UI lives inside `ChatClient` which manages its own
- * conversations list / thread / contact panel internally. This page
- * is just the route entry — it renders the breadcrumb + a Suspense
- * boundary with a Zoru skeleton fallback.
+ * The 3-pane chat UI lives inside `ZoruChatClient` which manages its
+ * own conversations list / thread / contact panel internally. This
+ * page is just the route entry — it renders a Suspense boundary with
+ * a Zoru skeleton fallback.
  */
 
 import { Suspense } from 'react';
-import { ChatClient } from '@/components/wabasimplify/chat-client';
+import { ZoruChatClient } from '@/app/wachat/_components/zoru-chat-client';
 import { ZoruSkeleton } from '@/components/zoruui';
 
 export const dynamic = 'force-dynamic';
@@ -27,7 +27,7 @@ export default function ChatPage() {
   return (
     <div className="h-full">
       <Suspense fallback={<ChatPageSkeleton />}>
-        <ChatClient />
+        <ZoruChatClient />
       </Suspense>
     </div>
   );

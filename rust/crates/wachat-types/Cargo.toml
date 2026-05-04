@@ -1,0 +1,38 @@
+[package]
+name = "wachat-types"
+version = "0.1.0"
+edition = "2024"
+description = "Domain DTOs (Mongo-document-shaped) shared across all wachat handlers. Pure data types — no logic, no I/O, no async. Distinct from `wachat-meta-dto`, which models Meta API wire shapes."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "wachat_types"
+path = "src/lib.rs"
+
+[dependencies]
+# Serialization. Every struct is `Serialize + Deserialize`.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Mongo BSON. We use `bson::oid::ObjectId` for `_id` / FK fields and rely on
+# the `chrono-0_4` feature so `bson::DateTime` interops with `chrono::DateTime`.
+bson = { version = "2", features = ["chrono-0_4"] }
+
+# Timestamps. The `serde` feature gives RFC3339 string serialization which is
+# what TS `Date` JSON-roundtrips to; BSON encoding goes through bson::DateTime.
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+# Errors (kept available for any conversion errors callers may want to surface).
+thiserror = "2"
+
+# Sibling crate — shared `ApiError` etc.
+sabnode-common = { path = "../common" }
+
+[dev-dependencies]
+serde_json = "1"
+bson = { version = "2", features = ["chrono-0_4"] }
+
+# Empty [workspace] table makes this crate buildable standalone while it
+# waits to be added to the parent workspace's `members` list (per the
+# Phase 1 slice contract: do not modify the workspace Cargo.toml).

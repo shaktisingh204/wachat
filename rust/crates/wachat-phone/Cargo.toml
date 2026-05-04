@@ -1,0 +1,22 @@
+[package]
+name = "wachat-phone"
+version = "0.1.0"
+edition = "2024"
+description = "E.164 phone-number normalization, validation, and country-dialing helpers for SabNode wachat."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "wachat_phone"
+path = "src/lib.rs"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+thiserror = "1"
+tracing = "0.1"
+
+sabnode-common = { path = "../common" }
+
+[dev-dependencies]
+# none — std-only golden tests
+

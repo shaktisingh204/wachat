@@ -1,0 +1,40 @@
+[package]
+name = "wachat-templates-engine"
+version = "0.1.0"
+edition = "2024"
+description = "Pure WhatsApp template variable substitution engine. Replicates the TS broadcast/send-template substitution semantics: positional `{{1}}` and named `{{first_name}}` placeholders, ordered + deduplicated, plus a Meta-shaped component builder. No I/O."
+license = "UNLICENSED"
+publish = false
+
+# Detach from the parent `rust/Cargo.toml` workspace: this Phase-1 slice ships
+# as an isolated crate so the workspace root manifest stays untouched until
+# all Phase-1 slices land. Remove this stanza when the crate is added to
+# `workspace.members` upstream. Mirrors the same pattern used by the sibling
+# `wachat-meta-client` and `wachat-meta-auth` crates.
+[lib]
+name = "wachat_templates_engine"
+path = "src/lib.rs"
+
+[dependencies]
+# Substitution is JSON-shaped at the boundary (Meta `messages` API), so serde is core.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Error type
+thiserror = "2"
+
+# Structured logging — used sparingly; substitution itself is silent.
+tracing = "0.1"
+
+# Placeholder regex. We compile once via `OnceCell` (see `parser.rs`).
+regex = "1"
+once_cell = "1"
+
+# Sibling crate — exposes `ApiError`. We provide `From<SubstituteError> for ApiError`.
+sabnode-common = { path = "../common" }
+
+[dev-dependencies]
+# Tests are synchronous, but tokio macros are required by the parent prompt
+# (and keep parity with sibling crates). Substitution itself is sync + pure.
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+serde_json = "1"

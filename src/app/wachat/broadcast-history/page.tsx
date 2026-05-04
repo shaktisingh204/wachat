@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
-import { useToast } from '@/hooks/use-toast';
+import { useZoruToast } from '@/components/zoruui';
 
 import {
   ZoruBadge,
@@ -95,7 +95,7 @@ function ReplayBroadcastDialog({
 
 export default function BroadcastHistoryPage() {
   const { activeProject } = useProject();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const projectId = activeProject?._id?.toString();
 
   const [broadcasts, setBroadcasts] = useState<any[]>([]);

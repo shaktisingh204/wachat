@@ -10,7 +10,7 @@ import { useEffect, useState, useTransition, useCallback, useActionState } from 
 import { Tag, X, Loader2, Plus } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
-import { useToast } from '@/hooks/use-toast';
+import { useZoruToast } from '@/components/zoruui';
 import {
   getChatLabels,
   saveChatLabel,
@@ -49,7 +49,7 @@ const PRESET_COLORS = [
 
 export default function ChatLabelsPage() {
   const { activeProject } = useProject();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const projectId = activeProject?._id?.toString();
 
   const [labels, setLabels] = useState<any[]>([]);

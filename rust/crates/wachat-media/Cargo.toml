@@ -1,0 +1,44 @@
+# Standalone manifest — Phase 1 slice contract forbids touching the
+# parent workspace Cargo.toml, so we opt out by declaring an empty
+# `[workspace]` here. This crate builds with `cargo build` from inside
+# its own directory.
+[package]
+name = "wachat-media"
+version = "0.1.0"
+edition = "2024"
+description = "Meta WhatsApp media upload (single-shot + resumable) and download. Token-agnostic — caller supplies the access token per call."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "wachat_media"
+path = "src/lib.rs"
+
+[dependencies]
+# HTTP client. `rustls-tls` keeps us off OpenSSL on every platform.
+# `multipart` for single-shot media upload, `stream` for raw byte uploads.
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "multipart", "stream"] }
+tokio = { version = "1", features = ["full"] }
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Error / logging
+thiserror = "2"
+anyhow = "1"
+tracing = "0.1"
+
+# Body buffering / typing
+bytes = "1"
+mime = "0.3"
+mime_guess = "2"
+
+# Sibling crate — exposes `ApiError`.
+sabnode-common = { path = "../common" }
+
+[dev-dependencies]
+wiremock = "0.6"
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+serde_json = "1"
+bytes = "1"

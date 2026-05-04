@@ -3,12 +3,12 @@
 /**
  * /wachat/chat/kanban — Conversations as a kanban board.
  *
- * The board itself lives in `KanbanBoard`. This page wraps it with a
- * Zoru skeleton fallback while data loads.
+ * The board itself lives in `ZoruKanbanBoard`. This page wraps it with
+ * a Zoru skeleton fallback while data loads.
  */
 
 import { Suspense } from 'react';
-import { KanbanBoard } from '@/components/wabasimplify/kanban-board';
+import { ZoruKanbanBoard } from '@/app/wachat/_components/zoru-kanban-board';
 import { ZoruSkeleton } from '@/components/zoruui';
 
 function KanbanPageSkeleton() {
@@ -31,7 +31,7 @@ export default function KanbanPage() {
   return (
     <div className="flex h-full flex-col">
       <Suspense fallback={<KanbanPageSkeleton />}>
-        <KanbanBoard />
+        <ZoruKanbanBoard />
       </Suspense>
     </div>
   );

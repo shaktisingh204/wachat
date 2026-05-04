@@ -10,7 +10,7 @@ import { useEffect, useState, useTransition, useCallback } from 'react';
 import { Users, Loader2 } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
-import { useToast } from '@/hooks/use-toast';
+import { useZoruToast } from '@/components/zoruui';
 import {
   getAgentStatuses,
   setAgentStatus,
@@ -44,7 +44,7 @@ const STATUS_VARIANTS: Record<string, ZoruBadgeProps['variant']> = {
 
 export default function AgentAvailabilityPage() {
   const { activeProject } = useProject();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const projectId = activeProject?._id?.toString();
 
   const [agents, setAgents] = useState<any[]>([]);

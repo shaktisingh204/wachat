@@ -9,8 +9,8 @@ import * as React from 'react';
 import { useState } from 'react';
 import { Lightbulb, Plus, Send, Trash2, Webhook } from 'lucide-react';
 
-import { WebhookInfo } from '@/components/wabasimplify/webhook-info';
-import { WebhookLogs } from '@/components/wabasimplify/webhook-logs';
+import { WebhookInfo } from '@/app/wachat/_components/webhook-info';
+import { WebhookLogs } from '@/app/wachat/_components/webhook-logs';
 import { useProject } from '@/context/project-context';
 
 import {

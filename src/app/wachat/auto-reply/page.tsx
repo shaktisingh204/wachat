@@ -14,8 +14,8 @@ import { CircleAlert, ListFilter, Loader, Sparkles, MessageCircle, Clock, Bot } 
 
 import { useProject } from '@/context/project-context';
 import { handleUpdateMasterSwitch } from '@/app/actions/project.actions';
-import { AutoReplyForm } from '@/components/wabasimplify/auto-reply-form';
-import { OptInOutForm } from '@/components/wabasimplify/opt-in-out-form';
+import { AutoReplyForm } from '@/app/wachat/_components/auto-reply-form';
+import { OptInOutForm } from '@/app/wachat/_components/opt-in-out-form';
 
 import {
   ZoruAccordion,

@@ -11,7 +11,7 @@ import { useEffect, useState, useTransition, useCallback } from 'react';
 import { ShieldBan, Plus, Trash2, Upload, Loader2 } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
-import { useToast } from '@/hooks/use-toast';
+import { useZoruToast } from '@/components/zoruui';
 import {
   getBlacklist,
   addToBlacklist,
@@ -54,7 +54,7 @@ import {
 
 export default function ContactBlacklistPage() {
   const { activeProject } = useProject();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const projectId = activeProject?._id?.toString();
   const [numbers, setNumbers] = useState<any[]>([]);
   const [phone, setPhone] = useState('');

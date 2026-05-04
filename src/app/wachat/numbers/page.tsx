@@ -31,8 +31,8 @@ import { handleSyncPhoneNumbers } from '@/app/actions/whatsapp.actions';
 import type { PhoneNumber, Project } from '@/lib/definitions';
 import { useProject } from '@/context/project-context';
 
-import { EditPhoneNumberDialog } from '@/components/wabasimplify/edit-phone-number-dialog';
-import { RegisterPhoneButton } from '@/components/wabasimplify/register-phone-button';
+import { EditPhoneNumberDialog } from '@/app/wachat/_components/edit-phone-number-dialog';
+import { RegisterPhoneButton } from '@/app/wachat/_components/register-phone-button';
 import { FlowsEncryptionDialog } from '@/components/dashboard/numbers/flows-encryption-dialog';
 
 import {

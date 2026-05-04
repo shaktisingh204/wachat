@@ -10,7 +10,7 @@ import { useState } from 'react';
 import { CircleCheck, CircleX, Loader2, Send } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
-import { useToast } from '@/hooks/use-toast';
+import { useZoruToast } from '@/components/zoruui';
 
 import {
   ZoruAlertDialog,
@@ -39,7 +39,7 @@ import { sendBulkMessages } from '@/app/actions/wachat-features.actions';
 
 export default function BulkMessagingPage() {
   const { activeProject } = useProject();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const projectId = activeProject?._id?.toString();
 
   const [numbers, setNumbers] = useState('');

@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
-import { useToast } from '@/hooks/use-toast';
+import { useZoruToast } from '@/components/zoruui';
 import { getDeliveryReport } from '@/app/actions/wachat-features.actions';
 
 import {
@@ -66,7 +66,7 @@ const STAT_META = [
 
 export default function DeliveryReportsPage() {
   const { activeProject } = useProject();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const projectId = activeProject?._id?.toString();
   const [stats, setStats] = useState<any[]>([]);
   const [failedMessages, setFailedMessages] = useState<any[]>([]);

@@ -10,7 +10,7 @@ import { useState, useTransition } from 'react';
 import { Download, Loader2, FileText } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
-import { useToast } from '@/hooks/use-toast';
+import { useZoruToast } from '@/components/zoruui';
 import { exportChatHistory } from '@/app/actions/wachat-features.actions';
 
 import {
@@ -66,7 +66,7 @@ function messagesToTxt(messages: any[]): string {
 
 export default function ChatExportPage() {
   const { activeProject } = useProject();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const projectId = activeProject?._id?.toString();
 
   const [contactId, setContactId] = useState('');

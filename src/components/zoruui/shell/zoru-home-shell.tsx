@@ -29,6 +29,7 @@ import { ZoruHeader } from "./zoru-header";
 import { ZoruInput } from "../input";
 import { ZoruKbd } from "../kbd";
 import { ZoruButton } from "../button";
+import { ZoruToaster } from "../toaster";
 import { ZoruUserDropdown } from "../user-dropdown";
 
 export interface ZoruHomeShellProps {
@@ -194,6 +195,10 @@ export function ZoruHomeShell({ user, plan, children }: ZoruHomeShellProps) {
           </div>
         </div>
       </div>
+
+      {/* Mount once at the shell level so any page rendered inside
+          ZoruHomeShell can call zoruToast() / useZoruToast(). */}
+      <ZoruToaster />
     </div>
   );
 }

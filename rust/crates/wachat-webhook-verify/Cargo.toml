@@ -1,0 +1,53 @@
+# Empty [workspace] table makes this crate buildable standalone while it
+# waits to be added to the parent workspace's `members` list (per the
+# Phase 1 slice contract: do not modify the workspace Cargo.toml).
+[package]
+name = "wachat-webhook-verify"
+version = "0.1.0"
+edition = "2024"
+description = "HMAC-SHA256 verification of Meta WhatsApp webhook signatures (X-Hub-Signature-256). Stateless, constant-time, axum-extractor friendly."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "wachat_webhook_verify"
+path = "src/lib.rs"
+
+[dependencies]
+# HMAC-SHA256 — Meta signs the raw POST body with the app secret and ships
+# the digest in the `X-Hub-Signature-256` header.
+hmac = "0.12"
+sha2 = "0.10"
+
+# Constant-time comparison. Plain `==` on byte slices leaks via early exit
+# and is a documented timing-attack vector on signature verification.
+subtle = "2.6"
+
+# Hex decode for the `sha256=<hex>` payload.
+hex = "0.4"
+
+# `bytes::Bytes` is what axum hands us back from `Bytes::from_request`.
+bytes = "1"
+
+# Standard error / serialization / logging stack used across the workspace.
+serde = { version = "1", features = ["derive"] }
+thiserror = "2"
+tracing = "0.1"
+
+# Axum extractor (`VerifiedBody`) — matches the version pinned in
+# `sabnode-common`. `default-features = false` keeps us slim.
+axum = { version = "0.8", default-features = false, features = ["http1"] }
+
+# Replay-window helper uses `chrono::Duration` for symmetry with the rest
+# of the codebase (which already pulls chrono in via sabnode-common).
+chrono = { version = "0.4", default-features = false, features = ["clock"] }
+
+# Sibling crate — exposes `ApiError` so verify failures map cleanly into
+# the standard JSON error envelope.
+sabnode-common = { path = "../common" }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+hex = "0.4"
+hmac = "0.12"
+sha2 = "0.10"

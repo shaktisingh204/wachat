@@ -38,11 +38,11 @@ import { getMetaFlows } from '@/app/actions/meta-flow.actions';
 import { getBroadcasts } from '@/app/actions/broadcast.actions';
 import type { Template, MetaFlow } from '@/lib/definitions';
 
-import { useToast } from '@/hooks/use-toast';
+import { useZoruToast } from '@/components/zoruui';
 import { useProject } from '@/context/project-context';
 
-import { BroadcastForm } from '@/components/wabasimplify/broadcast-form';
-import { RequeueBroadcastDialog } from '@/components/wabasimplify/requeue-broadcast-dialog';
+import { BroadcastForm } from '@/app/wachat/_components/broadcast-form';
+import { RequeueBroadcastDialog } from '@/app/wachat/_components/requeue-broadcast-dialog';
 
 import {
   ZoruAlertDialog,
@@ -146,7 +146,7 @@ function getFormattedDate(item: any): Date | null {
 /* ── Stop-broadcast confirmation ────────────────────────────────── */
 
 function StopBroadcastButton({ broadcastId }: { broadcastId: string }) {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [isStopping, start] = useTransition();
 
   const onConfirm = () => {
@@ -234,7 +234,7 @@ export default function BroadcastPage() {
   const [totalCampaigns, setTotalCampaigns] = useState(0);
   const [isRefreshing, startRefreshTransition] = useTransition();
   const [isSyncingTemplates, startTemplatesSyncTransition] = useTransition();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);

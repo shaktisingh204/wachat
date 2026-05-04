@@ -39,7 +39,7 @@ import {
   getBroadcastLogs,
 } from '@/app/actions/broadcast.actions';
 import type { BroadcastAttempt, BroadcastLog } from '@/lib/definitions';
-import { useToast } from '@/hooks/use-toast';
+import { useZoruToast } from '@/components/zoruui';
 
 import {
   ZoruBadge,
@@ -223,7 +223,7 @@ export default function BroadcastReportPage() {
   const [isExporting, startExportTransition] = useTransition();
   const params = useParams();
   const router = useRouter();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [filter, setFilter] = useState<FilterStatus>('ALL');

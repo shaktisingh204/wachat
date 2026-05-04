@@ -17,7 +17,7 @@ import {
 import { Ban, Clock, Loader2, Pencil, Send } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
-import { useToast } from '@/hooks/use-toast';
+import { useZoruToast } from '@/components/zoruui';
 
 import {
   ZoruAlertDialog,
@@ -73,7 +73,7 @@ function statusVariant(
 
 function EditScheduleSheet({ message }: { message: any }) {
   const [open, setOpen] = useState(false);
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
 
   return (
     <ZoruSheet open={open} onOpenChange={setOpen}>
@@ -150,7 +150,7 @@ function EditScheduleSheet({ message }: { message: any }) {
 
 export default function ScheduledMessagesPage() {
   const { activeProject } = useProject();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const projectId = activeProject?._id?.toString();
 
   const [messages, setMessages] = useState<any[]>([]);

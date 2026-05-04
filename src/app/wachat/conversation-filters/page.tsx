@@ -10,7 +10,7 @@ import { useEffect, useState, useTransition, useCallback } from 'react';
 import { Filter, Plus, Trash2, Play, Loader2 } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
-import { useToast } from '@/hooks/use-toast';
+import { useZoruToast } from '@/components/zoruui';
 import {
   getConversationFilters,
   saveConversationFilter,
@@ -45,7 +45,7 @@ import {
 
 export default function ConversationFiltersPage() {
   const { activeProject } = useProject();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const projectId = activeProject?._id?.toString();
   const [filters, setFilters] = useState<any[]>([]);
   const [showSheet, setShowSheet] = useState(false);

@@ -11,7 +11,7 @@ import { useState, useTransition, useCallback, useActionState } from 'react';
 import { Search, Loader2, StickyNote, Trash2, Plus } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
-import { useToast } from '@/hooks/use-toast';
+import { useZoruToast } from '@/components/zoruui';
 import {
   getContactNotes,
   addContactNote,
@@ -45,7 +45,7 @@ import {
 
 export default function ContactNotesPage() {
   const { activeProject } = useProject();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const projectId = activeProject?._id?.toString();
 
   const [contactId, setContactId] = useState('');

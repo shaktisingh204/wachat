@@ -11,7 +11,7 @@ import { useEffect, useState, useTransition, useCallback } from 'react';
 import { Ban, ShieldOff, Plus, Loader2 } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
-import { useToast } from '@/hooks/use-toast';
+import { useZoruToast } from '@/components/zoruui';
 import {
   getBlockedContacts,
   blockContact,
@@ -53,7 +53,7 @@ export const dynamic = 'force-dynamic';
 
 export default function BlockedContactsPage() {
   const { activeProject, activeProjectId } = useProject();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [isPending, startTransition] = useTransition();
   const [contacts, setContacts] = useState<any[]>([]);
   const [phone, setPhone] = useState('');

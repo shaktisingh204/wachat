@@ -2,15 +2,14 @@
 
 /**
  * Wachat Two-Line — ZoruUI migration.
- * Concept overview + activate dialog. Reuses the legacy `Frame760`
- * preview component as the visual demonstration of the two-line shell.
+ * Concept overview + activate dialog. The "live preview" is now a
+ * neutral inline mock of the two-line shell — no legacy sidebar
+ * dependency.
  */
 
 import * as React from 'react';
 import { useState } from 'react';
-import { ArrowRight, Layers, Shield, Sparkles } from 'lucide-react';
-
-import { Frame760 } from '@/components/ui/sidebar-component';
+import { ArrowRight, Layers, MessageSquare, Phone, Shield, Sparkles } from 'lucide-react';
 
 import {
   ZoruBreadcrumb,
@@ -104,8 +103,8 @@ export default function TwoLineSidebarDemoPage() {
             Live preview
           </p>
         </div>
-        <div className="p-3">
-          <Frame760 />
+        <div className="p-6">
+          <TwoLinePreview />
         </div>
       </ZoruCard>
 
@@ -163,5 +162,65 @@ function FeatureCard({
         {description}
       </p>
     </ZoruCard>
+  );
+}
+
+/* ── Two-line preview mock ─────────────────────────────────────────
+   Neutral, zoru-token-only mock of the two-line workspace. Two stacked
+   conversation rows, each labelled with its line. Replaces the legacy
+   Frame760 phone-frame preview. */
+
+function TwoLinePreview() {
+  const lines = [
+    {
+      id: 'a',
+      number: '+1 415 555 0142',
+      label: 'Sales line',
+      preview: 'New invoice posted for Acme Co.',
+      time: '2m',
+      unread: 3,
+    },
+    {
+      id: 'b',
+      number: '+1 415 555 0177',
+      label: 'Support line',
+      preview: 'Closed ticket #4218 — refund issued',
+      time: '14m',
+      unread: 0,
+    },
+  ];
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+      {lines.map((line) => (
+        <div
+          key={line.id}
+          className="rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-surface p-4"
+        >
+          <div className="flex items-center gap-2">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-zoru-bg text-zoru-ink-muted">
+              <Phone className="h-4 w-4" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-[12px] text-zoru-ink">{line.label}</p>
+              <p className="truncate text-[10px] text-zoru-ink-muted">
+                {line.number}
+              </p>
+            </div>
+            {line.unread > 0 && (
+              <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-zoru-ink px-1.5 text-[10px] text-zoru-on-primary">
+                {line.unread}
+              </span>
+            )}
+          </div>
+          <div className="mt-3 flex items-start gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3">
+            <MessageSquare className="mt-0.5 h-3.5 w-3.5 shrink-0 text-zoru-ink-muted" />
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-[12px] text-zoru-ink">{line.preview}</p>
+              <p className="mt-0.5 text-[10px] text-zoru-ink-muted">{line.time} ago</p>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }

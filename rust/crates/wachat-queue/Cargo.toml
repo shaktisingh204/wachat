@@ -1,0 +1,68 @@
+# Standalone-package marker. The Phase 1 slices ship one crate at a time
+# and the orchestrator wires them into `rust/Cargo.toml` as a batch — until
+# then this empty table tells cargo "I'm intentionally not a member of the
+# enclosing workspace" so `cargo check --manifest-path …` works in isolation.
+[package]
+name = "wachat-queue"
+version = "0.1.0"
+edition = "2024"
+description = "BullMQ-compatible Redis producer used by Rust handlers to enqueue jobs that the existing Node BullMQ workers (broadcast, send, ...) consume during the strangler-fig migration. Producer only — Phase 7 owns the Rust consumer."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "wachat_queue"
+path = "src/lib.rs"
+
+[dependencies]
+# Async stack — matches the rest of the workspace.
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "time", "sync"] }
+
+# Serialization. BullMQ stores `data` as a JSON string inside a Redis hash;
+# our producer serializes the caller-supplied payload with serde_json.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Standard error / logging plumbing used everywhere in this workspace.
+thiserror = "2"
+anyhow = "1"
+tracing = "0.1"
+
+# Redis client — re-using the same `fred` version that `sabnode-db` exposes
+# via `RedisHandle` so we share the same Client type without coercion.
+# `i-scripts` enables `LuaInterface` + `Script` (gated behind a feature in
+# fred 10.x) which the BullMQ-compat producer needs for `EVALSHA`. `sha-1`
+# is required for `Script::from_lua` to compute the script digest in-process
+# (otherwise we'd have to ship a precomputed SHA next to the .lua file).
+# `i-keys` / `i-hashes` / `i-lists` / `i-sorted-sets` are pulled in by the
+# integration test which inspects the produced Redis state directly.
+fred = { version = "10.1", default-features = true, features = [
+    "enable-rustls",
+    "i-scripts",
+    "sha-1",
+    "i-keys",
+    "i-hashes",
+    "i-lists",
+    "i-sorted-sets",
+] }
+
+# Job options carry millisecond timestamps; chrono with serde keeps the type
+# consistent if callers want to plumb scheduled times through.
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+# Reserved for the producer's optional auto-generated jobId path. Today the
+# Lua script mints ids via `INCR {prefix}:{queue}:id` (mirroring BullMQ's
+# behavior), but the slice spec requires uuid as a dep so callers can opt
+# into UUIDv4 ids in a follow-up patch without churning Cargo.toml.
+uuid = { version = "1", features = ["v4", "serde"] }
+
+# Sibling workspace crates — `ApiError` for the public Result shape and
+# `RedisHandle` so callers can hand us the already-pooled client they own.
+sabnode-common = { path = "../common" }
+sabnode-db = { path = "../db" }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+testcontainers = "0.23"
+testcontainers-modules = { version = "0.11", features = ["redis"] }
+serde_json = "1"

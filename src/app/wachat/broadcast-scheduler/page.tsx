@@ -3,9 +3,10 @@
 /**
  * Wachat Broadcast Scheduler — schedule broadcasts for future delivery.
  *
- * Multi-step ZoruTabs: Template → Audience → Schedule → Review.
- * In-page tabs only (NOT URL-synced). Same data + handlers as before
- * (getScheduledBroadcasts, scheduleBroadcast, cancelScheduledBroadcast).
+ * Multi-step numbered stepper: Template → Audience → Schedule → Review.
+ * No tab UI — the stepper is a numbered progress indicator with prev/next
+ * buttons. Same data + handlers as before (getScheduledBroadcasts,
+ * scheduleBroadcast, cancelScheduledBroadcast).
  */
 
 import * as React from 'react';
@@ -26,7 +27,7 @@ import {
 } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
-import { useToast } from '@/hooks/use-toast';
+import { useZoruToast } from '@/components/zoruui';
 
 import {
   ZoruAlertDialog,
@@ -118,7 +119,7 @@ function CancelScheduleDialog({
 
 export default function BroadcastSchedulerPage() {
   const { activeProject } = useProject();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const projectId = activeProject?._id?.toString();
 
   const [schedules, setSchedules] = useState<any[]>([]);

@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
-import { useToast } from '@/hooks/use-toast';
+import { useZoruToast } from '@/components/zoruui';
 import { getMessageStatistics } from '@/app/actions/wachat-features.actions';
 
 import {
@@ -61,7 +61,7 @@ const PERIOD_LABELS: Record<Period, string> = {
 
 export default function MessageStatisticsPage() {
   const { activeProject } = useProject();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const projectId = activeProject?._id?.toString();
   const [period, setPeriod] = useState<Period>('daily');
   const [stats, setStats] = useState({ total: 0, incoming: 0, outgoing: 0, media: 0 });

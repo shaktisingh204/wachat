@@ -11,7 +11,7 @@ import { useEffect, useState, useTransition, useCallback } from 'react';
 import { ArrowRightLeft, Send, Loader2 } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
-import { useToast } from '@/hooks/use-toast';
+import { useZoruToast } from '@/components/zoruui';
 import {
   transferConversation,
   getTransferHistory,
@@ -52,7 +52,7 @@ import {
 
 export default function ChatTransferPage() {
   const { activeProject } = useProject();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const projectId = activeProject?._id?.toString();
 
   const [agents, setAgents] = useState<any[]>([]);
