@@ -360,8 +360,8 @@ export default function BroadcastPage() {
       {/* ── Breadcrumb ── */}
       <ClayBreadcrumbs
         items={[
-          { label: 'Wachat', href: '/home' },
-          { label: activeProject?.name || 'Project', href: '/dashboard' },
+          { label: 'Wachat', href: '/dashboard' },
+          { label: activeProject?.name || 'Project', href: '/wachat' },
           { label: 'Campaigns' },
         ]}
       />
@@ -492,12 +492,12 @@ export default function BroadcastPage() {
                   <LuRefreshCw className="mr-2 h-4 w-4" /> Refresh list
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onSelect={() => router.push('/dashboard/templates')}
+                  onSelect={() => router.push('/wachat/templates')}
                 >
                   <LuBookCopy className="mr-2 h-4 w-4" /> Manage templates
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onSelect={() => router.push('/dashboard/contacts')}
+                  onSelect={() => router.push('/wachat/contacts')}
                 >
                   <LuUsers className="mr-2 h-4 w-4" /> Manage contacts
                 </DropdownMenuItem>
@@ -576,7 +576,7 @@ export default function BroadcastPage() {
               <ClayButton
                 variant="rose"
                 size="sm"
-                onClick={() => router.push('/dashboard')}
+                onClick={() => router.push('/wachat')}
                 className="mt-1"
               >
                 Choose a project
@@ -698,7 +698,7 @@ export default function BroadcastPage() {
                           />
                         )}
                         <Link
-                          href={`/dashboard/broadcasts/${item._id.toString()}`}
+                          href={`/wachat/broadcasts/${item._id.toString()}`}
                           aria-label="View report"
                           className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                         >

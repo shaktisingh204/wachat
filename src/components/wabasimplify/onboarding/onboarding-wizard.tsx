@@ -131,7 +131,7 @@ export function OnboardingWizard({
         startSkipTransition(async () => {
             const res = await skipOnboarding();
             if (res.success) {
-                router.push('/home');
+                router.push('/dashboard');
             }
         });
     }, [router]);

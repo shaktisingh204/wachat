@@ -6,7 +6,7 @@ import { Frame760 } from "@/components/ui/sidebar-component";
  * Drop-in demo. Renders the full two-line sidebar (left icon rail + right
  * detail panel + mobile Sheet drawer) over a placeholder main area.
  *
- * Live route at: `/dashboard/two-line`.
+ * Live route at: `/wachat/two-line`.
  *
  * Usage in your own page / layout:
  *

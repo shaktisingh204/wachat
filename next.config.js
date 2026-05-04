@@ -133,6 +133,61 @@ const nextConfig = {
       },
     ],
   },
+  // Wachat was relocated from `/dashboard/*` to `/wachat/*`. These
+  // permanent (308) redirects keep every old bookmark, deep-link, and
+  // shared URL working — `/dashboard/broadcasts/abc` lands on
+  // `/wachat/broadcasts/abc`. Only routes that ARE wachat are listed;
+  // sibling modules that stayed under `/dashboard` (sabflow, crm, seo,
+  // hrm, ad-manager, email, sms, telegram, instagram, sabchat, …) are
+  // intentionally absent from this map and continue to serve normally.
+  async redirects() {
+    const wachatRoutes = [
+      'agent-availability', 'assignments', 'auto-reply', 'auto-reply-rules',
+      'automation', 'away-messages', 'blocked-contacts', 'broadcast-history',
+      'broadcast-scheduler', 'broadcast-segments', 'broadcasts', 'bulk',
+      'bulk-messaging', 'business-hours', 'calls', 'campaign-ab-test',
+      'canned-messages', 'chat', 'chat-export', 'chat-labels', 'chat-ratings',
+      'chat-transfer', 'chatbot', 'contact-blacklist', 'contact-groups',
+      'contact-import-history', 'contact-merge', 'contact-notes',
+      'contact-timeline', 'contacts', 'conversation-filters',
+      'conversation-kanban', 'conversation-search', 'conversation-summary',
+      'customer-satisfaction', 'delivery-reports', 'greeting-messages',
+      'interactive-messages', 'link-tracking', 'media-library',
+      'message-analytics', 'message-statistics', 'message-tags',
+      'message-templates-library', 'numbers', 'opt-out',
+      'phone-number-settings', 'post-generator', 'qr-codes',
+      'quick-reply-categories', 'response-time-tracker', 'saved-replies',
+      'scheduled-messages', 'team-performance', 'template-analytics',
+      'template-builder', 'templates', 'two-line', 'webhook-logs',
+      'webhooks', 'whatsapp-ads', 'whatsapp-link-generator', 'whatsapp-pay',
+    ];
+
+    return [
+      // /home was renamed to /dashboard (the SabNode account overview).
+      // Keep the old URL alive for any inbound bookmarks.
+      { source: '/home', destination: '/dashboard', permanent: true },
+
+      // Each wachat subroute and its descendants. Each wachat directory
+      // moved out of /dashboard into /wachat — old bookmarks like
+      // `/dashboard/broadcasts/abc` redirect to `/wachat/broadcasts/abc`.
+      // The bare-`/dashboard` rule that previously redirected to
+      // /wachat is intentionally GONE — `/dashboard` is now its own
+      // page (the account overview, formerly `/home`).
+      ...wachatRoutes.flatMap((route) => [
+        {
+          source: `/dashboard/${route}`,
+          destination: `/wachat/${route}`,
+          permanent: true,
+        },
+        {
+          source: `/dashboard/${route}/:path*`,
+          destination: `/wachat/${route}/:path*`,
+          permanent: true,
+        },
+      ]),
+    ];
+  },
+
   webpack: (config, { isServer }) => {
     // Ignore MongoDB optional native deps when bundling
     config.plugins.push(

@@ -155,7 +155,7 @@ export default function TeamTasksPage() {
         <div className="clay-enter flex min-h-full flex-col gap-6">
             <ClayBreadcrumbs
                 items={[
-                    { label: 'SabNode', href: '/home' },
+                    { label: 'SabNode', href: '/dashboard' },
                     { label: 'Team', href: '/dashboard/team/manage-users' },
                     { label: 'Tasks' },
                 ]}

@@ -1523,7 +1523,7 @@ export async function handleSingleMessageEvent(db: Db, project: WithId<Project>,
             projectId: project._id,
             wabaId: project.wabaId || '', // Fallback if wabaId is missing
             message: `New WhatsApp message from ${senderName}`,
-            link: `/dashboard/chat?contactId=${contact._id.toString()}`,
+            link: `/wachat/chat?contactId=${contact._id.toString()}`,
             isRead: false,
             eventType: 'whatsapp_message',
             sourceApp: 'wachat',
@@ -1597,7 +1597,7 @@ export async function processSingleWebhook(db: Db, project: WithId<Project>, pay
             // ── Phone Number Events ──
             case 'phone_number_quality_update':
                 message = `Phone number ${value.display_phone_number} quality is now ${value.event}. Current limit: ${value.current_limit}`;
-                link = '/dashboard/numbers';
+                link = '/wachat/numbers';
                 // Update the quality rating on the stored phone number
                 if (value.display_phone_number) {
                     await db.collection('projects').updateOne(
@@ -1609,7 +1609,7 @@ export async function processSingleWebhook(db: Db, project: WithId<Project>, pay
 
             case 'phone_number_name_update':
                 message = `Name update for ${value.display_phone_number} was ${value.decision}. Verified name: ${value.verified_name}.`;
-                link = '/dashboard/numbers';
+                link = '/wachat/numbers';
                 if (value.decision === 'APPROVED' && value.verified_name) {
                     await db.collection('projects').updateOne(
                         { _id: project._id, 'phoneNumbers.display_phone_number': value.display_phone_number },
@@ -1622,7 +1622,7 @@ export async function processSingleWebhook(db: Db, project: WithId<Project>, pay
             case 'message_template_status_update':
             case 'template_status_update':
                 message = `Template '${value.message_template_name}' was ${value.event?.toLowerCase() === 'approved' ? 'approved' : value.event?.toLowerCase() || 'updated'}. Reason: ${value.reason || 'N/A'}`;
-                link = '/dashboard/templates';
+                link = '/wachat/templates';
                 if (value.message_template_name && value.event) {
                     await db.collection('templates').updateOne(
                         { name: value.message_template_name, projectId: project._id },
@@ -1633,7 +1633,7 @@ export async function processSingleWebhook(db: Db, project: WithId<Project>, pay
 
             case 'message_template_quality_update':
                 message = `Template '${value.message_template_name}' quality updated to ${value.new_quality_score}.`;
-                link = '/dashboard/templates';
+                link = '/wachat/templates';
                 if (value.message_template_name) {
                     await db.collection('templates').updateOne(
                         { name: value.message_template_name, projectId: project._id },
@@ -1645,13 +1645,13 @@ export async function processSingleWebhook(db: Db, project: WithId<Project>, pay
             // ── Payment Events ──
             case 'payment_configuration_update':
                 message = `Payment configuration '${value.configuration_name}' was updated. Status: ${value.status}.`;
-                link = '/dashboard/whatsapp-pay/settings';
+                link = '/wachat/whatsapp-pay/settings';
                 await db.collection('projects').updateOne({ _id: project._id }, { $set: { paymentConfiguration: value } });
                 break;
 
             case 'payment_completed':
                 message = `Payment received for order ${value.order_id || 'N/A'}. Amount: ${value.amount?.value || 'N/A'} ${value.amount?.currency || ''}`;
-                link = '/dashboard/whatsapp-pay';
+                link = '/wachat/whatsapp-pay';
                 if (value.payment_request_id) {
                     await db.collection('transactions').updateOne(
                         { providerTransactionId: value.payment_request_id },
@@ -1662,7 +1662,7 @@ export async function processSingleWebhook(db: Db, project: WithId<Project>, pay
 
             case 'payment_failed':
                 message = `Payment failed for order ${value.order_id || 'N/A'}. Reason: ${value.error?.message || 'Unknown'}`;
-                link = '/dashboard/whatsapp-pay';
+                link = '/wachat/whatsapp-pay';
                 if (value.payment_request_id) {
                     await db.collection('transactions').updateOne(
                         { providerTransactionId: value.payment_request_id },
@@ -1673,7 +1673,7 @@ export async function processSingleWebhook(db: Db, project: WithId<Project>, pay
 
             case 'payment_request_status_updated':
                 message = `Payment request ${value.payment_request_id} is now ${value.status}.`;
-                link = '/dashboard/whatsapp-pay';
+                link = '/wachat/whatsapp-pay';
                 break;
 
             // ── Security Events ──

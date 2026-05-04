@@ -46,7 +46,7 @@ export const TemplateCard = React.memo(function TemplateCard({ template, gradien
 
   const handleAction = (action: 'edit' | 'clone') => {
     localStorage.setItem('templateToAction', JSON.stringify(template));
-    router.push(`/dashboard/templates/create?action=${action}`);
+    router.push(`/wachat/templates/create?action=${action}`);
   };
 
   const renderComponentContent = (component: any) => {

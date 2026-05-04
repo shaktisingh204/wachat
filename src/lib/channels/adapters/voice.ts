@@ -1,7 +1,7 @@
 /**
  * PSTN voice adapter — places outbound calls via Twilio's REST API.
  *
- * For SabNode the voice channel is used by the Calls module (`/dashboard/calls`).
+ * For SabNode the voice channel is used by the Calls module (`/wachat/calls`).
  * `MessageContent` for voice carries either a TwiML URL (`raw.twimlUrl`) or
  * a text body which we render with Twilio's `<Say>`.
  */

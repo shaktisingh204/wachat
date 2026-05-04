@@ -22,7 +22,7 @@ export function CompleteStep({
 
     React.useEffect(() => {
         // Prefetch the dashboard so the final click is instant.
-        router.prefetch('/dashboard');
+        router.prefetch('/wachat');
     }, [router]);
 
     const activated = AVAILABLE_MODULES.filter((m) =>
@@ -77,7 +77,7 @@ export function CompleteStep({
                 <p className="text-sm font-semibold">Next up</p>
                 <div className="grid gap-2">
                     <NextLink
-                        href="/dashboard"
+                        href="/wachat"
                         title="Open your dashboard"
                         description="Your personalized home with the modules you picked."
                     />
@@ -96,7 +96,7 @@ export function CompleteStep({
 
             <div className="flex justify-end pt-2">
                 <Button asChild className="h-11 px-6 text-base">
-                    <Link href="/dashboard">
+                    <Link href="/wachat">
                         Go to dashboard
                         <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>

@@ -107,7 +107,7 @@ export function LoginForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const errorParam = searchParams.get('error');
-    const nextParam = searchParams.get('next') || '/dashboard';
+    const nextParam = searchParams.get('next') || '/wachat';
 
     const [error, setError] = React.useState<string | null>(errorParam);
     const [showPassword, setShowPassword] = React.useState(false);
@@ -142,7 +142,7 @@ export function LoginForm() {
                     const res = await consumePendingInviteToken();
                     if (res.consumed && res.projectId) inviteProjectId = res.projectId;
                 } catch { /* non-fatal */ }
-                router.push(inviteProjectId ? '/dashboard' : nextParam);
+                router.push(inviteProjectId ? '/wachat' : nextParam);
             } catch (err: any) {
                 setError(friendlyFirebaseError(err));
             }
@@ -170,7 +170,7 @@ export function LoginForm() {
                     const res = await consumePendingInviteToken();
                     if (res.consumed && res.projectId) inviteProjectId = res.projectId;
                 } catch { /* non-fatal */ }
-                router.push(inviteProjectId ? '/dashboard' : nextParam);
+                router.push(inviteProjectId ? '/wachat' : nextParam);
             } catch (err: any) {
                 setError(friendlyFirebaseError(err));
             }

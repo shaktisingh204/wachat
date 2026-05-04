@@ -31,7 +31,7 @@ export default function FacebookCallbackClient({
   useEffect(() => {
     const getRedirectPath = (state: string | undefined) => {
       switch (state) {
-        case 'whatsapp': return '/dashboard';
+        case 'whatsapp': return '/wachat';
         case 'facebook': return '/dashboard/facebook/all-projects';
         case 'ad_manager': return '/dashboard/ad-manager/ad-accounts';
         case 'instagram': return '/dashboard/instagram/connections';
@@ -68,7 +68,7 @@ export default function FacebookCallbackClient({
           title: 'Connection Successful!',
           description: 'Your account has been connected.',
         })
-        router.replace(result.redirectPath || '/dashboard')
+        router.replace(result.redirectPath || '/wachat')
       } else {
         toast({
           title: 'Connection Failed',

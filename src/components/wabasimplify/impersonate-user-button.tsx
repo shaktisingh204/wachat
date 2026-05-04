@@ -27,7 +27,7 @@ export function ImpersonateUserButton({ userId, userName }: ImpersonateUserButto
                     description: `Logged in as ${userName}`,
                 });
                 // Force a hard reload to pick up the new session cookie
-                window.location.href = '/dashboard';
+                window.location.href = '/wachat';
             } else {
                 toast({
                     variant: "destructive",

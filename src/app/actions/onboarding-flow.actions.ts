@@ -333,7 +333,7 @@ export async function completeOnboarding(args: {
         } catch { /* non-fatal */ }
 
         revalidatePath('/onboarding');
-        revalidatePath('/dashboard');
+        revalidatePath('/wachat');
         return { success: true };
     } catch (e) {
         console.error('[ONBOARDING] completeOnboarding failed', e);
@@ -373,8 +373,8 @@ export async function skipOnboarding(): Promise<ActionResult> {
             .updateOne({ _id: auth.userId }, { $set: update });
 
         revalidatePath('/onboarding');
+        revalidatePath('/wachat');
         revalidatePath('/dashboard');
-        revalidatePath('/home');
         return { success: true };
     } catch (e) {
         console.error('[ONBOARDING] skipOnboarding failed', e);

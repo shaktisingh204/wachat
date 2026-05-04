@@ -355,7 +355,7 @@ function FlowBuilder({ flowId }: { flowId: string }) {
           <ClayButton
             variant="rose"
             size="md"
-            onClick={() => router.push('/dashboard')}
+            onClick={() => router.push('/wachat')}
             className="mt-5"
           >
             Choose a project

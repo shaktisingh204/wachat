@@ -472,7 +472,7 @@ function CreateTemplateContent() {
         toast({ title: 'Error', description: result.error, variant: 'destructive' });
       } else {
         toast({ title: 'Success', description: result.message || 'Template submitted for approval.' });
-        router.push('/dashboard/templates');
+        router.push('/wachat/templates');
       }
     });
   };
@@ -480,11 +480,11 @@ function CreateTemplateContent() {
   if (!activeProject) {
     return (
       <div className="clay-enter flex min-h-full flex-col gap-6">
-        <ClayBreadcrumbs items={[{ label: 'Wachat', href: '/home' }, { label: 'Templates', href: '/dashboard/templates' }, { label: 'Create' }]} />
+        <ClayBreadcrumbs items={[{ label: 'Wachat', href: '/dashboard' }, { label: 'Templates', href: '/wachat/templates' }, { label: 'Create' }]} />
         <ClayCard className="p-10 text-center">
           <LuCircleAlert className="mx-auto h-10 w-10 text-muted-foreground/30 mb-4" />
           <p className="text-sm text-muted-foreground">Select a project first.</p>
-          <ClayButton variant="obsidian" size="md" onClick={() => router.push('/dashboard')} className="mt-4">Choose a project</ClayButton>
+          <ClayButton variant="obsidian" size="md" onClick={() => router.push('/wachat')} className="mt-4">Choose a project</ClayButton>
         </ClayCard>
       </div>
     );
@@ -493,16 +493,16 @@ function CreateTemplateContent() {
   return (
     <div className="clay-enter flex min-h-full flex-col gap-6">
       <ClayBreadcrumbs items={[
-        { label: 'Wachat', href: '/home' },
-        { label: activeProject.name, href: '/dashboard' },
-        { label: 'Templates', href: '/dashboard/templates' },
+        { label: 'Wachat', href: '/dashboard' },
+        { label: activeProject.name, href: '/wachat' },
+        { label: 'Templates', href: '/wachat/templates' },
         { label: action === 'clone' ? 'Clone' : 'Create' },
       ]} />
 
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <button type="button" onClick={() => router.push('/dashboard/templates')} className="flex items-center gap-1 text-[12px] text-muted-foreground hover:text-foreground mb-2">
+          <button type="button" onClick={() => router.push('/wachat/templates')} className="flex items-center gap-1 text-[12px] text-muted-foreground hover:text-foreground mb-2">
             <LuArrowLeft className="h-3 w-3" /> Back to Templates
           </button>
           <h1 className="text-[26px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
@@ -731,7 +731,7 @@ function CreateTemplateContent() {
                 <><LuSend className="mr-1.5 h-3.5 w-3.5" /> Submit for Approval</>
               )}
             </ClayButton>
-            <button type="button" onClick={() => router.push('/dashboard/templates')} className="text-[12px] text-muted-foreground hover:text-foreground">
+            <button type="button" onClick={() => router.push('/wachat/templates')} className="text-[12px] text-muted-foreground hover:text-foreground">
               Cancel
             </button>
           </div>

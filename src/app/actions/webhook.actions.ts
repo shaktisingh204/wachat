@@ -191,7 +191,7 @@ export async function handleClearProcessedLogs(): Promise<{ message?: string; er
         const { db } = await connectToDatabase();
         const result = await db.collection('webhook_logs').deleteMany({ processed: true });
         
-        revalidatePath('/dashboard/webhooks');
+        revalidatePath('/wachat/webhooks');
 
         return { message: `Successfully cleared ${result.deletedCount} processed webhook log(s).` };
     } catch (e: any) {

@@ -109,7 +109,7 @@ export default function TemplateLibraryPage() {
 
     const handleUseTemplate = (template: LibraryTemplate) => {
         localStorage.setItem('templateToAction', JSON.stringify(template));
-        router.push('/dashboard/templates/create?action=clone');
+        router.push('/wachat/templates/create?action=clone');
     };
 
     return (
@@ -117,7 +117,7 @@ export default function TemplateLibraryPage() {
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
                     <Button variant="ghost" asChild className="mb-2 -ml-4">
-                        <Link href="/dashboard/templates">
+                        <Link href="/wachat/templates">
                             <ChevronLeft className="mr-2 h-4 w-4" />
                             Back to My Templates
                         </Link>

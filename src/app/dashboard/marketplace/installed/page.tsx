@@ -89,7 +89,7 @@ export default function InstalledMarketplaceAppsPage(): React.JSX.Element {
         <div className="clay-enter flex min-h-full flex-col gap-6">
             <ClayBreadcrumbs
                 items={[
-                    { label: 'Dashboard', href: '/home' },
+                    { label: 'Dashboard', href: '/dashboard' },
                     { label: 'Marketplace', href: '/dashboard/marketplace' },
                     { label: 'Installed Apps' },
                 ]}

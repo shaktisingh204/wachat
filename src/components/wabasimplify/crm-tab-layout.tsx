@@ -42,20 +42,20 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Separator } from '../ui/separator';
 
 const wachatMenuItems = [
-    { href: '/dashboard', label: 'All Projects', icon: Briefcase, roles: ['owner', 'admin', 'agent'] },
+    { href: '/wachat', label: 'All Projects', icon: Briefcase, roles: ['owner', 'admin', 'agent'] },
     { href: '/dashboard/overview', label: 'Overview', icon: LayoutDashboard, roles: ['owner', 'admin'] },
-    { href: '/dashboard/chat', label: 'Live Chat', icon: MessageSquare, roles: ['owner', 'admin', 'agent'] },
-    { href: '/dashboard/contacts', label: 'Contacts', icon: Users, roles: ['owner', 'admin', 'agent'] },
-    { href: '/dashboard/broadcasts', label: 'Campaigns', icon: Send, roles: ['owner', 'admin'] },
-    { href: '/dashboard/templates', label: 'Templates', icon: FileText, roles: ['owner', 'admin'] },
+    { href: '/wachat/chat', label: 'Live Chat', icon: MessageSquare, roles: ['owner', 'admin', 'agent'] },
+    { href: '/wachat/contacts', label: 'Contacts', icon: Users, roles: ['owner', 'admin', 'agent'] },
+    { href: '/wachat/broadcasts', label: 'Campaigns', icon: Send, roles: ['owner', 'admin'] },
+    { href: '/wachat/templates', label: 'Templates', icon: FileText, roles: ['owner', 'admin'] },
     { href: '/dashboard/catalog', label: 'Catalog', icon: ShoppingBag, roles: ['owner', 'admin'] },
-    { href: '/dashboard/calls', label: 'Calls', icon: Phone, roles: ['owner', 'admin'] },
+    { href: '/wachat/calls', label: 'Calls', icon: Phone, roles: ['owner', 'admin'] },
     { href: '/dashboard/flow-builder', label: 'Flow Builder', icon: GitFork, roles: ['owner', 'admin'] },
     { href: '/dashboard/flows', label: 'Meta Flows', beta: true, icon: ServerCog, roles: ['owner', 'admin'] },
     { href: '/dashboard/integrations', label: 'Integrations', icon: Zap, roles: ['owner', 'admin'] },
-    { href: '/dashboard/whatsapp-pay', label: 'WhatsApp Pay', icon: CreditCard, roles: ['owner', 'admin'] },
-    { href: '/dashboard/numbers', label: 'Numbers', icon: Phone, roles: ['owner', 'admin'] },
-    { href: '/dashboard/webhooks', label: 'Webhooks', icon: Webhook, roles: ['owner', 'admin'] },
+    { href: '/wachat/whatsapp-pay', label: 'WhatsApp Pay', icon: CreditCard, roles: ['owner', 'admin'] },
+    { href: '/wachat/numbers', label: 'Numbers', icon: Phone, roles: ['owner', 'admin'] },
+    { href: '/wachat/webhooks', label: 'Webhooks', icon: Webhook, roles: ['owner', 'admin'] },
     { href: '/dashboard/settings', label: 'Project Settings', icon: Settings, roles: ['owner', 'admin'] },
 ];
 
@@ -419,7 +419,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         setActiveApp(currentApp);
     }, [pathname]);
 
-    const isChatPage = pathname.startsWith('/dashboard/chat') || pathname.startsWith('/dashboard/facebook/messages') || pathname.startsWith('/dashboard/facebook/kanban') || pathname.startsWith('/dashboard/sabchat/inbox');
+    const isChatPage = pathname.startsWith('/wachat/chat') || pathname.startsWith('/dashboard/facebook/messages') || pathname.startsWith('/dashboard/facebook/kanban') || pathname.startsWith('/dashboard/sabchat/inbox');
     const isWebsiteBuilderPage = pathname.includes('/builder');
 
     const currentUserRole = React.useMemo(() => {
@@ -430,7 +430,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
     }, [sessionUser, activeProject]);
 
     const appIcons = [
-        { id: 'whatsapp', icon: WhatsAppIcon, label: 'Wachat', href: '/dashboard' },
+        { id: 'whatsapp', icon: WhatsAppIcon, label: 'Wachat', href: '/wachat' },
         { id: 'sabchat', icon: SabChatIcon, label: 'sabChat', href: '/dashboard/sabchat' },
         { id: 'facebook', href: '/dashboard/facebook/all-projects', icon: MetaIcon, label: 'Meta Suite' },
         { id: 'instagram', href: '/dashboard/instagram/connections', icon: InstagramIcon, label: 'Instagram' },
@@ -541,7 +541,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                                 <PanelLeft />
                             </Button>
                         </SidebarTrigger>
-                        <Link href="/dashboard" className="hidden font-bold sm:inline-block">
+                        <Link href="/wachat" className="hidden font-bold sm:inline-block">
                             SabNode
                         </Link>
                         {appRailPosition === 'top' && (

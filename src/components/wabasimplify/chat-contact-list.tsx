@@ -240,7 +240,7 @@ export function ChatContactList({
                         <div>No contacts found{searchQuery ? ' for your search' : ' for this number'}.</div>
                         {!searchQuery && (
                             <Button asChild variant="outline" size="sm" className="mt-2">
-                                <Link href="/dashboard/contacts">Import or add contacts</Link>
+                                <Link href="/wachat/contacts">Import or add contacts</Link>
                             </Button>
                         )}
                     </div>

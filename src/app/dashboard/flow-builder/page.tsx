@@ -109,8 +109,8 @@ export default function FlowBuilderListPage() {
       {/* Breadcrumb */}
       <ClayBreadcrumbs
         items={[
-          { label: 'Wachat', href: '/home' },
-          { label: activeProject?.name || 'Project', href: '/dashboard' },
+          { label: 'Wachat', href: '/dashboard' },
+          { label: activeProject?.name || 'Project', href: '/wachat' },
           { label: 'Flow Builder' },
         ]}
       />
@@ -188,7 +188,7 @@ export default function FlowBuilderListPage() {
           <ClayButton
             variant="rose"
             size="md"
-            onClick={() => router.push('/dashboard')}
+            onClick={() => router.push('/wachat')}
             className="mt-5"
           >
             Choose a project

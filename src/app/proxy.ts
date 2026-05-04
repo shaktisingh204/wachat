@@ -6,6 +6,13 @@ import { verifyAdminJwtEdge, verifyJwtEdge } from '@/lib/auth.edge';
 const AUTH_PAGES = ['/login', '/signup', '/forgot-password'];
 const ADMIN_AUTH_PAGE = '/admin-login';
 const DASHBOARD_PREFIX = '/dashboard';
+const WACHAT_PREFIX = '/wachat';
+// Both /dashboard/* and /wachat/* are auth-gated user surfaces. Wachat
+// was relocated out of /dashboard in this iteration; the proxy treats
+// the two prefixes equivalently for session checks. After login,
+// users land on /wachat — that's the new default landing route.
+const PROTECTED_PREFIXES = [DASHBOARD_PREFIX, WACHAT_PREFIX] as const;
+const POST_LOGIN_LANDING = WACHAT_PREFIX;
 const ADMIN_DASHBOARD_PREFIX = '/admin/dashboard';
 const PENDING_APPROVAL_PAGE = '/pending-approval';
 
@@ -94,7 +101,7 @@ export async function proxy(request: NextRequest) {
 
   const isAuthPage = AUTH_PAGES.some(page => pathname.startsWith(page));
   const isAdminAuthPage = pathname.startsWith(ADMIN_AUTH_PAGE);
-  const isDashboard = pathname.startsWith(DASHBOARD_PREFIX);
+  const isProtected = PROTECTED_PREFIXES.some((p) => pathname.startsWith(p));
   const isAdminDashboard = pathname.startsWith(ADMIN_DASHBOARD_PREFIX);
   const isPendingPage = pathname.startsWith(PENDING_APPROVAL_PAGE);
 
@@ -112,21 +119,30 @@ export async function proxy(request: NextRequest) {
   }
 
   // User session logic
-  if ((isDashboard || isPendingPage) && !isUserSessionValid) {
+  if ((isProtected || isPendingPage) && !isUserSessionValid) {
     const response = NextResponse.redirect(new URL('/login', appUrl));
     if (isUserSessionExpired || sessionToken) {
         response.cookies.delete('session');
     }
     return response;
   }
-  
+
   if (isAuthPage && isUserSessionValid) {
-    return NextResponse.redirect(new URL(DASHBOARD_PREFIX, appUrl));
+    return NextResponse.redirect(new URL(POST_LOGIN_LANDING, appUrl));
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/admin/dashboard/:path*', '/login', '/signup', '/forgot-password', '/admin-login', '/pending-approval'],
+  matcher: [
+    '/dashboard/:path*',
+    '/wachat/:path*',
+    '/admin/dashboard/:path*',
+    '/login',
+    '/signup',
+    '/forgot-password',
+    '/admin-login',
+    '/pending-approval',
+  ],
 };

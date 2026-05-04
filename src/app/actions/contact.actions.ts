@@ -77,7 +77,7 @@ export async function handleAddNewContact(
 
         const result = await db.collection('contacts').insertOne(newContact as any);
 
-        revalidatePath('/dashboard/contacts');
+        revalidatePath('/wachat/contacts');
 
         return { message: `Contact "${name}" added successfully.`, contactId: result.insertedId.toString() };
 
@@ -155,7 +155,7 @@ export async function handleImportContacts(prevState: any, formData: FormData): 
             importedCount = result.upsertedCount + result.modifiedCount;
         }
 
-        revalidatePath('/dashboard/contacts');
+        revalidatePath('/wachat/contacts');
 
         return { message: `Import complete. ${importedCount} contacts imported/updated. ${skippedCount} rows skipped.` };
 
@@ -253,7 +253,7 @@ export async function handleUpdateContactDetails(prevState: any, formData: FormD
             { $set: updateData }
         );
 
-        revalidatePath('/dashboard/chat');
+        revalidatePath('/wachat/chat');
         return { success: true };
     } catch (e) {
         return { success: false, error: 'Failed to update contact details.' };
@@ -284,8 +284,8 @@ export async function handleUpdateContactStatus(contactId: string, status: strin
             { _id: new ObjectId(contactId) },
             { $set: updateDoc }
         );
-        revalidatePath('/dashboard/chat');
-        revalidatePath('/dashboard/chat/kanban');
+        revalidatePath('/wachat/chat');
+        revalidatePath('/wachat/chat/kanban');
         return { success: true };
     } catch (e) {
         return { success: false, error: getErrorMessage(e) };
@@ -308,7 +308,7 @@ export async function updateContactTags(contactId: string, tagIds: string[]) {
             { _id: new ObjectId(contactId) },
             { $set: { tagIds: tagIds.map(id => new ObjectId(id)) } }
         );
-        revalidatePath('/dashboard/chat');
+        revalidatePath('/wachat/chat');
         return { success: true };
     } catch (e) {
         return { success: false, error: getErrorMessage(e) };
@@ -354,7 +354,7 @@ export async function deleteContact(contactId: string): Promise<{ success: boole
             return { success: false, error: 'Failed to delete contact.' };
         }
 
-        revalidatePath('/dashboard/contacts');
+        revalidatePath('/wachat/contacts');
         return { success: true };
     } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };

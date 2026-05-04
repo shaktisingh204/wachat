@@ -85,7 +85,7 @@ export default function CrmContactDetailPage() {
   const handleWhatsAppMessage = () => {
     const waId = contact?.phone?.replace(/\D/g, '');
     if (waId) {
-      router.push(`/dashboard/chat?waId=${waId}`);
+      router.push(`/wachat/chat?waId=${waId}`);
     }
   };
 

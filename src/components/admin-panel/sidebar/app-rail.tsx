@@ -38,7 +38,7 @@ import { can } from '@/lib/rbac';
  */
 const ALL_APPS: { id: string; label: string; icon: any; href: string; permissionKey: string | null }[] = [
     { id: 'sabflow',        label: 'SabFlow',        icon: Workflow,     href: '/dashboard/sabflow',                permissionKey: null },
-    { id: 'whatsapp',       label: 'WaChat',         icon: WhatsAppIcon, href: '/dashboard',                        permissionKey: 'wachat_overview' },
+    { id: 'whatsapp',       label: 'WaChat',         icon: WhatsAppIcon, href: '/wachat',                        permissionKey: 'wachat_overview' },
     { id: 'facebook',       label: 'Meta Suite',     icon: MetaIcon,     href: '/dashboard/facebook/all-projects',  permissionKey: 'facebook_dashboard' },
     { id: 'ad-manager',     label: 'Ad Manager',     icon: Megaphone,    href: '/dashboard/ad-manager/ad-accounts', permissionKey: 'ad_manager_accounts' },
     { id: 'telegram',       label: 'Telegram',       icon: Send,         href: '/dashboard/telegram',               permissionKey: null },
@@ -96,7 +96,7 @@ export function AppRail({ activeApp }: AppRailProps) {
             {/* ── Logo — black wordmark on white ── */}
             <div className="flex items-center justify-center pt-4 pb-3 shrink-0">
                 <Link
-                    href="/home"
+                    href="/dashboard"
                     className="flex items-center justify-center w-9 h-9 rounded-xl bg-foreground text-background transition-all duration-200 hover:scale-105"
                 >
                     <SabNodeLogo className="w-5 h-5 text-background" />
@@ -113,8 +113,8 @@ export function AppRail({ activeApp }: AppRailProps) {
                 <RailItem
                     icon={Home}
                     label="Home"
-                    active={pathname === '/home'}
-                    href="/home"
+                    active={pathname === '/dashboard'}
+                    href="/dashboard"
                 />
 
                 {/* Micro label */}

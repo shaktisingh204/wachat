@@ -195,8 +195,8 @@ export default function TemplatesPage() {
       {/* Breadcrumb */}
       <ClayBreadcrumbs
         items={[
-          { label: 'Wachat', href: '/home' },
-          { label: activeProject?.name || 'Project', href: '/dashboard' },
+          { label: 'Wachat', href: '/dashboard' },
+          { label: activeProject?.name || 'Project', href: '/wachat' },
           { label: 'Templates' },
         ]}
       />
@@ -226,7 +226,7 @@ export default function TemplatesPage() {
             variant="pill"
             size="md"
             leading={<LuBookCopy className="h-3.5 w-3.5" strokeWidth={2} />}
-            onClick={() => router.push('/dashboard/templates/library')}
+            onClick={() => router.push('/wachat/templates/library')}
           >
             Library
           </ClayButton>
@@ -236,7 +236,7 @@ export default function TemplatesPage() {
             className="px-5"
             leading={<LuCirclePlus className="h-3.5 w-3.5" strokeWidth={2.5} />}
             disabled={!activeProjectId}
-            onClick={() => router.push('/dashboard/templates/create')}
+            onClick={() => router.push('/wachat/templates/create')}
           >
             New template
           </ClayButton>
@@ -287,7 +287,7 @@ export default function TemplatesPage() {
           <ClayButton
             variant="rose"
             size="md"
-            onClick={() => router.push('/dashboard')}
+            onClick={() => router.push('/wachat')}
             className="mt-5"
           >
             Choose a project
@@ -468,7 +468,7 @@ export default function TemplatesPage() {
                     leading={
                       <LuCirclePlus className="h-3.5 w-3.5" strokeWidth={2.5} />
                     }
-                    onClick={() => router.push('/dashboard/templates/create')}
+                    onClick={() => router.push('/wachat/templates/create')}
                   >
                     New template
                   </ClayButton>

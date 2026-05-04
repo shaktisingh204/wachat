@@ -432,7 +432,7 @@ export default function UrlShortenerPage() {
   const breadcrumbs = (
     <ClayBreadcrumbs
       items={[
-        { label: 'Home', href: '/home' },
+        { label: 'Home', href: '/dashboard' },
         { label: 'URL Shortener' },
       ]}
     />

@@ -45,7 +45,7 @@ export async function handleCallingSettingsUpdate(db: Db, project: Project, valu
             projectId: project._id,
             wabaId: project.wabaId,
             message: `Calling settings for phone number ${phoneNumberId} were updated via webhook.`,
-            link: '/dashboard/calls/settings',
+            link: '/wachat/calls/settings',
             isRead: false,
             createdAt: new Date(),
             eventType: 'account_settings_update',

@@ -27,7 +27,7 @@ export function BulkActionsClient({ sourceProjectName, allProjects, initialTempl
 
     const handleCreateTemplateClick = () => {
         localStorage.setItem('bulkProjectIds', JSON.stringify(selectedProjects.map(p => p._id.toString())));
-        router.push('/dashboard/bulk/template');
+        router.push('/wachat/bulk/template');
     }
 
     return (

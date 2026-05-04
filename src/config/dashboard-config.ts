@@ -30,7 +30,7 @@ export interface MenuGroup {
 }
 
 export const appIcons = [
-    { id: 'whatsapp', icon: WhatsAppIcon, label: 'Wachat', href: '/dashboard' },
+    { id: 'whatsapp', icon: WhatsAppIcon, label: 'Wachat', href: '/wachat' },
     { id: 'sabchat', icon: SabChatIcon, label: 'sabChat', href: '/dashboard/sabchat' },
     { id: 'facebook', href: '/dashboard/facebook/all-projects', icon: MetaIcon, label: 'Meta Suite' },
     { id: 'ad-manager', href: '/dashboard/ad-manager/ad-accounts', icon: Megaphone, label: 'Ad Manager' },
@@ -51,28 +51,28 @@ export const appIcons = [
 
 export const wachatMenuItems: MenuItem[] = [
     // Primary
-    { href: '/dashboard', label: 'All Projects', icon: Briefcase, roles: ['owner', 'admin', 'agent'], exact: true, permissionKey: 'wachat_overview' },
+    { href: '/wachat', label: 'All Projects', icon: Briefcase, roles: ['owner', 'admin', 'agent'], exact: true, permissionKey: 'wachat_overview' },
     { href: '/dashboard/overview', label: 'Overview', icon: LayoutDashboard, roles: ['owner', 'admin'], permissionKey: 'wachat_overview' },
-    { href: '/dashboard/chat', label: 'Live Chat', icon: MessageSquare, roles: ['owner', 'admin', 'agent'], permissionKey: 'wachat_chat' },
-    { href: '/dashboard/contacts', label: 'Contacts', icon: Users, roles: ['owner', 'admin', 'agent'], permissionKey: 'wachat_contacts' },
-    { href: '/dashboard/broadcasts', label: 'Campaigns', icon: Send, roles: ['owner', 'admin'], permissionKey: 'wachat_campaigns' },
-    { href: '/dashboard/templates', label: 'Templates', icon: BookCopy, roles: ['owner', 'admin'], permissionKey: 'wachat_templates' },
+    { href: '/wachat/chat', label: 'Live Chat', icon: MessageSquare, roles: ['owner', 'admin', 'agent'], permissionKey: 'wachat_chat' },
+    { href: '/wachat/contacts', label: 'Contacts', icon: Users, roles: ['owner', 'admin', 'agent'], permissionKey: 'wachat_contacts' },
+    { href: '/wachat/broadcasts', label: 'Campaigns', icon: Send, roles: ['owner', 'admin'], permissionKey: 'wachat_campaigns' },
+    { href: '/wachat/templates', label: 'Templates', icon: BookCopy, roles: ['owner', 'admin'], permissionKey: 'wachat_templates' },
     // Automate
     { href: '/dashboard/flow-builder', label: 'Flow Builder', icon: GitFork, roles: ['owner', 'admin'], permissionKey: 'wachat_flow_builder' },
     { href: '/dashboard/flows', label: 'Meta Flows', beta: true, icon: Settings, roles: ['owner', 'admin'], permissionKey: 'wachat_flows' },
-    { href: '/dashboard/auto-reply', label: 'Auto Reply', icon: MessageSquare, roles: ['owner', 'admin'], permissionKey: 'wachat_auto_reply' },
-    { href: '/dashboard/automation', label: 'Conversational AI', icon: Bot, roles: ['owner', 'admin'], permissionKey: 'wachat_automation' },
+    { href: '/wachat/auto-reply', label: 'Auto Reply', icon: MessageSquare, roles: ['owner', 'admin'], permissionKey: 'wachat_auto_reply' },
+    { href: '/wachat/automation', label: 'Conversational AI', icon: Bot, roles: ['owner', 'admin'], permissionKey: 'wachat_automation' },
     // Grow
     { href: '/dashboard/catalog', label: 'Catalog', icon: ShoppingBag, roles: ['owner', 'admin'], permissionKey: 'wachat_catalog' },
-    { href: '/dashboard/whatsapp-pay', label: 'WhatsApp Pay', icon: CreditCard, roles: ['owner', 'admin'], permissionKey: 'wachat_whatsapp_pay' },
-    { href: '/dashboard/qr-codes', label: 'QR Codes', icon: QrCode, roles: ['owner', 'admin'], permissionKey: 'wachat_qr_codes' },
+    { href: '/wachat/whatsapp-pay', label: 'WhatsApp Pay', icon: CreditCard, roles: ['owner', 'admin'], permissionKey: 'wachat_whatsapp_pay' },
+    { href: '/wachat/qr-codes', label: 'QR Codes', icon: QrCode, roles: ['owner', 'admin'], permissionKey: 'wachat_qr_codes' },
     { href: '/dashboard/analytics', label: 'Analytics', icon: BarChart, roles: ['owner', 'admin'], permissionKey: 'wachat_analytics' },
     // Configure
-    { href: '/dashboard/numbers', label: 'Numbers', icon: Phone, roles: ['owner', 'admin'], permissionKey: 'wachat_numbers' },
-    { href: '/dashboard/calls', label: 'Calls', icon: Phone, roles: ['owner', 'admin'], permissionKey: 'wachat_calls' },
+    { href: '/wachat/numbers', label: 'Numbers', icon: Phone, roles: ['owner', 'admin'], permissionKey: 'wachat_numbers' },
+    { href: '/wachat/calls', label: 'Calls', icon: Phone, roles: ['owner', 'admin'], permissionKey: 'wachat_calls' },
     { href: '/dashboard/health', label: 'Account Health', icon: Activity, roles: ['owner', 'admin'], permissionKey: 'wachat_health' },
     { href: '/dashboard/integrations', label: 'Integrations', icon: Bolt, roles: ['owner', 'admin'], permissionKey: 'wachat_integrations' },
-    { href: '/dashboard/webhooks', label: 'Webhooks', icon: Webhook, roles: ['owner', 'admin'], permissionKey: 'wachat_webhooks' },
+    { href: '/wachat/webhooks', label: 'Webhooks', icon: Webhook, roles: ['owner', 'admin'], permissionKey: 'wachat_webhooks' },
     { href: '/dashboard/settings/general', label: 'General Settings', icon: Settings, roles: ['owner', 'admin'], permissionKey: 'wachat_settings' },
     { href: '/dashboard/settings/agents', label: 'Agents & Roles', icon: Users, roles: ['owner', 'admin'], permissionKey: 'wachat_settings' },
     { href: '/dashboard/settings/attributes', label: 'User Attributes', icon: Key, roles: ['owner', 'admin'], permissionKey: 'wachat_settings' },

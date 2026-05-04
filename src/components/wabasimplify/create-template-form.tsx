@@ -279,8 +279,8 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
     if (state?.message) {
       toast({ title: 'Success!', description: state.message });
       if (isAdminForm) router.push('/admin/dashboard/template-library');
-      else if (isBulkForm) router.push('/dashboard');
-      else router.push('/dashboard/templates');
+      else if (isBulkForm) router.push('/wachat');
+      else router.push('/wachat/templates');
     }
     if (state?.error) {
       // Check for WhatsApp Flows Encryption Error (139002)

@@ -39,8 +39,8 @@ export default function ConversationSearchPage() {
   return (
     <div className="clay-enter flex min-h-full flex-col gap-6">
       <ClayBreadcrumbs items={[
-        { label: 'Wachat', href: '/home' },
-        { label: activeProject?.name || 'Project', href: '/dashboard' },
+        { label: 'Wachat', href: '/dashboard' },
+        { label: activeProject?.name || 'Project', href: '/wachat' },
         { label: 'Conversation Search' },
       ]} />
 
@@ -78,7 +78,7 @@ export default function ConversationSearchPage() {
           {results.map((r: any) => (
             <a
               key={r._id}
-              href={`/dashboard/chat?contactId=${r.contactId || ''}`}
+              href={`/wachat/chat?contactId=${r.contactId || ''}`}
               className="block transition-transform hover:-translate-y-0.5"
             >
               <ClayCard padded={false} className="p-4 hover:border-border">

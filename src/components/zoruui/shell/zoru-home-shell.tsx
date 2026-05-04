@@ -53,8 +53,8 @@ interface DockApp {
 }
 
 const DOCK_APPS: DockApp[] = [
-  { id: "home", name: "Home", href: "/home", icon: <Home className="h-5 w-5" />, isActive: (p) => p === "/home" },
-  { id: "wachat", name: "WaChat", href: "/dashboard", icon: <Smartphone className="h-5 w-5" />, isActive: (p) => p === "/dashboard" },
+  { id: "home", name: "Home", href: "/dashboard", icon: <Home className="h-5 w-5" />, isActive: (p) => p === "/dashboard" },
+  { id: "wachat", name: "WaChat", href: "/wachat", icon: <Smartphone className="h-5 w-5" />, isActive: (p) => p === "/wachat" },
   { id: "sabflow", name: "SabFlow", href: "/dashboard/sabflow", icon: <Workflow className="h-5 w-5" />, isActive: (p) => !!p?.startsWith("/dashboard/sabflow") },
   { id: "facebook", name: "Meta Suite", href: "/dashboard/facebook/all-projects", icon: <Globe className="h-5 w-5" />, isActive: (p) => !!p?.startsWith("/dashboard/facebook") },
   { id: "ad-manager", name: "Ad Manager", href: "/dashboard/ad-manager/ad-accounts", icon: <Megaphone className="h-5 w-5" />, isActive: (p) => !!p?.startsWith("/dashboard/ad-manager") },
@@ -83,8 +83,8 @@ export function ZoruHomeShell({ user, plan, children }: ZoruHomeShellProps) {
       id: "main",
       label: "Workspace",
       items: [
-        { id: "home", label: "Home", icon: <Home />, href: "/home", active: pathname === "/home" },
-        { id: "what's-new", label: "What's new", icon: <Sparkles />, href: "/home" },
+        { id: "home", label: "Home", icon: <Home />, href: "/dashboard", active: pathname === "/dashboard" },
+        { id: "what's-new", label: "What's new", icon: <Sparkles />, href: "/dashboard" },
         { id: "notifications", label: "Notifications", icon: <Bell />, href: "/dashboard/notifications" },
       ],
     },
@@ -92,7 +92,7 @@ export function ZoruHomeShell({ user, plan, children }: ZoruHomeShellProps) {
       id: "shortcuts",
       label: "Shortcuts",
       items: [
-        { id: "wachat", label: "WaChat inbox", icon: <Smartphone />, href: "/dashboard" },
+        { id: "wachat", label: "WaChat inbox", icon: <Smartphone />, href: "/wachat" },
         { id: "sabflow", label: "Flows", icon: <Workflow />, href: "/dashboard/sabflow" },
         { id: "crm", label: "CRM", icon: <Briefcase />, href: "/dashboard/crm" },
       ],
@@ -128,7 +128,7 @@ export function ZoruHomeShell({ user, plan, children }: ZoruHomeShellProps) {
         <ZoruHeader
           leading={
             <a
-              href="/home"
+              href="/dashboard"
               aria-label="SabNode home"
               className="inline-flex items-center gap-2"
             >

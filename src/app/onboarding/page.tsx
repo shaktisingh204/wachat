@@ -34,7 +34,7 @@ export default async function OnboardingPage({ searchParams }: PageProps) {
     // has already marked onboarding complete — so this path fires on
     // the return trip and forwards them on.)
     if (user && onboarding?.status === 'complete') {
-        redirect('/dashboard');
+        redirect('/wachat');
     }
 
     // getOnboardingPlans() already serializes ObjectIds to strings via

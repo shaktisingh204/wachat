@@ -339,7 +339,7 @@ export default function HomePage() {
       icon: <AlarmClock className="h-3.5 w-3.5" />,
       title: "No broadcasts this week",
       tone: "inverted",
-      onClick: () => router.push("/dashboard/broadcasts"),
+      onClick: () => router.push("/wachat/broadcasts"),
     });
   } else if (velocity.messagesLast24h > 0) {
     notificationCards.push({
@@ -361,7 +361,7 @@ export default function HomePage() {
       onClick: () =>
         router.push(
           notificationCards.length === 1
-            ? "/dashboard/broadcasts"
+            ? "/wachat/broadcasts"
             : "/dashboard/team",
         ),
     });
@@ -404,11 +404,11 @@ export default function HomePage() {
       <ZoruBreadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/home">SabNode</ZoruBreadcrumbLink>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
           </ZoruBreadcrumbItem>
           <ZoruBreadcrumbSeparator />
           <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/home">Account</ZoruBreadcrumbLink>
+            <ZoruBreadcrumbLink href="/dashboard">Account</ZoruBreadcrumbLink>
           </ZoruBreadcrumbItem>
           <ZoruBreadcrumbSeparator />
           <ZoruBreadcrumbItem>
@@ -599,7 +599,7 @@ export default function HomePage() {
             name="Wachat Broadcasts"
             primary={`${compact(stats.totalMessages)} sent`}
             secondary={`${compact(stats.totalCampaigns)} campaigns · ${derived?.deliveryRate ?? 0}% delivered`}
-            href="/dashboard/broadcasts"
+            href="/wachat/broadcasts"
             status={stats.totalSent > 0 ? "ok" : "off"}
           />
           <ModuleTile
@@ -607,7 +607,7 @@ export default function HomePage() {
             name="Wachat Chat"
             primary={compact(stats.totalContacts)}
             secondary={`contacts · +${velocity.contactsLast7d} this week`}
-            href="/dashboard/chat"
+            href="/wachat/chat"
             status={stats.totalContacts > 0 ? "ok" : "off"}
           />
           <ModuleTile
@@ -683,7 +683,7 @@ export default function HomePage() {
             name="Templates"
             primary={compact(stats.totalTemplates)}
             secondary={`${compact(stats.totalLibraryTemplates)} in library`}
-            href="/dashboard/templates"
+            href="/wachat/templates"
             status={stats.totalTemplates > 0 ? "ok" : "off"}
           />
           <ModuleTile

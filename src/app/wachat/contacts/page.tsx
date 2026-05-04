@@ -305,7 +305,7 @@ export default function ContactsPage() {
 
   const handleMessageContact = (contact: WithId<Contact>) => {
     router.push(
-      `/dashboard/chat?contactId=${contact._id.toString()}&phoneId=${contact.phoneNumberId}`,
+      `/wachat/chat?contactId=${contact._id.toString()}&phoneId=${contact.phoneNumberId}`,
     );
   };
 
@@ -329,8 +329,8 @@ export default function ContactsPage() {
       {/* Breadcrumb */}
       <ClayBreadcrumbs
         items={[
-          { label: 'Wachat', href: '/home' },
-          { label: activeProject?.name || 'Project', href: '/dashboard' },
+          { label: 'Wachat', href: '/dashboard' },
+          { label: activeProject?.name || 'Project', href: '/wachat' },
           { label: 'Contacts' },
         ]}
       />
@@ -389,7 +389,7 @@ export default function ContactsPage() {
           <ClayButton
             variant="rose"
             size="md"
-            onClick={() => router.push('/dashboard')}
+            onClick={() => router.push('/wachat')}
             className="mt-5"
           >
             Choose a project

@@ -18,13 +18,13 @@ import { ClayBreadcrumbs } from '@/components/clay';
 
 const TABS = [
   {
-    href: '/dashboard/whatsapp-pay',
+    href: '/wachat/whatsapp-pay',
     label: 'Transactions',
     icon: <LuHistory className="h-3.5 w-3.5" strokeWidth={2} />,
     exact: true,
   },
   {
-    href: '/dashboard/whatsapp-pay/settings',
+    href: '/wachat/whatsapp-pay/settings',
     label: 'Setup',
     icon: <LuSettings className="h-3.5 w-3.5" strokeWidth={2} />,
     exact: false,
@@ -43,8 +43,8 @@ export default function WhatsAppPayLayout({
     <div className="flex flex-col gap-6 clay-enter">
       <ClayBreadcrumbs
         items={[
-          { label: 'Wachat', href: '/home' },
-          { label: activeProject?.name || 'Project', href: '/dashboard' },
+          { label: 'Wachat', href: '/dashboard' },
+          { label: activeProject?.name || 'Project', href: '/wachat' },
           { label: 'WhatsApp Pay' },
         ]}
       />

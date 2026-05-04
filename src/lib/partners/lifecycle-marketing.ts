@@ -102,7 +102,7 @@ export const DEFAULT_TOUR_STEPS: readonly TourStep[] = [
     title: 'Connect a channel',
     body: 'Start by linking your WhatsApp or Email account.',
     placement: 'bottom',
-    routeMatch: '/dashboard',
+    routeMatch: '/wachat',
   },
   {
     id: 'first-broadcast',
@@ -110,7 +110,7 @@ export const DEFAULT_TOUR_STEPS: readonly TourStep[] = [
     title: 'Send your first message',
     body: 'Compose a broadcast and reach contacts in seconds.',
     placement: 'bottom',
-    routeMatch: '/dashboard/broadcasts',
+    routeMatch: '/wachat/broadcasts',
   },
   {
     id: 'help',

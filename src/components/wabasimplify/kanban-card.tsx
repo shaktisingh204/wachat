@@ -30,7 +30,7 @@ export function KanbanCard({ contact, index }: KanbanCardProps) {
     };
 
     const handleGoToChat = () => {
-        router.push(`/dashboard/chat?contactId=${contact._id.toString()}`);
+        router.push(`/wachat/chat?contactId=${contact._id.toString()}`);
     }
 
     return (

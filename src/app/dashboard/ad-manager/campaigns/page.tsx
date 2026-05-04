@@ -311,7 +311,7 @@ export default function CampaignsPage() {
       <div>
         <ClayBreadcrumbs
           items={[
-            { label: 'SabNode', href: '/dashboard' },
+            { label: 'SabNode', href: '/wachat' },
             { label: 'Meta Suite', href: '/dashboard/ad-manager' },
             { label: 'Campaigns' },
           ]}
@@ -335,7 +335,7 @@ export default function CampaignsPage() {
       {/* Breadcrumbs */}
       <ClayBreadcrumbs
         items={[
-          { label: 'SabNode', href: '/dashboard' },
+          { label: 'SabNode', href: '/wachat' },
           { label: 'Meta Suite', href: '/dashboard/ad-manager' },
           { label: 'Campaigns' },
         ]}

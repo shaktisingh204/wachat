@@ -209,7 +209,7 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
             console.warn(`[addWaba] webhook subscribe failed for ${wabaId}:`, getErrorMessage(e));
         }
 
-        revalidatePath('/dashboard');
+        revalidatePath('/wachat');
         return { message: `Added WhatsApp Business Account "${wabaName}".`, count: 1 };
     } catch (e: any) {
         return { error: getErrorMessage(e) };

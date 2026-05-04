@@ -129,7 +129,7 @@ async function _createProjectFromWaba(data: {
             console.warn('[WABA Setup] Post-creation sync/register failed (non-fatal):', getErrorMessage(syncError));
         }
 
-        revalidatePath('/dashboard');
+        revalidatePath('/wachat');
 
         return { message: `Project "${projectData.name}" created successfully!` };
 
@@ -212,7 +212,7 @@ export async function handleSyncPhoneNumbers(projectId: string): Promise<{ messa
             { $set: { phoneNumbers: phoneNumbers } }
         );
 
-        revalidatePath('/dashboard/numbers');
+        revalidatePath('/wachat/numbers');
 
         return { message: `Successfully synced ${phoneNumbers.length} phone number(s).`, count: phoneNumbers.length };
 
@@ -327,7 +327,7 @@ export async function handleUpdatePhoneNumberProfile(prevState: any, formData: F
             { $set: updateFields }
         );
 
-        revalidatePath('/dashboard/numbers');
+        revalidatePath('/wachat/numbers');
         return { message: 'Phone number profile updated successfully!' };
 
     } catch (e: any) {
@@ -490,7 +490,7 @@ export async function handleSendMessage(
                 { $set: { lastMessage: lastMessage.substring(0, 50), lastMessageTimestamp: now } },
             ),
         ]).then(() => {
-            revalidatePath('/dashboard/chat');
+            revalidatePath('/wachat/chat');
         }).catch((err) => {
             console.error('[Send] Background DB write failed:', err);
         });
@@ -535,7 +535,7 @@ export async function findOrCreateContact(projectId: string, phoneNumberId: stri
         );
 
         if (contactResult) {
-            revalidatePath('/dashboard/contacts');
+            revalidatePath('/wachat/contacts');
             return { contact: JSON.parse(JSON.stringify(contactResult)) };
         } else {
             return { error: 'Failed to find or create contact.' };
@@ -687,7 +687,7 @@ export async function markConversationAsRead(contactId: string): Promise<{ succe
                 { contactId: resolved.contact._id, projectId: resolved.projectObjectId, isRead: false },
                 { $set: { isRead: true } },
             );
-        revalidatePath('/dashboard/chat');
+        revalidatePath('/wachat/chat');
         return { success: true };
     } catch (e) {
         return { success: false };
@@ -706,7 +706,7 @@ export async function markConversationAsUnread(contactId: string): Promise<{ suc
                 { _id: resolved.contact._id, projectId: resolved.projectObjectId },
                 { $set: { unreadCount: 1 } },
             );
-        revalidatePath('/dashboard/chat');
+        revalidatePath('/wachat/chat');
         return { success: true };
     } catch (e) {
         return { success: false };
@@ -780,8 +780,8 @@ export async function handleRequestWhatsAppPayment(prevState: any, formData: For
                 createdAt: now, updatedAt: now,
             } as Transaction),
         ]).then(() => {
-            revalidatePath('/dashboard/chat');
-            revalidatePath('/dashboard/whatsapp-pay');
+            revalidatePath('/wachat/chat');
+            revalidatePath('/wachat/whatsapp-pay');
         }).catch((err) => {
             console.error('[Payment Send] Background DB write failed:', err);
         });
@@ -903,7 +903,7 @@ export async function handleCreatePaymentConfiguration(prevState: any, formData:
             return { message: "Configuration created! Complete the process by visiting the OAuth URL.", oauth_url: response.data.oauth_url };
         }
 
-        revalidatePath('/dashboard/whatsapp-pay/settings');
+        revalidatePath('/wachat/whatsapp-pay/settings');
         return { message: "UPI VPA configuration created successfully!" };
 
     } catch (e: any) {
@@ -937,7 +937,7 @@ export async function handleUpdateDataEndpoint(prevState: any, formData: FormDat
             throw new Error(getErrorMessage({ response }));
         }
 
-        revalidatePath('/dashboard/whatsapp-pay/settings');
+        revalidatePath('/wachat/whatsapp-pay/settings');
         return { message: "Data endpoint URL updated successfully!" };
 
     } catch (e: any) {
@@ -1004,7 +1004,7 @@ export async function handleDeletePaymentConfiguration(
             throw new Error(getErrorMessage({ response }));
         }
 
-        revalidatePath('/dashboard/whatsapp-pay/settings');
+        revalidatePath('/wachat/whatsapp-pay/settings');
         return { success: true };
 
     } catch (e: any) {

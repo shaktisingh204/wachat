@@ -34,7 +34,7 @@ function ForbiddenPage() {
                 {/* Actions */}
                 <div className="relative flex gap-3 justify-center">
                     <Button asChild size="sm" className="gap-2 rounded-xl bg-primary/90 hover:bg-primary shadow-md">
-                        <Link href="/dashboard">
+                        <Link href="/wachat">
                             <Home className="h-4 w-4" />
                             Go Home
                         </Link>
@@ -56,7 +56,7 @@ export async function RBACGuard({ children }: { children: React.ReactNode }) {
     const pathname = headersList.get('x-url') || '';
 
     // If no path is found (shouldn't happen with middleware), or root dashboard, allow
-    if (!pathname || pathname === '/dashboard') {
+    if (!pathname || pathname === '/wachat') {
         return <>{children}</>;
     }
 

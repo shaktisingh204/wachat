@@ -258,7 +258,7 @@ export default function BroadcastReportPage() {
               description: 'Broadcast not found.',
               variant: 'destructive',
             });
-            router.push('/dashboard/broadcasts');
+            router.push('/wachat/broadcasts');
           }
 
           if (showToast) {
@@ -382,7 +382,7 @@ export default function BroadcastReportPage() {
           <ClayButton
             variant="rose"
             size="md"
-            onClick={() => router.push('/dashboard/broadcasts')}
+            onClick={() => router.push('/wachat/broadcasts')}
             className="mt-5"
           >
             Back to broadcasts
@@ -416,8 +416,8 @@ export default function BroadcastReportPage() {
       {/* Breadcrumb */}
       <ClayBreadcrumbs
         items={[
-          { label: 'Wachat', href: '/home' },
-          { label: 'Campaigns', href: '/dashboard/broadcasts' },
+          { label: 'Wachat', href: '/dashboard' },
+          { label: 'Campaigns', href: '/wachat/broadcasts' },
           { label: broadcast.templateName || 'Report' },
         ]}
       />
@@ -425,7 +425,7 @@ export default function BroadcastReportPage() {
       {/* Back link + header */}
       <div>
         <Link
-          href="/dashboard/broadcasts"
+          href="/wachat/broadcasts"
           className="inline-flex items-center gap-1.5 text-[11.5px] font-medium text-muted-foreground hover:text-foreground transition-colors"
         >
           <LuArrowLeft className="h-3 w-3" strokeWidth={2} />

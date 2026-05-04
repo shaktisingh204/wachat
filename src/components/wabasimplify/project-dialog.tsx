@@ -58,7 +58,7 @@ export function CreateProjectDialog() {
         description: state.message,
       });
       setOpen(false); 
-      router.push('/dashboard');
+      router.push('/wachat');
       router.refresh();
     }
     if (state?.error) {

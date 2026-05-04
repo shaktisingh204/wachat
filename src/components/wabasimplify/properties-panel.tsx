@@ -463,7 +463,7 @@ function NotificationEditor({ data, onChange }: { data: any; onChange: (d: any) 
     return (
         <>
             <Field label="Message"><Textarea value={data.message || ''} onChange={e => onChange({ message: e.target.value })} placeholder="New lead from WhatsApp!" rows={2} /></Field>
-            <Field label="Link (Optional)"><Input value={data.link || ''} onChange={e => onChange({ link: e.target.value })} placeholder="/dashboard/contacts" /></Field>
+            <Field label="Link (Optional)"><Input value={data.link || ''} onChange={e => onChange({ link: e.target.value })} placeholder="/wachat/contacts" /></Field>
         </>
     );
 }

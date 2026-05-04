@@ -351,7 +351,7 @@ function Nav({ loading, session }: { loading: boolean; session: any }) {
             {loading ? (
               <div className="h-9 w-20 rounded-md bg-black/5 animate-pulse" />
             ) : session?.user ? (
-              <Link href="/dashboard" className="sn-btn-primary inline-flex h-9 items-center gap-1.5 rounded-md px-4 text-[13px] font-semibold">
+              <Link href="/wachat" className="sn-btn-primary inline-flex h-9 items-center gap-1.5 rounded-md px-4 text-[13px] font-semibold">
                 Open workspace <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             ) : (
@@ -771,7 +771,7 @@ function Hero({ session, loading }: { session: any; loading: boolean }) {
 
           <div className="sn-reveal mt-9 flex flex-col sm:flex-row items-center gap-3" style={{ animationDelay: '380ms' }}>
             {loading ? null : session?.user ? (
-              <Link href="/dashboard" className="sn-btn-primary inline-flex h-12 items-center gap-2 rounded-full px-6 text-[14px] font-semibold">
+              <Link href="/wachat" className="sn-btn-primary inline-flex h-12 items-center gap-2 rounded-full px-6 text-[14px] font-semibold">
                 Open workspace <ArrowRight className="h-4 w-4" />
               </Link>
             ) : (
@@ -820,7 +820,7 @@ function Hero({ session, loading }: { session: any; loading: boolean }) {
 }
 
 /* -------------------------------------------------------------------------- */
-/*  Hero mock — mirrors /dashboard/chat (sidebar + thread + info panel)       */
+/*  Hero mock — mirrors /wachat/chat (sidebar + thread + info panel)       */
 /* -------------------------------------------------------------------------- */
 
 function ChatAppMock() {
@@ -1724,7 +1724,7 @@ function FlowCanvas() {
 }
 
 /* -------------------------------------------------------------------------- */
-/*  Contacts mock (mirrors /dashboard/contacts table + stats)                 */
+/*  Contacts mock (mirrors /wachat/contacts table + stats)                 */
 /* -------------------------------------------------------------------------- */
 
 function ContactsMock() {
@@ -1877,7 +1877,7 @@ function ContactsMock() {
 }
 
 /* -------------------------------------------------------------------------- */
-/*  Chatbot mock (mirrors /dashboard/chatbot form + rules table)              */
+/*  Chatbot mock (mirrors /wachat/chatbot form + rules table)              */
 /* -------------------------------------------------------------------------- */
 
 function ChatbotMock() {

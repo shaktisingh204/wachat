@@ -231,8 +231,8 @@ export async function handleFacebookOAuthCallback(code: string, state: string): 
                 })
             );
 
-            revalidatePath('/dashboard');
-            return { success: true, redirectPath: '/dashboard' };
+            revalidatePath('/wachat');
+            return { success: true, redirectPath: '/wachat' };
 
         } else if (state === 'facebook' || state === 'instagram' || state === 'facebook_reauth') {
             await db.collection('users').updateOne({ _id: new ObjectId(session.user._id) }, { $set: userUpdate });

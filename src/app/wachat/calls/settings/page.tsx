@@ -111,7 +111,7 @@ export default function CallingSettingsPage() {
               variant="obsidian"
               size="md"
               className="mt-4"
-              onClick={() => (window.location.href = '/dashboard/numbers')}
+              onClick={() => (window.location.href = '/wachat/numbers')}
             >
               Manage numbers
             </ClayButton>

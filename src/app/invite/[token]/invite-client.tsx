@@ -63,7 +63,7 @@ export function InviteClient({
                         ? `You joined ${res.projectName}.`
                         : 'You joined the team.',
                 });
-                router.push('/dashboard');
+                router.push('/wachat');
             } else {
                 toast({
                     title: 'Could not accept',

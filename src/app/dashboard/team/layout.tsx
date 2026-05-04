@@ -12,7 +12,7 @@ export default async function TeamLayout({
     // Owners and admins pass automatically; agents with no team permission
     // bounce to the main dashboard.
     const allowed = await canServer('team_users', 'view');
-    if (!allowed) redirect('/dashboard');
+    if (!allowed) redirect('/wachat');
 
     // Clay chrome handles page padding; each page owns its own `clay-enter`
     // wrapper and vertical rhythm, so this layout is a plain pass-through.

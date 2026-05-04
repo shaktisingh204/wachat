@@ -286,7 +286,7 @@ export default function QrCodeMakerPage() {
   const breadcrumbs = (
     <ClayBreadcrumbs
       items={[
-        { label: 'Home', href: '/home' },
+        { label: 'Home', href: '/dashboard' },
         { label: 'QR Code Maker' },
       ]}
     />

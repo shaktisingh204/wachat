@@ -37,7 +37,7 @@ export function FacebookCallbackClient({ code, error, stateFromUrl }: { code?: s
             description: 'Your WhatsApp account has been connected.',
           });
           // Use replace to prevent user from going "back" to the loading page
-          router.replace('/dashboard');
+          router.replace('/wachat');
         } else {
           toast({
             title: 'Onboarding Failed',

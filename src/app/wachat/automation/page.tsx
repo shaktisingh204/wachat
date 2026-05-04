@@ -115,8 +115,8 @@ export default function AutomationPage() {
     <div className="clay-enter flex min-h-full flex-col gap-6">
       <ClayBreadcrumbs
         items={[
-          { label: 'Wachat', href: '/home' },
-          { label: activeProject?.name || 'Project', href: '/dashboard' },
+          { label: 'Wachat', href: '/dashboard' },
+          { label: activeProject?.name || 'Project', href: '/wachat' },
           { label: 'Automation' },
         ]}
       />

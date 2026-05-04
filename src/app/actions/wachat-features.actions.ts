@@ -30,7 +30,7 @@ export async function saveChatLabel(prevState: any, formData: FormData) {
     try {
         const { db } = await connectToDatabase();
         await db.collection('wa_chat_labels').insertOne({ projectId: new ObjectId(projectId), name, color, createdAt: new Date() });
-        revalidatePath('/dashboard/chat-labels');
+        revalidatePath('/wachat/chat-labels');
         return { message: `Label "${name}" created.` };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
@@ -40,7 +40,7 @@ export async function deleteChatLabel(labelId: string) {
     try {
         const { db } = await connectToDatabase();
         await db.collection('wa_chat_labels').deleteOne({ _id: new ObjectId(labelId) });
-        revalidatePath('/dashboard/chat-labels');
+        revalidatePath('/wachat/chat-labels');
         return { success: true };
     } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
 }
@@ -82,7 +82,7 @@ export async function scheduleMessage(prevState: any, formData: FormData) {
         await db.collection('wa_scheduled_messages').insertOne({
             projectId: new ObjectId(projectId), recipientPhone, messageText, scheduledAt: scheduledDate, status: 'pending', createdAt: new Date(),
         });
-        revalidatePath('/dashboard/scheduled-messages');
+        revalidatePath('/wachat/scheduled-messages');
         return { message: 'Message scheduled successfully.' };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
@@ -92,7 +92,7 @@ export async function cancelScheduledMessage(messageId: string) {
     try {
         const { db } = await connectToDatabase();
         await db.collection('wa_scheduled_messages').updateOne({ _id: new ObjectId(messageId) }, { $set: { status: 'cancelled' } });
-        revalidatePath('/dashboard/scheduled-messages');
+        revalidatePath('/wachat/scheduled-messages');
         return { success: true };
     } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
 }
@@ -184,7 +184,7 @@ export async function saveAutoReplyRule(prevState: any, formData: FormData) {
             doc.priority = 0;
             await db.collection('wa_auto_reply_rules').insertOne(doc);
         }
-        revalidatePath('/dashboard/auto-reply-rules');
+        revalidatePath('/wachat/auto-reply-rules');
         return { message: 'Rule saved.' };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
@@ -194,7 +194,7 @@ export async function deleteAutoReplyRule(ruleId: string) {
     try {
         const { db } = await connectToDatabase();
         await db.collection('wa_auto_reply_rules').deleteOne({ _id: new ObjectId(ruleId) });
-        revalidatePath('/dashboard/auto-reply-rules');
+        revalidatePath('/wachat/auto-reply-rules');
         return { success: true };
     } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
 }
@@ -229,7 +229,7 @@ export async function saveBroadcastSegment(prevState: any, formData: FormData) {
         if (filterLastActive) filters.lastActive = filterLastActive;
         if (filterCity) filters.city = filterCity;
         await db.collection('wa_broadcast_segments').insertOne({ projectId: new ObjectId(projectId), name, filters, createdAt: new Date() });
-        revalidatePath('/dashboard/broadcast-segments');
+        revalidatePath('/wachat/broadcast-segments');
         return { message: `Segment "${name}" created.` };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
@@ -239,7 +239,7 @@ export async function deleteBroadcastSegment(segmentId: string) {
     try {
         const { db } = await connectToDatabase();
         await db.collection('wa_broadcast_segments').deleteOne({ _id: new ObjectId(segmentId) });
-        revalidatePath('/dashboard/broadcast-segments');
+        revalidatePath('/wachat/broadcast-segments');
         return { success: true };
     } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
 }
@@ -313,7 +313,7 @@ export async function saveContactGroup(prevState: any, formData: FormData) {
     try {
         const { db } = await connectToDatabase();
         await db.collection('wa_contact_groups').insertOne({ projectId: new ObjectId(projectId), name, description: description || '', memberCount: 0, createdAt: new Date() });
-        revalidatePath('/dashboard/contact-groups');
+        revalidatePath('/wachat/contact-groups');
         return { message: `Group "${name}" created.` };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
@@ -323,7 +323,7 @@ export async function deleteContactGroup(groupId: string) {
     try {
         const { db } = await connectToDatabase();
         await db.collection('wa_contact_groups').deleteOne({ _id: new ObjectId(groupId) });
-        revalidatePath('/dashboard/contact-groups');
+        revalidatePath('/wachat/contact-groups');
         return { success: true };
     } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
 }
@@ -352,7 +352,7 @@ export async function addToOptOut(projectId: string, phone: string, reason?: str
             { $set: { reason: reason || 'manual', optedOutAt: new Date() }, $setOnInsert: { projectId: new ObjectId(projectId), phone } },
             { upsert: true }
         );
-        revalidatePath('/dashboard/opt-out');
+        revalidatePath('/wachat/opt-out');
         return { success: true };
     } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
 }
@@ -362,7 +362,7 @@ export async function removeFromOptOut(optOutId: string) {
     try {
         const { db } = await connectToDatabase();
         await db.collection('wa_opt_outs').deleteOne({ _id: new ObjectId(optOutId) });
-        revalidatePath('/dashboard/opt-out');
+        revalidatePath('/wachat/opt-out');
         return { success: true };
     } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
 }
@@ -500,7 +500,7 @@ export async function saveSavedReply(prevState: any, formData: FormData) {
             doc.createdAt = new Date();
             await db.collection('wa_saved_replies').insertOne(doc);
         }
-        revalidatePath('/dashboard/saved-replies');
+        revalidatePath('/wachat/saved-replies');
         return { message: 'Reply saved.' };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
@@ -510,7 +510,7 @@ export async function deleteSavedReply(replyId: string) {
     try {
         const { db } = await connectToDatabase();
         await db.collection('wa_saved_replies').deleteOne({ _id: new ObjectId(replyId) });
-        revalidatePath('/dashboard/saved-replies');
+        revalidatePath('/wachat/saved-replies');
         return { success: true };
     } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
 }
@@ -548,7 +548,7 @@ export async function saveChatbotResponse(prevState: any, formData: FormData) {
             doc.createdAt = new Date();
             await db.collection('wa_chatbot_responses').insertOne(doc);
         }
-        revalidatePath('/dashboard/chatbot');
+        revalidatePath('/wachat/chatbot');
         return { message: 'Chatbot response saved.' };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
@@ -558,7 +558,7 @@ export async function deleteChatbotResponse(responseId: string) {
     try {
         const { db } = await connectToDatabase();
         await db.collection('wa_chatbot_responses').deleteOne({ _id: new ObjectId(responseId) });
-        revalidatePath('/dashboard/chatbot');
+        revalidatePath('/wachat/chatbot');
         return { success: true };
     } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
 }
@@ -594,7 +594,7 @@ export async function saveBusinessHours(prevState: any, formData: FormData) {
             { $set: { timezone: timezone || 'UTC', offlineMessage: offlineMessage || '', schedule, updatedAt: new Date() }, $setOnInsert: { projectId: new ObjectId(projectId), createdAt: new Date() } },
             { upsert: true }
         );
-        revalidatePath('/dashboard/business-hours');
+        revalidatePath('/wachat/business-hours');
         return { message: 'Business hours saved.' };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
@@ -686,7 +686,7 @@ export async function saveMediaItem(projectId: string, name: string, url: string
     try {
         const { db } = await connectToDatabase();
         await db.collection('wa_media_library').insertOne({ projectId: new ObjectId(projectId), name, url, type, uploadedAt: new Date() });
-        revalidatePath('/dashboard/media-library');
+        revalidatePath('/wachat/media-library');
         return { message: 'Media saved.' };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
@@ -696,7 +696,7 @@ export async function deleteMediaItem(mediaId: string) {
     try {
         const { db } = await connectToDatabase();
         await db.collection('wa_media_library').deleteOne({ _id: new ObjectId(mediaId) });
-        revalidatePath('/dashboard/media-library');
+        revalidatePath('/wachat/media-library');
         return { success: true };
     } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
 }

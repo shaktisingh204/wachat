@@ -242,7 +242,7 @@ export async function handleDeleteUserProject(prevState: any, formData: FormData
         // Add more deletion logic here if needed (e.g., associated data)
         await db.collection('projects').deleteOne({ _id: new ObjectId(projectId) });
 
-        revalidatePath('/dashboard');
+        revalidatePath('/wachat');
 
         return { message: 'Project has been successfully deleted.' };
 
@@ -368,7 +368,7 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
             }
         }
 
-        revalidatePath('/dashboard');
+        revalidatePath('/wachat');
         return { message: `Successfully synced ${syncedCount} project(s).`, count: syncedCount };
 
     } catch (e: any) {

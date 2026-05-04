@@ -206,7 +206,7 @@ export default function AdManagerOverviewPage() {
       <>
         <ClayBreadcrumbs
           items={[
-            { label: 'SabNode', href: '/home' },
+            { label: 'SabNode', href: '/dashboard' },
             { label: 'Meta Suite', href: '/dashboard/ad-manager' },
             { label: 'Overview' },
           ]}
@@ -221,7 +221,7 @@ export default function AdManagerOverviewPage() {
       {/* Breadcrumbs */}
       <ClayBreadcrumbs
         items={[
-          { label: 'SabNode', href: '/home' },
+          { label: 'SabNode', href: '/dashboard' },
           { label: 'Meta Suite', href: '/dashboard/ad-manager' },
           { label: 'Overview' },
         ]}

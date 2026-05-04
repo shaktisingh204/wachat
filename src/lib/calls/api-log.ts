@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * Shared in-memory API call log for the /dashboard/calls/settings page.
+ * Shared in-memory API call log for the /wachat/calls/settings page.
  *
  * Both the page (project reloads) and the <CallingSettingsForm> component
  * (Meta fetches + saves) push entries here. The log lives at module scope

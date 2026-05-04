@@ -105,7 +105,7 @@ export async function handleSyncTemplates(projectId: string): Promise<{ message?
         const result = await db.collection('templates').bulkWrite(bulkOps);
         const syncedCount = result.upsertedCount + result.modifiedCount;
 
-        revalidatePath('/dashboard/templates');
+        revalidatePath('/wachat/templates');
 
         return { message: `Successfully synced ${syncedCount} template(s).`, count: syncedCount };
 
@@ -244,7 +244,7 @@ export async function handleCreateTemplate(
 
 
             await db.collection('templates').insertOne(carouselTemplateData as any);
-            revalidatePath('/dashboard/templates');
+            revalidatePath('/wachat/templates');
             return { message: 'Product Carousel template saved successfully.' };
         }
 
@@ -494,7 +494,7 @@ export async function handleCreateTemplate(
 
         await db.collection('templates').insertOne(templateToInsert as any);
 
-        revalidatePath('/dashboard/templates');
+        revalidatePath('/wachat/templates');
 
         const message = `Template "${name}" submitted successfully!`;
         return { message };
@@ -638,7 +638,7 @@ export async function handleBulkCreateTemplate(
             return { error: `Errors:\n- ${errors.join('\n- ')}`, message };
         }
 
-        revalidatePath('/dashboard/templates');
+        revalidatePath('/wachat/templates');
         return { message };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
@@ -718,7 +718,7 @@ export async function handleCreateFlowTemplate(prevState: any, formData: FormDat
         };
 
         await db.collection('templates').insertOne(templateToInsert as any);
-        revalidatePath('/dashboard/templates');
+        revalidatePath('/wachat/templates');
 
         return { message: `Template "${templateName}" created successfully and is now pending approval.` };
 
@@ -764,7 +764,7 @@ export async function saveLibraryTemplate(prevState: any, formData: FormData): P
         await db.collection('library_templates').insertOne(templateData as any);
 
         revalidatePath('/admin/dashboard/template-library');
-        revalidatePath('/dashboard/templates/library');
+        revalidatePath('/wachat/templates/library');
         return { message: `Template "${templateData.name}" added to the library.` };
 
     } catch (e: any) {
@@ -786,7 +786,7 @@ export async function deleteLibraryTemplate(id: string): Promise<{ message?: str
             return { error: 'Could not find the custom library template to delete.' };
         }
         revalidatePath('/admin/dashboard/template-library');
-        revalidatePath('/dashboard/templates/library');
+        revalidatePath('/wachat/templates/library');
         return { message: 'Custom template removed from the library.' };
     } catch (e: any) {
         return { error: e.message || 'An unexpected error occurred.' };
@@ -997,7 +997,7 @@ export async function handleEditTemplate(
             { $set: updateFields }
         );
 
-        revalidatePath('/dashboard/templates');
+        revalidatePath('/wachat/templates');
         return { message: 'Template updated successfully and resubmitted for approval.' };
 
     } catch (e: any) {
@@ -1040,7 +1040,7 @@ export async function handleDeleteTemplate(
             name: templateName,
         });
 
-        revalidatePath('/dashboard/templates');
+        revalidatePath('/wachat/templates');
         return { message: `Template "${templateName}" deleted successfully from Meta and local database.` };
 
     } catch (e: any) {
@@ -1078,7 +1078,7 @@ export async function handleDeleteTemplateById(
             projectId: new ObjectId(projectId),
         });
 
-        revalidatePath('/dashboard/templates');
+        revalidatePath('/wachat/templates');
         return { message: 'Template deleted successfully.' };
 
     } catch (e: any) {

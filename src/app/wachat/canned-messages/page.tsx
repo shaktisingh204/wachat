@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * /dashboard/canned-messages — deprecated, redirects to the settings tab.
+ * /wachat/canned-messages — deprecated, redirects to the settings tab.
  * Clay-styled loading state for the brief redirect flash.
  */
 

@@ -40,7 +40,7 @@ import { ClayBreadcrumbs } from './clay-breadcrumbs';
  * Anything else under Wachat gets gated.
  */
 const OPEN_ROUTES = new Set<string>([
-  '/dashboard',
+  '/wachat',
   '/dashboard/',
   '/dashboard/setup',
   '/dashboard/setup/',
@@ -94,7 +94,7 @@ export function ClayProjectGate({ children }: ClayProjectGateProps) {
     <div>
       <ClayBreadcrumbs
         items={[
-          { label: 'Wachat', href: '/home' },
+          { label: 'Wachat', href: '/dashboard' },
           { label: 'Select project' },
         ]}
       />
@@ -113,7 +113,7 @@ export function ClayProjectGate({ children }: ClayProjectGateProps) {
           <ClayButton
             variant="pill"
             size="md"
-            onClick={() => router.push('/dashboard')}
+            onClick={() => router.push('/wachat')}
           >
             All projects
           </ClayButton>

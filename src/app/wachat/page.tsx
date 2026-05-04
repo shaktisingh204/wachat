@@ -296,7 +296,7 @@ export default function SelectProjectPage() {
       {/* Breadcrumbs */}
       <ClayBreadcrumbs
         items={[
-          { label: 'SabNode', href: '/home' },
+          { label: 'SabNode', href: '/dashboard' },
           { label: 'Wachat' },
           { label: 'Projects' },
         ]}

@@ -163,8 +163,8 @@ export default function NumbersPage() {
       {/* Breadcrumb */}
       <ClayBreadcrumbs
         items={[
-          { label: 'Wachat', href: '/home' },
-          { label: sessionProject?.name || 'Project', href: '/dashboard' },
+          { label: 'Wachat', href: '/dashboard' },
+          { label: sessionProject?.name || 'Project', href: '/wachat' },
           { label: 'Numbers' },
         ]}
       />
@@ -236,7 +236,7 @@ export default function NumbersPage() {
           <ClayButton
             variant="rose"
             size="md"
-            onClick={() => router.push('/dashboard')}
+            onClick={() => router.push('/wachat')}
             className="mt-5"
           >
             Choose a project

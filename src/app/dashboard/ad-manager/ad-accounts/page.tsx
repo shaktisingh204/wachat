@@ -406,7 +406,7 @@ export default function AdAccountsPage() {
       {/* Breadcrumbs */}
       <ClayBreadcrumbs
         items={[
-          { label: 'SabNode', href: '/home' },
+          { label: 'SabNode', href: '/dashboard' },
           { label: 'Meta Suite', href: '/dashboard/ad-manager' },
           { label: 'Ad Accounts' },
         ]}

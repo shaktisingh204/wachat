@@ -4,7 +4,7 @@
  * Wachat Calls — Clay-styled tab layout.
  *
  * Two tabs: Call Logs · Call Setup. Each tab's content is rendered
- * by its respective child route (/dashboard/calls/logs, /settings).
+ * by its respective child route (/wachat/calls/logs, /settings).
  */
 
 import * as React from 'react';
@@ -18,12 +18,12 @@ import { ClayBreadcrumbs } from '@/components/clay';
 
 const TABS = [
   {
-    href: '/dashboard/calls/logs',
+    href: '/wachat/calls/logs',
     label: 'Call Logs',
     icon: <LuHistory className="h-3.5 w-3.5" strokeWidth={2} />,
   },
   {
-    href: '/dashboard/calls/settings',
+    href: '/wachat/calls/settings',
     label: 'Call Setup',
     icon: <LuSettings className="h-3.5 w-3.5" strokeWidth={2} />,
   },
@@ -41,8 +41,8 @@ export default function CallsLayout({
     <div className="flex flex-col gap-6 clay-enter">
       <ClayBreadcrumbs
         items={[
-          { label: 'Wachat', href: '/home' },
-          { label: activeProject?.name || 'Project', href: '/dashboard' },
+          { label: 'Wachat', href: '/dashboard' },
+          { label: activeProject?.name || 'Project', href: '/wachat' },
           { label: 'Calls' },
         ]}
       />

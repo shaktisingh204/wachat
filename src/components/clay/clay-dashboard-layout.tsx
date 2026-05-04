@@ -215,19 +215,19 @@ const primaryNav: NavEntry[] = [
     key: 'home',
     label: 'Home',
     icon: <LuLayoutDashboard className="h-[15px] w-[15px]" strokeWidth={1.75} />,
-    href: '/home',
-    matches: ['/home'],
+    href: '/dashboard',
+    matches: ['/dashboard'],
   },
   {
     key: 'wachat',
     label: 'Wachat',
     icon: <LuMessagesSquare className="h-[15px] w-[15px]" strokeWidth={1.75} />,
-    href: '/dashboard',
+    href: '/wachat',
     matches: [
-      '/dashboard/chat',
-      '/dashboard/broadcasts',
-      '/dashboard/templates',
-      '/dashboard/contacts',
+      '/wachat/chat',
+      '/wachat/broadcasts',
+      '/wachat/templates',
+      '/wachat/contacts',
       '/dashboard/wachat',
     ],
   },
@@ -322,8 +322,8 @@ const appsNav: NavEntry[] = [
     key: 'templates',
     label: 'Templates',
     icon: <LuLayoutTemplate className="h-[15px] w-[15px]" strokeWidth={1.75} />,
-    href: '/dashboard/templates',
-    matches: ['/dashboard/templates'],
+    href: '/wachat/templates',
+    matches: ['/wachat/templates'],
   },
   {
     key: 'ecommerce',
@@ -388,126 +388,126 @@ const wachatPrimary: NavEntry[] = [
     key: 'wachat-chat',
     label: 'Live Chat',
     icon: <LuInbox className="h-[15px] w-[15px]" strokeWidth={1.75} />,
-    href: '/dashboard/chat',
-    matches: ['/dashboard/chat'],
+    href: '/wachat/chat',
+    matches: ['/wachat/chat'],
   },
   {
     key: 'wachat-contacts',
     label: 'Contacts',
     icon: <LuUsers className="h-[15px] w-[15px]" strokeWidth={1.75} />,
-    href: '/dashboard/contacts',
-    matches: ['/dashboard/contacts', '/dashboard/wachat/contacts'],
+    href: '/wachat/contacts',
+    matches: ['/wachat/contacts', '/dashboard/wachat/contacts'],
   },
   {
     key: 'wachat-broadcasts',
     label: 'Campaigns',
     icon: <LuSend className="h-[15px] w-[15px]" strokeWidth={1.75} />,
-    href: '/dashboard/broadcasts',
-    matches: ['/dashboard/broadcasts', '/dashboard/bulk'],
+    href: '/wachat/broadcasts',
+    matches: ['/wachat/broadcasts', '/wachat/bulk'],
   },
   {
     key: 'wachat-templates',
     label: 'Templates',
     icon: <LuBookCopy className="h-[15px] w-[15px]" strokeWidth={1.75} />,
-    href: '/dashboard/templates',
-    matches: ['/dashboard/templates', '/dashboard/canned-messages'],
+    href: '/wachat/templates',
+    matches: ['/wachat/templates', '/wachat/canned-messages'],
   },
 ];
 
 /* ── Conversations: live chat ops, search, saved snippets ── */
 const wachatConversations: NavEntry[] = [
-  { key: 'wachat-conv-search', label: 'Search Chats', icon: <LuSearch className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/conversation-search', matches: ['/dashboard/conversation-search'] },
-  { key: 'wachat-conv-kanban', label: 'Kanban Board', icon: <LuColumns3 className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/conversation-kanban', matches: ['/dashboard/conversation-kanban'] },
-  { key: 'wachat-conv-summary', label: 'Summaries', icon: <LuFileText className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/conversation-summary', matches: ['/dashboard/conversation-summary'] },
-  { key: 'wachat-conv-filters', label: 'Filters', icon: <LuListFilter className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/conversation-filters', matches: ['/dashboard/conversation-filters'] },
-  { key: 'wachat-chat-labels', label: 'Chat Labels', icon: <LuTag className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/chat-labels', matches: ['/dashboard/chat-labels'] },
-  { key: 'wachat-chat-export', label: 'Chat Export', icon: <LuFileDown className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/chat-export', matches: ['/dashboard/chat-export'] },
-  { key: 'wachat-chat-transfer', label: 'Transfer Chat', icon: <LuUserCog className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/chat-transfer', matches: ['/dashboard/chat-transfer'] },
-  { key: 'wachat-saved-replies', label: 'Saved Replies', icon: <LuMessageSquareQuote className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/saved-replies', matches: ['/dashboard/saved-replies'] },
+  { key: 'wachat-conv-search', label: 'Search Chats', icon: <LuSearch className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/conversation-search', matches: ['/wachat/conversation-search'] },
+  { key: 'wachat-conv-kanban', label: 'Kanban Board', icon: <LuColumns3 className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/conversation-kanban', matches: ['/wachat/conversation-kanban'] },
+  { key: 'wachat-conv-summary', label: 'Summaries', icon: <LuFileText className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/conversation-summary', matches: ['/wachat/conversation-summary'] },
+  { key: 'wachat-conv-filters', label: 'Filters', icon: <LuListFilter className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/conversation-filters', matches: ['/wachat/conversation-filters'] },
+  { key: 'wachat-chat-labels', label: 'Chat Labels', icon: <LuTag className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/chat-labels', matches: ['/wachat/chat-labels'] },
+  { key: 'wachat-chat-export', label: 'Chat Export', icon: <LuFileDown className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/chat-export', matches: ['/wachat/chat-export'] },
+  { key: 'wachat-chat-transfer', label: 'Transfer Chat', icon: <LuUserCog className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/chat-transfer', matches: ['/wachat/chat-transfer'] },
+  { key: 'wachat-saved-replies', label: 'Saved Replies', icon: <LuMessageSquareQuote className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/saved-replies', matches: ['/wachat/saved-replies'] },
   { key: 'wachat-canned', label: 'Canned Messages', icon: <LuBookmark className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/settings/canned', matches: ['/dashboard/settings/canned'] },
-  { key: 'wachat-qr-cats', label: 'Reply Categories', icon: <LuFolderOpen className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/quick-reply-categories', matches: ['/dashboard/quick-reply-categories'] },
-  { key: 'wachat-greeting', label: 'Greeting Message', icon: <LuMessageSquareQuote className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/greeting-messages', matches: ['/dashboard/greeting-messages'] },
-  { key: 'wachat-away', label: 'Away Message', icon: <LuMessageSquareQuote className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/away-messages', matches: ['/dashboard/away-messages'] },
-  { key: 'wachat-contact-notes', label: 'Contact Notes', icon: <LuStickyNote className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/contact-notes', matches: ['/dashboard/contact-notes'] },
+  { key: 'wachat-qr-cats', label: 'Reply Categories', icon: <LuFolderOpen className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/quick-reply-categories', matches: ['/wachat/quick-reply-categories'] },
+  { key: 'wachat-greeting', label: 'Greeting Message', icon: <LuMessageSquareQuote className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/greeting-messages', matches: ['/wachat/greeting-messages'] },
+  { key: 'wachat-away', label: 'Away Message', icon: <LuMessageSquareQuote className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/away-messages', matches: ['/wachat/away-messages'] },
+  { key: 'wachat-contact-notes', label: 'Contact Notes', icon: <LuStickyNote className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/contact-notes', matches: ['/wachat/contact-notes'] },
 ];
 
 /* ── Automation: flows, bots, auto replies, scheduling ── */
 const wachatAutomation: NavEntry[] = [
   { key: 'wachat-flow-builder', label: 'Flow Builder', icon: <LuGitBranch className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/flow-builder', matches: ['/dashboard/flow-builder'] },
   { key: 'wachat-flows', label: 'Meta Flows', icon: <LuServerCog className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/flows', matches: ['/dashboard/flows'] },
-  { key: 'wachat-auto-reply', label: 'Auto Reply', icon: <LuReply className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/auto-reply', matches: ['/dashboard/auto-reply'] },
-  { key: 'wachat-auto-reply-rules', label: 'Reply Rules', icon: <LuListFilter className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/auto-reply-rules', matches: ['/dashboard/auto-reply-rules'] },
-  { key: 'wachat-chatbot', label: 'Chatbot', icon: <LuBrainCircuit className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/chatbot', matches: ['/dashboard/chatbot'] },
-  { key: 'wachat-automation', label: 'Conversational AI', icon: <LuBot className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/automation', matches: ['/dashboard/automation'] },
-  { key: 'wachat-scheduled-messages', label: 'Scheduled Messages', icon: <LuClock className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/scheduled-messages', matches: ['/dashboard/scheduled-messages'] },
-  { key: 'wachat-interactive', label: 'Interactive Msgs', icon: <LuSmartphone className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/interactive-messages', matches: ['/dashboard/interactive-messages'] },
+  { key: 'wachat-auto-reply', label: 'Auto Reply', icon: <LuReply className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/auto-reply', matches: ['/wachat/auto-reply'] },
+  { key: 'wachat-auto-reply-rules', label: 'Reply Rules', icon: <LuListFilter className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/auto-reply-rules', matches: ['/wachat/auto-reply-rules'] },
+  { key: 'wachat-chatbot', label: 'Chatbot', icon: <LuBrainCircuit className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/chatbot', matches: ['/wachat/chatbot'] },
+  { key: 'wachat-automation', label: 'Conversational AI', icon: <LuBot className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/automation', matches: ['/wachat/automation'] },
+  { key: 'wachat-scheduled-messages', label: 'Scheduled Messages', icon: <LuClock className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/scheduled-messages', matches: ['/wachat/scheduled-messages'] },
+  { key: 'wachat-interactive', label: 'Interactive Msgs', icon: <LuSmartphone className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/interactive-messages', matches: ['/wachat/interactive-messages'] },
 ];
 
 /* ── Broadcasts: campaigns, segments, templates, bulk send ── */
 const wachatBroadcasts: NavEntry[] = [
-  { key: 'wachat-broadcast-history', label: 'Broadcast History', icon: <LuSend className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/broadcast-history', matches: ['/dashboard/broadcast-history'] },
-  { key: 'wachat-broadcast-scheduler', label: 'Broadcast Scheduler', icon: <LuCalendar className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/broadcast-scheduler', matches: ['/dashboard/broadcast-scheduler'] },
-  { key: 'wachat-broadcast-segments', label: 'Segments', icon: <LuGroup className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/broadcast-segments', matches: ['/dashboard/broadcast-segments'] },
-  { key: 'wachat-campaign-ab', label: 'A/B Test', icon: <LuSplit className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/campaign-ab-test', matches: ['/dashboard/campaign-ab-test'] },
-  { key: 'wachat-bulk-messaging', label: 'Bulk Messaging', icon: <LuSend className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/bulk-messaging', matches: ['/dashboard/bulk-messaging'] },
-  { key: 'wachat-media-library', label: 'Media Library', icon: <LuImage className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/media-library', matches: ['/dashboard/media-library'] },
-  { key: 'wachat-link-tracking', label: 'Link Tracking', icon: <LuLink2 className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/link-tracking', matches: ['/dashboard/link-tracking'] },
-  { key: 'wachat-wa-link-gen', label: 'Link Generator', icon: <LuLink2 className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/whatsapp-link-generator', matches: ['/dashboard/whatsapp-link-generator'] },
-  { key: 'wachat-tpl-library', label: 'Template Library', icon: <LuBookCopy className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/message-templates-library', matches: ['/dashboard/message-templates-library'] },
-  { key: 'wachat-tpl-builder', label: 'Template Builder', icon: <LuSquarePen className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/template-builder', matches: ['/dashboard/template-builder'] },
-  { key: 'wachat-msg-tags', label: 'Message Tags', icon: <LuTag className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/message-tags', matches: ['/dashboard/message-tags'] },
+  { key: 'wachat-broadcast-history', label: 'Broadcast History', icon: <LuSend className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/broadcast-history', matches: ['/wachat/broadcast-history'] },
+  { key: 'wachat-broadcast-scheduler', label: 'Broadcast Scheduler', icon: <LuCalendar className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/broadcast-scheduler', matches: ['/wachat/broadcast-scheduler'] },
+  { key: 'wachat-broadcast-segments', label: 'Segments', icon: <LuGroup className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/broadcast-segments', matches: ['/wachat/broadcast-segments'] },
+  { key: 'wachat-campaign-ab', label: 'A/B Test', icon: <LuSplit className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/campaign-ab-test', matches: ['/wachat/campaign-ab-test'] },
+  { key: 'wachat-bulk-messaging', label: 'Bulk Messaging', icon: <LuSend className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/bulk-messaging', matches: ['/wachat/bulk-messaging'] },
+  { key: 'wachat-media-library', label: 'Media Library', icon: <LuImage className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/media-library', matches: ['/wachat/media-library'] },
+  { key: 'wachat-link-tracking', label: 'Link Tracking', icon: <LuLink2 className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/link-tracking', matches: ['/wachat/link-tracking'] },
+  { key: 'wachat-wa-link-gen', label: 'Link Generator', icon: <LuLink2 className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/whatsapp-link-generator', matches: ['/wachat/whatsapp-link-generator'] },
+  { key: 'wachat-tpl-library', label: 'Template Library', icon: <LuBookCopy className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/message-templates-library', matches: ['/wachat/message-templates-library'] },
+  { key: 'wachat-tpl-builder', label: 'Template Builder', icon: <LuSquarePen className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/template-builder', matches: ['/wachat/template-builder'] },
+  { key: 'wachat-msg-tags', label: 'Message Tags', icon: <LuTag className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/message-tags', matches: ['/wachat/message-tags'] },
 ];
 
 /* ── Analytics: performance, delivery, satisfaction, credit ── */
 const wachatAnalytics: NavEntry[] = [
   { key: 'wachat-analytics', label: 'Analytics', icon: <LuChartBar className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/analytics', matches: ['/dashboard/analytics'] },
-  { key: 'wachat-template-analytics', label: 'Template Analytics', icon: <LuChartBar className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/template-analytics', matches: ['/dashboard/template-analytics'] },
-  { key: 'wachat-message-analytics', label: 'Message Stats', icon: <LuActivity className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/message-analytics', matches: ['/dashboard/message-analytics'] },
-  { key: 'wachat-message-stats', label: 'Message Statistics', icon: <LuChartBar className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/message-statistics', matches: ['/dashboard/message-statistics'] },
-  { key: 'wachat-delivery-reports', label: 'Delivery Reports', icon: <LuActivity className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/delivery-reports', matches: ['/dashboard/delivery-reports'] },
-  { key: 'wachat-response-tracker', label: 'Response Times', icon: <LuClock className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/response-time-tracker', matches: ['/dashboard/response-time-tracker'] },
-  { key: 'wachat-customer-satisfaction', label: 'Satisfaction', icon: <LuStarHalf className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/customer-satisfaction', matches: ['/dashboard/customer-satisfaction'] },
-  { key: 'wachat-chat-ratings', label: 'Chat Ratings', icon: <LuStarHalf className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/chat-ratings', matches: ['/dashboard/chat-ratings'] },
+  { key: 'wachat-template-analytics', label: 'Template Analytics', icon: <LuChartBar className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/template-analytics', matches: ['/wachat/template-analytics'] },
+  { key: 'wachat-message-analytics', label: 'Message Stats', icon: <LuActivity className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/message-analytics', matches: ['/wachat/message-analytics'] },
+  { key: 'wachat-message-stats', label: 'Message Statistics', icon: <LuChartBar className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/message-statistics', matches: ['/wachat/message-statistics'] },
+  { key: 'wachat-delivery-reports', label: 'Delivery Reports', icon: <LuActivity className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/delivery-reports', matches: ['/wachat/delivery-reports'] },
+  { key: 'wachat-response-tracker', label: 'Response Times', icon: <LuClock className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/response-time-tracker', matches: ['/wachat/response-time-tracker'] },
+  { key: 'wachat-customer-satisfaction', label: 'Satisfaction', icon: <LuStarHalf className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/customer-satisfaction', matches: ['/wachat/customer-satisfaction'] },
+  { key: 'wachat-chat-ratings', label: 'Chat Ratings', icon: <LuStarHalf className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/chat-ratings', matches: ['/wachat/chat-ratings'] },
   { key: 'wachat-credit-usage', label: 'Credit Usage', icon: <LuCreditCard className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/credit-usage', matches: ['/dashboard/credit-usage'] },
 ];
 
 /* ── Commerce: catalog, payments, QR ── */
 const wachatCommerce: NavEntry[] = [
   { key: 'wachat-catalog', label: 'Catalog', icon: <LuShoppingBag className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/catalog', matches: ['/dashboard/catalog'] },
-  { key: 'wachat-pay', label: 'WhatsApp Pay', icon: <LuCreditCard className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/whatsapp-pay', matches: ['/dashboard/whatsapp-pay'] },
-  { key: 'wachat-qr-codes', label: 'QR Codes', icon: <LuQrCode className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/qr-codes', matches: ['/dashboard/qr-codes'] },
+  { key: 'wachat-pay', label: 'WhatsApp Pay', icon: <LuCreditCard className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/whatsapp-pay', matches: ['/wachat/whatsapp-pay'] },
+  { key: 'wachat-qr-codes', label: 'QR Codes', icon: <LuQrCode className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/qr-codes', matches: ['/wachat/qr-codes'] },
 ];
 
 /* ── Contacts & Lists: groups, merges, blocklists, imports ── */
 const wachatContactsMgmt: NavEntry[] = [
-  { key: 'wachat-contact-groups', label: 'Contact Groups', icon: <LuFolderOpen className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/contact-groups', matches: ['/dashboard/contact-groups'] },
-  { key: 'wachat-contact-merge', label: 'Merge Contacts', icon: <LuUsers className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/contact-merge', matches: ['/dashboard/contact-merge'] },
-  { key: 'wachat-contact-timeline', label: 'Timeline', icon: <LuClock className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/contact-timeline', matches: ['/dashboard/contact-timeline'] },
-  { key: 'wachat-import-history', label: 'Import History', icon: <LuFileDown className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/contact-import-history', matches: ['/dashboard/contact-import-history'] },
-  { key: 'wachat-blocked', label: 'Blocked Contacts', icon: <LuShield className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/blocked-contacts', matches: ['/dashboard/blocked-contacts'] },
-  { key: 'wachat-blacklist', label: 'Blacklist', icon: <LuBan className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/contact-blacklist', matches: ['/dashboard/contact-blacklist'] },
-  { key: 'wachat-opt-out', label: 'Opt-Out / DND', icon: <LuBan className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/opt-out', matches: ['/dashboard/opt-out'] },
+  { key: 'wachat-contact-groups', label: 'Contact Groups', icon: <LuFolderOpen className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/contact-groups', matches: ['/wachat/contact-groups'] },
+  { key: 'wachat-contact-merge', label: 'Merge Contacts', icon: <LuUsers className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/contact-merge', matches: ['/wachat/contact-merge'] },
+  { key: 'wachat-contact-timeline', label: 'Timeline', icon: <LuClock className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/contact-timeline', matches: ['/wachat/contact-timeline'] },
+  { key: 'wachat-import-history', label: 'Import History', icon: <LuFileDown className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/contact-import-history', matches: ['/wachat/contact-import-history'] },
+  { key: 'wachat-blocked', label: 'Blocked Contacts', icon: <LuShield className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/blocked-contacts', matches: ['/wachat/blocked-contacts'] },
+  { key: 'wachat-blacklist', label: 'Blacklist', icon: <LuBan className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/contact-blacklist', matches: ['/wachat/contact-blacklist'] },
+  { key: 'wachat-opt-out', label: 'Opt-Out / DND', icon: <LuBan className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/opt-out', matches: ['/wachat/opt-out'] },
 ];
 
 /* ── Team & Access: agents, assignments, availability ── */
 const wachatTeam: NavEntry[] = [
-  { key: 'wachat-team-perf', label: 'Team Performance', icon: <LuUserPlus className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/team-performance', matches: ['/dashboard/team-performance'] },
-  { key: 'wachat-assignments', label: 'Assignments', icon: <LuUserCog className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/assignments', matches: ['/dashboard/assignments'] },
-  { key: 'wachat-agent-avail', label: 'Agent Status', icon: <LuUserPlus className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/agent-availability', matches: ['/dashboard/agent-availability'] },
+  { key: 'wachat-team-perf', label: 'Team Performance', icon: <LuUserPlus className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/team-performance', matches: ['/wachat/team-performance'] },
+  { key: 'wachat-assignments', label: 'Assignments', icon: <LuUserCog className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/assignments', matches: ['/wachat/assignments'] },
+  { key: 'wachat-agent-avail', label: 'Agent Status', icon: <LuUserPlus className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/agent-availability', matches: ['/wachat/agent-availability'] },
   { key: 'wachat-agents', label: 'Agents & Roles', icon: <LuUserCog className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/settings/agents', matches: ['/dashboard/settings/agents'] },
   { key: 'wachat-attributes', label: 'User Attributes', icon: <LuKey className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/settings/attributes', matches: ['/dashboard/settings/attributes'] },
-  { key: 'wachat-business-hours', label: 'Business Hours', icon: <LuClock className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/business-hours', matches: ['/dashboard/business-hours'] },
+  { key: 'wachat-business-hours', label: 'Business Hours', icon: <LuClock className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/business-hours', matches: ['/wachat/business-hours'] },
 ];
 
 /* ── Platform & Dev: numbers, calls, webhooks, API ── */
 const wachatPlatform: NavEntry[] = [
-  { key: 'wachat-numbers', label: 'Numbers', icon: <LuHash className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/numbers', matches: ['/dashboard/numbers'] },
-  { key: 'wachat-calls', label: 'Calls', icon: <LuPhone className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/calls', matches: ['/dashboard/calls'] },
-  { key: 'wachat-phone-settings', label: 'Phone Settings', icon: <LuSmartphone className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/phone-number-settings', matches: ['/dashboard/phone-number-settings'] },
+  { key: 'wachat-numbers', label: 'Numbers', icon: <LuHash className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/numbers', matches: ['/wachat/numbers'] },
+  { key: 'wachat-calls', label: 'Calls', icon: <LuPhone className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/calls', matches: ['/wachat/calls'] },
+  { key: 'wachat-phone-settings', label: 'Phone Settings', icon: <LuSmartphone className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/phone-number-settings', matches: ['/wachat/phone-number-settings'] },
   { key: 'wachat-health', label: 'Account Health', icon: <LuActivity className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/health', matches: ['/dashboard/health'] },
   { key: 'wachat-integrations', label: 'Integrations', icon: <LuPuzzle className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/integrations', matches: ['/dashboard/integrations'] },
-  { key: 'wachat-webhooks', label: 'Webhooks', icon: <LuWebhook className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/webhooks', matches: ['/dashboard/webhooks'] },
-  { key: 'wachat-webhook-logs', label: 'Webhook Logs', icon: <LuWebhook className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/webhook-logs', matches: ['/dashboard/webhook-logs'] },
+  { key: 'wachat-webhooks', label: 'Webhooks', icon: <LuWebhook className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/webhooks', matches: ['/wachat/webhooks'] },
+  { key: 'wachat-webhook-logs', label: 'Webhook Logs', icon: <LuWebhook className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/webhook-logs', matches: ['/wachat/webhook-logs'] },
   { key: 'wachat-api-keys', label: 'API Keys', icon: <LuKey className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/api-keys', matches: ['/dashboard/api-keys'] },
   { key: 'wachat-notif-prefs', label: 'Notifications', icon: <LuBell className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/notification-preferences', matches: ['/dashboard/notification-preferences'] },
   { key: 'wachat-general-settings', label: 'General Settings', icon: <LuSettings className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/settings/general', matches: ['/dashboard/settings/general', '/dashboard/settings'] },
@@ -2687,7 +2687,7 @@ const crmConfigure: NavEntry[] = [
  * likewise full-bleed, but the SabFlow list stays padded.
  */
 const FULL_BLEED_PREFIXES = [
-  '/dashboard/chat',
+  '/wachat/chat',
   '/dashboard/telegram/chat',
   '/dashboard/telegram/business-inbox',
 ];
@@ -3029,7 +3029,7 @@ export function ClayDashboardLayout({
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>Create new</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={() => router.push('/dashboard/broadcasts')}>
+                <DropdownMenuItem onSelect={() => router.push('/wachat/broadcasts')}>
                   <LuSend className="mr-2 h-4 w-4" /> WhatsApp broadcast
                 </DropdownMenuItem>
                 <DropdownMenuItem onSelect={() => router.push('/dashboard/sabflow')}>
@@ -3040,7 +3040,7 @@ export function ClayDashboardLayout({
                 >
                   <LuBriefcase className="mr-2 h-4 w-4" /> CRM lead
                 </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => router.push('/dashboard/templates')}>
+                <DropdownMenuItem onSelect={() => router.push('/wachat/templates')}>
                   <LuMessagesSquare className="mr-2 h-4 w-4" /> Message template
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
@@ -3068,13 +3068,13 @@ export function ClayDashboardLayout({
         <CommandList>
           <CommandEmpty>No results.</CommandEmpty>
           <CommandGroup heading="Primary">
-            <CommandItem onSelect={() => jump('/home')}>
+            <CommandItem onSelect={() => jump('/dashboard')}>
               <LuLayoutDashboard className="mr-2 h-4 w-4" /> Home
             </CommandItem>
-            <CommandItem onSelect={() => jump('/dashboard')}>
+            <CommandItem onSelect={() => jump('/wachat')}>
               <LuMessagesSquare className="mr-2 h-4 w-4" /> Wachat
             </CommandItem>
-            <CommandItem onSelect={() => jump('/dashboard/broadcasts')}>
+            <CommandItem onSelect={() => jump('/wachat/broadcasts')}>
               <LuSend className="mr-2 h-4 w-4" /> Broadcasts
             </CommandItem>
             <CommandItem onSelect={() => jump('/dashboard/sabflow')}>
@@ -3456,7 +3456,7 @@ function ClayWachatBrand() {
       {/* Back to Apps */}
       <button
         type="button"
-        onClick={() => router.push('/home')}
+        onClick={() => router.push('/dashboard')}
         className="inline-flex items-center gap-1.5 self-start rounded-full border border-border bg-card px-2.5 py-1.5 text-[11.5px] font-medium text-muted-foreground hover:text-foreground hover:border-border transition-colors"
       >
         <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
@@ -3523,7 +3523,7 @@ function ClayWachatBrand() {
             })
           )}
           <DropdownMenuSeparator />
-          <DropdownMenuItem onSelect={() => router.push('/dashboard')}>
+          <DropdownMenuItem onSelect={() => router.push('/wachat')}>
             <LuPlus className="mr-2 h-4 w-4" />
             Browse all projects
           </DropdownMenuItem>
@@ -3542,7 +3542,7 @@ function ClayAdManagerBrand() {
     <div className="flex flex-col gap-2.5">
       <button
         type="button"
-        onClick={() => router.push('/home')}
+        onClick={() => router.push('/dashboard')}
         className="inline-flex items-center gap-1.5 self-start rounded-full border border-border bg-card px-2.5 py-1.5 text-[11.5px] font-medium text-muted-foreground hover:text-foreground hover:border-border transition-colors"
       >
         <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
@@ -3573,7 +3573,7 @@ function ClayInstagramBrand() {
     <div className="flex flex-col gap-2.5">
       <button
         type="button"
-        onClick={() => router.push('/home')}
+        onClick={() => router.push('/dashboard')}
         className="inline-flex items-center gap-1.5 self-start rounded-full border border-border bg-card px-2.5 py-1.5 text-[11.5px] font-medium text-muted-foreground hover:text-foreground hover:border-border transition-colors"
       >
         <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
@@ -3604,7 +3604,7 @@ function ClaySabFlowBrand() {
     <div className="flex flex-col gap-2.5">
       <button
         type="button"
-        onClick={() => router.push('/home')}
+        onClick={() => router.push('/dashboard')}
         className="inline-flex items-center gap-1.5 self-start rounded-full border border-border bg-card px-2.5 py-1.5 text-[11.5px] font-medium text-muted-foreground hover:text-foreground hover:border-border transition-colors"
       >
         <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
@@ -3635,7 +3635,7 @@ function ClaySettingsBrand() {
     <div className="flex flex-col gap-2.5">
       <button
         type="button"
-        onClick={() => router.push('/home')}
+        onClick={() => router.push('/dashboard')}
         className="inline-flex items-center gap-1.5 self-start rounded-full border border-border bg-card px-2.5 py-1.5 text-[11.5px] font-medium text-muted-foreground hover:text-foreground hover:border-border transition-colors"
       >
         <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
@@ -3664,7 +3664,7 @@ function ClayTeamBrand() {
     <div className="flex flex-col gap-2.5">
       <button
         type="button"
-        onClick={() => router.push('/home')}
+        onClick={() => router.push('/dashboard')}
         className="inline-flex items-center gap-1.5 self-start rounded-full border border-border bg-card px-2.5 py-1.5 text-[11.5px] font-medium text-muted-foreground hover:text-foreground hover:border-border transition-colors"
       >
         <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
@@ -3693,7 +3693,7 @@ function ClayTelegramBrand() {
     <div className="flex flex-col gap-2.5">
       <button
         type="button"
-        onClick={() => router.push('/home')}
+        onClick={() => router.push('/dashboard')}
         className="inline-flex items-center gap-1.5 self-start rounded-full border border-border bg-card px-2.5 py-1.5 text-[11.5px] font-medium text-muted-foreground hover:text-foreground hover:border-border transition-colors"
       >
         <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
@@ -3724,7 +3724,7 @@ function ClayMetaBrand() {
     <div className="flex flex-col gap-2.5">
       <button
         type="button"
-        onClick={() => router.push('/home')}
+        onClick={() => router.push('/dashboard')}
         className="inline-flex items-center gap-1.5 self-start rounded-full border border-border bg-card px-2.5 py-1.5 text-[11.5px] font-medium text-muted-foreground hover:text-foreground hover:border-border transition-colors"
       >
         <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
@@ -3755,7 +3755,7 @@ function ClayUrlShortenerBrand() {
     <div className="flex flex-col gap-2.5">
       <button
         type="button"
-        onClick={() => router.push('/home')}
+        onClick={() => router.push('/dashboard')}
         className="inline-flex items-center gap-1.5 self-start rounded-full border border-border bg-card px-2.5 py-1.5 text-[11.5px] font-medium text-muted-foreground hover:text-foreground hover:border-border transition-colors"
       >
         <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
@@ -3786,7 +3786,7 @@ function ClayCrmBrand() {
     <div className="flex flex-col gap-2.5">
       <button
         type="button"
-        onClick={() => router.push('/home')}
+        onClick={() => router.push('/dashboard')}
         className="inline-flex items-center gap-1.5 self-start rounded-full border border-border bg-card px-2.5 py-1.5 text-[11.5px] font-medium text-muted-foreground hover:text-foreground hover:border-border transition-colors"
       >
         <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
@@ -3817,7 +3817,7 @@ function ClayN8NBrand() {
     <div className="flex flex-col gap-2.5">
       <button
         type="button"
-        onClick={() => router.push('/home')}
+        onClick={() => router.push('/dashboard')}
         className="inline-flex items-center gap-1.5 self-start rounded-full border border-border bg-card px-2.5 py-1.5 text-[11.5px] font-medium text-muted-foreground hover:text-foreground hover:border-border transition-colors"
       >
         <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
@@ -3848,7 +3848,7 @@ function ClayQrCodeMakerBrand() {
     <div className="flex flex-col gap-2.5">
       <button
         type="button"
-        onClick={() => router.push('/home')}
+        onClick={() => router.push('/dashboard')}
         className="inline-flex items-center gap-1.5 self-start rounded-full border border-border bg-card px-2.5 py-1.5 text-[11.5px] font-medium text-muted-foreground hover:text-foreground hover:border-border transition-colors"
       >
         <LuArrowLeft className="h-3 w-3" strokeWidth={2} />

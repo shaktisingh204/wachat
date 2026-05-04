@@ -89,7 +89,7 @@ export async function handleManualWachatSetup(prevState: any, formData: FormData
             await handleSubscribeProjectWebhook(wabaId, appId, accessToken);
         }
 
-        revalidatePath('/dashboard');
+        revalidatePath('/wachat');
 
         return { message: `Project "${projectData.name}" created successfully!` };
 
@@ -459,7 +459,7 @@ export async function saveKanbanStatuses(projectId: string, statuses: string[]):
             { _id: new ObjectId(projectId) },
             { $set: { kanbanStatuses: customStatuses } }
         );
-        revalidatePath('/dashboard/chat/kanban');
+        revalidatePath('/wachat/chat/kanban');
         return { success: true };
     } catch (e: any) {
         return { success: false, error: 'Failed to save Kanban lists.' };
@@ -489,8 +489,8 @@ export async function handleUpdateContactStatus(contactId: string, status: strin
 
         await db.collection('contacts').updateOne({ _id: new ObjectId(contactId) }, { $set: update });
 
-        revalidatePath('/dashboard/chat');
-        revalidatePath('/dashboard/chat/kanban');
+        revalidatePath('/wachat/chat');
+        revalidatePath('/wachat/chat/kanban');
         return { success: true };
 
     } catch (e: any) {
@@ -514,7 +514,7 @@ export async function handleUpdateContactDetails(prevState: any, formData: FormD
             { _id: new ObjectId(contactId) },
             { $set: { variables } }
         );
-        revalidatePath('/dashboard/chat');
+        revalidatePath('/wachat/chat');
         return { success: true };
     } catch (e: any) {
         return { success: false, error: 'Failed to update contact.' };
@@ -558,7 +558,7 @@ export async function handleBulkUpdateAppId(prevState: any, formData: FormData):
             return { success: false, error: 'No matching projects found to update.' };
         }
 
-        revalidatePath('/dashboard');
+        revalidatePath('/wachat');
         return { success: true };
 
     } catch (e: any) {

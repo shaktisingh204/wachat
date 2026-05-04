@@ -16,7 +16,7 @@ export default function AttributesSettingsPage() {
   if (isLoadingProject) {
     return (
       <div className="clay-enter flex min-h-full flex-col gap-6">
-        <ClayBreadcrumbs items={[{ label: 'Wachat', href: '/home' }, { label: 'Settings' }, { label: 'User Attributes' }]} />
+        <ClayBreadcrumbs items={[{ label: 'Wachat', href: '/dashboard' }, { label: 'Settings' }, { label: 'User Attributes' }]} />
         <div className="h-[420px] animate-pulse rounded-xl bg-muted" />
       </div>
     );
@@ -25,11 +25,11 @@ export default function AttributesSettingsPage() {
   if (!activeProject) {
     return (
       <div className="clay-enter flex min-h-full flex-col gap-6">
-        <ClayBreadcrumbs items={[{ label: 'Wachat', href: '/home' }, { label: 'Settings' }]} />
+        <ClayBreadcrumbs items={[{ label: 'Wachat', href: '/dashboard' }, { label: 'Settings' }]} />
         <ClayCard className="p-10 text-center">
           <LuCircleAlert className="mx-auto h-10 w-10 text-muted-foreground/30 mb-4" />
           <p className="text-sm text-muted-foreground">Select a project first.</p>
-          <ClayButton variant="obsidian" size="md" onClick={() => router.push('/dashboard')} className="mt-4">Choose a project</ClayButton>
+          <ClayButton variant="obsidian" size="md" onClick={() => router.push('/wachat')} className="mt-4">Choose a project</ClayButton>
         </ClayCard>
       </div>
     );
@@ -38,8 +38,8 @@ export default function AttributesSettingsPage() {
   return (
     <div className="clay-enter flex min-h-full flex-col gap-6">
       <ClayBreadcrumbs items={[
-        { label: 'Wachat', href: '/home' },
-        { label: activeProject.name, href: '/dashboard' },
+        { label: 'Wachat', href: '/dashboard' },
+        { label: activeProject.name, href: '/wachat' },
         { label: 'User Attributes' },
       ]} />
 

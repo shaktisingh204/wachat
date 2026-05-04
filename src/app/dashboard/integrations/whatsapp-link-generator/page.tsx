@@ -34,8 +34,8 @@ export default function WhatsappLinkGeneratorPage() {
     <div className="flex h-full w-full flex-col">
       <ClayBreadcrumbs
         items={[
-          { label: 'SabNode', href: '/home' },
-          { label: 'Wachat', href: '/dashboard' },
+          { label: 'SabNode', href: '/dashboard' },
+          { label: 'Wachat', href: '/wachat' },
           { label: 'Integrations', href: '/dashboard/integrations' },
           { label: 'Link Generator' },
         ]}

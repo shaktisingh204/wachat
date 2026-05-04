@@ -93,7 +93,7 @@ export async function handleCreatePaymentConfiguration(prevState: any, formData:
             throw new Error(getErrorMessage({ response: { data: response.data } }));
         }
 
-        revalidatePath('/dashboard/whatsapp-pay/settings');
+        revalidatePath('/wachat/whatsapp-pay/settings');
         
         if(response.data.oauth_url) {
             return { message: "Configuration created. Please complete the provider onboarding.", oauth_url: response.data.oauth_url };
@@ -137,7 +137,7 @@ export async function handleUpdateDataEndpoint(prevState: any, formData: FormDat
             throw new Error(getErrorMessage({ response: { data: response.data } }));
         }
 
-        revalidatePath('/dashboard/whatsapp-pay/settings');
+        revalidatePath('/wachat/whatsapp-pay/settings');
         return { message: "Data endpoint updated successfully." };
 
     } catch (e: any) {
@@ -212,7 +212,7 @@ export async function handleDeletePaymentConfiguration(projectId: string, config
     }
 
     if (response.data.success) {
-      revalidatePath('/dashboard/whatsapp-pay/settings');
+      revalidatePath('/wachat/whatsapp-pay/settings');
       return { success: true };
     } else {
       return { success: false, error: 'Meta API indicated failure.' };
@@ -242,5 +242,5 @@ export async function handlePaymentConfigurationUpdate(project: WithId<Project>,
         { $set: { paymentConfiguration: currentConfigs, updatedAt: new Date() } }
     );
     
-    revalidatePath('/dashboard/whatsapp-pay/settings');
+    revalidatePath('/wachat/whatsapp-pay/settings');
 }

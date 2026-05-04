@@ -22,7 +22,7 @@
  *    Messages) live under Settings → "Wachat" — split via a path-prefix
  *    filter; no edits to `dashboard-config.ts` are needed.
  *
- * Live demo route at `/dashboard/two-line`.
+ * Live demo route at `/wachat/two-line`.
  */
 import * as React from "react";
 import { useEffect, useMemo, useState } from "react";
@@ -127,11 +127,11 @@ function dockAccent(h: ModuleHue): DockAccent {
 /** Path prefixes whose Wachat-menu entries belong under "Settings → Wachat",
  *  not under the Wachat module's own right rail. */
 const WACHAT_CONFIG_PREFIXES = [
-  "/dashboard/numbers",
-  "/dashboard/calls",
+  "/wachat/numbers",
+  "/wachat/calls",
   "/dashboard/health",
   "/dashboard/integrations",
-  "/dashboard/webhooks",
+  "/wachat/webhooks",
   "/dashboard/settings", // covers /dashboard/settings/general, /agents, /attributes, /canned
 ];
 
@@ -258,7 +258,7 @@ function SearchBar({
 function BrandBadge() {
   return (
     <Link
-      href="/dashboard"
+      href="/wachat"
       className="block shrink-0 w-full rounded-xl hover:bg-zinc-50 transition-colors mb-1"
       aria-label="SabNode home"
     >
@@ -332,7 +332,7 @@ function IconRail({ active, compact = false }: { active: string; compact?: boole
       )}
       aria-label="Module navigation"
     >
-      <Link href="/dashboard" aria-label="SabNode home" className="mb-1 size-9 flex items-center justify-center">
+      <Link href="/wachat" aria-label="SabNode home" className="mb-1 size-9 flex items-center justify-center">
         <div className="size-7 rounded-lg bg-gradient-to-br from-violet-500 via-fuchsia-500 to-rose-500 flex items-center justify-center shadow-sm ring-1 ring-white/40">
           <span className="text-white font-bold text-[12px] drop-shadow-sm">S</span>
         </div>

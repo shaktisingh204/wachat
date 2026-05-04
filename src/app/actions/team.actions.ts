@@ -553,7 +553,7 @@ export async function acceptInvitation(
         });
 
         revalidatePath('/dashboard/team/manage-users');
-        revalidatePath('/dashboard');
+        revalidatePath('/wachat');
 
         return {
             success: true,

@@ -70,7 +70,7 @@ export function ProjectProvider({
         const storedId = localStorage.getItem('activeProjectId');
         const storedName = localStorage.getItem('activeProjectName');
 
-        if (pathname === '/dashboard' || pathname === '/dashboard/facebook/all-projects') {
+        if (pathname === '/wachat' || pathname === '/dashboard/facebook/all-projects') {
             localStorage.removeItem('activeProjectId');
             localStorage.removeItem('activeProjectName');
             setActiveProjectId(null);
@@ -99,7 +99,7 @@ export function ProjectProvider({
                     localStorage.removeItem('activeProjectId');
                     localStorage.removeItem('activeProjectName');
                     setActiveProjectId(null);
-                    router.push('/dashboard');
+                    router.push('/wachat');
                 }
             });
         }

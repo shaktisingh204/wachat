@@ -185,7 +185,7 @@ export default function OverviewPage() {
       <div className="clay-enter flex min-h-full flex-col gap-6">
         <ClayBreadcrumbs
           items={[
-            { label: 'Wachat', href: '/home' },
+            { label: 'Wachat', href: '/dashboard' },
             { label: 'Overview' },
           ]}
         />
@@ -203,7 +203,7 @@ export default function OverviewPage() {
             variant="obsidian"
             size="md"
             className="mt-4"
-            onClick={() => router.push('/home')}
+            onClick={() => router.push('/dashboard')}
           >
             Go to projects
           </ClayButton>
@@ -235,8 +235,8 @@ export default function OverviewPage() {
       {/* Breadcrumb */}
       <ClayBreadcrumbs
         items={[
-          { label: 'Wachat', href: '/home' },
-          { label: activeProject?.name || 'Project', href: '/dashboard' },
+          { label: 'Wachat', href: '/dashboard' },
+          { label: activeProject?.name || 'Project', href: '/wachat' },
           { label: 'Overview' },
         ]}
       />
@@ -296,7 +296,7 @@ export default function OverviewPage() {
             size="md"
             className="px-5"
             leading={<LuPlus className="h-3.5 w-3.5" strokeWidth={2.5} />}
-            onClick={() => router.push('/dashboard/broadcasts')}
+            onClick={() => router.push('/wachat/broadcasts')}
           >
             New campaign
           </ClayButton>
@@ -354,7 +354,7 @@ export default function OverviewPage() {
               variant="pill"
               size="sm"
               leading={<LuTrendingUp className="h-3 w-3" strokeWidth={2.5} />}
-              onClick={() => router.push('/dashboard/broadcasts')}
+              onClick={() => router.push('/wachat/broadcasts')}
             >
               Campaigns
             </ClayButton>
@@ -399,23 +399,23 @@ export default function OverviewPage() {
           <ClayNotificationCard
             icon={<LuInbox className="h-3.5 w-3.5" strokeWidth={2} />}
             title="Open Live Chat"
-            onClick={() => router.push('/dashboard/chat')}
+            onClick={() => router.push('/wachat/chat')}
           />
           <ClayNotificationCard
             icon={<LuBookCopy className="h-3.5 w-3.5" strokeWidth={2} />}
             title="Manage templates"
-            onClick={() => router.push('/dashboard/templates')}
+            onClick={() => router.push('/wachat/templates')}
           />
           <ClayNotificationCard
             icon={<LuUsers className="h-3.5 w-3.5" strokeWidth={2} />}
             title="Import contacts"
-            onClick={() => router.push('/dashboard/contacts')}
+            onClick={() => router.push('/wachat/contacts')}
           />
           <ClayNotificationCard
             icon={<LuSend className="h-3.5 w-3.5" strokeWidth={2} />}
             title="Start a broadcast"
             tone="obsidian"
-            onClick={() => router.push('/dashboard/broadcasts')}
+            onClick={() => router.push('/wachat/broadcasts')}
           />
           <button
             type="button"
@@ -445,7 +445,7 @@ export default function OverviewPage() {
               variant="pill"
               size="icon"
               aria-label="New campaign"
-              onClick={() => router.push('/dashboard/broadcasts')}
+              onClick={() => router.push('/wachat/broadcasts')}
             >
               <LuPlus className="h-4 w-4" />
             </ClayButton>
@@ -453,7 +453,7 @@ export default function OverviewPage() {
               variant="pill"
               size="icon"
               aria-label="More"
-              onClick={() => router.push('/dashboard/broadcasts')}
+              onClick={() => router.push('/wachat/broadcasts')}
             >
               <LuEllipsis className="h-4 w-4" />
             </ClayButton>
@@ -475,7 +475,7 @@ export default function OverviewPage() {
               <ClayButton
                 variant="rose"
                 size="sm"
-                onClick={() => router.push('/dashboard/broadcasts')}
+                onClick={() => router.push('/wachat/broadcasts')}
                 className="mt-1"
               >
                 Create broadcast
@@ -546,7 +546,7 @@ export default function OverviewPage() {
                           aria-label="View broadcast"
                           onClick={() =>
                             router.push(
-                              `/dashboard/broadcasts/${b._id}/report`,
+                              `/wachat/broadcasts/${b._id}/report`,
                             )
                           }
                           className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"

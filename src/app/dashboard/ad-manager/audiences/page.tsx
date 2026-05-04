@@ -522,7 +522,7 @@ export default function AudiencesPage() {
       {/* breadcrumbs */}
       <ClayBreadcrumbs
         items={[
-          { label: 'SabNode', href: '/dashboard' },
+          { label: 'SabNode', href: '/wachat' },
           { label: 'Meta Suite', href: '/dashboard/ad-manager' },
           { label: 'Audiences' },
         ]}

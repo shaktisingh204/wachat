@@ -340,7 +340,7 @@ export async function handleSendTemplateMessage(
             } as OutgoingMessage),
             db.collection('contacts').updateOne({ _id: contact._id }, { $set: { lastMessage: lastMessage.substring(0, 50), lastMessageTimestamp: now, status: 'open' } }),
         ]).then(() => {
-            revalidatePath('/dashboard/chat');
+            revalidatePath('/wachat/chat');
         }).catch((err) => {
             console.error('[Template Send] Background DB write failed:', err);
         });

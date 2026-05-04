@@ -1,10 +1,14 @@
 /**
- * /home layout — first route migrated to ZoruUI.
+ * /dashboard layout — the SabNode account dashboard, on ZoruUI.
  *
  * Server Component: checks session, redirects unauthenticated users,
- * then wraps children in `ZoruHomeShell` (zoruui rail + sidebar +
- * header + dock). The multi-tab `TabsProvider`/`TabsBar` system is
- * intentionally absent — see ZORUUI_TASKS.md, hard constraint.
+ * then wraps children in `ZoruHomeShell` (zoruui sidebar + header +
+ * bottom-anchored dock). The vertical app rail and the URL-synced
+ * multi-tab strip are both intentionally absent.
+ *
+ * Sibling modules under /dashboard/{module}/ that ship their own
+ * layout.tsx (sabflow, crm, seo, hrm, ad-manager, email, sms, …)
+ * override this shell on their own subtrees.
  */
 
 import "@/styles/zoruui.css";
@@ -17,7 +21,7 @@ import { getProjects } from "@/app/actions/project.actions";
 import { RBACGuard } from "@/components/wabasimplify/rbac-guard";
 import { ZoruHomeShell } from "@/components/zoruui";
 
-export default async function HomeLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;

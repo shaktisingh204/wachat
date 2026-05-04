@@ -85,7 +85,7 @@ export async function markNotificationAsRead(notificationId: string): Promise<{ 
         const { db } = await connectToDatabase();
         await db.collection('notifications').updateOne({ _id: new ObjectId(notificationId) }, { $set: { isRead: true } });
         revalidatePath('/dashboard/notifications');
-        revalidatePath('/dashboard', 'layout');
+        revalidatePath('/wachat', 'layout');
         return { success: true };
     } catch (e) {
         return { success: false };
@@ -109,7 +109,7 @@ export async function markAllNotificationsAsRead(): Promise<{ success: boolean, 
             { $set: { isRead: true } }
         );
         revalidatePath('/dashboard/notifications');
-        revalidatePath('/dashboard', 'layout');
+        revalidatePath('/wachat', 'layout');
         return { success: true, updatedCount: result.modifiedCount };
     } catch (e) {
         return { success: false };

@@ -331,7 +331,7 @@ export async function saveKanbanStatuses(projectId: string, statuses: string[]):
             { _id: new ObjectId(projectId) },
             { $set: { kanbanStatuses: customStatuses } }
         );
-        revalidatePath('/dashboard/chat/kanban');
+        revalidatePath('/wachat/chat/kanban');
         return { success: true };
     } catch (e: any) {
         return { success: false, error: 'Failed to save Kanban lists.' };
@@ -379,7 +379,7 @@ export async function handleBulkUpdateAppId(prevState: any, formData: FormData):
             return { success: false, error: 'No matching projects found to update.' };
         }
 
-        revalidatePath('/dashboard');
+        revalidatePath('/wachat');
         return { success: true };
 
     } catch (e: any) {
@@ -541,7 +541,7 @@ export async function handleDeleteUserProject(prevState: any, formData: FormData
             db.collection('invitations').deleteMany({ projectId: projectObjectId }),
         ]);
 
-        revalidatePath('/dashboard');
+        revalidatePath('/wachat');
 
         return { message: `Project "${project.name}" deleted successfully.` };
 
@@ -586,7 +586,7 @@ export async function handleUpdateProjectTags(prevState: any, formData: FormData
             { $set: updateData }
         );
 
-        revalidatePath('/dashboard/chat');
+        revalidatePath('/wachat/chat');
         return { message: 'Tags updated successfully.' };
     } catch (e: any) {
         console.error("Failed to update tags:", e);

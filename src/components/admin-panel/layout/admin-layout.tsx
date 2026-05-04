@@ -32,7 +32,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
     React.useEffect(() => {
         let currentApp = 'whatsapp';
-        if (pathname === '/home') { currentApp = 'home'; }
+        if (pathname === '/dashboard') { currentApp = 'home'; }
         else if (pathname.startsWith('/dashboard/sabflow')) { currentApp = 'sabflow'; }
         else if (pathname.startsWith('/dashboard/ad-manager')) { currentApp = 'ad-manager'; }
         else if (pathname.startsWith('/dashboard/facebook')) { currentApp = 'facebook'; }
@@ -61,14 +61,14 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     }, [sessionUser, activeProject]);
 
     // Page type detection
-    const isChatPage = pathname.startsWith('/dashboard/chat') ||
+    const isChatPage = pathname.startsWith('/wachat/chat') ||
         pathname.startsWith('/dashboard/facebook/messages') ||
         pathname.startsWith('/dashboard/facebook/kanban') ||
         pathname.startsWith('/dashboard/sabchat/inbox');
 
     const isBuilderPage = pathname.includes('builder') && !pathname.includes('website-builder'); // Keep sidebar for website builder mainly, but maybe not flow builder
 
-    const isHomePage = pathname === '/home';
+    const isHomePage = pathname === '/dashboard';
     // Note: 'ad-manager' is intentionally excluded from the "needs project" gate.
     // Its project switcher lives inside the sidebar, so gating the sidebar on a
     // selected project creates a catch-22 where the user can never reach the

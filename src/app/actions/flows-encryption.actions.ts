@@ -43,7 +43,7 @@ export async function generateAndSaveFlowsKeys(projectId: string, phoneNumberId:
             }
         );
 
-        revalidatePath('/dashboard/numbers');
+        revalidatePath('/wachat/numbers');
         return { success: true, message: 'RSA Key Pair generated successfully. You can now upload the Public Key to Meta.' };
 
     } catch (e: any) {
@@ -95,7 +95,7 @@ export async function uploadPublicKeyToMeta(projectId: string, phoneNumberId: st
             }
         );
 
-        revalidatePath('/dashboard/numbers');
+        revalidatePath('/wachat/numbers');
         return { success: true, message: 'Public Key uploaded to Meta successfully. Flows error should be resolved.' };
 
     } catch (e: any) {

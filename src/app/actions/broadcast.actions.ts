@@ -663,7 +663,7 @@ export async function handleStartBroadcast(
         console.error('Failed to enqueue broadcast control job:', e);
     }
 
-    revalidatePath('/dashboard/broadcasts');
+    revalidatePath('/wachat/broadcasts');
 
     return { message: `Broadcast successfully queued for ${contactsInserted} contacts. Sending will begin shortly.` };
 }
@@ -751,8 +751,8 @@ export async function handleBulkBroadcast(
             message += ` Failed on ${failedProjects.length} project(s): ${failedProjects.join(', ')}.`;
         }
 
-        revalidatePath('/dashboard/bulk');
-        revalidatePath('/dashboard/broadcasts');
+        revalidatePath('/wachat/bulk');
+        revalidatePath('/wachat/broadcasts');
 
         return { message };
 
@@ -880,7 +880,7 @@ export async function handleRequeueBroadcast(prevState: { message?: string; erro
         console.error('Failed to enqueue requeue broadcast control job:', e);
     }
 
-    revalidatePath('/dashboard/broadcasts');
+    revalidatePath('/wachat/broadcasts');
     return { message: `${contacts.length} contacts have been re-queued for broadcast.` };
 }
 
@@ -897,7 +897,7 @@ export async function handleStopBroadcast(broadcastId: string): Promise<{ messag
         if (result.matchedCount === 0) {
             return { error: 'Broadcast not found or has already completed/failed.' };
         }
-        revalidatePath('/dashboard/broadcasts');
+        revalidatePath('/wachat/broadcasts');
         return { message: 'Broadcast has been cancelled.' };
     } catch (e) {
         return { error: getErrorMessage(e) };

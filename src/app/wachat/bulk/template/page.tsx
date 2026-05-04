@@ -63,7 +63,7 @@ function BulkTemplatePageContent() {
         <div className="flex flex-col gap-8">
             <div>
                 <Button variant="ghost" asChild className="mb-2 -ml-4">
-                    <Link href="/dashboard/bulk">
+                    <Link href="/wachat/bulk">
                         <ChevronLeft className="mr-2 h-4 w-4" />
                         Back to Bulk Actions
                     </Link>
