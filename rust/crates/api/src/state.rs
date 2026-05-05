@@ -28,7 +28,15 @@ use wachat_features::WachatFeaturesState;
 use wachat_pay::WachatPayState;
 use wachat_api_keys_admin::WachatApiKeysAdminState;
 use wachat_contacts::WachatContactsState;
+use wachat_facebook_agents::WachatFacebookAgentsState;
+use wachat_facebook_automation::WachatFacebookAutomationState;
+use wachat_facebook_business::WachatFacebookBusinessState;
+use wachat_facebook_content::WachatFacebookContentState;
+use wachat_facebook_crm::WachatFacebookCrmState;
+use wachat_facebook_messaging::WachatFacebookMessagingState;
+use wachat_facebook_pages::WachatFacebookPagesState;
 use wachat_flows::WachatFlowsState;
+use wachat_instagram::WachatInstagramState;
 use wachat_projects::WachatProjectsState;
 use wachat_public_api::{ApiKeyVerifier, PublicApiState};
 use wachat_send_router::WachatSendState;
@@ -67,6 +75,14 @@ pub struct AppState {
     pub contacts: WachatContactsState,
     pub flows: WachatFlowsState,
     pub api_keys_admin: WachatApiKeysAdminState,
+    pub fb_pages: WachatFacebookPagesState,
+    pub fb_content: WachatFacebookContentState,
+    pub fb_messaging: WachatFacebookMessagingState,
+    pub fb_automation: WachatFacebookAutomationState,
+    pub fb_crm: WachatFacebookCrmState,
+    pub fb_agents: WachatFacebookAgentsState,
+    pub fb_business: WachatFacebookBusinessState,
+    pub instagram: WachatInstagramState,
     pub ready: Arc<AtomicBool>,
 }
 
@@ -99,6 +115,14 @@ impl AppState {
         contacts: WachatContactsState,
         flows: WachatFlowsState,
         api_keys_admin: WachatApiKeysAdminState,
+        fb_pages: WachatFacebookPagesState,
+        fb_content: WachatFacebookContentState,
+        fb_messaging: WachatFacebookMessagingState,
+        fb_automation: WachatFacebookAutomationState,
+        fb_crm: WachatFacebookCrmState,
+        fb_agents: WachatFacebookAgentsState,
+        fb_business: WachatFacebookBusinessState,
+        instagram: WachatInstagramState,
     ) -> Self {
         Self {
             started_at: Utc::now(),
@@ -128,6 +152,14 @@ impl AppState {
             contacts,
             flows,
             api_keys_admin,
+            fb_pages,
+            fb_content,
+            fb_messaging,
+            fb_automation,
+            fb_crm,
+            fb_agents,
+            fb_business,
+            instagram,
             ready: Arc::new(AtomicBool::new(false)),
         }
     }
@@ -294,5 +326,53 @@ impl FromRef<AppState> for WachatFlowsState {
 impl FromRef<AppState> for WachatApiKeysAdminState {
     fn from_ref(s: &AppState) -> Self {
         s.api_keys_admin.clone()
+    }
+}
+
+impl FromRef<AppState> for WachatFacebookPagesState {
+    fn from_ref(s: &AppState) -> Self {
+        s.fb_pages.clone()
+    }
+}
+
+impl FromRef<AppState> for WachatFacebookContentState {
+    fn from_ref(s: &AppState) -> Self {
+        s.fb_content.clone()
+    }
+}
+
+impl FromRef<AppState> for WachatFacebookMessagingState {
+    fn from_ref(s: &AppState) -> Self {
+        s.fb_messaging.clone()
+    }
+}
+
+impl FromRef<AppState> for WachatFacebookAutomationState {
+    fn from_ref(s: &AppState) -> Self {
+        s.fb_automation.clone()
+    }
+}
+
+impl FromRef<AppState> for WachatFacebookCrmState {
+    fn from_ref(s: &AppState) -> Self {
+        s.fb_crm.clone()
+    }
+}
+
+impl FromRef<AppState> for WachatFacebookAgentsState {
+    fn from_ref(s: &AppState) -> Self {
+        s.fb_agents.clone()
+    }
+}
+
+impl FromRef<AppState> for WachatFacebookBusinessState {
+    fn from_ref(s: &AppState) -> Self {
+        s.fb_business.clone()
+    }
+}
+
+impl FromRef<AppState> for WachatInstagramState {
+    fn from_ref(s: &AppState) -> Self {
+        s.instagram.clone()
     }
 }

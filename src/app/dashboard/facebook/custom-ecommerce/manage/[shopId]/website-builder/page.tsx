@@ -23,6 +23,7 @@ import {
 } from "@/app/actions/custom-ecommerce.actions";
 import { CartProvider } from "@/context/cart-context";
 import { WebsiteBuilder } from "@/components/wabasimplify/website-builder/website-builder";
+import { cn } from "@/components/zoruui";
 
 export const dynamic = "force-dynamic";
 
@@ -42,11 +43,13 @@ export default async function WebsiteBuilderPage(props: {
 
   return (
     <CartProvider>
-      <WebsiteBuilder
-        shop={shop}
-        initialPages={pages}
-        availableProducts={products}
-      />
+      <div className={cn("zoruui")}>
+        <WebsiteBuilder
+          shop={shop}
+          initialPages={pages}
+          availableProducts={products}
+        />
+      </div>
     </CartProvider>
   );
 }

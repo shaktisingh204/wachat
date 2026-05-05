@@ -58,6 +58,14 @@ wachat-projects = { path = "../wachat-projects" }
 wachat-contacts = { path = "../wachat-contacts" }
 wachat-flows = { path = "../wachat-flows" }
 wachat-api-keys-admin = { path = "../wachat-api-keys-admin" }
+wachat-facebook-pages = { path = "../wachat-facebook-pages" }
+wachat-facebook-content = { path = "../wachat-facebook-content" }
+wachat-facebook-messaging = { path = "../wachat-facebook-messaging" }
+wachat-facebook-automation = { path = "../wachat-facebook-automation" }
+wachat-facebook-crm = { path = "../wachat-facebook-crm" }
+wachat-facebook-agents = { path = "../wachat-facebook-agents" }
+wachat-facebook-business = { path = "../wachat-facebook-business" }
+wachat-instagram = { path = "../wachat-instagram" }
 wachat-rate-limit = { path = "../wachat-rate-limit" }
 wachat-config = { path = "../wachat-config" }
 wachat-analytics = { path = "../wachat-analytics" }

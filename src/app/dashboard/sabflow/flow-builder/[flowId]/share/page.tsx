@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { getSabFlow } from '@/app/actions/sabflow';
 import { SharePanelClient } from '@/components/sabflow/panels/SharePanelClient';
 import type { FlowStatus } from '@/components/sabflow/panels/SharePanel';
+import { cn } from '@/components/zoruui';
 
 type Props = {
   params: Promise<{ flowId: string }>;
@@ -34,12 +35,14 @@ export default async function SharePage({ params }: Props) {
     : 'DRAFT';
 
   return (
-    <SharePanelClient
-      flowId={flow._id as string}
-      flowName={flow.name}
-      shareUrl={shareUrl}
-      initialStatus={status}
-    />
+    <div className={cn('zoruui')}>
+      <SharePanelClient
+        flowId={flow._id as string}
+        flowName={flow.name}
+        shareUrl={shareUrl}
+        initialStatus={status}
+      />
+    </div>
   );
 }
 

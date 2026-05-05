@@ -23,6 +23,14 @@ import { usersApi } from './users';
 import { wachatContactsApi } from './wachat-contacts';
 import { wachatFlowsApi } from './wachat-flows';
 import { wachatApiKeysAdminApi } from './wachat-api-keys-admin';
+import { wachatFacebookPagesApi } from './wachat-facebook-pages';
+import { wachatFacebookContentApi } from './wachat-facebook-content';
+import { wachatFacebookMessagingApi } from './wachat-facebook-messaging';
+import { wachatFacebookAutomationApi } from './wachat-facebook-automation';
+import { wachatFacebookCrmApi } from './wachat-facebook-crm';
+import { wachatFacebookAgentsApi } from './wachat-facebook-agents';
+import { wachatFacebookBusinessApi } from './wachat-facebook-business';
+import { wachatInstagramApi } from './wachat-instagram';
 import { wachatTemplatesActionsApi } from './wachat-templates-actions';
 import { wachatAnalyticsApi } from './wachat-analytics';
 import { wachatBroadcastApi } from './wachat-broadcast';
@@ -41,6 +49,14 @@ export const rustClient = {
     wachatContacts: wachatContactsApi,
     wachatFlows: wachatFlowsApi,
     wachatApiKeysAdmin: wachatApiKeysAdminApi,
+    wachatFacebookPages: wachatFacebookPagesApi,
+    wachatFacebookContent: wachatFacebookContentApi,
+    wachatFacebookMessaging: wachatFacebookMessagingApi,
+    wachatFacebookAutomation: wachatFacebookAutomationApi,
+    wachatFacebookCrm: wachatFacebookCrmApi,
+    wachatFacebookAgents: wachatFacebookAgentsApi,
+    wachatFacebookBusiness: wachatFacebookBusinessApi,
+    wachatInstagram: wachatInstagramApi,
     wachatWebhook: wachatWebhookApi,
     wachatWebhookActions: wachatWebhookActionsApi,
     wachatConfig: wachatConfigApi,
