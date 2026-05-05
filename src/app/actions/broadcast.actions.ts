@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { ObjectId, type WithId, type Filter } from 'mongodb';
+import { ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById } from '@/app/actions/project.actions';
 import { rustClient, RustApiError } from '@/lib/rust-client';
@@ -662,9 +662,3 @@ export async function handleStopBroadcast(
         return toErrorResponse(e);
     }
 }
-
-// Type-only re-export so existing call-sites keep working without
-// updating their `Filter` import — we used to `import type { Filter }`
-// from this module via a transitive `mongodb` import. Re-exporting
-// keeps that contract while leaving the heavy logic in Rust.
-export type { Filter };
