@@ -1,22 +1,24 @@
-
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
-import type { WithId } from 'mongodb';
 import { getSession } from '@/app/actions/index.ts';
 import type { User } from '@/lib/definitions';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, ChevronLeft } from 'lucide-react';
 import { TagsSettingsTab } from '@/components/wabasimplify/tags-settings-tab';
-import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import {
+    ZoruAlert,
+    ZoruAlertDescription,
+    ZoruAlertTitle,
+    ZoruButton,
+    ZoruSkeleton,
+} from '@/components/zoruui';
 
 function SettingsPageSkeleton() {
     return (
         <div className="flex flex-col gap-8">
-            <div><Skeleton className="h-8 w-1/3" /><Skeleton className="h-4 w-2/3 mt-2" /></div>
-            <Skeleton className="h-96 w-full" />
+            <div><ZoruSkeleton className="h-8 w-1/3" /><ZoruSkeleton className="h-4 w-2/3 mt-2" /></div>
+            <ZoruSkeleton className="h-96 w-full" />
         </div>
     );
 }
@@ -40,27 +42,27 @@ export default function QrCodeSettingsPage() {
 
     if (!user) {
         return (
-            <Alert variant="destructive">
+            <ZoruAlert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Not Logged In</AlertTitle>
-                <AlertDescription>
+                <ZoruAlertTitle>Not Logged In</ZoruAlertTitle>
+                <ZoruAlertDescription>
                     You need to be logged in to access this page.
-                </AlertDescription>
-            </Alert>
+                </ZoruAlertDescription>
+            </ZoruAlert>
         );
     }
 
     return (
         <div className="flex flex-col gap-8">
              <div>
-                <Button variant="ghost" asChild className="mb-2 -ml-4">
+                <ZoruButton variant="ghost" asChild className="mb-2 -ml-4">
                     <Link href="/dashboard/qr-code-maker">
                         <ChevronLeft className="mr-2 h-4 w-4" />
                         Back to QR Code Maker
                     </Link>
-                </Button>
-                <h1 className="text-3xl font-bold font-headline">QR Code Maker Settings</h1>
-                <p className="text-muted-foreground">Manage your tags. Tags can be applied to QR codes and short links to help you organize them.</p>
+                </ZoruButton>
+                <h1 className="text-3xl text-zoru-ink">QR Code Maker Settings</h1>
+                <p className="text-zoru-ink-muted">Manage your tags. Tags can be applied to QR codes and short links to help you organize them.</p>
             </div>
             <TagsSettingsTab user={user} />
         </div>

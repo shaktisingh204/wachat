@@ -2,16 +2,24 @@
 
 import { useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
-import { LuStar, LuZap, LuMail, LuMessageSquare, LuSend, LuGlobe, LuArrowUpRight } from 'react-icons/lu';
+import { ArrowUpRight, Globe, Mail, MessageSquare, Send, Star, Zap } from 'lucide-react';
 
 import {
-    ClayBadge,
-    ClayBreadcrumbs,
-    ClayButton,
-    ClayCard,
-    ClaySectionHeader,
-} from '@/components/clay';
-import { Skeleton } from '@/components/ui/skeleton';
+    ZoruBadge,
+    ZoruBreadcrumb,
+    ZoruBreadcrumbItem,
+    ZoruBreadcrumbLink,
+    ZoruBreadcrumbList,
+    ZoruBreadcrumbPage,
+    ZoruBreadcrumbSeparator,
+    ZoruButton,
+    ZoruCard,
+    ZoruPageDescription,
+    ZoruPageHeader,
+    ZoruPageHeading,
+    ZoruPageTitle,
+    ZoruSkeleton,
+} from '@/components/zoruui';
 import { getSession } from '@/app/actions/user.actions';
 import type { User, WithId } from '@/lib/definitions';
 
@@ -20,15 +28,14 @@ type CreditRow = {
     label: string;
     description: string;
     icon: React.ComponentType<{ className?: string }>;
-    tone: string;
 };
 
 const CREDIT_ROWS: CreditRow[] = [
-    { id: 'broadcast', label: 'Broadcast', description: 'WhatsApp broadcast messages', icon: LuSend, tone: 'from-emerald-400 to-emerald-600' },
-    { id: 'sms', label: 'SMS', description: 'SMS messages sent through any gateway', icon: LuMessageSquare, tone: 'from-sky-400 to-sky-600' },
-    { id: 'meta', label: 'Meta', description: 'Meta ads, FB/IG messaging', icon: LuZap, tone: 'from-indigo-400 to-indigo-600' },
-    { id: 'email', label: 'Email', description: 'Transactional + marketing email', icon: LuMail, tone: 'from-amber-400 to-amber-600' },
-    { id: 'seo', label: 'SEO', description: 'Site audits, rank checks, embeddings', icon: LuGlobe, tone: 'from-rose-400 to-rose-600' },
+    { id: 'broadcast', label: 'Broadcast', description: 'WhatsApp broadcast messages', icon: Send },
+    { id: 'sms', label: 'SMS', description: 'SMS messages sent through any gateway', icon: MessageSquare },
+    { id: 'meta', label: 'Meta', description: 'Meta ads, FB/IG messaging', icon: Zap },
+    { id: 'email', label: 'Email', description: 'Transactional + marketing email', icon: Mail },
+    { id: 'seo', label: 'SEO', description: 'Site audits, rank checks, embeddings', icon: Globe },
 ];
 
 export default function CreditsSettingsPage() {
@@ -47,107 +54,111 @@ export default function CreditsSettingsPage() {
     const wallet = user?.wallet;
 
     return (
-        <div className="clay-enter flex min-h-full flex-col gap-6">
-            <ClayBreadcrumbs
-                items={[
-                    { label: 'Settings', href: '/dashboard/settings' },
-                    { label: 'Credits' },
-                ]}
-            />
+        <div className="flex min-h-full flex-col gap-6">
+            <ZoruBreadcrumb>
+                <ZoruBreadcrumbList>
+                    <ZoruBreadcrumbItem>
+                        <ZoruBreadcrumbLink href="/dashboard/settings">Settings</ZoruBreadcrumbLink>
+                    </ZoruBreadcrumbItem>
+                    <ZoruBreadcrumbSeparator />
+                    <ZoruBreadcrumbItem>
+                        <ZoruBreadcrumbPage>Credits</ZoruBreadcrumbPage>
+                    </ZoruBreadcrumbItem>
+                </ZoruBreadcrumbList>
+            </ZoruBreadcrumb>
 
-            <ClaySectionHeader
-                size="lg"
-                title="Credits"
-                subtitle="Per-module credit balances and wallet top-ups."
-                actions={
+            <div className="flex flex-wrap items-center justify-between gap-4">
+                <ZoruPageHeader>
+                    <ZoruPageHeading>
+                        <ZoruPageTitle>Credits</ZoruPageTitle>
+                        <ZoruPageDescription>
+                            Per-module credit balances and wallet top-ups.
+                        </ZoruPageDescription>
+                    </ZoruPageHeading>
+                </ZoruPageHeader>
+                <ZoruButton size="sm" asChild>
                     <Link href="/dashboard/user/billing">
-                        <ClayButton variant="obsidian" size="sm" leading={<LuStar className="h-4 w-4" />}>
-                            Top up
-                        </ClayButton>
+                        <Star className="h-4 w-4" />
+                        Top up
                     </Link>
-                }
-            />
+                </ZoruButton>
+            </div>
 
             {/* Wallet summary */}
-            <ClayCard padded>
+            <ZoruCard className="p-6">
                 <div className="flex flex-wrap items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-600 text-white">
-                            <LuStar className="h-6 w-6" />
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-zoru-surface-2 text-zoru-ink">
+                            <Star className="h-6 w-6" />
                         </div>
                         <div>
-                            <p className="text-[12.5px] font-medium uppercase tracking-wide text-muted-foreground">
+                            <p className="text-xs uppercase tracking-wide text-zoru-ink-muted">
                                 Wallet balance
                             </p>
                             {loading ? (
-                                <Skeleton className="mt-1 h-8 w-40" />
+                                <ZoruSkeleton className="mt-1 h-8 w-40" />
                             ) : (
-                                <p className="mt-0.5 text-[24px] font-semibold text-foreground">
+                                <p className="mt-0.5 text-[24px] text-zoru-ink">
                                     {formatCurrency((wallet?.balance ?? 0) / 100, wallet?.currency ?? 'INR')}
                                 </p>
                             )}
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
-                        <ClayBadge tone="neutral" dot>
+                        <ZoruBadge variant="ghost">
                             {total.toLocaleString()} credits remaining
-                        </ClayBadge>
-                        <Link href="/dashboard/user/billing">
-                            <ClayButton
-                                variant="pill"
-                                size="sm"
-                                trailing={<LuArrowUpRight className="h-4 w-4" />}
-                            >
+                        </ZoruBadge>
+                        <ZoruButton variant="outline" size="sm" asChild>
+                            <Link href="/dashboard/user/billing">
                                 View billing
-                            </ClayButton>
-                        </Link>
+                                <ArrowUpRight className="h-4 w-4" />
+                            </Link>
+                        </ZoruButton>
                     </div>
                 </div>
-            </ClayCard>
+            </ZoruCard>
 
             {/* Per-module credits */}
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {CREDIT_ROWS.map((row) => {
                     const value = Number(credits[row.id] ?? 0);
                     return (
-                        <ClayCard key={row.id} padded>
+                        <ZoruCard key={row.id} className="p-6">
                             <div className="mb-3 flex items-start justify-between">
-                                <div
-                                    className={`flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br text-white ${row.tone}`}
-                                >
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-zoru-surface-2 text-zoru-ink">
                                     <row.icon className="h-5 w-5" />
                                 </div>
-                                {value === 0 && <ClayBadge tone="red">Empty</ClayBadge>}
-                                {value > 0 && value < 100 && <ClayBadge tone="amber">Low</ClayBadge>}
+                                {value === 0 && <ZoruBadge variant="danger">Empty</ZoruBadge>}
+                                {value > 0 && value < 100 && <ZoruBadge variant="warning">Low</ZoruBadge>}
                             </div>
-                            <p className="text-[12.5px] font-medium text-muted-foreground">{row.label}</p>
+                            <p className="text-xs text-zoru-ink-muted">{row.label}</p>
                             {loading ? (
-                                <Skeleton className="mt-1 h-8 w-24" />
+                                <ZoruSkeleton className="mt-1 h-8 w-24" />
                             ) : (
-                                <p className="mt-0.5 text-[26px] font-semibold leading-none text-foreground">
+                                <p className="mt-0.5 text-[26px] leading-none text-zoru-ink">
                                     {value.toLocaleString()}
                                 </p>
                             )}
-                            <p className="mt-2 text-[12px] text-muted-foreground">{row.description}</p>
-                        </ClayCard>
+                            <p className="mt-2 text-xs text-zoru-ink-muted">{row.description}</p>
+                        </ZoruCard>
                     );
                 })}
             </div>
 
-            <ClayCard variant="soft" padded>
+            <ZoruCard className="p-6">
                 <div className="flex items-start gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-foreground text-white">
-                        <LuZap className="h-4 w-4" />
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
+                        <Zap className="h-4 w-4" />
                     </div>
                     <div>
-                        <p className="text-[13px] font-semibold text-foreground">How credits are consumed</p>
-                        <p className="mt-1 text-[12.5px] text-muted-foreground">
+                        <p className="text-sm text-zoru-ink">How credits are consumed</p>
+                        <p className="mt-1 text-xs text-zoru-ink-muted">
                             Credits are deducted when messages are delivered. Your plan grants a monthly
                             allotment, and unused credits roll over while your plan is active.
                         </p>
                     </div>
                 </div>
-            </ClayCard>
+            </ZoruCard>
         </div>
     );
 }

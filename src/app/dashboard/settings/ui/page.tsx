@@ -1,18 +1,26 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { LuSun, LuMoon, LuMonitor, LuEye, LuSave, LuLoaderCircle } from 'react-icons/lu';
+import { Eye, LoaderCircle, Monitor, Moon, Save, Sun } from 'lucide-react';
 
 import {
-    ClayBreadcrumbs,
-    ClayButton,
-    ClayCard,
-    ClaySectionHeader,
-} from '@/components/clay';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
+    ZoruBreadcrumb,
+    ZoruBreadcrumbItem,
+    ZoruBreadcrumbLink,
+    ZoruBreadcrumbList,
+    ZoruBreadcrumbPage,
+    ZoruBreadcrumbSeparator,
+    ZoruButton,
+    ZoruCard,
+    ZoruLabel,
+    ZoruPageDescription,
+    ZoruPageHeader,
+    ZoruPageHeading,
+    ZoruPageTitle,
+    ZoruSwitch,
+    cn,
+    useZoruToast,
+} from '@/components/zoruui';
 import {
     getAppearancePrefs,
     setAppearancePrefs,
@@ -31,7 +39,7 @@ const DEFAULTS: Appearance = {
 export default function AppearanceSettingsPage() {
     const [prefs, setPrefs] = useState<Appearance>(DEFAULTS);
     const [saving, setSaving] = useState(false);
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
 
     useEffect(() => {
         let cancelled = false;
@@ -72,64 +80,67 @@ export default function AppearanceSettingsPage() {
     };
 
     return (
-        <div className="clay-enter flex min-h-full flex-col gap-6">
-            <ClayBreadcrumbs
-                items={[
-                    { label: 'Settings', href: '/dashboard/settings' },
-                    { label: 'Appearance' },
-                ]}
-            />
+        <div className="flex min-h-full flex-col gap-6">
+            <ZoruBreadcrumb>
+                <ZoruBreadcrumbList>
+                    <ZoruBreadcrumbItem>
+                        <ZoruBreadcrumbLink href="/dashboard/settings">Settings</ZoruBreadcrumbLink>
+                    </ZoruBreadcrumbItem>
+                    <ZoruBreadcrumbSeparator />
+                    <ZoruBreadcrumbItem>
+                        <ZoruBreadcrumbPage>Appearance</ZoruBreadcrumbPage>
+                    </ZoruBreadcrumbItem>
+                </ZoruBreadcrumbList>
+            </ZoruBreadcrumb>
 
-            <ClaySectionHeader
-                size="lg"
-                title="Appearance"
-                subtitle="Theme, density, and motion preferences for your SabNode workspace."
-                actions={
-                    <ClayButton
-                        variant="obsidian"
-                        size="sm"
-                        leading={saving ? <LuLoaderCircle className="h-4 w-4 animate-spin" /> : <LuSave className="h-4 w-4" />}
-                        onClick={handleSave}
-                        disabled={saving}
-                    >
-                        {saving ? 'Saving…' : 'Save'}
-                    </ClayButton>
-                }
-            />
+            <div className="flex flex-wrap items-center justify-between gap-4">
+                <ZoruPageHeader>
+                    <ZoruPageHeading>
+                        <ZoruPageTitle>Appearance</ZoruPageTitle>
+                        <ZoruPageDescription>
+                            Theme, density, and motion preferences for your SabNode workspace.
+                        </ZoruPageDescription>
+                    </ZoruPageHeading>
+                </ZoruPageHeader>
+                <ZoruButton size="sm" onClick={handleSave} disabled={saving}>
+                    {saving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                    {saving ? 'Saving…' : 'Save'}
+                </ZoruButton>
+            </div>
 
             {/* Theme */}
-            <ClayCard padded>
+            <ZoruCard className="p-6">
                 <SectionTitle
-                    icon={<LuEye className="h-4 w-4" />}
+                    icon={<Eye className="h-4 w-4" />}
                     title="Theme"
                     description="Pick a color mode. System follows your OS setting."
                 />
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                     <ThemeTile
                         selected={prefs.theme === 'system'}
-                        icon={<LuMonitor className="h-5 w-5" />}
+                        icon={<Monitor className="h-5 w-5" />}
                         label="System"
                         onClick={() => setPrefs({ ...prefs, theme: 'system' })}
                     />
                     <ThemeTile
                         selected={prefs.theme === 'light'}
-                        icon={<LuSun className="h-5 w-5" />}
+                        icon={<Sun className="h-5 w-5" />}
                         label="Light"
                         onClick={() => setPrefs({ ...prefs, theme: 'light' })}
                     />
                     <ThemeTile
                         selected={prefs.theme === 'dark'}
-                        icon={<LuMoon className="h-5 w-5" />}
+                        icon={<Moon className="h-5 w-5" />}
                         label="Dark"
                         onClick={() => setPrefs({ ...prefs, theme: 'dark' })}
                     />
                 </div>
-            </ClayCard>
+            </ZoruCard>
 
             {/* Density */}
-            <ClayCard padded>
+            <ZoruCard className="p-6">
                 <SectionTitle
-                    icon={<LuEye className="h-4 w-4" />}
+                    icon={<Eye className="h-4 w-4" />}
                     title="Density"
                     description="Adjust list row spacing to fit more content on screen."
                 />
@@ -147,16 +158,16 @@ export default function AppearanceSettingsPage() {
                         onClick={() => setPrefs({ ...prefs, density: 'compact' })}
                     />
                 </div>
-            </ClayCard>
+            </ZoruCard>
 
             {/* Misc */}
-            <ClayCard padded>
+            <ZoruCard className="p-6">
                 <SectionTitle
-                    icon={<LuEye className="h-4 w-4" />}
+                    icon={<Eye className="h-4 w-4" />}
                     title="Motion & navigation"
                     description="Fine-tune how the UI behaves around you."
                 />
-                <ul className="divide-y divide-border">
+                <ul className="divide-y divide-zoru-line">
                     <Row
                         id="collapsed"
                         label="Collapse sidebar by default"
@@ -172,7 +183,7 @@ export default function AppearanceSettingsPage() {
                         onChange={(v) => setPrefs({ ...prefs, reducedMotion: v })}
                     />
                 </ul>
-            </ClayCard>
+            </ZoruCard>
         </div>
     );
 }
@@ -188,12 +199,12 @@ function SectionTitle({
 }) {
     return (
         <div className="mb-4 flex items-start gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted/50 text-muted-foreground">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
                 {icon}
             </div>
             <div>
-                <p className="text-[13.5px] font-semibold text-foreground">{title}</p>
-                <p className="text-[12.5px] text-muted-foreground">{description}</p>
+                <p className="text-sm text-zoru-ink">{title}</p>
+                <p className="text-xs text-zoru-ink-muted">{description}</p>
             </div>
         </div>
     );
@@ -217,19 +228,19 @@ function ThemeTile({
             className={cn(
                 'flex items-center gap-3 rounded-xl border p-4 text-left transition-colors',
                 selected
-                    ? 'border-foreground bg-muted/50'
-                    : 'border-border bg-card hover:border-border',
+                    ? 'border-zoru-ink bg-zoru-surface-2'
+                    : 'border-zoru-line bg-zoru-bg hover:border-zoru-line',
             )}
         >
             <div
                 className={cn(
                     'flex h-9 w-9 items-center justify-center rounded-lg',
-                    selected ? 'bg-foreground text-white' : 'bg-muted/50 text-foreground',
+                    selected ? 'bg-zoru-ink text-zoru-bg' : 'bg-zoru-surface-2 text-zoru-ink',
                 )}
             >
                 {icon}
             </div>
-            <span className="text-[13px] font-semibold text-foreground">{label}</span>
+            <span className="text-[13px] text-zoru-ink">{label}</span>
         </button>
     );
 }
@@ -252,12 +263,12 @@ function DensityTile({
             className={cn(
                 'rounded-xl border p-4 text-left transition-colors',
                 selected
-                    ? 'border-foreground bg-muted/50'
-                    : 'border-border bg-card hover:border-border',
+                    ? 'border-zoru-ink bg-zoru-surface-2'
+                    : 'border-zoru-line bg-zoru-bg hover:border-zoru-line',
             )}
         >
-            <p className="text-[13px] font-semibold text-foreground">{label}</p>
-            <p className="mt-1 text-[12px] text-muted-foreground">{description}</p>
+            <p className="text-[13px] text-zoru-ink">{label}</p>
+            <p className="mt-1 text-xs text-zoru-ink-muted">{description}</p>
         </button>
     );
 }
@@ -278,12 +289,12 @@ function Row({
     return (
         <li className="flex items-start justify-between gap-4 py-3">
             <div>
-                <Label htmlFor={id} className="text-[13px] font-medium text-foreground">
+                <ZoruLabel htmlFor={id} className="text-[13px]">
                     {label}
-                </Label>
-                <p className="mt-0.5 text-[12px] text-muted-foreground">{description}</p>
+                </ZoruLabel>
+                <p className="mt-0.5 text-xs text-zoru-ink-muted">{description}</p>
             </div>
-            <Switch id={id} checked={checked} onCheckedChange={onChange} />
+            <ZoruSwitch id={id} checked={checked} onCheckedChange={onChange} />
         </li>
     );
 }

@@ -2,16 +2,24 @@
 
 import { useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
-import { LuCreditCard, LuCheck, LuX, LuStar, LuArrowUpRight } from 'react-icons/lu';
+import { ArrowUpRight, Check, CreditCard, Star, X } from 'lucide-react';
 
 import {
-    ClayBadge,
-    ClayBreadcrumbs,
-    ClayButton,
-    ClayCard,
-    ClaySectionHeader,
-} from '@/components/clay';
-import { Skeleton } from '@/components/ui/skeleton';
+    ZoruBadge,
+    ZoruBreadcrumb,
+    ZoruBreadcrumbItem,
+    ZoruBreadcrumbLink,
+    ZoruBreadcrumbList,
+    ZoruBreadcrumbPage,
+    ZoruBreadcrumbSeparator,
+    ZoruButton,
+    ZoruCard,
+    ZoruPageDescription,
+    ZoruPageHeader,
+    ZoruPageHeading,
+    ZoruPageTitle,
+    ZoruSkeleton,
+} from '@/components/zoruui';
 import { getSession } from '@/app/actions/user.actions';
 import type { User, Plan, WithId } from '@/lib/definitions';
 
@@ -40,47 +48,52 @@ export default function BillingPage() {
     >;
 
     return (
-        <div className="clay-enter flex min-h-full flex-col gap-6">
-            <ClayBreadcrumbs
-                items={[
-                    { label: 'Settings', href: '/dashboard/settings' },
-                    { label: 'Billing & Plan' },
-                ]}
-            />
+        <div className="flex min-h-full flex-col gap-6">
+            <ZoruBreadcrumb>
+                <ZoruBreadcrumbList>
+                    <ZoruBreadcrumbItem>
+                        <ZoruBreadcrumbLink href="/dashboard/settings">Settings</ZoruBreadcrumbLink>
+                    </ZoruBreadcrumbItem>
+                    <ZoruBreadcrumbSeparator />
+                    <ZoruBreadcrumbItem>
+                        <ZoruBreadcrumbPage>Billing &amp; Plan</ZoruBreadcrumbPage>
+                    </ZoruBreadcrumbItem>
+                </ZoruBreadcrumbList>
+            </ZoruBreadcrumb>
 
-            <ClaySectionHeader
-                size="lg"
-                title="Billing & Plan"
-                subtitle="Your active plan, included features, and upgrade path."
-                actions={
+            <div className="flex flex-wrap items-center justify-between gap-4">
+                <ZoruPageHeader>
+                    <ZoruPageHeading>
+                        <ZoruPageTitle>Billing &amp; Plan</ZoruPageTitle>
+                        <ZoruPageDescription>
+                            Your active plan, included features, and upgrade path.
+                        </ZoruPageDescription>
+                    </ZoruPageHeading>
+                </ZoruPageHeader>
+                <ZoruButton size="sm" asChild>
                     <Link href="/dashboard/user/billing">
-                        <ClayButton
-                            variant="obsidian"
-                            size="sm"
-                            trailing={<LuArrowUpRight className="h-4 w-4" />}
-                        >
-                            Manage billing
-                        </ClayButton>
+                        Manage billing
+                        <ArrowUpRight className="h-4 w-4" />
                     </Link>
-                }
-            />
+                </ZoruButton>
+            </div>
 
             {/* Current plan card */}
-            <ClayCard padded>
+            <ZoruCard className="p-6">
                 {loading ? (
-                    <Skeleton className="h-40 w-full" />
+                    <ZoruSkeleton className="h-40 w-full" />
                 ) : (
                     <div className="flex flex-wrap items-start justify-between gap-4">
                         <div className="flex items-center gap-3">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-fuchsia-400 to-fuchsia-600 text-white">
-                                <LuStar className="h-6 w-6" />
+                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-zoru-surface-2 text-zoru-ink">
+                                <Star className="h-6 w-6" />
                             </div>
                             <div>
                                 <div className="flex items-center gap-2">
-                                    <p className="text-[16px] font-semibold text-foreground">{planName}</p>
-                                    <ClayBadge tone="blue">Current plan</ClayBadge>
+                                    <p className="text-base text-zoru-ink">{planName}</p>
+                                    <ZoruBadge variant="info">Current plan</ZoruBadge>
                                 </div>
-                                <p className="mt-1 text-[12.5px] text-muted-foreground">
+                                <p className="mt-1 text-xs text-zoru-ink-muted">
                                     {price > 0
                                         ? `${formatCurrency(price, currency)} billed monthly`
                                         : 'Free — upgrade anytime to unlock more seats and features.'}
@@ -88,33 +101,29 @@ export default function BillingPage() {
                             </div>
                         </div>
                         <div className="flex gap-2">
-                            <Link href="/dashboard/user/billing">
-                                <ClayButton variant="pill" size="sm">
-                                    Change plan
-                                </ClayButton>
-                            </Link>
-                            <Link href="/dashboard/settings/invoices">
-                                <ClayButton variant="ghost" size="sm">
-                                    Invoices
-                                </ClayButton>
-                            </Link>
+                            <ZoruButton variant="outline" size="sm" asChild>
+                                <Link href="/dashboard/user/billing">Change plan</Link>
+                            </ZoruButton>
+                            <ZoruButton variant="ghost" size="sm" asChild>
+                                <Link href="/dashboard/settings/invoices">Invoices</Link>
+                            </ZoruButton>
                         </div>
                     </div>
                 )}
-            </ClayCard>
+            </ZoruCard>
 
             {/* Features */}
-            <ClayCard padded>
+            <ZoruCard className="p-6">
                 <div className="mb-4">
-                    <p className="text-[13.5px] font-semibold text-foreground">What&apos;s included</p>
-                    <p className="text-[12.5px] text-muted-foreground">
+                    <p className="text-sm text-zoru-ink">What&apos;s included</p>
+                    <p className="text-xs text-zoru-ink-muted">
                         Feature entitlements that come with your current plan.
                     </p>
                 </div>
                 {loading ? (
-                    <Skeleton className="h-40 w-full" />
+                    <ZoruSkeleton className="h-40 w-full" />
                 ) : featureEntries.length === 0 ? (
-                    <div className="rounded-xl border border-dashed border-border bg-muted/50 p-6 text-center text-[12.5px] text-muted-foreground">
+                    <div className="rounded-xl border border-dashed border-zoru-line bg-zoru-surface-2 p-6 text-center text-xs text-zoru-ink-muted">
                         Your plan does not expose a feature matrix. Contact sales for custom entitlements.
                     </div>
                 ) : (
@@ -124,45 +133,43 @@ export default function BillingPage() {
                                 <div
                                     className={
                                         on
-                                            ? 'flex h-5 w-5 items-center justify-center rounded-full bg-emerald-50 text-emerald-500'
-                                            : 'flex h-5 w-5 items-center justify-center rounded-full bg-muted/50 text-muted-foreground'
+                                            ? 'flex h-5 w-5 items-center justify-center rounded-full bg-zoru-success/10 text-zoru-success-ink'
+                                            : 'flex h-5 w-5 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted'
                                     }
                                 >
-                                    {on ? <LuCheck className="h-3 w-3" /> : <LuX className="h-3 w-3" />}
+                                    {on ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
                                 </div>
-                                <span className={on ? 'text-foreground' : 'text-muted-foreground line-through'}>
+                                <span className={on ? 'text-zoru-ink' : 'text-zoru-ink-muted line-through'}>
                                     {prettyFeature(name)}
                                 </span>
                             </div>
                         ))}
                     </div>
                 )}
-            </ClayCard>
+            </ZoruCard>
 
             {/* Payment method */}
-            <ClayCard padded>
+            <ZoruCard className="p-6">
                 <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-accent text-primary">
-                        <LuCreditCard className="h-4 w-4" />
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
+                        <CreditCard className="h-4 w-4" />
                     </div>
                     <div className="flex-1">
-                        <p className="text-[13.5px] font-semibold text-foreground">Payment method</p>
-                        <p className="text-[12.5px] text-muted-foreground">
+                        <p className="text-sm text-zoru-ink">Payment method</p>
+                        <p className="text-xs text-zoru-ink-muted">
                             {user?.wallet?.balance
                                 ? `Wallet balance ${formatCurrency(
                                       (user.wallet.balance ?? 0) / 100,
                                       user.wallet.currency ?? 'INR',
                                   )} — auto-debit enabled`
-                                : 'No saved card. You\u2019ll be prompted on your next upgrade.'}
+                                : 'No saved card. You’ll be prompted on your next upgrade.'}
                         </p>
                     </div>
-                    <Link href="/dashboard/user/billing">
-                        <ClayButton variant="pill" size="sm">
-                            Update
-                        </ClayButton>
-                    </Link>
+                    <ZoruButton variant="outline" size="sm" asChild>
+                        <Link href="/dashboard/user/billing">Update</Link>
+                    </ZoruButton>
                 </div>
-            </ClayCard>
+            </ZoruCard>
         </div>
     );
 }

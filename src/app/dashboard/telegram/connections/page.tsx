@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Plug, Copy, Check, ExternalLink, Loader2 } from 'lucide-react';
-import { ClayCard, ClayButton, ClayInput, ClayBadge } from '@/components/clay';
+import { ZoruBadge, ZoruButton, ZoruCard, ZoruInput } from '@/components/zoruui';
 import { connectTelegramBot } from '@/app/actions/telegram.actions';
 import { useProject } from '@/context/project-context';
 
@@ -29,7 +29,7 @@ export default function TelegramConnectionsPage() {
     };
 
     return (
-        <div className="flex flex-col gap-6 clay-enter">
+        <div className="flex flex-col gap-6">
             <div className="flex items-start gap-4">
                 <div
                     className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl"
@@ -41,10 +41,10 @@ export default function TelegramConnectionsPage() {
                     <Plug className="h-6 w-6 text-white" strokeWidth={1.75} />
                 </div>
                 <div>
-                    <h1 className="text-[22px] font-semibold leading-tight tracking-tight text-foreground">
+                    <h1 className="text-[22px] leading-tight text-zoru-ink">
                         Connections
                     </h1>
-                    <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-muted-foreground">
+                    <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-zoru-ink-muted">
                         Link a Telegram Bot (for standard messaging) or MTProto user credentials
                         (for full client-level automation).
                     </p>
@@ -52,34 +52,34 @@ export default function TelegramConnectionsPage() {
             </div>
 
             {/* Bot connection */}
-            <ClayCard variant="default" padded>
+            <ZoruCard className="p-6">
                 <div className="flex items-center justify-between">
                     <div>
                         <div className="flex items-center gap-2">
-                            <h2 className="text-[15px] font-semibold text-foreground">Bot API</h2>
-                            <ClayBadge tone="blue">Recommended</ClayBadge>
+                            <h2 className="text-[15px] text-zoru-ink">Bot API</h2>
+                            <ZoruBadge variant="ghost">Recommended</ZoruBadge>
                         </div>
-                        <p className="mt-1 text-[12.5px] text-muted-foreground">
+                        <p className="mt-1 text-[12.5px] text-zoru-ink-muted">
                             Create a bot with @BotFather and paste the token below.
                         </p>
                     </div>
-                    <ClayButton
-                        variant="pill"
+                    <ZoruButton
+                        variant="outline"
                         size="sm"
                         onClick={() =>
                             window.open('https://t.me/BotFather', '_blank', 'noopener,noreferrer')
                         }
-                        trailing={<ExternalLink className="h-3 w-3" />}
                     >
                         Open BotFather
-                    </ClayButton>
+                        <ExternalLink className="h-3 w-3" />
+                    </ZoruButton>
                 </div>
                 <div className="mt-5 flex flex-col gap-4">
                     <label className="flex flex-col gap-1.5">
-                        <span className="text-[11.5px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
+                        <span className="text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
                             Bot token
                         </span>
-                        <ClayInput
+                        <ZoruInput
                             placeholder="123456789:AA-Example-TokenFromBotFather"
                             value={token}
                             onChange={(e) => setToken(e.target.value)}
@@ -87,45 +87,41 @@ export default function TelegramConnectionsPage() {
                         />
                     </label>
                     <div>
-                        <p className="mb-1.5 text-[11.5px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
+                        <p className="mb-1.5 text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
                             Webhook URL
                         </p>
                         <div className="flex items-center gap-2">
-                            <code className="flex-1 truncate rounded-lg border border-border bg-secondary px-3 py-2 font-mono text-[12px] text-foreground">
+                            <code className="flex-1 truncate rounded-lg border border-zoru-line bg-zoru-surface-2 px-3 py-2 font-mono text-[12px] text-zoru-ink">
                                 {webhookUrl}
                             </code>
-                            <ClayButton
-                                variant="pill"
+                            <ZoruButton
+                                variant="outline"
                                 size="sm"
                                 onClick={copyWebhook}
-                                leading={
-                                    copied ? (
-                                        <Check className="h-3 w-3" />
-                                    ) : (
-                                        <Copy className="h-3 w-3" />
-                                    )
-                                }
                             >
+                                {copied ? (
+                                    <Check className="h-3 w-3" />
+                                ) : (
+                                    <Copy className="h-3 w-3" />
+                                )}
                                 {copied ? 'Copied' : 'Copy'}
-                            </ClayButton>
+                            </ZoruButton>
                         </div>
                     </div>
                 </div>
                 {status ? (
                     <p
                         className={`mt-4 text-[12.5px] ${
-                            status.kind === 'ok' ? 'text-emerald-500' : 'text-destructive'
+                            status.kind === 'ok' ? 'text-zoru-success-ink' : 'text-zoru-danger-ink'
                         }`}
                     >
                         {status.message}
                     </p>
                 ) : null}
                 <div className="mt-5 flex justify-end gap-2">
-                    <ClayButton
-                        variant="obsidian"
+                    <ZoruButton
                         size="sm"
                         disabled={!token.trim() || submitting || !activeProject?._id}
-                        leading={submitting ? <Loader2 className="h-3 w-3 animate-spin" /> : undefined}
                         onClick={async () => {
                             if (!activeProject?._id) {
                                 setStatus({ kind: 'err', message: 'Select a project first.' });
@@ -146,53 +142,54 @@ export default function TelegramConnectionsPage() {
                             }
                         }}
                     >
+                        {submitting ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
                         Connect bot
-                    </ClayButton>
+                    </ZoruButton>
                 </div>
-            </ClayCard>
+            </ZoruCard>
 
             {/* MTProto / Client API */}
-            <ClayCard variant="default" padded>
+            <ZoruCard className="p-6">
                 <div className="flex items-center justify-between">
                     <div>
                         <div className="flex items-center gap-2">
-                            <h2 className="text-[15px] font-semibold text-foreground">
+                            <h2 className="text-[15px] text-zoru-ink">
                                 Client API (MTProto)
                             </h2>
-                            <ClayBadge tone="neutral">Advanced</ClayBadge>
+                            <ZoruBadge variant="ghost">Advanced</ZoruBadge>
                         </div>
-                        <p className="mt-1 text-[12.5px] text-muted-foreground">
+                        <p className="mt-1 text-[12.5px] text-zoru-ink-muted">
                             Needed for user-account automation: reading channel history, bulk imports,
                             large file transfers, group calls.
                         </p>
                     </div>
-                    <ClayButton
-                        variant="pill"
+                    <ZoruButton
+                        variant="outline"
                         size="sm"
                         onClick={() =>
                             window.open('https://my.telegram.org', '_blank', 'noopener,noreferrer')
                         }
-                        trailing={<ExternalLink className="h-3 w-3" />}
                     >
                         my.telegram.org
-                    </ClayButton>
+                        <ExternalLink className="h-3 w-3" />
+                    </ZoruButton>
                 </div>
                 <div className="mt-5 grid gap-4 md:grid-cols-2">
                     <label className="flex flex-col gap-1.5">
-                        <span className="text-[11.5px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
+                        <span className="text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
                             api_id
                         </span>
-                        <ClayInput
+                        <ZoruInput
                             placeholder="1234567"
                             value={apiId}
                             onChange={(e) => setApiId(e.target.value)}
                         />
                     </label>
                     <label className="flex flex-col gap-1.5">
-                        <span className="text-[11.5px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
+                        <span className="text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
                             api_hash
                         </span>
-                        <ClayInput
+                        <ZoruInput
                             placeholder="32-character hex string"
                             value={apiHash}
                             onChange={(e) => setApiHash(e.target.value)}
@@ -201,15 +198,14 @@ export default function TelegramConnectionsPage() {
                     </label>
                 </div>
                 <div className="mt-5 flex justify-end">
-                    <ClayButton
-                        variant="obsidian"
+                    <ZoruButton
                         size="sm"
                         disabled={!apiId.trim() || !apiHash.trim()}
                     >
                         Start login flow
-                    </ClayButton>
+                    </ZoruButton>
                 </div>
-            </ClayCard>
+            </ZoruCard>
         </div>
     );
 }

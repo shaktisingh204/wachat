@@ -1,27 +1,33 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { LuWebhook, LuPlus, LuCircleAlert, LuTrash2, LuCopy, LuCheck } from 'react-icons/lu';
+import { Check, CircleAlert, Copy, Plus, Trash2, Webhook } from 'lucide-react';
 
 import {
-    ClayBadge,
-    ClayBreadcrumbs,
-    ClayButton,
-    ClayCard,
-    ClayInput,
-    ClaySectionHeader,
-} from '@/components/clay';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
+    ZoruBadge,
+    ZoruBreadcrumb,
+    ZoruBreadcrumbItem,
+    ZoruBreadcrumbLink,
+    ZoruBreadcrumbList,
+    ZoruBreadcrumbPage,
+    ZoruBreadcrumbSeparator,
+    ZoruButton,
+    ZoruCard,
+    ZoruDialog,
+    ZoruDialogContent,
+    ZoruDialogDescription,
+    ZoruDialogFooter,
+    ZoruDialogHeader,
+    ZoruDialogTitle,
+    ZoruDialogTrigger,
+    ZoruInput,
+    ZoruLabel,
+    ZoruPageDescription,
+    ZoruPageHeader,
+    ZoruPageHeading,
+    ZoruPageTitle,
+    useZoruToast,
+} from '@/components/zoruui';
 
 type WebhookRow = {
     id: string;
@@ -63,34 +69,44 @@ export default function WebhooksPage() {
         persist(rows.map((r) => (r.id === id ? { ...r, active: !r.active } : r)));
 
     return (
-        <div className="clay-enter flex min-h-full flex-col gap-6">
-            <ClayBreadcrumbs
-                items={[
-                    { label: 'Settings', href: '/dashboard/settings' },
-                    { label: 'Webhooks' },
-                ]}
-            />
+        <div className="flex min-h-full flex-col gap-6">
+            <ZoruBreadcrumb>
+                <ZoruBreadcrumbList>
+                    <ZoruBreadcrumbItem>
+                        <ZoruBreadcrumbLink href="/dashboard/settings">Settings</ZoruBreadcrumbLink>
+                    </ZoruBreadcrumbItem>
+                    <ZoruBreadcrumbSeparator />
+                    <ZoruBreadcrumbItem>
+                        <ZoruBreadcrumbPage>Webhooks</ZoruBreadcrumbPage>
+                    </ZoruBreadcrumbItem>
+                </ZoruBreadcrumbList>
+            </ZoruBreadcrumb>
 
-            <ClaySectionHeader
-                size="lg"
-                title="Webhooks"
-                subtitle="Deliver SabNode events to your servers as soon as they happen."
-                actions={<AddWebhookDialog onAdd={addRow} />}
-            />
+            <div className="flex flex-wrap items-center justify-between gap-4">
+                <ZoruPageHeader>
+                    <ZoruPageHeading>
+                        <ZoruPageTitle>Webhooks</ZoruPageTitle>
+                        <ZoruPageDescription>
+                            Deliver SabNode events to your servers as soon as they happen.
+                        </ZoruPageDescription>
+                    </ZoruPageHeading>
+                </ZoruPageHeader>
+                <AddWebhookDialog onAdd={addRow} />
+            </div>
 
             {rows.length === 0 ? (
-                <ClayCard padded className="py-10 text-center">
-                    <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-muted/50 text-muted-foreground">
-                        <LuWebhook className="h-5 w-5" />
+                <ZoruCard className="p-6 py-10 text-center">
+                    <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
+                        <Webhook className="h-5 w-5" />
                     </div>
-                    <p className="text-[13px] font-semibold text-foreground">No webhooks yet</p>
-                    <p className="mt-1 text-[12.5px] text-muted-foreground">
+                    <p className="text-sm text-zoru-ink">No webhooks yet</p>
+                    <p className="mt-1 text-xs text-zoru-ink-muted">
                         Add your first endpoint to start receiving event callbacks.
                     </p>
-                </ClayCard>
+                </ZoruCard>
             ) : (
-                <ClayCard padded={false}>
-                    <ul className="divide-y divide-border">
+                <ZoruCard className="p-0">
+                    <ul className="divide-y divide-zoru-line">
                         {rows.map((w) => (
                             <WebhookRowItem
                                 key={w.id}
@@ -100,22 +116,24 @@ export default function WebhooksPage() {
                             />
                         ))}
                     </ul>
-                </ClayCard>
+                </ZoruCard>
             )}
 
-            <ClayCard padded variant="soft" className="flex items-start gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-foreground text-white">
-                    <LuCircleAlert className="h-4 w-4" />
+            <ZoruCard className="p-6">
+                <div className="flex items-start gap-3">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
+                        <CircleAlert className="h-4 w-4" />
+                    </div>
+                    <div>
+                        <p className="text-sm text-zoru-ink">Verifying the signature</p>
+                        <p className="mt-1 text-xs text-zoru-ink-muted">
+                            Every request is signed with your webhook secret in the
+                            <code className="mx-1 rounded bg-zoru-surface-2 px-1">X-SabNode-Signature</code>
+                            header. HMAC-SHA256 over the raw body.
+                        </p>
+                    </div>
                 </div>
-                <div>
-                    <p className="text-[13px] font-semibold text-foreground">Verifying the signature</p>
-                    <p className="mt-1 text-[12.5px] text-muted-foreground">
-                        Every request is signed with your webhook secret in the
-                        <code className="mx-1 rounded bg-card px-1">X-SabNode-Signature</code>
-                        header. HMAC-SHA256 over the raw body.
-                    </p>
-                </div>
-            </ClayCard>
+            </ZoruCard>
         </div>
     );
 }
@@ -124,7 +142,7 @@ function AddWebhookDialog({ onAdd }: { onAdd: (row: WebhookRow) => void }) {
     const [open, setOpen] = useState(false);
     const [url, setUrl] = useState('');
     const [selected, setSelected] = useState<Set<string>>(new Set(['message.received']));
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
 
     const handleSave = () => {
         if (!/^https:\/\//.test(url)) {
@@ -149,32 +167,33 @@ function AddWebhookDialog({ onAdd }: { onAdd: (row: WebhookRow) => void }) {
     };
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <ClayButton variant="obsidian" size="sm" leading={<LuPlus className="h-4 w-4" />}>
+        <ZoruDialog open={open} onOpenChange={setOpen}>
+            <ZoruDialogTrigger asChild>
+                <ZoruButton size="sm">
+                    <Plus className="h-4 w-4" />
                     Add webhook
-                </ClayButton>
-            </DialogTrigger>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Add webhook endpoint</DialogTitle>
-                    <DialogDescription>
+                </ZoruButton>
+            </ZoruDialogTrigger>
+            <ZoruDialogContent>
+                <ZoruDialogHeader>
+                    <ZoruDialogTitle>Add webhook endpoint</ZoruDialogTitle>
+                    <ZoruDialogDescription>
                         Pick which events to deliver and where to send them.
-                    </DialogDescription>
-                </DialogHeader>
+                    </ZoruDialogDescription>
+                </ZoruDialogHeader>
                 <div className="space-y-4 py-2">
                     <div>
-                        <Label className="mb-1.5 block text-[12.5px] font-medium text-foreground">
+                        <ZoruLabel className="mb-1.5 block text-xs">
                             Endpoint URL
-                        </Label>
-                        <ClayInput
+                        </ZoruLabel>
+                        <ZoruInput
                             placeholder="https://example.com/webhooks/sabnode"
                             value={url}
                             onChange={(e) => setUrl(e.target.value)}
                         />
                     </div>
                     <div>
-                        <Label className="mb-1.5 block text-[12.5px] font-medium text-foreground">Events</Label>
+                        <ZoruLabel className="mb-1.5 block text-xs">Events</ZoruLabel>
                         <div className="flex flex-wrap gap-2">
                             {ALL_EVENTS.map((ev) => {
                                 const on = selected.has(ev);
@@ -188,10 +207,10 @@ function AddWebhookDialog({ onAdd }: { onAdd: (row: WebhookRow) => void }) {
                                             else next.add(ev);
                                             setSelected(next);
                                         }}
-                                        className={`rounded-full border px-3 py-1 text-[12px] font-medium transition-colors ${
+                                        className={`rounded-full border px-3 py-1 text-xs transition-colors ${
                                             on
-                                                ? 'border-foreground bg-foreground text-white'
-                                                : 'border-border bg-card text-muted-foreground hover:text-foreground'
+                                                ? 'border-zoru-ink bg-zoru-ink text-zoru-bg'
+                                                : 'border-zoru-line bg-zoru-bg text-zoru-ink-muted hover:text-zoru-ink'
                                         }`}
                                     >
                                         {ev}
@@ -201,16 +220,16 @@ function AddWebhookDialog({ onAdd }: { onAdd: (row: WebhookRow) => void }) {
                         </div>
                     </div>
                 </div>
-                <DialogFooter>
-                    <ClayButton variant="ghost" size="sm" onClick={() => setOpen(false)}>
+                <ZoruDialogFooter>
+                    <ZoruButton variant="ghost" size="sm" onClick={() => setOpen(false)}>
                         Cancel
-                    </ClayButton>
-                    <ClayButton variant="obsidian" size="sm" onClick={handleSave}>
+                    </ZoruButton>
+                    <ZoruButton size="sm" onClick={handleSave}>
                         Create
-                    </ClayButton>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+                    </ZoruButton>
+                </ZoruDialogFooter>
+            </ZoruDialogContent>
+        </ZoruDialog>
     );
 }
 
@@ -236,38 +255,30 @@ function WebhookRowItem({
         <li className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
             <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                    <p className="truncate text-[13.5px] font-semibold text-foreground">{row.url}</p>
+                    <p className="truncate text-sm text-zoru-ink">{row.url}</p>
                     {row.active ? (
-                        <ClayBadge tone="green">Active</ClayBadge>
+                        <ZoruBadge variant="success">Active</ZoruBadge>
                     ) : (
-                        <ClayBadge tone="neutral">Paused</ClayBadge>
+                        <ZoruBadge variant="ghost">Paused</ZoruBadge>
                     )}
                 </div>
-                <p className="mt-1 truncate text-[12px] text-muted-foreground">
+                <p className="mt-1 truncate text-xs text-zoru-ink-muted">
                     {row.events.join(', ')} · secret{' '}
-                    <code className="rounded bg-muted/50 px-1">{row.secret.slice(0, 8)}…</code>
+                    <code className="rounded bg-zoru-surface-2 px-1">{row.secret.slice(0, 8)}…</code>
                 </p>
             </div>
             <div className="flex gap-2">
-                <ClayButton
-                    variant="ghost"
-                    size="sm"
-                    leading={copied ? <LuCheck className="h-4 w-4" /> : <LuCopy className="h-4 w-4" />}
-                    onClick={copySecret}
-                >
+                <ZoruButton variant="ghost" size="sm" onClick={copySecret}>
+                    {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                     {copied ? 'Copied' : 'Copy secret'}
-                </ClayButton>
-                <ClayButton variant="ghost" size="sm" onClick={onToggle}>
+                </ZoruButton>
+                <ZoruButton variant="ghost" size="sm" onClick={onToggle}>
                     {row.active ? 'Pause' : 'Resume'}
-                </ClayButton>
-                <ClayButton
-                    variant="ghost"
-                    size="sm"
-                    leading={<LuTrash2 className="h-4 w-4" />}
-                    onClick={onRemove}
-                >
+                </ZoruButton>
+                <ZoruButton variant="ghost" size="sm" onClick={onRemove}>
+                    <Trash2 className="h-4 w-4" />
                     Remove
-                </ClayButton>
+                </ZoruButton>
             </div>
         </li>
     );

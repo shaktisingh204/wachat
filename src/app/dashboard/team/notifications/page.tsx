@@ -1,17 +1,25 @@
 'use client';
 
 import { useState } from 'react';
-import { LuBell, LuSave, LuMail, LuLoaderCircle } from 'react-icons/lu';
+import { Bell, Save, Mail, LoaderCircle } from 'lucide-react';
 
 import {
-    ClayBreadcrumbs,
-    ClayButton,
-    ClayCard,
-    ClaySectionHeader,
-} from '@/components/clay';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
+    ZoruBreadcrumb,
+    ZoruBreadcrumbItem,
+    ZoruBreadcrumbLink,
+    ZoruBreadcrumbList,
+    ZoruBreadcrumbPage,
+    ZoruBreadcrumbSeparator,
+    ZoruButton,
+    ZoruCard,
+    ZoruLabel,
+    ZoruPageDescription,
+    ZoruPageHeader,
+    ZoruPageHeading,
+    ZoruPageTitle,
+    ZoruSwitch,
+    useZoruToast,
+} from '@/components/zoruui';
 
 type Prefs = {
     memberJoined: boolean;
@@ -80,7 +88,7 @@ const GROUPS: Array<{
 export default function TeamNotificationsPage() {
     const [prefs, setPrefs] = useState<Prefs>(DEFAULTS);
     const [saving, setSaving] = useState(false);
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
 
     const toggle = (key: keyof Prefs) => setPrefs((p) => ({ ...p, [key]: !p[key] }));
 
@@ -97,64 +105,65 @@ export default function TeamNotificationsPage() {
     };
 
     return (
-        <div className="clay-enter flex min-h-full flex-col gap-6">
-            <ClayBreadcrumbs
-                items={[
-                    { label: 'Team', href: '/dashboard/team' },
-                    { label: 'Notifications' },
-                ]}
-            />
+        <div className="flex min-h-full flex-col gap-6">
+            <ZoruBreadcrumb>
+                <ZoruBreadcrumbList>
+                    <ZoruBreadcrumbItem>
+                        <ZoruBreadcrumbLink href="/dashboard/team">Team</ZoruBreadcrumbLink>
+                    </ZoruBreadcrumbItem>
+                    <ZoruBreadcrumbSeparator />
+                    <ZoruBreadcrumbItem>
+                        <ZoruBreadcrumbPage>Notifications</ZoruBreadcrumbPage>
+                    </ZoruBreadcrumbItem>
+                </ZoruBreadcrumbList>
+            </ZoruBreadcrumb>
 
-            <ClaySectionHeader
-                size="lg"
-                title="Notifications"
-                subtitle="Choose which team events should land in your inbox."
-                actions={
-                    <ClayButton
-                        variant="obsidian"
-                        size="sm"
-                        leading={saving ? <LuLoaderCircle className="h-4 w-4 animate-spin" /> : <LuSave className="h-4 w-4" />}
-                        onClick={handleSave}
-                        disabled={saving}
-                    >
-                        {saving ? 'Saving…' : 'Save preferences'}
-                    </ClayButton>
-                }
-            />
+            <ZoruPageHeader>
+                <ZoruPageHeading>
+                    <ZoruPageTitle>Notifications</ZoruPageTitle>
+                    <ZoruPageDescription>
+                        Choose which team events should land in your inbox.
+                    </ZoruPageDescription>
+                </ZoruPageHeading>
+                <ZoruButton size="sm" onClick={handleSave} disabled={saving}>
+                    {saving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                    {saving ? 'Saving…' : 'Save preferences'}
+                </ZoruButton>
+            </ZoruPageHeader>
 
-            <ClayCard variant="soft" padded className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-accent text-primary">
-                    <LuMail className="h-4 w-4" />
+            <ZoruCard variant="soft" className="flex items-center gap-3 p-6">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
+                    <Mail className="h-4 w-4" />
                 </div>
                 <div>
-                    <p className="text-[13px] font-semibold text-foreground">Delivery channel</p>
-                    <p className="text-[12.5px] text-muted-foreground">
+                    <p className="text-[13px] text-zoru-ink">Delivery channel</p>
+                    <p className="text-[12.5px] text-zoru-ink-muted">
                         Emails go to your account address. Push and Slack delivery arrive later.
                     </p>
                 </div>
-            </ClayCard>
+            </ZoruCard>
 
             {GROUPS.map((group) => (
-                <ClayCard key={group.title} padded>
+                <ZoruCard key={group.title} className="p-6">
                     <div className="mb-4 flex items-start gap-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted/50 text-muted-foreground">
-                            <LuBell className="h-4 w-4" />
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
+                            <Bell className="h-4 w-4" />
                         </div>
                         <div>
-                            <p className="text-[13.5px] font-semibold text-foreground">{group.title}</p>
-                            <p className="text-[12.5px] text-muted-foreground">{group.description}</p>
+                            <p className="text-[13.5px] text-zoru-ink">{group.title}</p>
+                            <p className="text-[12.5px] text-zoru-ink-muted">{group.description}</p>
                         </div>
                     </div>
-                    <ul className="divide-y divide-border">
+                    <ul className="divide-y divide-zoru-line">
                         {group.keys.map((row) => (
                             <li key={row.id} className="flex items-start justify-between gap-4 py-3">
                                 <div>
-                                    <Label htmlFor={row.id} className="text-[13px] font-medium text-foreground">
+                                    <ZoruLabel htmlFor={row.id} className="text-[13px] text-zoru-ink">
                                         {row.label}
-                                    </Label>
-                                    <p className="mt-0.5 text-[12px] text-muted-foreground">{row.description}</p>
+                                    </ZoruLabel>
+                                    <p className="mt-0.5 text-[12px] text-zoru-ink-muted">{row.description}</p>
                                 </div>
-                                <Switch
+                                <ZoruSwitch
                                     id={row.id}
                                     checked={prefs[row.id]}
                                     onCheckedChange={() => toggle(row.id)}
@@ -162,7 +171,7 @@ export default function TeamNotificationsPage() {
                             </li>
                         ))}
                     </ul>
-                </ClayCard>
+                </ZoruCard>
             ))}
         </div>
     );

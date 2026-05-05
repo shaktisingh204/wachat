@@ -1,13 +1,23 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import { ShieldCheck, Mail, Upload, List, CheckCircle, XCircle, AlertTriangle, Loader2 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import {
+    ZoruCard,
+    ZoruCardHeader,
+    ZoruCardTitle,
+    ZoruCardContent,
+    ZoruCardDescription,
+    ZoruButton,
+    ZoruInput,
+    ZoruLabel,
+    ZoruBadge,
+    ZoruPageHeader,
+    ZoruPageHeading,
+    ZoruPageTitle,
+    ZoruPageDescription,
+    useZoruToast,
+} from '@/components/zoruui';
 
 type VerificationResult = {
     email: string;
@@ -17,18 +27,18 @@ type VerificationResult = {
 
 function getStatusIcon(status: string) {
     switch (status) {
-        case 'valid': return <CheckCircle className="h-4 w-4 text-green-500" />;
-        case 'invalid': return <XCircle className="h-4 w-4 text-red-500" />;
-        case 'risky': return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
-        default: return <AlertTriangle className="h-4 w-4 text-muted-foreground" />;
+        case 'valid': return <CheckCircle className="h-4 w-4 text-zoru-success-ink" />;
+        case 'invalid': return <XCircle className="h-4 w-4 text-zoru-danger-ink" />;
+        case 'risky': return <AlertTriangle className="h-4 w-4 text-zoru-warning-ink" />;
+        default: return <AlertTriangle className="h-4 w-4 text-zoru-ink-muted" />;
     }
 }
 
 function getStatusBadge(status: string) {
-    const variants: Record<string, 'default' | 'destructive' | 'secondary' | 'outline'> = {
-        valid: 'default', invalid: 'destructive', risky: 'secondary', unknown: 'outline',
+    const variants: Record<string, 'success' | 'danger' | 'warning' | 'ghost'> = {
+        valid: 'success', invalid: 'danger', risky: 'warning', unknown: 'ghost',
     };
-    return <Badge variant={variants[status] || 'outline'}>{status}</Badge>;
+    return <ZoruBadge variant={variants[status] || 'ghost'}>{status}</ZoruBadge>;
 }
 
 function validateEmailFormat(email: string): VerificationResult {
@@ -53,7 +63,7 @@ function validateEmailFormat(email: string): VerificationResult {
 }
 
 export default function EmailVerificationPage() {
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
     const [singleEmail, setSingleEmail] = useState('');
     const [singleResult, setSingleResult] = useState<VerificationResult | null>(null);
     const [isVerifying, startVerify] = useTransition();
@@ -74,10 +84,8 @@ export default function EmailVerificationPage() {
         startBulkVerify(async () => {
             const text = await file.text();
             const lines = text.split('\n').map(l => l.trim()).filter(l => l && l.includes('@'));
-            // Extract emails (handle CSV with headers)
             const emails = lines.map(l => {
                 const parts = l.split(',');
-                // Find the part that looks like an email
                 const emailPart = parts.find(p => p.trim().includes('@'));
                 return emailPart?.trim().replace(/"/g, '') || '';
             }).filter(Boolean);
@@ -105,21 +113,27 @@ export default function EmailVerificationPage() {
 
     return (
         <div className="flex flex-col gap-8">
-            <div>
-                <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><ShieldCheck /> Email Verification</h1>
-                <p className="text-muted-foreground">Improve your deliverability by verifying emails and cleaning your contact lists.</p>
-            </div>
+            <ZoruPageHeader>
+                <ZoruPageHeading>
+                    <ZoruPageTitle>
+                        <span className="inline-flex items-center gap-3">
+                            <ShieldCheck className="h-7 w-7" /> Email Verification
+                        </span>
+                    </ZoruPageTitle>
+                    <ZoruPageDescription>Improve your deliverability by verifying emails and cleaning your contact lists.</ZoruPageDescription>
+                </ZoruPageHeading>
+            </ZoruPageHeader>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Mail className="h-5 w-5"/> Real-time Validation</CardTitle>
-                    <CardDescription>Check a single email address for validity, deliverability, and quality.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
+            <ZoruCard className="p-0">
+                <ZoruCardHeader>
+                    <ZoruCardTitle className="flex items-center gap-2"><Mail className="h-5 w-5"/> Real-time Validation</ZoruCardTitle>
+                    <ZoruCardDescription>Check a single email address for validity, deliverability, and quality.</ZoruCardDescription>
+                </ZoruCardHeader>
+                <ZoruCardContent className="space-y-4">
                     <div className="space-y-2">
-                        <Label htmlFor="single-email">Email Address</Label>
+                        <ZoruLabel htmlFor="single-email">Email Address</ZoruLabel>
                         <div className="flex gap-2">
-                            <Input
+                            <ZoruInput
                                 id="single-email"
                                 type="email"
                                 placeholder="test@example.com"
@@ -127,13 +141,13 @@ export default function EmailVerificationPage() {
                                 onChange={(e) => setSingleEmail(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && handleSingleVerify()}
                             />
-                            <Button onClick={handleSingleVerify} disabled={isVerifying || !singleEmail.trim()}>
+                            <ZoruButton onClick={handleSingleVerify} disabled={isVerifying || !singleEmail.trim()}>
                                 {isVerifying ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Verify'}
-                            </Button>
+                            </ZoruButton>
                         </div>
                     </div>
                     {singleResult && (
-                        <div className="p-4 rounded-lg border space-y-3">
+                        <div className="p-4 rounded-lg border border-zoru-line space-y-3">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     {getStatusIcon(singleResult.status)}
@@ -141,69 +155,69 @@ export default function EmailVerificationPage() {
                                 </div>
                                 {getStatusBadge(singleResult.status)}
                             </div>
-                            <p className="text-sm text-muted-foreground">{singleResult.reason}</p>
+                            <p className="text-sm text-zoru-ink-muted">{singleResult.reason}</p>
                         </div>
                     )}
-                </CardContent>
-            </Card>
+                </ZoruCardContent>
+            </ZoruCard>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><List className="h-5 w-5"/> Bulk List Cleaning</CardTitle>
-                    <CardDescription>Upload a CSV file of contacts to identify invalid, risky, or bounced emails.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
+            <ZoruCard className="p-0">
+                <ZoruCardHeader>
+                    <ZoruCardTitle className="flex items-center gap-2"><List className="h-5 w-5"/> Bulk List Cleaning</ZoruCardTitle>
+                    <ZoruCardDescription>Upload a CSV file of contacts to identify invalid, risky, or bounced emails.</ZoruCardDescription>
+                </ZoruCardHeader>
+                <ZoruCardContent className="space-y-4">
                     <div className="space-y-2">
-                        <Label htmlFor="bulk-file">Contact File (.csv)</Label>
-                        <Input id="bulk-file" type="file" accept=".csv,.txt" onChange={handleBulkVerify} />
+                        <ZoruLabel htmlFor="bulk-file">Contact File (.csv)</ZoruLabel>
+                        <ZoruInput id="bulk-file" type="file" accept=".csv,.txt" onChange={handleBulkVerify} />
                     </div>
                     {isBulkVerifying && (
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-2 text-sm text-zoru-ink-muted">
                             <Loader2 className="h-4 w-4 animate-spin" /> Verifying emails...
                         </div>
                     )}
                     {bulkResults.length > 0 && (
                         <div className="space-y-4">
                             <div className="grid grid-cols-4 gap-3">
-                                <div className="p-3 rounded-lg border text-center">
-                                    <div className="text-2xl font-bold text-green-600">{bulkResults.filter(r => r.status === 'valid').length}</div>
-                                    <div className="text-xs text-muted-foreground">Valid</div>
+                                <div className="p-3 rounded-lg border border-zoru-line text-center">
+                                    <div className="text-2xl text-zoru-success-ink">{bulkResults.filter(r => r.status === 'valid').length}</div>
+                                    <div className="text-xs text-zoru-ink-muted">Valid</div>
                                 </div>
-                                <div className="p-3 rounded-lg border text-center">
-                                    <div className="text-2xl font-bold text-red-600">{bulkResults.filter(r => r.status === 'invalid').length}</div>
-                                    <div className="text-xs text-muted-foreground">Invalid</div>
+                                <div className="p-3 rounded-lg border border-zoru-line text-center">
+                                    <div className="text-2xl text-zoru-danger-ink">{bulkResults.filter(r => r.status === 'invalid').length}</div>
+                                    <div className="text-xs text-zoru-ink-muted">Invalid</div>
                                 </div>
-                                <div className="p-3 rounded-lg border text-center">
-                                    <div className="text-2xl font-bold text-yellow-600">{bulkResults.filter(r => r.status === 'risky').length}</div>
-                                    <div className="text-xs text-muted-foreground">Risky</div>
+                                <div className="p-3 rounded-lg border border-zoru-line text-center">
+                                    <div className="text-2xl text-zoru-warning-ink">{bulkResults.filter(r => r.status === 'risky').length}</div>
+                                    <div className="text-xs text-zoru-ink-muted">Risky</div>
                                 </div>
-                                <div className="p-3 rounded-lg border text-center">
-                                    <div className="text-2xl font-bold">{bulkResults.length}</div>
-                                    <div className="text-xs text-muted-foreground">Total</div>
+                                <div className="p-3 rounded-lg border border-zoru-line text-center">
+                                    <div className="text-2xl text-zoru-ink">{bulkResults.length}</div>
+                                    <div className="text-xs text-zoru-ink-muted">Total</div>
                                 </div>
                             </div>
-                            <div className="max-h-64 overflow-y-auto border rounded-lg">
+                            <div className="max-h-64 overflow-y-auto border border-zoru-line rounded-lg">
                                 {bulkResults.map((r, i) => (
-                                    <div key={i} className="flex items-center justify-between px-3 py-2 border-b last:border-0 text-sm">
+                                    <div key={i} className="flex items-center justify-between px-3 py-2 border-b border-zoru-line last:border-0 text-sm">
                                         <div className="flex items-center gap-2">
                                             {getStatusIcon(r.status)}
                                             <span className="font-mono">{r.email}</span>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <span className="text-xs text-muted-foreground">{r.reason}</span>
+                                            <span className="text-xs text-zoru-ink-muted">{r.reason}</span>
                                             {getStatusBadge(r.status)}
                                         </div>
                                     </div>
                                 ))}
                             </div>
-                            <Button onClick={downloadCleanList}>
-                                <Upload className="mr-2 h-4 w-4" />
+                            <ZoruButton onClick={downloadCleanList}>
+                                <Upload className="h-4 w-4" />
                                 Download Results CSV
-                            </Button>
+                            </ZoruButton>
                         </div>
                     )}
-                </CardContent>
-            </Card>
+                </ZoruCardContent>
+            </ZoruCard>
         </div>
     );
 }

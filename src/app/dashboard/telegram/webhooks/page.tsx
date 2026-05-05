@@ -1,21 +1,60 @@
 'use client';
 
 import { Webhook } from 'lucide-react';
-import { TelegramPlaceholder } from '../_components/telegram-placeholder';
+import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
+
+const BULLETS = [
+    'HTTPS on ports 443, 80, 88, or 8443 — TLS required',
+    'secret_token echoed in X-Telegram-Bot-Api-Secret-Token header',
+    'allowed_updates filter to reduce bandwidth',
+    'Monitor pending updates and last error via getWebhookInfo',
+];
 
 export default function TelegramWebhooksPage() {
     return (
-        <TelegramPlaceholder
-            title="Webhooks"
-            description="Configure how Telegram delivers updates to SabNode. Each bot has one webhook plus a secret_token header."
-            icon={Webhook}
-            bullets={[
-                'HTTPS on ports 443, 80, 88, or 8443 — TLS required',
-                'secret_token echoed in X-Telegram-Bot-Api-Secret-Token header',
-                'allowed_updates filter to reduce bandwidth',
-                'Monitor pending updates and last error via getWebhookInfo',
-            ]}
-            docsHref="https://core.telegram.org/bots/api#setwebhook"
-        />
+        <div className="flex flex-col gap-6">
+            <div className="flex items-start justify-between gap-4">
+                <div className="flex items-start gap-4">
+                    <div
+                        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl"
+                        style={{
+                            background: 'linear-gradient(135deg, #37BBFE 0%, #007DBB 100%)',
+                            boxShadow: '0 10px 28px rgba(0, 125, 187, 0.25)',
+                        }}
+                    >
+                        <Webhook className="h-6 w-6 text-white" strokeWidth={1.75} />
+                    </div>
+                    <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                            <h1 className="text-[22px] leading-tight text-zoru-ink">Webhooks</h1>
+                            <ZoruBadge variant="ghost">Coming soon</ZoruBadge>
+                        </div>
+                        <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-zoru-ink-muted">
+                            Configure how Telegram delivers updates to SabNode. Each bot has one webhook plus a secret_token header.
+                        </p>
+                    </div>
+                </div>
+                <div className="flex shrink-0 items-center gap-2">
+                    <ZoruButton
+                        variant="outline"
+                        size="sm"
+                        onClick={() => window.open('https://core.telegram.org/bots/api#setwebhook', '_blank', 'noopener,noreferrer')}
+                    >
+                        Docs
+                    </ZoruButton>
+                </div>
+            </div>
+            <ZoruCard className="p-6">
+                <p className="text-[11px] uppercase tracking-[0.12em] text-zoru-ink-muted">What this will do</p>
+                <ul className="mt-3 flex flex-col gap-2.5">
+                    {BULLETS.map((b) => (
+                        <li key={b} className="flex items-start gap-2 text-[13px] text-zoru-ink">
+                            <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: '#37BBFE' }} />
+                            <span>{b}</span>
+                        </li>
+                    ))}
+                </ul>
+            </ZoruCard>
+        </div>
     );
 }

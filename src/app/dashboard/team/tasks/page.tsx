@@ -2,31 +2,46 @@
 
 import * as React from 'react';
 import {
-    LuCalendar,
-    LuCheck,
-    LuChevronDown,
-    LuFlag,
-    LuLoader,
-    LuPlus,
-    LuSearch,
-    LuTrash2,
-    LuUserPlus,
-} from 'react-icons/lu';
+    Calendar,
+    Check,
+    ChevronDown,
+    Flag,
+    Loader,
+    Plus,
+    Search,
+    Trash2,
+    UserPlus,
+} from 'lucide-react';
 
-import { ClayBadge } from '@/components/clay/clay-badge';
-import { ClayBreadcrumbs } from '@/components/clay/clay-breadcrumbs';
-import { ClayButton } from '@/components/clay/clay-button';
-import { ClayCard } from '@/components/clay/clay-card';
-import { ClayInput, ClaySelect } from '@/components/clay/clay-input';
-import { ClaySectionHeader } from '@/components/clay/clay-section-header';
 import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '@/components/ui/dialog';
-import { useToast } from '@/hooks/use-toast';
+    ZoruBadge,
+    ZoruBreadcrumb,
+    ZoruBreadcrumbItem,
+    ZoruBreadcrumbLink,
+    ZoruBreadcrumbList,
+    ZoruBreadcrumbPage,
+    ZoruBreadcrumbSeparator,
+    ZoruButton,
+    ZoruCard,
+    ZoruDialog,
+    ZoruDialogContent,
+    ZoruDialogHeader,
+    ZoruDialogTitle,
+    ZoruDialogTrigger,
+    ZoruInput,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+    ZoruPageDescription,
+    ZoruPageHeader,
+    ZoruPageHeading,
+    ZoruPageTitle,
+    ZoruTextarea,
+    type ZoruBadgeProps,
+    useZoruToast,
+} from '@/components/zoruui';
 import {
     createTeamTask,
     deleteTeamTask,
@@ -47,7 +62,7 @@ const STATUSES: Status[] = ['To-Do', 'In Progress', 'Completed'];
 type Assignee = { _id: string; name: string; email: string };
 
 export default function TeamTasksPage() {
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
     const { activeProjectId, sessionUser } = useProject();
     const canCreate = useCan('team_tasks', 'create');
     const canEdit = useCan('team_tasks', 'edit');
@@ -152,35 +167,44 @@ export default function TeamTasksPage() {
     ).length;
 
     return (
-        <div className="clay-enter flex min-h-full flex-col gap-6">
-            <ClayBreadcrumbs
-                items={[
-                    { label: 'SabNode', href: '/dashboard' },
-                    { label: 'Team', href: '/dashboard/team/manage-users' },
-                    { label: 'Tasks' },
-                ]}
-            />
+        <div className="flex min-h-full flex-col gap-6">
+            <ZoruBreadcrumb>
+                <ZoruBreadcrumbList>
+                    <ZoruBreadcrumbItem>
+                        <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+                    </ZoruBreadcrumbItem>
+                    <ZoruBreadcrumbSeparator />
+                    <ZoruBreadcrumbItem>
+                        <ZoruBreadcrumbLink href="/dashboard/team/manage-users">Team</ZoruBreadcrumbLink>
+                    </ZoruBreadcrumbItem>
+                    <ZoruBreadcrumbSeparator />
+                    <ZoruBreadcrumbItem>
+                        <ZoruBreadcrumbPage>Tasks</ZoruBreadcrumbPage>
+                    </ZoruBreadcrumbItem>
+                </ZoruBreadcrumbList>
+            </ZoruBreadcrumb>
 
-            <ClaySectionHeader
-                size="lg"
-                title="Team tasks"
-                subtitle="Plan work, assign it to teammates, and track what's in flight."
-                actions={
-                    canCreate ? (
-                        <CreateTaskDialog
-                            open={createOpen}
-                            onOpenChange={setCreateOpen}
-                            assignees={assignees}
-                            projectId={activeProjectId}
-                            onCreated={() => {
-                                setCreateOpen(false);
-                                fetchAll();
-                            }}
-                            toast={toast}
-                        />
-                    ) : null
-                }
-            />
+            <ZoruPageHeader>
+                <ZoruPageHeading>
+                    <ZoruPageTitle>Team tasks</ZoruPageTitle>
+                    <ZoruPageDescription>
+                        Plan work, assign it to teammates, and track what&apos;s in flight.
+                    </ZoruPageDescription>
+                </ZoruPageHeading>
+                {canCreate ? (
+                    <CreateTaskDialog
+                        open={createOpen}
+                        onOpenChange={setCreateOpen}
+                        assignees={assignees}
+                        projectId={activeProjectId}
+                        onCreated={() => {
+                            setCreateOpen(false);
+                            fetchAll();
+                        }}
+                        toast={toast}
+                    />
+                ) : null}
+            </ZoruPageHeader>
 
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 <StatTile label="Total" value={tasks.length} />
@@ -189,41 +213,49 @@ export default function TeamTasksPage() {
                 <StatTile label="Overdue" value={overdueCount} tone={overdueCount > 0 ? 'red' : 'neutral'} />
             </div>
 
-            <ClayCard padded={false} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+            <ZoruCard className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex flex-1 items-center gap-3">
-                    <ClayInput
-                        sizeVariant="md"
+                    <ZoruInput
                         className="max-w-[300px] flex-1"
-                        leading={<LuSearch className="h-3.5 w-3.5" strokeWidth={2} />}
+                        leadingSlot={<Search className="h-3.5 w-3.5" strokeWidth={2} />}
                         placeholder="Search tasks"
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                     />
-                    <ClaySelect
-                        sizeVariant="md"
-                        className="w-[180px]"
-                        value={assigneeFilter}
-                        onChange={(e) => setAssigneeFilter(e.target.value)}
-                        options={[
-                            { value: 'all', label: 'All assignees' },
-                            { value: '__unassigned', label: 'Unassigned' },
-                            ...assignees.map((a) => ({ value: a._id, label: a.name })),
-                        ]}
-                    />
-                    <ClaySelect
-                        sizeVariant="md"
-                        className="w-[140px]"
-                        value={priorityFilter}
-                        onChange={(e) => setPriorityFilter(e.target.value as any)}
-                        options={[
-                            { value: 'all', label: 'All priorities' },
-                            { value: 'High', label: 'High' },
-                            { value: 'Medium', label: 'Medium' },
-                            { value: 'Low', label: 'Low' },
-                        ]}
-                    />
+                    <div className="w-[180px]">
+                        <ZoruSelect value={assigneeFilter} onValueChange={setAssigneeFilter}>
+                            <ZoruSelectTrigger>
+                                <ZoruSelectValue />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                <ZoruSelectItem value="all">All assignees</ZoruSelectItem>
+                                <ZoruSelectItem value="__unassigned">Unassigned</ZoruSelectItem>
+                                {assignees.map((a) => (
+                                    <ZoruSelectItem key={a._id} value={a._id}>
+                                        {a.name}
+                                    </ZoruSelectItem>
+                                ))}
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                    </div>
+                    <div className="w-[140px]">
+                        <ZoruSelect
+                            value={priorityFilter}
+                            onValueChange={(v) => setPriorityFilter(v as 'all' | Priority)}
+                        >
+                            <ZoruSelectTrigger>
+                                <ZoruSelectValue />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                <ZoruSelectItem value="all">All priorities</ZoruSelectItem>
+                                <ZoruSelectItem value="High">High</ZoruSelectItem>
+                                <ZoruSelectItem value="Medium">Medium</ZoruSelectItem>
+                                <ZoruSelectItem value="Low">Low</ZoruSelectItem>
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                    </div>
                 </div>
-            </ClayCard>
+            </ZoruCard>
 
             {loading ? (
                 <KanbanSkeleton />
@@ -261,15 +293,15 @@ function StatTile({
     tone?: 'red' | 'neutral';
 }) {
     return (
-        <ClayCard padded={false} className="flex items-center gap-3 p-4">
+        <ZoruCard className="flex items-center gap-3 p-4">
             <div>
-                <div className="text-[11px] font-medium uppercase tracking-[0.06em] text-muted-foreground">{label}</div>
+                <div className="text-[11px] uppercase tracking-[0.06em] text-zoru-ink-muted">{label}</div>
                 <div className="flex items-center gap-2">
-                    <div className="text-[22px] font-semibold tracking-[-0.01em] text-foreground">{value}</div>
-                    {tone === 'red' && value > 0 ? <ClayBadge tone="red" dot>Attention</ClayBadge> : null}
+                    <div className="text-[22px] tracking-[-0.01em] text-zoru-ink">{value}</div>
+                    {tone === 'red' && value > 0 ? <ZoruBadge variant="danger">Attention</ZoruBadge> : null}
                 </div>
             </div>
-        </ClayCard>
+        </ZoruCard>
     );
 }
 
@@ -297,10 +329,10 @@ function Column({
     onDelete: (id: string) => void;
 }) {
     const [dropActive, setDropActive] = React.useState(false);
-    const tone: Record<Status, React.ComponentProps<typeof ClayBadge>['tone']> = {
-        'To-Do': 'neutral',
-        'In Progress': 'amber',
-        Completed: 'green',
+    const variant: Record<Status, NonNullable<ZoruBadgeProps['variant']>> = {
+        'To-Do': 'ghost',
+        'In Progress': 'warning',
+        Completed: 'success',
     };
 
     return (
@@ -318,21 +350,19 @@ function Column({
                 if (taskId) onMove(taskId, status);
             }}
             className={
-                'flex min-h-[300px] flex-col gap-3 rounded-xl border border-border bg-card p-4 transition-colors ' +
-                (dropActive ? 'border-primary bg-accent/40' : '')
+                'flex min-h-[300px] flex-col gap-3 rounded-xl border border-zoru-line bg-zoru-bg p-4 transition-colors ' +
+                (dropActive ? 'border-zoru-ink bg-zoru-surface-2/40' : '')
             }
         >
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <ClayBadge tone={tone[status]} dot>
-                        {status}
-                    </ClayBadge>
-                    <span className="text-[12px] text-muted-foreground">{tasks.length}</span>
+                    <ZoruBadge variant={variant[status]}>{status}</ZoruBadge>
+                    <span className="text-[12px] text-zoru-ink-muted">{tasks.length}</span>
                 </div>
             </div>
 
             {tasks.length === 0 ? (
-                <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-border p-6 text-[12.5px] text-muted-foreground">
+                <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-zoru-line p-6 text-[12.5px] text-zoru-ink-muted">
                     Drop tasks here
                 </div>
             ) : (
@@ -376,10 +406,10 @@ function TaskCard({
     onDelete: (id: string) => void;
 }) {
     const id = task._id.toString();
-    const priorityTone: Record<Priority, React.ComponentProps<typeof ClayBadge>['tone']> = {
-        High: 'red',
-        Medium: 'amber',
-        Low: 'blue',
+    const priorityVariant: Record<Priority, NonNullable<ZoruBadgeProps['variant']>> = {
+        High: 'danger',
+        Medium: 'warning',
+        Low: 'info',
     };
 
     const due = task.dueDate ? new Date(task.dueDate as any) : null;
@@ -393,39 +423,39 @@ function TaskCard({
                 e.dataTransfer.setData('text/taskId', id);
                 e.dataTransfer.effectAllowed = 'move';
             }}
-            className="flex flex-col gap-2 rounded-lg border border-border bg-card p-3 shadow-sm transition-[transform,box-shadow] hover:-translate-y-0.5 hover:shadow-md"
+            className="flex flex-col gap-2 rounded-lg border border-zoru-line bg-zoru-bg p-3 shadow-sm transition-[transform,box-shadow] hover:-translate-y-0.5 hover:shadow-md"
         >
             <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0 flex-1">
-                    <div className="text-[13.5px] font-medium leading-snug text-foreground">{task.title}</div>
+                    <div className="text-[13.5px] leading-snug text-zoru-ink">{task.title}</div>
                     {task.description ? (
-                        <div className="mt-0.5 line-clamp-2 text-[12px] text-muted-foreground">{task.description}</div>
+                        <div className="mt-0.5 line-clamp-2 text-[12px] text-zoru-ink-muted">{task.description}</div>
                     ) : null}
                 </div>
                 {canDelete ? (
                     <button
                         type="button"
                         onClick={() => onDelete(id)}
-                        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-rose-50/60 hover:text-destructive"
+                        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-zoru-ink-muted hover:bg-zoru-danger/10 hover:text-zoru-danger-ink"
                         aria-label="Delete task"
                     >
-                        <LuTrash2 className="h-3.5 w-3.5" strokeWidth={1.75} />
+                        <Trash2 className="h-3.5 w-3.5" strokeWidth={1.75} />
                     </button>
                 ) : null}
             </div>
 
             <div className="flex flex-wrap items-center gap-1.5">
-                <ClayBadge tone={priorityTone[task.priority]} dot>
-                    <LuFlag className="h-3 w-3" strokeWidth={2} />
+                <ZoruBadge variant={priorityVariant[task.priority]}>
+                    <Flag className="h-3 w-3" strokeWidth={2} />
                     {task.priority}
-                </ClayBadge>
+                </ZoruBadge>
                 {due ? (
-                    <ClayBadge tone={overdue ? 'red' : 'neutral'}>
-                        <LuCalendar className="h-3 w-3" strokeWidth={2} />
+                    <ZoruBadge variant={overdue ? 'danger' : 'ghost'}>
+                        <Calendar className="h-3 w-3" strokeWidth={2} />
                         {due.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                    </ClayBadge>
+                    </ZoruBadge>
                 ) : null}
-                {isMine ? <ClayBadge tone="rose-soft">You</ClayBadge> : null}
+                {isMine ? <ZoruBadge variant="secondary">You</ZoruBadge> : null}
             </div>
 
             <div className="flex items-center justify-between gap-2">
@@ -460,11 +490,11 @@ function AssigneeChip({
             className={
                 'inline-flex items-center gap-1.5 rounded-full border px-2 h-6 text-[11.5px] ' +
                 (task.assignedTo
-                    ? 'border-border bg-secondary text-foreground'
-                    : 'border-dashed border-border bg-card text-muted-foreground')
+                    ? 'border-zoru-line bg-zoru-surface-2 text-zoru-ink'
+                    : 'border-dashed border-zoru-line bg-zoru-bg text-zoru-ink-muted')
             }
         >
-            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[9px] font-semibold text-accent-foreground">
+            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-zoru-surface-2 text-[9px] text-zoru-ink">
                 {task.assignedTo ? initial : '?'}
             </span>
             <span className="max-w-[120px] truncate">{name}</span>
@@ -472,16 +502,16 @@ function AssigneeChip({
     );
     if (!canEdit) return chip;
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
+        <ZoruDialog open={open} onOpenChange={setOpen}>
+            <ZoruDialogTrigger asChild>
                 <button type="button" className="outline-none hover:opacity-90">
                     {chip}
                 </button>
-            </DialogTrigger>
-            <DialogContent className="max-w-sm border border-border bg-card p-4 shadow-lg">
-                <DialogHeader>
-                    <DialogTitle className="text-[15px] font-semibold text-foreground">Assign task</DialogTitle>
-                </DialogHeader>
+            </ZoruDialogTrigger>
+            <ZoruDialogContent className="max-w-sm">
+                <ZoruDialogHeader>
+                    <ZoruDialogTitle>Assign task</ZoruDialogTitle>
+                </ZoruDialogHeader>
                 <div className="mt-3 flex max-h-[280px] flex-col gap-1 overflow-auto">
                     <button
                         type="button"
@@ -489,10 +519,10 @@ function AssigneeChip({
                             setOpen(false);
                             onReassign(null);
                         }}
-                        className="flex items-center justify-between rounded-md px-2 py-2 text-left text-[13px] hover:bg-secondary"
+                        className="flex items-center justify-between rounded-md px-2 py-2 text-left text-[13px] hover:bg-zoru-surface-2"
                     >
-                        <span className="text-muted-foreground">Unassign</span>
-                        {!task.assignedTo ? <LuCheck className="h-3.5 w-3.5" /> : null}
+                        <span className="text-zoru-ink-muted">Unassign</span>
+                        {!task.assignedTo ? <Check className="h-3.5 w-3.5" /> : null}
                     </button>
                     {assignees.map((a) => {
                         const active = task.assignedTo?.toString() === a._id;
@@ -505,42 +535,45 @@ function AssigneeChip({
                                     onReassign(a._id);
                                 }}
                                 className={
-                                    'flex items-center justify-between rounded-md px-2 py-2 text-left text-[13px] hover:bg-secondary ' +
-                                    (active ? 'bg-accent/40' : '')
+                                    'flex items-center justify-between rounded-md px-2 py-2 text-left text-[13px] hover:bg-zoru-surface-2 ' +
+                                    (active ? 'bg-zoru-surface-2/60' : '')
                                 }
                             >
                                 <span className="flex items-center gap-2">
-                                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-secondary text-[10px] font-semibold text-foreground">
+                                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-zoru-surface-2 text-[10px] text-zoru-ink">
                                         {a.name.charAt(0).toUpperCase()}
                                     </span>
                                     <span>
-                                        <span className="block text-foreground">{a.name}</span>
-                                        <span className="block text-[11px] text-muted-foreground">{a.email}</span>
+                                        <span className="block text-zoru-ink">{a.name}</span>
+                                        <span className="block text-[11px] text-zoru-ink-muted">{a.email}</span>
                                     </span>
                                 </span>
-                                {active ? <LuCheck className="h-3.5 w-3.5 text-accent-foreground" /> : null}
+                                {active ? <Check className="h-3.5 w-3.5 text-zoru-ink" /> : null}
                             </button>
                         );
                     })}
                 </div>
-            </DialogContent>
-        </Dialog>
+            </ZoruDialogContent>
+        </ZoruDialog>
     );
 }
 
 function StatusMenu({ status, onMove }: { status: Status; onMove: (s: Status) => void }) {
     const [open, setOpen] = React.useState(false);
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
+        <ZoruDialog open={open} onOpenChange={setOpen}>
+            <ZoruDialogTrigger asChild>
                 <button
                     type="button"
-                    className="inline-flex h-6 items-center gap-1 rounded-full border border-border bg-secondary px-2 text-[11.5px] text-muted-foreground hover:text-foreground"
+                    className="inline-flex h-6 items-center gap-1 rounded-full border border-zoru-line bg-zoru-surface-2 px-2 text-[11.5px] text-zoru-ink-muted hover:text-zoru-ink"
                 >
-                    Move <LuChevronDown className="h-3 w-3" />
+                    Move <ChevronDown className="h-3 w-3" />
                 </button>
-            </DialogTrigger>
-            <DialogContent className="max-w-xs border border-border bg-card p-3 shadow-lg">
+            </ZoruDialogTrigger>
+            <ZoruDialogContent className="max-w-xs">
+                <ZoruDialogHeader>
+                    <ZoruDialogTitle>Move to</ZoruDialogTitle>
+                </ZoruDialogHeader>
                 <div className="flex flex-col gap-1">
                     {STATUSES.map((s) => (
                         <button
@@ -551,17 +584,17 @@ function StatusMenu({ status, onMove }: { status: Status; onMove: (s: Status) =>
                                 onMove(s);
                             }}
                             className={
-                                'flex items-center justify-between rounded-md px-2 py-2 text-left text-[13px] hover:bg-secondary ' +
-                                (s === status ? 'bg-accent/40' : '')
+                                'flex items-center justify-between rounded-md px-2 py-2 text-left text-[13px] hover:bg-zoru-surface-2 ' +
+                                (s === status ? 'bg-zoru-surface-2/60' : '')
                             }
                         >
                             <span>{s}</span>
-                            {s === status ? <LuCheck className="h-3.5 w-3.5 text-accent-foreground" /> : null}
+                            {s === status ? <Check className="h-3.5 w-3.5 text-zoru-ink" /> : null}
                         </button>
                     ))}
                 </div>
-            </DialogContent>
-        </Dialog>
+            </ZoruDialogContent>
+        </ZoruDialog>
     );
 }
 
@@ -580,15 +613,19 @@ function CreateTaskDialog({
     assignees: Assignee[];
     projectId: string | null;
     onCreated: () => void;
-    toast: ReturnType<typeof useToast>['toast'];
+    toast: ReturnType<typeof useZoruToast>['toast'];
 }) {
     const [pending, setPending] = React.useState(false);
+    const [priority, setPriority] = React.useState<Priority>('Medium');
+    const [assignedTo, setAssignedTo] = React.useState<string>('');
 
     const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const form = e.currentTarget;
         const fd = new FormData(form);
         if (projectId) fd.set('projectId', projectId);
+        fd.set('priority', priority);
+        fd.set('assignedTo', assignedTo);
         setPending(true);
         (async () => {
             const res = await createTeamTask(null, fd);
@@ -596,6 +633,8 @@ function CreateTaskDialog({
             if (res.message) {
                 toast({ title: 'Task created' });
                 form.reset();
+                setPriority('Medium');
+                setAssignedTo('');
                 onCreated();
             } else {
                 toast({ title: 'Could not create', description: res.error, variant: 'destructive' });
@@ -604,89 +643,85 @@ function CreateTaskDialog({
     };
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogTrigger asChild>
-                <ClayButton variant="obsidian" size="md" leading={<LuPlus className="h-3.5 w-3.5" strokeWidth={2.25} />}>
+        <ZoruDialog open={open} onOpenChange={onOpenChange}>
+            <ZoruDialogTrigger asChild>
+                <ZoruButton size="md">
+                    <Plus className="h-3.5 w-3.5" />
                     New task
-                </ClayButton>
-            </DialogTrigger>
-            <DialogContent className="max-w-md overflow-hidden border border-border bg-card p-0 shadow-lg">
-                <div className="h-[6px] w-full bg-primary" />
-                <div className="p-6">
-                    <DialogHeader>
-                        <DialogTitle className="text-[20px] font-semibold tracking-[-0.01em] text-foreground">
-                            New task
-                        </DialogTitle>
-                    </DialogHeader>
-                    <form onSubmit={onSubmit} className="mt-5 flex flex-col gap-4">
-                        <Field label="Title">
-                            <ClayInput name="title" required placeholder="Follow up with onboarding leads" />
+                </ZoruButton>
+            </ZoruDialogTrigger>
+            <ZoruDialogContent className="max-w-md">
+                <ZoruDialogHeader>
+                    <ZoruDialogTitle>New task</ZoruDialogTitle>
+                </ZoruDialogHeader>
+                <form onSubmit={onSubmit} className="mt-2 flex flex-col gap-4">
+                    <Field label="Title">
+                        <ZoruInput name="title" required placeholder="Follow up with onboarding leads" />
+                    </Field>
+                    <Field label="Description (optional)">
+                        <ZoruTextarea
+                            name="description"
+                            rows={3}
+                            placeholder="Details, links, acceptance criteria…"
+                        />
+                    </Field>
+                    <div className="grid grid-cols-2 gap-3">
+                        <Field label="Priority">
+                            <ZoruSelect value={priority} onValueChange={(v) => setPriority(v as Priority)}>
+                                <ZoruSelectTrigger>
+                                    <ZoruSelectValue />
+                                </ZoruSelectTrigger>
+                                <ZoruSelectContent>
+                                    <ZoruSelectItem value="High">High</ZoruSelectItem>
+                                    <ZoruSelectItem value="Medium">Medium</ZoruSelectItem>
+                                    <ZoruSelectItem value="Low">Low</ZoruSelectItem>
+                                </ZoruSelectContent>
+                            </ZoruSelect>
                         </Field>
-                        <Field label="Description (optional)">
-                            <textarea
-                                name="description"
-                                rows={3}
-                                placeholder="Details, links, acceptance criteria…"
-                                className="clay-input min-h-[80px] py-2 text-[13px]"
-                            />
+                        <Field label="Due date">
+                            <ZoruInput name="dueDate" type="date" />
                         </Field>
-                        <div className="grid grid-cols-2 gap-3">
-                            <Field label="Priority">
-                                <ClaySelect
-                                    name="priority"
-                                    defaultValue="Medium"
-                                    options={[
-                                        { value: 'High', label: 'High' },
-                                        { value: 'Medium', label: 'Medium' },
-                                        { value: 'Low', label: 'Low' },
-                                    ]}
-                                />
-                            </Field>
-                            <Field label="Due date">
-                                <ClayInput name="dueDate" type="date" />
-                            </Field>
-                        </div>
-                        <Field label="Assign to">
-                            <ClaySelect
-                                name="assignedTo"
-                                defaultValue=""
-                                options={[
-                                    { value: '', label: 'Unassigned' },
-                                    ...assignees.map((a) => ({ value: a._id, label: `${a.name} (${a.email})` })),
-                                ]}
-                            />
-                        </Field>
-                        <div className="mt-2 flex justify-end gap-2">
-                            <ClayButton type="button" variant="pill" size="md" onClick={() => onOpenChange(false)} disabled={pending}>
-                                Cancel
-                            </ClayButton>
-                            <ClayButton
-                                type="submit"
-                                variant="obsidian"
-                                size="md"
-                                disabled={pending}
-                                leading={
-                                    pending ? (
-                                        <LuLoader className="h-3.5 w-3.5 animate-spin" />
-                                    ) : (
-                                        <LuUserPlus className="h-3.5 w-3.5" strokeWidth={2.25} />
-                                    )
-                                }
-                            >
-                                Create task
-                            </ClayButton>
-                        </div>
-                    </form>
-                </div>
-            </DialogContent>
-        </Dialog>
+                    </div>
+                    <Field label="Assign to">
+                        <ZoruSelect value={assignedTo || '__none'} onValueChange={(v) => setAssignedTo(v === '__none' ? '' : v)}>
+                            <ZoruSelectTrigger>
+                                <ZoruSelectValue placeholder="Unassigned" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                <ZoruSelectItem value="__none">Unassigned</ZoruSelectItem>
+                                {assignees.map((a) => (
+                                    <ZoruSelectItem key={a._id} value={a._id}>
+                                        {a.name} ({a.email})
+                                    </ZoruSelectItem>
+                                ))}
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                    </Field>
+                    <div className="mt-2 flex justify-end gap-2">
+                        <ZoruButton
+                            type="button"
+                            variant="outline"
+                            size="md"
+                            onClick={() => onOpenChange(false)}
+                            disabled={pending}
+                        >
+                            Cancel
+                        </ZoruButton>
+                        <ZoruButton type="submit" size="md" disabled={pending}>
+                            {pending ? <Loader className="h-3.5 w-3.5 animate-spin" /> : <UserPlus className="h-3.5 w-3.5" />}
+                            Create task
+                        </ZoruButton>
+                    </div>
+                </form>
+            </ZoruDialogContent>
+        </ZoruDialog>
     );
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
     return (
         <div className="flex flex-col gap-1.5">
-            <label className="text-[11.5px] font-medium uppercase tracking-[0.06em] text-muted-foreground">{label}</label>
+            <label className="text-[11.5px] uppercase tracking-[0.06em] text-zoru-ink-muted">{label}</label>
             {children}
         </div>
     );
@@ -696,10 +731,10 @@ function KanbanSkeleton() {
     return (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             {STATUSES.map((s) => (
-                <div key={s} className="flex h-[280px] flex-col gap-3 rounded-xl border border-border bg-card p-4">
-                    <div className="h-4 w-24 animate-pulse rounded-full bg-secondary" />
-                    <div className="h-16 animate-pulse rounded-lg bg-secondary" />
-                    <div className="h-16 animate-pulse rounded-lg bg-secondary" />
+                <div key={s} className="flex h-[280px] flex-col gap-3 rounded-xl border border-zoru-line bg-zoru-bg p-4">
+                    <div className="h-4 w-24 animate-pulse rounded-full bg-zoru-surface-2" />
+                    <div className="h-16 animate-pulse rounded-lg bg-zoru-surface-2" />
+                    <div className="h-16 animate-pulse rounded-lg bg-zoru-surface-2" />
                 </div>
             ))}
         </div>

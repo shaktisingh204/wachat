@@ -3,27 +3,33 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
-    LuUsers,
-    LuShieldCheck,
-    LuUserPlus,
-    LuListChecks,
-    LuMessagesSquare,
-    LuActivity,
-    LuBell,
-    LuSettings,
-    LuArrowUpRight,
-    LuClock,
-} from 'react-icons/lu';
+    Users,
+    ShieldCheck,
+    UserPlus,
+    ListChecks,
+    MessagesSquare,
+    Activity,
+    Bell,
+    Settings,
+    ArrowUpRight,
+    Clock,
+} from 'lucide-react';
 
 import {
-    ClayBadge,
-    ClayBreadcrumbs,
-    ClayButton,
-    ClayCard,
-    ClaySectionHeader,
-} from '@/components/clay';
-import { Skeleton } from '@/components/ui/skeleton';
-import { cn } from '@/lib/utils';
+    ZoruBadge,
+    ZoruBreadcrumb,
+    ZoruBreadcrumbItem,
+    ZoruBreadcrumbList,
+    ZoruBreadcrumbPage,
+    ZoruButton,
+    ZoruCard,
+    ZoruPageDescription,
+    ZoruPageHeader,
+    ZoruPageHeading,
+    ZoruPageTitle,
+    ZoruSkeleton,
+    cn,
+} from '@/components/zoruui';
 import {
     getInvitedUsers,
     listPendingInvitations,
@@ -49,56 +55,56 @@ const MODULE_TILES: Array<{
         href: '/dashboard/team/manage-users',
         label: 'Members',
         description: 'See who belongs to the workspace and manage their project roles.',
-        icon: LuUsers,
+        icon: Users,
         tone: 'from-rose-400 to-rose-600',
     },
     {
         href: '/dashboard/team/manage-roles',
         label: 'Roles & permissions',
         description: 'Control which features each role can view, create, edit, or delete.',
-        icon: LuShieldCheck,
+        icon: ShieldCheck,
         tone: 'from-indigo-400 to-indigo-600',
     },
     {
         href: '/dashboard/team/invites',
         label: 'Invitations',
         description: 'Track pending invites, resend emails, or revoke access before it lands.',
-        icon: LuUserPlus,
+        icon: UserPlus,
         tone: 'from-amber-400 to-amber-600',
     },
     {
         href: '/dashboard/team/tasks',
         label: 'Tasks',
         description: 'Kanban board for everything the team is working on.',
-        icon: LuListChecks,
+        icon: ListChecks,
         tone: 'from-emerald-400 to-emerald-600',
     },
     {
         href: '/dashboard/team/team-chat',
         label: 'Team chat',
         description: 'Direct messages and group channels for private collaboration.',
-        icon: LuMessagesSquare,
+        icon: MessagesSquare,
         tone: 'from-sky-400 to-sky-600',
     },
     {
         href: '/dashboard/team/activity',
         label: 'Activity log',
         description: 'Audit trail of every team change: invites, role edits, removals.',
-        icon: LuActivity,
+        icon: Activity,
         tone: 'from-violet-400 to-violet-600',
     },
     {
         href: '/dashboard/team/notifications',
         label: 'Notifications',
         description: 'Configure email digest, mentions, and team-event alerts.',
-        icon: LuBell,
+        icon: Bell,
         tone: 'from-pink-400 to-pink-600',
     },
     {
         href: '/dashboard/team/settings',
         label: 'Workspace settings',
         description: 'Defaults for invites, signatures, and agent routing.',
-        icon: LuSettings,
+        icon: Settings,
         tone: 'from-slate-400 to-slate-600',
     },
 ];
@@ -139,23 +145,29 @@ export default function TeamOverviewPage() {
     }, []);
 
     return (
-        <div className="clay-enter flex min-h-full flex-col gap-6">
-            <ClayBreadcrumbs items={[{ label: 'Team' }]} />
+        <div className="flex min-h-full flex-col gap-6">
+            <ZoruBreadcrumb>
+                <ZoruBreadcrumbList>
+                    <ZoruBreadcrumbItem>
+                        <ZoruBreadcrumbPage>Team</ZoruBreadcrumbPage>
+                    </ZoruBreadcrumbItem>
+                </ZoruBreadcrumbList>
+            </ZoruBreadcrumb>
 
-            <ClaySectionHeader
-                size="lg"
-                title="Team"
-                subtitle="Everything about your people: members, roles, invites, tasks, chat, and audit."
-                actions={
-                    <div className="flex gap-2">
-                        <Link href="/dashboard/team/manage-users">
-                            <ClayButton variant="obsidian" size="sm" leading={<LuUserPlus className="h-4 w-4" />}>
-                                Invite member
-                            </ClayButton>
-                        </Link>
-                    </div>
-                }
-            />
+            <ZoruPageHeader>
+                <ZoruPageHeading>
+                    <ZoruPageTitle>Team</ZoruPageTitle>
+                    <ZoruPageDescription>
+                        Everything about your people: members, roles, invites, tasks, chat, and audit.
+                    </ZoruPageDescription>
+                </ZoruPageHeading>
+                <Link href="/dashboard/team/manage-users">
+                    <ZoruButton size="sm">
+                        <UserPlus className="h-4 w-4" />
+                        Invite member
+                    </ZoruButton>
+                </Link>
+            </ZoruPageHeader>
 
             {/* Stat cards */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -163,31 +175,31 @@ export default function TeamOverviewPage() {
                     loading={loading}
                     label="Team members"
                     value={data.members}
-                    icon={<LuUsers className="h-4 w-4" />}
+                    icon={<Users className="h-4 w-4" />}
                 />
                 <StatCard
                     loading={loading}
                     label="Pending invites"
                     value={data.pendingInvites}
-                    icon={<LuUserPlus className="h-4 w-4" />}
+                    icon={<UserPlus className="h-4 w-4" />}
                     tone="amber"
                 />
                 <StatCard
                     loading={loading}
                     label="Expired invites"
                     value={data.expiredInvites}
-                    icon={<LuClock className="h-4 w-4" />}
+                    icon={<Clock className="h-4 w-4" />}
                     tone="red"
                 />
             </div>
 
             {/* Module tiles */}
             <div>
-                <h2 className="mb-3 text-[14px] font-semibold text-foreground">Quick actions</h2>
+                <h2 className="mb-3 text-[14px] text-zoru-ink">Quick actions</h2>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     {MODULE_TILES.map((tile) => (
                         <Link key={tile.href} href={tile.href} className="group">
-                            <ClayCard padded className="h-full transition-shadow group-hover:shadow-md">
+                            <ZoruCard className="h-full p-6 transition-shadow group-hover:shadow-md">
                                 <div
                                     className={cn(
                                         'mb-3 flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br text-white',
@@ -197,53 +209,54 @@ export default function TeamOverviewPage() {
                                     <tile.icon className="h-[18px] w-[18px]" strokeWidth={2} />
                                 </div>
                                 <div className="flex items-start justify-between gap-2">
-                                    <p className="text-[13.5px] font-semibold text-foreground">{tile.label}</p>
-                                    <LuArrowUpRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                                    <p className="text-[13.5px] text-zoru-ink">{tile.label}</p>
+                                    <ArrowUpRight className="h-4 w-4 text-zoru-ink-muted transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                                 </div>
-                                <p className="mt-1 text-[12.5px] leading-relaxed text-muted-foreground">
+                                <p className="mt-1 text-[12.5px] leading-relaxed text-zoru-ink-muted">
                                     {tile.description}
                                 </p>
-                            </ClayCard>
+                            </ZoruCard>
                         </Link>
                     ))}
                 </div>
             </div>
 
             {/* Recent invites */}
-            <ClayCard padded>
+            <ZoruCard className="p-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h2 className="text-[14px] font-semibold text-foreground">Recent invitations</h2>
-                        <p className="text-[12.5px] text-muted-foreground">
+                        <h2 className="text-[14px] text-zoru-ink">Recent invitations</h2>
+                        <p className="text-[12.5px] text-zoru-ink-muted">
                             Latest 5 invites across all projects.
                         </p>
                     </div>
                     <Link href="/dashboard/team/invites">
-                        <ClayButton variant="ghost" size="sm" trailing={<LuArrowUpRight className="h-4 w-4" />}>
+                        <ZoruButton variant="ghost" size="sm">
                             See all
-                        </ClayButton>
+                            <ArrowUpRight className="h-4 w-4" />
+                        </ZoruButton>
                     </Link>
                 </div>
                 {loading ? (
                     <div className="mt-4 space-y-2">
-                        <Skeleton className="h-12 w-full" />
-                        <Skeleton className="h-12 w-full" />
-                        <Skeleton className="h-12 w-full" />
+                        <ZoruSkeleton className="h-12 w-full" />
+                        <ZoruSkeleton className="h-12 w-full" />
+                        <ZoruSkeleton className="h-12 w-full" />
                     </div>
                 ) : data.recentInvites.length === 0 ? (
-                    <div className="mt-4 rounded-xl border border-dashed border-border bg-muted/50 p-6 text-center text-[13px] text-muted-foreground">
+                    <div className="mt-4 rounded-xl border border-dashed border-zoru-line bg-zoru-surface-2/50 p-6 text-center text-[13px] text-zoru-ink-muted">
                         No invitations yet. Start by inviting your first teammate.
                     </div>
                 ) : (
-                    <ul className="mt-3 divide-y divide-border rounded-xl border border-border">
+                    <ul className="mt-3 divide-y divide-zoru-line rounded-xl border border-zoru-line">
                         {data.recentInvites.map((inv) => (
                             <li
                                 key={inv._id}
                                 className="flex items-center justify-between gap-4 px-4 py-3 text-[13px]"
                             >
                                 <div className="min-w-0">
-                                    <p className="truncate font-medium text-foreground">{inv.inviteeEmail}</p>
-                                    <p className="truncate text-[12px] text-muted-foreground">
+                                    <p className="truncate text-zoru-ink">{inv.inviteeEmail}</p>
+                                    <p className="truncate text-[12px] text-zoru-ink-muted">
                                         {inv.projectName ?? 'Workspace-wide'} · {inv.role}
                                     </p>
                                 </div>
@@ -252,7 +265,7 @@ export default function TeamOverviewPage() {
                         ))}
                     </ul>
                 )}
-            </ClayCard>
+            </ZoruCard>
         </div>
     );
 }
@@ -271,32 +284,32 @@ function StatCard({
     loading: boolean;
 }) {
     return (
-        <ClayCard variant="soft" padded>
+        <ZoruCard variant="soft" className="p-6">
             <div className="flex items-start justify-between">
-                <p className="text-[11.5px] font-medium uppercase tracking-wide text-muted-foreground">
+                <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
                     {label}
                 </p>
                 <div
                     className={cn(
                         'flex h-7 w-7 items-center justify-center rounded-full',
-                        tone === 'amber' && 'bg-amber-100 text-amber-700',
-                        tone === 'red' && 'bg-red-100 text-red-700',
-                        tone === 'neutral' && 'bg-accent text-primary',
+                        tone === 'amber' && 'bg-zoru-warning/15 text-zoru-warning-ink',
+                        tone === 'red' && 'bg-zoru-danger/10 text-zoru-danger-ink',
+                        tone === 'neutral' && 'bg-zoru-surface-2 text-zoru-ink',
                     )}
                 >
                     {icon}
                 </div>
             </div>
-            <p className="mt-2 text-[28px] font-semibold leading-none text-foreground">
-                {loading ? <Skeleton className="inline-block h-7 w-12" /> : value}
+            <p className="mt-2 text-[28px] leading-none text-zoru-ink">
+                {loading ? <ZoruSkeleton className="inline-block h-7 w-12" /> : value}
             </p>
-        </ClayCard>
+        </ZoruCard>
     );
 }
 
 function InviteStatusBadge({ status }: { status: InvitationView['status'] | 'expired' }) {
-    if (status === 'accepted') return <ClayBadge tone="green">Accepted</ClayBadge>;
-    if (status === 'expired') return <ClayBadge tone="red">Expired</ClayBadge>;
-    if (status === 'revoked') return <ClayBadge tone="neutral">Revoked</ClayBadge>;
-    return <ClayBadge tone="amber">Pending</ClayBadge>;
+    if (status === 'accepted') return <ZoruBadge variant="success">Accepted</ZoruBadge>;
+    if (status === 'expired') return <ZoruBadge variant="danger">Expired</ZoruBadge>;
+    if (status === 'revoked') return <ZoruBadge variant="ghost">Revoked</ZoruBadge>;
+    return <ZoruBadge variant="warning">Pending</ZoruBadge>;
 }

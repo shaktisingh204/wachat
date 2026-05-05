@@ -3,26 +3,34 @@
 import { useActionState, useEffect, useState, useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
-    LuShield,
-    LuLock,
-    LuKey,
-    LuLaptop,
-    LuLogOut,
-    LuSave,
-    LuLoaderCircle,
-} from 'react-icons/lu';
+    Key,
+    Laptop,
+    LoaderCircle,
+    Lock,
+    LogOut,
+    Save,
+    Shield,
+} from 'lucide-react';
 
 import {
-    ClayBadge,
-    ClayBreadcrumbs,
-    ClayButton,
-    ClayCard,
-    ClayInput,
-    ClaySectionHeader,
-} from '@/components/clay';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { useToast } from '@/hooks/use-toast';
+    ZoruBadge,
+    ZoruBreadcrumb,
+    ZoruBreadcrumbItem,
+    ZoruBreadcrumbLink,
+    ZoruBreadcrumbList,
+    ZoruBreadcrumbPage,
+    ZoruBreadcrumbSeparator,
+    ZoruButton,
+    ZoruCard,
+    ZoruInput,
+    ZoruLabel,
+    ZoruPageDescription,
+    ZoruPageHeader,
+    ZoruPageHeading,
+    ZoruPageTitle,
+    ZoruSwitch,
+    useZoruToast,
+} from '@/components/zoruui';
 import { handleChangePassword } from '@/app/actions/user.actions';
 import {
     getAccountPreferences,
@@ -40,15 +48,10 @@ const initialState = { message: undefined, error: undefined } as {
 function SaveBtn() {
     const { pending } = useFormStatus();
     return (
-        <ClayButton
-            type="submit"
-            variant="obsidian"
-            size="md"
-            disabled={pending}
-            leading={pending ? <LuLoaderCircle className="h-4 w-4 animate-spin" /> : <LuSave className="h-4 w-4" />}
-        >
+        <ZoruButton type="submit" size="md" disabled={pending}>
+            {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             {pending ? 'Saving…' : 'Update password'}
-        </ClayButton>
+        </ZoruButton>
     );
 }
 
@@ -59,7 +62,7 @@ export default function SecuritySettingsPage() {
     const [sessions, setSessions] = useState<ActiveSession[]>([]);
     const [revokeAllPending, startRevokeAll] = useTransition();
     const [alertsPending, startAlerts] = useTransition();
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
 
     useEffect(() => {
         if (state.message) toast({ title: state.message });
@@ -127,114 +130,120 @@ export default function SecuritySettingsPage() {
     };
 
     return (
-        <div className="clay-enter flex min-h-full flex-col gap-6">
-            <ClayBreadcrumbs
-                items={[
-                    { label: 'Settings', href: '/dashboard/settings' },
-                    { label: 'Security' },
-                ]}
-            />
+        <div className="flex min-h-full flex-col gap-6">
+            <ZoruBreadcrumb>
+                <ZoruBreadcrumbList>
+                    <ZoruBreadcrumbItem>
+                        <ZoruBreadcrumbLink href="/dashboard/settings">Settings</ZoruBreadcrumbLink>
+                    </ZoruBreadcrumbItem>
+                    <ZoruBreadcrumbSeparator />
+                    <ZoruBreadcrumbItem>
+                        <ZoruBreadcrumbPage>Security</ZoruBreadcrumbPage>
+                    </ZoruBreadcrumbItem>
+                </ZoruBreadcrumbList>
+            </ZoruBreadcrumb>
 
-            <ClaySectionHeader
-                size="lg"
-                title="Security"
-                subtitle="Manage your password, two-factor authentication, and active sessions."
-            />
+            <ZoruPageHeader>
+                <ZoruPageHeading>
+                    <ZoruPageTitle>Security</ZoruPageTitle>
+                    <ZoruPageDescription>
+                        Manage your password, two-factor authentication, and active sessions.
+                    </ZoruPageDescription>
+                </ZoruPageHeading>
+            </ZoruPageHeader>
 
             {/* Password */}
-            <ClayCard padded>
+            <ZoruCard className="p-6">
                 <div className="mb-4 flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-accent text-primary">
-                        <LuLock className="h-4 w-4" />
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
+                        <Lock className="h-4 w-4" />
                     </div>
                     <div>
-                        <p className="text-[13.5px] font-semibold text-foreground">Password</p>
-                        <p className="text-[12.5px] text-muted-foreground">
+                        <p className="text-sm text-zoru-ink">Password</p>
+                        <p className="text-xs text-zoru-ink-muted">
                             Use a unique password at least 12 characters long.
                         </p>
                     </div>
                 </div>
                 <form action={formAction} className="grid gap-4 sm:grid-cols-3">
                     <Field label="Current password">
-                        <ClayInput type="password" name="currentPassword" required />
+                        <ZoruInput type="password" name="currentPassword" required />
                     </Field>
                     <Field label="New password">
-                        <ClayInput type="password" name="newPassword" required minLength={12} />
+                        <ZoruInput type="password" name="newPassword" required minLength={12} />
                     </Field>
                     <Field label="Confirm new password">
-                        <ClayInput type="password" name="confirmPassword" required minLength={12} />
+                        <ZoruInput type="password" name="confirmPassword" required minLength={12} />
                     </Field>
                     <div className="sm:col-span-3 flex justify-end">
                         <SaveBtn />
                     </div>
                 </form>
-            </ClayCard>
+            </ZoruCard>
 
             {/* 2FA */}
-            <ClayCard padded>
+            <ZoruCard className="p-6">
                 <div className="mb-4 flex items-start gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-accent text-primary">
-                        <LuShield className="h-4 w-4" />
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
+                        <Shield className="h-4 w-4" />
                     </div>
                     <div className="flex-1">
                         <div className="flex items-center gap-2">
-                            <p className="text-[13.5px] font-semibold text-foreground">
+                            <p className="text-sm text-zoru-ink">
                                 Two-factor authentication
                             </p>
-                            <ClayBadge tone={twoFactor ? 'green' : 'neutral'}>
+                            <ZoruBadge variant={twoFactor ? 'success' : 'ghost'}>
                                 {twoFactor ? 'Enabled' : 'Disabled'}
-                            </ClayBadge>
+                            </ZoruBadge>
                         </div>
-                        <p className="text-[12.5px] text-muted-foreground">
+                        <p className="text-xs text-zoru-ink-muted">
                             Add a second verification step using an authenticator app.
                         </p>
                     </div>
-                    <Switch checked={twoFactor} onCheckedChange={persistTwoFactor} />
+                    <ZoruSwitch checked={twoFactor} onCheckedChange={persistTwoFactor} />
                 </div>
-                <div className="flex items-start justify-between gap-4 rounded-xl border border-border bg-muted/50 p-3">
+                <div className="flex items-start justify-between gap-4 rounded-xl border border-zoru-line bg-zoru-surface-2 p-3">
                     <div>
-                        <Label className="text-[13px] font-medium text-foreground">Alert on new sign-ins</Label>
-                        <p className="mt-0.5 text-[12px] text-muted-foreground">
+                        <ZoruLabel className="text-[13px]">Alert on new sign-ins</ZoruLabel>
+                        <p className="mt-0.5 text-xs text-zoru-ink-muted">
                             Email you whenever a new device signs in to your account.
                         </p>
                     </div>
-                    <Switch
+                    <ZoruSwitch
                         checked={loginAlerts}
                         onCheckedChange={persistLoginAlerts}
                         disabled={alertsPending}
                     />
                 </div>
-            </ClayCard>
+            </ZoruCard>
 
             {/* Active sessions */}
-            <ClayCard padded>
+            <ZoruCard className="p-6">
                 <div className="mb-4 flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-accent text-primary">
-                        <LuLaptop className="h-4 w-4" />
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
+                        <Laptop className="h-4 w-4" />
                     </div>
                     <div className="flex-1">
-                        <p className="text-[13.5px] font-semibold text-foreground">Active sessions</p>
-                        <p className="text-[12.5px] text-muted-foreground">
+                        <p className="text-sm text-zoru-ink">Active sessions</p>
+                        <p className="text-xs text-zoru-ink-muted">
                             Devices currently signed in to your account.
                         </p>
                     </div>
-                    <ClayButton
+                    <ZoruButton
                         variant="ghost"
                         size="sm"
-                        leading={
-                            revokeAllPending ? (
-                                <LuLoaderCircle className="h-4 w-4 animate-spin" />
-                            ) : (
-                                <LuLogOut className="h-4 w-4" />
-                            )
-                        }
                         onClick={handleSignOutEverywhere}
                         disabled={revokeAllPending}
                     >
+                        {revokeAllPending ? (
+                            <LoaderCircle className="h-4 w-4 animate-spin" />
+                        ) : (
+                            <LogOut className="h-4 w-4" />
+                        )}
                         Sign out everywhere
-                    </ClayButton>
+                    </ZoruButton>
                 </div>
-                <div className="divide-y divide-border rounded-xl border border-border">
+                <div className="divide-y divide-zoru-line rounded-xl border border-zoru-line">
                     {sessions.length === 0 ? (
                         <SessionRow label="Current session" device="This browser" location="—" current />
                     ) : (
@@ -249,25 +258,25 @@ export default function SecuritySettingsPage() {
                         ))
                     )}
                 </div>
-            </ClayCard>
+            </ZoruCard>
 
             {/* Recovery */}
-            <ClayCard padded variant="soft">
+            <ZoruCard className="p-6">
                 <div className="flex items-start gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-foreground text-white">
-                        <LuKey className="h-4 w-4" />
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
+                        <Key className="h-4 w-4" />
                     </div>
                     <div className="flex-1">
-                        <p className="text-[13.5px] font-semibold text-foreground">Recovery codes</p>
-                        <p className="text-[12.5px] text-muted-foreground">
+                        <p className="text-sm text-zoru-ink">Recovery codes</p>
+                        <p className="text-xs text-zoru-ink-muted">
                             Generate a new set of backup codes if you lose access to your authenticator.
                         </p>
                     </div>
-                    <ClayButton variant="pill" size="sm">
+                    <ZoruButton variant="outline" size="sm">
                         Generate codes
-                    </ClayButton>
+                    </ZoruButton>
                 </div>
-            </ClayCard>
+            </ZoruCard>
         </div>
     );
 }
@@ -275,7 +284,7 @@ export default function SecuritySettingsPage() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
     return (
         <div>
-            <Label className="mb-1.5 block text-[12.5px] font-medium text-foreground">{label}</Label>
+            <ZoruLabel className="mb-1.5 block text-xs">{label}</ZoruLabel>
             {children}
         </div>
     );
@@ -296,17 +305,17 @@ function SessionRow({
         <div className="flex items-center justify-between px-4 py-3 text-[13px]">
             <div>
                 <div className="flex items-center gap-2">
-                    <p className="font-medium text-foreground">{label}</p>
-                    {current && <ClayBadge tone="green">This device</ClayBadge>}
+                    <p className="text-zoru-ink">{label}</p>
+                    {current && <ZoruBadge variant="success">This device</ZoruBadge>}
                 </div>
-                <p className="mt-0.5 text-[12px] text-muted-foreground">
+                <p className="mt-0.5 text-xs text-zoru-ink-muted">
                     {device} · {location}
                 </p>
             </div>
             {!current && (
-                <ClayButton variant="ghost" size="sm">
+                <ZoruButton variant="ghost" size="sm">
                     Sign out
-                </ClayButton>
+                </ZoruButton>
             )}
         </div>
     );

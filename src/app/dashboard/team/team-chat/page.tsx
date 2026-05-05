@@ -3,33 +3,40 @@
 import * as React from 'react';
 import { format, formatDistanceToNowStrict, isSameDay } from 'date-fns';
 import {
-    LuBell,
-    LuBellOff,
-    LuImage,
-    LuLoader,
-    LuMessageSquare,
-    LuPaperclip,
-    LuPlus,
-    LuSearch,
-    LuSend,
-    LuUsers,
-    LuX,
-} from 'react-icons/lu';
+    Bell,
+    Image as ImageIcon,
+    Loader,
+    MessageSquare,
+    Paperclip,
+    Plus,
+    Search,
+    Send,
+    Users,
+    X,
+} from 'lucide-react';
 
-import { ClayBadge } from '@/components/clay/clay-badge';
-import { ClayBreadcrumbs } from '@/components/clay/clay-breadcrumbs';
-import { ClayButton } from '@/components/clay/clay-button';
-import { ClayCard } from '@/components/clay/clay-card';
-import { ClayInput } from '@/components/clay/clay-input';
-import { ClaySectionHeader } from '@/components/clay/clay-section-header';
 import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '@/components/ui/dialog';
-import { useToast } from '@/hooks/use-toast';
+    ZoruBadge,
+    ZoruBreadcrumb,
+    ZoruBreadcrumbItem,
+    ZoruBreadcrumbLink,
+    ZoruBreadcrumbList,
+    ZoruBreadcrumbPage,
+    ZoruBreadcrumbSeparator,
+    ZoruButton,
+    ZoruCard,
+    ZoruDialog,
+    ZoruDialogContent,
+    ZoruDialogHeader,
+    ZoruDialogTitle,
+    ZoruDialogTrigger,
+    ZoruInput,
+    ZoruPageDescription,
+    ZoruPageHeader,
+    ZoruPageHeading,
+    ZoruPageTitle,
+    useZoruToast,
+} from '@/components/zoruui';
 import {
     createGroupChannel,
     getChannelMessages,
@@ -46,7 +53,7 @@ import type { TeamMessage, User, WithId } from '@/lib/definitions';
 const POLL_MS = 3000;
 
 export default function TeamChatPage() {
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
     const { sessionUser } = useProject();
     const canRead = useCan('team_chat', 'view');
     const canSend = useCan('team_chat', 'create');
@@ -210,65 +217,65 @@ export default function TeamChatPage() {
 
     if (!canRead) {
         return (
-            <div className="clay-enter flex flex-col gap-6">
-                <ClayCard className="p-10 text-center">
-                    <ClayBadge tone="red">Restricted</ClayBadge>
-                    <p className="mt-3 text-[13px] text-muted-foreground">
-                        You don't have permission to view Team Chat.
+            <div className="flex flex-col gap-6">
+                <ZoruCard className="p-10 text-center">
+                    <ZoruBadge variant="danger">Restricted</ZoruBadge>
+                    <p className="mt-3 text-[13px] text-zoru-ink-muted">
+                        You don&apos;t have permission to view Team Chat.
                     </p>
-                </ClayCard>
+                </ZoruCard>
             </div>
         );
     }
 
     return (
-        <div className="clay-enter flex min-h-full flex-col gap-6">
-            <ClayBreadcrumbs
-                items={[
-                    { label: 'SabNode', href: '/dashboard' },
-                    { label: 'Team', href: '/dashboard/team/manage-users' },
-                    { label: 'Chat' },
-                ]}
-            />
+        <div className="flex min-h-full flex-col gap-6">
+            <ZoruBreadcrumb>
+                <ZoruBreadcrumbList>
+                    <ZoruBreadcrumbItem>
+                        <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+                    </ZoruBreadcrumbItem>
+                    <ZoruBreadcrumbSeparator />
+                    <ZoruBreadcrumbItem>
+                        <ZoruBreadcrumbLink href="/dashboard/team/manage-users">Team</ZoruBreadcrumbLink>
+                    </ZoruBreadcrumbItem>
+                    <ZoruBreadcrumbSeparator />
+                    <ZoruBreadcrumbItem>
+                        <ZoruBreadcrumbPage>Chat</ZoruBreadcrumbPage>
+                    </ZoruBreadcrumbItem>
+                </ZoruBreadcrumbList>
+            </ZoruBreadcrumb>
 
-            <ClaySectionHeader
-                size="lg"
-                title="Team chat"
-                subtitle="Direct messages and group channels. Polling at 3s."
-                actions={
-                    <>
-                        {notifPerm === 'default' ? (
-                            <ClayButton
-                                variant="pill"
-                                size="md"
-                                onClick={requestNotifPerm}
-                                leading={<LuBell className="h-3.5 w-3.5" />}
-                            >
-                                Enable notifications
-                            </ClayButton>
-                        ) : notifPerm === 'granted' ? (
-                            <ClayBadge tone="green" dot>
-                                Notifications on
-                            </ClayBadge>
-                        ) : (
-                            <ClayBadge tone="red" dot>
-                                Notifications blocked
-                            </ClayBadge>
-                        )}
-                        {canSend ? (
-                            <NewGroupDialog members={members} onCreated={reloadChannels} toast={toast} />
-                        ) : null}
-                    </>
-                }
-            />
+            <ZoruPageHeader>
+                <ZoruPageHeading>
+                    <ZoruPageTitle>Team chat</ZoruPageTitle>
+                    <ZoruPageDescription>
+                        Direct messages and group channels. Polling at 3s.
+                    </ZoruPageDescription>
+                </ZoruPageHeading>
+                <div className="flex items-center gap-2">
+                    {notifPerm === 'default' ? (
+                        <ZoruButton variant="outline" size="md" onClick={requestNotifPerm}>
+                            <Bell className="h-3.5 w-3.5" />
+                            Enable notifications
+                        </ZoruButton>
+                    ) : notifPerm === 'granted' ? (
+                        <ZoruBadge variant="success">Notifications on</ZoruBadge>
+                    ) : (
+                        <ZoruBadge variant="danger">Notifications blocked</ZoruBadge>
+                    )}
+                    {canSend ? (
+                        <NewGroupDialog members={members} onCreated={reloadChannels} toast={toast} />
+                    ) : null}
+                </div>
+            </ZoruPageHeader>
 
-            <ClayCard padded={false} className="flex h-[640px] overflow-hidden">
+            <ZoruCard className="flex h-[640px] overflow-hidden p-0">
                 {/* ─── Sidebar ─────────────────── */}
-                <div className="flex w-[300px] shrink-0 flex-col border-r border-border bg-secondary">
-                    <div className="border-b border-border p-3">
-                        <ClayInput
-                            sizeVariant="md"
-                            leading={<LuSearch className="h-3.5 w-3.5" strokeWidth={2} />}
+                <div className="flex w-[300px] shrink-0 flex-col border-r border-zoru-line bg-zoru-surface-2">
+                    <div className="border-b border-zoru-line p-3">
+                        <ZoruInput
+                            leadingSlot={<Search className="h-3.5 w-3.5" strokeWidth={2} />}
                             placeholder="Search conversations"
                             value={sidebarQuery}
                             onChange={(e) => setSidebarQuery(e.target.value)}
@@ -278,7 +285,7 @@ export default function TeamChatPage() {
                     <div className="flex-1 overflow-auto">
                         <SidebarGroupLabel label="Conversations" />
                         {channelsLoading ? (
-                            <div className="p-3 text-[12px] text-muted-foreground">Loading…</div>
+                            <div className="p-3 text-[12px] text-zoru-ink-muted">Loading…</div>
                         ) : filteredChannels.length ? (
                             filteredChannels.map((c) => (
                                 <ChannelRow
@@ -290,24 +297,24 @@ export default function TeamChatPage() {
                                 />
                             ))
                         ) : (
-                            <div className="p-3 text-[12px] text-muted-foreground">No conversations yet.</div>
+                            <div className="p-3 text-[12px] text-zoru-ink-muted">No conversations yet.</div>
                         )}
 
                         <SidebarGroupLabel label="Team members" />
                         {members.length === 0 ? (
-                            <div className="p-3 text-[12px] text-muted-foreground">Invite someone to get started.</div>
+                            <div className="p-3 text-[12px] text-zoru-ink-muted">Invite someone to get started.</div>
                         ) : (
                             members.slice(0, 12).map((u) => (
                                 <button
                                     key={u._id.toString()}
                                     type="button"
                                     onClick={() => onStartDm(u._id.toString())}
-                                    className="flex w-full items-center gap-3 px-3 py-2 text-left text-[12.5px] text-muted-foreground hover:bg-card"
+                                    className="flex w-full items-center gap-3 px-3 py-2 text-left text-[12.5px] text-zoru-ink-muted hover:bg-zoru-bg"
                                 >
                                     <Dot name={u.name || u.email} />
                                     <div className="flex min-w-0 flex-col">
-                                        <span className="truncate text-foreground">{u.name}</span>
-                                        <span className="truncate text-[11px] text-muted-foreground">{u.email}</span>
+                                        <span className="truncate text-zoru-ink">{u.name}</span>
+                                        <span className="truncate text-[11px] text-zoru-ink-muted">{u.email}</span>
                                     </div>
                                 </button>
                             ))
@@ -320,9 +327,9 @@ export default function TeamChatPage() {
                     {selectedChannel ? (
                         <>
                             <ChannelHeader channel={selectedChannel} meId={sessionUser?._id} />
-                            <div className="flex-1 space-y-3 overflow-auto bg-secondary/60 px-5 py-4">
+                            <div className="flex-1 space-y-3 overflow-auto bg-zoru-surface-2/60 px-5 py-4">
                                 {messagesLoading ? (
-                                    <div className="flex h-full items-center justify-center text-[12.5px] text-muted-foreground">
+                                    <div className="flex h-full items-center justify-center text-[12.5px] text-zoru-ink-muted">
                                         Loading messages…
                                     </div>
                                 ) : messages.length === 0 ? (
@@ -334,44 +341,41 @@ export default function TeamChatPage() {
                             </div>
 
                             {canSend ? (
-                                <form
-                                    onSubmit={onSend}
-                                    className="border-t border-border bg-card p-3"
-                                >
+                                <form onSubmit={onSend} className="border-t border-zoru-line bg-zoru-bg p-3">
                                     {attachmentQueue.length > 0 ? (
                                         <div className="mb-2 flex flex-wrap gap-2">
                                             {attachmentQueue.map((a, i) => (
                                                 <div
                                                     key={i}
-                                                    className="inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary px-2 h-6 text-[11.5px]"
+                                                    className="inline-flex items-center gap-1.5 rounded-full border border-zoru-line bg-zoru-surface-2 px-2 h-6 text-[11.5px]"
                                                 >
-                                                    <LuImage className="h-3 w-3" />
+                                                    <ImageIcon className="h-3 w-3" />
                                                     <span className="max-w-[160px] truncate">{a.filename}</span>
                                                     <button
                                                         type="button"
                                                         onClick={() =>
                                                             setAttachmentQueue((prev) => prev.filter((_, idx) => idx !== i))
                                                         }
-                                                        className="text-muted-foreground hover:text-destructive"
+                                                        className="text-zoru-ink-muted hover:text-zoru-danger-ink"
                                                         aria-label="Remove"
                                                     >
-                                                        <LuX className="h-3 w-3" />
+                                                        <X className="h-3 w-3" />
                                                     </button>
                                                 </div>
                                             ))}
                                         </div>
                                     ) : null}
                                     <div className="flex items-center gap-2">
-                                        <ClayButton
+                                        <ZoruButton
                                             type="button"
-                                            variant="pill"
+                                            variant="outline"
                                             size="icon"
                                             onClick={onPickFile}
                                             aria-label="Attach"
                                             title="Attach file"
                                         >
-                                            <LuPaperclip className="h-4 w-4" />
-                                        </ClayButton>
+                                            <Paperclip className="h-4 w-4" />
+                                        </ZoruButton>
                                         <input
                                             ref={fileInputRef}
                                             type="file"
@@ -379,43 +383,41 @@ export default function TeamChatPage() {
                                             multiple
                                             onChange={onFileChosen}
                                         />
-                                        <ClayInput
+                                        <ZoruInput
                                             className="flex-1"
-                                            sizeVariant="md"
                                             placeholder="Message…"
                                             value={input}
                                             onChange={(e) => setInput(e.target.value)}
                                             disabled={sending}
                                         />
-                                        <ClayButton
+                                        <ZoruButton
                                             type="submit"
-                                            variant="obsidian"
                                             size="icon"
                                             disabled={sending || (!input.trim() && attachmentQueue.length === 0)}
                                             aria-label="Send"
                                         >
                                             {sending ? (
-                                                <LuLoader className="h-4 w-4 animate-spin" />
+                                                <Loader className="h-4 w-4 animate-spin" />
                                             ) : (
-                                                <LuSend className="h-4 w-4" />
+                                                <Send className="h-4 w-4" />
                                             )}
-                                        </ClayButton>
+                                        </ZoruButton>
                                     </div>
                                 </form>
                             ) : (
-                                <div className="border-t border-border bg-card px-5 py-3 text-[12px] text-muted-foreground">
+                                <div className="border-t border-zoru-line bg-zoru-bg px-5 py-3 text-[12px] text-zoru-ink-muted">
                                     You have view-only access to this chat.
                                 </div>
                             )}
                         </>
                     ) : (
-                        <div className="flex flex-1 flex-col items-center justify-center gap-3 text-muted-foreground">
-                            <LuMessageSquare className="h-8 w-8" strokeWidth={1.5} />
+                        <div className="flex flex-1 flex-col items-center justify-center gap-3 text-zoru-ink-muted">
+                            <MessageSquare className="h-8 w-8" strokeWidth={1.5} />
                             <p className="text-[13px]">Select a conversation or start a new one.</p>
                         </div>
                     )}
                 </div>
-            </ClayCard>
+            </ZoruCard>
         </div>
     );
 }
@@ -424,7 +426,7 @@ export default function TeamChatPage() {
 
 function SidebarGroupLabel({ label }: { label: string }) {
     return (
-        <div className="px-3 py-2 text-[10.5px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+        <div className="px-3 py-2 text-[10.5px] uppercase tracking-[0.08em] text-zoru-ink-muted">
             {label}
         </div>
     );
@@ -448,27 +450,27 @@ function ChannelRow({
             type="button"
             onClick={onSelect}
             className={
-                'flex w-full items-center gap-3 border-b border-border px-3 py-2.5 text-left transition-colors ' +
-                (active ? 'bg-card' : 'hover:bg-card')
+                'flex w-full items-center gap-3 border-b border-zoru-line px-3 py-2.5 text-left transition-colors ' +
+                (active ? 'bg-zoru-bg' : 'hover:bg-zoru-bg')
             }
         >
             {channel.type === 'group' ? (
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-accent-foreground">
-                    <LuUsers className="h-4 w-4" strokeWidth={2} />
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
+                    <Users className="h-4 w-4" strokeWidth={2} />
                 </span>
             ) : (
                 <Dot name={other?.name || title} />
             )}
             <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between gap-2">
-                    <div className="truncate text-[13px] font-medium text-foreground">{title}</div>
+                    <div className="truncate text-[13px] text-zoru-ink">{title}</div>
                     {channel.lastMessage ? (
-                        <span className="shrink-0 text-[10.5px] text-muted-foreground">
+                        <span className="shrink-0 text-[10.5px] text-zoru-ink-muted">
                             {formatDistanceToNowStrict(new Date(channel.lastMessage.createdAt), { addSuffix: false })}
                         </span>
                     ) : null}
                 </div>
-                <div className="truncate text-[11.5px] text-muted-foreground">
+                <div className="truncate text-[11.5px] text-zoru-ink-muted">
                     {channel.lastMessage ? channel.lastMessage.content : 'No messages yet'}
                 </div>
             </div>
@@ -481,7 +483,7 @@ function Dot({ name }: { name: string }) {
     const initial = (name || '?').charAt(0).toUpperCase();
     return (
         <span
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px]"
             style={{ background: `hsl(${hue} 60% 90%)`, color: `hsl(${hue} 45% 28%)` }}
         >
             {initial}
@@ -512,17 +514,17 @@ function ChannelHeader({ channel, meId }: { channel: TeamChannelView; meId?: str
               ? ''
               : channel.participants.find((p) => p.userId !== meId)?.name || '';
     return (
-        <div className="flex items-center gap-3 border-b border-border bg-card px-5 py-3">
+        <div className="flex items-center gap-3 border-b border-zoru-line bg-zoru-bg px-5 py-3">
             {channel.type === 'group' ? (
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-accent text-accent-foreground">
-                    <LuUsers className="h-4 w-4" strokeWidth={2} />
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
+                    <Users className="h-4 w-4" strokeWidth={2} />
                 </span>
             ) : (
                 <Dot name={title} />
             )}
             <div>
-                <div className="text-[14px] font-semibold text-foreground">{title}</div>
-                <div className="text-[11.5px] text-muted-foreground">{subtitle}</div>
+                <div className="text-[14px] text-zoru-ink">{title}</div>
+                <div className="text-[11.5px] text-zoru-ink-muted">{subtitle}</div>
             </div>
         </div>
     );
@@ -530,8 +532,8 @@ function ChannelHeader({ channel, meId }: { channel: TeamChannelView; meId?: str
 
 function EmptyConversation({ channel, meId }: { channel: TeamChannelView; meId?: string }) {
     return (
-        <div className="flex h-full flex-col items-center justify-center gap-2 text-muted-foreground">
-            <LuMessageSquare className="h-6 w-6" strokeWidth={1.5} />
+        <div className="flex h-full flex-col items-center justify-center gap-2 text-zoru-ink-muted">
+            <MessageSquare className="h-6 w-6" strokeWidth={1.5} />
             <p className="text-[12.5px]">
                 {channel.type === 'group'
                     ? `Send the first message in #${channel.name || 'group'}.`
@@ -548,10 +550,10 @@ function renderMessagesWithDateDividers(messages: WithId<TeamMessage>[], meId?: 
         const d = new Date(m.createdAt);
         if (!lastDate || !isSameDay(lastDate, d)) {
             out.push(
-                <div key={`d-${m._id.toString()}`} className="flex items-center gap-2 py-1 text-[10.5px] text-muted-foreground">
-                    <div className="h-px flex-1 bg-border" />
+                <div key={`d-${m._id.toString()}`} className="flex items-center gap-2 py-1 text-[10.5px] text-zoru-ink-muted">
+                    <div className="h-px flex-1 bg-zoru-line" />
                     <span>{format(d, 'EEE, MMM d')}</span>
-                    <div className="h-px flex-1 bg-border" />
+                    <div className="h-px flex-1 bg-zoru-line" />
                 </div>,
             );
             lastDate = d;
@@ -569,8 +571,8 @@ function MessageRow({ message, meId }: { message: WithId<TeamMessage>; meId?: st
                 className={
                     'max-w-[80%] rounded-lg px-3 py-2 text-[13px] shadow-sm ' +
                     (mine
-                        ? 'bg-foreground text-white'
-                        : 'border border-border bg-card text-foreground')
+                        ? 'bg-zoru-ink text-zoru-bg'
+                        : 'border border-zoru-line bg-zoru-bg text-zoru-ink')
                 }
             >
                 {message.content ? <div className="whitespace-pre-wrap">{message.content}</div> : null}
@@ -581,7 +583,7 @@ function MessageRow({ message, meId }: { message: WithId<TeamMessage>; meId?: st
                         ))}
                     </div>
                 ) : null}
-                <div className={'mt-1 text-[10px] ' + (mine ? 'text-white/70' : 'text-muted-foreground')}>
+                <div className={'mt-1 text-[10px] ' + (mine ? 'text-zoru-bg/70' : 'text-zoru-ink-muted')}>
                     {format(new Date(message.createdAt), 'p')}
                 </div>
             </div>
@@ -603,7 +605,7 @@ function Attachment({
                 <img
                     src={attachment.url}
                     alt={attachment.name}
-                    className="max-h-[240px] rounded-md border border-border object-contain"
+                    className="max-h-[240px] rounded-md border border-zoru-line object-contain"
                 />
             </a>
         );
@@ -616,11 +618,11 @@ function Attachment({
             className={
                 'inline-flex items-center gap-2 rounded-md border px-2 py-1.5 text-[12px] ' +
                 (mine
-                    ? 'border-white/30 bg-white/10 text-white'
-                    : 'border-border bg-secondary text-foreground')
+                    ? 'border-zoru-bg/30 bg-zoru-bg/10 text-zoru-bg'
+                    : 'border-zoru-line bg-zoru-surface-2 text-zoru-ink')
             }
         >
-            <LuPaperclip className="h-3 w-3" />
+            <Paperclip className="h-3 w-3" />
             <span className="max-w-[200px] truncate">{attachment.name}</span>
         </a>
     );
@@ -635,7 +637,7 @@ function NewGroupDialog({
 }: {
     members: WithId<User>[];
     onCreated: () => void;
-    toast: ReturnType<typeof useToast>['toast'];
+    toast: ReturnType<typeof useZoruToast>['toast'];
 }) {
     const [open, setOpen] = React.useState(false);
     const [name, setName] = React.useState('');
@@ -664,25 +666,23 @@ function NewGroupDialog({
     };
 
     return (
-        <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) reset(); }}>
-            <DialogTrigger asChild>
-                <ClayButton variant="obsidian" size="md" leading={<LuPlus className="h-3.5 w-3.5" />}>
+        <ZoruDialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) reset(); }}>
+            <ZoruDialogTrigger asChild>
+                <ZoruButton size="md">
+                    <Plus className="h-3.5 w-3.5" />
                     New group
-                </ClayButton>
-            </DialogTrigger>
-            <DialogContent className="max-w-md overflow-hidden border border-border bg-card p-0 shadow-lg">
-                <div className="h-[6px] w-full bg-primary" />
-                <form onSubmit={submit} className="flex flex-col gap-4 p-6">
-                    <DialogHeader>
-                        <DialogTitle className="text-[20px] font-semibold tracking-[-0.01em] text-foreground">
-                            New group chat
-                        </DialogTitle>
-                    </DialogHeader>
+                </ZoruButton>
+            </ZoruDialogTrigger>
+            <ZoruDialogContent className="max-w-md">
+                <form onSubmit={submit} className="flex flex-col gap-4">
+                    <ZoruDialogHeader>
+                        <ZoruDialogTitle>New group chat</ZoruDialogTitle>
+                    </ZoruDialogHeader>
                     <div>
-                        <label className="text-[11.5px] font-medium uppercase tracking-[0.06em] text-muted-foreground">
+                        <label className="text-[11.5px] uppercase tracking-[0.06em] text-zoru-ink-muted">
                             Group name
                         </label>
-                        <ClayInput
+                        <ZoruInput
                             className="mt-1.5"
                             placeholder="Growth squad"
                             value={name}
@@ -691,12 +691,12 @@ function NewGroupDialog({
                         />
                     </div>
                     <div>
-                        <label className="text-[11.5px] font-medium uppercase tracking-[0.06em] text-muted-foreground">
+                        <label className="text-[11.5px] uppercase tracking-[0.06em] text-zoru-ink-muted">
                             Members ({picked.size} selected)
                         </label>
-                        <div className="mt-1.5 max-h-[240px] overflow-auto rounded-lg border border-border">
+                        <div className="mt-1.5 max-h-[240px] overflow-auto rounded-lg border border-zoru-line">
                             {members.length === 0 ? (
-                                <div className="p-3 text-[12px] text-muted-foreground">No teammates yet.</div>
+                                <div className="p-3 text-[12px] text-zoru-ink-muted">No teammates yet.</div>
                             ) : (
                                 members.map((u) => {
                                     const id = u._id.toString();
@@ -705,8 +705,8 @@ function NewGroupDialog({
                                         <label
                                             key={id}
                                             className={
-                                                'flex cursor-pointer items-center gap-3 border-b border-border px-3 py-2 last:border-b-0 text-[12.5px] ' +
-                                                (on ? 'bg-accent/40' : 'hover:bg-secondary')
+                                                'flex cursor-pointer items-center gap-3 border-b border-zoru-line px-3 py-2 last:border-b-0 text-[12.5px] ' +
+                                                (on ? 'bg-zoru-surface-2/60' : 'hover:bg-zoru-surface-2')
                                             }
                                         >
                                             <input
@@ -720,12 +720,12 @@ function NewGroupDialog({
                                                         return next;
                                                     });
                                                 }}
-                                                className="h-4 w-4 rounded border-border accent-primary"
+                                                className="h-4 w-4 rounded border-zoru-line accent-zoru-ink"
                                             />
                                             <Dot name={u.name || u.email} />
                                             <div className="min-w-0">
-                                                <div className="truncate text-foreground">{u.name}</div>
-                                                <div className="truncate text-[11px] text-muted-foreground">{u.email}</div>
+                                                <div className="truncate text-zoru-ink">{u.name}</div>
+                                                <div className="truncate text-[11px] text-zoru-ink-muted">{u.email}</div>
                                             </div>
                                         </label>
                                     );
@@ -734,22 +734,21 @@ function NewGroupDialog({
                         </div>
                     </div>
                     <div className="flex justify-end gap-2">
-                        <ClayButton type="button" variant="pill" size="md" onClick={() => setOpen(false)} disabled={pending}>
+                        <ZoruButton type="button" variant="outline" size="md" onClick={() => setOpen(false)} disabled={pending}>
                             Cancel
-                        </ClayButton>
-                        <ClayButton
+                        </ZoruButton>
+                        <ZoruButton
                             type="submit"
-                            variant="obsidian"
                             size="md"
                             disabled={pending || !name.trim() || picked.size === 0}
-                            leading={pending ? <LuLoader className="h-3.5 w-3.5 animate-spin" /> : null}
                         >
+                            {pending ? <Loader className="h-3.5 w-3.5 animate-spin" /> : null}
                             Create group
-                        </ClayButton>
+                        </ZoruButton>
                     </div>
                 </form>
-            </DialogContent>
-        </Dialog>
+            </ZoruDialogContent>
+        </ZoruDialog>
     );
 }
 

@@ -1,26 +1,36 @@
 
 'use client';
 
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
-import { Send, MessageSquare } from 'lucide-react';
+import { Send } from 'lucide-react';
 import { EmailCampaignsClient } from '@/components/wabasimplify/email-campaigns-client';
 import { Suspense } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
+import { EmailSuiteLayout } from '@/components/wabasimplify/email-suite-layout';
+import {
+    ZoruSkeleton,
+    ZoruPageHeader,
+    ZoruPageHeading,
+    ZoruPageTitle,
+    ZoruPageDescription,
+} from '@/components/zoruui';
 
 function PageSkeleton() {
-    return <Skeleton className="h-full w-full" />;
+    return <ZoruSkeleton className="h-full w-full" />;
 }
-
-import { EmailSuiteLayout } from '@/components/wabasimplify/email-suite-layout';
 
 export default function EmailCampaignsPage() {
     return (
         <EmailSuiteLayout>
             <div className="flex flex-col gap-8">
-                <div>
-                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><Send /> Email Campaigns</h1>
-                    <p className="text-muted-foreground">Create, manage, and schedule your bulk email campaigns.</p>
-                </div>
+                <ZoruPageHeader>
+                    <ZoruPageHeading>
+                        <ZoruPageTitle>
+                            <span className="inline-flex items-center gap-3">
+                                <Send className="h-7 w-7" /> Email Campaigns
+                            </span>
+                        </ZoruPageTitle>
+                        <ZoruPageDescription>Create, manage, and schedule your bulk email campaigns.</ZoruPageDescription>
+                    </ZoruPageHeading>
+                </ZoruPageHeader>
                 <Suspense fallback={<PageSkeleton />}>
                     <EmailCampaignsClient />
                 </Suspense>

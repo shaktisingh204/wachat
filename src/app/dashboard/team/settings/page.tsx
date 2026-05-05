@@ -1,26 +1,31 @@
 'use client';
 
 import { useState } from 'react';
-import {
-    LuSettings,
-    LuSave,
-    LuClock,
-    LuShieldCheck,
-    LuMail,
-    LuLoaderCircle,
-} from 'react-icons/lu';
+import { Settings, Save, Clock, ShieldCheck, Mail, LoaderCircle } from 'lucide-react';
 
 import {
-    ClayBreadcrumbs,
-    ClayButton,
-    ClayCard,
-    ClayInput,
-    ClaySectionHeader,
-    ClaySelect,
-} from '@/components/clay';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
+    ZoruBreadcrumb,
+    ZoruBreadcrumbItem,
+    ZoruBreadcrumbLink,
+    ZoruBreadcrumbList,
+    ZoruBreadcrumbPage,
+    ZoruBreadcrumbSeparator,
+    ZoruButton,
+    ZoruCard,
+    ZoruInput,
+    ZoruLabel,
+    ZoruPageDescription,
+    ZoruPageHeader,
+    ZoruPageHeading,
+    ZoruPageTitle,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+    ZoruSwitch,
+    useZoruToast,
+} from '@/components/zoruui';
 
 type Settings = {
     defaultRole: 'agent' | 'admin';
@@ -61,7 +66,7 @@ const TIMEZONES = [
 export default function TeamSettingsPage() {
     const [settings, setSettings] = useState<Settings>(DEFAULTS);
     const [saving, setSaving] = useState(false);
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
 
     const update = <K extends keyof Settings>(key: K, value: Settings[K]) => {
         setSettings((s) => ({ ...s, [key]: value }));
@@ -78,51 +83,56 @@ export default function TeamSettingsPage() {
     };
 
     return (
-        <div className="clay-enter flex min-h-full flex-col gap-6">
-            <ClayBreadcrumbs
-                items={[
-                    { label: 'Team', href: '/dashboard/team' },
-                    { label: 'Workspace settings' },
-                ]}
-            />
+        <div className="flex min-h-full flex-col gap-6">
+            <ZoruBreadcrumb>
+                <ZoruBreadcrumbList>
+                    <ZoruBreadcrumbItem>
+                        <ZoruBreadcrumbLink href="/dashboard/team">Team</ZoruBreadcrumbLink>
+                    </ZoruBreadcrumbItem>
+                    <ZoruBreadcrumbSeparator />
+                    <ZoruBreadcrumbItem>
+                        <ZoruBreadcrumbPage>Workspace settings</ZoruBreadcrumbPage>
+                    </ZoruBreadcrumbItem>
+                </ZoruBreadcrumbList>
+            </ZoruBreadcrumb>
 
-            <ClaySectionHeader
-                size="lg"
-                title="Workspace settings"
-                subtitle="Defaults for invites, agent routing, and business hours."
-                actions={
-                    <ClayButton
-                        variant="obsidian"
-                        size="sm"
-                        leading={saving ? <LuLoaderCircle className="h-4 w-4 animate-spin" /> : <LuSave className="h-4 w-4" />}
-                        onClick={handleSave}
-                        disabled={saving}
-                    >
-                        {saving ? 'Saving…' : 'Save settings'}
-                    </ClayButton>
-                }
-            />
+            <ZoruPageHeader>
+                <ZoruPageHeading>
+                    <ZoruPageTitle>Workspace settings</ZoruPageTitle>
+                    <ZoruPageDescription>
+                        Defaults for invites, agent routing, and business hours.
+                    </ZoruPageDescription>
+                </ZoruPageHeading>
+                <ZoruButton size="sm" onClick={handleSave} disabled={saving}>
+                    {saving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                    {saving ? 'Saving…' : 'Save settings'}
+                </ZoruButton>
+            </ZoruPageHeader>
 
             {/* Invitations */}
-            <ClayCard padded>
+            <ZoruCard className="p-6">
                 <SectionHeader
-                    icon={<LuMail className="h-4 w-4" />}
+                    icon={<Mail className="h-4 w-4" />}
                     title="Invitations"
                     description="Defaults applied to every new invite you send."
                 />
                 <div className="grid gap-4 sm:grid-cols-2">
                     <Field label="Default role for new members">
-                        <ClaySelect
+                        <ZoruSelect
                             value={settings.defaultRole}
-                            onChange={(e) => update('defaultRole', e.target.value as Settings['defaultRole'])}
-                            options={[
-                                { value: 'agent', label: 'Agent' },
-                                { value: 'admin', label: 'Admin' },
-                            ]}
-                        />
+                            onValueChange={(v) => update('defaultRole', v as Settings['defaultRole'])}
+                        >
+                            <ZoruSelectTrigger>
+                                <ZoruSelectValue />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                <ZoruSelectItem value="agent">Agent</ZoruSelectItem>
+                                <ZoruSelectItem value="admin">Admin</ZoruSelectItem>
+                            </ZoruSelectContent>
+                        </ZoruSelect>
                     </Field>
                     <Field label="Invitation TTL (days)">
-                        <ClayInput
+                        <ZoruInput
                             type="number"
                             min={1}
                             max={30}
@@ -133,71 +143,71 @@ export default function TeamSettingsPage() {
                         />
                     </Field>
                 </div>
-                <div className="mt-4 flex items-start justify-between gap-4 rounded-xl border border-border bg-muted/50 p-3">
+                <div className="mt-4 flex items-start justify-between gap-4 rounded-xl border border-zoru-line bg-zoru-surface-2/50 p-3">
                     <div>
-                        <Label htmlFor="approval" className="text-[13px] font-medium text-foreground">
+                        <ZoruLabel htmlFor="approval" className="text-[13px] text-zoru-ink">
                             Require admin approval
-                        </Label>
-                        <p className="mt-0.5 text-[12px] text-muted-foreground">
+                        </ZoruLabel>
+                        <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
                             Members can invite, but admins must approve before the email is sent.
                         </p>
                     </div>
-                    <Switch
+                    <ZoruSwitch
                         id="approval"
                         checked={settings.requireInviteApproval}
                         onCheckedChange={(v) => update('requireInviteApproval', v)}
                     />
                 </div>
-            </ClayCard>
+            </ZoruCard>
 
             {/* Agent routing */}
-            <ClayCard padded>
+            <ZoruCard className="p-6">
                 <SectionHeader
-                    icon={<LuShieldCheck className="h-4 w-4" />}
+                    icon={<ShieldCheck className="h-4 w-4" />}
                     title="Agent defaults"
                     description="Signature and routing behaviour for chat + inbox modules."
                 />
                 <Field label="Signature appended to agent messages">
-                    <ClayInput
+                    <ZoruInput
                         placeholder="— {agentName}, Support"
                         value={settings.agentSignature}
                         onChange={(e) => update('agentSignature', e.target.value)}
                     />
                 </Field>
-                <div className="mt-4 flex items-start justify-between gap-4 rounded-xl border border-border bg-muted/50 p-3">
+                <div className="mt-4 flex items-start justify-between gap-4 rounded-xl border border-zoru-line bg-zoru-surface-2/50 p-3">
                     <div>
-                        <Label htmlFor="round-robin" className="text-[13px] font-medium text-foreground">
+                        <ZoruLabel htmlFor="round-robin" className="text-[13px] text-zoru-ink">
                             Round-robin new conversations
-                        </Label>
-                        <p className="mt-0.5 text-[12px] text-muted-foreground">
+                        </ZoruLabel>
+                        <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
                             Distribute incoming chats evenly among online agents.
                         </p>
                     </div>
-                    <Switch
+                    <ZoruSwitch
                         id="round-robin"
                         checked={settings.autoAssignRound}
                         onCheckedChange={(v) => update('autoAssignRound', v)}
                     />
                 </div>
-            </ClayCard>
+            </ZoruCard>
 
             {/* Business hours */}
-            <ClayCard padded>
+            <ZoruCard className="p-6">
                 <SectionHeader
-                    icon={<LuClock className="h-4 w-4" />}
+                    icon={<Clock className="h-4 w-4" />}
                     title="Business hours"
                     description="Used by away-replies and routing. Messages outside hours trigger the away rule."
                 />
-                <div className="mb-4 flex items-start justify-between gap-4 rounded-xl border border-border bg-muted/50 p-3">
+                <div className="mb-4 flex items-start justify-between gap-4 rounded-xl border border-zoru-line bg-zoru-surface-2/50 p-3">
                     <div>
-                        <Label htmlFor="bh-enabled" className="text-[13px] font-medium text-foreground">
+                        <ZoruLabel htmlFor="bh-enabled" className="text-[13px] text-zoru-ink">
                             Enable business hours
-                        </Label>
-                        <p className="mt-0.5 text-[12px] text-muted-foreground">
+                        </ZoruLabel>
+                        <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
                             When off, agents are treated as always available.
                         </p>
                     </div>
-                    <Switch
+                    <ZoruSwitch
                         id="bh-enabled"
                         checked={settings.businessHoursEnabled}
                         onCheckedChange={(v) => update('businessHoursEnabled', v)}
@@ -205,7 +215,7 @@ export default function TeamSettingsPage() {
                 </div>
                 <div className="grid gap-4 sm:grid-cols-3">
                     <Field label="Opens">
-                        <ClayInput
+                        <ZoruInput
                             type="time"
                             value={settings.businessHoursOpen}
                             onChange={(e) => update('businessHoursOpen', e.target.value)}
@@ -213,7 +223,7 @@ export default function TeamSettingsPage() {
                         />
                     </Field>
                     <Field label="Closes">
-                        <ClayInput
+                        <ZoruInput
                             type="time"
                             value={settings.businessHoursClose}
                             onChange={(e) => update('businessHoursClose', e.target.value)}
@@ -221,15 +231,25 @@ export default function TeamSettingsPage() {
                         />
                     </Field>
                     <Field label="Timezone">
-                        <ClaySelect
+                        <ZoruSelect
                             value={settings.timezone}
-                            onChange={(e) => update('timezone', e.target.value)}
+                            onValueChange={(v) => update('timezone', v)}
                             disabled={!settings.businessHoursEnabled}
-                            options={TIMEZONES.map((tz) => ({ value: tz, label: tz }))}
-                        />
+                        >
+                            <ZoruSelectTrigger>
+                                <ZoruSelectValue />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                {TIMEZONES.map((tz) => (
+                                    <ZoruSelectItem key={tz} value={tz}>
+                                        {tz}
+                                    </ZoruSelectItem>
+                                ))}
+                            </ZoruSelectContent>
+                        </ZoruSelect>
                     </Field>
                 </div>
-            </ClayCard>
+            </ZoruCard>
         </div>
     );
 }
@@ -245,12 +265,12 @@ function SectionHeader({
 }) {
     return (
         <div className="mb-4 flex items-start gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted/50 text-muted-foreground">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
                 {icon}
             </div>
             <div>
-                <p className="text-[13.5px] font-semibold text-foreground">{title}</p>
-                <p className="text-[12.5px] text-muted-foreground">{description}</p>
+                <p className="text-[13.5px] text-zoru-ink">{title}</p>
+                <p className="text-[12.5px] text-zoru-ink-muted">{description}</p>
             </div>
         </div>
     );
@@ -259,7 +279,7 @@ function SectionHeader({
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
     return (
         <div>
-            <Label className="mb-1.5 block text-[12.5px] font-medium text-foreground">{label}</Label>
+            <ZoruLabel className="mb-1.5 block text-[12.5px] text-zoru-ink">{label}</ZoruLabel>
             {children}
         </div>
     );
