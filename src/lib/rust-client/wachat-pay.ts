@@ -13,6 +13,7 @@
  *   POST   /projects/{id}/configurations/{name}/data-endpoint             → updateDataEndpoint
  *   POST   /projects/{id}/configurations/{name}/regenerate-oauth          → regenerateOauth
  *   POST   /projects/{id}/configurations/{name}/sync-local                → syncLocal
+ *   GET    /projects/{id}/transactions                                    → listTransactions
  *
  * Server-only — uses the shared JWT-issuing fetcher.
  */
@@ -108,6 +109,20 @@ export interface OauthResponse {
     oauthUrl: string;
 }
 
+/**
+ * Result of `GET /v1/wachat/pay/projects/{id}/transactions`.
+ *
+ * Each transaction is a raw `transactions` document — the Rust handler
+ * passes the stored Mongo doc through `document_to_clean_json` (ObjectId
+ * → hex, Date → ISO 8601). Shape parity with the legacy
+ * `getTransactionsForProject` server action: the TS callers were
+ * already doing `JSON.parse(JSON.stringify(...))` on the result, so the
+ * value here drops directly into the same code paths.
+ */
+export interface ListTransactionsResponse {
+    transactions: Array<Record<string, unknown>>;
+}
+
 // ---------------------------------------------------------------------------
 // Public namespace
 // ---------------------------------------------------------------------------
@@ -175,6 +190,16 @@ export const wachatPayApi = {
                 method: 'POST',
                 body: JSON.stringify(body),
             },
+        ),
+
+    /**
+     * `GET /v1/wachat/pay/projects/{id}/transactions` — list every
+     * `transactions` row for the project, newest first. Replaces the
+     * residual Mongo lookup in `getTransactionsForProject`.
+     */
+    listTransactions: (projectId: string) =>
+        rustFetch<ListTransactionsResponse>(
+            `${BASE}/projects/${encodeURIComponent(projectId)}/transactions`,
         ),
 };
 

@@ -13,15 +13,13 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import {
+    getAppearancePrefs,
+    setAppearancePrefs,
+    type AppearancePrefs,
+} from '@/app/actions/account.actions';
 
-type Appearance = {
-    theme: 'system' | 'light' | 'dark';
-    density: 'comfortable' | 'compact';
-    sidebarCollapsed: boolean;
-    reducedMotion: boolean;
-};
-
-const STORAGE_KEY = 'settings_appearance_v1';
+type Appearance = AppearancePrefs;
 
 const DEFAULTS: Appearance = {
     theme: 'system',
@@ -36,17 +34,38 @@ export default function AppearanceSettingsPage() {
     const { toast } = useToast();
 
     useEffect(() => {
-        try {
-            const raw = localStorage.getItem(STORAGE_KEY);
-            if (raw) setPrefs({ ...DEFAULTS, ...JSON.parse(raw) });
-        } catch { /* ignore */ }
+        let cancelled = false;
+        getAppearancePrefs()
+            .then((server) => {
+                if (cancelled) return;
+                setPrefs({ ...DEFAULTS, ...server });
+            })
+            .catch(() => {
+                /* fall through to defaults */
+            });
+        return () => {
+            cancelled = true;
+        };
     }, []);
 
     const handleSave = async () => {
         setSaving(true);
         try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs));
+            await setAppearancePrefs(prefs);
+            // Apply theme immediately so the user sees the effect.
+            if (typeof document !== 'undefined') {
+                const root = document.documentElement;
+                root.classList.remove('light', 'dark');
+                if (prefs.theme === 'dark') root.classList.add('dark');
+                else if (prefs.theme === 'light') root.classList.add('light');
+            }
             toast({ title: 'Appearance saved' });
+        } catch (e: any) {
+            toast({
+                title: 'Could not save',
+                description: e?.message ?? 'Try again.',
+                variant: 'destructive',
+            });
         } finally {
             setSaving(false);
         }

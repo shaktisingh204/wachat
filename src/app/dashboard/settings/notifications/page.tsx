@@ -12,10 +12,12 @@ import {
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
+import {
+    getNotificationPrefs,
+    setNotificationPrefs,
+} from '@/app/actions/account.actions';
 
 type Prefs = Record<string, boolean>;
-
-const STORAGE_KEY = 'settings_notification_prefs_v1';
 
 const GROUPS: Array<{
     title: string;
@@ -73,10 +75,18 @@ export default function NotificationsSettingsPage() {
     const { toast } = useToast();
 
     useEffect(() => {
-        try {
-            const raw = localStorage.getItem(STORAGE_KEY);
-            if (raw) setPrefs({ ...DEFAULTS, ...JSON.parse(raw) });
-        } catch { /* ignore */ }
+        let cancelled = false;
+        getNotificationPrefs()
+            .then((server) => {
+                if (cancelled) return;
+                setPrefs({ ...DEFAULTS, ...server });
+            })
+            .catch(() => {
+                /* fall through to defaults */
+            });
+        return () => {
+            cancelled = true;
+        };
     }, []);
 
     const toggle = (id: string) => setPrefs((p) => ({ ...p, [id]: !p[id] }));
@@ -84,8 +94,14 @@ export default function NotificationsSettingsPage() {
     const handleSave = async () => {
         setSaving(true);
         try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs));
+            await setNotificationPrefs(prefs);
             toast({ title: 'Preferences saved' });
+        } catch (e: any) {
+            toast({
+                title: 'Could not save preferences',
+                description: e?.message ?? 'Try again.',
+                variant: 'destructive',
+            });
         } finally {
             setSaving(false);
         }

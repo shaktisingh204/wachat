@@ -80,6 +80,7 @@ import {
   ZoruCardFooter,
   ZoruCardHeader,
   ZoruCardTitle,
+  ZoruFileInput,
   ZoruInput,
   ZoruLabel,
   ZoruRadioGroup,
@@ -1008,12 +1009,16 @@ function PropertiesPanel({
                   <h4 className="text-sm tracking-tight text-zoru-ink">
                     Card {elIndex + 1}
                   </h4>
-                  <ZoruInput
-                    placeholder="Image URL"
-                    value={el.image_url || ""}
-                    onChange={(e) =>
-                      handleElementChange(el.id, "image_url", e.target.value)
+                  <ZoruFileInput
+                    accept="image"
+                    placeholder="Pick a card image"
+                    pickerTitle="Pick card image"
+                    value={
+                      el.image_url
+                        ? { id: el.image_url, name: el.image_url, mimeType: "", size: 0, tag: "image", url: el.image_url, key: el.image_url, createdAt: "" }
+                        : null
                     }
+                    onChange={(file) => handleElementChange(el.id, "image_url", file?.url ?? "")}
                   />
                   <ZoruInput
                     placeholder="Title (80 chars max)"

@@ -15,7 +15,7 @@ const alertVariants = cva(
         warning:
           "border-zoru-warning/30 bg-zoru-warning/10 text-zoru-ink [&>svg]:text-zoru-warning",
         destructive:
-          "border-zoru-danger/30 bg-zoru-danger/5 text-zoru-danger [&>svg]:text-zoru-danger [&>*]:!text-zoru-danger",
+          "border-zoru-danger/30 bg-zoru-danger/5 text-zoru-danger-ink [&>svg]:text-zoru-danger [&>*]:!text-zoru-danger-ink",
       },
     },
     defaultVariants: { variant: "default" },

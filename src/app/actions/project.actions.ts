@@ -4,7 +4,7 @@
 
 import { getSession } from './user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
-import { ObjectId, type WithId, Filter } from 'mongodb';
+import { ObjectId, type WithId } from 'mongodb';
 import { revalidatePath } from 'next/cache';
 import type { Project, Contact, KanbanColumnData, OptInOutSettings, UserAttribute, CannedMessage } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';

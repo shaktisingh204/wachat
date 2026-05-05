@@ -3,14 +3,11 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { type Db, ObjectId, type WithId } from 'mongodb';
+import { ObjectId, type WithId } from 'mongodb';
 import axios from 'axios';
-import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById, getProjects } from './project.actions';
-import type { Project, Template, CallingSettings, CreateTemplateState, Contact, Agent, PhoneNumber, MetaTemplatesResponse, MetaTemplate, PaymentConfiguration, BusinessCapabilities, FacebookPaymentRequest, Transaction, AnyMessage } from '@/lib/definitions';
+import { getProjectById } from './project.actions';
+import type { Project, Contact, PhoneNumber, PaymentConfiguration, FacebookPaymentRequest, Transaction, AnyMessage } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
-import { premadeTemplates } from '@/lib/premade-templates';
-import { handleSendTemplateMessage } from './send-template.actions';
 
 const API_VERSION = 'v23.0';
 
@@ -32,7 +29,13 @@ async function _createProjectFromWaba(data: {
     includeCatalog?: boolean;
     userId: string;
 }): Promise<{ message?: string; error?: string }> {
+    // `userId` is no longer used directly here — the Rust handler resolves
+    // the calling user from the auth token issued by `rustFetch` and
+    // upserts on `(wabaId, userId)` server-side. Keeping the field in the
+    // public signature so existing call sites
+    // (`facebook.actions._createProjectFromWaba(...)`) keep compiling.
     const { wabaId, appId, accessToken, includeCatalog, userId } = data;
+    void userId;
 
     if (!wabaId || !appId || !accessToken) {
         return { error: 'WABA ID, App ID, and Access Token are required.' };
@@ -63,43 +66,34 @@ async function _createProjectFromWaba(data: {
             return { error: `Meta API Error (fetching project name): ${projectData.error.message}` };
         }
 
-        const { db } = await connectToDatabase();
-
-        const existingProject = await db.collection('projects').findOne({ wabaId: wabaId, userId: new ObjectId(userId) });
-        if (existingProject) {
-            console.log(`Project with WABA ID ${wabaId} already exists for this user. Skipping creation.`);
-            return { message: `Project "${projectData.name}" is already connected.` };
-        }
-
-        const defaultPlan = await db.collection<Plan>('plans').findOne({ isDefault: true });
-
-        const newProject: Omit<Project, '_id'> = {
-            userId: new ObjectId(userId),
+        // Upsert the project through the Rust BFF — `manualSetup` is keyed
+        // by `(wabaId, userId)` and applies default-plan / `messagesPerSecond`
+        // / `hasCatalogManagement` defaults on insert, so the legacy
+        // "exists? insertOne : skip" logic collapses into a single hop.
+        const { rustClient } = await import('@/lib/rust-client');
+        const created = await rustClient.wachatConfig.manualSetup({
             name: projectData.name,
-            wabaId: wabaId,
-            appId: appId,
-            businessId: businessId,
-            accessToken: accessToken,
-            phoneNumbers: [],
-            createdAt: new Date(),
-            messagesPerSecond: 80,
-            planId: defaultPlan?._id,
-            credits: defaultPlan?.signupCredits || 0,
-            hasCatalogManagement: includeCatalog,
-        };
+            wabaId,
+            accessToken,
+            appId,
+            businessId,
+            includeCatalog,
+        });
+        const projectId = created._id;
 
-        const insertResult = await db.collection('projects').insertOne(newProject as any);
-
-        // Sync phone numbers and register them immediately
-        const projectId = insertResult.insertedId.toString();
+        // Sync phone numbers and register them immediately. The Rust
+        // `manualSetup` returns the *current* project — for a brand-new
+        // upsert it has zero phone numbers, so we sync to populate them
+        // from Meta, then re-fetch to learn the real ids.
         try {
             console.log(`[WABA Setup] Syncing phone numbers for project ${projectId}`);
             await handleSyncPhoneNumbers(projectId);
 
-            const createdProject = await db.collection<Project>('projects').findOne({ _id: insertResult.insertedId });
-            if (createdProject?.phoneNumbers && createdProject.phoneNumbers.length > 0) {
-                console.log(`[WABA Setup] Registering ${createdProject.phoneNumbers.length} phone number(s)`);
-                for (const phone of createdProject.phoneNumbers) {
+            const synced = await rustClient.wachatConfig.getPublicProject(projectId);
+            const phoneNumbers = synced?.phoneNumbers ?? [];
+            if (phoneNumbers.length > 0) {
+                console.log(`[WABA Setup] Registering ${phoneNumbers.length} phone number(s)`);
+                for (const phone of phoneNumbers) {
                     try {
                         await axios.post(
                             `https://graph.facebook.com/${API_VERSION}/${phone.id}/register`,
@@ -215,16 +209,15 @@ export async function getWebhookSubscriptionStatus(wabaId: string, accessToken: 
     }
 
     try {
-        // Rust route: GET /projects/:id/webhook-subscription?waba_id=...
-        // The TS legacy signature only takes waba_id + token; we don't have a
-        // projectId here, so look it up by waba.
-        const { connectToDatabase } = await import('@/lib/mongodb');
-        const { db } = await connectToDatabase();
-        const proj = await db.collection('projects').findOne({ wabaId });
-        if (!proj?._id) return { isActive: false, error: 'Project not found' };
+        // The Rust route is `GET /projects/:id/webhook-subscription?waba_id=...`
+        // The TS legacy signature only takes (wabaId, accessToken), so we
+        // resolve the projectId via the Rust `by-waba` lookup. The Rust
+        // handler reads `accessToken` from the project doc itself, so we
+        // never forward an unsigned token over the wire.
         void accessToken;
         const { rustClient } = await import('@/lib/rust-client');
-        const r = await rustClient.wachatConfig.getWebhookSubscription(String(proj._id), wabaId);
+        const { projectId } = await rustClient.wachatConfig.getProjectByWaba(wabaId);
+        const r = await rustClient.wachatConfig.getWebhookSubscription(projectId, wabaId);
         return { isActive: !!r.isActive };
     } catch (e: any) {
         return { isActive: false, error: e?.message ?? 'Status check failed' };
@@ -246,13 +239,12 @@ export async function handleSubscribeAllProjects(): Promise<{ message?: string; 
 
 export async function handleSubscribeProjectWebhook(wabaId: string, appId: string, userAccessToken: string): Promise<{ success: boolean; error?: string }> {
     try {
-        // Rust subscribeWebhook needs projectId; look it up from wabaId.
-        const { connectToDatabase } = await import('@/lib/mongodb');
-        const { db } = await connectToDatabase();
-        const proj = await db.collection('projects').findOne({ wabaId });
-        if (!proj?._id) return { success: false, error: 'Project not found' };
+        // Rust `subscribeWebhook` is keyed by projectId — look it up via
+        // the Rust `by-waba` lookup so this action no longer needs a
+        // direct Mongo client.
         const { rustClient } = await import('@/lib/rust-client');
-        const r = await rustClient.wachatConfig.subscribeWebhook(String(proj._id), { appId, userAccessToken });
+        const { projectId } = await rustClient.wachatConfig.getProjectByWaba(wabaId);
+        const r = await rustClient.wachatConfig.subscribeWebhook(projectId, { appId, userAccessToken });
         return { success: !!r.isActive };
     } catch (e: any) {
         return { success: false, error: e?.message ?? 'Subscribe failed' };
@@ -636,9 +628,9 @@ export async function getTransactionsForProject(projectId: string): Promise<With
     if (!projectId || !ObjectId.isValid(projectId)) return [];
 
     try {
-        const { db } = await connectToDatabase();
-        const transactions = await db.collection<Transaction>('transactions').find({ projectId: new ObjectId(projectId) }).sort({ createdAt: -1 }).toArray();
-        return JSON.parse(JSON.stringify(transactions));
+        const { rustClient } = await import('@/lib/rust-client');
+        const r = await rustClient.wachatPay.listTransactions(projectId);
+        return (r.transactions ?? []) as unknown as WithId<Transaction>[];
     } catch (e) {
         console.error("Failed to fetch transactions:", e);
         return [];

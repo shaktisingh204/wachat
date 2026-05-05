@@ -2,7 +2,6 @@
 
 import { revalidatePath } from 'next/cache';
 import { ObjectId, type WithId } from 'mongodb';
-import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById } from '@/app/actions/project.actions';
 import { rustClient, RustApiError } from '@/lib/rust-client';
 import type {
@@ -10,7 +9,7 @@ import type {
     StartBroadcastBody,
 } from '@/lib/rust-client/wachat-broadcast';
 import { getErrorMessage, validateFile } from '@/lib/utils';
-import type { Template, BroadcastJob } from '@/lib/definitions';
+import type { BroadcastJob } from '@/lib/definitions';
 import Papa from 'papaparse';
 import * as xlsx from 'xlsx';
 import axios from 'axios';
@@ -215,39 +214,58 @@ export async function handleStartBroadcast(
     const project = await getProjectById(projectId);
     if (!project) return { error: 'Project not found.' };
 
-    // Pre-resolve template / flow doc so we can build the `components`
-    // array (with header media ids substituted in) before forwarding to
-    // Rust. The Rust handler re-validates project ownership and the
-    // template's APPROVED status.
-    const { db } = await connectToDatabase();
-    let template: WithId<Template> | null = null;
-    let flow: WithId<any> | null = null;
+    // Pre-resolve template / flow via the Rust BFF so we can build the
+    // `components` array (with header media ids substituted in) before
+    // forwarding to `rustClient.wachatBroadcast.start()`. The Rust
+    // handler re-validates project ownership and the template's
+    // APPROVED status — these early checks exist for UX (skip media
+    // uploads when we already know the broadcast can't go out).
+    let template: {
+        id: string;
+        name: string;
+        status: string;
+        components: any[];
+        type?: string | null;
+    } | null = null;
+    let flow: { id: string; name: string; metaId: string } | null = null;
 
     if (broadcastType === 'template') {
         const templateId = formData.get('templateId') as string;
         if (!templateId || !ObjectId.isValid(templateId)) {
             return { error: 'Invalid templateId.' };
         }
-        template = await db.collection<Template>('templates').findOne({
-            _id: new ObjectId(templateId),
-            projectId: new ObjectId(projectId),
-        });
-        if (!template) return { error: 'Template not found for this project.' };
-        if (template.status !== 'APPROVED') {
-            return {
-                error: `Template '${template.name}' is ${
-                    template.status || 'not approved'
-                }. Only APPROVED templates can be broadcast.`,
+        try {
+            const t = await rustClient.templates.getById(templateId, projectId);
+            if (!t) return { error: 'Template not found for this project.' };
+            if (t.status !== 'APPROVED') {
+                return {
+                    error: `Template '${t.name}' is ${
+                        t.status || 'not approved'
+                    }. Only APPROVED templates can be broadcast.`,
+                };
+            }
+            template = {
+                id: t.id,
+                name: t.name,
+                status: t.status,
+                components: (t.components as any[]) ?? [],
+                type: t.type ?? null,
             };
+        } catch (e) {
+            return toErrorResponse(e, { error: 'Template not found for this project.' });
         }
     } else {
         const flowId = formData.get('flowId') as string;
         if (!flowId || !ObjectId.isValid(flowId)) return { error: 'Invalid flowId.' };
-        flow = await db.collection('meta_flows').findOne({
-            _id: new ObjectId(flowId),
-            projectId: new ObjectId(projectId),
-        });
-        if (!flow) return { error: 'Flow not found for this project.' };
+        try {
+            const f = await rustClient.metaFlows.getFlow(flowId);
+            if (!f || f.projectId !== projectId) {
+                return { error: 'Flow not found for this project.' };
+            }
+            flow = { id: f._id, name: f.name, metaId: f.metaId };
+        } catch (e) {
+            return toErrorResponse(e, { error: 'Flow not found for this project.' });
+        }
     }
 
     // Audience: file → CSV / XLSX parsing happens here.
@@ -501,7 +519,7 @@ export async function handleStartBroadcast(
             projectId,
             phoneNumberId,
             broadcastType: 'template',
-            templateId: String(template._id),
+            templateId: template.id,
             audienceType,
             contacts: audienceType === 'file' ? contacts : undefined,
             tagIds: audienceType === 'tags' ? tagIds : undefined,
@@ -529,7 +547,7 @@ export async function handleStartBroadcast(
         projectId,
         phoneNumberId,
         broadcastType: 'flow',
-        flowId: String(flow!._id),
+        flowId: flow!.id,
         audienceType,
         contacts: audienceType === 'file' ? contacts : undefined,
         tagIds: audienceType === 'tags' ? tagIds : undefined,

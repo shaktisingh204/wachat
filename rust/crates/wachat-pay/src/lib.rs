@@ -35,6 +35,7 @@
 pub mod config;
 pub mod router;
 pub mod state;
+pub mod transactions;
 
 pub use router::router;
 pub use state::WachatPayState;

@@ -106,18 +106,22 @@ export default {
           danger: {
             DEFAULT: 'hsl(var(--zoru-danger))',
             foreground: 'hsl(var(--zoru-on-danger))',
+            ink: 'hsl(var(--zoru-danger-ink))',
           },
           success: {
             DEFAULT: 'hsl(var(--zoru-success))',
             foreground: 'hsl(var(--zoru-on-success))',
+            ink: 'hsl(var(--zoru-success-ink))',
           },
           warning: {
             DEFAULT: 'hsl(var(--zoru-warning))',
             foreground: 'hsl(var(--zoru-on-warning))',
+            ink: 'hsl(var(--zoru-warning-ink))',
           },
           info: {
             DEFAULT: 'hsl(var(--zoru-info))',
             foreground: 'hsl(var(--zoru-on-info))',
+            ink: 'hsl(var(--zoru-info-ink))',
           },
           ring: 'hsl(var(--zoru-ring))',
         },

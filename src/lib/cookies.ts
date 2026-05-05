@@ -26,14 +26,28 @@ export function getCookieSecureFlag(): boolean {
 }
 
 /**
+ * Optional Domain attribute. When set (e.g. `.sabnode.com`), the
+ * session cookie is shared between the apex host and every subdomain
+ * — required if users hop between `sabnode.com` and `www.sabnode.com`.
+ * Leave unset for host-only cookies (the safe default).
+ */
+function getCookieDomain(): string | undefined {
+  const explicit = process.env.COOKIE_DOMAIN?.trim();
+  if (explicit) return explicit;
+  return undefined;
+}
+
+/**
  * Standard session cookie options used by every login surface.
  */
 export function sessionCookieOptions(maxAgeSeconds: number) {
+  const domain = getCookieDomain();
   return {
     httpOnly: true as const,
     secure: getCookieSecureFlag(),
     sameSite: 'lax' as const,
     path: '/',
     maxAge: maxAgeSeconds,
+    ...(domain ? { domain } : {}),
   };
 }

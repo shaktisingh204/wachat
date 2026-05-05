@@ -4,19 +4,11 @@ import * as React from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
   Bell,
-  Bot,
   Briefcase,
-  Globe,
+  CheckCircle2,
   Home,
-  Instagram,
-  Link as LinkIcon,
   LogOut,
-  Mail,
-  Megaphone,
-  QrCode,
   Search,
-  Send,
-  Settings,
   Smartphone,
   Sparkles,
   Workflow,
@@ -24,6 +16,7 @@ import {
 
 import { cn } from "../lib/cn";
 import { ZoruAppSidebar, type ZoruSidebarGroup } from "./zoru-app-sidebar";
+import { ZORU_APPS, ZORU_MIGRATED_APPS } from "./zoru-apps";
 import { ZoruDock, ZoruDockIcon } from "./zoru-dock";
 import { ZoruHeader } from "./zoru-header";
 import { ZoruInput } from "../input";
@@ -64,30 +57,7 @@ export interface ZoruHomeShellProps {
   children: React.ReactNode;
 }
 
-interface DockApp {
-  id: string;
-  name: string;
-  href: string;
-  icon: React.ReactNode;
-  isActive: (pathname: string | null) => boolean;
-}
-
-const DOCK_APPS: DockApp[] = [
-  { id: "home", name: "Home", href: "/dashboard", icon: <Home className="h-5 w-5" />, isActive: (p) => p === "/dashboard" },
-  { id: "wachat", name: "WaChat", href: "/wachat", icon: <Smartphone className="h-5 w-5" />, isActive: (p) => p === "/wachat" || !!p?.startsWith("/wachat/") },
-  { id: "sabflow", name: "SabFlow", href: "/dashboard/sabflow/flow-builder", icon: <Workflow className="h-5 w-5" />, isActive: (p) => !!p?.startsWith("/dashboard/sabflow") },
-  { id: "facebook", name: "Meta Suite", href: "/dashboard/facebook/all-projects", icon: <Globe className="h-5 w-5" />, isActive: (p) => !!p?.startsWith("/dashboard/facebook") },
-  { id: "ad-manager", name: "Ad Manager", href: "/dashboard/ad-manager/ad-accounts", icon: <Megaphone className="h-5 w-5" />, isActive: (p) => !!p?.startsWith("/dashboard/ad-manager") },
-  { id: "telegram", name: "Telegram", href: "/dashboard/telegram", icon: <Send className="h-5 w-5" />, isActive: (p) => !!p?.startsWith("/dashboard/telegram") },
-  { id: "instagram", name: "Instagram", href: "/dashboard/instagram/connections", icon: <Instagram className="h-5 w-5" />, isActive: (p) => !!p?.startsWith("/dashboard/instagram") },
-  { id: "crm", name: "CRM", href: "/dashboard/crm", icon: <Briefcase className="h-5 w-5" />, isActive: (p) => !!p?.startsWith("/dashboard/crm") },
-  { id: "email", name: "Email", href: "/dashboard/email", icon: <Mail className="h-5 w-5" />, isActive: (p) => !!p?.startsWith("/dashboard/email") },
-  { id: "sabchat", name: "SabChat", href: "/dashboard/sabchat", icon: <Bot className="h-5 w-5" />, isActive: (p) => !!p?.startsWith("/dashboard/sabchat") },
-  { id: "seo", name: "SEO Suite", href: "/dashboard/seo", icon: <Search className="h-5 w-5" />, isActive: (p) => !!p?.startsWith("/dashboard/seo") },
-  { id: "url", name: "URL Shortener", href: "/dashboard/url-shortener", icon: <LinkIcon className="h-5 w-5" />, isActive: (p) => !!p?.startsWith("/dashboard/url-shortener") },
-  { id: "qr", name: "QR Code", href: "/dashboard/qr-code-maker", icon: <QrCode className="h-5 w-5" />, isActive: (p) => !!p?.startsWith("/dashboard/qr-code-maker") },
-  { id: "settings", name: "Settings", href: "/dashboard/settings", icon: <Settings className="h-5 w-5" />, isActive: (p) => !!p?.startsWith("/dashboard/settings") },
-];
+const DOCK_APPS = ZORU_APPS;
 
 /**
  * ZoruHomeShell — sidebar + header + main + dock. The vertical app
@@ -126,6 +96,25 @@ export function ZoruHomeShell({
     [router],
   );
 
+  const migratedAppsGroup: ZoruSidebarGroup = {
+    id: "migrated-apps",
+    label: "Apps · Migrated",
+    defaultOpen: true,
+    items: ZORU_MIGRATED_APPS.map((app) => ({
+      id: `migrated-${app.id}`,
+      label: app.name,
+      icon: <app.Icon />,
+      href: app.href,
+      active: app.isActive(pathname),
+      badge: (
+        <CheckCircle2
+          aria-label="Migration complete"
+          className="h-3 w-3 text-zoru-success"
+        />
+      ),
+    })),
+  };
+
   const defaultSidebarGroups: ZoruSidebarGroup[] = [
     {
       id: "main",
@@ -147,7 +136,13 @@ export function ZoruHomeShell({
     },
   ];
 
-  const sidebarGroups = sidebarGroupsProp ?? defaultSidebarGroups;
+  // Always surface migrated apps at the top of the sidebar, even when
+  // a module overrides the rest of the groups (e.g. /wachat passes its
+  // own inbox/broadcasts/settings nav).
+  const sidebarGroups: ZoruSidebarGroup[] = [
+    migratedAppsGroup,
+    ...(sidebarGroupsProp ?? defaultSidebarGroups),
+  ];
 
   const planFooter = plan?.name || plan?.credits !== undefined ? (
     <div className="flex flex-col gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3">
@@ -225,9 +220,10 @@ export function ZoruHomeShell({
         {/* Bottom-anchored, centered dock — every app lives here now. */}
         <div className="pointer-events-none absolute inset-x-0 bottom-3 z-30 flex justify-center">
           <div className="pointer-events-auto rounded-[26px] border border-zoru-line bg-zoru-bg/95 p-1 shadow-[var(--zoru-shadow-lg)] backdrop-blur">
-            <ZoruDock iconSize={48}>
+            <ZoruDock iconSize={48} static>
               {DOCK_APPS.map((app) => {
                 const isPending = pendingDockHref === app.href;
+                const Icon = app.Icon;
                 return (
                   <ZoruDockIcon
                     key={app.id}
@@ -241,7 +237,7 @@ export function ZoruHomeShell({
                         isPending ? "animate-pulse opacity-70" : undefined
                       }
                     >
-                      {app.icon}
+                      <Icon className="h-5 w-5" />
                     </span>
                   </ZoruDockIcon>
                 );

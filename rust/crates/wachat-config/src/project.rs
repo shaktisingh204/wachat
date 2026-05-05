@@ -53,12 +53,21 @@ impl PublicProject {
 pub struct ManualSetupBody {
     pub name: String,
     pub waba_id: String,
-    pub phone_number_id: String,
+    /// Optional — the OAuth-linked WABA flow doesn't have a phone-number
+    /// id at creation time (it sync's the numbers from Meta right after).
+    /// The legacy manual setup form does always supply one.
+    #[serde(default)]
+    pub phone_number_id: Option<String>,
     pub access_token: String,
     #[serde(default)]
     pub business_id: Option<String>,
     #[serde(default)]
     pub app_id: Option<String>,
+    /// Mirrors the `includeCatalog` flag from the legacy
+    /// `_createProjectFromWaba` helper. Stored as
+    /// `hasCatalogManagement` on the project doc on first insert.
+    #[serde(default)]
+    pub include_catalog: Option<bool>,
 }
 
 pub async fn get_public(mongo: &MongoHandle, project_id: &ObjectId) -> Result<Option<PublicProject>> {
@@ -70,6 +79,38 @@ pub async fn get_public(mongo: &MongoHandle, project_id: &ObjectId) -> Result<Op
     Ok(p.map(PublicProject::from_project))
 }
 
+/// Result of `GET /v1/wachat/config/projects/by-waba/{wabaId}`. Returns
+/// the owning project's hex `_id` so TS callers that historically did
+/// `db.collection('projects').findOne({ wabaId })` can swap to a Rust
+/// hop without bringing back a Mongo client.
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ProjectByWabaResponse {
+    pub project_id: String,
+}
+
+/// Resolve a wabaId to its owning project (scoped to the calling user
+/// via the caller's tenant check). Returns `None` if no project for that
+/// `wabaId` belongs to this user.
+pub async fn find_id_by_waba(
+    mongo: &MongoHandle,
+    user_id: &ObjectId,
+    waba_id: &str,
+) -> Result<Option<ProjectByWabaResponse>> {
+    let coll = mongo.collection::<Document>(PROJECTS_COLL);
+    let doc = coll
+        .find_one(doc! { "wabaId": waba_id, "userId": user_id })
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+    let Some(d) = doc else { return Ok(None) };
+    let oid = d
+        .get_object_id("_id")
+        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+    Ok(Some(ProjectByWabaResponse {
+        project_id: oid.to_hex(),
+    }))
+}
+
 pub async fn manual_setup(
     mongo: &MongoHandle,
     user_id: &ObjectId,
@@ -78,23 +119,62 @@ pub async fn manual_setup(
     let coll = mongo.collection::<Document>(PROJECTS_COLL);
     let now = bson::DateTime::from_chrono(Utc::now());
     let new_id = ObjectId::new();
+
+    // Resolve the default plan once so we can seed `planId` /
+    // `credits` / `messagesPerSecond` on insert. Mirrors the legacy
+    // `_createProjectFromWaba` helper which read `plans.findOne({
+    // isDefault: true })` before inserting a brand-new project.
+    let default_plan = mongo
+        .collection::<Document>("plans")
+        .find_one(doc! { "isDefault": true })
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+
+    let (default_plan_id, default_signup_credits) = match default_plan {
+        Some(p) => {
+            let pid = p.get_object_id("_id").ok();
+            let credits = p
+                .get_i64("signupCredits")
+                .ok()
+                .or_else(|| p.get_i32("signupCredits").ok().map(i64::from))
+                .unwrap_or(0);
+            (pid, credits)
+        }
+        None => (None, 0),
+    };
+
+    let mut set_on_insert = doc! {
+        "_id": new_id,
+        "userId": user_id,
+        "wabaId": &body.waba_id,
+        "createdAt": now,
+        "phoneNumbers": Vec::<bson::Bson>::new(),
+        "messagesPerSecond": 80i32,
+        "credits": default_signup_credits,
+    };
+    if let Some(plan_id) = default_plan_id {
+        set_on_insert.insert("planId", plan_id);
+    }
+    if let Some(include_catalog) = body.include_catalog {
+        set_on_insert.insert("hasCatalogManagement", include_catalog);
+    }
+
+    let mut set_doc = doc! {
+        "name": &body.name,
+        "accessToken": &body.access_token,
+        "businessId": body.business_id.as_deref(),
+        "appId": body.app_id.as_deref(),
+        "updatedAt": now,
+    };
+    if let Some(pnid) = body.phone_number_id.as_deref() {
+        set_doc.insert("phoneNumberId", pnid);
+    }
+
     coll.update_one(
         doc! { "wabaId": &body.waba_id, "userId": user_id },
         doc! {
-            "$setOnInsert": {
-                "_id": new_id,
-                "userId": user_id,
-                "wabaId": &body.waba_id,
-                "createdAt": now,
-            },
-            "$set": {
-                "name": &body.name,
-                "phoneNumberId": &body.phone_number_id,
-                "accessToken": &body.access_token,
-                "businessId": body.business_id.as_deref(),
-                "appId": body.app_id.as_deref(),
-                "updatedAt": now,
-            },
+            "$setOnInsert": set_on_insert,
+            "$set": set_doc,
         },
     )
     .with_options(

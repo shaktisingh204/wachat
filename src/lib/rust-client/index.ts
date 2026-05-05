@@ -20,6 +20,9 @@ import { qrCodesApi } from './qr-codes';
 import { sessionApi } from './session';
 import { templatesApi } from './templates';
 import { usersApi } from './users';
+import { wachatContactsApi } from './wachat-contacts';
+import { wachatFlowsApi } from './wachat-flows';
+import { wachatApiKeysAdminApi } from './wachat-api-keys-admin';
 import { wachatTemplatesActionsApi } from './wachat-templates-actions';
 import { wachatAnalyticsApi } from './wachat-analytics';
 import { wachatBroadcastApi } from './wachat-broadcast';
@@ -35,6 +38,9 @@ export const rustClient = {
     users: usersApi,
     session: sessionApi,
     projects: projectsApi,
+    wachatContacts: wachatContactsApi,
+    wachatFlows: wachatFlowsApi,
+    wachatApiKeysAdmin: wachatApiKeysAdminApi,
     wachatWebhook: wachatWebhookApi,
     wachatWebhookActions: wachatWebhookActionsApi,
     wachatConfig: wachatConfigApi,

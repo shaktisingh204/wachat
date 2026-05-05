@@ -14,7 +14,7 @@ use sabnode_common::{ApiError, Result};
 use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use wachat_types::Project;
 
-use crate::{config, state::WachatPayState};
+use crate::{config, state::WachatPayState, transactions};
 
 const PROJECTS_COLL: &str = "projects";
 
@@ -65,6 +65,7 @@ where
             "/projects/{id}/configurations/{name}/sync-local",
             post(sync_local),
         )
+        .route("/projects/{id}/transactions", get(list_transactions))
 }
 
 // ---------------------------------------------------------------------------
@@ -141,4 +142,16 @@ async fn sync_local(
     let p = load_project_for(&user, &s.mongo, &id).await?;
     config::sync_local(&s.mongo, &p.id, body).await?;
     Ok(Json(serde_json::json!({ "ok": true })))
+}
+
+/// `GET /projects/{id}/transactions` — list every `transactions` row for
+/// the project, newest first. Mirrors the legacy
+/// `getTransactionsForProject` server action.
+async fn list_transactions(
+    user: AuthUser,
+    State(s): State<WachatPayState>,
+    Path(id): Path<String>,
+) -> Result<Json<transactions::TransactionsResponse>> {
+    let p = load_project_for(&user, &s.mongo, &id).await?;
+    Ok(Json(transactions::list_for_project(&s.mongo, &p.id).await?))
 }

@@ -63,6 +63,7 @@ import {
   ZoruDialogHeader,
   ZoruDialogTitle,
   ZoruEmptyState,
+  ZoruFileInput,
   ZoruInput,
   ZoruLabel,
   ZoruPageActions,
@@ -980,15 +981,21 @@ function CreateTemplateContent() {
 
                     {['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerFormat) && (
                       <div className="mt-2 space-y-2">
-                        <ZoruInput
-                          name="headerSampleUrl"
-                          value={headerSampleUrl}
-                          onChange={(e) => setHeaderSampleUrl(e.target.value)}
-                          placeholder="Media URL (https://…)"
+                        <ZoruFileInput
+                          accept={
+                            headerFormat === 'IMAGE'
+                              ? 'image'
+                              : headerFormat === 'VIDEO'
+                                ? 'video'
+                                : 'document'
+                          }
+                          value={headerSampleUrl ? { id: headerSampleUrl, name: headerSampleUrl, mimeType: '', size: 0, tag: 'other', url: headerSampleUrl, key: headerSampleUrl, createdAt: '' } : null}
+                          onChange={(file) => setHeaderSampleUrl(file?.url ?? '')}
+                          placeholder="Pick a media file"
+                          pickerTitle="Pick header media"
                         />
                         <p className="text-[10px] text-zoru-ink-muted">
-                          Direct link to the media file. Meta requires a sample
-                          for approval.
+                          Pick from your file library or upload a new file. Meta requires a sample for approval.
                         </p>
                       </div>
                     )}

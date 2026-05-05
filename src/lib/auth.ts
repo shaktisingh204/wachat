@@ -70,6 +70,31 @@ async function isTokenRevoked(jti: string): Promise<boolean> {
     }
 }
 
+/**
+ * Returns true if the given token was issued before the user's
+ * `sessionRevokedBefore` timestamp — used by "sign out everywhere"
+ * to invalidate every active session at once without tracking
+ * individual jtis per user.
+ */
+async function isTokenRevokedForUser(
+    userId: string,
+    issuedAtSeconds: number | undefined,
+): Promise<boolean> {
+    if (!issuedAtSeconds || !userId) return false;
+    try {
+        const { db } = await connectToDatabase();
+        const sentinel = await db
+            .collection('revoked_tokens')
+            .findOne({ userId, kind: 'user-wide' });
+        if (!sentinel?.revokedBefore) return false;
+        const tokenIssuedMs = issuedAtSeconds * 1000;
+        return tokenIssuedMs < new Date(sentinel.revokedBefore).getTime();
+    } catch (error) {
+        console.error('Error checking user-wide token revocation:', error);
+        return false;
+    }
+}
+
 export async function verifyFirebaseIdToken(token: string): Promise<any | null> {
     console.log('[AUTH_LIB] Verifying Firebase ID token on server...');
     try {
@@ -94,6 +119,16 @@ export async function verifyJwt(token: string): Promise<SessionPayload | null> {
 
         if (await isTokenRevoked(payload.jti)) {
             console.warn(`Attempted to use a revoked session token: ${payload.jti}`);
+            return null;
+        }
+
+        if (
+            await isTokenRevokedForUser(
+                String(payload.userId),
+                typeof payload.iat === 'number' ? payload.iat : undefined,
+            )
+        ) {
+            console.warn(`Token rejected by user-wide revoke for ${payload.userId}`);
             return null;
         }
 

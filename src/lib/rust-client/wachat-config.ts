@@ -29,6 +29,8 @@
  *   POST   /projects/:id/phone-numbers/:pnid/qr-codes/:code                → updateQrCode
  *   DELETE /projects/:id/phone-numbers/:pnid/qr-codes/:code                → deleteQrCode
  *
+ *   POST   /projects/:id/widget-settings                                   → saveWidgetSettings
+ *
  * Server-only — uses the shared JWT-issuing fetcher.
  */
 import 'server-only';
@@ -87,14 +89,26 @@ export interface PublicProject {
  * collected by the legacy `handleManualWachatSetup` server action, normalized
  * to camelCase JSON. The Rust handler upserts on `(wabaId, userId)` so the
  * read-then-write race in the legacy code is gone.
+ *
+ * `phoneNumberId` is optional — the OAuth-linked WABA flow doesn't have one
+ * at create time (the phone numbers are sync'd from Meta right after).
+ * `includeCatalog` mirrors the legacy `_createProjectFromWaba` flag and is
+ * stored as `hasCatalogManagement` on the project doc on first insert.
  */
 export interface ManualSetupBody {
     name: string;
     wabaId: string;
-    phoneNumberId: string;
+    phoneNumberId?: string;
     accessToken: string;
     businessId?: string;
     appId?: string;
+    includeCatalog?: boolean;
+}
+
+/** Result of `GET /v1/wachat/config/projects/by-waba/:wabaId`. */
+export interface ProjectByWabaResponse {
+    /** Hex `_id` of the project owned by the caller. */
+    projectId: string;
 }
 
 /**
@@ -153,6 +167,31 @@ export interface VerifyCodeBody {
 /** Body for `POST /v1/wachat/config/projects/:id/phone-numbers/:pnid/two-step-pin`. */
 export interface SetTwoStepPinBody {
     pin: string;
+}
+
+/**
+ * Body for `POST /v1/wachat/config/projects/:id/widget-settings`.
+ *
+ * Mirrors `WhatsAppWidgetSettings` from `src/lib/definitions.ts` — the
+ * payload the in-app widget generator persists onto the project doc under
+ * `widgetSettings`. Optional `stats` is intentionally omitted: the legacy
+ * server action never wrote it (analytics live on a different path), and
+ * sending it from the form would clobber server-managed counters.
+ */
+export interface SaveWidgetSettingsBody {
+    phoneNumber: string;
+    prefilledMessage: string;
+    position: 'bottom-right' | 'bottom-left';
+    buttonColor: string;
+    headerTitle: string;
+    headerSubtitle: string;
+    headerAvatarUrl: string;
+    welcomeMessage: string;
+    ctaText: string;
+    borderRadius: number;
+    padding: number;
+    textColor: string;
+    buttonTextColor: string;
 }
 
 /**
@@ -269,6 +308,17 @@ export const wachatConfigApi = {
             method: 'POST',
             body: JSON.stringify(body),
         }),
+
+    /**
+     * `GET /v1/wachat/config/projects/by-waba/:wabaId` — resolve a WABA
+     * id to the calling user's project id. Replaces the residual
+     * `db.collection('projects').findOne({ wabaId })` lookups in the
+     * legacy webhook server actions.
+     */
+    getProjectByWaba: (wabaId: string) =>
+        rustFetch<ProjectByWabaResponse>(
+            `${BASE}/projects/by-waba/${encodeURIComponent(wabaId)}`,
+        ),
 
     // ----------- /projects/:id/phone-numbers/* (sync + profile) -----------
 
@@ -414,6 +464,17 @@ export const wachatConfigApi = {
         rustFetch<{ ok: boolean }>(
             `${BASE}/projects/${encodeURIComponent(projectId)}/phone-numbers/${encodeURIComponent(phoneNumberId)}/qr-codes/${encodeURIComponent(code)}`,
             { method: 'DELETE' },
+        ),
+
+    // ----------- /projects/:id/widget-settings -----------
+
+    saveWidgetSettings: (projectId: string, body: SaveWidgetSettingsBody) =>
+        rustFetch<{ success: boolean }>(
+            `${BASE}/projects/${encodeURIComponent(projectId)}/widget-settings`,
+            {
+                method: 'POST',
+                body: JSON.stringify(body),
+            },
         ),
 };
 

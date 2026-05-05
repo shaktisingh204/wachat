@@ -1,0 +1,64 @@
+# Admin-side API-key management for the wachat public API.
+#
+# This crate ports the user-facing CRUD for API keys from
+# `src/app/actions/api-keys.actions.ts` to the Rust BFF: generate / list /
+# revoke. NOT to be confused with `wachat-public-api`, which is the
+# verifier on the *request* path that authenticates inbound public-API
+# calls. The two crates share a storage shape so admin writes are visible
+# to the verifier without an additional sync step:
+#
+#   - Collection: `api_keys`
+#   - Hash: SHA-256 hex digest (mirrors `wachat_public_api::ApiKeyVerifier::hash_key`)
+#
+# Mount under `/v1/api-keys` from the `api` crate:
+#   .nest("/v1/api-keys", wachat_api_keys_admin::router::<AppState>())
+[package]
+name = "wachat-api-keys-admin"
+version = "0.1.0"
+edition = "2024"
+description = "Admin-side CRUD for wachat public-API keys (generate/list/revoke). Writes the same SHA-256-hashed `api_keys` rows that wachat-public-api::ApiKeyVerifier reads."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "wachat_api_keys_admin"
+path = "src/lib.rs"
+
+[dependencies]
+# Axum HTTP — feature set matches sibling routers.
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+# Serialization stack used across the workspace.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# BSON ObjectId construction + Mongo driver.
+bson = { version = "2", features = ["chrono-0_4"] }
+mongodb = { version = "3" }
+
+# SHA-256 hashing of plaintext keys — MUST match `wachat-public-api`'s
+# `ApiKeyVerifier::hash_key` byte-for-byte so the verifier can find rows
+# this crate writes.
+sha2 = "0.10"
+hex = "0.4"
+
+# Random plaintext key generation. The `rand` crate is already a
+# transitive dep through mongodb's TLS stack; pulled in directly here so
+# the secret-generation path is explicit and testable.
+rand = "0.8"
+
+# Time + cursor utilities.
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+futures = "0.3"
+
+tracing = "0.1"
+anyhow = "1"
+
+# Sibling workspace crates.
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+
+[lints]
+workspace = true

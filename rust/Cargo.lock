@@ -2795,13 +2795,16 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "wachat-analytics",
+ "wachat-api-keys-admin",
  "wachat-broadcast",
  "wachat-calling",
  "wachat-chat-mark",
  "wachat-chat-read",
  "wachat-config",
+ "wachat-contacts",
  "wachat-contacts-resolve",
  "wachat-features",
+ "wachat-flows",
  "wachat-media",
  "wachat-meta-client",
  "wachat-pay",
@@ -3954,6 +3957,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "wachat-api-keys-admin"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "futures",
+ "hex",
+ "mongodb",
+ "rand 0.8.6",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "sha2",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "wachat-broadcast"
 version = "0.1.0"
 dependencies = [
@@ -4051,6 +4076,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "wachat-contacts"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "utoipa",
+]
+
+[[package]]
 name = "wachat-contacts-resolve"
 version = "0.1.0"
 dependencies = [
@@ -4087,6 +4132,25 @@ dependencies = [
  "tracing",
  "wachat-meta-client",
  "wachat-types",
+]
+
+[[package]]
+name = "wachat-flows"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]

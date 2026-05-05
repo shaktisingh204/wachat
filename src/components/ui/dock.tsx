@@ -22,6 +22,12 @@ interface DockProps {
   children: React.ReactNode;
   maxAdditionalSize?: number;
   iconSize?: number;
+  /**
+   * When true, disables every hover-driven size change (the macOS-style
+   * magnification) and the per-icon mouse-distance scaling. Icons stay
+   * fixed size; only the tooltip + ring lift remain on hover.
+   */
+  static?: boolean;
 }
 
 export type DockAccent = {
@@ -45,6 +51,8 @@ interface DockIconProps {
   handleIconHover?: (e: React.MouseEvent<HTMLLIElement>) => void;
   children?: React.ReactNode;
   iconSize?: number;
+  /** Forwarded from <Dock static>. Internal — set by Dock, not callers. */
+  staticMode?: boolean;
   /**
    * If provided, the icon's click is intercepted (preventDefault) and this
    * callback runs instead of navigating via the Link. Used by the tabs
@@ -85,12 +93,14 @@ export function DockIcon({
   children,
   iconSize,
   onActivate,
+  staticMode,
 }: DockIconProps) {
   const ref = useRef<HTMLLIElement | null>(null);
   const a = accent ?? DEFAULT_ACCENT;
 
   return (
     <>
+      {!staticMode && (
       <style jsx>
         {`
           .icon:hover + .icon {
@@ -138,6 +148,7 @@ export function DockIcon({
           }
         `}
       </style>
+      )}
       <li
         ref={ref}
         style={
@@ -147,9 +158,11 @@ export function DockIcon({
             "--icon-size": `${iconSize}px`,
           } as React.CSSProperties
         }
-        onMouseMove={handleIconHover}
+        onMouseMove={staticMode ? undefined : handleIconHover}
         className={cn(
-          "icon group/li relative flex h-[var(--icon-size)] w-[var(--icon-size)] cursor-pointer items-center justify-center px-[calc(var(--icon-size)*0.075)] hover:-mt-[calc(var(--icon-size)/2)] hover:h-[calc(var(--icon-size)*1.5)] hover:w-[calc(var(--icon-size)*1.5)] [&_img]:object-contain",
+          "icon group/li relative flex h-[var(--icon-size)] w-[var(--icon-size)] cursor-pointer items-center justify-center px-[calc(var(--icon-size)*0.075)] [&_img]:object-contain",
+          !staticMode &&
+            "hover:-mt-[calc(var(--icon-size)/2)] hover:h-[calc(var(--icon-size)*1.5)] hover:w-[calc(var(--icon-size)*1.5)]",
           className,
         )}
       >
@@ -243,11 +256,12 @@ export function Dock({
   children,
   maxAdditionalSize = 5,
   iconSize = 55,
+  static: staticMode = false,
 }: DockProps) {
   const dockRef = useRef<HTMLElement | null>(null);
 
   const handleIconHover = (e: React.MouseEvent<HTMLLIElement>) => {
-    if (!dockRef.current) return;
+    if (staticMode || !dockRef.current) return;
     const mousePos = e.clientX;
     const iconPosLeft = e.currentTarget.getBoundingClientRect().left;
     const iconWidth = e.currentTarget.getBoundingClientRect().width;
@@ -299,6 +313,7 @@ export function Dock({
               ? React.cloneElement(child as React.ReactElement<DockIconProps>, {
                   handleIconHover,
                   iconSize,
+                  staticMode,
                 })
               : child,
           )}
