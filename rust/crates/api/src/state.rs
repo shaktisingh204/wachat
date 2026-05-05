@@ -26,6 +26,7 @@ use wachat_calling::WachatCallingState;
 use wachat_config::WachatConfigState;
 use wachat_features::WachatFeaturesState;
 use wachat_pay::WachatPayState;
+use wachat_projects::WachatProjectsState;
 use wachat_public_api::{ApiKeyVerifier, PublicApiState};
 use wachat_send_router::WachatSendState;
 use wachat_templates_actions::WachatTemplatesActionsState;
@@ -59,6 +60,7 @@ pub struct AppState {
     pub facebook_flow: FacebookFlowState,
     pub public_api: PublicApiState,
     pub api_key_verifier: Arc<ApiKeyVerifier>,
+    pub projects: WachatProjectsState,
     pub ready: Arc<AtomicBool>,
 }
 
@@ -87,6 +89,7 @@ impl AppState {
         facebook_flow: FacebookFlowState,
         public_api: PublicApiState,
         api_key_verifier: Arc<ApiKeyVerifier>,
+        projects: WachatProjectsState,
     ) -> Self {
         Self {
             started_at: Utc::now(),
@@ -112,6 +115,7 @@ impl AppState {
             facebook_flow,
             public_api,
             api_key_verifier,
+            projects,
             ready: Arc::new(AtomicBool::new(false)),
         }
     }
@@ -254,5 +258,11 @@ impl FromRef<AppState> for PublicApiState {
 impl FromRef<AppState> for Arc<ApiKeyVerifier> {
     fn from_ref(s: &AppState) -> Self {
         s.api_key_verifier.clone()
+    }
+}
+
+impl FromRef<AppState> for WachatProjectsState {
+    fn from_ref(s: &AppState) -> Self {
+        s.projects.clone()
     }
 }

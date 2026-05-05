@@ -2806,6 +2806,7 @@ dependencies = [
  "wachat-meta-client",
  "wachat-pay",
  "wachat-payment-request",
+ "wachat-projects",
  "wachat-public-api",
  "wachat-queue",
  "wachat-rate-limit",
@@ -2871,6 +2872,7 @@ dependencies = [
  "anyhow",
  "bson",
  "fred",
+ "hex",
  "mongodb",
  "sabnode-common",
  "serde",
@@ -4201,6 +4203,26 @@ dependencies = [
  "serde",
  "thiserror 1.0.69",
  "tracing",
+]
+
+[[package]]
+name = "wachat-projects"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "utoipa",
 ]
 
 [[package]]

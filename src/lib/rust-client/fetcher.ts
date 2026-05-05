@@ -16,8 +16,10 @@
  */
 import 'server-only';
 
+import { cookies } from 'next/headers';
+
 import { issueRustJwt } from '@/lib/jwt-for-rust';
-import { getSession } from '@/app/actions/user.actions';
+import { getDecodedSession } from '@/lib/auth';
 import type { RustErrorEnvelope } from './types';
 
 const DEFAULT_BASE_URL = 'http://localhost:8080';
@@ -46,16 +48,22 @@ export class RustApiError extends Error {
 }
 
 /**
- * Resolve the JWT identity to send to Rust from the current Next.js session.
+ * Resolve the JWT identity to send to Rust from the Next.js session
+ * cookie. We deliberately do NOT call `getSession()` here — that would
+ * recurse, since `getSession()` itself is now backed by `rustFetch`.
  *
- * We re-use {@link getSession} from `user.actions.ts` so the cookie-based
- * session is the single source of truth. The session must already be valid;
- * unauthenticated callers get an early throw rather than a confusing 401 from
- * the Rust side.
+ * The decoded JWT carries everything we need (`userId`, optionally
+ * `email`/`name`); we never have to hit Mongo just to forward identity.
  */
 async function buildAuthHeader(): Promise<string> {
-    const session = await getSession();
-    if (!session?.user?._id) {
+    const cookieStore = await cookies();
+    const cookie = cookieStore.get('session')?.value;
+    const decoded = cookie ? await getDecodedSession(cookie) : null;
+    const userId = decoded
+        ? ((decoded as any).userId || (decoded as any).sub || (decoded as any)._id)
+        : null;
+
+    if (!userId) {
         throw new RustApiError(
             401,
             { ok: false, error: { code: 'UNAUTHORIZED', message: 'No active session' } },
@@ -69,8 +77,8 @@ async function buildAuthHeader(): Promise<string> {
     // `sub`, so this is safe — but tighten this BEFORE shipping any handler
     // that gates on `tid` / `roles`.
     const token = await issueRustJwt({
-        userId: String(session.user._id),
-        tenantId: String(session.user._id),
+        userId: String(userId),
+        tenantId: String(userId),
         roles: [],
     });
 

@@ -28,6 +28,7 @@ use wachat_chat_mark::ChatMarker;
 use wachat_config::WachatConfigState;
 use wachat_features::WachatFeaturesState;
 use wachat_pay::WachatPayState;
+use wachat_projects::WachatProjectsState;
 use wachat_public_api::{ApiKeyVerifier, PublicApiState};
 use wachat_rate_limit::TokenBucket;
 use wachat_chat_read::ChatReader;
@@ -217,6 +218,10 @@ async fn run() -> anyhow::Result<()> {
         mongo: mongo.clone(),
     };
 
+    // Project list/detail handlers — replaces `getProjects()` /
+    // `getProjectById()` server actions in the Next.js layouts.
+    let projects = WachatProjectsState::new(mongo.clone());
+
     let state = AppState::new(
         mongo,
         redis,
@@ -240,6 +245,7 @@ async fn run() -> anyhow::Result<()> {
         facebook_flow,
         public_api,
         api_key_verifier,
+        projects,
     );
     let app = router::build(state.clone());
 

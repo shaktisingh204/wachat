@@ -56,6 +56,7 @@ members = [
     "crates/wachat-webhook-template-events",
     "crates/wachat-webhook-verify",
     "crates/wachat-public-api",
+    "crates/wachat-projects",
 ]
 
 [workspace.package]

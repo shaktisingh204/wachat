@@ -15,6 +15,6 @@ pub mod bson_helpers;
 pub mod mongo;
 pub mod redis;
 
-pub use bson_helpers::{oid_from_str, oid_to_str};
+pub use bson_helpers::{bson_to_clean_json, document_to_clean_json, oid_from_str, oid_to_str};
 pub use mongo::MongoHandle;
 pub use redis::RedisHandle;

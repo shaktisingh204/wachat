@@ -55,6 +55,7 @@ pub fn build(state: AppState) -> Router {
     let qr_codes = qr_codes::router::<AppState>();
     let facebook_flow = facebook_flow::router::<AppState>();
     let wachat_public = wachat_public_api::router::<AppState>();
+    let wachat_projects = wachat_projects::router::<AppState>();
 
     Router::new()
         .merge(routes::health::router())
@@ -77,6 +78,7 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/meta/flows", meta_flows)
         .nest("/v1/qr-codes", qr_codes)
         .nest("/v1/facebook/flow", facebook_flow)
+        .nest("/v1/projects", wachat_projects)
         .nest("/v1", v1)
         .with_state(state)
         .layer(SetRequestIdLayer::new(
