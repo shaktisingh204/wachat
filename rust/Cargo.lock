@@ -2836,6 +2836,7 @@ dependencies = [
  "wachat-facebook-content",
  "wachat-facebook-crm",
  "wachat-facebook-messaging",
+ "wachat-facebook-misc",
  "wachat-facebook-pages",
  "wachat-features",
  "wachat-flows",
@@ -4270,6 +4271,52 @@ dependencies = [
  "tokio",
  "tracing",
  "urlencoding",
+ "wachat-meta-client",
+]
+
+[[package]]
+name = "wachat-facebook-messenger-profile"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "reqwest",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "urlencoding",
+ "utoipa",
+ "wachat-meta-client",
+]
+
+[[package]]
+name = "wachat-facebook-misc"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "reqwest",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "urlencoding",
+ "utoipa",
  "wachat-meta-client",
 ]
 

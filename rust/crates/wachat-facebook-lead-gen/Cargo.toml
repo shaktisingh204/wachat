@@ -1,0 +1,43 @@
+[package]
+name = "wachat-facebook-lead-gen"
+version = "0.1.0"
+edition = "2024"
+description = "Facebook Lead Gen forms & leads — ports the Lead Generation slice of src/app/actions/facebook.actions.ts."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "wachat_facebook_lead_gen"
+path = "src/lib.rs"
+
+[dependencies]
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+bson = { version = "2", features = ["chrono-0_4"] }
+mongodb = { version = "3" }
+
+futures = "0.3"
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+tracing = "0.1"
+anyhow = "1"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "gzip"] }
+urlencoding = "2"
+
+utoipa = { version = "5", features = ["axum_extras", "chrono"] }
+
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+wachat-meta-client = { path = "../wachat-meta-client" }
+
+# Empty [workspace] keeps this crate verifiable in isolation when the parent
+# `rust/Cargo.toml` (a shared file) hasn't been updated yet to list it under
+# `workspace.members`. The integrating commit should remove this stanza and
+# add the crate to the parent workspace; at that point the crate-level
+# `[lints] workspace = true` from sibling crates can be added too.
+[workspace]

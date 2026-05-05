@@ -61,12 +61,14 @@ members = [
     "crates/wachat-flows",
     "crates/wachat-api-keys-admin",
     "crates/wachat-facebook-pages",
+    "crates/wachat-facebook-messenger-profile",
     "crates/wachat-facebook-content",
     "crates/wachat-facebook-messaging",
     "crates/wachat-facebook-automation",
     "crates/wachat-facebook-crm",
     "crates/wachat-facebook-agents",
     "crates/wachat-facebook-business",
+    "crates/wachat-facebook-misc",
     "crates/wachat-instagram",
 ]
 

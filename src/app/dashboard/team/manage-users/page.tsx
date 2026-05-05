@@ -2,46 +2,58 @@
 
 import * as React from 'react';
 import {
-    LuArrowRight,
-    LuCheck,
-    LuClock,
-    LuLoader,
-    LuMail,
-    LuPlus,
-    LuRefreshCw,
-    LuSearch,
-    LuShield,
-    LuTrash2,
-    LuUserPlus,
-    LuUsers,
-    LuX,
-} from 'react-icons/lu';
+    ArrowRight,
+    Check,
+    Clock,
+    Loader,
+    Mail,
+    Plus,
+    RefreshCw,
+    Search,
+    Shield,
+    Trash2,
+    UserPlus,
+    Users,
+    X,
+} from 'lucide-react';
 
-import { ClayBadge } from '@/components/clay/clay-badge';
-import { ClayBreadcrumbs } from '@/components/clay/clay-breadcrumbs';
-import { ClayButton } from '@/components/clay/clay-button';
-import { ClayCard } from '@/components/clay/clay-card';
-import { ClayInput, ClaySelect } from '@/components/clay/clay-input';
-import { ClaySectionHeader } from '@/components/clay/clay-section-header';
-import { useToast } from '@/hooks/use-toast';
 import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '@/components/ui/dialog';
+    ZoruAlertDialog,
+    ZoruAlertDialogAction,
+    ZoruAlertDialogCancel,
+    ZoruAlertDialogContent,
+    ZoruAlertDialogDescription,
+    ZoruAlertDialogFooter,
+    ZoruAlertDialogHeader,
+    ZoruAlertDialogTitle,
+    ZoruAlertDialogTrigger,
+    ZoruBadge,
+    ZoruBreadcrumb,
+    ZoruBreadcrumbItem,
+    ZoruBreadcrumbLink,
+    ZoruBreadcrumbList,
+    ZoruBreadcrumbPage,
+    ZoruBreadcrumbSeparator,
+    ZoruButton,
+    ZoruCard,
+    ZoruDialog,
+    ZoruDialogContent,
+    ZoruDialogHeader,
+    ZoruDialogTitle,
+    ZoruDialogTrigger,
+    ZoruInput,
+    ZoruPageDescription,
+    ZoruPageHeader,
+    ZoruPageHeading,
+    ZoruPageTitle,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+    cn,
+    useZoruToast,
+} from '@/components/zoruui';
 import {
     getInvitedUsers,
     handleInviteAgent,
@@ -64,7 +76,7 @@ type MemberWithRoles = WithId<User & { roles: Record<string, string> }>;
 type Tab = 'members' | 'invites';
 
 export default function ManageUsersPage() {
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
     const canInvite = useCan('team_users', 'create');
     const canEditRoles = useCan('team_users', 'edit');
     const canRemove = useCan('team_users', 'delete');
@@ -201,52 +213,54 @@ export default function ManageUsersPage() {
     }, [invites, query, roleFilter]);
 
     return (
-        <div className="clay-enter flex min-h-full flex-col gap-6">
-            <ClayBreadcrumbs
-                items={[
-                    { label: 'SabNode', href: '/dashboard' },
-                    { label: 'Team', href: '/dashboard/team/manage-users' },
-                    { label: 'Manage Users' },
-                ]}
-            />
+        <div className="flex min-h-full flex-col gap-6">
+            <ZoruBreadcrumb>
+                <ZoruBreadcrumbList>
+                    <ZoruBreadcrumbItem>
+                        <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+                    </ZoruBreadcrumbItem>
+                    <ZoruBreadcrumbSeparator />
+                    <ZoruBreadcrumbItem>
+                        <ZoruBreadcrumbLink href="/dashboard/team/manage-users">Team</ZoruBreadcrumbLink>
+                    </ZoruBreadcrumbItem>
+                    <ZoruBreadcrumbSeparator />
+                    <ZoruBreadcrumbItem>
+                        <ZoruBreadcrumbPage>Manage Users</ZoruBreadcrumbPage>
+                    </ZoruBreadcrumbItem>
+                </ZoruBreadcrumbList>
+            </ZoruBreadcrumb>
 
-            <ClaySectionHeader
-                size="lg"
-                title="Team"
-                subtitle="Invite teammates, assign roles, and manage access across your projects."
-                actions={
-                    <>
-                        <ClayButton
-                            variant="pill"
-                            size="md"
-                            onClick={fetchAll}
-                            disabled={loading}
-                            leading={
-                                loading ? (
-                                    <LuLoader className="h-3.5 w-3.5 animate-spin" />
-                                ) : (
-                                    <LuRefreshCw className="h-3.5 w-3.5" />
-                                )
-                            }
-                        >
-                            Refresh
-                        </ClayButton>
-                        {canInvite ? (
-                            <InviteDialog
-                                open={inviteOpen}
-                                onOpenChange={setInviteOpen}
-                                projects={projects}
-                                customRoles={customRoles}
-                                onInvited={() => {
-                                    setInviteOpen(false);
-                                    fetchAll();
-                                }}
-                                toast={toast}
-                            />
-                        ) : null}
-                    </>
-                }
-            />
+            <ZoruPageHeader>
+                <ZoruPageHeading>
+                    <ZoruPageTitle>Team</ZoruPageTitle>
+                    <ZoruPageDescription>
+                        Invite teammates, assign roles, and manage access across your projects.
+                    </ZoruPageDescription>
+                </ZoruPageHeading>
+                <div className="flex items-center gap-2">
+                    <ZoruButton variant="outline" size="md" onClick={fetchAll} disabled={loading}>
+                        {loading ? (
+                            <Loader className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                            <RefreshCw className="h-3.5 w-3.5" />
+                        )}
+                        Refresh
+                    </ZoruButton>
+                    {canInvite ? (
+                        <InviteDialog
+                            open={inviteOpen}
+                            onOpenChange={setInviteOpen}
+                            projects={projects}
+                            customRoles={customRoles}
+                            onInvited={() => {
+                                setInviteOpen(false);
+                                fetchAll();
+                            }}
+                            toast={toast}
+                        />
+                    ) : null}
+                </div>
+            </ZoruPageHeader>
 
             <StatsRow
                 membersCount={members.length}
@@ -256,23 +270,30 @@ export default function ManageUsersPage() {
             />
 
             {/* Filters */}
-            <ClayCard padded={false} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+            <ZoruCard className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex flex-1 items-center gap-3">
-                    <ClayInput
-                        sizeVariant="md"
+                    <ZoruInput
                         className="max-w-[320px] flex-1"
-                        leading={<LuSearch className="h-3.5 w-3.5" strokeWidth={2} />}
+                        leadingSlot={<Search className="h-3.5 w-3.5" strokeWidth={2} />}
                         placeholder={tab === 'members' ? 'Search members' : 'Search invitations'}
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                     />
-                    <ClaySelect
-                        sizeVariant="md"
-                        className="w-[160px]"
-                        value={roleFilter}
-                        onChange={(e) => setRoleFilter(e.target.value)}
-                        options={[{ value: 'all', label: 'All roles' }, ...roleOptions]}
-                    />
+                    <div className="w-[160px]">
+                        <ZoruSelect value={roleFilter} onValueChange={setRoleFilter}>
+                            <ZoruSelectTrigger>
+                                <ZoruSelectValue />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                <ZoruSelectItem value="all">All roles</ZoruSelectItem>
+                                {roleOptions.map((r) => (
+                                    <ZoruSelectItem key={r.value} value={r.value}>
+                                        {r.label}
+                                    </ZoruSelectItem>
+                                ))}
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                    </div>
                 </div>
                 <TabSwitcher
                     tab={tab}
@@ -280,7 +301,7 @@ export default function ManageUsersPage() {
                     members={members.length}
                     pending={invites.filter((i) => !i.isExpired && i.status === 'pending').length}
                 />
-            </ClayCard>
+            </ZoruCard>
 
             {tab === 'members' && selectedMembers.size > 0 ? (
                 <BulkBar
@@ -332,27 +353,27 @@ function StatsRow(props: {
     projectsCount: number;
 }) {
     const stats = [
-        { label: 'Active members', value: props.membersCount, icon: <LuUsers className="h-4 w-4" /> },
-        { label: 'Pending invites', value: props.invitesCount, icon: <LuMail className="h-4 w-4" /> },
-        { label: 'Expired invites', value: props.expiredCount, icon: <LuClock className="h-4 w-4" /> },
-        { label: 'Projects', value: props.projectsCount, icon: <LuShield className="h-4 w-4" /> },
+        { label: 'Active members', value: props.membersCount, icon: <Users className="h-4 w-4" /> },
+        { label: 'Pending invites', value: props.invitesCount, icon: <Mail className="h-4 w-4" /> },
+        { label: 'Expired invites', value: props.expiredCount, icon: <Clock className="h-4 w-4" /> },
+        { label: 'Projects', value: props.projectsCount, icon: <Shield className="h-4 w-4" /> },
     ];
     return (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {stats.map((s) => (
-                <ClayCard key={s.label} padded={false} className="flex items-center gap-3 p-4">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary text-muted-foreground">
+                <ZoruCard key={s.label} className="flex items-center gap-3 p-4">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
                         {s.icon}
                     </span>
                     <div>
-                        <div className="text-[11px] font-medium uppercase tracking-[0.06em] text-muted-foreground">
+                        <div className="text-[11px] uppercase tracking-[0.06em] text-zoru-ink-muted">
                             {s.label}
                         </div>
-                        <div className="text-[20px] font-semibold tracking-[-0.01em] text-foreground">
+                        <div className="text-[20px] tracking-[-0.01em] text-zoru-ink">
                             {s.value}
                         </div>
                     </div>
-                </ClayCard>
+                </ZoruCard>
             ))}
         </div>
     );
@@ -372,7 +393,7 @@ function TabSwitcher({
     pending: number;
 }) {
     return (
-        <div className="inline-flex rounded-full border border-border bg-secondary p-1">
+        <div className="inline-flex rounded-full border border-zoru-line bg-zoru-surface-2 p-1">
             {([
                 { key: 'members', label: 'Members', count: members },
                 { key: 'invites', label: 'Pending', count: pending },
@@ -383,21 +404,21 @@ function TabSwitcher({
                         key={t.key}
                         type="button"
                         onClick={() => onChange(t.key)}
-                        className={
-                            'inline-flex items-center gap-2 rounded-full px-4 h-8 text-[12.5px] font-medium transition-colors ' +
-                            (active
-                                ? 'bg-card text-foreground shadow-sm'
-                                : 'text-muted-foreground hover:text-foreground')
-                        }
+                        className={cn(
+                            'inline-flex items-center gap-2 rounded-full px-4 h-8 text-[12.5px] transition-colors',
+                            active
+                                ? 'bg-zoru-bg text-zoru-ink shadow-sm'
+                                : 'text-zoru-ink-muted hover:text-zoru-ink',
+                        )}
                     >
                         {t.label}
                         <span
-                            className={
-                                'flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10.5px] ' +
-                                (active
-                                    ? 'bg-foreground text-white'
-                                    : 'bg-card text-muted-foreground')
-                            }
+                            className={cn(
+                                'flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10.5px]',
+                                active
+                                    ? 'bg-zoru-ink text-zoru-bg'
+                                    : 'bg-zoru-bg text-zoru-ink-muted',
+                            )}
                         >
                             {t.count}
                         </span>
@@ -423,14 +444,18 @@ function InviteDialog({
     projects: WithId<Project>[];
     customRoles: CrmCustomRole[];
     onInvited: () => void;
-    toast: ReturnType<typeof useToast>['toast'];
+    toast: ReturnType<typeof useZoruToast>['toast'];
 }) {
     const [pending, setPending] = React.useState(false);
+    const [role, setRole] = React.useState('agent');
+    const [projectId, setProjectId] = React.useState<string>('');
     const formRef = React.useRef<HTMLFormElement>(null);
 
     const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const fd = new FormData(e.currentTarget);
+        fd.set('role', role);
+        fd.set('projectId', projectId);
         setPending(true);
         (async () => {
             const res = await handleInviteAgent(null, fd);
@@ -438,6 +463,8 @@ function InviteDialog({
             if (res.message) {
                 toast({ title: 'Invitation sent', description: res.message });
                 formRef.current?.reset();
+                setRole('agent');
+                setProjectId('');
                 onInvited();
             } else {
                 toast({
@@ -450,98 +477,97 @@ function InviteDialog({
     };
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogTrigger asChild>
-                <ClayButton variant="obsidian" size="md" leading={<LuPlus className="h-3.5 w-3.5" strokeWidth={2.25} />}>
+        <ZoruDialog open={open} onOpenChange={onOpenChange}>
+            <ZoruDialogTrigger asChild>
+                <ZoruButton size="md">
+                    <Plus className="h-3.5 w-3.5" strokeWidth={2.25} />
                     Invite member
-                </ClayButton>
-            </DialogTrigger>
-            <DialogContent className="max-w-md overflow-hidden border border-border bg-card p-0 shadow-lg">
-                <div className="h-[6px] w-full bg-primary" />
-                <div className="p-6">
-                    <DialogHeader>
-                        <DialogTitle className="text-[20px] font-semibold tracking-[-0.01em] text-foreground">
-                            Invite a teammate
-                        </DialogTitle>
-                        <p className="mt-1 text-[12.5px] text-muted-foreground">
-                            They'll receive a branded email with a one-click accept link valid for 7 days.
-                        </p>
-                    </DialogHeader>
-                    <form ref={formRef} onSubmit={onSubmit} className="mt-5 flex flex-col gap-4">
+                </ZoruButton>
+            </ZoruDialogTrigger>
+            <ZoruDialogContent className="max-w-md">
+                <ZoruDialogHeader>
+                    <ZoruDialogTitle>Invite a teammate</ZoruDialogTitle>
+                </ZoruDialogHeader>
+                <p className="-mt-2 text-[12.5px] text-zoru-ink-muted">
+                    They&apos;ll receive a branded email with a one-click accept link valid for 7 days.
+                </p>
+                <form ref={formRef} onSubmit={onSubmit} className="mt-2 flex flex-col gap-4">
+                    <div className="flex flex-col gap-1.5">
+                        <label className="text-[11.5px] uppercase tracking-[0.06em] text-zoru-ink-muted">
+                            Email
+                        </label>
+                        <ZoruInput
+                            name="email"
+                            type="email"
+                            required
+                            placeholder="teammate@company.com"
+                            leadingSlot={<Mail className="h-3.5 w-3.5" strokeWidth={2} />}
+                        />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-[11.5px] font-medium uppercase tracking-[0.06em] text-muted-foreground">
-                                Email
+                            <label className="text-[11.5px] uppercase tracking-[0.06em] text-zoru-ink-muted">
+                                Role
                             </label>
-                            <ClayInput
-                                name="email"
-                                type="email"
-                                required
-                                placeholder="teammate@company.com"
-                                leading={<LuMail className="h-3.5 w-3.5" strokeWidth={2} />}
-                            />
+                            <ZoruSelect value={role} onValueChange={setRole}>
+                                <ZoruSelectTrigger>
+                                    <ZoruSelectValue />
+                                </ZoruSelectTrigger>
+                                <ZoruSelectContent>
+                                    <ZoruSelectItem value="agent">Agent (default)</ZoruSelectItem>
+                                    <ZoruSelectItem value="admin">Admin (full access)</ZoruSelectItem>
+                                    {customRoles.map((r) => (
+                                        <ZoruSelectItem key={r.id} value={r.id}>
+                                            {r.name}
+                                        </ZoruSelectItem>
+                                    ))}
+                                </ZoruSelectContent>
+                            </ZoruSelect>
                         </div>
-                        <div className="grid grid-cols-2 gap-3">
-                            <div className="flex flex-col gap-1.5">
-                                <label className="text-[11.5px] font-medium uppercase tracking-[0.06em] text-muted-foreground">
-                                    Role
-                                </label>
-                                <ClaySelect
-                                    name="role"
-                                    defaultValue="agent"
-                                    options={[
-                                        { value: 'agent', label: 'Agent (default)' },
-                                        { value: 'admin', label: 'Admin (full access)' },
-                                        ...customRoles.map((r) => ({ value: r.id, label: r.name })),
-                                    ]}
-                                />
-                            </div>
-                            <div className="flex flex-col gap-1.5">
-                                <label className="text-[11.5px] font-medium uppercase tracking-[0.06em] text-muted-foreground">
-                                    Project
-                                </label>
-                                <ClaySelect
-                                    name="projectId"
-                                    defaultValue=""
-                                    options={[
-                                        { value: '', label: 'All my projects' },
-                                        ...projects.map((p) => ({
-                                            value: p._id.toString(),
-                                            label: p.name,
-                                        })),
-                                    ]}
-                                />
-                            </div>
-                        </div>
-                        <div className="mt-2 flex items-center justify-end gap-2">
-                            <ClayButton
-                                variant="pill"
-                                size="md"
-                                type="button"
-                                onClick={() => onOpenChange(false)}
-                                disabled={pending}
+                        <div className="flex flex-col gap-1.5">
+                            <label className="text-[11.5px] uppercase tracking-[0.06em] text-zoru-ink-muted">
+                                Project
+                            </label>
+                            <ZoruSelect
+                                value={projectId || '__all'}
+                                onValueChange={(v) => setProjectId(v === '__all' ? '' : v)}
                             >
-                                Cancel
-                            </ClayButton>
-                            <ClayButton
-                                variant="obsidian"
-                                size="md"
-                                type="submit"
-                                disabled={pending}
-                                leading={
-                                    pending ? (
-                                        <LuLoader className="h-3.5 w-3.5 animate-spin" />
-                                    ) : (
-                                        <LuUserPlus className="h-3.5 w-3.5" strokeWidth={2.25} />
-                                    )
-                                }
-                            >
-                                Send invitation
-                            </ClayButton>
+                                <ZoruSelectTrigger>
+                                    <ZoruSelectValue />
+                                </ZoruSelectTrigger>
+                                <ZoruSelectContent>
+                                    <ZoruSelectItem value="__all">All my projects</ZoruSelectItem>
+                                    {projects.map((p) => (
+                                        <ZoruSelectItem key={p._id.toString()} value={p._id.toString()}>
+                                            {p.name}
+                                        </ZoruSelectItem>
+                                    ))}
+                                </ZoruSelectContent>
+                            </ZoruSelect>
                         </div>
-                    </form>
-                </div>
-            </DialogContent>
-        </Dialog>
+                    </div>
+                    <div className="mt-2 flex items-center justify-end gap-2">
+                        <ZoruButton
+                            variant="outline"
+                            size="md"
+                            type="button"
+                            onClick={() => onOpenChange(false)}
+                            disabled={pending}
+                        >
+                            Cancel
+                        </ZoruButton>
+                        <ZoruButton size="md" type="submit" disabled={pending}>
+                            {pending ? (
+                                <Loader className="h-3.5 w-3.5 animate-spin" />
+                            ) : (
+                                <UserPlus className="h-3.5 w-3.5" strokeWidth={2.25} />
+                            )}
+                            Send invitation
+                        </ZoruButton>
+                    </div>
+                </form>
+            </ZoruDialogContent>
+        </ZoruDialog>
     );
 }
 
@@ -572,7 +598,7 @@ function MembersTable({
     onToggleSelect: (id: string) => void;
     onToggleAll: (ids: string[], on: boolean) => void;
     onRefresh: () => void;
-    toast: ReturnType<typeof useToast>['toast'];
+    toast: ReturnType<typeof useZoruToast>['toast'];
 }) {
     const allIds = React.useMemo(() => members.map((m) => m._id.toString()), [members]);
     const allChecked = allIds.length > 0 && allIds.every((id) => selectedIds.has(id));
@@ -584,13 +610,13 @@ function MembersTable({
             <EmptyState
                 title="No team members yet"
                 body="Invite your first teammate to start collaborating across your projects."
-                icon={<LuUsers className="h-5 w-5" strokeWidth={1.75} />}
+                icon={<Users className="h-5 w-5" strokeWidth={1.75} />}
             />
         );
     }
     return (
-        <ClayCard padded={false} className="overflow-hidden">
-            <div className={'grid items-center gap-4 border-b border-border bg-secondary px-5 py-3 text-[11px] font-medium uppercase tracking-[0.06em] text-muted-foreground ' + (canSelect ? 'grid-cols-[28px_1fr_auto] sm:grid-cols-[28px_1fr_220px_160px_120px]' : 'grid-cols-[1fr_auto] sm:grid-cols-[1fr_220px_160px_120px]')}>
+        <ZoruCard className="overflow-hidden p-0">
+            <div className={'grid items-center gap-4 border-b border-zoru-line bg-zoru-surface-2 px-5 py-3 text-[11px] uppercase tracking-[0.06em] text-zoru-ink-muted ' + (canSelect ? 'grid-cols-[28px_1fr_auto] sm:grid-cols-[28px_1fr_220px_160px_120px]' : 'grid-cols-[1fr_auto] sm:grid-cols-[1fr_220px_160px_120px]')}>
                 {canSelect ? (
                     <SelectCheckbox
                         aria-label="Select all members"
@@ -604,7 +630,7 @@ function MembersTable({
                 <span className="hidden sm:block">Joined on</span>
                 <span className="text-right">Actions</span>
             </div>
-            <div className="divide-y divide-border">
+            <div className="divide-y divide-zoru-line">
                 {members.map((m) => (
                     <MemberRow
                         key={m._id.toString()}
@@ -622,7 +648,7 @@ function MembersTable({
                     />
                 ))}
             </div>
-        </ClayCard>
+        </ZoruCard>
     );
 }
 
@@ -649,7 +675,7 @@ function MemberRow({
     selected: boolean;
     onToggleSelect: () => void;
     onRefresh: () => void;
-    toast: ReturnType<typeof useToast>['toast'];
+    toast: ReturnType<typeof useZoruToast>['toast'];
 }) {
     const [removing, setRemoving] = React.useState(false);
     const roleEntries = Object.entries(member.roles || {});
@@ -671,7 +697,7 @@ function MemberRow({
     };
 
     return (
-        <div className={'grid items-center gap-4 px-5 py-4 ' + (canSelect ? 'grid-cols-[28px_1fr_auto] sm:grid-cols-[28px_1fr_220px_160px_120px]' : 'grid-cols-[1fr_auto] sm:grid-cols-[1fr_220px_160px_120px]') + (selected ? ' bg-accent/30' : '')}>
+        <div className={'grid items-center gap-4 px-5 py-4 ' + (canSelect ? 'grid-cols-[28px_1fr_auto] sm:grid-cols-[28px_1fr_220px_160px_120px]' : 'grid-cols-[1fr_auto] sm:grid-cols-[1fr_220px_160px_120px]') + (selected ? ' bg-zoru-surface-2/40' : '')}>
             {canSelect ? (
                 <SelectCheckbox
                     aria-label={`Select ${member.name || member.email}`}
@@ -682,16 +708,16 @@ function MemberRow({
             <div className="flex items-center gap-3 min-w-0">
                 <Avatar name={member.name || member.email} seed={member.email} />
                 <div className="min-w-0">
-                    <div className="truncate text-[13.5px] font-medium text-foreground">
+                    <div className="truncate text-[13.5px] text-zoru-ink">
                         {member.name || 'Unnamed member'}
                     </div>
-                    <div className="truncate text-[12px] text-muted-foreground">{member.email}</div>
+                    <div className="truncate text-[12px] text-zoru-ink-muted">{member.email}</div>
                 </div>
             </div>
 
             <div className="hidden flex-wrap gap-1.5 sm:flex">
                 {roleEntries.length === 0 ? (
-                    <ClayBadge tone="neutral">No project roles</ClayBadge>
+                    <ZoruBadge variant="ghost">No project roles</ZoruBadge>
                 ) : (
                     roleEntries.slice(0, 3).map(([project, role]) => {
                         const projectObj = projects.find((p) => p.name === project);
@@ -712,11 +738,11 @@ function MemberRow({
                     })
                 )}
                 {roleEntries.length > 3 ? (
-                    <ClayBadge tone="neutral">+{roleEntries.length - 3}</ClayBadge>
+                    <ZoruBadge variant="ghost">+{roleEntries.length - 3}</ZoruBadge>
                 ) : null}
             </div>
 
-            <div className="hidden text-[12px] text-muted-foreground sm:block">
+            <div className="hidden text-[12px] text-zoru-ink-muted sm:block">
                 {(member as any).createdAt
                     ? new Date((member as any).createdAt).toLocaleDateString(undefined, {
                           year: 'numeric',
@@ -728,35 +754,35 @@ function MemberRow({
 
             <div className="flex justify-end">
                 {!canRemove ? null : (
-                <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                        <ClayButton
-                            variant="ghost"
-                            size="icon"
-                            disabled={removing}
-                            className="text-destructive hover:bg-rose-50/60"
-                            aria-label="Remove member"
-                        >
-                            {removing ? (
-                                <LuLoader className="h-4 w-4 animate-spin" />
-                            ) : (
-                                <LuTrash2 className="h-4 w-4" strokeWidth={1.75} />
-                            )}
-                        </ClayButton>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>Remove {member.name || member.email}?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                                This will revoke their access to every project you own. They can be re-invited later.
-                            </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={onRemoveAll}>Remove access</AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
+                    <ZoruAlertDialog>
+                        <ZoruAlertDialogTrigger asChild>
+                            <ZoruButton
+                                variant="ghost"
+                                size="icon"
+                                disabled={removing}
+                                className="text-zoru-danger-ink hover:bg-zoru-danger/10"
+                                aria-label="Remove member"
+                            >
+                                {removing ? (
+                                    <Loader className="h-4 w-4 animate-spin" />
+                                ) : (
+                                    <Trash2 className="h-4 w-4" strokeWidth={1.75} />
+                                )}
+                            </ZoruButton>
+                        </ZoruAlertDialogTrigger>
+                        <ZoruAlertDialogContent>
+                            <ZoruAlertDialogHeader>
+                                <ZoruAlertDialogTitle>Remove {member.name || member.email}?</ZoruAlertDialogTitle>
+                                <ZoruAlertDialogDescription>
+                                    This will revoke their access to every project you own. They can be re-invited later.
+                                </ZoruAlertDialogDescription>
+                            </ZoruAlertDialogHeader>
+                            <ZoruAlertDialogFooter>
+                                <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+                                <ZoruAlertDialogAction onClick={onRemoveAll}>Remove access</ZoruAlertDialogAction>
+                            </ZoruAlertDialogFooter>
+                        </ZoruAlertDialogContent>
+                    </ZoruAlertDialog>
                 )}
             </div>
         </div>
@@ -782,7 +808,7 @@ function ChangeRoleBadge({
     roleLabel: (id: string) => string;
     canEdit: boolean;
     onRefresh: () => void;
-    toast: ReturnType<typeof useToast>['toast'];
+    toast: ReturnType<typeof useZoruToast>['toast'];
 }) {
     const [open, setOpen] = React.useState(false);
     const [saving, setSaving] = React.useState(false);
@@ -816,31 +842,29 @@ function ChangeRoleBadge({
 
     if (!canEdit) {
         return (
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary px-2.5 h-6 text-[11.5px] text-foreground">
-                <span className="text-muted-foreground">{projectName}</span>
-                <span className="text-muted-foreground">·</span>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-zoru-line bg-zoru-surface-2 px-2.5 h-6 text-[11.5px] text-zoru-ink">
+                <span className="text-zoru-ink-muted">{projectName}</span>
+                <span className="text-zoru-ink-muted">·</span>
                 <span>{roleLabel(role)}</span>
             </span>
         );
     }
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
+        <ZoruDialog open={open} onOpenChange={setOpen}>
+            <ZoruDialogTrigger asChild>
                 <button
                     type="button"
-                    className="inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary px-2.5 h-6 text-[11.5px] text-foreground hover:border-border hover:bg-card"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-zoru-line bg-zoru-surface-2 px-2.5 h-6 text-[11.5px] text-zoru-ink hover:bg-zoru-bg"
                 >
-                    <span className="text-muted-foreground">{projectName}</span>
-                    <span className="text-muted-foreground">·</span>
+                    <span className="text-zoru-ink-muted">{projectName}</span>
+                    <span className="text-zoru-ink-muted">·</span>
                     <span>{roleLabel(role)}</span>
                 </button>
-            </DialogTrigger>
-            <DialogContent className="max-w-sm border border-border bg-card p-6 shadow-lg">
-                <DialogHeader>
-                    <DialogTitle className="text-[16px] font-semibold text-foreground">
-                        Change role on {projectName}
-                    </DialogTitle>
-                </DialogHeader>
+            </ZoruDialogTrigger>
+            <ZoruDialogContent className="max-w-sm">
+                <ZoruDialogHeader>
+                    <ZoruDialogTitle>Change role on {projectName}</ZoruDialogTitle>
+                </ZoruDialogHeader>
                 <div className="mt-3 flex flex-col gap-2">
                     {roleOptions.map((r) => (
                         <button
@@ -848,20 +872,20 @@ function ChangeRoleBadge({
                             type="button"
                             disabled={saving}
                             onClick={() => saveRole(r.value)}
-                            className={
-                                'flex items-center justify-between rounded-lg border border-border px-3 py-2.5 text-left text-[13px] transition-colors hover:bg-secondary ' +
-                                (r.value === role ? 'bg-accent/40 border-accent' : '')
-                            }
+                            className={cn(
+                                'flex items-center justify-between rounded-lg border border-zoru-line px-3 py-2.5 text-left text-[13px] transition-colors hover:bg-zoru-surface-2',
+                                r.value === role && 'bg-zoru-surface-2/60 border-zoru-line-strong',
+                            )}
                         >
                             <span>{r.label}</span>
                             {r.value === role ? (
-                                <LuCheck className="h-4 w-4 text-accent-foreground" strokeWidth={2.25} />
+                                <Check className="h-4 w-4 text-zoru-ink" strokeWidth={2.25} />
                             ) : null}
                         </button>
                     ))}
                 </div>
-            </DialogContent>
-        </Dialog>
+            </ZoruDialogContent>
+        </ZoruDialog>
     );
 }
 
@@ -878,7 +902,7 @@ function InvitesTable({
     invites: InvitationView[];
     roleLabel: (id: string) => string;
     onRefresh: () => void;
-    toast: ReturnType<typeof useToast>['toast'];
+    toast: ReturnType<typeof useZoruToast>['toast'];
 }) {
     if (loading) return <SkeletonRows />;
     if (!invites.length) {
@@ -886,20 +910,20 @@ function InvitesTable({
             <EmptyState
                 title="No pending invitations"
                 body="Any open invitations you send will show up here until the recipient accepts."
-                icon={<LuMail className="h-5 w-5" strokeWidth={1.75} />}
+                icon={<Mail className="h-5 w-5" strokeWidth={1.75} />}
             />
         );
     }
     return (
-        <ClayCard padded={false} className="overflow-hidden">
-            <div className="grid grid-cols-[1fr_auto] items-center gap-4 border-b border-border bg-secondary px-5 py-3 text-[11px] font-medium uppercase tracking-[0.06em] text-muted-foreground sm:grid-cols-[1.2fr_160px_140px_140px_140px]">
+        <ZoruCard className="overflow-hidden p-0">
+            <div className="grid grid-cols-[1fr_auto] items-center gap-4 border-b border-zoru-line bg-zoru-surface-2 px-5 py-3 text-[11px] uppercase tracking-[0.06em] text-zoru-ink-muted sm:grid-cols-[1.2fr_160px_140px_140px_140px]">
                 <span>Invitee</span>
                 <span className="hidden sm:block">Project</span>
                 <span className="hidden sm:block">Role</span>
                 <span className="hidden sm:block">Expires</span>
                 <span className="text-right">Actions</span>
             </div>
-            <div className="divide-y divide-border">
+            <div className="divide-y divide-zoru-line">
                 {invites.map((inv) => (
                     <InviteRow
                         key={inv._id}
@@ -910,7 +934,7 @@ function InvitesTable({
                     />
                 ))}
             </div>
-        </ClayCard>
+        </ZoruCard>
     );
 }
 
@@ -923,7 +947,7 @@ function InviteRow({
     invite: InvitationView;
     roleLabel: (id: string) => string;
     onRefresh: () => void;
-    toast: ReturnType<typeof useToast>['toast'];
+    toast: ReturnType<typeof useZoruToast>['toast'];
 }) {
     const [busy, setBusy] = React.useState<false | 'resend' | 'revoke' | 'copy'>(false);
 
@@ -977,37 +1001,33 @@ function InviteRow({
             <div className="flex min-w-0 items-center gap-3">
                 <Avatar name={invite.inviteeEmail} seed={invite.inviteeEmail} />
                 <div className="min-w-0">
-                    <div className="truncate text-[13.5px] font-medium text-foreground">
+                    <div className="truncate text-[13.5px] text-zoru-ink">
                         {invite.inviteeEmail}
                     </div>
-                    <div className="truncate text-[12px] text-muted-foreground">
+                    <div className="truncate text-[12px] text-zoru-ink-muted">
                         Invited by {invite.inviterName || invite.inviterEmail || 'you'}
                     </div>
                 </div>
             </div>
 
-            <div className="hidden text-[12.5px] text-foreground sm:block">
-                {invite.projectName || <span className="text-muted-foreground">All my projects</span>}
+            <div className="hidden text-[12.5px] text-zoru-ink sm:block">
+                {invite.projectName || <span className="text-zoru-ink-muted">All my projects</span>}
             </div>
 
             <div className="hidden sm:block">
-                <ClayBadge tone="neutral">{roleLabel(invite.role)}</ClayBadge>
+                <ZoruBadge variant="ghost">{roleLabel(invite.role)}</ZoruBadge>
             </div>
 
             <div className="hidden sm:block">
                 {expired ? (
-                    <ClayBadge tone="red" dot>
-                        Expired
-                    </ClayBadge>
+                    <ZoruBadge variant="danger">Expired</ZoruBadge>
                 ) : (
-                    <ClayBadge tone="amber" dot>
-                        {formatExpiresIn(invite.expiresAt)}
-                    </ClayBadge>
+                    <ZoruBadge variant="warning">{formatExpiresIn(invite.expiresAt)}</ZoruBadge>
                 )}
             </div>
 
             <div className="flex items-center justify-end gap-1">
-                <ClayButton
+                <ZoruButton
                     variant="ghost"
                     size="icon"
                     onClick={copyLink}
@@ -1016,12 +1036,12 @@ function InviteRow({
                     disabled={!!busy}
                 >
                     {busy === 'copy' ? (
-                        <LuCheck className="h-4 w-4 text-emerald-500" strokeWidth={2.25} />
+                        <Check className="h-4 w-4 text-zoru-success-ink" strokeWidth={2.25} />
                     ) : (
-                        <LuArrowRight className="h-4 w-4" strokeWidth={1.75} />
+                        <ArrowRight className="h-4 w-4" strokeWidth={1.75} />
                     )}
-                </ClayButton>
-                <ClayButton
+                </ZoruButton>
+                <ZoruButton
                     variant="ghost"
                     size="icon"
                     onClick={resend}
@@ -1030,26 +1050,26 @@ function InviteRow({
                     disabled={!!busy}
                 >
                     {busy === 'resend' ? (
-                        <LuLoader className="h-4 w-4 animate-spin" />
+                        <Loader className="h-4 w-4 animate-spin" />
                     ) : (
-                        <LuRefreshCw className="h-4 w-4" strokeWidth={1.75} />
+                        <RefreshCw className="h-4 w-4" strokeWidth={1.75} />
                     )}
-                </ClayButton>
-                <ClayButton
+                </ZoruButton>
+                <ZoruButton
                     variant="ghost"
                     size="icon"
                     onClick={revoke}
                     aria-label="Revoke"
                     title="Revoke invitation"
                     disabled={!!busy}
-                    className="text-destructive hover:bg-rose-50/60"
+                    className="text-zoru-danger-ink hover:bg-zoru-danger/10"
                 >
                     {busy === 'revoke' ? (
-                        <LuLoader className="h-4 w-4 animate-spin" />
+                        <Loader className="h-4 w-4 animate-spin" />
                     ) : (
-                        <LuX className="h-4 w-4" strokeWidth={1.75} />
+                        <X className="h-4 w-4" strokeWidth={1.75} />
                     )}
-                </ClayButton>
+                </ZoruButton>
             </div>
         </div>
     );
@@ -1067,7 +1087,7 @@ function Avatar({ name, seed }: { name: string; seed: string }) {
         .toUpperCase();
     return (
         <div
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border text-[12px] font-semibold"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-zoru-line text-[12px]"
             style={{ background: `hsl(${hue} 60% 90%)`, color: `hsl(${hue} 45% 28%)` }}
             aria-hidden
         >
@@ -1084,20 +1104,20 @@ function hashHue(input: string) {
 
 function SkeletonRows() {
     return (
-        <ClayCard padded={false}>
-            <div className="divide-y divide-border">
+        <ZoruCard className="p-0">
+            <div className="divide-y divide-zoru-line">
                 {[0, 1, 2, 3].map((i) => (
                     <div key={i} className="flex items-center gap-3 px-5 py-4">
-                        <div className="h-9 w-9 animate-pulse rounded-full bg-secondary" />
+                        <div className="h-9 w-9 animate-pulse rounded-full bg-zoru-surface-2" />
                         <div className="flex flex-1 flex-col gap-1.5">
-                            <div className="h-3 w-32 animate-pulse rounded-full bg-secondary" />
-                            <div className="h-2.5 w-48 animate-pulse rounded-full bg-secondary" />
+                            <div className="h-3 w-32 animate-pulse rounded-full bg-zoru-surface-2" />
+                            <div className="h-2.5 w-48 animate-pulse rounded-full bg-zoru-surface-2" />
                         </div>
-                        <div className="h-6 w-24 animate-pulse rounded-full bg-secondary" />
+                        <div className="h-6 w-24 animate-pulse rounded-full bg-zoru-surface-2" />
                     </div>
                 ))}
             </div>
-        </ClayCard>
+        </ZoruCard>
     );
 }
 
@@ -1111,13 +1131,13 @@ function EmptyState({
     icon: React.ReactNode;
 }) {
     return (
-        <ClayCard padded={false} className="flex flex-col items-center gap-3 p-12 text-center">
-            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-accent text-accent-foreground">
+        <ZoruCard className="flex flex-col items-center gap-3 p-12 text-center">
+            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
                 {icon}
             </span>
-            <div className="text-[16px] font-semibold text-foreground">{title}</div>
-            <div className="max-w-[360px] text-[12.5px] text-muted-foreground">{body}</div>
-        </ClayCard>
+            <div className="text-[16px] text-zoru-ink">{title}</div>
+            <div className="max-w-[360px] text-[12.5px] text-zoru-ink-muted">{body}</div>
+        </ZoruCard>
     );
 }
 
@@ -1141,7 +1161,7 @@ function SelectCheckbox({
             type="checkbox"
             checked={checked}
             onChange={(e) => onChange(e.currentTarget.checked)}
-            className="h-4 w-4 shrink-0 cursor-pointer rounded border-border accent-primary"
+            className="h-4 w-4 shrink-0 cursor-pointer rounded border-zoru-line accent-zoru-ink"
             {...rest}
         />
     );
@@ -1167,56 +1187,56 @@ function BulkBar({
     onRemove: () => void;
 }) {
     return (
-        <ClayCard padded={false} className="flex flex-col gap-3 border-accent bg-accent/40 p-3 sm:flex-row sm:items-center sm:justify-between">
+        <ZoruCard className="flex flex-col gap-3 border-zoru-line-strong bg-zoru-surface-2/40 p-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
-                <ClayBadge tone="rose" dot>
-                    {count} selected
-                </ClayBadge>
+                <ZoruBadge variant="default">{count} selected</ZoruBadge>
                 <button
                     type="button"
                     onClick={onClear}
-                    className="text-[12px] text-accent-foreground underline-offset-2 hover:underline"
+                    className="text-[12px] text-zoru-ink underline-offset-2 hover:underline"
                 >
                     Clear selection
                 </button>
             </div>
             <div className="flex flex-wrap items-center gap-2">
                 {canEditRoles ? (
-                    <ClaySelect
-                        sizeVariant="md"
-                        className="w-[200px]"
-                        defaultValue=""
-                        disabled={!!busy}
-                        onChange={(e) => {
-                            const v = e.target.value;
-                            if (v) onChangeRole(v);
-                            e.currentTarget.value = '';
-                        }}
-                        options={[
-                            { value: '', label: 'Set role to…' },
-                            ...roleOptions,
-                        ]}
-                    />
+                    <div className="w-[200px]">
+                        <ZoruSelect
+                            value=""
+                            disabled={!!busy}
+                            onValueChange={(v) => {
+                                if (v) onChangeRole(v);
+                            }}
+                        >
+                            <ZoruSelectTrigger>
+                                <ZoruSelectValue placeholder="Set role to…" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                {roleOptions.map((r) => (
+                                    <ZoruSelectItem key={r.value} value={r.value}>
+                                        {r.label}
+                                    </ZoruSelectItem>
+                                ))}
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                    </div>
                 ) : null}
                 {canRemove ? (
-                    <ClayButton
-                        variant="rose"
+                    <ZoruButton
                         size="md"
                         onClick={onRemove}
                         disabled={!!busy}
-                        leading={
-                            busy === 'remove' ? (
-                                <LuLoader className="h-3.5 w-3.5 animate-spin" />
-                            ) : (
-                                <LuTrash2 className="h-3.5 w-3.5" strokeWidth={2} />
-                            )
-                        }
                     >
+                        {busy === 'remove' ? (
+                            <Loader className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                            <Trash2 className="h-3.5 w-3.5" strokeWidth={2} />
+                        )}
                         Remove from all projects
-                    </ClayButton>
+                    </ZoruButton>
                 ) : null}
             </div>
-        </ClayCard>
+        </ZoruCard>
     );
 }
 
