@@ -1,210 +1,314 @@
-
 'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { ChevronLeft, GitFork, Lightbulb, MessageSquare } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
+import { ChevronLeft } from 'lucide-react';
+
+import {
+  ZoruAccordion,
+  ZoruAccordionContent,
+  ZoruAccordionItem,
+  ZoruAccordionTrigger,
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruSeparator,
+} from '@/components/zoruui';
 
 const blockDocs = [
-    {
-        title: 'Start',
-        description: 'Every flow must begin with a Start block. This defines how the flow is triggered.',
-        properties: [
-            { name: 'Trigger Keywords', desc: 'A comma-separated list of words. If an incoming message contains any of these words, this flow will begin. (e.g., "help, support, menu")' },
-        ],
-        outputs: ['One main output that connects to the first block of your flow.'],
-    },
-    {
-        title: 'Send Message',
-        description: 'Sends a simple text message to the user.',
-        properties: [
-            { name: 'Message Text', desc: 'The content of the message you want to send. You can use variables here, like "Hello {{name}}".' },
-        ],
-        outputs: ['One main output to continue the flow after the message is sent.'],
-    },
-    {
-        title: 'Send Image',
-        description: 'Sends an image with an optional caption.',
-        properties: [
-            { name: 'Image URL', desc: 'A public URL for the image you want to send. Must be a direct link to a JPG or PNG file.' },
-            { name: 'Caption', desc: 'Optional text that will be sent along with the image.' },
-        ],
-        outputs: ['One main output to continue the flow.'],
-    },
-    {
-        title: 'Add Buttons',
-        description: 'Sends a message with interactive Quick Reply buttons. The user\'s choice can be used to branch the flow.',
-        properties: [
-            { name: 'Message Text', desc: 'The text that appears above the buttons.' },
-            { name: 'Buttons', desc: 'You can add up to 3 Quick Reply buttons. Each button press can lead to a different path in your flow.' },
-        ],
-        outputs: ['Each button acts as its own output path. Connect each button to a different block to create branching logic.'],
-        notes: 'This block waits for the user to press a button before continuing. Due to WhatsApp API limitations, only Quick Reply buttons are supported in flows.'
-    },
-    {
-        title: 'Get User Input',
-        description: 'Asks the user a question and saves their text response to a variable.',
-        properties: [
-            { name: 'Question to Ask', desc: 'The message sent to the user to prompt their input.' },
-            { name: 'Save Answer to Variable', desc: 'The name of the variable where the user\'s reply will be stored (e.g., "user_name"). Do not use brackets here.' },
-        ],
-        outputs: ['One main output that is followed after the user provides their response.'],
-        notes: 'This block waits for the user to send a text message before continuing.'
-    },
-    {
-        title: 'Add Condition',
-        description: 'Create branches in your flow based on rules and variables. This block can either check a pre-existing variable or pause the flow to wait for the user\'s next message.',
-        properties: [
-            { name: 'Condition Type', desc: 'Choose what to check. "Variable" checks data already saved in a variable. "User Response" pauses the flow and checks the next message the user sends.' },
-            { name: 'Variable (if type is Variable)', desc: 'The variable to check, e.g., {{user_input}} or {{age}}.' },
-            { name: 'Operator', desc: 'The comparison to perform: Equals, Contains, Is one of, etc.' },
-            { name: 'Value', desc: 'The value to compare against. This can be a fixed value (e.g., "yes") or another variable (e.g., {{expected_answer}}).' }
-        ],
-        outputs: ['Yes: If the condition is true.', 'No: If the condition is false.'],
-        notes: 'If you connect a button to this block, it will automatically use the button\'s text for the condition check, regardless of the "Condition Type" setting. This makes building menus very easy.'
-    },
-    {
-        title: 'Add Delay',
-        description: 'Pauses the flow for a specified number of seconds.',
-        properties: [
-            { name: 'Delay (seconds)', desc: 'The number of seconds to wait before proceeding.' },
-            { name: 'Show typing indicator', desc: 'If checked, a "typing..." indicator will be shown to the user during the delay.' },
-        ],
-        outputs: ['One main output that is followed after the delay is complete.'],
-    },
-    {
-        title: 'Call API / Webhook',
-        description: 'Make a request to an external server or API and save parts of the response to variables.',
-        properties: [
-            { name: 'Method', desc: 'The HTTP method for the request (GET, POST, PUT).' },
-            { name: 'URL', desc: 'The endpoint URL to send the request to. You can use variables here.' },
-            { name: 'Headers / Body', desc: 'Provide JSON for request headers or the request body. Variables are supported.' },
-            { name: 'Response to Variable Mappings', desc: 'Define how to extract data from the API response and save it to flow variables.' },
-        ],
-        outputs: ['One main output that is followed after the API call is complete.'],
-        notes: 'In the mappings, use dot notation for the Response Path (e.g., `user.address.city` or `items[0].name`). The value found at that path will be saved to the Variable Name you provide, which you can then use as `{{your_variable_name}}` in later steps.'
-    }
+  {
+    title: 'Start',
+    description:
+      'Every flow must begin with a Start block. This defines how the flow is triggered.',
+    properties: [
+      {
+        name: 'Trigger keywords',
+        desc: 'A comma-separated list of words. If an incoming message contains any of these words, this flow will begin. (e.g. "help, support, menu")',
+      },
+    ],
+    outputs: ['One main output that connects to the first block of your flow.'],
+  },
+  {
+    title: 'Send message',
+    description: 'Sends a simple text message to the user.',
+    properties: [
+      {
+        name: 'Message text',
+        desc: 'The content of the message you want to send. You can use variables here, like "Hello {{name}}".',
+      },
+    ],
+    outputs: ['One main output to continue the flow after the message is sent.'],
+  },
+  {
+    title: 'Send image',
+    description: 'Sends an image with an optional caption.',
+    properties: [
+      {
+        name: 'Image URL',
+        desc: 'A public URL for the image you want to send. Must be a direct link to a JPG or PNG file.',
+      },
+      { name: 'Caption', desc: 'Optional text that will be sent along with the image.' },
+    ],
+    outputs: ['One main output to continue the flow.'],
+  },
+  {
+    title: 'Add buttons',
+    description:
+      "Sends a message with interactive Quick Reply buttons. The user's choice can be used to branch the flow.",
+    properties: [
+      { name: 'Message text', desc: 'The text that appears above the buttons.' },
+      {
+        name: 'Buttons',
+        desc: 'You can add up to 3 Quick Reply buttons. Each button press can lead to a different path in your flow.',
+      },
+    ],
+    outputs: [
+      'Each button acts as its own output path. Connect each button to a different block to create branching logic.',
+    ],
+    notes:
+      'This block waits for the user to press a button before continuing. Due to WhatsApp API limitations, only Quick Reply buttons are supported in flows.',
+  },
+  {
+    title: 'Get user input',
+    description:
+      "Asks the user a question and saves their text response to a variable.",
+    properties: [
+      { name: 'Question to ask', desc: 'The message sent to the user to prompt their input.' },
+      {
+        name: 'Save answer to variable',
+        desc: "The name of the variable where the user's reply will be stored (e.g. \"user_name\"). Do not use brackets here.",
+      },
+    ],
+    outputs: ['One main output that is followed after the user provides their response.'],
+    notes: 'This block waits for the user to send a text message before continuing.',
+  },
+  {
+    title: 'Add condition',
+    description:
+      "Create branches in your flow based on rules and variables. This block can either check a pre-existing variable or pause the flow to wait for the user's next message.",
+    properties: [
+      {
+        name: 'Condition type',
+        desc: 'Choose what to check. "Variable" checks data already saved in a variable. "User response" pauses the flow and checks the next message the user sends.',
+      },
+      {
+        name: 'Variable (if type is Variable)',
+        desc: 'The variable to check, e.g. {{user_input}} or {{age}}.',
+      },
+      {
+        name: 'Operator',
+        desc: 'The comparison to perform: Equals, Contains, Is one of, etc.',
+      },
+      {
+        name: 'Value',
+        desc: 'The value to compare against. This can be a fixed value (e.g. "yes") or another variable (e.g. {{expected_answer}}).',
+      },
+    ],
+    outputs: ['Yes: If the condition is true.', 'No: If the condition is false.'],
+    notes:
+      "If you connect a button to this block, it will automatically use the button's text for the condition check, regardless of the \"Condition type\" setting. This makes building menus very easy.",
+  },
+  {
+    title: 'Add delay',
+    description: 'Pauses the flow for a specified number of seconds.',
+    properties: [
+      { name: 'Delay (seconds)', desc: 'The number of seconds to wait before proceeding.' },
+      {
+        name: 'Show typing indicator',
+        desc: 'If checked, a "typing…" indicator will be shown to the user during the delay.',
+      },
+    ],
+    outputs: ['One main output that is followed after the delay is complete.'],
+  },
+  {
+    title: 'Call API / webhook',
+    description:
+      'Make a request to an external server or API and save parts of the response to variables.',
+    properties: [
+      { name: 'Method', desc: 'The HTTP method for the request (GET, POST, PUT).' },
+      {
+        name: 'URL',
+        desc: 'The endpoint URL to send the request to. You can use variables here.',
+      },
+      {
+        name: 'Headers / body',
+        desc: 'Provide JSON for request headers or the request body. Variables are supported.',
+      },
+      {
+        name: 'Response → variable mappings',
+        desc: 'Define how to extract data from the API response and save it to flow variables.',
+      },
+    ],
+    outputs: ['One main output that is followed after the API call is complete.'],
+    notes:
+      'In the mappings, use dot notation for the response path (e.g. `user.address.city` or `items[0].name`). The value at that path is saved to the variable name you provide, which you can then use as `{{your_variable_name}}` in later steps.',
+  },
 ];
 
 export default function FlowBuilderDocsPage() {
-    return (
-        <div className="flex flex-col gap-8">
-            <div>
-                <Button variant="ghost" asChild className="mb-4 -ml-4">
-                    <Link href="/wachat/flow-builder">
-                        <ChevronLeft className="mr-2 h-4 w-4" />
-                        Back to Flow Builder
-                    </Link>
-                </Button>
-                <h1 className="text-3xl font-bold font-headline">Flow Builder Documentation</h1>
-                <p className="text-muted-foreground mt-2 max-w-3xl">
-                    Welcome to the Flow Builder guide. Here you can learn about each building block and how to use them to create powerful automations for your WhatsApp conversations.
-                </p>
-            </div>
+  return (
+    <div className="flex flex-col gap-8">
+      <div>
+        <ZoruButton variant="ghost" size="sm" asChild className="-ml-2 mb-4">
+          <Link href="/wachat/flow-builder">
+            <ChevronLeft className="mr-1 h-4 w-4" />
+            Back to flow builder
+          </Link>
+        </ZoruButton>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Using Variables</CardTitle>
-                    <CardDescription>
-                        Variables allow you to personalize your flows and use data dynamically.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent className="text-sm space-y-4">
-                    <p>
-                        Variables are placeholders for data that can change, such as a user's name or their answer to a question. In the Flow Builder, you use double curly braces to insert a variable, like this: <Badge variant="outline" className="font-mono">{"{{name}}"}</Badge>.
-                    </p>
-                    <p>
-                        The "Get User Input" block is the primary way to create custom variables. When you configure it to save an answer to a variable named <Badge variant="outline">color</Badge>, you can later use the user's answer by writing <Badge variant="outline" className="font-mono">{"{{color}}"}</Badge> in a "Send Message" block.
-                    </p>
-                    <p>
-                        There are also pre-defined variables you can use: <Badge variant="outline" className="font-mono">{"{{name}}"}</Badge> (the user's WhatsApp profile name) and <Badge variant="outline" className="font-mono">{"{{waId}}"}</Badge> (the user's phone number). Variables you save from an API call can also be used this way.
-                    </p>
-                </CardContent>
-            </Card>
+        <ZoruPageHeader>
+          <ZoruPageHeading>
+            <ZoruPageTitle>Flow builder documentation</ZoruPageTitle>
+            <ZoruPageDescription>
+              Welcome to the flow builder guide. Learn about each building block and how to use
+              them to create powerful automations for your WhatsApp conversations.
+            </ZoruPageDescription>
+          </ZoruPageHeading>
+        </ZoruPageHeader>
+      </div>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Common Pattern: Button-based Menu</CardTitle>
-                    <CardDescription>
-                       A common use case is to present a menu to the user and perform an action based on their choice.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent className="text-sm space-y-4">
-                    <p>Here's how to build a 'Show Balance' flow that checks the user's input:</p>
-                    <ol className="list-decimal list-inside space-y-2">
-                        <li>
-                            <strong>Add Buttons Block</strong>: Create a button with the text 'Show Balance' and another with 'Speak to Agent'.
-                        </li>
-                        <li>
-                            <strong>Add Condition Block</strong>: Add a 'Condition' block. Configure it to check if the input `Equals` the value `Show Balance`.
-                        </li>
-                         <li>
-                            <strong>Add API Call Block</strong>: Add a 'Call API' block to fetch the balance from your server. Map the result to a variable named `balance`.
-                        </li>
-                         <li>
-                            <strong>Add Message Blocks</strong>: Add two 'Send Message' blocks. One saying 'Your balance is {`{{balance}}`}', and another saying 'Connecting you to an agent...'.
-                        </li>
-                        <li>
-                            <strong>Connect them</strong>:
-                            <ul className="list-disc list-inside ml-4 mt-1">
-                                <li>Drag a connection from the 'Show Balance' button's output handle to the input of the **Condition** block.</li>
-                                <li>Connect the **Yes** output of the Condition block to your **API Call** block.</li>
-                                <li>Connect the output of the API Call block to the "Your balance is..." message block.</li>
-                                <li>Connect the **No** output of the Condition block to the "Connecting you..." message block.</li>
-                            </ul>
-                        </li>
-                    </ol>
-                     <div className="p-3 bg-muted/50 rounded-md text-sm border">
-                        <p><strong>Key Insight:</strong> When you connect a button to a Condition block, the block automatically uses the **button's text** as the input to check. You don't need a separate "Get User Input" block. This makes building menus fast and intuitive.</p>
-                    </div>
-                </CardContent>
-            </Card>
+      <ZoruCard>
+        <ZoruCardHeader>
+          <ZoruCardTitle>Using variables</ZoruCardTitle>
+          <ZoruCardDescription>
+            Variables let you personalize your flows and use data dynamically.
+          </ZoruCardDescription>
+        </ZoruCardHeader>
+        <ZoruCardContent className="space-y-4 text-sm text-zoru-ink">
+          <p>
+            Variables are placeholders for data that can change, such as a user&apos;s name or their
+            answer to a question. Use double curly braces to insert a variable, like this:{' '}
+            <ZoruBadge variant="outline" className="font-mono">{`{{name}}`}</ZoruBadge>.
+          </p>
+          <p>
+            The &quot;Get user input&quot; block is the primary way to create custom variables. When
+            you configure it to save an answer to a variable named{' '}
+            <ZoruBadge variant="outline">color</ZoruBadge>, you can later use the user&apos;s
+            answer by writing{' '}
+            <ZoruBadge variant="outline" className="font-mono">{`{{color}}`}</ZoruBadge> in a
+            &quot;Send message&quot; block.
+          </p>
+          <p>
+            There are pre-defined variables you can use:{' '}
+            <ZoruBadge variant="outline" className="font-mono">{`{{name}}`}</ZoruBadge> (the
+            user&apos;s WhatsApp profile name) and{' '}
+            <ZoruBadge variant="outline" className="font-mono">{`{{waId}}`}</ZoruBadge> (their phone
+            number). Variables you save from an API call can also be used this way.
+          </p>
+        </ZoruCardContent>
+      </ZoruCard>
 
-            <Separator />
+      <ZoruCard>
+        <ZoruCardHeader>
+          <ZoruCardTitle>Common pattern: button-based menu</ZoruCardTitle>
+          <ZoruCardDescription>
+            Present a menu to the user and perform an action based on their choice.
+          </ZoruCardDescription>
+        </ZoruCardHeader>
+        <ZoruCardContent className="space-y-4 text-sm text-zoru-ink">
+          <p>Here&apos;s how to build a &apos;Show balance&apos; flow that checks the user&apos;s input:</p>
+          <ol className="list-inside list-decimal space-y-2">
+            <li>
+              <strong>Add buttons block</strong>: create a button with the text &apos;Show
+              balance&apos; and another with &apos;Speak to agent&apos;.
+            </li>
+            <li>
+              <strong>Add condition block</strong>: add a &apos;Condition&apos; block. Configure it
+              to check if the input <em>Equals</em> the value &apos;Show balance&apos;.
+            </li>
+            <li>
+              <strong>Add API call block</strong>: add a &apos;Call API&apos; block to fetch the
+              balance from your server. Map the result to a variable named <code>balance</code>.
+            </li>
+            <li>
+              <strong>Add message blocks</strong>: add two &apos;Send message&apos; blocks. One
+              saying &apos;Your balance is {`{{balance}}`}&apos;, and another saying
+              &apos;Connecting you to an agent…&apos;.
+            </li>
+            <li>
+              <strong>Connect them</strong>:
+              <ul className="ml-4 mt-1 list-inside list-disc">
+                <li>
+                  Drag from the &apos;Show balance&apos; button output to the input of the{' '}
+                  <strong>Condition</strong> block.
+                </li>
+                <li>
+                  Connect the <strong>Yes</strong> output of Condition to your{' '}
+                  <strong>API call</strong> block.
+                </li>
+                <li>Connect the API call output to the &quot;Your balance is…&quot; message block.</li>
+                <li>
+                  Connect the <strong>No</strong> output of Condition to the &quot;Connecting
+                  you…&quot; message block.
+                </li>
+              </ul>
+            </li>
+          </ol>
+          <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3 text-sm">
+            <p>
+              <strong>Key insight:</strong> when you connect a button to a Condition block, the
+              block automatically uses the button&apos;s text as the input to check. You don&apos;t
+              need a separate &quot;Get user input&quot; block. This makes building menus fast and
+              intuitive.
+            </p>
+          </div>
+        </ZoruCardContent>
+      </ZoruCard>
 
-            <div>
-                <h2 className="text-2xl font-bold font-headline">Flow Blocks</h2>
-                <p className="text-muted-foreground mt-1">
-                    An overview of all available blocks and their configurations.
-                </p>
-            </div>
+      <ZoruSeparator />
 
-            <Accordion type="single" collapsible className="w-full">
-                {blockDocs.map((doc, index) => (
-                     <AccordionItem value={`item-${index}`} key={index}>
-                        <AccordionTrigger className="text-lg font-semibold">{doc.title}</AccordionTrigger>
-                        <AccordionContent className="space-y-4 pt-2">
-                             <p className="text-base text-muted-foreground">{doc.description}</p>
-                             
-                             <div className="space-y-2">
-                                 <h4 className="font-semibold">Properties:</h4>
-                                 <ul className="list-disc list-inside space-y-1 text-sm">
-                                     {doc.properties.map((prop, pIndex) => (
-                                        <li key={pIndex}><strong>{prop.name}:</strong> {prop.desc}</li>
-                                     ))}
-                                 </ul>
-                             </div>
+      <div>
+        <h2 className="text-2xl text-zoru-ink">Flow blocks</h2>
+        <p className="mt-1 text-zoru-ink-muted">
+          An overview of all available blocks and their configurations.
+        </p>
+      </div>
 
-                             <div className="space-y-2">
-                                 <h4 className="font-semibold">Outputs:</h4>
-                                 <ul className="list-disc list-inside space-y-1 text-sm">
-                                     {doc.outputs.map((out, oIndex) => <li key={oIndex}>{out}</li>)}
-                                 </ul>
-                             </div>
+      <ZoruAccordion type="single" collapsible className="w-full">
+        {blockDocs.map((doc, index) => (
+          <ZoruAccordionItem value={`item-${index}`} key={index}>
+            <ZoruAccordionTrigger className="text-lg">{doc.title}</ZoruAccordionTrigger>
+            <ZoruAccordionContent className="space-y-4 pt-2">
+              <p className="text-base text-zoru-ink-muted">{doc.description}</p>
 
-                             {doc.notes && (
-                                <div className="p-3 bg-muted/50 rounded-md text-sm border">
-                                    <p><strong>Note:</strong> {doc.notes}</p>
-                                </div>
-                             )}
-                        </AccordionContent>
-                    </AccordionItem>
-                ))}
-            </Accordion>
-        </div>
-    );
+              <div className="space-y-2">
+                <h4 className="font-semibold text-zoru-ink">Properties:</h4>
+                <ul className="list-inside list-disc space-y-1 text-sm text-zoru-ink">
+                  {doc.properties.map((prop, pIndex) => (
+                    <li key={pIndex}>
+                      <strong>{prop.name}:</strong> {prop.desc}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="space-y-2">
+                <h4 className="font-semibold text-zoru-ink">Outputs:</h4>
+                <ul className="list-inside list-disc space-y-1 text-sm text-zoru-ink">
+                  {doc.outputs.map((out, oIndex) => (
+                    <li key={oIndex}>{out}</li>
+                  ))}
+                </ul>
+              </div>
+
+              {doc.notes && (
+                <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3 text-sm text-zoru-ink">
+                  <p>
+                    <strong>Note:</strong> {doc.notes}
+                  </p>
+                </div>
+              )}
+            </ZoruAccordionContent>
+          </ZoruAccordionItem>
+        ))}
+      </ZoruAccordion>
+    </div>
+  );
 }

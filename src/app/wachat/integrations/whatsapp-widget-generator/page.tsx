@@ -1,23 +1,32 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
-import { getProjectById } from '@/app/actions/project.actions';
+import { BarChart3, Eye, RefreshCw, Users } from 'lucide-react';
 import type { WithId, Project } from '@/lib/definitions';
+
+import { getProjectById } from '@/app/actions/project.actions';
 import { useProject } from '@/context/project-context';
 import { WhatsAppWidgetGenerator } from '@/components/wabasimplify/whatsapp-widget-generator';
 import {
-  LuEye,
-  LuUsers,
-  LuChartBar,
-  LuRefreshCw,
-} from 'react-icons/lu';
-import { ClayBreadcrumbs, ClayCard, ClayButton } from '@/components/clay';
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruAlertTitle,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruSkeleton,
+} from '@/components/zoruui';
 
 function PageSkeleton() {
   return (
     <div className="space-y-4">
-      <div className="h-24 w-full animate-pulse rounded-xl bg-muted" />
-      <div className="h-80 w-full animate-pulse rounded-xl bg-muted" />
+      <ZoruSkeleton className="h-24 w-full" />
+      <ZoruSkeleton className="h-80 w-full" />
     </div>
   );
 }
@@ -32,17 +41,17 @@ function StatCard({
   icon: React.ReactNode;
 }) {
   return (
-    <ClayCard className="flex items-center gap-4 p-4">
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground">
+    <ZoruCard className="flex items-center gap-4 p-4">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink-muted">
         {icon}
       </span>
       <div>
-        <p className="text-[12px] text-muted-foreground">{title}</p>
-        <p className="text-[20px] font-semibold tabular-nums text-foreground">
-          {value.toLocaleString()}
+        <p className="text-xs text-zoru-ink-muted">{title}</p>
+        <p className="text-[20px] tabular-nums text-zoru-ink">
+          {typeof value === 'number' ? value.toLocaleString() : value}
         </p>
       </div>
-    </ClayCard>
+    </ZoruCard>
   );
 }
 
@@ -66,69 +75,65 @@ export default function WhatsappWidgetGeneratorPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeProject]);
 
-  const stats = project?.widgetSettings?.stats || {
-    loads: 0,
-    opens: 0,
-    clicks: 0,
-  };
+  const stats = project?.widgetSettings?.stats || { loads: 0, opens: 0, clicks: 0 };
 
   return (
     <div className="flex h-full w-full flex-col">
-      <ClayBreadcrumbs
-        items={[
-          { label: 'SabNode', href: '/dashboard' },
-          { label: 'Wachat', href: '/wachat' },
-          { label: 'Integrations', href: '/wachat/integrations' },
-          { label: 'Widget Generator' },
-        ]}
-      />
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/wachat/integrations">Integrations</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Widget generator</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
 
       <div className="mt-5 flex-1 space-y-6">
         {isLoading ? (
           <PageSkeleton />
         ) : !project ? (
-          <div className="flex items-center gap-3 rounded-lg border border-destructive/20 bg-red-50 p-4 text-[13px] text-destructive">
-            No project selected. Please select a project from the main
-            dashboard.
-          </div>
+          <ZoruAlert variant="destructive">
+            <ZoruAlertTitle>No project selected</ZoruAlertTitle>
+            <ZoruAlertDescription>
+              Please select a project from the main dashboard.
+            </ZoruAlertDescription>
+          </ZoruAlert>
         ) : (
           <>
-            {/* Analytics strip */}
             <div className="flex items-center justify-between">
-              <h2 className="text-[15px] font-semibold text-foreground">
-                Widget Analytics
-              </h2>
-              <ClayButton
-                variant="pill"
+              <h2 className="text-[15px] text-zoru-ink">Widget analytics</h2>
+              <ZoruButton
                 size="sm"
-                leading={
-                  <LuRefreshCw className="h-3.5 w-3.5" strokeWidth={2} />
-                }
+                variant="outline"
                 onClick={() =>
                   startLoadingTransition(() => {
                     fetchProjectData();
                   })
                 }
               >
+                <RefreshCw className="h-3.5 w-3.5" strokeWidth={2} />
                 Refresh
-              </ClayButton>
+              </ZoruButton>
             </div>
 
             <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-              <StatCard
-                title="Widget Loads"
-                value={stats.loads}
-                icon={<LuEye className="h-4 w-4" />}
-              />
-              <StatCard
-                title="Chat Opens"
-                value={stats.opens}
-                icon={<LuUsers className="h-4 w-4" />}
-              />
+              <StatCard title="Widget loads" value={stats.loads} icon={<Eye className="h-4 w-4" />} />
+              <StatCard title="Chat opens" value={stats.opens} icon={<Users className="h-4 w-4" />} />
               <StatCard
                 title="Clicks to WhatsApp"
                 value={stats.clicks}
-                icon={<LuChartBar className="h-4 w-4" />}
+                icon={<BarChart3 className="h-4 w-4" />}
               />
             </div>
 

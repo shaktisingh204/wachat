@@ -3,12 +3,11 @@
 'use server';
 
 import { revalidatePath, unstable_noStore as noStore } from 'next/cache';
-import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
-import { connectToDatabase } from '@/lib/mongodb';
+import type { WithId } from 'mongodb';
 import { getSession } from '@/app/actions/user.actions';
-import type { Contact, Project, User } from '@/lib/definitions';
+import type { Contact } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
-import { checkRateLimit } from '@/lib/rate-limiter';
+import { rustClient, RustApiError } from '@/lib/rust-client';
 import * as Papa from 'papaparse';
 
 const CONTACTS_PER_PAGE = 20;
@@ -35,53 +34,28 @@ export async function handleAddNewContact(
         return { error: 'Country code and phone number are required.' };
     }
 
-    // Sanitize and combine phone number parts
-    const waId = `${countryCode.replace(/\D/g, '')}${phone.replace(/\D/g, '')}`;
-
     if (!projectId || !phoneNumberId || !name) {
         return { error: 'Project, Phone Number, and Name are required.' };
     }
 
     try {
-        const { db } = await connectToDatabase();
-
-        const project = await db.collection<WithId<Project>>('projects').findOne({
-            _id: new ObjectId(projectId),
-            $or: [
-                { userId: new ObjectId(session.user._id) },
-                { 'agents.userId': new ObjectId(session.user._id) }
-            ]
-        });
-
-        if (!project) {
-            return { error: 'Project not found or you do not have permission.' };
-        }
-
-        const existingContact = await db.collection('contacts').findOne({ waId, projectId: new ObjectId(projectId) });
-
-        if (existingContact) {
-            return { error: 'A contact with this WhatsApp ID already exists in this project.' };
-        }
-
-        const newContact: Omit<Contact, '_id'> = {
-            projectId: new ObjectId(projectId),
+        const result = await rustClient.wachatContacts.add({
+            projectId,
             phoneNumberId,
             name,
-            waId,
-            userId: new ObjectId(session.user._id),
-            status: 'new',
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            tagIds: tagIds.map(id => new ObjectId(id)) as any
-        };
-
-        const result = await db.collection('contacts').insertOne(newContact as any);
+            countryCode,
+            phone,
+            tagIds: tagIds.length > 0 ? tagIds : undefined,
+        });
 
         revalidatePath('/wachat/contacts');
 
-        return { message: `Contact "${name}" added successfully.`, contactId: result.insertedId.toString() };
+        return { message: result.message ?? `Contact "${name}" added successfully.`, contactId: result.contactId };
 
     } catch (e: any) {
+        if (e instanceof RustApiError) {
+            return { error: e.message };
+        }
         console.error("Failed to add contact:", e);
         return { error: getErrorMessage(e) };
     }
@@ -105,61 +79,33 @@ export async function handleImportContacts(prevState: any, formData: FormData): 
     }
 
     try {
-        const { db } = await connectToDatabase();
-        const project = await db.collection('projects').findOne({ _id: new ObjectId(projectId) });
-        if (!project || project.userId.toString() !== session.user._id) {
-            return { error: "Permission denied." };
-        }
-
+        // CSV/XLSX parsing stays TS-side; the Rust handler accepts pre-parsed JSON.
         const fileContent = await file.text();
         const parsed = Papa.parse(fileContent, { header: true });
         const contactsToImport = parsed.data as { phone: string; name: string;[key: string]: string }[];
 
-        let importedCount = 0;
-        let skippedCount = 0;
+        const cleaned = contactsToImport
+            .filter(row => row && row.phone && row.name)
+            .map(row => ({ ...row }));
 
-        const bulkOps = contactsToImport.map(contactRow => {
-            if (!contactRow.phone || !contactRow.name) {
-                skippedCount++;
-                return null;
-            }
-            const waId = contactRow.phone.replace(/\D/g, '');
-            const { phone, name, ...variables } = contactRow;
-
-            return {
-                updateOne: {
-                    filter: { waId, projectId: new ObjectId(projectId) },
-                    update: {
-                        $setOnInsert: {
-                            projectId: new ObjectId(projectId),
-                            phoneNumberId,
-                            name,
-                            waId,
-                            userId: new ObjectId(session.user._id),
-                            status: 'imported',
-                            createdAt: new Date(),
-                        },
-                        $set: {
-                            variables,
-                            updatedAt: new Date()
-                        }
-                    },
-                    upsert: true
-                }
-            };
-        }).filter(Boolean);
-
-
-        if (bulkOps.length > 0) {
-            const result = await db.collection('contacts').bulkWrite(bulkOps as any[]);
-            importedCount = result.upsertedCount + result.modifiedCount;
-        }
+        const result = await rustClient.wachatContacts.importContacts({
+            projectId,
+            phoneNumberId,
+            contacts: cleaned,
+        });
 
         revalidatePath('/wachat/contacts');
 
-        return { message: `Import complete. ${importedCount} contacts imported/updated. ${skippedCount} rows skipped.` };
+        return {
+            message:
+                result.message ??
+                `Import complete. ${result.imported} contacts imported/updated. ${result.skipped} rows skipped.`,
+        };
 
     } catch (error) {
+        if (error instanceof RustApiError) {
+            return { error: error.message };
+        }
         return { error: getErrorMessage(error) };
     }
 }
@@ -177,48 +123,17 @@ export async function getContactsPageData(
     if (!session?.user) return { contacts: [], total: 0 };
 
     try {
-        const { db } = await connectToDatabase();
-        const projectObjectId = new ObjectId(projectId);
-
-        const filter: Filter<Contact> = { projectId: projectObjectId };
-
-        if (phoneNumberId) {
-            filter.phoneNumberId = phoneNumberId;
-        }
-
-        // Filter by phoneNumberId if provided (it should be, but for robustness)
-        if (phoneNumberId) {
-            filter.phoneNumberId = phoneNumberId;
-        }
-
-        if (searchQuery) {
-            const queryRegex = { $regex: searchQuery, $options: 'i' };
-            filter.$or = [
-                { name: queryRegex },
-                { waId: queryRegex }
-            ];
-        }
-
-        if (tagIds && tagIds.length > 0) {
-            filter.tagIds = { $in: tagIds.map(id => new ObjectId(id)) } as any;
-        }
-
-        const limit = CONTACTS_PER_PAGE;
-        const skip = (page - 1) * limit;
-
-        const [contacts, total] = await Promise.all([
-            db.collection<WithId<Contact>>('contacts')
-                .find(filter as any)
-                .sort({ lastMessageTimestamp: -1, updatedAt: -1 })
-                .skip(skip)
-                .limit(limit)
-                .toArray(),
-            db.collection('contacts').countDocuments(filter as any)
-        ]);
+        const result = await rustClient.wachatContacts.list({
+            projectId,
+            phoneNumberId,
+            page,
+            search: searchQuery || undefined,
+            tagIds: tagIds && tagIds.length > 0 ? tagIds : undefined,
+        });
 
         return {
-            contacts: JSON.parse(JSON.stringify(contacts)),
-            total
+            contacts: (result.contacts ?? []) as WithId<Contact>[],
+            total: result.total ?? 0,
         };
 
     } catch (e: any) {
@@ -234,7 +149,7 @@ export async function handleUpdateContactDetails(prevState: any, formData: FormD
     const contactId = formData.get('contactId') as string;
     const variablesJSON = formData.get('variables') as string;
 
-    if (!contactId || !ObjectId.isValid(contactId)) {
+    if (!contactId) {
         return { success: false, error: 'Invalid contact ID.' };
     }
 
@@ -242,20 +157,18 @@ export async function handleUpdateContactDetails(prevState: any, formData: FormD
         const variables = variablesJSON ? JSON.parse(variablesJSON) : null;
         const name = formData.get('name') as string;
 
-        const { db } = await connectToDatabase();
+        const body: { name?: string; variables?: Record<string, unknown> | null } = {};
+        if (name) body.name = name;
+        if (variables) body.variables = variables;
 
-        const updateData: any = { updatedAt: new Date() };
-        if (variables) updateData.variables = variables;
-        if (name) updateData.name = name;
-
-        await db.collection('contacts').updateOne(
-            { _id: new ObjectId(contactId) },
-            { $set: updateData }
-        );
+        await rustClient.wachatContacts.updateDetails(contactId, body);
 
         revalidatePath('/wachat/chat');
         return { success: true };
     } catch (e) {
+        if (e instanceof RustApiError) {
+            return { success: false, error: e.message };
+        }
         return { success: false, error: 'Failed to update contact details.' };
     }
 }
@@ -266,28 +179,22 @@ export async function handleUpdateContactStatus(contactId: string, status: strin
         return { success: false, error: 'Authentication required.' };
     }
 
-    if (!contactId || !ObjectId.isValid(contactId) || !status) {
+    if (!contactId || !status) {
         return { success: false, error: 'Invalid data provided.' };
     }
 
     try {
-        const { db } = await connectToDatabase();
-
-        const updateDoc: any = { status };
-        if (assignedAgentId) {
-            updateDoc.assignedAgentId = new ObjectId(assignedAgentId);
-        } else {
-            updateDoc.assignedAgentId = null;
-        }
-
-        await db.collection('contacts').updateOne(
-            { _id: new ObjectId(contactId) },
-            { $set: updateDoc }
-        );
+        await rustClient.wachatContacts.updateStatus(contactId, {
+            status,
+            assignedAgentId: assignedAgentId ?? null,
+        });
         revalidatePath('/wachat/chat');
         revalidatePath('/wachat/chat/kanban');
         return { success: true };
     } catch (e) {
+        if (e instanceof RustApiError) {
+            return { success: false, error: e.message };
+        }
         return { success: false, error: getErrorMessage(e) };
     }
 }
@@ -298,19 +205,18 @@ export async function updateContactTags(contactId: string, tagIds: string[]) {
         return { success: false, error: 'Authentication required.' };
     }
 
-    if (!contactId || !ObjectId.isValid(contactId)) {
+    if (!contactId) {
         return { success: false, error: 'Invalid data provided.' };
     }
 
     try {
-        const { db } = await connectToDatabase();
-        await db.collection('contacts').updateOne(
-            { _id: new ObjectId(contactId) },
-            { $set: { tagIds: tagIds.map(id => new ObjectId(id)) } }
-        );
+        await rustClient.wachatContacts.updateTags(contactId, { tagIds });
         revalidatePath('/wachat/chat');
         return { success: true };
     } catch (e) {
+        if (e instanceof RustApiError) {
+            return { success: false, error: e.message };
+        }
         return { success: false, error: getErrorMessage(e) };
     }
 }
@@ -320,43 +226,16 @@ export async function deleteContact(contactId: string): Promise<{ success: boole
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Authentication required.' };
 
-    if (!contactId || !ObjectId.isValid(contactId)) return { success: false, error: 'Invalid contact ID.' };
+    if (!contactId) return { success: false, error: 'Invalid contact ID.' };
 
     try {
-        const { db } = await connectToDatabase();
-
-        // 1. Get the contact to identify the project
-        const contact = await db.collection<WithId<Contact>>('contacts').findOne({ _id: new ObjectId(contactId) });
-
-        if (!contact) {
-            return { success: false, error: 'Contact not found.' };
-        }
-
-        // 2. Verify project permissions (User must be Owner or Agent of the project)
-        const project = await db.collection<WithId<Project>>('projects').findOne({
-            _id: new ObjectId(contact.projectId),
-            $or: [
-                { userId: new ObjectId(session.user._id) },
-                { 'agents.userId': new ObjectId(session.user._id) }
-            ]
-        });
-
-        if (!project) {
-            return { success: false, error: 'You do not have permission to delete this contact.' };
-        }
-
-        // 3. Delete the contact
-        const result = await db.collection('contacts').deleteOne({
-            _id: new ObjectId(contactId)
-        });
-
-        if (result.deletedCount === 0) {
-            return { success: false, error: 'Failed to delete contact.' };
-        }
-
+        await rustClient.wachatContacts.delete(contactId);
         revalidatePath('/wachat/contacts');
         return { success: true };
     } catch (e: any) {
+        if (e instanceof RustApiError) {
+            return { success: false, error: e.message };
+        }
         return { success: false, error: getErrorMessage(e) };
     }
 }

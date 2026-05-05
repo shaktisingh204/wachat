@@ -1,28 +1,67 @@
-
 'use client';
 
-import { ProductForm } from '@/components/wabasimplify/product-form';
-import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 
-export default function NewProductPage() {
-    const searchParams = useSearchParams();
-    const catalogId = searchParams.get('catalogId');
+import { ProductForm } from '@/components/wabasimplify/product-form';
+import {
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+} from '@/components/zoruui';
 
-    return (
-        <div className="space-y-6">
-            <div>
-                <Button variant="ghost" asChild className="-ml-4">
-                    <Link href={`/wachat/catalog/${catalogId}`}>
-                        <ArrowLeft className="mr-2 h-4 w-4" /> Back to Products
-                    </Link>
-                </Button>
-                <h1 className="text-3xl font-bold font-headline mt-2">Add New Product</h1>
-                <p className="text-muted-foreground">Fill in the details to add a new product to your catalog.</p>
-            </div>
-            <ProductForm />
-        </div>
-    );
+export default function NewProductPage() {
+  const searchParams = useSearchParams();
+  const catalogId = searchParams.get('catalogId');
+  const backHref = catalogId ? `/wachat/catalog/${catalogId}` : '/wachat/catalog';
+
+  return (
+    <div className="space-y-6">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href={backHref}>Catalog</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>New product</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
+
+      <ZoruPageHeader>
+        <ZoruPageHeading>
+          <ZoruPageTitle>Add new product</ZoruPageTitle>
+          <ZoruPageDescription>
+            Fill in the details to add a new product to your catalog.
+          </ZoruPageDescription>
+        </ZoruPageHeading>
+      </ZoruPageHeader>
+
+      <ZoruButton variant="ghost" size="sm" asChild className="-ml-2">
+        <Link href={backHref}>
+          <ArrowLeft className="mr-1 h-4 w-4" /> Back to products
+        </Link>
+      </ZoruButton>
+
+      <ProductForm />
+    </div>
+  );
 }

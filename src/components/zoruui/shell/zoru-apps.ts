@@ -47,7 +47,7 @@ export const ZORU_APPS: ZoruAppDescriptor[] = [
     name: "WaChat",
     href: "/wachat",
     Icon: Smartphone,
-    migration: "done",
+    migration: "done", // 95/95 pages on ZoruUI
     isActive: (p) => p === "/wachat" || !!p?.startsWith("/wachat/"),
   },
   {

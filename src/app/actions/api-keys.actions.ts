@@ -2,14 +2,10 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { ObjectId, WithId } from 'mongodb';
-import { nanoid } from 'nanoid';
-import { connectToDatabase } from '@/lib/mongodb';
+import type { ObjectId, WithId } from 'mongodb';
 import { getSession } from '@/app/actions/user.actions';
-import { ApiKey, User } from '@/lib/definitions';
-import { hashPassword, comparePassword } from '@/lib/auth';
-
-const API_KEY_PREFIX = 'sn_';
+import type { ApiKey, User } from '@/lib/definitions';
+import { rustClient, RustApiError } from '@/lib/rust-client';
 
 export async function generateApiKey(name: string): Promise<{ success: boolean, apiKey?: string, error?: string }> {
   const session = await getSession();
@@ -18,31 +14,14 @@ export async function generateApiKey(name: string): Promise<{ success: boolean, 
   if (!name) return { success: false, error: 'API key name is required.' };
 
   try {
-    const { db } = await connectToDatabase();
-
-    const plainTextKey = `${API_KEY_PREFIX}${nanoid(32)}`;
-    const hashedKey = await hashPassword(plainTextKey);
-
-    const newApiKey: ApiKey = {
-      _id: new ObjectId(),
-      name,
-      key: hashedKey,
-      requestCount: 0,
-      createdAt: new Date(),
-      revoked: false,
-    };
-
-    await db.collection('users').updateOne(
-      { _id: new ObjectId(session.user._id) },
-      { $push: { apiKeys: newApiKey } } as any
-    );
-
+    const result = await rustClient.wachatApiKeysAdmin.generate({ name });
     revalidatePath('/dashboard/api');
-
     // Return the plain text key to the user ONCE.
-    return { success: true, apiKey: plainTextKey };
-
-  } catch (e: any) {
+    return { success: true, apiKey: result.apiKey };
+  } catch (e) {
+    if (e instanceof RustApiError) {
+      return { success: false, error: e.message || 'Failed to generate API key.' };
+    }
     return { success: false, error: 'Failed to generate API key.' };
   }
 }
@@ -52,17 +31,20 @@ export async function getApiKeysForUser(): Promise<Omit<ApiKey, 'key'>[]> {
   if (!session?.user) return [];
 
   try {
-    const { db } = await connectToDatabase();
-    const user = await db.collection<User>('users').findOne({ _id: new ObjectId(session.user._id) });
-
-    if (!user || !user.apiKeys) {
-      return [];
-    }
-
-    // Never expose the hashed key to the client
-    return JSON.parse(JSON.stringify(user.apiKeys.map(({ key, ...rest }) => rest)));
-
-  } catch (e) {
+    const summaries = await rustClient.wachatApiKeysAdmin.list();
+    // Map Rust DTO ({ id, lastUsedAt, ... }) onto the legacy `ApiKey`-minus-`key`
+    // shape the dashboard reads (`_id`, `lastUsed`, `createdAt`). Callers only
+    // ever do `.toString()` on `_id`, which is identity for strings, so we can
+    // safely cast the Rust string id to `ObjectId` at the type level.
+    return summaries.map((s) => ({
+      _id: s._id as unknown as ObjectId,
+      name: s.name,
+      revoked: s.revoked,
+      requestCount: s.requestCount,
+      createdAt: new Date(s.createdAt),
+      lastUsed: s.lastUsedAt ? new Date(s.lastUsedAt) : undefined,
+    }));
+  } catch {
     return [];
   }
 }
@@ -71,52 +53,37 @@ export async function revokeApiKey(keyId: string): Promise<{ success: boolean, e
   const session = await getSession();
   if (!session?.user) return { success: false, error: 'Authentication required.' };
 
-  if (!ObjectId.isValid(keyId)) return { success: false, error: 'Invalid key ID.' };
+  if (!keyId) return { success: false, error: 'Invalid key ID.' };
 
   try {
-    const { db } = await connectToDatabase();
-    const result = await db.collection('users').updateOne(
-      { _id: new ObjectId(session.user._id), 'apiKeys._id': new ObjectId(keyId) },
-      { $set: { 'apiKeys.$.revoked': true } }
-    );
-
-    if (result.matchedCount === 0) {
+    const result = await rustClient.wachatApiKeysAdmin.revoke(keyId);
+    if (!result.success) {
       return { success: false, error: 'API key not found or you do not have permission.' };
     }
-
     revalidatePath('/dashboard/api');
     return { success: true };
-
-  } catch (e: any) {
+  } catch (e) {
+    if (e instanceof RustApiError) {
+      if (e.status === 404) {
+        return { success: false, error: 'API key not found or you do not have permission.' };
+      }
+      return { success: false, error: e.message || 'Failed to revoke API key.' };
+    }
     return { success: false, error: 'Failed to revoke API key.' };
   }
 }
 
-export async function authenticateApiKey(apiKey: string): Promise<{ success: boolean; user?: WithId<User> }> {
-  if (!apiKey.startsWith(API_KEY_PREFIX)) {
-    return { success: false };
-  }
-
-  try {
-    const { db } = await connectToDatabase();
-    const users = await db.collection<User>('users').find({ 'apiKeys.revoked': false }).toArray();
-
-    for (const user of users) {
-      for (const storedKey of user.apiKeys || []) {
-        if (!storedKey.revoked && await comparePassword(apiKey, storedKey.key)) {
-          // It's a match, update usage stats
-          await db.collection('users').updateOne(
-            { _id: user._id, 'apiKeys._id': storedKey._id },
-            { $set: { 'apiKeys.$.lastUsed': new Date() }, $inc: { 'apiKeys.$.requestCount': 1 } }
-          );
-          return { success: true, user: JSON.parse(JSON.stringify(user)) };
-        }
-      }
-    }
-
-    return { success: false };
-  } catch (error) {
-    console.error('API key authentication error:', error);
-    return { success: false };
-  }
+/**
+ * @deprecated Inbound API-key verification has moved to the Rust
+ * `wachat-public-api` crate, which hashes with SHA-256 (byte-compatible with
+ * the admin generator) and gates calls server-side. The legacy Next.js
+ * `/api/v1/*` route handlers that import this should be migrated to either
+ * proxy through `wachat-public-api` or be deleted entirely.
+ *
+ * This stub exists only to keep those route handlers compiling during the
+ * migration window — it always returns `{ success: false }`, so any route
+ * still pointed at it will respond 401 until it is rewritten.
+ */
+export async function authenticateApiKey(_apiKey: string): Promise<{ success: boolean; user?: WithId<User> }> {
+  return { success: false };
 }
