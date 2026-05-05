@@ -539,7 +539,7 @@ export default function BroadcastPage() {
                 </ZoruDropdownMenuItem>
                 <ZoruDropdownMenuSeparator />
                 <ZoruDropdownMenuItem
-                  onSelect={() => router.push('/dashboard/analytics')}
+                  onSelect={() => router.push('/wachat/analytics')}
                 >
                   <ArrowUpRight /> Open analytics
                 </ZoruDropdownMenuItem>

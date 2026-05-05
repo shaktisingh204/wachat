@@ -131,7 +131,7 @@ export default function FlowBuilderListPage() {
           size="md"
           className="px-5"
           leading={<LuCirclePlus className="h-3.5 w-3.5" strokeWidth={2.5} />}
-          onClick={() => router.push('/dashboard/flow-builder/new')}
+          onClick={() => router.push('/wachat/flow-builder/new')}
           disabled={!activeProjectId}
         >
           Create new flow
@@ -262,7 +262,7 @@ export default function FlowBuilderListPage() {
                     leading={
                       <LuCirclePlus className="h-3.5 w-3.5" strokeWidth={2.5} />
                     }
-                    onClick={() => router.push('/dashboard/flow-builder/new')}
+                    onClick={() => router.push('/wachat/flow-builder/new')}
                     className="mt-2"
                   >
                     Create your first flow
@@ -300,7 +300,7 @@ export default function FlowBuilderListPage() {
                       >
                         <td className="px-4 py-3">
                           <Link
-                            href={`/dashboard/flow-builder/${flow._id.toString()}`}
+                            href={`/wachat/flow-builder/${flow._id.toString()}`}
                             className="font-medium text-foreground hover:text-primary transition-colors"
                           >
                             {flow.name}
@@ -363,7 +363,7 @@ export default function FlowBuilderListPage() {
                               <DropdownMenuSeparator />
                               <DropdownMenuItem asChild>
                                 <Link
-                                  href={`/dashboard/flow-builder/${flow._id.toString()}`}
+                                  href={`/wachat/flow-builder/${flow._id.toString()}`}
                                 >
                                   <LuPencil className="mr-2 h-4 w-4" />
                                   Edit flow

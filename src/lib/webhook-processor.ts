@@ -1581,7 +1581,7 @@ export async function processSingleWebhook(db: Db, project: WithId<Project>, pay
                     await db.collection('projects').updateOne({ _id: project._id }, { $set: { violationType: value.violation_info.violation_type, violationTimestamp: new Date() } });
                 } else if (value.event === 'ACCOUNT_RESTRICTION') {
                     message = `Account restricted: ${value.restriction_info?.restriction_type || 'Unknown'}. Please review your account.`;
-                    link = '/dashboard/health';
+                    link = '/wachat/health';
                     await db.collection('projects').updateOne({ _id: project._id }, { $set: { restrictionType: value.restriction_info?.restriction_type, restrictionTimestamp: new Date() } });
                 } else if (value.review_status) {
                     message = `Business account review status: ${value.review_status?.toUpperCase() || 'N/A'}`;
@@ -1591,7 +1591,7 @@ export async function processSingleWebhook(db: Db, project: WithId<Project>, pay
 
             case 'account_alerts':
                 message = `Account alert: ${value.alert_type || value.event || 'Unknown alert'}`;
-                link = '/dashboard/health';
+                link = '/wachat/health';
                 break;
 
             // ── Phone Number Events ──
@@ -1679,13 +1679,13 @@ export async function processSingleWebhook(db: Db, project: WithId<Project>, pay
             // ── Security Events ──
             case 'security':
                 message = `Security event: Two-step verification PIN was ${value.event || 'changed'} for phone number ${value.display_phone_number || 'N/A'}.`;
-                link = '/dashboard/health';
+                link = '/wachat/health';
                 break;
 
             // ── Flows Events ──
             case 'flows':
                 message = `WhatsApp Flow '${value.flow_name || value.flow_id || 'Unknown'}' status changed to ${value.event || value.status || 'updated'}.`;
-                link = '/dashboard/flows';
+                link = '/wachat/flows';
                 if (value.flow_id && value.status) {
                     await db.collection('meta_flows').updateOne(
                         { metaId: value.flow_id, projectId: project._id },
@@ -1697,7 +1697,7 @@ export async function processSingleWebhook(db: Db, project: WithId<Project>, pay
             // ── Business Capability Events ──
             case 'business_capability_update':
                 message = `Business capability updated: ${value.capability || 'Unknown'} is now ${value.status || 'changed'}.`;
-                link = '/dashboard/health';
+                link = '/wachat/health';
                 if (value.capability) {
                     await db.collection('projects').updateOne(
                         { _id: project._id },

@@ -58,25 +58,25 @@ export const wachatMenuItems: MenuItem[] = [
     { href: '/wachat/broadcasts', label: 'Campaigns', icon: Send, roles: ['owner', 'admin'], permissionKey: 'wachat_campaigns' },
     { href: '/wachat/templates', label: 'Templates', icon: BookCopy, roles: ['owner', 'admin'], permissionKey: 'wachat_templates' },
     // Automate
-    { href: '/dashboard/flow-builder', label: 'Flow Builder', icon: GitFork, roles: ['owner', 'admin'], permissionKey: 'wachat_flow_builder' },
-    { href: '/dashboard/flows', label: 'Meta Flows', beta: true, icon: Settings, roles: ['owner', 'admin'], permissionKey: 'wachat_flows' },
+    { href: '/wachat/flow-builder', label: 'Flow Builder', icon: GitFork, roles: ['owner', 'admin'], permissionKey: 'wachat_flow_builder' },
+    { href: '/wachat/flows', label: 'Meta Flows', beta: true, icon: Settings, roles: ['owner', 'admin'], permissionKey: 'wachat_flows' },
     { href: '/wachat/auto-reply', label: 'Auto Reply', icon: MessageSquare, roles: ['owner', 'admin'], permissionKey: 'wachat_auto_reply' },
     { href: '/wachat/automation', label: 'Conversational AI', icon: Bot, roles: ['owner', 'admin'], permissionKey: 'wachat_automation' },
     // Grow
-    { href: '/dashboard/catalog', label: 'Catalog', icon: ShoppingBag, roles: ['owner', 'admin'], permissionKey: 'wachat_catalog' },
+    { href: '/wachat/catalog', label: 'Catalog', icon: ShoppingBag, roles: ['owner', 'admin'], permissionKey: 'wachat_catalog' },
     { href: '/wachat/whatsapp-pay', label: 'WhatsApp Pay', icon: CreditCard, roles: ['owner', 'admin'], permissionKey: 'wachat_whatsapp_pay' },
     { href: '/wachat/qr-codes', label: 'QR Codes', icon: QrCode, roles: ['owner', 'admin'], permissionKey: 'wachat_qr_codes' },
-    { href: '/dashboard/analytics', label: 'Analytics', icon: BarChart, roles: ['owner', 'admin'], permissionKey: 'wachat_analytics' },
+    { href: '/wachat/analytics', label: 'Analytics', icon: BarChart, roles: ['owner', 'admin'], permissionKey: 'wachat_analytics' },
     // Configure
     { href: '/wachat/numbers', label: 'Numbers', icon: Phone, roles: ['owner', 'admin'], permissionKey: 'wachat_numbers' },
     { href: '/wachat/calls', label: 'Calls', icon: Phone, roles: ['owner', 'admin'], permissionKey: 'wachat_calls' },
-    { href: '/dashboard/health', label: 'Account Health', icon: Activity, roles: ['owner', 'admin'], permissionKey: 'wachat_health' },
-    { href: '/dashboard/integrations', label: 'Integrations', icon: Bolt, roles: ['owner', 'admin'], permissionKey: 'wachat_integrations' },
+    { href: '/wachat/health', label: 'Account Health', icon: Activity, roles: ['owner', 'admin'], permissionKey: 'wachat_health' },
+    { href: '/wachat/integrations', label: 'Integrations', icon: Bolt, roles: ['owner', 'admin'], permissionKey: 'wachat_integrations' },
     { href: '/wachat/webhooks', label: 'Webhooks', icon: Webhook, roles: ['owner', 'admin'], permissionKey: 'wachat_webhooks' },
-    { href: '/dashboard/settings/general', label: 'General Settings', icon: Settings, roles: ['owner', 'admin'], permissionKey: 'wachat_settings' },
-    { href: '/dashboard/settings/agents', label: 'Agents & Roles', icon: Users, roles: ['owner', 'admin'], permissionKey: 'wachat_settings' },
-    { href: '/dashboard/settings/attributes', label: 'User Attributes', icon: Key, roles: ['owner', 'admin'], permissionKey: 'wachat_settings' },
-    { href: '/dashboard/settings/canned', label: 'Canned Messages', icon: BookCopy, roles: ['owner', 'admin'], permissionKey: 'wachat_settings' },
+    { href: '/wachat/settings/general', label: 'General Settings', icon: Settings, roles: ['owner', 'admin'], permissionKey: 'wachat_settings' },
+    { href: '/wachat/settings/agents', label: 'Agents & Roles', icon: Users, roles: ['owner', 'admin'], permissionKey: 'wachat_settings' },
+    { href: '/wachat/settings/attributes', label: 'User Attributes', icon: Key, roles: ['owner', 'admin'], permissionKey: 'wachat_settings' },
+    { href: '/wachat/settings/canned', label: 'Canned Messages', icon: BookCopy, roles: ['owner', 'admin'], permissionKey: 'wachat_settings' },
 ];
 
 export const crmMenuGroups: MenuGroup[] = [

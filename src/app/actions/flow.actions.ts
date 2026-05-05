@@ -75,14 +75,14 @@ export async function saveFlow(data: {
         const { db } = await connectToDatabase();
         if (isNew) {
             const result = await db.collection('flows').insertOne({ ...flowData, createdAt: new Date() } as any);
-            revalidatePath('/dashboard/flow-builder');
+            revalidatePath('/wachat/flow-builder');
             return { message: 'Flow created successfully.', flowId: result.insertedId.toString() };
         } else {
             await db.collection('flows').updateOne(
                 { _id: new ObjectId(flowId), projectId: new ObjectId(projectId) },
                 { $set: flowData }
             );
-            revalidatePath('/dashboard/flow-builder');
+            revalidatePath('/wachat/flow-builder');
             return { message: 'Flow updated successfully.', flowId };
         }
     } catch (e: any) {
@@ -109,7 +109,7 @@ export async function deleteFlow(flowId: string): Promise<{ message?: string; er
         );
 
         await db.collection('flows').deleteOne({ _id: new ObjectId(flowId) });
-        revalidatePath('/dashboard/flow-builder');
+        revalidatePath('/wachat/flow-builder');
         return { message: 'Flow deleted.' };
     } catch (e) {
         return { error: 'Failed to delete flow.' };

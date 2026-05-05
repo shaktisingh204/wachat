@@ -578,7 +578,7 @@ export function FlowBuilder() {
                     </div>
                     <div className="flex items-center gap-2">
                         <Button variant="outline" size="sm" onClick={() => setIsTestDialogOpen(true)} disabled={isLoading}><Play className="mr-2 h-4 w-4"/>Test</Button>
-                        <Button variant="outline" size="sm" asChild><Link href="/dashboard/flow-builder/docs"><BookOpen className="mr-2 h-4 w-4"/>Docs</Link></Button>
+                        <Button variant="outline" size="sm" asChild><Link href="/wachat/flow-builder/docs"><BookOpen className="mr-2 h-4 w-4"/>Docs</Link></Button>
                         <Button onClick={handleSaveFlow} disabled={isSaving}>
                             {isSaving ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4"/>}
                             Save

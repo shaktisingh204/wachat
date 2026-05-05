@@ -15,7 +15,7 @@ export default function NewProductPage() {
         <div className="space-y-6">
             <div>
                 <Button variant="ghost" asChild className="-ml-4">
-                    <Link href={`/dashboard/catalog/${catalogId}`}>
+                    <Link href={`/wachat/catalog/${catalogId}`}>
                         <ArrowLeft className="mr-2 h-4 w-4" /> Back to Products
                     </Link>
                 </Button>

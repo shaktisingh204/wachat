@@ -195,7 +195,7 @@ function FlowBuilder({ flowId }: { flowId: string }) {
             description: 'Flow not found',
             variant: 'destructive',
           });
-          router.push('/dashboard/flow-builder');
+          router.push('/wachat/flow-builder');
           return;
         }
         setCurrentFlow(flow);
@@ -306,7 +306,7 @@ function FlowBuilder({ flowId }: { flowId: string }) {
         ) {
           setCurrentFlow({ _id: result.flowId, name: flowName });
           if (flowId === 'new') {
-            router.replace(`/dashboard/flow-builder/${result.flowId}`);
+            router.replace(`/wachat/flow-builder/${result.flowId}`);
           }
         }
       }
@@ -373,7 +373,7 @@ function FlowBuilder({ flowId }: { flowId: string }) {
       <header className="flex h-[64px] shrink-0 items-center justify-between gap-4 border-b border-border bg-card/80 px-5 backdrop-blur">
         <div className="flex min-w-0 items-center gap-3">
           <Link
-            href="/dashboard/flow-builder"
+            href="/wachat/flow-builder"
             className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-2.5 py-1.5 text-[11.5px] font-medium text-muted-foreground hover:text-foreground hover:border-border transition-colors"
           >
             <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
@@ -416,7 +416,7 @@ function FlowBuilder({ flowId }: { flowId: string }) {
             size="sm"
             leading={<LuBookOpen className="h-3.5 w-3.5" strokeWidth={2} />}
             onClick={() =>
-              window.open('/dashboard/flow-builder/docs', '_blank')
+              window.open('/wachat/flow-builder/docs', '_blank')
             }
           >
             Docs

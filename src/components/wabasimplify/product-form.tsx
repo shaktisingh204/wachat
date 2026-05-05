@@ -61,7 +61,7 @@ export function ProductForm({ product }: ProductFormProps) {
     useEffect(() => {
         if (state.message) {
             toast({ title: 'Success!', description: state.message });
-            router.push(`/dashboard/catalog/${catalogId}`);
+            router.push(`/wachat/catalog/${catalogId}`);
             router.refresh();
         }
         if (state.error) {

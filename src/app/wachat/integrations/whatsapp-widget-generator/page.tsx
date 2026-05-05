@@ -78,7 +78,7 @@ export default function WhatsappWidgetGeneratorPage() {
         items={[
           { label: 'SabNode', href: '/dashboard' },
           { label: 'Wachat', href: '/wachat' },
-          { label: 'Integrations', href: '/dashboard/integrations' },
+          { label: 'Integrations', href: '/wachat/integrations' },
           { label: 'Widget Generator' },
         ]}
       />

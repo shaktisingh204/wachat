@@ -95,7 +95,7 @@ export default function FlowBuilderDocsPage() {
         <div className="flex flex-col gap-8">
             <div>
                 <Button variant="ghost" asChild className="mb-4 -ml-4">
-                    <Link href="/dashboard/flow-builder">
+                    <Link href="/wachat/flow-builder">
                         <ChevronLeft className="mr-2 h-4 w-4" />
                         Back to Flow Builder
                     </Link>

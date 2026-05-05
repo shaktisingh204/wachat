@@ -128,7 +128,7 @@ function CreateMetaFlowPageContent() {
     // Resolve the active project. Prefer the shared ProjectContext (kept
     // in sync across tabs), fall back to localStorage, and finally adopt
     // the project id baked into the loaded flow so deep-linking to
-    // /dashboard/flows/create?flowId=... works even without context.
+    // /wachat/flows/create?flowId=... works even without context.
     useEffect(() => {
         const stored = typeof window !== 'undefined' ? localStorage.getItem('activeProjectId') : null;
         const pid = activeProjectId || stored || null;
@@ -144,7 +144,7 @@ function CreateMetaFlowPageContent() {
                 const fetched = await getMetaFlowById(flowIdParam);
                 if (!fetched) {
                     toast({ title: 'Error', description: 'Could not load flow.', variant: 'destructive' });
-                    router.push('/dashboard/flows');
+                    router.push('/wachat/flows');
                     return;
                 }
                 setFlowName(fetched.name);
@@ -223,12 +223,12 @@ function CreateMetaFlowPageContent() {
                     if (saved.error && !handleEncryptionError(saved.error)) {
                         toast({ title: 'Flow created, but JSON upload failed', description: saved.error, variant: 'destructive' });
                     }
-                    router.replace(`/dashboard/flows/create?flowId=${created.flowId}`);
+                    router.replace(`/wachat/flows/create?flowId=${created.flowId}`);
                     return created.flowId;
                 }
 
                 toast({ title: 'Draft created', description: created.message });
-                router.replace(`/dashboard/flows/create?flowId=${created.flowId}`);
+                router.replace(`/wachat/flows/create?flowId=${created.flowId}`);
                 return created.flowId;
             }
 
@@ -358,7 +358,7 @@ function CreateMetaFlowPageContent() {
                     <div className="flex items-center justify-between gap-3 p-3">
                         <div className="flex min-w-0 items-center gap-4">
                             <Button variant="ghost" size="sm" asChild>
-                                <Link href="/dashboard/flows">
+                                <Link href="/wachat/flows">
                                     <ChevronLeft className="mr-2 h-4 w-4" /> Back
                                 </Link>
                             </Button>

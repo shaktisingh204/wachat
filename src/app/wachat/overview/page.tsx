@@ -269,7 +269,7 @@ export default function OverviewPage() {
               <DropdownMenuSeparator />
               <DropdownMenuItem onSelect={handleRefresh}>Refresh now</DropdownMenuItem>
               <DropdownMenuItem
-                onSelect={() => router.push('/dashboard/analytics')}
+                onSelect={() => router.push('/wachat/analytics')}
               >
                 Open analytics
               </DropdownMenuItem>
@@ -419,7 +419,7 @@ export default function OverviewPage() {
           />
           <button
             type="button"
-            onClick={() => router.push('/dashboard/integrations')}
+            onClick={() => router.push('/wachat/integrations')}
             className="mt-1.5 flex items-center justify-between px-2 text-[11.5px] text-muted-foreground hover:text-foreground transition-colors"
           >
             <span>Connect an integration</span>

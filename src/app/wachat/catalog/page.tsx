@@ -80,7 +80,7 @@ function WACatalogCard({
 
       <div className="mt-auto pt-5">
         <Link
-          href={`/dashboard/catalog/${catalog.metaCatalogId}`}
+          href={`/wachat/catalog/${catalog.metaCatalogId}`}
           className="block"
         >
           <ClayButton
