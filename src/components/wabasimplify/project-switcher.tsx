@@ -1,7 +1,6 @@
 
 'use client';
 
-import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import {
   DropdownMenu,
@@ -12,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Briefcase, Check, ChevronsUpDown } from 'lucide-react';
 import type { WithId, Project } from '@/lib/definitions';
 import { useProject } from '@/context/project-context';
