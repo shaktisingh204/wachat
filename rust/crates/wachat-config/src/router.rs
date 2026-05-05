@@ -19,7 +19,7 @@ use wachat_types::Project;
 use crate::{
     phone, project, qr, register,
     state::WachatConfigState,
-    webhook,
+    webhook, widget,
 };
 
 const PROJECTS_COLL: &str = "projects";
@@ -56,6 +56,7 @@ where
     Router::new()
         .route("/projects/{id}/public", get(get_public))
         .route("/projects/manual-setup", post(manual_setup))
+        .route("/projects/by-waba/{waba_id}", get(get_project_by_waba))
         .route("/projects/{id}/phone-numbers/sync", post(sync_phone_numbers))
         .route(
             "/projects/{id}/phone-numbers/{pnid}/profile",
@@ -95,6 +96,10 @@ where
             "/projects/{id}/phone-numbers/{pnid}/qr-codes/{code}",
             post(update_qr_code).delete(delete_qr_code),
         )
+        .route(
+            "/projects/{id}/widget-settings",
+            post(save_widget_settings),
+        )
 }
 
 async fn get_public(
@@ -115,6 +120,24 @@ async fn manual_setup(
     let user_oid = oid_from_str(&user.user_id)?;
     let p = project::manual_setup(&s.mongo, &user_oid, body).await?;
     Ok(Json(serde_json::to_value(p).unwrap_or(Value::Null)))
+}
+
+/// `GET /projects/by-waba/{waba_id}` — look up the caller's project for a
+/// given WABA id. Replaces the residual `db.collection('projects')
+/// .findOne({ wabaId })` lookups in the legacy
+/// `getWebhookSubscriptionStatus` and `handleSubscribeProjectWebhook`
+/// server actions: those need the projectId to call the existing
+/// project-scoped webhook routes.
+async fn get_project_by_waba(
+    user: AuthUser,
+    State(s): State<WachatConfigState>,
+    Path(waba_id): Path<String>,
+) -> Result<Json<project::ProjectByWabaResponse>> {
+    let user_oid = oid_from_str(&user.user_id)?;
+    let lookup = project::find_id_by_waba(&s.mongo, &user_oid, &waba_id)
+        .await?
+        .ok_or_else(|| ApiError::NotFound(format!("project for waba {waba_id}")))?;
+    Ok(Json(lookup))
 }
 
 async fn sync_phone_numbers(
@@ -264,4 +287,15 @@ async fn delete_qr_code(
     let p = load_project_for(&user, &s.mongo, &id).await?;
     qr::delete(&s.meta, &p, &pnid, &code).await?;
     Ok(Json(serde_json::json!({"ok": true})))
+}
+
+async fn save_widget_settings(
+    user: AuthUser,
+    State(s): State<WachatConfigState>,
+    Path(id): Path<String>,
+    Json(body): Json<widget::WidgetSettings>,
+) -> Result<Json<Value>> {
+    let p = load_project_for(&user, &s.mongo, &id).await?;
+    widget::save(&s.mongo, &p.id, &body).await?;
+    Ok(Json(serde_json::json!({"success": true})))
 }

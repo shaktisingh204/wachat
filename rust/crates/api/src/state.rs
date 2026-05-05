@@ -26,6 +26,9 @@ use wachat_calling::WachatCallingState;
 use wachat_config::WachatConfigState;
 use wachat_features::WachatFeaturesState;
 use wachat_pay::WachatPayState;
+use wachat_api_keys_admin::WachatApiKeysAdminState;
+use wachat_contacts::WachatContactsState;
+use wachat_flows::WachatFlowsState;
 use wachat_projects::WachatProjectsState;
 use wachat_public_api::{ApiKeyVerifier, PublicApiState};
 use wachat_send_router::WachatSendState;
@@ -61,6 +64,9 @@ pub struct AppState {
     pub public_api: PublicApiState,
     pub api_key_verifier: Arc<ApiKeyVerifier>,
     pub projects: WachatProjectsState,
+    pub contacts: WachatContactsState,
+    pub flows: WachatFlowsState,
+    pub api_keys_admin: WachatApiKeysAdminState,
     pub ready: Arc<AtomicBool>,
 }
 
@@ -90,6 +96,9 @@ impl AppState {
         public_api: PublicApiState,
         api_key_verifier: Arc<ApiKeyVerifier>,
         projects: WachatProjectsState,
+        contacts: WachatContactsState,
+        flows: WachatFlowsState,
+        api_keys_admin: WachatApiKeysAdminState,
     ) -> Self {
         Self {
             started_at: Utc::now(),
@@ -116,6 +125,9 @@ impl AppState {
             public_api,
             api_key_verifier,
             projects,
+            contacts,
+            flows,
+            api_keys_admin,
             ready: Arc::new(AtomicBool::new(false)),
         }
     }
@@ -264,5 +276,23 @@ impl FromRef<AppState> for Arc<ApiKeyVerifier> {
 impl FromRef<AppState> for WachatProjectsState {
     fn from_ref(s: &AppState) -> Self {
         s.projects.clone()
+    }
+}
+
+impl FromRef<AppState> for WachatContactsState {
+    fn from_ref(s: &AppState) -> Self {
+        s.contacts.clone()
+    }
+}
+
+impl FromRef<AppState> for WachatFlowsState {
+    fn from_ref(s: &AppState) -> Self {
+        s.flows.clone()
+    }
+}
+
+impl FromRef<AppState> for WachatApiKeysAdminState {
+    fn from_ref(s: &AppState) -> Self {
+        s.api_keys_admin.clone()
     }
 }

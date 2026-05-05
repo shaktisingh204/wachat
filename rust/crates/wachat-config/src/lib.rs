@@ -8,6 +8,7 @@ pub mod phone;
 pub mod webhook;
 pub mod register;
 pub mod qr;
+pub mod widget;
 pub mod router;
 pub mod state;
 

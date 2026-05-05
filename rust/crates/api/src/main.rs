@@ -27,6 +27,9 @@ use wachat_calling::WachatCallingState;
 use wachat_chat_mark::ChatMarker;
 use wachat_config::WachatConfigState;
 use wachat_features::WachatFeaturesState;
+use wachat_api_keys_admin::WachatApiKeysAdminState;
+use wachat_contacts::WachatContactsState;
+use wachat_flows::WachatFlowsState;
 use wachat_pay::WachatPayState;
 use wachat_projects::WachatProjectsState;
 use wachat_public_api::{ApiKeyVerifier, PublicApiState};
@@ -222,6 +225,18 @@ async fn run() -> anyhow::Result<()> {
     // `getProjectById()` server actions in the Next.js layouts.
     let projects = WachatProjectsState::new(mongo.clone());
 
+    // Contact CRUD — replaces the Mongo work in `contact.actions.ts`.
+    let contacts = WachatContactsState::new(mongo.clone());
+
+    // SabNode wachat-specific flows — replaces `flow.actions.ts`.
+    let flows = WachatFlowsState::new(mongo.clone());
+
+    // Admin-side public-API key management (generate / list / revoke).
+    // Writes the same `api_keys` collection that `wachat-public-api`'s
+    // verifier reads on the request path, so admin issues are visible
+    // to the verifier without an extra sync step.
+    let api_keys_admin = WachatApiKeysAdminState::new(mongo.clone());
+
     let state = AppState::new(
         mongo,
         redis,
@@ -246,6 +261,9 @@ async fn run() -> anyhow::Result<()> {
         public_api,
         api_key_verifier,
         projects,
+        contacts,
+        flows,
+        api_keys_admin,
     );
     let app = router::build(state.clone());
 

@@ -1,76 +1,143 @@
-
-
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { verifyAdminJwtEdge, verifyJwtEdge } from './lib/auth.edge';
-import { JWTExpired } from 'jose/errors';
 
 const AUTH_PAGES = ['/login', '/signup', '/forgot-password'];
 const ADMIN_AUTH_PAGE = '/admin-login';
 const DASHBOARD_PREFIX = '/dashboard';
+const WACHAT_PREFIX = '/wachat';
+// Both /dashboard/* and /wachat/* are auth-gated user surfaces. Wachat
+// was relocated out of /dashboard in this iteration; the proxy treats
+// the two prefixes equivalently for session checks. After login,
+// users land on /wachat — that's the new default landing route.
+const PROTECTED_PREFIXES = [DASHBOARD_PREFIX, WACHAT_PREFIX] as const;
+const POST_LOGIN_LANDING = WACHAT_PREFIX;
 const ADMIN_DASHBOARD_PREFIX = '/admin/dashboard';
 const PENDING_APPROVAL_PAGE = '/pending-approval';
-const ONBOARDING_PAGE = '/onboarding';
+
+/**
+ * Hosts that are considered "canonical" for the app. Any inbound request
+ * whose `Host` header is NOT in this set is treated as a potential SabFlow
+ * custom domain and rewritten to `/_domain/{host}`.
+ */
+const CANONICAL_HOST_SUFFIXES = [
+  'sabnode.com',
+  'vercel.app',
+  'localhost',
+  '127.0.0.1',
+];
+
+const DOMAIN_ROUTE_BYPASS = [
+  '/api',
+  '/_next',
+  '/_domain',
+  '/static',
+  '/favicon.ico',
+  '/embed.js',
+  '/robots.txt',
+  '/sitemap.xml',
+];
+
+function isCanonicalHost(host: string, appUrl: string | undefined): boolean {
+  const clean = host.toLowerCase().split(':')[0];
+  if (!clean) return true;
+  if (appUrl) {
+    try {
+      const appHost = new URL(appUrl).hostname.toLowerCase();
+      if (clean === appHost) return true;
+    } catch {
+      // ignore malformed appUrl
+    }
+  }
+  return CANONICAL_HOST_SUFFIXES.some(
+    (suffix) => clean === suffix || clean.endsWith(`.${suffix}`),
+  );
+}
+
+/**
+ * Build a same-host redirect target. Critically we redirect using the
+ * INCOMING request's URL — not `process.env.NEXT_PUBLIC_APP_URL` — so a
+ * request to `sabnode.com` never bounces over to `www.sabnode.com`
+ * (or http↔https), which previously caused ERR_TOO_MANY_REDIRECTS:
+ * the session cookie set on host A wasn't visible on host B, so the
+ * proxy concluded "no session" again and redirected forever.
+ */
+function sameHostRedirect(request: NextRequest, pathname: string) {
+  const url = request.nextUrl.clone();
+  url.pathname = pathname;
+  url.search = '';
+  return NextResponse.redirect(url);
+}
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const sessionToken = request.cookies.get('session')?.value;
   const adminSessionToken = request.cookies.get('admin_session')?.value;
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin;
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
 
-  const isAuthPage = AUTH_PAGES.some(page => pathname.startsWith(page));
-  const isAdminAuthPage = pathname.startsWith(ADMIN_AUTH_PAGE);
+  /* ── Custom-domain routing ─────────────────────────────── */
+  const host = request.headers.get('host') ?? '';
+  const isBypass = DOMAIN_ROUTE_BYPASS.some((p) => pathname.startsWith(p));
+  if (host && !isBypass && !isCanonicalHost(host, appUrl)) {
+    const url = request.nextUrl.clone();
+    url.pathname = `/_domain/${encodeURIComponent(host)}${pathname === '/' ? '' : pathname}`;
+    return NextResponse.rewrite(url);
+  }
 
   let isUserSessionValid = false;
+  let isUserSessionExpired = false;
   if (sessionToken) {
     try {
       isUserSessionValid = await verifyJwtEdge(sessionToken);
-    } catch (e) {
-      // Token is invalid or expired
-      isUserSessionValid = false;
+    } catch (error: any) {
+      if (error?.code === 'ERR_JWT_EXPIRED') {
+        isUserSessionExpired = true;
+      }
     }
   }
 
   let isAdminSessionValid = false;
+  let isAdminSessionExpired = false;
   if (adminSessionToken) {
     try {
       isAdminSessionValid = !!(await verifyAdminJwtEdge(adminSessionToken));
-    } catch (e) {
-      isAdminSessionValid = false;
+    } catch (error: any) {
+      if (error?.code === 'ERR_JWT_EXPIRED') {
+        isAdminSessionExpired = true;
+      }
     }
   }
 
-  // Handle redirects for logged-in users trying to access auth pages.
-  // Note: /signup is handled by a page-level redirect to /onboarding so we
-  // don't short-circuit it here — that allows signed-out users to begin the
-  // wizard on the first step.
-  if (isAuthPage && isUserSessionValid) {
-    return NextResponse.redirect(new URL(DASHBOARD_PREFIX, appUrl));
+  const isAuthPage = AUTH_PAGES.some((page) => pathname.startsWith(page));
+  const isAdminAuthPage = pathname.startsWith(ADMIN_AUTH_PAGE);
+  const isProtected = PROTECTED_PREFIXES.some((p) => pathname.startsWith(p));
+  const isAdminDashboard = pathname.startsWith(ADMIN_DASHBOARD_PREFIX);
+  const isPendingPage = pathname.startsWith(PENDING_APPROVAL_PAGE);
+
+  // Admin gate
+  if (isAdminDashboard && !isAdminSessionValid) {
+    const response = sameHostRedirect(request, ADMIN_AUTH_PAGE);
+    if (isAdminSessionExpired || adminSessionToken) {
+      response.cookies.delete('admin_session');
+    }
+    return response;
   }
+
   if (isAdminAuthPage && isAdminSessionValid) {
-    return NextResponse.redirect(new URL(ADMIN_DASHBOARD_PREFIX, appUrl));
+    return sameHostRedirect(request, ADMIN_DASHBOARD_PREFIX);
   }
 
-  // Onboarding is reachable by anyone: signed-out users start at the
-  // account step and become authenticated partway through the wizard.
-  // We intentionally do NOT gate /onboarding on sessionValid here.
-
-  // Handle redirects for protected pages for logged-out users
-  if (pathname.startsWith(DASHBOARD_PREFIX) && !isUserSessionValid) {
-    const response = NextResponse.redirect(new URL('/login', appUrl));
-    if (sessionToken) response.cookies.delete('session'); // Clear invalid/expired cookie
-    return response;
-  }
-  if (pathname.startsWith(ADMIN_DASHBOARD_PREFIX) && !isAdminSessionValid) {
-    const response = NextResponse.redirect(new URL(ADMIN_AUTH_PAGE, appUrl));
-    if (adminSessionToken) response.cookies.delete('admin_session'); // Clear invalid/expired cookie
+  // User gate
+  if ((isProtected || isPendingPage) && !isUserSessionValid) {
+    const response = sameHostRedirect(request, '/login');
+    if (isUserSessionExpired || sessionToken) {
+      response.cookies.delete('session');
+    }
     return response;
   }
 
-  if (pathname.startsWith(PENDING_APPROVAL_PAGE) && !isUserSessionValid) {
-    const response = NextResponse.redirect(new URL('/login', appUrl));
-    if (sessionToken) response.cookies.delete('session');
-    return response;
+  if (isAuthPage && isUserSessionValid) {
+    return sameHostRedirect(request, POST_LOGIN_LANDING);
   }
 
   const requestHeaders = new Headers(request.headers);
@@ -86,13 +153,12 @@ export async function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     '/dashboard/:path*',
+    '/wachat/:path*',
     '/admin/dashboard/:path*',
     '/login',
     '/signup',
-    '/onboarding',
-    '/onboarding/:path*',
     '/forgot-password',
     '/admin-login',
-    '/pending-approval'
+    '/pending-approval',
   ],
 };
