@@ -16,8 +16,7 @@ import "@/styles/zoruui.css";
 import React from "react";
 import { redirect } from "next/navigation";
 
-import { getSession } from "@/app/actions/user.actions";
-import { getProjects } from "@/app/actions/project.actions";
+import { getCachedSession, getCachedProjects } from "@/lib/server-cache";
 import { RBACGuard } from "@/components/wabasimplify/rbac-guard";
 import { ZoruHomeShell } from "@/components/zoruui";
 import { ProjectProvider } from "@/context/project-context";
@@ -27,7 +26,7 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getSession();
+  const session = await getCachedSession();
   if (!session?.user) {
     redirect("/login");
   }
@@ -42,7 +41,7 @@ export default async function DashboardLayout({
   // Always fetch projects — both for the onboarding gate AND to seed
   // the ProjectProvider so every /dashboard/* page can call useProject()
   // without crashing.
-  const projects = (await getProjects()) || [];
+  const projects = (await getCachedProjects()) || [];
   if (
     (!onboarding || onboarding.status !== "complete") &&
     projects.length === 0
