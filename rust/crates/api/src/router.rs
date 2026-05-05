@@ -70,6 +70,7 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/wachat/broadcast", wachat_broadcast)
         .nest("/v1/wachat/features", wachat_features)
         .nest("/v1/wachat/analytics", wachat_analytics)
+        .nest("/v1/wachat/public", wachat_public)
         .nest("/v1/wachat", wachat_send)
         .nest("/v1/meta/suite", meta_suite)
         .nest("/v1/meta/token", meta_token)

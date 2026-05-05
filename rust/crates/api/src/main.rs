@@ -28,6 +28,8 @@ use wachat_chat_mark::ChatMarker;
 use wachat_config::WachatConfigState;
 use wachat_features::WachatFeaturesState;
 use wachat_pay::WachatPayState;
+use wachat_public_api::{ApiKeyVerifier, PublicApiState};
+use wachat_rate_limit::TokenBucket;
 use wachat_chat_read::ChatReader;
 use wachat_contacts_resolve::ContactResolver;
 use wachat_media::MediaUploader;
@@ -152,13 +154,15 @@ async fn run() -> anyhow::Result<()> {
     );
 
     // Send/chat/payment stack — Phase 4. Each engine takes the shared
-    // Mongo handle (and MetaClient where it talks to Meta).
+    // Mongo handle (and MetaClient where it talks to Meta). The
+    // `MessageSender` is shared with the public-API router below.
+    let message_sender = Arc::new(MessageSender::new(
+        mongo.clone(),
+        meta.clone(),
+        MediaUploader::new("v23.0"),
+    ));
     let send = WachatSendState {
-        message: Arc::new(MessageSender::new(
-            mongo.clone(),
-            meta.clone(),
-            MediaUploader::new("v23.0"),
-        )),
+        message: message_sender.clone(),
         cta: Arc::new(CtaSender::new(mongo.clone(), meta.clone())),
         flows: Arc::new(FlowSender::new(mongo.clone(), meta.clone())),
         orders: Arc::new(OrdersSender::new(mongo.clone(), meta.clone())),
@@ -203,6 +207,16 @@ async fn run() -> anyhow::Result<()> {
         meta: meta.clone(),
     };
 
+    // Public-API stack — API-key authenticated `/v1/wachat/public/*` routes.
+    // Reuses the shared `MessageSender` so deliveries go through the same
+    // engine as the dashboard. Rate limiting is per-API-key via Redis.
+    let api_key_verifier = Arc::new(ApiKeyVerifier::new(mongo.clone()));
+    let public_api = PublicApiState {
+        message: message_sender,
+        rate_limit: Arc::new(TokenBucket::new(redis.clone())),
+        mongo: mongo.clone(),
+    };
+
     let state = AppState::new(
         mongo,
         redis,
@@ -224,6 +238,8 @@ async fn run() -> anyhow::Result<()> {
         meta_flows,
         qr_codes,
         facebook_flow,
+        public_api,
+        api_key_verifier,
     );
     let app = router::build(state.clone());
 
