@@ -1,0 +1,60 @@
+# Public REST API surface for wachat — the API-key-authenticated endpoints
+# customers (and Meta-side webhooks for partners) hit directly. Mounted at
+# `/v1/wachat/public/*`, separate from the JWT-auth `/v1/wachat/*` surface
+# in `wachat-send-router` so the auth flavor is explicit at the URL level.
+#
+# Ports `src/app/api/v1/messages/route.ts` (the `withApiV1` + `verifyApiKey`
+# pipeline) to Rust. SHA-256 hex hashing matches the TS implementation in
+# `src/lib/api-platform/auth.ts` exactly.
+[package]
+name = "wachat-public-api"
+version = "0.1.0"
+edition = "2024"
+description = "Public REST API surface for wachat (API-key auth). Mounts /v1/wachat/public/messages — port of the Next.js withApiV1 messages route. Reuses wachat-send::MessageSender for Meta-side delivery and wachat-rate-limit::TokenBucket for per-key throttling."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "wachat_public_api"
+path = "src/lib.rs"
+
+[dependencies]
+# Axum HTTP — matches the feature set of sibling routers so the parent api
+# crate compiles with a single resolved feature union.
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+# Serialization stack used across the workspace.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# BSON ObjectId construction for project lookups.
+bson = { version = "2.13", features = ["chrono-0_4"] }
+
+# SHA-256 hashing of API keys — mirrors the TS `createHash('sha256').update(plain).digest('hex')`
+# call in `src/lib/api-platform/auth.ts`. Hex encoding via `hex` crate.
+sha2 = "0.10"
+hex = "0.4"
+
+# Tracing for handler-level spans.
+tracing = "0.1"
+
+# Error plumbing.
+anyhow = "1"
+thiserror = "2"
+async-trait = "0.1"
+
+# Sibling workspace crates.
+sabnode-common = { path = "../common" }
+sabnode-db = { path = "../db" }
+wachat-types = { path = "../wachat-types" }
+wachat-send = { path = "../wachat-send" }
+wachat-rate-limit = { path = "../wachat-rate-limit" }
+
+# Mongo driver — needed to look up the `api_keys` collection and update
+# `lastUsedAt` fire-and-forget. Matches the version used by sibling crates.
+mongodb = "3.2"
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+[lints]
+workspace = true

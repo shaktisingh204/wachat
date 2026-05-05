@@ -41,6 +41,9 @@ tracing = "0.1"
 # Error plumbing — anyhow funnels into `ApiError::Internal`.
 anyhow = "1"
 
+# Bounded-concurrency stream combinators for the cron multi-project sync.
+futures = "0.3"
+
 # Sibling crates — shared error envelope, JWT extractor, Mongo handle, and
 # every engine the handlers delegate to.
 sabnode-common = { path = "../common" }

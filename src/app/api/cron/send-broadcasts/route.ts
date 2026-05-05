@@ -1,86 +1,77 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
-import { connectToDatabase } from '@/lib/mongodb';
-import { enqueueBroadcastControl } from '@/lib/queue/broadcast-queue';
+import { issueRustJwt } from '@/lib/jwt-for-rust';
 
 export const dynamic = 'force-dynamic';
 
 /**
- * Broadcast cron — picks up any broadcasts stuck in PENDING_PROCESSING
- * and re-enqueues them into BullMQ. This is a safety net for cases where
- * the worker was down when the broadcast was created, or BullMQ lost the job.
+ * Broadcast cron — picks up any broadcasts stuck in PENDING_PROCESSING /
+ * QUEUED and re-enqueues them onto the BullMQ `broadcast-control` queue.
  *
- * The BullMQ worker (src/workers/broadcast/index.js) is the primary
- * processor — this cron just ensures nothing gets stuck.
+ * As of Phase 6 the actual sweep (Mongo find + queue push + status
+ * update) lives in Rust at `POST /v1/wachat/broadcast/admin/requeue-stuck`
+ * (see `rust/crates/wachat-broadcast`). This route is a thin proxy:
+ * it mints a system admin JWT and forwards. The BullMQ worker
+ * (`src/workers/broadcast/index.js`) is the primary processor — this
+ * cron just ensures nothing gets stuck.
+ *
+ * Auth note: there is no user session for a cron call, so we mint a
+ * synthetic admin JWT here. `RUST_JWT_SECRET` is the only secret in
+ * play; rotating it locks the cron out, which is the desired property.
  */
-async function processStuckBroadcasts() {
-    const { db } = await connectToDatabase();
 
-    // Find broadcasts stuck in PENDING_PROCESSING for more than 30 seconds
-    const cutoff = new Date(Date.now() - 30_000);
+const SYSTEM_USER_ID = '000000000000000000000000';
+const SYSTEM_TENANT_ID = '000000000000000000000000';
 
-    const stuckBroadcasts = await db.collection('broadcasts').find({
-        status: { $in: ['PENDING_PROCESSING', 'QUEUED'] },
-        $or: [
-            { createdAt: { $lte: cutoff } },
-            { updatedAt: { $exists: false } },
-        ],
-    }).limit(50).toArray();
+async function callRequeueStuck(): Promise<{ status: number; body: any }> {
+    const baseUrl = process.env.RUST_API_URL || 'http://localhost:8080';
+    const token = await issueRustJwt({
+        userId: SYSTEM_USER_ID,
+        tenantId: SYSTEM_TENANT_ID,
+        roles: ['admin'],
+    });
 
-    if (stuckBroadcasts.length === 0) {
-        return { message: 'No stuck broadcasts found.' };
+    const res = await fetch(`${baseUrl}/v1/wachat/broadcast/admin/requeue-stuck`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json',
+        },
+        cache: 'no-store',
+    });
+
+    let body: any = null;
+    try {
+        body = await res.json();
+    } catch {
+        body = { message: `${res.status} ${res.statusText}` };
     }
-
-    let enqueued = 0;
-    const errors: string[] = [];
-    for (const broadcast of stuckBroadcasts) {
-        try {
-            await enqueueBroadcastControl(broadcast._id.toString());
-            // Also update status to ensure worker picks it up
-            await db.collection('broadcasts').updateOne(
-                { _id: broadcast._id },
-                { $set: { status: 'PENDING_PROCESSING', updatedAt: new Date() } }
-            );
-            enqueued++;
-            console.log(`[BCAST-CRON] Re-enqueued broadcast ${broadcast._id}`);
-        } catch (e: any) {
-            const msg = e.message || String(e);
-            console.error(`[BCAST-CRON] Failed to re-enqueue broadcast ${broadcast._id}:`, msg);
-            errors.push(`${broadcast._id}: ${msg}`);
-        }
-    }
-
-    return {
-        message: `Re-enqueued ${enqueued} of ${stuckBroadcasts.length} stuck broadcast(s).`,
-        errors: errors.length > 0 ? errors : undefined,
-    };
+    return { status: res.status, body };
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
     try {
-        // Quick Redis health check first
-        let redisOk = false;
-        try {
-            const { broadcastControlQueue } = await import('@/lib/queue/broadcast-queue');
-            const client = await broadcastControlQueue.client;
-            const pong = await client.ping();
-            redisOk = pong === 'PONG';
-        } catch (redisErr: any) {
-            return NextResponse.json({
-                message: 'Redis connection failed',
-                error: redisErr.message,
-                redisUrl: process.env.REDIS_URL ? '(set)' : '(NOT SET)',
-            }, { status: 500 });
+        const { status, body } = await callRequeueStuck();
+        if (status >= 400) {
+            return NextResponse.json(
+                { message: 'Rust requeue-stuck failed', status, ...body },
+                { status: 502 },
+            );
         }
-
-        const result = await processStuckBroadcasts();
-        return NextResponse.json({ ...result, redisOk });
+        return NextResponse.json(body);
     } catch (error: any) {
         console.error('[BCAST-CRON] Error:', error);
-        return NextResponse.json({ message: 'Error', error: error.message, stack: error.stack?.split('\n').slice(0, 5) }, { status: 500 });
+        return NextResponse.json(
+            {
+                message: 'Error',
+                error: error?.message ?? String(error),
+                stack: error?.stack?.split('\n').slice(0, 5),
+            },
+            { status: 500 },
+        );
     }
 }
 
 export async function POST(request: NextRequest) {
-    return GET(request as NextRequest);
+    return GET(request);
 }

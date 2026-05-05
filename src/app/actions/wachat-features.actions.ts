@@ -1,9 +1,21 @@
 'use server';
 
+/**
+ * Wachat-features server actions — Phase 6 of the wachat → Rust port.
+ *
+ * Every body in this file is a thin shim around the corresponding
+ * `rustClient.wachatFeatures.*` namespace method. The Rust crate
+ * `wachat-features` (mounted at `/v1/wachat/features`) owns all the Mongo
+ * CRUD + Meta API calls; this file only:
+ *
+ *   1. unpacks `FormData` (where the legacy action did so),
+ *   2. delegates to the namespace,
+ *   3. re-shapes the response when the legacy contract was different,
+ *   4. calls `revalidatePath()` on the same paths the legacy code did.
+ */
+
 import { revalidatePath } from 'next/cache';
-import { ObjectId } from 'mongodb';
-import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById } from '@/app/actions/project.actions';
+import { rustClient } from '@/lib/rust-client';
 import { getErrorMessage } from '@/lib/utils';
 
 // =================================================================
@@ -11,45 +23,36 @@ import { getErrorMessage } from '@/lib/utils';
 // =================================================================
 
 export async function getChatLabels(projectId: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const labels = await db.collection('wa_chat_labels').find({ projectId: new ObjectId(projectId) }).sort({ name: 1 }).toArray();
-        return { labels: JSON.parse(JSON.stringify(labels)) };
+        const r = await rustClient.wachatFeatures.getChatLabels(projectId);
+        return { labels: r.labels };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
 export async function saveChatLabel(prevState: any, formData: FormData) {
     const projectId = formData.get('projectId') as string;
     const name = formData.get('name') as string;
-    const color = formData.get('color') as string || '#3b82f6';
+    const color = (formData.get('color') as string) || '#3b82f6';
     if (!projectId || !name) return { error: 'Label name is required.' };
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        await db.collection('wa_chat_labels').insertOne({ projectId: new ObjectId(projectId), name, color, createdAt: new Date() });
+        const r = await rustClient.wachatFeatures.saveChatLabel(projectId, name, color);
         revalidatePath('/wachat/chat-labels');
-        return { message: `Label "${name}" created.` };
+        return { message: r.message };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
 export async function deleteChatLabel(labelId: string) {
-    if (!ObjectId.isValid(labelId)) return { success: false, error: 'Invalid ID.' };
     try {
-        const { db } = await connectToDatabase();
-        await db.collection('wa_chat_labels').deleteOne({ _id: new ObjectId(labelId) });
+        const r = await rustClient.wachatFeatures.deleteChatLabel(labelId);
         revalidatePath('/wachat/chat-labels');
-        return { success: true };
+        return { success: r.success };
     } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
 }
 
 export async function assignLabelToContact(contactId: string, labelId: string) {
     try {
-        const { db } = await connectToDatabase();
-        await db.collection('contacts').updateOne({ _id: new ObjectId(contactId) }, { $addToSet: { labelIds: labelId } });
-        return { success: true };
+        const r = await rustClient.wachatFeatures.assignLabelToContact(contactId, labelId);
+        return { success: r.success };
     } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
 }
 
@@ -58,12 +61,9 @@ export async function assignLabelToContact(contactId: string, labelId: string) {
 // =================================================================
 
 export async function getScheduledMessages(projectId: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const messages = await db.collection('wa_scheduled_messages').find({ projectId: new ObjectId(projectId), status: { $ne: 'sent' } }).sort({ scheduledAt: 1 }).toArray();
-        return { messages: JSON.parse(JSON.stringify(messages)) };
+        const r = await rustClient.wachatFeatures.getScheduledMessages(projectId);
+        return { messages: r.messages };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
@@ -72,28 +72,27 @@ export async function scheduleMessage(prevState: any, formData: FormData) {
     const recipientPhone = formData.get('recipientPhone') as string;
     const messageText = formData.get('messageText') as string;
     const scheduledAt = formData.get('scheduledAt') as string;
-    if (!projectId || !recipientPhone || !messageText || !scheduledAt) return { error: 'All fields are required.' };
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
-    const scheduledDate = new Date(scheduledAt);
-    if (scheduledDate <= new Date()) return { error: 'Scheduled time must be in the future.' };
+    if (!projectId || !recipientPhone || !messageText || !scheduledAt) {
+        return { error: 'All fields are required.' };
+    }
+    const scheduledIso = new Date(scheduledAt).toISOString();
+    if (new Date(scheduledIso) <= new Date()) {
+        return { error: 'Scheduled time must be in the future.' };
+    }
     try {
-        const { db } = await connectToDatabase();
-        await db.collection('wa_scheduled_messages').insertOne({
-            projectId: new ObjectId(projectId), recipientPhone, messageText, scheduledAt: scheduledDate, status: 'pending', createdAt: new Date(),
-        });
+        const r = await rustClient.wachatFeatures.scheduleMessage(
+            projectId, recipientPhone, messageText, scheduledIso,
+        );
         revalidatePath('/wachat/scheduled-messages');
-        return { message: 'Message scheduled successfully.' };
+        return { message: r.message };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
 export async function cancelScheduledMessage(messageId: string) {
-    if (!ObjectId.isValid(messageId)) return { success: false, error: 'Invalid ID.' };
     try {
-        const { db } = await connectToDatabase();
-        await db.collection('wa_scheduled_messages').updateOne({ _id: new ObjectId(messageId) }, { $set: { status: 'cancelled' } });
+        const r = await rustClient.wachatFeatures.cancelScheduledMessage(messageId);
         revalidatePath('/wachat/scheduled-messages');
-        return { success: true };
+        return { success: r.success };
     } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
 }
 
@@ -103,9 +102,8 @@ export async function cancelScheduledMessage(messageId: string) {
 
 export async function getContactNotes(contactId: string) {
     try {
-        const { db } = await connectToDatabase();
-        const notes = await db.collection('wa_contact_notes').find({ contactId }).sort({ createdAt: -1 }).toArray();
-        return { notes: JSON.parse(JSON.stringify(notes)) };
+        const r = await rustClient.wachatFeatures.getContactNotes(contactId);
+        return { notes: r.notes };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
@@ -115,18 +113,15 @@ export async function addContactNote(prevState: any, formData: FormData) {
     const text = formData.get('text') as string;
     if (!contactId || !text) return { error: 'Note text is required.' };
     try {
-        const { db } = await connectToDatabase();
-        await db.collection('wa_contact_notes').insertOne({ contactId, projectId, text, createdAt: new Date() });
-        return { message: 'Note added.' };
+        const r = await rustClient.wachatFeatures.addContactNote(contactId, text, projectId);
+        return { message: r.message };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
 export async function deleteContactNote(noteId: string) {
-    if (!ObjectId.isValid(noteId)) return { success: false, error: 'Invalid ID.' };
     try {
-        const { db } = await connectToDatabase();
-        await db.collection('wa_contact_notes').deleteOne({ _id: new ObjectId(noteId) });
-        return { success: true };
+        const r = await rustClient.wachatFeatures.deleteContactNote(noteId);
+        return { success: r.success };
     } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
 }
 
@@ -135,12 +130,9 @@ export async function deleteContactNote(noteId: string) {
 // =================================================================
 
 export async function exportChatHistory(contactId: string, projectId: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const messages = await db.collection('messages').find({ contactId, projectId: new ObjectId(projectId) }).sort({ timestamp: 1 }).toArray();
-        return { messages: JSON.parse(JSON.stringify(messages)) };
+        const r = await rustClient.wachatFeatures.exportChatHistory(projectId, contactId);
+        return { messages: r.messages };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
@@ -149,12 +141,9 @@ export async function exportChatHistory(contactId: string, projectId: string) {
 // =================================================================
 
 export async function getAutoReplyRules(projectId: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const rules = await db.collection('wa_auto_reply_rules').find({ projectId: new ObjectId(projectId) }).sort({ priority: 1 }).toArray();
-        return { rules: JSON.parse(JSON.stringify(rules)) };
+        const r = await rustClient.wachatFeatures.getAutoReplyRules(projectId);
+        return { rules: r.rules };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
@@ -163,39 +152,29 @@ export async function saveAutoReplyRule(prevState: any, formData: FormData) {
     const ruleId = formData.get('ruleId') as string;
     const name = formData.get('name') as string;
     const keywords = formData.get('keywords') as string;
-    const matchType = formData.get('matchType') as string || 'contains';
-    const responseType = formData.get('responseType') as string || 'text';
+    const matchType = (formData.get('matchType') as string) || 'contains';
+    const responseType = (formData.get('responseType') as string) || 'text';
     const responseText = formData.get('responseText') as string;
     const templateName = formData.get('templateName') as string;
     const isActive = formData.get('isActive') === 'on';
     const timeFrom = formData.get('timeFrom') as string;
     const timeTo = formData.get('timeTo') as string;
     if (!projectId || !name || !keywords) return { error: 'Name and keywords are required.' };
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const keywordList = keywords.split(',').map(k => k.trim().toLowerCase()).filter(Boolean);
-        const doc: any = { projectId: new ObjectId(projectId), name, keywords: keywordList, matchType, responseType, responseText: responseText || '', templateName: templateName || '', isActive, timeFrom: timeFrom || '', timeTo: timeTo || '', updatedAt: new Date() };
-        if (ruleId && ObjectId.isValid(ruleId)) {
-            await db.collection('wa_auto_reply_rules').updateOne({ _id: new ObjectId(ruleId) }, { $set: doc });
-        } else {
-            doc.createdAt = new Date();
-            doc.priority = 0;
-            await db.collection('wa_auto_reply_rules').insertOne(doc);
-        }
+        const r = await rustClient.wachatFeatures.saveAutoReplyRule(projectId, {
+            ruleId, name, keywords, matchType, responseType, responseText,
+            templateName, isActive, timeFrom, timeTo,
+        });
         revalidatePath('/wachat/auto-reply-rules');
-        return { message: 'Rule saved.' };
+        return { message: r.message };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
 export async function deleteAutoReplyRule(ruleId: string) {
-    if (!ObjectId.isValid(ruleId)) return { success: false, error: 'Invalid ID.' };
     try {
-        const { db } = await connectToDatabase();
-        await db.collection('wa_auto_reply_rules').deleteOne({ _id: new ObjectId(ruleId) });
+        const r = await rustClient.wachatFeatures.deleteAutoReplyRule(ruleId);
         revalidatePath('/wachat/auto-reply-rules');
-        return { success: true };
+        return { success: r.success };
     } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
 }
 
@@ -204,12 +183,9 @@ export async function deleteAutoReplyRule(ruleId: string) {
 // =================================================================
 
 export async function getBroadcastSegments(projectId: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const segments = await db.collection('wa_broadcast_segments').find({ projectId: new ObjectId(projectId) }).sort({ createdAt: -1 }).toArray();
-        return { segments: JSON.parse(JSON.stringify(segments)) };
+        const r = await rustClient.wachatFeatures.getBroadcastSegments(projectId);
+        return { segments: r.segments };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
@@ -220,27 +196,20 @@ export async function saveBroadcastSegment(prevState: any, formData: FormData) {
     const filterLastActive = formData.get('filterLastActive') as string;
     const filterCity = formData.get('filterCity') as string;
     if (!projectId || !name) return { error: 'Segment name is required.' };
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const filters: any = {};
-        if (filterTags) filters.tags = filterTags.split(',').map(t => t.trim()).filter(Boolean);
-        if (filterLastActive) filters.lastActive = filterLastActive;
-        if (filterCity) filters.city = filterCity;
-        await db.collection('wa_broadcast_segments').insertOne({ projectId: new ObjectId(projectId), name, filters, createdAt: new Date() });
+        const r = await rustClient.wachatFeatures.saveBroadcastSegment(projectId, {
+            name, filterTags, filterLastActive, filterCity,
+        });
         revalidatePath('/wachat/broadcast-segments');
-        return { message: `Segment "${name}" created.` };
+        return { message: r.message };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
 export async function deleteBroadcastSegment(segmentId: string) {
-    if (!ObjectId.isValid(segmentId)) return { success: false, error: 'Invalid ID.' };
     try {
-        const { db } = await connectToDatabase();
-        await db.collection('wa_broadcast_segments').deleteOne({ _id: new ObjectId(segmentId) });
+        const r = await rustClient.wachatFeatures.deleteBroadcastSegment(segmentId);
         revalidatePath('/wachat/broadcast-segments');
-        return { success: true };
+        return { success: r.success };
     } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
 }
 
@@ -249,17 +218,9 @@ export async function deleteBroadcastSegment(segmentId: string) {
 // =================================================================
 
 export async function getTemplateAnalytics(projectId: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const pipeline = [
-            { $match: { projectId: new ObjectId(projectId), direction: 'out', type: 'template' } },
-            { $group: { _id: '$content.templateName', sent: { $sum: 1 }, delivered: { $sum: { $cond: [{ $in: ['$status', ['delivered', 'read']] }, 1, 0] } }, read: { $sum: { $cond: [{ $eq: ['$status', 'read'] }, 1, 0] } }, failed: { $sum: { $cond: [{ $eq: ['$status', 'failed'] }, 1, 0] } } } },
-            { $sort: { sent: -1 } },
-        ];
-        const analytics = await db.collection('messages').aggregate(pipeline).toArray();
-        return { analytics: JSON.parse(JSON.stringify(analytics)) };
+        const r = await rustClient.wachatFeatures.getTemplateAnalytics(projectId);
+        return { analytics: r.analytics };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
@@ -268,24 +229,9 @@ export async function getTemplateAnalytics(projectId: string) {
 // =================================================================
 
 export async function getMessageAnalytics(projectId: string, days: number = 7) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const since = new Date(); since.setDate(since.getDate() - days);
-        const pipeline = [
-            { $match: { projectId: new ObjectId(projectId), timestamp: { $gte: since } } },
-            { $group: { _id: { date: { $dateToString: { format: '%Y-%m-%d', date: '$timestamp' } }, direction: '$direction' }, count: { $sum: 1 } } },
-            { $sort: { '_id.date': 1 } },
-        ];
-        const data = await db.collection('messages').aggregate(pipeline).toArray();
-        // Response time calculation
-        const responsePipeline = [
-            { $match: { projectId: new ObjectId(projectId), direction: 'out', timestamp: { $gte: since } } },
-            { $group: { _id: null, avgResponseMs: { $avg: '$responseTimeMs' }, count: { $sum: 1 } } },
-        ];
-        const responseData = await db.collection('messages').aggregate(responsePipeline).toArray();
-        return { dailyData: JSON.parse(JSON.stringify(data)), responseMetrics: JSON.parse(JSON.stringify(responseData[0] || {})) };
+        const r = await rustClient.wachatFeatures.getMessageAnalytics(projectId, days);
+        return { dailyData: r.dailyData, responseMetrics: r.responseMetrics };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
@@ -294,12 +240,9 @@ export async function getMessageAnalytics(projectId: string, days: number = 7) {
 // =================================================================
 
 export async function getContactGroups(projectId: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const groups = await db.collection('wa_contact_groups').find({ projectId: new ObjectId(projectId) }).sort({ name: 1 }).toArray();
-        return { groups: JSON.parse(JSON.stringify(groups)) };
+        const r = await rustClient.wachatFeatures.getContactGroups(projectId);
+        return { groups: r.groups };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
@@ -308,23 +251,18 @@ export async function saveContactGroup(prevState: any, formData: FormData) {
     const name = formData.get('name') as string;
     const description = formData.get('description') as string;
     if (!projectId || !name) return { error: 'Group name is required.' };
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        await db.collection('wa_contact_groups').insertOne({ projectId: new ObjectId(projectId), name, description: description || '', memberCount: 0, createdAt: new Date() });
+        const r = await rustClient.wachatFeatures.saveContactGroup(projectId, name, description);
         revalidatePath('/wachat/contact-groups');
-        return { message: `Group "${name}" created.` };
+        return { message: r.message };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
 export async function deleteContactGroup(groupId: string) {
-    if (!ObjectId.isValid(groupId)) return { success: false, error: 'Invalid ID.' };
     try {
-        const { db } = await connectToDatabase();
-        await db.collection('wa_contact_groups').deleteOne({ _id: new ObjectId(groupId) });
+        const r = await rustClient.wachatFeatures.deleteContactGroup(groupId);
         revalidatePath('/wachat/contact-groups');
-        return { success: true };
+        return { success: r.success };
     } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
 }
 
@@ -333,37 +271,25 @@ export async function deleteContactGroup(groupId: string) {
 // =================================================================
 
 export async function getOptOutList(projectId: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const list = await db.collection('wa_opt_outs').find({ projectId: new ObjectId(projectId) }).sort({ optedOutAt: -1 }).toArray();
-        return { optOuts: JSON.parse(JSON.stringify(list)) };
+        const r = await rustClient.wachatFeatures.getOptOutList(projectId);
+        return { optOuts: r.optOuts };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
 export async function addToOptOut(projectId: string, phone: string, reason?: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { success: false, error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        await db.collection('wa_opt_outs').updateOne(
-            { projectId: new ObjectId(projectId), phone },
-            { $set: { reason: reason || 'manual', optedOutAt: new Date() }, $setOnInsert: { projectId: new ObjectId(projectId), phone } },
-            { upsert: true }
-        );
+        const r = await rustClient.wachatFeatures.addToOptOut(projectId, phone, reason);
         revalidatePath('/wachat/opt-out');
-        return { success: true };
+        return { success: r.success };
     } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
 }
 
 export async function removeFromOptOut(optOutId: string) {
-    if (!ObjectId.isValid(optOutId)) return { success: false, error: 'Invalid ID.' };
     try {
-        const { db } = await connectToDatabase();
-        await db.collection('wa_opt_outs').deleteOne({ _id: new ObjectId(optOutId) });
+        const r = await rustClient.wachatFeatures.removeFromOptOut(optOutId);
         revalidatePath('/wachat/opt-out');
-        return { success: true };
+        return { success: r.success };
     } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
 }
 
@@ -372,22 +298,16 @@ export async function removeFromOptOut(optOutId: string) {
 // =================================================================
 
 export async function getQuickReplyCategories(projectId: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const categories = await db.collection('wa_quick_reply_categories').find({ projectId: new ObjectId(projectId) }).sort({ name: 1 }).toArray();
-        return { categories: JSON.parse(JSON.stringify(categories)) };
+        const r = await rustClient.wachatFeatures.getQuickReplyCategories(projectId);
+        return { categories: r.categories };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
 export async function saveQuickReplyCategory(projectId: string, name: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        await db.collection('wa_quick_reply_categories').insertOne({ projectId: new ObjectId(projectId), name, createdAt: new Date() });
-        return { message: `Category "${name}" created.` };
+        const r = await rustClient.wachatFeatures.saveQuickReplyCategory(projectId, name);
+        return { message: r.message };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
@@ -396,22 +316,9 @@ export async function saveQuickReplyCategory(projectId: string, name: string) {
 // =================================================================
 
 export async function getAgentPerformance(projectId: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const since = new Date(); since.setDate(since.getDate() - 30);
-        const pipeline = [
-            { $match: { projectId: new ObjectId(projectId), direction: 'out', timestamp: { $gte: since }, agentId: { $exists: true, $ne: null } } },
-            { $group: { _id: '$agentId', messagesSent: { $sum: 1 }, avgResponseMs: { $avg: '$responseTimeMs' } } },
-        ];
-        const performance = await db.collection('messages').aggregate(pipeline).toArray();
-        // Get agent names
-        const agentIds = performance.map(p => p._id).filter(Boolean);
-        const agents = agentIds.length > 0 ? await db.collection('agents').find({ _id: { $in: agentIds.map((id: string) => new ObjectId(id)) } }).toArray() : [];
-        const agentMap = new Map(agents.map(a => [a._id.toString(), a.name]));
-        const enriched = performance.map(p => ({ ...p, agentName: agentMap.get(p._id) || 'Unknown' }));
-        return { performance: JSON.parse(JSON.stringify(enriched)) };
+        const r = await rustClient.wachatFeatures.getAgentPerformance(projectId);
+        return { performance: r.performance };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
@@ -420,12 +327,9 @@ export async function getAgentPerformance(projectId: string) {
 // =================================================================
 
 export async function getConversationTags(projectId: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const tags = await db.collection('contacts').distinct('tags', { projectId: new ObjectId(projectId) });
-        return { tags: tags.filter(Boolean) };
+        const r = await rustClient.wachatFeatures.getConversationTags(projectId);
+        return { tags: r.tags };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
@@ -434,35 +338,23 @@ export async function getConversationTags(projectId: string) {
 // =================================================================
 
 export async function getBlockedContacts(projectId: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const contacts = await db.collection('wa_blocked_contacts').find({ projectId: new ObjectId(projectId) }).sort({ blockedAt: -1 }).toArray();
-        return { contacts: JSON.parse(JSON.stringify(contacts)) };
+        const r = await rustClient.wachatFeatures.getBlockedContacts(projectId);
+        return { contacts: r.contacts };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
 export async function blockContact(projectId: string, phone: string, reason?: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { success: false, error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        await db.collection('wa_blocked_contacts').updateOne(
-            { projectId: new ObjectId(projectId), phone },
-            { $set: { reason: reason || '', blockedAt: new Date() }, $setOnInsert: { projectId: new ObjectId(projectId), phone } },
-            { upsert: true }
-        );
-        return { success: true };
+        const r = await rustClient.wachatFeatures.blockContact(projectId, phone, reason);
+        return { success: r.success };
     } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
 }
 
 export async function unblockContact(blockedId: string) {
-    if (!ObjectId.isValid(blockedId)) return { success: false, error: 'Invalid ID.' };
     try {
-        const { db } = await connectToDatabase();
-        await db.collection('wa_blocked_contacts').deleteOne({ _id: new ObjectId(blockedId) });
-        return { success: true };
+        const r = await rustClient.wachatFeatures.unblockContact(blockedId);
+        return { success: r.success };
     } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
 }
 
@@ -471,12 +363,9 @@ export async function unblockContact(blockedId: string) {
 // =================================================================
 
 export async function getSavedReplies(projectId: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const replies = await db.collection('wa_saved_replies').find({ projectId: new ObjectId(projectId) }).sort({ category: 1, shortcut: 1 }).toArray();
-        return { replies: JSON.parse(JSON.stringify(replies)) };
+        const r = await rustClient.wachatFeatures.getSavedReplies(projectId);
+        return { replies: r.replies };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
@@ -489,29 +378,20 @@ export async function saveSavedReply(prevState: any, formData: FormData) {
     const category = formData.get('category') as string;
     const mediaUrl = formData.get('mediaUrl') as string;
     if (!projectId || !shortcut || !body) return { error: 'Shortcut and body are required.' };
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const doc: any = { projectId: new ObjectId(projectId), shortcut: shortcut.startsWith('/') ? shortcut : `/${shortcut}`, title: title || shortcut, body, category: category || 'General', mediaUrl: mediaUrl || '', updatedAt: new Date() };
-        if (replyId && ObjectId.isValid(replyId)) {
-            await db.collection('wa_saved_replies').updateOne({ _id: new ObjectId(replyId) }, { $set: doc });
-        } else {
-            doc.createdAt = new Date();
-            await db.collection('wa_saved_replies').insertOne(doc);
-        }
+        const r = await rustClient.wachatFeatures.saveSavedReply(projectId, {
+            replyId, shortcut, title, body, category, mediaUrl,
+        });
         revalidatePath('/wachat/saved-replies');
-        return { message: 'Reply saved.' };
+        return { message: r.message };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
 export async function deleteSavedReply(replyId: string) {
-    if (!ObjectId.isValid(replyId)) return { success: false, error: 'Invalid ID.' };
     try {
-        const { db } = await connectToDatabase();
-        await db.collection('wa_saved_replies').deleteOne({ _id: new ObjectId(replyId) });
+        const r = await rustClient.wachatFeatures.deleteSavedReply(replyId);
         revalidatePath('/wachat/saved-replies');
-        return { success: true };
+        return { success: r.success };
     } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
 }
 
@@ -520,12 +400,9 @@ export async function deleteSavedReply(replyId: string) {
 // =================================================================
 
 export async function getChatbotResponses(projectId: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const responses = await db.collection('wa_chatbot_responses').find({ projectId: new ObjectId(projectId) }).sort({ trigger: 1 }).toArray();
-        return { responses: JSON.parse(JSON.stringify(responses)) };
+        const r = await rustClient.wachatFeatures.getChatbotResponses(projectId);
+        return { responses: r.responses };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
@@ -534,32 +411,23 @@ export async function saveChatbotResponse(prevState: any, formData: FormData) {
     const responseId = formData.get('responseId') as string;
     const trigger = formData.get('trigger') as string;
     const response = formData.get('response') as string;
-    const matchType = formData.get('matchType') as string || 'contains';
+    const matchType = (formData.get('matchType') as string) || 'contains';
     const isActive = formData.get('isActive') === 'on';
     if (!projectId || !trigger || !response) return { error: 'Trigger and response are required.' };
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const doc: any = { projectId: new ObjectId(projectId), trigger: trigger.toLowerCase(), response, matchType, isActive, updatedAt: new Date() };
-        if (responseId && ObjectId.isValid(responseId)) {
-            await db.collection('wa_chatbot_responses').updateOne({ _id: new ObjectId(responseId) }, { $set: doc });
-        } else {
-            doc.createdAt = new Date();
-            await db.collection('wa_chatbot_responses').insertOne(doc);
-        }
+        const r = await rustClient.wachatFeatures.saveChatbotResponse(projectId, {
+            responseId, trigger, response, matchType, isActive,
+        });
         revalidatePath('/wachat/chatbot');
-        return { message: 'Chatbot response saved.' };
+        return { message: r.message };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
 export async function deleteChatbotResponse(responseId: string) {
-    if (!ObjectId.isValid(responseId)) return { success: false, error: 'Invalid ID.' };
     try {
-        const { db } = await connectToDatabase();
-        await db.collection('wa_chatbot_responses').deleteOne({ _id: new ObjectId(responseId) });
+        const r = await rustClient.wachatFeatures.deleteChatbotResponse(responseId);
         revalidatePath('/wachat/chatbot');
-        return { success: true };
+        return { success: r.success };
     } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
 }
 
@@ -568,12 +436,9 @@ export async function deleteChatbotResponse(responseId: string) {
 // =================================================================
 
 export async function getBusinessHours(projectId: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const hours = await db.collection('wa_business_hours').findOne({ projectId: new ObjectId(projectId) });
-        return { hours: hours ? JSON.parse(JSON.stringify(hours)) : null };
+        const r = await rustClient.wachatFeatures.getBusinessHours(projectId);
+        return { hours: r.hours };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
@@ -583,19 +448,14 @@ export async function saveBusinessHours(prevState: any, formData: FormData) {
     const offlineMessage = formData.get('offlineMessage') as string;
     const scheduleJson = formData.get('schedule') as string;
     if (!projectId) return { error: 'Project ID is required.' };
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
+    let schedule: unknown = {};
+    try { schedule = JSON.parse(scheduleJson); } catch {}
     try {
-        const { db } = await connectToDatabase();
-        let schedule = {};
-        try { schedule = JSON.parse(scheduleJson); } catch {}
-        await db.collection('wa_business_hours').updateOne(
-            { projectId: new ObjectId(projectId) },
-            { $set: { timezone: timezone || 'UTC', offlineMessage: offlineMessage || '', schedule, updatedAt: new Date() }, $setOnInsert: { projectId: new ObjectId(projectId), createdAt: new Date() } },
-            { upsert: true }
-        );
+        const r = await rustClient.wachatFeatures.saveBusinessHours(projectId, {
+            timezone, offlineMessage, schedule,
+        });
         revalidatePath('/wachat/business-hours');
-        return { message: 'Business hours saved.' };
+        return { message: r.message };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
@@ -604,25 +464,16 @@ export async function saveBusinessHours(prevState: any, formData: FormData) {
 // =================================================================
 
 export async function getChatRatings(projectId: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const ratings = await db.collection('wa_chat_ratings').find({ projectId: new ObjectId(projectId) }).sort({ createdAt: -1 }).limit(100).toArray();
-        const pipeline = [
-            { $match: { projectId: new ObjectId(projectId) } },
-            { $group: { _id: null, avg: { $avg: '$rating' }, count: { $sum: 1 }, five: { $sum: { $cond: [{ $eq: ['$rating', 5] }, 1, 0] } }, four: { $sum: { $cond: [{ $eq: ['$rating', 4] }, 1, 0] } }, three: { $sum: { $cond: [{ $eq: ['$rating', 3] }, 1, 0] } }, two: { $sum: { $cond: [{ $eq: ['$rating', 2] }, 1, 0] } }, one: { $sum: { $cond: [{ $eq: ['$rating', 1] }, 1, 0] } } } },
-        ];
-        const summary = await db.collection('wa_chat_ratings').aggregate(pipeline).toArray();
-        return { ratings: JSON.parse(JSON.stringify(ratings)), summary: JSON.parse(JSON.stringify(summary[0] || {})) };
+        const r = await rustClient.wachatFeatures.getChatRatings(projectId);
+        return { ratings: r.ratings, summary: r.summary };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
 export async function submitChatRating(projectId: string, contactId: string, rating: number, feedback?: string) {
     try {
-        const { db } = await connectToDatabase();
-        await db.collection('wa_chat_ratings').insertOne({ projectId: new ObjectId(projectId), contactId, rating, feedback: feedback || '', createdAt: new Date() });
-        return { success: true };
+        const r = await rustClient.wachatFeatures.submitChatRating(projectId, contactId, rating, feedback);
+        return { success: r.success };
     } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
 }
 
@@ -631,12 +482,9 @@ export async function submitChatRating(projectId: string, contactId: string, rat
 // =================================================================
 
 export async function getLinkClicks(projectId: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const clicks = await db.collection('wa_link_clicks').find({ projectId: new ObjectId(projectId) }).sort({ clickedAt: -1 }).limit(500).toArray();
-        return { clicks: JSON.parse(JSON.stringify(clicks)) };
+        const r = await rustClient.wachatFeatures.getLinkClicks(projectId);
+        return { clicks: r.clicks };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
@@ -645,24 +493,16 @@ export async function getLinkClicks(projectId: string) {
 // =================================================================
 
 export async function getUnassignedConversations(projectId: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const contacts = await db.collection('contacts').find({
-            projectId: new ObjectId(projectId),
-            $or: [{ assignedAgentId: null }, { assignedAgentId: { $exists: false } }],
-            status: { $ne: 'resolved' }
-        }).sort({ lastMessageTimestamp: -1 }).limit(50).toArray();
-        return { contacts: JSON.parse(JSON.stringify(contacts)) };
+        const r = await rustClient.wachatFeatures.getUnassignedConversations(projectId);
+        return { contacts: r.contacts };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
 export async function assignConversation(contactId: string, agentId: string) {
     try {
-        const { db } = await connectToDatabase();
-        await db.collection('contacts').updateOne({ _id: new ObjectId(contactId) }, { $set: { assignedAgentId: agentId, assignedAt: new Date() } });
-        return { success: true };
+        const r = await rustClient.wachatFeatures.assignConversation(contactId, agentId);
+        return { success: r.success };
     } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
 }
 
@@ -671,322 +511,215 @@ export async function assignConversation(contactId: string, agentId: string) {
 // =================================================================
 
 export async function getMediaLibrary(projectId: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const media = await db.collection('wa_media_library').find({ projectId: new ObjectId(projectId) }).sort({ uploadedAt: -1 }).limit(100).toArray();
-        return { media: JSON.parse(JSON.stringify(media)) };
+        const r = await rustClient.wachatFeatures.getMediaLibrary(projectId);
+        return { media: r.media };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
 export async function saveMediaItem(projectId: string, name: string, url: string, type: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        await db.collection('wa_media_library').insertOne({ projectId: new ObjectId(projectId), name, url, type, uploadedAt: new Date() });
+        const r = await rustClient.wachatFeatures.saveMediaItem(projectId, name, url, type);
         revalidatePath('/wachat/media-library');
-        return { message: 'Media saved.' };
+        return { message: r.message };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
 export async function deleteMediaItem(mediaId: string) {
-    if (!ObjectId.isValid(mediaId)) return { success: false, error: 'Invalid ID.' };
     try {
-        const { db } = await connectToDatabase();
-        await db.collection('wa_media_library').deleteOne({ _id: new ObjectId(mediaId) });
+        const r = await rustClient.wachatFeatures.deleteMediaItem(mediaId);
         revalidatePath('/wachat/media-library');
-        return { success: true };
+        return { success: r.success };
     } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
 }
-
 
 // =================================================================
 //  GREETING & AWAY MESSAGES
 // =================================================================
 
 export async function getGreetingMessage(projectId: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const config = await db.collection('wa_greeting_config').findOne({ projectId: new ObjectId(projectId) });
-        return { config: config ? JSON.parse(JSON.stringify(config)) : { enabled: false, message: '' } };
+        const r = await rustClient.wachatFeatures.getGreetingMessage(projectId);
+        return { config: r.config };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
 export async function saveGreetingMessage(projectId: string, enabled: boolean, message: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        await db.collection('wa_greeting_config').updateOne(
-            { projectId: new ObjectId(projectId) },
-            { $set: { enabled, message, updatedAt: new Date() }, $setOnInsert: { projectId: new ObjectId(projectId), createdAt: new Date() } },
-            { upsert: true }
-        );
-        return { message: 'Greeting message saved.' };
+        const r = await rustClient.wachatFeatures.saveGreetingMessage(projectId, enabled, message);
+        return { message: r.message };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
 export async function getAwayMessage(projectId: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const config = await db.collection('wa_away_config').findOne({ projectId: new ObjectId(projectId) });
-        return { config: config ? JSON.parse(JSON.stringify(config)) : { enabled: false, message: '', schedule: 'always' } };
+        const r = await rustClient.wachatFeatures.getAwayMessage(projectId);
+        return { config: r.config };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
 export async function saveAwayMessage(projectId: string, enabled: boolean, message: string, schedule: string, timeFrom?: string, timeTo?: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        await db.collection('wa_away_config').updateOne(
-            { projectId: new ObjectId(projectId) },
-            { $set: { enabled, message, schedule, timeFrom: timeFrom || '', timeTo: timeTo || '', updatedAt: new Date() }, $setOnInsert: { projectId: new ObjectId(projectId), createdAt: new Date() } },
-            { upsert: true }
-        );
-        return { message: 'Away message saved.' };
+        const r = await rustClient.wachatFeatures.saveAwayMessage(projectId, enabled, message, schedule, timeFrom, timeTo);
+        return { message: r.message };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
-
 
 // =================================================================
 //  CONTACT BLACKLIST
 // =================================================================
 
 export async function getBlacklist(projectId: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const list = await db.collection('wa_blacklist').find({ projectId: new ObjectId(projectId) }).sort({ addedAt: -1 }).toArray();
-        return { numbers: JSON.parse(JSON.stringify(list)) };
+        const r = await rustClient.wachatFeatures.getBlacklist(projectId);
+        return { numbers: r.numbers };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
 export async function addToBlacklist(projectId: string, phone: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { success: false, error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        await db.collection('wa_blacklist').updateOne(
-            { projectId: new ObjectId(projectId), phone },
-            { $set: { addedAt: new Date() }, $setOnInsert: { projectId: new ObjectId(projectId), phone } },
-            { upsert: true }
-        );
-        return { success: true };
+        const r = await rustClient.wachatFeatures.addToBlacklist(projectId, phone);
+        return { success: r.success };
     } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
 }
 
 export async function removeFromBlacklist(blacklistId: string) {
-    if (!ObjectId.isValid(blacklistId)) return { success: false, error: 'Invalid ID.' };
     try {
-        const { db } = await connectToDatabase();
-        await db.collection('wa_blacklist').deleteOne({ _id: new ObjectId(blacklistId) });
-        return { success: true };
+        const r = await rustClient.wachatFeatures.removeFromBlacklist(blacklistId);
+        return { success: r.success };
     } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
 }
 
 export async function bulkAddToBlacklist(projectId: string, phones: string[]) {
-    const project = await getProjectById(projectId);
-    if (!project) return { success: false, error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const ops = phones.filter(p => p.trim()).map(phone => ({
-            updateOne: { filter: { projectId: new ObjectId(projectId), phone: phone.trim() }, update: { $set: { addedAt: new Date() }, $setOnInsert: { projectId: new ObjectId(projectId), phone: phone.trim() } }, upsert: true }
-        }));
-        if (ops.length > 0) await db.collection('wa_blacklist').bulkWrite(ops);
-        return { success: true, count: ops.length };
+        const r = await rustClient.wachatFeatures.bulkAddToBlacklist(projectId, phones);
+        return { success: r.success, count: r.count };
     } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
 }
-
 
 // =================================================================
 //  NOTIFICATION PREFERENCES
 // =================================================================
 
 export async function getNotificationPreferences(projectId: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const prefs = await db.collection('wa_notification_prefs').findOne({ projectId: new ObjectId(projectId) });
-        return { prefs: prefs ? JSON.parse(JSON.stringify(prefs)) : null };
+        const r = await rustClient.wachatFeatures.getNotificationPreferences(projectId);
+        return { prefs: r.prefs };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
 export async function saveNotificationPreferences(projectId: string, prefs: Record<string, boolean>) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        await db.collection('wa_notification_prefs').updateOne(
-            { projectId: new ObjectId(projectId) },
-            { $set: { ...prefs, updatedAt: new Date() }, $setOnInsert: { projectId: new ObjectId(projectId), createdAt: new Date() } },
-            { upsert: true }
-        );
-        return { message: 'Preferences saved.' };
+        const r = await rustClient.wachatFeatures.saveNotificationPreferences(projectId, prefs);
+        return { message: r.message };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
-
 
 // =================================================================
 //  MESSAGE TAGS
 // =================================================================
 
 export async function getMessageTags(projectId: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const tags = await db.collection('wa_message_tags').find({ projectId: new ObjectId(projectId) }).sort({ name: 1 }).toArray();
-        return { tags: JSON.parse(JSON.stringify(tags)) };
+        const r = await rustClient.wachatFeatures.getMessageTags(projectId);
+        return { tags: r.tags };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
 export async function saveMessageTag(projectId: string, name: string, color: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        await db.collection('wa_message_tags').insertOne({ projectId: new ObjectId(projectId), name, color, usageCount: 0, createdAt: new Date() });
-        return { message: `Tag "${name}" created.` };
+        const r = await rustClient.wachatFeatures.saveMessageTag(projectId, name, color);
+        return { message: r.message };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
 export async function deleteMessageTag(tagId: string) {
-    if (!ObjectId.isValid(tagId)) return { success: false, error: 'Invalid ID.' };
     try {
-        const { db } = await connectToDatabase();
-        await db.collection('wa_message_tags').deleteOne({ _id: new ObjectId(tagId) });
-        return { success: true };
+        const r = await rustClient.wachatFeatures.deleteMessageTag(tagId);
+        return { success: r.success };
     } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
 }
-
 
 // =================================================================
 //  DELIVERY REPORTS
 // =================================================================
 
 export async function getDeliveryReport(projectId: string, days: number = 7) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const since = new Date(); since.setDate(since.getDate() - days);
-        const pipeline = [
-            { $match: { projectId: new ObjectId(projectId), direction: 'out', timestamp: { $gte: since } } },
-            { $group: { _id: '$status', count: { $sum: 1 } } },
-        ];
-        const stats = await db.collection('messages').aggregate(pipeline).toArray();
-        const failedMessages = await db.collection('messages').find({
-            projectId: new ObjectId(projectId), direction: 'out', status: 'failed', timestamp: { $gte: since }
-        }).sort({ timestamp: -1 }).limit(20).toArray();
-        return { stats: JSON.parse(JSON.stringify(stats)), failedMessages: JSON.parse(JSON.stringify(failedMessages)) };
+        const r = await rustClient.wachatFeatures.getDeliveryReport(projectId, days);
+        return { stats: r.stats, failedMessages: r.failedMessages };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
-
 
 // =================================================================
 //  IMPORT HISTORY
 // =================================================================
 
 export async function getImportHistory(projectId: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const imports = await db.collection('wa_import_history').find({ projectId: new ObjectId(projectId) }).sort({ importedAt: -1 }).limit(50).toArray();
-        return { imports: JSON.parse(JSON.stringify(imports)) };
+        const r = await rustClient.wachatFeatures.getImportHistory(projectId);
+        return { imports: r.imports };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
-
 
 // =================================================================
 //  CONVERSATION FILTERS
 // =================================================================
 
 export async function getConversationFilters(projectId: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const filters = await db.collection('wa_conversation_filters').find({ projectId: new ObjectId(projectId) }).sort({ createdAt: -1 }).toArray();
-        return { filters: JSON.parse(JSON.stringify(filters)) };
+        const r = await rustClient.wachatFeatures.getConversationFilters(projectId);
+        return { filters: r.filters };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
 export async function saveConversationFilter(projectId: string, name: string, conditions: Record<string, any>) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        await db.collection('wa_conversation_filters').insertOne({ projectId: new ObjectId(projectId), name, conditions, createdAt: new Date() });
-        return { message: `Filter "${name}" saved.` };
+        const r = await rustClient.wachatFeatures.saveConversationFilter(projectId, name, conditions);
+        return { message: r.message };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
 export async function deleteConversationFilter(filterId: string) {
-    if (!ObjectId.isValid(filterId)) return { success: false, error: 'Invalid ID.' };
     try {
-        const { db } = await connectToDatabase();
-        await db.collection('wa_conversation_filters').deleteOne({ _id: new ObjectId(filterId) });
-        return { success: true };
+        const r = await rustClient.wachatFeatures.deleteConversationFilter(filterId);
+        return { success: r.success };
     } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
 }
-
 
 // =================================================================
 //  API KEYS
 // =================================================================
 
 export async function getApiKeys(projectId: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const keys = await db.collection('wa_api_keys').find({ projectId: new ObjectId(projectId) }).sort({ createdAt: -1 }).toArray();
-        return { keys: JSON.parse(JSON.stringify(keys)) };
+        const r = await rustClient.wachatFeatures.getApiKeys(projectId);
+        return { keys: r.keys };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
 export async function createApiKey(projectId: string, name: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const key = 'sk_' + Array.from({ length: 32 }, () => 'abcdefghijklmnopqrstuvwxyz0123456789'[Math.floor(Math.random() * 36)]).join('');
-        await db.collection('wa_api_keys').insertOne({ projectId: new ObjectId(projectId), name, key, isActive: true, createdAt: new Date() });
-        return { key, message: `API key "${name}" created.` };
+        const r = await rustClient.wachatFeatures.createApiKey(projectId, name);
+        return { key: r.key, message: r.message };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
 export async function revokeApiKey(keyId: string) {
-    if (!ObjectId.isValid(keyId)) return { success: false, error: 'Invalid ID.' };
     try {
-        const { db } = await connectToDatabase();
-        await db.collection('wa_api_keys').updateOne({ _id: new ObjectId(keyId) }, { $set: { isActive: false, revokedAt: new Date() } });
-        return { success: true };
+        const r = await rustClient.wachatFeatures.revokeApiKey(keyId);
+        return { success: r.success };
     } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
 }
-
 
 // =================================================================
 //  BROADCAST SCHEDULING
 // =================================================================
 
 export async function getScheduledBroadcasts(projectId: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const schedules = await db.collection('wa_scheduled_broadcasts').find({ projectId: new ObjectId(projectId) }).sort({ scheduledAt: 1 }).toArray();
-        return { schedules: JSON.parse(JSON.stringify(schedules)) };
+        const r = await rustClient.wachatFeatures.getScheduledBroadcasts(projectId);
+        return { schedules: r.schedules };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
@@ -999,117 +732,72 @@ export async function scheduleBroadcast(prevState: any, formData: FormData) {
     const timezone = formData.get('timezone') as string;
     const recurring = formData.get('recurring') as string;
     if (!projectId || !name || !templateName || !scheduledAt) return { error: 'All fields required.' };
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
+    const scheduledIso = new Date(scheduledAt).toISOString();
     try {
-        const { db } = await connectToDatabase();
-        await db.collection('wa_scheduled_broadcasts').insertOne({
-            projectId: new ObjectId(projectId), name, templateName, audience: audience || 'all',
-            scheduledAt: new Date(scheduledAt), timezone: timezone || 'UTC', recurring: recurring || 'none',
-            status: 'scheduled', createdAt: new Date(),
+        const r = await rustClient.wachatFeatures.scheduleBroadcast(projectId, {
+            name, templateName, audience, scheduledAt: scheduledIso, timezone, recurring,
         });
-        return { message: 'Broadcast scheduled.' };
+        return { message: r.message };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
 export async function cancelScheduledBroadcast(scheduleId: string) {
-    if (!ObjectId.isValid(scheduleId)) return { success: false, error: 'Invalid ID.' };
     try {
-        const { db } = await connectToDatabase();
-        await db.collection('wa_scheduled_broadcasts').updateOne({ _id: new ObjectId(scheduleId) }, { $set: { status: 'cancelled' } });
-        return { success: true };
+        const r = await rustClient.wachatFeatures.cancelScheduledBroadcast(scheduleId);
+        return { success: r.success };
     } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
 }
-
 
 // =================================================================
 //  AGENT AVAILABILITY
 // =================================================================
 
 export async function getAgentStatuses(projectId: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const agents = await db.collection('agents').find({ projectId: new ObjectId(projectId) }).toArray();
-        return { agents: JSON.parse(JSON.stringify(agents)) };
+        const r = await rustClient.wachatFeatures.getAgentStatuses(projectId);
+        return { agents: r.agents };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
 export async function setAgentStatus(agentId: string, status: string) {
-    if (!ObjectId.isValid(agentId)) return { success: false, error: 'Invalid ID.' };
     try {
-        const { db } = await connectToDatabase();
-        await db.collection('agents').updateOne({ _id: new ObjectId(agentId) }, { $set: { status, statusUpdatedAt: new Date() } });
-        return { success: true };
+        const r = await rustClient.wachatFeatures.setAgentStatus(agentId, status);
+        return { success: r.success };
     } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
 }
-
 
 // =================================================================
 //  CONVERSATION SEARCH
 // =================================================================
 
 export async function searchConversations(projectId: string, query: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const messages = await db.collection('messages').find({
-            projectId: new ObjectId(projectId),
-            'content.text': { $regex: query, $options: 'i' },
-        }).sort({ timestamp: -1 }).limit(50).toArray();
-        return { messages: JSON.parse(JSON.stringify(messages)) };
+        const r = await rustClient.wachatFeatures.searchConversations(projectId, query);
+        return { messages: r.messages };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
-
 
 // =================================================================
 //  MESSAGE STATISTICS
 // =================================================================
 
 export async function getMessageStatistics(projectId: string, period: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const days = period === 'monthly' ? 30 : period === 'weekly' ? 7 : 1;
-        const since = new Date(); since.setDate(since.getDate() - days);
-        const pipeline = [
-            { $match: { projectId: new ObjectId(projectId), timestamp: { $gte: since } } },
-            { $group: { _id: { direction: '$direction', hasMedia: { $cond: [{ $in: ['$type', ['image', 'video', 'document', 'audio']] }, true, false] } }, count: { $sum: 1 } } },
-        ];
-        const data = await db.collection('messages').aggregate(pipeline).toArray();
-        let incoming = 0, outgoing = 0, media = 0;
-        for (const d of data) {
-            if (d._id.direction === 'in') incoming += d.count;
-            else outgoing += d.count;
-            if (d._id.hasMedia) media += d.count;
-        }
-        return { stats: { total: incoming + outgoing, incoming, outgoing, media } };
+        const r = await rustClient.wachatFeatures.getMessageStatistics(projectId, period);
+        return { stats: r.stats };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
-
 
 // =================================================================
 //  CONTACT TIMELINE
 // =================================================================
 
 export async function getContactTimeline(projectId: string, contactId: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const messages = await db.collection('messages').find({ projectId: new ObjectId(projectId), contactId }).sort({ timestamp: -1 }).limit(50).toArray();
-        const notes = await db.collection('wa_contact_notes').find({ contactId, projectId }).sort({ createdAt: -1 }).toArray();
-        const events = [
-            ...messages.map((m: any) => ({ type: 'message', direction: m.direction, content: m.content?.text || m.type, timestamp: m.timestamp })),
-            ...notes.map((n: any) => ({ type: 'note', content: n.text, timestamp: n.createdAt })),
-        ].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-        return { events: JSON.parse(JSON.stringify(events)) };
+        const r = await rustClient.wachatFeatures.getContactTimeline(projectId, contactId);
+        return { events: r.events };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
-
 
 // =================================================================
 //  CHAT TRANSFER
@@ -1117,101 +805,65 @@ export async function getContactTimeline(projectId: string, contactId: string) {
 
 export async function transferConversation(contactId: string, fromAgentId: string, toAgentId: string, note?: string) {
     try {
-        const { db } = await connectToDatabase();
-        await db.collection('contacts').updateOne({ _id: new ObjectId(contactId) }, { $set: { assignedAgentId: toAgentId, transferredAt: new Date() } });
-        await db.collection('wa_transfer_history').insertOne({ contactId, fromAgentId, toAgentId, note: note || '', transferredAt: new Date() });
-        return { success: true };
+        const r = await rustClient.wachatFeatures.transferConversation(contactId, fromAgentId, toAgentId, note);
+        return { success: r.success };
     } catch (e: any) { return { success: false, error: getErrorMessage(e) }; }
 }
 
 export async function getTransferHistory(projectId: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const history = await db.collection('wa_transfer_history').find({}).sort({ transferredAt: -1 }).limit(50).toArray();
-        return { history: JSON.parse(JSON.stringify(history)) };
+        const r = await rustClient.wachatFeatures.getTransferHistory(projectId);
+        return { history: r.history };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
-
 
 // =================================================================
 //  WEBHOOK LOGS
 // =================================================================
 
 export async function getWebhookLogs(projectId: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const logs = await db.collection('webhook_logs').find({ projectId: new ObjectId(projectId) }).sort({ receivedAt: -1 }).limit(100).toArray();
-        return { logs: JSON.parse(JSON.stringify(logs)) };
+        const r = await rustClient.wachatFeatures.getWebhookLogs(projectId);
+        return { logs: r.logs };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
-
 
 // =================================================================
 //  CREDIT USAGE
 // =================================================================
 
 export async function getCreditUsage(projectId: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
     try {
-        const { db } = await connectToDatabase();
-        const since = new Date(); since.setDate(since.getDate() - 30);
-        const pipeline = [
-            { $match: { projectId: new ObjectId(projectId), timestamp: { $gte: since }, direction: 'out' } },
-            { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$timestamp' } }, count: { $sum: 1 } } },
-            { $sort: { _id: 1 } },
-        ];
-        const dailyUsage = await db.collection('messages').aggregate(pipeline).toArray();
-        return { credits: project.credits || 0, dailyUsage: JSON.parse(JSON.stringify(dailyUsage)) };
+        const r = await rustClient.wachatFeatures.getCreditUsage(projectId);
+        return { credits: r.credits, dailyUsage: r.dailyUsage };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
-
 
 // =================================================================
 //  BULK MESSAGING
 // =================================================================
 
 export async function sendBulkMessages(projectId: string, phones: string[], message: string) {
-    const project = await getProjectById(projectId);
-    if (!project || !project.accessToken) return { error: 'Access denied.' };
-    let success = 0, failed = 0;
-    const phoneNumberId = project.phoneNumbers?.[0]?.id;
-    if (!phoneNumberId) return { error: 'No phone number configured.' };
-    for (const phone of phones) {
-        try {
-            const { default: axios } = await import('axios');
-            await axios.post(`https://graph.facebook.com/v23.0/${phoneNumberId}/messages`, {
-                messaging_product: 'whatsapp', to: phone.trim(), type: 'text', text: { body: message },
-            }, { params: { access_token: project.accessToken } });
-            success++;
-        } catch { failed++; }
-    }
-    return { success, failed, total: phones.length };
+    try {
+        const r = await rustClient.wachatFeatures.sendBulkMessages(projectId, phones, message);
+        return { success: r.success, failed: r.failed, total: r.total };
+    } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
-
 
 // =================================================================
 //  PHONE NUMBER PROFILES
 // =================================================================
 
 export async function getPhoneNumberProfiles(projectId: string) {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied.' };
-    return { phoneNumbers: JSON.parse(JSON.stringify(project.phoneNumbers || [])) };
+    try {
+        const r = await rustClient.wachatFeatures.getPhoneNumberProfiles(projectId);
+        return { phoneNumbers: r.phoneNumbers };
+    } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
 
 export async function updatePhoneProfile(projectId: string, phoneNumberId: string, profile: Record<string, any>) {
-    const project = await getProjectById(projectId);
-    if (!project || !project.accessToken) return { error: 'Access denied.' };
     try {
-        const { default: axios } = await import('axios');
-        await axios.post(`https://graph.facebook.com/v23.0/${phoneNumberId}/whatsapp_business_profile`, {
-            messaging_product: 'whatsapp', ...profile,
-        }, { params: { access_token: project.accessToken } });
-        return { message: 'Profile updated.' };
+        const r = await rustClient.wachatFeatures.updatePhoneProfile(projectId, phoneNumberId, profile);
+        return { message: r.message };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }

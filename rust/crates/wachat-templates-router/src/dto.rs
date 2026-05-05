@@ -46,6 +46,43 @@ pub struct SyncResponse {
 }
 
 // ---------------------------------------------------------------------------
+// `POST /cron/sync-all`
+// ---------------------------------------------------------------------------
+
+/// Per-project outcome row in the cron multi-project sync response.
+#[derive(Debug, Clone, Serialize)]
+pub struct CronSyncProjectOutcome {
+    pub project_id: String,
+    pub fetched: usize,
+    pub upserted: usize,
+    pub orphaned: usize,
+    /// Populated when the per-project sync errored. The other fields are
+    /// zeroed in that case.
+    pub error: Option<String>,
+}
+
+/// Response body for `POST /cron/sync-all` — one row per project we
+/// attempted, plus aggregate counters for quick log scraping.
+#[derive(Debug, Clone, Serialize)]
+pub struct CronSyncAllResponse {
+    pub projects_total: usize,
+    pub projects_succeeded: usize,
+    pub projects_failed: usize,
+    pub projects_skipped: usize,
+    pub fetched: usize,
+    pub upserted: usize,
+    pub results: Vec<CronSyncProjectOutcome>,
+}
+
+/// `?token=<CRON_SECRET>` — fallback auth for the cron endpoint when the
+/// caller can't set headers (e.g. some scheduler setups).
+#[derive(Debug, Clone, Deserialize, Default)]
+pub struct CronTokenQuery {
+    #[serde(default)]
+    pub token: Option<String>,
+}
+
+// ---------------------------------------------------------------------------
 // `POST /` — create
 // ---------------------------------------------------------------------------
 
