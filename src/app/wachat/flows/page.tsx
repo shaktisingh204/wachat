@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * Wachat Meta Flows — rebuilt on Clay primitives.
+ * Wachat Meta Flows — flow list, search & status.
  */
 
 import * as React from 'react';
@@ -9,73 +9,62 @@ import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { WithId } from 'mongodb';
-
 import {
-  LuCircleAlert,
-  LuBookOpen,
-  LuPencil,
-  LuEllipsis,
-  LuCirclePlus,
-  LuRefreshCw,
-  LuSearch,
-  LuServerCog,
-  LuTrash2,
-  LuChevronDown,
-} from 'react-icons/lu';
+  BookOpen,
+  CircleAlert,
+  CirclePlus,
+  MoreHorizontal,
+  Pencil,
+  RefreshCw,
+  Search,
+  ServerCog,
+  Trash2,
+} from 'lucide-react';
 
 import { deleteMetaFlow, getMetaFlows } from '@/app/actions/meta-flow.actions';
 import type { MetaFlow } from '@/lib/definitions';
-import { useToast } from '@/hooks/use-toast';
 import { useProject } from '@/context/project-context';
 import { SyncMetaFlowsButton } from '@/components/wabasimplify/sync-meta-flows-button';
-
-import { cn } from '@/lib/utils';
-import { ClayBreadcrumbs, ClayButton, ClayCard } from '@/components/clay';
-import { ClayInput } from '@/components/clay/clay-input';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuLabel,
+  ZoruDropdownMenuSeparator,
+  ZoruDropdownMenuTrigger,
+  ZoruEmptyState,
+  ZoruInput,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruSkeleton,
+  cn,
+  useZoruToast,
+} from '@/components/zoruui';
 
-/* ── helpers ────────────────────────────────────────────────────── */
-
-function statusTone(status?: string): {
-  dot: string;
-  label: string;
-  chip: string;
-} {
+function statusVariant(status?: string): 'success' | 'ghost' | 'danger' {
   const s = (status ?? '').toLowerCase();
-  if (s === 'published')
-    return {
-      dot: 'bg-emerald-500',
-      label: 'Published',
-      chip: 'bg-[#DCFCE7] text-[#166534] border-[#86EFAC]',
-    };
-  if (s === 'draft' || !s)
-    return {
-      dot: 'bg-muted-foreground/70',
-      label: 'Draft',
-      chip: 'bg-muted text-muted-foreground border-border',
-    };
-  return {
-    dot: 'bg-destructive',
-    label: status!,
-    chip: 'bg-rose-50 text-destructive border-destructive/40',
-  };
+  if (s === 'published') return 'success';
+  if (s === 'draft' || !s) return 'ghost';
+  return 'danger';
 }
-
-/* ── page ───────────────────────────────────────────────────────── */
 
 export default function MetaFlowsPage() {
   const router = useRouter();
-  const { activeProject, activeProjectId } = useProject();
+  const { activeProjectId } = useProject();
   const [flows, setFlows] = useState<WithId<MetaFlow>[]>([]);
   const [isLoading, startLoadingTransition] = useTransition();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [searchQuery, setSearchQuery] = useState('');
 
   const fetchFlows = useCallback(() => {
@@ -91,20 +80,10 @@ export default function MetaFlowsPage() {
   }, [activeProjectId, fetchFlows]);
 
   const handleDelete = async (flowId: string, metaId: string) => {
-    if (
-      !confirm(
-        'Are you sure you want to delete this flow? This cannot be undone.',
-      )
-    ) {
-      return;
-    }
+    if (!confirm('Are you sure you want to delete this flow? This cannot be undone.')) return;
     const result = await deleteMetaFlow(flowId, metaId);
     if (result.error) {
-      toast({
-        title: 'Error',
-        description: result.error,
-        variant: 'destructive',
-      });
+      toast({ title: 'Error', description: result.error, variant: 'destructive' });
     } else {
       toast({ title: 'Deleted', description: result.message });
       fetchFlows();
@@ -122,64 +101,56 @@ export default function MetaFlowsPage() {
   );
 
   const stats = useMemo(() => {
-    const published = flows.filter(
-      (f) => (f.status ?? '').toLowerCase() === 'published',
-    ).length;
-    const draft = flows.filter(
-      (f) => (f.status ?? '').toLowerCase() === 'draft' || !f.status,
-    ).length;
+    const published = flows.filter((f) => (f.status ?? '').toLowerCase() === 'published').length;
+    const draft = flows.filter((f) => (f.status ?? '').toLowerCase() === 'draft' || !f.status)
+      .length;
     return { published, draft };
   }, [flows]);
 
   return (
-    <div className="clay-enter flex min-h-full flex-col gap-6">
-      {/* Breadcrumb */}
-      <ClayBreadcrumbs
-        items={[
-          { label: 'Wachat', href: '/dashboard' },
-          { label: activeProject?.name || 'Project', href: '/wachat' },
-          { label: 'Meta Flows' },
-        ]}
-      />
+    <div className="flex min-h-full flex-col gap-6">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Meta Flows</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
 
-      {/* Header */}
-      <div className="flex items-center justify-between gap-6">
-        <div className="min-w-0">
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
-            Meta Flows
-          </h1>
-          <p className="mt-1.5 max-w-[720px] text-[13px] text-muted-foreground">
-            Interactive multi-step WhatsApp experiences — forms, bookings,
-            order flows — managed directly from SabNode.
-          </p>
-        </div>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <ZoruPageHeader>
+          <ZoruPageHeading>
+            <ZoruPageTitle>Meta Flows</ZoruPageTitle>
+            <ZoruPageDescription>
+              Interactive multi-step WhatsApp experiences — forms, bookings, order flows — managed
+              directly from SabNode.
+            </ZoruPageDescription>
+          </ZoruPageHeading>
+        </ZoruPageHeader>
         <div className="flex items-center gap-2">
-          <SyncMetaFlowsButton
-            projectId={activeProjectId}
-            onSyncComplete={fetchFlows}
-          />
-          <ClayButton
-            variant="pill"
-            size="md"
-            leading={<LuBookOpen className="h-3.5 w-3.5" strokeWidth={2} />}
-            onClick={() => router.push('/wachat/flows/docs')}
-          >
+          <SyncMetaFlowsButton projectId={activeProjectId} onSyncComplete={fetchFlows} />
+          <ZoruButton variant="outline" onClick={() => router.push('/wachat/flows/docs')}>
+            <BookOpen className="h-3.5 w-3.5" />
             API docs
-          </ClayButton>
-          <ClayButton
-            variant="obsidian"
-            size="md"
-            className="px-5"
-            leading={<LuCirclePlus className="h-3.5 w-3.5" strokeWidth={2.5} />}
+          </ZoruButton>
+          <ZoruButton
             onClick={() => router.push('/wachat/flows/create')}
             disabled={!activeProjectId}
           >
+            <CirclePlus className="h-3.5 w-3.5" />
             New flow
-          </ClayButton>
+          </ZoruButton>
         </div>
       </div>
 
-      {/* Stats strip */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <Stat label="Total flows" value={String(flows.length)} />
         <Stat
@@ -190,95 +161,64 @@ export default function MetaFlowsPage() {
               ? `${Math.round((stats.published / flows.length) * 100)}% live`
               : 'none yet'
           }
-          tint="green"
+          tint="success"
         />
-        <Stat label="Drafts" value={String(stats.draft)} tint="neutral" />
+        <Stat label="Drafts" value={String(stats.draft)} />
       </div>
 
       {!activeProjectId ? (
-        <ClayCard padded={false} className="p-10 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-accent text-accent-foreground">
-            <LuCircleAlert className="h-5 w-5" strokeWidth={1.5} />
-          </div>
-          <div className="mt-4 text-[15px] font-semibold text-foreground">
-            No project selected
-          </div>
-          <div className="mt-1.5 text-[12.5px] text-muted-foreground">
-            Please select a project from the main dashboard to manage Meta
-            Flows.
-          </div>
-          <ClayButton
-            variant="rose"
-            size="md"
-            onClick={() => router.push('/wachat')}
-            className="mt-5"
-          >
-            Choose a project
-          </ClayButton>
-        </ClayCard>
+        <ZoruEmptyState
+          icon={<CircleAlert className="h-10 w-10" />}
+          title="No project selected"
+          description="Please select a project from the main dashboard to manage Meta Flows."
+          action={<ZoruButton onClick={() => router.push('/wachat')}>Choose a project</ZoruButton>}
+        />
       ) : (
-        <ClayCard padded={false} className="p-6">
-          {/* Filter bar */}
+        <ZoruCard className="p-6">
           <div className="flex flex-wrap items-center gap-3">
             <div className="min-w-[260px] flex-1">
-              <ClayInput
-                sizeVariant="md"
+              <ZoruInput
                 placeholder="Search flows by name or Meta ID…"
-                leading={<LuSearch className="h-3.5 w-3.5" strokeWidth={2} />}
+                leadingSlot={<Search />}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            <ClayButton
-              variant="pill"
-              size="md"
-              leading={<LuRefreshCw className="h-3.5 w-3.5" strokeWidth={2} />}
-              onClick={fetchFlows}
-              disabled={isLoading}
-            >
+            <ZoruButton variant="outline" size="sm" onClick={fetchFlows} disabled={isLoading}>
+              <RefreshCw className={cn('h-3.5 w-3.5', isLoading && 'animate-spin')} />
               {isLoading ? 'Refreshing…' : 'Refresh'}
-            </ClayButton>
-            <span className="ml-auto text-[11.5px] tabular-nums text-muted-foreground">
+            </ZoruButton>
+            <span className="ml-auto text-[11.5px] tabular-nums text-zoru-ink-muted">
               {filteredFlows.length} / {flows.length} flows
             </span>
           </div>
 
-          {/* Table / empty / skeleton */}
-          <div className="mt-5 overflow-hidden rounded-[12px] border border-border">
+          <div className="mt-5 overflow-hidden rounded-[var(--zoru-radius)] border border-zoru-line">
             {isLoading && flows.length === 0 ? (
-              <div className="flex h-40 items-center justify-center">
-                <div className="h-32 w-[85%] animate-pulse rounded-[10px] bg-muted" />
+              <div className="p-4">
+                <ZoruSkeleton className="h-32 w-full" />
               </div>
             ) : filteredFlows.length === 0 ? (
-              <div className="flex flex-col items-center gap-2 px-4 py-12 text-center">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
-                  <LuServerCog className="h-5 w-5" strokeWidth={1.5} />
-                </div>
-                <div className="mt-2 text-[13px] font-semibold text-foreground">
-                  {searchQuery ? 'No matching flows' : 'No Meta Flows yet'}
-                </div>
-                <div className="max-w-[360px] text-[11.5px] text-muted-foreground">
-                  {searchQuery
+              <ZoruEmptyState
+                icon={<ServerCog className="h-10 w-10" />}
+                title={searchQuery ? 'No matching flows' : 'No Meta Flows yet'}
+                description={
+                  searchQuery
                     ? `Nothing matched "${searchQuery}". Try a different search.`
-                    : 'Create a flow to let customers fill out forms, book slots, or order items inside a WhatsApp conversation.'}
-                </div>
-                {!searchQuery ? (
-                  <ClayButton
-                    variant="rose"
-                    size="sm"
-                    leading={
-                      <LuCirclePlus className="h-3.5 w-3.5" strokeWidth={2.5} />
-                    }
-                    onClick={() => router.push('/wachat/flows/create')}
-                    className="mt-2"
-                  >
-                    Create your first flow
-                  </ClayButton>
-                ) : null}
-              </div>
+                    : 'Create a flow to let customers fill out forms, book slots, or order items inside a WhatsApp conversation.'
+                }
+                action={
+                  !searchQuery ? (
+                    <ZoruButton size="sm" onClick={() => router.push('/wachat/flows/create')}>
+                      <CirclePlus className="h-3.5 w-3.5" />
+                      Create your first flow
+                    </ZoruButton>
+                  ) : undefined
+                }
+              />
             ) : (
-              <table className="w-full text-[13px]">
-                <thead className="bg-secondary border-b border-border text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              <table className="w-full text-sm">
+                <thead className="border-b border-zoru-line bg-zoru-surface text-[11px] uppercase tracking-wide text-zoru-ink-muted">
                   <tr>
                     <th className="px-4 py-3 text-left">Flow name</th>
                     <th className="px-4 py-3 text-left">Meta ID</th>
@@ -287,104 +227,68 @@ export default function MetaFlowsPage() {
                     <th className="px-4 py-3 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border">
-                  {filteredFlows.map((flow) => {
-                    const tone = statusTone(flow.status);
-                    return (
-                      <tr
-                        key={flow._id.toString()}
-                        className="transition-colors hover:bg-secondary"
-                      >
-                        <td className="px-4 py-3">
-                          <span className="font-medium text-foreground">
-                            {flow.name}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 font-mono text-[12px] text-muted-foreground tabular-nums">
-                          {flow.metaId}
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="flex flex-wrap gap-1">
-                            {flow.categories?.map((cat) => (
-                              <span
-                                key={cat}
-                                className="inline-flex h-5 items-center rounded-full border border-border bg-muted px-2 text-[10.5px] font-medium text-muted-foreground"
-                              >
-                                {cat}
-                              </span>
-                            ))}
-                          </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <span
-                            className={cn(
-                              'inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10.5px] font-semibold',
-                              tone.chip,
-                            )}
-                          >
-                            <span
-                              className={cn(
-                                'h-1.5 w-1.5 rounded-full',
-                                tone.dot,
-                              )}
-                            />
-                            {tone.label}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <button
-                                type="button"
-                                aria-label="Open menu"
-                                className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-                              >
-                                <LuEllipsis className="h-4 w-4" />
-                              </button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem asChild>
-                                <Link
-                                  href={`/wachat/flows/create?flowId=${flow._id.toString()}`}
-                                >
-                                  <LuPencil className="mr-2 h-4 w-4" />
-                                  Edit flow
-                                </Link>
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem
-                                className="text-destructive focus:text-destructive"
-                                onClick={() =>
-                                  handleDelete(
-                                    flow._id.toString(),
-                                    flow.metaId,
-                                  )
-                                }
-                              >
-                                <LuTrash2 className="mr-2 h-4 w-4" />
-                                Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                <tbody className="divide-y divide-zoru-line">
+                  {filteredFlows.map((flow) => (
+                    <tr
+                      key={flow._id.toString()}
+                      className="transition-colors hover:bg-zoru-surface-2"
+                    >
+                      <td className="px-4 py-3 text-zoru-ink">{flow.name}</td>
+                      <td className="px-4 py-3 font-mono text-xs tabular-nums text-zoru-ink-muted">
+                        {flow.metaId}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex flex-wrap gap-1">
+                          {flow.categories?.map((cat) => (
+                            <ZoruBadge key={cat} variant="ghost">
+                              {cat}
+                            </ZoruBadge>
+                          ))}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <ZoruBadge variant={statusVariant(flow.status)}>
+                          {flow.status || 'Draft'}
+                        </ZoruBadge>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <ZoruDropdownMenu>
+                          <ZoruDropdownMenuTrigger asChild>
+                            <ZoruButton variant="ghost" size="icon-sm" aria-label="Open menu">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </ZoruButton>
+                          </ZoruDropdownMenuTrigger>
+                          <ZoruDropdownMenuContent align="end">
+                            <ZoruDropdownMenuLabel>Actions</ZoruDropdownMenuLabel>
+                            <ZoruDropdownMenuSeparator />
+                            <ZoruDropdownMenuItem asChild>
+                              <Link href={`/wachat/flows/create?flowId=${flow._id.toString()}`}>
+                                <Pencil className="mr-2 h-4 w-4" />
+                                Edit flow
+                              </Link>
+                            </ZoruDropdownMenuItem>
+                            <ZoruDropdownMenuSeparator />
+                            <ZoruDropdownMenuItem
+                              destructive
+                              onClick={() => handleDelete(flow._id.toString(), flow.metaId)}
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete
+                            </ZoruDropdownMenuItem>
+                          </ZoruDropdownMenuContent>
+                        </ZoruDropdownMenu>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             )}
           </div>
-        </ClayCard>
+        </ZoruCard>
       )}
-
-      <div className="h-6" />
     </div>
   );
 }
-
-/* ── stat tile ──────────────────────────────────────────────────── */
 
 function Stat({
   label,
@@ -395,28 +299,22 @@ function Stat({
   label: string;
   value: string;
   hint?: string;
-  tint?: 'neutral' | 'green';
+  tint?: 'neutral' | 'success';
 }) {
   return (
-    <div className="rounded-[14px] border border-border bg-card p-4">
-      <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-        {label}
-      </div>
+    <ZoruCard className="p-4">
+      <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">{label}</div>
       <div className="mt-2 flex items-baseline gap-2">
         <div
           className={cn(
-            'text-[22px] font-semibold tracking-[-0.01em] leading-none',
-            tint === 'green' ? 'text-emerald-500' : 'text-foreground',
+            'text-[22px] tracking-[-0.01em] leading-none',
+            tint === 'success' ? 'text-zoru-success-ink' : 'text-zoru-ink',
           )}
         >
           {value}
         </div>
       </div>
-      {hint ? (
-        <div className="mt-1 text-[11px] text-muted-foreground leading-tight truncate">
-          {hint}
-        </div>
-      ) : null}
-    </div>
+      {hint && <div className="mt-1 truncate text-[11px] text-zoru-ink-muted">{hint}</div>}
+    </ZoruCard>
   );
 }

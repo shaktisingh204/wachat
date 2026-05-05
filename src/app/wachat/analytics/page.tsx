@@ -2,29 +2,53 @@
 
 /**
  * Wachat Analytics — WhatsApp messaging analytics dashboard.
- *
- * Shows conversation analytics from Meta API and local message stats
- * including delivery rates, read rates, and broadcast performance.
  */
 
 import * as React from 'react';
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import {
-  LuActivity,
-  LuMessageSquare,
-  LuSend,
-  LuCheckCheck,
-  LuEye,
-  LuCircleAlert,
-  LuArrowDown,
-  LuRefreshCw,
-} from 'react-icons/lu';
+  Activity,
+  ArrowDown,
+  CircleAlert,
+  CheckCheck,
+  Eye,
+  MessageSquare,
+  RefreshCw,
+  Send,
+} from 'lucide-react';
+import {
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 
 import { useProject } from '@/context/project-context';
-import { useToast } from '@/hooks/use-toast';
-import { getLocalMessageAnalytics, getBroadcastAnalytics } from '@/app/actions/whatsapp-analytics.actions';
-import { ClayBreadcrumbs, ClayButton, ClayCard } from '@/components/clay';
-import { ResponsiveContainer, LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, Legend } from 'recharts';
+import {
+  getLocalMessageAnalytics,
+  getBroadcastAnalytics,
+} from '@/app/actions/whatsapp-analytics.actions';
+import {
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruEmptyState,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  cn,
+  useZoruToast,
+} from '@/components/zoruui';
 
 export const dynamic = 'force-dynamic';
 
@@ -53,7 +77,7 @@ type BroadcastData = {
 
 export default function AnalyticsPage() {
   const { activeProject } = useProject();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [isPending, startTransition] = useTransition();
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [broadcastData, setBroadcastData] = useState<BroadcastData | null>(null);
@@ -89,181 +113,217 @@ export default function AnalyticsPage() {
   }, [fetchAnalytics]);
 
   const statCards = [
-    { label: 'Messages Sent', value: analytics?.totalSent ?? 0, icon: LuSend, color: 'text-blue-500' },
-    { label: 'Delivered', value: analytics?.totalDelivered ?? 0, icon: LuCheckCheck, color: 'text-green-500' },
-    { label: 'Read', value: analytics?.totalRead ?? 0, icon: LuEye, color: 'text-emerald-500' },
-    { label: 'Failed', value: analytics?.totalFailed ?? 0, icon: LuCircleAlert, color: 'text-red-500' },
-    { label: 'Incoming', value: analytics?.totalIncoming ?? 0, icon: LuArrowDown, color: 'text-amber-500' },
-    { label: 'Broadcasts', value: broadcastData?.totalBroadcasts ?? 0, icon: LuMessageSquare, color: 'text-purple-500' },
+    { label: 'Messages sent', value: analytics?.totalSent ?? 0, Icon: Send },
+    { label: 'Delivered', value: analytics?.totalDelivered ?? 0, Icon: CheckCheck },
+    { label: 'Read', value: analytics?.totalRead ?? 0, Icon: Eye },
+    { label: 'Failed', value: analytics?.totalFailed ?? 0, Icon: CircleAlert },
+    { label: 'Incoming', value: analytics?.totalIncoming ?? 0, Icon: ArrowDown },
+    { label: 'Broadcasts', value: broadcastData?.totalBroadcasts ?? 0, Icon: MessageSquare },
   ];
 
   return (
-    <div className="clay-enter flex min-h-full flex-col gap-6">
-      <ClayBreadcrumbs
-        items={[
-          { label: 'Wachat', href: '/dashboard' },
-          { label: activeProject?.name || 'Project', href: '/wachat' },
-          { label: 'Analytics' },
-        ]}
-      />
+    <div className="flex min-h-full flex-col gap-6">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Analytics</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
 
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
-            Message Analytics
-          </h1>
-          <p className="mt-1.5 max-w-[720px] text-[13px] text-muted-foreground">
-            Track your messaging performance, delivery rates, and broadcast metrics.
-          </p>
-        </div>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <ZoruPageHeader>
+          <ZoruPageHeading>
+            <ZoruPageTitle>Message analytics</ZoruPageTitle>
+            <ZoruPageDescription>
+              Track your messaging performance, delivery rates, and broadcast metrics.
+            </ZoruPageDescription>
+          </ZoruPageHeading>
+        </ZoruPageHeader>
+
         <div className="flex items-center gap-2">
-          <div className="flex rounded-lg border border-border overflow-hidden text-xs">
+          <div className="flex overflow-hidden rounded-[var(--zoru-radius-sm)] border border-zoru-line text-xs">
             {(['7d', '30d', '90d'] as const).map((range) => (
               <button
                 key={range}
                 onClick={() => setDateRange(range)}
-                className={`px-3 py-1.5 transition-colors ${dateRange === range ? 'bg-secondary text-foreground font-medium' : 'text-muted-foreground hover:bg-muted'}`}
+                className={cn(
+                  'px-3 py-1.5 transition-colors',
+                  dateRange === range
+                    ? 'bg-zoru-surface-2 text-zoru-ink'
+                    : 'text-zoru-ink-muted hover:bg-zoru-surface',
+                )}
               >
-                {range === '7d' ? '7 Days' : range === '30d' ? '30 Days' : '90 Days'}
+                {range === '7d' ? '7 days' : range === '30d' ? '30 days' : '90 days'}
               </button>
             ))}
           </div>
-          <ClayButton size="sm" variant="ghost" onClick={fetchAnalytics} disabled={isPending}>
-            <LuRefreshCw className={`mr-1.5 h-3.5 w-3.5 ${isPending ? 'animate-spin' : ''}`} />
+          <ZoruButton size="sm" variant="outline" onClick={fetchAnalytics} disabled={isPending}>
+            <RefreshCw className={cn('h-3.5 w-3.5', isPending && 'animate-spin')} />
             Refresh
-          </ClayButton>
+          </ZoruButton>
         </div>
       </div>
 
-      {/* Stats Grid */}
+      {/* Stats grid */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
         {statCards.map((stat) => (
-          <ClayCard key={stat.label} className="p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <stat.icon className={`h-4 w-4 ${stat.color}`} />
-              <span className="text-[11px] text-muted-foreground uppercase tracking-wider">{stat.label}</span>
+          <ZoruCard key={stat.label} className="p-4">
+            <div className="mb-2 flex items-center gap-2">
+              <stat.Icon className="h-4 w-4 text-zoru-ink-muted" />
+              <span className="text-[11px] uppercase tracking-wider text-zoru-ink-muted">
+                {stat.label}
+              </span>
             </div>
-            <p className="text-2xl font-semibold text-foreground tabular-nums">
-              {stat.value.toLocaleString()}
-            </p>
-          </ClayCard>
+            <p className="text-2xl tabular-nums text-zoru-ink">{stat.value.toLocaleString()}</p>
+          </ZoruCard>
         ))}
       </div>
 
-      {/* Delivery Rate */}
+      {/* Delivery rate */}
       {analytics && analytics.totalSent > 0 && (
-        <ClayCard className="p-6">
-          <h2 className="text-sm font-medium text-foreground mb-4">Delivery Performance</h2>
+        <ZoruCard className="p-6">
+          <h2 className="mb-4 text-sm text-zoru-ink">Delivery performance</h2>
           <div className="grid grid-cols-3 gap-6">
-            <div>
-              <p className="text-[11px] text-muted-foreground uppercase tracking-wider mb-1">Delivery Rate</p>
-              <p className="text-3xl font-semibold text-green-500 tabular-nums">
-                {((analytics.totalDelivered / analytics.totalSent) * 100).toFixed(1)}%
-              </p>
-            </div>
-            <div>
-              <p className="text-[11px] text-muted-foreground uppercase tracking-wider mb-1">Read Rate</p>
-              <p className="text-3xl font-semibold text-emerald-500 tabular-nums">
-                {((analytics.totalRead / analytics.totalSent) * 100).toFixed(1)}%
-              </p>
-            </div>
-            <div>
-              <p className="text-[11px] text-muted-foreground uppercase tracking-wider mb-1">Failure Rate</p>
-              <p className="text-3xl font-semibold text-red-500 tabular-nums">
-                {((analytics.totalFailed / analytics.totalSent) * 100).toFixed(1)}%
-              </p>
-            </div>
+            {[
+              {
+                label: 'Delivery rate',
+                value: ((analytics.totalDelivered / analytics.totalSent) * 100).toFixed(1),
+                tone: 'text-zoru-success-ink',
+              },
+              {
+                label: 'Read rate',
+                value: ((analytics.totalRead / analytics.totalSent) * 100).toFixed(1),
+                tone: 'text-zoru-success-ink',
+              },
+              {
+                label: 'Failure rate',
+                value: ((analytics.totalFailed / analytics.totalSent) * 100).toFixed(1),
+                tone: 'text-zoru-danger-ink',
+              },
+            ].map((metric) => (
+              <div key={metric.label}>
+                <p className="mb-1 text-[11px] uppercase tracking-wider text-zoru-ink-muted">
+                  {metric.label}
+                </p>
+                <p className={cn('text-3xl tabular-nums', metric.tone)}>{metric.value}%</p>
+              </div>
+            ))}
           </div>
-        </ClayCard>
+        </ZoruCard>
       )}
 
       {/* Daily trend chart */}
       {analytics && analytics.dailyBreakdown.length > 0 && (
-        <ClayCard className="p-6">
-          <h2 className="mb-4 text-sm font-medium text-foreground">Daily trend</h2>
+        <ZoruCard className="p-6">
+          <h2 className="mb-4 text-sm text-zoru-ink">Daily trend</h2>
           <div className="h-[260px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={analytics.dailyBreakdown} margin={{ top: 5, right: 12, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" />
-                <XAxis dataKey="date" stroke="#a1a1aa" tick={{ fontSize: 10 }} />
-                <YAxis stroke="#a1a1aa" tick={{ fontSize: 10 }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--zoru-line))" />
+                <XAxis dataKey="date" stroke="hsl(var(--zoru-ink-muted))" tick={{ fontSize: 10 }} />
+                <YAxis stroke="hsl(var(--zoru-ink-muted))" tick={{ fontSize: 10 }} />
                 <Tooltip />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Line type="monotone" dataKey="sent" stroke="#18181b" strokeWidth={2} dot={false} name="Sent" />
-                <Line type="monotone" dataKey="delivered" stroke="#10b981" strokeWidth={2} dot={false} name="Delivered" />
-                <Line type="monotone" dataKey="read" stroke="#f59e0b" strokeWidth={2} dot={false} name="Read" />
-                <Line type="monotone" dataKey="failed" stroke="#ef4444" strokeWidth={2} dot={false} name="Failed" />
+                <Line type="monotone" dataKey="sent" stroke="hsl(var(--zoru-ink))" strokeWidth={2} dot={false} name="Sent" />
+                <Line type="monotone" dataKey="delivered" stroke="hsl(var(--zoru-success))" strokeWidth={2} strokeDasharray="6 3" dot={false} name="Delivered" />
+                <Line type="monotone" dataKey="read" stroke="hsl(var(--zoru-warning))" strokeWidth={2} strokeDasharray="3 3" dot={false} name="Read" />
+                <Line type="monotone" dataKey="failed" stroke="hsl(var(--zoru-danger))" strokeWidth={2} dot={false} name="Failed" />
               </LineChart>
             </ResponsiveContainer>
           </div>
-        </ClayCard>
+        </ZoruCard>
       )}
 
-      {/* Daily Breakdown Table */}
+      {/* Daily breakdown table */}
       {analytics && analytics.dailyBreakdown.length > 0 && (
-        <ClayCard padded={false}>
-          <div className="p-4 border-b border-border">
-            <h2 className="text-sm font-medium text-foreground">Daily Breakdown</h2>
+        <ZoruCard>
+          <div className="border-b border-zoru-line p-4">
+            <h2 className="text-sm text-zoru-ink">Daily breakdown</h2>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
-                <tr className="border-b border-border text-muted-foreground">
-                  <th className="px-4 py-2.5 text-left font-medium">Date</th>
-                  <th className="px-4 py-2.5 text-right font-medium">Sent</th>
-                  <th className="px-4 py-2.5 text-right font-medium">Delivered</th>
-                  <th className="px-4 py-2.5 text-right font-medium">Read</th>
-                  <th className="px-4 py-2.5 text-right font-medium">Failed</th>
-                  <th className="px-4 py-2.5 text-right font-medium">Incoming</th>
+                <tr className="border-b border-zoru-line text-zoru-ink-muted">
+                  <th className="px-4 py-2.5 text-left">Date</th>
+                  <th className="px-4 py-2.5 text-right">Sent</th>
+                  <th className="px-4 py-2.5 text-right">Delivered</th>
+                  <th className="px-4 py-2.5 text-right">Read</th>
+                  <th className="px-4 py-2.5 text-right">Failed</th>
+                  <th className="px-4 py-2.5 text-right">Incoming</th>
                 </tr>
               </thead>
               <tbody>
-                {analytics.dailyBreakdown.slice().reverse().map((day) => (
-                  <tr key={day.date} className="border-b border-border/50 hover:bg-muted/50">
-                    <td className="px-4 py-2 text-foreground font-medium">{day.date}</td>
-                    <td className="px-4 py-2 text-right text-foreground tabular-nums">{day.sent}</td>
-                    <td className="px-4 py-2 text-right text-green-500 tabular-nums">{day.delivered}</td>
-                    <td className="px-4 py-2 text-right text-emerald-500 tabular-nums">{day.read}</td>
-                    <td className="px-4 py-2 text-right text-red-500 tabular-nums">{day.failed}</td>
-                    <td className="px-4 py-2 text-right text-amber-500 tabular-nums">{day.incoming}</td>
-                  </tr>
-                ))}
+                {analytics.dailyBreakdown
+                  .slice()
+                  .reverse()
+                  .map((day) => (
+                    <tr
+                      key={day.date}
+                      className="border-b border-zoru-line/50 hover:bg-zoru-surface-2"
+                    >
+                      <td className="px-4 py-2 text-zoru-ink">{day.date}</td>
+                      <td className="px-4 py-2 text-right tabular-nums text-zoru-ink">{day.sent}</td>
+                      <td className="px-4 py-2 text-right tabular-nums text-zoru-success-ink">{day.delivered}</td>
+                      <td className="px-4 py-2 text-right tabular-nums text-zoru-success-ink">{day.read}</td>
+                      <td className="px-4 py-2 text-right tabular-nums text-zoru-danger-ink">{day.failed}</td>
+                      <td className="px-4 py-2 text-right tabular-nums text-zoru-warning-ink">{day.incoming}</td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>
-        </ClayCard>
+        </ZoruCard>
       )}
 
-      {/* Broadcast Performance */}
+      {/* Broadcast performance */}
       {broadcastData && broadcastData.totalBroadcasts > 0 && (
-        <ClayCard className="p-6">
-          <h2 className="text-sm font-medium text-foreground mb-4">Broadcast Performance</h2>
+        <ZoruCard className="p-6">
+          <h2 className="mb-4 text-sm text-zoru-ink">Broadcast performance</h2>
           <div className="grid grid-cols-4 gap-6">
-            <div>
-              <p className="text-[11px] text-muted-foreground uppercase tracking-wider mb-1">Total Campaigns</p>
-              <p className="text-2xl font-semibold text-foreground tabular-nums">{broadcastData.totalBroadcasts}</p>
-            </div>
-            <div>
-              <p className="text-[11px] text-muted-foreground uppercase tracking-wider mb-1">Total Recipients</p>
-              <p className="text-2xl font-semibold text-foreground tabular-nums">{broadcastData.totalContacts.toLocaleString()}</p>
-            </div>
-            <div>
-              <p className="text-[11px] text-muted-foreground uppercase tracking-wider mb-1">Successful</p>
-              <p className="text-2xl font-semibold text-green-500 tabular-nums">{broadcastData.totalSuccess.toLocaleString()}</p>
-            </div>
-            <div>
-              <p className="text-[11px] text-muted-foreground uppercase tracking-wider mb-1">Failed</p>
-              <p className="text-2xl font-semibold text-red-500 tabular-nums">{broadcastData.totalFailed.toLocaleString()}</p>
-            </div>
+            {[
+              { label: 'Total campaigns', value: broadcastData.totalBroadcasts, tone: 'text-zoru-ink' },
+              {
+                label: 'Total recipients',
+                value: broadcastData.totalContacts.toLocaleString(),
+                tone: 'text-zoru-ink',
+              },
+              {
+                label: 'Successful',
+                value: broadcastData.totalSuccess.toLocaleString(),
+                tone: 'text-zoru-success-ink',
+              },
+              {
+                label: 'Failed',
+                value: broadcastData.totalFailed.toLocaleString(),
+                tone: 'text-zoru-danger-ink',
+              },
+            ].map((metric) => (
+              <div key={metric.label}>
+                <p className="mb-1 text-[11px] uppercase tracking-wider text-zoru-ink-muted">
+                  {metric.label}
+                </p>
+                <p className={cn('text-2xl tabular-nums', metric.tone)}>{metric.value}</p>
+              </div>
+            ))}
           </div>
-        </ClayCard>
+        </ZoruCard>
       )}
 
       {!analytics && !isPending && (
-        <ClayCard className="p-12 text-center">
-          <LuActivity className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
-          <p className="text-sm text-muted-foreground">Select a project to view analytics</p>
-        </ClayCard>
+        <ZoruEmptyState
+          icon={<Activity className="h-12 w-12" />}
+          title="No analytics yet"
+          description="Select a project to view analytics."
+        />
       )}
     </div>
   );

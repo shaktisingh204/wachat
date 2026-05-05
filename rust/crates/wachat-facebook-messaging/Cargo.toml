@@ -1,0 +1,36 @@
+[package]
+name = "wachat-facebook-messaging"
+version = "0.1.0"
+edition = "2024"
+description = "Facebook Messenger conversation + thread-control + notification messaging slice. Mirrors the Messenger half of src/app/actions/facebook.actions.ts."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "wachat_facebook_messaging"
+path = "src/lib.rs"
+
+[dependencies]
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+bson = { version = "2", features = ["chrono-0_4"] }
+mongodb = { version = "3" }
+
+futures = "0.3"
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+tracing = "0.1"
+anyhow = "1"
+urlencoding = "2"
+
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+wachat-meta-client = { path = "../wachat-meta-client" }
+
+[lints]
+workspace = true

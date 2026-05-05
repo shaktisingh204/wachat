@@ -1,55 +1,93 @@
-
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
-import { useParams, notFound } from 'next/navigation';
-import { ProductForm } from '@/components/wabasimplify/product-form';
-import { Button } from '@/components/ui/button';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-import { getProductsForCatalog } from '@/app/actions/catalog.actions';
-import { useProject } from '@/context/project-context';
 import type { WithId } from 'mongodb';
+
+import { ProductForm } from '@/components/wabasimplify/product-form';
+import { useProject } from '@/context/project-context';
+import { getProductsForCatalog } from '@/app/actions/catalog.actions';
 import type { Product } from '@/lib/definitions';
-import { Skeleton } from '@/components/ui/skeleton';
+import {
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruSkeleton,
+} from '@/components/zoruui';
 
 export default function EditProductPage() {
-    const params = useParams();
-    const { activeProjectId } = useProject();
-    const productId = params.productId as string;
-    const catalogId = params.catalogId as string;
-    
-    const [product, setProduct] = useState<WithId<Product> | null>(null);
-    const [isLoading, startLoading] = useTransition();
+  const params = useParams();
+  const { activeProjectId } = useProject();
+  const productId = params.productId as string;
+  const catalogId = params.catalogId as string;
 
-    useEffect(() => {
-        if (productId && activeProjectId) {
-            startLoading(async () => {
-                const products = await getProductsForCatalog(catalogId, activeProjectId);
-                const found = (products as any).products?.find((p: any) => p.id === productId);
-                if (found) {
-                    setProduct(found as any);
-                }
-            });
-        }
-    }, [productId, catalogId, activeProjectId]);
-    
-    if (isLoading || !product) {
-        return <Skeleton className="h-96 w-full" />;
+  const [product, setProduct] = useState<WithId<Product> | null>(null);
+  const [isLoading, startLoading] = useTransition();
+
+  useEffect(() => {
+    if (productId && activeProjectId) {
+      startLoading(async () => {
+        const products = await getProductsForCatalog(catalogId, activeProjectId);
+        const found = (products as any).products?.find(
+          (p: any) => p.id === productId,
+        );
+        if (found) setProduct(found as any);
+      });
     }
+  }, [productId, catalogId, activeProjectId]);
 
-    return (
-        <div className="space-y-6">
-            <div>
-                <Button variant="ghost" asChild className="-ml-4">
-                    <Link href={`/wachat/catalog/${catalogId}`}>
-                        <ArrowLeft className="mr-2 h-4 w-4" /> Back to Products
-                    </Link>
-                </Button>
-                <h1 className="text-3xl font-bold font-headline mt-2">Edit Product: {product.name}</h1>
-                <p className="text-muted-foreground">Modify the details for this product.</p>
-            </div>
-            <ProductForm product={product} />
-        </div>
-    );
+  if (isLoading || !product) {
+    return <ZoruSkeleton className="h-96 w-full" />;
+  }
+
+  const backHref = `/wachat/catalog/${catalogId}`;
+
+  return (
+    <div className="space-y-6">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href={backHref}>Catalog</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Edit product</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
+
+      <ZoruPageHeader>
+        <ZoruPageHeading>
+          <ZoruPageTitle>Edit product: {product.name}</ZoruPageTitle>
+          <ZoruPageDescription>Modify the details for this product.</ZoruPageDescription>
+        </ZoruPageHeading>
+      </ZoruPageHeader>
+
+      <ZoruButton variant="ghost" size="sm" asChild className="-ml-2">
+        <Link href={backHref}>
+          <ArrowLeft className="mr-1 h-4 w-4" /> Back to products
+        </Link>
+      </ZoruButton>
+
+      <ProductForm product={product} />
+    </div>
+  );
 }

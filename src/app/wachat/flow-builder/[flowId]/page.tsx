@@ -58,7 +58,11 @@ import CustomNode from '@/components/flow-builder/CustomNode';
 import { PropertiesPanel } from '@/components/wabasimplify/properties-panel';
 
 import { cn } from '@/lib/utils';
-import { ClayButton, ClayCard } from '@/components/clay';
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruEmptyState,
+} from '@/components/zoruui';
 
 import {
   Popover,
@@ -341,26 +345,12 @@ function FlowBuilder({ flowId }: { flowId: string }) {
   if (!activeProjectId) {
     return (
       <div className="flex h-full w-full items-center justify-center p-6">
-        <ClayCard padded={false} className="max-w-md p-10 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-accent text-accent-foreground">
-            <LuCircleAlert className="h-5 w-5" strokeWidth={1.5} />
-          </div>
-          <div className="mt-4 text-[15px] font-semibold text-foreground">
-            No project selected
-          </div>
-          <div className="mt-1.5 text-[12.5px] text-muted-foreground">
-            Please select a project from the main dashboard to use the
-            flow builder.
-          </div>
-          <ClayButton
-            variant="rose"
-            size="md"
-            onClick={() => router.push('/wachat')}
-            className="mt-5"
-          >
-            Choose a project
-          </ClayButton>
-        </ClayCard>
+        <ZoruEmptyState
+          icon={<LuCircleAlert className="h-10 w-10" />}
+          title="No project selected"
+          description="Please select a project from the main dashboard to use the flow builder."
+          action={<ZoruButton onClick={() => router.push('/wachat')}>Choose a project</ZoruButton>}
+        />
       </div>
     );
   }
@@ -411,40 +401,30 @@ function FlowBuilder({ flowId }: { flowId: string }) {
         </div>
 
         <div className="flex items-center gap-2">
-          <ClayButton
-            variant="pill"
+          <ZoruButton
+            variant="outline"
             size="sm"
-            leading={<LuBookOpen className="h-3.5 w-3.5" strokeWidth={2} />}
-            onClick={() =>
-              window.open('/wachat/flow-builder/docs', '_blank')
-            }
+            onClick={() => window.open('/wachat/flow-builder/docs', '_blank')}
           >
+            <LuBookOpen className="h-3.5 w-3.5" />
             Docs
-          </ClayButton>
-          <ClayButton
-            variant="pill"
+          </ZoruButton>
+          <ZoruButton
+            variant="outline"
             size="sm"
-            leading={<LuSettings2 className="h-3.5 w-3.5" strokeWidth={2} />}
             onClick={() => setIsSettingsOpen(true)}
           >
+            <LuSettings2 className="h-3.5 w-3.5" />
             Settings
-          </ClayButton>
-          <ClayButton
-            variant="obsidian"
-            size="md"
-            className="px-5"
-            leading={
-              isSaving ? (
-                <LuLoader className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <LuSave className="h-3.5 w-3.5" strokeWidth={2} />
-              )
-            }
-            onClick={handleSave}
-            disabled={isSaving}
-          >
+          </ZoruButton>
+          <ZoruButton onClick={handleSave} disabled={isSaving}>
+            {isSaving ? (
+              <LuLoader className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <LuSave className="h-3.5 w-3.5" />
+            )}
             {isSaving ? 'Saving…' : 'Save flow'}
-          </ClayButton>
+          </ZoruButton>
         </div>
       </header>
 
@@ -684,17 +664,14 @@ function FlowSettingsDialog({
           </div>
 
           <DialogFooter className="border-t border-border px-6 py-4 sm:justify-end gap-2">
-            <ClayButton
+            <ZoruButton
               type="button"
-              variant="pill"
-              size="md"
+              variant="outline"
               onClick={() => onOpenChange(false)}
             >
               Cancel
-            </ClayButton>
-            <ClayButton type="submit" variant="rose" size="md">
-              Save changes
-            </ClayButton>
+            </ZoruButton>
+            <ZoruButton type="submit">Save changes</ZoruButton>
           </DialogFooter>
         </form>
       </DialogContent>

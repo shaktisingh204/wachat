@@ -1,19 +1,23 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
-import { getProjectById } from '@/app/actions/project.actions';
 import type { WithId, Project } from '@/lib/definitions';
+
+import { getProjectById } from '@/app/actions/project.actions';
 import { useProject } from '@/context/project-context';
 import { WhatsappLinkGenerator } from '@/components/wabasimplify/whatsapp-link-generator';
-import { ClayBreadcrumbs } from '@/components/clay';
-
-function PageSkeleton() {
-  return (
-    <div className="space-y-4">
-      <div className="h-64 w-full animate-pulse rounded-xl bg-muted" />
-    </div>
-  );
-}
+import {
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruAlertTitle,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruSkeleton,
+} from '@/components/zoruui';
 
 export default function WhatsappLinkGeneratorPage() {
   const { activeProject } = useProject();
@@ -32,23 +36,36 @@ export default function WhatsappLinkGeneratorPage() {
 
   return (
     <div className="flex h-full w-full flex-col">
-      <ClayBreadcrumbs
-        items={[
-          { label: 'SabNode', href: '/dashboard' },
-          { label: 'Wachat', href: '/wachat' },
-          { label: 'Integrations', href: '/wachat/integrations' },
-          { label: 'Link Generator' },
-        ]}
-      />
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/wachat/integrations">Integrations</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Link generator</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
 
       <div className="mt-5 flex-1">
         {isLoading ? (
-          <PageSkeleton />
+          <ZoruSkeleton className="h-64 w-full" />
         ) : !project ? (
-          <div className="flex items-center gap-3 rounded-lg border border-destructive/20 bg-red-50 p-4 text-[13px] text-destructive">
-            No project selected. Please select a project from the main
-            dashboard.
-          </div>
+          <ZoruAlert variant="destructive">
+            <ZoruAlertTitle>No project selected</ZoruAlertTitle>
+            <ZoruAlertDescription>
+              Please select a project from the main dashboard.
+            </ZoruAlertDescription>
+          </ZoruAlert>
         ) : (
           <WhatsappLinkGenerator project={project} />
         )}

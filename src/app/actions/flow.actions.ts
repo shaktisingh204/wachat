@@ -3,41 +3,29 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { type Db, ObjectId, type WithId } from 'mongodb';
-import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById } from '@/app/actions/project.actions';
+import { type WithId } from 'mongodb';
+import { rustClient, RustApiError } from '@/lib/rust-client';
 import type { Flow, FlowNode, FlowEdge } from '@/lib/definitions';
-// detectCycle — inline stub (replaces removed sabflow/validation)
-const detectCycle = (_nodes: unknown[], _edges: unknown[]) => ({ hasCycle: false });
 
 export async function getFlowsForProject(projectId: string): Promise<WithId<Flow>[]> {
-    if (!ObjectId.isValid(projectId)) return [];
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return [];
-
     try {
-        const { db } = await connectToDatabase();
-        const flows = await db.collection<Flow>('flows')
-            .find({ projectId: new ObjectId(projectId) })
-            .project({ name: 1, triggerKeywords: 1, updatedAt: 1, status: 1 })
-            .sort({ updatedAt: -1 })
-            .toArray();
-        return JSON.parse(JSON.stringify(flows));
+        const flows = await rustClient.wachatFlows.listFlows(projectId);
+        return flows as unknown as WithId<Flow>[];
     } catch (e) {
+        if (e instanceof RustApiError) return [];
         return [];
     }
 }
 
 export async function getFlowById(flowId: string): Promise<WithId<Flow> | null> {
-    if (!ObjectId.isValid(flowId)) return null;
-    const { db } = await connectToDatabase();
-    const flow = await db.collection<Flow>('flows').findOne({ _id: new ObjectId(flowId) });
-    if (!flow) return null;
-
-    const hasAccess = await getProjectById(flow.projectId.toString());
-    if (!hasAccess) return null;
-
-    return flow ? JSON.parse(JSON.stringify(flow)) : null;
+    try {
+        const flow = await rustClient.wachatFlows.getFlow(flowId);
+        if (!flow) return null;
+        return flow as unknown as WithId<Flow>;
+    } catch (e) {
+        if (e instanceof RustApiError) return null;
+        return null;
+    }
 }
 
 export async function saveFlow(data: {
@@ -50,68 +38,41 @@ export async function saveFlow(data: {
 }): Promise<{ message?: string, error?: string, flowId?: string }> {
     const { flowId, projectId, name, nodes, edges, triggerKeywords } = data;
     if (!projectId || !name) return { error: 'Project ID and Flow Name are required.' };
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return { error: 'Access denied' };
-
-    const isNew = !flowId;
-
-    const flowData: Omit<Flow, '_id' | 'createdAt'> = {
-        name,
-        projectId: new ObjectId(projectId),
-        nodes,
-        edges,
-        triggerKeywords,
-        status: (data as any).status || 'ACTIVE',
-        updatedAt: new Date(),
-    };
-
-    // Cycle Detection
-    const validation = detectCycle(nodes as any, edges as any);
-    if (validation.hasCycle) {
-        return { error: `Infinite loop detected in flow. Please remove the cycle.` };
-    }
 
     try {
-        const { db } = await connectToDatabase();
-        if (isNew) {
-            const result = await db.collection('flows').insertOne({ ...flowData, createdAt: new Date() } as any);
-            revalidatePath('/wachat/flow-builder');
-            return { message: 'Flow created successfully.', flowId: result.insertedId.toString() };
-        } else {
-            await db.collection('flows').updateOne(
-                { _id: new ObjectId(flowId), projectId: new ObjectId(projectId) },
-                { $set: flowData }
-            );
-            revalidatePath('/wachat/flow-builder');
-            return { message: 'Flow updated successfully.', flowId };
-        }
+        const result = await rustClient.wachatFlows.saveFlow({
+            flowId,
+            projectId,
+            name,
+            nodes: nodes as any,
+            edges: edges as any,
+            triggerKeywords,
+            status: (data as any).status,
+        });
+        if (result?.error) return { error: result.error };
+        revalidatePath('/wachat/flow-builder');
+        return {
+            message: result?.message ?? (flowId ? 'Flow updated successfully.' : 'Flow created successfully.'),
+            flowId: result?.flowId ?? flowId,
+        };
     } catch (e: any) {
+        if (e instanceof RustApiError) {
+            return { error: e.message || 'Failed to save flow.' };
+        }
         return { error: 'Failed to save flow.' };
     }
 }
 
 export async function deleteFlow(flowId: string): Promise<{ message?: string; error?: string }> {
-    if (!ObjectId.isValid(flowId)) return { error: 'Invalid Flow ID.' };
-
-    const { db } = await connectToDatabase();
-    const flow = await db.collection('flows').findOne({ _id: new ObjectId(flowId) });
-    if (!flow) return { error: 'Flow not found.' };
-
-    const hasAccess = await getProjectById(flow.projectId.toString());
-    if (!hasAccess) return { error: 'Access denied' };
-
-
     try {
-        // Cleanup active executions
-        await db.collection('contacts').updateMany(
-            { 'activeFlow.flowId': flowId },
-            { $unset: { activeFlow: "" } }
-        );
-
-        await db.collection('flows').deleteOne({ _id: new ObjectId(flowId) });
+        const result = await rustClient.wachatFlows.deleteFlow(flowId);
+        if (result?.error) return { error: result.error };
         revalidatePath('/wachat/flow-builder');
-        return { message: 'Flow deleted.' };
-    } catch (e) {
+        return { message: result?.message ?? 'Flow deleted.' };
+    } catch (e: any) {
+        if (e instanceof RustApiError) {
+            return { error: e.message || 'Failed to delete flow.' };
+        }
         return { error: 'Failed to delete flow.' };
     }
 }
@@ -120,7 +81,14 @@ export async function getFlowBuilderPageData(projectId: string): Promise<{
     flows: WithId<Flow>[];
     initialFlow: WithId<Flow> | null;
 }> {
-    const flows = await getFlowsForProject(projectId);
-    const initialFlow = flows.length > 0 ? await getFlowById(flows[0]._id.toString()) : null;
-    return { flows, initialFlow };
+    try {
+        const data = await rustClient.wachatFlows.builderData(projectId);
+        return {
+            flows: (data?.flows ?? []) as unknown as WithId<Flow>[],
+            initialFlow: (data?.initialFlow ?? null) as unknown as WithId<Flow> | null,
+        };
+    } catch (e) {
+        if (e instanceof RustApiError) return { flows: [], initialFlow: null };
+        return { flows: [], initialFlow: null };
+    }
 }
