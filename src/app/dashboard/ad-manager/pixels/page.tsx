@@ -1,19 +1,27 @@
 'use client';
 
 import * as React from 'react';
-import { Target, Plus, Copy, AlertCircle, RefreshCw, Eye, Trash2 } from 'lucide-react';
+import { Target, Plus, Copy, RefreshCw, Eye, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
 import {
-    Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
-} from '@/components/ui/dialog';
+    ZoruButton,
+    ZoruInput,
+    ZoruLabel,
+    ZoruCard,
+    ZoruCardContent,
+    ZoruCardHeader,
+    ZoruCardTitle,
+    ZoruSkeleton,
+    ZoruBadge,
+    ZoruDialog,
+    ZoruDialogContent,
+    ZoruDialogFooter,
+    ZoruDialogHeader,
+    ZoruDialogTitle,
+    ZoruDialogTrigger,
+} from '@/components/zoruui';
+import { AmBreadcrumb, AmHeader, AmErrorAlert } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 import { useToast } from '@/hooks/use-toast';
 import { useAdManager } from '@/context/ad-manager-context';
 import { listPixels, createPixel } from '@/app/actions/ad-manager.actions';
@@ -51,82 +59,76 @@ export default function PixelsPage() {
 
     if (!activeAccount) {
         return (
-            <div>
-                <Alert>
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>No ad account selected</AlertTitle>
-                    <AlertDescription>Pick an ad account to view pixels.</AlertDescription>
-                </Alert>
+            <div className="space-y-4">
+                <AmBreadcrumb page="Pixels & datasets" />
+                <AmErrorAlert message="Pick an ad account to view pixels." />
             </div>
         );
     }
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-                        <Target className="h-6 w-6" /> Pixels & datasets
-                    </h1>
-                    <p className="text-sm text-muted-foreground mt-1">
-                        Track conversions, optimize delivery and build audiences from your website.
-                    </p>
-                </div>
-                <div className="flex gap-2">
-                    <Button variant="outline" size="icon" onClick={load}>
-                        <RefreshCw className="h-4 w-4" />
-                    </Button>
-                    <Dialog open={open} onOpenChange={setOpen}>
-                        <DialogTrigger asChild>
-                            <Button className="bg-[#1877F2] hover:bg-[#1877F2]/90">
-                                <Plus className="h-4 w-4 mr-1" /> Create pixel
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>Create Meta Pixel</DialogTitle>
-                            </DialogHeader>
-                            <div className="space-y-2">
-                                <Label>Pixel name</Label>
-                                <Input value={name} onChange={(e) => setName(e.target.value)} />
-                            </div>
-                            <DialogFooter>
-                                <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-                                <Button onClick={handleCreate}>Create</Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
-                </div>
-            </div>
+            <AmBreadcrumb page="Pixels & datasets" />
+            <AmHeader
+                title="Pixels & datasets"
+                description="Track conversions, optimize delivery and build audiences from your website."
+                actions={
+                    <div className="flex gap-2">
+                        <ZoruButton variant="outline" size="icon" onClick={load}>
+                            <RefreshCw className="h-4 w-4" />
+                        </ZoruButton>
+                        <ZoruDialog open={open} onOpenChange={setOpen}>
+                            <ZoruDialogTrigger asChild>
+                                <ZoruButton className="bg-[#1877F2] hover:bg-[#1877F2]/90">
+                                    <Plus className="h-4 w-4 mr-1" /> Create pixel
+                                </ZoruButton>
+                            </ZoruDialogTrigger>
+                            <ZoruDialogContent>
+                                <ZoruDialogHeader>
+                                    <ZoruDialogTitle>Create Meta Pixel</ZoruDialogTitle>
+                                </ZoruDialogHeader>
+                                <div className="space-y-2">
+                                    <ZoruLabel>Pixel name</ZoruLabel>
+                                    <ZoruInput value={name} onChange={(e) => setName(e.target.value)} />
+                                </div>
+                                <ZoruDialogFooter>
+                                    <ZoruButton variant="outline" onClick={() => setOpen(false)}>Cancel</ZoruButton>
+                                    <ZoruButton onClick={handleCreate}>Create</ZoruButton>
+                                </ZoruDialogFooter>
+                            </ZoruDialogContent>
+                        </ZoruDialog>
+                    </div>
+                }
+            />
 
             {loading ? (
                 <div className="grid md:grid-cols-2 gap-3">
-                    {Array.from({ length: 2 }).map((_, i) => <Skeleton key={i} className="h-32" />)}
+                    {Array.from({ length: 2 }).map((_, i) => <ZoruSkeleton key={i} className="h-32" />)}
                 </div>
             ) : pixels.length === 0 ? (
-                <Card className="border-dashed">
-                    <CardContent className="py-12 text-center space-y-3">
+                <ZoruCard className="border-dashed">
+                    <ZoruCardContent className="py-12 text-center space-y-3">
                         <Target className="h-10 w-10 mx-auto text-muted-foreground" />
                         <p className="font-medium">No pixels yet</p>
                         <p className="text-sm text-muted-foreground">Create your first pixel to start tracking.</p>
-                    </CardContent>
-                </Card>
+                    </ZoruCardContent>
+                </ZoruCard>
             ) : (
                 <div className="grid md:grid-cols-2 gap-3">
                     {pixels.map((p) => (
-                        <Card key={p.id}>
-                            <CardHeader>
-                                <CardTitle className="text-base flex items-center justify-between">
+                        <ZoruCard key={p.id}>
+                            <ZoruCardHeader>
+                                <ZoruCardTitle className="text-base flex items-center justify-between">
                                     {p.name}
                                     {p.last_fired_time && (
-                                        <Badge variant="outline" className="text-green-600">Active</Badge>
+                                        <ZoruBadge variant="outline" className="text-green-600">Active</ZoruBadge>
                                     )}
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-2">
+                                </ZoruCardTitle>
+                            </ZoruCardHeader>
+                            <ZoruCardContent className="space-y-2">
                                 <div className="flex items-center gap-2 text-xs font-mono bg-muted px-2 py-1.5 rounded">
                                     <span className="truncate flex-1">{p.id}</span>
-                                    <Button
+                                    <ZoruButton
                                         variant="ghost"
                                         size="icon"
                                         className="h-5 w-5"
@@ -136,7 +138,7 @@ export default function PixelsPage() {
                                         }}
                                     >
                                         <Copy className="h-3 w-3" />
-                                    </Button>
+                                    </ZoruButton>
                                 </div>
                                 {p.last_fired_time && (
                                     <div className="text-xs text-muted-foreground">
@@ -144,12 +146,12 @@ export default function PixelsPage() {
                                     </div>
                                 )}
                                 <div className="flex items-center gap-2 pt-2">
-                                    <Button variant="outline" size="sm" asChild>
+                                    <ZoruButton variant="outline" size="sm" asChild>
                                         <Link href={`/dashboard/ad-manager/events-manager?pixel=${p.id}`}>
                                             <Eye className="h-3 w-3 mr-1" /> View Events
                                         </Link>
-                                    </Button>
-                                    <Button
+                                    </ZoruButton>
+                                    <ZoruButton
                                         variant="outline"
                                         size="sm"
                                         className="text-red-600 hover:text-red-700 hover:bg-red-50"
@@ -159,10 +161,10 @@ export default function PixelsPage() {
                                         }}
                                     >
                                         <Trash2 className="h-3 w-3 mr-1" /> Delete
-                                    </Button>
+                                    </ZoruButton>
                                 </div>
-                            </CardContent>
-                        </Card>
+                            </ZoruCardContent>
+                        </ZoruCard>
                     ))}
                 </div>
             )}

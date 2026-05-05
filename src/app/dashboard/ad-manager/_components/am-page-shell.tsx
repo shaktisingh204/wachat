@@ -1,0 +1,118 @@
+"use client";
+
+/**
+ * Shared chrome for /dashboard/ad-manager ZoruUI pages.
+ *
+ * - <AmBreadcrumb> renders SabNode › Ad Manager › <section>.
+ * - <AmHeader> renders ZoruPageHeader with title / description / actions.
+ * - <AmNoProject> is the canonical empty state for "No project selected".
+ * - <AmErrorAlert> is the canonical error.
+ *
+ * All migrated ad-manager pages import from here so headers stay
+ * consistent. Mirrors src/app/dashboard/facebook/_components/zoru-fb-page-shell.tsx.
+ */
+
+import * as React from "react";
+import { CircleAlert } from "lucide-react";
+
+import {
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruAlertTitle,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruPageActions,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+} from "@/components/zoruui";
+
+interface AmBreadcrumbProps {
+  page: string;
+  parent?: { label: string; href: string };
+}
+
+export function AmBreadcrumb({ page, parent }: AmBreadcrumbProps) {
+  return (
+    <ZoruBreadcrumb>
+      <ZoruBreadcrumbList>
+        <ZoruBreadcrumbItem>
+          <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+        </ZoruBreadcrumbItem>
+        <ZoruBreadcrumbSeparator />
+        <ZoruBreadcrumbItem>
+          <ZoruBreadcrumbLink href="/dashboard/ad-manager">
+            Ad Manager
+          </ZoruBreadcrumbLink>
+        </ZoruBreadcrumbItem>
+        {parent && (
+          <>
+            <ZoruBreadcrumbSeparator />
+            <ZoruBreadcrumbItem>
+              <ZoruBreadcrumbLink href={parent.href}>
+                {parent.label}
+              </ZoruBreadcrumbLink>
+            </ZoruBreadcrumbItem>
+          </>
+        )}
+        <ZoruBreadcrumbSeparator />
+        <ZoruBreadcrumbItem>
+          <ZoruBreadcrumbPage>{page}</ZoruBreadcrumbPage>
+        </ZoruBreadcrumbItem>
+      </ZoruBreadcrumbList>
+    </ZoruBreadcrumb>
+  );
+}
+
+interface AmHeaderProps {
+  title: string;
+  description?: string;
+  actions?: React.ReactNode;
+  className?: string;
+}
+
+export function AmHeader({
+  title,
+  description,
+  actions,
+  className,
+}: AmHeaderProps) {
+  return (
+    <ZoruPageHeader className={className ?? "mt-5"}>
+      <ZoruPageHeading>
+        <ZoruPageTitle>{title}</ZoruPageTitle>
+        {description && (
+          <ZoruPageDescription>{description}</ZoruPageDescription>
+        )}
+      </ZoruPageHeading>
+      {actions ? <ZoruPageActions>{actions}</ZoruPageActions> : null}
+    </ZoruPageHeader>
+  );
+}
+
+export function AmNoProject() {
+  return (
+    <ZoruAlert variant="destructive" className="mt-6">
+      <CircleAlert />
+      <ZoruAlertTitle>No project selected</ZoruAlertTitle>
+      <ZoruAlertDescription>
+        Please select a project from the main dashboard to manage ad campaigns.
+      </ZoruAlertDescription>
+    </ZoruAlert>
+  );
+}
+
+export function AmErrorAlert({ message }: { message: string }) {
+  return (
+    <ZoruAlert variant="destructive" className="mt-6">
+      <CircleAlert />
+      <ZoruAlertTitle>Something went wrong</ZoruAlertTitle>
+      <ZoruAlertDescription>{message}</ZoruAlertDescription>
+    </ZoruAlert>
+  );
+}

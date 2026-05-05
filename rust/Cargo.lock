@@ -2689,6 +2689,7 @@ dependencies = [
  "tracing-subscriber",
  "wachat-chat-mark",
  "wachat-chat-read",
+ "wachat-config",
  "wachat-contacts-resolve",
  "wachat-media",
  "wachat-meta-client",
@@ -3844,6 +3845,27 @@ dependencies = [
  "serde_json",
  "tokio",
  "tracing",
+ "wachat-types",
+]
+
+[[package]]
+name = "wachat-config"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "wachat-meta-client",
  "wachat-types",
 ]
 

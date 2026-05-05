@@ -2,11 +2,16 @@
 
 import * as React from 'react';
 import { Image as ImageIcon, Upload, AlertCircle, Trash2, ExternalLink } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+    ZoruAlert,
+    ZoruAlertDescription,
+    ZoruAlertTitle,
+    ZoruButton,
+    ZoruCard,
+    ZoruCardContent,
+    ZoruSkeleton,
+} from '@/components/zoruui';
+import { AmBreadcrumb, AmHeader } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 import { useAdManager } from '@/context/ad-manager-context';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -19,6 +24,8 @@ export default function CreativeLibraryPage() {
     const [images, setImages] = React.useState<any[]>([]);
     const [videos, setVideos] = React.useState<any[]>([]);
     const [loading, setLoading] = React.useState(true);
+    // TODO(zoru): missing tab primitive — using segmented ZoruButton group instead.
+    const [activeTab, setActiveTab] = React.useState<'images' | 'videos'>('images');
 
     const load = React.useCallback(async () => {
         if (!activeAccount) return;
@@ -47,39 +54,47 @@ export default function CreativeLibraryPage() {
 
     if (!activeAccount) {
         return (
-            <div>
-                <Alert>
+            <div className="space-y-6">
+                <AmBreadcrumb page="Creative library" />
+                <ZoruAlert>
                     <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>No ad account selected</AlertTitle>
-                    <AlertDescription>Pick an ad account to view your creative library.</AlertDescription>
-                </Alert>
+                    <ZoruAlertTitle>No ad account selected</ZoruAlertTitle>
+                    <ZoruAlertDescription>Pick an ad account to view your creative library.</ZoruAlertDescription>
+                </ZoruAlert>
             </div>
         );
     }
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-                        <ImageIcon className="h-6 w-6" /> Creative library
-                    </h1>
-                    <p className="text-sm text-muted-foreground mt-1">
-                        All images and videos uploaded to this ad account.
-                    </p>
-                </div>
+            <AmBreadcrumb page="Creative library" />
+            <AmHeader
+                title="Creative library"
+                description="All images and videos uploaded to this ad account."
+            />
+
+            <div className="inline-flex items-center gap-1 rounded-md border bg-muted/30 p-1">
+                <ZoruButton
+                    variant={activeTab === 'images' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setActiveTab('images')}
+                >
+                    Images ({images.length})
+                </ZoruButton>
+                <ZoruButton
+                    variant={activeTab === 'videos' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setActiveTab('videos')}
+                >
+                    Videos ({videos.length})
+                </ZoruButton>
             </div>
 
-            <Tabs defaultValue="images">
-                <TabsList>
-                    <TabsTrigger value="images">Images ({images.length})</TabsTrigger>
-                    <TabsTrigger value="videos">Videos ({videos.length})</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="images">
+            {activeTab === 'images' && (
+                <div>
                     <div className="mb-3">
                         <label className="inline-flex">
-                            <Button variant="outline" asChild>
+                            <ZoruButton variant="outline" asChild>
                                 <span>
                                     <Upload className="h-4 w-4 mr-1" /> Upload image
                                     <input
@@ -89,19 +104,19 @@ export default function CreativeLibraryPage() {
                                         onChange={(e) => handleUpload(e, 'image')}
                                     />
                                 </span>
-                            </Button>
+                            </ZoruButton>
                         </label>
                     </div>
                     {loading ? (
                         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
                             {Array.from({ length: 8 }).map((_, i) => (
-                                <Skeleton key={i} className="aspect-square rounded-lg" />
+                                <ZoruSkeleton key={i} className="aspect-square rounded-lg" />
                             ))}
                         </div>
                     ) : (
                         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
                             {images.map((img) => (
-                                <Card key={img.hash} className="overflow-hidden group relative">
+                                <ZoruCard key={img.hash} className="overflow-hidden group relative">
                                     <div
                                         className="aspect-square bg-muted cursor-pointer"
                                         onClick={() => window.open(img.url, '_blank')}
@@ -112,7 +127,7 @@ export default function CreativeLibraryPage() {
                                             <ExternalLink className="h-5 w-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                                         </div>
                                     </div>
-                                    <CardContent className="p-2">
+                                    <ZoruCardContent className="p-2">
                                         <div className="flex items-center justify-between gap-1">
                                             <div className="min-w-0">
                                                 <div className="text-xs font-medium truncate">{img.name}</div>
@@ -120,7 +135,7 @@ export default function CreativeLibraryPage() {
                                                     {img.width}×{img.height}
                                                 </div>
                                             </div>
-                                            <Button
+                                            <ZoruButton
                                                 variant="ghost"
                                                 size="icon"
                                                 className="h-6 w-6 shrink-0 text-muted-foreground hover:text-red-600"
@@ -131,19 +146,21 @@ export default function CreativeLibraryPage() {
                                                 }}
                                             >
                                                 <Trash2 className="h-3 w-3" />
-                                            </Button>
+                                            </ZoruButton>
                                         </div>
-                                    </CardContent>
-                                </Card>
+                                    </ZoruCardContent>
+                                </ZoruCard>
                             ))}
                         </div>
                     )}
-                </TabsContent>
+                </div>
+            )}
 
-                <TabsContent value="videos">
+            {activeTab === 'videos' && (
+                <div>
                     <div className="mb-3">
                         <label className="inline-flex">
-                            <Button variant="outline" asChild>
+                            <ZoruButton variant="outline" asChild>
                                 <span>
                                     <Upload className="h-4 w-4 mr-1" /> Upload video
                                     <input
@@ -153,12 +170,12 @@ export default function CreativeLibraryPage() {
                                         onChange={(e) => handleUpload(e, 'video')}
                                     />
                                 </span>
-                            </Button>
+                            </ZoruButton>
                         </label>
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
                         {videos.map((v) => (
-                            <Card key={v.id} className="overflow-hidden group relative">
+                            <ZoruCard key={v.id} className="overflow-hidden group relative">
                                 <div
                                     className="aspect-video bg-muted relative cursor-pointer"
                                     onClick={() => v.source ? window.open(v.source, '_blank') : v.picture && window.open(v.picture, '_blank')}
@@ -169,10 +186,10 @@ export default function CreativeLibraryPage() {
                                         <ExternalLink className="h-5 w-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                                     </div>
                                 </div>
-                                <CardContent className="p-2">
+                                <ZoruCardContent className="p-2">
                                     <div className="flex items-center justify-between gap-1">
                                         <div className="text-xs font-medium truncate">{v.title || 'Untitled'}</div>
-                                        <Button
+                                        <ZoruButton
                                             variant="ghost"
                                             size="icon"
                                             className="h-6 w-6 shrink-0 text-muted-foreground hover:text-red-600"
@@ -183,14 +200,14 @@ export default function CreativeLibraryPage() {
                                             }}
                                         >
                                             <Trash2 className="h-3 w-3" />
-                                        </Button>
+                                        </ZoruButton>
                                     </div>
-                                </CardContent>
-                            </Card>
+                                </ZoruCardContent>
+                            </ZoruCard>
                         ))}
                     </div>
-                </TabsContent>
-            </Tabs>
+                </div>
+            )}
         </div>
     );
 }

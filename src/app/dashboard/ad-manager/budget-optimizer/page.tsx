@@ -1,12 +1,20 @@
 'use client';
 
 import * as React from 'react';
-import { LuWallet, LuCircleAlert, LuRefreshCw, LuTrendingUp, LuTrendingDown, LuPause, LuMinus } from 'react-icons/lu';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Wallet, CircleAlert, RefreshCw, TrendingUp, TrendingDown, Pause, Minus } from 'lucide-react';
+import {
+    ZoruAlert,
+    ZoruAlertDescription,
+    ZoruAlertTitle,
+    ZoruBadge,
+    ZoruButton,
+    ZoruCard,
+    ZoruCardContent,
+    ZoruCardHeader,
+    ZoruCardTitle,
+    ZoruSkeleton,
+} from '@/components/zoruui';
+import { AmBreadcrumb, AmHeader } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 import { useAdManager } from '@/context/ad-manager-context';
 import { useToast } from '@/hooks/use-toast';
 import { getBudgetRecommendations } from '@/app/actions/ad-manager-features.actions';
@@ -23,11 +31,11 @@ type Rec = {
     reason: string;
 };
 
-const recStyles: Record<string, { variant: 'default' | 'destructive' | 'outline' | 'secondary'; icon: typeof LuTrendingUp }> = {
-    increase: { variant: 'default', icon: LuTrendingUp },
-    decrease: { variant: 'secondary', icon: LuTrendingDown },
-    pause: { variant: 'destructive', icon: LuPause },
-    maintain: { variant: 'outline', icon: LuMinus },
+const recStyles: Record<string, { variant: 'default' | 'destructive' | 'outline' | 'secondary'; icon: typeof TrendingUp }> = {
+    increase: { variant: 'default', icon: TrendingUp },
+    decrease: { variant: 'secondary', icon: TrendingDown },
+    pause: { variant: 'destructive', icon: Pause },
+    maintain: { variant: 'outline', icon: Minus },
 };
 
 export default function BudgetOptimizerPage() {
@@ -54,12 +62,13 @@ export default function BudgetOptimizerPage() {
 
     if (!activeAccount) {
         return (
-            <div>
-                <Alert>
-                    <LuCircleAlert className="h-4 w-4" />
-                    <AlertTitle>No ad account selected</AlertTitle>
-                    <AlertDescription>Pick an ad account to view budget recommendations.</AlertDescription>
-                </Alert>
+            <div className="space-y-6">
+                <AmBreadcrumb page="Budget Optimizer" />
+                <ZoruAlert>
+                    <CircleAlert className="h-4 w-4" />
+                    <ZoruAlertTitle>No ad account selected</ZoruAlertTitle>
+                    <ZoruAlertDescription>Pick an ad account to view budget recommendations.</ZoruAlertDescription>
+                </ZoruAlert>
             </div>
         );
     }
@@ -68,65 +77,67 @@ export default function BudgetOptimizerPage() {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-                        <LuWallet className="h-6 w-6" /> Budget optimizer
-                    </h1>
-                    <p className="text-sm text-muted-foreground mt-1">
-                        AI-driven budget recommendations based on last 7 days performance.
-                    </p>
-                </div>
-                <Button variant="outline" onClick={fetchData} disabled={loading}>
-                    <LuRefreshCw className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} /> Refresh
-                </Button>
+            <AmBreadcrumb page="Budget Optimizer" />
+            <AmHeader
+                title="Budget optimizer"
+                description="AI-driven budget recommendations based on last 7 days performance."
+                actions={
+                    <ZoruButton variant="outline" onClick={fetchData} disabled={loading}>
+                        <RefreshCw className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} /> Refresh
+                    </ZoruButton>
+                }
+            />
+
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Wallet className="h-4 w-4" />
+                <span>Recommendations refreshed from the last 7 days of insights.</span>
             </div>
 
             {loading ? (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-24" />)}
+                    {Array.from({ length: 3 }).map((_, i) => <ZoruSkeleton key={i} className="h-24" />)}
                 </div>
             ) : (
                 <>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <Card>
-                            <CardContent className="p-4">
+                        <ZoruCard>
+                            <ZoruCardContent className="p-4">
                                 <div className="text-sm text-muted-foreground">Increase budget</div>
                                 <div className="text-3xl font-bold text-green-600">{countByType('increase')}</div>
-                            </CardContent>
-                        </Card>
-                        <Card>
-                            <CardContent className="p-4">
+                            </ZoruCardContent>
+                        </ZoruCard>
+                        <ZoruCard>
+                            <ZoruCardContent className="p-4">
                                 <div className="text-sm text-muted-foreground">Decrease budget</div>
                                 <div className="text-3xl font-bold text-amber-600">{countByType('decrease')}</div>
-                            </CardContent>
-                        </Card>
-                        <Card>
-                            <CardContent className="p-4">
+                            </ZoruCardContent>
+                        </ZoruCard>
+                        <ZoruCard>
+                            <ZoruCardContent className="p-4">
                                 <div className="text-sm text-muted-foreground">Pause</div>
                                 <div className="text-3xl font-bold text-red-600">{countByType('pause')}</div>
-                            </CardContent>
-                        </Card>
+                            </ZoruCardContent>
+                        </ZoruCard>
                     </div>
 
                     {recs.length === 0 ? (
-                        <Card><CardContent className="p-8 text-center text-muted-foreground">No active campaigns with insights found.</CardContent></Card>
+                        <ZoruCard><ZoruCardContent className="p-8 text-center text-muted-foreground">No active campaigns with insights found.</ZoruCardContent></ZoruCard>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             {recs.map((r) => {
                                 const style = recStyles[r.recommendation] || recStyles.maintain;
                                 const Icon = style.icon;
                                 return (
-                                    <Card key={r.campaignId}>
-                                        <CardHeader className="pb-2">
-                                            <CardTitle className="text-sm font-medium flex items-center justify-between">
+                                    <ZoruCard key={r.campaignId}>
+                                        <ZoruCardHeader className="pb-2">
+                                            <ZoruCardTitle className="text-sm font-medium flex items-center justify-between">
                                                 <span className="truncate mr-2">{r.campaignName}</span>
-                                                <Badge variant={style.variant} className="capitalize shrink-0">
+                                                <ZoruBadge variant={style.variant} className="capitalize shrink-0">
                                                     <Icon className="h-3 w-3 mr-1" />{r.recommendation}
-                                                </Badge>
-                                            </CardTitle>
-                                        </CardHeader>
-                                        <CardContent className="space-y-2 text-sm">
+                                                </ZoruBadge>
+                                            </ZoruCardTitle>
+                                        </ZoruCardHeader>
+                                        <ZoruCardContent className="space-y-2 text-sm">
                                             <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-muted-foreground">
                                                 <span>Spend</span><span className="text-foreground tabular-nums">${r.spend.toFixed(2)}</span>
                                                 <span>Clicks</span><span className="text-foreground tabular-nums">{r.clicks}</span>
@@ -135,15 +146,15 @@ export default function BudgetOptimizerPage() {
                                                 <span>Daily budget</span><span className="text-foreground tabular-nums">${r.dailyBudget.toFixed(2)}</span>
                                             </div>
                                             <p className="text-xs text-muted-foreground italic">{r.reason}</p>
-                                            <Button
+                                            <ZoruButton
                                                 size="sm"
                                                 className="w-full mt-1"
                                                 onClick={() => toast({ title: 'Acknowledged', description: `Recommendation for "${r.campaignName}" noted.` })}
                                             >
                                                 Apply
-                                            </Button>
-                                        </CardContent>
-                                    </Card>
+                                            </ZoruButton>
+                                        </ZoruCardContent>
+                                    </ZoruCard>
                                 );
                             })}
                         </div>

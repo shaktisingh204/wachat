@@ -1,22 +1,42 @@
 'use client';
 
 import * as React from 'react';
-import { BarChart3, AlertCircle, TrendingUp, DollarSign, Eye, MousePointerClick, Users, Download } from 'lucide-react';
+import { BarChart3, TrendingUp, DollarSign, Eye, MousePointerClick, Users, Download } from 'lucide-react';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import {
-    Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from '@/components/ui/table';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+    ZoruButton,
+    ZoruCard,
+    ZoruCardContent,
+    ZoruInput,
+    ZoruLabel,
+    ZoruSkeleton,
+    ZoruTable,
+    ZoruTableBody,
+    ZoruTableCell,
+    ZoruTableHead,
+    ZoruTableHeader,
+    ZoruTableRow,
+} from '@/components/zoruui';
+import { cn } from '@/lib/utils';
 import { useAdManager } from '@/context/ad-manager-context';
 import { useAdManagerShell } from '@/components/wabasimplify/ad-manager/ad-manager-shell';
 import { getInsights } from '@/app/actions/ad-manager.actions';
 import { formatMoney, formatNumber, formatPercent } from '@/components/wabasimplify/ad-manager/constants';
+import {
+    AmBreadcrumb,
+    AmHeader,
+    AmNoProject,
+} from '@/app/dashboard/ad-manager/_components/am-page-shell';
+
+type BreakdownTab = 'time' | 'placement' | 'device' | 'demo' | 'country';
+
+const TABS: { value: BreakdownTab; label: string }[] = [
+    { value: 'time', label: 'By day' },
+    { value: 'placement', label: 'Placement' },
+    { value: 'device', label: 'Device' },
+    { value: 'demo', label: 'Age & gender' },
+    { value: 'country', label: 'Country' },
+];
 
 export default function InsightsPage() {
     const { activeAccount } = useAdManager();
@@ -30,6 +50,7 @@ export default function InsightsPage() {
     const [byDevice, setByDevice] = React.useState<any[]>([]);
     const [byAgeGender, setByAgeGender] = React.useState<any[]>([]);
     const [byCountry, setByCountry] = React.useState<any[]>([]);
+    const [activeTab, setActiveTab] = React.useState<BreakdownTab>('time');
 
     React.useEffect(() => {
         if (!activeAccount) return;
@@ -64,12 +85,9 @@ export default function InsightsPage() {
 
     if (!activeAccount) {
         return (
-            <div>
-                <Alert>
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>No ad account selected</AlertTitle>
-                    <AlertDescription>Pick an ad account to view performance insights.</AlertDescription>
-                </Alert>
+            <div className="space-y-4">
+                <AmBreadcrumb page="Performance insights" />
+                <AmNoProject />
             </div>
         );
     }
@@ -102,25 +120,22 @@ export default function InsightsPage() {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-                        <BarChart3 className="h-6 w-6" /> Performance insights
-                    </h1>
-                    <p className="text-sm text-muted-foreground mt-1">
-                        Deep dive into your account performance with breakdown-level insights.
-                    </p>
-                </div>
-                <Button variant="outline" size="sm" onClick={exportInsightsCsv} disabled={loading}>
-                    <Download className="h-4 w-4 mr-1" /> Export CSV
-                </Button>
-            </div>
+            <AmBreadcrumb page="Performance insights" />
+            <AmHeader
+                title="Performance insights"
+                description="Deep dive into your account performance with breakdown-level insights."
+                actions={
+                    <ZoruButton variant="outline" size="sm" onClick={exportInsightsCsv} disabled={loading}>
+                        <Download className="h-4 w-4 mr-1" /> Export CSV
+                    </ZoruButton>
+                }
+            />
 
             {/* Custom date range inputs */}
             <div className="flex items-end gap-3">
                 <div className="space-y-1">
-                    <Label className="text-xs">Since</Label>
-                    <Input
+                    <ZoruLabel className="text-xs">Since</ZoruLabel>
+                    <ZoruInput
                         type="date"
                         value={customSince}
                         onChange={(e) => setCustomSince(e.target.value)}
@@ -128,15 +143,15 @@ export default function InsightsPage() {
                     />
                 </div>
                 <div className="space-y-1">
-                    <Label className="text-xs">Until</Label>
-                    <Input
+                    <ZoruLabel className="text-xs">Until</ZoruLabel>
+                    <ZoruInput
                         type="date"
                         value={customUntil}
                         onChange={(e) => setCustomUntil(e.target.value)}
                         className="h-8 w-40 text-xs"
                     />
                 </div>
-                <Button
+                <ZoruButton
                     size="sm"
                     variant="outline"
                     disabled={!customSince || !customUntil || loading}
@@ -167,48 +182,54 @@ export default function InsightsPage() {
                     }}
                 >
                     Apply
-                </Button>
+                </ZoruButton>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
                 {loading
-                    ? Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-24" />)
+                    ? Array.from({ length: 6 }).map((_, i) => <ZoruSkeleton key={i} className="h-24" />)
                     : kpis.map((k) => (
-                          <Card key={k.label}>
-                              <CardContent className="p-4">
+                          <ZoruCard key={k.label}>
+                              <ZoruCardContent className="p-4">
                                   <k.icon className="h-4 w-4 text-muted-foreground" />
                                   <div className="mt-2 text-xs text-muted-foreground">{k.label}</div>
                                   <div className="text-2xl font-bold tabular-nums">{k.value}</div>
-                              </CardContent>
-                          </Card>
+                              </ZoruCardContent>
+                          </ZoruCard>
                       ))}
             </div>
 
-            <Tabs defaultValue="time">
-                <TabsList>
-                    <TabsTrigger value="time">By day</TabsTrigger>
-                    <TabsTrigger value="placement">Placement</TabsTrigger>
-                    <TabsTrigger value="device">Device</TabsTrigger>
-                    <TabsTrigger value="demo">Age & gender</TabsTrigger>
-                    <TabsTrigger value="country">Country</TabsTrigger>
-                </TabsList>
+            {/* Segmented buttons replace ZoruTabs (no tab primitive in Zoru). */}
+            <div className="flex flex-wrap gap-1 rounded-lg border bg-muted/40 p-1 w-fit">
+                {TABS.map((t) => (
+                    <ZoruButton
+                        key={t.value}
+                        type="button"
+                        size="sm"
+                        variant={activeTab === t.value ? 'default' : 'ghost'}
+                        className={cn('h-8', activeTab === t.value ? '' : 'text-muted-foreground')}
+                        onClick={() => setActiveTab(t.value)}
+                    >
+                        {t.label}
+                    </ZoruButton>
+                ))}
+            </div>
 
-                <TabsContent value="time">
-                    <BreakdownTable rows={byDay} dimension="date_start" columns={['date_start', 'impressions', 'reach', 'clicks', 'spend', 'ctr']} />
-                </TabsContent>
-                <TabsContent value="placement">
-                    <BreakdownTable rows={byPlacement} dimension="publisher_platform" columns={['publisher_platform', 'impressions', 'reach', 'clicks', 'spend', 'ctr']} />
-                </TabsContent>
-                <TabsContent value="device">
-                    <BreakdownTable rows={byDevice} dimension="device_platform" columns={['device_platform', 'impressions', 'reach', 'clicks', 'spend', 'ctr']} />
-                </TabsContent>
-                <TabsContent value="demo">
-                    <BreakdownTable rows={byAgeGender} dimension="age" columns={['age', 'gender', 'impressions', 'reach', 'clicks', 'spend']} />
-                </TabsContent>
-                <TabsContent value="country">
-                    <BreakdownTable rows={byCountry} dimension="country" columns={['country', 'impressions', 'reach', 'clicks', 'spend', 'ctr']} />
-                </TabsContent>
-            </Tabs>
+            {activeTab === 'time' && (
+                <BreakdownTable rows={byDay} dimension="date_start" columns={['date_start', 'impressions', 'reach', 'clicks', 'spend', 'ctr']} />
+            )}
+            {activeTab === 'placement' && (
+                <BreakdownTable rows={byPlacement} dimension="publisher_platform" columns={['publisher_platform', 'impressions', 'reach', 'clicks', 'spend', 'ctr']} />
+            )}
+            {activeTab === 'device' && (
+                <BreakdownTable rows={byDevice} dimension="device_platform" columns={['device_platform', 'impressions', 'reach', 'clicks', 'spend', 'ctr']} />
+            )}
+            {activeTab === 'demo' && (
+                <BreakdownTable rows={byAgeGender} dimension="age" columns={['age', 'gender', 'impressions', 'reach', 'clicks', 'spend']} />
+            )}
+            {activeTab === 'country' && (
+                <BreakdownTable rows={byCountry} dimension="country" columns={['country', 'impressions', 'reach', 'clicks', 'spend', 'ctr']} />
+            )}
         </div>
     );
 }
@@ -223,40 +244,40 @@ function BreakdownTable({
     columns: string[];
 }) {
     return (
-        <Card className="mt-3">
-            <CardContent className="p-0">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
+        <ZoruCard className="mt-3">
+            <ZoruCardContent className="p-0">
+                <ZoruTable>
+                    <ZoruTableHeader>
+                        <ZoruTableRow>
                             {columns.map((c) => (
-                                <TableHead key={c} className="capitalize">{c.replace(/_/g, ' ')}</TableHead>
+                                <ZoruTableHead key={c} className="capitalize">{c.replace(/_/g, ' ')}</ZoruTableHead>
                             ))}
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
+                        </ZoruTableRow>
+                    </ZoruTableHeader>
+                    <ZoruTableBody>
                         {rows.length === 0 ? (
-                            <TableRow>
-                                <TableCell colSpan={columns.length} className="h-24 text-center text-muted-foreground">
+                            <ZoruTableRow>
+                                <ZoruTableCell colSpan={columns.length} className="h-24 text-center text-muted-foreground">
                                     No data for this breakdown.
-                                </TableCell>
-                            </TableRow>
+                                </ZoruTableCell>
+                            </ZoruTableRow>
                         ) : (
                             rows.map((r, i) => (
-                                <TableRow key={i}>
+                                <ZoruTableRow key={i}>
                                     {columns.map((c) => {
                                         const v = r[c];
                                         let display: string = v != null ? String(v) : '—';
                                         if (c === 'spend' || c === 'cpc' || c === 'cpm') display = formatMoney(v);
                                         else if (c === 'ctr') display = formatPercent(v);
                                         else if (['impressions', 'reach', 'clicks'].includes(c)) display = formatNumber(v);
-                                        return <TableCell key={c} className="tabular-nums">{display}</TableCell>;
+                                        return <ZoruTableCell key={c} className="tabular-nums">{display}</ZoruTableCell>;
                                     })}
-                                </TableRow>
+                                </ZoruTableRow>
                             ))
                         )}
-                    </TableBody>
-                </Table>
-            </CardContent>
-        </Card>
+                    </ZoruTableBody>
+                </ZoruTable>
+            </ZoruCardContent>
+        </ZoruCard>
     );
 }

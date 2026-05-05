@@ -3,7 +3,7 @@
 /**
  * /dashboard/ad-manager/ad-accounts — Manage connected Meta ad accounts.
  *
- * Clay design system rewrite.
+ * ZoruUI rewrite.
  * Select, disconnect, or connect new Meta ad accounts.
  */
 
@@ -12,34 +12,35 @@ import { useState, useEffect, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
-  LuTrash2,
-  LuPlus,
-  LuMegaphone,
-  LuExternalLink,
-  LuLoaderCircle,
-  LuTriangleAlert,
-  LuInfo,
-  LuShieldCheck,
-} from 'react-icons/lu';
+  Trash2,
+  Plus,
+  Megaphone,
+  ExternalLink,
+  LoaderCircle,
+  TriangleAlert,
+  Info,
+  ShieldCheck,
+} from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { useAdManager } from '@/context/ad-manager-context';
 import { getAdAccounts, deleteAdAccount } from '@/app/actions/ad-manager.actions';
 import {
-  ClayBreadcrumbs,
-  ClayButton,
-  ClayCard,
-  ClayBadge,
-} from '@/components/clay';
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogTrigger,
+} from '@/components/zoruui';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
+  AmBreadcrumb,
+  AmHeader,
+} from '@/app/dashboard/ad-manager/_components/am-page-shell';
 import { useToast } from '@/hooks/use-toast';
 
 /* ── loading skeleton ──────────────────────────────────────────── */
@@ -54,7 +55,7 @@ function PageSkeleton() {
       </div>
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {Array.from({ length: 3 }).map((_, i) => (
-          <ClayCard key={i} className="!p-0">
+          <ZoruCard key={i} className="!p-0">
             <div className="p-5">
               <div className="h-5 w-36 animate-pulse rounded bg-muted" />
               <div className="mt-2 h-3.5 w-28 animate-pulse rounded bg-muted" />
@@ -62,7 +63,7 @@ function PageSkeleton() {
             <div className="border-t border-border px-5 py-3">
               <div className="h-8 w-24 animate-pulse rounded-full bg-muted" />
             </div>
-          </ClayCard>
+          </ZoruCard>
         ))}
       </div>
     </>
@@ -89,63 +90,61 @@ function DisconnectDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <ClayButton
+    <ZoruDialog open={open} onOpenChange={setOpen}>
+      <ZoruDialogTrigger asChild>
+        <ZoruButton
           variant="ghost"
           size="icon"
           className="text-muted-foreground hover:text-destructive"
           aria-label={`Disconnect ${account.name}`}
         >
-          <LuTrash2 className="h-3.5 w-3.5" />
-        </ClayButton>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[420px]">
-        <DialogHeader>
-          <DialogTitle className="text-[16px] font-semibold text-foreground">
+          <Trash2 className="h-3.5 w-3.5" />
+        </ZoruButton>
+      </ZoruDialogTrigger>
+      <ZoruDialogContent className="sm:max-w-[420px]">
+        <ZoruDialogHeader>
+          <ZoruDialogTitle className="text-[16px] font-semibold text-foreground">
             Disconnect ad account?
-          </DialogTitle>
-          <DialogDescription className="text-[13px] text-muted-foreground">
+          </ZoruDialogTitle>
+          <ZoruDialogDescription className="text-[13px] text-muted-foreground">
             Are you sure you want to disconnect{' '}
             <strong className="text-foreground">{account.name}</strong>? This
             will remove it from your dashboard but will not affect the account
             on Facebook.
-          </DialogDescription>
-        </DialogHeader>
+          </ZoruDialogDescription>
+        </ZoruDialogHeader>
 
         <div className="flex items-center gap-3 rounded-xl bg-rose-50/40 p-3.5 text-[12px] text-destructive">
-          <LuTriangleAlert className="h-4 w-4 shrink-0" />
+          <TriangleAlert className="h-4 w-4 shrink-0" />
           <span>
             You will need to re-connect via Facebook to access this account
             again.
           </span>
         </div>
 
-        <DialogFooter className="gap-2 sm:gap-0">
-          <ClayButton
-            variant="pill"
+        <ZoruDialogFooter className="gap-2 sm:gap-0">
+          <ZoruButton
+            variant="outline"
             size="sm"
             onClick={() => setOpen(false)}
             disabled={isDeleting}
           >
             Cancel
-          </ClayButton>
-          <ClayButton
-            variant="rose"
+          </ZoruButton>
+          <ZoruButton
+            variant="destructive"
             size="sm"
             onClick={handleConfirm}
             disabled={isDeleting}
-            leading={
-              isDeleting ? (
-                <LuLoaderCircle className="h-3.5 w-3.5 animate-spin" />
-              ) : undefined
-            }
           >
+            {isDeleting ? (
+              <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
+            ) : null}
             Disconnect
-          </ClayButton>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          </ZoruButton>
+        </ZoruDialogFooter>
+      </ZoruDialogContent>
+    </ZoruDialog>
   );
 }
 
@@ -163,10 +162,9 @@ function AccountCard({
   onDisconnect: () => void;
 }) {
   return (
-    <ClayCard
-      padded={false}
+    <ZoruCard
       className={cn(
-        'group cursor-pointer transition-all duration-200',
+        'group cursor-pointer p-0 transition-all duration-200',
         isActive
           ? 'border-indigo-500 ring-2 ring-indigo-500/15'
           : 'hover:border-border hover:shadow-md',
@@ -182,9 +180,9 @@ function AccountCard({
                 {account.name}
               </h3>
               {isActive && (
-                <ClayBadge tone="blue" dot className="shrink-0">
+                <ZoruBadge variant="info" className="shrink-0">
                   Active
-                </ClayBadge>
+                </ZoruBadge>
               )}
             </div>
             <p className="mt-1.5 font-mono text-[11px] text-muted-foreground tracking-wide">
@@ -203,17 +201,17 @@ function AccountCard({
 
         {/* Meta tags */}
         <div className="mt-3 flex flex-wrap items-center gap-1.5">
-          <ClayBadge tone="neutral">
-            <LuShieldCheck className="mr-0.5 h-3 w-3" />
+          <ZoruBadge variant="secondary">
+            <ShieldCheck className="mr-0.5 h-3 w-3" />
             Connected
-          </ClayBadge>
+          </ZoruBadge>
           {account.currency && (
-            <ClayBadge tone="neutral">{account.currency}</ClayBadge>
+            <ZoruBadge variant="secondary">{account.currency}</ZoruBadge>
           )}
           {/* Account health indicator */}
-          <ClayBadge tone={account.account_status === 1 ? 'green' : 'neutral'}>
+          <ZoruBadge variant={account.account_status === 1 ? 'success' : 'secondary'}>
             {account.account_status === 1 ? 'Active' : account.account_status === 2 ? 'Disabled' : 'Unknown'}
-          </ClayBadge>
+          </ZoruBadge>
         </div>
         {/* Last used timestamp */}
         {account.last_used_time && (
@@ -230,17 +228,17 @@ function AccountCard({
 
       {/* Card footer */}
       <div className="flex items-center justify-between border-t border-border px-5 py-3">
-        <ClayButton
-          variant={isActive ? 'obsidian' : 'pill'}
+        <ZoruButton
+          variant={isActive ? 'default' : 'outline'}
           size="sm"
           onClick={(e) => {
             e.stopPropagation();
             onSelect();
           }}
-          leading={<LuMegaphone className="h-3 w-3" />}
         >
+          <Megaphone className="h-3 w-3" />
           {isActive ? 'Manage campaigns' : 'Select account'}
-        </ClayButton>
+        </ZoruButton>
 
         <div className="flex items-center gap-1">
           <a
@@ -249,21 +247,21 @@ function AccountCard({
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
           >
-            <ClayButton
+            <ZoruButton
               variant="ghost"
               size="icon"
               className="text-muted-foreground hover:text-foreground"
               aria-label="View on Facebook"
             >
-              <LuExternalLink className="h-3.5 w-3.5" />
-            </ClayButton>
+              <ExternalLink className="h-3.5 w-3.5" />
+            </ZoruButton>
           </a>
           <div onClick={(e) => e.stopPropagation()}>
             <DisconnectDialog account={account} onDisconnect={onDisconnect} />
           </div>
         </div>
       </div>
-    </ClayCard>
+    </ZoruCard>
   );
 }
 
@@ -271,12 +269,11 @@ function AccountCard({
 
 function EmptyState() {
   return (
-    <ClayCard
-      variant="soft"
+    <ZoruCard
       className="flex flex-col items-center justify-center gap-5 border-2 border-dashed border-border py-16 text-center"
     >
       <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-50">
-        <LuMegaphone className="h-7 w-7 text-indigo-600" strokeWidth={1.75} />
+        <Megaphone className="h-7 w-7 text-indigo-600" strokeWidth={1.75} />
       </div>
       <div>
         <h3 className="text-[16px] font-semibold text-foreground">
@@ -288,15 +285,12 @@ function EmptyState() {
         </p>
       </div>
       <Link href="/api/auth/ad-manager/login">
-        <ClayButton
-          variant="obsidian"
-          size="md"
-          leading={<LuPlus className="h-3.5 w-3.5" />}
-        >
+        <ZoruButton variant="default" size="md">
+          <Plus className="h-3.5 w-3.5" />
           Connect ad account
-        </ClayButton>
+        </ZoruButton>
       </Link>
-    </ClayCard>
+    </ZoruCard>
   );
 }
 
@@ -304,10 +298,10 @@ function EmptyState() {
 
 function InfoCard() {
   return (
-    <ClayCard variant="soft" className="!p-4">
+    <ZoruCard className="!p-4">
       <div className="flex items-start gap-3">
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-indigo-50">
-          <LuInfo className="h-4 w-4 text-indigo-600" />
+          <Info className="h-4 w-4 text-indigo-600" />
         </div>
         <div>
           <p className="text-[13px] font-semibold text-foreground">
@@ -330,7 +324,7 @@ function InfoCard() {
           </p>
         </div>
       </div>
-    </ClayCard>
+    </ZoruCard>
   );
 }
 
@@ -403,35 +397,20 @@ export default function AdAccountsPage() {
 
   return (
     <>
-      {/* Breadcrumbs */}
-      <ClayBreadcrumbs
-        items={[
-          { label: 'SabNode', href: '/dashboard' },
-          { label: 'Meta Suite', href: '/dashboard/ad-manager' },
-          { label: 'Ad Accounts' },
-        ]}
-      />
+      <AmBreadcrumb page="Ad Accounts" />
 
-      {/* Header */}
-      <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="min-w-0">
-          <h1 className="text-[26px] font-semibold tracking-[-0.015em] text-foreground leading-[1.15]">
-            Ad Accounts
-          </h1>
-          <p className="mt-1 text-[13px] text-muted-foreground">
-            Connect and manage your Meta ad accounts to run campaigns.
-          </p>
-        </div>
-        <Link href="/api/auth/ad-manager/login" className="shrink-0">
-          <ClayButton
-            variant="obsidian"
-            size="md"
-            leading={<LuPlus className="h-3.5 w-3.5" />}
-          >
-            Connect account
-          </ClayButton>
-        </Link>
-      </div>
+      <AmHeader
+        title="Ad Accounts"
+        description="Connect and manage your Meta ad accounts to run campaigns."
+        actions={
+          <Link href="/api/auth/ad-manager/login" className="shrink-0">
+            <ZoruButton variant="default" size="md">
+              <Plus className="h-3.5 w-3.5" />
+              Connect account
+            </ZoruButton>
+          </Link>
+        }
+      />
 
       {/* Content */}
       <div className="mt-6">

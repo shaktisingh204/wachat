@@ -139,8 +139,10 @@ export default function QrCodesPage() {
   const handleUpdate = () => {
     if (!activeProject?._id || !editing || !editMessage.trim()) return;
     startTransition(async () => {
+      if (!selectedPhoneId) return;
       const result = await handleUpdateQrCode(
         activeProject._id.toString(),
+        selectedPhoneId,
         editing.code,
         editMessage,
       );
@@ -161,8 +163,10 @@ export default function QrCodesPage() {
   const handleDelete = (target: QrCodeRow) => {
     if (!activeProject?._id) return;
     startTransition(async () => {
+      if (!selectedPhoneId) return;
       const result = await handleDeleteQrCode(
         activeProject._id.toString(),
+        selectedPhoneId,
         target.code,
       );
       if (result.error) {

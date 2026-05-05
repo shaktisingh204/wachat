@@ -22,9 +22,12 @@ import {
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import {
+    ZoruButton,
+    ZoruBadge,
+    ZoruScrollArea,
+    ZoruScrollBar,
+} from '@/components/zoruui';
 import type { FacebookPage } from '@/lib/definitions';
 import { PREVIEW_VARIANTS, type AdPreviewFormat } from '@/components/wabasimplify/ad-manager/constants';
 import type { CreateFormState } from './form-state';
@@ -475,7 +478,7 @@ export function AdPreviewSwitcher({
     return (
         <div className="space-y-3">
             {/* Channel pills */}
-            <ScrollArea className="w-full">
+            <ZoruScrollArea className="w-full">
                 <div className="flex gap-1 pb-2 min-w-max">
                     {Object.entries(byPlatform).map(([platform, variants]) => {
                         if (variants.length === 0) return null;
@@ -508,22 +511,22 @@ export function AdPreviewSwitcher({
                         );
                     })}
                 </div>
-                <ScrollBar orientation="horizontal" />
-            </ScrollArea>
+                <ZoruScrollBar orientation="horizontal" />
+            </ZoruScrollArea>
 
             {/* Active variant */}
             <div className="flex items-center justify-between">
-                <Badge variant="outline" className="text-[10px]">
+                <ZoruBadge variant="outline" className="text-[10px]">
                     {currentIdx + 1} / {PREVIEW_VARIANTS.length}
-                </Badge>
+                </ZoruBadge>
                 <div className="text-xs font-medium">{activeVariant.label}</div>
                 <div className="flex gap-1">
-                    <Button variant="outline" size="icon" className="h-6 w-6" onClick={prev}>
+                    <ZoruButton variant="outline" size="icon" className="h-6 w-6" onClick={prev}>
                         <ChevronLeft className="h-3 w-3" />
-                    </Button>
-                    <Button variant="outline" size="icon" className="h-6 w-6" onClick={next}>
+                    </ZoruButton>
+                    <ZoruButton variant="outline" size="icon" className="h-6 w-6" onClick={next}>
                         <ChevronRight className="h-3 w-3" />
-                    </Button>
+                    </ZoruButton>
                 </div>
             </div>
 

@@ -1,14 +1,24 @@
 'use client';
 
 import * as React from 'react';
-import { LuFilter, LuCircleAlert, LuRefreshCw, LuDollarSign } from 'react-icons/lu';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Filter, RefreshCw, DollarSign } from 'lucide-react';
+import {
+    ZoruButton,
+    ZoruCard,
+    ZoruCardContent,
+    ZoruCardHeader,
+    ZoruCardTitle,
+    ZoruSkeleton,
+} from '@/components/zoruui';
 import { useAdManager } from '@/context/ad-manager-context';
 import { useToast } from '@/hooks/use-toast';
 import { getConversionFunnel } from '@/app/actions/ad-manager-features.actions';
+import {
+    AmBreadcrumb,
+    AmErrorAlert,
+    AmHeader,
+    AmNoProject,
+} from '@/app/dashboard/ad-manager/_components/am-page-shell';
 
 type Funnel = {
     impressions: number;
@@ -53,12 +63,9 @@ export default function ConversionFunnelPage() {
 
     if (!activeAccount) {
         return (
-            <div>
-                <Alert>
-                    <LuCircleAlert className="h-4 w-4" />
-                    <AlertTitle>No ad account selected</AlertTitle>
-                    <AlertDescription>Pick an ad account to view the conversion funnel.</AlertDescription>
-                </Alert>
+            <div className="space-y-4">
+                <AmBreadcrumb page="Conversion funnel" />
+                <AmNoProject />
             </div>
         );
     }
@@ -67,41 +74,38 @@ export default function ConversionFunnelPage() {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-                        <LuFilter className="h-6 w-6" /> Conversion funnel
-                    </h1>
-                    <p className="text-sm text-muted-foreground mt-1">
-                        Last 30 days funnel from impressions to purchases.
-                    </p>
-                </div>
-                <Button variant="outline" onClick={fetchData} disabled={loading}>
-                    <LuRefreshCw className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} /> Refresh
-                </Button>
-            </div>
+            <AmBreadcrumb page="Conversion funnel" />
+            <AmHeader
+                title="Conversion funnel"
+                description="Last 30 days funnel from impressions to purchases."
+                actions={
+                    <ZoruButton variant="outline" onClick={fetchData} disabled={loading}>
+                        <RefreshCw className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} /> Refresh
+                    </ZoruButton>
+                }
+            />
 
             {loading ? (
                 <div className="space-y-4">
-                    {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-14" />)}
+                    {Array.from({ length: 6 }).map((_, i) => <ZoruSkeleton key={i} className="h-14" />)}
                 </div>
             ) : !funnel ? (
-                <Card><CardContent className="p-8 text-center text-muted-foreground">No funnel data available.</CardContent></Card>
+                <ZoruCard><ZoruCardContent className="p-8 text-center text-muted-foreground">No funnel data available.</ZoruCardContent></ZoruCard>
             ) : (
                 <>
-                    <Card>
-                        <CardContent className="p-4 flex items-center gap-3">
-                            <LuDollarSign className="h-5 w-5 text-muted-foreground" />
+                    <ZoruCard>
+                        <ZoruCardContent className="p-4 flex items-center gap-3">
+                            <DollarSign className="h-5 w-5 text-muted-foreground" />
                             <div>
                                 <div className="text-sm text-muted-foreground">Total spend (30d)</div>
                                 <div className="text-2xl font-bold tabular-nums">${funnel.spend.toFixed(2)}</div>
                             </div>
-                        </CardContent>
-                    </Card>
+                        </ZoruCardContent>
+                    </ZoruCard>
 
-                    <Card>
-                        <CardHeader><CardTitle className="text-base">Funnel steps</CardTitle></CardHeader>
-                        <CardContent className="space-y-4">
+                    <ZoruCard>
+                        <ZoruCardHeader><ZoruCardTitle className="text-base">Funnel steps</ZoruCardTitle></ZoruCardHeader>
+                        <ZoruCardContent className="space-y-4">
                             {STEPS.map((step, idx) => {
                                 const count = funnel[step.key];
                                 const prevCount = idx > 0 ? funnel[STEPS[idx - 1].key] : count;
@@ -132,12 +136,12 @@ export default function ConversionFunnelPage() {
                                     </div>
                                 );
                             })}
-                        </CardContent>
-                    </Card>
+                        </ZoruCardContent>
+                    </ZoruCard>
 
-                    <Card>
-                        <CardHeader><CardTitle className="text-base">Cost per step</CardTitle></CardHeader>
-                        <CardContent>
+                    <ZoruCard>
+                        <ZoruCardHeader><ZoruCardTitle className="text-base">Cost per step</ZoruCardTitle></ZoruCardHeader>
+                        <ZoruCardContent>
                             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                                 {STEPS.map((step) => {
                                     const count = funnel[step.key];
@@ -150,8 +154,8 @@ export default function ConversionFunnelPage() {
                                     );
                                 })}
                             </div>
-                        </CardContent>
-                    </Card>
+                        </ZoruCardContent>
+                    </ZoruCard>
                 </>
             )}
         </div>

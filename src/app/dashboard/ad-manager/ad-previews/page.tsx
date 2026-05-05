@@ -1,12 +1,17 @@
 'use client';
 
 import * as React from 'react';
-import { LuImage, LuCircleAlert, LuRefreshCw, LuExternalLink } from 'react-icons/lu';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Image as ImageIcon, CircleAlert, RefreshCw, ExternalLink } from 'lucide-react';
+import {
+    ZoruButton,
+    ZoruCard,
+    ZoruCardContent,
+    ZoruCardHeader,
+    ZoruCardTitle,
+    ZoruBadge,
+    ZoruSkeleton,
+} from '@/components/zoruui';
+import { AmBreadcrumb, AmHeader, AmErrorAlert } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 import { useAdManager } from '@/context/ad-manager-context';
 import { useToast } from '@/hooks/use-toast';
 import { getAdPreviews } from '@/app/actions/ad-manager-features.actions';
@@ -52,70 +57,70 @@ export default function AdPreviewsPage() {
 
     if (!activeAccount) {
         return (
-            <div>
-                <Alert>
-                    <LuCircleAlert className="h-4 w-4" />
-                    <AlertTitle>No ad account selected</AlertTitle>
-                    <AlertDescription>Pick an ad account to view ad previews.</AlertDescription>
-                </Alert>
+            <div className="space-y-4">
+                <AmBreadcrumb page="Ad previews" />
+                <AmErrorAlert message="Pick an ad account to view ad previews." />
             </div>
         );
     }
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-                        <LuImage className="h-6 w-6" /> Ad preview gallery
-                    </h1>
-                    <p className="text-sm text-muted-foreground mt-1">
-                        Browse your ad creatives and preview copy.
-                    </p>
-                </div>
-                <Button variant="outline" onClick={fetchData} disabled={loading}>
-                    <LuRefreshCw className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} /> Refresh
-                </Button>
-            </div>
+            <AmBreadcrumb page="Ad previews" />
+            <AmHeader
+                title="Ad preview gallery"
+                description="Browse your ad creatives and preview copy."
+                actions={
+                    <ZoruButton variant="outline" onClick={fetchData} disabled={loading}>
+                        <RefreshCw className={loading ? 'animate-spin' : ''} /> Refresh
+                    </ZoruButton>
+                }
+            />
 
             <div className="flex gap-2">
                 {(['ALL', 'ACTIVE', 'PAUSED'] as const).map((s) => (
-                    <Button key={s} variant={filter === s ? 'default' : 'outline'} size="sm" onClick={() => setFilter(s)}>
+                    <ZoruButton
+                        key={s}
+                        variant={filter === s ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setFilter(s)}
+                    >
                         {s === 'ALL' ? 'All' : s.charAt(0) + s.slice(1).toLowerCase()}
-                    </Button>
+                    </ZoruButton>
                 ))}
             </div>
 
             {loading ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-64" />)}
+                    {Array.from({ length: 6 }).map((_, i) => <ZoruSkeleton key={i} className="h-64" />)}
                 </div>
             ) : filtered.length === 0 ? (
-                <Card><CardContent className="p-8 text-center text-muted-foreground">No ads found.</CardContent></Card>
+                <ZoruCard><ZoruCardContent className="p-8 text-center text-muted-foreground">No ads found.</ZoruCardContent></ZoruCard>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {filtered.map((ad) => {
                         const img = ad.creative?.thumbnail_url || ad.creative?.image_url;
                         return (
-                            <Card key={ad.id} className="overflow-hidden">
+                            <ZoruCard key={ad.id} className="overflow-hidden">
                                 {img ? (
                                     <div className="h-40 bg-muted overflow-hidden">
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
                                         <img src={img} alt={ad.name} className="w-full h-full object-cover" />
                                     </div>
                                 ) : (
                                     <div className="h-40 bg-muted flex items-center justify-center text-muted-foreground">
-                                        <LuImage className="h-10 w-10" />
+                                        <ImageIcon className="h-10 w-10" />
                                     </div>
                                 )}
-                                <CardHeader className="pb-2">
-                                    <CardTitle className="text-sm font-medium flex items-center justify-between">
+                                <ZoruCardHeader className="pb-2">
+                                    <ZoruCardTitle className="text-sm font-medium flex items-center justify-between">
                                         <span className="truncate mr-2">{ad.name}</span>
-                                        <Badge variant={ad.status === 'ACTIVE' ? 'default' : 'secondary'}>
+                                        <ZoruBadge variant={ad.status === 'ACTIVE' ? 'default' : 'secondary'}>
                                             {ad.status}
-                                        </Badge>
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-1 text-sm">
+                                        </ZoruBadge>
+                                    </ZoruCardTitle>
+                                </ZoruCardHeader>
+                                <ZoruCardContent className="space-y-1 text-sm">
                                     {ad.creative?.title && <p className="font-medium">{ad.creative.title}</p>}
                                     {ad.creative?.body && (
                                         <p className="text-muted-foreground text-xs line-clamp-3">{ad.creative.body}</p>
@@ -126,10 +131,10 @@ export default function AdPreviewsPage() {
                                         rel="noopener noreferrer"
                                         className="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline mt-2"
                                     >
-                                        View on Facebook <LuExternalLink className="h-3 w-3" />
+                                        View on Facebook <ExternalLink className="h-3 w-3" />
                                     </a>
-                                </CardContent>
-                            </Card>
+                                </ZoruCardContent>
+                            </ZoruCard>
                         );
                     })}
                 </div>

@@ -3,23 +3,22 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  LuMegaphone,
-  LuPlay,
-  LuPause,
-  LuCircle,
-  LuTrash2,
-  LuCopy,
-  LuArrowRight,
-  LuFilter,
-  LuSearch,
-  LuRefreshCw,
-  LuPlus,
-} from 'react-icons/lu';
+  Megaphone,
+  Play,
+  Pause,
+  Circle,
+  Trash2,
+  Copy,
+  Filter,
+  RefreshCw,
+  Plus,
+} from 'lucide-react';
 
 import { cn } from '@/lib/utils';
-import { ClayBreadcrumbs, ClayButton, ClayCard, ClayBadge, ClayInput } from '@/components/clay';
+import { ZoruButton, ZoruCard, ZoruBadge } from '@/components/zoruui';
 import { useAdManager } from '@/context/ad-manager-context';
 import { useAdManagerShell } from '../layout';
+import { AmBreadcrumb } from '../_components/am-page-shell';
 import {
   listCampaigns,
   updateEntityStatus,
@@ -49,11 +48,11 @@ type Campaign = {
 
 /* ── Helpers ───────────────────────────────────────────────────── */
 
-function statusTone(status: string): 'green' | 'amber' | 'neutral' {
+function statusVariant(status: string): 'success' | 'warning' | 'ghost' {
   const s = status?.toUpperCase();
-  if (s === 'ACTIVE') return 'green';
-  if (s === 'PAUSED') return 'amber';
-  return 'neutral';
+  if (s === 'ACTIVE') return 'success';
+  if (s === 'PAUSED') return 'warning';
+  return 'ghost';
 }
 
 function statusLabel(status: string): string {
@@ -99,7 +98,7 @@ function EmptyState() {
   return (
     <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
       <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-muted">
-        <LuMegaphone className="h-6 w-6 text-muted-foreground" strokeWidth={1.75} />
+        <Megaphone className="h-6 w-6 text-muted-foreground" strokeWidth={1.75} />
       </div>
       <div>
         <p className="text-[15px] font-semibold text-foreground">No campaigns yet</p>
@@ -107,14 +106,13 @@ function EmptyState() {
           Create your first campaign to start reaching customers on Facebook and Instagram.
         </p>
       </div>
-      <ClayButton
-        variant="obsidian"
+      <ZoruButton
         size="sm"
         onClick={() => router.push('/dashboard/ad-manager/create')}
-        leading={<LuPlus className="h-3.5 w-3.5" />}
       >
+        <Plus className="h-3.5 w-3.5" />
         Create campaign
-      </ClayButton>
+      </ZoruButton>
     </div>
   );
 }
@@ -126,7 +124,7 @@ function NoAccountState() {
   return (
     <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
       <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-muted">
-        <LuFilter className="h-6 w-6 text-muted-foreground" strokeWidth={1.75} />
+        <Filter className="h-6 w-6 text-muted-foreground" strokeWidth={1.75} />
       </div>
       <div>
         <p className="text-[15px] font-semibold text-foreground">No ad account selected</p>
@@ -134,13 +132,12 @@ function NoAccountState() {
           Connect or select a Meta ad account to view your campaigns.
         </p>
       </div>
-      <ClayButton
-        variant="obsidian"
+      <ZoruButton
         size="sm"
         onClick={() => router.push('/dashboard/ad-manager/ad-accounts')}
       >
         Select account
-      </ClayButton>
+      </ZoruButton>
     </div>
   );
 }
@@ -174,17 +171,17 @@ function RowActions({
 
   return (
     <div ref={ref} className="relative">
-      <ClayButton
+      <ZoruButton
         variant="ghost"
-        size="icon"
+        size="icon-sm"
         className="h-7 w-7 text-muted-foreground"
         onClick={(e) => {
           e.stopPropagation();
           setOpen((v) => !v);
         }}
       >
-        <LuCircle className="h-3.5 w-3.5" />
-      </ClayButton>
+        <Circle className="h-3.5 w-3.5" />
+      </ZoruButton>
 
       {open && (
         <div className="absolute right-0 top-full z-50 mt-1 min-w-[160px] rounded-xl border border-border bg-card shadow-md py-1">
@@ -198,9 +195,9 @@ function RowActions({
             }}
           >
             {isPaused ? (
-              <LuPlay className="h-3.5 w-3.5 text-emerald-600" />
+              <Play className="h-3.5 w-3.5 text-emerald-600" />
             ) : (
-              <LuPause className="h-3.5 w-3.5 text-amber-600" />
+              <Pause className="h-3.5 w-3.5 text-amber-600" />
             )}
             {isPaused ? 'Activate' : 'Pause'}
           </button>
@@ -213,7 +210,7 @@ function RowActions({
               onDuplicate();
             }}
           >
-            <LuCopy className="h-3.5 w-3.5 text-muted-foreground" />
+            <Copy className="h-3.5 w-3.5 text-muted-foreground" />
             Duplicate
           </button>
           <div className="my-1 h-px bg-border" />
@@ -226,7 +223,7 @@ function RowActions({
               onDelete();
             }}
           >
-            <LuTrash2 className="h-3.5 w-3.5" />
+            <Trash2 className="h-3.5 w-3.5" />
             Delete
           </button>
         </div>
@@ -309,17 +306,10 @@ export default function CampaignsPage() {
   if (!accountLoading && !activeAccount) {
     return (
       <div>
-        <ClayBreadcrumbs
-          items={[
-            { label: 'SabNode', href: '/wachat' },
-            { label: 'Meta Suite', href: '/dashboard/ad-manager' },
-            { label: 'Campaigns' },
-          ]}
-          className="mb-5"
-        />
-        <ClayCard>
+        <AmBreadcrumb page="Campaigns" />
+        <ZoruCard className="mt-5">
           <NoAccountState />
-        </ClayCard>
+        </ZoruCard>
       </div>
     );
   }
@@ -333,17 +323,10 @@ export default function CampaignsPage() {
   return (
     <div>
       {/* Breadcrumbs */}
-      <ClayBreadcrumbs
-        items={[
-          { label: 'SabNode', href: '/wachat' },
-          { label: 'Meta Suite', href: '/dashboard/ad-manager' },
-          { label: 'Campaigns' },
-        ]}
-        className="mb-5"
-      />
+      <AmBreadcrumb page="Campaigns" />
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center justify-between mt-5 mb-5">
         <div className="flex items-center gap-3">
           <h1 className="text-[26px] font-semibold text-foreground leading-none">
             Campaigns
@@ -355,8 +338,8 @@ export default function CampaignsPage() {
           )}
         </div>
         <div className="flex items-center gap-2">
-          <ClayButton
-            variant="pill"
+          <ZoruButton
+            variant="outline"
             size="sm"
             onClick={() => {
               const headers = ['id', 'name', 'status', 'objective', 'budget'];
@@ -378,15 +361,14 @@ export default function CampaignsPage() {
             }}
           >
             Export CSV
-          </ClayButton>
-          <ClayButton
-            variant="obsidian"
+          </ZoruButton>
+          <ZoruButton
             size="sm"
-            leading={<LuPlus className="h-3.5 w-3.5" />}
             onClick={() => router.push('/dashboard/ad-manager/create')}
           >
+            <Plus className="h-3.5 w-3.5" />
             Create Campaign
-          </ClayButton>
+          </ZoruButton>
         </div>
       </div>
 
@@ -394,31 +376,31 @@ export default function CampaignsPage() {
       <div className="flex items-center justify-between gap-3 mb-4">
         <div className="flex items-center gap-1.5">
           {filterPills.map((pill) => (
-            <ClayButton
+            <ZoruButton
               key={pill.value}
-              variant={statusFilter === pill.value ? 'obsidian' : 'pill'}
+              variant={statusFilter === pill.value ? 'default' : 'outline'}
               size="sm"
               onClick={() => setStatusFilter(pill.value)}
             >
               {pill.label}
-            </ClayButton>
+            </ZoruButton>
           ))}
         </div>
-        <ClayButton
+        <ZoruButton
           variant="ghost"
-          size="icon"
+          size="icon-sm"
           className="h-8 w-8"
           onClick={() => setRefreshKey((k) => k + 1)}
         >
-          <LuRefreshCw
+          <RefreshCw
             className={cn('h-3.5 w-3.5 text-muted-foreground', loading && 'animate-spin')}
             strokeWidth={2}
           />
-        </ClayButton>
+        </ZoruButton>
       </div>
 
       {/* Table */}
-      <ClayCard padded={false}>
+      <ZoruCard className="p-0 overflow-hidden">
         {loading ? (
           <TableSkeleton />
         ) : filtered.length === 0 ? (
@@ -459,7 +441,7 @@ export default function CampaignsPage() {
                   {/* Name */}
                   <div className="flex-1 min-w-[200px] flex items-center gap-2.5">
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-muted">
-                      <LuMegaphone className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={2} />
+                      <Megaphone className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={2} />
                     </div>
                     <span className="text-[13px] font-medium text-foreground truncate">
                       {c.name}
@@ -468,9 +450,9 @@ export default function CampaignsPage() {
 
                   {/* Status */}
                   <div className="w-[90px]">
-                    <ClayBadge tone={statusTone(c.effective_status)} dot>
+                    <ZoruBadge variant={statusVariant(c.effective_status)}>
                       {statusLabel(c.effective_status)}
-                    </ClayBadge>
+                    </ZoruBadge>
                   </div>
 
                   {/* Objective */}
@@ -502,7 +484,7 @@ export default function CampaignsPage() {
             </div>
           </div>
         )}
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

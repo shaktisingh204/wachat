@@ -17,6 +17,7 @@ use sabnode_db::{mongo::MongoHandle, redis::RedisHandle};
 use tokio::{net::TcpListener, signal};
 use tracing::{error, info};
 use wachat_chat_mark::ChatMarker;
+use wachat_config::WachatConfigState;
 use wachat_chat_read::ChatReader;
 use wachat_contacts_resolve::ContactResolver;
 use wachat_media::MediaUploader;
@@ -138,6 +139,8 @@ async fn run() -> anyhow::Result<()> {
         mongo: mongo.clone(),
     };
 
+    let config = WachatConfigState::new(mongo.clone(), meta.clone());
+
     let state = AppState::new(
         mongo,
         redis,
@@ -146,6 +149,7 @@ async fn run() -> anyhow::Result<()> {
         webhook_verifier,
         templates,
         send,
+        config,
     );
     let app = router::build(state.clone());
 

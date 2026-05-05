@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * /dashboard/ad-manager — Meta Suite overview built on Clay primitives.
+ * /dashboard/ad-manager — Meta Suite overview built on ZoruUI primitives.
  *
  * Shows account-level KPIs, top campaigns, and quick actions.
  * All data is real — pulled from Meta Graph API via server actions.
@@ -11,21 +11,21 @@ import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
-  LuDollarSign,
-  LuEye,
-  LuUsers,
-  LuMousePointerClick,
-  LuTrendingUp,
-  LuTrendingDown,
-  LuArrowRight,
-  LuMegaphone,
-  LuPlus,
-  LuCircle,
-  LuPause,
-  LuPlay,
-  LuRefreshCw,
-  LuDownload,
-} from 'react-icons/lu';
+  DollarSign,
+  Eye,
+  Users,
+  MousePointerClick,
+  TrendingUp,
+  TrendingDown,
+  ArrowRight,
+  Megaphone,
+  Plus,
+  Circle,
+  Pause,
+  Play,
+  RefreshCw,
+  Download,
+} from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { useAdManager } from '@/context/ad-manager-context';
@@ -33,11 +33,11 @@ import { useAdManagerShell } from './layout';
 import { getInsights, listCampaigns } from '@/app/actions/ad-manager.actions';
 import { formatMoney, formatNumber, formatPercent } from '@/components/wabasimplify/ad-manager/constants';
 import {
-  ClayBreadcrumbs,
-  ClayButton,
-  ClayCard,
-  ClayListRow,
-} from '@/components/clay';
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+} from '@/components/zoruui';
+import { AmBreadcrumb, AmHeader } from './_components/am-page-shell';
 
 /* ── types ──────────────────────────────────────────────────────── */
 
@@ -55,10 +55,12 @@ function KpiSkeleton() {
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
       {Array.from({ length: 6 }).map((_, i) => (
-        <ClayCard key={i} className="!p-4">
-          <div className="h-3 w-16 animate-pulse rounded-full bg-muted" />
-          <div className="mt-3 h-7 w-20 animate-pulse rounded bg-muted" />
-        </ClayCard>
+        <ZoruCard key={i}>
+          <ZoruCardContent className="p-4">
+            <div className="h-3 w-16 animate-pulse rounded-full bg-muted" />
+            <div className="mt-3 h-7 w-20 animate-pulse rounded bg-muted" />
+          </ZoruCardContent>
+        </ZoruCard>
       ))}
     </div>
   );
@@ -66,13 +68,13 @@ function KpiSkeleton() {
 
 function CampaignsSkeleton() {
   return (
-    <ClayCard>
-      <div className="space-y-3 p-1">
+    <ZoruCard>
+      <ZoruCardContent className="space-y-3 p-1">
         {Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className="h-12 animate-pulse rounded-lg bg-muted" />
         ))}
-      </div>
-    </ClayCard>
+      </ZoruCardContent>
+    </ZoruCard>
   );
 }
 
@@ -83,7 +85,7 @@ function NoAccountState() {
   return (
     <div className="flex flex-col items-center justify-center gap-5 py-20 text-center">
       <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-50">
-        <LuMegaphone className="h-7 w-7 text-indigo-600" strokeWidth={1.75} />
+        <Megaphone className="h-7 w-7 text-indigo-600" strokeWidth={1.75} />
       </div>
       <div>
         <h2 className="text-[20px] font-semibold text-foreground">Welcome to Meta Ads Manager</h2>
@@ -92,10 +94,10 @@ function NoAccountState() {
           your Facebook & Instagram ad campaigns.
         </p>
       </div>
-      <ClayButton variant="obsidian" size="md" onClick={() => router.push('/dashboard/ad-manager/ad-accounts')}>
-        <LuPlus className="mr-1.5 h-3.5 w-3.5" />
+      <ZoruButton variant="default" size="md" onClick={() => router.push('/dashboard/ad-manager/ad-accounts')}>
+        <Plus className="mr-1.5 h-3.5 w-3.5" />
         Connect ad account
-      </ClayButton>
+      </ZoruButton>
     </div>
   );
 }
@@ -115,9 +117,9 @@ function StatusDot({ status }: { status: string }) {
         !isActive && !isPaused && 'bg-muted text-muted-foreground',
       )}
     >
-      {isActive && <LuPlay className="h-2.5 w-2.5" />}
-      {isPaused && <LuPause className="h-2.5 w-2.5" />}
-      {!isActive && !isPaused && <LuCircle className="h-2.5 w-2.5" />}
+      {isActive && <Play className="h-2.5 w-2.5" />}
+      {isPaused && <Pause className="h-2.5 w-2.5" />}
+      {!isActive && !isPaused && <Circle className="h-2.5 w-2.5" />}
       {status?.replace(/_/g, ' ') || 'Unknown'}
     </span>
   );
@@ -156,42 +158,42 @@ export default function AdManagerOverviewPage() {
           id: 'spend',
           label: 'Amount spent',
           value: formatMoney(agg.spend || 0),
-          icon: LuDollarSign,
+          icon: DollarSign,
           color: 'text-emerald-600',
         },
         {
           id: 'impressions',
           label: 'Impressions',
           value: formatNumber(agg.impressions || 0),
-          icon: LuEye,
+          icon: Eye,
           color: 'text-blue-600',
         },
         {
           id: 'reach',
           label: 'Reach',
           value: formatNumber(agg.reach || 0),
-          icon: LuUsers,
+          icon: Users,
           color: 'text-violet-600',
         },
         {
           id: 'clicks',
           label: 'Link clicks',
           value: formatNumber(agg.inline_link_clicks || agg.clicks || 0),
-          icon: LuMousePointerClick,
+          icon: MousePointerClick,
           color: 'text-indigo-600',
         },
         {
           id: 'ctr',
           label: 'CTR',
           value: formatPercent(agg.ctr || 0),
-          icon: LuTrendingUp,
+          icon: TrendingUp,
           color: 'text-amber-600',
         },
         {
           id: 'cpc',
           label: 'CPC',
           value: formatMoney(agg.cpc || 0),
-          icon: LuTrendingDown,
+          icon: TrendingDown,
           color: 'text-rose-600',
         },
       ]);
@@ -204,13 +206,7 @@ export default function AdManagerOverviewPage() {
   if (!activeAccount) {
     return (
       <>
-        <ClayBreadcrumbs
-          items={[
-            { label: 'SabNode', href: '/dashboard' },
-            { label: 'Meta Suite', href: '/dashboard/ad-manager' },
-            { label: 'Overview' },
-          ]}
-        />
+        <AmBreadcrumb page="Overview" />
         <NoAccountState />
       </>
     );
@@ -219,25 +215,13 @@ export default function AdManagerOverviewPage() {
   return (
     <>
       {/* Breadcrumbs */}
-      <ClayBreadcrumbs
-        items={[
-          { label: 'SabNode', href: '/dashboard' },
-          { label: 'Meta Suite', href: '/dashboard/ad-manager' },
-          { label: 'Overview' },
-        ]}
-      />
+      <AmBreadcrumb page="Overview" />
 
       {/* Header */}
-      <div className="mt-5 flex items-center justify-between gap-4">
-        <div className="min-w-0">
-          <h1 className="text-[26px] font-semibold tracking-[-0.015em] text-foreground leading-[1.15]">
-            Performance overview
-          </h1>
-          <p className="mt-1 text-[13px] text-muted-foreground">
-            {activeAccount.name} · {preset?.replace(/_/g, ' ') || 'last 7 days'}
-          </p>
-        </div>
-      </div>
+      <AmHeader
+        title="Performance overview"
+        description={`${activeAccount.name} · ${preset?.replace(/_/g, ' ') || 'last 7 days'}`}
+      />
 
       {/* KPI cards */}
       <div className="mt-6">
@@ -248,19 +232,21 @@ export default function AdManagerOverviewPage() {
             {kpis.map((kpi) => {
               const Icon = kpi.icon;
               return (
-                <ClayCard key={kpi.id} className="!p-4">
-                  <div className="flex items-center justify-between">
-                    <Icon className={cn('h-4 w-4', kpi.color)} strokeWidth={2} />
-                  </div>
-                  <div className="mt-2">
-                    <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
-                      {kpi.label}
-                    </p>
-                    <p className="mt-0.5 text-[22px] font-semibold tabular-nums text-foreground leading-tight">
-                      {kpi.value}
-                    </p>
-                  </div>
-                </ClayCard>
+                <ZoruCard key={kpi.id}>
+                  <ZoruCardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <Icon className={cn('h-4 w-4', kpi.color)} strokeWidth={2} />
+                    </div>
+                    <div className="mt-2">
+                      <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+                        {kpi.label}
+                      </p>
+                      <p className="mt-0.5 text-[22px] font-semibold tabular-nums text-foreground leading-tight">
+                        {kpi.value}
+                      </p>
+                    </div>
+                  </ZoruCardContent>
+                </ZoruCard>
               );
             })}
           </div>
@@ -273,27 +259,29 @@ export default function AdManagerOverviewPage() {
         <div>
           <div className="mb-3 flex items-center justify-between">
             <p className="text-[13px] font-semibold text-foreground">Top campaigns</p>
-            <ClayButton
+            <ZoruButton
               variant="ghost"
               size="sm"
-              trailing={<LuArrowRight className="h-3 w-3" />}
               onClick={() => router.push('/dashboard/ad-manager/campaigns')}
             >
               View all
-            </ClayButton>
+              <ArrowRight className="ml-1 h-3 w-3" />
+            </ZoruButton>
           </div>
 
           {loading ? (
             <CampaignsSkeleton />
           ) : topCampaigns.length === 0 ? (
-            <ClayCard variant="soft" className="flex flex-col items-center gap-3 py-12 text-center">
-              <LuMegaphone className="h-6 w-6 text-muted-foreground/40" strokeWidth={1.5} />
-              <p className="text-[13px] text-muted-foreground">
-                No campaigns yet. Create your first campaign to see results here.
-              </p>
-            </ClayCard>
+            <ZoruCard>
+              <ZoruCardContent className="flex flex-col items-center gap-3 py-12 text-center">
+                <Megaphone className="h-6 w-6 text-muted-foreground/40" strokeWidth={1.5} />
+                <p className="text-[13px] text-muted-foreground">
+                  No campaigns yet. Create your first campaign to see results here.
+                </p>
+              </ZoruCardContent>
+            </ZoruCard>
           ) : (
-            <ClayCard padded={false}>
+            <ZoruCard>
               <div className="divide-y divide-border">
                 {topCampaigns.map((c) => (
                   <Link
@@ -322,7 +310,7 @@ export default function AdManagerOverviewPage() {
                   </Link>
                 ))}
               </div>
-            </ClayCard>
+            </ZoruCard>
           )}
         </div>
 
@@ -331,9 +319,9 @@ export default function AdManagerOverviewPage() {
           <div className="flex items-center justify-between">
             <p className="text-[13px] font-semibold text-foreground">Quick actions</p>
             <div className="flex items-center gap-1.5">
-              <ClayButton
+              <ZoruButton
                 variant="ghost"
-                size="icon"
+                size="icon-sm"
                 className="h-7 w-7"
                 onClick={() => {
                   setLoading(true);
@@ -348,23 +336,23 @@ export default function AdManagerOverviewPage() {
                     ]);
                     const agg = insightsRes.data?.[0] || {};
                     setKpis([
-                      { id: 'spend', label: 'Amount spent', value: formatMoney(agg.spend || 0), icon: LuDollarSign, color: 'text-emerald-600' },
-                      { id: 'impressions', label: 'Impressions', value: formatNumber(agg.impressions || 0), icon: LuEye, color: 'text-blue-600' },
-                      { id: 'reach', label: 'Reach', value: formatNumber(agg.reach || 0), icon: LuUsers, color: 'text-violet-600' },
-                      { id: 'clicks', label: 'Link clicks', value: formatNumber(agg.inline_link_clicks || agg.clicks || 0), icon: LuMousePointerClick, color: 'text-indigo-600' },
-                      { id: 'ctr', label: 'CTR', value: formatPercent(agg.ctr || 0), icon: LuTrendingUp, color: 'text-amber-600' },
-                      { id: 'cpc', label: 'CPC', value: formatMoney(agg.cpc || 0), icon: LuTrendingDown, color: 'text-rose-600' },
+                      { id: 'spend', label: 'Amount spent', value: formatMoney(agg.spend || 0), icon: DollarSign, color: 'text-emerald-600' },
+                      { id: 'impressions', label: 'Impressions', value: formatNumber(agg.impressions || 0), icon: Eye, color: 'text-blue-600' },
+                      { id: 'reach', label: 'Reach', value: formatNumber(agg.reach || 0), icon: Users, color: 'text-violet-600' },
+                      { id: 'clicks', label: 'Link clicks', value: formatNumber(agg.inline_link_clicks || agg.clicks || 0), icon: MousePointerClick, color: 'text-indigo-600' },
+                      { id: 'ctr', label: 'CTR', value: formatPercent(agg.ctr || 0), icon: TrendingUp, color: 'text-amber-600' },
+                      { id: 'cpc', label: 'CPC', value: formatMoney(agg.cpc || 0), icon: TrendingDown, color: 'text-rose-600' },
                     ]);
                     setTopCampaigns((campaignsRes.data || []).slice(0, 6));
                     setLoading(false);
                   })();
                 }}
               >
-                <LuRefreshCw className={cn('h-3.5 w-3.5 text-muted-foreground', loading && 'animate-spin')} strokeWidth={2} />
-              </ClayButton>
-              <ClayButton
+                <RefreshCw className={cn('h-3.5 w-3.5 text-muted-foreground', loading && 'animate-spin')} strokeWidth={2} />
+              </ZoruButton>
+              <ZoruButton
                 variant="ghost"
-                size="icon"
+                size="icon-sm"
                 className="h-7 w-7"
                 onClick={() => {
                   const data = kpis.map((k) => ({ id: k.id, label: k.label, value: k.value }));
@@ -377,51 +365,55 @@ export default function AdManagerOverviewPage() {
                   URL.revokeObjectURL(url);
                 }}
               >
-                <LuDownload className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={2} />
-              </ClayButton>
+                <Download className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={2} />
+              </ZoruButton>
             </div>
           </div>
 
-          <ClayCard className="space-y-2 !p-4">
-            <QuickAction
-              label="Create campaign"
-              description="Launch new ads on Facebook & Instagram"
-              onClick={() => router.push('/dashboard/ad-manager/create')}
-            />
-            <QuickAction
-              label="Manage audiences"
-              description="Build custom & lookalike audiences"
-              onClick={() => router.push('/dashboard/ad-manager/audiences')}
-            />
-            <QuickAction
-              label="Creative library"
-              description="Upload and manage ad images & videos"
-              onClick={() => router.push('/dashboard/ad-manager/creative-library')}
-            />
-            <QuickAction
-              label="View insights"
-              description="Breakdowns by device, age, placement"
-              onClick={() => router.push('/dashboard/ad-manager/insights')}
-            />
-            <QuickAction
-              label="Manage pixels"
-              description="Track website conversions"
-              onClick={() => router.push('/dashboard/ad-manager/pixels')}
-            />
-          </ClayCard>
+          <ZoruCard>
+            <ZoruCardContent className="space-y-2 p-4">
+              <QuickAction
+                label="Create campaign"
+                description="Launch new ads on Facebook & Instagram"
+                onClick={() => router.push('/dashboard/ad-manager/create')}
+              />
+              <QuickAction
+                label="Manage audiences"
+                description="Build custom & lookalike audiences"
+                onClick={() => router.push('/dashboard/ad-manager/audiences')}
+              />
+              <QuickAction
+                label="Creative library"
+                description="Upload and manage ad images & videos"
+                onClick={() => router.push('/dashboard/ad-manager/creative-library')}
+              />
+              <QuickAction
+                label="View insights"
+                description="Breakdowns by device, age, placement"
+                onClick={() => router.push('/dashboard/ad-manager/insights')}
+              />
+              <QuickAction
+                label="Manage pixels"
+                description="Track website conversions"
+                onClick={() => router.push('/dashboard/ad-manager/pixels')}
+              />
+            </ZoruCardContent>
+          </ZoruCard>
 
           {/* Account info */}
-          <ClayCard variant="soft" className="!p-4">
-            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
-              Active account
-            </p>
-            <p className="mt-1 text-[13px] font-semibold text-foreground truncate">
-              {activeAccount.name}
-            </p>
-            <p className="text-[11px] text-muted-foreground font-mono">
-              {activeAccount.account_id}
-            </p>
-          </ClayCard>
+          <ZoruCard>
+            <ZoruCardContent className="p-4">
+              <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+                Active account
+              </p>
+              <p className="mt-1 text-[13px] font-semibold text-foreground truncate">
+                {activeAccount.name}
+              </p>
+              <p className="text-[11px] text-muted-foreground font-mono">
+                {activeAccount.account_id}
+              </p>
+            </ZoruCardContent>
+          </ZoruCard>
         </div>
       </div>
     </>
@@ -449,7 +441,7 @@ function QuickAction({
         <p className="text-[12px] font-semibold text-foreground">{label}</p>
         <p className="text-[11px] text-muted-foreground">{description}</p>
       </div>
-      <LuArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground/40 transition group-hover:translate-x-0.5 group-hover:text-foreground" />
+      <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground/40 transition group-hover:translate-x-0.5 group-hover:text-foreground" />
     </button>
   );
 }
