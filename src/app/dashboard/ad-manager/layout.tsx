@@ -1,15 +1,14 @@
 'use client';
 
 /**
- * /dashboard/ad-manager layout — Clay chrome.
+ * /dashboard/ad-manager layout — ZoruUI chrome.
  *
  * Provides the AdManagerShell context (search, date range, preset)
  * that all child pages consume via useAdManagerShell(). Feature-locked
  * behind the `whatsappAds` plan feature.
  *
- * The sidebar and topbar come from ClayDashboardLayout (context="meta-suite")
- * wired in the DashboardChromeDispatcher — this layout only handles
- * the in-page toolbar and feature gating.
+ * The sidebar and topbar come from the parent dashboard ZoruHomeShell —
+ * this layout only handles the in-page toolbar and feature gating.
  */
 
 import * as React from 'react';
@@ -17,24 +16,27 @@ import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 import type { DateRange } from 'react-day-picker';
 import {
-  LuSearch,
-  LuCalendar,
-  LuPlus,
-  LuChevronsUpDown,
-  LuLock,
-} from 'react-icons/lu';
+  Search,
+  Calendar as CalendarIcon,
+  Plus,
+  ChevronsUpDown,
+  Lock,
+} from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { useProject } from '@/context/project-context';
 import { useAdManager } from '@/context/ad-manager-context';
-import { ClayBreadcrumbs, ClayButton, ClayCard, ClayInput } from '@/components/clay';
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruInput,
+  ZoruPopover,
+  ZoruPopoverContent,
+  ZoruPopoverTrigger,
+  ZoruScrollArea,
+} from '@/components/zoruui';
 import { Calendar } from '@/components/ui/calendar';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { DATE_PRESETS } from '@/components/wabasimplify/ad-manager/constants';
 
 /* ── Shell context ─────────────────────────────────────────────── */
@@ -61,27 +63,29 @@ export function useAdManagerShell() {
 function MetaFeatureLock() {
   const router = useRouter();
   return (
-    <div className="flex flex-col items-center justify-center gap-5 py-24 text-center">
-      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted">
-        <LuLock className="h-7 w-7 text-muted-foreground" strokeWidth={1.75} />
-      </div>
-      <div>
-        <h2 className="text-[20px] font-semibold text-foreground">
-          Meta Ads Manager is locked
-        </h2>
-        <p className="mt-1.5 max-w-md text-[13px] text-muted-foreground leading-relaxed">
-          Upgrade your plan to access Facebook & Instagram ad campaigns,
-          audiences, creative library, and performance insights.
-        </p>
-      </div>
-      <ClayButton
-        variant="obsidian"
-        size="md"
-        onClick={() => router.push('/dashboard/user/billing#upgrade')}
-      >
-        Explore plans
-      </ClayButton>
-    </div>
+    <ZoruCard className="mt-6">
+      <ZoruCardContent className="flex flex-col items-center justify-center gap-5 py-24 text-center">
+        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted">
+          <Lock className="h-7 w-7 text-muted-foreground" strokeWidth={1.75} />
+        </div>
+        <div>
+          <h2 className="text-[20px] font-semibold text-foreground">
+            Meta Ads Manager is locked
+          </h2>
+          <p className="mt-1.5 max-w-md text-[13px] text-muted-foreground leading-relaxed">
+            Upgrade your plan to access Facebook & Instagram ad campaigns,
+            audiences, creative library, and performance insights.
+          </p>
+        </div>
+        <ZoruButton
+          variant="default"
+          size="md"
+          onClick={() => router.push('/dashboard/user/billing#upgrade')}
+        >
+          Explore plans
+        </ZoruButton>
+      </ZoruCardContent>
+    </ZoruCard>
   );
 }
 
@@ -99,19 +103,19 @@ function DateRangeBar({
   setPreset: (p: string) => void;
 }) {
   return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <ClayButton variant="pill" size="sm">
-          <LuCalendar className="mr-1.5 h-3.5 w-3.5" strokeWidth={2} />
+    <ZoruPopover>
+      <ZoruPopoverTrigger asChild>
+        <ZoruButton variant="outline" size="sm" className="rounded-full">
+          <CalendarIcon className="mr-1.5 h-3.5 w-3.5" strokeWidth={2} />
           {DATE_PRESETS.find((p) => p.id === preset)?.label ||
             (date?.from
               ? `${format(date.from, 'LLL dd')} – ${date.to ? format(date.to, 'LLL dd') : ''}`
               : 'Last 7 days')}
-        </ClayButton>
-      </PopoverTrigger>
-      <PopoverContent className="p-0 w-auto" align="end">
+        </ZoruButton>
+      </ZoruPopoverTrigger>
+      <ZoruPopoverContent className="p-0 w-auto" align="end">
         <div className="flex">
-          <ScrollArea className="h-[340px] border-r w-40">
+          <ZoruScrollArea className="h-[340px] border-r w-40">
             <div className="p-2 flex flex-col">
               {DATE_PRESETS.map((p) => (
                 <button
@@ -129,7 +133,7 @@ function DateRangeBar({
                 </button>
               ))}
             </div>
-          </ScrollArea>
+          </ZoruScrollArea>
           <Calendar
             mode="range"
             selected={date}
@@ -141,8 +145,8 @@ function DateRangeBar({
             initialFocus
           />
         </div>
-      </PopoverContent>
-    </Popover>
+      </ZoruPopoverContent>
+    </ZoruPopover>
   );
 }
 
@@ -153,10 +157,10 @@ function AccountPill() {
   const router = useRouter();
 
   return (
-    <ClayButton
-      variant="pill"
+    <ZoruButton
+      variant="outline"
       size="sm"
-      trailing={<LuChevronsUpDown className="h-3 w-3 opacity-60" />}
+      className="rounded-full"
       onClick={() => router.push('/dashboard/ad-manager/ad-accounts')}
     >
       <span
@@ -166,7 +170,8 @@ function AccountPill() {
         {(activeAccount?.name || 'AD').slice(0, 2).toUpperCase()}
       </span>
       {activeAccount?.name || 'Select account'}
-    </ClayButton>
+      <ChevronsUpDown className="ml-1.5 h-3 w-3 opacity-60" />
+    </ZoruButton>
   );
 }
 
@@ -199,8 +204,8 @@ export default function AdManagerLayout({ children }: { children: React.ReactNod
 
           {/* Search */}
           <div className="relative hidden sm:block">
-            <LuSearch className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground/50" />
-            <ClayInput
+            <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground/50 z-10" />
+            <ZoruInput
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search campaigns..."
@@ -211,14 +216,14 @@ export default function AdManagerLayout({ children }: { children: React.ReactNod
 
         <div className="flex items-center gap-2">
           <DateRangeBar date={date} setDate={setDate} preset={preset} setPreset={setPreset} />
-          <ClayButton
-            variant="obsidian"
+          <ZoruButton
+            variant="default"
             size="sm"
             onClick={() => router.push('/dashboard/ad-manager/create')}
           >
-            <LuPlus className="mr-1 h-3.5 w-3.5" />
+            <Plus className="mr-1 h-3.5 w-3.5" />
             Create
-          </ClayButton>
+          </ZoruButton>
         </div>
       </div>
 

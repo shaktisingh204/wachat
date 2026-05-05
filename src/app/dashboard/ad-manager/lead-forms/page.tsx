@@ -2,21 +2,34 @@
 
 import * as React from 'react';
 import { FileText, Plus, Download, RefreshCw, Users } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Badge } from '@/components/ui/badge';
 import {
-    Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from '@/components/ui/table';
-import {
-    Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from '@/components/ui/select';
+    ZoruButton,
+    ZoruCard,
+    ZoruCardContent,
+    ZoruSkeleton,
+    ZoruBadge,
+    ZoruTable,
+    ZoruTableBody,
+    ZoruTableCell,
+    ZoruTableHead,
+    ZoruTableHeader,
+    ZoruTableRow,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+    ZoruDialog,
+    ZoruDialogContent,
+    ZoruDialogHeader,
+    ZoruDialogTitle,
+    ZoruDialogDescription,
+    ZoruDialogFooter,
+    ZoruLabel,
+    ZoruInput,
+} from '@/components/zoruui';
+import { AmBreadcrumb, AmHeader } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 import { useToast } from '@/hooks/use-toast';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
 import { getFacebookPagesForAdCreation, listLeadGenForms, getLeadsFromForm } from '@/app/actions/ad-manager.actions';
 import type { FacebookPage } from '@/lib/definitions';
 
@@ -81,38 +94,36 @@ export default function LeadFormsPage() {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-                        <FileText className="h-6 w-6" /> Lead forms
-                    </h1>
-                    <p className="text-sm text-muted-foreground mt-1">
-                        Instant forms collected from your Lead Ads. Export to CSV or sync to CRM.
-                    </p>
-                </div>
-                <Button className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={() => setCreateOpen(true)}>
-                    <Plus className="h-4 w-4 mr-1" /> New lead form
-                </Button>
-            </div>
+            <AmBreadcrumb page="Lead forms" />
+            <AmHeader
+                title="Lead forms"
+                description="Instant forms collected from your Lead Ads. Export to CSV or sync to CRM."
+                actions={
+                    <ZoruButton className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={() => setCreateOpen(true)}>
+                        <Plus className="h-4 w-4 mr-1" /> New lead form
+                    </ZoruButton>
+                }
+            />
 
             <div className="flex items-center gap-2">
+                <FileText className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">Facebook page:</span>
-                <Select value={selectedPage} onValueChange={setSelectedPage}>
-                    <SelectTrigger className="w-[280px]">
-                        <SelectValue placeholder="Select a page" />
-                    </SelectTrigger>
-                    <SelectContent>
+                <ZoruSelect value={selectedPage} onValueChange={setSelectedPage}>
+                    <ZoruSelectTrigger className="w-[280px]">
+                        <ZoruSelectValue placeholder="Select a page" />
+                    </ZoruSelectTrigger>
+                    <ZoruSelectContent>
                         {pages.map((p) => (
-                            <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                            <ZoruSelectItem key={p.id} value={p.id}>{p.name}</ZoruSelectItem>
                         ))}
-                    </SelectContent>
-                </Select>
+                    </ZoruSelectContent>
+                </ZoruSelect>
             </div>
 
             {/* Total leads count stat card */}
             {!loading && forms.length > 0 && (
-                <Card>
-                    <CardContent className="p-4 flex items-center gap-4">
+                <ZoruCard>
+                    <ZoruCardContent className="p-4 flex items-center gap-4">
                         <div className="h-10 w-10 rounded-lg bg-[#1877F2]/10 flex items-center justify-center text-[#1877F2]">
                             <Users className="h-5 w-5" />
                         </div>
@@ -122,53 +133,53 @@ export default function LeadFormsPage() {
                                 {forms.reduce((sum: number, f: any) => sum + (f.leads_count || 0), 0)}
                             </p>
                         </div>
-                    </CardContent>
-                </Card>
+                    </ZoruCardContent>
+                </ZoruCard>
             )}
 
-            <Card>
-                <CardContent className="p-0">
+            <ZoruCard>
+                <ZoruCardContent className="p-0">
                     {loading ? (
                         <div className="p-4 space-y-2">
-                            {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-10" />)}
+                            {Array.from({ length: 3 }).map((_, i) => <ZoruSkeleton key={i} className="h-10" />)}
                         </div>
                     ) : (
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Form</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Leads</TableHead>
-                                    <TableHead>Created</TableHead>
-                                    <TableHead />
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
+                        <ZoruTable>
+                            <ZoruTableHeader>
+                                <ZoruTableRow>
+                                    <ZoruTableHead>Form</ZoruTableHead>
+                                    <ZoruTableHead>Status</ZoruTableHead>
+                                    <ZoruTableHead>Leads</ZoruTableHead>
+                                    <ZoruTableHead>Created</ZoruTableHead>
+                                    <ZoruTableHead />
+                                </ZoruTableRow>
+                            </ZoruTableHeader>
+                            <ZoruTableBody>
                                 {forms.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                                    <ZoruTableRow>
+                                        <ZoruTableCell colSpan={5} className="h-24 text-center text-muted-foreground">
                                             No lead forms on this page yet.
-                                        </TableCell>
-                                    </TableRow>
+                                        </ZoruTableCell>
+                                    </ZoruTableRow>
                                 ) : (
                                     forms.map((f) => (
-                                        <TableRow key={f.id}>
-                                            <TableCell className="font-medium">{f.name}</TableCell>
-                                            <TableCell>
-                                                <Badge variant="outline">{f.status}</Badge>
-                                            </TableCell>
-                                            <TableCell className="tabular-nums">{f.leads_count || 0}</TableCell>
-                                            <TableCell className="text-xs text-muted-foreground">
+                                        <ZoruTableRow key={f.id}>
+                                            <ZoruTableCell className="font-medium">{f.name}</ZoruTableCell>
+                                            <ZoruTableCell>
+                                                <ZoruBadge variant="outline">{f.status}</ZoruBadge>
+                                            </ZoruTableCell>
+                                            <ZoruTableCell className="tabular-nums">{f.leads_count || 0}</ZoruTableCell>
+                                            <ZoruTableCell className="text-xs text-muted-foreground">
                                                 {f.created_time
                                                     ? new Date(f.created_time).toLocaleDateString()
                                                     : '—'}
-                                            </TableCell>
-                                            <TableCell>
+                                            </ZoruTableCell>
+                                            <ZoruTableCell>
                                                 <div className="flex items-center gap-1.5">
-                                                    <Button size="sm" variant="outline" onClick={() => exportLeads(f.id)}>
+                                                    <ZoruButton size="sm" variant="outline" onClick={() => exportLeads(f.id)}>
                                                         <Download className="h-3 w-3 mr-1" /> Export
-                                                    </Button>
-                                                    <Button
+                                                    </ZoruButton>
+                                                    <ZoruButton
                                                         size="sm"
                                                         variant="outline"
                                                         onClick={() => {
@@ -176,24 +187,24 @@ export default function LeadFormsPage() {
                                                         }}
                                                     >
                                                         <RefreshCw className="h-3 w-3 mr-1" /> Sync to CRM
-                                                    </Button>
+                                                    </ZoruButton>
                                                 </div>
-                                            </TableCell>
-                                        </TableRow>
+                                            </ZoruTableCell>
+                                        </ZoruTableRow>
                                     ))
                                 )}
-                            </TableBody>
-                        </Table>
+                            </ZoruTableBody>
+                        </ZoruTable>
                     )}
-                </CardContent>
-            </Card>
+                </ZoruCardContent>
+            </ZoruCard>
 
-            <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Create Lead Form</DialogTitle>
-                        <DialogDescription>Lead forms are created through Meta Ads Manager. Use the link below to create one.</DialogDescription>
-                    </DialogHeader>
+            <ZoruDialog open={createOpen} onOpenChange={setCreateOpen}>
+                <ZoruDialogContent>
+                    <ZoruDialogHeader>
+                        <ZoruDialogTitle>Create Lead Form</ZoruDialogTitle>
+                        <ZoruDialogDescription>Lead forms are created through Meta Ads Manager. Use the link below to create one.</ZoruDialogDescription>
+                    </ZoruDialogHeader>
                     <div className="space-y-4">
                         <p className="text-sm text-muted-foreground">To create a new lead generation form:</p>
                         <ol className="text-sm space-y-2 list-decimal list-inside text-muted-foreground">
@@ -202,17 +213,17 @@ export default function LeadFormsPage() {
                             <li>Build your Instant Form in the ad creation step</li>
                             <li>The form will appear here automatically</li>
                         </ol>
-                        <Button asChild className="w-full bg-[#1877F2] hover:bg-[#1877F2]/90 text-white">
+                        <ZoruButton asChild className="w-full bg-[#1877F2] hover:bg-[#1877F2]/90 text-white">
                             <a href="https://business.facebook.com/adsmanager" target="_blank" rel="noopener noreferrer">
                                 Open Meta Ads Manager
                             </a>
-                        </Button>
+                        </ZoruButton>
                     </div>
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => setCreateOpen(false)}>Close</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+                    <ZoruDialogFooter>
+                        <ZoruButton variant="outline" onClick={() => setCreateOpen(false)}>Close</ZoruButton>
+                    </ZoruDialogFooter>
+                </ZoruDialogContent>
+            </ZoruDialog>
         </div>
     );
 }

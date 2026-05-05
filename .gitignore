@@ -21,6 +21,8 @@
 /Users/harshkhandelwal/Downloads/sabnode/graphify-out/cache
 # production
 /build
+/Users/harshkhandelwal/Downloads/sabnode/graphify-out/
+
 
 # /src/app/actions.ts
 # misc
@@ -153,3 +155,4 @@ src/config/site.ts
 # /src/app/actions/catalog.actions.ts
 # /src/components/wabasimplify/webhook-logs.tsx
 # /src/app/dashboard/crm/hr-payroll/settings/page.tsx
+.gitignore

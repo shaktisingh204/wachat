@@ -1,11 +1,17 @@
 'use client';
 
 import * as React from 'react';
-import { LuCalendarDays, LuChevronLeft, LuChevronRight, LuCircleAlert } from 'react-icons/lu';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Skeleton } from '@/components/ui/skeleton';
+import { CalendarDays, ChevronLeft, ChevronRight, CircleAlert } from 'lucide-react';
+import {
+    ZoruAlert,
+    ZoruAlertDescription,
+    ZoruAlertTitle,
+    ZoruButton,
+    ZoruCard,
+    ZoruCardContent,
+    ZoruSkeleton,
+} from '@/components/zoruui';
+import { AmBreadcrumb, AmHeader } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 import { useAdManager } from '@/context/ad-manager-context';
 import { useToast } from '@/hooks/use-toast';
 import { getCampaignCalendarData } from '@/app/actions/ad-manager-features.actions';
@@ -79,12 +85,13 @@ export default function CampaignCalendarPage() {
 
     if (!activeAccount) {
         return (
-            <div>
-                <Alert>
-                    <LuCircleAlert className="h-4 w-4" />
-                    <AlertTitle>No ad account selected</AlertTitle>
-                    <AlertDescription>Pick an ad account to view the campaign calendar.</AlertDescription>
-                </Alert>
+            <div className="space-y-6">
+                <AmBreadcrumb page="Calendar" />
+                <ZoruAlert>
+                    <CircleAlert className="h-4 w-4" />
+                    <ZoruAlertTitle>No ad account selected</ZoruAlertTitle>
+                    <ZoruAlertDescription>Pick an ad account to view the campaign calendar.</ZoruAlertDescription>
+                </ZoruAlert>
             </div>
         );
     }
@@ -98,26 +105,30 @@ export default function CampaignCalendarPage() {
 
     return (
         <div className="space-y-6">
-            <div>
-                <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-                    <LuCalendarDays className="h-6 w-6" /> Campaign calendar
-                </h1>
-                <p className="text-sm text-muted-foreground mt-1">
-                    View campaign schedules across the month.
-                </p>
-            </div>
-
-            <div className="flex items-center gap-4">
-                <Button variant="outline" size="icon" onClick={prevMonth}><LuChevronLeft className="h-4 w-4" /></Button>
-                <span className="text-lg font-semibold w-48 text-center">{monthLabel}</span>
-                <Button variant="outline" size="icon" onClick={nextMonth}><LuChevronRight className="h-4 w-4" /></Button>
-            </div>
+            <AmBreadcrumb page="Calendar" />
+            <AmHeader
+                title="Campaign calendar"
+                description="View campaign schedules across the month."
+                actions={
+                    <div className="flex items-center gap-2">
+                        <ZoruButton variant="outline" size="icon" onClick={prevMonth} aria-label="Previous month">
+                            <ChevronLeft className="h-4 w-4" />
+                        </ZoruButton>
+                        <span className="text-lg font-semibold w-48 text-center inline-flex items-center justify-center gap-2">
+                            <CalendarDays className="h-4 w-4" /> {monthLabel}
+                        </span>
+                        <ZoruButton variant="outline" size="icon" onClick={nextMonth} aria-label="Next month">
+                            <ChevronRight className="h-4 w-4" />
+                        </ZoruButton>
+                    </div>
+                }
+            />
 
             {loading ? (
-                <Skeleton className="h-96 w-full" />
+                <ZoruSkeleton className="h-96 w-full" />
             ) : (
-                <Card>
-                    <CardContent className="p-2">
+                <ZoruCard>
+                    <ZoruCardContent className="p-2">
                         <div className="grid grid-cols-7 gap-px">
                             {dayNames.map((d) => (
                                 <div key={d} className="text-center text-xs font-medium text-muted-foreground py-2">{d}</div>
@@ -149,8 +160,8 @@ export default function CampaignCalendarPage() {
                                 );
                             })}
                         </div>
-                    </CardContent>
-                </Card>
+                    </ZoruCardContent>
+                </ZoruCard>
             )}
         </div>
     );

@@ -47,6 +47,7 @@ wachat-chat-read = { path = "../wachat-chat-read" }
 wachat-chat-mark = { path = "../wachat-chat-mark" }
 wachat-payment-request = { path = "../wachat-payment-request" }
 wachat-send-router = { path = "../wachat-send-router" }
+wachat-config = { path = "../wachat-config" }
 
 axum = "0.8"
 tokio = { version = "1", features = ["full"] }

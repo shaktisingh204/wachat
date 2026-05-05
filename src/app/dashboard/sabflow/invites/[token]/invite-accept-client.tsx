@@ -77,7 +77,7 @@ export function InviteAcceptClient({
 
   const handleDecline = useCallback(() => {
     setWorking("decline");
-    router.push("/dashboard/sabflow");
+    router.push("/dashboard/sabflow/flow-builder");
   }, [router]);
 
   return (

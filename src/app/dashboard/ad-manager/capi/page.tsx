@@ -2,13 +2,23 @@
 
 import * as React from 'react';
 import { ShieldCheck, Copy, ExternalLink, Send } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
 import {
-    Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from '@/components/ui/select';
+    ZoruButton,
+    ZoruCard,
+    ZoruCardContent,
+    ZoruCardHeader,
+    ZoruCardTitle,
+    ZoruAlert,
+    ZoruAlertDescription,
+    ZoruAlertTitle,
+    ZoruBadge,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+} from '@/components/zoruui';
+import { AmBreadcrumb, AmHeader } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 import { useToast } from '@/hooks/use-toast';
 import { useAdManager } from '@/context/ad-manager-context';
 import { listPixels } from '@/app/actions/ad-manager.actions';
@@ -59,30 +69,31 @@ export default function CapiPage() {
 
     return (
         <div className="space-y-6 max-w-4xl">
-            <div>
-                <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-                    <ShieldCheck className="h-6 w-6" /> Conversions API (CAPI)
-                    <Badge className="bg-green-600 text-white">Server-side</Badge>
-                </h1>
-                <p className="text-sm text-muted-foreground mt-1">
-                    Send server-side events to Meta for privacy-safe conversion tracking. Bypasses iOS 14+ / ad-blocker signal loss.
-                </p>
-            </div>
+            <AmBreadcrumb page="Conversions API" />
+            <AmHeader
+                title="Conversions API (CAPI)"
+                description="Send server-side events to Meta for privacy-safe conversion tracking. Bypasses iOS 14+ / ad-blocker signal loss."
+                actions={
+                    <ZoruBadge className="bg-green-600 text-white">
+                        <ShieldCheck className="h-3 w-3 mr-1" /> Server-side
+                    </ZoruBadge>
+                }
+            />
 
-            <Alert>
+            <ZoruAlert>
                 <ShieldCheck className="h-4 w-4" />
-                <AlertTitle>Why CAPI?</AlertTitle>
-                <AlertDescription>
+                <ZoruAlertTitle>Why CAPI?</ZoruAlertTitle>
+                <ZoruAlertDescription>
                     Meta Pixel alone loses ~30% of events on modern browsers. CAPI closes that gap by sending events server-to-server,
                     and lets you match purchase revenue to ads with near-perfect attribution.
-                </AlertDescription>
-            </Alert>
+                </ZoruAlertDescription>
+            </ZoruAlert>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle className="text-base">1. Pick a pixel</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
+            <ZoruCard>
+                <ZoruCardHeader>
+                    <ZoruCardTitle className="text-base">1. Pick a pixel</ZoruCardTitle>
+                </ZoruCardHeader>
+                <ZoruCardContent className="space-y-2">
                     {pixels.length === 0 ? (
                         <p className="text-sm text-muted-foreground">No pixels yet — create one from Pixels & datasets first.</p>
                     ) : (
@@ -100,45 +111,45 @@ export default function CapiPage() {
                             ))}
                         </div>
                     )}
-                </CardContent>
-            </Card>
+                </ZoruCardContent>
+            </ZoruCard>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle className="text-base">2. Endpoint</CardTitle>
-                </CardHeader>
-                <CardContent>
+            <ZoruCard>
+                <ZoruCardHeader>
+                    <ZoruCardTitle className="text-base">2. Endpoint</ZoruCardTitle>
+                </ZoruCardHeader>
+                <ZoruCardContent>
                     <div className="flex items-center gap-2 bg-muted p-2.5 rounded font-mono text-xs">
                         <span className="flex-1 break-all">{endpoint}</span>
-                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => copy(endpoint)}>
+                        <ZoruButton variant="ghost" size="icon" className="h-6 w-6" onClick={() => copy(endpoint)}>
                             <Copy className="h-3 w-3" />
-                        </Button>
+                        </ZoruButton>
                     </div>
-                </CardContent>
-            </Card>
+                </ZoruCardContent>
+            </ZoruCard>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle className="text-base">3. Sample event payload</CardTitle>
-                </CardHeader>
-                <CardContent>
+            <ZoruCard>
+                <ZoruCardHeader>
+                    <ZoruCardTitle className="text-base">3. Sample event payload</ZoruCardTitle>
+                </ZoruCardHeader>
+                <ZoruCardContent>
                     <pre className="bg-muted p-3 rounded text-xs overflow-x-auto">{SAMPLE_PAYLOAD}</pre>
-                    <Button
+                    <ZoruButton
                         variant="outline"
                         size="sm"
                         className="mt-2"
                         onClick={() => copy(SAMPLE_PAYLOAD)}
                     >
                         <Copy className="h-3 w-3 mr-1" /> Copy payload
-                    </Button>
-                </CardContent>
-            </Card>
+                    </ZoruButton>
+                </ZoruCardContent>
+            </ZoruCard>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle className="text-base">4. Send a test event from SabNode</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4 text-sm">
+            <ZoruCard>
+                <ZoruCardHeader>
+                    <ZoruCardTitle className="text-base">4. Send a test event from SabNode</ZoruCardTitle>
+                </ZoruCardHeader>
+                <ZoruCardContent className="space-y-4 text-sm">
                     <p>
                         SabNode provides a server action <code className="px-1 py-0.5 bg-muted rounded">sendConversionApiEvent</code> you can
                         call from your e-commerce checkout, CRM webhook, or backend.
@@ -146,19 +157,19 @@ export default function CapiPage() {
                     <div className="flex items-end gap-3">
                         <div className="space-y-1.5">
                             <p className="text-xs font-medium text-muted-foreground">Event name</p>
-                            <Select value={testEventName} onValueChange={setTestEventName}>
-                                <SelectTrigger className="w-[180px]">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="PageView">PageView</SelectItem>
-                                    <SelectItem value="Purchase">Purchase</SelectItem>
-                                    <SelectItem value="Lead">Lead</SelectItem>
-                                    <SelectItem value="AddToCart">AddToCart</SelectItem>
-                                </SelectContent>
-                            </Select>
+                            <ZoruSelect value={testEventName} onValueChange={setTestEventName}>
+                                <ZoruSelectTrigger className="w-[180px]">
+                                    <ZoruSelectValue />
+                                </ZoruSelectTrigger>
+                                <ZoruSelectContent>
+                                    <ZoruSelectItem value="PageView">PageView</ZoruSelectItem>
+                                    <ZoruSelectItem value="Purchase">Purchase</ZoruSelectItem>
+                                    <ZoruSelectItem value="Lead">Lead</ZoruSelectItem>
+                                    <ZoruSelectItem value="AddToCart">AddToCart</ZoruSelectItem>
+                                </ZoruSelectContent>
+                            </ZoruSelect>
                         </div>
-                        <Button
+                        <ZoruButton
                             disabled={!selectedPixelId || sendingTest}
                             onClick={async () => {
                                 if (!selectedPixelId) return;
@@ -174,9 +185,9 @@ export default function CapiPage() {
                         >
                             <Send className="h-4 w-4 mr-1" />
                             {sendingTest ? 'Sending...' : 'Send Test Event'}
-                        </Button>
+                        </ZoruButton>
                     </div>
-                    <Button variant="outline" asChild>
+                    <ZoruButton variant="outline" asChild>
                         <a
                             href="https://developers.facebook.com/docs/marketing-api/conversions-api"
                             target="_blank"
@@ -184,9 +195,9 @@ export default function CapiPage() {
                         >
                             Read Meta CAPI docs <ExternalLink className="h-3 w-3 ml-1" />
                         </a>
-                    </Button>
-                </CardContent>
-            </Card>
+                    </ZoruButton>
+                </ZoruCardContent>
+            </ZoruCard>
         </div>
     );
 }

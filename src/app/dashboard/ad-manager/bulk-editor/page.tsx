@@ -2,15 +2,24 @@
 
 import * as React from 'react';
 import { Table2, Upload, Download, Save, AlertCircle, RotateCcw } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Card, CardContent } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
 import {
-    Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from '@/components/ui/table';
-import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
+    ZoruAlert,
+    ZoruAlertDescription,
+    ZoruAlertTitle,
+    ZoruButton,
+    ZoruCard,
+    ZoruCardContent,
+    ZoruCheckbox,
+    ZoruInput,
+    ZoruSkeleton,
+    ZoruTable,
+    ZoruTableBody,
+    ZoruTableCell,
+    ZoruTableHead,
+    ZoruTableHeader,
+    ZoruTableRow,
+} from '@/components/zoruui';
+import { AmBreadcrumb, AmHeader } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 import { useToast } from '@/hooks/use-toast';
 import { useAdManager } from '@/context/ad-manager-context';
 import { listCampaigns, batchUpdateStatus, updateCampaign } from '@/app/actions/ad-manager.actions';
@@ -115,12 +124,13 @@ export default function BulkEditorPage() {
 
     if (!activeAccount) {
         return (
-            <div>
-                <Alert>
+            <div className="space-y-6">
+                <AmBreadcrumb page="Bulk Editor" />
+                <ZoruAlert>
                     <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>No ad account selected</AlertTitle>
-                    <AlertDescription>Pick an ad account to bulk edit.</AlertDescription>
-                </Alert>
+                    <ZoruAlertTitle>No ad account selected</ZoruAlertTitle>
+                    <ZoruAlertDescription>Pick an ad account to bulk edit.</ZoruAlertDescription>
+                </ZoruAlert>
             </div>
         );
     }
@@ -129,20 +139,15 @@ export default function BulkEditorPage() {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-                        <Table2 className="h-6 w-6" /> Bulk editor
-                    </h1>
-                    <p className="text-sm text-muted-foreground mt-1">
-                        Spreadsheet-style editing. Change names and budgets for multiple campaigns at once.
-                    </p>
-                </div>
-                <div className="flex gap-2">
-                    <Button variant="outline" onClick={exportCsv}>
-                        <Download className="h-4 w-4 mr-1" /> Export CSV
-                    </Button>
-                    <>
+            <AmBreadcrumb page="Bulk Editor" />
+            <AmHeader
+                title="Bulk editor"
+                description="Spreadsheet-style editing. Change names and budgets for multiple campaigns at once."
+                actions={
+                    <div className="flex flex-wrap gap-2">
+                        <ZoruButton variant="outline" onClick={exportCsv}>
+                            <Download className="h-4 w-4 mr-1" /> Export CSV
+                        </ZoruButton>
                         <input
                             ref={csvRef}
                             type="file"
@@ -182,91 +187,96 @@ export default function BulkEditorPage() {
                                 e.target.value = '';
                             }}
                         />
-                        <Button variant="outline" onClick={() => csvRef.current?.click()}>
+                        <ZoruButton variant="outline" onClick={() => csvRef.current?.click()}>
                             <Upload className="h-4 w-4 mr-1" /> Import CSV
-                        </Button>
-                    </>
-                    <Button
-                        variant="outline"
-                        onClick={() => {
-                            setRows(originalRows.map((r) => ({ ...r })));
-                            setSelectedIds(new Set());
-                            toast({ title: 'Changes reset', description: 'All edits have been reverted to original data.' });
-                        }}
-                        disabled={saving || dirtyCount === 0}
-                    >
-                        <RotateCcw className="h-4 w-4 mr-1" /> Reset Changes
-                    </Button>
-                    <Button
-                        className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white"
-                        onClick={saveAll}
-                        disabled={saving || dirtyCount === 0}
-                    >
-                        <Save className="h-4 w-4 mr-1" />
-                        {saving ? 'Saving…' : `Save ${dirtyCount || ''} changes`}
-                    </Button>
-                </div>
+                        </ZoruButton>
+                        <ZoruButton
+                            variant="outline"
+                            onClick={() => {
+                                setRows(originalRows.map((r) => ({ ...r })));
+                                setSelectedIds(new Set());
+                                toast({ title: 'Changes reset', description: 'All edits have been reverted to original data.' });
+                            }}
+                            disabled={saving || dirtyCount === 0}
+                        >
+                            <RotateCcw className="h-4 w-4 mr-1" /> Reset Changes
+                        </ZoruButton>
+                        <ZoruButton
+                            className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white"
+                            onClick={saveAll}
+                            disabled={saving || dirtyCount === 0}
+                        >
+                            <Save className="h-4 w-4 mr-1" />
+                            {saving ? 'Saving…' : `Save ${dirtyCount || ''} changes`}
+                        </ZoruButton>
+                    </div>
+                }
+            />
+
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Table2 className="h-4 w-4" />
+                <span>Edit campaigns inline; dirty rows are highlighted until saved.</span>
             </div>
 
-            <Card>
-                <CardContent className="p-0">
+            <ZoruCard>
+                <ZoruCardContent className="p-0">
                     {loading ? (
                         <div className="p-4 space-y-2">
                             {Array.from({ length: 6 }).map((_, i) => (
-                                <Skeleton key={i} className="h-10 w-full" />
+                                <ZoruSkeleton key={i} className="h-10 w-full" />
                             ))}
                         </div>
                     ) : (
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead className="w-10">
-                                        <Checkbox
+                        <ZoruTable>
+                            <ZoruTableHeader>
+                                <ZoruTableRow>
+                                    <ZoruTableHead className="w-10">
+                                        <ZoruCheckbox
                                             checked={allSelected}
                                             onCheckedChange={toggleSelectAll}
                                             aria-label="Select all"
                                         />
-                                    </TableHead>
-                                    <TableHead>ID</TableHead>
-                                    <TableHead>Name</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Daily budget</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
+                                    </ZoruTableHead>
+                                    <ZoruTableHead>ID</ZoruTableHead>
+                                    <ZoruTableHead>Name</ZoruTableHead>
+                                    <ZoruTableHead>Status</ZoruTableHead>
+                                    <ZoruTableHead>Daily budget</ZoruTableHead>
+                                </ZoruTableRow>
+                            </ZoruTableHeader>
+                            <ZoruTableBody>
                                 {rows.map((r) => (
-                                    <TableRow key={r.id} className={r.dirty ? 'bg-amber-50 dark:bg-amber-950/20' : ''}>
-                                        <TableCell className="w-10">
-                                            <Checkbox
+                                    <ZoruTableRow key={r.id} className={r.dirty ? 'bg-amber-50 dark:bg-amber-950/20' : ''}>
+                                        <ZoruTableCell className="w-10">
+                                            <ZoruCheckbox
                                                 checked={selectedIds.has(r.id)}
                                                 onCheckedChange={() => toggleSelect(r.id)}
                                                 aria-label={`Select ${r.name}`}
                                             />
-                                        </TableCell>
-                                        <TableCell className="text-xs font-mono text-muted-foreground">{r.id}</TableCell>
-                                        <TableCell>
-                                            <Input
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-xs font-mono text-muted-foreground">{r.id}</ZoruTableCell>
+                                        <ZoruTableCell>
+                                            <ZoruInput
                                                 value={r.name}
                                                 onChange={(e) => updateRow(r.id, { name: e.target.value })}
                                                 className="h-8"
                                             />
-                                        </TableCell>
-                                        <TableCell>{r.status}</TableCell>
-                                        <TableCell>
-                                            <Input
+                                        </ZoruTableCell>
+                                        <ZoruTableCell>{r.status}</ZoruTableCell>
+                                        <ZoruTableCell>
+                                            <ZoruInput
                                                 type="number"
                                                 value={r.daily_budget}
                                                 onChange={(e) => updateRow(r.id, { daily_budget: Number(e.target.value) })}
                                                 className="h-8 w-28"
                                             />
-                                        </TableCell>
-                                    </TableRow>
+                                        </ZoruTableCell>
+                                    </ZoruTableRow>
                                 ))}
-                            </TableBody>
-                        </Table>
+                            </ZoruTableBody>
+                        </ZoruTable>
                     )}
-                </CardContent>
-            </Card>
+                </ZoruCardContent>
+            </ZoruCard>
         </div>
     );
 }

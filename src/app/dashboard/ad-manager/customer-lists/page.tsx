@@ -2,16 +2,24 @@
 
 import * as React from 'react';
 import { UserPlus, Upload, AlertCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
-import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruAlertTitle,
+  ZoruBadge,
+  ZoruTextarea,
+  ZoruInput,
+  ZoruLabel,
+} from '@/components/zoruui';
 import { useToast } from '@/hooks/use-toast';
 import { useAdManager } from '@/context/ad-manager-context';
 import { createCustomAudience, addUsersToCustomAudience } from '@/app/actions/ad-manager.actions';
+import { AmBreadcrumb } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 
 // SHA-256 hashing runs in the browser so raw PII never leaves the device.
 async function sha256(input: string): Promise<string> {
@@ -73,21 +81,22 @@ export default function CustomerListsPage() {
     if (!activeAccount) {
         return (
             <div>
-                <Alert>
+                <ZoruAlert>
                     <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>No ad account selected</AlertTitle>
-                    <AlertDescription>Pick an ad account to upload customer lists.</AlertDescription>
-                </Alert>
+                    <ZoruAlertTitle>No ad account selected</ZoruAlertTitle>
+                    <ZoruAlertDescription>Pick an ad account to upload customer lists.</ZoruAlertDescription>
+                </ZoruAlert>
             </div>
         );
     }
 
     return (
         <div className="space-y-6 max-w-3xl">
+            <AmBreadcrumb page="Customer Lists" />
             <div>
                 <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
                     <UserPlus className="h-6 w-6" /> Customer list uploader
-                    <Badge className="bg-green-600 text-white">Privacy-safe</Badge>
+                    <ZoruBadge variant="success">Privacy-safe</ZoruBadge>
                 </h1>
                 <p className="text-sm text-muted-foreground mt-1">
                     Upload emails to create a Custom Audience. Everything is SHA-256 hashed in your browser before
@@ -95,27 +104,27 @@ export default function CustomerListsPage() {
                 </p>
             </div>
 
-            <Alert>
+            <ZoruAlert>
                 <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Hashing happens on your device</AlertTitle>
-                <AlertDescription>
+                <ZoruAlertTitle>Hashing happens on your device</ZoruAlertTitle>
+                <ZoruAlertDescription>
                     Raw emails never leave your browser. Only hashed values are sent to Meta — Meta rehashes on their
                     end to match against their user graph without ever seeing the plaintext.
-                </AlertDescription>
-            </Alert>
+                </ZoruAlertDescription>
+            </ZoruAlert>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle className="text-base">Upload</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
+            <ZoruCard>
+                <ZoruCardHeader>
+                    <ZoruCardTitle className="text-base">Upload</ZoruCardTitle>
+                </ZoruCardHeader>
+                <ZoruCardContent className="space-y-3">
                     <div className="space-y-2">
-                        <Label>Audience name</Label>
-                        <Input value={name} onChange={(e) => setName(e.target.value)} />
+                        <ZoruLabel>Audience name</ZoruLabel>
+                        <ZoruInput value={name} onChange={(e) => setName(e.target.value)} />
                     </div>
                     <div className="space-y-2">
-                        <Label>Emails (one per line)</Label>
-                        <Textarea
+                        <ZoruLabel>Emails (one per line)</ZoruLabel>
+                        <ZoruTextarea
                             value={csv}
                             onChange={(e) => setCsv(e.target.value)}
                             placeholder={'jane@example.com\njohn@example.com\n…'}
@@ -125,22 +134,22 @@ export default function CustomerListsPage() {
                     {/* Valid email count display */}
                     {allLines.length > 0 && (
                         <div className="flex items-center gap-3 text-sm">
-                            <Badge className="bg-green-600 text-white">{validEmails.length} valid email{validEmails.length !== 1 ? 's' : ''} ready to upload</Badge>
+                            <ZoruBadge variant="success">{validEmails.length} valid email{validEmails.length !== 1 ? 's' : ''} ready to upload</ZoruBadge>
                             {invalidCount > 0 && (
-                                <Badge variant="destructive">{invalidCount} invalid</Badge>
+                                <ZoruBadge variant="danger">{invalidCount} invalid</ZoruBadge>
                             )}
                         </div>
                     )}
-                    <Button
+                    <ZoruButton
                         className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white"
                         onClick={upload}
                         disabled={uploading || validEmails.length === 0}
                     >
                         <Upload className="h-4 w-4 mr-1" />
                         {uploading ? 'Hashing & uploading…' : `Hash & upload${validEmails.length > 0 ? ` (${validEmails.length})` : ''}`}
-                    </Button>
-                </CardContent>
-            </Card>
+                    </ZoruButton>
+                </ZoruCardContent>
+            </ZoruCard>
         </div>
     );
 }

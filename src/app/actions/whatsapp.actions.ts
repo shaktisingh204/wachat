@@ -139,13 +139,15 @@ export async function handleManualWachatSetup(prevState: any, formData: FormData
     try {
         const { rustClient } = await import('@/lib/rust-client');
         const r = await rustClient.wachatConfig.manualSetup({
+            name: (formData.get('name') as string) || 'WhatsApp Project',
             wabaId: formData.get('wabaId') as string,
-            appId: formData.get('appId') as string,
+            phoneNumberId: (formData.get('phoneNumberId') as string) || '',
             accessToken: formData.get('accessToken') as string,
-            includeCatalog: formData.get('includeCatalog') === 'on',
+            appId: (formData.get('appId') as string) || undefined,
+            businessId: (formData.get('businessId') as string) || undefined,
         });
         revalidatePath('/wachat');
-        return { message: r.message };
+        return { message: `Project "${r.name}" connected successfully!` };
     } catch (e: any) {
         return { error: e?.message ?? 'Setup failed' };
     }
@@ -196,7 +198,7 @@ export async function handleUpdatePhoneNumberProfile(prevState: any, formData: F
         if (profilePicture) body.profilePicture = profilePicture;
 
         const { rustClient } = await import('@/lib/rust-client');
-        await rustClient.wachatConfig.updatePhoneNumberProfile(projectId, phoneNumberId, body);
+        await rustClient.wachatConfig.updatePhoneProfile(projectId, phoneNumberId, body);
 
         revalidatePath('/wachat/numbers');
         return { message: 'Phone number profile updated successfully!' };
@@ -213,9 +215,17 @@ export async function getWebhookSubscriptionStatus(wabaId: string, accessToken: 
     }
 
     try {
+        // Rust route: GET /projects/:id/webhook-subscription?waba_id=...
+        // The TS legacy signature only takes waba_id + token; we don't have a
+        // projectId here, so look it up by waba.
+        const { connectToDatabase } = await import('@/lib/mongodb');
+        const { db } = await connectToDatabase();
+        const proj = await db.collection('projects').findOne({ wabaId });
+        if (!proj?._id) return { isActive: false, error: 'Project not found' };
+        void accessToken;
         const { rustClient } = await import('@/lib/rust-client');
-        const r = await rustClient.wachatConfig.getWebhookSubscriptionStatus({ wabaId, accessToken });
-        return { isActive: !!r.isActive, error: r.error };
+        const r = await rustClient.wachatConfig.getWebhookSubscription(String(proj._id), wabaId);
+        return { isActive: !!r.isActive };
     } catch (e: any) {
         return { isActive: false, error: e?.message ?? 'Status check failed' };
     }
@@ -224,9 +234,9 @@ export async function getWebhookSubscriptionStatus(wabaId: string, accessToken: 
 export async function handleSubscribeAllProjects(): Promise<{ message?: string; error?: string }> {
     try {
         const { rustClient } = await import('@/lib/rust-client');
-        const r = await rustClient.wachatConfig.subscribeAllProjects();
+        const r = await rustClient.wachatConfig.subscribeAllWebhooks();
         return {
-            message: `Subscription attempted for ${r.total} projects. Success: ${r.success}, Failed: ${r.failed}. Check server logs for details.`,
+            message: `Subscription attempted for ${r.attempted} projects. Success: ${r.succeeded}, Failed: ${r.failed.length}. Check server logs for details.`,
         };
     } catch (e: any) {
         return { error: e?.message ?? 'Subscribe-all failed' };
@@ -236,9 +246,14 @@ export async function handleSubscribeAllProjects(): Promise<{ message?: string; 
 
 export async function handleSubscribeProjectWebhook(wabaId: string, appId: string, userAccessToken: string): Promise<{ success: boolean; error?: string }> {
     try {
+        // Rust subscribeWebhook needs projectId; look it up from wabaId.
+        const { connectToDatabase } = await import('@/lib/mongodb');
+        const { db } = await connectToDatabase();
+        const proj = await db.collection('projects').findOne({ wabaId });
+        if (!proj?._id) return { success: false, error: 'Project not found' };
         const { rustClient } = await import('@/lib/rust-client');
-        const r = await rustClient.wachatConfig.subscribeProjectWebhook({ wabaId, appId, userAccessToken });
-        return { success: !!r.success, error: r.error };
+        const r = await rustClient.wachatConfig.subscribeWebhook(String(proj._id), { appId, userAccessToken });
+        return { success: !!r.isActive };
     } catch (e: any) {
         return { success: false, error: e?.message ?? 'Subscribe failed' };
     }
@@ -662,8 +677,8 @@ export async function handleSendCatalogMessage(prevState: any, formData: FormDat
 export async function registerPhoneNumber(projectId: string, phoneNumberId: string): Promise<{ success: boolean; message?: string, error?: string }> {
     try {
         const { rustClient } = await import('@/lib/rust-client');
-        const r = await rustClient.wachatConfig.registerPhoneNumber(projectId, phoneNumberId, { pin: '123456' });
-        return { success: !!r.success, message: r.message, error: r.error };
+        await rustClient.wachatConfig.registerPhone(projectId, phoneNumberId, { pin: '123456' });
+        return { success: true, message: 'Phone number registered with WhatsApp Cloud API.' };
     } catch (e: any) {
         return { success: false, error: e?.message ?? 'Register failed' };
     }
@@ -679,8 +694,8 @@ export async function handleRequestVerificationCode(
 ): Promise<{ success: boolean; message?: string; error?: string }> {
     try {
         const { rustClient } = await import('@/lib/rust-client');
-        const r = await rustClient.wachatConfig.requestVerificationCode(projectId, phoneNumberId, { method: codeMethod, language: 'en' });
-        return { success: !!r.success, message: r.message ?? `Verification code sent via ${codeMethod}.`, error: r.error };
+        await rustClient.wachatConfig.requestVerificationCode(projectId, phoneNumberId, { method: codeMethod, language: 'en' });
+        return { success: true, message: `Verification code sent via ${codeMethod}.` };
     } catch (e: any) {
         return { success: false, error: e?.message ?? 'Request code failed' };
     }
@@ -691,20 +706,12 @@ export async function handleVerifyCode(
     phoneNumberId: string,
     code: string
 ): Promise<{ success: boolean; message?: string; error?: string }> {
-    const project = await getProjectById(projectId);
-    if (!project || !project.accessToken) {
-        return { success: false, error: 'Project not found or access token is missing.' };
-    }
-
     try {
-        await axios.post(
-            `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/verify_code`,
-            { code },
-            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
-        );
+        const { rustClient } = await import('@/lib/rust-client');
+        await rustClient.wachatConfig.verifyCode(projectId, phoneNumberId, { code });
         return { success: true, message: 'Phone number verified successfully.' };
     } catch (e: any) {
-        return { success: false, error: getErrorMessage(e) };
+        return { success: false, error: e?.message ?? 'Verify code failed' };
     }
 }
 
@@ -712,20 +719,12 @@ export async function deregisterPhoneNumber(
     projectId: string,
     phoneNumberId: string
 ): Promise<{ success: boolean; message?: string; error?: string }> {
-    const project = await getProjectById(projectId);
-    if (!project || !project.accessToken) {
-        return { success: false, error: 'Project not found or access token is missing.' };
-    }
-
     try {
-        await axios.post(
-            `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/deregister`,
-            { messaging_product: 'whatsapp' },
-            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
-        );
+        const { rustClient } = await import('@/lib/rust-client');
+        await rustClient.wachatConfig.deregisterPhone(projectId, phoneNumberId);
         return { success: true, message: 'Phone number deregistered from Cloud API.' };
     } catch (e: any) {
-        return { success: false, error: getErrorMessage(e) };
+        return { success: false, error: e?.message ?? 'Deregister failed' };
     }
 }
 
@@ -737,24 +736,16 @@ export async function handleSetTwoStepVerificationPin(
     phoneNumberId: string,
     pin: string
 ): Promise<{ success: boolean; message?: string; error?: string }> {
-    const project = await getProjectById(projectId);
-    if (!project || !project.accessToken) {
-        return { success: false, error: 'Project not found or access token is missing.' };
-    }
-
     if (!pin || pin.length !== 6 || !/^\d+$/.test(pin)) {
         return { success: false, error: 'PIN must be a 6-digit number.' };
     }
 
     try {
-        await axios.post(
-            `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}`,
-            { pin },
-            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
-        );
+        const { rustClient } = await import('@/lib/rust-client');
+        await rustClient.wachatConfig.setTwoStepPin(projectId, phoneNumberId, { pin });
         return { success: true, message: 'Two-step verification PIN set successfully.' };
     } catch (e: any) {
-        return { success: false, error: getErrorMessage(e) };
+        return { success: false, error: e?.message ?? 'Set 2FA PIN failed' };
     }
 }
 
@@ -765,19 +756,12 @@ export async function getQrCodes(
     projectId: string,
     phoneNumberId: string
 ): Promise<{ qrCodes: any[]; error?: string }> {
-    const project = await getProjectById(projectId);
-    if (!project || !project.accessToken) {
-        return { qrCodes: [], error: 'Project not found or access token is missing.' };
-    }
-
     try {
-        const response = await axios.get(
-            `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/message_qrdls`,
-            { params: { access_token: project.accessToken } }
-        );
-        return { qrCodes: response.data.data || [] };
+        const { rustClient } = await import('@/lib/rust-client');
+        const r = await rustClient.wachatConfig.listQrCodes(projectId, phoneNumberId);
+        return { qrCodes: r.qrCodes ?? [] };
     } catch (e: any) {
-        return { qrCodes: [], error: getErrorMessage(e) };
+        return { qrCodes: [], error: e?.message ?? 'List QR codes failed' };
     }
 }
 
@@ -786,66 +770,50 @@ export async function handleCreateQrCode(
     phoneNumberId: string,
     prefilledMessage: string
 ): Promise<{ qrCode?: any; error?: string }> {
-    const project = await getProjectById(projectId);
-    if (!project || !project.accessToken) {
-        return { error: 'Project not found or access token is missing.' };
-    }
-
     if (!prefilledMessage?.trim()) {
         return { error: 'Prefilled message is required.' };
     }
 
     try {
-        const response = await axios.post(
-            `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/message_qrdls`,
-            { prefilled_message: prefilledMessage.trim(), generate_qr_image: 'SVG' },
-            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
-        );
-        return { qrCode: response.data };
+        const { rustClient } = await import('@/lib/rust-client');
+        const qrCode = await rustClient.wachatConfig.createQrCode(projectId, phoneNumberId, {
+            prefilledMessage: prefilledMessage.trim(),
+            generateQrImage: 'SVG',
+        });
+        return { qrCode };
     } catch (e: any) {
-        return { error: getErrorMessage(e) };
+        return { error: e?.message ?? 'Create QR code failed' };
     }
 }
 
 export async function handleUpdateQrCode(
     projectId: string,
-    qrCodeId: string,
+    phoneNumberId: string,
+    code: string,
     prefilledMessage: string
 ): Promise<{ message?: string; error?: string }> {
-    const project = await getProjectById(projectId);
-    if (!project || !project.accessToken) {
-        return { error: 'Project not found or access token is missing.' };
-    }
-
     try {
-        await axios.post(
-            `https://graph.facebook.com/${API_VERSION}/${qrCodeId}`,
-            { prefilled_message: prefilledMessage.trim() },
-            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
-        );
+        const { rustClient } = await import('@/lib/rust-client');
+        await rustClient.wachatConfig.updateQrCode(projectId, phoneNumberId, code, {
+            prefilledMessage: prefilledMessage.trim(),
+        });
         return { message: 'QR code updated successfully.' };
     } catch (e: any) {
-        return { error: getErrorMessage(e) };
+        return { error: e?.message ?? 'Update QR code failed' };
     }
 }
 
 export async function handleDeleteQrCode(
     projectId: string,
-    qrCodeId: string
+    phoneNumberId: string,
+    code: string
 ): Promise<{ success: boolean; error?: string }> {
-    const project = await getProjectById(projectId);
-    if (!project || !project.accessToken) {
-        return { success: false, error: 'Project not found or access token is missing.' };
-    }
-
     try {
-        await axios.delete(
-            `https://graph.facebook.com/${API_VERSION}/${qrCodeId}`,
-            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
-        );
+        const { rustClient } = await import('@/lib/rust-client');
+        await rustClient.wachatConfig.deleteQrCode(projectId, phoneNumberId, code);
         return { success: true };
     } catch (e: any) {
-        return { success: false, error: getErrorMessage(e) };
+        return { success: false, error: e?.message ?? 'Delete QR code failed' };
     }
 }
 

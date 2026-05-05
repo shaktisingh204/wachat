@@ -1,23 +1,37 @@
 'use client';
 
 import * as React from 'react';
-import { LuTarget, LuPlus, LuCircleAlert, LuRefreshCw, LuTrash2 } from 'react-icons/lu';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Target, Plus, CircleAlert, RefreshCw, Trash2 } from 'lucide-react';
 import {
-    Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from '@/components/ui/table';
-import {
-    Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
-} from '@/components/ui/dialog';
-import {
-    Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from '@/components/ui/select';
+    ZoruButton,
+    ZoruCard,
+    ZoruCardContent,
+    ZoruAlert,
+    ZoruAlertDescription,
+    ZoruAlertTitle,
+    ZoruSkeleton,
+    ZoruBadge,
+    ZoruInput,
+    ZoruLabel,
+    ZoruTable,
+    ZoruTableBody,
+    ZoruTableCell,
+    ZoruTableHead,
+    ZoruTableHeader,
+    ZoruTableRow,
+    ZoruDialog,
+    ZoruDialogContent,
+    ZoruDialogHeader,
+    ZoruDialogTitle,
+    ZoruDialogDescription,
+    ZoruDialogFooter,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+} from '@/components/zoruui';
+import { AmBreadcrumb, AmHeader } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 import { useAdManager } from '@/context/ad-manager-context';
 import { useToast } from '@/hooks/use-toast';
 import { listCustomConversions, listPixels } from '@/app/actions/ad-manager.actions';
@@ -103,165 +117,172 @@ export default function CustomConversionsPage() {
 
     if (!activeAccount) {
         return (
-            <div>
-                <Alert>
-                    <LuCircleAlert className="h-4 w-4" />
-                    <AlertTitle>No ad account selected</AlertTitle>
-                    <AlertDescription>Pick an ad account to view custom conversions.</AlertDescription>
-                </Alert>
+            <div className="space-y-6">
+                <AmBreadcrumb page="Custom conversions" />
+                <AmHeader
+                    title="Custom conversions"
+                    description="Define URL-based or rule-based conversion events without code changes."
+                />
+                <ZoruAlert>
+                    <CircleAlert className="h-4 w-4" />
+                    <ZoruAlertTitle>No ad account selected</ZoruAlertTitle>
+                    <ZoruAlertDescription>Pick an ad account to view custom conversions.</ZoruAlertDescription>
+                </ZoruAlert>
             </div>
         );
     }
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-                        <LuTarget className="h-6 w-6" /> Custom conversions
-                    </h1>
-                    <p className="text-sm text-muted-foreground mt-1">
-                        Define URL-based or rule-based conversion events without code changes.
-                    </p>
-                </div>
-                <div className="flex items-center gap-2">
-                    <Button variant="outline" size="icon" onClick={fetchData} disabled={loading}>
-                        <LuRefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                    </Button>
-                    <Button className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={() => setDialogOpen(true)}>
-                        <LuPlus className="h-4 w-4 mr-1" /> New custom conversion
-                    </Button>
-                </div>
+            <AmBreadcrumb page="Custom conversions" />
+            <AmHeader
+                title="Custom conversions"
+                description="Define URL-based or rule-based conversion events without code changes."
+                actions={
+                    <div className="flex items-center gap-2">
+                        <ZoruButton variant="outline" size="icon" onClick={fetchData} disabled={loading}>
+                            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                        </ZoruButton>
+                        <ZoruButton className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={() => setDialogOpen(true)}>
+                            <Plus className="h-4 w-4 mr-1" /> New custom conversion
+                        </ZoruButton>
+                    </div>
+                }
+            />
+
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Target className="h-4 w-4" />
+                <span>Conversions for {activeAccount.name || activeAccount.account_id}</span>
             </div>
 
-            <Card>
-                <CardContent className="p-0">
+            <ZoruCard>
+                <ZoruCardContent className="p-0">
                     {loading ? (
                         <div className="p-4 space-y-2">
-                            {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-10" />)}
+                            {Array.from({ length: 3 }).map((_, i) => <ZoruSkeleton key={i} className="h-10" />)}
                         </div>
                     ) : (
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Name</TableHead>
-                                    <TableHead>Event type</TableHead>
-                                    <TableHead>Last fired</TableHead>
-                                    <TableHead>Default value</TableHead>
-                                    <TableHead className="w-16" />
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
+                        <ZoruTable>
+                            <ZoruTableHeader>
+                                <ZoruTableRow>
+                                    <ZoruTableHead>Name</ZoruTableHead>
+                                    <ZoruTableHead>Event type</ZoruTableHead>
+                                    <ZoruTableHead>Last fired</ZoruTableHead>
+                                    <ZoruTableHead>Default value</ZoruTableHead>
+                                    <ZoruTableHead className="w-16" />
+                                </ZoruTableRow>
+                            </ZoruTableHeader>
+                            <ZoruTableBody>
                                 {conversions.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                                    <ZoruTableRow>
+                                        <ZoruTableCell colSpan={5} className="h-24 text-center text-muted-foreground">
                                             No custom conversions yet.
-                                        </TableCell>
-                                    </TableRow>
+                                        </ZoruTableCell>
+                                    </ZoruTableRow>
                                 ) : (
                                     conversions.map((c) => (
-                                        <TableRow key={c.id}>
-                                            <TableCell className="font-medium">
+                                        <ZoruTableRow key={c.id}>
+                                            <ZoruTableCell className="font-medium">
                                                 {c.name}
                                                 {c.description && (
                                                     <div className="text-xs text-muted-foreground">{c.description}</div>
                                                 )}
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge variant="outline">{c.custom_event_type || 'OTHER'}</Badge>
-                                            </TableCell>
-                                            <TableCell className="text-xs text-muted-foreground">
+                                            </ZoruTableCell>
+                                            <ZoruTableCell>
+                                                <ZoruBadge variant="outline">{c.custom_event_type || 'OTHER'}</ZoruBadge>
+                                            </ZoruTableCell>
+                                            <ZoruTableCell className="text-xs text-muted-foreground">
                                                 {c.last_fired_time
                                                     ? new Date(c.last_fired_time).toLocaleString()
-                                                    : '\u2014'}
-                                            </TableCell>
-                                            <TableCell className="tabular-nums">
-                                                {c.default_conversion_value || '\u2014'}
-                                            </TableCell>
-                                            <TableCell>
-                                                <Button
+                                                    : '—'}
+                                            </ZoruTableCell>
+                                            <ZoruTableCell className="tabular-nums">
+                                                {c.default_conversion_value || '—'}
+                                            </ZoruTableCell>
+                                            <ZoruTableCell>
+                                                <ZoruButton
                                                     variant="ghost"
                                                     size="icon"
                                                     className="h-8 w-8 text-destructive hover:text-destructive"
                                                     onClick={() => setDeleteId(c.id)}
                                                 >
-                                                    <LuTrash2 className="h-4 w-4" />
-                                                </Button>
-                                            </TableCell>
-                                        </TableRow>
+                                                    <Trash2 className="h-4 w-4" />
+                                                </ZoruButton>
+                                            </ZoruTableCell>
+                                        </ZoruTableRow>
                                     ))
                                 )}
-                            </TableBody>
-                        </Table>
+                            </ZoruTableBody>
+                        </ZoruTable>
                     )}
-                </CardContent>
-            </Card>
+                </ZoruCardContent>
+            </ZoruCard>
 
             {/* Create dialog */}
-            <Dialog open={dialogOpen} onOpenChange={(open) => { if (!open) { setDialogOpen(false); resetForm(); } else setDialogOpen(true); }}>
-                <DialogContent className="max-w-lg">
-                    <DialogHeader>
-                        <DialogTitle>New custom conversion</DialogTitle>
-                        <DialogDescription>Create a URL-based or rule-based conversion event.</DialogDescription>
-                    </DialogHeader>
+            <ZoruDialog open={dialogOpen} onOpenChange={(open) => { if (!open) { setDialogOpen(false); resetForm(); } else setDialogOpen(true); }}>
+                <ZoruDialogContent className="max-w-lg">
+                    <ZoruDialogHeader>
+                        <ZoruDialogTitle>New custom conversion</ZoruDialogTitle>
+                        <ZoruDialogDescription>Create a URL-based or rule-based conversion event.</ZoruDialogDescription>
+                    </ZoruDialogHeader>
                     <div className="space-y-4">
                         <div className="space-y-2">
-                            <Label>Name *</Label>
-                            <Input placeholder="e.g. Thank-you page purchase" value={name} onChange={e => setName(e.target.value)} />
+                            <ZoruLabel>Name *</ZoruLabel>
+                            <ZoruInput placeholder="e.g. Thank-you page purchase" value={name} onChange={e => setName(e.target.value)} />
                         </div>
                         <div className="space-y-2">
-                            <Label>Pixel *</Label>
-                            <Select value={pixelId} onValueChange={setPixelId}>
-                                <SelectTrigger><SelectValue placeholder="Select a pixel" /></SelectTrigger>
-                                <SelectContent>
+                            <ZoruLabel>Pixel *</ZoruLabel>
+                            <ZoruSelect value={pixelId} onValueChange={setPixelId}>
+                                <ZoruSelectTrigger><ZoruSelectValue placeholder="Select a pixel" /></ZoruSelectTrigger>
+                                <ZoruSelectContent>
                                     {pixels.map(p => (
-                                        <SelectItem key={p.id} value={p.id}>{p.name} ({p.id})</SelectItem>
+                                        <ZoruSelectItem key={p.id} value={p.id}>{p.name} ({p.id})</ZoruSelectItem>
                                     ))}
-                                </SelectContent>
-                            </Select>
+                                </ZoruSelectContent>
+                            </ZoruSelect>
                         </div>
                         <div className="space-y-2">
-                            <Label>Event type</Label>
-                            <Select value={eventName} onValueChange={setEventName}>
-                                <SelectTrigger><SelectValue /></SelectTrigger>
-                                <SelectContent>
+                            <ZoruLabel>Event type</ZoruLabel>
+                            <ZoruSelect value={eventName} onValueChange={setEventName}>
+                                <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
+                                <ZoruSelectContent>
                                     {EVENT_TYPES.map(e => (
-                                        <SelectItem key={e} value={e}>{e.replace(/_/g, ' ')}</SelectItem>
+                                        <ZoruSelectItem key={e} value={e}>{e.replace(/_/g, ' ')}</ZoruSelectItem>
                                     ))}
-                                </SelectContent>
-                            </Select>
+                                </ZoruSelectContent>
+                            </ZoruSelect>
                         </div>
                         <div className="space-y-2">
-                            <Label>URL rule (contains)</Label>
-                            <Input placeholder="e.g. /thank-you" value={urlRule} onChange={e => setUrlRule(e.target.value)} />
+                            <ZoruLabel>URL rule (contains)</ZoruLabel>
+                            <ZoruInput placeholder="e.g. /thank-you" value={urlRule} onChange={e => setUrlRule(e.target.value)} />
                         </div>
                         <div className="space-y-2">
-                            <Label>Default conversion value</Label>
-                            <Input type="number" placeholder="0" value={defaultValue} onChange={e => setDefaultValue(e.target.value)} />
+                            <ZoruLabel>Default conversion value</ZoruLabel>
+                            <ZoruInput type="number" placeholder="0" value={defaultValue} onChange={e => setDefaultValue(e.target.value)} />
                         </div>
                     </div>
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => { setDialogOpen(false); resetForm(); }}>Cancel</Button>
-                        <Button className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={handleCreate} disabled={submitting}>
-                            {submitting ? 'Creating\u2026' : 'Create'}
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+                    <ZoruDialogFooter>
+                        <ZoruButton variant="outline" onClick={() => { setDialogOpen(false); resetForm(); }}>Cancel</ZoruButton>
+                        <ZoruButton className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={handleCreate} disabled={submitting}>
+                            {submitting ? 'Creating…' : 'Create'}
+                        </ZoruButton>
+                    </ZoruDialogFooter>
+                </ZoruDialogContent>
+            </ZoruDialog>
 
             {/* Delete confirmation */}
-            <Dialog open={!!deleteId} onOpenChange={(open) => { if (!open) setDeleteId(null); }}>
-                <DialogContent className="max-w-sm">
-                    <DialogHeader>
-                        <DialogTitle>Delete custom conversion?</DialogTitle>
-                        <DialogDescription>This action cannot be undone.</DialogDescription>
-                    </DialogHeader>
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => setDeleteId(null)}>Cancel</Button>
-                        <Button variant="destructive" onClick={() => deleteId && handleDelete(deleteId)}>Delete</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+            <ZoruDialog open={!!deleteId} onOpenChange={(open) => { if (!open) setDeleteId(null); }}>
+                <ZoruDialogContent className="max-w-sm">
+                    <ZoruDialogHeader>
+                        <ZoruDialogTitle>Delete custom conversion?</ZoruDialogTitle>
+                        <ZoruDialogDescription>This action cannot be undone.</ZoruDialogDescription>
+                    </ZoruDialogHeader>
+                    <ZoruDialogFooter>
+                        <ZoruButton variant="outline" onClick={() => setDeleteId(null)}>Cancel</ZoruButton>
+                        <ZoruButton variant="destructive" onClick={() => deleteId && handleDelete(deleteId)}>Delete</ZoruButton>
+                    </ZoruDialogFooter>
+                </ZoruDialogContent>
+            </ZoruDialog>
         </div>
     );
 }

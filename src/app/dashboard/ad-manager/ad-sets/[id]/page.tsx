@@ -2,29 +2,41 @@
 
 import { useState, useEffect, useTransition, use } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { LuArrowLeft, LuImage, LuCircleAlert, LuRefreshCw, LuEllipsisVertical, LuPause, LuPlay, LuCopy, LuTrash2, LuChevronRight } from 'react-icons/lu';
+import { ArrowLeft, Image as ImageIcon, CircleAlert, RefreshCw, EllipsisVertical, Pause, Play, Copy, Trash2 } from 'lucide-react';
 import { getAds, updateEntityStatus, duplicateAd, deleteAd } from '@/app/actions/ad-manager.actions';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
+import {
+    ZoruButton,
+    ZoruCard,
+    ZoruCardContent,
+    ZoruCardDescription,
+    ZoruCardHeader,
+    ZoruCardTitle,
+    ZoruSkeleton,
+    ZoruAlert,
+    ZoruAlertDescription,
+    ZoruAlertTitle,
+    ZoruSwitch,
+    ZoruBadge,
+    ZoruDropdownMenu,
+    ZoruDropdownMenuContent,
+    ZoruDropdownMenuItem,
+    ZoruDropdownMenuTrigger,
+    ZoruDialog,
+    ZoruDialogContent,
+    ZoruDialogHeader,
+    ZoruDialogTitle,
+    ZoruDialogDescription,
+    ZoruDialogFooter,
+} from '@/components/zoruui';
 import { useToast } from '@/hooks/use-toast';
-import {
-    DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
-    Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
-} from '@/components/ui/dialog';
+import { AmBreadcrumb, AmHeader } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 
 function PageSkeleton() {
     return (
         <div className="flex flex-col gap-8">
-            <Skeleton className="h-8 w-64" />
+            <ZoruSkeleton className="h-8 w-64" />
             <div className="grid md:grid-cols-3 gap-6">
-                {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-64 w-full" />)}
+                {[...Array(3)].map((_, i) => <ZoruSkeleton key={i} className="h-64 w-full" />)}
             </div>
         </div>
     );
@@ -93,103 +105,96 @@ export default function AdsPage({ params }: { params: Promise<{ id: string }> })
 
     return (
         <div className="flex flex-col gap-6">
-            {/* Breadcrumb */}
-            <nav className="flex items-center gap-1 text-sm text-muted-foreground">
-                <Link href="/dashboard/ad-manager" className="hover:text-foreground transition-colors">Ad Manager</Link>
-                <LuChevronRight className="h-3 w-3" />
-                <Link href="/dashboard/ad-manager/campaigns" className="hover:text-foreground transition-colors">Campaigns</Link>
-                <LuChevronRight className="h-3 w-3" />
-                <span className="text-foreground font-medium">Ad Set</span>
-            </nav>
+            <AmBreadcrumb page="Ads" parent={{ label: "Ad Sets", href: "/dashboard/ad-manager/ad-sets" }} />
 
-            <div className="flex items-center gap-4">
-                <Button variant="ghost" size="icon" onClick={() => router.back()}>
-                    <LuArrowLeft className="h-4 w-4" />
-                </Button>
-                <div className="flex-1">
-                    <h1 className="text-2xl font-bold font-headline flex items-center gap-2">
-                        <LuImage className="h-6 w-6" /> Ads
-                    </h1>
-                    <p className="text-muted-foreground text-sm">Ad Set ID: {adSetId}</p>
-                </div>
-                <Button variant="outline" size="icon" onClick={fetchAds} disabled={isLoading}>
-                    <LuRefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-                </Button>
-            </div>
+            <AmHeader
+                title="Ads"
+                description={`Ad Set ID: ${adSetId}`}
+                actions={
+                    <div className="flex items-center gap-2">
+                        <ZoruButton variant="ghost" size="icon" onClick={() => router.back()} aria-label="Back">
+                            <ArrowLeft className="h-4 w-4" />
+                        </ZoruButton>
+                        <ZoruButton variant="outline" size="icon" onClick={fetchAds} disabled={isLoading} aria-label="Refresh">
+                            <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+                        </ZoruButton>
+                    </div>
+                }
+            />
 
             {error && (
-                <Alert variant="destructive">
-                    <LuCircleAlert className="h-4 w-4" />
-                    <AlertTitle>Error fetching Ads</AlertTitle>
-                    <AlertDescription>{error}</AlertDescription>
-                </Alert>
+                <ZoruAlert variant="destructive">
+                    <CircleAlert className="h-4 w-4" />
+                    <ZoruAlertTitle>Error fetching Ads</ZoruAlertTitle>
+                    <ZoruAlertDescription>{error}</ZoruAlertDescription>
+                </ZoruAlert>
             )}
 
             {ads.length === 0 ? (
-                <Card className="border-dashed border-2 py-12">
+                <ZoruCard className="border-dashed border-2 py-12">
                     <div className="flex flex-col items-center justify-center text-center gap-4">
                         <div className="bg-primary/10 p-4 rounded-full">
-                            <LuImage className="h-12 w-12 text-primary" />
+                            <ImageIcon className="h-12 w-12 text-primary" />
                         </div>
                         <div>
                             <h3 className="text-xl font-semibold">No Ads Found</h3>
                             <p className="text-muted-foreground mt-1">This ad set currently has no ads.</p>
                         </div>
                     </div>
-                </Card>
+                </ZoruCard>
             ) : (
                 <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
                     {ads.map((ad) => (
-                        <Card key={ad.id} className="overflow-hidden">
+                        <ZoruCard key={ad.id} className="overflow-hidden">
                             <div className="aspect-video relative bg-gray-100 flex items-center justify-center overflow-hidden">
                                 {ad.imageUrl ? (
                                     <img src={ad.imageUrl} alt={ad.name} className="w-full h-full object-cover" />
                                 ) : (
-                                    <LuImage className="h-12 w-12 text-gray-300" />
+                                    <ImageIcon className="h-12 w-12 text-gray-300" />
                                 )}
                                 <div className="absolute top-2 right-2">
-                                    <Badge variant={ad.status === 'ACTIVE' ? 'default' : 'secondary'}>{ad.status}</Badge>
+                                    <ZoruBadge variant={ad.status === 'ACTIVE' ? 'default' : 'secondary'}>{ad.status}</ZoruBadge>
                                 </div>
                             </div>
-                            <CardHeader className="p-4">
+                            <ZoruCardHeader className="p-4">
                                 <div className="flex justify-between items-start gap-2">
-                                    <CardTitle className="text-base truncate" title={ad.name}>{ad.name}</CardTitle>
+                                    <ZoruCardTitle className="text-base truncate" title={ad.name}>{ad.name}</ZoruCardTitle>
                                     <div className="flex items-center gap-1">
-                                        <Switch
+                                        <ZoruSwitch
                                             className="scale-75"
                                             checked={ad.status === 'ACTIVE'}
                                             onCheckedChange={() => handleStatusToggle(ad.id, ad.status)}
                                         />
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8">
-                                                    <LuEllipsisVertical className="h-4 w-4" />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end">
-                                                <DropdownMenuItem onClick={() => handleStatusToggle(ad.id, ad.status)}>
+                                        <ZoruDropdownMenu>
+                                            <ZoruDropdownMenuTrigger asChild>
+                                                <ZoruButton variant="ghost" size="icon" className="h-8 w-8">
+                                                    <EllipsisVertical className="h-4 w-4" />
+                                                </ZoruButton>
+                                            </ZoruDropdownMenuTrigger>
+                                            <ZoruDropdownMenuContent align="end">
+                                                <ZoruDropdownMenuItem onClick={() => handleStatusToggle(ad.id, ad.status)}>
                                                     {ad.status === 'ACTIVE' ? (
-                                                        <><LuPause className="h-4 w-4 mr-2" /> Pause</>
+                                                        <><Pause className="h-4 w-4 mr-2" /> Pause</>
                                                     ) : (
-                                                        <><LuPlay className="h-4 w-4 mr-2" /> Resume</>
+                                                        <><Play className="h-4 w-4 mr-2" /> Resume</>
                                                     )}
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem onClick={() => handleDuplicate(ad.id)}>
-                                                    <LuCopy className="h-4 w-4 mr-2" /> Duplicate
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem
+                                                </ZoruDropdownMenuItem>
+                                                <ZoruDropdownMenuItem onClick={() => handleDuplicate(ad.id)}>
+                                                    <Copy className="h-4 w-4 mr-2" /> Duplicate
+                                                </ZoruDropdownMenuItem>
+                                                <ZoruDropdownMenuItem
                                                     className="text-destructive focus:text-destructive"
                                                     onClick={() => setDeleteId(ad.id)}
                                                 >
-                                                    <LuTrash2 className="h-4 w-4 mr-2" /> Delete
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
+                                                    <Trash2 className="h-4 w-4 mr-2" /> Delete
+                                                </ZoruDropdownMenuItem>
+                                            </ZoruDropdownMenuContent>
+                                        </ZoruDropdownMenu>
                                     </div>
                                 </div>
-                                <CardDescription className="text-xs">ID: {ad.id}</CardDescription>
-                            </CardHeader>
-                            <CardContent className="p-4 pt-0 text-sm grid grid-cols-2 gap-2">
+                                <ZoruCardDescription className="text-xs">ID: {ad.id}</ZoruCardDescription>
+                            </ZoruCardHeader>
+                            <ZoruCardContent className="p-4 pt-0 text-sm grid grid-cols-2 gap-2">
                                 <div>
                                     <span className="text-muted-foreground block text-xs">Impressions</span>
                                     <span className="font-medium">{ad.insights?.impressions || 0}</span>
@@ -206,25 +211,25 @@ export default function AdsPage({ params }: { params: Promise<{ id: string }> })
                                     <span className="text-muted-foreground block text-xs">CTR</span>
                                     <span className="font-medium">{ad.insights?.ctr ? Number(ad.insights.ctr).toFixed(2) : 0}%</span>
                                 </div>
-                            </CardContent>
-                        </Card>
+                            </ZoruCardContent>
+                        </ZoruCard>
                     ))}
                 </div>
             )}
 
             {/* Delete confirmation */}
-            <Dialog open={!!deleteId} onOpenChange={(open) => { if (!open) setDeleteId(null); }}>
-                <DialogContent className="max-w-sm">
-                    <DialogHeader>
-                        <DialogTitle>Delete ad?</DialogTitle>
-                        <DialogDescription>This action cannot be undone. The ad will be permanently deleted.</DialogDescription>
-                    </DialogHeader>
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => setDeleteId(null)}>Cancel</Button>
-                        <Button variant="destructive" onClick={() => deleteId && handleDelete(deleteId)}>Delete</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+            <ZoruDialog open={!!deleteId} onOpenChange={(open) => { if (!open) setDeleteId(null); }}>
+                <ZoruDialogContent className="max-w-sm">
+                    <ZoruDialogHeader>
+                        <ZoruDialogTitle>Delete ad?</ZoruDialogTitle>
+                        <ZoruDialogDescription>This action cannot be undone. The ad will be permanently deleted.</ZoruDialogDescription>
+                    </ZoruDialogHeader>
+                    <ZoruDialogFooter>
+                        <ZoruButton variant="outline" onClick={() => setDeleteId(null)}>Cancel</ZoruButton>
+                        <ZoruButton variant="destructive" onClick={() => deleteId && handleDelete(deleteId)}>Delete</ZoruButton>
+                    </ZoruDialogFooter>
+                </ZoruDialogContent>
+            </ZoruDialog>
         </div>
     );
 }

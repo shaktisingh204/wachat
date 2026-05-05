@@ -4,13 +4,28 @@ import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FileText, Plus, Download, Calendar, Mail, Save, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+    ZoruBadge,
+    ZoruButton,
+    ZoruCard,
+    ZoruCardContent,
+    ZoruCardHeader,
+    ZoruCardTitle,
+    ZoruDialog,
+    ZoruDialogContent,
+    ZoruDialogDescription,
+    ZoruDialogFooter,
+    ZoruDialogHeader,
+    ZoruDialogTitle,
+    ZoruInput,
+    ZoruLabel,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+} from '@/components/zoruui';
+import { AmBreadcrumb, AmHeader } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 import { useToast } from '@/hooks/use-toast';
 
 const TEMPLATES = [
@@ -58,24 +73,21 @@ export default function ReportsPage() {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-                        <FileText className="h-6 w-6" /> Reports
-                    </h1>
-                    <p className="text-sm text-muted-foreground mt-1">
-                        Build, save and schedule custom performance reports.
-                    </p>
-                </div>
-                <div className="flex gap-2">
-                    <Button variant="outline" onClick={() => fileRef.current?.click()}>
-                        <Download className="h-4 w-4 mr-1" /> Import
-                    </Button>
-                    <Button className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={() => setCreateOpen(true)}>
-                        <Plus className="h-4 w-4 mr-1" /> Create custom report
-                    </Button>
-                </div>
-            </div>
+            <AmBreadcrumb page="Reports" />
+            <AmHeader
+                title="Reports"
+                description="Build, save and schedule custom performance reports."
+                actions={
+                    <div className="flex gap-2">
+                        <ZoruButton variant="outline" onClick={() => fileRef.current?.click()}>
+                            <Download className="h-4 w-4 mr-1" /> Import
+                        </ZoruButton>
+                        <ZoruButton className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={() => setCreateOpen(true)}>
+                            <Plus className="h-4 w-4 mr-1" /> Create custom report
+                        </ZoruButton>
+                    </div>
+                }
+            />
 
             <div>
                 <h2 className="text-sm font-semibold mb-2">Templates</h2>
@@ -83,28 +95,28 @@ export default function ReportsPage() {
                     {TEMPLATES.map((t) => {
                         const Icon = t.icon;
                         return (
-                            <Card key={t.id} className="cursor-pointer hover:border-[#1877F2]/50 transition-colors">
-                                <CardHeader className="pb-2">
+                            <ZoruCard key={t.id} className="cursor-pointer hover:border-[#1877F2]/50 transition-colors">
+                                <ZoruCardHeader className="pb-2">
                                     <div className="flex items-start justify-between">
                                         <div className="h-10 w-10 rounded-lg bg-[#1877F2]/10 flex items-center justify-center text-[#1877F2]">
                                             <Icon className="h-5 w-5" />
                                         </div>
-                                        <Badge variant="outline">Template</Badge>
+                                        <ZoruBadge variant="outline">Template</ZoruBadge>
                                     </div>
-                                    <CardTitle className="text-base mt-2">{t.name}</CardTitle>
-                                </CardHeader>
-                                <CardContent>
+                                    <ZoruCardTitle className="text-base mt-2">{t.name}</ZoruCardTitle>
+                                </ZoruCardHeader>
+                                <ZoruCardContent>
                                     <p className="text-xs text-muted-foreground">{t.desc}</p>
                                     <div className="mt-3 flex gap-2">
-                                        <Button size="sm" variant="outline" className="flex-1" onClick={() => router.push('/dashboard/ad-manager/insights?preset=' + t.id)}>
+                                        <ZoruButton size="sm" variant="outline" className="flex-1" onClick={() => router.push('/dashboard/ad-manager/insights?preset=' + t.id)}>
                                             <Mail className="h-3 w-3 mr-1" /> Schedule
-                                        </Button>
-                                        <Button size="sm" variant="outline" asChild className="flex-1">
+                                        </ZoruButton>
+                                        <ZoruButton size="sm" variant="outline" asChild className="flex-1">
                                             <Link href="/dashboard/ad-manager/insights">Open</Link>
-                                        </Button>
+                                        </ZoruButton>
                                     </div>
-                                </CardContent>
-                            </Card>
+                                </ZoruCardContent>
+                            </ZoruCard>
                         );
                     })}
                 </div>
@@ -113,23 +125,23 @@ export default function ReportsPage() {
             <div>
                 <h2 className="text-sm font-semibold mb-2">Saved reports</h2>
                 {savedReports.length === 0 ? (
-                    <Card className="border-dashed">
-                        <CardContent className="py-12 text-center">
+                    <ZoruCard className="border-dashed">
+                        <ZoruCardContent className="py-12 text-center">
                             <Calendar className="h-10 w-10 mx-auto text-muted-foreground" />
                             <p className="mt-3 font-medium">No saved reports yet</p>
                             <p className="text-sm text-muted-foreground">
                                 Create and save a custom report to see it here.
                             </p>
-                        </CardContent>
-                    </Card>
+                        </ZoruCardContent>
+                    </ZoruCard>
                 ) : (
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
                         {savedReports.map((r) => (
-                            <Card key={r.id} className="hover:border-[#1877F2]/50 transition-colors">
-                                <CardHeader className="pb-2">
+                            <ZoruCard key={r.id} className="hover:border-[#1877F2]/50 transition-colors">
+                                <ZoruCardHeader className="pb-2">
                                     <div className="flex items-start justify-between">
-                                        <CardTitle className="text-base">{r.name}</CardTitle>
-                                        <Button
+                                        <ZoruCardTitle className="text-base">{r.name}</ZoruCardTitle>
+                                        <ZoruButton
                                             variant="ghost"
                                             size="icon"
                                             className="h-7 w-7 text-muted-foreground hover:text-red-600"
@@ -141,76 +153,76 @@ export default function ReportsPage() {
                                             }}
                                         >
                                             <Trash2 className="h-3.5 w-3.5" />
-                                        </Button>
+                                        </ZoruButton>
                                     </div>
-                                </CardHeader>
-                                <CardContent>
+                                </ZoruCardHeader>
+                                <ZoruCardContent>
                                     <p className="text-xs text-muted-foreground">
                                         {r.dateRange.replace(/_/g, ' ')} &middot; {r.level} level
                                     </p>
                                     <p className="text-[10px] text-muted-foreground mt-1">
                                         Saved {new Date(r.createdAt).toLocaleDateString()}
                                     </p>
-                                    <Button
+                                    <ZoruButton
                                         size="sm"
                                         variant="outline"
                                         className="mt-2 w-full"
                                         onClick={() => router.push('/dashboard/ad-manager/insights')}
                                     >
                                         Open
-                                    </Button>
-                                </CardContent>
-                            </Card>
+                                    </ZoruButton>
+                                </ZoruCardContent>
+                            </ZoruCard>
                         ))}
                     </div>
                 )}
             </div>
 
-            <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Create Custom Report</DialogTitle>
-                        <DialogDescription>Choose metrics, dimensions, and date range for your report.</DialogDescription>
-                    </DialogHeader>
+            <ZoruDialog open={createOpen} onOpenChange={setCreateOpen}>
+                <ZoruDialogContent>
+                    <ZoruDialogHeader>
+                        <ZoruDialogTitle>Create Custom Report</ZoruDialogTitle>
+                        <ZoruDialogDescription>Choose metrics, dimensions, and date range for your report.</ZoruDialogDescription>
+                    </ZoruDialogHeader>
                     <div className="space-y-4">
                         <div className="space-y-2">
-                            <Label>Report Name</Label>
-                            <Input
+                            <ZoruLabel>Report Name</ZoruLabel>
+                            <ZoruInput
                                 placeholder="e.g. Weekly Performance Summary"
                                 value={newReportName}
                                 onChange={(e) => setNewReportName(e.target.value)}
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label>Date Range</Label>
-                            <Select value={newReportDateRange} onValueChange={setNewReportDateRange}>
-                                <SelectTrigger><SelectValue /></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="today">Today</SelectItem>
-                                    <SelectItem value="yesterday">Yesterday</SelectItem>
-                                    <SelectItem value="last_7d">Last 7 days</SelectItem>
-                                    <SelectItem value="last_30d">Last 30 days</SelectItem>
-                                    <SelectItem value="this_month">This month</SelectItem>
-                                    <SelectItem value="last_month">Last month</SelectItem>
-                                </SelectContent>
-                            </Select>
+                            <ZoruLabel>Date Range</ZoruLabel>
+                            <ZoruSelect value={newReportDateRange} onValueChange={setNewReportDateRange}>
+                                <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
+                                <ZoruSelectContent>
+                                    <ZoruSelectItem value="today">Today</ZoruSelectItem>
+                                    <ZoruSelectItem value="yesterday">Yesterday</ZoruSelectItem>
+                                    <ZoruSelectItem value="last_7d">Last 7 days</ZoruSelectItem>
+                                    <ZoruSelectItem value="last_30d">Last 30 days</ZoruSelectItem>
+                                    <ZoruSelectItem value="this_month">This month</ZoruSelectItem>
+                                    <ZoruSelectItem value="last_month">Last month</ZoruSelectItem>
+                                </ZoruSelectContent>
+                            </ZoruSelect>
                         </div>
                         <div className="space-y-2">
-                            <Label>Level</Label>
-                            <Select value={newReportLevel} onValueChange={setNewReportLevel}>
-                                <SelectTrigger><SelectValue /></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="account">Account</SelectItem>
-                                    <SelectItem value="campaign">Campaign</SelectItem>
-                                    <SelectItem value="adset">Ad Set</SelectItem>
-                                    <SelectItem value="ad">Ad</SelectItem>
-                                </SelectContent>
-                            </Select>
+                            <ZoruLabel>Level</ZoruLabel>
+                            <ZoruSelect value={newReportLevel} onValueChange={setNewReportLevel}>
+                                <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
+                                <ZoruSelectContent>
+                                    <ZoruSelectItem value="account">Account</ZoruSelectItem>
+                                    <ZoruSelectItem value="campaign">Campaign</ZoruSelectItem>
+                                    <ZoruSelectItem value="adset">Ad Set</ZoruSelectItem>
+                                    <ZoruSelectItem value="ad">Ad</ZoruSelectItem>
+                                </ZoruSelectContent>
+                            </ZoruSelect>
                         </div>
                     </div>
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancel</Button>
-                        <Button
+                    <ZoruDialogFooter>
+                        <ZoruButton variant="outline" onClick={() => setCreateOpen(false)}>Cancel</ZoruButton>
+                        <ZoruButton
                             variant="outline"
                             onClick={() => {
                                 if (!newReportName.trim()) {
@@ -232,13 +244,13 @@ export default function ReportsPage() {
                             }}
                         >
                             <Save className="h-4 w-4 mr-1" /> Save
-                        </Button>
-                        <Button className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={() => { setCreateOpen(false); router.push('/dashboard/ad-manager/insights'); }}>
+                        </ZoruButton>
+                        <ZoruButton className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white" onClick={() => { setCreateOpen(false); router.push('/dashboard/ad-manager/insights'); }}>
                             Generate Report
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+                        </ZoruButton>
+                    </ZoruDialogFooter>
+                </ZoruDialogContent>
+            </ZoruDialog>
             <input ref={fileRef} type="file" accept=".csv,.json" className="hidden" onChange={(e) => { if (e.target.files?.[0]) { toast({ title: 'Report imported', description: e.target.files[0].name }); } }} />
         </div>
     );

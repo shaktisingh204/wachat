@@ -15,6 +15,7 @@ use axum::extract::FromRef;
 use chrono::{DateTime, Utc};
 use sabnode_auth::AuthConfig;
 use sabnode_db::{mongo::MongoHandle, redis::RedisHandle};
+use wachat_config::WachatConfigState;
 use wachat_send_router::WachatSendState;
 use wachat_templates_router::TemplatesState;
 use wachat_webhook::WebhookState;
@@ -30,10 +31,12 @@ pub struct AppState {
     pub webhook_verifier: Arc<WebhookVerifier>,
     pub templates: TemplatesState,
     pub send: WachatSendState,
+    pub config: WachatConfigState,
     pub ready: Arc<AtomicBool>,
 }
 
 impl AppState {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         mongo: MongoHandle,
         redis: RedisHandle,
@@ -42,6 +45,7 @@ impl AppState {
         webhook_verifier: Arc<WebhookVerifier>,
         templates: TemplatesState,
         send: WachatSendState,
+        config: WachatConfigState,
     ) -> Self {
         Self {
             started_at: Utc::now(),
@@ -52,6 +56,7 @@ impl AppState {
             webhook_verifier,
             templates,
             send,
+            config,
             ready: Arc::new(AtomicBool::new(false)),
         }
     }
@@ -104,5 +109,11 @@ impl FromRef<AppState> for TemplatesState {
 impl FromRef<AppState> for WachatSendState {
     fn from_ref(s: &AppState) -> Self {
         s.send.clone()
+    }
+}
+
+impl FromRef<AppState> for WachatConfigState {
+    fn from_ref(s: &AppState) -> Self {
+        s.config.clone()
     }
 }

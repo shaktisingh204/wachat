@@ -1,12 +1,20 @@
 'use client';
 
 import * as React from 'react';
-import { Wallet, AlertCircle, DollarSign, Calendar, RefreshCw, Copy } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { Wallet, AlertCircle, RefreshCw, Copy } from 'lucide-react';
+import {
+    ZoruAlert,
+    ZoruAlertDescription,
+    ZoruAlertTitle,
+    ZoruBadge,
+    ZoruButton,
+    ZoruCard,
+    ZoruCardContent,
+    ZoruCardHeader,
+    ZoruCardTitle,
+    ZoruSkeleton,
+} from '@/components/zoruui';
+import { AmBreadcrumb, AmHeader } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 import { useToast } from '@/hooks/use-toast';
 import { useAdManager } from '@/context/ad-manager-context';
 import { getAdAccountDetails } from '@/app/actions/ad-manager.actions';
@@ -31,99 +39,97 @@ export default function BillingPage() {
 
     if (!activeAccount) {
         return (
-            <div>
-                <Alert>
+            <div className="space-y-6">
+                <AmBreadcrumb page="Billing" />
+                <ZoruAlert>
                     <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>No ad account selected</AlertTitle>
-                    <AlertDescription>Pick an ad account to view billing info.</AlertDescription>
-                </Alert>
+                    <ZoruAlertTitle>No ad account selected</ZoruAlertTitle>
+                    <ZoruAlertDescription>Pick an ad account to view billing info.</ZoruAlertDescription>
+                </ZoruAlert>
             </div>
         );
     }
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-                        <Wallet className="h-6 w-6" /> Billing
-                    </h1>
-                    <p className="text-sm text-muted-foreground mt-1">
-                        Payment methods, spend and account balance for {activeAccount.name}.
-                    </p>
-                </div>
-                <div className="flex items-center gap-2">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                            navigator.clipboard.writeText(activeAccount.account_id);
-                            toast({ title: 'Copied', description: `Account ID ${activeAccount.account_id} copied to clipboard.` });
-                        }}
-                    >
-                        <Copy className="h-3.5 w-3.5 mr-1" /> Copy Account ID
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => setRefreshKey((k) => k + 1)}
-                    >
-                        <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                    </Button>
-                </div>
-            </div>
+            <AmBreadcrumb page="Billing" />
+            <AmHeader
+                title="Billing"
+                description={`Payment methods, spend and account balance for ${activeAccount.name}.`}
+                actions={
+                    <div className="flex items-center gap-2">
+                        <ZoruButton
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                                navigator.clipboard.writeText(activeAccount.account_id);
+                                toast({ title: 'Copied', description: `Account ID ${activeAccount.account_id} copied to clipboard.` });
+                            }}
+                        >
+                            <Copy className="h-3.5 w-3.5 mr-1" /> Copy Account ID
+                        </ZoruButton>
+                        <ZoruButton
+                            variant="outline"
+                            size="icon"
+                            onClick={() => setRefreshKey((k) => k + 1)}
+                        >
+                            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                        </ZoruButton>
+                    </div>
+                }
+            />
 
             <div className="grid md:grid-cols-3 gap-3">
                 {loading ? (
-                    Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-28" />)
+                    Array.from({ length: 3 }).map((_, i) => <ZoruSkeleton key={i} className="h-28" />)
                 ) : (
                     <>
-                        <Card>
-                            <CardHeader className="pb-2">
-                                <CardTitle className="text-sm text-muted-foreground">Amount spent</CardTitle>
-                            </CardHeader>
-                            <CardContent>
+                        <ZoruCard>
+                            <ZoruCardHeader className="pb-2">
+                                <ZoruCardTitle className="text-sm text-muted-foreground">Amount spent</ZoruCardTitle>
+                            </ZoruCardHeader>
+                            <ZoruCardContent>
                                 <div className="text-2xl font-bold">
                                     {formatMoney((Number(details?.amount_spent) || 0) / 100, details?.currency)}
                                 </div>
-                            </CardContent>
-                        </Card>
-                        <Card>
-                            <CardHeader className="pb-2">
-                                <CardTitle className="text-sm text-muted-foreground">Balance</CardTitle>
-                            </CardHeader>
-                            <CardContent>
+                            </ZoruCardContent>
+                        </ZoruCard>
+                        <ZoruCard>
+                            <ZoruCardHeader className="pb-2">
+                                <ZoruCardTitle className="text-sm text-muted-foreground">Balance</ZoruCardTitle>
+                            </ZoruCardHeader>
+                            <ZoruCardContent>
                                 <div className="text-2xl font-bold">
                                     {formatMoney((Number(details?.balance) || 0) / 100, details?.currency)}
                                 </div>
-                            </CardContent>
-                        </Card>
-                        <Card>
-                            <CardHeader className="pb-2">
-                                <CardTitle className="text-sm text-muted-foreground">Spending limit</CardTitle>
-                            </CardHeader>
-                            <CardContent>
+                            </ZoruCardContent>
+                        </ZoruCard>
+                        <ZoruCard>
+                            <ZoruCardHeader className="pb-2">
+                                <ZoruCardTitle className="text-sm text-muted-foreground">Spending limit</ZoruCardTitle>
+                            </ZoruCardHeader>
+                            <ZoruCardContent>
                                 <div className="text-2xl font-bold">
                                     {details?.spend_cap
                                         ? formatMoney(Number(details.spend_cap) / 100, details?.currency)
                                         : 'No limit'}
                                 </div>
-                            </CardContent>
-                        </Card>
+                            </ZoruCardContent>
+                        </ZoruCard>
                     </>
                 )}
             </div>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle className="text-base">Account details</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2 text-sm">
-                    {loading ? <Skeleton className="h-32" /> : (
+            <ZoruCard>
+                <ZoruCardHeader>
+                    <ZoruCardTitle className="text-base">Account details</ZoruCardTitle>
+                </ZoruCardHeader>
+                <ZoruCardContent className="space-y-2 text-sm">
+                    {loading ? <ZoruSkeleton className="h-32" /> : (
                         <>
                             <Row label="Account ID" value={details?.account_id} />
                             <Row label="Account status" value={
-                                <Badge variant="outline">{details?.account_status === 1 ? 'Active' : 'Disabled'}</Badge>
+                                <ZoruBadge variant="outline">{details?.account_status === 1 ? 'Active' : 'Disabled'}</ZoruBadge>
                             } />
                             <Row label="Currency" value={details?.currency} />
                             <Row label="Timezone" value={details?.timezone_name} />
@@ -131,8 +137,8 @@ export default function BillingPage() {
                             <Row label="Created" value={details?.created_time && new Date(details.created_time).toLocaleDateString()} />
                         </>
                     )}
-                </CardContent>
-            </Card>
+                </ZoruCardContent>
+            </ZoruCard>
         </div>
     );
 }
