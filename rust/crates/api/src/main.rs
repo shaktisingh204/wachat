@@ -29,7 +29,15 @@ use wachat_config::WachatConfigState;
 use wachat_features::WachatFeaturesState;
 use wachat_api_keys_admin::WachatApiKeysAdminState;
 use wachat_contacts::WachatContactsState;
+use wachat_facebook_agents::WachatFacebookAgentsState;
+use wachat_facebook_automation::WachatFacebookAutomationState;
+use wachat_facebook_business::WachatFacebookBusinessState;
+use wachat_facebook_content::WachatFacebookContentState;
+use wachat_facebook_crm::WachatFacebookCrmState;
+use wachat_facebook_messaging::WachatFacebookMessagingState;
+use wachat_facebook_pages::{FacebookAppConfig, WachatFacebookPagesState};
 use wachat_flows::WachatFlowsState;
+use wachat_instagram::WachatInstagramState;
 use wachat_pay::WachatPayState;
 use wachat_projects::WachatProjectsState;
 use wachat_public_api::{ApiKeyVerifier, PublicApiState};
@@ -237,6 +245,24 @@ async fn run() -> anyhow::Result<()> {
     // to the verifier without an extra sync step.
     let api_keys_admin = WachatApiKeysAdminState::new(mongo.clone());
 
+    // Facebook + Instagram domain crates — port the heavy
+    // `facebook.actions.ts` / `instagram.actions.ts` work to Rust.
+    let fb_app_config = FacebookAppConfig {
+        facebook_app_id: std::env::var("NEXT_PUBLIC_FACEBOOK_APP_ID")
+            .or_else(|_| std::env::var("FACEBOOK_APP_ID"))
+            .unwrap_or_default(),
+        facebook_app_secret: std::env::var("FACEBOOK_APP_SECRET").unwrap_or_default(),
+        app_url: std::env::var("NEXT_PUBLIC_APP_URL").unwrap_or_default(),
+    };
+    let fb_pages = WachatFacebookPagesState::new(mongo.clone(), meta.clone(), fb_app_config);
+    let fb_content = WachatFacebookContentState::new(mongo.clone(), meta.clone());
+    let fb_messaging = WachatFacebookMessagingState::new(mongo.clone(), meta.clone());
+    let fb_automation = WachatFacebookAutomationState::new(mongo.clone(), meta.clone());
+    let fb_crm = WachatFacebookCrmState::new(mongo.clone(), meta.clone());
+    let fb_agents = WachatFacebookAgentsState::new(mongo.clone());
+    let fb_business = WachatFacebookBusinessState::new(mongo.clone(), meta.clone());
+    let instagram = WachatInstagramState::new(mongo.clone(), meta.clone());
+
     let state = AppState::new(
         mongo,
         redis,
@@ -264,6 +290,14 @@ async fn run() -> anyhow::Result<()> {
         contacts,
         flows,
         api_keys_admin,
+        fb_pages,
+        fb_content,
+        fb_messaging,
+        fb_automation,
+        fb_crm,
+        fb_agents,
+        fb_business,
+        instagram,
     );
     let app = router::build(state.clone());
 

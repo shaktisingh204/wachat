@@ -59,6 +59,14 @@ pub fn build(state: AppState) -> Router {
     let wachat_contacts = wachat_contacts::router::<AppState>();
     let wachat_flows = wachat_flows::router::<AppState>();
     let wachat_api_keys_admin = wachat_api_keys_admin::router::<AppState>();
+    let fb_pages = wachat_facebook_pages::router::<AppState>();
+    let fb_content = wachat_facebook_content::router::<AppState>();
+    let fb_messaging = wachat_facebook_messaging::router::<AppState>();
+    let fb_automation = wachat_facebook_automation::router::<AppState>();
+    let fb_crm = wachat_facebook_crm::router::<AppState>();
+    let fb_agents = wachat_facebook_agents::router::<AppState>();
+    let fb_business = wachat_facebook_business::router::<AppState>();
+    let instagram = wachat_instagram::router::<AppState>();
 
     Router::new()
         .merge(routes::health::router())
@@ -85,6 +93,14 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/contacts", wachat_contacts)
         .nest("/v1/flows", wachat_flows)
         .nest("/v1/api-keys", wachat_api_keys_admin)
+        .nest("/v1/facebook/pages", fb_pages)
+        .nest("/v1/facebook/content", fb_content)
+        .nest("/v1/facebook/messaging", fb_messaging)
+        .nest("/v1/facebook/automation", fb_automation)
+        .nest("/v1/facebook/crm", fb_crm)
+        .nest("/v1/facebook/agents", fb_agents)
+        .nest("/v1/facebook/business", fb_business)
+        .nest("/v1/instagram", instagram)
         .nest("/v1", v1)
         .with_state(state)
         .layer(SetRequestIdLayer::new(

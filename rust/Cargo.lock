@@ -200,6 +200,7 @@ dependencies = [
  "matchit",
  "memchr",
  "mime",
+ "multer",
  "percent-encoding",
  "pin-project-lite",
  "serde_core",
@@ -783,6 +784,15 @@ name = "either"
 version = "1.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "48c757948c5ede0e46177b7add2e67155f70e33c07fea8284df6576da70b3719"
+
+[[package]]
+name = "encoding_rs"
+version = "0.8.35"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "75030f3c4f45dafd7586dd6780965a8c7e8e285a5ecb86713e63a79c5b2766f3"
+dependencies = [
+ "cfg-if",
+]
 
 [[package]]
 name = "enum-as-inner"
@@ -1966,6 +1976,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "multer"
+version = "3.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "83e87776546dc87511aa5ee218730c92b666d7264ab6ed41f9d215af9cd5224b"
+dependencies = [
+ "bytes",
+ "encoding_rs",
+ "futures-util",
+ "http",
+ "httparse",
+ "memchr",
+ "mime",
+ "spin",
+ "version_check",
+]
+
+[[package]]
 name = "nom"
 version = "7.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2803,8 +2830,16 @@ dependencies = [
  "wachat-config",
  "wachat-contacts",
  "wachat-contacts-resolve",
+ "wachat-facebook-agents",
+ "wachat-facebook-automation",
+ "wachat-facebook-business",
+ "wachat-facebook-content",
+ "wachat-facebook-crm",
+ "wachat-facebook-messaging",
+ "wachat-facebook-pages",
  "wachat-features",
  "wachat-flows",
+ "wachat-instagram",
  "wachat-media",
  "wachat-meta-client",
  "wachat-pay",
@@ -3224,6 +3259,12 @@ dependencies = [
  "libc",
  "windows-sys 0.61.2",
 ]
+
+[[package]]
+name = "spin"
+version = "0.9.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6980e8d7511241f8acf4aebddbb1ff938df5eebe98691418c4468d0b72a96a67"
 
 [[package]]
 name = "stable_deref_trait"
@@ -4113,6 +4154,66 @@ dependencies = [
 ]
 
 [[package]]
+name = "wachat-facebook-agents"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "wachat-types",
+]
+
+[[package]]
+name = "wachat-facebook-automation"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "reqwest",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "wachat-meta-client",
+]
+
+[[package]]
+name = "wachat-facebook-business"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "wachat-meta-client",
+ "wachat-types",
+]
+
+[[package]]
 name = "wachat-facebook-content"
 version = "0.1.0"
 dependencies = [
@@ -4128,6 +4229,70 @@ dependencies = [
  "serde_json",
  "tokio",
  "tracing",
+ "wachat-meta-client",
+]
+
+[[package]]
+name = "wachat-facebook-crm"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "wachat-meta-client",
+]
+
+[[package]]
+name = "wachat-facebook-messaging"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "urlencoding",
+ "wachat-meta-client",
+]
+
+[[package]]
+name = "wachat-facebook-pages"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "reqwest",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "urlencoding",
+ "utoipa",
  "wachat-meta-client",
 ]
 
@@ -4170,6 +4335,25 @@ dependencies = [
  "serde_json",
  "tokio",
  "tracing",
+]
+
+[[package]]
+name = "wachat-instagram"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "wachat-meta-client",
 ]
 
 [[package]]

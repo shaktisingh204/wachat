@@ -1,0 +1,42 @@
+[package]
+name = "wachat-facebook-automation"
+version = "0.1.0"
+edition = "2024"
+description = "Axum router for Facebook broadcasts, automation settings, post randomizer, and scheduled live-stream endpoints. Mirrors the Broadcasts/Automation/Scheduling slice of `src/app/actions/facebook.actions.ts`."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "wachat_facebook_automation"
+path = "src/lib.rs"
+
+[dependencies]
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query", "multipart"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+bson = { version = "2", features = ["chrono-0_4"] }
+mongodb = { version = "3" }
+
+futures = "0.3"
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+tracing = "0.1"
+anyhow = "1"
+
+# `MetaClient` for the broadcast send path. The live-stream upload posts
+# multipart/form-data to `graph-video.facebook.com`, which the shared
+# `MetaClient` does not support (it targets `graph.facebook.com` only and
+# only knows JSON bodies), so we keep a private `reqwest::Client` next to
+# it for that one path.
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "multipart"] }
+
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+wachat-meta-client = { path = "../wachat-meta-client" }
+
+[lints]
+workspace = true
