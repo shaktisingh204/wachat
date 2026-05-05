@@ -406,3 +406,7 @@ export {
   type ZoruUserDropdownProps,
   type ZoruUserDropdownItem,
 } from "./user-dropdown";
+export {
+  ZoruNotificationPopover,
+  type ZoruNotificationPopoverProps,
+} from "./notification-popover";

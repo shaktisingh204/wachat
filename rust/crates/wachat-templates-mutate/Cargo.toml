@@ -1,0 +1,51 @@
+[package]
+name = "wachat-templates-mutate"
+version = "0.1.0"
+edition = "2024"
+description = "Create / edit / delete WhatsApp message templates against the Meta Graph API. Ports the TS handlers in src/app/actions/template.actions.ts (handleCreateTemplate, handleBulkCreateTemplate, handleCreateFlowTemplate, handleEditTemplate, handleDeleteTemplate, handleDeleteTemplateById)."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "wachat_templates_mutate"
+path = "src/lib.rs"
+
+[dependencies]
+# Async + serialization stack — matches the rest of the workspace.
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "time"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Mongo: we read/write the `templates` collection via `MongoHandle::collection`.
+bson = { version = "2", features = ["chrono-0_4"] }
+mongodb = "3.2"
+
+# Logging + errors. We do not introduce a new error type; everything funnels
+# into `sabnode_common::ApiError` (the workspace convention).
+tracing = "0.1"
+anyhow = "1"
+
+# Timestamps for `createdAt` on inserted template docs.
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+# Resumable upload payload type (`Bytes`) and reqwest re-export the upstream
+# media uploader and meta client return.
+bytes = "1"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+
+# Sibling crates.
+sabnode-common = { path = "../common" }
+sabnode-db = { path = "../db" }
+wachat-types = { path = "../wachat-types" }
+wachat-meta-client = { path = "../wachat-meta-client" }
+wachat-meta-dto = { path = "../wachat-meta-dto" }
+wachat-media = { path = "../wachat-media" }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+wiremock = "0.6"
+serde_json = "1"
+bson = { version = "2", features = ["chrono-0_4"] }
+
+[lints]
+workspace = true

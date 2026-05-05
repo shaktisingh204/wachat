@@ -49,11 +49,7 @@ async fn boot_mongo() -> (
         .start()
         .await
         .expect("start mongo container");
-    let host = container
-        .get_host()
-        .await
-        .expect("mongo host")
-        .to_string();
+    let host = container.get_host().await.expect("mongo host").to_string();
     let port = container
         .get_host_port_ipv4(27017)
         .await
@@ -76,11 +72,7 @@ async fn boot_redis() -> (
         .start()
         .await
         .expect("start redis container");
-    let host = container
-        .get_host()
-        .await
-        .expect("redis host")
-        .to_string();
+    let host = container.get_host().await.expect("redis host").to_string();
     let port = container
         .get_host_port_ipv4(6379)
         .await

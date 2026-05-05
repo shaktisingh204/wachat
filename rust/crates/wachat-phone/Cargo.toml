@@ -20,3 +20,6 @@ sabnode-common = { path = "../common" }
 [dev-dependencies]
 # none — std-only golden tests
 
+
+[lints]
+workspace = true

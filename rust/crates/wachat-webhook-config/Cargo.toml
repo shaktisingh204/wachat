@@ -1,8 +1,6 @@
 # Empty [workspace] table makes this crate buildable standalone while it
 # waits to be added to the parent workspace's `members` list (per the
 # Phase 2 slice contract: do not modify the workspace Cargo.toml).
-[workspace]
-
 [package]
 name = "wachat-webhook-config"
 version = "0.1.0"
@@ -57,3 +55,6 @@ sabnode-db = { path = "../db" }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 # Re-pulled so test fixtures can build typed `Router<TestState>`.
 axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+
+[lints]
+workspace = true

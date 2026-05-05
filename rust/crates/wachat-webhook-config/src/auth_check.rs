@@ -24,10 +24,7 @@ pub fn ensure_admin(user: &AuthUser, project_id: Option<&str>) -> Result<(), Api
     // future refactors don't have to re-touch every call site.
     let _ = project_id;
 
-    let is_admin = user
-        .roles
-        .iter()
-        .any(|r| r == "admin" || r == "owner");
+    let is_admin = user.roles.iter().any(|r| r == "admin" || r == "owner");
 
     if is_admin {
         Ok(())
@@ -64,8 +61,8 @@ mod tests {
 
     #[test]
     fn member_only_is_forbidden() {
-        let err = ensure_admin(&user_with_roles(&["member"]), None)
-            .expect_err("member must be rejected");
+        let err =
+            ensure_admin(&user_with_roles(&["member"]), None).expect_err("member must be rejected");
         assert!(matches!(err, ApiError::Forbidden(_)));
     }
 

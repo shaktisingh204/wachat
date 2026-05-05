@@ -103,9 +103,7 @@ impl ContactsUpserter {
             return Ok(UpsertOutcome::default());
         }
 
-        let coll = self
-            .mongo
-            .collection::<Document>(CONTACTS_COLLECTION);
+        let coll = self.mongo.collection::<Document>(CONTACTS_COLLECTION);
 
         let mut outcome = UpsertOutcome::default();
 

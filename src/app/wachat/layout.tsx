@@ -19,8 +19,9 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/app/actions/user.actions";
 import { getProjects } from "@/app/actions/project.actions";
 import { RBACGuard } from "@/components/wabasimplify/rbac-guard";
-import { ZoruHomeShell } from "@/components/zoruui";
 import { ProjectProvider } from "@/context/project-context";
+
+import { WachatShell } from "./_components/wachat-shell";
 
 export default async function WachatLayout({
   children,
@@ -61,7 +62,7 @@ export default async function WachatLayout({
   return (
     <RBACGuard>
       <ProjectProvider initialProjects={projects} user={user}>
-        <ZoruHomeShell
+        <WachatShell
           user={{
             name: user?.name,
             email: user?.email,
@@ -73,7 +74,7 @@ export default async function WachatLayout({
           }}
         >
           {children}
-        </ZoruHomeShell>
+        </WachatShell>
       </ProjectProvider>
     </RBACGuard>
   );

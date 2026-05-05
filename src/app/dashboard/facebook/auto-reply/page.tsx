@@ -1,262 +1,479 @@
+"use client";
 
-'use client';
+/**
+ * /dashboard/facebook/auto-reply — ZoruUI rebuild.
+ *
+ * Two automation surfaces (Comments + Messenger Welcome) live on one page,
+ * each gated by a master `ZoruSwitch` and bundled inside `ZoruAccordion`
+ * sections — replacing the legacy Tabs UI. No clay, no @/components/ui/*,
+ * no react-icons, no wabasimplify visual imports.
+ *
+ * Same server-action wiring as the legacy page:
+ *   - handleUpdateFacebookAutomationSettings(prevState, formData)
+ *
+ * Same FormData payload contract:
+ *   projectId, automationType ('comment' | 'welcome'),
+ *   enabled, replyMode, staticReplyText, aiReplyPrompt,
+ *   moderationEnabled, moderationPrompt, message, quickReplies (JSON)
+ */
 
-import { useActionState, useEffect, useState, useTransition } from 'react';
-import { useFormStatus } from 'react-dom';
-import { handleUpdateFacebookAutomationSettings } from '@/app/actions/facebook.actions';
-import { getProjectById } from '@/app/actions/project.actions';
-import type { WithId, Project, FacebookCommentAutoReplySettings, FacebookWelcomeMessageSettings } from '@/lib/definitions';
-import { useToast } from '@/hooks/use-toast';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
-import { LoaderCircle, Save, MessageSquareReply, ShieldX, Bot, MessageSquareHeart, Trash2, Plus } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'; // Keep Tabs for inner usage if any, otherwise can remove
-import { ModuleLayout } from '@/components/wabasimplify/module-layout';
-import { ModuleSidebar } from '@/components/wabasimplify/module-sidebar';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
-import { Input } from '@/components/ui/input';
-import { useProject } from '@/context/project-context';
-import { FeatureLock, FeatureLockOverlay } from '@/components/wabasimplify/feature-lock';
+import * as React from "react";
+import { useActionState, useEffect, useState } from "react";
+import { useFormStatus } from "react-dom";
+import {
+  Bot,
+  Loader2,
+  MessageSquareHeart,
+  MessageSquareReply,
+  Plus,
+  Save,
+  ShieldX,
+  Trash2,
+} from "lucide-react";
 
-const initialState = { success: false, error: undefined };
+import { handleUpdateFacebookAutomationSettings } from "@/app/actions/facebook.actions";
+import { useProject } from "@/context/project-context";
+import type {
+  FacebookCommentAutoReplySettings,
+  FacebookWelcomeMessageSettings,
+  Project,
+  WithId,
+} from "@/lib/definitions";
 
-function SubmitButton({ children }: { children: React.ReactNode }) {
-    const { pending } = useFormStatus();
-    return (
-        <Button type="submit" disabled={pending} size="lg">
-            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-            {children}
-        </Button>
-    );
-}
+import {
+  ZoruAccordion,
+  ZoruAccordionContent,
+  ZoruAccordionItem,
+  ZoruAccordionTrigger,
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruRadioGroup,
+  ZoruRadioGroupItem,
+  ZoruSeparator,
+  ZoruSkeleton,
+  ZoruSwitch,
+  ZoruTextarea,
+  useZoruToast,
+} from "@/components/zoruui";
+
+import {
+  FbBreadcrumb,
+  FbHeader,
+  FbNoProject,
+} from "../_components/zoru-fb-page-shell";
+
+const initialState: { success: boolean; error?: string } = {
+  success: false,
+  error: undefined,
+};
 
 function PageSkeleton() {
-    return (
-        <div className="space-y-6">
-            <Skeleton className="h-10 w-64" />
-            <Skeleton className="h-4 w-96" />
-            <div className="space-y-4">
-                <Skeleton className="h-64 w-full" />
-                <Skeleton className="h-48 w-full" />
-            </div>
-        </div>
-    );
+  return (
+    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
+      <ZoruSkeleton className="h-3 w-52" />
+      <div className="mt-5">
+        <ZoruSkeleton className="h-9 w-72" />
+        <ZoruSkeleton className="mt-2 h-4 w-96" />
+      </div>
+      <div className="mt-6 space-y-4">
+        <ZoruSkeleton className="h-16 w-full" />
+        <ZoruSkeleton className="h-16 w-full" />
+      </div>
+    </div>
+  );
 }
 
-function CommentAutomationForm({ project, settings }: { project: WithId<Project>, settings?: FacebookCommentAutoReplySettings }) {
-    const [state, formAction] = useActionState(handleUpdateFacebookAutomationSettings, initialState);
-    const { toast } = useToast();
-    const [replyMode, setReplyMode] = useState<'static' | 'ai'>(settings?.replyMode || 'static');
-
-    useEffect(() => {
-        if (state.success) toast({ title: 'Success!', description: 'Comment automation settings saved.' });
-        if (state.error) toast({ title: 'Error', description: state.error, variant: 'destructive' });
-    }, [state, toast]);
-
-    return (
-        <form action={formAction}>
-            <input type="hidden" name="projectId" value={project._id.toString()} />
-            <input type="hidden" name="automationType" value="comment" />
-            <Card className="card-gradient card-gradient-purple">
-                <CardHeader>
-                    <div className="flex items-center justify-between">
-                        <div className="space-y-0.5">
-                            <Label htmlFor="enabled" className="text-base font-semibold">Enable Comment Automation</Label>
-                            <p className="text-sm text-muted-foreground">Master switch for all comment-related features.</p>
-                        </div>
-                        <Switch id="enabled" name="enabled" defaultChecked={settings?.enabled ?? false} />
-                    </div>
-                </CardHeader>
-                <CardContent>
-                    <Tabs defaultValue="replies" className="w-full">
-                        <TabsList className="grid w-full grid-cols-2">
-                            <TabsTrigger value="replies"><Bot className="mr-2 h-4 w-4" />Replies</TabsTrigger>
-                            <TabsTrigger value="moderation"><ShieldX className="mr-2 h-4 w-4" />Moderation</TabsTrigger>
-                        </TabsList>
-                        <TabsContent value="replies" className="mt-4 space-y-4">
-                            <RadioGroup name="replyMode" value={replyMode} onValueChange={(v) => setReplyMode(v as any)} className="flex gap-4 pt-1">
-                                <div className="flex items-center space-x-2"><RadioGroupItem value="static" id="mode-static" /><Label htmlFor="mode-static" className="font-normal">Static Reply</Label></div>
-                                <div className="flex items-center space-x-2"><RadioGroupItem value="ai" id="mode-ai" /><Label htmlFor="mode-ai" className="font-normal">AI-Generated Reply</Label></div>
-                            </RadioGroup>
-                            <Separator />
-                            {replyMode === 'static' ? (
-                                <div className="space-y-2">
-                                    <Label htmlFor="staticReplyText">Static Reply Text</Label>
-                                    <Textarea id="staticReplyText" name="staticReplyText" placeholder="Thanks for your comment! We'll get back to you shortly." defaultValue={settings?.staticReplyText || ''} className="min-h-32" />
-                                </div>
-                            ) : (
-                                <div className="space-y-2">
-                                    <Label htmlFor="aiReplyPrompt">AI Reply Prompt</Label>
-                                    <Textarea id="aiReplyPrompt" name="aiReplyPrompt" placeholder="You are a friendly community manager. Acknowledge the user's comment and tell them you appreciate their feedback. Keep it brief and positive." defaultValue={settings?.aiReplyPrompt || ''} className="min-h-32" />
-                                    <p className="text-xs text-muted-foreground">Provide instructions for the AI on how to generate replies.</p>
-                                </div>
-                            )}
-                        </TabsContent>
-                        <TabsContent value="moderation" className="mt-4 space-y-4">
-                            <div className="flex items-center justify-between pt-2">
-                                <div className="space-y-0.5">
-                                    <Label htmlFor="moderationEnabled" className="text-base">Enable AI Moderation</Label>
-                                    <p className="text-sm text-muted-foreground">Automatically delete comments that violate your rules.</p>
-                                </div>
-                                <Switch id="moderationEnabled" name="moderationEnabled" defaultChecked={settings?.moderationEnabled ?? false} />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="moderationPrompt">Moderation Prompt</Label>
-                                <Textarea id="moderationPrompt" name="moderationPrompt" placeholder="Delete any comments that contain profanity, hate speech, or personal attacks." defaultValue={settings?.moderationPrompt || ''} className="min-h-32" />
-                                <p className="text-xs text-muted-foreground">Define the rules for the AI to follow. If the AI determines a comment violates these rules, it will be deleted.</p>
-                            </div>
-                        </TabsContent>
-                    </Tabs>
-                </CardContent>
-                <CardFooter><SubmitButton>Save Comment Settings</SubmitButton></CardFooter>
-            </Card>
-        </form>
-    )
+function SubmitButton({ children }: { children: React.ReactNode }) {
+  const { pending } = useFormStatus();
+  return (
+    <ZoruButton type="submit" disabled={pending}>
+      {pending ? <Loader2 className="animate-spin" /> : <Save />}
+      {children}
+    </ZoruButton>
+  );
 }
 
-function MessengerWelcomeForm({ project, settings }: { project: WithId<Project>, settings?: FacebookWelcomeMessageSettings }) {
-    const [state, formAction] = useActionState(handleUpdateFacebookAutomationSettings, initialState);
-    const { toast } = useToast();
-    const [quickReplies, setQuickReplies] = useState(settings?.quickReplies || []);
+/* ── Comment automation form ─────────────────────────────────────── */
 
-    const handleAddReply = () => {
-        if (quickReplies.length < 13) {
-            setQuickReplies([...quickReplies, { title: '', payload: '' }]);
-        } else {
-            toast({ title: "Limit Reached", description: "You can add a maximum of 13 quick replies.", variant: "destructive" });
-        }
-    };
+function CommentAutomationForm({
+  project,
+  settings,
+}: {
+  project: WithId<Project>;
+  settings?: FacebookCommentAutoReplySettings;
+}) {
+  const [state, formAction] = useActionState(
+    handleUpdateFacebookAutomationSettings,
+    initialState,
+  );
+  const { toast } = useZoruToast();
+  const [enabled, setEnabled] = useState<boolean>(settings?.enabled ?? false);
+  const [replyMode, setReplyMode] = useState<"static" | "ai">(
+    settings?.replyMode ?? "static",
+  );
+  const [moderationEnabled, setModerationEnabled] = useState<boolean>(
+    settings?.moderationEnabled ?? false,
+  );
 
-    const handleRemoveReply = (index: number) => {
-        setQuickReplies(quickReplies.filter((_, i) => i !== index));
-    };
-
-    const handleReplyChange = (index: number, field: 'title' | 'payload', value: string) => {
-        const newReplies = [...quickReplies];
-        newReplies[index] = { ...newReplies[index], [field]: value };
-        setQuickReplies(newReplies);
-    };
-
-    useEffect(() => {
-        if (state.success) toast({ title: 'Success!', description: 'Welcome message settings saved.' });
-        if (state.error) toast({ title: 'Error', description: state.error, variant: 'destructive' });
-    }, [state, toast]);
-
-    return (
-        <form action={formAction}>
-            <input type="hidden" name="projectId" value={project._id.toString()} />
-            <input type="hidden" name="automationType" value="welcome" />
-            <input type="hidden" name="quickReplies" value={JSON.stringify(quickReplies)} />
-            <Card className="card-gradient card-gradient-green">
-                <CardHeader>
-                    <div className="flex items-center justify-between">
-                        <div className="space-y-0.5">
-                            <Label htmlFor="welcome-enabled" className="text-base font-semibold">Enable Welcome Message</Label>
-                            <p className="text-sm text-muted-foreground">Automatically send a greeting the first time a user messages your page.</p>
-                        </div>
-                        <Switch id="welcome-enabled" name="enabled" defaultChecked={settings?.enabled ?? false} />
-                    </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="message">Welcome Message Text</Label>
-                        <Textarea id="message" name="message" placeholder="Welcome to our page! How can we help you today?" defaultValue={settings?.message || ''} className="min-h-32" />
-                    </div>
-                    <Separator />
-                    <div className="space-y-2">
-                        <Label>Quick Replies (Optional)</Label>
-                        <p className="text-xs text-muted-foreground">Add up to 13 buttons to guide users after your welcome message.</p>
-                        <div className="space-y-3 pt-2">
-                            {quickReplies.map((reply, index) => (
-                                <div key={index} className="flex items-center gap-2">
-                                    <Input placeholder="Button Title (max 20 chars)" value={reply.title} onChange={e => handleReplyChange(index, 'title', e.target.value)} maxLength={20} />
-                                    <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveReply(index)}><Trash2 className="h-4 w-4" /></Button>
-                                </div>
-                            ))}
-                        </div>
-                        {quickReplies.length < 13 && (
-                            <Button type="button" variant="outline" size="sm" className="mt-2" onClick={handleAddReply}><Plus className="mr-2 h-4 w-4" />Add Quick Reply</Button>
-                        )}
-                    </div>
-                </CardContent>
-                <CardFooter><SubmitButton>Save Welcome Message</SubmitButton></CardFooter>
-            </Card>
-        </form>
-    );
-}
-
-
-export default function FacebookAutomationPage() {
-    const { activeProject, isLoadingProject, sessionUser } = useProject();
-    const isAllowed = sessionUser?.plan?.features?.liveChat ?? false;
-    const [activeTab, setActiveTab] = useState('comments');
-
-    if (isLoadingProject) return <PageSkeleton />;
-
-    if (!activeProject) {
-        return (
-            <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>No Project Selected</AlertTitle>
-                <AlertDescription>Please select a project to manage its automation settings.</AlertDescription>
-            </Alert>
-        );
+  useEffect(() => {
+    if (state.success) {
+      toast({
+        title: "Settings saved",
+        description: "Comment automation has been updated.",
+        variant: "success",
+      });
     }
+    if (state.error) {
+      toast({
+        title: "Error",
+        description: state.error,
+        variant: "destructive",
+      });
+    }
+  }, [state, toast]);
 
-    return (
-        <div className="space-y-6 relative">
-            <FeatureLockOverlay isAllowed={isAllowed} featureName="Facebook Automation" />
-            <FeatureLock isAllowed={isAllowed}>
-                <div>
-                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                        <Bot className="h-8 w-8" />
-                        Facebook Automation
-                    </h1>
-                    <p className="text-muted-foreground mt-2">
-                        Manage automations for your Facebook Page comments and Messenger conversations.
-                    </p>
-                </div>
+  return (
+    <form action={formAction}>
+      <input type="hidden" name="projectId" value={project._id.toString()} />
+      <input type="hidden" name="automationType" value="comment" />
+      {/* Switches as hidden values to ensure they post even when toggled off */}
+      <input type="hidden" name="enabled" value={enabled ? "on" : ""} />
+      <input
+        type="hidden"
+        name="moderationEnabled"
+        value={moderationEnabled ? "on" : ""}
+      />
 
-                <ModuleLayout
-                    sidebar={
-                        <ModuleSidebar
-                            title="Automation"
-                            activeValue={activeTab}
-                            onValueChange={setActiveTab}
-                            items={[
-                                { value: 'comments', label: 'Comment Automation', icon: MessageSquareReply },
-                                { value: 'messenger', label: 'Messenger Automation', icon: MessageSquareHeart },
-                            ]}
-                        />
-                    }
-                >
-                    {activeTab === 'comments' && (
-                        <div className="space-y-6">
-                            <div>
-                                <h2 className="text-2xl font-semibold tracking-tight">Comment Automation</h2>
-                                <p className="text-muted-foreground">Manage how your page automatically responds to comments.</p>
-                            </div>
-                            <CommentAutomationForm project={activeProject} settings={activeProject.facebookCommentAutoReply} />
-                        </div>
-                    )}
-                    {activeTab === 'messenger' && (
-                        <div className="space-y-6">
-                            <div>
-                                <h2 className="text-2xl font-semibold tracking-tight">Messenger Automation</h2>
-                                <p className="text-muted-foreground">Set up welcome messages and quick replies for new chats.</p>
-                            </div>
-                            <MessengerWelcomeForm project={activeProject} settings={activeProject.facebookWelcomeMessage} />
-                        </div>
-                    )}
-                </ModuleLayout>
-            </FeatureLock>
+      <ZoruCard className="p-5">
+        <div className="flex items-start justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 text-zoru-ink">
+              <MessageSquareReply className="h-4 w-4" />
+              <h2 className="text-[14px]">Comment automation</h2>
+            </div>
+            <p className="text-[12.5px] text-zoru-ink-muted">
+              Master switch for comment replies and AI moderation. Same payload
+              as the legacy automation form — only the UI changed.
+            </p>
+          </div>
+          <ZoruSwitch
+            id="comment-enabled"
+            checked={enabled}
+            onCheckedChange={setEnabled}
+            aria-label="Enable comment automation"
+          />
         </div>
-    );
+
+        <ZoruSeparator className="my-5" />
+
+        <ZoruAccordion type="multiple" defaultValue={["replies"]}>
+          <ZoruAccordionItem value="replies">
+            <ZoruAccordionTrigger>
+              <span className="flex items-center gap-2">
+                <Bot className="h-4 w-4" /> Replies
+              </span>
+            </ZoruAccordionTrigger>
+            <ZoruAccordionContent>
+              <div className="space-y-4 pt-2">
+                <ZoruRadioGroup
+                  name="replyMode"
+                  value={replyMode}
+                  onValueChange={(v) => setReplyMode(v as "static" | "ai")}
+                  className="flex gap-4"
+                >
+                  <div className="flex items-center gap-2">
+                    <ZoruRadioGroupItem value="static" id="mode-static" />
+                    <ZoruLabel htmlFor="mode-static">Static reply</ZoruLabel>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <ZoruRadioGroupItem value="ai" id="mode-ai" />
+                    <ZoruLabel htmlFor="mode-ai">AI-generated reply</ZoruLabel>
+                  </div>
+                </ZoruRadioGroup>
+
+                {replyMode === "static" ? (
+                  <div className="space-y-2">
+                    <ZoruLabel htmlFor="staticReplyText">
+                      Static reply text
+                    </ZoruLabel>
+                    <ZoruTextarea
+                      id="staticReplyText"
+                      name="staticReplyText"
+                      placeholder="Thanks for your comment! We'll get back to you shortly."
+                      defaultValue={settings?.staticReplyText ?? ""}
+                      className="min-h-32"
+                    />
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <ZoruLabel htmlFor="aiReplyPrompt">AI reply prompt</ZoruLabel>
+                    <ZoruTextarea
+                      id="aiReplyPrompt"
+                      name="aiReplyPrompt"
+                      placeholder="You are a friendly community manager. Acknowledge the user's comment and tell them you appreciate their feedback. Keep it brief and positive."
+                      defaultValue={settings?.aiReplyPrompt ?? ""}
+                      className="min-h-32"
+                    />
+                    <p className="text-[12px] text-zoru-ink-muted">
+                      Provide instructions for the AI on how to generate
+                      replies.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </ZoruAccordionContent>
+          </ZoruAccordionItem>
+
+          <ZoruAccordionItem value="moderation">
+            <ZoruAccordionTrigger>
+              <span className="flex items-center gap-2">
+                <ShieldX className="h-4 w-4" /> AI moderation
+              </span>
+            </ZoruAccordionTrigger>
+            <ZoruAccordionContent>
+              <div className="space-y-4 pt-2">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="space-y-0.5">
+                    <ZoruLabel htmlFor="moderationEnabled">
+                      Enable AI moderation
+                    </ZoruLabel>
+                    <p className="text-[12.5px] text-zoru-ink-muted">
+                      Automatically delete comments that violate your rules.
+                    </p>
+                  </div>
+                  <ZoruSwitch
+                    id="moderationEnabled"
+                    checked={moderationEnabled}
+                    onCheckedChange={setModerationEnabled}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <ZoruLabel htmlFor="moderationPrompt">
+                    Moderation prompt
+                  </ZoruLabel>
+                  <ZoruTextarea
+                    id="moderationPrompt"
+                    name="moderationPrompt"
+                    placeholder="Delete any comments that contain profanity, hate speech, or personal attacks."
+                    defaultValue={settings?.moderationPrompt ?? ""}
+                    className="min-h-32"
+                  />
+                  <p className="text-[12px] text-zoru-ink-muted">
+                    Define the rules for the AI to follow. If the AI determines
+                    a comment violates these rules, it will be deleted.
+                  </p>
+                </div>
+              </div>
+            </ZoruAccordionContent>
+          </ZoruAccordionItem>
+        </ZoruAccordion>
+
+        <div className="mt-5 flex justify-end">
+          <SubmitButton>Save comment settings</SubmitButton>
+        </div>
+      </ZoruCard>
+    </form>
+  );
+}
+
+/* ── Messenger welcome form ──────────────────────────────────────── */
+
+function MessengerWelcomeForm({
+  project,
+  settings,
+}: {
+  project: WithId<Project>;
+  settings?: FacebookWelcomeMessageSettings;
+}) {
+  const [state, formAction] = useActionState(
+    handleUpdateFacebookAutomationSettings,
+    initialState,
+  );
+  const { toast } = useZoruToast();
+  const [enabled, setEnabled] = useState<boolean>(settings?.enabled ?? false);
+  const [quickReplies, setQuickReplies] = useState<
+    { title: string; payload: string }[]
+  >(settings?.quickReplies ?? []);
+
+  useEffect(() => {
+    if (state.success) {
+      toast({
+        title: "Settings saved",
+        description: "Welcome message has been updated.",
+        variant: "success",
+      });
+    }
+    if (state.error) {
+      toast({
+        title: "Error",
+        description: state.error,
+        variant: "destructive",
+      });
+    }
+  }, [state, toast]);
+
+  const handleAddReply = () => {
+    if (quickReplies.length < 13) {
+      setQuickReplies([...quickReplies, { title: "", payload: "" }]);
+    } else {
+      toast({
+        title: "Limit reached",
+        description: "You can add a maximum of 13 quick replies.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleRemoveReply = (index: number) => {
+    setQuickReplies(quickReplies.filter((_, i) => i !== index));
+  };
+
+  const handleReplyChange = (
+    index: number,
+    field: "title" | "payload",
+    value: string,
+  ) => {
+    const next = [...quickReplies];
+    next[index] = { ...next[index], [field]: value };
+    setQuickReplies(next);
+  };
+
+  return (
+    <form action={formAction}>
+      <input type="hidden" name="projectId" value={project._id.toString()} />
+      <input type="hidden" name="automationType" value="welcome" />
+      <input
+        type="hidden"
+        name="quickReplies"
+        value={JSON.stringify(quickReplies)}
+      />
+      <input type="hidden" name="enabled" value={enabled ? "on" : ""} />
+
+      <ZoruCard className="p-5">
+        <div className="flex items-start justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 text-zoru-ink">
+              <MessageSquareHeart className="h-4 w-4" />
+              <h2 className="text-[14px]">Messenger welcome message</h2>
+            </div>
+            <p className="text-[12.5px] text-zoru-ink-muted">
+              Automatically sent the first time a user messages your page.
+            </p>
+          </div>
+          <ZoruSwitch
+            id="welcome-enabled"
+            checked={enabled}
+            onCheckedChange={setEnabled}
+            aria-label="Enable welcome message"
+          />
+        </div>
+
+        <ZoruSeparator className="my-5" />
+
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <ZoruLabel htmlFor="welcome-message">Welcome message text</ZoruLabel>
+            <ZoruTextarea
+              id="welcome-message"
+              name="message"
+              placeholder="Welcome to our page! How can we help you today?"
+              defaultValue={settings?.message ?? ""}
+              className="min-h-32"
+            />
+          </div>
+
+          <ZoruSeparator />
+
+          <div className="space-y-2">
+            <ZoruLabel>Quick replies (optional)</ZoruLabel>
+            <p className="text-[12px] text-zoru-ink-muted">
+              Add up to 13 buttons to guide users after the welcome message.
+            </p>
+            <div className="space-y-3 pt-1">
+              {quickReplies.map((reply, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <ZoruInput
+                    placeholder="Button title (max 20 chars)"
+                    value={reply.title}
+                    onChange={(e) =>
+                      handleReplyChange(index, "title", e.target.value)
+                    }
+                    maxLength={20}
+                  />
+                  <ZoruInput
+                    placeholder="Payload"
+                    value={reply.payload}
+                    onChange={(e) =>
+                      handleReplyChange(index, "payload", e.target.value)
+                    }
+                  />
+                  <ZoruButton
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={() => handleRemoveReply(index)}
+                    aria-label="Remove quick reply"
+                  >
+                    <Trash2 />
+                  </ZoruButton>
+                </div>
+              ))}
+            </div>
+            {quickReplies.length < 13 && (
+              <ZoruButton
+                type="button"
+                variant="outline"
+                size="sm"
+                className="mt-2"
+                onClick={handleAddReply}
+              >
+                <Plus /> Add quick reply
+              </ZoruButton>
+            )}
+          </div>
+        </div>
+
+        <div className="mt-5 flex justify-end">
+          <SubmitButton>Save welcome message</SubmitButton>
+        </div>
+      </ZoruCard>
+    </form>
+  );
+}
+
+/* ── Page ────────────────────────────────────────────────────────── */
+
+export default function FacebookAutoReplyPage() {
+  const { activeProject, isLoadingProject } = useProject();
+
+  if (isLoadingProject) {
+    return <PageSkeleton />;
+  }
+
+  return (
+    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
+      <FbBreadcrumb page="Auto-reply" />
+      <FbHeader
+        title="Facebook automation"
+        description="Manage automations for Page comments and Messenger conversations."
+      />
+
+      {!activeProject ? (
+        <FbNoProject />
+      ) : (
+        <div className="mt-6 space-y-6">
+          <CommentAutomationForm
+            project={activeProject}
+            settings={activeProject.facebookCommentAutoReply}
+          />
+          <MessengerWelcomeForm
+            project={activeProject}
+            settings={activeProject.facebookWelcomeMessage}
+          />
+        </div>
+      )}
+    </div>
+  );
 }

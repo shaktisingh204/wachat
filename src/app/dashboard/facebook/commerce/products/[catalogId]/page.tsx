@@ -1,392 +1,513 @@
+"use client";
 
-'use client';
+/**
+ * /dashboard/facebook/commerce/products/[catalogId]
+ *
+ * Catalog detail — products + collections side-by-side, no tabs.
+ * Same data shape as the previous incarnation:
+ *   - getProductsForCatalog
+ *   - listProductSets
+ *   - addProductToCatalog (via dialog)
+ *   - updateProductInCatalog (via dialog)
+ *   - deleteProductFromCatalog (via dialog)
+ *   - createProductSet (via dialog)
+ *   - deleteProductSet (via dialog)
+ *
+ * Pure ZoruUI primitives + neutral tokens. Two distinct sections —
+ * "Products" and "Collections" — replace the legacy tab UI per the
+ * no-tab-ui directive.
+ */
 
-import { useState, useEffect, useCallback, useTransition, useActionState, useRef } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
-import Image from 'next/image';
-import type { WithId } from 'mongodb';
-import { useFormStatus } from 'react-dom';
-import { useToast } from '@/hooks/use-toast';
+import * as React from "react";
+import { useCallback, useEffect, useState, useTransition, useMemo } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { useParams } from "next/navigation";
+import type { ColumnDef } from "@tanstack/react-table";
+import {
+  AlertCircle,
+  ChevronLeft,
+  Edit,
+  Layers,
+  PlusCircle,
+  RefreshCw,
+  ShoppingBag,
+  Tags,
+  Trash2,
+} from "lucide-react";
 
-import { getProductsForCatalog, addProductToCatalog, deleteProductFromCatalog, listProductSets, createProductSet } from '@/app/actions/catalog.actions';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Skeleton } from '@/components/ui/skeleton';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ChevronLeft, PlusCircle, ShoppingBag, LoaderCircle, Trash2, Tags, Edit, Package } from 'lucide-react';
-import { ViewTaggedMediaDialog } from '@/components/wabasimplify/view-tagged-media-dialog';
-import { Badge } from '@/components/ui/badge';
-import { EditProductDialog } from '@/components/wabasimplify/edit-product-dialog';
-import { DeleteCollectionButton } from '@/components/wabasimplify/delete-collection-button';
-import { ModuleLayout } from '@/components/wabasimplify/module-layout';
-import { ModuleSidebar } from '@/components/wabasimplify/module-sidebar';
-import type { ProductSet } from '@/lib/definitions';
+import {
+  getProductsForCatalog,
+  listProductSets,
+} from "@/app/actions/catalog.actions";
+import type { ProductSet } from "@/lib/definitions";
 
+import {
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruAlertTitle,
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruDataTable,
+  ZoruEmptyState,
+  ZoruSkeleton,
+} from "@/components/zoruui";
 
-const addProductInitialState: any = { message: null, error: null };
+import {
+  CommerceBreadcrumb,
+  CommerceHeader,
+  CommercePage,
+} from "../../../_components/commerce-shell";
+import {
+  CreateProductDialog,
+  DeleteProductConfirmDialog,
+  EditProductDialog,
+  ViewTaggedMediaDialog,
+} from "../../../_components/commerce-product-dialogs";
+import {
+  CreateCollectionDialog,
+  DeleteCollectionConfirmDialog,
+} from "../../../_components/commerce-collection-dialogs";
 
-function SubmitButton() {
-    const { pending } = useFormStatus();
-    return (
-        <Button type="submit" disabled={pending}>
-            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
-            Add Product
-        </Button>
-    )
-}
+type ProductRow = {
+  id: string;
+  retailer_id?: string;
+  name?: string;
+  image_url?: string;
+  price?: number | string;
+  currency?: string;
+  inventory?: number;
+  availability?: string;
+  description?: string;
+};
 
-function AddProductDialog({ catalogId, projectId, onProductAdded }: { catalogId: string, projectId: string, onProductAdded: () => void }) {
-    const [open, setOpen] = useState(false);
-    const [state, formAction] = useActionState(addProductToCatalog, addProductInitialState);
-    const { toast } = useToast();
-    const formRef = useRef<HTMLFormElement>(null);
-
-    useEffect(() => {
-        if (state.message) {
-            toast({ title: 'Success', description: state.message });
-            setOpen(false);
-            onProductAdded();
-        }
-        if (state.error) {
-            toast({ title: 'Error Creating Product', description: state.error, variant: 'destructive' });
-        }
-    }, [state, toast, onProductAdded]);
-
-    return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild><Button><PlusCircle className="mr-2 h-4 w-4" />Add Product</Button></DialogTrigger>
-            <DialogContent className="sm:max-w-lg">
-                <form action={formAction} ref={formRef}>
-                    <input type="hidden" name="projectId" value={projectId} />
-                    <input type="hidden" name="catalogId" value={catalogId} />
-                    <DialogHeader>
-                        <DialogTitle>Add New Product</DialogTitle>
-                        <DialogDescription>Enter the details for your new product. This will add it to your Meta catalog.</DialogDescription>
-                    </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                        <div className="space-y-2"><Label htmlFor="name">Product Name</Label><Input id="name" name="name" required /></div>
-                        <div className="space-y-2"><Label htmlFor="retailer_id">SKU / Retailer ID</Label><Input id="retailer_id" name="retailer_id" required /></div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2"><Label htmlFor="price">Price</Label><Input id="price" name="price" type="number" step="0.01" required /></div>
-                            <div className="space-y-2"><Label htmlFor="currency">Currency</Label><Select name="currency" defaultValue="USD" required><SelectTrigger id="currency"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="USD">USD</SelectItem><SelectItem value="EUR">EUR</SelectItem><SelectItem value="INR">INR</SelectItem></SelectContent></Select></div>
-                        </div>
-                        <div className="space-y-2"><Label htmlFor="description">Description</Label><Textarea id="description" name="description" /></div>
-                        <div className="space-y-2"><Label htmlFor="image_url">Image URL</Label><Input id="image_url" name="image_url" type="url" required /></div>
-                    </div>
-                    <DialogFooter>
-                        <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-                        <SubmitButton />
-                    </DialogFooter>
-                </form>
-            </DialogContent>
-        </Dialog>
-    );
-}
-
-const addCollectionInitialState: any = { message: null, error: null };
-
-function CollectionSubmitButton() {
-    const { pending } = useFormStatus();
-
-    return (
-        <Button type="submit" disabled={pending}>
-            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : 'Create Collection'}
-        </Button>
-    );
-}
-
-function CreateCollectionDialog({ catalogId, projectId, onCollectionCreated }: { catalogId: string, projectId: string, onCollectionCreated: () => void }) {
-    const [open, setOpen] = useState(false);
-    const [state, formAction] = useActionState(createProductSet, addCollectionInitialState);
-    const { toast } = useToast();
-    const formRef = useRef<HTMLFormElement>(null);
-
-    useEffect(() => {
-        if (state.message) {
-            toast({ title: 'Success!', description: state.message });
-            formRef.current?.reset();
-            setOpen(false);
-            onCollectionCreated();
-        }
-        if (state.error) {
-            toast({ title: 'Error Creating Collection', description: state.error, variant: 'destructive' });
-        }
-    }, [state, toast, onCollectionCreated]);
-
-    return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <Button>
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Create Collection
-                </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-                <form action={formAction} ref={formRef}>
-                    <input type="hidden" name="projectId" value={projectId} />
-                    <input type="hidden" name="catalogId" value={catalogId} />
-                    <DialogHeader>
-                        <DialogTitle>Create New Collection</DialogTitle>
-                        <DialogDescription>
-                            Create a new product set within this catalog. You can add products later in Commerce Manager.
-                        </DialogDescription>
-                    </DialogHeader>
-
-                    <div className="grid gap-4 py-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="name">Collection Name</Label>
-                            <Input id="name" name="name" placeholder="e.g., Summer Collection" required />
-                        </div>
-                    </div>
-                    <DialogFooter>
-                        <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-                        <CollectionSubmitButton />
-                    </DialogFooter>
-                </form>
-            </DialogContent>
-        </Dialog>
-    );
-}
-
-const ProductsTable = ({ products, projectId, onAction }: { products: any[], projectId: string, onAction: () => void }) => {
-    const { toast } = useToast();
-    const [viewingProductMedia, setViewingProductMedia] = useState<any | null>(null);
-    const [editingProduct, setEditingProduct] = useState<any | null>(null);
-
-    const handleDeleteProduct = async (productId: string) => {
-        const result = await deleteProductFromCatalog(productId, projectId);
-        if (result.success) {
-            toast({ title: 'Success', description: 'Product deleted successfully.' });
-            onAction();
-        } else {
-            toast({ title: 'Error', description: result.error, variant: 'destructive' });
-        }
-    }
-
-    return (
-        <>
-            <div className="border rounded-md">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead className="w-20"></TableHead>
-                            <TableHead>Name</TableHead>
-                            <TableHead>Price</TableHead>
-                            <TableHead>Inventory</TableHead>
-                            <TableHead>Availability</TableHead>
-                            <TableHead>SKU</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {products.length > 0 ? (
-                            products.map(product => (
-                                <TableRow key={product.id}>
-                                    <TableCell>
-                                        <div className="w-16 h-16 bg-muted rounded-md flex items-center justify-center">
-                                            {product.image_url ?
-                                                <Image src={product.image_url} alt={product.name} width={64} height={64} className="object-cover rounded-md" data-ai-hint="product image" />
-                                                : <ShoppingBag className="h-8 w-8 text-muted-foreground" />
-                                            }
-                                        </div>
-                                    </TableCell>
-                                    <TableCell className="font-medium">{product.name}</TableCell>
-                                    <TableCell>{product.price ? new Intl.NumberFormat('en-US', { style: 'currency', currency: product.currency }).format(product.price / 100) : 'N/A'}</TableCell>
-                                    <TableCell>{product.inventory?.toLocaleString() || 'N/A'}</TableCell>
-                                    <TableCell>
-                                        <Badge variant={product.availability === 'in_stock' ? 'default' : 'secondary'}>
-                                            {product.availability?.replace(/_/g, ' ') || 'N/A'}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell className="font-mono text-xs">{product.retailer_id}</TableCell>
-                                    <TableCell className="text-right">
-                                        <Button variant="ghost" size="icon" onClick={() => setEditingProduct(product)}>
-                                            <Edit className="h-4 w-4" />
-                                            <span className="sr-only">Edit Product</span>
-                                        </Button>
-                                        <Button variant="ghost" size="icon" onClick={() => setViewingProductMedia(product)}>
-                                            <Tags className="h-4 w-4" />
-                                            <span className="sr-only">View Tagged Media</span>
-                                        </Button>
-                                        <AlertDialog>
-                                            <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
-                                            <AlertDialogContent>
-                                                <AlertDialogHeader><AlertDialogTitle>Are you sure?</AlertDialogTitle><AlertDialogDescription>This will permanently delete the product "{product.name}".</AlertDialogDescription></AlertDialogHeader>
-                                                <AlertDialogFooter>
-                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                    <AlertDialogAction onClick={() => handleDeleteProduct(product.id)}>Delete</AlertDialogAction>
-                                                </AlertDialogFooter>
-                                            </AlertDialogContent>
-                                        </AlertDialog>
-                                    </TableCell>
-                                </TableRow>
-                            ))
-                        ) : (
-                            <TableRow>
-                                <TableCell colSpan={7} className="text-center h-24">No products found in this catalog.</TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
-            </div>
-            {viewingProductMedia && (
-                <ViewTaggedMediaDialog
-                    isOpen={!!viewingProductMedia}
-                    onOpenChange={(open) => !open && setViewingProductMedia(null)}
-                    product={viewingProductMedia}
-                    projectId={projectId}
-                />
-            )}
-            {editingProduct && (
-                <EditProductDialog
-                    {...({
-                        isOpen: !!editingProduct,
-                        onOpenChange: (open: any) => !open && setEditingProduct(null),
-                        product: editingProduct,
-                        projectId,
-                        onProductUpdated: onAction,
-                    } as any)}
-                />
-            )}
-        </>
-    )
-}
-
-const CollectionsTable = ({ collections, projectId, catalogId, onAction }: { collections: ProductSet[], projectId: string, catalogId: string, onAction: () => void }) => {
-    return (
-        <div className="space-y-4">
-            <div className="flex justify-end">
-                <CreateCollectionDialog projectId={projectId} catalogId={catalogId} onCollectionCreated={onAction} />
-            </div>
-            <div className="border rounded-md">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Collection Name</TableHead>
-                            <TableHead>Product Count</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {collections.length > 0 ? (
-                            collections.map(set => (
-                                <TableRow key={set.id}>
-                                    <TableCell className="font-medium">{set.name}</TableCell>
-                                    <TableCell>{set.product_count}</TableCell>
-                                    <TableCell className="text-right">
-                                        <DeleteCollectionButton setId={set.id} setName={set.name} projectId={projectId} onDeleted={onAction} />
-                                    </TableCell>
-                                </TableRow>
-                            ))
-                        ) : (
-                            <TableRow><TableCell colSpan={3} className="text-center h-24">No collections found in this catalog.</TableCell></TableRow>
-                        )}
-                    </TableBody>
-                </Table>
-            </div>
+function CatalogDetailSkeleton() {
+  return (
+    <CommercePage>
+      <ZoruSkeleton className="h-3 w-72" />
+      <div className="mt-5 flex items-end justify-between">
+        <div className="space-y-3">
+          <ZoruSkeleton className="h-3 w-24" />
+          <ZoruSkeleton className="h-8 w-72" />
+          <ZoruSkeleton className="h-4 w-96" />
         </div>
-    )
+        <ZoruSkeleton className="h-9 w-32" />
+      </div>
+      <ZoruSkeleton className="mt-8 h-64 w-full" />
+      <ZoruSkeleton className="mt-6 h-40 w-full" />
+    </CommercePage>
+  );
 }
 
-export default function CatalogProductsPage() {
-    const params = useParams();
-    const catalogId = params.catalogId as string;
+export default function CatalogDetailPage() {
+  const params = useParams<{ catalogId: string }>();
+  const catalogId = (params?.catalogId as string) ?? "";
 
-    const [products, setProducts] = useState<any[]>([]);
-    const [collections, setCollections] = useState<ProductSet[]>([]);
-    const [projectId, setProjectId] = useState<string | null>(null);
-    const [isLoading, startLoading] = useTransition();
-    const [activeTab, setActiveTab] = useState('products');
+  const [projectId, setProjectId] = useState<string | null>(null);
+  const [products, setProducts] = useState<ProductRow[]>([]);
+  const [collections, setCollections] = useState<ProductSet[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, startLoading] = useTransition();
 
-    const fetchData = useCallback(() => {
-        const storedProjectId = localStorage.getItem('activeProjectId');
-        if (storedProjectId && catalogId) {
-            setProjectId(storedProjectId);
-            startLoading(async () => {
-                const [productsData, collectionsData] = await Promise.all([
-                    getProductsForCatalog(catalogId, storedProjectId),
-                    listProductSets(catalogId, storedProjectId)
-                ]);
-                setProducts(productsData as any);
-                setCollections(collectionsData as any);
-            });
-        }
-    }, [catalogId]);
+  // Dialog state
+  const [createOpen, setCreateOpen] = useState(false);
+  const [editProduct, setEditProduct] = useState<ProductRow | null>(null);
+  const [deleteProduct, setDeleteProduct] = useState<ProductRow | null>(null);
+  const [taggedProduct, setTaggedProduct] = useState<ProductRow | null>(null);
+  const [createCollectionOpen, setCreateCollectionOpen] = useState(false);
+  const [deleteCollection, setDeleteCollection] = useState<ProductSet | null>(
+    null,
+  );
 
-    useEffect(() => {
-        fetchData();
-    }, [fetchData]);
-
-    if (isLoading && products.length === 0 && collections.length === 0) {
-        return <Skeleton className="h-96 w-full" />
+  const fetchData = useCallback(() => {
+    const storedProjectId =
+      typeof window !== "undefined"
+        ? localStorage.getItem("activeProjectId")
+        : null;
+    if (!storedProjectId) {
+      setError("No active project selected.");
+      return;
     }
+    if (!catalogId) return;
+    setProjectId(storedProjectId);
+    startLoading(async () => {
+      const [productsResult, setsResult] = await Promise.all([
+        getProductsForCatalog(catalogId, storedProjectId),
+        listProductSets(catalogId, storedProjectId),
+      ]);
+      if ((productsResult as { error?: string })?.error) {
+        setError((productsResult as { error?: string }).error ?? null);
+      } else {
+        setError(null);
+      }
+      setProducts(((productsResult as any).products as ProductRow[]) ?? []);
+      // listProductSets returns ProductSet[] directly when ok, or { error } on failure
+      const sets = Array.isArray(setsResult)
+        ? (setsResult as ProductSet[])
+        : ((setsResult as any)?.productSets as ProductSet[]) ?? [];
+      setCollections(sets);
+    });
+  }, [catalogId]);
 
-    return (
-        <div className="space-y-6">
-            <div>
-                <Button variant="ghost" asChild className="mb-2 -ml-4">
-                    <Link href="/dashboard/facebook/commerce/products"><ChevronLeft className="mr-2 h-4 w-4" />Back to Catalogs</Link>
-                </Button>
-                <div className="flex flex-wrap items-center justify-between gap-4">
-                    <div>
-                        <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><ShoppingBag /> Catalog Management</h1>
-                        <p className="text-muted-foreground mt-1">Manage products and collections within your catalog.</p>
-                    </div>
-                </div>
-            </div>
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
-            <ModuleLayout
-                sidebar={
-                    <ModuleSidebar
-                        title="Catalog"
-                        activeValue={activeTab}
-                        onValueChange={setActiveTab}
-                        items={[
-                            { value: 'products', label: 'Products', icon: ShoppingBag, badge: products.length },
-                            { value: 'collections', label: 'Collections', icon: Package, badge: collections.length },
-                        ]}
-                    />
-                }
+  const productColumns = useMemo<ColumnDef<ProductRow>[]>(
+    () => [
+      {
+        id: "image",
+        header: () => <span className="sr-only">Image</span>,
+        cell: ({ row }) => (
+          <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface-2">
+            {row.original.image_url ? (
+              <Image
+                src={row.original.image_url}
+                alt={row.original.name ?? ""}
+                width={48}
+                height={48}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <ShoppingBag className="h-5 w-5 text-zoru-ink-muted" />
+            )}
+          </div>
+        ),
+      },
+      {
+        accessorKey: "name",
+        header: "Name",
+        cell: ({ row }) => (
+          <span className="font-medium text-zoru-ink">{row.original.name ?? "—"}</span>
+        ),
+      },
+      {
+        accessorKey: "price",
+        header: "Price",
+        cell: ({ row }) => {
+          const price =
+            typeof row.original.price === "number"
+              ? row.original.price
+              : Number(row.original.price);
+          if (!Number.isFinite(price)) return <span>—</span>;
+          return (
+            <span>
+              {new Intl.NumberFormat("en-US", {
+                style: "currency",
+                currency: row.original.currency || "USD",
+              }).format(price / 100)}
+            </span>
+          );
+        },
+      },
+      {
+        accessorKey: "inventory",
+        header: "Inventory",
+        cell: ({ row }) =>
+          typeof row.original.inventory === "number"
+            ? row.original.inventory.toLocaleString()
+            : "—",
+      },
+      {
+        accessorKey: "availability",
+        header: "Availability",
+        cell: ({ row }) => {
+          const a = row.original.availability;
+          if (!a) return <span>—</span>;
+          return (
+            <ZoruBadge
+              variant={a === "in_stock" ? "default" : "secondary"}
+              className="capitalize"
             >
-                {activeTab === 'products' && (
-                    <div className="space-y-6">
-                        <div className="flex justify-between items-center">
-                            <div>
-                                <h1 className="text-2xl font-bold tracking-tight">Products</h1>
-                                <p className="text-muted-foreground">Manage your catalog inventory.</p>
-                            </div>
-                            {projectId && <AddProductDialog catalogId={catalogId} projectId={projectId} onProductAdded={fetchData} />}
-                        </div>
-                        <Card>
-                            <CardContent className="p-0 border-none shadow-none">
-                                {projectId && <ProductsTable products={products} projectId={projectId} onAction={fetchData} />}
-                            </CardContent>
-                        </Card>
-                    </div>
-                )}
-                {activeTab === 'collections' && (
-                    <div className="space-y-6">
-                        <div className="flex justify-between items-center">
-                            <div>
-                                <h1 className="text-2xl font-bold tracking-tight">Collections</h1>
-                                <p className="text-muted-foreground">Organize products into sets.</p>
-                            </div>
-                        </div>
-                        <Card>
-                            <CardContent className="p-0 border-none shadow-none">
-                                {projectId && <CollectionsTable collections={collections} projectId={projectId} catalogId={catalogId} onAction={fetchData} />}
-                            </CardContent>
-                        </Card>
-                    </div>
-                )}
-            </ModuleLayout>
-        </div>
-    );
+              {a.replace(/_/g, " ")}
+            </ZoruBadge>
+          );
+        },
+      },
+      {
+        accessorKey: "retailer_id",
+        header: "SKU",
+        cell: ({ row }) => (
+          <span className="font-mono text-[11px] text-zoru-ink-muted">
+            {row.original.retailer_id ?? "—"}
+          </span>
+        ),
+      },
+      {
+        id: "actions",
+        header: () => <span className="sr-only">Actions</span>,
+        cell: ({ row }) => (
+          <div className="flex justify-end gap-1">
+            <ZoruButton
+              variant="ghost"
+              size="icon-sm"
+              aria-label="Edit product"
+              onClick={() => setEditProduct(row.original)}
+            >
+              <Edit />
+            </ZoruButton>
+            <ZoruButton
+              variant="ghost"
+              size="icon-sm"
+              aria-label="View tagged media"
+              onClick={() => setTaggedProduct(row.original)}
+            >
+              <Tags />
+            </ZoruButton>
+            <ZoruButton
+              variant="ghost"
+              size="icon-sm"
+              aria-label="Delete product"
+              onClick={() => setDeleteProduct(row.original)}
+            >
+              <Trash2 />
+            </ZoruButton>
+          </div>
+        ),
+      },
+    ],
+    [],
+  );
+
+  const collectionColumns = useMemo<ColumnDef<ProductSet>[]>(
+    () => [
+      {
+        accessorKey: "name",
+        header: "Collection",
+        cell: ({ row }) => (
+          <span className="font-medium text-zoru-ink">{row.original.name}</span>
+        ),
+      },
+      {
+        accessorKey: "product_count",
+        header: "Products",
+        cell: ({ row }) => (
+          <span className="text-zoru-ink">
+            {row.original.product_count ?? 0}
+          </span>
+        ),
+      },
+      {
+        id: "actions",
+        header: () => <span className="sr-only">Actions</span>,
+        cell: ({ row }) => (
+          <div className="flex justify-end">
+            <ZoruButton
+              variant="ghost"
+              size="icon-sm"
+              aria-label="Delete collection"
+              onClick={() => setDeleteCollection(row.original)}
+            >
+              <Trash2 />
+            </ZoruButton>
+          </div>
+        ),
+      },
+    ],
+    [],
+  );
+
+  if (isLoading && products.length === 0 && collections.length === 0 && !error) {
+    return <CatalogDetailSkeleton />;
+  }
+
+  return (
+    <CommercePage>
+      <CommerceBreadcrumb
+        section="Products"
+        parentLabel={catalogId}
+        parentHref="/dashboard/facebook/commerce/products"
+      />
+
+      <div className="mt-2">
+        <ZoruButton
+          asChild
+          variant="ghost"
+          size="sm"
+          className="-ml-2 text-zoru-ink-muted"
+        >
+          <Link href="/dashboard/facebook/commerce/products">
+            <ChevronLeft />
+            Back to catalogs
+          </Link>
+        </ZoruButton>
+      </div>
+
+      <CommerceHeader
+        eyebrow="Meta Suite › Commerce › Catalog"
+        title="Catalog management"
+        description="Manage products and collections within this Meta product catalog."
+        actions={
+          <ZoruButton
+            variant="outline"
+            size="sm"
+            onClick={fetchData}
+            disabled={isLoading}
+          >
+            <RefreshCw className={isLoading ? "animate-spin" : undefined} />
+            Refresh
+          </ZoruButton>
+        }
+      />
+
+      {error ? (
+        <ZoruAlert variant="destructive" className="mt-6">
+          <AlertCircle className="h-4 w-4" />
+          <ZoruAlertTitle>Could not load catalog</ZoruAlertTitle>
+          <ZoruAlertDescription>{error}</ZoruAlertDescription>
+        </ZoruAlert>
+      ) : null}
+
+      {/* ── Products ── */}
+      <ZoruCard className="mt-6">
+        <ZoruCardHeader className="flex flex-row items-start justify-between gap-3">
+          <div>
+            <ZoruCardTitle className="flex items-center gap-2 text-base">
+              <ShoppingBag className="h-4 w-4" /> Products
+            </ZoruCardTitle>
+            <ZoruCardDescription>
+              Items in this catalog. Products sync to Meta Commerce on save.
+            </ZoruCardDescription>
+          </div>
+          {projectId ? (
+            <ZoruButton size="sm" onClick={() => setCreateOpen(true)}>
+              <PlusCircle />
+              Add product
+            </ZoruButton>
+          ) : null}
+        </ZoruCardHeader>
+        <ZoruCardContent>
+          {products.length === 0 ? (
+            <ZoruEmptyState
+              compact
+              icon={<ShoppingBag />}
+              title="No products in this catalog"
+              description="Add a product to get started, or push existing products from Commerce Manager."
+              action={
+                projectId ? (
+                  <ZoruButton size="sm" onClick={() => setCreateOpen(true)}>
+                    <PlusCircle />
+                    Add product
+                  </ZoruButton>
+                ) : undefined
+              }
+            />
+          ) : (
+            <ZoruDataTable
+              columns={productColumns}
+              data={products}
+              filterColumn="name"
+              filterPlaceholder="Search products…"
+              pageSize={10}
+            />
+          )}
+        </ZoruCardContent>
+      </ZoruCard>
+
+      {/* ── Collections ── */}
+      <ZoruCard className="mt-6">
+        <ZoruCardHeader className="flex flex-row items-start justify-between gap-3">
+          <div>
+            <ZoruCardTitle className="flex items-center gap-2 text-base">
+              <Layers className="h-4 w-4" /> Collections
+            </ZoruCardTitle>
+            <ZoruCardDescription>
+              Group products into sets for promotions and dynamic ads.
+            </ZoruCardDescription>
+          </div>
+          {projectId ? (
+            <ZoruButton
+              size="sm"
+              variant="outline"
+              onClick={() => setCreateCollectionOpen(true)}
+            >
+              <PlusCircle />
+              New collection
+            </ZoruButton>
+          ) : null}
+        </ZoruCardHeader>
+        <ZoruCardContent>
+          {collections.length === 0 ? (
+            <ZoruEmptyState
+              compact
+              icon={<Layers />}
+              title="No collections yet"
+              description="Create a collection to organize products for promotions or browsing."
+              action={
+                projectId ? (
+                  <ZoruButton
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setCreateCollectionOpen(true)}
+                  >
+                    <PlusCircle />
+                    New collection
+                  </ZoruButton>
+                ) : undefined
+              }
+            />
+          ) : (
+            <ZoruDataTable
+              columns={collectionColumns}
+              data={collections}
+              pageSize={10}
+              showColumnMenu={false}
+            />
+          )}
+        </ZoruCardContent>
+      </ZoruCard>
+
+      {/* ── Dialogs ── */}
+      {projectId ? (
+        <>
+          <CreateProductDialog
+            open={createOpen}
+            onOpenChange={setCreateOpen}
+            catalogId={catalogId}
+            projectId={projectId}
+            onCreated={fetchData}
+          />
+          <EditProductDialog
+            open={!!editProduct}
+            onOpenChange={(o) => !o && setEditProduct(null)}
+            product={editProduct}
+            projectId={projectId}
+            onUpdated={fetchData}
+          />
+          <DeleteProductConfirmDialog
+            open={!!deleteProduct}
+            onOpenChange={(o) => !o && setDeleteProduct(null)}
+            product={deleteProduct}
+            projectId={projectId}
+            onDeleted={fetchData}
+          />
+          <ViewTaggedMediaDialog
+            open={!!taggedProduct}
+            onOpenChange={(o) => !o && setTaggedProduct(null)}
+            product={taggedProduct}
+            projectId={projectId}
+          />
+          <CreateCollectionDialog
+            open={createCollectionOpen}
+            onOpenChange={setCreateCollectionOpen}
+            catalogId={catalogId}
+            projectId={projectId}
+            onCreated={fetchData}
+          />
+          <DeleteCollectionConfirmDialog
+            open={!!deleteCollection}
+            onOpenChange={(o) => !o && setDeleteCollection(null)}
+            collection={deleteCollection}
+            projectId={projectId}
+            onDeleted={fetchData}
+          />
+        </>
+      ) : null}
+    </CommercePage>
+  );
 }

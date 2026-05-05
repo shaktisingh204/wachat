@@ -1,168 +1,381 @@
+"use client";
 
+/**
+ * /dashboard/facebook/scheduled — Scheduled posts queue, ZoruUI rebuild.
+ *
+ * Same handlers + server actions as before (`getScheduledPosts`,
+ * `publishScheduledPost`, `handleUpdatePost`, `handleDeletePost`).
+ * Visual layer: ZoruPageHeader + ZoruBreadcrumb, ZoruDataTable with
+ * status/scheduled badges, EditScheduleSheet, CancelScheduleDialog.
+ */
 
-'use client';
+import * as React from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+} from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { format, formatDistanceToNow } from "date-fns";
+import type { ColumnDef } from "@tanstack/react-table";
+import {
+  CalendarClock,
+  CalendarRange,
+  Edit,
+  Image as ImageIcon,
+  Loader2,
+  Newspaper,
+  RefreshCw,
+  Send,
+} from "lucide-react";
 
-import { useEffect, useState, useTransition, useCallback } from 'react';
-import Image from 'next/image';
-import { getScheduledPosts, publishScheduledPost } from '@/app/actions/facebook.actions';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, Edit, Send, LoaderCircle, Calendar } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
-import type { FacebookPost } from '@/lib/definitions';
-import { format } from 'date-fns';
-import { Button } from '@/components/ui/button';
-import { UpdatePostDialog } from '@/components/wabasimplify/update-post-dialog';
-import { DeletePostButton } from '@/components/wabasimplify/delete-post-button';
-import { useToast } from '@/hooks/use-toast';
+import {
+  getScheduledPosts,
+  publishScheduledPost,
+} from "@/app/actions/facebook.actions";
+import type { FacebookPost } from "@/lib/definitions";
 
-function ScheduledPostCard({ post, projectId, onActionComplete }: { post: FacebookPost, projectId: string, onActionComplete: () => void }) {
-    const [isUpdateOpen, setIsUpdateOpen] = useState(false);
-    const [isPublishing, startPublishing] = useTransition();
-    const { toast } = useToast();
+import {
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruDataTable,
+  ZoruEmptyState,
+  ZoruPageActions,
+  ZoruPageDescription,
+  ZoruPageEyebrow,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruSkeleton,
+  useZoruToast,
+} from "@/components/zoruui";
 
-    const onPublishNow = () => {
-        startPublishing(async () => {
-            const result = await publishScheduledPost(post.id, projectId);
-            if (result.success) {
-                toast({ title: 'Success', description: 'Post is being published now.' });
-                onActionComplete();
-            } else {
-                toast({ title: 'Error', description: result.error, variant: 'destructive' });
-            }
-        });
-    }
+import { CancelScheduleDialog } from "../_components/cancel-schedule-dialog";
+import { EditScheduleSheet } from "../_components/edit-schedule-sheet";
+import {
+  ErrorState,
+  NoProjectState,
+} from "../_components/no-project-state";
 
-    return (
-        <>
-            <UpdatePostDialog
-                isOpen={isUpdateOpen}
-                onOpenChange={setIsUpdateOpen}
-                post={post}
-                projectId={projectId}
-                onPostUpdated={onActionComplete}
-            />
-            <Card className="flex flex-col justify-between card-gradient card-gradient-purple h-full">
-                 <div>
-                    <CardHeader className="pb-4">
-                        <CardTitle className="text-base font-semibold line-clamp-2">
-                             {post.message || 'Scheduled Media Post'}
-                        </CardTitle>
-                        <CardDescription className="flex items-center gap-2 pt-1">
-                            <Calendar className="h-4 w-4" />
-                            {post.scheduled_publish_time ? format(new Date(post.scheduled_publish_time * 1000), 'PPP p') : 'Unknown time'}
-                        </CardDescription>
-                    </CardHeader>
-                     <CardContent className="space-y-3 pb-4">
-                        {post.full_picture && (
-                            <div className="relative aspect-video mt-2 overflow-hidden rounded-lg">
-                                <Image src={post.full_picture} alt="Scheduled post image" layout="fill" objectFit="cover" data-ai-hint="social media post"/>
-                            </div>
-                        )}
-                    </CardContent>
-                </div>
-                <CardFooter className="flex justify-end items-center border-t pt-3 pb-3 mt-auto gap-2">
-                     <Button variant="secondary" size="sm" onClick={onPublishNow} disabled={isPublishing}>
-                        {isPublishing ? <LoaderCircle className="h-4 w-4 animate-spin"/> : <Send className="h-4 w-4"/>}
-                        <span className="ml-2">Publish Now</span>
-                    </Button>
-                    <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setIsUpdateOpen(true)}><Edit className="h-4 w-4" /></Button>
-                    <DeletePostButton postId={post.id} projectId={projectId} onPostDeleted={onActionComplete} />
-                </CardFooter>
-            </Card>
-        </>
-    );
+/* ── helpers ─────────────────────────────────────────────────────── */
+
+function ScheduleBadge({ post }: { post: FacebookPost }) {
+  if (!post.scheduled_publish_time) {
+    return <ZoruBadge variant="ghost">Draft</ZoruBadge>;
+  }
+  const at = new Date(post.scheduled_publish_time * 1000);
+  const isPast = at.getTime() < Date.now();
+  return (
+    <ZoruBadge variant={isPast ? "danger" : "warning"}>
+      <CalendarClock />
+      {isPast ? "Overdue" : "Queued"}
+    </ZoruBadge>
+  );
 }
 
-function ScheduledPostsPageSkeleton() {
-    return (
-        <div className="flex flex-col gap-8">
-            <div>
-                <Skeleton className="h-8 w-64" />
-                <Skeleton className="h-4 w-96 mt-2" />
-            </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-72 w-full" />)}
-            </div>
+/* ── skeleton ────────────────────────────────────────────────────── */
+
+function ScheduledPageSkeleton() {
+  return (
+    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
+      <ZoruSkeleton className="h-3 w-52" />
+      <div className="mt-5 flex items-end justify-between gap-4">
+        <div className="flex flex-col gap-2">
+          <ZoruSkeleton className="h-3 w-24" />
+          <ZoruSkeleton className="h-8 w-56" />
+          <ZoruSkeleton className="h-4 w-72" />
         </div>
-    );
+        <ZoruSkeleton className="h-9 w-28" />
+      </div>
+      <div className="mt-6 flex flex-col gap-2">
+        <ZoruSkeleton className="h-10 w-full" />
+        <ZoruSkeleton className="h-12 w-full" />
+        <ZoruSkeleton className="h-12 w-full" />
+        <ZoruSkeleton className="h-12 w-full" />
+      </div>
+    </div>
+  );
 }
+
+/* ── row actions ─────────────────────────────────────────────────── */
+
+function RowActions({
+  post,
+  projectId,
+  onActionComplete,
+}: {
+  post: FacebookPost;
+  projectId: string;
+  onActionComplete: () => void;
+}) {
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isPublishing, startPublishing] = useTransition();
+  const { toast } = useZoruToast();
+
+  const onPublishNow = () => {
+    startPublishing(async () => {
+      const result = await publishScheduledPost(post.id, projectId);
+      if (result.success) {
+        toast({
+          title: "Publishing",
+          description: "Post is being published now.",
+        });
+        onActionComplete();
+      } else {
+        toast({
+          title: "Could not publish",
+          description: result.error ?? "Try again in a moment.",
+          variant: "destructive",
+        });
+      }
+    });
+  };
+
+  return (
+    <div className="flex items-center justify-end gap-1">
+      <EditScheduleSheet
+        isOpen={isEditOpen}
+        onOpenChange={setIsEditOpen}
+        post={post}
+        projectId={projectId}
+        onPostUpdated={onActionComplete}
+      />
+      <ZoruButton
+        variant="ghost"
+        size="icon-sm"
+        aria-label="Publish now"
+        onClick={onPublishNow}
+        disabled={isPublishing}
+      >
+        {isPublishing ? <Loader2 className="animate-spin" /> : <Send />}
+      </ZoruButton>
+      <ZoruButton
+        variant="ghost"
+        size="icon-sm"
+        aria-label="Edit scheduled post"
+        onClick={() => setIsEditOpen(true)}
+      >
+        <Edit />
+      </ZoruButton>
+      <CancelScheduleDialog
+        postId={post.id}
+        projectId={projectId}
+        onCancelled={onActionComplete}
+      />
+    </div>
+  );
+}
+
+/* ── page ────────────────────────────────────────────────────────── */
 
 export default function ScheduledPostsPage() {
-    const [posts, setPosts] = useState<FacebookPost[]>([]);
-    const [error, setError] = useState<string | null>(null);
-    const [isLoading, startTransition] = useTransition();
-    const [projectId, setProjectId] = useState<string | null>(null);
-    const [actionCounter, setActionCounter] = useState(0);
+  const [posts, setPosts] = useState<FacebookPost[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, startLoading] = useTransition();
+  const [projectId, setProjectId] = useState<string | null>(null);
+  const [projectIdReady, setProjectIdReady] = useState(false);
+  const [actionCounter, setActionCounter] = useState(0);
 
-    const fetchPosts = useCallback(() => {
-        if (!projectId) return;
-        startTransition(async () => {
-            const { posts: fetchedPosts, error: fetchError } = await getScheduledPosts(projectId);
-            if (fetchError) {
-                setError(fetchError);
-            } else if (fetchedPosts) {
-                setPosts(fetchedPosts);
-            }
-        });
-    }, [projectId]);
+  useEffect(() => {
+    document.title = "Scheduled · Meta Suite · SabNode";
+    setProjectId(localStorage.getItem("activeProjectId"));
+    setProjectIdReady(true);
+  }, []);
 
-    useEffect(() => {
-        const storedProjectId = localStorage.getItem('activeProjectId');
-        setProjectId(storedProjectId);
-    }, []);
+  const fetchPosts = useCallback(() => {
+    if (!projectId) return;
+    startLoading(async () => {
+      const { posts: fetched, error: fetchError } = await getScheduledPosts(
+        projectId,
+      );
+      if (fetchError) {
+        setError(fetchError);
+        setPosts([]);
+      } else if (fetched) {
+        setError(null);
+        setPosts(fetched);
+      }
+    });
+  }, [projectId]);
 
-    useEffect(() => {
-        fetchPosts();
-    }, [projectId, fetchPosts, actionCounter]);
+  useEffect(() => {
+    if (projectId) fetchPosts();
+  }, [projectId, fetchPosts, actionCounter]);
 
-    const handleActionComplete = () => {
-        setActionCounter(prev => prev + 1);
-    };
+  const handleActionComplete = useCallback(() => {
+    setActionCounter((n) => n + 1);
+  }, []);
 
-    if (isLoading && posts.length === 0) {
-        return <ScheduledPostsPageSkeleton />;
-    }
-
-    return (
-        <div className="flex flex-col gap-8">
-            <div>
-                <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                    <Calendar className="h-8 w-8" />
-                    Scheduled Posts
-                </h1>
-                <p className="text-muted-foreground mt-2">
-                    Manage posts that are scheduled to be published in the future.
+  const columns = useMemo<ColumnDef<FacebookPost>[]>(
+    () => [
+      {
+        id: "post",
+        accessorFn: (row) => row.message ?? "",
+        header: "Post",
+        cell: ({ row }) => {
+          const post = row.original;
+          return (
+            <div className="flex min-w-0 items-center gap-3">
+              <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2">
+                {post.full_picture ? (
+                  <Image
+                    src={post.full_picture}
+                    alt=""
+                    fill
+                    sizes="44px"
+                    className="object-cover"
+                  />
+                ) : (
+                  <span className="flex h-full w-full items-center justify-center text-zoru-ink-muted">
+                    {post.full_picture ? (
+                      <ImageIcon className="h-4 w-4" />
+                    ) : (
+                      <Newspaper className="h-4 w-4" />
+                    )}
+                  </span>
+                )}
+              </div>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium text-zoru-ink">
+                  {post.message || "Scheduled media post"}
                 </p>
+                <p className="text-[11px] text-zoru-ink-muted">
+                  Created{" "}
+                  {formatDistanceToNow(new Date(post.created_time), {
+                    addSuffix: true,
+                  })}
+                </p>
+              </div>
             </div>
-            
-            {!projectId ? (
-                 <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>No Project Selected</AlertTitle>
-                    <AlertDescription>
-                        Please select a project from the main dashboard to view its scheduled posts.
-                    </AlertDescription>
-                </Alert>
-            ) : error ? (
-                 <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Could not fetch scheduled posts</AlertTitle>
-                    <AlertDescription>{error}</AlertDescription>
-                </Alert>
-            ) : posts.length > 0 ? (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 grid-rows-[masonry]">
-                    {posts.map(post => <ScheduledPostCard key={post.id} post={post} projectId={projectId} onActionComplete={handleActionComplete} />)}
-                </div>
-            ) : (
-                 <Card className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg">
-                    <CardContent>
-                        <p className="text-lg font-semibold">No Scheduled Posts</p>
-                        <p>You have no posts scheduled for the future.</p>
-                    </CardContent>
-                </Card>
-            )}
-        </div>
-    );
-}
+          );
+        },
+      },
+      {
+        id: "scheduledFor",
+        header: "Scheduled for",
+        accessorFn: (row) => row.scheduled_publish_time ?? 0,
+        cell: ({ row }) => {
+          const t = row.original.scheduled_publish_time;
+          if (!t) return <span className="text-zoru-ink-muted">—</span>;
+          const at = new Date(t * 1000);
+          return (
+            <div className="flex flex-col">
+              <span className="text-sm text-zoru-ink">
+                {format(at, "PPP")}
+              </span>
+              <span className="text-[11px] text-zoru-ink-muted">
+                {format(at, "p")} · {formatDistanceToNow(at, { addSuffix: true })}
+              </span>
+            </div>
+          );
+        },
+      },
+      {
+        id: "status",
+        header: "Status",
+        cell: ({ row }) => <ScheduleBadge post={row.original} />,
+      },
+      {
+        id: "actions",
+        header: () => <span className="sr-only">Actions</span>,
+        cell: ({ row }) => (
+          <RowActions
+            post={row.original}
+            projectId={projectId ?? ""}
+            onActionComplete={handleActionComplete}
+          />
+        ),
+      },
+    ],
+    [projectId, handleActionComplete],
+  );
 
+  if (!projectIdReady || (isLoading && posts.length === 0 && !error)) {
+    return <ScheduledPageSkeleton />;
+  }
+
+  return (
+    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard/facebook">
+              Meta Suite
+            </ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Scheduled</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
+
+      <ZoruPageHeader bordered={false} className="mt-5">
+        <ZoruPageHeading>
+          <ZoruPageEyebrow>Meta Suite</ZoruPageEyebrow>
+          <ZoruPageTitle>Scheduled posts</ZoruPageTitle>
+          <ZoruPageDescription>
+            Manage posts queued for future publication on your connected
+            Facebook Page.
+          </ZoruPageDescription>
+        </ZoruPageHeading>
+        <ZoruPageActions>
+          <ZoruBadge variant="secondary">
+            <CalendarRange />
+            {posts.length} queued
+          </ZoruBadge>
+          <ZoruButton variant="outline" size="sm" onClick={fetchPosts}>
+            <RefreshCw /> Refresh
+          </ZoruButton>
+          <ZoruButton size="sm" asChild>
+            <Link href="/dashboard/facebook/create-post">
+              <Send /> New post
+            </Link>
+          </ZoruButton>
+        </ZoruPageActions>
+      </ZoruPageHeader>
+
+      <div className="mt-6">
+        {!projectId ? (
+          <NoProjectState />
+        ) : error ? (
+          <ErrorState message={error} />
+        ) : posts.length === 0 ? (
+          <ZoruEmptyState
+            icon={<CalendarClock />}
+            title="No scheduled posts"
+            description="You have no posts queued for the future. Create one to start filling your content calendar."
+            action={
+              <ZoruButton asChild>
+                <Link href="/dashboard/facebook/create-post">
+                  <Send /> Create post
+                </Link>
+              </ZoruButton>
+            }
+          />
+        ) : (
+          <ZoruDataTable
+            columns={columns}
+            data={posts}
+            filterColumn="post"
+            filterPlaceholder="Search scheduled posts…"
+            pageSize={10}
+          />
+        )}
+      </div>
+    </div>
+  );
+}

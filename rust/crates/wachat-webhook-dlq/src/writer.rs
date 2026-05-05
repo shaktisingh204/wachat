@@ -330,10 +330,7 @@ impl DlqWriter {
             }
         }
 
-        self.coll()
-            .insert_one(&doc)
-            .await
-            .map_err(DlqError::from)?;
+        self.coll().insert_one(&doc).await.map_err(DlqError::from)?;
 
         Ok(())
     }

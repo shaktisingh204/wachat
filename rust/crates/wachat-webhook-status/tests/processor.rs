@@ -92,7 +92,10 @@ fn parses_delivered_status() {
         "recipient_id": "919999999999",
     }]));
     let s = &cv.statuses.as_ref().unwrap()[0];
-    assert_eq!(meta_status_to_domain(&s.status), Some(MessageStatus::Delivered));
+    assert_eq!(
+        meta_status_to_domain(&s.status),
+        Some(MessageStatus::Delivered)
+    );
 }
 
 #[test]

@@ -1,0 +1,64 @@
+# Phase 3 slice 1 — read side of the wachat templates module.
+#
+# Mirrors the read paths of `src/app/actions/template.actions.ts`:
+#   * `getTemplates(projectId)` (line ~21)        -> `TemplatesReader::list`
+#   * `getLibraryTemplates()`   (line ~796)       -> `TemplatesReader::list_library`
+#
+# IMPORTANT — collection names are sourced from the TS, not from the prompt:
+#   * project-scoped templates live in the `templates` collection.
+#   * the library lives in `library_templates` (NOT `template_library`):
+#       `db.collection('library_templates').find({}).sort({ name: 1 })`
+#
+# Per the Phase 3 slice contract this crate is a leaf — it does not modify
+# the workspace `Cargo.toml`; the orchestrator wires it in. We deliberately
+# omit a `[workspace]` table so the parent workspace owns membership.
+[package]
+name = "wachat-templates"
+version = "0.1.0"
+edition = "2024"
+description = "Read-side of the SabNode wachat templates module: a thin Mongo reader for the per-project `templates` collection and the shared `library_templates` collection. Mirrors `getTemplates` / `getLibraryTemplates` from `src/app/actions/template.actions.ts`. No writes, no Meta API calls — those land in later slices."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "wachat_templates"
+path = "src/lib.rs"
+
+[dependencies]
+# Async runtime — Mongo driver is async.
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+# Serde stack — `Template.components` is opaque JSON, so we lean on serde_json
+# for that and serde derives elsewhere.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Mongo BSON. `chrono-0_4` gives us BSON <-> chrono interop required by the
+# `Template` / `LibraryTemplate` `createdAt` fields.
+bson = { version = "2.13", features = ["chrono-0_4"] }
+mongodb = "3.2"
+
+# `TryStreamExt` for `cursor.try_collect::<Vec<_>>()`. The mongodb driver
+# returns futures streams; this is the same crate every sibling reader uses
+# (e.g. wachat-webhook-config) so the version stays in lockstep.
+futures = "0.3"
+
+# Structured logging for query traces.
+tracing = "0.1"
+
+# Errors + time.
+anyhow = "1"
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+# Sibling crates — public APIs only.
+sabnode-common = { path = "../common" }
+sabnode-db = { path = "../db" }
+wachat-types = { path = "../wachat-types" }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+serde_json = "1"
+bson = { version = "2.13", features = ["chrono-0_4"] }
+
+[lints]
+workspace = true

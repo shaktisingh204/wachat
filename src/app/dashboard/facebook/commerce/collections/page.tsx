@@ -1,23 +1,358 @@
+"use client";
 
-'use client';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { ShoppingBag } from 'lucide-react';
+/**
+ * /dashboard/facebook/commerce/collections — Meta Suite Commerce
+ * collections.
+ *
+ * Aggregates product sets across every catalog on the active Facebook
+ * project. Same data sources as the per-catalog detail page
+ * (`getCatalogs` + `listProductSets` per catalog). Pure ZoruUI primitives.
+ */
 
-export default function CollectionsPage() {
-    return (
-        <div className="flex flex-col gap-8">
-            <div>
-                <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><ShoppingBag /> Product Collections</h1>
-                <p className="text-muted-foreground">Group your products into collections for promotions and easy browsing.</p>
-            </div>
-            <Card className="text-center py-20">
-                <CardHeader>
-                    <CardTitle>Coming Soon!</CardTitle>
-                </CardHeader>
-                 <CardContent>
-                    <p className="text-muted-foreground">This feature is under development and will be available soon.</p>
-                </CardContent>
-            </Card>
+import * as React from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
+import Link from "next/link";
+import type { ColumnDef } from "@tanstack/react-table";
+import { AlertCircle, ExternalLink, Layers, PlusCircle, RefreshCw, Trash2 } from "lucide-react";
+
+import { getCatalogs, listProductSets } from "@/app/actions/catalog.actions";
+import { useProject } from "@/context/project-context";
+import type { ProductSet } from "@/lib/definitions";
+
+import {
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruAlertTitle,
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruDataTable,
+  ZoruEmptyState,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSkeleton,
+  useZoruToast,
+} from "@/components/zoruui";
+
+import {
+  CommerceBreadcrumb,
+  CommerceHeader,
+  CommercePage,
+} from "../../_components/commerce-shell";
+import {
+  CreateCollectionDialog,
+  DeleteCollectionConfirmDialog,
+} from "../../_components/commerce-collection-dialogs";
+
+type CatalogOption = { id: string; name: string };
+
+type CollectionRow = ProductSet & {
+  catalogId: string;
+  catalogName: string;
+};
+
+function CollectionsSkeleton() {
+  return (
+    <CommercePage>
+      <ZoruSkeleton className="h-3 w-72" />
+      <div className="mt-5 flex items-end justify-between">
+        <div className="space-y-3">
+          <ZoruSkeleton className="h-3 w-24" />
+          <ZoruSkeleton className="h-8 w-72" />
+          <ZoruSkeleton className="h-4 w-96" />
         </div>
-    )
+        <ZoruSkeleton className="h-9 w-32" />
+      </div>
+      <ZoruSkeleton className="mt-8 h-72 w-full" />
+    </CommercePage>
+  );
+}
+
+export default function CommerceCollectionsPage() {
+  const { activeProject, activeProjectId, isLoadingProject } = useProject();
+  const { toast } = useZoruToast();
+
+  const [catalogs, setCatalogs] = useState<CatalogOption[]>([]);
+  const [collections, setCollections] = useState<CollectionRow[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, startLoading] = useTransition();
+
+  const [createOpen, setCreateOpen] = useState(false);
+  const [createCatalogId, setCreateCatalogId] = useState<string>("");
+  const [deleteCollection, setDeleteCollection] = useState<CollectionRow | null>(
+    null,
+  );
+
+  const fetchData = useCallback(() => {
+    if (!activeProjectId) return;
+    startLoading(async () => {
+      const result = await getCatalogs(activeProjectId);
+      if (result.error) {
+        setError(result.error);
+        setCatalogs([]);
+        setCollections([]);
+        return;
+      }
+      const cats = (result.catalogs ?? []) as CatalogOption[];
+      setCatalogs(cats);
+      // Default the create-target to the first catalog.
+      if (cats.length > 0 && !createCatalogId) {
+        setCreateCatalogId(cats[0].id);
+      }
+      // Fan-out: pull product sets per catalog in parallel.
+      const buckets = await Promise.all(
+        cats.map(async (cat) => {
+          const sets = await listProductSets(cat.id, activeProjectId);
+          if (Array.isArray(sets)) {
+            return (sets as ProductSet[]).map<CollectionRow>((s) => ({
+              ...s,
+              catalogId: cat.id,
+              catalogName: cat.name,
+            }));
+          }
+          return [];
+        }),
+      );
+      setCollections(buckets.flat());
+      setError(null);
+    });
+  }, [activeProjectId, createCatalogId]);
+
+  useEffect(() => {
+    if (activeProjectId) fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeProjectId]);
+
+  const isFacebookProject =
+    !!activeProject?.facebookPageId && !activeProject?.wabaId;
+  const hasCatalogAccess = activeProject?.hasCatalogManagement === true;
+
+  const columns = useMemo<ColumnDef<CollectionRow>[]>(
+    () => [
+      {
+        accessorKey: "name",
+        header: "Collection",
+        cell: ({ row }) => (
+          <span className="font-medium text-zoru-ink">{row.original.name}</span>
+        ),
+      },
+      {
+        accessorKey: "catalogName",
+        header: "Catalog",
+        cell: ({ row }) => (
+          <Link
+            href={`/dashboard/facebook/commerce/products/${row.original.catalogId}`}
+            className="text-zoru-ink underline-offset-2 hover:underline"
+          >
+            {row.original.catalogName}
+          </Link>
+        ),
+      },
+      {
+        accessorKey: "product_count",
+        header: "Products",
+        cell: ({ row }) => row.original.product_count ?? 0,
+      },
+      {
+        id: "actions",
+        header: () => <span className="sr-only">Actions</span>,
+        cell: ({ row }) => (
+          <div className="flex justify-end">
+            <ZoruButton
+              variant="ghost"
+              size="icon-sm"
+              aria-label="Delete collection"
+              onClick={() => setDeleteCollection(row.original)}
+            >
+              <Trash2 />
+            </ZoruButton>
+          </div>
+        ),
+      },
+    ],
+    [],
+  );
+
+  if (isLoadingProject) {
+    return <CollectionsSkeleton />;
+  }
+
+  return (
+    <CommercePage>
+      <CommerceBreadcrumb section="Commerce" pageLabel="Collections" />
+      <CommerceHeader
+        eyebrow="Meta Suite › Commerce"
+        title="Collections"
+        description="Group products from any catalog into sets for promotions, dynamic ads and easier browsing."
+        actions={
+          activeProjectId && isFacebookProject && hasCatalogAccess ? (
+            <div className="flex items-center gap-2">
+              {catalogs.length > 0 ? (
+                <ZoruSelect
+                  value={createCatalogId}
+                  onValueChange={setCreateCatalogId}
+                >
+                  <ZoruSelectTrigger className="h-9 w-44">
+                    <ZoruSelectValue placeholder="Pick a catalog" />
+                  </ZoruSelectTrigger>
+                  <ZoruSelectContent>
+                    {catalogs.map((c) => (
+                      <ZoruSelectItem key={c.id} value={c.id}>
+                        {c.name}
+                      </ZoruSelectItem>
+                    ))}
+                  </ZoruSelectContent>
+                </ZoruSelect>
+              ) : null}
+              <ZoruButton
+                size="sm"
+                variant="outline"
+                onClick={fetchData}
+                disabled={isLoading}
+              >
+                <RefreshCw
+                  className={isLoading ? "animate-spin" : undefined}
+                />
+                Refresh
+              </ZoruButton>
+              <ZoruButton
+                size="sm"
+                disabled={!createCatalogId}
+                onClick={() => {
+                  if (!createCatalogId) {
+                    toast({
+                      title: "Select a catalog",
+                      description: "Pick a catalog before creating a collection.",
+                      variant: "destructive",
+                    });
+                    return;
+                  }
+                  setCreateOpen(true);
+                }}
+              >
+                <PlusCircle />
+                New collection
+              </ZoruButton>
+            </div>
+          ) : undefined
+        }
+      />
+
+      {!activeProjectId ? (
+        <ZoruAlert variant="destructive" className="mt-6">
+          <AlertCircle className="h-4 w-4" />
+          <ZoruAlertTitle>No project selected</ZoruAlertTitle>
+          <ZoruAlertDescription>
+            Pick a Facebook Page project to manage its product collections.
+          </ZoruAlertDescription>
+        </ZoruAlert>
+      ) : !isFacebookProject ? (
+        <ZoruAlert variant="destructive" className="mt-6">
+          <AlertCircle className="h-4 w-4" />
+          <ZoruAlertTitle>Invalid project type</ZoruAlertTitle>
+          <ZoruAlertDescription>
+            Collections live under Facebook Page projects. Switch to a
+            Facebook project to continue.
+          </ZoruAlertDescription>
+        </ZoruAlert>
+      ) : !hasCatalogAccess ? (
+        <ZoruCard className="mt-8">
+          <ZoruCardHeader>
+            <ZoruCardTitle>Catalog management locked</ZoruCardTitle>
+            <ZoruCardDescription>
+              This project was set up without catalog management permissions.
+              Re-authorize to grant <code>catalog_management</code> and{" "}
+              <code>business_management</code>.
+            </ZoruCardDescription>
+          </ZoruCardHeader>
+          <ZoruCardContent>
+            <ZoruButton asChild>
+              <Link href="/dashboard/facebook/all-projects">
+                Re-authorize project
+              </Link>
+            </ZoruButton>
+          </ZoruCardContent>
+        </ZoruCard>
+      ) : error ? (
+        <ZoruAlert variant="destructive" className="mt-6">
+          <AlertCircle className="h-4 w-4" />
+          <ZoruAlertTitle>Could not fetch collections</ZoruAlertTitle>
+          <ZoruAlertDescription>{error}</ZoruAlertDescription>
+        </ZoruAlert>
+      ) : isLoading && collections.length === 0 ? (
+        <CollectionsSkeleton />
+      ) : catalogs.length === 0 ? (
+        <div className="mt-8">
+          <ZoruEmptyState
+            icon={<Layers />}
+            title="No catalogs found"
+            description="Create a catalog in Meta Commerce Manager to start organizing products into collections."
+            action={
+              <ZoruButton asChild size="sm" variant="outline">
+                <a
+                  href="https://business.facebook.com/commerce_manager/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Open Commerce Manager <ExternalLink />
+                </a>
+              </ZoruButton>
+            }
+          />
+        </div>
+      ) : collections.length === 0 ? (
+        <div className="mt-8">
+          <ZoruEmptyState
+            icon={<Layers />}
+            title="No collections yet"
+            description="Create a collection within one of your catalogs to organize products for promotions or browsing."
+            action={
+              createCatalogId ? (
+                <ZoruButton size="sm" onClick={() => setCreateOpen(true)}>
+                  <PlusCircle />
+                  New collection
+                </ZoruButton>
+              ) : undefined
+            }
+          />
+        </div>
+      ) : (
+        <div className="mt-8">
+          <ZoruDataTable
+            columns={columns}
+            data={collections}
+            filterColumn="name"
+            filterPlaceholder="Search collections…"
+            pageSize={10}
+          />
+        </div>
+      )}
+
+      {/* ── Dialogs ── */}
+      {activeProjectId && createCatalogId ? (
+        <CreateCollectionDialog
+          open={createOpen}
+          onOpenChange={setCreateOpen}
+          catalogId={createCatalogId}
+          projectId={activeProjectId}
+          onCreated={fetchData}
+        />
+      ) : null}
+      {activeProjectId ? (
+        <DeleteCollectionConfirmDialog
+          open={!!deleteCollection}
+          onOpenChange={(o) => !o && setDeleteCollection(null)}
+          collection={deleteCollection}
+          projectId={activeProjectId}
+          onDeleted={fetchData}
+        />
+      ) : null}
+    </CommercePage>
+  );
 }

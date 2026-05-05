@@ -50,4 +50,4 @@ pub mod writer;
 
 // Re-export the public surface so callers can `use wachat_webhook_dlq::{...}`
 // without subpath imports.
-pub use writer::{DlqId, DlqWriter, WEBHOOK_LOGS_COLLECTION, WEBHOOK_DLQ_QUEUE};
+pub use writer::{DlqId, DlqWriter, WEBHOOK_DLQ_QUEUE, WEBHOOK_LOGS_COLLECTION};

@@ -1,131 +1,219 @@
+"use client";
 
-'use client';
+/**
+ * /dashboard/facebook/custom-ecommerce/manage/[shopId]/layout.tsx
+ *
+ * Per-shop scope wrap. Loads the active shop, renders a zoru page-header
+ * with shop name + apply-default-theme action, and a route-driven sub-page
+ * nav using `ZoruButton variant="default|outline"` (NOT tabs — per the
+ * design directive).
+ *
+ * The website-builder route is exempt: it renders its own full-bleed
+ * canvas chrome and skips this layout's frame.
+ */
 
-import { getEcommShopById, applyEcommShopTheme } from '@/app/actions/custom-ecommerce.actions';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import type { WithId, EcommShop } from '@/lib/definitions';
-import { cn } from '@/lib/utils';
-import { ArrowLeft, Bot, Brush, Package, Settings, ShoppingBag, Wand, LoaderCircle } from 'lucide-react';
-import Link from 'next/link';
-import { useParams, usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState, useTransition } from 'react';
-import { useToast } from '@/hooks/use-toast';
+import * as React from "react";
+import { useEffect, useState, useTransition } from "react";
+import Link from "next/link";
+import { useParams, usePathname, useRouter } from "next/navigation";
+import {
+  AlertCircle,
+  ArrowLeft,
+  Bot,
+  Brush,
+  LoaderCircle,
+  Package,
+  Settings,
+  ShoppingBag,
+  Wand,
+} from "lucide-react";
 
+import {
+  applyEcommShopTheme,
+  getEcommShopById,
+} from "@/app/actions/custom-ecommerce.actions";
+import type { EcommShop } from "@/lib/definitions";
+import type { WithId } from "mongodb";
 
-const navItems = [
-    { href: "/settings", label: "Settings", icon: Settings },
-    { href: "/website-builder", label: "Website Builder", icon: Brush },
-    { href: "/products", label: "Products", icon: ShoppingBag },
-    { href: "/orders", label: "Orders", icon: Package },
-    { href: "/flow-builder", label: "Chat Bot", icon: Bot },
+import {
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruAlertTitle,
+  ZoruButton,
+  ZoruSkeleton,
+  useZoruToast,
+} from "@/components/zoruui";
+
+import {
+  ShopBreadcrumb,
+  ShopHeader,
+  ShopPage,
+  ShopSubNav,
+  type ShopSubNavItem,
+} from "../../_components/shop-shell";
+
+const NAV_ITEMS: ShopSubNavItem[] = [
+  { href: "/settings", label: "Settings", icon: Settings },
+  { href: "/website-builder", label: "Website builder", icon: Brush },
+  { href: "/products", label: "Products", icon: ShoppingBag },
+  { href: "/orders", label: "Orders", icon: Package },
+  { href: "/flow-builder", label: "Chat bot", icon: Bot },
 ];
 
 function LayoutSkeleton() {
-    return (
-        <div className="space-y-6">
-            <div className="space-y-3">
-                <Skeleton className="h-6 w-32" />
-                <Skeleton className="h-8 w-64" />
-                <Skeleton className="h-4 w-80" />
-            </div>
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-64 w-full" />
+  return (
+    <ShopPage>
+      <ZoruSkeleton className="h-3 w-72" />
+      <div className="mt-5 flex items-end justify-between">
+        <div className="space-y-2">
+          <ZoruSkeleton className="h-8 w-72" />
+          <ZoruSkeleton className="h-4 w-96" />
         </div>
-    );
+        <ZoruSkeleton className="h-9 w-44" />
+      </div>
+      <ZoruSkeleton className="mt-6 h-10 w-full" />
+      <ZoruSkeleton className="mt-6 h-64 w-full" />
+    </ShopPage>
+  );
 }
 
 export default function ShopManagementLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-    const params = useParams();
-    const pathname = usePathname();
-    const router = useRouter();
-    const { toast } = useToast();
-    const shopId = params.shopId as string;
-    const [shop, setShop] = useState<WithId<EcommShop> | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [isApplyingTheme, startThemeTransition] = useTransition();
+  const params = useParams();
+  const pathname = usePathname();
+  const router = useRouter();
+  const { toast } = useZoruToast();
+  const shopId = params?.shopId as string | undefined;
+  const [shop, setShop] = useState<WithId<EcommShop> | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isApplyingTheme, startThemeTransition] = useTransition();
 
-    useEffect(() => {
-        if (shopId) {
-            getEcommShopById(shopId).then(data => {
-                setShop(data);
-                setIsLoading(false);
-            });
-        }
-    }, [shopId]);
-    
-    const isWebsiteBuilderPage = pathname.includes('/website-builder');
+  useEffect(() => {
+    if (!shopId) return;
+    getEcommShopById(shopId)
+      .then((data) => {
+        setShop(data);
+      })
+      .finally(() => setIsLoading(false));
+  }, [shopId]);
 
-    if (isLoading) {
-        return <LayoutSkeleton />;
-    }
+  const isWebsiteBuilderPage = pathname?.includes("/website-builder") ?? false;
 
-    if (!shop) {
-        return <div>Shop not found.</div>;
-    }
-    
-    const handleApplyTheme = async () => {
-        startThemeTransition(async () => {
-            const result = await applyEcommShopTheme(shop._id.toString());
-            if (result.error) {
-                toast({ title: 'Error', description: result.error, variant: 'destructive' });
-            } else {
-                toast({ title: 'Theme Applied!', description: result.message });
-                // Refresh the builder page to show new layout
-                if (isWebsiteBuilderPage) {
-                    router.refresh();
-                }
-            }
-        });
-    };
+  // Website builder owns its own chrome — pass through.
+  if (isWebsiteBuilderPage) {
+    return <>{children}</>;
+  }
 
-    if (isWebsiteBuilderPage) {
-        return <>{children}</>;
-    }
-    
-    const basePath = `/dashboard/facebook/custom-ecommerce/manage/${shopId}`;
+  if (isLoading) {
+    return <LayoutSkeleton />;
+  }
 
+  if (!shop) {
     return (
-        <div className="flex flex-col gap-8">
-            <div>
-                 <Button variant="ghost" asChild className="mb-2 -ml-4">
-                    <Link href="/dashboard/facebook/custom-ecommerce">
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        Back to All Shops
-                    </Link>
-                </Button>
-                <div className="flex flex-wrap items-center justify-between gap-4">
-                    <div>
-                        <h1 className="text-3xl font-bold font-headline">{shop.name}</h1>
-                        <p className="text-muted-foreground">Manage your custom e-commerce shop.</p>
-                    </div>
-                    <Button onClick={handleApplyTheme} disabled={isApplyingTheme} variant="outline">
-                        {isApplyingTheme ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : <Wand className="mr-2 h-4 w-4"/>}
-                        Apply Default Theme
-                    </Button>
-                </div>
-            </div>
-            <nav>
-                <ul className="flex items-center gap-2 border-b">
-                    {navItems.map(item => (
-                        <li key={item.href}>
-                            <Button asChild variant="ghost" className={cn("rounded-b-none border-b-2 border-transparent", pathname === `${basePath}${item.href}` && 'border-primary text-primary')}>
-                                <Link href={`${basePath}${item.href}`}>
-                                    <item.icon className="mr-2 h-4 w-4" />
-                                    {item.label}
-                                </Link>
-                            </Button>
-                        </li>
-                    ))}
-                </ul>
-            </nav>
-            <div>
-                {children}
-            </div>
+      <ShopPage>
+        <ZoruAlert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <ZoruAlertTitle>Shop not found</ZoruAlertTitle>
+          <ZoruAlertDescription>
+            The requested shop could not be loaded.
+          </ZoruAlertDescription>
+        </ZoruAlert>
+        <div className="mt-4">
+          <ZoruButton variant="outline" asChild>
+            <Link href="/dashboard/facebook/custom-ecommerce">
+              <ArrowLeft />
+              Back to all shops
+            </Link>
+          </ZoruButton>
         </div>
+      </ShopPage>
     );
+  }
+
+  const handleApplyTheme = () => {
+    startThemeTransition(async () => {
+      const result = await applyEcommShopTheme(shop._id.toString());
+      if (result.error) {
+        toast({
+          title: "Could not apply theme",
+          description: result.error,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Theme applied",
+          description: result.message,
+        });
+        router.refresh();
+      }
+    });
+  };
+
+  const basePath = `/dashboard/facebook/custom-ecommerce/manage/${shopId}`;
+  // Derive a friendly leaf label for the breadcrumb based on the active path.
+  const leafFromPath = ((): string | undefined => {
+    if (!pathname) return undefined;
+    if (pathname === basePath) return undefined;
+    const tail = pathname.slice(basePath.length);
+    const match = NAV_ITEMS.find(
+      (item) => tail === item.href || tail.startsWith(`${item.href}/`),
+    );
+    if (match) {
+      if (tail === `${match.href}/docs`) return `${match.label} · Docs`;
+      if (tail.startsWith(`${match.href}/`)) return match.label;
+      return match.label;
+    }
+    if (tail === "/appearance") return "Appearance";
+    return undefined;
+  })();
+
+  return (
+    <ShopPage>
+      <ShopBreadcrumb
+        shopId={shop._id.toString()}
+        shopName={shop.name}
+        leaf={leafFromPath}
+      />
+
+      <ShopHeader
+        className="mt-5"
+        eyebrow="Custom Shops"
+        title={shop.name}
+        description="Manage your custom e-commerce shop."
+        actions={
+          <>
+            <ZoruButton variant="ghost" asChild>
+              <Link href="/dashboard/facebook/custom-ecommerce">
+                <ArrowLeft />
+                All shops
+              </Link>
+            </ZoruButton>
+            <ZoruButton
+              variant="outline"
+              onClick={handleApplyTheme}
+              disabled={isApplyingTheme}
+            >
+              {isApplyingTheme ? (
+                <LoaderCircle className="animate-spin" />
+              ) : (
+                <Wand />
+              )}
+              Apply default theme
+            </ZoruButton>
+          </>
+        }
+      />
+
+      <ShopSubNav
+        items={NAV_ITEMS}
+        pathname={pathname ?? ""}
+        basePath={basePath}
+      />
+
+      <div className="mt-6">{children}</div>
+    </ShopPage>
+  );
 }

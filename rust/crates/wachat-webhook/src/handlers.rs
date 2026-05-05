@@ -70,7 +70,8 @@ pub async fn verify_challenge(Query(q): Query<VerifyQuery>) -> Response {
         return (StatusCode::FORBIDDEN, "Forbidden").into_response();
     };
 
-    if q.hub_mode == "subscribe" && constant_time_eq(q.hub_verify_token.as_bytes(), expected.as_bytes())
+    if q.hub_mode == "subscribe"
+        && constant_time_eq(q.hub_verify_token.as_bytes(), expected.as_bytes())
     {
         trace!("Meta verification handshake succeeded");
         // Plain-text body. Meta is strict — must echo the challenge verbatim
@@ -155,7 +156,13 @@ async fn process_entry(state: &WebhookState, entry: &Entry, raw_payload: &Bytes)
             );
             if let Err(err) = state
                 .dlq
-                .send_to_dlq(raw_payload.clone(), "project_not_found")
+                .send_to_dlq(
+                    None,
+                    "unknown",
+                    &serde_json::from_slice(raw_payload).unwrap_or(serde_json::Value::Null),
+                    "project_not_found",
+                    None,
+                )
                 .await
             {
                 tracing::error!(error = %err, "DLQ write failed for unknown project");
@@ -171,7 +178,13 @@ async fn process_entry(state: &WebhookState, entry: &Entry, raw_payload: &Bytes)
             );
             if let Err(err) = state
                 .dlq
-                .send_to_dlq(raw_payload.clone(), "project_lookup_error")
+                .send_to_dlq(
+                    None,
+                    "unknown",
+                    &serde_json::from_slice(raw_payload).unwrap_or(serde_json::Value::Null),
+                    "project_lookup_error",
+                    Some(&err.to_string()),
+                )
                 .await
             {
                 tracing::error!(error = %err, "DLQ write failed for project_lookup_error");

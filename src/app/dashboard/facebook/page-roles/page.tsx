@@ -1,196 +1,397 @@
-'use client';
+"use client";
 
-import { useEffect, useState, useTransition, useCallback } from 'react';
-import { getPageRoles, getBlockedProfiles, blockProfile, unblockProfile } from '@/app/actions/facebook.actions';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, ShieldCheck, Ban, UserPlus } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+/**
+ * /dashboard/facebook/page-roles — page-roles + blocked profiles.
+ *
+ * Rebuilt on ZoruUI primitives. Same `getPageRoles`, `getBlockedProfiles`,
+ * `blockProfile`, `unblockProfile` server actions — no behavioral changes.
+ * Pure zoru tokens, neutral palette.
+ */
+
+import * as React from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
+import type { ColumnDef } from "@tanstack/react-table";
+import { AlertCircle, Ban, RefreshCw, ShieldCheck } from "lucide-react";
+
+import {
+  getBlockedProfiles,
+  getPageRoles,
+} from "@/app/actions/facebook.actions";
+
+import {
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruAlertTitle,
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruDataTable,
+  ZoruEmptyState,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruSkeleton,
+} from "@/components/zoruui";
+
+import { NoProjectState } from "../_components/no-project-state";
+import { BlockProfileDialog } from "../_components/block-profile-dialog";
+import { UnblockProfileDialog } from "../_components/unblock-profile-dialog";
+
+/* ── types ───────────────────────────────────────────────────────── */
+
+type RoleRow = {
+  id?: string;
+  name: string;
+  role: string;
+};
+
+type BlockedRow = {
+  id: string;
+  name?: string | null;
+};
+
+/* ── skeleton ────────────────────────────────────────────────────── */
 
 function PageRolesSkeleton() {
-    return (
-        <div className="flex flex-col gap-8">
-            <div>
-                <Skeleton className="h-8 w-64" />
-                <Skeleton className="h-4 w-96 mt-2" />
-            </div>
-            <div className="grid md:grid-cols-2 gap-6">
-                <Skeleton className="h-64 w-full" />
-                <Skeleton className="h-64 w-full" />
-            </div>
-        </div>
-    );
+  return (
+    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
+      <ZoruSkeleton className="h-3 w-48" />
+      <div className="mt-5 flex flex-col gap-2">
+        <ZoruSkeleton className="h-3 w-24" />
+        <ZoruSkeleton className="h-7 w-72" />
+        <ZoruSkeleton className="h-3 w-96" />
+      </div>
+      <div className="mt-6 grid gap-3 md:grid-cols-3">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <ZoruSkeleton key={i} className="h-24 w-full" />
+        ))}
+      </div>
+      <div className="mt-6 grid gap-4 lg:grid-cols-2">
+        <ZoruSkeleton className="h-72 w-full" />
+        <ZoruSkeleton className="h-72 w-full" />
+      </div>
+    </div>
+  );
 }
 
-export default function PageRolesPage() {
-    const [roles, setRoles] = useState<any[]>([]);
-    const [blocked, setBlocked] = useState<any[]>([]);
-    const [error, setError] = useState<string | null>(null);
-    const [isLoading, startTransition] = useTransition();
-    const [isActing, startActTransition] = useTransition();
-    const [projectId, setProjectId] = useState<string | null>(null);
-    const [blockInput, setBlockInput] = useState('');
+/* ── stat tile ───────────────────────────────────────────────────── */
 
-    const fetchData = useCallback(() => {
-        if (!projectId) return;
-        startTransition(async () => {
-            const [rolesRes, blockedRes] = await Promise.all([
-                getPageRoles(projectId),
-                getBlockedProfiles(projectId),
-            ]);
-
-            if (rolesRes.error) setError(rolesRes.error);
-            else setRoles(rolesRes.roles || []);
-
-            if (blockedRes.profiles) setBlocked(blockedRes.profiles);
-        });
-    }, [projectId]);
-
-    useEffect(() => {
-        const storedProjectId = localStorage.getItem('activeProjectId');
-        setProjectId(storedProjectId);
-    }, []);
-
-    useEffect(() => {
-        fetchData();
-    }, [projectId, fetchData]);
-
-    const handleBlock = () => {
-        if (!projectId || !blockInput.trim()) return;
-        startActTransition(async () => {
-            const result = await blockProfile(blockInput.trim(), projectId);
-            if (result.error) setError(result.error);
-            else {
-                setBlockInput('');
-                fetchData();
-            }
-        });
-    };
-
-    const handleUnblock = (profileId: string) => {
-        if (!projectId) return;
-        startActTransition(async () => {
-            const result = await unblockProfile(profileId, projectId);
-            if (result.error) setError(result.error);
-            else fetchData();
-        });
-    };
-
-    if (isLoading && roles.length === 0 && blocked.length === 0) {
-        return <PageRolesSkeleton />;
-    }
-
-    return (
-        <div className="flex flex-col gap-8">
-            <div>
-                <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                    <ShieldCheck className="h-8 w-8" />
-                    Page Roles & Blocked Profiles
-                </h1>
-                <p className="text-muted-foreground mt-2">
-                    Manage page roles and blocked profiles.
-                </p>
-            </div>
-
-            {!projectId ? (
-                <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>No Project Selected</AlertTitle>
-                    <AlertDescription>Please select a project from the main dashboard.</AlertDescription>
-                </Alert>
-            ) : error ? (
-                <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Error</AlertTitle>
-                    <AlertDescription>{error}</AlertDescription>
-                </Alert>
-            ) : (
-                <div className="grid md:grid-cols-2 gap-6">
-                    {/* Roles */}
-                    <Card className="card-gradient card-gradient-blue">
-                        <CardHeader>
-                            <CardTitle className="text-base flex items-center gap-2">
-                                <ShieldCheck className="h-4 w-4" /> Page Roles ({roles.length})
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            {roles.length > 0 ? (
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead>Name</TableHead>
-                                            <TableHead>Role</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {roles.map((role: any) => (
-                                            <TableRow key={role.id || role.name}>
-                                                <TableCell className="font-medium text-sm">{role.name}</TableCell>
-                                                <TableCell>
-                                                    <Badge variant="secondary">{role.role}</Badge>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            ) : (
-                                <p className="text-sm text-muted-foreground text-center py-8">No roles found.</p>
-                            )}
-                        </CardContent>
-                    </Card>
-
-                    {/* Blocked Profiles */}
-                    <Card className="card-gradient card-gradient-blue">
-                        <CardHeader>
-                            <CardTitle className="text-base flex items-center gap-2">
-                                <Ban className="h-4 w-4" /> Blocked Profiles ({blocked.length})
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            {/* Block input */}
-                            <div className="flex gap-2">
-                                <Input
-                                    value={blockInput}
-                                    onChange={(e) => setBlockInput(e.target.value)}
-                                    placeholder="Profile ID to block"
-                                />
-                                <Button onClick={handleBlock} disabled={isActing || !blockInput.trim()}>
-                                    <UserPlus className="h-4 w-4 mr-1" /> Block
-                                </Button>
-                            </div>
-
-                            {blocked.length > 0 ? (
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead>Name</TableHead>
-                                            <TableHead className="w-24"></TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {blocked.map((profile: any) => (
-                                            <TableRow key={profile.id}>
-                                                <TableCell className="font-medium text-sm">{profile.name || profile.id}</TableCell>
-                                                <TableCell>
-                                                    <Button variant="outline" size="sm" onClick={() => handleUnblock(profile.id)} disabled={isActing}>
-                                                        Unblock
-                                                    </Button>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            ) : (
-                                <p className="text-sm text-muted-foreground text-center py-4">No blocked profiles.</p>
-                            )}
-                        </CardContent>
-                    </Card>
-                </div>
-            )}
+function StatTile({
+  label,
+  value,
+  hint,
+  icon,
+}: {
+  label: string;
+  value: string;
+  hint?: string;
+  icon: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-4">
+      <div className="flex items-start justify-between">
+        <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink [&_svg]:size-4">
+          {icon}
+        </span>
+      </div>
+      <div className="mt-3 text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+        {label}
+      </div>
+      <div className="mt-1 text-[22px] tracking-[-0.01em] text-zoru-ink leading-none">
+        {value}
+      </div>
+      {hint ? (
+        <div className="mt-1 truncate text-[11px] text-zoru-ink-muted">
+          {hint}
         </div>
-    );
+      ) : null}
+    </div>
+  );
+}
+
+/* ── page ────────────────────────────────────────────────────────── */
+
+export default function PageRolesPage() {
+  const [roles, setRoles] = useState<RoleRow[]>([]);
+  const [blocked, setBlocked] = useState<BlockedRow[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, startTransition] = useTransition();
+  const [projectId, setProjectId] = useState<string | null>(null);
+  const [unblockTarget, setUnblockTarget] = useState<BlockedRow | null>(null);
+
+  const fetchData = useCallback(() => {
+    if (!projectId) return;
+    startTransition(async () => {
+      const [rolesRes, blockedRes] = await Promise.all([
+        getPageRoles(projectId),
+        getBlockedProfiles(projectId),
+      ]);
+
+      if (rolesRes.error) setError(rolesRes.error);
+      else {
+        setRoles((rolesRes.roles || []) as RoleRow[]);
+        setError(null);
+      }
+
+      setBlocked((blockedRes.profiles || []) as BlockedRow[]);
+    });
+  }, [projectId]);
+
+  useEffect(() => {
+    setProjectId(localStorage.getItem("activeProjectId"));
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [projectId, fetchData]);
+
+  const roleColumns = useMemo<ColumnDef<RoleRow>[]>(
+    () => [
+      {
+        accessorKey: "name",
+        header: "Name",
+        cell: ({ row }) => (
+          <span className="text-[13px] text-zoru-ink">
+            {row.original.name}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "role",
+        header: "Role",
+        cell: ({ row }) => (
+          <ZoruBadge variant="secondary">{row.original.role}</ZoruBadge>
+        ),
+      },
+    ],
+    [],
+  );
+
+  const blockedColumns = useMemo<ColumnDef<BlockedRow>[]>(
+    () => [
+      {
+        accessorKey: "name",
+        header: "Name",
+        cell: ({ row }) => (
+          <span className="text-[13px] text-zoru-ink">
+            {row.original.name || row.original.id}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "id",
+        header: "Profile ID",
+        cell: ({ row }) => (
+          <span className="font-mono text-[11.5px] text-zoru-ink-muted">
+            {row.original.id}
+          </span>
+        ),
+      },
+      {
+        id: "actions",
+        header: () => <span className="sr-only">Actions</span>,
+        cell: ({ row }) => (
+          <div className="flex justify-end">
+            <ZoruButton
+              variant="outline"
+              size="sm"
+              onClick={() => setUnblockTarget(row.original)}
+            >
+              Unblock
+            </ZoruButton>
+          </div>
+        ),
+      },
+    ],
+    [],
+  );
+
+  if (isLoading && roles.length === 0 && blocked.length === 0 && projectId) {
+    return <PageRolesSkeleton />;
+  }
+
+  return (
+    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard/facebook">
+              Meta Suite
+            </ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Page roles</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
+
+      <ZoruPageHeader className="mt-5" bordered={false}>
+        <ZoruPageHeading>
+          <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-zoru-ink-subtle">
+            Page access control
+          </p>
+          <ZoruPageTitle>Page roles &amp; blocked profiles</ZoruPageTitle>
+          <ZoruPageDescription>
+            See who has admin / editor / moderator access to your Page and
+            manage profiles that are blocked from interacting with it.
+          </ZoruPageDescription>
+        </ZoruPageHeading>
+        <div className="flex items-center gap-2">
+          <ZoruButton
+            variant="outline"
+            size="sm"
+            onClick={fetchData}
+            disabled={!projectId}
+          >
+            <RefreshCw /> Refresh
+          </ZoruButton>
+          {projectId ? (
+            <BlockProfileDialog
+              projectId={projectId}
+              onSuccess={fetchData}
+            />
+          ) : null}
+        </div>
+      </ZoruPageHeader>
+
+      {!projectId ? (
+        <div className="mt-6">
+          <NoProjectState />
+        </div>
+      ) : error ? (
+        <div className="mt-6">
+          <ZoruAlert variant="destructive">
+            <AlertCircle />
+            <ZoruAlertTitle>Couldn’t load page roles</ZoruAlertTitle>
+            <ZoruAlertDescription>{error}</ZoruAlertDescription>
+          </ZoruAlert>
+        </div>
+      ) : (
+        <>
+          {/* ── Stats ── */}
+          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <StatTile
+              label="Roles assigned"
+              value={String(roles.length)}
+              hint="People with Page access"
+              icon={<ShieldCheck />}
+            />
+            <StatTile
+              label="Blocked profiles"
+              value={String(blocked.length)}
+              hint="Cannot comment or message"
+              icon={<Ban />}
+            />
+            <StatTile
+              label="Admins"
+              value={String(
+                roles.filter((r) =>
+                  r.role?.toLowerCase().includes("admin"),
+                ).length,
+              )}
+              hint="Full Page control"
+              icon={<ShieldCheck />}
+            />
+          </div>
+
+          {/* ── Tables ── */}
+          <div className="mt-6 grid gap-4 lg:grid-cols-2">
+            {/* Roles */}
+            <ZoruCard className="p-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-zoru-ink-subtle">
+                    Page roles
+                  </p>
+                  <p className="mt-1 text-[15px] text-zoru-ink">
+                    {roles.length} role{roles.length !== 1 ? "s" : ""} assigned
+                  </p>
+                </div>
+                <ZoruBadge variant="outline">
+                  <ShieldCheck className="h-3 w-3" />
+                  Live
+                </ZoruBadge>
+              </div>
+
+              <div className="mt-4">
+                {roles.length === 0 ? (
+                  <ZoruEmptyState
+                    compact
+                    icon={<ShieldCheck />}
+                    title="No roles found"
+                    description="Add admins or editors from your Facebook Page settings."
+                  />
+                ) : (
+                  <ZoruDataTable
+                    columns={roleColumns}
+                    data={roles}
+                    showColumnMenu={false}
+                    pageSize={10}
+                  />
+                )}
+              </div>
+            </ZoruCard>
+
+            {/* Blocked */}
+            <ZoruCard className="p-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-zoru-ink-subtle">
+                    Blocked profiles
+                  </p>
+                  <p className="mt-1 text-[15px] text-zoru-ink">
+                    {blocked.length} profile{blocked.length !== 1 ? "s" : ""}{" "}
+                    blocked
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-4">
+                {blocked.length === 0 ? (
+                  <ZoruEmptyState
+                    compact
+                    icon={<Ban />}
+                    title="No blocked profiles"
+                    description="Use “Block profile” above to restrict a Facebook profile."
+                  />
+                ) : (
+                  <ZoruDataTable
+                    columns={blockedColumns}
+                    data={blocked}
+                    showColumnMenu={false}
+                    pageSize={10}
+                  />
+                )}
+              </div>
+            </ZoruCard>
+          </div>
+        </>
+      )}
+
+      {projectId ? (
+        <UnblockProfileDialog
+          open={!!unblockTarget}
+          onOpenChange={(o) => {
+            if (!o) setUnblockTarget(null);
+          }}
+          profileId={unblockTarget?.id || null}
+          profileName={unblockTarget?.name || null}
+          projectId={projectId}
+          onUnblocked={fetchData}
+        />
+      ) : null}
+    </div>
+  );
 }

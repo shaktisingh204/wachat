@@ -36,11 +36,7 @@ pub const SNAPSHOT_COLLECTIONS: &[&str] = &[
 ///
 /// `project_id` is treated as a plain string because some legacy docs store
 /// it as a string and others as an `ObjectId`. We try both shapes.
-pub async fn snapshot_collections(
-    mongo: &Client,
-    db: &str,
-    project_id: &str,
-) -> Result<Value> {
+pub async fn snapshot_collections(mongo: &Client, db: &str, project_id: &str) -> Result<Value> {
     let database = mongo.database(db);
     let mut out = Map::new();
 

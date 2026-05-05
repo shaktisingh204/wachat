@@ -29,6 +29,7 @@ import { ZoruHeader } from "./zoru-header";
 import { ZoruInput } from "../input";
 import { ZoruKbd } from "../kbd";
 import { ZoruButton } from "../button";
+import { ZoruNotificationPopover } from "../notification-popover";
 import { ZoruToaster } from "../toaster";
 import { ZoruUserDropdown } from "../user-dropdown";
 
@@ -42,6 +43,24 @@ export interface ZoruHomeShellProps {
     name?: string | null;
     credits?: number;
   };
+  /**
+   * Override the sidebar heading shown above the menu (defaults to
+   * "Home"). Useful when the same shell hosts a different module
+   * (e.g. "WaChat", "CRM").
+   */
+  sidebarHeading?: React.ReactNode;
+  /**
+   * Override the small caption beneath the sidebar heading.
+   * Defaults to the user's name/email.
+   */
+  sidebarCaption?: React.ReactNode;
+  /**
+   * Override the sidebar's grouped menu. When omitted, the default
+   * Workspace + Shortcuts groups are rendered. Pass module-specific
+   * groups (e.g. wachatMenuItems organized into Inbox / Broadcasts /
+   * Settings) to make the sidebar reflect the current section.
+   */
+  sidebarGroups?: ZoruSidebarGroup[];
   children: React.ReactNode;
 }
 
@@ -76,10 +95,17 @@ const DOCK_APPS: DockApp[] = [
  * per the zoru directive. The URL-synced multi-tab strip is also
  * absent (hard constraint from the project plan).
  */
-export function ZoruHomeShell({ user, plan, children }: ZoruHomeShellProps) {
+export function ZoruHomeShell({
+  user,
+  plan,
+  sidebarHeading,
+  sidebarCaption,
+  sidebarGroups: sidebarGroupsProp,
+  children,
+}: ZoruHomeShellProps) {
   const pathname = usePathname();
 
-  const sidebarGroups: ZoruSidebarGroup[] = [
+  const defaultSidebarGroups: ZoruSidebarGroup[] = [
     {
       id: "main",
       label: "Workspace",
@@ -100,6 +126,8 @@ export function ZoruHomeShell({ user, plan, children }: ZoruHomeShellProps) {
     },
   ];
 
+  const sidebarGroups = sidebarGroupsProp ?? defaultSidebarGroups;
+
   const planFooter = plan?.name || plan?.credits !== undefined ? (
     <div className="flex flex-col gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3">
       <div className="flex items-center justify-between">
@@ -119,8 +147,8 @@ export function ZoruHomeShell({ user, plan, children }: ZoruHomeShellProps) {
   return (
     <div className="zoruui flex h-screen w-full overflow-hidden bg-zoru-bg text-zoru-ink">
       <ZoruAppSidebar
-        heading="Home"
-        caption={user?.name ?? user?.email ?? "Workspace"}
+        heading={sidebarHeading ?? "Home"}
+        caption={sidebarCaption ?? user?.name ?? user?.email ?? "Workspace"}
         groups={sidebarGroups}
         footer={planFooter}
       />
@@ -150,11 +178,7 @@ export function ZoruHomeShell({ user, plan, children }: ZoruHomeShellProps) {
           }
           trailing={
             <>
-              <ZoruButton variant="ghost" size="icon" aria-label="Notifications" asChild>
-                <a href="/dashboard/notifications">
-                  <Bell />
-                </a>
-              </ZoruButton>
+              <ZoruNotificationPopover />
               <ZoruUserDropdown
                 name={user?.name ?? "Account"}
                 email={user?.email ?? undefined}

@@ -1,0 +1,243 @@
+"use client";
+
+/**
+ * Zoru-only replacement for `@/components/wabasimplify/persistent-menu-form`.
+ * Same external props (`shop`) and same `savePersistentMenu` server action.
+ */
+
+import * as React from "react";
+import { useActionState, useEffect, useState } from "react";
+import { useFormStatus } from "react-dom";
+import { List, LoaderCircle, Plus, Save, Trash2 } from "lucide-react";
+
+import { savePersistentMenu } from "@/app/actions/facebook.actions";
+import type { EcommShop } from "@/lib/definitions";
+import type { WithId } from "mongodb";
+
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardFooter,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruInput,
+  ZoruLabel,
+  ZoruRadioGroup,
+  ZoruRadioGroupItem,
+  useZoruToast,
+} from "@/components/zoruui";
+
+const initialState: { success: boolean; error?: string } = {
+  success: false,
+  error: undefined,
+};
+
+function SubmitButton() {
+  const { pending } = useFormStatus();
+  return (
+    <ZoruButton type="submit" disabled={pending}>
+      {pending ? <LoaderCircle className="animate-spin" /> : <Save />}
+      Save menu
+    </ZoruButton>
+  );
+}
+
+interface PersistentMenuFormProps {
+  shop: WithId<EcommShop>;
+}
+
+type MenuItem = {
+  type: "postback" | "web_url";
+  title: string;
+  payload?: string;
+  url?: string;
+};
+
+export function PersistentMenuForm({ shop }: PersistentMenuFormProps) {
+  const [state, formAction] = useActionState(savePersistentMenu, initialState);
+  const { toast } = useZoruToast();
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+
+  useEffect(() => {
+    setMenuItems((shop?.persistentMenu as MenuItem[]) || []);
+  }, [shop]);
+
+  useEffect(() => {
+    if (state.success) {
+      toast({ title: "Persistent menu updated" });
+    }
+    if (state.error) {
+      toast({
+        title: "Could not update menu",
+        description: state.error,
+        variant: "destructive",
+      });
+    }
+  }, [state, toast]);
+
+  const handleItemChange = (
+    index: number,
+    field: keyof MenuItem,
+    value: string,
+  ) => {
+    const newItems = [...menuItems];
+    const item = { ...newItems[index], [field]: value };
+    if (field === "type") {
+      if (value === "web_url") delete item.payload;
+      else delete item.url;
+    }
+    newItems[index] = item;
+    setMenuItems(newItems);
+  };
+
+  const handleAddItem = () => {
+    if (menuItems.length < 3) {
+      setMenuItems((prev) => [...prev, { type: "postback", title: "" }]);
+    }
+  };
+
+  const handleRemoveItem = (index: number) => {
+    setMenuItems((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  return (
+    <form action={formAction}>
+      <input type="hidden" name="shopId" value={shop._id.toString()} />
+      <input
+        type="hidden"
+        name="menuItems"
+        value={JSON.stringify(menuItems)}
+      />
+
+      <ZoruCard>
+        <ZoruCardHeader>
+          <ZoruCardTitle className="flex items-center gap-2">
+            <List className="h-5 w-5" />
+            Persistent menu
+          </ZoruCardTitle>
+          <ZoruCardDescription>
+            Set up a static menu that&rsquo;s always available to users in
+            your Messenger chat window. You can have up to 3 top-level items.
+            Note: this menu is set at the page level and will be overwritten
+            by the last shop saved.
+          </ZoruCardDescription>
+        </ZoruCardHeader>
+        <ZoruCardContent className="space-y-4">
+          {menuItems.map((item, index) => (
+            <div
+              key={index}
+              className="relative space-y-3 rounded-[var(--zoru-radius-lg)] border border-zoru-line p-4"
+            >
+              <ZoruButton
+                variant="ghost"
+                size="icon-sm"
+                type="button"
+                className="absolute right-2 top-2"
+                onClick={() => handleRemoveItem(index)}
+                aria-label="Remove menu item"
+              >
+                <Trash2 />
+              </ZoruButton>
+              <h4 className="text-sm tracking-tight text-zoru-ink">
+                Menu item {index + 1}
+              </h4>
+              <div className="space-y-1.5">
+                <ZoruLabel htmlFor={`title-${index}`}>Title</ZoruLabel>
+                <ZoruInput
+                  id={`title-${index}`}
+                  value={item.title}
+                  onChange={(e) =>
+                    handleItemChange(index, "title", e.target.value)
+                  }
+                  maxLength={30}
+                  required
+                />
+              </div>
+              <ZoruRadioGroup
+                value={item.type}
+                onValueChange={(val: string) =>
+                  handleItemChange(index, "type", val)
+                }
+                className="flex gap-4"
+              >
+                <div className="flex items-center gap-2">
+                  <ZoruRadioGroupItem
+                    value="postback"
+                    id={`type-postback-${index}`}
+                  />
+                  <ZoruLabel
+                    htmlFor={`type-postback-${index}`}
+                    className="font-normal"
+                  >
+                    Trigger flow
+                  </ZoruLabel>
+                </div>
+                <div className="flex items-center gap-2">
+                  <ZoruRadioGroupItem
+                    value="web_url"
+                    id={`type-url-${index}`}
+                  />
+                  <ZoruLabel
+                    htmlFor={`type-url-${index}`}
+                    className="font-normal"
+                  >
+                    Open web URL
+                  </ZoruLabel>
+                </div>
+              </ZoruRadioGroup>
+              {item.type === "postback" ? (
+                <div className="space-y-1.5">
+                  <ZoruLabel htmlFor={`payload-${index}`}>
+                    Payload (trigger keyword)
+                  </ZoruLabel>
+                  <ZoruInput
+                    id={`payload-${index}`}
+                    value={item.payload || ""}
+                    onChange={(e) =>
+                      handleItemChange(index, "payload", e.target.value)
+                    }
+                    placeholder="e.g., MENU_BROWSE_PRODUCTS"
+                    required
+                  />
+                  <p className="text-xs text-zoru-ink-muted">
+                    This keyword will trigger the corresponding flow.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-1.5">
+                  <ZoruLabel htmlFor={`url-${index}`}>Website URL</ZoruLabel>
+                  <ZoruInput
+                    id={`url-${index}`}
+                    type="url"
+                    value={item.url || ""}
+                    onChange={(e) =>
+                      handleItemChange(index, "url", e.target.value)
+                    }
+                    placeholder="https://example.com"
+                    required
+                  />
+                </div>
+              )}
+            </div>
+          ))}
+          {menuItems.length < 3 && (
+            <ZoruButton
+              type="button"
+              variant="outline"
+              block
+              onClick={handleAddItem}
+            >
+              <Plus />
+              Add menu item
+            </ZoruButton>
+          )}
+        </ZoruCardContent>
+        <ZoruCardFooter>
+          <SubmitButton />
+        </ZoruCardFooter>
+      </ZoruCard>
+    </form>
+  );
+}

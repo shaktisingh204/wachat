@@ -17,6 +17,27 @@ sabnode-db = { path = "../db" }
 sabnode-users = { path = "../users" }
 sabnode-observability = { path = "../observability" }
 
+wachat-webhook = { path = "../wachat-webhook" }
+wachat-webhook-config = { path = "../wachat-webhook-config" }
+wachat-webhook-verify = { path = "../wachat-webhook-verify" }
+wachat-webhook-status = { path = "../wachat-webhook-status" }
+wachat-webhook-inbound = { path = "../wachat-webhook-inbound" }
+wachat-webhook-account = { path = "../wachat-webhook-account" }
+wachat-webhook-template-events = { path = "../wachat-webhook-template-events" }
+wachat-webhook-dlq = { path = "../wachat-webhook-dlq" }
+wachat-webhook-contacts = { path = "../wachat-webhook-contacts" }
+wachat-webhook-conversations = { path = "../wachat-webhook-conversations" }
+wachat-queue = { path = "../wachat-queue" }
+
+wachat-templates = { path = "../wachat-templates" }
+wachat-templates-mutate = { path = "../wachat-templates-mutate" }
+wachat-templates-sync = { path = "../wachat-templates-sync" }
+wachat-templates-categories = { path = "../wachat-templates-categories" }
+wachat-templates-send = { path = "../wachat-templates-send" }
+wachat-templates-router = { path = "../wachat-templates-router" }
+wachat-meta-client = { path = "../wachat-meta-client" }
+wachat-media = { path = "../wachat-media" }
+
 axum = "0.8"
 tokio = { version = "1", features = ["full"] }
 tower = "0.5"
@@ -31,3 +52,6 @@ serde_json = "1.0"
 dotenvy = "0.15"
 chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
 anyhow = "1.0"
+
+[lints]
+workspace = true

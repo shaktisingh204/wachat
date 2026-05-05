@@ -1,185 +1,340 @@
-'use client';
+"use client";
 
-import { useEffect, useState, useTransition, useCallback } from 'react';
-import { getVisitorPosts, getTaggedPosts } from '@/app/actions/facebook.actions';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, Users, Tag, ThumbsUp, MessageCircle, ExternalLink } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { formatDistanceToNow } from 'date-fns';
-import Image from 'next/image';
+/**
+ * /dashboard/facebook/visitor-posts — ZoruUI rebuild.
+ *
+ * Two collections (visitor posts + tagged posts) on one page. Per the
+ * no-tab-ui rule we use segmented buttons to switch the visible
+ * collection — no `Tabs` primitive.
+ *
+ * Same server-action wiring as the legacy page:
+ *   - getVisitorPosts(projectId)
+ *   - getTaggedPosts(projectId)
+ */
+
+import * as React from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
+import Image from "next/image";
+import { formatDistanceToNow } from "date-fns";
+import {
+  ExternalLink,
+  Eye,
+  MessageCircle,
+  Tag,
+  ThumbsUp,
+  Users,
+} from "lucide-react";
+
+import { getTaggedPosts, getVisitorPosts } from "@/app/actions/facebook.actions";
+
+import {
+  ZoruAvatar,
+  ZoruAvatarFallback,
+  ZoruAvatarImage,
+  ZoruButton,
+  ZoruCard,
+  ZoruEmptyState,
+  ZoruSheet,
+  ZoruSheetContent,
+  ZoruSheetDescription,
+  ZoruSheetHeader,
+  ZoruSheetTitle,
+  ZoruSkeleton,
+  cn,
+} from "@/components/zoruui";
+
+import {
+  FbBreadcrumb,
+  FbErrorAlert,
+  FbHeader,
+  FbNoProject,
+} from "../_components/zoru-fb-page-shell";
+
+interface VisitorPost {
+  id: string;
+  message?: string;
+  full_picture?: string;
+  permalink_url?: string;
+  created_time?: string;
+  from?: {
+    name?: string;
+    picture?: { data?: { url?: string } };
+  };
+  reactions?: { summary?: { total_count?: number } };
+  comments?: { summary?: { total_count?: number } };
+}
 
 function VisitorPostsSkeleton() {
-    return (
-        <div className="flex flex-col gap-8">
-            <div>
-                <Skeleton className="h-8 w-64" />
-                <Skeleton className="h-4 w-96 mt-2" />
-            </div>
-            <Skeleton className="h-10 w-64" />
-            <div className="space-y-4">
-                {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-32 w-full" />)}
-            </div>
-        </div>
-    );
+  return (
+    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
+      <ZoruSkeleton className="h-3 w-52" />
+      <div className="mt-5">
+        <ZoruSkeleton className="h-9 w-72" />
+        <ZoruSkeleton className="mt-2 h-4 w-96" />
+      </div>
+      <div className="mt-6 space-y-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <ZoruSkeleton key={i} className="h-32 w-full" />
+        ))}
+      </div>
+    </div>
+  );
 }
 
-function PostCard({ post }: { post: any }) {
-    return (
-        <Card className="card-gradient card-gradient-blue">
-            <CardContent className="p-5">
-                <div className="flex items-start gap-4">
-                    <Avatar className="h-10 w-10">
-                        <AvatarImage src={post.from?.picture?.data?.url} />
-                        <AvatarFallback>{post.from?.name?.charAt(0) || '?'}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 space-y-2">
-                        <div className="flex items-center justify-between">
-                            <p className="font-medium text-sm">{post.from?.name || 'Unknown'}</p>
-                            <div className="flex items-center gap-2">
-                                {post.created_time && (
-                                    <span className="text-xs text-muted-foreground">
-                                        {formatDistanceToNow(new Date(post.created_time), { addSuffix: true })}
-                                    </span>
-                                )}
-                                {post.permalink_url && (
-                                    <a href={post.permalink_url} target="_blank" rel="noopener noreferrer"
-                                        className="text-muted-foreground hover:text-foreground">
-                                        <ExternalLink className="h-3 w-3" />
-                                    </a>
-                                )}
-                            </div>
-                        </div>
-                        {post.message && (
-                            <p className="text-sm text-muted-foreground">{post.message}</p>
-                        )}
-                        {post.full_picture && (
-                            <div className="relative aspect-video max-h-48 overflow-hidden rounded-lg mt-2">
-                                <Image src={post.full_picture} alt="Post image" fill className="object-cover" data-ai-hint="visitor post" />
-                            </div>
-                        )}
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground pt-1">
-                            <span className="flex items-center gap-1">
-                                <ThumbsUp className="h-3 w-3" /> {post.reactions?.summary?.total_count || 0}
-                            </span>
-                            <span className="flex items-center gap-1">
-                                <MessageCircle className="h-3 w-3" /> {post.comments?.summary?.total_count || 0}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </CardContent>
-        </Card>
-    );
+function PostCard({
+  post,
+  onView,
+}: {
+  post: VisitorPost;
+  onView: (post: VisitorPost) => void;
+}) {
+  const author = post.from?.name ?? "Unknown";
+  return (
+    <ZoruCard className="p-5">
+      <div className="flex items-start gap-4">
+        <ZoruAvatar className="h-10 w-10">
+          {post.from?.picture?.data?.url ? (
+            <ZoruAvatarImage src={post.from.picture.data.url} alt={author} />
+          ) : null}
+          <ZoruAvatarFallback>
+            {author.charAt(0).toUpperCase()}
+          </ZoruAvatarFallback>
+        </ZoruAvatar>
+        <div className="flex-1 space-y-2">
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-sm font-medium text-zoru-ink">{author}</p>
+            <div className="flex items-center gap-2">
+              {post.created_time && (
+                <span className="text-xs text-zoru-ink-muted">
+                  {formatDistanceToNow(new Date(post.created_time), {
+                    addSuffix: true,
+                  })}
+                </span>
+              )}
+              {post.permalink_url && (
+                <a
+                  href={post.permalink_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-zoru-ink-muted hover:text-zoru-ink"
+                  aria-label="Open on Facebook"
+                >
+                  <ExternalLink className="h-3.5 w-3.5" />
+                </a>
+              )}
+            </div>
+          </div>
+          {post.message && (
+            <p className="text-sm text-zoru-ink-muted">{post.message}</p>
+          )}
+          {post.full_picture && (
+            <div className="relative aspect-video max-h-48 overflow-hidden rounded-[var(--zoru-radius-sm)] border border-zoru-line">
+              <Image
+                src={post.full_picture}
+                alt="Post image"
+                fill
+                className="object-cover"
+                unoptimized
+              />
+            </div>
+          )}
+          <div className="flex items-center gap-4 pt-1 text-xs text-zoru-ink-muted">
+            <span className="inline-flex items-center gap-1">
+              <ThumbsUp className="h-3 w-3" />
+              {post.reactions?.summary?.total_count ?? 0}
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <MessageCircle className="h-3 w-3" />
+              {post.comments?.summary?.total_count ?? 0}
+            </span>
+            <ZoruButton
+              variant="ghost"
+              size="sm"
+              className="ml-auto"
+              onClick={() => onView(post)}
+            >
+              <Eye /> View details
+            </ZoruButton>
+          </div>
+        </div>
+      </div>
+    </ZoruCard>
+  );
 }
+
+type VisitorView = "visitor" | "tagged";
 
 export default function VisitorPostsPage() {
-    const [visitorPosts, setVisitorPosts] = useState<any[]>([]);
-    const [taggedPosts, setTaggedPosts] = useState<any[]>([]);
-    const [error, setError] = useState<string | null>(null);
-    const [isLoading, startTransition] = useTransition();
-    const [projectId, setProjectId] = useState<string | null>(null);
+  const [visitorPosts, setVisitorPosts] = useState<VisitorPost[]>([]);
+  const [taggedPosts, setTaggedPosts] = useState<VisitorPost[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, startTransition] = useTransition();
+  const [projectId, setProjectId] = useState<string | null>(null);
+  const [view, setView] = useState<VisitorView>("visitor");
+  const [activePost, setActivePost] = useState<VisitorPost | null>(null);
 
-    const fetchData = useCallback(() => {
-        if (!projectId) return;
-        startTransition(async () => {
-            const [visitorRes, taggedRes] = await Promise.all([
-                getVisitorPosts(projectId),
-                getTaggedPosts(projectId),
-            ]);
+  const fetchData = useCallback(() => {
+    if (!projectId) return;
+    startTransition(async () => {
+      const [visitorRes, taggedRes] = await Promise.all([
+        getVisitorPosts(projectId),
+        getTaggedPosts(projectId),
+      ]);
 
-            if (visitorRes.error) setError(visitorRes.error);
-            else setVisitorPosts(visitorRes.posts || []);
+      if (visitorRes.error) setError(visitorRes.error);
+      else setVisitorPosts((visitorRes.posts ?? []) as VisitorPost[]);
 
-            if (taggedRes.posts) setTaggedPosts(taggedRes.posts);
-        });
-    }, [projectId]);
+      if (taggedRes.posts) {
+        setTaggedPosts(taggedRes.posts as VisitorPost[]);
+      }
+    });
+  }, [projectId]);
 
-    useEffect(() => {
-        const storedProjectId = localStorage.getItem('activeProjectId');
-        setProjectId(storedProjectId);
-    }, []);
+  useEffect(() => {
+    setProjectId(localStorage.getItem("activeProjectId"));
+  }, []);
 
-    useEffect(() => {
-        fetchData();
-    }, [projectId, fetchData]);
+  useEffect(() => {
+    fetchData();
+  }, [projectId, fetchData]);
 
-    if (isLoading && visitorPosts.length === 0 && taggedPosts.length === 0) {
-        return <VisitorPostsSkeleton />;
-    }
+  const posts = view === "visitor" ? visitorPosts : taggedPosts;
 
-    return (
-        <div className="flex flex-col gap-8">
-            <div>
-                <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                    <Users className="h-8 w-8" />
-                    Visitor & Tagged Posts
-                </h1>
-                <p className="text-muted-foreground mt-2">
-                    Posts from visitors and posts your page is tagged in.
-                </p>
-            </div>
+  const counts = useMemo(
+    () => ({ visitor: visitorPosts.length, tagged: taggedPosts.length }),
+    [visitorPosts, taggedPosts],
+  );
 
-            {!projectId ? (
-                <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>No Project Selected</AlertTitle>
-                    <AlertDescription>Please select a project from the main dashboard.</AlertDescription>
-                </Alert>
-            ) : error ? (
-                <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Error</AlertTitle>
-                    <AlertDescription>{error}</AlertDescription>
-                </Alert>
+  if (isLoading && visitorPosts.length === 0 && taggedPosts.length === 0) {
+    return <VisitorPostsSkeleton />;
+  }
+
+  return (
+    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
+      <FbBreadcrumb page="Visitor & tagged posts" />
+      <FbHeader
+        title="Visitor & tagged posts"
+        description="Posts from visitors and posts your page has been tagged in."
+      />
+
+      {!projectId ? (
+        <FbNoProject />
+      ) : error ? (
+        <FbErrorAlert message={error} />
+      ) : (
+        <>
+          {/* Segmented buttons (no tab UI) */}
+          <div
+            className="mt-6 inline-flex rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-0.5"
+            role="tablist"
+            aria-label="Filter posts"
+          >
+            <ZoruButton
+              variant={view === "visitor" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setView("visitor")}
+              className={cn(view !== "visitor" && "text-zoru-ink-muted")}
+            >
+              <Users /> Visitor posts ({counts.visitor})
+            </ZoruButton>
+            <ZoruButton
+              variant={view === "tagged" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setView("tagged")}
+              className={cn(view !== "tagged" && "text-zoru-ink-muted")}
+            >
+              <Tag /> Tagged posts ({counts.tagged})
+            </ZoruButton>
+          </div>
+
+          <div className="mt-4 space-y-4">
+            {posts.length > 0 ? (
+              posts.map((post) => (
+                <PostCard
+                  key={post.id}
+                  post={post}
+                  onView={(p) => setActivePost(p)}
+                />
+              ))
             ) : (
-                <Tabs defaultValue="visitor">
-                    <TabsList>
-                        <TabsTrigger value="visitor">
-                            <Users className="h-4 w-4 mr-1" /> Visitor Posts ({visitorPosts.length})
-                        </TabsTrigger>
-                        <TabsTrigger value="tagged">
-                            <Tag className="h-4 w-4 mr-1" /> Tagged Posts ({taggedPosts.length})
-                        </TabsTrigger>
-                    </TabsList>
-
-                    <TabsContent value="visitor">
-                        {visitorPosts.length > 0 ? (
-                            <div className="space-y-4 mt-4">
-                                {visitorPosts.map((post: any) => (
-                                    <PostCard key={post.id} post={post} />
-                                ))}
-                            </div>
-                        ) : (
-                            <Card className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg mt-4">
-                                <CardContent>
-                                    <p className="text-lg font-semibold">No Visitor Posts</p>
-                                    <p>No one has posted on your page yet.</p>
-                                </CardContent>
-                            </Card>
-                        )}
-                    </TabsContent>
-
-                    <TabsContent value="tagged">
-                        {taggedPosts.length > 0 ? (
-                            <div className="space-y-4 mt-4">
-                                {taggedPosts.map((post: any) => (
-                                    <PostCard key={post.id} post={post} />
-                                ))}
-                            </div>
-                        ) : (
-                            <Card className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg mt-4">
-                                <CardContent>
-                                    <p className="text-lg font-semibold">No Tagged Posts</p>
-                                    <p>Your page has not been tagged in any posts.</p>
-                                </CardContent>
-                            </Card>
-                        )}
-                    </TabsContent>
-                </Tabs>
+              <ZoruEmptyState
+                icon={view === "visitor" ? <Users /> : <Tag />}
+                title={
+                  view === "visitor"
+                    ? "No visitor posts"
+                    : "No tagged posts"
+                }
+                description={
+                  view === "visitor"
+                    ? "No one has posted on your page yet."
+                    : "Your page has not been tagged in any posts."
+                }
+              />
             )}
-        </div>
-    );
+          </div>
+        </>
+      )}
+
+      <ZoruSheet
+        open={!!activePost}
+        onOpenChange={(o) => !o && setActivePost(null)}
+      >
+        <ZoruSheetContent side="right" className="w-full sm:max-w-md">
+          <ZoruSheetHeader>
+            <ZoruSheetTitle>
+              {activePost?.from?.name ?? "Post details"}
+            </ZoruSheetTitle>
+            <ZoruSheetDescription>
+              {activePost?.created_time
+                ? formatDistanceToNow(new Date(activePost.created_time), {
+                    addSuffix: true,
+                  })
+                : "Visitor post"}
+            </ZoruSheetDescription>
+          </ZoruSheetHeader>
+          {activePost && (
+            <div className="mt-4 space-y-4">
+              {activePost.message && (
+                <p className="text-sm text-zoru-ink whitespace-pre-wrap">
+                  {activePost.message}
+                </p>
+              )}
+              {activePost.full_picture && (
+                <div className="relative aspect-video w-full overflow-hidden rounded-[var(--zoru-radius-sm)] border border-zoru-line">
+                  <Image
+                    src={activePost.full_picture}
+                    alt="Post image"
+                    fill
+                    className="object-cover"
+                    unoptimized
+                  />
+                </div>
+              )}
+              <div className="flex items-center gap-4 text-xs text-zoru-ink-muted">
+                <span className="inline-flex items-center gap-1">
+                  <ThumbsUp className="h-3 w-3" />
+                  {activePost.reactions?.summary?.total_count ?? 0} reactions
+                </span>
+                <span className="inline-flex items-center gap-1">
+                  <MessageCircle className="h-3 w-3" />
+                  {activePost.comments?.summary?.total_count ?? 0} comments
+                </span>
+              </div>
+              {activePost.permalink_url && (
+                <ZoruButton variant="outline" asChild className="w-full">
+                  <a
+                    href={activePost.permalink_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <ExternalLink /> Open on Facebook
+                  </a>
+                </ZoruButton>
+              )}
+            </div>
+          )}
+        </ZoruSheetContent>
+      </ZoruSheet>
+    </div>
+  );
 }

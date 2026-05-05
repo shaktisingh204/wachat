@@ -16,6 +16,24 @@ use sabnode_auth::AuthConfig;
 use sabnode_db::{mongo::MongoHandle, redis::RedisHandle};
 use tokio::{net::TcpListener, signal};
 use tracing::{error, info};
+use wachat_media::MediaUploader;
+use wachat_meta_client::MetaClient;
+use wachat_queue::BullProducer;
+use wachat_templates::TemplatesReader;
+use wachat_templates_categories::TemplatesLibrary;
+use wachat_templates_mutate::TemplatesMutator;
+use wachat_templates_router::TemplatesState;
+use wachat_templates_send::TemplateSender;
+use wachat_templates_sync::TemplatesSyncer;
+use wachat_webhook::WebhookState;
+use wachat_webhook_account::AccountProcessor;
+use wachat_webhook_contacts::ContactsUpserter;
+use wachat_webhook_conversations::ConversationTracker;
+use wachat_webhook_dlq::DlqWriter;
+use wachat_webhook_inbound::InboundProcessor;
+use wachat_webhook_status::StatusProcessor;
+use wachat_webhook_template_events::TemplateEventsProcessor;
+use wachat_webhook_verify::WebhookVerifier;
 
 use crate::state::AppState;
 
@@ -59,7 +77,41 @@ async fn run() -> anyhow::Result<()> {
         secret: jwt_secret.into_bytes(),
     });
 
-    let state = AppState::new(mongo, redis, auth);
+    // Wachat webhook stack: build each processor over the shared Mongo
+    // handle, plus a BullMQ producer for the DLQ. Verifier reads
+    // FACEBOOK_APP_SECRET (matches the existing Next.js env var).
+    let app_secret = std::env::var("FACEBOOK_APP_SECRET")
+        .context("FACEBOOK_APP_SECRET is required for webhook signature verification")?;
+    let webhook_verifier = Arc::new(WebhookVerifier::new(app_secret.into_bytes()));
+
+    let bull = BullProducer::new(redis.clone());
+    let webhook = WebhookState {
+        mongo: mongo.clone(),
+        redis: redis.clone(),
+        status: Arc::new(StatusProcessor::new(mongo.clone())),
+        inbound: Arc::new(InboundProcessor::new(mongo.clone())),
+        account: Arc::new(AccountProcessor::new(mongo.clone())),
+        template_events: Arc::new(TemplateEventsProcessor::new(mongo.clone())),
+        dlq: Arc::new(DlqWriter::new(mongo.clone(), bull)),
+        contacts: Arc::new(ContactsUpserter::new(mongo.clone())),
+        conversations: Arc::new(ConversationTracker::new(mongo.clone())),
+    };
+
+    // Templates stack: shared MetaClient (the Cloud API HTTP wrapper) +
+    // MediaUploader (resumable uploads for template header images), plus
+    // one engine per concern. Pin Meta to v23.0 (matches Node code today).
+    let meta = MetaClient::new("v23.0");
+    let media = MediaUploader::new("v23.0");
+    let templates = TemplatesState {
+        reader: Arc::new(TemplatesReader::new(mongo.clone())),
+        mutator: Arc::new(TemplatesMutator::new(mongo.clone(), meta.clone(), media)),
+        syncer: Arc::new(TemplatesSyncer::new(mongo.clone(), meta.clone())),
+        library: Arc::new(TemplatesLibrary::new(mongo.clone())),
+        sender: Arc::new(TemplateSender::new(mongo.clone(), meta)),
+        mongo: mongo.clone(),
+    };
+
+    let state = AppState::new(mongo, redis, auth, webhook, webhook_verifier, templates);
     let app = router::build(state.clone());
 
     let addr = SocketAddr::from(([0, 0, 0, 0], settings.port));

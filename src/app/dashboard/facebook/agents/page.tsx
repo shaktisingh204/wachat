@@ -1,202 +1,423 @@
+"use client";
 
-'use client';
+/**
+ * /dashboard/facebook/agents — Messenger AI agents.
+ *
+ * Rebuilt on ZoruUI primitives. Same `getFacebookAgents`,
+ * `createFacebookAgent`, `updateFacebookAgent`, `deleteFacebookAgent`
+ * server actions as before — visual layer is pure zoru, neutral palette.
+ *
+ * Dialogs: assign-agent (create), remove-agent-confirm.
+ */
 
-import { useEffect, useState, useTransition, useActionState, useCallback, useRef } from 'react';
-import { getFacebookAgents, createFacebookAgent, updateFacebookAgent, deleteFacebookAgent } from '@/app/actions/facebook.actions';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, Bot, Plus, Trash2, Power } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
+import * as React from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
+import {
+  AlertCircle,
+  Bot,
+  CircleCheck,
+  Pause,
+  Play,
+  Plus,
+  RefreshCw,
+  Sparkles,
+  Trash2,
+} from "lucide-react";
 
-const initialFormState = { message: '', error: '' };
+import {
+  getFacebookAgents,
+  updateFacebookAgent,
+} from "@/app/actions/facebook.actions";
 
-function PageSkeleton() {
-    return (
-        <div className="flex flex-col gap-8">
-            <Skeleton className="h-8 w-64" />
-            <div className="grid md:grid-cols-2 gap-4">
-                <Skeleton className="h-24 w-full" />
-                <Skeleton className="h-24 w-full" />
-            </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-48 w-full" />)}
-            </div>
-        </div>
-    );
+import {
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruAlertTitle,
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruEmptyState,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruSkeleton,
+  cn,
+  useZoruToast,
+} from "@/components/zoruui";
+
+import { NoProjectState } from "../_components/no-project-state";
+import { AgentFormDialog } from "../_components/agent-form-dialog";
+import { DeleteAgentDialog } from "../_components/delete-agent-dialog";
+
+/* ── types ───────────────────────────────────────────────────────── */
+
+type Agent = {
+  _id: string;
+  name: string;
+  personality?: string;
+  welcomeMessage?: string;
+  fallbackMessage?: string;
+  isActive: boolean;
+};
+
+/* ── skeleton ────────────────────────────────────────────────────── */
+
+function AgentsSkeleton() {
+  return (
+    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
+      <ZoruSkeleton className="h-3 w-48" />
+      <div className="mt-5 flex flex-col gap-2">
+        <ZoruSkeleton className="h-3 w-24" />
+        <ZoruSkeleton className="h-7 w-72" />
+        <ZoruSkeleton className="h-3 w-96" />
+      </div>
+      <div className="mt-6 grid gap-3 sm:grid-cols-3">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <ZoruSkeleton key={i} className="h-24 w-full" />
+        ))}
+      </div>
+      <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <ZoruSkeleton key={i} className="h-48 w-full" />
+        ))}
+      </div>
+    </div>
+  );
 }
 
-export default function AgentsPage() {
-    const [agents, setAgents] = useState<any[]>([]);
-    const [error, setError] = useState<string | null>(null);
-    const [isLoading, startTransition] = useTransition();
-    const [projectId, setProjectId] = useState<string | null>(null);
-    const [showForm, setShowForm] = useState(false);
-    const [formState, formAction] = useActionState(createFacebookAgent, initialFormState);
-    const formRef = useRef<HTMLFormElement>(null);
+/* ── stat tile ───────────────────────────────────────────────────── */
 
-    const fetchAgents = useCallback(() => {
-        if (!projectId) return;
-        startTransition(async () => {
-            const { agents: fetched, error: fetchError } = await getFacebookAgents(projectId);
-            if (fetchError) setError(fetchError);
-            else if (fetched) setAgents(fetched);
-        });
-    }, [projectId]);
-
-    useEffect(() => {
-        setProjectId(localStorage.getItem('activeProjectId'));
-    }, []);
-
-    useEffect(() => { fetchAgents(); }, [projectId, fetchAgents]);
-
-    useEffect(() => {
-        if (formState.message) {
-            setShowForm(false);
-            formRef.current?.reset();
-            fetchAgents();
-        }
-    }, [formState, fetchAgents]);
-
-    const handleToggle = (agentId: string, currentActive: boolean) => {
-        startTransition(async () => {
-            await updateFacebookAgent(agentId, { isActive: !currentActive });
-            fetchAgents();
-        });
-    };
-
-    const handleDelete = (agentId: string, name: string) => {
-        if (!confirm(`Delete agent "${name}"?`)) return;
-        startTransition(async () => {
-            await deleteFacebookAgent(agentId);
-            fetchAgents();
-        });
-    };
-
-    if (isLoading && agents.length === 0) return <PageSkeleton />;
-
-    const activeCount = agents.filter(a => a.isActive).length;
-
-    return (
-        <div className="flex flex-col gap-8">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                        <Bot className="h-8 w-8" /> AI Agents
-                    </h1>
-                    <p className="text-muted-foreground mt-2">Build, manage, and deploy conversational AI agents for Messenger.</p>
-                </div>
-                <Button onClick={() => setShowForm(!showForm)}>
-                    <Plus className="h-4 w-4 mr-2" /> Create Agent
-                </Button>
-            </div>
-
-            {!projectId ? (
-                <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>No Project Selected</AlertTitle>
-                    <AlertDescription>Please select a project from the main dashboard.</AlertDescription>
-                </Alert>
-            ) : error ? (
-                <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Error</AlertTitle>
-                    <AlertDescription>{error}</AlertDescription>
-                </Alert>
-            ) : (
-                <>
-                    {/* Stats */}
-                    <div className="grid md:grid-cols-2 gap-4">
-                        <Card className="card-gradient card-gradient-blue">
-                            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">Total Agents</CardTitle></CardHeader>
-                            <CardContent><p className="text-3xl font-bold">{agents.length}</p></CardContent>
-                        </Card>
-                        <Card className="card-gradient card-gradient-blue">
-                            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">Active Agents</CardTitle></CardHeader>
-                            <CardContent><p className="text-3xl font-bold">{activeCount}</p></CardContent>
-                        </Card>
-                    </div>
-
-                    {/* Create Form */}
-                    {showForm && (
-                        <Card className="card-gradient card-gradient-blue">
-                            <CardHeader><CardTitle className="text-base">New Agent</CardTitle></CardHeader>
-                            <CardContent>
-                                <form ref={formRef} action={formAction} className="space-y-4">
-                                    <input type="hidden" name="projectId" value={projectId} />
-                                    {formState.error && (
-                                        <Alert variant="destructive"><AlertCircle className="h-4 w-4" /><AlertDescription>{formState.error}</AlertDescription></Alert>
-                                    )}
-                                    <div className="space-y-2">
-                                        <Label htmlFor="name">Name *</Label>
-                                        <Input id="name" name="name" required placeholder="e.g. Support Bot" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="personality">Personality</Label>
-                                        <Textarea id="personality" name="personality" placeholder="friendly and helpful" rows={2} />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="welcomeMessage">Welcome Message</Label>
-                                        <Textarea id="welcomeMessage" name="welcomeMessage" placeholder="Hi! How can I help you today?" rows={2} />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="fallbackMessage">Fallback Message</Label>
-                                        <Textarea id="fallbackMessage" name="fallbackMessage" placeholder="Let me connect you with a human agent." rows={2} />
-                                    </div>
-                                    <div className="flex items-center gap-3">
-                                        <Switch id="isActive" name="isActive" />
-                                        <Label htmlFor="isActive">Active</Label>
-                                    </div>
-                                    <Button type="submit">Create Agent</Button>
-                                </form>
-                            </CardContent>
-                        </Card>
-                    )}
-
-                    {/* Agents Grid */}
-                    {agents.length > 0 ? (
-                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {agents.map((agent: any) => (
-                                <Card key={agent._id} className="card-gradient card-gradient-blue flex flex-col justify-between">
-                                    <CardHeader className="pb-3">
-                                        <div className="flex items-center justify-between">
-                                            <CardTitle className="text-base font-semibold">{agent.name}</CardTitle>
-                                            <Badge variant={agent.isActive ? 'default' : 'secondary'}
-                                                className={agent.isActive ? 'bg-green-600 hover:bg-green-700' : ''}>
-                                                {agent.isActive ? 'Active' : 'Inactive'}
-                                            </Badge>
-                                        </div>
-                                    </CardHeader>
-                                    <CardContent className="space-y-2 text-sm text-muted-foreground flex-1">
-                                        <p className="line-clamp-2">{agent.personality || 'No personality set'}</p>
-                                    </CardContent>
-                                    <div className="flex items-center justify-between p-4 pt-0">
-                                        <Button variant="ghost" size="sm" onClick={() => handleToggle(agent._id, agent.isActive)}>
-                                            <Power className="h-4 w-4 mr-1" /> {agent.isActive ? 'Deactivate' : 'Activate'}
-                                        </Button>
-                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive"
-                                            onClick={() => handleDelete(agent._id, agent.name)}>
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    </div>
-                                </Card>
-                            ))}
-                        </div>
-                    ) : !showForm ? (
-                        <Card className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg">
-                            <CardContent>
-                                <p className="text-lg font-semibold">No Agents Yet</p>
-                                <p>Create your first AI agent to get started.</p>
-                            </CardContent>
-                        </Card>
-                    ) : null}
-                </>
-            )}
+function StatTile({
+  label,
+  value,
+  hint,
+  icon,
+}: {
+  label: string;
+  value: string;
+  hint?: string;
+  icon: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-4">
+      <div className="flex items-start justify-between">
+        <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink [&_svg]:size-4">
+          {icon}
+        </span>
+      </div>
+      <div className="mt-3 text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+        {label}
+      </div>
+      <div className="mt-1 text-[22px] tracking-[-0.01em] text-zoru-ink leading-none">
+        {value}
+      </div>
+      {hint ? (
+        <div className="mt-1 truncate text-[11px] text-zoru-ink-muted">
+          {hint}
         </div>
-    );
+      ) : null}
+    </div>
+  );
+}
+
+/* ── agent card ──────────────────────────────────────────────────── */
+
+function AgentCard({
+  agent,
+  onToggle,
+  onDelete,
+  isPending,
+}: {
+  agent: Agent;
+  onToggle: () => void;
+  onDelete: () => void;
+  isPending: boolean;
+}) {
+  return (
+    <ZoruCard className="flex flex-col gap-4 p-5">
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex items-center gap-3">
+          <span
+            className={cn(
+              "flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius-sm)] [&_svg]:size-4",
+              agent.isActive
+                ? "bg-zoru-ink text-zoru-on-primary"
+                : "bg-zoru-surface-2 text-zoru-ink",
+            )}
+          >
+            <Bot />
+          </span>
+          <div className="min-w-0">
+            <p className="truncate text-[14px] text-zoru-ink">{agent.name}</p>
+            <p className="mt-0.5 text-[11px] text-zoru-ink-muted">
+              Messenger agent
+            </p>
+          </div>
+        </div>
+        <ZoruBadge variant={agent.isActive ? "outline" : "secondary"} className="gap-1">
+          <span
+            className={cn(
+              "h-1.5 w-1.5 rounded-full",
+              agent.isActive ? "bg-zoru-success" : "bg-zoru-ink-subtle",
+            )}
+          />
+          {agent.isActive ? "Active" : "Inactive"}
+        </ZoruBadge>
+      </div>
+
+      <p className="line-clamp-2 min-h-[2.4em] text-[12.5px] text-zoru-ink-muted leading-snug">
+        {agent.personality || "No personality set yet."}
+      </p>
+
+      {agent.welcomeMessage ? (
+        <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3">
+          <p className="text-[10.5px] uppercase tracking-wide text-zoru-ink-subtle">
+            Welcome message
+          </p>
+          <p className="mt-1 line-clamp-2 text-[12px] text-zoru-ink">
+            {agent.welcomeMessage}
+          </p>
+        </div>
+      ) : null}
+
+      <div className="flex items-center justify-between border-t border-zoru-line pt-3">
+        <ZoruButton
+          variant="ghost"
+          size="sm"
+          disabled={isPending}
+          onClick={onToggle}
+        >
+          {agent.isActive ? <Pause /> : <Play />}
+          {agent.isActive ? "Deactivate" : "Activate"}
+        </ZoruButton>
+        <ZoruButton
+          variant="ghost"
+          size="icon-sm"
+          aria-label="Delete agent"
+          onClick={onDelete}
+          className="text-zoru-danger hover:text-zoru-danger"
+        >
+          <Trash2 />
+        </ZoruButton>
+      </div>
+    </ZoruCard>
+  );
+}
+
+/* ── page ────────────────────────────────────────────────────────── */
+
+export default function AgentsPage() {
+  const [agents, setAgents] = useState<Agent[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, startTransition] = useTransition();
+  const [isMutating, startMutate] = useTransition();
+  const [projectId, setProjectId] = useState<string | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<Agent | null>(null);
+  const { toast } = useZoruToast();
+
+  const fetchAgents = useCallback(() => {
+    if (!projectId) return;
+    startTransition(async () => {
+      const { agents: fetched, error: fetchError } = await getFacebookAgents(
+        projectId,
+      );
+      if (fetchError) {
+        setError(fetchError);
+        return;
+      }
+      setError(null);
+      setAgents((fetched || []) as Agent[]);
+    });
+  }, [projectId]);
+
+  useEffect(() => {
+    setProjectId(localStorage.getItem("activeProjectId"));
+  }, []);
+
+  useEffect(() => {
+    fetchAgents();
+  }, [projectId, fetchAgents]);
+
+  const handleToggle = (agent: Agent) => {
+    startMutate(async () => {
+      const result = await updateFacebookAgent(agent._id, {
+        isActive: !agent.isActive,
+      });
+      if (result.error) {
+        toast({
+          title: "Couldn’t update agent",
+          description: result.error,
+          variant: "destructive",
+        });
+        return;
+      }
+      toast({
+        title: agent.isActive ? "Agent deactivated" : "Agent activated",
+        description: `${agent.name} is now ${
+          agent.isActive ? "inactive" : "active"
+        }.`,
+        variant: "success",
+      });
+      fetchAgents();
+    });
+  };
+
+  const stats = useMemo(() => {
+    const active = agents.filter((a) => a.isActive).length;
+    return {
+      total: agents.length,
+      active,
+      inactive: agents.length - active,
+    };
+  }, [agents]);
+
+  if (isLoading && agents.length === 0 && projectId) {
+    return <AgentsSkeleton />;
+  }
+
+  return (
+    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard/facebook">
+              Meta Suite
+            </ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Agents</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
+
+      <ZoruPageHeader className="mt-5" bordered={false}>
+        <ZoruPageHeading>
+          <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-zoru-ink-subtle">
+            Messenger AI
+          </p>
+          <ZoruPageTitle>AI agents</ZoruPageTitle>
+          <ZoruPageDescription>
+            Build, manage and deploy conversational AI agents that handle
+            Messenger conversations on this Page.
+          </ZoruPageDescription>
+        </ZoruPageHeading>
+        <div className="flex items-center gap-2">
+          <ZoruButton
+            variant="outline"
+            size="sm"
+            onClick={fetchAgents}
+            disabled={!projectId}
+          >
+            <RefreshCw /> Refresh
+          </ZoruButton>
+          <ZoruButton
+            size="sm"
+            disabled={!projectId}
+            onClick={() => setCreateOpen(true)}
+          >
+            <Plus /> Create agent
+          </ZoruButton>
+        </div>
+      </ZoruPageHeader>
+
+      {!projectId ? (
+        <div className="mt-6">
+          <NoProjectState />
+        </div>
+      ) : error ? (
+        <div className="mt-6">
+          <ZoruAlert variant="destructive">
+            <AlertCircle />
+            <ZoruAlertTitle>Couldn’t load agents</ZoruAlertTitle>
+            <ZoruAlertDescription>{error}</ZoruAlertDescription>
+          </ZoruAlert>
+        </div>
+      ) : (
+        <>
+          {/* ── Stats row ── */}
+          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <StatTile
+              label="Total agents"
+              value={String(stats.total)}
+              hint="Configured for this Page"
+              icon={<Bot />}
+            />
+            <StatTile
+              label="Active"
+              value={String(stats.active)}
+              hint="Currently handling conversations"
+              icon={<CircleCheck />}
+            />
+            <StatTile
+              label="Inactive"
+              value={String(stats.inactive)}
+              hint="Paused agents"
+              icon={<Pause />}
+            />
+          </div>
+
+          {/* ── Agents grid ── */}
+          {agents.length === 0 ? (
+            <div className="mt-6">
+              <ZoruEmptyState
+                icon={<Sparkles />}
+                title="No agents yet"
+                description="Create your first AI agent to start automating Messenger replies."
+                action={
+                  <ZoruButton onClick={() => setCreateOpen(true)}>
+                    <Plus /> Create agent
+                  </ZoruButton>
+                }
+              />
+            </div>
+          ) : (
+            <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {agents.map((agent) => (
+                <AgentCard
+                  key={agent._id}
+                  agent={agent}
+                  isPending={isMutating}
+                  onToggle={() => handleToggle(agent)}
+                  onDelete={() => setDeleteTarget(agent)}
+                />
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
+      {/* ── Dialogs ── */}
+      {projectId ? (
+        <AgentFormDialog
+          open={createOpen}
+          onOpenChange={setCreateOpen}
+          projectId={projectId}
+          onCreated={fetchAgents}
+        />
+      ) : null}
+
+      <DeleteAgentDialog
+        open={!!deleteTarget}
+        onOpenChange={(o) => {
+          if (!o) setDeleteTarget(null);
+        }}
+        agentId={deleteTarget?._id || null}
+        agentName={deleteTarget?.name || null}
+        onDeleted={fetchAgents}
+      />
+    </div>
+  );
 }

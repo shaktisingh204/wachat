@@ -127,9 +127,13 @@ fn account_field_updates_match_expected_shape() {
             field: "phone_number_quality_update",
             value: json!({"phone_number_id": "999", "event": "RED"}),
             expect: |out| {
-                let (_, update, _) = out.expect("legacy `event` quality must still produce an update");
+                let (_, update, _) =
+                    out.expect("legacy `event` quality must still produce an update");
                 let set = update.get_document("$set").unwrap();
-                assert_eq!(set.get_str("phoneNumbers.$[pn].qualityRating").unwrap(), "RED");
+                assert_eq!(
+                    set.get_str("phoneNumbers.$[pn].qualityRating").unwrap(),
+                    "RED"
+                );
             },
         },
         Case {
@@ -222,8 +226,14 @@ fn account_update_only_sets_keys_that_are_present() {
 
     let set = update.get_document("$set").unwrap();
     assert_eq!(set.get_str("accountStatus").unwrap(), "ACCOUNT_RESTRICTION");
-    assert!(!set.contains_key("banState"), "must not set banState when absent");
-    assert!(!set.contains_key("reviewStatus"), "must not set reviewStatus when absent");
+    assert!(
+        !set.contains_key("banState"),
+        "must not set banState when absent"
+    );
+    assert!(
+        !set.contains_key("reviewStatus"),
+        "must not set reviewStatus when absent"
+    );
     assert!(
         !set.contains_key("violationType"),
         "must not set violationType when absent"
@@ -254,7 +264,10 @@ fn all_filters_target_id_only() {
     let fixtures: &[(&str, Value)] = &[
         ("account_alerts", json!({"alert_type": "X"})),
         ("account_update", json!({"event": "X"})),
-        ("account_review_update", json!({"review_status": "APPROVED"})),
+        (
+            "account_review_update",
+            json!({"review_status": "APPROVED"}),
+        ),
         (
             "business_capability_update",
             json!({"business_capabilities": {"x": 1}}),

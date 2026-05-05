@@ -132,7 +132,10 @@ impl ConversationTracker {
         let mut outcome = TrackerOutcome::default();
 
         for msg in messages {
-            match self.upsert_inbound(&conversations, &contacts, project, msg).await {
+            match self
+                .upsert_inbound(&conversations, &contacts, project, msg)
+                .await
+            {
                 Ok(true) => outcome.conversations_touched += 1,
                 Ok(false) => { /* contact missing — already logged */ }
                 Err(err) => {
@@ -193,7 +196,10 @@ impl ConversationTracker {
         let mut outcome = TrackerOutcome::default();
 
         for status in interesting {
-            match self.apply_status(&conversations, &outgoing, project, status).await {
+            match self
+                .apply_status(&conversations, &outgoing, project, status)
+                .await
+            {
                 Ok(true) => outcome.conversations_touched += 1,
                 Ok(false) => { /* unknown wamid — already logged */ }
                 Err(err) => {
@@ -427,7 +433,11 @@ fn extract_message_preview(msg: &InboundMessage) -> (String, &'static str) {
 
     // Prefer text body, then media caption, else empty string.
     let raw = match msg.r#type.as_str() {
-        "text" => msg.text.as_ref().map(|t| t.body.clone()).unwrap_or_default(),
+        "text" => msg
+            .text
+            .as_ref()
+            .map(|t| t.body.clone())
+            .unwrap_or_default(),
         "image" => msg
             .image
             .as_ref()

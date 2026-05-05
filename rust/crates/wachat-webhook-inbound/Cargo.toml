@@ -2,8 +2,6 @@
 # orchestrator wires them into `rust/Cargo.toml` as a batch — until then this
 # empty `[workspace]` table tells cargo "I'm intentionally not a member of the
 # enclosing workspace" so `cargo check --manifest-path …` works in isolation.
-[workspace]
-
 [package]
 name = "wachat-webhook-inbound"
 version = "0.1.0"
@@ -51,3 +49,6 @@ wachat-meta-dto = { path = "../wachat-meta-dto" } # ChangeValue / InboundMessage
 # Test runtime + JSON literal builder for fixture documents.
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 serde_json = "1"
+
+[lints]
+workspace = true

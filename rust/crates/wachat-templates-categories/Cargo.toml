@@ -1,0 +1,65 @@
+# Phase 3 slice 4 — library / catalog template **write** endpoints.
+#
+# Mirrors the admin-facing write paths in `src/app/actions/template.actions.ts`:
+#   * `saveLibraryTemplate`         (line ~731) -> `TemplatesLibrary::save`
+#   * `deleteLibraryTemplate`       (line ~776) -> `TemplatesLibrary::delete`
+#   * `handleApplyTemplateToProjects` (line ~808) -> `TemplatesLibrary::apply_to_projects`
+#
+# IMPORTANT — collection name (sourced from the TS, not from the prompt):
+#   * `library_templates` (NOT `template_library`):
+#       `db.collection('library_templates').insertOne(...)`  (line 764)
+#       `db.collection('library_templates').deleteOne(...)`  (line 784)
+#   * `apply_to_projects` reads from the per-project `templates` collection
+#     and bulk-upserts back into the same `templates` collection — see TS
+#     line 815 and 868.
+#
+# Per the Phase 3 slice contract this crate is a leaf and is intentionally
+# **not** added to the parent `rust/Cargo.toml` workspace `members` list —
+# the orchestrator wires it in once all slices land. Mirrors the same pattern
+# used by sibling `wachat-templates` and `wachat-templates-engine`.
+[package]
+name = "wachat-templates-categories"
+version = "0.1.0"
+edition = "2024"
+description = "Write-side of the SabNode wachat **library / catalog** templates: admin save + delete on the `library_templates` Mongo collection, plus `apply_to_projects` which bulk-upserts a per-project source `templates` row into N target projects with a `(projectId, name, language)` dedup filter. Mirrors `saveLibraryTemplate`, `deleteLibraryTemplate`, and `handleApplyTemplateToProjects` from `src/app/actions/template.actions.ts`."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "wachat_templates_categories"
+path = "src/lib.rs"
+
+[dependencies]
+# Async runtime — Mongo driver is async.
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+# Serde stack — `Template.components` is opaque JSON, so serde_json carries it
+# verbatim through the bulk-upsert.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Mongo BSON. `chrono-0_4` gives us BSON <-> chrono interop for `createdAt`.
+bson = { version = "2.13", features = ["chrono-0_4"] }
+mongodb = "3.2"
+
+# Structured logging for write traces — every save/delete/apply emits one span.
+tracing = "0.1"
+
+# Errors + time.
+anyhow = "1"
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+# Sibling crates — public APIs only.
+sabnode-common = { path = "../common" }
+sabnode-db = { path = "../db" }
+wachat-types = { path = "../wachat-types" }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+serde_json = "1"
+bson = { version = "2.13", features = ["chrono-0_4"] }
+testcontainers = "0.23"
+testcontainers-modules = { version = "0.11", features = ["mongo"] }
+
+[lints]
+workspace = true

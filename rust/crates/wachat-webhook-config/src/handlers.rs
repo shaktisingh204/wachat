@@ -139,7 +139,9 @@ pub async fn list_logs(
         // cursor. Using the trimmed-row's timestamp (rather than the
         // last-kept row's) means the next page begins exactly where this
         // one ended, with no overlap or gap.
-        let extra = logs.pop().expect("len > limit guarantees at least one element");
+        let extra = logs
+            .pop()
+            .expect("len > limit guarantees at least one element");
         // The next request asks for rows strictly older than the last
         // *returned* row, so we hand back the last-kept row's timestamp.
         // (We popped only to keep the page size at `limit`.)
@@ -237,7 +239,10 @@ pub async fn reprocess(
         return Err(ApiError::NotFound(format!("webhook_log {id}")));
     }
 
-    Ok(Json(ReprocessResp { ok: true, log_id: id }))
+    Ok(Json(ReprocessResp {
+        ok: true,
+        log_id: id,
+    }))
 }
 
 // ---------------------------------------------------------------------------

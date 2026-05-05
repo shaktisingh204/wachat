@@ -11,10 +11,14 @@
  */
 import 'server-only';
 
+import { templatesApi } from './templates';
 import { usersApi } from './users';
+import { wachatWebhookApi } from './wachat-webhook';
 
 export const rustClient = {
     users: usersApi,
+    wachatWebhook: wachatWebhookApi,
+    templates: templatesApi,
 };
 
 export type RustClient = typeof rustClient;
@@ -22,3 +26,23 @@ export type RustClient = typeof rustClient;
 // Re-exports for convenient imports from one path.
 export { rustFetch, RustApiError } from './fetcher';
 export type { MeResponse, RustErrorEnvelope } from './types';
+export type {
+    WebhookLogSummary,
+    ListLogsResp,
+    ListLogsQuery,
+} from './wachat-webhook';
+export type {
+    RustTemplate,
+    RustLibraryTemplate,
+    CreateTemplateBody,
+    BulkCreateBody,
+    CreateFlowTemplateBody,
+    EditTemplateBody,
+    SyncBody,
+    SendTemplateBody,
+    SyncOutcome,
+    BulkCreateOutcome,
+    SendOutcome,
+    ApplyLibraryOutcome,
+    TemplatesApi,
+} from './templates';

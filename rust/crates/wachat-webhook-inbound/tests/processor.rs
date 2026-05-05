@@ -61,7 +61,11 @@ fn change_value_with(messages: serde_json::Value) -> ChangeValue {
 
 fn first_message(messages: serde_json::Value) -> InboundMessage {
     let cv = change_value_with(messages);
-    cv.messages.expect("messages").into_iter().next().expect("one message")
+    cv.messages
+        .expect("messages")
+        .into_iter()
+        .next()
+        .expect("one message")
 }
 
 // ─── InboundOutcome smoke ────────────────────────────────────────────────────
@@ -159,7 +163,11 @@ fn extract_media_id_for_each_kind() {
             "type": kind,
             (kind): { "id": "media-abc" },
         }]));
-        assert_eq!(extract_media_id(&m).as_deref(), Some("media-abc"), "kind={kind}");
+        assert_eq!(
+            extract_media_id(&m).as_deref(),
+            Some("media-abc"),
+            "kind={kind}"
+        );
     }
 }
 
@@ -351,7 +359,10 @@ fn build_doc_rejects_non_numeric_timestamp() {
     }]));
     let err = build_inbound_doc(&project, &msg).unwrap_err();
     let s = format!("{err}");
-    assert!(s.contains("timestamp"), "expected timestamp error, got: {s}");
+    assert!(
+        s.contains("timestamp"),
+        "expected timestamp error, got: {s}"
+    );
 }
 
 #[test]
@@ -393,7 +404,9 @@ async fn live_mongo_second_upsert_is_duplicate() {
     use wachat_webhook_inbound::InboundProcessor;
 
     let uri = std::env::var("MONGO_URI").expect("MONGO_URI required");
-    let mongo = MongoHandle::connect(&uri, "wachat_inbound_test").await.unwrap();
+    let mongo = MongoHandle::connect(&uri, "wachat_inbound_test")
+        .await
+        .unwrap();
     let processor = InboundProcessor::new(mongo);
     let project = fixture_project();
 

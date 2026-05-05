@@ -139,7 +139,9 @@ fn webhook_contact_serializes_with_optional_name() {
 fn contact_profile_default_for_missing_field_via_helper() {
     // Build a `ContactProfile` manually — proves the public type is
     // constructible from another crate (it's `pub`).
-    let p = ContactProfile { name: Some("Bob".to_owned()) };
+    let p = ContactProfile {
+        name: Some("Bob".to_owned()),
+    };
     assert_eq!(p.name.as_deref(), Some("Bob"));
 }
 
@@ -163,7 +165,9 @@ mod integration {
 
     /// Boot an ephemeral Mongo container and return a `MongoHandle` pointed
     /// at a fresh database for the calling test.
-    async fn fresh_mongo(db_name: &str) -> Option<(MongoHandle, testcontainers::ContainerAsync<Mongo>)> {
+    async fn fresh_mongo(
+        db_name: &str,
+    ) -> Option<(MongoHandle, testcontainers::ContainerAsync<Mongo>)> {
         if should_skip() {
             eprintln!("SKIP_TESTCONTAINERS=1 — skipping {db_name}");
             return None;
@@ -200,7 +204,9 @@ mod integration {
 
     #[tokio::test(flavor = "multi_thread")]
     async fn brand_new_contact_is_upserted() {
-        let Some((mongo, _c)) = fresh_mongo("contacts_test_new").await else { return };
+        let Some((mongo, _c)) = fresh_mongo("contacts_test_new").await else {
+            return;
+        };
         let project = fake_project();
         let upserter = ContactsUpserter::new(mongo.clone());
         let cv = change_value_for("919876543210", Some("Alice"));
@@ -229,7 +235,9 @@ mod integration {
 
     #[tokio::test(flavor = "multi_thread")]
     async fn same_contact_again_is_matched() {
-        let Some((mongo, _c)) = fresh_mongo("contacts_test_match").await else { return };
+        let Some((mongo, _c)) = fresh_mongo("contacts_test_match").await else {
+            return;
+        };
         let project = fake_project();
         let upserter = ContactsUpserter::new(mongo.clone());
         let cv = change_value_for("919876543210", Some("Alice"));
@@ -239,12 +247,17 @@ mod integration {
 
         let second = upserter.upsert_from_inbound(&project, &cv).await.unwrap();
         assert_eq!(second.upserted, 0, "second sighting must not insert");
-        assert_eq!(second.matched, 1, "second sighting must match the existing doc");
+        assert_eq!(
+            second.matched, 1,
+            "second sighting must match the existing doc"
+        );
     }
 
     #[tokio::test(flavor = "multi_thread")]
     async fn profile_name_change_updates_name() {
-        let Some((mongo, _c)) = fresh_mongo("contacts_test_rename").await else { return };
+        let Some((mongo, _c)) = fresh_mongo("contacts_test_rename").await else {
+            return;
+        };
         let project = fake_project();
         let upserter = ContactsUpserter::new(mongo.clone());
 
@@ -254,11 +267,16 @@ mod integration {
             .unwrap();
 
         upserter
-            .upsert_from_inbound(&project, &change_value_for("919876543210", Some("Alice Smith")))
+            .upsert_from_inbound(
+                &project,
+                &change_value_for("919876543210", Some("Alice Smith")),
+            )
             .await
             .unwrap();
 
-        let doc = read_contact(&mongo, project.id, "919876543210").await.unwrap();
+        let doc = read_contact(&mongo, project.id, "919876543210")
+            .await
+            .unwrap();
         assert_eq!(
             doc.get_str("name").unwrap(),
             "Alice Smith",
@@ -268,7 +286,9 @@ mod integration {
 
     #[tokio::test(flavor = "multi_thread")]
     async fn missing_profile_does_not_clobber_existing_name() {
-        let Some((mongo, _c)) = fresh_mongo("contacts_test_preserve").await else { return };
+        let Some((mongo, _c)) = fresh_mongo("contacts_test_preserve").await else {
+            return;
+        };
         let project = fake_project();
         let upserter = ContactsUpserter::new(mongo.clone());
 
@@ -284,7 +304,9 @@ mod integration {
             .await
             .unwrap();
 
-        let doc = read_contact(&mongo, project.id, "919876543210").await.unwrap();
+        let doc = read_contact(&mongo, project.id, "919876543210")
+            .await
+            .unwrap();
         assert_eq!(
             doc.get_str("name").unwrap(),
             "Alice",
@@ -296,7 +318,9 @@ mod integration {
     async fn empty_profile_name_does_not_clobber_existing_name() {
         // Meta has been observed to send `profile.name = ""` on edge events
         // — same intent as a missing profile, must not blank out the field.
-        let Some((mongo, _c)) = fresh_mongo("contacts_test_empty_name").await else { return };
+        let Some((mongo, _c)) = fresh_mongo("contacts_test_empty_name").await else {
+            return;
+        };
         let project = fake_project();
         let upserter = ContactsUpserter::new(mongo.clone());
 
@@ -310,7 +334,9 @@ mod integration {
             .await
             .unwrap();
 
-        let doc = read_contact(&mongo, project.id, "919876543210").await.unwrap();
+        let doc = read_contact(&mongo, project.id, "919876543210")
+            .await
+            .unwrap();
         assert_eq!(doc.get_str("name").unwrap(), "Alice");
     }
 }

@@ -15,6 +15,9 @@ use axum::extract::FromRef;
 use chrono::{DateTime, Utc};
 use sabnode_auth::AuthConfig;
 use sabnode_db::{mongo::MongoHandle, redis::RedisHandle};
+use wachat_templates_router::TemplatesState;
+use wachat_webhook::WebhookState;
+use wachat_webhook_verify::WebhookVerifier;
 
 #[derive(Clone)]
 pub struct AppState {
@@ -22,16 +25,29 @@ pub struct AppState {
     pub mongo: MongoHandle,
     pub redis: RedisHandle,
     pub auth: Arc<AuthConfig>,
+    pub webhook: WebhookState,
+    pub webhook_verifier: Arc<WebhookVerifier>,
+    pub templates: TemplatesState,
     pub ready: Arc<AtomicBool>,
 }
 
 impl AppState {
-    pub fn new(mongo: MongoHandle, redis: RedisHandle, auth: Arc<AuthConfig>) -> Self {
+    pub fn new(
+        mongo: MongoHandle,
+        redis: RedisHandle,
+        auth: Arc<AuthConfig>,
+        webhook: WebhookState,
+        webhook_verifier: Arc<WebhookVerifier>,
+        templates: TemplatesState,
+    ) -> Self {
         Self {
             started_at: Utc::now(),
             mongo,
             redis,
             auth,
+            webhook,
+            webhook_verifier,
+            templates,
             ready: Arc::new(AtomicBool::new(false)),
         }
     }
@@ -60,5 +76,23 @@ impl FromRef<AppState> for RedisHandle {
 impl FromRef<AppState> for Arc<AuthConfig> {
     fn from_ref(s: &AppState) -> Self {
         s.auth.clone()
+    }
+}
+
+impl FromRef<AppState> for WebhookState {
+    fn from_ref(s: &AppState) -> Self {
+        s.webhook.clone()
+    }
+}
+
+impl FromRef<AppState> for Arc<WebhookVerifier> {
+    fn from_ref(s: &AppState) -> Self {
+        s.webhook_verifier.clone()
+    }
+}
+
+impl FromRef<AppState> for TemplatesState {
+    fn from_ref(s: &AppState) -> Self {
+        s.templates.clone()
     }
 }

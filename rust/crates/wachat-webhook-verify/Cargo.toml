@@ -51,3 +51,6 @@ tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 hex = "0.4"
 hmac = "0.12"
 sha2 = "0.10"
+
+[lints]
+workspace = true

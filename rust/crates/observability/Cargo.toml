@@ -31,3 +31,6 @@ opentelemetry-semantic-conventions = "0.27"
 # Async runtime + error handling.
 tokio = { version = "1", features = ["rt", "rt-multi-thread", "macros"] }
 anyhow = "1.0"
+
+[lints]
+workspace = true

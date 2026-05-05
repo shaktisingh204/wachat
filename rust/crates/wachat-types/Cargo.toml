@@ -36,3 +36,6 @@ bson = { version = "2", features = ["chrono-0_4"] }
 # Empty [workspace] table makes this crate buildable standalone while it
 # waits to be added to the parent workspace's `members` list (per the
 # Phase 1 slice contract: do not modify the workspace Cargo.toml).
+
+[lints]
+workspace = true

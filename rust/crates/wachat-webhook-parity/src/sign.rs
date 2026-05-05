@@ -18,8 +18,7 @@ type HmacSha256 = Hmac<Sha256>;
 /// with `app_secret`. Returned string is `sha256={hex}` — drop it straight
 /// into the header map.
 pub fn sign(app_secret: &[u8], body: &[u8]) -> String {
-    let mut mac = HmacSha256::new_from_slice(app_secret)
-        .expect("HMAC accepts any key length");
+    let mut mac = HmacSha256::new_from_slice(app_secret).expect("HMAC accepts any key length");
     mac.update(body);
     let digest = mac.finalize().into_bytes();
     format!("sha256={}", hex::encode(digest))

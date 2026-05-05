@@ -1,8 +1,6 @@
 # Empty [workspace] table makes this crate buildable standalone while it
 # waits to be added to the parent workspace's `members` list (per the
 # Phase 2 slice contract: do not modify the workspace Cargo.toml).
-[workspace]
-
 [package]
 name = "wachat-webhook-dlq"
 version = "0.1.0"
@@ -69,3 +67,6 @@ fred = { version = "10.1", default-features = true, features = [
     "i-lists",
     "i-sorted-sets",
 ] }
+
+[lints]
+workspace = true

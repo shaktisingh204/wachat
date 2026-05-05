@@ -73,8 +73,7 @@ mod dlq_reason {
     pub const PROCESSOR_ERROR_INBOUND: &str = "processor_error:inbound";
     pub const PROCESSOR_ERROR_STATUS: &str = "processor_error:status";
     pub const PROCESSOR_ERROR_CONTACTS: &str = "processor_error:contacts";
-    pub const PROCESSOR_ERROR_CONVERSATIONS_INBOUND: &str =
-        "processor_error:conversations_inbound";
+    pub const PROCESSOR_ERROR_CONVERSATIONS_INBOUND: &str = "processor_error:conversations_inbound";
     pub const PROCESSOR_ERROR_CONVERSATIONS_STATUS: &str = "processor_error:conversations_status";
     pub const PROCESSOR_ERROR_ACCOUNT: &str = "processor_error:account";
     pub const PROCESSOR_ERROR_TEMPLATE_EVENTS: &str = "processor_error:template_events";
@@ -116,18 +115,19 @@ pub async fn dispatch_change(
         "message_template_status_update"
         | "message_template_quality_update"
         | "message_template_components_update" => {
-            if let Err(err) = state
-                .template_events
-                .process(project, value, field)
-                .await
-            {
+            if let Err(err) = state.template_events.process(project, value, field).await {
                 warn!(
                     error = %err,
                     field = field,
                     project_id = %project.id,
                     "template_events processor failed; routing to DLQ"
                 );
-                send_to_dlq(state, raw_payload, dlq_reason::PROCESSOR_ERROR_TEMPLATE_EVENTS).await;
+                send_to_dlq(
+                    state,
+                    raw_payload,
+                    dlq_reason::PROCESSOR_ERROR_TEMPLATE_EVENTS,
+                )
+                .await;
             }
         }
 
@@ -254,12 +254,99 @@ async fn dispatch_messages(
 /// DLQ writes are themselves fallible (Redis hiccup, queue full, etc.).
 /// We log a tracing error if the DLQ write fails — but we **must not**
 /// propagate, because the receiver always 200s back to Meta.
-async fn send_to_dlq(state: &WebhookState, raw_payload: &Bytes, reason: &str) {
-    if let Err(err) = state.dlq.send_to_dlq(raw_payload.clone(), reason).await {
+///
+/// Bridges the receiver's `&Bytes` with the DLQ's `&serde_json::Value`
+/// signature (DLQ stores the parsed JSON as BSON for queryability). A
+/// payload that fails to parse is logged but a synthetic envelope is sent
+/// so the bytes aren't lost: `{ "_raw": "<base64>", "_parse_error": "..." }`.
+pub(crate) async fn send_to_dlq(state: &WebhookState, raw_payload: &Bytes, reason: &str) {
+    let value = match serde_json::from_slice::<serde_json::Value>(raw_payload) {
+        Ok(v) => v,
+        Err(e) => serde_json::json!({
+            "_raw_base64": base64_encode(raw_payload),
+            "_parse_error": e.to_string(),
+        }),
+    };
+    if let Err(err) = state
+        .dlq
+        .send_to_dlq(None, "unknown", &value, reason, None)
+        .await
+    {
         tracing::error!(
             error = %err,
             reason = reason,
             "DLQ write failed — payload not preserved; manual replay required"
         );
     }
+}
+
+/// Variant that records the project + field association on the DLQ row.
+/// Kept for future call sites that have project context (e.g. once the
+/// dispatcher learns to associate processor errors with projects).
+#[allow(dead_code)]
+pub(crate) async fn send_to_dlq_with_context(
+    state: &WebhookState,
+    raw_payload: &Bytes,
+    project: &Project,
+    field: &str,
+    reason: &str,
+    error: Option<&str>,
+) {
+    let value = serde_json::from_slice::<serde_json::Value>(raw_payload)
+        .unwrap_or_else(|e| serde_json::json!({ "_parse_error": e.to_string() }));
+    let project_hex = project.id.to_hex();
+    if let Err(err) = state
+        .dlq
+        .send_to_dlq(Some(&project_hex), field, &value, reason, error)
+        .await
+    {
+        tracing::error!(
+            error = %err,
+            reason = reason,
+            field = field,
+            "DLQ write failed — payload not preserved; manual replay required"
+        );
+    }
+}
+
+fn base64_encode(bytes: &[u8]) -> String {
+    use std::fmt::Write;
+    const ALPHABET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    let mut out = String::with_capacity((bytes.len() + 2) / 3 * 4);
+    let mut iter = bytes.chunks_exact(3);
+    for chunk in iter.by_ref() {
+        let n = ((chunk[0] as u32) << 16) | ((chunk[1] as u32) << 8) | (chunk[2] as u32);
+        let _ = write!(
+            out,
+            "{}{}{}{}",
+            ALPHABET[((n >> 18) & 0x3f) as usize] as char,
+            ALPHABET[((n >> 12) & 0x3f) as usize] as char,
+            ALPHABET[((n >> 6) & 0x3f) as usize] as char,
+            ALPHABET[(n & 0x3f) as usize] as char,
+        );
+    }
+    let rem = iter.remainder();
+    match rem.len() {
+        1 => {
+            let n = (rem[0] as u32) << 16;
+            let _ = write!(
+                out,
+                "{}{}==",
+                ALPHABET[((n >> 18) & 0x3f) as usize] as char,
+                ALPHABET[((n >> 12) & 0x3f) as usize] as char,
+            );
+        }
+        2 => {
+            let n = ((rem[0] as u32) << 16) | ((rem[1] as u32) << 8);
+            let _ = write!(
+                out,
+                "{}{}{}=",
+                ALPHABET[((n >> 18) & 0x3f) as usize] as char,
+                ALPHABET[((n >> 12) & 0x3f) as usize] as char,
+                ALPHABET[((n >> 6) & 0x3f) as usize] as char,
+            );
+        }
+        _ => {}
+    }
+    out
 }

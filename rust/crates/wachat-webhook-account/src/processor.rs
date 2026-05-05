@@ -113,10 +113,12 @@ impl AccountProcessor {
                 self.handle_account_update(project, &raw).await?
             }
             "business_capability_update" => {
-                self.handle_business_capability_update(project, &raw).await?
+                self.handle_business_capability_update(project, &raw)
+                    .await?
             }
             "phone_number_quality_update" => {
-                self.handle_phone_number_quality_update(project, &raw).await?
+                self.handle_phone_number_quality_update(project, &raw)
+                    .await?
             }
             "phone_number_name_update" => {
                 self.handle_phone_number_name_update(project, &raw).await?
@@ -156,18 +158,11 @@ impl AccountProcessor {
     /// `update_one` with an empty filter that can never match so the upsert
     /// always inserts a new document (equivalent to `insert_one` but matches
     /// the slice's "all writes go through update_one" framing).
-    async fn record_event(
-        &self,
-        project_id: ObjectId,
-        field: &str,
-        value: &Value,
-    ) -> Result<()> {
+    async fn record_event(&self, project_id: ObjectId, field: &str, value: &Value) -> Result<()> {
         let value_bson = bson::to_bson(value).map_err(mongo_err)?;
         let now = bson::DateTime::from_chrono(Utc::now());
 
-        let coll = self
-            .mongo
-            .collection::<Document>(ACCOUNT_EVENTS_COLL);
+        let coll = self.mongo.collection::<Document>(ACCOUNT_EVENTS_COLL);
 
         // Filter targets a never-existing sentinel id so the upsert always
         // inserts a new audit row. Equivalent to insert_one but expressed as

@@ -1,205 +1,547 @@
-'use client';
+"use client";
 
-import React, { useState, useActionState, useRef, useEffect } from 'react';
-import { useFormStatus } from 'react-dom';
-import Link from 'next/link';
-import { handleCreateFacebookPost, getPageDetails } from '@/app/actions/facebook.actions';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, X, Image as ImageIcon, LoaderCircle, Send, Video, Calendar } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { Switch } from '@/components/ui/switch';
-import { DatePicker } from '@/components/ui/date-picker';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import Image from 'next/image';
-import type { FacebookPageDetails } from '@/lib/definitions';
-import { Separator } from '@/components/ui/separator';
+/**
+ * /dashboard/facebook/create-post — Composer, ZoruUI rebuild.
+ *
+ * Two-pane layout:
+ *  - Left  : multi-section ZoruCard form (page identity, message, media,
+ *             scheduling). Same hidden-field contract as before
+ *             (projectId, postType, message, mediaFile, isScheduled,
+ *             scheduledDate, scheduledTime).
+ *  - Right : elevated preview pane mimicking the published Facebook card.
+ *
+ * Server action: `handleCreateFacebookPost` (unchanged).
+ */
 
-const initialState: { message?: string, error?: string } = {};
+import * as React from "react";
+import {
+  useActionState,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { useFormStatus } from "react-dom";
+import Image from "next/image";
+import Link from "next/link";
+import { format } from "date-fns";
+import {
+  CalendarClock,
+  Image as ImageIcon,
+  Loader2,
+  Send,
+  Upload,
+  Video,
+  X,
+} from "lucide-react";
+
+import {
+  getPageDetails,
+  handleCreateFacebookPost,
+} from "@/app/actions/facebook.actions";
+import type { FacebookPageDetails } from "@/lib/definitions";
+
+import {
+  ZoruAvatar,
+  ZoruAvatarFallback,
+  ZoruAvatarImage,
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruDatePicker,
+  ZoruInput,
+  ZoruLabel,
+  ZoruPageActions,
+  ZoruPageDescription,
+  ZoruPageEyebrow,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruSeparator,
+  ZoruSwitch,
+  ZoruTextarea,
+  useZoruToast,
+} from "@/components/zoruui";
+
+import { NoProjectState } from "../_components/no-project-state";
+
+const initialState: { message?: string; error?: string } = {};
+
+type PostType = "text" | "image" | "video";
 
 function SubmitButton({ disabled }: { disabled: boolean }) {
-    const { pending } = useFormStatus();
-    return (
-        <Button type="submit" size="sm" disabled={pending || disabled}>
-            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
-            Post
-        </Button>
-    )
+  const { pending } = useFormStatus();
+  return (
+    <ZoruButton type="submit" size="sm" disabled={pending || disabled}>
+      {pending ? <Loader2 className="animate-spin" /> : <Send />}
+      Publish
+    </ZoruButton>
+  );
 }
 
 export default function CreateFacebookPostPage() {
-    const [state, formAction] = useActionState(handleCreateFacebookPost, initialState);
-    const { toast } = useToast();
-    const formRef = useRef<HTMLFormElement>(null);
-    const fileInputRef = useRef<HTMLInputElement>(null);
+  const [state, formAction] = useActionState(
+    handleCreateFacebookPost,
+    initialState,
+  );
+  const { toast } = useZoruToast();
+  const formRef = useRef<HTMLFormElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const [projectId, setProjectId] = useState<string | null>(null);
-    const [pageDetails, setPageDetails] = useState<FacebookPageDetails | null>(null);
+  const [projectId, setProjectId] = useState<string | null>(null);
+  const [projectIdReady, setProjectIdReady] = useState(false);
+  const [pageDetails, setPageDetails] = useState<FacebookPageDetails | null>(
+    null,
+  );
 
-    // Form state
-    const [message, setMessage] = useState('');
-    const [mediaFile, setMediaFile] = useState<File | null>(null);
-    const [mediaPreview, setMediaPreview] = useState<string | null>(null);
-    const [postType, setPostType] = useState<'text' | 'image' | 'video'>('text');
+  // Form state
+  const [message, setMessage] = useState("");
+  const [mediaFile, setMediaFile] = useState<File | null>(null);
+  const [mediaPreview, setMediaPreview] = useState<string | null>(null);
+  const [postType, setPostType] = useState<PostType>("text");
 
-    // Scheduling state
-    const [isScheduled, setIsScheduled] = useState(false);
-    const [scheduledDate, setScheduledDate] = useState<Date>();
+  // Scheduling state
+  const [isScheduled, setIsScheduled] = useState(false);
+  const [scheduledDate, setScheduledDate] = useState<Date>();
+  const [scheduledTime, setScheduledTime] = useState("");
 
-    useEffect(() => {
-        const storedProjectId = localStorage.getItem('activeProjectId');
-        setProjectId(storedProjectId);
-        if (storedProjectId) {
-            getPageDetails(storedProjectId).then(result => {
-                if (result.page) setPageDetails(result.page);
-            });
-        }
-    }, []);
-
-    useEffect(() => {
-        if (state.message) {
-            toast({ title: 'Success', description: state.message });
-            formRef.current?.reset();
-            setMessage('');
-            setMediaFile(null);
-            setMediaPreview(null);
-            setPostType('text');
-            setIsScheduled(false);
-            setScheduledDate(undefined);
-            if (fileInputRef.current) fileInputRef.current.value = '';
-        }
-        if (state.error) {
-            toast({ title: 'Error', description: state.error, variant: 'destructive' });
-        }
-    }, [state, toast]);
-
-    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (file) {
-            setMediaFile(file);
-            if (file.type.startsWith('image/')) {
-                setPostType('image');
-            } else if (file.type.startsWith('video/')) {
-                setPostType('video');
-            }
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setMediaPreview(reader.result as string);
-            }
-            reader.readAsDataURL(file);
-        }
-    };
-
-    const isPostButtonDisabled = message.trim() === '' && !mediaFile;
-
-    if (!projectId) {
-        return (
-            <div className="flex justify-center p-4">
-                <Alert variant="destructive" className="max-w-xl">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>No Project Selected</AlertTitle>
-                    <AlertDescription>Please select a project with a connected Facebook Page to create a post.</AlertDescription>
-                </Alert>
-            </div>
-        );
+  useEffect(() => {
+    document.title = "Create post · Meta Suite · SabNode";
+    const stored =
+      typeof window !== "undefined"
+        ? localStorage.getItem("activeProjectId")
+        : null;
+    setProjectId(stored);
+    setProjectIdReady(true);
+    if (stored) {
+      getPageDetails(stored).then((result) => {
+        if (result.page) setPageDetails(result.page);
+      });
     }
+  }, []);
 
+  useEffect(() => {
+    if (state.message) {
+      toast({ title: "Post published", description: state.message });
+      formRef.current?.reset();
+      setMessage("");
+      setMediaFile(null);
+      setMediaPreview(null);
+      setPostType("text");
+      setIsScheduled(false);
+      setScheduledDate(undefined);
+      setScheduledTime("");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+    if (state.error) {
+      toast({
+        title: "Could not publish",
+        description: state.error,
+        variant: "destructive",
+      });
+    }
+  }, [state, toast]);
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setMediaFile(file);
+      if (file.type.startsWith("image/")) {
+        setPostType("image");
+      } else if (file.type.startsWith("video/")) {
+        setPostType("video");
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setMediaPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const clearMedia = () => {
+    setMediaFile(null);
+    setMediaPreview(null);
+    setPostType("text");
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const isPostDisabled = message.trim() === "" && !mediaFile;
+
+  const previewTimestamp = useMemo(() => {
+    if (isScheduled && scheduledDate) {
+      const datePart = format(scheduledDate, "PPP");
+      return scheduledTime ? `${datePart} at ${scheduledTime}` : datePart;
+    }
+    return "Just now";
+  }, [isScheduled, scheduledDate, scheduledTime]);
+
+  if (!projectIdReady) {
     return (
-        <div className="flex justify-center p-4">
-            <form action={formAction} ref={formRef} className="w-full max-w-xl">
-                <input type="hidden" name="projectId" value={projectId || ''} />
-                <input type="hidden" name="postType" value={postType} />
-
-                <Card className="card-gradient card-gradient-green">
-                    <CardHeader className="flex flex-row items-center justify-between">
-                        <Button variant="ghost" size="icon" asChild>
-                            <Link href="/dashboard/facebook"><X className="h-5 w-5" /></Link>
-                        </Button>
-                        <h1 className="text-lg font-bold">Create Post</h1>
-                        <SubmitButton disabled={isPostButtonDisabled} />
-                    </CardHeader>
-
-                    <CardContent className="space-y-4 min-h-[200px]">
-                        <div className="flex gap-3">
-                            <Avatar>
-                                {pageDetails?.picture?.data.url && <AvatarImage src={pageDetails.picture.data.url} alt={pageDetails.name} />}
-                                <AvatarFallback>{pageDetails?.name.charAt(0) || 'P'}</AvatarFallback>
-                            </Avatar>
-                            <Textarea
-                                name="message"
-                                value={message}
-                                onChange={(e) => setMessage(e.target.value)}
-                                placeholder="What do you want to talk about?"
-                                className="min-h-32 border-none focus-visible:ring-0 shadow-none p-0 bg-transparent text-base"
-                            />
-                        </div>
-
-                        {mediaPreview && (
-                            <div className="relative mt-4">
-                                {postType === 'image' ? (
-                                    <Image src={mediaPreview} width={500} height={280} alt="Preview" className="rounded-lg object-cover w-full" />
-                                ) : (
-                                    <video src={mediaPreview} controls className="rounded-lg w-full"></video>
-                                )}
-                                <Button
-                                    variant="secondary"
-                                    size="icon"
-                                    type="button"
-                                    className="absolute top-2 right-2 h-7 w-7 rounded-full bg-black/50 text-white hover:bg-black/70"
-                                    onClick={() => {
-                                        setMediaFile(null);
-                                        setMediaPreview(null);
-                                        setPostType('text');
-                                        if (fileInputRef.current) fileInputRef.current.value = '';
-                                    }}
-                                >
-                                    <X className="h-4 w-4" />
-                                </Button>
-                            </div>
-                        )}
-
-                        <input type="file" name="mediaFile" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*,video/*" />
-                    </CardContent>
-
-                    <CardFooter className="flex-col items-start gap-4 border-t pt-4">
-                        <div className="flex items-center justify-between w-full">
-                            <Label className="font-semibold">Add to your post</Label>
-                            <div className="flex items-center gap-2">
-                                <Button type="button" variant="ghost" size="icon" onClick={() => fileInputRef.current?.click()}><ImageIcon className="h-5 w-5 text-green-500" /></Button>
-                                <Button type="button" variant="ghost" size="icon" onClick={() => fileInputRef.current?.click()}><Video className="h-5 w-5 text-blue-500" /></Button>
-                            </div>
-                        </div>
-
-                        <Separator />
-
-                        <div className="flex items-center justify-between w-full">
-                            <div className="flex items-center space-x-2">
-                                <Switch id="isScheduledSwitch" name="isScheduled" checked={isScheduled} onCheckedChange={setIsScheduled} />
-                                <Label htmlFor="isScheduledSwitch" className="flex items-center gap-2 font-normal cursor-pointer">
-                                    <Calendar className="h-4 w-4" />
-                                    Schedule Post
-                                </Label>
-                            </div>
-                            {isScheduled && (
-                                <div className="flex flex-wrap gap-2">
-                                    <DatePicker date={scheduledDate} setDate={setScheduledDate} />
-                                    <Input name="scheduledTime" type="time" required className="w-28" />
-                                </div>
-                            )}
-                        </div>
-                        {isScheduled && (
-                            <>
-                                <input type="hidden" name="isScheduled" value="on" />
-                                <input type="hidden" name="scheduledDate" value={scheduledDate?.toISOString().split('T')[0]} />
-                            </>
-                        )}
-                    </CardFooter>
-                </Card>
-            </form>
-        </div>
+      <div className="mx-auto w-full max-w-[1320px] px-6 pt-10">
+        <p className="text-sm text-zoru-ink-muted">Loading composer…</p>
+      </div>
     );
+  }
+
+  if (!projectId) {
+    return (
+      <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
+        <NoProjectState />
+      </div>
+    );
+  }
+
+  return (
+    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard/facebook">
+              Meta Suite
+            </ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Create post</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
+
+      <ZoruPageHeader bordered={false} className="mt-5">
+        <ZoruPageHeading>
+          <ZoruPageEyebrow>Meta Suite</ZoruPageEyebrow>
+          <ZoruPageTitle>Create post</ZoruPageTitle>
+          <ZoruPageDescription>
+            Compose a new post for your connected Facebook Page. Add media,
+            schedule for later, or publish immediately.
+          </ZoruPageDescription>
+        </ZoruPageHeading>
+        <ZoruPageActions>
+          <ZoruButton variant="outline" size="sm" asChild>
+            <Link href="/dashboard/facebook/posts">
+              <X /> Cancel
+            </Link>
+          </ZoruButton>
+        </ZoruPageActions>
+      </ZoruPageHeader>
+
+      <form action={formAction} ref={formRef} className="mt-6">
+        <input type="hidden" name="projectId" value={projectId} />
+        <input type="hidden" name="postType" value={postType} />
+        {isScheduled && (
+          <>
+            <input type="hidden" name="isScheduled" value="on" />
+            <input
+              type="hidden"
+              name="scheduledDate"
+              value={scheduledDate?.toISOString().split("T")[0] ?? ""}
+            />
+          </>
+        )}
+
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_minmax(0,420px)]">
+          {/* ── Composer ─────────────────────────────────────────── */}
+          <div className="flex flex-col gap-6">
+            {/* Identity */}
+            <ZoruCard>
+              <ZoruCardHeader>
+                <ZoruCardTitle>Posting as</ZoruCardTitle>
+              </ZoruCardHeader>
+              <ZoruCardContent>
+                <div className="flex items-center gap-3">
+                  <ZoruAvatar>
+                    {pageDetails?.picture?.data.url && (
+                      <ZoruAvatarImage
+                        src={pageDetails.picture.data.url}
+                        alt={pageDetails.name}
+                      />
+                    )}
+                    <ZoruAvatarFallback>
+                      {pageDetails?.name?.charAt(0) ?? "P"}
+                    </ZoruAvatarFallback>
+                  </ZoruAvatar>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-semibold text-zoru-ink">
+                      {pageDetails?.name ?? "Connected Page"}
+                    </span>
+                    <span className="text-[12px] text-zoru-ink-muted">
+                      Public post · Facebook Page
+                    </span>
+                  </div>
+                </div>
+              </ZoruCardContent>
+            </ZoruCard>
+
+            {/* Message */}
+            <ZoruCard>
+              <ZoruCardHeader>
+                <ZoruCardTitle>Message</ZoruCardTitle>
+              </ZoruCardHeader>
+              <ZoruCardContent>
+                <div className="flex flex-col gap-2">
+                  <ZoruLabel htmlFor="message" className="sr-only">
+                    Post message
+                  </ZoruLabel>
+                  <ZoruTextarea
+                    id="message"
+                    name="message"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    placeholder="What do you want to talk about?"
+                    rows={6}
+                    className="min-h-32 resize-y"
+                  />
+                  <p className="text-[11px] text-zoru-ink-subtle">
+                    {message.length} characters
+                  </p>
+                </div>
+              </ZoruCardContent>
+            </ZoruCard>
+
+            {/* Media */}
+            <ZoruCard>
+              <ZoruCardHeader>
+                <ZoruCardTitle>Media</ZoruCardTitle>
+              </ZoruCardHeader>
+              <ZoruCardContent className="flex flex-col gap-4">
+                <input
+                  ref={fileInputRef}
+                  id="mediaFile"
+                  name="mediaFile"
+                  type="file"
+                  accept="image/*,video/*"
+                  className="sr-only"
+                  onChange={handleFileChange}
+                />
+                {mediaPreview ? (
+                  <div className="relative overflow-hidden rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-surface-2">
+                    {postType === "image" ? (
+                      <Image
+                        src={mediaPreview}
+                        width={760}
+                        height={420}
+                        alt="Post media preview"
+                        className="h-auto w-full object-cover"
+                      />
+                    ) : (
+                      <video
+                        src={mediaPreview}
+                        controls
+                        className="w-full"
+                      />
+                    )}
+                    <ZoruButton
+                      type="button"
+                      variant="outline"
+                      size="icon-sm"
+                      className="absolute right-2 top-2"
+                      aria-label="Remove media"
+                      onClick={clearMedia}
+                    >
+                      <X />
+                    </ZoruButton>
+                  </div>
+                ) : (
+                  <label
+                    htmlFor="mediaFile"
+                    className="flex cursor-pointer flex-col items-center gap-2 rounded-[var(--zoru-radius-lg)] border border-dashed border-zoru-line bg-zoru-bg p-8 text-center transition-colors hover:border-zoru-line-strong hover:bg-zoru-surface focus-within:border-zoru-ink"
+                  >
+                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
+                      <Upload className="h-5 w-5" />
+                    </span>
+                    <span className="text-sm font-medium text-zoru-ink">
+                      Click to attach an image or video
+                    </span>
+                    <span className="text-xs text-zoru-ink-muted">
+                      JPG, PNG, MP4 or MOV — up to a few hundred MB
+                    </span>
+                  </label>
+                )}
+                <div className="flex items-center gap-2">
+                  <ZoruButton
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <ImageIcon /> Add image
+                  </ZoruButton>
+                  <ZoruButton
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <Video /> Add video
+                  </ZoruButton>
+                  {mediaFile && (
+                    <span className="ml-2 truncate text-[12px] text-zoru-ink-muted">
+                      {mediaFile.name}
+                    </span>
+                  )}
+                </div>
+              </ZoruCardContent>
+            </ZoruCard>
+
+            {/* Scheduling */}
+            <ZoruCard>
+              <ZoruCardHeader>
+                <ZoruCardTitle>Schedule</ZoruCardTitle>
+              </ZoruCardHeader>
+              <ZoruCardContent className="flex flex-col gap-4">
+                <div className="flex items-center justify-between gap-4 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface px-4 py-3">
+                  <div className="flex flex-col">
+                    <ZoruLabel
+                      htmlFor="isScheduledSwitch"
+                      className="font-semibold"
+                    >
+                      Schedule this post
+                    </ZoruLabel>
+                    <span className="text-[12px] text-zoru-ink-muted">
+                      Publish later at a specific date and time.
+                    </span>
+                  </div>
+                  <ZoruSwitch
+                    id="isScheduledSwitch"
+                    checked={isScheduled}
+                    onCheckedChange={setIsScheduled}
+                  />
+                </div>
+
+                {isScheduled && (
+                  <>
+                    <ZoruSeparator />
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      <div className="flex flex-col gap-2">
+                        <ZoruLabel htmlFor="scheduledDate">Date</ZoruLabel>
+                        <ZoruDatePicker
+                          value={scheduledDate}
+                          onChange={setScheduledDate}
+                          placeholder="Pick a date"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <ZoruLabel htmlFor="scheduledTime">Time</ZoruLabel>
+                        <ZoruInput
+                          id="scheduledTime"
+                          name="scheduledTime"
+                          type="time"
+                          required
+                          value={scheduledTime}
+                          onChange={(e) => setScheduledTime(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
+              </ZoruCardContent>
+            </ZoruCard>
+
+            {/* Actions */}
+            <div className="flex items-center justify-between gap-3 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg px-4 py-3">
+              <p className="text-[12px] text-zoru-ink-muted">
+                {isPostDisabled
+                  ? "Add a message or attach media to enable publishing."
+                  : isScheduled
+                  ? "This post will be queued for the date and time above."
+                  : "This post will be published immediately."}
+              </p>
+              <div className="flex items-center gap-2">
+                <ZoruButton type="button" variant="outline" size="sm" asChild>
+                  <Link href="/dashboard/facebook/posts">Cancel</Link>
+                </ZoruButton>
+                <SubmitButton disabled={isPostDisabled} />
+              </div>
+            </div>
+          </div>
+
+          {/* ── Preview pane ─────────────────────────────────────── */}
+          <div className="lg:sticky lg:top-6 lg:self-start">
+            <ZoruCard variant="elevated">
+              <ZoruCardHeader className="flex-row items-center justify-between">
+                <ZoruCardTitle>Preview</ZoruCardTitle>
+                <ZoruBadge variant="ghost">
+                  {postType === "video"
+                    ? "Video"
+                    : postType === "image"
+                    ? "Photo"
+                    : "Text"}
+                </ZoruBadge>
+              </ZoruCardHeader>
+              <ZoruCardContent className="flex flex-col gap-3">
+                <div className="flex items-center gap-3">
+                  <ZoruAvatar>
+                    {pageDetails?.picture?.data.url && (
+                      <ZoruAvatarImage
+                        src={pageDetails.picture.data.url}
+                        alt={pageDetails.name}
+                      />
+                    )}
+                    <ZoruAvatarFallback>
+                      {pageDetails?.name?.charAt(0) ?? "P"}
+                    </ZoruAvatarFallback>
+                  </ZoruAvatar>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-semibold text-zoru-ink">
+                      {pageDetails?.name ?? "Connected Page"}
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-[11px] text-zoru-ink-muted">
+                      <CalendarClock className="h-3 w-3" />
+                      {previewTimestamp}
+                    </span>
+                  </div>
+                </div>
+
+                {message ? (
+                  <p className="whitespace-pre-wrap text-sm text-zoru-ink">
+                    {message}
+                  </p>
+                ) : (
+                  <p className="text-sm italic text-zoru-ink-subtle">
+                    Your message will appear here.
+                  </p>
+                )}
+
+                {mediaPreview && (
+                  <div className="overflow-hidden rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface-2">
+                    {postType === "image" ? (
+                      <Image
+                        src={mediaPreview}
+                        width={420}
+                        height={236}
+                        alt="Preview media"
+                        className="h-auto w-full object-cover"
+                      />
+                    ) : (
+                      <video
+                        src={mediaPreview}
+                        className="w-full"
+                        muted
+                        loop
+                        playsInline
+                      />
+                    )}
+                  </div>
+                )}
+              </ZoruCardContent>
+            </ZoruCard>
+          </div>
+        </div>
+      </form>
+    </div>
+  );
 }

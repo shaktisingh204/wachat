@@ -11,6 +11,11 @@ import { getAdminSession } from '@/lib/admin-session';
 import { handleSingleMessageEvent, processStatusUpdateBatch, processSingleWebhook } from "@/lib/webhook-processor";
 import type { WebhookLog, Project, WebhookLogListItem } from "@/lib/definitions";
 
+// USE_RUST_BACKEND=true forwards each function to the Rust webhook admin
+// endpoints. Both stacks read the same `webhook_logs` collection so the
+// flag can be flipped per-tenant or globally without data migration.
+const USE_RUST = () => process.env.USE_RUST_BACKEND === 'true';
+
 function getEventSummaryForLog(log: WithId<WebhookLog>): string {
     try {
         const change = log?.payload?.entry?.[0]?.changes?.[0];
@@ -68,6 +73,29 @@ export async function getWebhookLogs(
     limit: number = 20,
     query?: string
 ): Promise<{ logs: WebhookLogListItem[], total: number }> {
+    if (USE_RUST()) {
+        try {
+            const { rustClient } = await import('@/lib/rust-client');
+            const safeLimit = Number.isInteger(limit) && limit > 0 ? limit : 20;
+            const resp = await rustClient.wachatWebhook.listLogs({
+                projectId: projectId ?? undefined,
+                limit: safeLimit,
+            });
+            return {
+                logs: resp.logs.map(l => ({
+                    _id: l.id,
+                    createdAt: l.receivedAt,
+                    eventField: l.field || 'N/A',
+                    eventSummary: l.error ? `Error: ${l.error}` : `Status: ${l.status}`,
+                })),
+                // Cursor-based pagination — total isn't returned; the UI uses
+                // logs.length as a "has-more" proxy when nextCursor is set.
+                total: resp.nextCursor ? safeLimit * (page + 1) : safeLimit * page,
+            };
+        } catch (e) {
+            console.error('Rust listLogs failed; falling back to TS path:', getErrorMessage(e));
+        }
+    }
     try {
         const { db } = await connectToDatabase();
         const filter: Filter<WebhookLog> = {};
@@ -116,6 +144,14 @@ export async function getWebhookLogPayload(logId: string): Promise<any | null> {
     if (!ObjectId.isValid(logId)) {
         return null;
     }
+    if (USE_RUST()) {
+        try {
+            const { rustClient } = await import('@/lib/rust-client');
+            return await rustClient.wachatWebhook.getPayload(logId);
+        } catch (e) {
+            console.error('Rust getPayload failed; falling back to TS path:', getErrorMessage(e));
+        }
+    }
     try {
         const { db } = await connectToDatabase();
         const log = await db.collection('webhook_logs').findOne({ _id: new ObjectId(logId) }, { projection: { payload: 1 } });
@@ -129,6 +165,15 @@ export async function getWebhookLogPayload(logId: string): Promise<any | null> {
 export async function handleReprocessWebhook(logId: string): Promise<{ message?: string; error?: string }> {
     if (!ObjectId.isValid(logId)) {
         return { error: 'Invalid Log ID.' };
+    }
+    if (USE_RUST()) {
+        try {
+            const { rustClient } = await import('@/lib/rust-client');
+            const r = await rustClient.wachatWebhook.reprocess(logId);
+            return { message: r.ok ? `Marked log ${r.logId} for reprocessing.` : 'Reprocess failed.' };
+        } catch (e) {
+            console.error('Rust reprocess failed; falling back to TS path:', getErrorMessage(e));
+        }
     }
     try {
         const { db } = await connectToDatabase();
@@ -187,10 +232,21 @@ export async function handleClearProcessedLogs(): Promise<{ message?: string; er
     const { isAdmin } = await getAdminSession();
     if (!isAdmin) return { error: 'Permission denied.' };
 
+    if (USE_RUST()) {
+        try {
+            const { rustClient } = await import('@/lib/rust-client');
+            const r = await rustClient.wachatWebhook.clearProcessed();
+            revalidatePath('/wachat/webhooks');
+            return { message: `Successfully cleared ${r.deleted} processed webhook log(s).` };
+        } catch (e) {
+            console.error('Rust clearProcessed failed; falling back to TS path:', getErrorMessage(e));
+        }
+    }
+
     try {
         const { db } = await connectToDatabase();
         const result = await db.collection('webhook_logs').deleteMany({ processed: true });
-        
+
         revalidatePath('/wachat/webhooks');
 
         return { message: `Successfully cleared ${result.deletedCount} processed webhook log(s).` };

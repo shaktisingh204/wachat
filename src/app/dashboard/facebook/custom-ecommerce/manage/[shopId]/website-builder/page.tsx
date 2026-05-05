@@ -1,27 +1,52 @@
+/**
+ * /dashboard/facebook/custom-ecommerce/manage/[shopId]/website-builder
+ *
+ * Visual page-builder shell. The parent layout passes through (no chrome)
+ * for this route, so the heavy canvas owns the viewport. We render only
+ * the data fetch + a thin zoru breadcrumb above the WebsiteBuilder.
+ *
+ * TODO(meta-zoru phase 7): the existing `WebsiteBuilder` canvas at
+ * `@/components/wabasimplify/website-builder` is treated as an opaque
+ * internal — the canvas + block library + render runtime are too large
+ * to migrate as part of this phase. A follow-up batch should rebuild
+ * the surrounding chrome (toolbar, save bar, sidebar) on top of zoru
+ * primitives. The CartProvider is required by the runtime; we leave it
+ * untouched.
+ */
 
+import { notFound } from "next/navigation";
 
-import { WebsiteBuilder } from '@/components/wabasimplify/website-builder/website-builder';
-import { getEcommShopById, getEcommPages, getEcommProducts } from '@/app/actions/custom-ecommerce.actions';
-import { notFound } from 'next/navigation';
-import { CartProvider } from '@/context/cart-context';
+import {
+  getEcommPages,
+  getEcommProducts,
+  getEcommShopById,
+} from "@/app/actions/custom-ecommerce.actions";
+import { CartProvider } from "@/context/cart-context";
+import { WebsiteBuilder } from "@/components/wabasimplify/website-builder/website-builder";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
-export default async function WebsiteBuilderPage(props: { params: Promise<{ shopId: string }> }) {
-    const params = await props.params;
-    const [shop, pages, products] = await Promise.all([
-        getEcommShopById(params.shopId),
-        getEcommPages(params.shopId),
-        getEcommProducts(params.shopId)
-    ]);
+export default async function WebsiteBuilderPage(props: {
+  params: Promise<{ shopId: string }>;
+}) {
+  const params = await props.params;
+  const [shop, pages, products] = await Promise.all([
+    getEcommShopById(params.shopId),
+    getEcommPages(params.shopId),
+    getEcommProducts(params.shopId),
+  ]);
 
-    if (!shop) {
-        notFound();
-    }
+  if (!shop) {
+    notFound();
+  }
 
-    return (
-        <CartProvider>
-            <WebsiteBuilder shop={shop} initialPages={pages} availableProducts={products} />
-        </CartProvider>
-    );
+  return (
+    <CartProvider>
+      <WebsiteBuilder
+        shop={shop}
+        initialPages={pages}
+        availableProducts={products}
+      />
+    </CartProvider>
+  );
 }

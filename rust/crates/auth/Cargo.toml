@@ -27,3 +27,6 @@ chrono = { version = "0.4", default-features = false, features = ["clock", "serd
 # Sibling crate (built in parallel by another agent).
 # Provides `ApiError` so we can convert AuthError → 401 responses uniformly.
 sabnode-common = { path = "../common" }
+
+[lints]
+workspace = true

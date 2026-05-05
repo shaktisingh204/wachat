@@ -129,23 +129,14 @@ impl TemplateEventsProcessor {
 
     // ── handlers ────────────────────────────────────────────────────────
 
-    async fn handle_status_update(
-        &self,
-        project: &Project,
-        v: &Value,
-    ) -> Result<TemplateOutcome> {
+    async fn handle_status_update(&self, project: &Project, v: &Value) -> Result<TemplateOutcome> {
         let event = v.get("event").and_then(Value::as_str).unwrap_or("");
-        let meta_template_id = v
-            .get("message_template_id")
-            .and_then(value_as_string_loose);
+        let meta_template_id = v.get("message_template_id").and_then(value_as_string_loose);
         let template_name = v
             .get("message_template_name")
             .and_then(Value::as_str)
             .map(str::to_owned);
-        let reason = v
-            .get("reason")
-            .and_then(Value::as_str)
-            .map(str::to_owned);
+        let reason = v.get("reason").and_then(Value::as_str).map(str::to_owned);
         let disable_info = v.get("disable_info").cloned();
 
         let Some(status) = meta_event_to_status(event) else {
@@ -164,7 +155,11 @@ impl TemplateEventsProcessor {
         let status_str = template_status_to_str(status);
         let now = Utc::now();
 
-        let filter = build_filter(project, meta_template_id.as_deref(), template_name.as_deref());
+        let filter = build_filter(
+            project,
+            meta_template_id.as_deref(),
+            template_name.as_deref(),
+        );
 
         let mut set_doc = doc! {
             "status": status_str,
@@ -235,14 +230,8 @@ impl TemplateEventsProcessor {
         })
     }
 
-    async fn handle_quality_update(
-        &self,
-        project: &Project,
-        v: &Value,
-    ) -> Result<TemplateOutcome> {
-        let meta_template_id = v
-            .get("message_template_id")
-            .and_then(value_as_string_loose);
+    async fn handle_quality_update(&self, project: &Project, v: &Value) -> Result<TemplateOutcome> {
+        let meta_template_id = v.get("message_template_id").and_then(value_as_string_loose);
         let template_name = v
             .get("message_template_name")
             .and_then(Value::as_str)
@@ -266,7 +255,11 @@ impl TemplateEventsProcessor {
             return Ok(TemplateOutcome::unmatched());
         };
 
-        let filter = build_filter(project, meta_template_id.as_deref(), template_name.as_deref());
+        let filter = build_filter(
+            project,
+            meta_template_id.as_deref(),
+            template_name.as_deref(),
+        );
 
         let update = doc! {
             "$set": {
@@ -310,9 +303,7 @@ impl TemplateEventsProcessor {
         project: &Project,
         v: &Value,
     ) -> Result<TemplateOutcome> {
-        let meta_template_id = v
-            .get("message_template_id")
-            .and_then(value_as_string_loose);
+        let meta_template_id = v.get("message_template_id").and_then(value_as_string_loose);
         let template_name = v
             .get("message_template_name")
             .and_then(Value::as_str)
@@ -338,7 +329,11 @@ impl TemplateEventsProcessor {
             return Ok(TemplateOutcome::unmatched());
         };
 
-        let filter = build_filter(project, meta_template_id.as_deref(), template_name.as_deref());
+        let filter = build_filter(
+            project,
+            meta_template_id.as_deref(),
+            template_name.as_deref(),
+        );
         let update = doc! {
             "$set": {
                 "components": components_bson,

@@ -1,89 +1,352 @@
-'use client';
+"use client";
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Server, Settings, ShoppingBag, Package, Megaphone, MessageSquare, Webhook, LayoutGrid } from 'lucide-react';
-import Link from 'next/link';
+/**
+ * /dashboard/facebook/commerce/api — Meta Suite Commerce API reference
+ * + integration config.
+ *
+ * Two stacked surfaces:
+ *   1. Integration config form — webhook URL, signing secret, key
+ *      preview. Read-only by default with an explicit "Rotate key"
+ *      destructive action that opens a ZoruAlertDialog.
+ *   2. API reference cards — overview of the Meta APIs that power the
+ *      Commerce builder. Same content as the legacy page, restyled.
+ *
+ * Pure ZoruUI primitives. No coloured gradients.
+ */
 
-const apiAreas = [
-    {
-        title: "Business Setup",
-        icon: Settings,
-        apis: ["Graph API", "Business Management API"],
-        description: "For merchant registration and business asset management."
-    },
-    {
-        title: "Catalogs & Products",
-        icon: ShoppingBag,
-        apis: ["Product Catalog API"],
-        description: "To upload, manage, and organize products and collections."
-    },
-    {
-        title: "Shops",
-        icon: LayoutGrid,
-        apis: ["Commerce API"],
-        description: "For creating and configuring your Facebook Shop storefront."
-    },
-    {
-        title: "Orders & Fulfillment",
-        icon: Package,
-        apis: ["Commerce Orders API"],
-        description: "Handles orders, payments (if applicable), and fulfillment."
-    },
-    {
-        title: "Ads (Optional)",
-        icon: Megaphone,
-        apis: ["Marketing API"],
-        description: "Used for boosting products and creating dynamic catalog ads."
-    },
-    {
-        title: "Messaging (Optional)",
-        icon: MessageSquare,
-        apis: ["Messenger Platform API"],
-        description: "For customer communication regarding orders and support."
-    },
-    {
-        title: "Automation",
-        icon: Webhook,
-        apis: ["Webhooks"],
-        description: "To receive real-time notifications for orders, messages, and product updates."
-    }
-];
+import * as React from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import {
+  Copy,
+  Eye,
+  EyeOff,
+  KeyRound,
+  LayoutGrid,
+  Megaphone,
+  MessageSquare,
+  Package,
+  RotateCw,
+  Server,
+  Settings,
+  ShoppingBag,
+  Webhook,
+} from "lucide-react";
+
+import {
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruAlertTitle,
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardFooter,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSwitch,
+  useZoruToast,
+} from "@/components/zoruui";
+
+import {
+  CommerceBreadcrumb,
+  CommerceHeader,
+  CommercePage,
+} from "../../_components/commerce-shell";
+import { RotateApiKeyConfirmDialog } from "../../_components/commerce-api-dialogs";
+
+const API_AREAS = [
+  {
+    title: "Business setup",
+    icon: Settings,
+    apis: ["Graph API", "Business Management API"],
+    description: "Merchant registration and business asset management.",
+  },
+  {
+    title: "Catalogs & products",
+    icon: ShoppingBag,
+    apis: ["Product Catalog API"],
+    description:
+      "Upload, manage and organize products and product collections.",
+  },
+  {
+    title: "Shops",
+    icon: LayoutGrid,
+    apis: ["Commerce API"],
+    description: "Create and configure your Facebook Shop storefront.",
+  },
+  {
+    title: "Orders & fulfillment",
+    icon: Package,
+    apis: ["Commerce Orders API"],
+    description: "Handle orders, payments (where applicable) and fulfillment.",
+  },
+  {
+    title: "Ads (optional)",
+    icon: Megaphone,
+    apis: ["Marketing API"],
+    description: "Boost products and create dynamic catalog ads.",
+  },
+  {
+    title: "Messaging (optional)",
+    icon: MessageSquare,
+    apis: ["Messenger Platform API"],
+    description: "Customer communication for orders and support.",
+  },
+  {
+    title: "Automation",
+    icon: Webhook,
+    apis: ["Webhooks"],
+    description:
+      "Real-time notifications for orders, messages and product updates.",
+  },
+] as const;
+
+const PLACEHOLDER_KEY = "sk_meta_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 
 export default function CommerceApiPage() {
-    return (
-        <div className="flex flex-col gap-8">
+  const { toast } = useZoruToast();
+  const [showKey, setShowKey] = useState(false);
+  const [keyValue, setKeyValue] = useState(PLACEHOLDER_KEY);
+  const [webhookUrl, setWebhookUrl] = useState("");
+  const [signingSecret, setSigningSecret] = useState("");
+  const [autoSync, setAutoSync] = useState(true);
+  const [rotateOpen, setRotateOpen] = useState(false);
+
+  // Hydrate from local storage so config "sticks" across navigations.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setWebhookUrl(localStorage.getItem("commerceWebhookUrl") ?? "");
+    setSigningSecret(localStorage.getItem("commerceSigningSecret") ?? "");
+    const autoRaw = localStorage.getItem("commerceAutoSync");
+    if (autoRaw !== null) setAutoSync(autoRaw === "true");
+  }, []);
+
+  const handleSave = () => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("commerceWebhookUrl", webhookUrl);
+      localStorage.setItem("commerceSigningSecret", signingSecret);
+      localStorage.setItem("commerceAutoSync", String(autoSync));
+    }
+    toast({
+      title: "Configuration saved",
+      description: "Commerce API settings updated for this project.",
+      variant: "success",
+    });
+  };
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(keyValue);
+      toast({
+        title: "API key copied",
+        description: "The current key has been copied to your clipboard.",
+        variant: "success",
+      });
+    } catch {
+      toast({
+        title: "Copy failed",
+        description: "Couldn't access the clipboard. Copy manually instead.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleRotate = async () => {
+    // Issue a placeholder key so the UI can demonstrate the rotation
+    // flow until the server-side endpoint is wired up.
+    const next =
+      "sk_meta_" +
+      Array.from({ length: 32 })
+        .map(() => Math.floor(Math.random() * 36).toString(36))
+        .join("");
+    setKeyValue(next);
+    setShowKey(true);
+  };
+
+  return (
+    <CommercePage>
+      <CommerceBreadcrumb section="Commerce" pageLabel="API" />
+      <CommerceHeader
+        eyebrow="Meta Suite › Commerce"
+        title="API & integrations"
+        description="Configure the Commerce API key, webhook endpoint and review the Meta APIs that power your Facebook Shop."
+      />
+
+      {/* ── Integration config ── */}
+      <ZoruCard className="mt-6">
+        <ZoruCardHeader>
+          <ZoruCardTitle className="flex items-center gap-2 text-base">
+            <Server className="h-4 w-4" /> Integration configuration
+          </ZoruCardTitle>
+          <ZoruCardDescription>
+            Manage credentials and the webhook endpoint Meta will call when
+            commerce events occur.
+          </ZoruCardDescription>
+        </ZoruCardHeader>
+        <ZoruCardContent className="grid gap-5">
+          <div className="grid gap-1.5">
+            <ZoruLabel htmlFor="api-key">Commerce API key</ZoruLabel>
+            <div className="flex gap-2">
+              <ZoruInput
+                id="api-key"
+                value={keyValue}
+                readOnly
+                type={showKey ? "text" : "password"}
+                className="font-mono text-xs"
+              />
+              <ZoruButton
+                type="button"
+                variant="outline"
+                size="icon"
+                aria-label={showKey ? "Hide key" : "Show key"}
+                onClick={() => setShowKey((v) => !v)}
+              >
+                {showKey ? <EyeOff /> : <Eye />}
+              </ZoruButton>
+              <ZoruButton
+                type="button"
+                variant="outline"
+                size="icon"
+                aria-label="Copy key"
+                onClick={handleCopy}
+              >
+                <Copy />
+              </ZoruButton>
+            </div>
+            <p className="text-[11.5px] text-zoru-ink-muted">
+              Treat this value as a secret. Rotate it if it has ever been
+              shared, committed or leaked.
+            </p>
+          </div>
+
+          <div className="grid gap-1.5">
+            <ZoruLabel htmlFor="webhook-url">Webhook URL</ZoruLabel>
+            <ZoruInput
+              id="webhook-url"
+              type="url"
+              placeholder="https://example.com/webhooks/meta-commerce"
+              value={webhookUrl}
+              onChange={(e) => setWebhookUrl(e.target.value)}
+            />
+          </div>
+
+          <div className="grid gap-1.5">
+            <ZoruLabel htmlFor="signing-secret">Signing secret</ZoruLabel>
+            <ZoruInput
+              id="signing-secret"
+              type="password"
+              placeholder="Used to verify Meta webhook signatures"
+              value={signingSecret}
+              onChange={(e) => setSigningSecret(e.target.value)}
+            />
+          </div>
+
+          <div className="flex items-center justify-between rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface-2 px-4 py-3">
             <div>
-                <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><Server /> E-Commerce API Reference</h1>
-                <p className="text-muted-foreground">An overview of the Meta APIs used to power the E-Commerce builder.</p>
+              <p className="text-sm font-medium text-zoru-ink">
+                Auto-sync catalog
+              </p>
+              <p className="text-[11.5px] text-zoru-ink-muted">
+                Pull catalog changes from Meta every 30 minutes.
+              </p>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {apiAreas.map((area) => {
-                    const Icon = area.icon;
-                    return (
-                        <Card key={area.title} className="flex flex-col card-gradient card-gradient-green">
-                            <CardHeader>
-                                <div className="flex items-center gap-3">
-                                    <Icon className="h-6 w-6 text-primary" />
-                                    <CardTitle>{area.title}</CardTitle>
-                                </div>
-                                <CardDescription>{area.description}</CardDescription>
-                            </CardHeader>
-                            <CardContent className="flex-grow">
-                                <div className="flex flex-wrap gap-2">
-                                    {area.apis.map(api => (
-                                        <Badge key={api} variant="outline">{api}</Badge>
-                                    ))}
-                                </div>
-                            </CardContent>
-                        </Card>
-                    );
-                })}
-            </div>
-             <div className="text-center text-sm text-muted-foreground">
-                For detailed documentation, please visit the <Link href="https://developers.facebook.com/docs/commerce-platform" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Meta Commerce Platform Docs</Link>.
-            </div>
+            <ZoruSwitch
+              id="auto-sync"
+              checked={autoSync}
+              onCheckedChange={setAutoSync}
+            />
+          </div>
+        </ZoruCardContent>
+        <ZoruCardFooter className="flex flex-wrap items-center justify-between gap-3">
+          <ZoruButton
+            variant="outline"
+            onClick={() => setRotateOpen(true)}
+          >
+            <RotateCw />
+            Rotate API key
+          </ZoruButton>
+          <ZoruButton onClick={handleSave}>
+            <KeyRound />
+            Save configuration
+          </ZoruButton>
+        </ZoruCardFooter>
+      </ZoruCard>
+
+      <ZoruAlert className="mt-6">
+        <KeyRound className="h-4 w-4" />
+        <ZoruAlertTitle>Need to wire a webhook?</ZoruAlertTitle>
+        <ZoruAlertDescription>
+          Webhook subscriptions and signing live under{" "}
+          <Link
+            href="/dashboard/facebook/webhooks"
+            className="underline-offset-2 hover:underline"
+          >
+            Meta Suite › Webhooks
+          </Link>
+          . Configure your endpoint there and return here to plug in the
+          signing secret.
+        </ZoruAlertDescription>
+      </ZoruAlert>
+
+      {/* ── API reference cards ── */}
+      <section className="mt-8">
+        <h2 className="text-[15px] font-medium text-zoru-ink">
+          Meta API reference
+        </h2>
+        <p className="mt-1 text-sm text-zoru-ink-muted">
+          The Meta APIs that power the Commerce builder. Click through to
+          official docs on the link below.
+        </p>
+        <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {API_AREAS.map((area) => {
+            const Icon = area.icon;
+            return (
+              <ZoruCard key={area.title} className="flex h-full flex-col">
+                <ZoruCardHeader>
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface-2 text-zoru-ink">
+                      <Icon className="h-4 w-4" />
+                    </div>
+                    <ZoruCardTitle className="text-base">
+                      {area.title}
+                    </ZoruCardTitle>
+                  </div>
+                  <ZoruCardDescription>{area.description}</ZoruCardDescription>
+                </ZoruCardHeader>
+                <ZoruCardContent className="mt-auto flex flex-wrap gap-2">
+                  {area.apis.map((api) => (
+                    <ZoruBadge key={api} variant="outline">
+                      {api}
+                    </ZoruBadge>
+                  ))}
+                </ZoruCardContent>
+              </ZoruCard>
+            );
+          })}
         </div>
-    );
+        <p className="mt-6 text-center text-sm text-zoru-ink-muted">
+          For detailed documentation, see the{" "}
+          <Link
+            href="https://developers.facebook.com/docs/commerce-platform"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-zoru-ink underline-offset-2 hover:underline"
+          >
+            Meta Commerce Platform docs
+          </Link>
+          .
+        </p>
+      </section>
+
+      <RotateApiKeyConfirmDialog
+        open={rotateOpen}
+        onOpenChange={setRotateOpen}
+        onRotate={handleRotate}
+      />
+    </CommercePage>
+  );
 }

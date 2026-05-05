@@ -243,14 +243,13 @@ async fn run_record(args: RecordArgs) -> Result<()> {
         // not against the original wire bytes (which we don't have on disk),
         // so as long as we sign the same bytes we ship the receivers will
         // accept us.
-        let Some(payload) = doc.get("payload") else { continue };
+        let Some(payload) = doc.get("payload") else {
+            continue;
+        };
         let body_value: Value = bson::Bson::from(payload.clone()).into_relaxed_extjson();
         let body = serde_json::to_string(&body_value).context("serialize fixture body")?;
 
-        let captured_at = doc
-            .get_datetime("createdAt")
-            .ok()
-            .map(|d| d.to_chrono());
+        let captured_at = doc.get_datetime("createdAt").ok().map(|d| d.to_chrono());
 
         fixtures.push(Fixture {
             body,
@@ -278,8 +277,7 @@ async fn run_replay(args: ReplayArgs) -> Result<()> {
     let raw = tokio::fs::read(&args.fixture)
         .await
         .with_context(|| format!("read fixture {}", args.fixture.display()))?;
-    let fixtures: Vec<Fixture> =
-        serde_json::from_slice(&raw).context("parse fixture file")?;
+    let fixtures: Vec<Fixture> = serde_json::from_slice(&raw).context("parse fixture file")?;
 
     let http = reqwest::Client::builder()
         .timeout(Duration::from_secs(args.timeout_secs))

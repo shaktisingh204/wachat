@@ -1,0 +1,56 @@
+[package]
+name = "wachat-templates-sync"
+version = "0.1.0"
+edition = "2024"
+description = "Phase-3 slice: pulls WhatsApp message templates from Meta Graph API and upserts them into the SabNode `templates` Mongo collection. Mirrors `handleSyncTemplates` from `src/app/actions/template.actions.ts`."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "wachat_templates_sync"
+path = "src/lib.rs"
+
+[dependencies]
+# Async runtime — only needed at the binary edge, but the crate's public
+# surface is `async`, so consumers must already pull it in.
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "time"] }
+
+# Serialization. Components stay as `serde_json::Value` (matches Mongo doc shape).
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Mongo plumbing — drives the `bulkWrite`-equivalent upsert loop.
+bson = { version = "2.13", features = ["chrono-0_4"] }
+mongodb = "3.2"
+
+# Datetime support (created_at on freshly-inserted templates).
+chrono = { version = "0.4", default-features = false, features = ["serde", "clock"] }
+
+# HTTP — the *first* page goes through `MetaClient`, but subsequent
+# `paging.next` URLs come back from Meta as fully-qualified URLs that
+# already embed `?access_token=...`. The TS code follows them with a raw
+# `fetch(nextUrl)` (line 53). We mirror that with a raw `reqwest` call,
+# rather than trying to reconstruct cursors back through `MetaClient`.
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "gzip"] }
+
+# Logging + error plumbing.
+tracing = "0.1"
+anyhow = "1"
+
+# SabNode crates.
+sabnode-common = { path = "../common" }
+sabnode-db = { path = "../db" }
+wachat-types = { path = "../wachat-types" }
+wachat-meta-client = { path = "../wachat-meta-client" }
+wachat-meta-dto = { path = "../wachat-meta-dto" }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+wiremock = "0.6"
+serde_json = "1"
+url = "2"
+chrono = { version = "0.4", default-features = false, features = ["clock"] }
+bson = { version = "2.13", features = ["chrono-0_4"] }
+
+[lints]
+workspace = true

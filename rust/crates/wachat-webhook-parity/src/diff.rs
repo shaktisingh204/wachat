@@ -36,8 +36,7 @@ fn walk(path: &str, a: &Value, b: &Value, out: &mut Vec<Difference>) {
     match (a, b) {
         (Value::Object(am), Value::Object(bm)) => {
             // Union of keys, sorted for deterministic output.
-            let mut keys: Vec<&String> =
-                am.keys().chain(bm.keys()).collect();
+            let mut keys: Vec<&String> = am.keys().chain(bm.keys()).collect();
             keys.sort();
             keys.dedup();
 

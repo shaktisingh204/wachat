@@ -30,8 +30,18 @@ pub fn build(state: AppState) -> Router {
 
     let v1 = sabnode_users::router::<AppState>();
 
+    // Wachat webhook routes are absolute (`/v1/wachat/webhook/meta`) so they
+    // merge at the root rather than nest under /v1.
+    let wachat_webhook = wachat_webhook::router::<AppState>();
+    let wachat_webhook_admin: Router<AppState> =
+        Router::new().nest("/admin", wachat_webhook_config::router::<AppState>());
+    let wachat_templates = wachat_templates_router::router::<AppState>();
+
     Router::new()
         .merge(routes::health::router())
+        .merge(wachat_webhook)
+        .nest("/v1/wachat/webhook", wachat_webhook_admin)
+        .nest("/v1/wachat/templates", wachat_templates)
         .nest("/v1", v1)
         .with_state(state)
         .layer(SetRequestIdLayer::new(

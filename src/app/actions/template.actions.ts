@@ -1,162 +1,30 @@
-
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
 import type { WithId } from 'mongodb';
-import { ObjectId } from 'mongodb';
-import axios from 'axios';
-import NodeFormData from 'form-data';
-
-import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById } from '@/app/actions/project.actions';
-import { getAdminSession } from '@/lib/admin-session';
-import { getErrorMessage } from '@/lib/utils';
-import { premadeTemplates } from '@/lib/premade-templates';
-import type { Project, Template, CreateTemplateState, MetaTemplate, MetaTemplatesResponse, LibraryTemplate, TemplateCategory } from '@/lib/definitions';
-import { createTemplateSchema } from '@/lib/template-schema';
-
-const API_VERSION = 'v22.0';
+import type { Template, CreateTemplateState } from '@/lib/definitions';
 
 export async function getTemplates(projectId: string): Promise<WithId<Template>[]> {
-    if (!projectId || !ObjectId.isValid(projectId)) {
-        return [];
-    }
-
+    if (!projectId) return [];
     try {
-        const { db } = await connectToDatabase();
-        const project = await getProjectById(projectId);
-        if (!project) return [];
-
-        const templates = await db.collection('templates').find({ projectId: new ObjectId(projectId) }).sort({ createdAt: -1 }).toArray();
-
-        return JSON.parse(JSON.stringify(templates));
-    } catch (error) {
-        console.error("Failed to fetch templates:", error);
+        const { rustClient } = await import('@/lib/rust-client');
+        const list = await rustClient.templates.list(projectId);
+        return list as unknown as WithId<Template>[];
+    } catch (e) {
+        console.error('Failed to fetch templates:', e);
         return [];
     }
 }
 
 export async function handleSyncTemplates(projectId: string): Promise<{ message?: string, error?: string, count?: number }> {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Project not found or you do not have access.' };
-
     try {
-        const { db } = await connectToDatabase();
-
-        const { wabaId, accessToken } = project;
-
-        const allTemplates: MetaTemplate[] = [];
-        let nextUrl: string | undefined = `https://graph.facebook.com/${API_VERSION}/${wabaId}/message_templates?access_token=${accessToken}&fields=name,components,language,status,category,id,quality_score&limit=100`;
-
-        while (nextUrl) {
-            const response = await fetch(nextUrl, { method: 'GET' });
-
-            if (!response.ok) {
-                let reason = 'Unknown API Error';
-                try {
-                    const errorData = await response.json();
-                    reason = errorData?.error?.message || reason;
-                } catch (e) {
-                    reason = `Could not parse error response from Meta. Status: ${response.status} ${response.statusText}`;
-                }
-                return { error: `Failed to fetch templates from Meta: ${reason}` };
-            }
-
-            const templatesResponse: MetaTemplatesResponse = await response.json();
-
-            if (templatesResponse.data && templatesResponse.data.length > 0) {
-                allTemplates.push(...templatesResponse.data);
-            }
-
-            nextUrl = templatesResponse.paging?.next;
-        }
-
-        if (allTemplates.length === 0) {
-            return { message: "No templates found in your WhatsApp Business Account to sync." }
-        }
-
-        const templatesToUpsert = allTemplates.map(t => {
-            const bodyComponent = t.components.find(c => c.type === 'BODY');
-            const headerComponent = t.components.find(c => c.type === 'HEADER' && ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(c.format || ''));
-
-            return {
-                name: t.name,
-                category: t.category,
-                language: t.language,
-                status: t.status,
-                body: bodyComponent?.text || '',
-                projectId: new ObjectId(projectId),
-                metaId: t.id,
-                components: t.components,
-                qualityScore: t.quality_score?.score?.toUpperCase() || 'UNKNOWN',
-                headerSampleUrl: headerComponent?.example?.header_handle?.[0] ? `https://graph.facebook.com/${headerComponent.example.header_handle[0]}` : undefined
-            };
-        });
-
-        const bulkOps = templatesToUpsert.map(template => ({
-            updateOne: {
-                filter: { metaId: template.metaId, projectId: template.projectId },
-                update: { $set: template },
-                upsert: true,
-            }
-        }));
-
-        const result = await db.collection('templates').bulkWrite(bulkOps);
-        const syncedCount = result.upsertedCount + result.modifiedCount;
-
+        const { rustClient } = await import('@/lib/rust-client');
+        const r = await rustClient.templates.sync({ projectId });
         revalidatePath('/wachat/templates');
-
-        return { message: `Successfully synced ${syncedCount} template(s).`, count: syncedCount };
-
+        const count = (r as any)?.upserted ?? (r as any)?.count ?? 0;
+        return { message: `Successfully synced ${count} template(s).`, count };
     } catch (e: any) {
-        console.error('Template sync failed:', e);
-        return { error: e.message || 'An unexpected error occurred during template sync.' };
-    }
-}
-
-
-async function getMediaHandleForTemplate(file: File | null, url: string | null, accessToken: string, appId: string): Promise<{ handle: string | null; error?: string; }> {
-    if (!file && !url) return { handle: null, error: undefined };
-
-    try {
-        let mediaData: Buffer;
-        let fileType: string;
-        let fileLength: number;
-
-        if (file && file.size > 0) {
-            mediaData = Buffer.from(await file.arrayBuffer());
-            fileType = file.type;
-            fileLength = file.size;
-        } else if (url) {
-            try {
-                const mediaResponse = await axios.get(url, { responseType: 'arraybuffer' });
-                const contentType = mediaResponse.headers['content-type'] || '';
-
-                if (contentType.includes('text/html') || contentType.includes('application/json')) {
-                    return { handle: null, error: `The provided URL returned ${contentType} instead of a valid media file. Please provide a direct link to the image or video.` };
-                }
-
-                mediaData = Buffer.from(mediaResponse.data);
-                fileType = mediaResponse.headers['content-type'] || 'application/octet-stream';
-                fileLength = mediaData.length;
-            } catch (urlError: any) {
-                return { handle: null, error: `Failed to fetch media from URL: ${getErrorMessage(urlError)}` };
-            }
-        } else {
-            return { handle: null, error: undefined };
-        }
-
-        const sessionUrl = `https://graph.facebook.com/${API_VERSION}/${appId}/uploads?file_length=${fileLength}&file_type=${fileType}&access_token=${accessToken}`;
-        const sessionResponse = await axios.post(sessionUrl, {});
-        const uploadSessionId = sessionResponse.data.id;
-
-        const uploadUrl = `https://graph.facebook.com/${API_VERSION}/${uploadSessionId}`;
-        const uploadResponse = await axios.post(uploadUrl, mediaData, { headers: { Authorization: `OAuth ${accessToken}` } });
-        return { handle: uploadResponse.data.h, error: undefined };
-    } catch (uploadError: any) {
-        const errorMessage = getErrorMessage(uploadError);
-        return { handle: null, error: `Media upload failed: ${errorMessage}` };
+        return { error: e?.message ?? 'Sync failed' };
     }
 }
 
@@ -164,347 +32,13 @@ export async function handleCreateTemplate(
     prevState: CreateTemplateState,
     formData: FormData
 ): Promise<CreateTemplateState> {
-
-    const cleanText = (text: string | null | undefined): string => {
-        if (!text) return '';
-        return text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
-    };
-
     try {
-        const projectId = formData.get('projectId') as string;
-        if (!projectId || !ObjectId.isValid(projectId)) {
-            return { error: 'Invalid Project ID.' };
-        }
-
-        const project = await getProjectById(projectId);
-        if (!project) {
-            return { error: 'Project not found or you do not have access.' };
-        }
-
-        const { db } = await connectToDatabase();
-        const templateType = formData.get('templateType') as string;
-
-        if (templateType === 'CATALOG_MESSAGE') {
-            const name = (formData.get('templateName') as string || formData.get('name') as string || '').trim();
-            const catalogId = formData.get('catalogId') as string;
-            const headerText = formData.get('carouselHeader') as string;
-            const bodyText = formData.get('carouselBody') as string;
-            const footerText = formData.get('carouselFooter') as string;
-            const section1Title = formData.get('section1Title') as string;
-            const section1ProductIDs = (formData.get('section1ProductIDs') as string).split('\n').map(id => id.trim()).filter(Boolean);
-            const section2Title = formData.get('section2Title') as string;
-            const section2ProductIDs = (formData.get('section2ProductIDs') as string).split('\n').map(id => id.trim()).filter(Boolean);
-
-            const validationResult = createTemplateSchema.safeParse({
-                templateType: 'CATALOG_MESSAGE',
-                name,
-                language: 'multi', // Catalog templates are multi-language implicitly or fixed
-                category: 'INTERACTIVE', // Fixed for catalog
-                catalogId,
-                carouselHeader: headerText,
-                carouselBody: bodyText,
-                carouselFooter: footerText,
-                section1Title,
-                section1ProductIDs: formData.get('section1ProductIDs') as string, // Pass raw string to schema if we want, but schema expects string. Wait, schema is string.
-                section2Title: section2Title || undefined,
-                section2ProductIDs: formData.get('section2ProductIDs') as string || undefined,
-            });
-
-            if (!validationResult.success) {
-                return { error: (validationResult.error as any).errors.map((e: any) => e.message).join('\n') };
-            }
-
-            const sections = [
-                { title: section1Title, products: section1ProductIDs.map(id => ({ product_retailer_id: id })) }
-            ];
-
-            if (section2Title && section2ProductIDs.length > 0) {
-                sections.push({ title: section2Title, products: section2ProductIDs.map(id => ({ product_retailer_id: id })) });
-            }
-
-            const carouselTemplateData = {
-                type: 'CATALOG_MESSAGE',
-                name,
-                category: 'INTERACTIVE',
-                status: 'LOCAL',
-                language: 'multi',
-                projectId: new ObjectId(projectId),
-                components: [
-                    { type: 'BODY', text: bodyText },
-                    {
-                        type: 'CATALOG_MESSAGE_ACTION',
-                        headerText,
-                        footerText,
-                        catalogId,
-                        sections
-                    }
-                ],
-                createdAt: new Date(),
-            };
-
-
-            await db.collection('templates').insertOne(carouselTemplateData as any);
-            revalidatePath('/wachat/templates');
-            return { message: 'Product Carousel template saved successfully.' };
-        }
-
-        const appId = project.appId || process.env.NEXT_PUBLIC_META_APP_ID;
-        if (!appId) {
-            return { error: 'App ID is not configured for this project, and no fallback is set in environment variables. Please set NEXT_PUBLIC_META_APP_ID in the .env file or re-configure the project.' };
-        }
-
-        const name = (formData.get('name') as string || formData.get('templateName') as string || '').trim();
-        const category = formData.get('category') as any;
-        const language = formData.get('language') as string;
-
-        // Prepare data for validation
-        const validationData: any = {
-            name,
-            category,
-            language,
-            templateType: templateType === 'MARKETING_CAROUSEL' ? 'MARKETING_CAROUSEL' : 'STANDARD',
-        };
-
-        if (templateType === 'MARKETING_CAROUSEL') {
-            const cardsDataString = formData.get('carouselCards') as string;
-            try {
-                validationData.carouselCards = JSON.parse(cardsDataString);
-            } catch (e) {
-                return { error: "Invalid carousel cards data." };
-            }
-            // Carousel also needs a main body
-            validationData.body = cleanText(formData.get('body') as string);
-            if (!validationData.body) return { error: "Intro Body text is required for Carousel templates." };
-        } else {
-            // Standard template fields
-            validationData.body = cleanText(formData.get('body') as string);
-            validationData.footer = cleanText(formData.get('footer') as string);
-            validationData.headerFormat = formData.get('headerFormat') as string;
-            validationData.headerText = cleanText(formData.get('headerText') as string);
-
-            const buttonsJson = formData.get('buttons') as string;
-            try {
-                validationData.buttons = buttonsJson ? JSON.parse(buttonsJson) : [];
-            } catch (e) {
-                return { error: "Invalid buttons data." };
-            }
-        }
-
-        const validationResult = createTemplateSchema.safeParse(validationData);
-        if (!validationResult.success) {
-            console.error("Zod Validation Error:", JSON.stringify(validationResult.error.format(), null, 2), "FormData:", JSON.stringify(validationData, null, 2));
-            return { error: (validationResult.error as any).errors.map((e: any) => `${e.path.join('.')}: ${e.message}`).join(', ') };
-        }
-
-        const { wabaId, accessToken } = project;
-        let payload: any = {
-            name,
-            language,
-            category,
-            allow_category_change: true,
-            components: []
-        };
-        let finalTemplateToInsert: any = {
-            name: payload.name, category, language, qualityScore: 'UNKNOWN',
-            projectId: new ObjectId(projectId),
-        };
-
-        if (templateType === 'MARKETING_CAROUSEL') {
-            const cardsDataString = formData.get('carouselCards') as string;
-            const cardsData = JSON.parse(cardsDataString);
-
-            finalTemplateToInsert.type = 'MARKETING_CAROUSEL';
-
-            const mediaUploadResults = await Promise.all(
-                cardsData.map(async (card: any, index: number) => {
-                    const file = formData.get(`card_${index}_headerSampleFile`) as File;
-                    if (card.headerFormat !== 'NONE' && (file && file.size > 0)) {
-                        return await getMediaHandleForTemplate(file, null, accessToken, appId);
-                    }
-                    if (['IMAGE', 'VIDEO'].includes(card.headerFormat)) {
-                        return { handle: null, error: `Card ${index + 1}: Sample media file is required for ${card.headerFormat} header.` };
-                    }
-                    return { handle: null, error: null };
-                })
-            );
-
-            const finalCards = [];
-
-            for (let i = 0; i < cardsData.length; i++) {
-                const card = cardsData[i];
-                const uploadResult = mediaUploadResults[i];
-                if (uploadResult.error) return { error: `Card ${i + 1} media error: ${uploadResult.error}` };
-
-                const cardComponents: any[] = [];
-                if (uploadResult.handle && card.headerFormat !== 'NONE') {
-                    cardComponents.push({ type: 'HEADER', format: card.headerFormat, example: { header_handle: [uploadResult.handle] } });
-                }
-
-                const bodyComponent: any = { type: 'BODY', text: card.body };
-                // Handle Carousel Body Variables
-                const bodyVarMatches = card.body.match(/{{\s*(\d+)\s*}}/g);
-                if (bodyVarMatches) {
-                    const bodyVarNumbers = [...new Set(bodyVarMatches.map((v: string) => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))].sort((a: any, b: any) => a - b);
-                    const bodyExamples = [];
-                    for (const varNum of bodyVarNumbers) {
-                        const exVal = card.exampleValues?.[String(varNum)];
-                        if (!exVal) return { error: `Card ${i + 1}: Example required for variable {{${varNum}}}.` };
-                        bodyExamples.push(exVal);
-                    }
-                    // Meta expects array of arrays: [ ["val1", "val2"] ]
-                    bodyComponent.example = { body_text: [bodyExamples] };
-                }
-                cardComponents.push(bodyComponent);
-                if (card.buttons && card.buttons.length > 0) {
-                    const formattedButtons = card.buttons.map((b: any) => ({ type: b.type, text: b.text, ...(b.url && { url: b.url }), ...(b.phone_number && { phone_number: b.phone_number }) }));
-                    cardComponents.push({ type: 'BUTTONS', buttons: formattedButtons });
-                }
-                finalCards.push({ components: cardComponents });
-            }
-
-            // Add Top-Level Body Component (Required for Marketing Carousel)
-            const mainBodyText = cleanText(formData.get('body') as string);
-            if (!mainBodyText) return { error: 'Intro Body Text is required for Carousel templates.' };
-
-            const mainBodyComponent: any = { type: 'BODY', text: mainBodyText };
-
-            // Handle Main Body Variables (same logic as standard)
-            const mainBodyVarMatches = mainBodyText.match(/{{\s*(\d+)\s*}}/g);
-            if (mainBodyVarMatches) {
-                const vars = [...new Set(mainBodyVarMatches.map((v: string) => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))].sort((a: number, b: number) => a - b);
-                const mainBodyExamples = [];
-                for (const varNum of vars) {
-                    const val = formData.get(`body_example_${varNum}`) as string;
-                    if (!val) return { error: `Example required for Intro Body variable {{${varNum}}}.` };
-                    mainBodyExamples.push(val);
-                }
-                mainBodyComponent.example = { body_text: [mainBodyExamples] };
-            }
-            payload.components.push(mainBodyComponent);
-
-            payload.components.push({ type: 'CAROUSEL', cards: finalCards });
-
-        } else {
-            const bodyText = cleanText(formData.get('body') as string);
-            const footerText = cleanText(formData.get('footer') as string);
-            const buttonsJson = formData.get('buttons') as string;
-            const headerFormat = formData.get('headerFormat') as string;
-            const headerText = cleanText(formData.get('headerText') as string);
-            const headerSampleFile = formData.get('headerSampleFile') as File;
-            const headerSampleUrl = (formData.get('headerSampleUrl') as string || '').trim();
-            finalTemplateToInsert.body = bodyText;
-            finalTemplateToInsert.headerSampleUrl = headerSampleUrl;
-
-            const buttons = (buttonsJson ? JSON.parse(buttonsJson) : []).map((button: any) => ({
-                ...button,
-                text: cleanText(button.text),
-                url: (button.url || '').trim(),
-                phone_number: (button.phone_number || '').trim(),
-                example: Array.isArray(button.example) ? button.example.map((ex: string) => (ex || '').trim()) : button.example,
-            }));
-
-            if (!bodyText) return { error: 'Body text is required for standard templates.' };
-
-            const trimmedBody = bodyText.trim();
-            const variableAtStartRegex = /^{{\s*\d+\s*}}/;
-            const variableAtEndRegex = /{{\s*\d+\s*}}$/;
-
-            if (variableAtStartRegex.test(trimmedBody) || variableAtEndRegex.test(trimmedBody)) {
-                return { error: "Variables cannot be at the beginning or end of the template body. Please add text before and after any variables." };
-            }
-
-            if (headerFormat !== 'NONE') {
-                const headerComponent: any = { type: 'HEADER', format: headerFormat };
-                if (headerFormat === 'TEXT') {
-                    if (!headerText) return { error: 'Header text is required for TEXT header format.' };
-                    headerComponent.text = headerText;
-                    if (headerText.match(/{{\s*(\d+)\s*}}/g)) {
-                        const headerExample = formData.get('headerExample') as string;
-                        if (!headerExample) return { error: 'Example for header variable is required.' };
-                        headerComponent.example = { header_text: [headerExample] };
-                    }
-                } else if (['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerFormat)) {
-                    if ((!headerSampleFile || headerSampleFile.size === 0) && (!headerSampleUrl || !headerSampleUrl.trim())) {
-                        return { error: `A sample file or URL is required for ${headerFormat} headers.` };
-                    }
-
-                    const { handle, error } = await getMediaHandleForTemplate(headerSampleFile, headerSampleUrl, accessToken, appId);
-                    if (error) return { error };
-                    if (handle) headerComponent.example = { header_handle: [handle] };
-                }
-                payload.components.push(headerComponent);
-            }
-
-            const bodyComponent: any = { type: 'BODY', text: bodyText };
-            const bodyVarMatches = bodyText.match(/{{\s*(\d+)\s*}}/g);
-            if (bodyVarMatches) {
-                const bodyVarNumbers = [...new Set(bodyVarMatches.map(v => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))].sort((a, b) => a - b);
-                const bodyExamples = [];
-                for (const varNum of bodyVarNumbers) {
-                    const exampleValue = formData.get(`body_example_${varNum}`) as string;
-                    if (!exampleValue) {
-                        return { error: `An example value for body variable {{${varNum}}} is required.` };
-                    }
-                    bodyExamples.push(exampleValue);
-                }
-                bodyComponent.example = { body_text: [bodyExamples] };
-            }
-            payload.components.push(bodyComponent);
-
-            if (footerText) payload.components.push({ type: 'FOOTER', text: footerText });
-            if (buttons.length > 0) {
-                const formattedButtons = buttons.map((button: any) => ({ type: button.type, text: button.text, ...(button.url && { url: button.url, example: button.example }), ...(button.phone_number && { phone_number: button.phone_number }) }));
-                payload.components.push({ type: 'BUTTONS', buttons: formattedButtons });
-            }
-        }
-
-        console.log("Submitting Template Payload to Meta:", JSON.stringify(payload, null, 2));
-
-        const response = await fetch(
-            `https://graph.facebook.com/${API_VERSION}/${wabaId}/message_templates`,
-            {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload),
-            }
-        );
-
-        const responseText = await response.text();
-        const responseData = responseText ? JSON.parse(responseText) : null;
-
-        if (!response.ok) {
-            const errorMessage = getErrorMessage({ response: { data: responseData } });
-            return { error: `API Error: ${errorMessage}`, payload: JSON.stringify(payload, null, 2) };
-        }
-
-        const newMetaTemplateId = responseData?.id;
-        if (!newMetaTemplateId) {
-            return { error: 'Template created on Meta, but no ID was returned. Please sync manually.' };
-        }
-
-        const templateToInsert = {
-            ...finalTemplateToInsert,
-            status: responseData?.status || 'PENDING',
-            metaId: newMetaTemplateId,
-            components: payload.components,
-        };
-
-        await db.collection('templates').insertOne(templateToInsert as any);
-
+        const { rustClient } = await import('@/lib/rust-client');
+        await rustClient.templates.create(formData as any);
         revalidatePath('/wachat/templates');
-
-        const message = `Template "${name}" submitted successfully!`;
-        return { message };
-
+        return { message: 'Template submitted successfully!' };
     } catch (e: any) {
-        console.error('Error in handleCreateTemplate:', e);
-        if (e.response && e.response.data) {
-            console.error('Meta API Error Response:', JSON.stringify(e.response.data, null, 2));
-        }
-        return { error: e.message || 'An unexpected error occurred.' };
+        return { error: e?.message ?? 'An unexpected error occurred.' };
     }
 }
 
@@ -512,497 +46,90 @@ export async function handleBulkCreateTemplate(
     prevState: CreateTemplateState,
     formData: FormData
 ): Promise<CreateTemplateState> {
-    const projectIdsString = formData.get('projectIds') as string;
-    const projectIds = projectIdsString.split(',');
-    const { db } = await connectToDatabase();
-
-    const cleanText = (text: string | null | undefined): string => {
-        if (!text) return '';
-        return text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
-    };
-
-    let successes = 0;
-    const errors: string[] = [];
-
     try {
-        const name = (formData.get('name') as string || '').trim();
-        const category = formData.get('category') as 'UTILITY' | 'MARKETING' | 'AUTHENTICATION';
-        const language = formData.get('language') as string;
-        const bodyText = cleanText(formData.get('body') as string);
-        const footerText = cleanText(formData.get('footer') as string);
-        const buttonsJson = formData.get('buttons') as string;
-        const headerFormat = formData.get('headerFormat') as string;
-        const headerText = cleanText(formData.get('headerText') as string);
-        const headerSampleFile = formData.get('headerSampleFile') as File;
-
-        const trimmedBody = bodyText.trim();
-
-        // Validation for Bulk Create
-        const buttons = (buttonsJson ? JSON.parse(buttonsJson) : []).map((button: any) => ({
-            ...button, text: cleanText(button.text), url: (button.url || '').trim(),
-            phone_number: (button.phone_number || '').trim(),
-            example: Array.isArray(button.example) ? button.example.map((ex: string) => (ex || '').trim()) : button.example,
-        }));
-
-        const validationResult = createTemplateSchema.safeParse({
-            name,
-            category,
-            language,
-            templateType: 'STANDARD', // Bulk create seems to only support standard for now? The form implies logic predominantly for standard.
-            body: bodyText,
-            footer: footerText,
-            headerFormat,
-            headerText,
-            buttons
-        });
-
-        if (!validationResult.success) {
-            return { error: (validationResult.error as any).errors.map((e: any) => e.message).join('\n') };
-        }
-
-
-
-        // buttons are already parsed above
-
-        let headerMediaDataUri: string | null = null;
-        if (headerFormat && ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerFormat) && headerSampleFile && headerSampleFile.size > 0) {
-            const buffer = Buffer.from(await headerSampleFile.arrayBuffer());
-            headerMediaDataUri = `data:${headerSampleFile.type};base64,${buffer.toString('base64')}`;
-        }
-
-        const components: any[] = [];
-        if (headerFormat !== 'NONE') {
-            const headerComponent: any = { type: 'HEADER', format: headerFormat };
-            if (headerFormat === 'TEXT') {
-                headerComponent.text = headerText;
-            }
-            components.push(headerComponent);
-        }
-        components.push({ type: 'BODY', text: bodyText });
-        if (footerText) components.push({ type: 'FOOTER', text: footerText });
-        if (buttons.length > 0) {
-            const formattedButtons = buttons.map((button: any) => ({
-                type: button.type, text: button.text, ...(button.url && { url: button.url, example: button.example }), ...(button.phone_number && { phone_number: button.phone_number })
-            }));
-            components.push({ type: 'BUTTONS', buttons: formattedButtons });
-        }
-
-
-        // J3 P0-3 fix: per-project ownership check. Previously this action
-        // accepted a comma-separated list of projectIds from the form with
-        // no auth at all — any authenticated client could inject a LOCAL
-        // template into any tenant's project, which the cron job would then
-        // auto-submit to Meta on the victim's WABA.
-        //
-        // Do NOT echo failed projectIds back in the error string (that would
-        // leak project-id existence). Just count and report "skipped".
-        let skippedForAuth = 0;
-        for (const projectId of projectIds) {
-            if (!ObjectId.isValid(projectId)) {
-                skippedForAuth++;
-                continue;
-            }
-            const access = await getProjectById(projectId);
-            if (!access) {
-                skippedForAuth++;
-                continue;
-            }
-            try {
-                const projectObjectId = new ObjectId(projectId);
-
-                await db.collection('templates').insertOne({
-                    projectId: projectObjectId,
-                    name, category, language,
-                    body: bodyText,
-                    components,
-                    headerMediaDataUri,
-                    status: 'LOCAL',
-                    qualityScore: 'UNKNOWN',
-                    createdAt: new Date()
-                } as any);
-
-                successes++;
-            } catch (e: any) {
-                const errorMessage = `Project ID ${projectId}: ${getErrorMessage(e)}`;
-                console.warn(errorMessage);
-                errors.push(errorMessage);
-            }
-        }
-
-        let message = `Template saved as 'LOCAL' for ${successes} project(s). They will be submitted by the next cron run.`;
-        if (skippedForAuth > 0) {
-            message += ` Skipped ${skippedForAuth} project(s) (no access).`;
-        }
-        if (errors.length > 0) {
-            message += ` Failed on ${errors.length} project(s).`;
-            return { error: `Errors:\n- ${errors.join('\n- ')}`, message };
-        }
-
+        const { rustClient } = await import('@/lib/rust-client');
+        const r: any = await rustClient.templates.bulkCreate(formData as any);
         revalidatePath('/wachat/templates');
+        const applied = r?.applied ?? r?.successes ?? 0;
+        const skipped = r?.skipped ?? 0;
+        let message = `Template saved as 'LOCAL' for ${applied} project(s). They will be submitted by the next cron run.`;
+        if (skipped > 0) message += ` Skipped ${skipped} project(s) (no access).`;
         return { message };
     } catch (e: any) {
-        return { error: getErrorMessage(e) };
+        return { error: e?.message ?? 'An unexpected error occurred.' };
     }
 }
 
-
 export async function handleCreateFlowTemplate(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
-    const projectId = formData.get('projectId') as string;
-    const flowId = formData.get('flowId') as string;
-
-    const templateName = formData.get('templateName') as string;
-    const language = formData.get('language') as string;
-    const category = formData.get('category') as 'UTILITY' | 'MARKETING' | 'AUTHENTICATION';
-    const bodyText = formData.get('bodyText') as string;
-    const buttonText = formData.get('buttonText') as string;
-
-    if (!projectId || !flowId || !templateName || !language || !category || !bodyText || !buttonText) {
-        return { error: 'All fields are required.' };
-    }
-
-    const project = await getProjectById(projectId);
-    if (!project) {
-        return { error: 'Project not found or you do not have access.' };
-    }
-
-    let payload: any = {
-        name: templateName.toLowerCase().replace(/\s+/g, '_'),
-        language,
-        category,
-        components: [
-            {
-                type: 'BODY',
-                text: bodyText
-            },
-            {
-                type: 'BUTTONS',
-                buttons: [
-                    {
-                        type: 'FLOW',
-                        text: buttonText,
-                        flow_id: flowId
-                    }
-                ]
-            }
-        ]
-    };
-
     try {
-        const { wabaId, accessToken } = project;
-        const response = await axios.post(
-            `https://graph.facebook.com/${API_VERSION}/${wabaId}/message_templates`,
-            payload,
-            { headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' } }
-        );
-
-        if (response.data.error) {
-            throw new Error(getErrorMessage({ response: { data: response.data } }));
-        }
-
-        const newMetaTemplateId = response.data?.id;
-        if (!newMetaTemplateId) {
-            return { error: 'Template created on Meta, but no ID was returned. Please sync manually.' };
-        }
-
-        const { db } = await connectToDatabase();
-        const templateToInsert: Omit<Template, '_id'> & { projectId: ObjectId } = {
-            name: payload.name,
-            category,
-            language,
-            status: response.data?.status || 'PENDING',
-            metaId: newMetaTemplateId,
-            components: payload.components,
-            body: bodyText,
-            projectId: new ObjectId(projectId),
-            qualityScore: 'UNKNOWN',
-        };
-
-        await db.collection('templates').insertOne(templateToInsert as any);
+        const { rustClient } = await import('@/lib/rust-client');
+        const r: any = await rustClient.templates.createFlow(formData as any);
         revalidatePath('/wachat/templates');
-
-        return { message: `Template "${templateName}" created successfully and is now pending approval.` };
-
+        return { message: `Template "${r?.name ?? ''}" created successfully and is now pending approval.` };
     } catch (e: any) {
-        console.error('Error creating flow template:', e);
-        return { error: getErrorMessage(e) || 'An unexpected error occurred.' };
+        return { error: e?.message ?? 'An unexpected error occurred.' };
     }
 }
 
 export async function saveLibraryTemplate(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
-    const { isAdmin } = await getAdminSession();
-    if (!isAdmin) return { error: 'Permission denied.' };
-
-    const name = (formData.get('name') as string || '').trim();
-    const nameRegex = /^[a-z0-9_]+$/;
-
-    if (!name) {
-        return { error: 'Template name is required.' };
-    }
-    if (name.length > 512) {
-        return { error: 'Template name cannot exceed 512 characters.' };
-    }
-    if (!nameRegex.test(name)) {
-        return { error: 'Template name can only contain lowercase letters, numbers, and underscores (_).' };
-    }
-
     try {
-        const templateData: Omit<LibraryTemplate, '_id'> = {
-            name: name,
-            category: formData.get('category') as Template['category'],
-            language: formData.get('language') as string,
-            body: formData.get('body') as string,
-            components: JSON.parse(formData.get('components') as string),
-            isCustom: true,
-            createdAt: new Date(),
-        };
-
-        if (!templateData.category || !templateData.language || !templateData.body) {
-            return { error: 'Category, language, and body are required.' };
-        }
-
-        const { db } = await connectToDatabase();
-        await db.collection('library_templates').insertOne(templateData as any);
-
+        const { rustClient } = await import('@/lib/rust-client');
+        await rustClient.templates.librarySave(formData as any);
         revalidatePath('/admin/dashboard/template-library');
         revalidatePath('/wachat/templates/library');
-        return { message: `Template "${templateData.name}" added to the library.` };
-
+        return { message: `Template added to the library.` };
     } catch (e: any) {
-        console.error("Failed to save library template:", e);
-        return { error: e.message || 'An unexpected error occurred.' };
+        return { error: e?.message ?? 'An unexpected error occurred.' };
     }
 }
 
 export async function deleteLibraryTemplate(id: string): Promise<{ message?: string; error?: string }> {
-    const { isAdmin } = await getAdminSession();
-    if (!isAdmin) return { error: 'Permission denied.' };
-
-    if (!ObjectId.isValid(id)) return { error: 'Invalid template ID.' };
-
     try {
-        const { db } = await connectToDatabase();
-        const result = await db.collection('library_templates').deleteOne({ _id: new ObjectId(id) });
-        if (result.deletedCount === 0) {
-            return { error: 'Could not find the custom library template to delete.' };
-        }
+        const { rustClient } = await import('@/lib/rust-client');
+        await rustClient.templates.libraryDelete(id);
         revalidatePath('/admin/dashboard/template-library');
         revalidatePath('/wachat/templates/library');
         return { message: 'Custom template removed from the library.' };
     } catch (e: any) {
-        return { error: e.message || 'An unexpected error occurred.' };
+        return { error: e?.message ?? 'An unexpected error occurred.' };
     }
 }
 
 export async function getLibraryTemplates() {
     try {
-        const { db } = await connectToDatabase();
-        const customTemplates = await db.collection('library_templates').find({}).sort({ name: 1 }).toArray();
-        const allTemplates = [...premadeTemplates, ...customTemplates];
-        return JSON.parse(JSON.stringify(allTemplates));
+        const { rustClient } = await import('@/lib/rust-client');
+        const list = await rustClient.templates.libraryList();
+        return list as unknown as any[];
     } catch (e) {
-        console.error("Failed to fetch library templates:", e);
-        return premadeTemplates;
+        console.error('Failed to fetch library templates:', e);
+        return [];
     }
 }
 
 export async function handleApplyTemplateToProjects(sourceTemplateId: string, targetProjectIds: string[]): Promise<{ success: boolean, error?: string, applied?: number, skipped?: number }> {
-    if (!sourceTemplateId || !ObjectId.isValid(sourceTemplateId) || targetProjectIds.length === 0) {
-        return { success: false, error: 'Source template and target projects are required.' };
-    }
-
     try {
-        const { db } = await connectToDatabase();
-        const sourceTemplate = await db.collection<Template>('templates').findOne({ _id: new ObjectId(sourceTemplateId) });
-
-        if (!sourceTemplate) {
-            return { success: false, error: 'Source template not found.' };
-        }
-
-        // J3 P0-2 fix: verify the caller actually owns the source project
-        // BEFORE exposing any part of the source template (even its name).
-        // Previously this action had no auth at all — any authenticated client
-        // could copy any tenant's templates anywhere, and the cron job would
-        // then auto-submit the injected templates to Meta on the victim's WABA.
-        const sourceProjectAccess = await getProjectById(sourceTemplate.projectId.toString());
-        if (!sourceProjectAccess) {
-            return { success: false, error: 'Source template not found.' };
-        }
-
-        // Validate each target project in parallel via the existing auth helper.
-        // Silently drop any that the caller doesn't own — do NOT echo the list
-        // of unauthorized IDs back, which would leak project-id existence.
-        const validatedTargetIds: ObjectId[] = [];
-        const authChecks = await Promise.all(
-            targetProjectIds
-                .filter((id) => ObjectId.isValid(id))
-                .map(async (id) => ({ id, access: await getProjectById(id) })),
-        );
-        for (const { id, access } of authChecks) {
-            if (access) validatedTargetIds.push(new ObjectId(id));
-        }
-
-        if (validatedTargetIds.length === 0) {
-            return { success: false, error: 'No accessible target projects.' };
-        }
-
-        const bulkOps = validatedTargetIds.map((projectObjectId) => {
-            const newTemplate = {
-                ...sourceTemplate,
-                _id: new ObjectId(), // generate new ID
-                projectId: projectObjectId,
-                status: 'LOCAL', // Mark as local for the cron job to pick up
-                metaId: '', // Clear meta ID as it's a new template for the target project
-                createdAt: new Date(),
-            };
-            delete newTemplate.headerSampleUrl; // Don't copy sample URL directly
-
-            return {
-                updateOne: {
-                    filter: { projectId: projectObjectId, name: sourceTemplate.name, language: sourceTemplate.language },
-                    update: { $set: newTemplate },
-                    upsert: true,
-                }
-            };
-        });
-
-        await db.collection('templates').bulkWrite(bulkOps);
-
-        return {
-            success: true,
-            applied: validatedTargetIds.length,
-            skipped: targetProjectIds.length - validatedTargetIds.length,
-        };
+        const { rustClient } = await import('@/lib/rust-client');
+        const r = await rustClient.templates.libraryApplyToProjects(sourceTemplateId, { targetProjectIds } as any);
+        revalidatePath('/wachat/templates');
+        return { success: true, applied: r.applied, skipped: r.skipped };
     } catch (e: any) {
-        console.error("Error applying template to projects:", e);
-        return { success: false, error: getErrorMessage(e) };
+        return { success: false, error: e?.message ?? 'An unexpected error occurred.' };
     }
 }
-
-
-// --- TEMPLATE EDIT & DELETE VIA META API ---
 
 export async function handleEditTemplate(
     prevState: any,
     formData: FormData
 ): Promise<{ message?: string; error?: string }> {
-    const projectId = formData.get('projectId') as string;
-    const metaTemplateId = formData.get('metaTemplateId') as string;
-
-    if (!projectId || !metaTemplateId) {
-        return { error: 'Project ID and Meta Template ID are required.' };
-    }
-
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Project not found or you do not have access.' };
-
-    const { accessToken } = project;
-
     try {
-        const components: any[] = [];
-
-        // Parse updated components from form
-        const headerFormat = formData.get('headerFormat') as string;
-        const headerText = formData.get('headerText') as string;
-        const bodyText = formData.get('body') as string;
-        const footerText = formData.get('footer') as string;
-        const buttonsJson = formData.get('buttons') as string;
-
-        if (headerFormat && headerFormat !== 'NONE') {
-            const headerComponent: any = { type: 'HEADER', format: headerFormat };
-            if (headerFormat === 'TEXT' && headerText) {
-                headerComponent.text = headerText.trim();
-            }
-            // For media headers, we need to re-upload if changed
-            const headerSampleFile = formData.get('headerSampleFile') as File;
-            const headerSampleUrl = formData.get('headerSampleUrl') as string;
-            if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerFormat)) {
-                const appId = project.appId || process.env.NEXT_PUBLIC_META_APP_ID;
-                if (appId && (headerSampleFile?.size > 0 || headerSampleUrl)) {
-                    const { handle, error } = await getMediaHandleForTemplate(headerSampleFile, headerSampleUrl, accessToken, appId);
-                    if (error) return { error };
-                    if (handle) headerComponent.example = { header_handle: [handle] };
-                }
-            }
-            components.push(headerComponent);
-        }
-
-        if (bodyText) {
-            const bodyComponent: any = { type: 'BODY', text: bodyText.trim() };
-            const bodyVarMatches = bodyText.match(/{{\s*(\d+)\s*}}/g);
-            if (bodyVarMatches) {
-                const bodyVarNumbers = [...new Set(bodyVarMatches.map(v => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))].sort((a, b) => a - b);
-                const bodyExamples = [];
-                for (const varNum of bodyVarNumbers) {
-                    const exampleValue = formData.get(`body_example_${varNum}`) as string;
-                    if (exampleValue) bodyExamples.push(exampleValue);
-                }
-                if (bodyExamples.length > 0) {
-                    bodyComponent.example = { body_text: [bodyExamples] };
-                }
-            }
-            components.push(bodyComponent);
-        }
-
-        if (footerText) {
-            components.push({ type: 'FOOTER', text: footerText.trim() });
-        }
-
-        if (buttonsJson) {
-            const buttons = JSON.parse(buttonsJson);
-            if (buttons.length > 0) {
-                const formattedButtons = buttons.map((button: any) => ({
-                    type: button.type,
-                    text: button.text,
-                    ...(button.url && { url: button.url, example: button.example }),
-                    ...(button.phone_number && { phone_number: button.phone_number }),
-                }));
-                components.push({ type: 'BUTTONS', buttons: formattedButtons });
-            }
-        }
-
-        const payload: any = {};
-        if (components.length > 0) payload.components = components;
-
-        // Category can be edited on certain template statuses
-        const category = formData.get('category') as string;
-        if (category) payload.category = category;
-
-        const response = await fetch(
-            `https://graph.facebook.com/${API_VERSION}/${metaTemplateId}`,
-            {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload),
-            }
-        );
-
-        const responseData = await response.json();
-
-        if (!response.ok) {
-            const errorMessage = responseData?.error?.message || 'Unknown API error';
-            return { error: `Failed to edit template: ${errorMessage}` };
-        }
-
-        // Update local DB
-        const { db } = await connectToDatabase();
-        const updateFields: any = { status: responseData?.status || 'PENDING' };
-        if (components.length > 0) updateFields.components = components;
-        if (bodyText) updateFields.body = bodyText.trim();
-
-        await db.collection('templates').updateOne(
-            { metaId: metaTemplateId, projectId: new ObjectId(projectId) },
-            { $set: updateFields }
-        );
-
+        const metaTemplateId = formData.get('metaTemplateId') as string;
+        if (!metaTemplateId) return { error: 'Meta Template ID is required.' };
+        const { rustClient } = await import('@/lib/rust-client');
+        await rustClient.templates.edit(metaTemplateId, formData as any);
         revalidatePath('/wachat/templates');
         return { message: 'Template updated successfully and resubmitted for approval.' };
-
     } catch (e: any) {
-        console.error('Error editing template:', e);
-        return { error: getErrorMessage(e) || 'An unexpected error occurred.' };
+        return { error: e?.message ?? 'An unexpected error occurred.' };
     }
 }
 
@@ -1011,41 +138,13 @@ export async function handleDeleteTemplate(
     templateName: string,
     metaTemplateId?: string
 ): Promise<{ message?: string; error?: string }> {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Project not found or you do not have access.' };
-
-    const { wabaId, accessToken } = project;
-
     try {
-        // Delete from Meta API (by name deletes all languages of the template)
-        const response = await fetch(
-            `https://graph.facebook.com/${API_VERSION}/${wabaId}/message_templates?name=${encodeURIComponent(templateName)}`,
-            {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${accessToken}` },
-            }
-        );
-
-        const responseData = await response.json();
-
-        if (!response.ok) {
-            const errorMessage = responseData?.error?.message || 'Unknown API error';
-            return { error: `Failed to delete template from Meta: ${errorMessage}` };
-        }
-
-        // Delete from local DB (all language variants)
-        const { db } = await connectToDatabase();
-        await db.collection('templates').deleteMany({
-            projectId: new ObjectId(projectId),
-            name: templateName,
-        });
-
+        const { rustClient } = await import('@/lib/rust-client');
+        await rustClient.templates.deleteByName(projectId, templateName);
         revalidatePath('/wachat/templates');
         return { message: `Template "${templateName}" deleted successfully from Meta and local database.` };
-
     } catch (e: any) {
-        console.error('Error deleting template:', e);
-        return { error: getErrorMessage(e) || 'An unexpected error occurred.' };
+        return { error: e?.message ?? 'An unexpected error occurred.' };
     }
 }
 
@@ -1053,35 +152,12 @@ export async function handleDeleteTemplateById(
     projectId: string,
     metaTemplateId: string
 ): Promise<{ message?: string; error?: string }> {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Project not found or you do not have access.' };
-
     try {
-        const response = await fetch(
-            `https://graph.facebook.com/${API_VERSION}/${metaTemplateId}`,
-            {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${project.accessToken}` },
-            }
-        );
-
-        const responseData = await response.json();
-
-        if (!response.ok) {
-            const errorMessage = responseData?.error?.message || 'Unknown API error';
-            return { error: `Failed to delete template: ${errorMessage}` };
-        }
-
-        const { db } = await connectToDatabase();
-        await db.collection('templates').deleteOne({
-            metaId: metaTemplateId,
-            projectId: new ObjectId(projectId),
-        });
-
+        const { rustClient } = await import('@/lib/rust-client');
+        await rustClient.templates.deleteById(metaTemplateId);
         revalidatePath('/wachat/templates');
         return { message: 'Template deleted successfully.' };
-
     } catch (e: any) {
-        return { error: getErrorMessage(e) || 'An unexpected error occurred.' };
+        return { error: e?.message ?? 'An unexpected error occurred.' };
     }
 }

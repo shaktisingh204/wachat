@@ -2,8 +2,6 @@
 # orchestrator wires them into `rust/Cargo.toml` as a batch — until then this
 # empty `[workspace]` table tells cargo "I'm intentionally not a member of the
 # enclosing workspace" so `cargo check --manifest-path …` works in isolation.
-[workspace]
-
 [package]
 name = "wachat-webhook-parity"
 version = "0.1.0"
@@ -58,3 +56,6 @@ hex = "0.4"
 # Smoke test boots the CLI via `assert_cmd`-style env detection; we just need
 # clap's `try_parse_from` which is in the main dep tree.
 clap = { version = "4", features = ["derive"] }
+
+[lints]
+workspace = true

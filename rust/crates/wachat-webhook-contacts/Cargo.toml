@@ -1,8 +1,6 @@
 # Empty [workspace] table makes this crate buildable standalone while it
 # waits to be added to the parent workspace's `members` list (per the
 # Phase 2 slice contract: do not modify the workspace Cargo.toml).
-[workspace]
-
 [package]
 name = "wachat-webhook-contacts"
 version = "0.1.0"
@@ -65,3 +63,6 @@ chrono = { version = "0.4", default-features = false, features = ["clock", "serd
 # share the container layer cache.
 testcontainers = "0.23"
 testcontainers-modules = { version = "0.11", features = ["mongo"] }
+
+[lints]
+workspace = true

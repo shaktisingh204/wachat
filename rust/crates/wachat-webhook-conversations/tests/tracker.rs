@@ -258,14 +258,18 @@ async fn mark_read_resets_unread_to_zero() {
             .await
             .unwrap();
     }
-    let conv = fetch_conversation(&mongo, project.id, contact_id).await.unwrap();
+    let conv = fetch_conversation(&mongo, project.id, contact_id)
+        .await
+        .unwrap();
     assert_eq!(conv.get_i32("unreadCount").unwrap(), 3);
 
     // Agent opens chat → unread resets.
     let outcome = tracker.mark_read(&project, &contact_id).await.unwrap();
     assert_eq!(outcome.conversations_touched, 1);
 
-    let conv = fetch_conversation(&mongo, project.id, contact_id).await.unwrap();
+    let conv = fetch_conversation(&mongo, project.id, contact_id)
+        .await
+        .unwrap();
     assert_eq!(conv.get_i32("unreadCount").unwrap(), 0);
 }
 
@@ -289,7 +293,9 @@ async fn status_update_does_not_change_unread_or_last_message_at() {
         )
         .await
         .unwrap();
-    let before = fetch_conversation(&mongo, project.id, contact_id).await.unwrap();
+    let before = fetch_conversation(&mongo, project.id, contact_id)
+        .await
+        .unwrap();
     let unread_before = before.get_i32("unreadCount").unwrap();
     let last_at_before = before.get_datetime("lastMessageAt").unwrap().to_owned();
 
@@ -325,7 +331,9 @@ async fn status_update_does_not_change_unread_or_last_message_at() {
         .unwrap();
     assert_eq!(outcome.conversations_touched, 1);
 
-    let after = fetch_conversation(&mongo, project.id, contact_id).await.unwrap();
+    let after = fetch_conversation(&mongo, project.id, contact_id)
+        .await
+        .unwrap();
     assert_eq!(after.get_i32("unreadCount").unwrap(), unread_before);
     assert_eq!(
         after.get_datetime("lastMessageAt").unwrap().to_owned(),
