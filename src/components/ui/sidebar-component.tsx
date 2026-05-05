@@ -129,10 +129,10 @@ function dockAccent(h: ModuleHue): DockAccent {
 const WACHAT_CONFIG_PREFIXES = [
   "/wachat/numbers",
   "/wachat/calls",
-  "/dashboard/health",
-  "/dashboard/integrations",
+  "/wachat/health",
+  "/wachat/integrations",
   "/wachat/webhooks",
-  "/dashboard/settings", // covers /dashboard/settings/general, /agents, /attributes, /canned
+  "/dashboard/settings", // covers /wachat/settings/general, /agents, /attributes, /canned
 ];
 
 function isWachatConfigPath(href: string | undefined): boolean {
@@ -361,7 +361,7 @@ function IconRail({ active, compact = false }: { active: string; compact?: boole
         <IconNavButton
           active={active === "settings"}
           title="Settings"
-          href="/dashboard/settings/general"
+          href="/wachat/settings/general"
           hue={hueFor("settings")}
         >
           <SettingsIcon size={16} />
@@ -418,7 +418,7 @@ function AppDock({ active }: { active: string }) {
       })}
       <DockIcon
         name="Settings"
-        href="/dashboard/settings/general"
+        href="/wachat/settings/general"
         active={active === "settings"}
         accent={dockAccent(hueFor("settings"))}
         onActivate={makeOnActivate("settings", "Settings", hueFor("settings"))}

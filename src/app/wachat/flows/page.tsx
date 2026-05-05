@@ -162,7 +162,7 @@ export default function MetaFlowsPage() {
             variant="pill"
             size="md"
             leading={<LuBookOpen className="h-3.5 w-3.5" strokeWidth={2} />}
-            onClick={() => router.push('/dashboard/flows/docs')}
+            onClick={() => router.push('/wachat/flows/docs')}
           >
             API docs
           </ClayButton>
@@ -171,7 +171,7 @@ export default function MetaFlowsPage() {
             size="md"
             className="px-5"
             leading={<LuCirclePlus className="h-3.5 w-3.5" strokeWidth={2.5} />}
-            onClick={() => router.push('/dashboard/flows/create')}
+            onClick={() => router.push('/wachat/flows/create')}
             disabled={!activeProjectId}
           >
             New flow
@@ -269,7 +269,7 @@ export default function MetaFlowsPage() {
                     leading={
                       <LuCirclePlus className="h-3.5 w-3.5" strokeWidth={2.5} />
                     }
-                    onClick={() => router.push('/dashboard/flows/create')}
+                    onClick={() => router.push('/wachat/flows/create')}
                     className="mt-2"
                   >
                     Create your first flow
@@ -347,7 +347,7 @@ export default function MetaFlowsPage() {
                               <DropdownMenuSeparator />
                               <DropdownMenuItem asChild>
                                 <Link
-                                  href={`/dashboard/flows/create?flowId=${flow._id.toString()}`}
+                                  href={`/wachat/flows/create?flowId=${flow._id.toString()}`}
                                 >
                                   <LuPencil className="mr-2 h-4 w-4" />
                                   Edit flow

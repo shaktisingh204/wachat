@@ -209,7 +209,7 @@ export async function createMetaFlow(input: {
         };
         const ins = await db.collection('meta_flows').insertOne(doc as any);
 
-        revalidatePath('/dashboard/flows');
+        revalidatePath('/wachat/flows');
         return {
             success: true,
             flowId: ins.insertedId.toString(),
@@ -284,8 +284,8 @@ export async function saveMetaFlowDraft(input: {
             },
         );
 
-        revalidatePath('/dashboard/flows');
-        revalidatePath(`/dashboard/flows/create`);
+        revalidatePath('/wachat/flows');
+        revalidatePath(`/wachat/flows/create`);
         return { success: true, message: 'Draft saved.', validation_errors: validation };
     } catch (e) {
         const err = pickGraphError(e);
@@ -332,7 +332,7 @@ export async function updateMetaFlowMetadata(input: {
             },
         );
 
-        revalidatePath('/dashboard/flows');
+        revalidatePath('/wachat/flows');
         return { success: true, message: 'Metadata updated.' };
     } catch (e) {
         const err = pickGraphError(e);
@@ -359,7 +359,7 @@ export async function publishMetaFlow(flowId: string): Promise<ActionResult> {
             { $set: { status: 'PUBLISHED', lastPublishedAt: new Date(), updatedAt: new Date() } },
         );
 
-        revalidatePath('/dashboard/flows');
+        revalidatePath('/wachat/flows');
         return { success: true, message: 'Flow published.' };
     } catch (e) {
         const err = pickGraphError(e);
@@ -384,7 +384,7 @@ export async function deprecateMetaFlow(flowId: string): Promise<ActionResult> {
             { $set: { status: 'DEPRECATED', updatedAt: new Date() } },
         );
 
-        revalidatePath('/dashboard/flows');
+        revalidatePath('/wachat/flows');
         return { success: true, message: 'Flow deprecated.' };
     } catch (e) {
         const err = pickGraphError(e);
@@ -416,7 +416,7 @@ export async function deleteMetaFlow(flowId: string, metaId?: string): Promise<A
     }
 
     await db.collection('meta_flows').deleteOne({ _id: flow._id });
-    revalidatePath('/dashboard/flows');
+    revalidatePath('/wachat/flows');
     return { success: true, message: `Flow "${flow.name}" deleted.` };
 }
 
@@ -516,7 +516,7 @@ export async function handleSyncMetaFlows(projectId: string): Promise<ActionResu
         const result = await db.collection('meta_flows').bulkWrite(ops);
         const count = result.upsertedCount + result.modifiedCount;
 
-        revalidatePath('/dashboard/flows');
+        revalidatePath('/wachat/flows');
         return { success: true, count, message: `Synced ${count} flow(s) from Meta.` };
     } catch (e) {
         const err = pickGraphError(e);

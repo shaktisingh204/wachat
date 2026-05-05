@@ -37,7 +37,7 @@ const integrations: Integration[] = [
     description:
       'Create wa.me links with pre-filled messages and track them through UTM parameters.',
     icon: <LuLink className="h-[18px] w-[18px]" strokeWidth={2} />,
-    href: '/dashboard/integrations/whatsapp-link-generator',
+    href: '/wachat/integrations/whatsapp-link-generator',
     accent: 'bg-emerald-50 text-emerald-600',
     status: 'ready',
   },
@@ -46,7 +46,7 @@ const integrations: Integration[] = [
     description:
       'Embed a floating WhatsApp chat widget on your website. Zero dev work, custom branding.',
     icon: <LuCode className="h-[18px] w-[18px]" strokeWidth={2} />,
-    href: '/dashboard/integrations/whatsapp-widget-generator',
+    href: '/wachat/integrations/whatsapp-widget-generator',
     accent: 'bg-sky-50 text-sky-600',
     status: 'ready',
   },
@@ -55,7 +55,7 @@ const integrations: Integration[] = [
     description:
       'Connect your Razorpay account to accept payments directly from WhatsApp messages.',
     icon: <LuKey className="h-[18px] w-[18px]" strokeWidth={2} />,
-    href: '/dashboard/integrations/razorpay',
+    href: '/wachat/integrations/razorpay',
     accent: 'bg-accent text-primary',
     status: 'ready',
   },

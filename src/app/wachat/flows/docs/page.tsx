@@ -53,7 +53,7 @@ export default function FlowsUserGuidePage() {
     <div className="flex flex-col gap-8">
       <div>
         <Button variant="ghost" asChild className="mb-4 -ml-4">
-          <Link href="/dashboard/flows">
+          <Link href="/wachat/flows">
             <ChevronLeft className="mr-2 h-4 w-4" />
             Back to Meta Flows
           </Link>

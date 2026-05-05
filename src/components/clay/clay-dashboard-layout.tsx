@@ -236,7 +236,7 @@ const primaryNav: NavEntry[] = [
     label: 'SabFlow',
     icon: <LuWorkflow className="h-[15px] w-[15px]" strokeWidth={1.75} />,
     href: '/dashboard/sabflow',
-    matches: ['/dashboard/sabflow', '/dashboard/flow-builder', '/dashboard/flows'],
+    matches: ['/dashboard/sabflow', '/wachat/flow-builder', '/wachat/flows'],
   },
   {
     key: 'crm',
@@ -424,7 +424,7 @@ const wachatConversations: NavEntry[] = [
   { key: 'wachat-chat-export', label: 'Chat Export', icon: <LuFileDown className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/chat-export', matches: ['/wachat/chat-export'] },
   { key: 'wachat-chat-transfer', label: 'Transfer Chat', icon: <LuUserCog className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/chat-transfer', matches: ['/wachat/chat-transfer'] },
   { key: 'wachat-saved-replies', label: 'Saved Replies', icon: <LuMessageSquareQuote className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/saved-replies', matches: ['/wachat/saved-replies'] },
-  { key: 'wachat-canned', label: 'Canned Messages', icon: <LuBookmark className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/settings/canned', matches: ['/dashboard/settings/canned'] },
+  { key: 'wachat-canned', label: 'Canned Messages', icon: <LuBookmark className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/settings/canned', matches: ['/wachat/settings/canned'] },
   { key: 'wachat-qr-cats', label: 'Reply Categories', icon: <LuFolderOpen className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/quick-reply-categories', matches: ['/wachat/quick-reply-categories'] },
   { key: 'wachat-greeting', label: 'Greeting Message', icon: <LuMessageSquareQuote className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/greeting-messages', matches: ['/wachat/greeting-messages'] },
   { key: 'wachat-away', label: 'Away Message', icon: <LuMessageSquareQuote className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/away-messages', matches: ['/wachat/away-messages'] },
@@ -433,8 +433,8 @@ const wachatConversations: NavEntry[] = [
 
 /* ── Automation: flows, bots, auto replies, scheduling ── */
 const wachatAutomation: NavEntry[] = [
-  { key: 'wachat-flow-builder', label: 'Flow Builder', icon: <LuGitBranch className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/flow-builder', matches: ['/dashboard/flow-builder'] },
-  { key: 'wachat-flows', label: 'Meta Flows', icon: <LuServerCog className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/flows', matches: ['/dashboard/flows'] },
+  { key: 'wachat-flow-builder', label: 'Flow Builder', icon: <LuGitBranch className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/flow-builder', matches: ['/wachat/flow-builder'] },
+  { key: 'wachat-flows', label: 'Meta Flows', icon: <LuServerCog className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/flows', matches: ['/wachat/flows'] },
   { key: 'wachat-auto-reply', label: 'Auto Reply', icon: <LuReply className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/auto-reply', matches: ['/wachat/auto-reply'] },
   { key: 'wachat-auto-reply-rules', label: 'Reply Rules', icon: <LuListFilter className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/auto-reply-rules', matches: ['/wachat/auto-reply-rules'] },
   { key: 'wachat-chatbot', label: 'Chatbot', icon: <LuBrainCircuit className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/chatbot', matches: ['/wachat/chatbot'] },
@@ -460,7 +460,7 @@ const wachatBroadcasts: NavEntry[] = [
 
 /* ── Analytics: performance, delivery, satisfaction, credit ── */
 const wachatAnalytics: NavEntry[] = [
-  { key: 'wachat-analytics', label: 'Analytics', icon: <LuChartBar className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/analytics', matches: ['/dashboard/analytics'] },
+  { key: 'wachat-analytics', label: 'Analytics', icon: <LuChartBar className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/analytics', matches: ['/wachat/analytics'] },
   { key: 'wachat-template-analytics', label: 'Template Analytics', icon: <LuChartBar className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/template-analytics', matches: ['/wachat/template-analytics'] },
   { key: 'wachat-message-analytics', label: 'Message Stats', icon: <LuActivity className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/message-analytics', matches: ['/wachat/message-analytics'] },
   { key: 'wachat-message-stats', label: 'Message Statistics', icon: <LuChartBar className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/message-statistics', matches: ['/wachat/message-statistics'] },
@@ -473,7 +473,7 @@ const wachatAnalytics: NavEntry[] = [
 
 /* ── Commerce: catalog, payments, QR ── */
 const wachatCommerce: NavEntry[] = [
-  { key: 'wachat-catalog', label: 'Catalog', icon: <LuShoppingBag className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/catalog', matches: ['/dashboard/catalog'] },
+  { key: 'wachat-catalog', label: 'Catalog', icon: <LuShoppingBag className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/catalog', matches: ['/wachat/catalog'] },
   { key: 'wachat-pay', label: 'WhatsApp Pay', icon: <LuCreditCard className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/whatsapp-pay', matches: ['/wachat/whatsapp-pay'] },
   { key: 'wachat-qr-codes', label: 'QR Codes', icon: <LuQrCode className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/qr-codes', matches: ['/wachat/qr-codes'] },
 ];
@@ -494,8 +494,8 @@ const wachatTeam: NavEntry[] = [
   { key: 'wachat-team-perf', label: 'Team Performance', icon: <LuUserPlus className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/team-performance', matches: ['/wachat/team-performance'] },
   { key: 'wachat-assignments', label: 'Assignments', icon: <LuUserCog className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/assignments', matches: ['/wachat/assignments'] },
   { key: 'wachat-agent-avail', label: 'Agent Status', icon: <LuUserPlus className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/agent-availability', matches: ['/wachat/agent-availability'] },
-  { key: 'wachat-agents', label: 'Agents & Roles', icon: <LuUserCog className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/settings/agents', matches: ['/dashboard/settings/agents'] },
-  { key: 'wachat-attributes', label: 'User Attributes', icon: <LuKey className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/settings/attributes', matches: ['/dashboard/settings/attributes'] },
+  { key: 'wachat-agents', label: 'Agents & Roles', icon: <LuUserCog className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/settings/agents', matches: ['/wachat/settings/agents'] },
+  { key: 'wachat-attributes', label: 'User Attributes', icon: <LuKey className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/settings/attributes', matches: ['/wachat/settings/attributes'] },
   { key: 'wachat-business-hours', label: 'Business Hours', icon: <LuClock className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/business-hours', matches: ['/wachat/business-hours'] },
 ];
 
@@ -504,13 +504,13 @@ const wachatPlatform: NavEntry[] = [
   { key: 'wachat-numbers', label: 'Numbers', icon: <LuHash className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/numbers', matches: ['/wachat/numbers'] },
   { key: 'wachat-calls', label: 'Calls', icon: <LuPhone className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/calls', matches: ['/wachat/calls'] },
   { key: 'wachat-phone-settings', label: 'Phone Settings', icon: <LuSmartphone className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/phone-number-settings', matches: ['/wachat/phone-number-settings'] },
-  { key: 'wachat-health', label: 'Account Health', icon: <LuActivity className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/health', matches: ['/dashboard/health'] },
-  { key: 'wachat-integrations', label: 'Integrations', icon: <LuPuzzle className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/integrations', matches: ['/dashboard/integrations'] },
+  { key: 'wachat-health', label: 'Account Health', icon: <LuActivity className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/health', matches: ['/wachat/health'] },
+  { key: 'wachat-integrations', label: 'Integrations', icon: <LuPuzzle className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/integrations', matches: ['/wachat/integrations'] },
   { key: 'wachat-webhooks', label: 'Webhooks', icon: <LuWebhook className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/webhooks', matches: ['/wachat/webhooks'] },
   { key: 'wachat-webhook-logs', label: 'Webhook Logs', icon: <LuWebhook className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/webhook-logs', matches: ['/wachat/webhook-logs'] },
   { key: 'wachat-api-keys', label: 'API Keys', icon: <LuKey className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/api-keys', matches: ['/dashboard/api-keys'] },
   { key: 'wachat-notif-prefs', label: 'Notifications', icon: <LuBell className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/notification-preferences', matches: ['/dashboard/notification-preferences'] },
-  { key: 'wachat-general-settings', label: 'General Settings', icon: <LuSettings className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/settings/general', matches: ['/dashboard/settings/general', '/dashboard/settings'] },
+  { key: 'wachat-general-settings', label: 'General Settings', icon: <LuSettings className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/wachat/settings/general', matches: ['/wachat/settings/general', '/dashboard/settings'] },
 ];
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -2680,9 +2680,9 @@ const crmConfigure: NavEntry[] = [
  * like Live Chat and the flow-builder canvas manage their own
  * scrolling and need the full panel height to work properly.
  *
- * IMPORTANT: `/dashboard/flow-builder` (the LIST) and
- * `/dashboard/flow-builder/docs` stay padded — only the canvas
- * routes `/dashboard/flow-builder/<flowId>` are full-bleed.
+ * IMPORTANT: `/wachat/flow-builder` (the LIST) and
+ * `/wachat/flow-builder/docs` stay padded — only the canvas
+ * routes `/wachat/flow-builder/<flowId>` are full-bleed.
  * SabFlow canvas `/dashboard/sabflow/flow-builder/<flowId>` is
  * likewise full-bleed, but the SabFlow list stays padded.
  */
@@ -2907,7 +2907,7 @@ export function ClayDashboardLayout({
                   <DropdownMenuItem onSelect={() => router.push('/dashboard/team')}>
                     <LuUserPlus className="mr-2 h-4 w-4" /> Team
                   </DropdownMenuItem>
-                  <DropdownMenuItem onSelect={() => router.push('/dashboard/integrations')}>
+                  <DropdownMenuItem onSelect={() => router.push('/wachat/integrations')}>
                     <LuPlus className="mr-2 h-4 w-4" /> Integrations
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
@@ -3199,7 +3199,7 @@ export function ClayDashboardLayout({
                     {
                       title: 'Platform & Dev',
                       addable: true,
-                      onAdd: () => router.push('/dashboard/integrations'),
+                      onAdd: () => router.push('/wachat/integrations'),
                       items: wachatPlatform.map(toNavItem),
                     },
                   ]
@@ -3321,7 +3321,7 @@ export function ClayDashboardLayout({
                     {
                       title: 'Apps',
                       addable: true,
-                      onAdd: () => router.push('/dashboard/integrations'),
+                      onAdd: () => router.push('/wachat/integrations'),
                       items: appsNav.map(toNavItem),
                     },
                   ]

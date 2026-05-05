@@ -42,7 +42,7 @@ export async function saveWidgetSettings(
             { $set: { widgetSettings: settings } }
         );
 
-        revalidatePath(`/dashboard/integrations/whatsapp-widget-generator`);
+        revalidatePath(`/wachat/integrations/whatsapp-widget-generator`);
         return { message: "Widget settings saved successfully." };
 
     } catch (e) {

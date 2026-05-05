@@ -75,7 +75,7 @@ const ProductsTable = ({ products, catalogId, onAction }: { products: any[], cat
                                 <TableCell className="font-mono text-xs">{product.retailer_id}</TableCell>
                                 <TableCell className="text-right">
                                     <Button variant="ghost" size="icon" asChild>
-                                        <Link href={`/dashboard/catalog/${catalogId}/${product.id}/edit`}><Edit className="h-4 w-4" /></Link>
+                                        <Link href={`/wachat/catalog/${catalogId}/${product.id}/edit`}><Edit className="h-4 w-4" /></Link>
                                     </Button>
                                     <AlertDialog>
                                         <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive"/></Button></AlertDialogTrigger>
@@ -171,7 +171,7 @@ export default function CatalogProductsPage() {
         <div className="space-y-6">
             <div>
                 <Button variant="ghost" asChild className="mb-2 -ml-4">
-                    <Link href="/dashboard/catalog"><ChevronLeft className="mr-2 h-4 w-4" />Back to Catalogs</Link>
+                    <Link href="/wachat/catalog"><ChevronLeft className="mr-2 h-4 w-4" />Back to Catalogs</Link>
                 </Button>
                 <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>
@@ -195,7 +195,7 @@ export default function CatalogProductsPage() {
                                     <CardDescription>A list of products in this catalog.</CardDescription>
                                 </div>
                                 <Button asChild>
-                                    <Link href={`/dashboard/catalog/new?catalogId=${catalogId}`}>
+                                    <Link href={`/wachat/catalog/new?catalogId=${catalogId}`}>
                                         <PlusCircle className="mr-2 h-4 w-4"/>Add Product
                                     </Link>
                                 </Button>

@@ -1996,7 +1996,7 @@ function ChatbotMock() {
 }
 
 /* -------------------------------------------------------------------------- */
-/*  Analytics mock (mirrors /dashboard/analytics)                             */
+/*  Analytics mock (mirrors /wachat/analytics)                             */
 /* -------------------------------------------------------------------------- */
 
 function AnalyticsMock() {

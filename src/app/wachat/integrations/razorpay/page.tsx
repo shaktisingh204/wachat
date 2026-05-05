@@ -1,10 +1,11 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
+import type { WithId } from 'mongodb';
 import { getProjectById } from '@/app/actions/project.actions';
-import type { WithId, Project } from '@/lib/definitions';
+import type { Project } from '@/lib/definitions';
 import { useProject } from '@/context/project-context';
-import { WhatsappLinkGenerator } from '@/components/wabasimplify/whatsapp-link-generator';
+import { RazorpaySettingsForm } from '@/components/wabasimplify/razorpay-settings-form';
 import { ClayBreadcrumbs } from '@/components/clay';
 
 function PageSkeleton() {
@@ -15,7 +16,7 @@ function PageSkeleton() {
   );
 }
 
-export default function WhatsappLinkGeneratorPage() {
+export default function RazorpayIntegrationPage() {
   const { activeProject } = useProject();
   const [project, setProject] = useState<WithId<Project> | null>(null);
   const [isLoading, startLoadingTransition] = useTransition();
@@ -36,8 +37,8 @@ export default function WhatsappLinkGeneratorPage() {
         items={[
           { label: 'SabNode', href: '/dashboard' },
           { label: 'Wachat', href: '/wachat' },
-          { label: 'Integrations', href: '/dashboard/integrations' },
-          { label: 'Link Generator' },
+          { label: 'Integrations', href: '/wachat/integrations' },
+          { label: 'Razorpay' },
         ]}
       />
 
@@ -50,7 +51,9 @@ export default function WhatsappLinkGeneratorPage() {
             dashboard.
           </div>
         ) : (
-          <WhatsappLinkGenerator project={project} />
+          <div className="max-w-2xl">
+            <RazorpaySettingsForm project={project} />
+          </div>
         )}
       </div>
     </div>

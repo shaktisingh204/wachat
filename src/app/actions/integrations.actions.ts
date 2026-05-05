@@ -33,7 +33,7 @@ export async function saveRazorpaySettings(prevState: any, formData: FormData): 
             { $set: { razorpaySettings: settings } }
         );
 
-        revalidatePath('/dashboard/integrations/razorpay');
+        revalidatePath('/wachat/integrations/razorpay');
         return { message: 'Razorpay settings saved successfully!' };
     } catch (e: any) {
         return { error: getErrorMessage(e) };

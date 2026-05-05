@@ -1,11 +1,8 @@
 /**
  * Wachat sidebar — grouped menu configuration.
  *
- * Drives the per-section nav inside the wachat shell. Items intentionally
- * mix `/wachat/*` (the relocated Wachat module) and a few `/dashboard/*`
- * routes (settings, analytics, integrations, flow-builder, catalog,
- * health, overview) that are still shared across the broader account
- * surface.
+ * Drives the per-section nav inside the wachat shell. All hrefs live
+ * under `/wachat/*`.
  *
  * Returned shape matches `ZoruSidebarGroup` so the wachat layout can
  * pass it straight to `<ZoruHomeShell sidebarGroups={…} />`.
@@ -76,15 +73,15 @@ export function buildWachatSidebarGroups(
           id: "analytics",
           label: "Analytics",
           icon: React.createElement(BarChart),
-          href: "/dashboard/analytics",
-          active: isActive("/dashboard/analytics"),
+          href: "/wachat/analytics",
+          active: isActive("/wachat/analytics"),
         },
         {
           id: "health",
           label: "Account Health",
           icon: React.createElement(Activity),
-          href: "/dashboard/health",
-          active: isActive("/dashboard/health"),
+          href: "/wachat/health",
+          active: isActive("/wachat/health"),
         },
       ],
     },
@@ -391,15 +388,15 @@ export function buildWachatSidebarGroups(
           id: "flow-builder",
           label: "Flow Builder",
           icon: React.createElement(GitFork),
-          href: "/dashboard/flow-builder",
-          active: isActive("/dashboard/flow-builder"),
+          href: "/wachat/flow-builder",
+          active: isActive("/wachat/flow-builder"),
         },
         {
           id: "meta-flows",
           label: "Meta Flows",
           icon: React.createElement(GitFork),
-          href: "/dashboard/flows",
-          active: isActive("/dashboard/flows"),
+          href: "/wachat/flows",
+          active: isActive("/wachat/flows"),
         },
       ],
     },
@@ -468,8 +465,8 @@ export function buildWachatSidebarGroups(
           id: "catalog",
           label: "Catalog",
           icon: React.createElement(ShoppingBag),
-          href: "/dashboard/catalog",
-          active: isActive("/dashboard/catalog"),
+          href: "/wachat/catalog",
+          active: isActive("/wachat/catalog"),
         },
         {
           id: "whatsapp-pay",
@@ -608,29 +605,29 @@ export function buildWachatSidebarGroups(
           id: "general",
           label: "General Settings",
           icon: React.createElement(Settings),
-          href: "/dashboard/settings/general",
-          active: isActive("/dashboard/settings/general"),
+          href: "/wachat/settings/general",
+          active: isActive("/wachat/settings/general"),
         },
         {
           id: "agents",
           label: "Agents & Roles",
           icon: React.createElement(Users),
-          href: "/dashboard/settings/agents",
-          active: isActive("/dashboard/settings/agents"),
+          href: "/wachat/settings/agents",
+          active: isActive("/wachat/settings/agents"),
         },
         {
           id: "attributes",
           label: "User Attributes",
           icon: React.createElement(Key),
-          href: "/dashboard/settings/attributes",
-          active: isActive("/dashboard/settings/attributes"),
+          href: "/wachat/settings/attributes",
+          active: isActive("/wachat/settings/attributes"),
         },
         {
           id: "canned-settings",
           label: "Canned Settings",
           icon: React.createElement(BookCopy),
-          href: "/dashboard/settings/canned",
-          active: isActive("/dashboard/settings/canned"),
+          href: "/wachat/settings/canned",
+          active: isActive("/wachat/settings/canned"),
         },
         {
           id: "webhooks",
@@ -650,8 +647,8 @@ export function buildWachatSidebarGroups(
           id: "integrations",
           label: "Integrations",
           icon: React.createElement(Bolt),
-          href: "/dashboard/integrations",
-          active: isActive("/dashboard/integrations"),
+          href: "/wachat/integrations",
+          active: isActive("/wachat/integrations"),
         },
       ],
     },

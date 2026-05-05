@@ -84,21 +84,21 @@ const WACHAT_PREFIXES = [
   '/wachat/overview',
   '/wachat/bulk',
   '/wachat/canned-messages',
-  '/dashboard/catalog',
+  '/wachat/catalog',
   '/wachat/calls',
-  '/dashboard/flow-builder',
-  '/dashboard/flows',
+  '/wachat/flow-builder',
+  '/wachat/flows',
   '/wachat/numbers',
   '/wachat/webhooks',
   '/wachat/auto-reply',
   '/wachat/whatsapp-pay',
-  '/dashboard/integrations',
+  '/wachat/integrations',
   '/dashboard/setup',
   '/dashboard/wachat',
-  '/dashboard/analytics',
+  '/wachat/analytics',
   '/wachat/qr-codes',
   '/wachat/automation',
-  '/dashboard/health',
+  '/wachat/health',
   '/dashboard/settings',
   // New Wachat feature routes
   '/wachat/chat-labels',
@@ -313,10 +313,10 @@ function isSmsRoute(pathname: string | null): boolean {
  * branch matches them instead.
  */
 const WACHAT_SETTINGS_SUBPATHS = [
-  '/dashboard/settings/general',
-  '/dashboard/settings/agents',
-  '/dashboard/settings/attributes',
-  '/dashboard/settings/canned',
+  '/wachat/settings/general',
+  '/wachat/settings/agents',
+  '/wachat/settings/attributes',
+  '/wachat/settings/canned',
 ];
 
 function isSettingsRoute(pathname: string | null): boolean {

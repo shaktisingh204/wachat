@@ -346,7 +346,7 @@ export default function HomePage() {
       icon: <AlarmClock className="h-3.5 w-3.5" />,
       title: `${compact(velocity.messagesLast24h)} msgs in 24h`,
       tone: "inverted",
-      onClick: () => router.push("/dashboard/analytics"),
+      onClick: () => router.push("/wachat/analytics"),
     });
   }
   while (notificationCards.length < 3) {
@@ -378,7 +378,7 @@ export default function HomePage() {
       key: "flows",
       title: "SabFlow Automations",
       meta: `${stats.activeFlows} active · ${stats.totalFlows} total`,
-      onClick: () => router.push("/dashboard/sabflow"),
+      onClick: () => router.push("/dashboard/sabflow/flow-builder"),
     },
     {
       key: "sabchat",
@@ -449,7 +449,7 @@ export default function HomePage() {
             <ZoruDropdownMenuContent align="end" className="w-56">
               <ZoruDropdownMenuLabel>Filter by</ZoruDropdownMenuLabel>
               <ZoruDropdownMenuItem
-                onSelect={() => router.push("/dashboard/analytics")}
+                onSelect={() => router.push("/wachat/analytics")}
               >
                 <Send /> Messages &amp; delivery
               </ZoruDropdownMenuItem>
@@ -459,7 +459,7 @@ export default function HomePage() {
                 <Briefcase /> CRM pipeline
               </ZoruDropdownMenuItem>
               <ZoruDropdownMenuItem
-                onSelect={() => router.push("/dashboard/sabflow")}
+                onSelect={() => router.push("/dashboard/sabflow/flow-builder")}
               >
                 <Workflow /> Active flows
               </ZoruDropdownMenuItem>
@@ -509,7 +509,7 @@ export default function HomePage() {
           statusOk
           tokens={projectInitials}
           ctaLabel="View analytics"
-          onCtaClick={() => router.push("/dashboard/analytics")}
+          onCtaClick={() => router.push("/wachat/analytics")}
         />
 
         <BigStatCard
@@ -578,7 +578,7 @@ export default function HomePage() {
             <ZoruButton
               variant="outline"
               size="sm"
-              onClick={() => router.push("/dashboard/integrations")}
+              onClick={() => router.push("/wachat/integrations")}
             >
               Integrations
             </ZoruButton>
@@ -615,7 +615,7 @@ export default function HomePage() {
             name="SabFlow"
             primary={`${stats.activeFlows}/${stats.totalFlows}`}
             secondary={`${compact(stats.totalFlowExecutions)} executions`}
-            href="/dashboard/sabflow"
+            href="/dashboard/sabflow/flow-builder"
             status={
               stats.activeFlows > 0
                 ? "ok"
@@ -798,7 +798,7 @@ export default function HomePage() {
                 </ZoruDropdownMenuRadioGroup>
                 <ZoruDropdownMenuSeparator />
                 <ZoruDropdownMenuItem
-                  onSelect={() => router.push("/dashboard/analytics")}
+                  onSelect={() => router.push("/wachat/analytics")}
                 >
                   <ArrowUpRight /> Open analytics
                 </ZoruDropdownMenuItem>
@@ -943,7 +943,7 @@ export default function HomePage() {
             <ZoruButton
               variant="outline"
               size="sm"
-              onClick={() => router.push("/dashboard/integrations")}
+              onClick={() => router.push("/wachat/integrations")}
             >
               <Plus /> Add app
             </ZoruButton>
