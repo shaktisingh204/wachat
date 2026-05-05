@@ -1,0 +1,62 @@
+# Empty [workspace] table makes this crate buildable standalone while it
+# waits to be added to the parent workspace's `members` list (per the
+# Phase 4 slice contract: do not modify the workspace Cargo.toml).
+[package]
+name = "wachat-chat-mark"
+version = "0.1.0"
+edition = "2024"
+description = "Mark a wachat conversation read or unread. Reconciles the TS Server Actions `markConversationAsRead` / `markConversationAsUnread` with the Phase 2 `conversations` materialized view. Phase 4 slice 7 of the wachat → Rust port."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "wachat_chat_mark"
+path = "src/lib.rs"
+
+[dependencies]
+# Async runtime — `ChatMarker::mark_read` / `mark_unread` hit MongoDB and
+# return futures. `macros` + `rt-multi-thread` mirror the rest of the
+# wachat workspace and keep the dev test harness compatible with
+# `#[tokio::test(flavor = "multi_thread")]`.
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+# Serde for the public `MarkOutcome` struct (carried over the wire by the
+# Rust API surface in `wachat-api`). Derive feature only — no JSON here.
+serde = { version = "1", features = ["derive"] }
+
+# BSON document construction (`doc! { ... }`) for Mongo filters/updates.
+# `chrono-0_4` keeps the `bson::DateTime::from_chrono` path consistent
+# with the conversations crate's `updatedAt` writes.
+bson = { version = "2.13", features = ["chrono-0_4"] }
+
+# Mongo driver — `Collection::update_many`, `update_one`, `UpdateResult`.
+mongodb = "3.2"
+
+# Tracing for fail-soft logging on partial-update boundaries (e.g. zero
+# matched rows on a contact that has never received an inbound message).
+tracing = "0.1"
+
+# Error plumbing — `anyhow::Error` → `ApiError::Internal` via the existing
+# `From` impl on `ApiError`. We do not surface conversation-specific
+# error variants here; everything fans into `ApiError::Internal`.
+anyhow = "1"
+
+# Chrono for the conversations-view `updatedAt` BSON DateTime, mirroring
+# the convention used by `wachat-webhook-conversations::tracker`.
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+# Sibling crates — shared error envelope and the Mongo handle. Path deps
+# because the workspace lockfile lives one level up. We deliberately do
+# NOT depend on `wachat-types` or `wachat-meta-dto` — this crate operates
+# purely on `ObjectId` references and does not need the full domain types.
+sabnode-common = { path = "../common" }
+sabnode-db = { path = "../db" }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+# Needed by the `outcome_serializes_camel_case_field_unchanged` test in
+# `marker.rs` — pins the public wire shape of `MarkOutcome`.
+serde_json = "1"
+
+[lints]
+workspace = true

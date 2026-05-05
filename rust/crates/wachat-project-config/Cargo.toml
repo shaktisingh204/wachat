@@ -1,0 +1,70 @@
+# Phase 5 slice 1 — wachat project read + manual setup.
+#
+# Mirrors the TypeScript Server Actions in `src/app/actions/whatsapp.actions.ts`:
+#   * `getPublicProjectById` (line 19) — read a Project by id, with sensitive
+#     access tokens redacted before the document leaves the trust boundary.
+#   * `handleManualWachatSetup` (line 143) → `_createProjectFromWaba`
+#     (line 33) — manual project setup: WABA id + App id + access token
+#     supplied directly by the user (no embedded-signup OAuth round-trip).
+#
+# The TS implementation uses findOne + insertOne; the Rust public API
+# upgrades that to a single atomic upsert keyed on `(wabaId, userId)` to
+# remove the read-then-write race the legacy code carries.
+#
+# Per the Phase contract this crate is a leaf — it does NOT modify the
+# workspace `Cargo.toml`; the orchestrator wires it in. We deliberately
+# omit a `[workspace]` table so the parent workspace owns membership.
+[package]
+name = "wachat-project-config"
+version = "0.1.0"
+edition = "2024"
+description = "Read + manual setup of a wachat Project. Mirrors `getPublicProjectById` and `handleManualWachatSetup` from `src/app/actions/whatsapp.actions.ts`. Phase 5 slice 1 of the wachat → Rust port."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "wachat_project_config"
+path = "src/lib.rs"
+
+[dependencies]
+# Async runtime — `ProjectConfig::get_public` and `manual_setup` both
+# return futures that drive Mongo I/O.
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+# Serde for the public DTOs (`PublicProject`, `ManualSetupReq`). The
+# `PublicProject` shape is the wire shape returned by the API layer; it
+# is `Project` minus every sensitive token.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# BSON document construction (`doc! { ... }`) for Mongo filters/updates,
+# plus `ObjectId` and `bson::DateTime` interop. `chrono-0_4` lets us
+# write `bson::DateTime::from_chrono(Utc::now())` for `createdAt`.
+bson = { version = "2.13", features = ["chrono-0_4"] }
+
+# Mongo driver — `Collection::find_one`, `update_one`, `UpdateResult`.
+mongodb = "3.2"
+
+# Structured logging on the read/write boundaries.
+tracing = "0.1"
+
+# Error plumbing — `anyhow::Error` → `ApiError::Internal` via the
+# existing `From` impl on `ApiError`.
+anyhow = "1"
+
+# Chrono for `createdAt` — `bson::DateTime::from_chrono(Utc::now())`.
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+# Sibling crates — shared error envelope, the Mongo handle, and the
+# `Project` document shape we read into / write from. Path deps because
+# the workspace lockfile lives one level up.
+sabnode-common = { path = "../common" }
+sabnode-db = { path = "../db" }
+wachat-types = { path = "../wachat-types" }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+[lints]
+workspace = true
+

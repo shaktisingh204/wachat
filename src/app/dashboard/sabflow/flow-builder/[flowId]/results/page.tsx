@@ -1,9 +1,21 @@
-import { notFound } from 'next/navigation';
-import type { Metadata } from 'next';
-import Link from 'next/link';
-import { LuChevronRight, LuChartBar as LuBarChart2 } from 'react-icons/lu';
-import { getSabFlow } from '@/app/actions/sabflow';
-import { FlowResultsClient } from '@/components/sabflow/results/FlowResultsClient';
+import { notFound } from "next/navigation";
+import type { Metadata } from "next";
+
+import { getSabFlow } from "@/app/actions/sabflow";
+import { FlowResultsClient } from "@/components/sabflow/results/FlowResultsClient";
+
+import {
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+} from "@/components/zoruui";
 
 type Props = {
   params: Promise<{ flowId: string }>;
@@ -13,7 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { flowId } = await params;
   const flow = await getSabFlow(flowId);
   return {
-    title: flow ? `${flow.name} — Results | SabFlow` : 'Results | SabFlow',
+    title: flow ? `${flow.name} — Results | SabFlow` : "Results | SabFlow",
   };
 }
 
@@ -26,47 +38,46 @@ export default async function FlowResultsPage({ params }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-      {/* Sticky header with breadcrumb */}
-      <div className="sticky top-0 z-10 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center gap-2">
-          <Link
-            href="/dashboard/sabflow/flow-builder"
-            className="text-sm text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
-          >
-            SabFlow
-          </Link>
-          <LuChevronRight className="w-3.5 h-3.5 text-zinc-400 flex-shrink-0" />
-          <Link
-            href={`/dashboard/sabflow/flow-builder/${flowId}`}
-            className="text-sm text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors truncate max-w-[160px]"
-            title={flow.name}
-          >
-            {flow.name}
-          </Link>
-          <LuChevronRight className="w-3.5 h-3.5 text-zinc-400 flex-shrink-0" />
-          <span className="text-sm font-medium text-zinc-700 dark:text-zinc-200">Results</span>
-          <div className="ml-auto flex items-center gap-1.5 text-amber-500">
-            <LuBarChart2 className="w-4 h-4" />
-            <span className="text-sm font-semibold hidden sm:inline">Analytics</span>
-          </div>
-        </div>
-      </div>
+    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard/sabflow/flow-builder">
+              SabFlow
+            </ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink
+              href={`/dashboard/sabflow/flow-builder/${flowId}`}
+            >
+              {flow.name}
+            </ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Results</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
 
-      {/* Page body */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{flow.name}</h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-            Submission results and analytics
-          </p>
-        </div>
+      <ZoruPageHeader>
+        <ZoruPageHeading>
+          <ZoruPageTitle>{flow.name}</ZoruPageTitle>
+          <ZoruPageDescription>
+            Submission results and analytics.
+          </ZoruPageDescription>
+        </ZoruPageHeading>
+      </ZoruPageHeader>
 
-        {/* All interactivity lives in the client component */}
-        <FlowResultsClient flowId={flowId} />
-      </div>
+      {/* Composite — kept opaque, contains its own chrome. */}
+      <FlowResultsClient flowId={flowId} />
     </div>
   );
 }
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";

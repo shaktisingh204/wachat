@@ -1,0 +1,65 @@
+# Phase 4 slice 8 — WhatsApp payment-request send + status.
+#
+# Mirrors `handleRequestWhatsAppPayment` (line 719), `getPaymentRequestStatus`
+# (line 796), and `getPaymentRequests` (line 822) from
+# `src/app/actions/whatsapp.actions.ts`. Builds the Meta interactive
+# `order_details` payload for `POST /{phone-number-id}/messages`, then writes
+# an `outgoing_messages` log + a `payment_requests` doc to Mongo for status
+# correlation.
+#
+# Per the Phase 4 slice contract this crate is a leaf — it does NOT modify
+# the workspace `Cargo.toml`; the orchestrator wires it in. We deliberately
+# omit a `[workspace]` table so the parent workspace owns membership.
+[package]
+name = "wachat-payment-request"
+version = "0.1.0"
+edition = "2024"
+description = "WhatsApp payment-request send + status reads for the SabNode wachat module. Builds the Meta interactive `order_details` payload and posts to `/{phone-number-id}/messages` via `wachat-meta-client`, then persists the request to Mongo for status correlation. Mirrors `handleRequestWhatsAppPayment` / `getPaymentRequestStatus` / `getPaymentRequests` in `src/app/actions/whatsapp.actions.ts`."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "wachat_payment_request"
+path = "src/lib.rs"
+
+[dependencies]
+# Async runtime.
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+# Serde stack — payment payloads pass through `serde_json::Value` because the
+# Meta `order_details.action.parameters.order` shape is wide and dominantly
+# pass-through from caller-side input.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Mongo BSON. `chrono-0_4` for `createdAt` / `paid_at` interop.
+bson = { version = "2.13", features = ["chrono-0_4"] }
+mongodb = "3.2"
+
+# Cursor `try_collect` in `list_for_project`.
+futures = "0.3"
+
+# Structured logging.
+tracing = "0.1"
+
+# Error plumbing + time.
+anyhow = "1"
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+# Sibling crates — public APIs only.
+sabnode-common = { path = "../common" }
+sabnode-db = { path = "../db" }
+wachat-types = { path = "../wachat-types" }
+wachat-phone = { path = "../wachat-phone" }
+wachat-meta-client = { path = "../wachat-meta-client" }
+wachat-meta-dto = { path = "../wachat-meta-dto" }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+wiremock = "0.6"
+serde_json = "1"
+bson = { version = "2.13", features = ["chrono-0_4"] }
+url = "2"
+
+[lints]
+workspace = true

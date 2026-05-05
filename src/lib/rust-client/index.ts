@@ -13,12 +13,16 @@ import 'server-only';
 
 import { templatesApi } from './templates';
 import { usersApi } from './users';
+import { wachatConfigApi } from './wachat-config';
 import { wachatWebhookApi } from './wachat-webhook';
+import { whatsappSendApi } from './whatsapp-send';
 
 export const rustClient = {
     users: usersApi,
     wachatWebhook: wachatWebhookApi,
+    wachatConfig: wachatConfigApi,
     templates: templatesApi,
+    whatsappSend: whatsappSendApi,
 };
 
 export type RustClient = typeof rustClient;
@@ -46,3 +50,27 @@ export type {
     ApplyLibraryOutcome,
     TemplatesApi,
 } from './templates';
+export type {
+    MediaFilePayload,
+    SendMessageBody,
+    SendMessageResult,
+    SendCatalogBody,
+    SendCtaUrlBody,
+    SendLocationRequestBody,
+    SendAddressBody,
+    SendOrderDetailsBody,
+    SendOrderStatusBody,
+    OrderItem,
+    OrderShape,
+    OrderStatus,
+    MoneyAmount,
+    SendAck,
+    ResolveContactBody,
+    ResolveContactResult,
+    InitialChatDataQuery,
+    InitialChatDataResult,
+    SendPaymentRequestBody,
+    PaymentRequestStatusQuery,
+    PaymentRequestRecord,
+    WhatsappSendApi,
+} from './whatsapp-send';

@@ -1,0 +1,68 @@
+# Phase 5 slice 5 — WhatsApp QR code (`message_qrdls`) CRUD.
+#
+# Mirrors the admin handlers in `src/app/actions/whatsapp.actions.ts`:
+#   * `getQrCodes`           (line ~941)  -> `QrCodes::list`
+#   * `handleCreateQrCode`   (line ~961)  -> `QrCodes::create`
+#   * `handleUpdateQrCode`   (line ~987)  -> `QrCodes::update`
+#   * `handleDeleteQrCode`   (line ~1009) -> `QrCodes::delete`
+#
+# IMPORTANT — Meta API path shape (sourced from `whatsapp.actions.ts`):
+#   * list   `GET    /{phone-number-id}/message_qrdls`
+#   * create `POST   /{phone-number-id}/message_qrdls`
+#   * update `POST   /{phone-number-id}/message_qrdls/{code}`
+#   * delete `DELETE /{phone-number-id}/message_qrdls/{code}`
+#
+# NOTE: the TS handlers for update / delete actually pass the bare QR
+# `code` as the path segment without the `/{phone-number-id}/message_qrdls`
+# prefix — Meta accepts both because a QR `code` is a globally-unique node.
+# This crate uses the documented nested form so the wire log is
+# self-describing and matches the Meta v23.0 reference docs.
+#
+# Per the slice contract this crate is intentionally a leaf and is **not**
+# yet listed in the parent `rust/Cargo.toml` workspace `members` — the
+# orchestrator wires it in once all Phase 5 slices land. Mirrors the same
+# pattern used by sibling `wachat-templates-categories`.
+
+[package]
+name = "wachat-qr-codes"
+version = "0.1.0"
+edition = "2024"
+description = "WhatsApp QR-code (message_qrdls) CRUD against the Meta Cloud API. Token-agnostic — caller supplies a `&Project` per call. Mirrors getQrCodes / handleCreateQrCode / handleUpdateQrCode / handleDeleteQrCode in src/app/actions/whatsapp.actions.ts."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "wachat_qr_codes"
+path = "src/lib.rs"
+
+[dependencies]
+# Async runtime — `MetaClient` is async.
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+# Serde stack for the request / response DTOs.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Mongo BSON — pulled for parity with sibling wachat-* crates so the
+# Project type's `ObjectId` round-trips cleanly when callers reuse this
+# crate's DTOs alongside a Mongo read.
+bson = { version = "2.13", features = ["chrono-0_4"] }
+
+# Structured logging.
+tracing = "0.1"
+
+# Errors.
+anyhow = "1"
+
+# Sibling crates — public APIs only.
+sabnode-common = { path = "../common" }
+wachat-types = { path = "../wachat-types" }
+wachat-meta-client = { path = "../wachat-meta-client" }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+wiremock = "0.6"
+serde_json = "1"
+
+[lints]
+workspace = true

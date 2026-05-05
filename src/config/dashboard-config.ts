@@ -52,7 +52,7 @@ export const appIcons = [
 export const wachatMenuItems: MenuItem[] = [
     // Primary
     { href: '/wachat', label: 'All Projects', icon: Briefcase, roles: ['owner', 'admin', 'agent'], exact: true, permissionKey: 'wachat_overview' },
-    { href: '/dashboard/overview', label: 'Overview', icon: LayoutDashboard, roles: ['owner', 'admin'], permissionKey: 'wachat_overview' },
+    { href: '/wachat/overview', label: 'Overview', icon: LayoutDashboard, roles: ['owner', 'admin'], permissionKey: 'wachat_overview' },
     { href: '/wachat/chat', label: 'Live Chat', icon: MessageSquare, roles: ['owner', 'admin', 'agent'], permissionKey: 'wachat_chat' },
     { href: '/wachat/contacts', label: 'Contacts', icon: Users, roles: ['owner', 'admin', 'agent'], permissionKey: 'wachat_contacts' },
     { href: '/wachat/broadcasts', label: 'Campaigns', icon: Send, roles: ['owner', 'admin'], permissionKey: 'wachat_campaigns' },

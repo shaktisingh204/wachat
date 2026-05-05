@@ -1,0 +1,60 @@
+# Phase 4 slice 3 — interactive "flow" senders.
+#
+# Mirrors `handleSendLocationRequestMessage` (line 1565) and
+# `handleSendAddressMessage` (line 1616) in
+# `src/app/actions/whatsapp.actions.ts`. Both build interactive Meta
+# messages of subtypes `location_request_message` and `address_message`,
+# POST to `/{phone-number-id}/messages`, then write an outgoing log.
+#
+# Per the slice contract this crate is a leaf — it does NOT modify the
+# parent workspace `Cargo.toml`; the orchestrator wires it in. We
+# deliberately omit a `[workspace]` table so the parent owns membership.
+[package]
+name = "wachat-send-flows"
+version = "0.1.0"
+edition = "2024"
+description = "Interactive 'flow' senders for the SabNode wachat module — location-request and address-request messages. Posts to Meta's `/{phone-number-id}/messages` endpoint via `wachat-meta-client`, then writes the outgoing message log to Mongo. Mirrors `handleSendLocationRequestMessage` and `handleSendAddressMessage` in `src/app/actions/whatsapp.actions.ts`."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "wachat_send_flows"
+path = "src/lib.rs"
+
+[dependencies]
+# Async runtime.
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+# Serde stack — Meta interactive shapes go through serde_json::Value
+# because each subtype carries its own action/parameters object.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Mongo BSON. `chrono-0_4` for `messageTimestamp` / `createdAt` interop.
+bson = { version = "2.13", features = ["chrono-0_4"] }
+mongodb = "3.2"
+
+# Structured logging.
+tracing = "0.1"
+
+# Error plumbing + time.
+anyhow = "1"
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+# Sibling crates — public APIs only.
+sabnode-common = { path = "../common" }
+sabnode-db = { path = "../db" }
+wachat-types = { path = "../wachat-types" }
+wachat-phone = { path = "../wachat-phone" }
+wachat-meta-client = { path = "../wachat-meta-client" }
+wachat-meta-dto = { path = "../wachat-meta-dto" }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+wiremock = "0.6"
+serde_json = "1"
+bson = { version = "2.13", features = ["chrono-0_4"] }
+url = "2"
+
+[lints]
+workspace = true

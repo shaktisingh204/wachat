@@ -1,0 +1,420 @@
+/**
+ * Client for the Wachat **config** router on the Rust BFF.
+ *
+ * Mirrors the routes registered under `/v1/wachat/config` by the
+ * project-config / phone-sync / phone-register / webhook-subscribe slices
+ * (Phase 5, slices 1–6). Each method is a one-line shim around
+ * {@link rustFetch} so the namespace surface stays close to the OpenAPI
+ * operation IDs — when codegen replaces this file the call sites won't
+ * change.
+ *
+ *   GET    /projects/:id/public                                            → getPublicProject
+ *   POST   /projects/manual-setup                                          → manualSetup
+ *
+ *   POST   /projects/:id/phone-numbers/sync                                → syncPhoneNumbers
+ *   POST   /projects/:id/phone-numbers/:pnid/profile                       → updatePhoneProfile
+ *
+ *   GET    /projects/:id/webhook-subscription?waba_id=...                  → getWebhookSubscription
+ *   POST   /webhooks/subscribe-all                                         → subscribeAllWebhooks
+ *   POST   /projects/:id/webhooks/subscribe                                → subscribeWebhook
+ *
+ *   POST   /projects/:id/phone-numbers/:pnid/register                      → registerPhone
+ *   POST   /projects/:id/phone-numbers/:pnid/request-verification-code     → requestVerificationCode
+ *   POST   /projects/:id/phone-numbers/:pnid/verify-code                   → verifyCode
+ *   POST   /projects/:id/phone-numbers/:pnid/deregister                    → deregisterPhone
+ *   POST   /projects/:id/phone-numbers/:pnid/two-step-pin                  → setTwoStepPin
+ *
+ *   GET    /projects/:id/phone-numbers/:pnid/qr-codes                      → listQrCodes
+ *   POST   /projects/:id/phone-numbers/:pnid/qr-codes                      → createQrCode
+ *   POST   /projects/:id/phone-numbers/:pnid/qr-codes/:code                → updateQrCode
+ *   DELETE /projects/:id/phone-numbers/:pnid/qr-codes/:code                → deleteQrCode
+ *
+ * Server-only — uses the shared JWT-issuing fetcher.
+ */
+import 'server-only';
+
+import { rustFetch } from './fetcher';
+
+const BASE = '/v1/wachat/config';
+
+// ---------------------------------------------------------------------------
+// Domain DTOs (mirror the Rust slice DTOs — camelCase over the wire because
+// every Rust handler uses `serde(rename_all = "camelCase")`).
+// ---------------------------------------------------------------------------
+
+/**
+ * Read-only projection of a Project document.
+ *
+ * Mirrors `wachat_project_config::dto::PublicProject`. The Rust side strips
+ * `accessToken` and any other sensitive token fields before serialization,
+ * so the browser-facing client never sees them — even by mistake. Nested
+ * `phoneNumbers` entries follow the `StoredPhoneNumber` shape from
+ * `wachat-phone-sync` (open-ended `profile` JSON object preserved verbatim).
+ */
+export interface PublicProject {
+    _id: string;
+    userId: string;
+    name: string;
+    wabaId?: string | null;
+    businessId?: string | null;
+    appId?: string | null;
+    phoneNumbers: Array<{
+        id: string;
+        display_phone_number: string;
+        verified_name: string;
+        code_verification_status?: string | null;
+        quality_rating?: string | null;
+        platform_type?: string | null;
+        throughput?: unknown;
+        profile?: unknown;
+    }>;
+    messagesPerSecond?: number | null;
+    credits?: number | null;
+    planId?: string | null;
+    reviewStatus?: string | null;
+    banState?: string | null;
+    createdAt: string;
+}
+
+// ---------------------------------------------------------------------------
+// Request bodies
+// ---------------------------------------------------------------------------
+
+/**
+ * Body for `POST /v1/wachat/config/projects/manual-setup`.
+ *
+ * Mirrors `wachat_project_config::dto::ManualSetupReq` — the form data
+ * collected by the legacy `handleManualWachatSetup` server action, normalized
+ * to camelCase JSON. The Rust handler upserts on `(wabaId, userId)` so the
+ * read-then-write race in the legacy code is gone.
+ */
+export interface ManualSetupBody {
+    name: string;
+    wabaId: string;
+    phoneNumberId: string;
+    accessToken: string;
+    businessId?: string;
+    appId?: string;
+}
+
+/**
+ * Body for `POST /v1/wachat/config/projects/:id/phone-numbers/:pnid/profile`.
+ *
+ * Mirrors `wachat_phone_sync::dto::UpdateProfileReq`. Each `undefined` field
+ * is omitted from the Meta `whatsapp_business_profile` payload **and** is
+ * left untouched on the local Mongo doc — exactly the "only send what was
+ * filled in" semantics the legacy server action followed. An empty string
+ * still mirrors locally (treated as "user cleared the field").
+ *
+ * `profilePictureHandle` is a pre-resolved Meta handle from the
+ * `/uploads` resumable session — that flow lives in a separate media crate
+ * and is intentionally out of scope here.
+ */
+export interface UpdateProfileBody {
+    about?: string;
+    address?: string;
+    description?: string;
+    email?: string;
+    vertical?: string;
+    /** Full website list — `[]` clears, `undefined` leaves untouched. */
+    websites?: string[];
+    profilePictureHandle?: string;
+}
+
+/**
+ * Body for `POST /v1/wachat/config/projects/:id/phone-numbers/:pnid/register`.
+ *
+ * `pin` is the 6-digit 2FA pin Meta requires to re-bind a phone number to
+ * its WABA. The Rust handler hard-codes `messaging_product: "whatsapp"` so
+ * the wire payload matches Meta's `POST /{phone-number-id}/register` shape.
+ */
+export interface RegisterBody {
+    pin: string;
+}
+
+/**
+ * Body for `POST /v1/wachat/config/projects/:id/phone-numbers/:pnid/request-verification-code`.
+ *
+ * Mirrors the Meta `POST /{phone-number-id}/request_code` payload. `method`
+ * is the delivery channel for the OTP; `language` is a BCP-47 tag (Meta
+ * historically only honors `"en"`-class codes here, but the field is plumbed
+ * through verbatim).
+ */
+export interface RequestVerificationCodeBody {
+    method: 'SMS' | 'VOICE';
+    language: string;
+}
+
+/** Body for `POST /v1/wachat/config/projects/:id/phone-numbers/:pnid/verify-code`. */
+export interface VerifyCodeBody {
+    code: string;
+}
+
+/** Body for `POST /v1/wachat/config/projects/:id/phone-numbers/:pnid/two-step-pin`. */
+export interface SetTwoStepPinBody {
+    pin: string;
+}
+
+/**
+ * Body for `POST /v1/wachat/config/projects/:id/phone-numbers/:pnid/qr-codes`.
+ *
+ * `generateQrImage` is the Meta-side image format hint; the legacy server
+ * action hard-coded `"SVG"` — exposing it here lets future callers opt into
+ * `"PNG"` without an API change.
+ */
+export interface CreateQrCodeBody {
+    prefilledMessage: string;
+    generateQrImage?: 'SVG' | 'PNG';
+}
+
+/** Body for `POST /v1/wachat/config/projects/:id/phone-numbers/:pnid/qr-codes/:code`. */
+export interface UpdateQrCodeBody {
+    prefilledMessage: string;
+}
+
+/**
+ * Body for `POST /v1/wachat/config/projects/:id/webhooks/subscribe`.
+ *
+ * The user-scoped Meta access token must accompany the request because
+ * subscribing a WABA to an app on Meta's side requires a user/system token
+ * with `whatsapp_business_management` — the project-level long-lived token
+ * is not always sufficient. The Rust handler forwards the token to Meta and
+ * never persists it.
+ */
+export interface SubscribeBody {
+    appId: string;
+    userAccessToken: string;
+}
+
+// ---------------------------------------------------------------------------
+// Response shapes
+// ---------------------------------------------------------------------------
+
+/**
+ * Single QR-code record returned by Meta for a phone number.
+ *
+ * Field shape mirrors Meta's `/message_qrdls` resource — the Rust handler
+ * passes it through after auth/scope checks. Extra fields Meta may add in
+ * the future are tolerated via the `[k: string]` index.
+ */
+export interface QrCode {
+    code: string;
+    prefilled_message?: string;
+    deep_link_url?: string;
+    qr_image_url?: string;
+    [k: string]: unknown;
+}
+
+/** Result of `GET /v1/wachat/config/projects/:id/webhook-subscription`. */
+export interface SubscriptionStatus {
+    isActive: boolean;
+}
+
+/** Per-project failure record from `subscribeAllWebhooks`. */
+export interface SubscribeFailure {
+    projectId: string;
+    error: string;
+}
+
+/**
+ * Result of `POST /v1/wachat/config/webhooks/subscribe-all`.
+ *
+ * `attempted == succeeded + failed.length`. Skipped projects (missing
+ * `wabaId` / `appId` / `accessToken`) count as failed with a human-readable
+ * skip reason in `error`.
+ */
+export interface SubscribeAllOutcome {
+    attempted: number;
+    succeeded: number;
+    failed: SubscribeFailure[];
+}
+
+/**
+ * Result of `POST /v1/wachat/config/projects/:id/phone-numbers/sync`.
+ *
+ * Mirrors `wachat_phone_sync::SyncOutcome` — the Rust side reports how many
+ * phone-number rows it pulled from Meta and overwrote on the project doc.
+ */
+export interface SyncNumbersOutcome {
+    fetched: number;
+}
+
+// ---------------------------------------------------------------------------
+// Query helper — keeps `?waba_id=…` strings off the call sites.
+// ---------------------------------------------------------------------------
+
+function qs(params: Record<string, string | undefined | null>): string {
+    const search = new URLSearchParams();
+    for (const [k, v] of Object.entries(params)) {
+        if (v !== undefined && v !== null && v !== '') search.set(k, v);
+    }
+    const s = search.toString();
+    return s ? `?${s}` : '';
+}
+
+// ---------------------------------------------------------------------------
+// Public namespace
+// ---------------------------------------------------------------------------
+
+export const wachatConfigApi = {
+    // ----------- /projects/* (read + manual setup) -----------
+
+    getPublicProject: (projectId: string) =>
+        rustFetch<PublicProject>(
+            `${BASE}/projects/${encodeURIComponent(projectId)}/public`,
+        ),
+
+    manualSetup: (body: ManualSetupBody) =>
+        rustFetch<PublicProject>(`${BASE}/projects/manual-setup`, {
+            method: 'POST',
+            body: JSON.stringify(body),
+        }),
+
+    // ----------- /projects/:id/phone-numbers/* (sync + profile) -----------
+
+    syncPhoneNumbers: (projectId: string) =>
+        rustFetch<SyncNumbersOutcome>(
+            `${BASE}/projects/${encodeURIComponent(projectId)}/phone-numbers/sync`,
+            { method: 'POST' },
+        ),
+
+    updatePhoneProfile: (
+        projectId: string,
+        phoneNumberId: string,
+        body: UpdateProfileBody,
+    ) =>
+        rustFetch<{ ok: boolean }>(
+            `${BASE}/projects/${encodeURIComponent(projectId)}/phone-numbers/${encodeURIComponent(phoneNumberId)}/profile`,
+            {
+                method: 'POST',
+                body: JSON.stringify(body),
+            },
+        ),
+
+    // ----------- /webhooks/* + /projects/:id/webhooks/* -----------
+
+    getWebhookSubscription: (projectId: string, wabaId: string) =>
+        rustFetch<SubscriptionStatus>(
+            `${BASE}/projects/${encodeURIComponent(projectId)}/webhook-subscription${qs({ waba_id: wabaId })}`,
+        ),
+
+    subscribeAllWebhooks: () =>
+        rustFetch<SubscribeAllOutcome>(`${BASE}/webhooks/subscribe-all`, {
+            method: 'POST',
+        }),
+
+    subscribeWebhook: (projectId: string, body: SubscribeBody) =>
+        rustFetch<SubscriptionStatus>(
+            `${BASE}/projects/${encodeURIComponent(projectId)}/webhooks/subscribe`,
+            {
+                method: 'POST',
+                body: JSON.stringify(body),
+            },
+        ),
+
+    // ----------- /projects/:id/phone-numbers/:pnid/* (registration) -----------
+
+    registerPhone: (
+        projectId: string,
+        phoneNumberId: string,
+        body: RegisterBody,
+    ) =>
+        rustFetch<{ ok: boolean }>(
+            `${BASE}/projects/${encodeURIComponent(projectId)}/phone-numbers/${encodeURIComponent(phoneNumberId)}/register`,
+            {
+                method: 'POST',
+                body: JSON.stringify(body),
+            },
+        ),
+
+    requestVerificationCode: (
+        projectId: string,
+        phoneNumberId: string,
+        body: RequestVerificationCodeBody,
+    ) =>
+        rustFetch<{ ok: boolean }>(
+            `${BASE}/projects/${encodeURIComponent(projectId)}/phone-numbers/${encodeURIComponent(phoneNumberId)}/request-verification-code`,
+            {
+                method: 'POST',
+                body: JSON.stringify(body),
+            },
+        ),
+
+    verifyCode: (
+        projectId: string,
+        phoneNumberId: string,
+        body: VerifyCodeBody,
+    ) =>
+        rustFetch<{ ok: boolean }>(
+            `${BASE}/projects/${encodeURIComponent(projectId)}/phone-numbers/${encodeURIComponent(phoneNumberId)}/verify-code`,
+            {
+                method: 'POST',
+                body: JSON.stringify(body),
+            },
+        ),
+
+    deregisterPhone: (projectId: string, phoneNumberId: string) =>
+        rustFetch<{ ok: boolean }>(
+            `${BASE}/projects/${encodeURIComponent(projectId)}/phone-numbers/${encodeURIComponent(phoneNumberId)}/deregister`,
+            { method: 'POST' },
+        ),
+
+    setTwoStepPin: (
+        projectId: string,
+        phoneNumberId: string,
+        body: SetTwoStepPinBody,
+    ) =>
+        rustFetch<{ ok: boolean }>(
+            `${BASE}/projects/${encodeURIComponent(projectId)}/phone-numbers/${encodeURIComponent(phoneNumberId)}/two-step-pin`,
+            {
+                method: 'POST',
+                body: JSON.stringify(body),
+            },
+        ),
+
+    // ----------- /projects/:id/phone-numbers/:pnid/qr-codes/* -----------
+
+    listQrCodes: (projectId: string, phoneNumberId: string) =>
+        rustFetch<{ qrCodes: QrCode[] }>(
+            `${BASE}/projects/${encodeURIComponent(projectId)}/phone-numbers/${encodeURIComponent(phoneNumberId)}/qr-codes`,
+        ),
+
+    createQrCode: (
+        projectId: string,
+        phoneNumberId: string,
+        body: CreateQrCodeBody,
+    ) =>
+        rustFetch<QrCode>(
+            `${BASE}/projects/${encodeURIComponent(projectId)}/phone-numbers/${encodeURIComponent(phoneNumberId)}/qr-codes`,
+            {
+                method: 'POST',
+                body: JSON.stringify(body),
+            },
+        ),
+
+    updateQrCode: (
+        projectId: string,
+        phoneNumberId: string,
+        code: string,
+        body: UpdateQrCodeBody,
+    ) =>
+        rustFetch<{ ok: boolean }>(
+            `${BASE}/projects/${encodeURIComponent(projectId)}/phone-numbers/${encodeURIComponent(phoneNumberId)}/qr-codes/${encodeURIComponent(code)}`,
+            {
+                method: 'POST',
+                body: JSON.stringify(body),
+            },
+        ),
+
+    deleteQrCode: (
+        projectId: string,
+        phoneNumberId: string,
+        code: string,
+    ) =>
+        rustFetch<{ ok: boolean }>(
+            `${BASE}/projects/${encodeURIComponent(projectId)}/phone-numbers/${encodeURIComponent(phoneNumberId)}/qr-codes/${encodeURIComponent(code)}`,
+            { method: 'DELETE' },
+        ),
+};
+
+export type WachatConfigApi = typeof wachatConfigApi;

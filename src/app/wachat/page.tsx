@@ -297,7 +297,7 @@ export default function SelectProjectPage() {
     ].slice(0, 8);
     localStorage.setItem('recentProjects', JSON.stringify(updated));
     setActiveProjectId(projectId);
-    router.push('/dashboard/overview');
+    router.push('/wachat/overview');
   };
 
   return (

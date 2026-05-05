@@ -3,27 +3,22 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
+import { type Db, ObjectId, type WithId } from 'mongodb';
 import axios from 'axios';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById, getProjects } from './project.actions';
-import type { Project, Template, CallingSettings, CreateTemplateState, OutgoingMessage, Contact, Agent, PhoneNumber, MetaPhoneNumbersResponse, MetaTemplatesResponse, MetaTemplate, PaymentConfiguration, BusinessCapabilities, FacebookPaymentRequest, Transaction, AnyMessage, Plan } from '@/lib/definitions';
+import type { Project, Template, CallingSettings, CreateTemplateState, Contact, Agent, PhoneNumber, MetaTemplatesResponse, MetaTemplate, PaymentConfiguration, BusinessCapabilities, FacebookPaymentRequest, Transaction, AnyMessage } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { premadeTemplates } from '@/lib/premade-templates';
-import NodeFormData from 'form-data';
-import { getSession } from './user.actions';
 import { handleSendTemplateMessage } from './send-template.actions';
 
 const API_VERSION = 'v23.0';
 
 export async function getPublicProjectById(projectId: string): Promise<WithId<Project> | null> {
     try {
-        if (!ObjectId.isValid(projectId)) {
-            return null;
-        }
-        const { db } = await connectToDatabase();
-        const project = await db.collection<Project>('projects').findOne({ _id: new ObjectId(projectId) });
-        return project ? JSON.parse(JSON.stringify(project)) : null;
+        const { rustClient } = await import('@/lib/rust-client');
+        const project = await rustClient.wachatConfig.getPublicProject(projectId);
+        return (project ?? null) as unknown as WithId<Project> | null;
     } catch (error: any) {
         return null;
     }
@@ -141,84 +136,31 @@ async function _createProjectFromWaba(data: {
 
 
 export async function handleManualWachatSetup(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
-    const session = await getSession();
-    if (!session?.user) {
-        return { error: 'You must be logged in to create a project.' };
+    try {
+        const { rustClient } = await import('@/lib/rust-client');
+        const r = await rustClient.wachatConfig.manualSetup({
+            wabaId: formData.get('wabaId') as string,
+            appId: formData.get('appId') as string,
+            accessToken: formData.get('accessToken') as string,
+            includeCatalog: formData.get('includeCatalog') === 'on',
+        });
+        revalidatePath('/wachat');
+        return { message: r.message };
+    } catch (e: any) {
+        return { error: e?.message ?? 'Setup failed' };
     }
-
-    return await _createProjectFromWaba({
-        wabaId: formData.get('wabaId') as string,
-        appId: formData.get('appId') as string,
-        accessToken: formData.get('accessToken') as string,
-        includeCatalog: formData.get('includeCatalog') === 'on',
-        userId: session.user._id.toString(),
-    });
 }
 
 export { _createProjectFromWaba };
 
 export async function handleSyncPhoneNumbers(projectId: string): Promise<{ message?: string, error?: string, count?: number }> {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Project not found or you do not have access.' };
-
     try {
-        const { db } = await connectToDatabase();
-
-        const { wabaId, accessToken } = project;
-        const fields = 'verified_name,display_phone_number,id,quality_rating,code_verification_status,platform_type,throughput,whatsapp_business_profile{about,address,description,email,profile_picture_url,websites,vertical}';
-
-        const allPhoneNumbers: MetaPhoneNumbersResponse['data'] = [];
-        let nextUrl: string | undefined = `https://graph.facebook.com/${API_VERSION}/${wabaId}/phone_numbers?access_token=${accessToken}&fields=${fields}&limit=100`;
-
-        while (nextUrl) {
-            const response = await fetch(nextUrl, { method: 'GET' });
-
-            const responseText = await response.text();
-            const responseData: MetaPhoneNumbersResponse = responseText ? JSON.parse(responseText) : {};
-
-            if (!response.ok) {
-                const errorMessage = (responseData as any)?.error?.message || 'Unknown error syncing phone numbers.';
-                return { error: `API Error: ${errorMessage}. Status: ${response.status} ${response.statusText}` };
-            }
-
-            if (responseData.data && responseData.data.length > 0) {
-                allPhoneNumbers.push(...responseData.data);
-            }
-
-            nextUrl = responseData.paging?.next;
-        }
-
-        if (allPhoneNumbers.length === 0) {
-            await db.collection('projects').updateOne(
-                { _id: new ObjectId(projectId) },
-                { $set: { phoneNumbers: [] } }
-            );
-            return { message: "No phone numbers found in your WhatsApp Business Account to sync." };
-        }
-
-        const phoneNumbers: PhoneNumber[] = allPhoneNumbers.map((num) => ({
-            id: num.id,
-            display_phone_number: num.display_phone_number,
-            verified_name: num.verified_name,
-            code_verification_status: num.code_verification_status,
-            quality_rating: num.quality_rating,
-            platform_type: num.platform_type,
-            throughput: num.throughput,
-            profile: num.whatsapp_business_profile,
-        }));
-
-        await db.collection('projects').updateOne(
-            { _id: new ObjectId(projectId) },
-            { $set: { phoneNumbers: phoneNumbers } }
-        );
-
+        const { rustClient } = await import('@/lib/rust-client');
+        const r = await rustClient.wachatConfig.syncPhoneNumbers(projectId);
         revalidatePath('/wachat/numbers');
-
-        return { message: `Successfully synced ${phoneNumbers.length} phone number(s).`, count: phoneNumbers.length };
-
+        return { message: `Synced ${r.fetched} phone numbers.`, count: r.fetched };
     } catch (e: any) {
-        console.error('Phone number sync failed:', e);
-        return { error: e.message || 'An unexpected error occurred during phone number sync.' };
+        return { error: e?.message ?? 'Sync failed' };
     }
 }
 
@@ -230,109 +172,36 @@ export async function handleUpdatePhoneNumberProfile(prevState: any, formData: F
         return { error: 'Project and Phone Number IDs are required.' };
     }
 
-    const project = await getProjectById(projectId);
-    if (!project) return { error: "Access denied." };
-
-    const { accessToken, appId } = project;
-    if (!appId) {
-        return { error: 'App ID is not configured for this project.' };
-    }
-
     try {
-        const profilePictureFile = formData.get('profilePicture') as File;
+        const profilePictureFile = formData.get('profilePicture') as File | null;
+        let profilePicture: { content: string; name: string; type: string } | undefined;
         if (profilePictureFile && profilePictureFile.size > 0) {
-            const sessionFormData = new NodeFormData();
-            sessionFormData.append('file_length', profilePictureFile.size.toString());
-            sessionFormData.append('file_type', profilePictureFile.type);
-            sessionFormData.append('access_token', accessToken);
-
-            const sessionResponse = await axios.post(`https://graph.facebook.com/${API_VERSION}/${appId}/uploads`, sessionFormData);
-            const uploadSessionId = sessionResponse.data.id;
-
-            const fileData = await profilePictureFile.arrayBuffer();
-            const uploadResponse = await axios.post(`https://graph.facebook.com/${API_VERSION}/${uploadSessionId}`, Buffer.from(fileData), {
-                headers: { 'Authorization': `OAuth ${accessToken}`, 'Content-Type': profilePictureFile.type },
-                maxContentLength: Infinity, maxBodyLength: Infinity,
-            });
-            const handle = uploadResponse.data.h;
-
-            await axios.post(
-                `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/whatsapp_business_profile`,
-                { messaging_product: "whatsapp", profile_picture_handle: handle },
-                { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
-            );
+            const buf = Buffer.from(await profilePictureFile.arrayBuffer());
+            profilePicture = {
+                content: buf.toString('base64'),
+                name: profilePictureFile.name,
+                type: profilePictureFile.type,
+            };
         }
 
-        const profilePayload: any = { messaging_product: 'whatsapp' };
+        const body: Record<string, any> = {};
         const fields: (keyof NonNullable<PhoneNumber['profile']>)[] = ['about', 'address', 'description', 'email', 'vertical'];
-        let hasTextFields = false;
-
         fields.forEach(field => {
             const value = formData.get(field) as string | null;
-            if (value && value.trim() !== '') {
-                profilePayload[field] = value.trim();
-                hasTextFields = true;
+            if (value !== null) {
+                body[field] = value.trim();
             }
         });
+        body.websites = (formData.getAll('websites') as string[]).map(w => w.trim()).filter(Boolean);
+        if (profilePicture) body.profilePicture = profilePicture;
 
-        const websites = (formData.getAll('websites') as string[]).map(w => w.trim()).filter(Boolean);
-        if (websites.length > 0) {
-            profilePayload.websites = websites;
-            hasTextFields = true;
-        }
-
-        if (hasTextFields) {
-            await axios.post(
-                `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/whatsapp_business_profile`,
-                profilePayload,
-                { headers: { 'Authorization': `Bearer ${accessToken}` } }
-            );
-        }
-
-        // Update local DB directly to avoid sync latency issues
-        const { db } = await connectToDatabase();
-        const updateFields: any = {};
-
-        // We only update the fields that we sent to Meta (plus websites)
-        // We do NOT touch profile_picture_url here unless we fetched a new one, which we didn't.
-        // The user will see the old image until a sync happens or they reload after Meta propagates.
-        // But text fields will be instant.
-
-        fields.forEach(field => {
-            const value = formData.get(field) as string | null;
-            if (value !== null) { // Update even if empty string (user cleared it)
-                updateFields[`phoneNumbers.$.profile.${field}`] = value.trim();
-            }
-        });
-
-        if (websites.length > 0) {
-            updateFields[`phoneNumbers.$.profile.websites`] = websites;
-        } else {
-            // If websites array is empty but we processed it... wait, form logic:
-            // The form sends 'websites' inputs. If they are empty, we might want to clear them.
-            // The original code: const websites = (formData.getAll('websites')...).filter(Boolean);
-            // If filter(Boolean) is empty, it means no websites.
-            // We should probably set it to empty array if the user cleared them.
-            // Check if 'websites' key exists in formData at all?
-            // formData.getAll returns empty array if not found? No, returns empty.
-            updateFields[`phoneNumbers.$.profile.websites`] = websites;
-        }
-
-        // If we uploaded a picture, we can't easily get the URL immediately without a GET.
-        // We could optionally do a single-phone sync here if we really wanted the image.
-        // For now, removing the full sync is safer for text fields.
-
-        await db.collection('projects').updateOne(
-            { _id: new ObjectId(projectId), "phoneNumbers.id": phoneNumberId },
-            { $set: updateFields }
-        );
+        const { rustClient } = await import('@/lib/rust-client');
+        await rustClient.wachatConfig.updatePhoneNumberProfile(projectId, phoneNumberId, body);
 
         revalidatePath('/wachat/numbers');
         return { message: 'Phone number profile updated successfully!' };
-
     } catch (e: any) {
-        console.error("Failed to update phone number profile:", e);
-        return { error: getErrorMessage(e) || 'An unexpected error occurred.' };
+        return { error: e?.message ?? 'Update failed' };
     }
 }
 
@@ -344,60 +213,34 @@ export async function getWebhookSubscriptionStatus(wabaId: string, accessToken: 
     }
 
     try {
-        const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${wabaId}/subscribed_apps`, {
-            params: { access_token: accessToken }
-        });
-
-        const subscriptions = response.data.data;
-        if (subscriptions && subscriptions.length > 0) {
-            return { isActive: true };
-        }
-
-        return { isActive: false, error: 'No active subscription found for this WABA.' };
+        const { rustClient } = await import('@/lib/rust-client');
+        const r = await rustClient.wachatConfig.getWebhookSubscriptionStatus({ wabaId, accessToken });
+        return { isActive: !!r.isActive, error: r.error };
     } catch (e: any) {
-        const errorMessage = getErrorMessage(e);
-        console.error("Webhook status check failed:", errorMessage);
-        return { isActive: false, error: errorMessage };
+        return { isActive: false, error: e?.message ?? 'Status check failed' };
     }
 }
 
 export async function handleSubscribeAllProjects(): Promise<{ message?: string; error?: string }> {
-    const session = await getSession();
-    if (!session?.user) return { error: 'Authentication required.' };
-
-    const projects = await getProjects();
-    const results = await Promise.all(
-        projects.map(p => handleSubscribeProjectWebhook(p.wabaId!, p.appId!, p.accessToken))
-    );
-
-    const successCount = results.filter(r => r.success).length;
-    const errorCount = results.length - successCount;
-
-    return {
-        message: `Subscription attempted for ${results.length} projects. Success: ${successCount}, Failed: ${errorCount}. Check server logs for details.`
-    };
+    try {
+        const { rustClient } = await import('@/lib/rust-client');
+        const r = await rustClient.wachatConfig.subscribeAllProjects();
+        return {
+            message: `Subscription attempted for ${r.total} projects. Success: ${r.success}, Failed: ${r.failed}. Check server logs for details.`,
+        };
+    } catch (e: any) {
+        return { error: e?.message ?? 'Subscribe-all failed' };
+    }
 }
 
 
 export async function handleSubscribeProjectWebhook(wabaId: string, appId: string, userAccessToken: string): Promise<{ success: boolean; error?: string }> {
-    const appSecret = process.env.META_ONBOARDING_APP_SECRET || process.env.FACEBOOK_APP_SECRET;
-    if (!appSecret) {
-        return { success: false, error: "App Secret not configured on the server." };
-    }
-
     try {
-        // Subscribe the specific WABA to the app. This requires a User/System User Access Token.
-        await axios.post(
-            `https://graph.facebook.com/${API_VERSION}/${wabaId}/subscribed_apps`,
-            { access_token: userAccessToken }
-        );
-
-        return { success: true };
-
+        const { rustClient } = await import('@/lib/rust-client');
+        const r = await rustClient.wachatConfig.subscribeProjectWebhook({ wabaId, appId, userAccessToken });
+        return { success: !!r.success, error: r.error };
     } catch (e: any) {
-        const errorMessage = getErrorMessage(e);
-        console.error(`Failed to subscribe project ${wabaId}:`, errorMessage);
-        return { success: false, error: errorMessage };
+        return { success: false, error: e?.message ?? 'Subscribe failed' };
     }
 }
 
@@ -409,99 +252,35 @@ export async function handleSendMessage(
     projectFromAction?: WithId<Project>
 ): Promise<{ message?: string; error?: string }> {
     const { contactId, projectId, phoneNumberId, waId, messageText, mediaFile } = data;
-
     if (!contactId || !projectId || !waId || !phoneNumberId || (!messageText && !mediaFile)) {
         return { error: 'Required fields are missing to send message.' };
     }
-
-    const project = projectFromAction || await getProjectById(projectId);
-    if (!project) return { error: 'Project not found or you do not have access.' };
-
+    // `projectFromAction` is intentionally unused — the Rust handler resolves
+    // the project from `projectId` under the same auth scope as the TS server
+    // action, and we never want to forward an unsigned access token.
+    void projectFromAction;
+    const fileData = mediaFile as { content: string; name: string; type: string } | undefined;
+    const kind: 'text' | 'image' | 'video' | 'document' = fileData?.content
+        ? (fileData.type.split('/')[0] === 'image'
+            ? 'image'
+            : fileData.type.split('/')[0] === 'video'
+                ? 'video'
+                : 'document')
+        : 'text';
     try {
-        const { db } = await connectToDatabase();
-        let messagePayload: any = {
-            messaging_product: 'whatsapp',
-            recipient_type: 'individual',
-            to: waId,
-        };
-        let messageType: OutgoingMessage['type'] = 'text';
-
-        const fileData = mediaFile as { content: string, name: string, type: string };
-        if (fileData?.content) {
-            const form = new NodeFormData();
-            const buffer = Buffer.from(fileData.content, 'base64');
-            form.append('file', buffer, { filename: fileData.name, contentType: fileData.type });
-            form.append('messaging_product', 'whatsapp');
-
-            const uploadResponse = await axios.post(
-                `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/media`,
-                form,
-                { headers: { ...form.getHeaders(), 'Authorization': `Bearer ${project.accessToken}` } }
-            );
-
-            const mediaId = uploadResponse.data.id;
-            if (!mediaId) {
-                return { error: 'Failed to upload media to Meta. No ID returned.' };
-            }
-
-            const detectedMediaType = fileData.type.split('/')[0];
-
-            if (detectedMediaType === 'image') {
-                messageType = 'image';
-                messagePayload.type = 'image';
-                messagePayload.image = { id: mediaId };
-                if (messageText) messagePayload.image.caption = messageText;
-            } else if (detectedMediaType === 'video') {
-                messageType = 'video';
-                messagePayload.type = 'video';
-                messagePayload.video = { id: mediaId };
-                if (messageText) messagePayload.video.caption = messageText;
-            } else {
-                messageType = 'document';
-                messagePayload.type = 'document';
-                messagePayload.document = { id: mediaId, filename: fileData.name };
-                if (messageText) messagePayload.document.caption = messageText;
-            }
-        } else {
-            messageType = 'text';
-            messagePayload.type = 'text';
-            messagePayload.text = { body: messageText, preview_url: true };
-        }
-
-        // Send to Meta — this is the only blocking call the user needs to wait for
-        const response = await axios.post(`https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`, messagePayload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
-        const wamid = response.data?.messages?.[0]?.id;
-        if (!wamid) throw new Error('Message sent but no WAMID returned from Meta.');
-
-        // DB writes + revalidation run in background — user sees instant success
-        const now = new Date();
-        const contactOid = new ObjectId(contactId);
-        const projectOid = new ObjectId(projectId);
-        const lastMessage = messageType === 'text' ? messageText : `[${messageType}]`;
-
-        // Fire-and-forget: persist message + update contact + revalidate
-        Promise.all([
-            db.collection('outgoing_messages').insertOne({
-                direction: 'out', contactId: contactOid, projectId: projectOid, wamid, messageTimestamp: now, type: messageType,
-                content: messagePayload, status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
-            } as OutgoingMessage),
-            db.collection('contacts').updateOne(
-                { _id: contactOid, projectId: projectOid },
-                { $set: { lastMessage: lastMessage.substring(0, 50), lastMessageTimestamp: now } },
-            ),
-        ]).then(() => {
-            revalidatePath('/wachat/chat');
-        }).catch((err) => {
-            console.error('[Send] Background DB write failed:', err);
+        const { rustClient } = await import('@/lib/rust-client');
+        const result = await rustClient.whatsappSend.send({
+            kind,
+            projectId,
+            contactId,
+            phoneNumberId,
+            waId,
+            messageText: messageText || undefined,
+            mediaFile: fileData,
         });
-
-        return { message: 'Message sent successfully.' };
-
+        revalidatePath('/wachat/chat');
+        return { message: result.message || 'Message sent successfully.' };
     } catch (e: any) {
-        console.error('Failed to send message:', getErrorMessage(e));
-        if (e.response && e.response.data) {
-            console.error('Meta API Error Details:', JSON.stringify(e.response.data, null, 2));
-        }
         return { error: getErrorMessage(e) || 'An unexpected error occurred.' };
     }
 }
@@ -511,35 +290,12 @@ export async function findOrCreateContact(projectId: string, phoneNumberId: stri
     if (!projectId || !phoneNumberId || !waId) {
         return { error: 'Missing required information.' };
     }
-
-    const project = projectFromAction || await getProjectById(projectId);
-    if (!project) return { error: "Access denied." };
-
+    void projectFromAction;
     try {
-        const { db } = await connectToDatabase();
-        const contactResult = await db.collection<Contact>('contacts').findOneAndUpdate(
-            { waId, projectId: new ObjectId(projectId), phoneNumberId },
-            {
-                $set: { phoneNumberId },
-                $setOnInsert: {
-                    waId,
-                    projectId: new ObjectId(projectId),
-                    userId: project.userId,
-                    name: `User (${waId.slice(-4)})`,
-                    createdAt: new Date(),
-                    status: 'new',
-                    tagIds: [],
-                }
-            },
-            { upsert: true, returnDocument: 'after' }
-        );
-
-        if (contactResult) {
-            revalidatePath('/wachat/contacts');
-            return { contact: JSON.parse(JSON.stringify(contactResult)) };
-        } else {
-            return { error: 'Failed to find or create contact.' };
-        }
+        const { rustClient } = await import('@/lib/rust-client');
+        const result = await rustClient.whatsappSend.resolveContact({ projectId, phoneNumberId, waId });
+        revalidatePath('/wachat/contacts');
+        return { contact: (result.contact ?? result) as unknown as WithId<Contact> };
     } catch (e: any) {
         return { error: e.message || 'An unexpected error occurred.' };
     }
@@ -549,165 +305,56 @@ export async function getInitialChatData(projectId: string, phoneNumberId?: stri
     if (!projectId) {
         return { project: null, contacts: [], conversation: [], templates: [], totalContacts: 0, selectedPhoneNumberId: '' };
     }
-    const { db } = await connectToDatabase();
-
-    const project = await getProjectById(projectId);
-    if (!project) return { project: null, contacts: [], conversation: [], templates: [], totalContacts: 0, selectedPhoneNumberId: '' };
-
-    let selectedPhoneId = phoneNumberId || project.phoneNumbers?.[0]?.id || '';
-
-    const contactFilter: Filter<Contact> = { projectId: new ObjectId(projectId), phoneNumberId: selectedPhoneId };
-    if (waId) {
-        contactFilter.waId = waId;
+    try {
+        const { rustClient } = await import('@/lib/rust-client');
+        const result = await rustClient.whatsappSend.initialChatData({
+            projectId,
+            phoneNumberId,
+            contactId,
+            waId,
+        });
+        return result as unknown as {
+            project: WithId<Project> | null;
+            contacts: WithId<Contact>[];
+            totalContacts: number;
+            conversation: AnyMessage[];
+            templates: any[];
+            selectedContact?: WithId<Contact> | null;
+            selectedPhoneNumberId: string;
+        };
+    } catch (e: any) {
+        return { project: null, contacts: [], conversation: [], templates: [], totalContacts: 0, selectedPhoneNumberId: '' };
     }
-
-    const contacts = await db.collection('contacts').find(contactFilter as any).sort({ lastMessageTimestamp: -1 }).limit(30).toArray() as unknown as WithId<Contact>[];
-    const totalContacts = await db.collection('contacts').countDocuments(contactFilter as any);
-    const templates = await db.collection('templates').find({ projectId: new ObjectId(projectId), status: 'APPROVED' }).toArray();
-
-    let selectedContact: WithId<Contact> | null = null;
-    let conversation: AnyMessage[] = [];
-
-    if (contactId) {
-        selectedContact = contacts.find(c => c._id.toString() === contactId) || null;
-        if (!selectedContact) {
-            const found = await db.collection<Contact>('contacts').findOne({ _id: new ObjectId(contactId), projectId: new ObjectId(projectId) });
-            selectedContact = found ? JSON.parse(JSON.stringify(found)) as WithId<Contact> : null;
-        }
-    } else if (waId) {
-        selectedContact = contacts.find(c => c.waId === waId) || null;
-    }
-
-    if (selectedContact) {
-        conversation = (await getConversation(selectedContact._id.toString())) || [];
-    }
-
-    return {
-        project: JSON.parse(JSON.stringify(project)),
-        contacts: JSON.parse(JSON.stringify(contacts)),
-        totalContacts,
-        conversation: JSON.parse(JSON.stringify(conversation)),
-        templates: JSON.parse(JSON.stringify(templates)),
-        selectedContact: JSON.parse(JSON.stringify(selectedContact)),
-        selectedPhoneNumberId: selectedPhoneId,
-    };
 }
 
-
-/**
- * Verify that the current session user is allowed to touch this contactId.
- *
- * J2 P0 fix: several chat server actions previously accepted a raw `contactId`
- * from the client and queried messages / contacts with no project scoping,
- * which leaked chat history cross-tenant and allowed cross-tenant write
- * tampering. This helper is the single choke point for those actions.
- *
- * Returns the loaded contact (with its ObjectId projectId) on success, or
- * null if the contactId is invalid, the contact doesn't exist, or the caller
- * does not own/agent the project that the contact belongs to.
- */
-async function resolveContactForSession(
-    contactId: string,
-): Promise<{ contact: WithId<Contact>; projectObjectId: ObjectId } | null> {
-    if (!contactId || !ObjectId.isValid(contactId)) return null;
-    const { db } = await connectToDatabase();
-    const contact = await db
-        .collection<Contact>('contacts')
-        .findOne({ _id: new ObjectId(contactId) });
-    if (!contact) return null;
-    // getProjectById checks session.user AND enforces ownership/agent membership.
-    // Using it (instead of re-rolling auth) keeps the access rules consistent
-    // with every other chat/broadcast/crm server action in this file.
-    const project = await getProjectById(contact.projectId.toString());
-    if (!project) return null;
-    return { contact, projectObjectId: new ObjectId(contact.projectId) };
-}
 
 export async function getConversation(contactId: string): Promise<AnyMessage[]> {
-    // J2 P0-1 fix: resolve the contact and verify project access BEFORE querying
-    // messages. Previously this action took contactId on trust and would
-    // return any tenant's chat history to any authenticated caller.
-    const resolved = await resolveContactForSession(contactId);
-    if (!resolved) return [];
-
-    const { db } = await connectToDatabase();
-    const contactObjectId = resolved.contact._id;
-    const projectObjectId = resolved.projectObjectId;
-
-    // Defence-in-depth: scope the message queries by BOTH contactId and
-    // projectId. Even if the contact check above somehow failed open, the
-    // query filter would still block cross-tenant leaks.
-    const [incoming, outgoing] = await Promise.all([
-        db
-            .collection('incoming_messages')
-            .find({ contactId: contactObjectId, projectId: projectObjectId })
-            .sort({ messageTimestamp: 1 })
-            .toArray(),
-        db
-            .collection('outgoing_messages')
-            .find({ contactId: contactObjectId, projectId: projectObjectId })
-            .sort({ messageTimestamp: 1 })
-            .toArray(),
-    ]);
-
-    const conversation: AnyMessage[] = [...(incoming as any[]), ...(outgoing as any[])];
-
-    // J2 P1-2 fix: stable sort. Previously sorted only by messageTimestamp, which
-    // leaves relative order undefined when two messages share a timestamp
-    // (common in fast sequences or same-second Meta timestamps). Adding
-    // createdAt and _id as tiebreakers so the order is deterministic.
-    conversation.sort((a, b) => {
-        const ta = new Date(a.messageTimestamp).getTime();
-        const tb = new Date(b.messageTimestamp).getTime();
-        if (ta !== tb) return ta - tb;
-        const ca = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-        const cb = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-        if (ca !== cb) return ca - cb;
-        return String(a._id).localeCompare(String(b._id));
-    });
-
-    return JSON.parse(JSON.stringify(conversation)) as AnyMessage[];
+    try {
+        const { rustClient } = await import('@/lib/rust-client');
+        const result = await rustClient.whatsappSend.getConversation(contactId);
+        return (result ?? []) as unknown as AnyMessage[];
+    } catch (e) {
+        return [];
+    }
 }
 
 export async function markConversationAsRead(contactId: string): Promise<{ success: boolean }> {
-    // J2 P0-2 fix: resolve + verify project access before any write.
-    const resolved = await resolveContactForSession(contactId);
-    if (!resolved) return { success: false };
     try {
-        const { db } = await connectToDatabase();
-        await db
-            .collection('contacts')
-            .updateOne(
-                { _id: resolved.contact._id, projectId: resolved.projectObjectId },
-                { $set: { unreadCount: 0 } },
-            );
-        await db
-            .collection('incoming_messages')
-            .updateMany(
-                { contactId: resolved.contact._id, projectId: resolved.projectObjectId, isRead: false },
-                { $set: { isRead: true } },
-            );
+        const { rustClient } = await import('@/lib/rust-client');
+        const result = await rustClient.whatsappSend.markConversationAsRead(contactId);
         revalidatePath('/wachat/chat');
-        return { success: true };
+        return { success: !!result?.success };
     } catch (e) {
         return { success: false };
     }
 }
 
 export async function markConversationAsUnread(contactId: string): Promise<{ success: boolean }> {
-    // J2 P0-2 fix: resolve + verify project access before any write.
-    const resolved = await resolveContactForSession(contactId);
-    if (!resolved) return { success: false };
     try {
-        const { db } = await connectToDatabase();
-        await db
-            .collection('contacts')
-            .updateOne(
-                { _id: resolved.contact._id, projectId: resolved.projectObjectId },
-                { $set: { unreadCount: 1 } },
-            );
+        const { rustClient } = await import('@/lib/rust-client');
+        const result = await rustClient.whatsappSend.markConversationAsUnread(contactId);
         revalidatePath('/wachat/chat');
-        return { success: true };
+        return { success: !!result?.success };
     } catch (e) {
         return { success: false };
     }
@@ -726,68 +373,17 @@ export async function handleRequestWhatsAppPayment(prevState: any, formData: For
         return { error: 'Missing required fields.' };
     }
 
-    const { db } = await connectToDatabase();
-    const contact = await db.collection<Contact>('contacts').findOne({ _id: new ObjectId(contactId) });
-    if (!contact) {
-        return { error: 'Contact not found.' };
-    }
-
-    const project = await getProjectById(contact.projectId.toString());
-    if (!project || !project.accessToken) {
-        return { error: 'Project not found or access token missing.' };
-    }
-
-    const phoneNumberId = contact.phoneNumberId;
-
     try {
-        const payload = {
-            amount: {
-                currency: "INR",
-                value: amount,
-            },
-            receiver: {
-                wa_id: contact.waId,
-            },
+        const { rustClient } = await import('@/lib/rust-client');
+        const result = await rustClient.whatsappSend.sendPaymentRequest({
+            contactId,
+            amount,
             description,
-            ...(externalReference && { external_reference: externalReference }),
-        };
-
-        const response = await axios.post(
-            `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/payment_requests`,
-            payload,
-            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
-        );
-
-        if (response.data.error) {
-            throw new Error(getErrorMessage({ response }));
-        }
-
-        const requestId = response.data.id;
-        const now = new Date();
-
-        // DB writes in background — return success immediately
-        Promise.all([
-            db.collection('outgoing_messages').insertOne({
-                direction: 'out', contactId: contact._id, projectId: project._id, wamid: requestId,
-                messageTimestamp: now, type: 'payment_request' as any, content: payload,
-                status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
-            } as OutgoingMessage),
-            db.collection('transactions').insertOne({
-                userId: contact.userId, projectId: project._id, type: 'WHATSAPP_PAY',
-                description: `Payment Request: ${description}`,
-                amount: Math.round(parseFloat(amount) * 100),
-                status: 'PENDING', provider: 'meta', providerTransactionId: requestId,
-                createdAt: now, updatedAt: now,
-            } as Transaction),
-        ]).then(() => {
-            revalidatePath('/wachat/chat');
-            revalidatePath('/wachat/whatsapp-pay');
-        }).catch((err) => {
-            console.error('[Payment Send] Background DB write failed:', err);
+            externalReference: externalReference || undefined,
         });
-
-        return { message: 'WhatsApp Pay request sent successfully.' };
-
+        revalidatePath('/wachat/chat');
+        revalidatePath('/wachat/whatsapp-pay');
+        return { message: result.message || 'WhatsApp Pay request sent successfully.' };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
     }
@@ -798,22 +394,13 @@ export async function getPaymentRequestStatus(
     phoneNumberId: string,
     requestId: string
 ): Promise<{ status?: string; error?: string }> {
-    const project = await getProjectById(projectId);
-    if (!project || !project.accessToken) {
-        return { error: 'Project not found or access token missing.' };
-    }
-
     try {
-        const response = await axios.get(
-            `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/payment_requests/${requestId}`,
-            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
-        );
-
-        if (response.data.error) {
-            throw new Error(getErrorMessage({ response }));
-        }
-
-        return { status: response.data.status };
+        const { rustClient } = await import('@/lib/rust-client');
+        const result = await rustClient.whatsappSend.getPaymentRequestStatus(requestId, {
+            projectId,
+            phoneNumberId,
+        });
+        return result as { status?: string; error?: string };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
     }
@@ -823,22 +410,16 @@ export async function getPaymentRequests(
     projectId: string,
     phoneNumberId: string
 ): Promise<{ requests?: FacebookPaymentRequest[]; error?: string }> {
-    const project = await getProjectById(projectId);
-    if (!project || !project.accessToken) {
-        return { error: 'Project not found or access token missing.' };
-    }
-
     try {
-        const response = await axios.get(
-            `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/payment_requests`,
-            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
-        );
-
-        if (response.data.error) {
-            throw new Error(getErrorMessage({ response }));
-        }
-
-        return { requests: response.data.data || [] };
+        const { rustClient } = await import('@/lib/rust-client');
+        const result = await rustClient.whatsappSend.listPaymentRequests({
+            projectId,
+            phoneNumberId,
+        });
+        return {
+            requests: (result.requests ?? []) as unknown as FacebookPaymentRequest[],
+            error: result.error,
+        };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
     }
@@ -1061,72 +642,30 @@ export async function handleSendCatalogMessage(prevState: any, formData: FormDat
         return { error: 'Missing required fields for catalog message.' };
     }
 
-    const { db } = await connectToDatabase();
-    const contact = await db.collection<Contact>('contacts').findOne({ _id: new ObjectId(contactId) });
-    if (!contact) return { error: 'Contact not found.' };
-
-    const project = await getProjectById(projectId);
-    if (!project || !project.connectedCatalogId) {
-        return { error: 'Project not found or no catalog is connected.' };
-    }
-
     try {
-        const phoneNumberId = contact.phoneNumberId;
-        const waId = contact.waId;
-
-        const payload = {
-            messaging_product: 'whatsapp',
-            to: waId,
-            type: 'interactive',
-            interactive: {
-                type: 'product_list',
-                ...(headerText && { header: { type: 'text', text: headerText } }),
-                body: { text: bodyText },
-                ...(footerText && { footer: { text: footerText } }),
-                action: {
-                    catalog_id: project.connectedCatalogId,
-                    sections: [
-                        {
-                            title: 'Our Products',
-                            product_items: productRetailerIds.map(id => ({ product_retailer_id: id })),
-                        },
-                    ],
-                },
-            },
-        };
-
-        const response = await axios.post(`https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`, payload, {
-            headers: { Authorization: `Bearer ${project.accessToken}` },
+        const { rustClient } = await import('@/lib/rust-client');
+        const result = await rustClient.whatsappSend.sendCatalog({
+            projectId,
+            contactId,
+            headerText: headerText || undefined,
+            bodyText,
+            footerText: footerText || undefined,
+            productRetailerIds,
         });
-
-        if (response.data.error) throw new Error(getErrorMessage({ response }));
-
-        return { message: 'Catalog message sent successfully.' };
-
+        revalidatePath('/wachat/chat');
+        return { message: result.message || 'Catalog message sent successfully.' };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
     }
 }
 
 export async function registerPhoneNumber(projectId: string, phoneNumberId: string): Promise<{ success: boolean; message?: string, error?: string }> {
-    const project = await getProjectById(projectId);
-    if (!project || !project.accessToken) {
-        return { success: false, error: 'Project not found or access token is missing.' };
-    }
-
     try {
-        await axios.post(
-            `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/register`,
-            { messaging_product: 'whatsapp', pin: '123456' },
-            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
-        );
-        return { success: true, message: 'Phone number registered successfully.' };
+        const { rustClient } = await import('@/lib/rust-client');
+        const r = await rustClient.wachatConfig.registerPhoneNumber(projectId, phoneNumberId, { pin: '123456' });
+        return { success: !!r.success, message: r.message, error: r.error };
     } catch (e: any) {
-        const errorMessage = getErrorMessage(e);
-        if (errorMessage.includes('already registered') || errorMessage.includes('already been registered')) {
-            return { success: true, message: 'This phone number is already registered.' };
-        }
-        return { success: false, error: errorMessage };
+        return { success: false, error: e?.message ?? 'Register failed' };
     }
 }
 
@@ -1138,20 +677,12 @@ export async function handleRequestVerificationCode(
     phoneNumberId: string,
     codeMethod: 'SMS' | 'VOICE'
 ): Promise<{ success: boolean; message?: string; error?: string }> {
-    const project = await getProjectById(projectId);
-    if (!project || !project.accessToken) {
-        return { success: false, error: 'Project not found or access token is missing.' };
-    }
-
     try {
-        await axios.post(
-            `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/request_code`,
-            { code_method: codeMethod, language: 'en' },
-            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
-        );
-        return { success: true, message: `Verification code sent via ${codeMethod}.` };
+        const { rustClient } = await import('@/lib/rust-client');
+        const r = await rustClient.wachatConfig.requestVerificationCode(projectId, phoneNumberId, { method: codeMethod, language: 'en' });
+        return { success: !!r.success, message: r.message ?? `Verification code sent via ${codeMethod}.`, error: r.error };
     } catch (e: any) {
-        return { success: false, error: getErrorMessage(e) };
+        return { success: false, error: e?.message ?? 'Request code failed' };
     }
 }
 
@@ -1510,53 +1041,21 @@ export async function handleSendCtaUrlMessage(
     waId: string,
     data: { displayText: string; url: string; headerText?: string; bodyText: string; footerText?: string }
 ): Promise<{ message?: string; error?: string }> {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Project not found or access denied.' };
-
     try {
-        const { db } = await connectToDatabase();
-        const payload: any = {
-            messaging_product: 'whatsapp',
-            recipient_type: 'individual',
-            to: waId,
-            type: 'interactive',
-            interactive: {
-                type: 'cta_url',
-                ...(data.headerText && { header: { type: 'text', text: data.headerText } }),
-                body: { text: data.bodyText },
-                ...(data.footerText && { footer: { text: data.footerText } }),
-                action: {
-                    name: 'cta_url',
-                    parameters: {
-                        display_text: data.displayText,
-                        url: data.url,
-                    },
-                },
-            },
-        };
-
-        const response = await axios.post(
-            `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`,
-            payload,
-            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
-        );
-
-        const wamid = response.data?.messages?.[0]?.id;
-        if (!wamid) throw new Error('Message sent but no WAMID returned.');
-
-        const now = new Date();
-        await db.collection('outgoing_messages').insertOne({
-            direction: 'out', contactId: new ObjectId(contactId), projectId: new ObjectId(projectId),
-            wamid, messageTimestamp: now, type: 'interactive', content: payload,
-            status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
-        } as OutgoingMessage);
-
-        await db.collection('contacts').updateOne(
-            { _id: new ObjectId(contactId), projectId: new ObjectId(projectId) },
-            { $set: { lastMessage: `[CTA: ${data.displayText}]`.substring(0, 50), lastMessageTimestamp: now } }
-        );
-
-        return { message: 'CTA URL message sent successfully.' };
+        const { rustClient } = await import('@/lib/rust-client');
+        const result = await rustClient.whatsappSend.sendCtaUrl({
+            projectId,
+            contactId,
+            phoneNumberId,
+            waId,
+            displayText: data.displayText,
+            url: data.url,
+            headerText: data.headerText,
+            bodyText: data.bodyText,
+            footerText: data.footerText,
+        });
+        revalidatePath('/wachat/chat');
+        return { message: result.message || 'CTA URL message sent successfully.' };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
     }
@@ -1569,45 +1068,17 @@ export async function handleSendLocationRequestMessage(
     waId: string,
     bodyText: string
 ): Promise<{ message?: string; error?: string }> {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Project not found or access denied.' };
-
     try {
-        const { db } = await connectToDatabase();
-        const payload = {
-            messaging_product: 'whatsapp',
-            recipient_type: 'individual',
-            to: waId,
-            type: 'interactive',
-            interactive: {
-                type: 'location_request_message',
-                body: { text: bodyText },
-                action: { name: 'send_location' },
-            },
-        };
-
-        const response = await axios.post(
-            `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`,
-            payload,
-            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
-        );
-
-        const wamid = response.data?.messages?.[0]?.id;
-        if (!wamid) throw new Error('Message sent but no WAMID returned.');
-
-        const now = new Date();
-        await db.collection('outgoing_messages').insertOne({
-            direction: 'out', contactId: new ObjectId(contactId), projectId: new ObjectId(projectId),
-            wamid, messageTimestamp: now, type: 'interactive', content: payload,
-            status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
-        } as OutgoingMessage);
-
-        await db.collection('contacts').updateOne(
-            { _id: new ObjectId(contactId), projectId: new ObjectId(projectId) },
-            { $set: { lastMessage: '[Location Request]', lastMessageTimestamp: now } }
-        );
-
-        return { message: 'Location request sent successfully.' };
+        const { rustClient } = await import('@/lib/rust-client');
+        const result = await rustClient.whatsappSend.sendLocationRequest({
+            projectId,
+            contactId,
+            phoneNumberId,
+            waId,
+            bodyText,
+        });
+        revalidatePath('/wachat/chat');
+        return { message: result.message || 'Location request sent successfully.' };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
     }
@@ -1625,52 +1096,20 @@ export async function handleSendAddressMessage(
         savedAddressId?: string;
     }
 ): Promise<{ message?: string; error?: string }> {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Project not found or access denied.' };
-
     try {
-        const { db } = await connectToDatabase();
-        const parameters: any = { country: data.country };
-        if (data.values) parameters.values = data.values;
-        if (data.savedAddressId) parameters.saved_address_id = data.savedAddressId;
-
-        const payload = {
-            messaging_product: 'whatsapp',
-            recipient_type: 'individual',
-            to: waId,
-            type: 'interactive',
-            interactive: {
-                type: 'address_message',
-                body: { text: data.bodyText },
-                action: {
-                    name: 'address_message',
-                    parameters,
-                },
-            },
-        };
-
-        const response = await axios.post(
-            `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`,
-            payload,
-            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
-        );
-
-        const wamid = response.data?.messages?.[0]?.id;
-        if (!wamid) throw new Error('Message sent but no WAMID returned.');
-
-        const now = new Date();
-        await db.collection('outgoing_messages').insertOne({
-            direction: 'out', contactId: new ObjectId(contactId), projectId: new ObjectId(projectId),
-            wamid, messageTimestamp: now, type: 'interactive', content: payload,
-            status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
-        } as OutgoingMessage);
-
-        await db.collection('contacts').updateOne(
-            { _id: new ObjectId(contactId), projectId: new ObjectId(projectId) },
-            { $set: { lastMessage: '[Address Request]', lastMessageTimestamp: now } }
-        );
-
-        return { message: 'Address message sent successfully.' };
+        const { rustClient } = await import('@/lib/rust-client');
+        const result = await rustClient.whatsappSend.sendAddress({
+            projectId,
+            contactId,
+            phoneNumberId,
+            waId,
+            bodyText: data.bodyText,
+            country: data.country,
+            values: data.values,
+            savedAddressId: data.savedAddressId,
+        });
+        revalidatePath('/wachat/chat');
+        return { message: result.message || 'Address message sent successfully.' };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
     }
@@ -1705,56 +1144,23 @@ export async function handleSendOrderDetailsMessage(
         };
     }
 ): Promise<{ message?: string; error?: string }> {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Project not found or access denied.' };
-
     try {
-        const { db } = await connectToDatabase();
-        const payload = {
-            messaging_product: 'whatsapp',
-            recipient_type: 'individual',
-            to: waId,
-            type: 'interactive',
-            interactive: {
-                type: 'order_details',
-                body: { text: `Order ${data.referenceId}` },
-                action: {
-                    name: 'review_and_pay',
-                    parameters: {
-                        reference_id: data.referenceId,
-                        type: data.type,
-                        payment_type: data.paymentType,
-                        ...(data.paymentLink && { payment_configuration: data.paymentLink }),
-                        currency: data.currency,
-                        total_amount: { value: data.totalAmount, offset: 100 },
-                        order: data.order,
-                    },
-                },
-            },
-        };
-
-        const response = await axios.post(
-            `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`,
-            payload,
-            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
-        );
-
-        const wamid = response.data?.messages?.[0]?.id;
-        if (!wamid) throw new Error('Message sent but no WAMID returned.');
-
-        const now = new Date();
-        await db.collection('outgoing_messages').insertOne({
-            direction: 'out', contactId: new ObjectId(contactId), projectId: new ObjectId(projectId),
-            wamid, messageTimestamp: now, type: 'order' as any, content: payload,
-            status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
-        } as OutgoingMessage);
-
-        await db.collection('contacts').updateOne(
-            { _id: new ObjectId(contactId), projectId: new ObjectId(projectId) },
-            { $set: { lastMessage: `[Order: ${data.referenceId}]`.substring(0, 50), lastMessageTimestamp: now } }
-        );
-
-        return { message: 'Order details message sent successfully.' };
+        const { rustClient } = await import('@/lib/rust-client');
+        const result = await rustClient.whatsappSend.sendOrderDetails({
+            projectId,
+            contactId,
+            phoneNumberId,
+            waId,
+            referenceId: data.referenceId,
+            type: data.type,
+            paymentType: data.paymentType,
+            paymentLink: data.paymentLink,
+            totalAmount: data.totalAmount,
+            currency: data.currency,
+            order: data.order,
+        });
+        revalidatePath('/wachat/chat');
+        return { message: result.message || 'Order details message sent successfully.' };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
     }
@@ -1771,56 +1177,19 @@ export async function handleSendOrderStatusMessage(
         description?: string;
     }
 ): Promise<{ message?: string; error?: string }> {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Project not found or access denied.' };
-
     try {
-        const { db } = await connectToDatabase();
-        const payload = {
-            messaging_product: 'whatsapp',
-            recipient_type: 'individual',
-            to: waId,
-            type: 'interactive',
-            interactive: {
-                type: 'order_status',
-                body: {
-                    text: data.description || `Order ${data.referenceId} status: ${data.status}`,
-                },
-                action: {
-                    name: 'review_order',
-                    parameters: {
-                        reference_id: data.referenceId,
-                        order: {
-                            status: data.status,
-                            ...(data.description && { description: data.description }),
-                        },
-                    },
-                },
-            },
-        };
-
-        const response = await axios.post(
-            `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`,
-            payload,
-            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
-        );
-
-        const wamid = response.data?.messages?.[0]?.id;
-        if (!wamid) throw new Error('Message sent but no WAMID returned.');
-
-        const now = new Date();
-        await db.collection('outgoing_messages').insertOne({
-            direction: 'out', contactId: new ObjectId(contactId), projectId: new ObjectId(projectId),
-            wamid, messageTimestamp: now, type: 'order' as any, content: payload,
-            status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
-        } as OutgoingMessage);
-
-        await db.collection('contacts').updateOne(
-            { _id: new ObjectId(contactId), projectId: new ObjectId(projectId) },
-            { $set: { lastMessage: `[Order Status: ${data.status}]`.substring(0, 50), lastMessageTimestamp: now } }
-        );
-
-        return { message: 'Order status message sent successfully.' };
+        const { rustClient } = await import('@/lib/rust-client');
+        const result = await rustClient.whatsappSend.sendOrderStatus({
+            projectId,
+            contactId,
+            phoneNumberId,
+            waId,
+            referenceId: data.referenceId,
+            status: data.status,
+            description: data.description,
+        });
+        revalidatePath('/wachat/chat');
+        return { message: result.message || 'Order status message sent successfully.' };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
     }

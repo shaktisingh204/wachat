@@ -1,0 +1,60 @@
+# Phase 5 slice 4 — phone-number registration / verification / 2FA / deregistration.
+#
+# Mirrors five admin actions from `src/app/actions/whatsapp.actions.ts`:
+#   * `registerPhoneNumber`              (line ~819) -> `PhoneRegistrar::register`
+#   * `handleRequestVerificationCode`    (line ~844) -> `PhoneRegistrar::request_verification_code`
+#   * `handleVerifyCode`                 (line ~866) -> `PhoneRegistrar::verify_code`
+#   * `deregisterPhoneNumber`            (line ~888) -> `PhoneRegistrar::deregister`
+#   * `handleSetTwoStepVerificationPin`  (line ~912) -> `PhoneRegistrar::set_two_step_pin`
+#
+# Per the slice contract this crate is a leaf — it does NOT modify the
+# parent `rust/Cargo.toml`. The orchestrator wires it into
+# `workspace.members` once all Phase-5 slices land. We deliberately omit a
+# `[workspace]` table so the parent workspace owns membership.
+[package]
+name = "wachat-phone-register"
+version = "0.1.0"
+edition = "2024"
+description = "Phone-number registration / verification / 2FA / deregistration for the SabNode wachat module. Wraps Meta Graph API v23.0's `/{phone-number-id}/register`, `/request_code`, `/verify_code`, `/deregister`, and the bare `/{phone-number-id}` 2FA pin endpoint via `wachat-meta-client`. Mirrors `registerPhoneNumber`, `handleRequestVerificationCode`, `handleVerifyCode`, `deregisterPhoneNumber`, and `handleSetTwoStepVerificationPin` in `src/app/actions/whatsapp.actions.ts`."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "wachat_phone_register"
+path = "src/lib.rs"
+
+[dependencies]
+# Async runtime — the Meta client is async.
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+# Serde stack — request bodies are tiny JSON objects we declare in `dto.rs`.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Mongo BSON. Pulled because `MongoHandle` is on the public ctor surface
+# even though this crate does not currently read or write Mongo itself —
+# that mirrors the sibling phone slice contract.
+bson = { version = "2", features = ["chrono-0_4"] }
+mongodb = "3"
+
+# Structured logging.
+tracing = "0.1"
+
+# Errors + time.
+anyhow = "1"
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+# Sibling crates — public APIs only.
+sabnode-common = { path = "../common" }
+sabnode-db = { path = "../db" }
+wachat-types = { path = "../wachat-types" }
+wachat-meta-client = { path = "../wachat-meta-client" }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+wiremock = "0.6"
+serde_json = "1"
+url = "2"
+
+[lints]
+workspace = true

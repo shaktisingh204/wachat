@@ -1,67 +1,95 @@
-'use client';
+"use client";
 
-import { getSession } from '@/app/actions/user.actions';
-import { SabChatWidgetGenerator } from '@/components/wabasimplify/sabchat-widget-generator';
-import { ClayCard } from '@/components/clay';
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import { MessageCircle } from 'lucide-react';
-import { useEffect, useState } from 'react';
+/**
+ * /dashboard/sabchat/widget — widget configuration & embed code.
+ *
+ * Same `getSession` flow. Visual layer fully Zoru — delegates to local
+ * `ZoruSabChatWidgetGenerator` to avoid pulling visual primitives from
+ * `@/components/wabasimplify`.
+ */
 
-function PageSkeleton() {
-  return (
-    <ClayCard>
-      <div className="animate-pulse h-96 rounded-lg bg-border" />
-    </ClayCard>
-  );
+import { useEffect, useState } from "react";
+import { MessageCircle } from "lucide-react";
+
+import { getSession } from "@/app/actions/user.actions";
+import type { WithId, User } from "@/lib/definitions";
+
+import {
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruAlertTitle,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruSkeleton,
+} from "@/components/zoruui";
+
+import { ZoruSabChatWidgetGenerator } from "../_components/zoru-sabchat-widget-generator";
+
+function WidgetSkeleton() {
+  return <ZoruSkeleton className="h-[600px] w-full" />;
 }
 
 export default function SabChatWidgetPage() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<WithId<User> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    getSession().then(session => {
-      setUser(session?.user);
+    getSession().then((session) => {
+      setUser((session?.user as WithId<User>) ?? null);
       setIsLoading(false);
     });
   }, []);
 
-  if (isLoading) {
-    return (
-      <div className="flex w-full flex-col gap-6">
-        <CrmPageHeader
-          title="Widget"
-          subtitle="Configure and embed the SabChat widget on your website"
-          icon={MessageCircle}
-        />
-        <PageSkeleton />
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="flex w-full flex-col gap-6">
-        <CrmPageHeader
-          title="Widget"
-          subtitle="Configure and embed the SabChat widget on your website"
-          icon={MessageCircle}
-        />
-        <ClayCard>
-          <p className="text-[13px] text-destructive">You must be logged in to configure the chat widget.</p>
-        </ClayCard>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Widget"
-        subtitle="Configure and embed the SabChat widget on your website"
-        icon={MessageCircle}
-      />
-      <SabChatWidgetGenerator user={user} />
+    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard/sabchat/inbox">
+              SabChat
+            </ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Widget</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
+
+      <ZoruPageHeader>
+        <ZoruPageHeading>
+          <ZoruPageTitle>Widget</ZoruPageTitle>
+          <ZoruPageDescription>
+            Configure and embed the SabChat widget on your website.
+          </ZoruPageDescription>
+        </ZoruPageHeading>
+      </ZoruPageHeader>
+
+      {isLoading ? (
+        <WidgetSkeleton />
+      ) : !user ? (
+        <ZoruAlert variant="destructive">
+          <MessageCircle />
+          <ZoruAlertTitle>Not signed in</ZoruAlertTitle>
+          <ZoruAlertDescription>
+            You must be logged in to configure the chat widget.
+          </ZoruAlertDescription>
+        </ZoruAlert>
+      ) : (
+        <ZoruSabChatWidgetGenerator user={user} />
+      )}
     </div>
   );
 }

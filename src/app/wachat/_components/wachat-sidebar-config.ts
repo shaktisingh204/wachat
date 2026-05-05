@@ -69,8 +69,8 @@ export function buildWachatSidebarGroups(
           id: "overview",
           label: "Dashboard",
           icon: React.createElement(LayoutDashboard),
-          href: "/dashboard/overview",
-          active: isActive("/dashboard/overview"),
+          href: "/wachat/overview",
+          active: isActive("/wachat/overview"),
         },
         {
           id: "analytics",

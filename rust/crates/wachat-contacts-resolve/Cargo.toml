@@ -1,0 +1,51 @@
+# Phase 4 slice 5 — find-or-create contact resolver.
+#
+# Mirrors `findOrCreateContact` from `src/app/actions/whatsapp.actions.ts`
+# (line 510). Used by every wachat send path before persisting an outgoing
+# message log: given (projectId, phoneNumberId, waId), upsert into the
+# `contacts` collection and return the resolved document id.
+#
+# Per the Phase 3/4 slice contract this crate is a leaf — it does NOT modify
+# the workspace `Cargo.toml`; the orchestrator wires it in. We deliberately
+# omit a `[workspace]` table so the parent workspace owns membership.
+[package]
+name = "wachat-contacts-resolve"
+version = "0.1.0"
+edition = "2024"
+description = "Idempotent find-or-create contact resolver for the SabNode wachat module. Ports `findOrCreateContact` in `src/app/actions/whatsapp.actions.ts`: upserts into the `contacts` Mongo collection on `{ projectId, phoneNumberId, waId }` so concurrent send paths converge on a single document."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "wachat_contacts_resolve"
+path = "src/lib.rs"
+
+[dependencies]
+# Async runtime.
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+# Serde stack — the upserted document carries TS-shaped fields.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Mongo BSON. `chrono-0_4` for `createdAt` interop.
+bson = { version = "2.13", features = ["chrono-0_4"] }
+mongodb = "3.2"
+
+# Structured logging.
+tracing = "0.1"
+
+# Error plumbing + time.
+anyhow = "1"
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+# Sibling crates — public APIs only.
+sabnode-common = { path = "../common" }
+sabnode-db = { path = "../db" }
+wachat-types = { path = "../wachat-types" }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+[lints]
+workspace = true

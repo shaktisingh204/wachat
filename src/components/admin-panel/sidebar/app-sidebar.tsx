@@ -184,7 +184,7 @@ function InlineProjectSwitcher() {
         localStorage.setItem('activeProjectId', id);
         localStorage.setItem('activeProjectName', name);
         setActiveProjectId(id);
-        router.push('/dashboard/overview');
+        router.push('/wachat/overview');
         router.refresh();
     };
 

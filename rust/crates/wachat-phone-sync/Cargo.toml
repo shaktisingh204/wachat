@@ -1,0 +1,55 @@
+[package]
+name = "wachat-phone-sync"
+version = "0.1.0"
+edition = "2024"
+description = "Phase-5 slice: pulls the WhatsApp phone-number list from Meta Graph API and updates per-number business profiles. Mirrors `handleSyncPhoneNumbers` and `handleUpdatePhoneNumberProfile` from `src/app/actions/whatsapp.actions.ts`."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "wachat_phone_sync"
+path = "src/lib.rs"
+
+[dependencies]
+# Async runtime — public surface is `async`, callers already pull tokio in.
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "time"] }
+
+# Serialization. DTOs are typed; we keep `serde_json::Value` only where Meta
+# emits open-ended objects (e.g. throughput).
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Mongo plumbing for the `projects` collection update + nested array $set.
+bson = { version = "2.13", features = ["chrono-0_4"] }
+mongodb = "3.2"
+
+# Datetime support (kept for parity with other slices; not used directly here).
+chrono = { version = "0.4", default-features = false, features = ["serde", "clock"] }
+
+# Logging + error plumbing.
+tracing = "0.1"
+anyhow = "1"
+
+# SabNode crates.
+sabnode-common = { path = "../common" }
+sabnode-db = { path = "../db" }
+wachat-types = { path = "../wachat-types" }
+wachat-meta-client = { path = "../wachat-meta-client" }
+wachat-meta-dto = { path = "../wachat-meta-dto" }
+
+# HTTP — needed for `paging.next` follow-ups (Meta returns fully-qualified
+# URLs that already embed `?access_token=...`); same pattern as
+# `wachat-templates-sync`. Pushing them through `MetaClient` would re-prepend
+# `base/version`.
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "gzip"] }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+wiremock = "0.6"
+serde_json = "1"
+url = "2"
+chrono = { version = "0.4", default-features = false, features = ["clock"] }
+bson = { version = "2.13", features = ["chrono-0_4"] }
+
+[lints]
+workspace = true

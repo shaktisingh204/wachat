@@ -16,9 +16,18 @@ use sabnode_auth::AuthConfig;
 use sabnode_db::{mongo::MongoHandle, redis::RedisHandle};
 use tokio::{net::TcpListener, signal};
 use tracing::{error, info};
+use wachat_chat_mark::ChatMarker;
+use wachat_chat_read::ChatReader;
+use wachat_contacts_resolve::ContactResolver;
 use wachat_media::MediaUploader;
 use wachat_meta_client::MetaClient;
+use wachat_payment_request::PaymentRequestSender;
 use wachat_queue::BullProducer;
+use wachat_send::MessageSender;
+use wachat_send_cta::CtaSender;
+use wachat_send_flows::FlowSender;
+use wachat_send_orders::OrdersSender;
+use wachat_send_router::WachatSendState;
 use wachat_templates::TemplatesReader;
 use wachat_templates_categories::TemplatesLibrary;
 use wachat_templates_mutate::TemplatesMutator;
@@ -107,11 +116,37 @@ async fn run() -> anyhow::Result<()> {
         mutator: Arc::new(TemplatesMutator::new(mongo.clone(), meta.clone(), media)),
         syncer: Arc::new(TemplatesSyncer::new(mongo.clone(), meta.clone())),
         library: Arc::new(TemplatesLibrary::new(mongo.clone())),
-        sender: Arc::new(TemplateSender::new(mongo.clone(), meta)),
+        sender: Arc::new(TemplateSender::new(mongo.clone(), meta.clone())),
         mongo: mongo.clone(),
     };
 
-    let state = AppState::new(mongo, redis, auth, webhook, webhook_verifier, templates);
+    // Send/chat/payment stack — Phase 4. Each engine takes the shared
+    // Mongo handle (and MetaClient where it talks to Meta).
+    let send = WachatSendState {
+        message: Arc::new(MessageSender::new(
+            mongo.clone(),
+            meta.clone(),
+            MediaUploader::new("v23.0"),
+        )),
+        cta: Arc::new(CtaSender::new(mongo.clone(), meta.clone())),
+        flows: Arc::new(FlowSender::new(mongo.clone(), meta.clone())),
+        orders: Arc::new(OrdersSender::new(mongo.clone(), meta.clone())),
+        contacts: Arc::new(ContactResolver::new(mongo.clone())),
+        chat_read: Arc::new(ChatReader::new(mongo.clone())),
+        chat_mark: Arc::new(ChatMarker::new(mongo.clone())),
+        payment: Arc::new(PaymentRequestSender::new(mongo.clone(), meta.clone())),
+        mongo: mongo.clone(),
+    };
+
+    let state = AppState::new(
+        mongo,
+        redis,
+        auth,
+        webhook,
+        webhook_verifier,
+        templates,
+        send,
+    );
     let app = router::build(state.clone());
 
     let addr = SocketAddr::from(([0, 0, 0, 0], settings.port));

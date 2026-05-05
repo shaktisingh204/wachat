@@ -1,19 +1,34 @@
 /**
  * /dashboard/sabflow/invites/[token]
  *
- * Lets a logged-in user accept or decline a workspace invite.
- * On accept the user is redirected to the workspace's settings page.
+ * Lets a logged-in user accept or decline a workspace invite. On accept the
+ * user is redirected to the workspace's settings page.
+ *
+ * ZoruUI rewrite — chrome only. Auth/data flow unchanged.
  */
 
-import { redirect } from 'next/navigation';
-import { getSession } from '@/app/actions/user.actions';
+import { redirect } from "next/navigation";
+
+import { getSession } from "@/app/actions/user.actions";
 import {
   getInviteByToken,
   getWorkspaceById,
-} from '@/lib/sabflow/workspaces/db';
-import { InviteAcceptClient } from './invite-accept-client';
+} from "@/lib/sabflow/workspaces/db";
 
-export const dynamic = 'force-dynamic';
+import {
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruEmptyState,
+} from "@/components/zoruui";
+import { CircleAlert, Hourglass, MailX } from "lucide-react";
+
+import { InviteAcceptClient } from "./invite-accept-client";
+
+export const dynamic = "force-dynamic";
 
 export default async function Page({
   params,
@@ -32,30 +47,36 @@ export default async function Page({
 
   if (!invite) {
     return (
-      <InvitePanel title="Invite not found">
-        <p className="text-[13px] text-gray-500">
-          This invite link is invalid or has been revoked.
-        </p>
+      <InvitePanel>
+        <ZoruEmptyState
+          icon={<MailX />}
+          title="Invite not found"
+          description="This invite link is invalid or has been revoked."
+        />
       </InvitePanel>
     );
   }
 
   if (invite.acceptedAt) {
     return (
-      <InvitePanel title="Invite already used">
-        <p className="text-[13px] text-gray-500">
-          This invite has already been accepted.
-        </p>
+      <InvitePanel>
+        <ZoruEmptyState
+          icon={<CircleAlert />}
+          title="Invite already used"
+          description="This invite has already been accepted."
+        />
       </InvitePanel>
     );
   }
 
   if (invite.expiresAt.getTime() < Date.now()) {
     return (
-      <InvitePanel title="Invite expired">
-        <p className="text-[13px] text-gray-500">
-          Ask the workspace admin to send you a new invite.
-        </p>
+      <InvitePanel>
+        <ZoruEmptyState
+          icon={<Hourglass />}
+          title="Invite expired"
+          description="Ask the workspace admin to send you a new invite."
+        />
       </InvitePanel>
     );
   }
@@ -63,41 +84,52 @@ export default async function Page({
   const workspace = await getWorkspaceById(invite.workspaceId);
 
   const sessionEmail =
-    typeof session.user.email === 'string'
+    typeof session.user.email === "string"
       ? session.user.email.trim().toLowerCase()
-      : '';
+      : "";
   const emailMismatch = Boolean(
     sessionEmail && sessionEmail !== invite.email.toLowerCase(),
   );
 
   return (
-    <InviteAcceptClient
-      token={token}
-      inviteEmail={invite.email}
-      inviteRole={invite.role}
-      workspaceId={invite.workspaceId}
-      workspaceName={workspace?.name ?? 'a workspace'}
-      workspaceIconUrl={workspace?.iconUrl}
-      invitedBy={invite.invitedBy}
-      emailMismatch={emailMismatch}
-      sessionEmail={sessionEmail}
-    />
+    <InvitePanel>
+      <InviteAcceptClient
+        token={token}
+        inviteEmail={invite.email}
+        inviteRole={invite.role}
+        workspaceId={invite.workspaceId}
+        workspaceName={workspace?.name ?? "a workspace"}
+        workspaceIconUrl={workspace?.iconUrl}
+        invitedBy={invite.invitedBy}
+        emailMismatch={emailMismatch}
+        sessionEmail={sessionEmail}
+      />
+    </InvitePanel>
   );
 }
 
-function InvitePanel({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
+function InvitePanel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mx-auto flex min-h-[60vh] w-full max-w-md flex-col items-center justify-center gap-3 text-center">
-      <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
-        {title}
-      </h1>
-      {children}
+    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard/sabflow/flow-builder">
+              SabFlow
+            </ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Workspace invite</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
+
+      <div className="mx-auto w-full max-w-md">{children}</div>
     </div>
   );
 }

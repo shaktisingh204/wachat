@@ -1,0 +1,64 @@
+# Phase 4 slice 9 — axum router that mounts the wachat **send-path** HTTP
+# surface (`/v1/wachat/*` minus templates).
+#
+# Wires up every Phase 4 sender (slices 1–5), the contact resolver (slice 6),
+# the chat-read / chat-mark engines (slices 6–7) and the payment-request
+# sender (slice 8) behind a single `Router<S>` generic over the caller's app
+# state. Owns no business logic — every handler delegates.
+#
+# Per the slice contract this crate is a leaf: it does NOT modify the
+# workspace `Cargo.toml`, has no `[workspace]` table, and does not touch
+# other crates' source. The orchestrator wires it into the parent workspace
+# `members` list.
+[package]
+name = "wachat-send-router"
+version = "0.1.0"
+edition = "2024"
+description = "Axum router that mounts the wachat send-path HTTP surface (`/v1/wachat/messages/*`, `/v1/wachat/contacts/*`, `/v1/wachat/chat/*`, `/v1/wachat/payment-requests/*`). Wires the Phase 4 message senders (text/media + catalog/cta-url + flows + orders), the contact resolver, the chat read/mark engines and the payment-request sender behind a single `Router<S>` generic over the caller's app state."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "wachat_send_router"
+path = "src/lib.rs"
+
+[dependencies]
+# Axum HTTP — `Router`, `State`, `Path`, `Query`, `Json` extractors. Same
+# feature set as sibling routers (`wachat-templates-router`,
+# `wachat-webhook-config`) so the api crate compiles with a single resolved
+# feature union.
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+# Standard serialization stack used across the workspace.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# BSON ObjectId construction — project ids, contact ids on the wire are
+# hex strings; we parse via `oid_from_str` from `sabnode-db`.
+bson = { version = "2.13", features = ["chrono-0_4"] }
+
+# Tracing for handler-level spans.
+tracing = "0.1"
+
+# Error plumbing — anyhow funnels into `ApiError::Internal`.
+anyhow = "1"
+
+# Sibling crates — shared error envelope, JWT extractor, Mongo handle.
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+
+# Wachat domain crates — typed inputs/outputs the handlers thread through.
+wachat-types = { path = "../wachat-types" }
+wachat-send = { path = "../wachat-send" }
+wachat-send-cta = { path = "../wachat-send-cta" }
+wachat-send-flows = { path = "../wachat-send-flows" }
+wachat-send-orders = { path = "../wachat-send-orders" }
+wachat-contacts-resolve = { path = "../wachat-contacts-resolve" }
+wachat-chat-read = { path = "../wachat-chat-read" }
+wachat-chat-mark = { path = "../wachat-chat-mark" }
+wachat-payment-request = { path = "../wachat-payment-request" }
+
+[lints]
+workspace = true

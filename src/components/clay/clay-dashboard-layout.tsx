@@ -381,8 +381,8 @@ const wachatPrimary: NavEntry[] = [
     key: 'wachat-overview',
     label: 'Overview',
     icon: <LuLayoutDashboard className="h-[15px] w-[15px]" strokeWidth={1.75} />,
-    href: '/dashboard/overview',
-    matches: ['/dashboard/overview'],
+    href: '/wachat/overview',
+    matches: ['/wachat/overview'],
   },
   {
     key: 'wachat-chat',

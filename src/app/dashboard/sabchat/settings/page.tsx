@@ -1,26 +1,62 @@
-'use client';
+"use client";
 
-import { Settings } from 'lucide-react';
-import { ClayCard } from '@/components/clay';
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+/**
+ * /dashboard/sabchat/settings — general SabChat settings.
+ *
+ * Currently a coming-soon placeholder. Visual layer fully Zoru.
+ */
+
+import { Settings } from "lucide-react";
+
+import {
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruEmptyState,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+} from "@/components/zoruui";
 
 export default function SabChatSettingsPage() {
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Settings"
-        subtitle="Configure general SabChat settings."
-        icon={Settings}
+    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard/sabchat/inbox">
+              SabChat
+            </ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Settings</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
+
+      <ZoruPageHeader>
+        <ZoruPageHeading>
+          <ZoruPageTitle>Settings</ZoruPageTitle>
+          <ZoruPageDescription>
+            Configure general SabChat settings.
+          </ZoruPageDescription>
+        </ZoruPageHeading>
+      </ZoruPageHeader>
+
+      <ZoruEmptyState
+        icon={<Settings />}
+        title="Coming soon"
+        description="Configure business hours, automated messages, and more."
       />
-      <ClayCard>
-        <div className="flex flex-col items-center justify-center py-16 text-center">
-          <div className="mb-4 rounded-full bg-secondary p-4">
-            <Settings className="h-10 w-10 text-muted-foreground" strokeWidth={1.5} />
-          </div>
-          <h3 className="text-[16px] font-semibold text-foreground">Coming Soon</h3>
-          <p className="mt-1 text-[13px] text-muted-foreground">Configure business hours, automated messages, and more.</p>
-        </div>
-      </ClayCard>
     </div>
   );
 }

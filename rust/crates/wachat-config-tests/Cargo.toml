@@ -1,0 +1,99 @@
+# Phase 5 slice 9 — end-to-end integration tests for the wachat-config router.
+#
+# This is a **test-only** crate. The library target is intentionally empty:
+# every test exercises the public surface of the engine + router crates from
+# Phase 5 (slices 1-6) through axum + wiremock, so there is no production
+# code to expose under `src/`. Keeping `lib.rs` empty means
+# `cargo build -p wachat-config-tests` compiles in seconds and contributes
+# nothing to the production binary; only `cargo test` pulls in the full
+# wachat-config stack.
+#
+# Per the Phase 5 slice contract this crate is a leaf:
+#   * No `[workspace]` table — the parent `rust/Cargo.toml` will own
+#     membership once the orchestrator wires the slice in. Until then this
+#     crate behaves like a detached one-crate workspace, exactly the same
+#     way `wachat-templates-tests` and the other Phase-N test crates do.
+#   * Does NOT modify the workspace `Cargo.toml`.
+#   * Does NOT touch any sibling crate's source — every dependency is via a
+#     read-only `path = "../..."` reference.
+[package]
+name = "wachat-config-tests"
+version = "0.1.0"
+edition = "2024"
+description = "End-to-end integration tests for the SabNode wachat config pipeline (project / phone-sync / webhook-subscribe / phone-register / qr-codes). Spins up MongoDB testcontainers, stubs Meta with wiremock, exercises the wachat-config-router across manual setup, phone sync, register, and QR create+list flows and asserts persisted Mongo state. Skips cleanly when SKIP_TESTCONTAINERS=1."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "wachat_config_tests"
+path = "src/lib.rs"
+
+# No production dependencies — everything is in `[dev-dependencies]` so a
+# release build of the workspace skips this crate entirely (modulo the
+# empty `lib.rs` compile).
+[dependencies]
+
+[dev-dependencies]
+# Async runtime — every test is `#[tokio::test(flavor = "multi_thread")]`.
+tokio = { version = "1", features = ["full"] }
+
+# HTTP plumbing — `axum` for `Router` typing, `tower` (with `util`) for
+# `ServiceExt::oneshot`, `reqwest` only because some sibling crates pull
+# it transitively and pinning the rustls feature here keeps the lockfile
+# tidy.
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+tower = { version = "0.5", features = ["util"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+
+# Serde stack — request/response shaping for the router calls.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# BSON / Mongo — seed documents and assert persisted state directly.
+bson = { version = "2.13", features = ["chrono-0_4"] }
+mongodb = "3.2"
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+# Stub Meta + Redis-backed services with `testcontainers` and `wiremock`.
+wiremock = "0.6"
+testcontainers = "0.23"
+testcontainers-modules = { version = "0.11", features = ["mongo", "redis"] }
+
+# URL parsing for `MetaClient::with_base`.
+url = "2"
+
+# JWT minting — the wachat-config router gates every endpoint on
+# `AuthUser`, which decodes a HS256 bearer. `sabnode-auth` exposes
+# `verify` but not `encode`; tests need both, so we pull `jsonwebtoken`
+# directly. Same major version `sabnode-auth` already pulls transitively,
+# so the lockfile collapses to one copy.
+jsonwebtoken = "9"
+
+# Sibling SabNode crates — public APIs only. The orchestrator wires the
+# parallel Phase 5 engine + router crates in alongside this one; until
+# then those `path = "../..."` references resolve only inside the
+# integration branch, which is fine because cargo only follows them when
+# this crate itself is built (and it sits detached from the parent
+# workspace until the orchestrator wires it in — see the file header).
+sabnode-common = { path = "../common" }
+sabnode-db = { path = "../db" }
+sabnode-auth = { path = "../auth" }
+
+wachat-types = { path = "../wachat-types" }
+wachat-meta-client = { path = "../wachat-meta-client" }
+
+wachat-project-config = { path = "../wachat-project-config" }
+wachat-phone-sync = { path = "../wachat-phone-sync" }
+wachat-webhook-subscribe = { path = "../wachat-webhook-subscribe" }
+wachat-phone-register = { path = "../wachat-phone-register" }
+wachat-qr-codes = { path = "../wachat-qr-codes" }
+wachat-config-router = { path = "../wachat-config-router" }
+
+# Detached from the parent `rust/Cargo.toml` workspace until the orchestrator
+# wires the slice in — same pattern as `wachat-templates-tests`,
+# `wachat-templates-engine`, `wachat-webhook-config`, etc. The empty
+# `[workspace]` table is what tells cargo "I am my own little workspace,
+# don't auto-attach to the parent". Inherit the workspace lints once
+# attached so detached and integrated builds see the same lint allow-list.
+[lints]
+workspace = true

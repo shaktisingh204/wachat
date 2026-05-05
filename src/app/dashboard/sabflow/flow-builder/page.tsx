@@ -1,80 +1,122 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import { useEffect, useState, useTransition, useCallback, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+/**
+ * /dashboard/sabflow/flow-builder — flow list page.
+ *
+ * Full ZoruUI rewrite. Same server actions (`listSabFlows`, `createSabFlow`,
+ * `deleteSabFlow`, `duplicateSabFlow`, `saveSabFlow`,
+ * `getTodaySubmissionCounts`) and same `<FlowCard>` grid as before — only the
+ * surrounding chrome (header, stats, toolbar, dialogs, list view) was rebuilt
+ * on zoru primitives. No clay, no `@/components/ui/*`, no `@/hooks/use-toast`,
+ * no `react-icons/lu`, no rainbow palette.
+ */
+
+import * as React from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { format } from "date-fns";
 import {
-  LuPlus,
-  LuSearch,
-  LuLayoutGrid,
-  LuList,
-  LuRefreshCw,
-  LuWorkflow,
-  LuZap,
-  LuCirclePause,
-  LuGitBranch,
-  LuTriangle,
-  LuLoader,
-  LuSparkles,
-  LuPencil,
-  LuTrash2,
-  LuCopy,
-  LuEllipsis,
-  LuChartColumn,
-  LuCircle,
-  LuDownload,
-} from 'react-icons/lu';
-import { format } from 'date-fns';
-import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
+  BarChart3,
+  CirclePause,
+  Copy,
+  Download,
+  GitBranch,
+  LayoutGrid,
+  List,
+  Loader2,
+  MoreHorizontal,
+  Pencil,
+  Plus,
+  RefreshCw,
+  Search,
+  Sparkles,
+  Trash2,
+  Workflow,
+  Zap,
+} from "lucide-react";
+
 import {
-  listSabFlows,
+  cn,
+  useZoruToast,
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuLabel,
+  ZoruDropdownMenuSeparator,
+  ZoruDropdownMenuTrigger,
+  ZoruEmptyState,
+  ZoruInput,
+  ZoruPageActions,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruSkeleton,
+  ZoruStatCard,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from "@/components/zoruui";
+
+import {
   createSabFlow,
   deleteSabFlow,
   duplicateSabFlow,
-  saveSabFlow,
   getTodaySubmissionCounts,
-} from '@/app/actions/sabflow';
-import { RecentActivityFeed } from '@/components/sabflow/RecentActivityFeed';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { FlowCard, type FlowItem } from '@/components/sabflow/FlowCard';
-import { FlowTemplates } from '@/components/sabflow/FlowTemplates';
-import { FlowImportExport } from '@/components/sabflow/FlowImportExport';
+  listSabFlows,
+  saveSabFlow,
+} from "@/app/actions/sabflow";
+import { FlowCard, type FlowItem } from "@/components/sabflow/FlowCard";
+import { FlowImportExport } from "@/components/sabflow/FlowImportExport";
+import { FlowTemplates } from "@/components/sabflow/FlowTemplates";
+import { RecentActivityFeed } from "@/components/sabflow/RecentActivityFeed";
 
 /* ── Component ─────────────────────────────────────────────────────────── */
 
-type ViewMode = 'grid' | 'list';
+type ViewMode = "grid" | "list";
 
 export default function SabFlowListPage() {
   const router = useRouter();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
 
   const [flows, setFlows] = useState<FlowItem[]>([]);
   const [todayCounts, setTodayCounts] = useState<Record<string, number>>({});
   const [isPending, startTransition] = useTransition();
-  const [query, setQuery] = useState('');
-  const [viewMode, setViewMode] = useState<ViewMode>('grid');
+  const [query, setQuery] = useState("");
+  const [viewMode, setViewMode] = useState<ViewMode>("grid");
 
   // Create dialog
   const [showCreate, setShowCreate] = useState(false);
-  const [newName, setNewName] = useState('');
+  const [newName, setNewName] = useState("");
   const [creating, startCreating] = useTransition();
 
   // Delete confirm dialog
@@ -89,13 +131,16 @@ export default function SabFlowListPage() {
       if (Array.isArray(data)) {
         const items = data as FlowItem[];
         setFlows(items);
-        // Load today's submission counts in the background
         const ids = items.map((f) => f._id);
         if (ids.length > 0) {
           getTodaySubmissionCounts(ids).then(setTodayCounts).catch(() => {});
         }
-      } else if (data && 'error' in data) {
-        toast({ title: 'Error', description: data.error as string, variant: 'destructive' });
+      } else if (data && "error" in data) {
+        toast({
+          title: "Error",
+          description: data.error as string,
+          variant: "destructive",
+        });
       }
     });
   }, [toast]);
@@ -108,13 +153,17 @@ export default function SabFlowListPage() {
 
   const handleCreate = () => {
     startCreating(async () => {
-      const result = await createSabFlow(newName.trim() || 'Untitled flow');
-      if ('error' in result) {
-        toast({ title: 'Error', description: result.error as string, variant: 'destructive' });
+      const result = await createSabFlow(newName.trim() || "Untitled flow");
+      if ("error" in result) {
+        toast({
+          title: "Error",
+          description: result.error as string,
+          variant: "destructive",
+        });
         return;
       }
       setShowCreate(false);
-      setNewName('');
+      setNewName("");
       router.push(`/dashboard/sabflow/flow-builder/${result.id}`);
     });
   };
@@ -125,10 +174,14 @@ export default function SabFlowListPage() {
     startDeleting(async () => {
       const result = await deleteSabFlow(id);
       setDeleteTarget(null);
-      if ('error' in result) {
-        toast({ title: 'Error', description: result.error as string, variant: 'destructive' });
+      if ("error" in result) {
+        toast({
+          title: "Error",
+          description: result.error as string,
+          variant: "destructive",
+        });
       } else {
-        toast({ title: 'Deleted', description: `"${name}" was deleted.` });
+        toast({ title: "Deleted", description: `"${name}" was deleted.` });
         fetchFlows();
       }
     });
@@ -136,21 +189,29 @@ export default function SabFlowListPage() {
 
   const handleDuplicate = async (flowId: string) => {
     const result = await duplicateSabFlow(flowId);
-    if ('error' in result) {
-      toast({ title: 'Error', description: result.error as string, variant: 'destructive' });
+    if ("error" in result) {
+      toast({
+        title: "Error",
+        description: result.error as string,
+        variant: "destructive",
+      });
     } else {
-      toast({ title: 'Duplicated', description: 'Flow was duplicated.' });
+      toast({ title: "Duplicated", description: "Flow was duplicated." });
       fetchFlows();
     }
   };
 
-  const handleRename = async (flowId: string, newName: string) => {
-    const result = await saveSabFlow(flowId, { name: newName });
-    if ('error' in result) {
-      toast({ title: 'Error', description: result.error as string, variant: 'destructive' });
+  const handleRename = async (flowId: string, name: string) => {
+    const result = await saveSabFlow(flowId, { name });
+    if ("error" in result) {
+      toast({
+        title: "Error",
+        description: result.error as string,
+        variant: "destructive",
+      });
     } else {
       setFlows((prev) =>
-        prev.map((f) => (f._id === flowId ? { ...f, name: newName } : f)),
+        prev.map((f) => (f._id === flowId ? { ...f, name } : f)),
       );
     }
   };
@@ -166,8 +227,8 @@ export default function SabFlowListPage() {
   const stats = useMemo(
     () => ({
       total: flows.length,
-      published: flows.filter((f) => f.status === 'PUBLISHED').length,
-      draft: flows.filter((f) => f.status === 'DRAFT').length,
+      published: flows.filter((f) => f.status === "PUBLISHED").length,
+      draft: flows.filter((f) => f.status === "DRAFT").length,
       groups: flows.reduce((acc, f) => acc + (f.groups?.length ?? 0), 0),
     }),
     [flows],
@@ -176,406 +237,369 @@ export default function SabFlowListPage() {
   /* ── Render ────────────────────────────────────────────────────────── */
 
   return (
-    <div className="flex min-h-full flex-col gap-6">
-
-      {/* ── Page header ──────────────────────────────────────────────── */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 shadow-sm">
-            <LuWorkflow className="h-5 w-5 text-white" strokeWidth={2} />
-          </div>
-          <div>
-            <h1 className="text-[26px] font-bold tracking-tight text-zinc-900 dark:text-zinc-100 leading-tight">
+    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard/sabflow/flow-builder">
               SabFlow
-            </h1>
-            <p className="text-[12px] text-zinc-500 dark:text-zinc-400">
-              Build visual conversational flows
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
+            </ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Flow Builder</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
+
+      <ZoruPageHeader>
+        <ZoruPageHeading>
+          <ZoruPageTitle>SabFlow</ZoruPageTitle>
+          <ZoruPageDescription>
+            Build visual conversational flows.
+          </ZoruPageDescription>
+        </ZoruPageHeading>
+        <ZoruPageActions>
           <FlowImportExport />
-          <Button
-            onClick={() => setShowCreate(true)}
-            className="gap-2 bg-amber-500 hover:bg-amber-600 text-white border-0 shadow-sm"
-          >
-            <LuPlus className="h-4 w-4" strokeWidth={2.5} />
+          <ZoruButton onClick={() => setShowCreate(true)}>
+            <Plus />
             New Flow
-          </Button>
-        </div>
-      </div>
+          </ZoruButton>
+        </ZoruPageActions>
+      </ZoruPageHeader>
 
-      {/* ── Stats cards ──────────────────────────────────────────────── */}
+      {/* ── Stats cards ─────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {([
-          { label: 'Total', value: stats.total, icon: LuWorkflow, color: 'text-zinc-500 dark:text-zinc-400' },
-          { label: 'Published', value: stats.published, icon: LuZap, color: 'text-green-600' },
-          { label: 'Drafts', value: stats.draft, icon: LuCirclePause, color: 'text-amber-500' },
-          { label: 'Groups', value: stats.groups, icon: LuGitBranch, color: 'text-blue-500' },
-        ] as const).map(({ label, value, icon: Icon, color }) => (
-          <div
-            key={label}
-            className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4"
-          >
-            <Icon className={cn('h-4 w-4 mb-2', color)} strokeWidth={1.5} />
-            <div className="text-[11px] font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-              {label}
-            </div>
-            <div className="text-[22px] font-semibold text-zinc-900 dark:text-white tabular-nums">
-              {value}
-            </div>
-          </div>
-        ))}
+        <ZoruStatCard
+          label="Total"
+          value={stats.total}
+          icon={<Workflow />}
+        />
+        <ZoruStatCard
+          label="Published"
+          value={stats.published}
+          icon={<Zap />}
+        />
+        <ZoruStatCard
+          label="Drafts"
+          value={stats.draft}
+          icon={<CirclePause />}
+        />
+        <ZoruStatCard
+          label="Groups"
+          value={stats.groups}
+          icon={<GitBranch />}
+        />
       </div>
 
-      {/* ── Recent submissions feed ───────────────────────────────────── */}
+      {/* ── Recent activity / today's flows ─────────────────────────── */}
       {flows.length > 0 && (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          {/* Feed takes 1/3 width on large screens */}
           <div className="lg:col-span-1">
             <RecentActivityFeed />
           </div>
-          {/* Today's top-submitted flows */}
-          <div className="lg:col-span-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden">
-            <div className="flex items-center gap-2.5 px-4 py-3 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50">
-              <LuZap className="h-4 w-4 text-amber-500" strokeWidth={1.75} />
-              <span className="text-[13px] font-semibold text-zinc-800 dark:text-zinc-200">
-                Today&apos;s Activity
-              </span>
-            </div>
-            <div className="px-4 py-3">
+          <ZoruCard className="overflow-hidden lg:col-span-2 p-0">
+            <ZoruCardHeader className="flex flex-row items-center gap-2.5 border-b border-zoru-line bg-zoru-surface py-3">
+              <Zap className="h-4 w-4 text-zoru-ink-muted" />
+              <ZoruCardTitle className="text-[13px]">
+                Today&apos;s activity
+              </ZoruCardTitle>
+            </ZoruCardHeader>
+            <ZoruCardContent className="px-4 py-3">
               {flows.length === 0 ? (
-                <p className="text-[12px] text-zinc-400 py-4 text-center">No flows yet.</p>
+                <p className="py-4 text-center text-[12px] text-zoru-ink-muted">
+                  No flows yet.
+                </p>
               ) : (
                 <ul className="flex flex-col gap-1.5">
                   {flows
                     .slice()
-                    .sort((a, b) => (todayCounts[b._id] ?? 0) - (todayCounts[a._id] ?? 0))
+                    .sort(
+                      (a, b) =>
+                        (todayCounts[b._id] ?? 0) - (todayCounts[a._id] ?? 0),
+                    )
                     .slice(0, 6)
                     .map((flow) => {
                       const count = todayCounts[flow._id] ?? 0;
                       return (
                         <li
                           key={flow._id}
-                          className="flex items-center justify-between gap-3 rounded-lg px-3 py-2 hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors"
+                          className="flex items-center justify-between gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-zoru-surface"
                         >
                           <button
                             type="button"
                             onClick={() =>
-                              router.push(`/dashboard/sabflow/flow-builder/${flow._id}`)
+                              router.push(
+                                `/dashboard/sabflow/flow-builder/${flow._id}`,
+                              )
                             }
-                            className="flex-1 text-left truncate text-[12.5px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-amber-500 dark:hover:text-amber-400 transition-colors"
+                            className="flex-1 truncate text-left text-[12.5px] font-medium text-zoru-ink transition-colors hover:text-zoru-ink-strong"
                           >
                             {flow.name}
                           </button>
-                          <span
-                            className={cn(
-                              'shrink-0 tabular-nums text-[11.5px] font-semibold rounded-full px-2 py-0.5',
-                              count > 0
-                                ? 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400'
-                                : 'bg-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-500',
-                            )}
+                          <ZoruBadge
+                            variant={count > 0 ? "secondary" : "outline"}
+                            className="tabular-nums"
                           >
                             {count} today
-                          </span>
+                          </ZoruBadge>
                         </li>
                       );
                     })}
                 </ul>
               )}
-            </div>
-          </div>
+            </ZoruCardContent>
+          </ZoruCard>
         </div>
       )}
 
-      {/* ── Templates section ─────────────────────────────────────────── */}
-      {flows.length === 0 && !isPending && (
-        <div className="rounded-xl border border-dashed border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <LuSparkles className="h-4 w-4 text-amber-500" strokeWidth={2} />
-            <span className="text-[13px] font-semibold text-zinc-600 dark:text-zinc-300">
+      {/* ── Templates section ───────────────────────────────────────── */}
+      {flows.length === 0 && !isPending ? (
+        <ZoruCard className="border-dashed bg-zoru-surface/40 p-6">
+          <div className="mb-4 flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-zoru-ink-muted" />
+            <span className="text-[13px] font-semibold text-zoru-ink">
               Get started quickly
             </span>
           </div>
           <FlowTemplates onFlowCreated={fetchFlows} />
-        </div>
-      )}
-
-      {flows.length > 0 && (
+        </ZoruCard>
+      ) : flows.length > 0 ? (
         <FlowTemplates onFlowCreated={fetchFlows} />
-      )}
+      ) : null}
 
-      {/* ── My Flows section ──────────────────────────────────────────── */}
+      {/* ── My Flows section ────────────────────────────────────────── */}
       <div className="flex flex-col gap-4">
-        {/* Toolbar */}
-        <div className="flex items-center gap-3">
-          <h2 className="text-[15px] font-semibold text-zinc-900 dark:text-zinc-100 mr-auto">
+        <div className="flex flex-wrap items-center gap-3">
+          <h2 className="mr-auto text-[15px] font-semibold text-zoru-ink-strong">
             My Flows
           </h2>
 
-          {/* Search */}
-          <div className="relative w-48 sm:w-64">
-            <LuSearch
-              className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-400"
-              strokeWidth={2}
-            />
-            <input
-              type="text"
-              placeholder="Search flows…"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-[13px] bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 transition-colors"
-            />
-          </div>
+          <ZoruInput
+            type="text"
+            placeholder="Search flows…"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            leadingSlot={<Search />}
+            className="w-48 sm:w-64"
+          />
 
-          {/* Refresh */}
-          <button
+          <ZoruButton
+            variant="outline"
+            size="sm"
             onClick={fetchFlows}
             disabled={isPending}
-            className="flex items-center gap-1.5 px-3 py-2 text-[13px] text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors disabled:opacity-50"
           >
-            <LuRefreshCw className={cn('h-3.5 w-3.5', isPending && 'animate-spin')} strokeWidth={2} />
+            <RefreshCw className={cn(isPending && "animate-spin")} />
             <span className="hidden sm:inline">Refresh</span>
-          </button>
+          </ZoruButton>
 
-          {/* View toggle */}
-          <div className="flex items-center rounded-lg border border-zinc-200 dark:border-zinc-700 overflow-hidden">
-            <button
-              onClick={() => setViewMode('grid')}
-              className={cn(
-                'flex h-8 w-8 items-center justify-center transition-colors',
-                viewMode === 'grid'
-                  ? 'bg-amber-500 text-white'
-                  : 'text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800',
-              )}
+          {/* View toggle — segmented buttons (no tabs) */}
+          <div className="flex items-center gap-1 rounded-[var(--zoru-radius-md)] border border-zoru-line p-0.5">
+            <ZoruButton
+              variant={viewMode === "grid" ? "default" : "ghost"}
+              size="icon-sm"
+              onClick={() => setViewMode("grid")}
               aria-label="Grid view"
-              aria-pressed={viewMode === 'grid'}
+              aria-pressed={viewMode === "grid"}
             >
-              <LuLayoutGrid className="h-3.5 w-3.5" strokeWidth={2} />
-            </button>
-            <button
-              onClick={() => setViewMode('list')}
-              className={cn(
-                'flex h-8 w-8 items-center justify-center transition-colors',
-                viewMode === 'list'
-                  ? 'bg-amber-500 text-white'
-                  : 'text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800',
-              )}
+              <LayoutGrid />
+            </ZoruButton>
+            <ZoruButton
+              variant={viewMode === "list" ? "default" : "ghost"}
+              size="icon-sm"
+              onClick={() => setViewMode("list")}
               aria-label="List view"
-              aria-pressed={viewMode === 'list'}
+              aria-pressed={viewMode === "list"}
             >
-              <LuList className="h-3.5 w-3.5" strokeWidth={2} />
-            </button>
+              <List />
+            </ZoruButton>
           </div>
         </div>
 
         {/* Skeleton while first load */}
         {isPending && flows.length === 0 ? (
-          viewMode === 'grid' ? (
+          viewMode === "grid" ? (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-                  <div className="h-[130px] animate-pulse bg-zinc-100 dark:bg-zinc-800" />
-                  <div className="p-3 flex flex-col gap-2">
-                    <div className="h-3 w-3/4 animate-pulse rounded-full bg-zinc-100 dark:bg-zinc-800" />
-                    <div className="h-2.5 w-1/2 animate-pulse rounded-full bg-zinc-100 dark:bg-zinc-800" />
+                <ZoruCard key={i} className="overflow-hidden p-0">
+                  <ZoruSkeleton className="h-[130px] w-full rounded-none" />
+                  <div className="flex flex-col gap-2 p-3">
+                    <ZoruSkeleton className="h-3 w-3/4" />
+                    <ZoruSkeleton className="h-2.5 w-1/2" />
                   </div>
-                </div>
+                </ZoruCard>
               ))}
             </div>
           ) : (
-            <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+            <ZoruCard className="overflow-hidden p-0">
               {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="flex items-center gap-4 px-4 py-4 border-b border-zinc-100 dark:border-zinc-800 last:border-0">
-                  <div className="h-3 w-44 animate-pulse rounded-full bg-zinc-100 dark:bg-zinc-800" />
-                  <div className="h-3 w-16 animate-pulse rounded-full bg-zinc-100 dark:bg-zinc-800" />
-                  <div className="ml-auto h-6 w-6 animate-pulse rounded-full bg-zinc-100 dark:bg-zinc-800" />
+                <div
+                  key={i}
+                  className="flex items-center gap-4 border-b border-zoru-line px-4 py-4 last:border-0"
+                >
+                  <ZoruSkeleton className="h-3 w-44" />
+                  <ZoruSkeleton className="h-3 w-16" />
+                  <ZoruSkeleton className="ml-auto h-6 w-6 rounded-full" />
                 </div>
               ))}
-            </div>
+            </ZoruCard>
           )
         ) : filtered.length === 0 ? (
-          /* Empty state */
-          <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-zinc-200 dark:border-zinc-800 py-20 text-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-950/50 dark:to-orange-950/50">
-              <LuWorkflow className="h-7 w-7 text-amber-500" strokeWidth={1.5} />
-            </div>
-            <div className="flex flex-col gap-1">
-              <div className="text-[15px] font-semibold text-zinc-900 dark:text-white">
-                {query ? 'No matching flows' : 'No flows yet'}
-              </div>
-              <div className="max-w-xs text-[12px] text-zinc-500 dark:text-zinc-400">
-                {query
-                  ? `Nothing matched "${query}". Try a different keyword.`
-                  : 'Create your first SabFlow to build conversational bots.'}
-              </div>
-            </div>
-            {!query && (
-              <Button
-                size="sm"
-                onClick={() => setShowCreate(true)}
-                className="gap-1.5 bg-amber-500 hover:bg-amber-600 text-white border-0"
-              >
-                <LuPlus className="h-3.5 w-3.5" strokeWidth={2.5} />
-                Create your first flow
-              </Button>
-            )}
-          </div>
-        ) : viewMode === 'grid' ? (
-          /* ── Grid view ──────────────────────────────────────────────── */
+          <ZoruEmptyState
+            icon={<Workflow />}
+            title={query ? "No matching flows" : "No flows yet"}
+            description={
+              query
+                ? `Nothing matched "${query}". Try a different keyword.`
+                : "Create your first SabFlow to build conversational bots."
+            }
+            action={
+              !query ? (
+                <ZoruButton size="sm" onClick={() => setShowCreate(true)}>
+                  <Plus />
+                  Create your first flow
+                </ZoruButton>
+              ) : undefined
+            }
+          />
+        ) : viewMode === "grid" ? (
+          /* ── Grid view (shared FlowCard) ─────────────────────────── */
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {filtered.map((flow) => (
               <FlowCard
                 key={flow._id}
                 flow={flow}
-                onDelete={(flow) => setDeleteTarget({ id: flow._id, name: flow.name })}
+                onDelete={(f) =>
+                  setDeleteTarget({ id: f._id, name: f.name })
+                }
                 onDuplicate={handleDuplicate}
                 onRename={handleRename}
               />
             ))}
           </div>
         ) : (
-          /* ── List view ──────────────────────────────────────────────── */
-          <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden">
-            <table className="w-full text-[13px]">
-              <thead className="bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-100 dark:border-zinc-800">
-                <tr>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
-                    Name
-                  </th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
-                    Status
-                  </th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
-                    Groups
-                  </th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-zinc-500 hidden sm:table-cell">
+          /* ── List view ───────────────────────────────────────────── */
+          <ZoruCard className="overflow-hidden p-0">
+            <ZoruTable>
+              <ZoruTableHeader>
+                <ZoruTableRow>
+                  <ZoruTableHead>Name</ZoruTableHead>
+                  <ZoruTableHead>Status</ZoruTableHead>
+                  <ZoruTableHead>Groups</ZoruTableHead>
+                  <ZoruTableHead className="hidden sm:table-cell">
                     Created
-                  </th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
-                    Updated
-                  </th>
-                  <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-zinc-500 hidden md:table-cell">
+                  </ZoruTableHead>
+                  <ZoruTableHead>Updated</ZoruTableHead>
+                  <ZoruTableHead className="hidden md:table-cell">
                     Today
-                  </th>
-                  <th className="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
+                  </ZoruTableHead>
+                  <ZoruTableHead className="text-right">Actions</ZoruTableHead>
+                </ZoruTableRow>
+              </ZoruTableHeader>
+              <ZoruTableBody>
                 {filtered.map((flow) => {
-                  const isPublished = flow.status === 'PUBLISHED';
+                  const isPublished = flow.status === "PUBLISHED";
                   const todayCount = todayCounts[flow._id] ?? 0;
                   return (
-                    <tr
-                      key={flow._id}
-                      className="hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-colors group"
-                    >
-                      {/* Name */}
-                      <td className="px-4 py-3">
+                    <ZoruTableRow key={flow._id} className="group">
+                      <ZoruTableCell>
                         <button
                           onClick={() =>
-                            router.push(`/dashboard/sabflow/flow-builder/${flow._id}`)
+                            router.push(
+                              `/dashboard/sabflow/flow-builder/${flow._id}`,
+                            )
                           }
-                          className="font-medium text-zinc-900 dark:text-white hover:text-amber-500 dark:hover:text-amber-400 transition-colors text-left"
+                          className="text-left font-medium text-zoru-ink-strong transition-colors hover:text-zoru-ink"
                         >
                           {flow.name}
                         </button>
-                      </td>
+                      </ZoruTableCell>
 
-                      {/* Status badge */}
-                      <td className="px-4 py-3">
-                        <span
-                          className={cn(
-                            'inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10.5px] font-semibold',
-                            isPublished
-                              ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-950/40 dark:text-green-400 dark:border-green-900'
-                              : 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-400 dark:border-amber-900',
-                          )}
-                        >
-                          <LuCircle
-                            className={cn(
-                              'h-1.5 w-1.5 fill-current',
-                              isPublished ? 'text-green-500' : 'text-amber-500',
-                            )}
-                          />
-                          {isPublished ? 'Published' : 'Draft'}
-                        </span>
-                      </td>
+                      <ZoruTableCell>
+                        <ZoruBadge variant={isPublished ? "success" : "warning"}>
+                          {isPublished ? "Published" : "Draft"}
+                        </ZoruBadge>
+                      </ZoruTableCell>
 
-                      {/* Groups count */}
-                      <td className="px-4 py-3 text-zinc-500 tabular-nums">
+                      <ZoruTableCell className="tabular-nums text-zoru-ink-muted">
                         {flow.groups?.length ?? 0}
-                      </td>
+                      </ZoruTableCell>
 
-                      {/* Created date */}
-                      <td className="px-4 py-3 text-[11.5px] text-zinc-400 hidden sm:table-cell">
+                      <ZoruTableCell className="hidden text-[11.5px] text-zoru-ink-muted sm:table-cell">
                         {flow.createdAt
-                          ? format(new Date(flow.createdAt), 'MMM d, yyyy')
-                          : '—'}
-                      </td>
+                          ? format(new Date(flow.createdAt), "MMM d, yyyy")
+                          : "—"}
+                      </ZoruTableCell>
 
-                      {/* Updated date */}
-                      <td className="px-4 py-3 text-[11.5px] text-zinc-400">
+                      <ZoruTableCell className="text-[11.5px] text-zoru-ink-muted">
                         {flow.updatedAt
-                          ? format(new Date(flow.updatedAt), 'MMM d, yyyy · HH:mm')
-                          : '—'}
-                      </td>
+                          ? format(
+                              new Date(flow.updatedAt),
+                              "MMM d, yyyy · HH:mm",
+                            )
+                          : "—"}
+                      </ZoruTableCell>
 
-                      {/* Today's submission count */}
-                      <td className="px-4 py-3 hidden md:table-cell">
-                        <span
-                          className={cn(
-                            'inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold tabular-nums',
-                            todayCount > 0
-                              ? 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400'
-                              : 'text-zinc-400 dark:text-zinc-600',
-                          )}
-                        >
-                          {todayCount > 0 ? `+${todayCount}` : '—'}
-                        </span>
-                      </td>
+                      <ZoruTableCell className="hidden md:table-cell">
+                        {todayCount > 0 ? (
+                          <ZoruBadge variant="secondary" className="tabular-nums">
+                            +{todayCount}
+                          </ZoruBadge>
+                        ) : (
+                          <span className="text-[11px] text-zoru-ink-muted">
+                            —
+                          </span>
+                        )}
+                      </ZoruTableCell>
 
-                      {/* Actions dropdown */}
-                      <td className="px-4 py-3 text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <button
-                              type="button"
-                              className="flex h-7 w-7 items-center justify-center rounded-md text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-700 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
+                      <ZoruTableCell className="text-right">
+                        <ZoruDropdownMenu>
+                          <ZoruDropdownMenuTrigger asChild>
+                            <ZoruButton
+                              variant="ghost"
+                              size="icon-sm"
+                              aria-label="Flow actions"
                             >
-                              <LuEllipsis className="h-4 w-4" />
-                            </button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-44">
-                            <DropdownMenuLabel className="text-[11px] text-zinc-400">
-                              Actions
-                            </DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
+                              <MoreHorizontal />
+                            </ZoruButton>
+                          </ZoruDropdownMenuTrigger>
+                          <ZoruDropdownMenuContent align="end" className="w-44">
+                            <ZoruDropdownMenuLabel>Actions</ZoruDropdownMenuLabel>
+                            <ZoruDropdownMenuSeparator />
+                            <ZoruDropdownMenuItem
                               onClick={() =>
-                                router.push(`/dashboard/sabflow/flow-builder/${flow._id}`)
+                                router.push(
+                                  `/dashboard/sabflow/flow-builder/${flow._id}`,
+                                )
                               }
                             >
-                              <LuPencil className="mr-2 h-3.5 w-3.5" />
+                              <Pencil />
                               Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
+                            </ZoruDropdownMenuItem>
+                            <ZoruDropdownMenuItem
                               onClick={() =>
-                                router.push(`/dashboard/sabflow/logs?flowId=${flow._id}`)
+                                router.push(
+                                  `/dashboard/sabflow/logs?flowId=${flow._id}`,
+                                )
                               }
                             >
-                              <LuChartColumn className="mr-2 h-3.5 w-3.5" />
+                              <BarChart3 />
                               Results
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDuplicate(flow._id)}>
-                              <LuCopy className="mr-2 h-3.5 w-3.5" />
+                            </ZoruDropdownMenuItem>
+                            <ZoruDropdownMenuItem
+                              onClick={() => handleDuplicate(flow._id)}
+                            >
+                              <Copy />
                               Duplicate
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
+                            </ZoruDropdownMenuItem>
+                            <ZoruDropdownMenuItem
                               onClick={() => {
-                                const a = document.createElement('a');
+                                const a = document.createElement("a");
                                 a.href = `/api/sabflow/export/${flow._id}`;
                                 a.download = `flow-${flow._id}.json`;
                                 document.body.appendChild(a);
@@ -583,110 +607,107 @@ export default function SabFlowListPage() {
                                 document.body.removeChild(a);
                               }}
                             >
-                              <LuDownload className="mr-2 h-3.5 w-3.5" />
+                              <Download />
                               Export
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              className="text-destructive focus:text-destructive"
-                              onClick={() => setDeleteTarget({ id: flow._id, name: flow.name })}
+                            </ZoruDropdownMenuItem>
+                            <ZoruDropdownMenuSeparator />
+                            <ZoruDropdownMenuItem
+                              onClick={() =>
+                                setDeleteTarget({
+                                  id: flow._id,
+                                  name: flow.name,
+                                })
+                              }
                             >
-                              <LuTrash2 className="mr-2 h-3.5 w-3.5" />
+                              <Trash2 />
                               Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </td>
-                    </tr>
+                            </ZoruDropdownMenuItem>
+                          </ZoruDropdownMenuContent>
+                        </ZoruDropdownMenu>
+                      </ZoruTableCell>
+                    </ZoruTableRow>
                   );
                 })}
-              </tbody>
-            </table>
-          </div>
+              </ZoruTableBody>
+            </ZoruTable>
+          </ZoruCard>
         )}
       </div>
 
       {/* ── Create flow dialog ────────────────────────────────────────── */}
-      <Dialog open={showCreate} onOpenChange={setShowCreate}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <DialogTitle>New SabFlow</DialogTitle>
-            <DialogDescription>
+      <ZoruDialog open={showCreate} onOpenChange={setShowCreate}>
+        <ZoruDialogContent className="max-w-sm">
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>New SabFlow</ZoruDialogTitle>
+            <ZoruDialogDescription>
               Give your flow a name. You can change it later in the editor.
-            </DialogDescription>
-          </DialogHeader>
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
           <div className="py-2">
-            <Input
+            <ZoruInput
               placeholder="Flow name…"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
+              onKeyDown={(e) => e.key === "Enter" && handleCreate()}
               autoFocus
             />
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCreate(false)}>
+          <ZoruDialogFooter>
+            <ZoruButton variant="outline" onClick={() => setShowCreate(false)}>
               Cancel
-            </Button>
-            <Button
-              onClick={handleCreate}
-              disabled={creating}
-              className="gap-2 bg-amber-500 hover:bg-amber-600 text-white border-0"
-            >
+            </ZoruButton>
+            <ZoruButton onClick={handleCreate} disabled={creating}>
               {creating ? (
                 <>
-                  <LuLoader className="h-3.5 w-3.5 animate-spin" />
+                  <Loader2 className="animate-spin" />
                   Creating…
                 </>
               ) : (
-                'Create'
+                "Create"
               )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            </ZoruButton>
+          </ZoruDialogFooter>
+        </ZoruDialogContent>
+      </ZoruDialog>
 
       {/* ── Delete confirm dialog ─────────────────────────────────────── */}
-      <Dialog
+      <ZoruAlertDialog
         open={!!deleteTarget}
-        onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null);
+        }}
       >
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <div className="flex items-center gap-3 mb-1">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-red-50 dark:bg-red-950/40 text-red-600">
-                <LuTriangle className="h-4 w-4" strokeWidth={2} />
-              </div>
-              <DialogTitle>Delete flow?</DialogTitle>
-            </div>
-            <DialogDescription>
-              <strong className="font-medium text-zinc-900 dark:text-zinc-100">
+        <ZoruAlertDialogContent className="max-w-sm">
+          <ZoruAlertDialogHeader>
+            <ZoruAlertDialogTitle>Delete flow?</ZoruAlertDialogTitle>
+            <ZoruAlertDialogDescription>
+              <strong className="font-medium text-zoru-ink-strong">
                 &ldquo;{deleteTarget?.name}&rdquo;
-              </strong>{' '}
+              </strong>{" "}
               will be permanently deleted. This cannot be undone.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="mt-2">
-            <Button variant="outline" onClick={() => setDeleteTarget(null)}>
+            </ZoruAlertDialogDescription>
+          </ZoruAlertDialogHeader>
+          <ZoruAlertDialogFooter>
+            <ZoruAlertDialogCancel disabled={isDeleting}>
               Cancel
-            </Button>
-            <Button
-              variant="destructive"
+            </ZoruAlertDialogCancel>
+            <ZoruAlertDialogAction
+              destructive
               disabled={isDeleting}
               onClick={handleDeleteConfirm}
             >
               {isDeleting ? (
-                <span className="flex items-center gap-2">
-                  <LuLoader className="h-3.5 w-3.5 animate-spin" />
+                <>
+                  <Loader2 className="animate-spin" />
                   Deleting…
-                </span>
+                </>
               ) : (
-                'Delete'
+                "Delete"
               )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            </ZoruAlertDialogAction>
+          </ZoruAlertDialogFooter>
+        </ZoruAlertDialogContent>
+      </ZoruAlertDialog>
     </div>
   );
 }

@@ -31,7 +31,7 @@ export function ProjectSwitcher() {
         localStorage.setItem('activeProjectId', project._id.toString());
         localStorage.setItem('activeProjectName', project.name);
         setActiveProjectId(project._id.toString());
-        router.push('/dashboard/overview'); // Navigate to a safe page after switching
+        router.push('/wachat/overview'); // Navigate to a safe page after switching
         router.refresh();
     };
 

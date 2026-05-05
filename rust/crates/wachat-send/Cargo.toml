@@ -1,0 +1,66 @@
+# Phase 4 slice 1 — main message-send (text + media), the chat-side
+# counterpart to `wachat-templates-send`.
+#
+# Mirrors `handleSendMessage` from `src/app/actions/whatsapp.actions.ts`
+# (line ~406). Builds the Meta `POST /{phone-number-id}/messages` payload
+# for text / image / video / document / audio messages, drives the optional
+# media upload via `wachat-media`, and writes the resulting outgoing
+# message log to Mongo.
+#
+# Per the Phase 4 slice contract this crate is a leaf — it does NOT modify
+# the workspace `Cargo.toml`; the orchestrator wires it in. We deliberately
+# omit a `[workspace]` table so the parent workspace owns membership.
+[package]
+name = "wachat-send"
+version = "0.1.0"
+edition = "2024"
+description = "Main message send (text + media) for the SabNode wachat module. Posts to Meta's `/{phone-number-id}/messages` endpoint via `wachat-meta-client`, optionally uploading media via `wachat-media`, then writes the outgoing message log to Mongo. Mirrors `handleSendMessage` in `src/app/actions/whatsapp.actions.ts`."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "wachat_send"
+path = "src/lib.rs"
+
+[dependencies]
+# Async runtime.
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+# Serde stack — Meta wire shape goes through `serde_json::Value` for the
+# stored `content` blob (matches the TS which inserts the raw payload).
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Mongo BSON. `chrono-0_4` for `createdAt` / `messageTimestamp` interop.
+bson = { version = "2.13", features = ["chrono-0_4"] }
+mongodb = "3.2"
+
+# Structured logging.
+tracing = "0.1"
+
+# Error plumbing + time.
+anyhow = "1"
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+# HTTP — pulled by meta-client / media transitively, but we declare it so
+# the crate's own dep graph is explicit (and matches the Phase 4 prompt).
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+
+# Sibling crates — public APIs only.
+sabnode-common = { path = "../common" }
+sabnode-db = { path = "../db" }
+wachat-types = { path = "../wachat-types" }
+wachat-phone = { path = "../wachat-phone" }
+wachat-meta-client = { path = "../wachat-meta-client" }
+wachat-meta-dto = { path = "../wachat-meta-dto" }
+wachat-media = { path = "../wachat-media" }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+wiremock = "0.6"
+serde_json = "1"
+bson = { version = "2.13", features = ["chrono-0_4"] }
+url = "2"
+
+[lints]
+workspace = true

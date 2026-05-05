@@ -43,7 +43,7 @@ import { Separator } from '../ui/separator';
 
 const wachatMenuItems = [
     { href: '/wachat', label: 'All Projects', icon: Briefcase, roles: ['owner', 'admin', 'agent'] },
-    { href: '/dashboard/overview', label: 'Overview', icon: LayoutDashboard, roles: ['owner', 'admin'] },
+    { href: '/wachat/overview', label: 'Overview', icon: LayoutDashboard, roles: ['owner', 'admin'] },
     { href: '/wachat/chat', label: 'Live Chat', icon: MessageSquare, roles: ['owner', 'admin', 'agent'] },
     { href: '/wachat/contacts', label: 'Contacts', icon: Users, roles: ['owner', 'admin', 'agent'] },
     { href: '/wachat/broadcasts', label: 'Campaigns', icon: Send, roles: ['owner', 'admin'] },

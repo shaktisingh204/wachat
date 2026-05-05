@@ -2,19 +2,32 @@
  * /dashboard/sabflow/workspaces/[workspaceId]/settings
  *
  * Server page that loads the workspace and the viewer's role, then mounts
- * the client `WorkspaceSettingsPage`. Unauthenticated users are redirected
- * to sign-in. Non-members get a 403 stub.
+ * the client `WorkspaceSettingsPage` (shared composite — kept opaque).
+ * Unauthenticated users are redirected to sign-in. Non-members get a 403
+ * stub rendered with ZoruUI primitives.
  */
 
-import { notFound, redirect } from 'next/navigation';
-import { getSession } from '@/app/actions/user.actions';
+import { notFound, redirect } from "next/navigation";
+import { ShieldOff } from "lucide-react";
+
+import { getSession } from "@/app/actions/user.actions";
 import {
   getMemberRole,
   getWorkspaceById,
-} from '@/lib/sabflow/workspaces/db';
-import { WorkspaceSettingsPage } from '@/components/sabflow/workspaces/WorkspaceSettingsPage';
+} from "@/lib/sabflow/workspaces/db";
+import { WorkspaceSettingsPage } from "@/components/sabflow/workspaces/WorkspaceSettingsPage";
 
-export const dynamic = 'force-dynamic';
+import {
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruEmptyState,
+} from "@/components/zoruui";
+
+export const dynamic = "force-dynamic";
 
 export default async function Page({
   params,
@@ -25,7 +38,7 @@ export default async function Page({
 
   const session = await getSession();
   if (!session?.user) {
-    redirect('/login');
+    redirect("/login");
   }
 
   const [workspace, role] = await Promise.all([
@@ -37,17 +50,35 @@ export default async function Page({
 
   if (!role) {
     return (
-      <div className="flex min-h-[50vh] flex-col items-center justify-center gap-2 text-center">
-        <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
-          Access denied
-        </h1>
-        <p className="text-[13px] text-gray-500">
-          You are not a member of this workspace.
-        </p>
+      <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
+        <ZoruBreadcrumb>
+          <ZoruBreadcrumbList>
+            <ZoruBreadcrumbItem>
+              <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+            </ZoruBreadcrumbItem>
+            <ZoruBreadcrumbSeparator />
+            <ZoruBreadcrumbItem>
+              <ZoruBreadcrumbLink href="/dashboard/sabflow/flow-builder">
+                SabFlow
+              </ZoruBreadcrumbLink>
+            </ZoruBreadcrumbItem>
+            <ZoruBreadcrumbSeparator />
+            <ZoruBreadcrumbItem>
+              <ZoruBreadcrumbPage>Workspace</ZoruBreadcrumbPage>
+            </ZoruBreadcrumbItem>
+          </ZoruBreadcrumbList>
+        </ZoruBreadcrumb>
+
+        <ZoruEmptyState
+          icon={<ShieldOff />}
+          title="Access denied"
+          description="You are not a member of this workspace."
+        />
       </div>
     );
   }
 
+  // Composite — kept opaque, owns its own header chrome.
   return (
     <WorkspaceSettingsPage
       workspaceId={workspaceId}

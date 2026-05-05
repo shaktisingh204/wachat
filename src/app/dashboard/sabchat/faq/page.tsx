@@ -1,46 +1,84 @@
+"use client";
 
-'use client';
+/**
+ * /dashboard/sabchat/faq — FAQ knowledge base for the AI assistant.
+ *
+ * Same `saveSabChatFaq` and `deleteSabChatFaq` server actions. Visual
+ * layer fully Zoru.
+ */
 
-import { useState, useEffect, useActionState } from 'react';
-import { useToast } from '@/hooks/use-toast';
-import { useFormStatus } from 'react-dom';
-import { ClayCard, ClayButton } from '@/components/clay';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { useEffect, useState } from "react";
+import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { LoaderCircle, Plus, Trash2, Pencil, HelpCircle } from 'lucide-react';
-import { useProject } from '@/context/project-context';
-import type { SabChatFaqItem } from '@/lib/definitions';
-import { saveSabChatFaq, deleteSabChatFaq } from '@/app/actions/sabchat.actions';
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+  HelpCircle,
+  LoaderCircle,
+  Pencil,
+  Plus,
+  Trash2,
+} from "lucide-react";
 
-const formInitialState: any = { message: null, error: null };
+import {
+  deleteSabChatFaq,
+  saveSabChatFaq,
+} from "@/app/actions/sabchat.actions";
+import { useProject } from "@/context/project-context";
+import type { SabChatFaqItem } from "@/lib/definitions";
+
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruAlertDialogTrigger,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruEmptyState,
+  ZoruInput,
+  ZoruLabel,
+  ZoruPageActions,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  ZoruTextarea,
+  useZoruToast,
+} from "@/components/zoruui";
+
+const formInitialState: { message: string | null; error?: string } = {
+  message: null,
+  error: undefined,
+};
 
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <ClayButton type="submit" variant="obsidian" disabled={pending} leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : undefined}>
-      {isEditing ? 'Save Changes' : 'Add FAQ'}
-    </ClayButton>
+    <ZoruButton type="submit" disabled={pending}>
+      {pending && <LoaderCircle className="animate-spin" />}
+      {isEditing ? "Save changes" : "Add FAQ"}
+    </ZoruButton>
   );
 }
 
@@ -55,55 +93,89 @@ function FaqFormDialog({
   faqItem?: SabChatFaqItem;
   onSave: () => void;
 }) {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
+  // @ts-expect-error - sabchat action signature
   const [state, formAction] = useActionState(saveSabChatFaq, formInitialState);
 
   useEffect(() => {
     if (state.message) {
-      toast({ title: 'Success', description: state.message });
+      toast({ title: "Saved", description: state.message });
       onSave();
       onOpenChange(false);
     }
     if (state.error) {
-      toast({ title: 'Error', description: state.error, variant: 'destructive' });
+      toast({
+        title: "Error",
+        description: state.error,
+        variant: "destructive",
+      });
     }
   }, [state, toast, onSave, onOpenChange]);
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent>
+    <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+      <ZoruDialogContent>
         <form action={formAction}>
-          {faqItem?._id && <input type="hidden" name="id" value={faqItem._id.toString()} />}
-          <DialogHeader>
-            <DialogTitle>{faqItem ? 'Edit' : 'Add'} FAQ</DialogTitle>
-            <DialogDescription>Add a question and answer to your AI's knowledge base.</DialogDescription>
-          </DialogHeader>
-          <div className="py-4 space-y-4">
+          {faqItem?._id && (
+            <input
+              type="hidden"
+              name="id"
+              value={faqItem._id.toString()}
+            />
+          )}
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>
+              {faqItem ? "Edit" : "Add"} FAQ
+            </ZoruDialogTitle>
+            <ZoruDialogDescription>
+              Add a question and answer to your AI&apos;s knowledge base.
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
+          <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="question">Question</Label>
-              <Input id="question" name="question" defaultValue={faqItem?.question} required />
+              <ZoruLabel htmlFor="question">Question</ZoruLabel>
+              <ZoruInput
+                id="question"
+                name="question"
+                defaultValue={faqItem?.question}
+                required
+              />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="answer">Answer</Label>
-              <Textarea id="answer" name="answer" defaultValue={faqItem?.answer} required className="min-h-32" />
+              <ZoruLabel htmlFor="answer">Answer</ZoruLabel>
+              <ZoruTextarea
+                id="answer"
+                name="answer"
+                defaultValue={faqItem?.answer}
+                required
+                className="min-h-32"
+              />
             </div>
           </div>
-          <DialogFooter>
-            <ClayButton type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</ClayButton>
+          <ZoruDialogFooter>
+            <ZoruButton
+              type="button"
+              variant="ghost"
+              onClick={() => onOpenChange(false)}
+            >
+              Cancel
+            </ZoruButton>
             <SubmitButton isEditing={!!faqItem} />
-          </DialogFooter>
+          </ZoruDialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      </ZoruDialogContent>
+    </ZoruDialog>
   );
 }
 
-export default function FaqPage() {
+export default function SabChatFaqPage() {
   const { sessionUser, reloadProject } = useProject();
   const [faqs, setFaqs] = useState<SabChatFaqItem[]>([]);
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingFaq, setEditingFaq] = useState<SabChatFaqItem | undefined>(undefined);
+  const [editingFaq, setEditingFaq] = useState<SabChatFaqItem | undefined>(
+    undefined,
+  );
 
   useEffect(() => {
     setFaqs(sessionUser?.sabChatSettings?.faqs || []);
@@ -117,15 +189,19 @@ export default function FaqPage() {
   const handleDelete = async (faqId: string) => {
     const result = await deleteSabChatFaq(faqId);
     if (result.success) {
-      toast({ title: 'Success', description: 'FAQ deleted.' });
+      toast({ title: "Deleted", description: "FAQ deleted." });
       reloadProject();
     } else {
-      toast({ title: 'Error', description: result.error, variant: 'destructive' });
+      toast({
+        title: "Error",
+        description: result.error,
+        variant: "destructive",
+      });
     }
   };
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
       <FaqFormDialog
         isOpen={isFormOpen}
         onOpenChange={setIsFormOpen}
@@ -133,78 +209,121 @@ export default function FaqPage() {
         onSave={reloadProject}
       />
 
-      <CrmPageHeader
-        title="FAQ"
-        subtitle="Knowledge base used by the AI assistant"
-        icon={HelpCircle}
-        actions={
-          <ClayButton variant="obsidian" onClick={() => handleOpenDialog()} leading={<Plus className="h-4 w-4" />}>
-            Add FAQ
-          </ClayButton>
-        }
-      />
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard/sabchat/inbox">
+              SabChat
+            </ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>FAQ</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
 
-      <ClayCard>
-        <div className="overflow-x-auto rounded-lg border border-border">
-          <table className="w-full border-collapse text-[13px]">
-            <thead>
-              <tr className="border-b border-border bg-secondary">
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Question</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Answer</th>
-                <th className="px-4 py-2.5 text-right text-[12px] font-medium text-muted-foreground">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {faqs.length > 0 ? (
-                faqs.map((faq) => (
-                  <tr key={faq._id.toString()} className="border-b border-border last:border-0 hover:bg-secondary/50">
-                    <td className="px-4 py-2.5 text-[13px] font-medium text-foreground max-w-sm truncate">{faq.question}</td>
-                    <td className="px-4 py-2.5 text-[13px] text-muted-foreground max-w-sm truncate">{faq.answer}</td>
-                    <td className="px-4 py-2.5 text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <ClayButton
-                          variant="pill"
-                          size="icon"
-                          onClick={() => handleOpenDialog(faq)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </ClayButton>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <ClayButton variant="pill" size="icon">
-                              <Trash2 className="h-4 w-4 text-destructive" />
-                            </ClayButton>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Delete FAQ?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Are you sure you want to delete this FAQ?
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleDelete(faq._id.toString())}>
-                                Delete
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={3} className="px-4 py-2.5 text-center h-24 text-[13px] text-muted-foreground">
-                    No FAQs added yet.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </ClayCard>
+      <ZoruPageHeader>
+        <ZoruPageHeading>
+          <ZoruPageTitle>FAQ</ZoruPageTitle>
+          <ZoruPageDescription>
+            Knowledge base used by the AI assistant.
+          </ZoruPageDescription>
+        </ZoruPageHeading>
+        <ZoruPageActions>
+          <ZoruButton onClick={() => handleOpenDialog()}>
+            <Plus />
+            Add FAQ
+          </ZoruButton>
+        </ZoruPageActions>
+      </ZoruPageHeader>
+
+      {faqs.length === 0 ? (
+        <ZoruEmptyState
+          icon={<HelpCircle />}
+          title="No FAQs yet"
+          description="Train your AI assistant with frequently asked questions and their answers."
+          action={
+            <ZoruButton onClick={() => handleOpenDialog()}>
+              <Plus />
+              Add your first FAQ
+            </ZoruButton>
+          }
+        />
+      ) : (
+        <ZoruCard className="overflow-hidden p-0">
+          <ZoruTable>
+            <ZoruTableHeader>
+              <ZoruTableRow>
+                <ZoruTableHead>Question</ZoruTableHead>
+                <ZoruTableHead>Answer</ZoruTableHead>
+                <ZoruTableHead className="text-right">Actions</ZoruTableHead>
+              </ZoruTableRow>
+            </ZoruTableHeader>
+            <ZoruTableBody>
+              {faqs.map((faq) => (
+                <ZoruTableRow key={faq._id.toString()}>
+                  <ZoruTableCell className="max-w-sm truncate text-zoru-ink">
+                    {faq.question}
+                  </ZoruTableCell>
+                  <ZoruTableCell className="max-w-sm truncate text-zoru-ink-muted">
+                    {faq.answer}
+                  </ZoruTableCell>
+                  <ZoruTableCell className="text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      <ZoruButton
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={() => handleOpenDialog(faq)}
+                        aria-label="Edit FAQ"
+                      >
+                        <Pencil />
+                      </ZoruButton>
+                      <ZoruAlertDialog>
+                        <ZoruAlertDialogTrigger asChild>
+                          <ZoruButton
+                            variant="ghost"
+                            size="icon-sm"
+                            aria-label="Delete FAQ"
+                          >
+                            <Trash2 />
+                          </ZoruButton>
+                        </ZoruAlertDialogTrigger>
+                        <ZoruAlertDialogContent>
+                          <ZoruAlertDialogHeader>
+                            <ZoruAlertDialogTitle>
+                              Delete FAQ?
+                            </ZoruAlertDialogTitle>
+                            <ZoruAlertDialogDescription>
+                              Are you sure you want to delete this FAQ? This
+                              action cannot be undone.
+                            </ZoruAlertDialogDescription>
+                          </ZoruAlertDialogHeader>
+                          <ZoruAlertDialogFooter>
+                            <ZoruAlertDialogCancel>
+                              Cancel
+                            </ZoruAlertDialogCancel>
+                            <ZoruAlertDialogAction
+                              destructive
+                              onClick={() => handleDelete(faq._id.toString())}
+                            >
+                              Delete
+                            </ZoruAlertDialogAction>
+                          </ZoruAlertDialogFooter>
+                        </ZoruAlertDialogContent>
+                      </ZoruAlertDialog>
+                    </div>
+                  </ZoruTableCell>
+                </ZoruTableRow>
+              ))}
+            </ZoruTableBody>
+          </ZoruTable>
+        </ZoruCard>
+      )}
     </div>
   );
 }

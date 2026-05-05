@@ -81,7 +81,7 @@ const WACHAT_PREFIXES = [
   '/wachat/broadcasts',
   '/wachat/templates',
   '/wachat/contacts',
-  '/dashboard/overview',
+  '/wachat/overview',
   '/wachat/bulk',
   '/wachat/canned-messages',
   '/dashboard/catalog',

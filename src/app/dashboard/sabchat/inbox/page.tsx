@@ -1,20 +1,76 @@
+"use client";
 
-'use client';
+/**
+ * /dashboard/sabchat/inbox — live chat inbox.
+ *
+ * Visual layer fully Zoru. Same server actions as before — we delegate
+ * to the local ZoruSabChatClient which preserves
+ * `getChatSessionsForUser`, `getFullChatSession`, and
+ * `postChatMessageAction` end-to-end.
+ */
 
-import { Suspense } from 'react';
-import { SabChatClient } from '@/components/wabasimplify/sabchat-client';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Suspense } from "react";
+import { Inbox } from "lucide-react";
 
-function ChatPageSkeleton() {
-    return <Skeleton className="h-full w-full rounded-xl" />;
+import { ZoruSabChatClient } from "../_components/zoru-sabchat-client";
+import {
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruSkeleton,
+} from "@/components/zoruui";
+
+function InboxSkeleton() {
+  return (
+    <div className="flex h-[calc(100vh-220px)] w-full gap-3">
+      <ZoruSkeleton className="h-full w-[320px] shrink-0" />
+      <ZoruSkeleton className="h-full flex-1" />
+    </div>
+  );
 }
 
 export default function SabChatInboxPage() {
-    return (
-        <div className="h-full">
-             <Suspense fallback={<ChatPageSkeleton />}>
-                <SabChatClient />
-            </Suspense>
-        </div>
-    );
+  return (
+    <div className="mx-auto flex h-full w-full max-w-[1480px] flex-col gap-4 px-6 pt-6 pb-4">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard/sabchat/inbox">
+              SabChat
+            </ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Inbox</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
+
+      <ZoruPageHeader>
+        <ZoruPageHeading>
+          <ZoruPageTitle>Live chat inbox</ZoruPageTitle>
+          <ZoruPageDescription>
+            Reply to website visitors in real time.
+          </ZoruPageDescription>
+        </ZoruPageHeading>
+      </ZoruPageHeader>
+
+      <div className="min-h-0 flex-1">
+        <Suspense fallback={<InboxSkeleton />}>
+          <ZoruSabChatClient />
+        </Suspense>
+      </div>
+    </div>
+  );
 }

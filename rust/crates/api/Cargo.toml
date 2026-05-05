@@ -38,6 +38,16 @@ wachat-templates-router = { path = "../wachat-templates-router" }
 wachat-meta-client = { path = "../wachat-meta-client" }
 wachat-media = { path = "../wachat-media" }
 
+wachat-send = { path = "../wachat-send" }
+wachat-send-cta = { path = "../wachat-send-cta" }
+wachat-send-flows = { path = "../wachat-send-flows" }
+wachat-send-orders = { path = "../wachat-send-orders" }
+wachat-contacts-resolve = { path = "../wachat-contacts-resolve" }
+wachat-chat-read = { path = "../wachat-chat-read" }
+wachat-chat-mark = { path = "../wachat-chat-mark" }
+wachat-payment-request = { path = "../wachat-payment-request" }
+wachat-send-router = { path = "../wachat-send-router" }
+
 axum = "0.8"
 tokio = { version = "1", features = ["full"] }
 tower = "0.5"

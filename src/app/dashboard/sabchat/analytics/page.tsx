@@ -1,102 +1,182 @@
-'use client';
+"use client";
 
-import { useEffect, useState, useTransition } from 'react';
-import { getSabChatAnalytics } from '@/app/actions/sabchat.actions';
-import { ClayCard } from '@/components/clay';
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import { MessageSquare, Inbox, CheckCircle, Clock, Smile, BarChart2 } from 'lucide-react';
-import dynamic from 'next/dynamic';
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
+/**
+ * /dashboard/sabchat/analytics — KPI cards + chart.
+ *
+ * Same `getSabChatAnalytics` server action. Visual layer fully Zoru —
+ * stat cards via ZoruStatCard, chart via ZoruChart family with the
+ * greyscale palette (no rainbow).
+ */
 
-const ChartContainer = dynamic(
-  () => import('@/components/ui/chart').then(mod => mod.ChartContainer),
-  { ssr: false, loading: () => <div className="animate-pulse rounded-lg bg-border" style={{ height: '16rem' }} /> },
-);
-const ChartTooltip = dynamic(
-  () => import('@/components/ui/chart').then(mod => mod.ChartTooltip),
-  { ssr: false },
-);
-const ChartTooltipContent = dynamic(
-  () => import('@/components/ui/chart').then(mod => mod.ChartTooltipContent),
-  { ssr: false },
-);
+import { useEffect, useState, useTransition } from "react";
+import {
+  CheckCircle,
+  Clock,
+  Inbox,
+  MessageSquare,
+  Smile,
+} from "lucide-react";
 
-const chartConfig = { count: { label: 'Chats', color: 'hsl(var(--primary))' } };
+import { getSabChatAnalytics } from "@/app/actions/sabchat.actions";
 
-const StatCard = ({
-  title,
-  value,
-  icon: Icon,
-}: {
-  title: string;
-  value: string | number;
-  icon: React.ElementType;
-}) => (
-  <ClayCard>
-    <div className="flex items-center justify-between">
-      <p className="text-[12px] text-muted-foreground">{title}</p>
-      <Icon className="h-4 w-4 text-muted-foreground" />
-    </div>
-    <div className="mt-2 text-[28px] font-semibold text-foreground">{value}</div>
-  </ClayCard>
-);
+import {
+  ZORU_CHART_PALETTE,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruChart,
+  ZoruChartContainer,
+  ZoruChartTooltip,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruSkeleton,
+  ZoruStatCard,
+} from "@/components/zoruui";
+
+interface AnalyticsData {
+  totalChats: number;
+  openChats: number;
+  closedChats: number;
+  avgResponseTime: number;
+  satisfaction: number;
+  dailyChatVolume: Array<{ date: string; count: number }>;
+}
 
 function AnalyticsSkeleton() {
   return (
     <div className="flex w-full flex-col gap-6">
-      <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
-        {[...Array(5)].map((_, i) => (
-          <div key={i} className="animate-pulse rounded-lg bg-border" style={{ height: '7rem' }} />
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <ZoruSkeleton key={i} className="h-28 w-full" />
         ))}
       </div>
-      <div className="animate-pulse rounded-lg bg-border" style={{ height: '22rem' }} />
+      <ZoruSkeleton className="h-80 w-full" />
     </div>
   );
 }
 
 export default function SabChatAnalyticsPage() {
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<AnalyticsData | null>(null);
   const [isLoading, startLoading] = useTransition();
 
   useEffect(() => {
     startLoading(async () => {
       const analyticsData = await getSabChatAnalytics();
-      setData(analyticsData);
+      setData(analyticsData as AnalyticsData);
     });
   }, []);
 
-  if (isLoading || !data) {
-    return <AnalyticsSkeleton />;
-  }
-
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Analytics"
-        subtitle="SabChat performance metrics"
-        icon={BarChart2}
-      />
+    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard/sabchat/inbox">
+              SabChat
+            </ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Analytics</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
-        <StatCard title="Total Chats" value={data.totalChats.toLocaleString()} icon={MessageSquare} />
-        <StatCard title="Open Chats" value={data.openChats.toLocaleString()} icon={Inbox} />
-        <StatCard title="Closed Chats" value={data.closedChats.toLocaleString()} icon={CheckCircle} />
-        <StatCard title="Avg. First Response" value={`${data.avgResponseTime}s`} icon={Clock} />
-        <StatCard title="Customer Satisfaction" value={`${data.satisfaction}%`} icon={Smile} />
-      </div>
+      <ZoruPageHeader>
+        <ZoruPageHeading>
+          <ZoruPageTitle>Analytics</ZoruPageTitle>
+          <ZoruPageDescription>
+            SabChat performance metrics.
+          </ZoruPageDescription>
+        </ZoruPageHeading>
+      </ZoruPageHeader>
 
-      <ClayCard>
-        <h2 className="mb-4 text-[15px] font-semibold text-foreground">Daily Chat Volume</h2>
-        <ChartContainer config={chartConfig} className="h-64 w-full">
-          <BarChart data={data.dailyChatVolume} accessibilityLayer>
-            <CartesianGrid vertical={false} />
-            <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} />
-            <YAxis />
-            <ChartTooltip content={<ChartTooltipContent />} />
-            <Bar dataKey="count" fill="var(--color-count)" radius={4} />
-          </BarChart>
-        </ChartContainer>
-      </ClayCard>
+      {isLoading || !data ? (
+        <AnalyticsSkeleton />
+      ) : (
+        <>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+            <ZoruStatCard
+              label="Total chats"
+              value={data.totalChats.toLocaleString()}
+              icon={<MessageSquare />}
+            />
+            <ZoruStatCard
+              label="Open chats"
+              value={data.openChats.toLocaleString()}
+              icon={<Inbox />}
+            />
+            <ZoruStatCard
+              label="Closed chats"
+              value={data.closedChats.toLocaleString()}
+              icon={<CheckCircle />}
+            />
+            <ZoruStatCard
+              label="Avg. first response"
+              value={`${data.avgResponseTime}s`}
+              icon={<Clock />}
+            />
+            <ZoruStatCard
+              label="Customer satisfaction"
+              value={`${data.satisfaction}%`}
+              icon={<Smile />}
+            />
+          </div>
+
+          <ZoruCard>
+            <ZoruCardHeader>
+              <ZoruCardTitle>Daily chat volume</ZoruCardTitle>
+            </ZoruCardHeader>
+            <ZoruCardContent>
+              <ZoruChartContainer height={280}>
+                <ZoruChart.BarChart data={data.dailyChatVolume}>
+                  <ZoruChart.CartesianGrid
+                    vertical={false}
+                    stroke="hsl(var(--zoru-line))"
+                  />
+                  <ZoruChart.XAxis
+                    dataKey="date"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    stroke="hsl(var(--zoru-ink-muted))"
+                    fontSize={11}
+                  />
+                  <ZoruChart.YAxis
+                    tickLine={false}
+                    axisLine={false}
+                    stroke="hsl(var(--zoru-ink-muted))"
+                    fontSize={11}
+                  />
+                  <ZoruChart.Tooltip
+                    cursor={{ fill: "hsl(var(--zoru-surface))" }}
+                    content={<ZoruChartTooltip />}
+                  />
+                  <ZoruChart.Bar
+                    dataKey="count"
+                    name="Chats"
+                    fill={ZORU_CHART_PALETTE[0]}
+                    radius={[4, 4, 0, 0]}
+                  />
+                </ZoruChart.BarChart>
+              </ZoruChartContainer>
+            </ZoruCardContent>
+          </ZoruCard>
+        </>
+      )}
     </div>
   );
 }

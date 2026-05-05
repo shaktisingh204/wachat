@@ -2687,9 +2687,18 @@ dependencies = [
  "tower-http",
  "tracing",
  "tracing-subscriber",
+ "wachat-chat-mark",
+ "wachat-chat-read",
+ "wachat-contacts-resolve",
  "wachat-media",
  "wachat-meta-client",
+ "wachat-payment-request",
  "wachat-queue",
+ "wachat-send",
+ "wachat-send-cta",
+ "wachat-send-flows",
+ "wachat-send-orders",
+ "wachat-send-router",
  "wachat-templates",
  "wachat-templates-categories",
  "wachat-templates-mutate",
@@ -3805,6 +3814,57 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
 
 [[package]]
+name = "wachat-chat-mark"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bson",
+ "chrono",
+ "mongodb",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "wachat-chat-read"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "wachat-types",
+]
+
+[[package]]
+name = "wachat-contacts-resolve"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bson",
+ "chrono",
+ "mongodb",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "wachat-types",
+]
+
+[[package]]
 name = "wachat-media"
 version = "0.1.0"
 dependencies = [
@@ -3868,6 +3928,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "wachat-payment-request"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "url",
+ "wachat-meta-client",
+ "wachat-meta-dto",
+ "wachat-phone",
+ "wachat-types",
+ "wiremock",
+]
+
+[[package]]
 name = "wachat-phone"
 version = "0.1.0"
 dependencies = [
@@ -3910,6 +3993,123 @@ dependencies = [
  "thiserror 2.0.18",
  "tokio",
  "tracing",
+]
+
+[[package]]
+name = "wachat-send"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bson",
+ "chrono",
+ "mongodb",
+ "reqwest",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "url",
+ "wachat-media",
+ "wachat-meta-client",
+ "wachat-meta-dto",
+ "wachat-phone",
+ "wachat-types",
+ "wiremock",
+]
+
+[[package]]
+name = "wachat-send-cta"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bson",
+ "chrono",
+ "mongodb",
+ "reqwest",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "url",
+ "wachat-meta-client",
+ "wachat-meta-dto",
+ "wachat-phone",
+ "wachat-types",
+ "wiremock",
+]
+
+[[package]]
+name = "wachat-send-flows"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bson",
+ "chrono",
+ "mongodb",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "url",
+ "wachat-meta-client",
+ "wachat-meta-dto",
+ "wachat-phone",
+ "wachat-types",
+ "wiremock",
+]
+
+[[package]]
+name = "wachat-send-orders"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bson",
+ "chrono",
+ "mongodb",
+ "reqwest",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "url",
+ "wachat-meta-client",
+ "wachat-meta-dto",
+ "wachat-phone",
+ "wachat-types",
+ "wiremock",
+]
+
+[[package]]
+name = "wachat-send-router"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "wachat-chat-mark",
+ "wachat-chat-read",
+ "wachat-contacts-resolve",
+ "wachat-payment-request",
+ "wachat-send",
+ "wachat-send-cta",
+ "wachat-send-flows",
+ "wachat-send-orders",
+ "wachat-types",
 ]
 
 [[package]]

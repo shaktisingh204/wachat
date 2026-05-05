@@ -1,151 +1,244 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useTransition, useCallback } from 'react';
-import { Users, LoaderCircle, RefreshCw, MessageSquare } from 'lucide-react';
-import { ClayCard, ClayBadge, ClayButton } from '@/components/clay';
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import { getLiveVisitors } from '@/app/actions/sabchat.actions';
-import type { WithId, SabChatSession } from '@/lib/definitions';
-import { formatDistanceToNow } from 'date-fns';
-import { useToast } from '@/hooks/use-toast';
+/**
+ * /dashboard/sabchat/visitors — live visitor list.
+ *
+ * Same `getLiveVisitors` server action and 10-second polling as before.
+ * Visual layer fully Zoru.
+ */
 
-function PageSkeleton() {
+import { useCallback, useEffect, useState, useTransition } from "react";
+import {
+  LoaderCircle,
+  MessageSquare,
+  RefreshCw,
+  Users,
+} from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+
+import { getLiveVisitors } from "@/app/actions/sabchat.actions";
+import type { WithId, SabChatSession } from "@/lib/definitions";
+
+import {
+  cn,
+  useZoruToast,
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruEmptyState,
+  ZoruPageActions,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruSkeleton,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from "@/components/zoruui";
+
+function VisitorTableSkeleton() {
   return (
-    <ClayCard>
-      <div className="space-y-2">
-        {[...Array(5)].map((_, i) => (
-          <div key={i} className="animate-pulse rounded-lg bg-border" style={{ height: '3rem' }} />
+    <ZoruCard className="overflow-hidden p-0">
+      <div className="space-y-2 p-4">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <ZoruSkeleton key={i} className="h-12 w-full" />
         ))}
       </div>
-    </ClayCard>
+    </ZoruCard>
   );
 }
 
 export default function SabChatVisitorsPage() {
   const [visitors, setVisitors] = useState<WithId<SabChatSession>[]>([]);
   const [isLoading, startLoading] = useTransition();
-  const { toast } = useToast();
+  const [didInitialLoad, setDidInitialLoad] = useState(false);
+  const { toast } = useZoruToast();
 
-  const fetchData = useCallback((showToast = false) => {
-    startLoading(async () => {
-      try {
-        const data = await getLiveVisitors();
-        setVisitors(data);
-        if (showToast) {
-          toast({ title: 'Refreshed', description: 'Visitor list has been updated.' });
+  const fetchData = useCallback(
+    (showToast = false) => {
+      startLoading(async () => {
+        try {
+          const data = await getLiveVisitors();
+          setVisitors(data);
+          if (showToast) {
+            toast({
+              title: "Refreshed",
+              description: "Visitor list has been updated.",
+            });
+          }
+        } catch {
+          toast({
+            title: "Error",
+            description: "Failed to fetch live visitors.",
+            variant: "destructive",
+          });
+        } finally {
+          setDidInitialLoad(true);
         }
-      } catch {
-        toast({ title: 'Error', description: 'Failed to fetch live visitors.', variant: 'destructive' });
-      }
-    });
-  }, [toast]);
+      });
+    },
+    [toast],
+  );
 
   useEffect(() => {
-    fetchData(); // Initial fetch
-    const intervalId = setInterval(() => fetchData(), 10000); // Poll every 10 seconds
+    fetchData();
+    const intervalId = setInterval(() => fetchData(), 10000);
     return () => clearInterval(intervalId);
   }, [fetchData]);
 
-  if (isLoading && visitors.length === 0) {
-    return (
-      <div className="flex w-full flex-col gap-6">
-        <PageSkeleton />
-      </div>
-    );
-  }
-
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Live Visitors"
-        subtitle="Real-time visitors currently on your website"
-        icon={Users}
-        actions={
-          <ClayButton
-            variant="pill"
+    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard/sabchat/inbox">
+              SabChat
+            </ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Live Visitors</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
+
+      <ZoruPageHeader>
+        <ZoruPageHeading>
+          <ZoruPageTitle>Live visitors</ZoruPageTitle>
+          <ZoruPageDescription>
+            Real-time visitors currently on your website.
+          </ZoruPageDescription>
+        </ZoruPageHeading>
+        <ZoruPageActions>
+          <ZoruButton
+            variant="outline"
             size="sm"
             onClick={() => fetchData(true)}
             disabled={isLoading}
-            leading={
-              isLoading
-                ? <LoaderCircle className="h-4 w-4 animate-spin" />
-                : <RefreshCw className="h-4 w-4" />
-            }
           >
+            {isLoading ? (
+              <LoaderCircle className="animate-spin" />
+            ) : (
+              <RefreshCw />
+            )}
             Refresh
-          </ClayButton>
-        }
-      />
+          </ZoruButton>
+        </ZoruPageActions>
+      </ZoruPageHeader>
 
-      <ClayCard>
-        <div className="overflow-x-auto rounded-lg border border-border">
-          <table className="w-full border-collapse text-[13px]">
-            <thead>
-              <tr className="border-b border-border bg-secondary">
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Visitor</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Status</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Last Seen</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Location</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {visitors.length > 0 ? (
-                visitors.map(visitor => {
-                  const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-                  const isOnline = new Date(visitor.updatedAt) > fiveMinutesAgo;
-                  const name = visitor.visitorInfo?.name || 'Visitor';
-                  const email = visitor.visitorInfo?.email;
+      {!didInitialLoad && visitors.length === 0 ? (
+        <VisitorTableSkeleton />
+      ) : visitors.length === 0 ? (
+        <ZoruEmptyState
+          icon={<Users />}
+          title="No live visitors right now"
+          description="When visitors land on your site, they will appear here in real time."
+        />
+      ) : (
+        <ZoruCard className="overflow-hidden p-0">
+          <ZoruTable>
+            <ZoruTableHeader>
+              <ZoruTableRow>
+                <ZoruTableHead>Visitor</ZoruTableHead>
+                <ZoruTableHead>Status</ZoruTableHead>
+                <ZoruTableHead>Last seen</ZoruTableHead>
+                <ZoruTableHead>Location</ZoruTableHead>
+                <ZoruTableHead className="text-right">Action</ZoruTableHead>
+              </ZoruTableRow>
+            </ZoruTableHeader>
+            <ZoruTableBody>
+              {visitors.map((visitor) => {
+                const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+                const isOnline =
+                  new Date(visitor.updatedAt) > fiveMinutesAgo;
+                const name = visitor.visitorInfo?.name || "Visitor";
+                const email = visitor.visitorInfo?.email;
 
-                  return (
-                    <tr key={visitor._id.toString()} className="border-b border-border last:border-0 hover:bg-secondary/50">
-                      <td className="px-4 py-2.5 text-[13px] text-foreground">
-                        <div className="flex flex-col">
-                          <span className="font-medium text-foreground">{name}</span>
-                          {email && <span className="text-[12px] text-muted-foreground">{email}</span>}
-                        </div>
-                      </td>
-                      <td className="px-4 py-2.5 text-[13px] text-foreground">
-                        <ClayBadge tone={isOnline ? 'green' : 'neutral'} dot>
-                          {isOnline ? 'Online' : 'Offline'}
-                        </ClayBadge>
-                      </td>
-                      <td className="px-4 py-2.5 text-[13px] text-foreground">
-                        {formatDistanceToNow(new Date(visitor.updatedAt), { addSuffix: true })}
-                      </td>
-                      <td className="px-4 py-2.5 text-[13px] text-foreground">
-                        <div className="flex flex-col gap-1">
-                          <span className="font-mono text-[12px] text-foreground">{visitor.visitorInfo?.ip}</span>
-                          <span className="max-w-[200px] truncate text-[12px] text-muted-foreground" title={visitor.visitorInfo?.page}>
-                            {visitor.visitorInfo?.page}
+                return (
+                  <ZoruTableRow key={visitor._id.toString()}>
+                    <ZoruTableCell>
+                      <div className="flex flex-col">
+                        <span className="text-zoru-ink">{name}</span>
+                        {email && (
+                          <span className="text-xs text-zoru-ink-muted">
+                            {email}
                           </span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-2.5 text-[13px] text-foreground">
-                        <a href={`/dashboard/sabchat/inbox?sessionId=${visitor._id.toString()}`}>
-                          <ClayButton
-                            variant="obsidian"
-                            size="sm"
-                            leading={<MessageSquare className="h-4 w-4" />}
-                          >
-                            Chat
-                          </ClayButton>
+                        )}
+                      </div>
+                    </ZoruTableCell>
+                    <ZoruTableCell>
+                      <ZoruBadge
+                        variant={isOnline ? "success" : "secondary"}
+                        className={cn(
+                          "gap-1.5",
+                          !isOnline && "text-zoru-ink-muted",
+                        )}
+                      >
+                        <span
+                          aria-hidden
+                          className={cn(
+                            "h-1.5 w-1.5 rounded-full",
+                            isOnline
+                              ? "bg-zoru-success"
+                              : "bg-zoru-ink-subtle",
+                          )}
+                        />
+                        {isOnline ? "Online" : "Offline"}
+                      </ZoruBadge>
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-zoru-ink-muted">
+                      {formatDistanceToNow(new Date(visitor.updatedAt), {
+                        addSuffix: true,
+                      })}
+                    </ZoruTableCell>
+                    <ZoruTableCell>
+                      <div className="flex flex-col gap-1">
+                        <span className="font-mono text-xs text-zoru-ink">
+                          {visitor.visitorInfo?.ip}
+                        </span>
+                        <span
+                          className="max-w-[200px] truncate text-xs text-zoru-ink-muted"
+                          title={visitor.visitorInfo?.page}
+                        >
+                          {visitor.visitorInfo?.page}
+                        </span>
+                      </div>
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-right">
+                      <ZoruButton
+                        asChild
+                        variant="outline"
+                        size="sm"
+                      >
+                        <a
+                          href={`/dashboard/sabchat/inbox?conversationId=${visitor._id.toString()}`}
+                        >
+                          <MessageSquare />
+                          Chat
                         </a>
-                      </td>
-                    </tr>
-                  );
-                })
-              ) : (
-                <tr>
-                  <td colSpan={5} className="px-4 py-2.5 text-[13px] text-muted-foreground h-24 text-center">
-                    No live visitors right now.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </ClayCard>
+                      </ZoruButton>
+                    </ZoruTableCell>
+                  </ZoruTableRow>
+                );
+              })}
+            </ZoruTableBody>
+          </ZoruTable>
+        </ZoruCard>
+      )}
     </div>
   );
 }

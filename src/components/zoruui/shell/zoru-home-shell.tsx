@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Bell,
   Bot,
@@ -104,6 +104,27 @@ export function ZoruHomeShell({
   children,
 }: ZoruHomeShellProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [, startTransition] = React.useTransition();
+  // Track which dock target we're navigating to so the icon can show
+  // an inline pulse — gives instant visual feedback even before
+  // `loading.tsx` kicks in. Cleared once `pathname` actually changes.
+  const [pendingDockHref, setPendingDockHref] = React.useState<string | null>(
+    null,
+  );
+  React.useEffect(() => {
+    setPendingDockHref(null);
+  }, [pathname]);
+
+  const handleDockActivate = React.useCallback(
+    (href: string) => {
+      setPendingDockHref(href);
+      startTransition(() => {
+        router.push(href);
+      });
+    },
+    [router],
+  );
 
   const defaultSidebarGroups: ZoruSidebarGroup[] = [
     {
@@ -205,16 +226,26 @@ export function ZoruHomeShell({
         <div className="pointer-events-none absolute inset-x-0 bottom-3 z-30 flex justify-center">
           <div className="pointer-events-auto rounded-[26px] border border-zoru-line bg-zoru-bg/95 p-1 shadow-[var(--zoru-shadow-lg)] backdrop-blur">
             <ZoruDock iconSize={48}>
-              {DOCK_APPS.map((app) => (
-                <ZoruDockIcon
-                  key={app.id}
-                  name={app.name}
-                  href={app.href}
-                  active={app.isActive(pathname)}
-                >
-                  {app.icon}
-                </ZoruDockIcon>
-              ))}
+              {DOCK_APPS.map((app) => {
+                const isPending = pendingDockHref === app.href;
+                return (
+                  <ZoruDockIcon
+                    key={app.id}
+                    name={app.name}
+                    href={app.href}
+                    active={app.isActive(pathname) || isPending}
+                    onActivate={handleDockActivate}
+                  >
+                    <span
+                      className={
+                        isPending ? "animate-pulse opacity-70" : undefined
+                      }
+                    >
+                      {app.icon}
+                    </span>
+                  </ZoruDockIcon>
+                );
+              })}
             </ZoruDock>
           </div>
         </div>

@@ -1,60 +1,114 @@
+"use client";
 
-'use client';
+/**
+ * /dashboard/sabchat/ai-replies — AI assistant configuration.
+ *
+ * Same `saveSabChatSettings` server action; pass-through hidden field
+ * preserves all unrelated settings keys. Visual layer fully Zoru.
+ */
 
-import { useActionState, useEffect } from 'react';
-import { useFormStatus } from 'react-dom';
-import { ClayCard, ClayButton } from '@/components/clay';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Bot, LoaderCircle, Save } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { saveSabChatSettings } from '@/app/actions/sabchat.actions';
-import { useProject } from '@/context/project-context';
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { useEffect } from "react";
+import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
+import { Bot, LoaderCircle, Save } from "lucide-react";
 
-const initialState: any = { message: null, error: null };
+import { saveSabChatSettings } from "@/app/actions/sabchat.actions";
+import { useProject } from "@/context/project-context";
+
+import {
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruLabel,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruSwitch,
+  ZoruTextarea,
+  useZoruToast,
+} from "@/components/zoruui";
+
+const initialState: { message: string | null; error?: string } = {
+  message: null,
+  error: undefined,
+};
 
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ClayButton
-      type="submit"
-      variant="obsidian"
-      disabled={pending}
-      leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-    >
-      Save AI Settings
-    </ClayButton>
+    <ZoruButton type="submit" disabled={pending}>
+      {pending ? (
+        <LoaderCircle className="animate-spin" />
+      ) : (
+        <Save />
+      )}
+      Save AI settings
+    </ZoruButton>
   );
 }
 
-export default function AiRepliesPage() {
+export default function SabChatAiRepliesPage() {
   const { sessionUser, reloadProject } = useProject();
   const settings = sessionUser?.sabChatSettings || {};
+  // @ts-expect-error - sabchat settings action signature
   const [state, formAction] = useActionState(saveSabChatSettings, initialState);
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
 
   useEffect(() => {
     if (state.message) {
-      toast({ title: 'Success!', description: state.message });
+      toast({ title: "Saved", description: state.message });
       reloadProject();
     }
     if (state.error) {
-      toast({ title: 'Error', description: state.error, variant: 'destructive' });
+      toast({
+        title: "Error",
+        description: state.error,
+        variant: "destructive",
+      });
     }
   }, [state, toast, reloadProject]);
 
   return (
-    <div className="space-y-6">
-      <CrmPageHeader
-        title="AI Replies"
-        subtitle="Configure the AI assistant for your chat"
-        icon={Bot}
-      />
+    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard/sabchat/inbox">
+              SabChat
+            </ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>AI Replies</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
+
+      <ZoruPageHeader>
+        <ZoruPageHeading>
+          <ZoruPageTitle>AI replies</ZoruPageTitle>
+          <ZoruPageDescription>
+            Configure the AI assistant for your chat.
+          </ZoruPageDescription>
+        </ZoruPageHeading>
+      </ZoruPageHeader>
 
       <form action={formAction}>
-        {/* Pass through existing settings that aren't on this form */}
+        {/* Pass-through existing settings unrelated to this form. */}
         <input
           type="hidden"
           name="settings"
@@ -71,39 +125,59 @@ export default function AiRepliesPage() {
           })}
         />
 
-        <ClayCard>
-          <h2 className="mb-4 text-[15px] font-semibold text-foreground">AI Assistant Configuration</h2>
-          <p className="mb-4 text-[13px] text-muted-foreground">
-            Provide context about your business. The AI will use this information, along with your FAQs, to answer visitor questions automatically.
-          </p>
+        <ZoruCard>
+          <ZoruCardHeader>
+            <div className="flex items-center gap-3">
+              <span className="flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink-muted">
+                <Bot className="h-4 w-4" />
+              </span>
+              <div>
+                <ZoruCardTitle>AI assistant configuration</ZoruCardTitle>
+                <ZoruCardDescription>
+                  Provide context about your business. The AI will use this
+                  information, along with your FAQs, to answer visitor
+                  questions automatically.
+                </ZoruCardDescription>
+              </div>
+            </div>
+          </ZoruCardHeader>
+          <ZoruCardContent className="space-y-6">
+            <div className="flex items-center gap-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-4">
+              <ZoruSwitch
+                id="aiEnabled"
+                name="aiEnabled"
+                defaultChecked={settings.aiEnabled}
+              />
+              <div>
+                <ZoruLabel htmlFor="aiEnabled">
+                  Enable AI assistant
+                </ZoruLabel>
+                <p className="text-xs text-zoru-ink-muted">
+                  When enabled, the assistant will reply to visitors using the
+                  context below.
+                </p>
+              </div>
+            </div>
 
-          <div className="mb-4 flex items-center gap-3">
-            <Switch id="aiEnabled" name="aiEnabled" defaultChecked={settings.aiEnabled} />
-            <Label htmlFor="aiEnabled" className="text-[13px] text-foreground">
-              Enable AI Assistant
-            </Label>
-          </div>
+            <div className="space-y-2">
+              <ZoruLabel htmlFor="aiContext">Business context</ZoruLabel>
+              <ZoruTextarea
+                id="aiContext"
+                name="aiContext"
+                defaultValue={settings.aiContext || ""}
+                className="min-h-[260px]"
+                placeholder="Describe your business, services, hours, and common policies..."
+              />
+              <p className="text-xs text-zoru-ink-muted">
+                The more detailed your context, the better the AI will perform.
+              </p>
+            </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="aiContext" className="text-[12px] text-muted-foreground">
-              Business Context
-            </Label>
-            <Textarea
-              id="aiContext"
-              name="aiContext"
-              defaultValue={settings.aiContext || ''}
-              className="min-h-[250px] rounded-lg border-border bg-card text-[13px]"
-              placeholder="Describe your business, services, hours, and common policies..."
-            />
-            <p className="text-[12px] text-muted-foreground">
-              The more detailed your context, the better the AI will perform.
-            </p>
-          </div>
-
-          <div className="mt-4 flex justify-end">
-            <SubmitButton />
-          </div>
-        </ClayCard>
+            <div className="flex justify-end">
+              <SubmitButton />
+            </div>
+          </ZoruCardContent>
+        </ZoruCard>
       </form>
     </div>
   );

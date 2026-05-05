@@ -1,0 +1,52 @@
+# Empty [workspace] table makes this crate buildable standalone while it
+# waits to be added to the parent workspace's `members` list (per the
+# Phase 5 slice contract: do not modify the workspace Cargo.toml).
+[workspace]
+
+[package]
+name = "wachat-webhook-subscribe"
+version = "0.1.0"
+edition = "2024"
+description = "Meta WhatsApp webhook subscription manager. Wraps the WABA `subscribed_apps` endpoint (status / subscribe-one / subscribe-all) and reports per-project failures for the dashboard."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "wachat_webhook_subscribe"
+path = "src/lib.rs"
+
+[dependencies]
+# Async runtime — Mongo + HTTP are async.
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+# Serde stack — Meta `subscribed_apps` GET returns `{ data: [...] }`.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# BSON for Mongo cursor + `find` over the `projects` collection.
+bson = { version = "2.13", features = ["chrono-0_4"] }
+mongodb = "3.2"
+
+# Error / logging plumbing.
+anyhow = "1"
+tracing = "0.1"
+
+# Stream helpers — `Cursor::try_collect` requires `TryStreamExt`. We use the
+# umbrella `futures` crate to match every other Mongo cursor consumer in the
+# workspace.
+futures = "0.3"
+
+# Sibling workspace crates — public APIs only.
+sabnode-common = { path = "../common" }
+sabnode-db = { path = "../db" }
+wachat-types = { path = "../wachat-types" }
+wachat-meta-client = { path = "../wachat-meta-client" }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+serde_json = "1"
+url = "2"
+wiremock = "0.6"
+
+[lints]
+workspace = true
