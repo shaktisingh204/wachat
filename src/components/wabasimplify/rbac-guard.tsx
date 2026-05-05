@@ -1,5 +1,5 @@
 import { headers } from 'next/headers';
-import { getSession } from '@/app/actions/index';
+import { getCachedSession } from '@/lib/server-cache';
 import { getRequiredPermissionForPath } from '@/lib/rbac-server';
 import { ShieldOff, Home, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -67,7 +67,7 @@ export async function RBACGuard({ children }: { children: React.ReactNode }) {
         return <>{children}</>;
     }
 
-    const session = await getSession();
+    const session = await getCachedSession();
     const user = session?.user;
 
     // Safety fallback: if no user, middleware usually handles this, but robust check

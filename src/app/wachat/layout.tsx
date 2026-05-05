@@ -16,8 +16,7 @@ import "@/styles/zoruui.css";
 import React from "react";
 import { redirect } from "next/navigation";
 
-import { getSession } from "@/app/actions/user.actions";
-import { getProjects } from "@/app/actions/project.actions";
+import { getCachedSession, getCachedProjects } from "@/lib/server-cache";
 import { RBACGuard } from "@/components/wabasimplify/rbac-guard";
 import { ProjectProvider } from "@/context/project-context";
 
@@ -28,7 +27,7 @@ export default async function WachatLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getSession();
+  const session = await getCachedSession();
   if (!session?.user) {
     redirect("/login");
   }
@@ -40,7 +39,7 @@ export default async function WachatLayout({
     redirect("/onboarding");
   }
 
-  const projects = (await getProjects()) || [];
+  const projects = (await getCachedProjects()) || [];
   if (
     (!onboarding || onboarding.status !== "complete") &&
     projects.length === 0

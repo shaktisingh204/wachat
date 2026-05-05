@@ -31,8 +31,10 @@ export function ProjectSwitcher() {
         localStorage.setItem('activeProjectId', project._id.toString());
         localStorage.setItem('activeProjectName', project.name);
         setActiveProjectId(project._id.toString());
-        router.push('/wachat/overview'); // Navigate to a safe page after switching
-        router.refresh();
+        // `router.push` already triggers a fresh RSC fetch for the
+        // destination — calling `router.refresh()` here doubled the work
+        // and made project switching feel sluggish.
+        router.push('/wachat/overview');
     };
 
     if (!activeProject) {
