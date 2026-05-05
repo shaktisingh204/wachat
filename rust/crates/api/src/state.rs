@@ -34,6 +34,7 @@ use wachat_facebook_business::WachatFacebookBusinessState;
 use wachat_facebook_content::WachatFacebookContentState;
 use wachat_facebook_crm::WachatFacebookCrmState;
 use wachat_facebook_messaging::WachatFacebookMessagingState;
+use wachat_facebook_misc::WachatFacebookMiscState;
 use wachat_facebook_pages::WachatFacebookPagesState;
 use wachat_flows::WachatFlowsState;
 use wachat_instagram::WachatInstagramState;
@@ -82,6 +83,7 @@ pub struct AppState {
     pub fb_crm: WachatFacebookCrmState,
     pub fb_agents: WachatFacebookAgentsState,
     pub fb_business: WachatFacebookBusinessState,
+    pub fb_misc: WachatFacebookMiscState,
     pub instagram: WachatInstagramState,
     pub ready: Arc<AtomicBool>,
 }
@@ -122,6 +124,7 @@ impl AppState {
         fb_crm: WachatFacebookCrmState,
         fb_agents: WachatFacebookAgentsState,
         fb_business: WachatFacebookBusinessState,
+        fb_misc: WachatFacebookMiscState,
         instagram: WachatInstagramState,
     ) -> Self {
         Self {
@@ -159,6 +162,7 @@ impl AppState {
             fb_crm,
             fb_agents,
             fb_business,
+            fb_misc,
             instagram,
             ready: Arc::new(AtomicBool::new(false)),
         }
@@ -368,6 +372,12 @@ impl FromRef<AppState> for WachatFacebookAgentsState {
 impl FromRef<AppState> for WachatFacebookBusinessState {
     fn from_ref(s: &AppState) -> Self {
         s.fb_business.clone()
+    }
+}
+
+impl FromRef<AppState> for WachatFacebookMiscState {
+    fn from_ref(s: &AppState) -> Self {
+        s.fb_misc.clone()
     }
 }
 

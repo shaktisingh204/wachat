@@ -66,6 +66,7 @@ pub fn build(state: AppState) -> Router {
     let fb_crm = wachat_facebook_crm::router::<AppState>();
     let fb_agents = wachat_facebook_agents::router::<AppState>();
     let fb_business = wachat_facebook_business::router::<AppState>();
+    let fb_misc = wachat_facebook_misc::router::<AppState>();
     let instagram = wachat_instagram::router::<AppState>();
 
     Router::new()
@@ -100,6 +101,7 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/facebook/crm", fb_crm)
         .nest("/v1/facebook/agents", fb_agents)
         .nest("/v1/facebook/business", fb_business)
+        .nest("/v1/facebook/misc", fb_misc)
         .nest("/v1/instagram", instagram)
         .nest("/v1", v1)
         .with_state(state)

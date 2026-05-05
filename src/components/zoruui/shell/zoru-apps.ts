@@ -71,7 +71,7 @@ export const ZORU_APPS: ZoruAppDescriptor[] = [
     name: "SabFlow",
     href: "/dashboard/sabflow/flow-builder",
     Icon: Workflow,
-    migration: "partial",
+    migration: "done",
     isActive: (p) => !!p?.startsWith("/dashboard/sabflow"),
   },
   {
@@ -79,7 +79,7 @@ export const ZORU_APPS: ZoruAppDescriptor[] = [
     name: "SabChat",
     href: "/dashboard/sabchat",
     Icon: Bot,
-    migration: "partial",
+    migration: "done",
     isActive: (p) => !!p?.startsWith("/dashboard/sabchat"),
   },
   {
@@ -87,7 +87,7 @@ export const ZORU_APPS: ZoruAppDescriptor[] = [
     name: "Telegram",
     href: "/dashboard/telegram",
     Icon: Send,
-    migration: "pending",
+    migration: "done",
     isActive: (p) => !!p?.startsWith("/dashboard/telegram"),
   },
   {
@@ -95,7 +95,7 @@ export const ZORU_APPS: ZoruAppDescriptor[] = [
     name: "Instagram",
     href: "/dashboard/instagram/connections",
     Icon: Instagram,
-    migration: "pending",
+    migration: "done",
     isActive: (p) => !!p?.startsWith("/dashboard/instagram"),
   },
   {
@@ -111,7 +111,7 @@ export const ZORU_APPS: ZoruAppDescriptor[] = [
     name: "Email",
     href: "/dashboard/email",
     Icon: Mail,
-    migration: "pending",
+    migration: "done",
     isActive: (p) => !!p?.startsWith("/dashboard/email"),
   },
   {
@@ -127,7 +127,7 @@ export const ZORU_APPS: ZoruAppDescriptor[] = [
     name: "URL Shortener",
     href: "/dashboard/url-shortener",
     Icon: LinkIcon,
-    migration: "pending",
+    migration: "done",
     isActive: (p) => !!p?.startsWith("/dashboard/url-shortener"),
   },
   {
@@ -135,7 +135,7 @@ export const ZORU_APPS: ZoruAppDescriptor[] = [
     name: "QR Code",
     href: "/dashboard/qr-code-maker",
     Icon: QrCode,
-    migration: "pending",
+    migration: "done",
     isActive: (p) => !!p?.startsWith("/dashboard/qr-code-maker"),
   },
   {
@@ -143,7 +143,7 @@ export const ZORU_APPS: ZoruAppDescriptor[] = [
     name: "Settings",
     href: "/dashboard/settings",
     Icon: Settings,
-    migration: "pending",
+    migration: "done",
     isActive: (p) => !!p?.startsWith("/dashboard/settings"),
   },
 ];

@@ -65,6 +65,7 @@ wachat-facebook-automation = { path = "../wachat-facebook-automation" }
 wachat-facebook-crm = { path = "../wachat-facebook-crm" }
 wachat-facebook-agents = { path = "../wachat-facebook-agents" }
 wachat-facebook-business = { path = "../wachat-facebook-business" }
+wachat-facebook-misc = { path = "../wachat-facebook-misc" }
 wachat-instagram = { path = "../wachat-instagram" }
 wachat-rate-limit = { path = "../wachat-rate-limit" }
 wachat-config = { path = "../wachat-config" }
