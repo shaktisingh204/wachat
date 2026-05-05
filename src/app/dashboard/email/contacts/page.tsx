@@ -1,24 +1,39 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, useTransition, useMemo } from 'react';
+import { useState, useEffect, useCallback, useTransition } from 'react';
 import type { WithId } from 'mongodb';
 import { getEmailContacts } from '@/app/actions/email.actions';
 import { getSession } from '@/app/actions/user.actions';
-import type { EmailContact, Tag, User } from '@/lib/definitions';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
-import { Search, Plus, UserPlus, FileUp } from 'lucide-react';
-import { Input } from '@/components/ui/input';
+import type { EmailContact, User } from '@/lib/definitions';
+import { Search } from 'lucide-react';
 import { useDebouncedCallback } from 'use-debounce';
 import { EmailAddContactDialog } from '@/components/wabasimplify/email-add-contact-dialog';
 import { EmailImportContactsDialog } from '@/components/wabasimplify/email-import-contacts-dialog';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { formatDistanceToNow } from 'date-fns';
-import { Badge } from '@/components/ui/badge';
 import { EmailSuiteLayout } from '@/components/wabasimplify/email-suite-layout';
+import {
+    ZoruCard,
+    ZoruCardContent,
+    ZoruCardDescription,
+    ZoruCardHeader,
+    ZoruCardTitle,
+    ZoruTable,
+    ZoruTableBody,
+    ZoruTableCell,
+    ZoruTableHead,
+    ZoruTableHeader,
+    ZoruTableRow,
+    ZoruSkeleton,
+    ZoruInput,
+    ZoruAvatar,
+    ZoruAvatarFallback,
+    ZoruBadge,
+    ZoruPageHeader,
+    ZoruPageHeading,
+    ZoruPageTitle,
+    ZoruPageDescription,
+} from '@/components/zoruui';
 
 const CONTACTS_PER_PAGE = 20;
 
@@ -56,87 +71,88 @@ export default function EmailContactsPage() {
         <EmailSuiteLayout>
             <div className="flex flex-col gap-8">
                 <div className="flex flex-wrap items-center justify-between gap-4">
-                    <div>
-                        <h1 className="text-3xl font-bold font-headline">Email Contacts</h1>
-                        <p className="text-muted-foreground">Manage your email subscriber lists.</p>
-                    </div>
+                    <ZoruPageHeader>
+                        <ZoruPageHeading>
+                            <ZoruPageTitle>Email Contacts</ZoruPageTitle>
+                            <ZoruPageDescription>Manage your email subscriber lists.</ZoruPageDescription>
+                        </ZoruPageHeading>
+                    </ZoruPageHeader>
                     <div className="flex items-center gap-2">
                         <EmailImportContactsDialog onImported={fetchData} />
                         <EmailAddContactDialog onAdded={fetchData} availableTags={user?.tags || []} />
                     </div>
                 </div>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>All Contacts</CardTitle>
-                        <CardDescription>A list of all contacts for your email campaigns.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
+                <ZoruCard className="p-0">
+                    <ZoruCardHeader>
+                        <ZoruCardTitle>All Contacts</ZoruCardTitle>
+                        <ZoruCardDescription>A list of all contacts for your email campaigns.</ZoruCardDescription>
+                    </ZoruCardHeader>
+                    <ZoruCardContent>
                         <div className="mb-4">
                             <div className="relative w-full max-w-sm">
-                                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                <Input
+                                <ZoruInput
                                     placeholder="Search by name or email..."
-                                    className="pl-8"
+                                    leadingSlot={<Search />}
                                     onChange={(e) => handleSearch(e.target.value)}
                                 />
                             </div>
                         </div>
-                        <div className="border rounded-md">
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Contact</TableHead>
-                                        <TableHead>Tags</TableHead>
-                                        <TableHead>Added</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
+                        <div className="border border-zoru-line rounded-md">
+                            <ZoruTable>
+                                <ZoruTableHeader>
+                                    <ZoruTableRow>
+                                        <ZoruTableHead>Contact</ZoruTableHead>
+                                        <ZoruTableHead>Tags</ZoruTableHead>
+                                        <ZoruTableHead>Added</ZoruTableHead>
+                                    </ZoruTableRow>
+                                </ZoruTableHeader>
+                                <ZoruTableBody>
                                     {isLoading ? (
                                         [...Array(5)].map((_, i) => (
-                                            <TableRow key={i}>
-                                                <TableCell colSpan={3}><Skeleton className="h-10 w-full" /></TableCell>
-                                            </TableRow>
+                                            <ZoruTableRow key={i}>
+                                                <ZoruTableCell colSpan={3}><ZoruSkeleton className="h-10 w-full" /></ZoruTableCell>
+                                            </ZoruTableRow>
                                         ))
                                     ) : contacts.length > 0 ? (
                                         contacts.map((contact) => (
-                                            <TableRow key={contact._id.toString()} className="cursor-pointer">
-                                                <TableCell>
+                                            <ZoruTableRow key={contact._id.toString()} className="cursor-pointer">
+                                                <ZoruTableCell>
                                                     <div className="flex items-center gap-3">
-                                                        <Avatar>
-                                                            <AvatarFallback>{(contact.name || contact.email).charAt(0).toUpperCase()}</AvatarFallback>
-                                                        </Avatar>
+                                                        <ZoruAvatar>
+                                                            <ZoruAvatarFallback>{(contact.name || contact.email).charAt(0).toUpperCase()}</ZoruAvatarFallback>
+                                                        </ZoruAvatar>
                                                         <div>
-                                                            <div className="font-medium">{contact.name || 'N/A'}</div>
-                                                            <div className="text-sm text-muted-foreground">{contact.email}</div>
+                                                            <div className="text-zoru-ink">{contact.name || 'N/A'}</div>
+                                                            <div className="text-sm text-zoru-ink-muted">{contact.email}</div>
                                                         </div>
                                                     </div>
-                                                </TableCell>
-                                                <TableCell>
+                                                </ZoruTableCell>
+                                                <ZoruTableCell>
                                                     <div className="flex flex-wrap gap-1">
                                                         {(contact.tags || []).map(tagId => {
                                                             const tag = user?.tags?.find(t => t._id === tagId);
                                                             return tag ? (
-                                                                <Badge key={tagId} className="rounded" style={{ backgroundColor: tag.color, color: '#fff' }}>
+                                                                <ZoruBadge key={tagId} className="rounded" style={{ backgroundColor: tag.color, color: '#fff' }}>
                                                                     {tag.name}
-                                                                </Badge>
+                                                                </ZoruBadge>
                                                             ) : null;
                                                         })}
                                                     </div>
-                                                </TableCell>
-                                                <TableCell>{formatDistanceToNow(new Date(contact.createdAt), { addSuffix: true })}</TableCell>
-                                            </TableRow>
+                                                </ZoruTableCell>
+                                                <ZoruTableCell>{formatDistanceToNow(new Date(contact.createdAt), { addSuffix: true })}</ZoruTableCell>
+                                            </ZoruTableRow>
                                         ))
                                     ) : (
-                                        <TableRow>
-                                            <TableCell colSpan={3} className="h-24 text-center">No contacts found.</TableCell>
-                                        </TableRow>
+                                        <ZoruTableRow>
+                                            <ZoruTableCell colSpan={3} className="h-24 text-center">No contacts found.</ZoruTableCell>
+                                        </ZoruTableRow>
                                     )}
-                                </TableBody>
-                            </Table>
+                                </ZoruTableBody>
+                            </ZoruTable>
                         </div>
-                    </CardContent>
-                </Card>
+                    </ZoruCardContent>
+                </ZoruCard>
             </div>
         </EmailSuiteLayout>
     );

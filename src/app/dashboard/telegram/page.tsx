@@ -14,7 +14,7 @@ import {
     ArrowUpRight,
     Plug,
 } from 'lucide-react';
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
+import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
 
 interface QuickTileProps {
     href: string;
@@ -26,11 +26,7 @@ interface QuickTileProps {
 function QuickTile({ href, label, description, icon: Icon }: QuickTileProps) {
     return (
         <Link href={href} className="group block">
-            <ClayCard
-                variant="default"
-                padded
-                className="h-full transition-shadow hover:shadow-md"
-            >
+            <ZoruCard className="h-full p-6 transition-shadow hover:shadow-md">
                 <div className="flex items-start gap-3">
                     <div
                         className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
@@ -40,34 +36,34 @@ function QuickTile({ href, label, description, icon: Icon }: QuickTileProps) {
                     </div>
                     <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between gap-2">
-                            <p className="text-[13.5px] font-semibold text-foreground">{label}</p>
-                            <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                            <p className="text-[13.5px] text-zoru-ink">{label}</p>
+                            <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-zoru-ink-muted opacity-0 transition-opacity group-hover:opacity-100" />
                         </div>
-                        <p className="mt-1 text-[12.5px] leading-relaxed text-muted-foreground">
+                        <p className="mt-1 text-[12.5px] leading-relaxed text-zoru-ink-muted">
                             {description}
                         </p>
                     </div>
                 </div>
-            </ClayCard>
+            </ZoruCard>
         </Link>
     );
 }
 
 function StatCard({ label, value, hint }: { label: string; value: string; hint?: string }) {
     return (
-        <ClayCard variant="default" padded>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+        <ZoruCard className="p-6">
+            <p className="text-[11px] uppercase tracking-[0.12em] text-zoru-ink-muted">
                 {label}
             </p>
-            <p className="mt-2 text-[26px] font-semibold leading-none text-foreground">{value}</p>
-            {hint ? <p className="mt-2 text-[12px] text-muted-foreground">{hint}</p> : null}
-        </ClayCard>
+            <p className="mt-2 text-[26px] leading-none text-zoru-ink">{value}</p>
+            {hint ? <p className="mt-2 text-[12px] text-zoru-ink-muted">{hint}</p> : null}
+        </ZoruCard>
     );
 }
 
 export default function TelegramOverviewPage() {
     return (
-        <div className="flex flex-col gap-8 clay-enter">
+        <div className="flex flex-col gap-8">
             {/* Header */}
             <div className="flex items-start justify-between gap-4">
                 <div className="flex items-start gap-4">
@@ -82,14 +78,14 @@ export default function TelegramOverviewPage() {
                     </div>
                     <div>
                         <div className="flex items-center gap-2">
-                            <h1 className="text-[26px] font-semibold leading-tight tracking-tight text-foreground">
+                            <h1 className="text-[26px] leading-tight text-zoru-ink">
                                 Telegram
                             </h1>
-                            <ClayBadge tone="blue" dot>
+                            <ZoruBadge variant="ghost">
                                 Beta
-                            </ClayBadge>
+                            </ZoruBadge>
                         </div>
-                        <p className="mt-1.5 max-w-2xl text-[13.5px] leading-relaxed text-muted-foreground">
+                        <p className="mt-1.5 max-w-2xl text-[13.5px] leading-relaxed text-zoru-ink-muted">
                             Connect Telegram bots and Business accounts to SabNode. Run
                             campaigns, automate replies, handle payments in Stars, and manage
                             channels — all from one place.
@@ -97,19 +93,20 @@ export default function TelegramOverviewPage() {
                     </div>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
-                    <ClayButton
-                        variant="pill"
+                    <ZoruButton
+                        variant="outline"
                         size="sm"
                         onClick={() =>
                             window.open('https://core.telegram.org/bots/api', '_blank', 'noopener,noreferrer')
                         }
                     >
                         Bot API docs
-                    </ClayButton>
+                    </ZoruButton>
                     <Link href="/dashboard/telegram/connections">
-                        <ClayButton variant="obsidian" size="md" leading={<Plug className="h-3.5 w-3.5" />}>
+                        <ZoruButton size="md">
+                            <Plug className="h-3.5 w-3.5" />
                             Connect a bot
-                        </ClayButton>
+                        </ZoruButton>
                     </Link>
                 </div>
             </div>
@@ -125,7 +122,7 @@ export default function TelegramOverviewPage() {
             {/* Quick actions */}
             <div>
                 <div className="mb-3 flex items-center justify-between">
-                    <h2 className="text-[15px] font-semibold tracking-tight text-foreground">
+                    <h2 className="text-[15px] text-zoru-ink">
                         Quick actions
                     </h2>
                 </div>
@@ -182,7 +179,7 @@ export default function TelegramOverviewPage() {
             </div>
 
             {/* Getting started */}
-            <ClayCard variant="soft" padded>
+            <ZoruCard className="p-6">
                 <div className="flex items-start gap-4">
                     <div
                         className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
@@ -191,8 +188,8 @@ export default function TelegramOverviewPage() {
                         <Bot className="h-5 w-5 text-white" strokeWidth={1.75} />
                     </div>
                     <div className="min-w-0 flex-1">
-                        <h3 className="text-[14px] font-semibold text-foreground">Getting started</h3>
-                        <ol className="mt-2 flex flex-col gap-1.5 text-[13px] text-foreground">
+                        <h3 className="text-[14px] text-zoru-ink">Getting started</h3>
+                        <ol className="mt-2 flex flex-col gap-1.5 text-[13px] text-zoru-ink">
                             <li>
                                 1. Chat with <span className="font-mono text-[12px]">@BotFather</span> on Telegram
                                 and create a new bot.
@@ -201,7 +198,7 @@ export default function TelegramOverviewPage() {
                                 2. Copy the bot token and paste it into{' '}
                                 <Link
                                     href="/dashboard/telegram/connections"
-                                    className="font-medium text-sky-500 hover:underline"
+                                    className="text-sky-500 hover:underline"
                                 >
                                     Connections
                                 </Link>
@@ -212,7 +209,7 @@ export default function TelegramOverviewPage() {
                         </ol>
                     </div>
                 </div>
-            </ClayCard>
+            </ZoruCard>
         </div>
     );
 }

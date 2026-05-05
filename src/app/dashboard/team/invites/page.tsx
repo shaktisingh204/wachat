@@ -2,27 +2,35 @@
 
 import { useEffect, useState, useTransition } from 'react';
 import {
-    LuUserPlus,
-    LuRefreshCw,
-    LuCircleX,
-    LuMail,
-    LuClock,
-    LuLoaderCircle,
-    LuCopy,
-    LuCheck,
-} from 'react-icons/lu';
+    UserPlus,
+    RefreshCw,
+    CircleX,
+    Mail,
+    Clock,
+    LoaderCircle,
+    Copy,
+    Check,
+} from 'lucide-react';
 
 import {
-    ClayBadge,
-    ClayBreadcrumbs,
-    ClayButton,
-    ClayCard,
-    ClayInput,
-    ClaySectionHeader,
-} from '@/components/clay';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
+    ZoruBadge,
+    ZoruBreadcrumb,
+    ZoruBreadcrumbItem,
+    ZoruBreadcrumbLink,
+    ZoruBreadcrumbList,
+    ZoruBreadcrumbPage,
+    ZoruBreadcrumbSeparator,
+    ZoruButton,
+    ZoruCard,
+    ZoruInput,
+    ZoruPageDescription,
+    ZoruPageHeader,
+    ZoruPageHeading,
+    ZoruPageTitle,
+    ZoruSkeleton,
+    cn,
+    useZoruToast,
+} from '@/components/zoruui';
 import {
     listPendingInvitations,
     resendInvitation,
@@ -39,7 +47,7 @@ export default function TeamInvitesPage() {
     const [search, setSearch] = useState('');
     const [pending, startTransition] = useTransition();
     const [copied, setCopied] = useState<string | null>(null);
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
 
     const refresh = () => {
         setLoading(true);
@@ -106,43 +114,45 @@ export default function TeamInvitesPage() {
     };
 
     return (
-        <div className="clay-enter flex min-h-full flex-col gap-6">
-            <ClayBreadcrumbs
-                items={[
-                    { label: 'Team', href: '/dashboard/team' },
-                    { label: 'Invitations' },
-                ]}
-            />
+        <div className="flex min-h-full flex-col gap-6">
+            <ZoruBreadcrumb>
+                <ZoruBreadcrumbList>
+                    <ZoruBreadcrumbItem>
+                        <ZoruBreadcrumbLink href="/dashboard/team">Team</ZoruBreadcrumbLink>
+                    </ZoruBreadcrumbItem>
+                    <ZoruBreadcrumbSeparator />
+                    <ZoruBreadcrumbItem>
+                        <ZoruBreadcrumbPage>Invitations</ZoruBreadcrumbPage>
+                    </ZoruBreadcrumbItem>
+                </ZoruBreadcrumbList>
+            </ZoruBreadcrumb>
 
-            <ClaySectionHeader
-                size="lg"
-                title="Invitations"
-                subtitle="Track who's been invited to the workspace. Resend or revoke pending invites."
-                actions={
-                    <ClayButton
-                        variant="ghost"
-                        size="sm"
-                        leading={<LuRefreshCw className="h-4 w-4" />}
-                        onClick={refresh}
-                    >
-                        Refresh
-                    </ClayButton>
-                }
-            />
+            <ZoruPageHeader>
+                <ZoruPageHeading>
+                    <ZoruPageTitle>Invitations</ZoruPageTitle>
+                    <ZoruPageDescription>
+                        Track who&apos;s been invited to the workspace. Resend or revoke pending invites.
+                    </ZoruPageDescription>
+                </ZoruPageHeading>
+                <ZoruButton variant="ghost" size="sm" onClick={refresh}>
+                    <RefreshCw className="h-4 w-4" />
+                    Refresh
+                </ZoruButton>
+            </ZoruPageHeader>
 
             {/* Filters */}
             <div className="flex flex-wrap items-center gap-3">
-                <div className="flex gap-1 rounded-full border border-border bg-card p-1">
+                <div className="flex gap-1 rounded-full border border-zoru-line bg-zoru-bg p-1">
                     {(['all', 'pending', 'expired', 'accepted'] as Filter[]).map((f) => (
                         <button
                             key={f}
                             type="button"
                             onClick={() => setFilter(f)}
                             className={cn(
-                                'rounded-full px-3 py-1.5 text-[12.5px] font-medium capitalize transition-colors',
+                                'rounded-full px-3 py-1.5 text-[12.5px] capitalize transition-colors',
                                 filter === f
-                                    ? 'bg-foreground text-white'
-                                    : 'text-muted-foreground hover:text-foreground',
+                                    ? 'bg-zoru-ink text-zoru-bg'
+                                    : 'text-zoru-ink-muted hover:text-zoru-ink',
                             )}
                         >
                             {f}
@@ -151,35 +161,35 @@ export default function TeamInvitesPage() {
                     ))}
                 </div>
                 <div className="ml-auto w-full sm:w-64">
-                    <ClayInput
+                    <ZoruInput
                         placeholder="Search email or project…"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        leading={<LuMail className="h-4 w-4" />}
+                        leadingSlot={<Mail className="h-4 w-4" />}
                     />
                 </div>
             </div>
 
             {/* List */}
-            <ClayCard padded={false}>
+            <ZoruCard className="p-0">
                 {loading ? (
                     <div className="space-y-2 p-4">
                         {Array.from({ length: 5 }).map((_, i) => (
-                            <Skeleton key={i} className="h-14 w-full" />
+                            <ZoruSkeleton key={i} className="h-14 w-full" />
                         ))}
                     </div>
                 ) : visible.length === 0 ? (
                     <div className="p-10 text-center">
-                        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-muted/50 text-muted-foreground">
-                            <LuUserPlus className="h-5 w-5" />
+                        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
+                            <UserPlus className="h-5 w-5" />
                         </div>
-                        <p className="text-[13px] font-semibold text-foreground">No invitations match</p>
-                        <p className="mt-1 text-[12.5px] text-muted-foreground">
+                        <p className="text-[13px] text-zoru-ink">No invitations match</p>
+                        <p className="mt-1 text-[12.5px] text-zoru-ink-muted">
                             Adjust the filter or invite a teammate from the Members page.
                         </p>
                     </div>
                 ) : (
-                    <ul className="divide-y divide-border">
+                    <ul className="divide-y divide-zoru-line">
                         {visible.map((inv) => {
                             const status = inv.isExpired ? 'expired' : inv.status;
                             const canResend = status === 'pending' || status === 'expired';
@@ -191,63 +201,59 @@ export default function TeamInvitesPage() {
                                 >
                                     <div className="min-w-0 flex-1">
                                         <div className="flex items-center gap-2">
-                                            <p className="truncate text-[13.5px] font-semibold text-foreground">
+                                            <p className="truncate text-[13.5px] text-zoru-ink">
                                                 {inv.inviteeEmail}
                                             </p>
                                             <StatusBadge status={status} />
                                         </div>
-                                        <p className="mt-1 truncate text-[12.5px] text-muted-foreground">
+                                        <p className="mt-1 truncate text-[12.5px] text-zoru-ink-muted">
                                             {inv.projectName ?? 'Workspace-wide'} · {inv.role}
                                             {inv.inviterName && ` · by ${inv.inviterName}`}
                                         </p>
-                                        <p className="mt-1 flex items-center gap-1.5 text-[11.5px] text-muted-foreground">
-                                            <LuClock className="h-3 w-3" />
+                                        <p className="mt-1 flex items-center gap-1.5 text-[11.5px] text-zoru-ink-muted">
+                                            <Clock className="h-3 w-3" />
                                             {formatRelative(inv.createdAt)} · expires{' '}
                                             {formatRelative(inv.expiresAt)}
                                         </p>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <ClayButton
+                                        <ZoruButton
                                             variant="ghost"
                                             size="sm"
-                                            leading={
-                                                copied === inv.token ? (
-                                                    <LuCheck className="h-4 w-4" />
-                                                ) : (
-                                                    <LuCopy className="h-4 w-4" />
-                                                )
-                                            }
                                             onClick={() => handleCopyLink(inv.token)}
                                         >
+                                            {copied === inv.token ? (
+                                                <Check className="h-4 w-4" />
+                                            ) : (
+                                                <Copy className="h-4 w-4" />
+                                            )}
                                             {copied === inv.token ? 'Copied' : 'Copy link'}
-                                        </ClayButton>
+                                        </ZoruButton>
                                         {canResend && (
-                                            <ClayButton
+                                            <ZoruButton
                                                 variant="ghost"
                                                 size="sm"
-                                                leading={
-                                                    pending ? (
-                                                        <LuLoaderCircle className="h-4 w-4 animate-spin" />
-                                                    ) : (
-                                                        <LuRefreshCw className="h-4 w-4" />
-                                                    )
-                                                }
                                                 onClick={() => handleResend(inv._id)}
                                                 disabled={pending}
                                             >
+                                                {pending ? (
+                                                    <LoaderCircle className="h-4 w-4 animate-spin" />
+                                                ) : (
+                                                    <RefreshCw className="h-4 w-4" />
+                                                )}
                                                 Resend
-                                            </ClayButton>
+                                            </ZoruButton>
                                         )}
                                         {canRevoke && (
-                                            <ClayButton
+                                            <ZoruButton
                                                 variant="ghost"
                                                 size="sm"
-                                                leading={<LuCircleX className="h-4 w-4" />}
                                                 onClick={() => handleRevoke(inv._id)}
                                                 disabled={pending}
                                             >
+                                                <CircleX className="h-4 w-4" />
                                                 Revoke
-                                            </ClayButton>
+                                            </ZoruButton>
                                         )}
                                     </div>
                                 </li>
@@ -255,16 +261,16 @@ export default function TeamInvitesPage() {
                         })}
                     </ul>
                 )}
-            </ClayCard>
+            </ZoruCard>
         </div>
     );
 }
 
 function StatusBadge({ status }: { status: string }) {
-    if (status === 'accepted') return <ClayBadge tone="green">Accepted</ClayBadge>;
-    if (status === 'expired') return <ClayBadge tone="red">Expired</ClayBadge>;
-    if (status === 'revoked') return <ClayBadge tone="neutral">Revoked</ClayBadge>;
-    return <ClayBadge tone="amber">Pending</ClayBadge>;
+    if (status === 'accepted') return <ZoruBadge variant="success">Accepted</ZoruBadge>;
+    if (status === 'expired') return <ZoruBadge variant="danger">Expired</ZoruBadge>;
+    if (status === 'revoked') return <ZoruBadge variant="ghost">Revoked</ZoruBadge>;
+    return <ZoruBadge variant="warning">Pending</ZoruBadge>;
 }
 
 function formatRelative(iso: string): string {

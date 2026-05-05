@@ -9,8 +9,6 @@ import {
   deleteManyShortUrls,
 } from '@/app/actions/url-shortener.actions';
 import type { WithId, ShortUrl, User, Tag, CustomDomain } from '@/lib/definitions';
-import { Label } from '@/components/ui/label';
-import { Skeleton } from '@/components/ui/skeleton';
 import {
   AlertCircle,
   Link as LinkIcon,
@@ -27,54 +25,72 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 import { QrCodeDialog } from '@/components/wabasimplify/qr-code-dialog';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
 import { BulkImportDialog } from '@/components/wabasimplify/bulk-url-import-dialog';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command';
-import { cn } from '@/lib/utils';
 import { DatePicker } from '@/components/ui/date-picker';
 import Link from 'next/link';
-import { ClayBreadcrumbs, ClayButton, ClayCard, ClayInput, ClaySelect } from '@/components/clay';
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruAlertDialogTrigger,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruCommand,
+  ZoruCommandEmpty,
+  ZoruCommandGroup,
+  ZoruCommandInput,
+  ZoruCommandItem,
+  ZoruCommandList,
+  ZoruInput,
+  ZoruLabel,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruPopover,
+  ZoruPopoverContent,
+  ZoruPopoverTrigger,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSkeleton,
+  cn,
+  useZoruToast,
+} from '@/components/zoruui';
 
 const initialState: any = { message: null, error: null };
 
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ClayButton
-      type="submit"
-      variant="obsidian"
-      size="md"
-      disabled={pending}
-      leading={pending ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : <LinkIcon className="h-3.5 w-3.5" />}
-    >
+    <ZoruButton type="submit" size="sm" disabled={pending}>
+      {pending ? (
+        <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
+      ) : (
+        <LinkIcon className="h-3.5 w-3.5" />
+      )}
       Shorten URL
-    </ClayButton>
+    </ZoruButton>
   );
 }
 
 function DeleteButton({ urlId, onDeleted }: { urlId: string; onDeleted: () => void }) {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [isPending, startTransition] = useTransition();
 
   const handleDelete = () => {
@@ -90,31 +106,31 @@ function DeleteButton({ urlId, onDeleted }: { urlId: string; onDeleted: () => vo
   };
 
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
+    <ZoruAlertDialog>
+      <ZoruAlertDialogTrigger asChild>
         <button
           type="button"
-          className="rounded p-1.5 text-muted-foreground hover:bg-red-500/10 hover:text-red-500"
+          className="rounded p-1.5 text-zoru-ink-muted hover:bg-zoru-danger/10 hover:text-zoru-danger-ink"
           aria-label="Delete"
         >
           <Trash2 className="h-3.5 w-3.5" />
         </button>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-          <AlertDialogDescription>
+      </ZoruAlertDialogTrigger>
+      <ZoruAlertDialogContent>
+        <ZoruAlertDialogHeader>
+          <ZoruAlertDialogTitle>Are you sure?</ZoruAlertDialogTitle>
+          <ZoruAlertDialogDescription>
             This will permanently delete the short link. This action cannot be undone.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleDelete} disabled={isPending}>
+          </ZoruAlertDialogDescription>
+        </ZoruAlertDialogHeader>
+        <ZoruAlertDialogFooter>
+          <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+          <ZoruAlertDialogAction onClick={handleDelete} disabled={isPending}>
             {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />} Delete
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+          </ZoruAlertDialogAction>
+        </ZoruAlertDialogFooter>
+      </ZoruAlertDialogContent>
+    </ZoruAlertDialog>
   );
 }
 
@@ -138,11 +154,11 @@ function TagsSelector({
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
+    <ZoruPopover open={open} onOpenChange={setOpen}>
+      <ZoruPopoverTrigger asChild>
         <button
           type="button"
-          className="flex h-10 w-full items-center justify-between gap-2 rounded-lg border border-border bg-card px-3 text-[13px] text-foreground hover:border-border focus:outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/15"
+          className="flex h-9 w-full items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 text-[13px] text-zoru-ink hover:border-zoru-line-strong focus:outline-none focus:border-zoru-ink"
         >
           <span className="truncate">
             {selectedTags.length > 0
@@ -152,54 +168,54 @@ function TagsSelector({
                   .join(', ')
               : placeholder || 'Select tags...'}
           </span>
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 text-muted-foreground" />
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 text-zoru-ink-muted" />
         </button>
-      </PopoverTrigger>
-      <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
-        <Command>
-          <CommandInput placeholder="Search tags..." />
-          <CommandList>
-            <CommandEmpty>No tags found.</CommandEmpty>
-            <CommandGroup>
+      </ZoruPopoverTrigger>
+      <ZoruPopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+        <ZoruCommand>
+          <ZoruCommandInput placeholder="Search tags..." />
+          <ZoruCommandList>
+            <ZoruCommandEmpty>No tags found.</ZoruCommandEmpty>
+            <ZoruCommandGroup>
               {userTags.map((tag) => (
-                <CommandItem key={tag._id} value={tag.name} onSelect={() => handleSelect(tag._id)}>
+                <ZoruCommandItem key={tag._id} value={tag.name} onSelect={() => handleSelect(tag._id)}>
                   <Check
                     className={cn('mr-2 h-4 w-4', selectedTags.includes(tag._id) ? 'opacity-100' : 'opacity-0')}
                   />
                   <span className="w-4 h-4 rounded-full mr-2" style={{ backgroundColor: tag.color }} />
                   <span>{tag.name}</span>
-                </CommandItem>
+                </ZoruCommandItem>
               ))}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
+            </ZoruCommandGroup>
+          </ZoruCommandList>
+        </ZoruCommand>
+      </ZoruPopoverContent>
+    </ZoruPopover>
   );
 }
 
 function StatCard({ label, value, hint }: { label: string; value: React.ReactNode; hint?: string }) {
   return (
-    <ClayCard className="p-4">
-      <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{label}</div>
-      <div className="mt-1.5 text-[22px] font-semibold text-foreground leading-tight">{value}</div>
-      {hint ? <div className="mt-0.5 text-[11px] text-muted-foreground">{hint}</div> : null}
-    </ClayCard>
+    <ZoruCard className="p-4">
+      <div className="text-[11px] uppercase tracking-wider text-zoru-ink-muted">{label}</div>
+      <div className="mt-1.5 text-[22px] text-zoru-ink leading-tight">{value}</div>
+      {hint ? <div className="mt-0.5 text-[11px] text-zoru-ink-muted">{hint}</div> : null}
+    </ZoruCard>
   );
 }
 
 function ShortenerPageSkeleton() {
   return (
-    <div className="clay-enter flex min-h-full flex-col gap-6">
-      <Skeleton className="h-5 w-48" />
-      <Skeleton className="h-10 w-64" />
+    <div className="flex min-h-full flex-col gap-6">
+      <ZoruSkeleton className="h-5 w-48" />
+      <ZoruSkeleton className="h-10 w-64" />
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {Array.from({ length: 4 }).map((_, i) => (
-          <Skeleton key={i} className="h-[88px] rounded-xl" />
+          <ZoruSkeleton key={i} className="h-[88px] rounded-xl" />
         ))}
       </div>
-      <Skeleton className="h-40 w-full rounded-xl" />
-      <Skeleton className="h-64 w-full rounded-xl" />
+      <ZoruSkeleton className="h-40 w-full rounded-xl" />
+      <ZoruSkeleton className="h-64 w-full rounded-xl" />
     </div>
   );
 }
@@ -227,7 +243,7 @@ function downloadCsv(filename: string, rows: string[][]) {
 }
 
 export default function UrlShortenerPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const { copy } = useCopyToClipboard();
 
   const [user, setUser] = useState<(Omit<User, 'password'> & { _id: string; tags?: Tag[] }) | null>(null);
@@ -242,6 +258,7 @@ export default function UrlShortenerPage() {
   const [selectedUrlForQr, setSelectedUrlForQr] = useState<string | null>(null);
   const [createTagIds, setCreateTagIds] = useState<string[]>([]);
   const [expiresAt, setExpiresAt] = useState<Date | undefined>();
+  const [createDomainId, setCreateDomainId] = useState<string>('none');
 
   // Feature state: search, filters, sort, selection, pagination, copy-feedback
   const [search, setSearch] = useState('');
@@ -275,6 +292,7 @@ export default function UrlShortenerPage() {
       formRef.current?.reset();
       setCreateTagIds([]);
       setExpiresAt(undefined);
+      setCreateDomainId('none');
       fetchUrls();
     }
     if (state.error) {
@@ -430,23 +448,28 @@ export default function UrlShortenerPage() {
   if (!isClient) return <ShortenerPageSkeleton />;
 
   const breadcrumbs = (
-    <ClayBreadcrumbs
-      items={[
-        { label: 'Home', href: '/dashboard' },
-        { label: 'URL Shortener' },
-      ]}
-    />
+    <ZoruBreadcrumb>
+      <ZoruBreadcrumbList>
+        <ZoruBreadcrumbItem>
+          <ZoruBreadcrumbLink href="/dashboard">Home</ZoruBreadcrumbLink>
+        </ZoruBreadcrumbItem>
+        <ZoruBreadcrumbSeparator />
+        <ZoruBreadcrumbItem>
+          <ZoruBreadcrumbPage>URL Shortener</ZoruBreadcrumbPage>
+        </ZoruBreadcrumbItem>
+      </ZoruBreadcrumbList>
+    </ZoruBreadcrumb>
   );
 
   if (!user) {
     return (
-      <div className="clay-enter flex min-h-full flex-col gap-6">
+      <div className="flex min-h-full flex-col gap-6">
         {breadcrumbs}
-        <ClayCard className="p-10 text-center">
-          <AlertCircle className="mx-auto h-10 w-10 text-muted-foreground/30 mb-4" />
-          <h3 className="text-sm font-medium text-foreground mb-1">Not logged in</h3>
-          <p className="text-xs text-muted-foreground">Please log in to use the URL Shortener.</p>
-        </ClayCard>
+        <ZoruCard className="p-10 text-center">
+          <AlertCircle className="mx-auto h-10 w-10 text-zoru-ink-muted/40 mb-4" />
+          <h3 className="text-sm text-zoru-ink mb-1">Not logged in</h3>
+          <p className="text-xs text-zoru-ink-muted">Please log in to use the URL Shortener.</p>
+        </ZoruCard>
       </div>
     );
   }
@@ -479,37 +502,38 @@ export default function UrlShortenerPage() {
         open={!!selectedUrlForQr}
         onOpenChange={(open) => !open && setSelectedUrlForQr(null)}
       />
-      <div className="clay-enter flex min-h-full flex-col gap-6">
+      <div className="flex min-h-full flex-col gap-6">
         {breadcrumbs}
 
-        <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0">
-            <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1] flex items-center gap-3">
-              <LinkIcon className="h-7 w-7" />
-              URL Shortener
-            </h1>
-            <p className="mt-1.5 max-w-[720px] text-[13px] text-muted-foreground">
-              Create short, trackable links for your campaigns.
-            </p>
-          </div>
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <ZoruPageHeader>
+            <ZoruPageHeading>
+              <ZoruPageTitle>
+                <span className="inline-flex items-center gap-3">
+                  <LinkIcon className="h-7 w-7" />
+                  URL Shortener
+                </span>
+              </ZoruPageTitle>
+              <ZoruPageDescription>
+                Create short, trackable links for your campaigns.
+              </ZoruPageDescription>
+            </ZoruPageHeading>
+          </ZoruPageHeader>
           <div className="flex flex-wrap items-center gap-2">
-            <ClayButton
-              variant="pill"
+            <ZoruButton
+              variant="outline"
               size="sm"
               onClick={handleExport}
               disabled={filteredUrls.length === 0}
-              leading={<Download className="h-3.5 w-3.5" />}
             >
+              <Download className="h-3.5 w-3.5" />
               Export CSV
-            </ClayButton>
+            </ZoruButton>
             <Link href="/dashboard/url-shortener/settings">
-              <ClayButton
-                variant="pill"
-                size="sm"
-                leading={<SettingsIcon className="h-3.5 w-3.5" />}
-              >
+              <ZoruButton variant="outline" size="sm">
+                <SettingsIcon className="h-3.5 w-3.5" />
                 Settings
-              </ClayButton>
+              </ZoruButton>
             </Link>
           </div>
         </div>
@@ -523,20 +547,21 @@ export default function UrlShortenerPage() {
         </div>
 
         {/* ── Create form ── */}
-        <ClayCard padded={false}>
+        <ZoruCard className="p-0">
           <form action={formAction} ref={formRef}>
             <input type="hidden" name="tagIds" value={createTagIds.join(',')} />
             <input type="hidden" name="expiresAt" value={expiresAt?.toISOString() || ''} />
-            <div className="border-b border-border px-5 py-4">
-              <h2 className="text-[15px] font-semibold text-foreground">Create a new short link</h2>
+            <input type="hidden" name="domainId" value={createDomainId} />
+            <div className="border-b border-zoru-line px-5 py-4">
+              <h2 className="text-[15px] text-zoru-ink">Create a new short link</h2>
             </div>
             <div className="space-y-4 p-5">
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="originalUrl" className="text-[12.5px] text-muted-foreground">
+                  <ZoruLabel htmlFor="originalUrl" className="text-[12.5px] text-zoru-ink-muted">
                     Destination URL
-                  </Label>
-                  <ClayInput
+                  </ZoruLabel>
+                  <ZoruInput
                     id="originalUrl"
                     name="originalUrl"
                     type="url"
@@ -545,15 +570,15 @@ export default function UrlShortenerPage() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="alias" className="text-[12.5px] text-muted-foreground">
+                  <ZoruLabel htmlFor="alias" className="text-[12.5px] text-zoru-ink-muted">
                     Custom Alias (Optional)
-                  </Label>
-                  <ClayInput id="alias" name="alias" placeholder="e.g., summer-sale" />
+                  </ZoruLabel>
+                  <ZoruInput id="alias" name="alias" placeholder="e.g., summer-sale" />
                 </div>
               </div>
               <div className="grid md:grid-cols-3 gap-4">
                 <div className="space-y-1.5">
-                  <Label className="text-[12.5px] text-muted-foreground">Tags (Optional)</Label>
+                  <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">Tags (Optional)</ZoruLabel>
                   <TagsSelector
                     userTags={user?.tags || []}
                     selectedTags={createTagIds}
@@ -561,49 +586,74 @@ export default function UrlShortenerPage() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-[12.5px] text-muted-foreground">Expiration Date (Optional)</Label>
+                  <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">Expiration Date (Optional)</ZoruLabel>
                   <DatePicker date={expiresAt} setDate={setExpiresAt} />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-[12.5px] text-muted-foreground">Custom Domain (Optional)</Label>
-                  <ClaySelect name="domainId" options={domainOptions} defaultValue="none" />
+                  <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">Custom Domain (Optional)</ZoruLabel>
+                  <ZoruSelect value={createDomainId} onValueChange={setCreateDomainId}>
+                    <ZoruSelectTrigger>
+                      <ZoruSelectValue />
+                    </ZoruSelectTrigger>
+                    <ZoruSelectContent>
+                      {domainOptions.map((opt) => (
+                        <ZoruSelectItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </ZoruSelectItem>
+                      ))}
+                    </ZoruSelectContent>
+                  </ZoruSelect>
                 </div>
               </div>
             </div>
-            <div className="flex items-center justify-between border-t border-border bg-secondary px-5 py-3 rounded-b-xl">
+            <div className="flex items-center justify-between border-t border-zoru-line bg-zoru-surface-2 px-5 py-3 rounded-b-[var(--zoru-radius-lg)]">
               <SubmitButton />
               <BulkImportDialog onImportComplete={fetchUrls} />
             </div>
           </form>
-        </ClayCard>
+        </ZoruCard>
 
         {/* ── Links table with filters ── */}
-        <ClayCard padded={false}>
-          <div className="flex flex-wrap items-center gap-3 border-b border-border px-5 py-3.5">
+        <ZoruCard className="p-0">
+          <div className="flex flex-wrap items-center gap-3 border-b border-zoru-line px-5 py-3.5">
             <div className="flex-1 min-w-[220px]">
-              <ClayInput
-                sizeVariant="sm"
+              <ZoruInput
                 placeholder="Search links by URL or alias..."
-                leading={<Search className="h-3.5 w-3.5" />}
+                leadingSlot={<Search />}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
             <div className="min-w-[160px]">
-              <ClaySelect
-                sizeVariant="sm"
+              <ZoruSelect
                 value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value as StatusKey)}
-                options={statusOptions}
-              />
+                onValueChange={(v) => setStatusFilter(v as StatusKey)}
+              >
+                <ZoruSelectTrigger>
+                  <ZoruSelectValue />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                  {statusOptions.map((o) => (
+                    <ZoruSelectItem key={o.value} value={o.value}>
+                      {o.label}
+                    </ZoruSelectItem>
+                  ))}
+                </ZoruSelectContent>
+              </ZoruSelect>
             </div>
             <div className="min-w-[160px]">
-              <ClaySelect
-                sizeVariant="sm"
-                value={sortKey}
-                onChange={(e) => setSortKey(e.target.value as SortKey)}
-                options={sortOptions}
-              />
+              <ZoruSelect value={sortKey} onValueChange={(v) => setSortKey(v as SortKey)}>
+                <ZoruSelectTrigger>
+                  <ZoruSelectValue />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                  {sortOptions.map((o) => (
+                    <ZoruSelectItem key={o.value} value={o.value}>
+                      {o.label}
+                    </ZoruSelectItem>
+                  ))}
+                </ZoruSelectContent>
+              </ZoruSelect>
             </div>
             {user?.tags && user.tags.length > 0 ? (
               <div className="min-w-[180px] max-w-[240px]">
@@ -618,50 +668,44 @@ export default function UrlShortenerPage() {
           </div>
 
           {selectedIds.size > 0 ? (
-            <div className="flex items-center justify-between gap-3 border-b border-border bg-accent/40 px-5 py-2.5 text-[12.5px]">
-              <span className="text-foreground">
+            <div className="flex items-center justify-between gap-3 border-b border-zoru-line bg-zoru-surface-2 px-5 py-2.5 text-[12.5px]">
+              <span className="text-zoru-ink">
                 <strong>{selectedIds.size}</strong> selected
               </span>
               <div className="flex items-center gap-2">
-                <ClayButton
+                <ZoruButton
                   variant="ghost"
                   size="sm"
                   onClick={() => setSelectedIds(new Set())}
                 >
                   Clear
-                </ClayButton>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <ClayButton
-                      variant="rose"
-                      size="sm"
-                      disabled={isBulkDeleting}
-                      leading={
-                        isBulkDeleting ? (
-                          <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
-                        ) : (
-                          <Trash2 className="h-3.5 w-3.5" />
-                        )
-                      }
-                    >
+                </ZoruButton>
+                <ZoruAlertDialog>
+                  <ZoruAlertDialogTrigger asChild>
+                    <ZoruButton size="sm" disabled={isBulkDeleting}>
+                      {isBulkDeleting ? (
+                        <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-3.5 w-3.5" />
+                      )}
                       Delete selected
-                    </ClayButton>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Delete {selectedIds.size} link(s)?</AlertDialogTitle>
-                      <AlertDialogDescription>
+                    </ZoruButton>
+                  </ZoruAlertDialogTrigger>
+                  <ZoruAlertDialogContent>
+                    <ZoruAlertDialogHeader>
+                      <ZoruAlertDialogTitle>Delete {selectedIds.size} link(s)?</ZoruAlertDialogTitle>
+                      <ZoruAlertDialogDescription>
                         This permanently removes the selected short links. This action cannot be undone.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleBulkDelete} disabled={isBulkDeleting}>
+                      </ZoruAlertDialogDescription>
+                    </ZoruAlertDialogHeader>
+                    <ZoruAlertDialogFooter>
+                      <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+                      <ZoruAlertDialogAction onClick={handleBulkDelete} disabled={isBulkDeleting}>
                         Delete
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                      </ZoruAlertDialogAction>
+                    </ZoruAlertDialogFooter>
+                  </ZoruAlertDialogContent>
+                </ZoruAlertDialog>
               </div>
             </div>
           ) : null}
@@ -669,28 +713,28 @@ export default function UrlShortenerPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-[13px]">
               <thead>
-                <tr className="border-b border-border text-left text-[12px] text-muted-foreground">
+                <tr className="border-b border-zoru-line text-left text-[12px] text-zoru-ink-muted">
                   <th className="w-10 px-5 py-3">
                     <input
                       type="checkbox"
                       checked={allPageSelected}
                       onChange={toggleSelectPage}
                       aria-label="Select all on page"
-                      className="h-3.5 w-3.5 rounded border-border"
+                      className="h-3.5 w-3.5 rounded border-zoru-line"
                     />
                   </th>
-                  <th className="px-2 py-3 font-medium">Short URL</th>
-                  <th className="px-5 py-3 font-medium">Destination</th>
-                  <th className="px-5 py-3 font-medium">Status</th>
-                  <th className="px-5 py-3 font-medium">Clicks</th>
-                  <th className="px-5 py-3 font-medium text-right">Actions</th>
+                  <th className="px-2 py-3">Short URL</th>
+                  <th className="px-5 py-3">Destination</th>
+                  <th className="px-5 py-3">Status</th>
+                  <th className="px-5 py-3">Clicks</th>
+                  <th className="px-5 py-3 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {isLoading ? (
                   <tr>
                     <td colSpan={6} className="px-5 py-4">
-                      <Skeleton className="h-10 w-full" />
+                      <ZoruSkeleton className="h-10 w-full" />
                     </td>
                   </tr>
                 ) : pageSlice.length > 0 ? (
@@ -703,8 +747,8 @@ export default function UrlShortenerPage() {
                       <tr
                         key={id}
                         className={cn(
-                          'border-b border-border last:border-0 hover:bg-secondary',
-                          selected && 'bg-accent/30',
+                          'border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2',
+                          selected && 'bg-zoru-surface-2',
                         )}
                       >
                         <td className="w-10 px-5 py-3">
@@ -713,7 +757,7 @@ export default function UrlShortenerPage() {
                             checked={selected}
                             onChange={() => toggleSelect(id)}
                             aria-label="Select link"
-                            className="h-3.5 w-3.5 rounded border-border"
+                            className="h-3.5 w-3.5 rounded border-zoru-line"
                           />
                         </td>
                         <td className="px-2 py-3 font-mono">
@@ -721,7 +765,7 @@ export default function UrlShortenerPage() {
                             href={shortUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-accent hover:underline flex items-center gap-1"
+                            className="text-zoru-ink hover:underline flex items-center gap-1"
                           >
                             {shortUrl.replace(/^https?:\/\//, '')}
                             <button
@@ -730,38 +774,38 @@ export default function UrlShortenerPage() {
                                 e.preventDefault();
                                 handleCopy(id, shortUrl);
                               }}
-                              className="ml-1 rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                              className="ml-1 rounded p-0.5 text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
                               aria-label="Copy link"
                             >
                               {copiedId === id ? (
-                                <Check className="h-3 w-3 text-emerald-500" />
+                                <Check className="h-3 w-3 text-zoru-success-ink" />
                               ) : (
                                 <Copy className="h-3 w-3" />
                               )}
                             </button>
                           </a>
                         </td>
-                        <td className="px-5 py-3 text-muted-foreground truncate max-w-[240px]">
+                        <td className="px-5 py-3 text-zoru-ink-muted truncate max-w-[240px]">
                           {url.originalUrl}
                         </td>
                         <td className="px-5 py-3">
                           <span
                             className={cn(
-                              'inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10.5px] font-medium',
+                              'inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10.5px]',
                               status === 'active' &&
-                                'border-emerald-500/40 bg-emerald-500/10 text-emerald-500',
+                                'border-zoru-success/40 bg-zoru-success/10 text-zoru-success-ink',
                               status === 'expiring-soon' &&
-                                'border-amber-500/40 bg-amber-500/10 text-amber-500',
+                                'border-zoru-warning/40 bg-zoru-warning/10 text-zoru-warning-ink',
                               status === 'expired' &&
-                                'border-red-500/40 bg-red-500/10 text-red-500',
+                                'border-zoru-danger/40 bg-zoru-danger/10 text-zoru-danger-ink',
                             )}
                           >
                             <span
                               className={cn(
                                 'inline-block h-1.5 w-1.5 rounded-full',
-                                status === 'active' && 'bg-emerald-500',
-                                status === 'expiring-soon' && 'bg-amber-500',
-                                status === 'expired' && 'bg-red-500',
+                                status === 'active' && 'bg-zoru-success',
+                                status === 'expiring-soon' && 'bg-zoru-warning',
+                                status === 'expired' && 'bg-zoru-danger',
                               )}
                             />
                             {status === 'expiring-soon'
@@ -769,17 +813,17 @@ export default function UrlShortenerPage() {
                               : status[0].toUpperCase() + status.slice(1)}
                           </span>
                           {url.expiresAt ? (
-                            <div className="mt-0.5 text-[10.5px] text-muted-foreground">
+                            <div className="mt-0.5 text-[10.5px] text-zoru-ink-muted">
                               {new Date(url.expiresAt).toLocaleDateString()}
                             </div>
                           ) : null}
                         </td>
-                        <td className="px-5 py-3 text-foreground font-medium">{url.clickCount || 0}</td>
+                        <td className="px-5 py-3 text-zoru-ink">{url.clickCount || 0}</td>
                         <td className="px-5 py-3 text-right">
                           <div className="inline-flex items-center gap-1">
                             <Link
                               href={`/dashboard/url-shortener/${id}`}
-                              className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                              className="rounded p-1.5 text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
                               aria-label="Analytics"
                             >
                               <BarChart className="h-3.5 w-3.5" />
@@ -787,7 +831,7 @@ export default function UrlShortenerPage() {
                             <button
                               type="button"
                               onClick={() => setSelectedUrlForQr(shortUrl)}
-                              className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                              className="rounded p-1.5 text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
                               aria-label="QR Code"
                             >
                               <QrCode className="h-3.5 w-3.5" />
@@ -800,7 +844,7 @@ export default function UrlShortenerPage() {
                   })
                 ) : (
                   <tr>
-                    <td colSpan={6} className="px-5 py-12 text-center text-muted-foreground">
+                    <td colSpan={6} className="px-5 py-12 text-center text-zoru-ink-muted">
                       {urls.length === 0
                         ? 'No links created yet.'
                         : 'No links match your filters.'}
@@ -813,13 +857,13 @@ export default function UrlShortenerPage() {
 
           {/* Pagination */}
           {filteredUrls.length > 0 ? (
-            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-5 py-3 text-[12px] text-muted-foreground">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-zoru-line px-5 py-3 text-[12px] text-zoru-ink-muted">
               <div className="flex items-center gap-2">
                 <span>Rows per page</span>
                 <select
                   value={pageSize}
                   onChange={(e) => setPageSize(Number(e.target.value))}
-                  className="h-7 rounded border border-border bg-card px-2 text-[12px] text-foreground"
+                  className="h-7 rounded border border-zoru-line bg-zoru-bg px-2 text-[12px] text-zoru-ink"
                 >
                   {PAGE_SIZES.map((s) => (
                     <option key={s} value={s}>
@@ -838,7 +882,7 @@ export default function UrlShortenerPage() {
                     type="button"
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                     disabled={currentPage <= 1}
-                    className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:pointer-events-none"
+                    className="rounded p-1 text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink disabled:opacity-40 disabled:pointer-events-none"
                     aria-label="Previous page"
                   >
                     <ChevronLeft className="h-4 w-4" />
@@ -850,7 +894,7 @@ export default function UrlShortenerPage() {
                     type="button"
                     onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
                     disabled={currentPage >= pageCount}
-                    className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:pointer-events-none"
+                    className="rounded p-1 text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink disabled:opacity-40 disabled:pointer-events-none"
                     aria-label="Next page"
                   >
                     <ChevronRight className="h-4 w-4" />
@@ -859,7 +903,7 @@ export default function UrlShortenerPage() {
               </div>
             </div>
           ) : null}
-        </ClayCard>
+        </ZoruCard>
       </div>
     </>
   );

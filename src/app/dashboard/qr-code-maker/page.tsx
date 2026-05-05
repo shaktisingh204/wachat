@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
-import { LuQrCode } from 'react-icons/lu';
 import {
   AlertCircle,
   Check,
@@ -11,30 +10,48 @@ import {
   Download,
   Eye,
   LoaderCircle,
+  QrCode,
   Search,
   Trash2,
 } from 'lucide-react';
 import Link from 'next/link';
 import { getSession } from '@/app/actions/index';
 import { deleteManyQrCodes, deleteQrCode, getQrCodes } from '@/app/actions/qr-code.actions';
-import { useToast } from '@/hooks/use-toast';
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 import { QrCodeGenerator } from '@/components/wabasimplify/qr-code-generator';
 import { QrCodeDialog } from '@/components/wabasimplify/qr-code-dialog';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { Skeleton } from '@/components/ui/skeleton';
-import { cn } from '@/lib/utils';
-import { ClayBreadcrumbs, ClayButton, ClayCard, ClayInput, ClaySelect } from '@/components/clay';
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruAlertDialogTrigger,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSkeleton,
+  cn,
+  useZoruToast,
+} from '@/components/zoruui';
 
 export const dynamic = 'force-dynamic';
 
@@ -87,11 +104,11 @@ function downloadCsv(filename: string, rows: string[][]) {
 
 function StatCard({ label, value, hint }: { label: string; value: React.ReactNode; hint?: string }) {
   return (
-    <ClayCard className="p-4">
-      <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{label}</div>
-      <div className="mt-1.5 text-[22px] font-semibold text-foreground leading-tight">{value}</div>
-      {hint ? <div className="mt-0.5 text-[11px] text-muted-foreground">{hint}</div> : null}
-    </ClayCard>
+    <ZoruCard className="p-4">
+      <div className="text-[11px] uppercase tracking-wider text-zoru-ink-muted">{label}</div>
+      <div className="mt-1.5 text-[22px] text-zoru-ink leading-tight">{value}</div>
+      {hint ? <div className="mt-0.5 text-[11px] text-zoru-ink-muted">{hint}</div> : null}
+    </ZoruCard>
   );
 }
 
@@ -119,7 +136,7 @@ function generateDataString(code: any): string {
 }
 
 export default function QrCodeMakerPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const { copy } = useCopyToClipboard();
 
   const [session, setSession] = useState<any>(null);
@@ -284,39 +301,44 @@ export default function QrCodeMakerPage() {
   };
 
   const breadcrumbs = (
-    <ClayBreadcrumbs
-      items={[
-        { label: 'Home', href: '/dashboard' },
-        { label: 'QR Code Maker' },
-      ]}
-    />
+    <ZoruBreadcrumb>
+      <ZoruBreadcrumbList>
+        <ZoruBreadcrumbItem>
+          <ZoruBreadcrumbLink href="/dashboard">Home</ZoruBreadcrumbLink>
+        </ZoruBreadcrumbItem>
+        <ZoruBreadcrumbSeparator />
+        <ZoruBreadcrumbItem>
+          <ZoruBreadcrumbPage>QR Code Maker</ZoruBreadcrumbPage>
+        </ZoruBreadcrumbItem>
+      </ZoruBreadcrumbList>
+    </ZoruBreadcrumb>
   );
 
   if (isLoading) {
     return (
-      <div className="clay-enter flex min-h-full flex-col gap-6">
+      <div className="flex min-h-full flex-col gap-6">
         {breadcrumbs}
-        <Skeleton className="h-10 w-64" />
+        <ZoruSkeleton className="h-10 w-64" />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-[88px] rounded-xl" />
+            <ZoruSkeleton key={i} className="h-[88px] rounded-xl" />
           ))}
         </div>
-        <Skeleton className="h-[420px] w-full rounded-xl" />
-        <Skeleton className="h-64 w-full rounded-xl" />
+        <ZoruSkeleton className="h-[420px] w-full rounded-xl" />
+        <ZoruSkeleton className="h-64 w-full rounded-xl" />
       </div>
     );
   }
 
   if (!session?.user) {
     return (
-      <div className="clay-enter flex min-h-full flex-col gap-6">
+      <div className="flex min-h-full flex-col gap-6">
         {breadcrumbs}
-        <ClayCard className="p-10 text-center">
-          <AlertCircle className="mx-auto h-10 w-10 text-muted-foreground/30 mb-4" />
-          <h3 className="text-sm font-medium text-foreground mb-1">Authentication required</h3>
-          <p className="text-xs text-muted-foreground">You must be logged in to access this page.</p>
-        </ClayCard>
+        <ZoruCard className="p-10 text-center">
+          <AlertCircle className="mx-auto h-10 w-10 text-zoru-ink-muted/40 mb-4" />
+          <h3 className="text-sm text-zoru-ink mb-1">Authentication required</h3>
+          <p className="text-xs text-zoru-ink-muted">You must be logged in to access this page.</p>
+        </ZoruCard>
       </div>
     );
   }
@@ -330,29 +352,33 @@ export default function QrCodeMakerPage() {
         open={!!previewData}
         onOpenChange={(open) => !open && setPreviewData(null)}
       />
-      <div className="clay-enter flex min-h-full flex-col gap-6">
+      <div className="flex min-h-full flex-col gap-6">
         {breadcrumbs}
 
-        <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0">
-            <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1] flex items-center gap-3">
-              <LuQrCode className="h-7 w-7" />
-              QR Code Maker
-            </h1>
-            <p className="mt-1.5 max-w-[720px] text-[13px] text-muted-foreground">
-              Generate customizable QR codes for links, text, WhatsApp messages, and more.
-            </p>
-          </div>
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <ZoruPageHeader>
+            <ZoruPageHeading>
+              <ZoruPageTitle>
+                <span className="inline-flex items-center gap-3">
+                  <QrCode className="h-7 w-7" />
+                  QR Code Maker
+                </span>
+              </ZoruPageTitle>
+              <ZoruPageDescription>
+                Generate customizable QR codes for links, text, WhatsApp messages, and more.
+              </ZoruPageDescription>
+            </ZoruPageHeading>
+          </ZoruPageHeader>
           <div className="flex flex-wrap items-center gap-2">
-            <ClayButton
-              variant="pill"
+            <ZoruButton
+              variant="outline"
               size="sm"
               onClick={handleExport}
               disabled={filtered.length === 0}
-              leading={<Download className="h-3.5 w-3.5" />}
             >
+              <Download className="h-3.5 w-3.5" />
               Export CSV
-            </ClayButton>
+            </ZoruButton>
           </div>
         </div>
 
@@ -365,98 +391,112 @@ export default function QrCodeMakerPage() {
         </div>
 
         {/* Generator */}
-        <ClayCard padded={false} className="overflow-hidden">
+        <ZoruCard className="p-0 overflow-hidden">
           <QrCodeGenerator user={session.user} />
-        </ClayCard>
+        </ZoruCard>
 
         {/* Saved QR Codes */}
-        <ClayCard padded={false}>
-          <div className="flex items-center justify-between border-b border-border px-5 py-4">
-            <h2 className="text-[15px] font-semibold text-foreground">Your Saved QR Codes</h2>
-            <div className="text-[11.5px] text-muted-foreground">
+        <ZoruCard className="p-0">
+          <div className="flex items-center justify-between border-b border-zoru-line px-5 py-4">
+            <h2 className="text-[15px] text-zoru-ink">Your Saved QR Codes</h2>
+            <div className="text-[11.5px] text-zoru-ink-muted">
               {filtered.length} of {qrCodes.length}
             </div>
           </div>
 
           {/* Filter bar */}
-          <div className="flex flex-wrap items-center gap-3 border-b border-border px-5 py-3.5">
+          <div className="flex flex-wrap items-center gap-3 border-b border-zoru-line px-5 py-3.5">
             <div className="flex-1 min-w-[220px]">
-              <ClayInput
-                sizeVariant="sm"
+              <ZoruInput
                 placeholder="Search by name..."
-                leading={<Search className="h-3.5 w-3.5" />}
+                leadingSlot={<Search />}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
             <div className="min-w-[140px]">
-              <ClaySelect
-                sizeVariant="sm"
-                value={typeFilter}
-                onChange={(e) => setTypeFilter(e.target.value as TypeFilter)}
-                options={typeOptions}
-              />
+              <ZoruSelect value={typeFilter} onValueChange={(v) => setTypeFilter(v as TypeFilter)}>
+                <ZoruSelectTrigger>
+                  <ZoruSelectValue />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                  {typeOptions.map((o) => (
+                    <ZoruSelectItem key={o.value} value={o.value}>
+                      {o.label}
+                    </ZoruSelectItem>
+                  ))}
+                </ZoruSelectContent>
+              </ZoruSelect>
             </div>
             <div className="min-w-[140px]">
-              <ClaySelect
-                sizeVariant="sm"
+              <ZoruSelect
                 value={dynamicFilter}
-                onChange={(e) => setDynamicFilter(e.target.value as DynamicFilter)}
-                options={dynamicOptions}
-              />
+                onValueChange={(v) => setDynamicFilter(v as DynamicFilter)}
+              >
+                <ZoruSelectTrigger>
+                  <ZoruSelectValue />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                  {dynamicOptions.map((o) => (
+                    <ZoruSelectItem key={o.value} value={o.value}>
+                      {o.label}
+                    </ZoruSelectItem>
+                  ))}
+                </ZoruSelectContent>
+              </ZoruSelect>
             </div>
             <div className="min-w-[160px]">
-              <ClaySelect
-                sizeVariant="sm"
-                value={sortKey}
-                onChange={(e) => setSortKey(e.target.value as SortKey)}
-                options={sortOptions}
-              />
+              <ZoruSelect value={sortKey} onValueChange={(v) => setSortKey(v as SortKey)}>
+                <ZoruSelectTrigger>
+                  <ZoruSelectValue />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                  {sortOptions.map((o) => (
+                    <ZoruSelectItem key={o.value} value={o.value}>
+                      {o.label}
+                    </ZoruSelectItem>
+                  ))}
+                </ZoruSelectContent>
+              </ZoruSelect>
             </div>
           </div>
 
           {selectedIds.size > 0 ? (
-            <div className="flex items-center justify-between gap-3 border-b border-border bg-accent/40 px-5 py-2.5 text-[12.5px]">
-              <span className="text-foreground">
+            <div className="flex items-center justify-between gap-3 border-b border-zoru-line bg-zoru-surface-2 px-5 py-2.5 text-[12.5px]">
+              <span className="text-zoru-ink">
                 <strong>{selectedIds.size}</strong> selected
               </span>
               <div className="flex items-center gap-2">
-                <ClayButton variant="ghost" size="sm" onClick={() => setSelectedIds(new Set())}>
+                <ZoruButton variant="ghost" size="sm" onClick={() => setSelectedIds(new Set())}>
                   Clear
-                </ClayButton>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <ClayButton
-                      variant="rose"
-                      size="sm"
-                      disabled={isBulkDeleting}
-                      leading={
-                        isBulkDeleting ? (
-                          <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
-                        ) : (
-                          <Trash2 className="h-3.5 w-3.5" />
-                        )
-                      }
-                    >
+                </ZoruButton>
+                <ZoruAlertDialog>
+                  <ZoruAlertDialogTrigger asChild>
+                    <ZoruButton size="sm" disabled={isBulkDeleting}>
+                      {isBulkDeleting ? (
+                        <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-3.5 w-3.5" />
+                      )}
                       Delete selected
-                    </ClayButton>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Delete {selectedIds.size} QR code(s)?</AlertDialogTitle>
-                      <AlertDialogDescription>
+                    </ZoruButton>
+                  </ZoruAlertDialogTrigger>
+                  <ZoruAlertDialogContent>
+                    <ZoruAlertDialogHeader>
+                      <ZoruAlertDialogTitle>Delete {selectedIds.size} QR code(s)?</ZoruAlertDialogTitle>
+                      <ZoruAlertDialogDescription>
                         This permanently removes the selected QR codes and any associated short links. This
                         action cannot be undone.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleBulkDelete} disabled={isBulkDeleting}>
+                      </ZoruAlertDialogDescription>
+                    </ZoruAlertDialogHeader>
+                    <ZoruAlertDialogFooter>
+                      <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+                      <ZoruAlertDialogAction onClick={handleBulkDelete} disabled={isBulkDeleting}>
                         Delete
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                      </ZoruAlertDialogAction>
+                    </ZoruAlertDialogFooter>
+                  </ZoruAlertDialogContent>
+                </ZoruAlertDialog>
               </div>
             </div>
           ) : null}
@@ -464,28 +504,28 @@ export default function QrCodeMakerPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-[13px]">
               <thead>
-                <tr className="border-b border-border text-left text-[12px] text-muted-foreground">
+                <tr className="border-b border-zoru-line text-left text-[12px] text-zoru-ink-muted">
                   <th className="w-10 px-5 py-3">
                     <input
                       type="checkbox"
                       checked={allPageSelected}
                       onChange={toggleSelectPage}
                       aria-label="Select all on page"
-                      className="h-3.5 w-3.5 rounded border-border"
+                      className="h-3.5 w-3.5 rounded border-zoru-line"
                     />
                   </th>
-                  <th className="px-2 py-3 font-medium">Name</th>
-                  <th className="px-5 py-3 font-medium">Type</th>
-                  <th className="px-5 py-3 font-medium">Data / Link</th>
-                  <th className="px-5 py-3 font-medium">Created</th>
-                  <th className="px-5 py-3 font-medium text-right">Actions</th>
+                  <th className="px-2 py-3">Name</th>
+                  <th className="px-5 py-3">Type</th>
+                  <th className="px-5 py-3">Data / Link</th>
+                  <th className="px-5 py-3">Created</th>
+                  <th className="px-5 py-3 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {isRefetching && pageSlice.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="px-5 py-4">
-                      <Skeleton className="h-10 w-full" />
+                      <ZoruSkeleton className="h-10 w-full" />
                     </td>
                   </tr>
                 ) : pageSlice.length > 0 ? (
@@ -503,8 +543,8 @@ export default function QrCodeMakerPage() {
                       <tr
                         key={id}
                         className={cn(
-                          'border-b border-border last:border-0 hover:bg-secondary',
-                          selected && 'bg-accent/30',
+                          'border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2',
+                          selected && 'bg-zoru-surface-2',
                         )}
                       >
                         <td className="w-10 px-5 py-3">
@@ -513,14 +553,14 @@ export default function QrCodeMakerPage() {
                             checked={selected}
                             onChange={() => toggleSelect(id)}
                             aria-label="Select QR code"
-                            className="h-3.5 w-3.5 rounded border-border"
+                            className="h-3.5 w-3.5 rounded border-zoru-line"
                           />
                         </td>
                         <td className="px-2 py-3">
-                          <div className="flex items-center gap-2 font-medium text-foreground">
+                          <div className="flex items-center gap-2 text-zoru-ink">
                             {code.name || '(untitled)'}
                             {isNew ? (
-                              <span className="rounded-full border border-emerald-500/40 bg-emerald-500/10 px-1.5 py-0 text-[10px] font-medium text-emerald-500">
+                              <span className="rounded-full border border-zoru-success/40 bg-zoru-success/10 px-1.5 py-0 text-[10px] text-zoru-success-ink">
                                 New
                               </span>
                             ) : null}
@@ -528,33 +568,33 @@ export default function QrCodeMakerPage() {
                         </td>
                         <td className="px-5 py-3">
                           <div className="flex items-center gap-1.5">
-                            <span className="rounded-full border border-border bg-secondary px-1.5 py-0.5 text-[10.5px] capitalize text-foreground">
+                            <span className="rounded-full border border-zoru-line bg-zoru-surface-2 px-1.5 py-0.5 text-[10.5px] capitalize text-zoru-ink">
                               {code.dataType}
                             </span>
                             {isDynamic ? (
-                              <span className="rounded-full border border-accent/40 bg-accent/10 px-1.5 py-0.5 text-[10.5px] font-medium text-accent">
+                              <span className="rounded-full border border-zoru-line bg-zoru-surface-2 px-1.5 py-0.5 text-[10.5px] text-zoru-ink">
                                 Dynamic
                               </span>
                             ) : null}
                           </div>
                         </td>
-                        <td className="px-5 py-3 font-mono text-[11.5px] text-muted-foreground max-w-[260px]">
+                        <td className="px-5 py-3 font-mono text-[11.5px] text-zoru-ink-muted max-w-[260px]">
                           {isDynamic ? (
                             <div className="flex items-center gap-1.5">
                               <Link
                                 href={`/dashboard/url-shortener/${code.shortUrl._id}`}
-                                className="truncate text-accent hover:underline"
+                                className="truncate text-zoru-ink hover:underline"
                               >
                                 {shortUrlStr.replace(/^https?:\/\//, '')}
                               </Link>
                               <button
                                 type="button"
                                 onClick={() => handleCopy(id, shortUrlStr)}
-                                className="rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                                className="rounded p-0.5 text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
                                 aria-label="Copy short URL"
                               >
                                 {copiedId === id ? (
-                                  <Check className="h-3 w-3 text-emerald-500" />
+                                  <Check className="h-3 w-3 text-zoru-success-ink" />
                                 ) : (
                                   <Copy className="h-3 w-3" />
                                 )}
@@ -567,11 +607,11 @@ export default function QrCodeMakerPage() {
                                 <button
                                   type="button"
                                   onClick={() => handleCopy(id, staticPreview)}
-                                  className="rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                                  className="rounded p-0.5 text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
                                   aria-label="Copy data"
                                 >
                                   {copiedId === id ? (
-                                    <Check className="h-3 w-3 text-emerald-500" />
+                                    <Check className="h-3 w-3 text-zoru-success-ink" />
                                   ) : (
                                     <Copy className="h-3 w-3" />
                                   )}
@@ -580,7 +620,7 @@ export default function QrCodeMakerPage() {
                             </div>
                           )}
                         </td>
-                        <td className="px-5 py-3 text-foreground">
+                        <td className="px-5 py-3 text-zoru-ink">
                           {code.createdAt ? new Date(code.createdAt).toLocaleDateString() : '—'}
                         </td>
                         <td className="px-5 py-3 text-right">
@@ -588,34 +628,34 @@ export default function QrCodeMakerPage() {
                             <button
                               type="button"
                               onClick={() => handleView(code)}
-                              className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                              className="rounded p-1.5 text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
                               aria-label="View QR"
                             >
                               <Eye className="h-3.5 w-3.5" />
                             </button>
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
+                            <ZoruAlertDialog>
+                              <ZoruAlertDialogTrigger asChild>
                                 <button
                                   type="button"
-                                  className="rounded p-1.5 text-muted-foreground hover:bg-red-500/10 hover:text-red-500"
+                                  className="rounded p-1.5 text-zoru-ink-muted hover:bg-zoru-danger/10 hover:text-zoru-danger-ink"
                                   aria-label="Delete"
                                 >
                                   <Trash2 className="h-3.5 w-3.5" />
                                 </button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Delete "{code.name}"?</AlertDialogTitle>
-                                  <AlertDialogDescription>
+                              </ZoruAlertDialogTrigger>
+                              <ZoruAlertDialogContent>
+                                <ZoruAlertDialogHeader>
+                                  <ZoruAlertDialogTitle>Delete "{code.name}"?</ZoruAlertDialogTitle>
+                                  <ZoruAlertDialogDescription>
                                     This permanently removes the QR code. This action cannot be undone.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => handleDeleteOne(id)}>Delete</AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
+                                  </ZoruAlertDialogDescription>
+                                </ZoruAlertDialogHeader>
+                                <ZoruAlertDialogFooter>
+                                  <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+                                  <ZoruAlertDialogAction onClick={() => handleDeleteOne(id)}>Delete</ZoruAlertDialogAction>
+                                </ZoruAlertDialogFooter>
+                              </ZoruAlertDialogContent>
+                            </ZoruAlertDialog>
                           </div>
                         </td>
                       </tr>
@@ -623,7 +663,7 @@ export default function QrCodeMakerPage() {
                   })
                 ) : (
                   <tr>
-                    <td colSpan={6} className="px-5 py-12 text-center text-muted-foreground">
+                    <td colSpan={6} className="px-5 py-12 text-center text-zoru-ink-muted">
                       {qrCodes.length === 0
                         ? 'No QR codes saved yet. Use the generator above to create one.'
                         : 'No QR codes match your filters.'}
@@ -635,13 +675,13 @@ export default function QrCodeMakerPage() {
           </div>
 
           {filtered.length > 0 ? (
-            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-5 py-3 text-[12px] text-muted-foreground">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-zoru-line px-5 py-3 text-[12px] text-zoru-ink-muted">
               <div className="flex items-center gap-2">
                 <span>Rows per page</span>
                 <select
                   value={pageSize}
                   onChange={(e) => setPageSize(Number(e.target.value))}
-                  className="h-7 rounded border border-border bg-card px-2 text-[12px] text-foreground"
+                  className="h-7 rounded border border-zoru-line bg-zoru-bg px-2 text-[12px] text-zoru-ink"
                 >
                   {PAGE_SIZES.map((s) => (
                     <option key={s} value={s}>
@@ -660,7 +700,7 @@ export default function QrCodeMakerPage() {
                     type="button"
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                     disabled={currentPage <= 1}
-                    className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:pointer-events-none"
+                    className="rounded p-1 text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink disabled:opacity-40 disabled:pointer-events-none"
                     aria-label="Previous page"
                   >
                     <ChevronLeft className="h-4 w-4" />
@@ -672,7 +712,7 @@ export default function QrCodeMakerPage() {
                     type="button"
                     onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
                     disabled={currentPage >= pageCount}
-                    className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-40 disabled:pointer-events-none"
+                    className="rounded p-1 text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink disabled:opacity-40 disabled:pointer-events-none"
                     aria-label="Next page"
                   >
                     <ChevronRight className="h-4 w-4" />
@@ -681,7 +721,7 @@ export default function QrCodeMakerPage() {
               </div>
             </div>
           ) : null}
-        </ClayCard>
+        </ZoruCard>
       </div>
     </>
   );

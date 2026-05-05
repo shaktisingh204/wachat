@@ -2,14 +2,25 @@
 
 import { useState, useEffect } from "react";
 import { deleteSmsCampaign, getSmsCampaigns } from "@/app/actions/sms-campaign-list.actions";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import {
+    ZoruCard,
+    ZoruCardContent,
+    ZoruCardDescription,
+    ZoruCardHeader,
+    ZoruCardTitle,
+    ZoruButton,
+    ZoruTable,
+    ZoruTableBody,
+    ZoruTableCell,
+    ZoruTableHead,
+    ZoruTableHeader,
+    ZoruTableRow,
+    ZoruBadge,
+} from '@/components/zoruui';
 
 export default function SmsCampaignsList() {
     const [campaigns, setCampaigns] = useState<any[]>([]);
@@ -35,88 +46,88 @@ export default function SmsCampaignsList() {
 
     const getStatusBadge = (status: string) => {
         switch (status) {
-            case 'COMPLETED': return <Badge className="bg-green-500">Completed</Badge>;
-            case 'SENDING': return <Badge className="bg-blue-500 animate-pulse">Sending</Badge>;
-            case 'PROCESSING': return <Badge className="bg-blue-400">Processing</Badge>;
-            case 'FAILED': return <Badge variant="destructive">Failed</Badge>;
-            case 'DRAFT': return <Badge variant="secondary">Draft</Badge>;
-            case 'SCHEDULED': return <Badge variant="outline" className="border-yellow-500 text-yellow-500">Scheduled</Badge>;
-            default: return <Badge variant="outline">{status}</Badge>;
+            case 'COMPLETED': return <ZoruBadge variant="success">Completed</ZoruBadge>;
+            case 'SENDING': return <ZoruBadge variant="info" className="animate-pulse">Sending</ZoruBadge>;
+            case 'PROCESSING': return <ZoruBadge variant="info">Processing</ZoruBadge>;
+            case 'FAILED': return <ZoruBadge variant="danger">Failed</ZoruBadge>;
+            case 'DRAFT': return <ZoruBadge variant="ghost">Draft</ZoruBadge>;
+            case 'SCHEDULED': return <ZoruBadge variant="warning">Scheduled</ZoruBadge>;
+            default: return <ZoruBadge variant="ghost">{status}</ZoruBadge>;
         }
     };
 
     return (
-        <Card className="w-full">
-            <CardHeader>
+        <ZoruCard className="w-full p-0">
+            <ZoruCardHeader>
                 <div className="flex items-center justify-between">
                     <div>
-                        <CardTitle>All Campaigns</CardTitle>
-                        <CardDescription>Manage your SMS marketing campaigns.</CardDescription>
+                        <ZoruCardTitle>All Campaigns</ZoruCardTitle>
+                        <ZoruCardDescription>Manage your SMS marketing campaigns.</ZoruCardDescription>
                     </div>
-                    <Button asChild>
+                    <ZoruButton asChild>
                         <Link href="/dashboard/sms/campaigns/new">
-                            <Plus className="h-4 w-4 mr-2" /> New Campaign
+                            <Plus className="h-4 w-4" /> New Campaign
                         </Link>
-                    </Button>
+                    </ZoruButton>
                 </div>
-            </CardHeader>
-            <CardContent>
-                <div className="rounded-md border">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Name</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead>Sent / Failed</TableHead>
-                                <TableHead>Created At</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
+            </ZoruCardHeader>
+            <ZoruCardContent>
+                <div className="rounded-md border border-zoru-line">
+                    <ZoruTable>
+                        <ZoruTableHeader>
+                            <ZoruTableRow>
+                                <ZoruTableHead>Name</ZoruTableHead>
+                                <ZoruTableHead>Status</ZoruTableHead>
+                                <ZoruTableHead>Sent / Failed</ZoruTableHead>
+                                <ZoruTableHead>Created At</ZoruTableHead>
+                                <ZoruTableHead className="text-right">Actions</ZoruTableHead>
+                            </ZoruTableRow>
+                        </ZoruTableHeader>
+                        <ZoruTableBody>
                             {loading ? (
-                                <TableRow>
-                                    <TableCell colSpan={5} className="h-24 text-center">
-                                        <Loader2 className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
-                                    </TableCell>
-                                </TableRow>
+                                <ZoruTableRow>
+                                    <ZoruTableCell colSpan={5} className="h-24 text-center">
+                                        <Loader2 className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
+                                    </ZoruTableCell>
+                                </ZoruTableRow>
                             ) : campaigns.length === 0 ? (
-                                <TableRow>
-                                    <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                                <ZoruTableRow>
+                                    <ZoruTableCell colSpan={5} className="h-24 text-center text-zoru-ink-muted">
                                         No campaigns found.
-                                    </TableCell>
-                                </TableRow>
+                                    </ZoruTableCell>
+                                </ZoruTableRow>
                             ) : (
                                 campaigns.map((c) => (
-                                    <TableRow key={c._id}>
-                                        <TableCell className="font-medium">
+                                    <ZoruTableRow key={c._id}>
+                                        <ZoruTableCell className="text-zoru-ink">
                                             {c.name}
-                                            {c.error && <p className="text-xs text-red-500 mt-1">{c.error}</p>}
-                                        </TableCell>
-                                        <TableCell>{getStatusBadge(c.status)}</TableCell>
-                                        <TableCell>
-                                            <span className="text-green-600 font-medium">{c.stats?.sent || 0}</span> /
-                                            <span className="text-red-500 font-medium ml-1">{c.stats?.failed || 0}</span>
-                                        </TableCell>
-                                        <TableCell className="text-muted-foreground">
+                                            {c.error && <p className="text-xs text-zoru-danger-ink mt-1">{c.error}</p>}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell>{getStatusBadge(c.status)}</ZoruTableCell>
+                                        <ZoruTableCell>
+                                            <span className="text-zoru-success-ink">{c.stats?.sent || 0}</span> /
+                                            <span className="text-zoru-danger-ink ml-1">{c.stats?.failed || 0}</span>
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-zoru-ink-muted">
                                             {format(new Date(c.createdAt), 'MMM d, yyyy h:mm a')}
-                                        </TableCell>
-                                        <TableCell className="text-right">
-                                            <Button
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-right">
+                                            <ZoruButton
                                                 variant="ghost"
                                                 size="sm"
-                                                className="text-red-500 hover:text-red-700"
+                                                className="text-zoru-danger-ink hover:text-zoru-danger"
                                                 onClick={() => handleDelete(c._id)}
                                             >
                                                 <Trash2 className="h-4 w-4" />
-                                            </Button>
-                                        </TableCell>
-                                    </TableRow>
+                                            </ZoruButton>
+                                        </ZoruTableCell>
+                                    </ZoruTableRow>
                                 ))
                             )}
-                        </TableBody>
-                    </Table>
+                        </ZoruTableBody>
+                    </ZoruTable>
                 </div>
-            </CardContent>
-        </Card>
+            </ZoruCardContent>
+        </ZoruCard>
     );
 }

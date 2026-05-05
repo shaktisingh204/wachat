@@ -9,47 +9,52 @@ import {
 } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
-    LuShieldCheck,
-    LuPlus,
-    LuSave,
-    LuTrash2,
-    LuLoaderCircle,
-    LuChevronDown,
-    LuCheck,
-} from 'react-icons/lu';
+    ShieldCheck,
+    Plus,
+    Save,
+    Trash2,
+    LoaderCircle,
+    ChevronDown,
+    Check,
+} from 'lucide-react';
 
 import {
-    ClayBadge,
-    ClayBreadcrumbs,
-    ClayButton,
-    ClayCard,
-    ClayInput,
-    ClaySectionHeader,
-} from '@/components/clay';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '@/components/ui/dialog';
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
+    ZoruAlertDialog,
+    ZoruAlertDialogAction,
+    ZoruAlertDialogCancel,
+    ZoruAlertDialogContent,
+    ZoruAlertDialogDescription,
+    ZoruAlertDialogFooter,
+    ZoruAlertDialogHeader,
+    ZoruAlertDialogTitle,
+    ZoruAlertDialogTrigger,
+    ZoruBadge,
+    ZoruBreadcrumb,
+    ZoruBreadcrumbItem,
+    ZoruBreadcrumbLink,
+    ZoruBreadcrumbList,
+    ZoruBreadcrumbPage,
+    ZoruBreadcrumbSeparator,
+    ZoruButton,
+    ZoruCard,
+    ZoruCheckbox,
+    ZoruDialog,
+    ZoruDialogContent,
+    ZoruDialogDescription,
+    ZoruDialogFooter,
+    ZoruDialogHeader,
+    ZoruDialogTitle,
+    ZoruDialogTrigger,
+    ZoruInput,
+    ZoruLabel,
+    ZoruPageDescription,
+    ZoruPageHeader,
+    ZoruPageHeading,
+    ZoruPageTitle,
+    ZoruSkeleton,
+    cn,
+    useZoruToast,
+} from '@/components/zoruui';
 import { getSession } from '@/app/actions/user.actions';
 import {
     saveRolePermissions,
@@ -57,7 +62,6 @@ import {
     deleteRole,
 } from '@/app/actions/crm-roles.actions';
 import type { WithId, User } from '@/lib/definitions';
-import { cn } from '@/lib/utils';
 
 const initialState = { message: undefined, error: undefined } as {
     message?: string;
@@ -235,23 +239,14 @@ const permissionCategories: Record<string, { label: string; modules: Array<{ id:
 function SaveBar() {
     const { pending } = useFormStatus();
     return (
-        <div className="sticky bottom-4 z-20 mt-6 flex items-center justify-between rounded-2xl border border-border bg-card/95 p-3 shadow-md backdrop-blur">
-            <p className="pl-2 text-[12.5px] text-muted-foreground">
+        <div className="sticky bottom-4 z-20 mt-6 flex items-center justify-between rounded-2xl border border-zoru-line bg-zoru-bg/95 p-3 shadow-md backdrop-blur">
+            <p className="pl-2 text-[12.5px] text-zoru-ink-muted">
                 Toggle permissions for every role, then save to sync all members.
             </p>
-            <ClayButton
-                type="submit"
-                variant="obsidian"
-                size="md"
-                disabled={pending}
-                leading={pending ? (
-                    <LuLoaderCircle className="h-4 w-4 animate-spin" />
-                ) : (
-                    <LuSave className="h-4 w-4" />
-                )}
-            >
+            <ZoruButton type="submit" size="md" disabled={pending}>
+                {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                 {pending ? 'Saving…' : 'Save permissions'}
-            </ClayButton>
+            </ZoruButton>
         </div>
     );
 }
@@ -260,10 +255,10 @@ function SaveBar() {
 
 function PageSkeleton() {
     return (
-        <div className="clay-enter flex min-h-full flex-col gap-6">
-            <Skeleton className="h-5 w-60" />
-            <Skeleton className="h-10 w-80" />
-            <Skeleton className="h-[420px] w-full rounded-2xl" />
+        <div className="flex min-h-full flex-col gap-6">
+            <ZoruSkeleton className="h-5 w-60" />
+            <ZoruSkeleton className="h-10 w-80" />
+            <ZoruSkeleton className="h-[420px] w-full rounded-2xl" />
         </div>
     );
 }
@@ -274,7 +269,7 @@ function AddRoleDialog({ onRoleAdded }: { onRoleAdded: () => void }) {
     const [open, setOpen] = useState(false);
     const [roleName, setRoleName] = useState('');
     const [isPending, startTransition] = useTransition();
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
 
     const handleAddRole = () => {
         if (!roleName.trim()) {
@@ -295,46 +290,42 @@ function AddRoleDialog({ onRoleAdded }: { onRoleAdded: () => void }) {
     };
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <ClayButton variant="obsidian" size="sm" leading={<LuPlus className="h-4 w-4" />}>
+        <ZoruDialog open={open} onOpenChange={setOpen}>
+            <ZoruDialogTrigger asChild>
+                <ZoruButton size="sm">
+                    <Plus className="h-4 w-4" />
                     New role
-                </ClayButton>
-            </DialogTrigger>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Create a new role</DialogTitle>
-                    <DialogDescription>
+                </ZoruButton>
+            </ZoruDialogTrigger>
+            <ZoruDialogContent>
+                <ZoruDialogHeader>
+                    <ZoruDialogTitle>Create a new role</ZoruDialogTitle>
+                    <ZoruDialogDescription>
                         Give the role a name. You can configure permissions once it appears in the list.
-                    </DialogDescription>
-                </DialogHeader>
+                    </ZoruDialogDescription>
+                </ZoruDialogHeader>
                 <div className="py-2">
-                    <Label htmlFor="roleName" className="mb-1.5 block text-[12.5px] font-medium text-foreground">
+                    <ZoruLabel htmlFor="roleName" className="mb-1.5 block text-[12.5px] text-zoru-ink">
                         Role name
-                    </Label>
-                    <ClayInput
+                    </ZoruLabel>
+                    <ZoruInput
                         id="roleName"
                         value={roleName}
                         onChange={(e) => setRoleName(e.target.value)}
                         placeholder="e.g. Marketing Manager"
                     />
                 </div>
-                <DialogFooter>
-                    <ClayButton variant="ghost" size="sm" onClick={() => setOpen(false)}>
+                <ZoruDialogFooter>
+                    <ZoruButton variant="ghost" size="sm" onClick={() => setOpen(false)}>
                         Cancel
-                    </ClayButton>
-                    <ClayButton
-                        variant="obsidian"
-                        size="sm"
-                        onClick={handleAddRole}
-                        disabled={isPending}
-                        leading={isPending ? <LuLoaderCircle className="h-4 w-4 animate-spin" /> : undefined}
-                    >
+                    </ZoruButton>
+                    <ZoruButton size="sm" onClick={handleAddRole} disabled={isPending}>
+                        {isPending && <LoaderCircle className="h-4 w-4 animate-spin" />}
                         Create role
-                    </ClayButton>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+                    </ZoruButton>
+                </ZoruDialogFooter>
+            </ZoruDialogContent>
+        </ZoruDialog>
     );
 }
 
@@ -342,7 +333,7 @@ function AddRoleDialog({ onRoleAdded }: { onRoleAdded: () => void }) {
 
 function DeleteRoleButton({ role, onRoleDeleted }: { role: { id: string; name: string }; onRoleDeleted: () => void }) {
     const [isPending, startTransition] = useTransition();
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
 
     if (role.id === 'agent') return null;
 
@@ -359,37 +350,37 @@ function DeleteRoleButton({ role, onRoleDeleted }: { role: { id: string; name: s
     };
 
     return (
-        <AlertDialog>
-            <AlertDialogTrigger asChild>
+        <ZoruAlertDialog>
+            <ZoruAlertDialogTrigger asChild>
                 <button
                     type="button"
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:border-red-400 hover:text-red-600"
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-zoru-line bg-zoru-bg text-zoru-ink-muted transition-colors hover:border-zoru-danger hover:text-zoru-danger-ink"
                     aria-label={`Delete ${role.name}`}
                     onClick={(e) => e.stopPropagation()}
                 >
-                    <LuTrash2 className="h-4 w-4" />
+                    <Trash2 className="h-4 w-4" />
                 </button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-                <AlertDialogHeader>
-                    <AlertDialogTitle>Delete role?</AlertDialogTitle>
-                    <AlertDialogDescription>
+            </ZoruAlertDialogTrigger>
+            <ZoruAlertDialogContent>
+                <ZoruAlertDialogHeader>
+                    <ZoruAlertDialogTitle>Delete role?</ZoruAlertDialogTitle>
+                    <ZoruAlertDialogDescription>
                         This permanently removes the &ldquo;{role.name}&rdquo; role. Members assigned to it will
                         lose these permissions immediately.
-                    </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
+                    </ZoruAlertDialogDescription>
+                </ZoruAlertDialogHeader>
+                <ZoruAlertDialogFooter>
+                    <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+                    <ZoruAlertDialogAction
                         onClick={handleDelete}
                         disabled={isPending}
-                        className="bg-red-600 text-white hover:bg-red-700"
+                        className="bg-zoru-danger text-zoru-danger-foreground hover:bg-zoru-danger/90"
                     >
-                        {isPending && <LuLoaderCircle className="mr-2 h-4 w-4 animate-spin" />} Delete
-                    </AlertDialogAction>
-                </AlertDialogFooter>
-            </AlertDialogContent>
-        </AlertDialog>
+                        {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />} Delete
+                    </ZoruAlertDialogAction>
+                </ZoruAlertDialogFooter>
+            </ZoruAlertDialogContent>
+        </ZoruAlertDialog>
     );
 }
 
@@ -422,42 +413,40 @@ function RoleCard({
     }, [permissions]);
 
     return (
-        <ClayCard padded={false} variant="default" className="overflow-hidden">
+        <ZoruCard className="overflow-hidden p-0">
             <button
                 type="button"
                 onClick={() => setOpen((v) => !v)}
                 className={cn(
                     'flex w-full items-center justify-between gap-4 px-5 py-4 text-left transition-colors',
-                    open ? 'bg-muted/50' : 'hover:bg-muted/50/60',
+                    open ? 'bg-zoru-surface-2/50' : 'hover:bg-zoru-surface-2/40',
                 )}
             >
                 <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-accent text-primary">
-                        <LuShieldCheck className="h-4 w-4" />
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
+                        <ShieldCheck className="h-4 w-4" />
                     </div>
                     <div>
-                        <p className="text-[14px] font-semibold text-foreground">{role.name}</p>
-                        <p className="text-[12px] text-muted-foreground">
+                        <p className="text-[14px] text-zoru-ink">{role.name}</p>
+                        <p className="text-[12px] text-zoru-ink-muted">
                             {enabledCount} permission{enabledCount === 1 ? '' : 's'} granted
                         </p>
                     </div>
-                    {role.id === 'agent' && (
-                        <ClayBadge tone="neutral">System</ClayBadge>
-                    )}
+                    {role.id === 'agent' && <ZoruBadge variant="ghost">System</ZoruBadge>}
                 </div>
                 <div className="flex items-center gap-2">
                     <DeleteRoleButton role={role} onRoleDeleted={onRoleDeleted} />
-                    <LuChevronDown
-                        className={cn('h-5 w-5 text-muted-foreground transition-transform', open && 'rotate-180')}
+                    <ChevronDown
+                        className={cn('h-5 w-5 text-zoru-ink-muted transition-transform', open && 'rotate-180')}
                     />
                 </div>
             </button>
 
             {open && (
-                <div className="border-t border-border bg-card">
+                <div className="border-t border-zoru-line bg-zoru-bg">
                     <input type="hidden" name="roleId" value={role.id} />
                     <div className="grid grid-cols-1 md:grid-cols-[200px_1fr]">
-                        <aside className="border-b border-border bg-muted/50 p-2 md:border-b-0 md:border-r">
+                        <aside className="border-b border-zoru-line bg-zoru-surface-2/50 p-2 md:border-b-0 md:border-r">
                             <div className="flex gap-2 overflow-x-auto md:flex-col">
                                 {Object.entries(permissionCategories).map(([key, cat]) => (
                                     <button
@@ -465,10 +454,10 @@ function RoleCard({
                                         type="button"
                                         onClick={() => setActiveCategory(key)}
                                         className={cn(
-                                            'shrink-0 rounded-lg px-3 py-2 text-left text-[12.5px] font-medium transition-colors md:w-full',
+                                            'shrink-0 rounded-lg px-3 py-2 text-left text-[12.5px] transition-colors md:w-full',
                                             activeCategory === key
-                                                ? 'bg-foreground text-white'
-                                                : 'text-muted-foreground hover:bg-card hover:text-foreground',
+                                                ? 'bg-zoru-ink text-zoru-bg'
+                                                : 'text-zoru-ink-muted hover:bg-zoru-bg hover:text-zoru-ink',
                                         )}
                                     >
                                         {cat.label}
@@ -482,15 +471,15 @@ function RoleCard({
                                 return (
                                     <div key={key} className="space-y-3">
                                         <div className="flex items-center justify-between">
-                                            <h3 className="text-[13.5px] font-semibold text-foreground">
+                                            <h3 className="text-[13.5px] text-zoru-ink">
                                                 {cat.label} permissions
                                             </h3>
-                                            <ClayBadge tone="neutral" dot>
+                                            <ZoruBadge variant="ghost">
                                                 {cat.modules.length} modules
-                                            </ClayBadge>
+                                            </ZoruBadge>
                                         </div>
-                                        <div className="overflow-hidden rounded-xl border border-border">
-                                            <div className="grid grid-cols-[minmax(180px,2fr)_repeat(4,80px)] gap-0 bg-muted/50 px-4 py-2.5 text-[11.5px] font-semibold uppercase tracking-wide text-muted-foreground">
+                                        <div className="overflow-hidden rounded-xl border border-zoru-line">
+                                            <div className="grid grid-cols-[minmax(180px,2fr)_repeat(4,80px)] gap-0 bg-zoru-surface-2/50 px-4 py-2.5 text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
                                                 <span>Module</span>
                                                 {actions.map((a) => (
                                                     <span key={a} className="text-center capitalize">
@@ -498,16 +487,16 @@ function RoleCard({
                                                     </span>
                                                 ))}
                                             </div>
-                                            <div className="divide-y divide-border">
+                                            <div className="divide-y divide-zoru-line">
                                                 {cat.modules.map((mod) => (
                                                     <div
                                                         key={mod.id}
-                                                        className="grid grid-cols-[minmax(180px,2fr)_repeat(4,80px)] items-center px-4 py-2.5 text-[13px] text-foreground hover:bg-muted/50/40"
+                                                        className="grid grid-cols-[minmax(180px,2fr)_repeat(4,80px)] items-center px-4 py-2.5 text-[13px] text-zoru-ink hover:bg-zoru-surface-2/40"
                                                     >
-                                                        <span className="font-medium">{mod.name}</span>
+                                                        <span>{mod.name}</span>
                                                         {actions.map((action) => (
                                                             <div key={action} className="flex justify-center">
-                                                                <Checkbox
+                                                                <ZoruCheckbox
                                                                     name={`${role.id}_${mod.id}_${action}`}
                                                                     defaultChecked={
                                                                         permissions[mod.id]?.[action] ?? false
@@ -526,7 +515,7 @@ function RoleCard({
                     </div>
                 </div>
             )}
-        </ClayCard>
+        </ZoruCard>
     );
 }
 
@@ -536,7 +525,7 @@ export default function ManageRolesPage() {
     const [user, setUser] = useState<WithId<User> | null>(null);
     const [isLoading, startLoading] = useTransition();
     const [state, formAction] = useActionState(saveRolePermissions, initialState);
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
 
     const fetchUser = () => {
         startLoading(async () => {
@@ -553,7 +542,7 @@ export default function ManageRolesPage() {
 
     useEffect(() => {
         if (state.message) {
-            toast({ title: 'Saved', description: state.message, variant: 'default' });
+            toast({ title: 'Saved', description: state.message });
             fetchUser();
         }
         if (state.error) {
@@ -584,42 +573,48 @@ export default function ManageRolesPage() {
     }, 0);
 
     return (
-        <div className="clay-enter flex min-h-full flex-col gap-6">
-            <ClayBreadcrumbs
-                items={[
-                    { label: 'Team', href: '/dashboard/team' },
-                    { label: 'Roles & permissions' },
-                ]}
-            />
+        <div className="flex min-h-full flex-col gap-6">
+            <ZoruBreadcrumb>
+                <ZoruBreadcrumbList>
+                    <ZoruBreadcrumbItem>
+                        <ZoruBreadcrumbLink href="/dashboard/team">Team</ZoruBreadcrumbLink>
+                    </ZoruBreadcrumbItem>
+                    <ZoruBreadcrumbSeparator />
+                    <ZoruBreadcrumbItem>
+                        <ZoruBreadcrumbPage>Roles & permissions</ZoruBreadcrumbPage>
+                    </ZoruBreadcrumbItem>
+                </ZoruBreadcrumbList>
+            </ZoruBreadcrumb>
 
-            <ClaySectionHeader
-                size="lg"
-                title="Roles & permissions"
-                subtitle="Define what each role can access and do across every module of the platform."
-                actions={<AddRoleDialog onRoleAdded={fetchUser} />}
-            />
+            <ZoruPageHeader>
+                <ZoruPageHeading>
+                    <ZoruPageTitle>Roles & permissions</ZoruPageTitle>
+                    <ZoruPageDescription>
+                        Define what each role can access and do across every module of the platform.
+                    </ZoruPageDescription>
+                </ZoruPageHeading>
+                <AddRoleDialog onRoleAdded={fetchUser} />
+            </ZoruPageHeader>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <ClayCard variant="soft" padded>
-                    <p className="text-[11.5px] font-medium uppercase tracking-wide text-muted-foreground">
-                        Roles
-                    </p>
-                    <p className="mt-1 text-[22px] font-semibold text-foreground">{allRoles.length}</p>
-                </ClayCard>
-                <ClayCard variant="soft" padded>
-                    <p className="text-[11.5px] font-medium uppercase tracking-wide text-muted-foreground">
+                <ZoruCard variant="soft" className="p-6">
+                    <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">Roles</p>
+                    <p className="mt-1 text-[22px] text-zoru-ink">{allRoles.length}</p>
+                </ZoruCard>
+                <ZoruCard variant="soft" className="p-6">
+                    <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
                         Permissions granted
                     </p>
-                    <p className="mt-1 text-[22px] font-semibold text-foreground">{totalGranted}</p>
-                </ClayCard>
-                <ClayCard variant="soft" padded>
-                    <p className="text-[11.5px] font-medium uppercase tracking-wide text-muted-foreground">
+                    <p className="mt-1 text-[22px] text-zoru-ink">{totalGranted}</p>
+                </ZoruCard>
+                <ZoruCard variant="soft" className="p-6">
+                    <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
                         Modules covered
                     </p>
-                    <p className="mt-1 text-[22px] font-semibold text-foreground">
+                    <p className="mt-1 text-[22px] text-zoru-ink">
                         {Object.values(permissionCategories).reduce((n, c) => n + c.modules.length, 0)}
                     </p>
-                </ClayCard>
+                </ZoruCard>
             </div>
 
             <form action={formAction} className="flex flex-1 flex-col">
@@ -636,19 +631,19 @@ export default function ManageRolesPage() {
                 <SaveBar />
             </form>
 
-            <ClayCard variant="soft" padded className="flex items-start gap-3">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-foreground text-white">
-                    <LuCheck className="h-4 w-4" />
+            <ZoruCard variant="soft" className="flex items-start gap-3 p-6">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zoru-ink text-zoru-bg">
+                    <Check className="h-4 w-4" />
                 </div>
                 <div>
-                    <p className="text-[13px] font-semibold text-foreground">How permissions apply</p>
-                    <p className="mt-1 text-[12.5px] text-muted-foreground">
+                    <p className="text-[13px] text-zoru-ink">How permissions apply</p>
+                    <p className="mt-1 text-[12.5px] text-zoru-ink-muted">
                         Changes take effect immediately. Members with a role pick up the updated module
                         access on their next navigation. System roles (e.g. Agent) cannot be deleted,
                         but their permissions can still be tuned per module.
                     </p>
                 </div>
-            </ClayCard>
+            </ZoruCard>
         </div>
     );
 }

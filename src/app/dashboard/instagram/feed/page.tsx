@@ -1,141 +1,173 @@
-
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
 import { getInstagramMedia } from '@/app/actions/instagram.actions';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, ThumbsUp, MessageSquare, ExternalLink, Video, Eye, Newspaper } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
+import {
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruAlertTitle,
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardFooter,
+  ZoruCardHeader,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruSkeleton,
+} from '@/components/zoruui';
+import { AlertCircle, ThumbsUp, MessageSquare, Eye, Newspaper } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { formatDistanceToNow } from 'date-fns';
 import { InstagramViewCommentsDialog } from '@/components/wabasimplify/instagram-view-comments-dialog';
 
 function FeedPageSkeleton() {
-    return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {[...Array(8)].map((_, i) => (
-                <Card key={i}>
-                    <CardHeader>
-                        <Skeleton className="h-4 w-3/4" />
-                        <Skeleton className="h-3 w-1/4" />
-                    </CardHeader>
-                    <CardContent>
-                        <Skeleton className="aspect-square w-full" />
-                    </CardContent>
-                    <CardFooter>
-                        <Skeleton className="h-8 w-full" />
-                    </CardFooter>
-                </Card>
-            ))}
-        </div>
-    );
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {[...Array(8)].map((_, i) => (
+        <ZoruCard key={i} className="p-0">
+          <ZoruCardHeader>
+            <ZoruSkeleton className="h-4 w-3/4" />
+            <ZoruSkeleton className="h-3 w-1/4" />
+          </ZoruCardHeader>
+          <ZoruCardContent>
+            <ZoruSkeleton className="aspect-square w-full" />
+          </ZoruCardContent>
+          <ZoruCardFooter>
+            <ZoruSkeleton className="h-8 w-full" />
+          </ZoruCardFooter>
+        </ZoruCard>
+      ))}
+    </div>
+  );
 }
 
 export default function InstagramFeedPage() {
-    const [media, setMedia] = useState<any[]>([]);
-    const [error, setError] = useState<string | null>(null);
-    const [isLoading, startTransition] = useTransition();
-    const [viewingCommentsFor, setViewingCommentsFor] = useState<any | null>(null);
-    const [projectId, setProjectId] = useState<string | null>(null);
+  const [media, setMedia] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, startTransition] = useTransition();
+  const [viewingCommentsFor, setViewingCommentsFor] = useState<any | null>(null);
+  const [projectId, setProjectId] = useState<string | null>(null);
 
-    const fetchData = () => {
-        if (projectId) {
-            startTransition(async () => {
-                const { media: fetchedMedia, error: fetchError } = await getInstagramMedia(projectId);
-                if (fetchError) {
-                    setError(fetchError);
-                } else {
-                    setMedia(fetchedMedia || []);
-                }
-            });
+  const fetchData = () => {
+    if (projectId) {
+      startTransition(async () => {
+        const { media: fetchedMedia, error: fetchError } = await getInstagramMedia(projectId);
+        if (fetchError) {
+          setError(fetchError);
+        } else {
+          setMedia(fetchedMedia || []);
         }
-    };
-    
-    useEffect(() => {
-        const storedProjectId = localStorage.getItem('activeProjectId');
-        setProjectId(storedProjectId);
-    }, []);
+      });
+    }
+  };
 
-    useEffect(() => {
-        if (projectId) {
-            fetchData();
-        }
+  useEffect(() => {
+    const storedProjectId = localStorage.getItem('activeProjectId');
+    setProjectId(storedProjectId);
+  }, []);
+
+  useEffect(() => {
+    if (projectId) {
+      fetchData();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [projectId]);
+  }, [projectId]);
 
-    if (isLoading) {
-        return <FeedPageSkeleton />;
-    }
+  if (isLoading) {
+    return <FeedPageSkeleton />;
+  }
 
-    if (error) {
-        return (
-            <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Error Loading Feed</AlertTitle>
-                <AlertDescription>{error}</AlertDescription>
-            </Alert>
-        );
-    }
-    
+  if (error) {
     return (
-        <>
-            {viewingCommentsFor && projectId && (
-                <InstagramViewCommentsDialog
-                    isOpen={!!viewingCommentsFor}
-                    onOpenChange={() => setViewingCommentsFor(null)}
-                    media={viewingCommentsFor}
-                    projectId={projectId}
-                    onActionComplete={fetchData}
-                />
-            )}
-            <div className="flex flex-col gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                        <Newspaper className="h-8 w-8"/>
-                        Content Feed
-                    </h1>
-                    <p className="text-muted-foreground mt-2">
-                       Browse recent posts from your connected Instagram account.
-                    </p>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {media.map(item => (
-                        <Card key={item.id} className="flex flex-col">
-                            <CardHeader>
-                                <p className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(item.timestamp), { addSuffix: true })}</p>
-                            </CardHeader>
-                            <CardContent className="flex-grow">
-                                <div className="relative aspect-square mb-2">
-                                    {item.media_type === 'VIDEO' ? (
-                                        <div className="w-full h-full bg-black rounded-md flex items-center justify-center">
-                                            <video src={item.media_url} className="w-full h-full object-cover" controls={false} />
-                                        </div>
-                                    ) : (
-                                        <Image src={item.media_url} alt={item.caption || 'Instagram Post'} fill objectFit="cover" className="rounded-md" />
-                                    )}
-                                </div>
-                                <p className="text-sm line-clamp-3">{item.caption}</p>
-                            </CardContent>
-                            <CardFooter className="flex justify-between items-center text-sm text-muted-foreground">
-                                <div className="flex gap-4">
-                                    <span className="flex items-center gap-1"><ThumbsUp className="h-4 w-4"/> {item.like_count}</span>
-                                    <Button variant="ghost" size="sm" className="p-1 h-auto flex items-center gap-1" onClick={() => setViewingCommentsFor(item)}>
-                                        <MessageSquare className="h-4 w-4"/> {item.comments_count}
-                                    </Button>
-                                </div>
-                                <Button variant="ghost" size="icon" asChild>
-                                    <Link href={`/dashboard/instagram/media/${item.id}`}>
-                                        <Eye className="h-4 w-4"/>
-                                    </Link>
-                                </Button>
-                            </CardFooter>
-                        </Card>
-                    ))}
-                </div>
-            </div>
-        </>
+      <ZoruAlert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <ZoruAlertTitle>Error Loading Feed</ZoruAlertTitle>
+        <ZoruAlertDescription>{error}</ZoruAlertDescription>
+      </ZoruAlert>
     );
+  }
+
+  return (
+    <>
+      {viewingCommentsFor && projectId && (
+        <InstagramViewCommentsDialog
+          isOpen={!!viewingCommentsFor}
+          onOpenChange={() => setViewingCommentsFor(null)}
+          media={viewingCommentsFor}
+          projectId={projectId}
+          onActionComplete={fetchData}
+        />
+      )}
+      <div className="flex flex-col gap-4">
+        <ZoruPageHeader>
+          <ZoruPageHeading>
+            <ZoruPageTitle>
+              <span className="inline-flex items-center gap-3">
+                <Newspaper className="h-7 w-7" />
+                Content Feed
+              </span>
+            </ZoruPageTitle>
+            <ZoruPageDescription>
+              Browse recent posts from your connected Instagram account.
+            </ZoruPageDescription>
+          </ZoruPageHeading>
+        </ZoruPageHeader>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {media.map((item) => (
+            <ZoruCard key={item.id} className="flex flex-col p-0">
+              <ZoruCardHeader>
+                <p className="text-xs text-zoru-ink-muted">
+                  {formatDistanceToNow(new Date(item.timestamp), { addSuffix: true })}
+                </p>
+              </ZoruCardHeader>
+              <ZoruCardContent className="flex-grow">
+                <div className="relative aspect-square mb-2">
+                  {item.media_type === 'VIDEO' ? (
+                    <div className="w-full h-full bg-black rounded-md flex items-center justify-center">
+                      <video
+                        src={item.media_url}
+                        className="w-full h-full object-cover"
+                        controls={false}
+                      />
+                    </div>
+                  ) : (
+                    <Image
+                      src={item.media_url}
+                      alt={item.caption || 'Instagram Post'}
+                      fill
+                      className="rounded-md object-cover"
+                    />
+                  )}
+                </div>
+                <p className="text-sm line-clamp-3">{item.caption}</p>
+              </ZoruCardContent>
+              <ZoruCardFooter className="flex justify-between items-center text-sm text-zoru-ink-muted">
+                <div className="flex gap-4">
+                  <span className="flex items-center gap-1">
+                    <ThumbsUp className="h-4 w-4" /> {item.like_count}
+                  </span>
+                  <ZoruButton
+                    variant="ghost"
+                    size="sm"
+                    className="p-1 h-auto flex items-center gap-1"
+                    onClick={() => setViewingCommentsFor(item)}
+                  >
+                    <MessageSquare className="h-4 w-4" /> {item.comments_count}
+                  </ZoruButton>
+                </div>
+                <ZoruButton variant="ghost" size="icon" asChild>
+                  <Link href={`/dashboard/instagram/media/${item.id}`}>
+                    <Eye className="h-4 w-4" />
+                  </Link>
+                </ZoruButton>
+              </ZoruCardFooter>
+            </ZoruCard>
+          ))}
+        </div>
+      </div>
+    </>
+  );
 }

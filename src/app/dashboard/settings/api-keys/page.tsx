@@ -1,48 +1,43 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
-import {
-    LuKey,
-    LuPlus,
-    LuCopy,
-    LuCheck,
-    LuTrash2,
-    LuEye,
-    LuEyeOff,
-    LuLoaderCircle,
-} from 'react-icons/lu';
+import { Check, Copy, Key, LoaderCircle, Plus, Trash2 } from 'lucide-react';
 
 import {
-    ClayBadge,
-    ClayBreadcrumbs,
-    ClayButton,
-    ClayCard,
-    ClayInput,
-    ClaySectionHeader,
-} from '@/components/clay';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '@/components/ui/dialog';
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { Label } from '@/components/ui/label';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
+    ZoruAlertDialog,
+    ZoruAlertDialogAction,
+    ZoruAlertDialogCancel,
+    ZoruAlertDialogContent,
+    ZoruAlertDialogDescription,
+    ZoruAlertDialogFooter,
+    ZoruAlertDialogHeader,
+    ZoruAlertDialogTitle,
+    ZoruAlertDialogTrigger,
+    ZoruBadge,
+    ZoruBreadcrumb,
+    ZoruBreadcrumbItem,
+    ZoruBreadcrumbLink,
+    ZoruBreadcrumbList,
+    ZoruBreadcrumbPage,
+    ZoruBreadcrumbSeparator,
+    ZoruButton,
+    ZoruCard,
+    ZoruDialog,
+    ZoruDialogContent,
+    ZoruDialogDescription,
+    ZoruDialogFooter,
+    ZoruDialogHeader,
+    ZoruDialogTitle,
+    ZoruDialogTrigger,
+    ZoruInput,
+    ZoruLabel,
+    ZoruPageDescription,
+    ZoruPageHeader,
+    ZoruPageHeading,
+    ZoruPageTitle,
+    ZoruSkeleton,
+    useZoruToast,
+} from '@/components/zoruui';
 import {
     generateApiKey,
     getApiKeysForUser,
@@ -55,7 +50,6 @@ type KeyRow = Omit<ApiKey, 'key'> & { _id: string };
 export default function ApiKeysPage() {
     const [keys, setKeys] = useState<KeyRow[]>([]);
     const [loading, setLoading] = useState(true);
-    const { toast } = useToast();
 
     const refresh = async () => {
         setLoading(true);
@@ -74,20 +68,30 @@ export default function ApiKeysPage() {
     const activeCount = keys.filter((k) => !k.revoked).length;
 
     return (
-        <div className="clay-enter flex min-h-full flex-col gap-6">
-            <ClayBreadcrumbs
-                items={[
-                    { label: 'Settings', href: '/dashboard/settings' },
-                    { label: 'API Keys' },
-                ]}
-            />
+        <div className="flex min-h-full flex-col gap-6">
+            <ZoruBreadcrumb>
+                <ZoruBreadcrumbList>
+                    <ZoruBreadcrumbItem>
+                        <ZoruBreadcrumbLink href="/dashboard/settings">Settings</ZoruBreadcrumbLink>
+                    </ZoruBreadcrumbItem>
+                    <ZoruBreadcrumbSeparator />
+                    <ZoruBreadcrumbItem>
+                        <ZoruBreadcrumbPage>API Keys</ZoruBreadcrumbPage>
+                    </ZoruBreadcrumbItem>
+                </ZoruBreadcrumbList>
+            </ZoruBreadcrumb>
 
-            <ClaySectionHeader
-                size="lg"
-                title="API keys"
-                subtitle="Use these keys to authenticate programmatic access to SabNode APIs."
-                actions={<CreateKeyDialog onCreated={refresh} />}
-            />
+            <div className="flex flex-wrap items-center justify-between gap-4">
+                <ZoruPageHeader>
+                    <ZoruPageHeading>
+                        <ZoruPageTitle>API keys</ZoruPageTitle>
+                        <ZoruPageDescription>
+                            Use these keys to authenticate programmatic access to SabNode APIs.
+                        </ZoruPageDescription>
+                    </ZoruPageHeading>
+                </ZoruPageHeader>
+                <CreateKeyDialog onCreated={refresh} />
+            </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <StatCard label="Total keys" value={keys.length} />
@@ -95,38 +99,38 @@ export default function ApiKeysPage() {
                 <StatCard label="Revoked" value={keys.length - activeCount} tone="red" />
             </div>
 
-            <ClayCard padded={false}>
+            <ZoruCard className="p-0">
                 {loading ? (
                     <div className="space-y-2 p-4">
                         {Array.from({ length: 3 }).map((_, i) => (
-                            <Skeleton key={i} className="h-14 w-full" />
+                            <ZoruSkeleton key={i} className="h-14 w-full" />
                         ))}
                     </div>
                 ) : keys.length === 0 ? (
                     <EmptyState onCreated={refresh} />
                 ) : (
-                    <ul className="divide-y divide-border">
+                    <ul className="divide-y divide-zoru-line">
                         {keys.map((k) => (
                             <KeyRowItem key={k._id} row={k} onRevoked={refresh} />
                         ))}
                     </ul>
                 )}
-            </ClayCard>
+            </ZoruCard>
 
-            <ClayCard padded variant="soft">
+            <ZoruCard className="p-6">
                 <div className="flex items-start gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-foreground text-white">
-                        <LuKey className="h-4 w-4" />
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
+                        <Key className="h-4 w-4" />
                     </div>
                     <div>
-                        <p className="text-[13px] font-semibold text-foreground">Using your API key</p>
-                        <p className="mt-1 text-[12.5px] text-muted-foreground">
-                            Include the key in the <code className="rounded bg-card px-1">X-Api-Key</code> request
+                        <p className="text-sm text-zoru-ink">Using your API key</p>
+                        <p className="mt-1 text-xs text-zoru-ink-muted">
+                            Include the key in the <code className="rounded bg-zoru-surface-2 px-1">X-Api-Key</code> request
                             header. Keys scope to your workspace — never expose them client-side.
                         </p>
                     </div>
                 </div>
-            </ClayCard>
+            </ZoruCard>
         </div>
     );
 }
@@ -137,7 +141,7 @@ function CreateKeyDialog({ onCreated }: { onCreated: () => void }) {
     const [newKey, setNewKey] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
     const [pending, startTransition] = useTransition();
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
 
     const handleCreate = () => {
         if (!name.trim()) {
@@ -164,7 +168,7 @@ function CreateKeyDialog({ onCreated }: { onCreated: () => void }) {
     };
 
     return (
-        <Dialog
+        <ZoruDialog
             open={open}
             onOpenChange={(next) => {
                 setOpen(next);
@@ -175,36 +179,37 @@ function CreateKeyDialog({ onCreated }: { onCreated: () => void }) {
                 }
             }}
         >
-            <DialogTrigger asChild>
-                <ClayButton variant="obsidian" size="sm" leading={<LuPlus className="h-4 w-4" />}>
+            <ZoruDialogTrigger asChild>
+                <ZoruButton size="sm">
+                    <Plus className="h-4 w-4" />
                     New API key
-                </ClayButton>
-            </DialogTrigger>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>{newKey ? 'Key generated' : 'Generate API key'}</DialogTitle>
-                    <DialogDescription>
+                </ZoruButton>
+            </ZoruDialogTrigger>
+            <ZoruDialogContent>
+                <ZoruDialogHeader>
+                    <ZoruDialogTitle>{newKey ? 'Key generated' : 'Generate API key'}</ZoruDialogTitle>
+                    <ZoruDialogDescription>
                         {newKey
-                            ? 'Copy the key now — you won\u2019t see it again.'
+                            ? 'Copy the key now — you won’t see it again.'
                             : 'Give the key a descriptive name so you can identify it later.'}
-                    </DialogDescription>
-                </DialogHeader>
+                    </ZoruDialogDescription>
+                </ZoruDialogHeader>
 
                 {newKey ? (
                     <div className="py-2">
-                        <Label className="mb-1.5 block text-[12.5px] font-medium text-foreground">
+                        <ZoruLabel className="mb-1.5 block text-xs">
                             Your new API key
-                        </Label>
-                        <ClayInput
+                        </ZoruLabel>
+                        <ZoruInput
                             readOnly
                             value={newKey}
-                            trailing={
+                            trailingSlot={
                                 <button
                                     type="button"
                                     onClick={copy}
-                                    className="flex items-center gap-1 rounded-md px-2 py-1 text-[12px] font-medium text-muted-foreground hover:text-foreground"
+                                    className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-zoru-ink-muted hover:text-zoru-ink"
                                 >
-                                    {copied ? <LuCheck className="h-3.5 w-3.5" /> : <LuCopy className="h-3.5 w-3.5" />}
+                                    {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
                                     {copied ? 'Copied' : 'Copy'}
                                 </button>
                             }
@@ -212,8 +217,8 @@ function CreateKeyDialog({ onCreated }: { onCreated: () => void }) {
                     </div>
                 ) : (
                     <div className="py-2">
-                        <Label className="mb-1.5 block text-[12.5px] font-medium text-foreground">Key name</Label>
-                        <ClayInput
+                        <ZoruLabel className="mb-1.5 block text-xs">Key name</ZoruLabel>
+                        <ZoruInput
                             placeholder="e.g. Production backend"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
@@ -221,36 +226,35 @@ function CreateKeyDialog({ onCreated }: { onCreated: () => void }) {
                     </div>
                 )}
 
-                <DialogFooter>
+                <ZoruDialogFooter>
                     {newKey ? (
-                        <ClayButton variant="obsidian" size="sm" onClick={() => setOpen(false)}>
+                        <ZoruButton size="sm" onClick={() => setOpen(false)}>
                             Done
-                        </ClayButton>
+                        </ZoruButton>
                     ) : (
                         <>
-                            <ClayButton variant="ghost" size="sm" onClick={() => setOpen(false)}>
+                            <ZoruButton variant="ghost" size="sm" onClick={() => setOpen(false)}>
                                 Cancel
-                            </ClayButton>
-                            <ClayButton
-                                variant="obsidian"
+                            </ZoruButton>
+                            <ZoruButton
                                 size="sm"
                                 onClick={handleCreate}
                                 disabled={pending}
-                                leading={pending ? <LuLoaderCircle className="h-4 w-4 animate-spin" /> : undefined}
                             >
+                                {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
                                 Generate
-                            </ClayButton>
+                            </ZoruButton>
                         </>
                     )}
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+                </ZoruDialogFooter>
+            </ZoruDialogContent>
+        </ZoruDialog>
     );
 }
 
 function KeyRowItem({ row, onRevoked }: { row: KeyRow; onRevoked: () => void }) {
     const [pending, startTransition] = useTransition();
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
 
     const handleRevoke = () => {
         startTransition(async () => {
@@ -268,50 +272,46 @@ function KeyRowItem({ row, onRevoked }: { row: KeyRow; onRevoked: () => void }) 
         <li className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
             <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                    <p className="truncate text-[13.5px] font-semibold text-foreground">{row.name}</p>
+                    <p className="truncate text-sm text-zoru-ink">{row.name}</p>
                     {row.revoked ? (
-                        <ClayBadge tone="red">Revoked</ClayBadge>
+                        <ZoruBadge variant="danger">Revoked</ZoruBadge>
                     ) : (
-                        <ClayBadge tone="green">Active</ClayBadge>
+                        <ZoruBadge variant="success">Active</ZoruBadge>
                     )}
                 </div>
-                <p className="mt-1 text-[12px] text-muted-foreground">
+                <p className="mt-1 text-xs text-zoru-ink-muted">
                     {row.requestCount.toLocaleString()} requests ·
                     {row.lastUsed ? ` last used ${formatDate(row.lastUsed)}` : ' never used'} · created{' '}
                     {formatDate(row.createdAt)}
                 </p>
             </div>
             {!row.revoked && (
-                <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                        <ClayButton
-                            variant="ghost"
-                            size="sm"
-                            leading={<LuTrash2 className="h-4 w-4" />}
-                            disabled={pending}
-                        >
+                <ZoruAlertDialog>
+                    <ZoruAlertDialogTrigger asChild>
+                        <ZoruButton variant="ghost" size="sm" disabled={pending}>
+                            <Trash2 className="h-4 w-4" />
                             Revoke
-                        </ClayButton>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>Revoke this API key?</AlertDialogTitle>
-                            <AlertDialogDescription>
+                        </ZoruButton>
+                    </ZoruAlertDialogTrigger>
+                    <ZoruAlertDialogContent>
+                        <ZoruAlertDialogHeader>
+                            <ZoruAlertDialogTitle>Revoke this API key?</ZoruAlertDialogTitle>
+                            <ZoruAlertDialogDescription>
                                 Any application using &ldquo;{row.name}&rdquo; will start receiving 401 responses
                                 immediately. This cannot be undone.
-                            </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction
+                            </ZoruAlertDialogDescription>
+                        </ZoruAlertDialogHeader>
+                        <ZoruAlertDialogFooter>
+                            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+                            <ZoruAlertDialogAction
                                 onClick={handleRevoke}
-                                className="bg-red-600 text-white hover:bg-red-700"
+                                className="bg-zoru-danger text-zoru-danger-foreground hover:bg-zoru-danger/90"
                             >
                                 Revoke key
-                            </AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
+                            </ZoruAlertDialogAction>
+                        </ZoruAlertDialogFooter>
+                    </ZoruAlertDialogContent>
+                </ZoruAlertDialog>
             )}
         </li>
     );
@@ -320,11 +320,11 @@ function KeyRowItem({ row, onRevoked }: { row: KeyRow; onRevoked: () => void }) 
 function EmptyState({ onCreated }: { onCreated: () => void }) {
     return (
         <div className="p-10 text-center">
-            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-muted/50 text-muted-foreground">
-                <LuKey className="h-5 w-5" />
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
+                <Key className="h-5 w-5" />
             </div>
-            <p className="text-[13px] font-semibold text-foreground">No API keys yet</p>
-            <p className="mt-1 text-[12.5px] text-muted-foreground">
+            <p className="text-sm text-zoru-ink">No API keys yet</p>
+            <p className="mt-1 text-xs text-zoru-ink-muted">
                 Generate your first key to start calling the SabNode APIs.
             </p>
             <div className="mt-4 inline-flex">
@@ -344,14 +344,14 @@ function StatCard({
     tone?: 'neutral' | 'green' | 'red';
 }) {
     return (
-        <ClayCard variant="soft" padded>
-            <p className="text-[11.5px] font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
+        <ZoruCard className="p-6">
+            <p className="text-xs uppercase tracking-wide text-zoru-ink-muted">{label}</p>
             <div className="mt-1 flex items-baseline gap-2">
-                <p className="text-[26px] font-semibold leading-none text-foreground">{value}</p>
-                {tone === 'green' && value > 0 && <ClayBadge tone="green">In use</ClayBadge>}
-                {tone === 'red' && value > 0 && <ClayBadge tone="red">Revoked</ClayBadge>}
+                <p className="text-[26px] leading-none text-zoru-ink">{value}</p>
+                {tone === 'green' && value > 0 && <ZoruBadge variant="success">In use</ZoruBadge>}
+                {tone === 'red' && value > 0 && <ZoruBadge variant="danger">Revoked</ZoruBadge>}
             </div>
-        </ClayCard>
+        </ZoruCard>
     );
 }
 

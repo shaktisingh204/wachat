@@ -1,21 +1,29 @@
-
 'use client';
 
 import { useActionState, useEffect, useRef, useTransition, useState, useCallback } from 'react';
 import { useFormStatus } from 'react-dom';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 import { Key, LoaderCircle, Trash2, CheckCircle, Copy, BookOpen, AlertTriangle, Globe } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { Separator } from '@/components/ui/separator';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { addCustomDomain, getCustomDomains, verifyCustomDomain, deleteCustomDomain } from '@/app/actions/url-shortener.actions';
 import type { WithId, CustomDomain } from '@/lib/definitions';
-import { Skeleton } from '@/components/ui/skeleton';
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
-import { Badge } from '@/components/ui/badge';
+import {
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruAlertTitle,
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardFooter,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSeparator,
+  ZoruSkeleton,
+  useZoruToast,
+} from '@/components/zoruui';
 
 
 const addDomainInitialState = { success: undefined, error: undefined };
@@ -23,16 +31,16 @@ const addDomainInitialState = { success: undefined, error: undefined };
 function AddDomainButton() {
     const { pending } = useFormStatus();
     return (
-        <Button type="submit" disabled={pending}>
+        <ZoruButton type="submit" disabled={pending}>
             {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
             Add Domain
-        </Button>
+        </ZoruButton>
     )
 }
 
 function VerifyButton({ domainId, onActionComplete }: { domainId: string, onActionComplete: () => void }) {
     const [isPending, startTransition] = useTransition();
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
 
     const onVerify = () => {
         startTransition(async () => {
@@ -46,12 +54,12 @@ function VerifyButton({ domainId, onActionComplete }: { domainId: string, onActi
         });
     };
 
-    return <Button onClick={onVerify} size="sm" disabled={isPending}>{isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}Verify DNS</Button>;
+    return <ZoruButton onClick={onVerify} size="sm" disabled={isPending}>{isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}Verify DNS</ZoruButton>;
 }
 
 function DeleteButton({ domainId, onActionComplete }: { domainId: string, onActionComplete: () => void }) {
     const [isPending, startTransition] = useTransition();
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
 
     const onDelete = () => {
         startTransition(async () => {
@@ -65,12 +73,12 @@ function DeleteButton({ domainId, onActionComplete }: { domainId: string, onActi
         });
     }
 
-    return <Button variant="ghost" size="icon" onClick={onDelete} disabled={isPending}>{isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4 text-destructive" />}</Button>;
+    return <ZoruButton variant="ghost" size="icon" onClick={onDelete} disabled={isPending}>{isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4 text-zoru-danger-ink" />}</ZoruButton>;
 }
 
 
 export default function UrlShortenerSettingsPage() {
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
     const addFormRef = useRef<HTMLFormElement>(null);
     const [domains, setDomains] = useState<WithId<CustomDomain>[]>([]);
     const [isLoading, startLoadingTransition] = useTransition();
@@ -102,64 +110,64 @@ export default function UrlShortenerSettingsPage() {
     return (
         <div className="flex flex-col gap-8 max-w-5xl">
             <div>
-                <h1 className="text-3xl font-bold font-headline">URL Shortener Settings</h1>
-                <p className="text-muted-foreground">Configure custom domains and developer settings for your short links.</p>
+                <h1 className="text-3xl text-zoru-ink">URL Shortener Settings</h1>
+                <p className="text-zoru-ink-muted">Configure custom domains and developer settings for your short links.</p>
             </div>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Globe className="h-5 w-5" /> Custom Domains</CardTitle>
-                    <CardDescription>Use your own domain for branded short links (e.g., links.mybrand.com). You must own the domain and be able to configure its DNS records.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
+            <ZoruCard>
+                <ZoruCardHeader>
+                    <ZoruCardTitle className="flex items-center gap-2"><Globe className="h-5 w-5" /> Custom Domains</ZoruCardTitle>
+                    <ZoruCardDescription>Use your own domain for branded short links (e.g., links.mybrand.com). You must own the domain and be able to configure its DNS records.</ZoruCardDescription>
+                </ZoruCardHeader>
+                <ZoruCardContent className="space-y-6">
                     <form action={addAction} ref={addFormRef} className="space-y-2">
-                        <Label htmlFor="hostname">Add New Domain</Label>
+                        <ZoruLabel htmlFor="hostname">Add New Domain</ZoruLabel>
                         <div className="flex gap-2">
-                            <Input id="hostname" name="hostname" placeholder="e.g., links.mybrand.com" required className="max-w-md" />
+                            <ZoruInput id="hostname" name="hostname" placeholder="e.g., links.mybrand.com" required className="max-w-md" />
                             <AddDomainButton />
                         </div>
                     </form>
 
-                    <Separator />
+                    <ZoruSeparator />
                     <div className="space-y-4">
-                        <h4 className="font-medium">Your Domains</h4>
+                        <h4 className="text-zoru-ink">Your Domains</h4>
                         {isLoading ? (
-                            <Skeleton className="h-24 w-full" />
+                            <ZoruSkeleton className="h-24 w-full" />
                         ) : domains.length > 0 ? (
                             domains.map(domain => (
-                                <div key={domain._id.toString()} className="p-4 border rounded-lg space-y-4 shadow-sm bg-card">
+                                <div key={domain._id.toString()} className="p-4 border border-zoru-line rounded-lg space-y-4 bg-zoru-bg">
                                     <div className="flex justify-between items-start">
                                         <div className="flex items-center gap-2">
-                                            <p className="font-semibold text-lg">{domain.hostname}</p>
+                                            <p className="text-lg text-zoru-ink">{domain.hostname}</p>
                                             {domain.verified ? (
-                                                <Badge className="bg-green-600"><CheckCircle className="mr-1 h-3 w-3" /> Verified</Badge>
+                                                <ZoruBadge variant="success"><CheckCircle className="mr-1 h-3 w-3" /> Verified</ZoruBadge>
                                             ) : (
-                                                <Badge variant="destructive">Unverified</Badge>
+                                                <ZoruBadge variant="danger">Unverified</ZoruBadge>
                                             )}
                                         </div>
                                         <DeleteButton domainId={domain._id.toString()} onActionComplete={fetchData} />
                                     </div>
 
                                     {!domain.verified && (
-                                        <Alert variant={"warning" as any} className="bg-yellow-50 dark:bg-yellow-950/30 border-yellow-200 dark:border-yellow-800">
-                                            <AlertTriangle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
-                                            <AlertTitle className="text-yellow-800 dark:text-yellow-300">Action Required: Verify Domain Ownership</AlertTitle>
-                                            <AlertDescription className="text-yellow-700 dark:text-yellow-400 mt-2">
+                                        <ZoruAlert className="border-zoru-warning/40 bg-zoru-warning/10">
+                                            <AlertTriangle className="h-4 w-4 text-zoru-warning-ink" />
+                                            <ZoruAlertTitle className="text-zoru-warning-ink">Action Required: Verify Domain Ownership</ZoruAlertTitle>
+                                            <ZoruAlertDescription className="text-zoru-warning-ink mt-2">
                                                 Please add a <strong>TXT record</strong> to your DNS configuration to verify you own this domain.
-                                                <div className="mt-3 p-3 bg-white dark:bg-black/20 rounded border border-yellow-200 dark:border-yellow-800/50 flex items-center justify-between gap-4">
+                                                <div className="mt-3 p-3 bg-zoru-bg rounded border border-zoru-warning/40 flex items-center justify-between gap-4">
                                                     <code className="font-mono text-xs">{domain.verificationCode}</code>
-                                                    <Button variant="ghost" size="sm" onClick={() => copy(domain.verificationCode)}><Copy className="h-3 w-3" /></Button>
+                                                    <ZoruButton variant="ghost" size="sm" onClick={() => copy(domain.verificationCode)}><Copy className="h-3 w-3" /></ZoruButton>
                                                 </div>
                                                 <p className="text-xs mt-2">After adding the record, click 'Verify DNS'. Record propagation usually takes a few minutes.</p>
-                                            </AlertDescription>
-                                        </Alert>
+                                            </ZoruAlertDescription>
+                                        </ZoruAlert>
                                     )}
 
                                     {domain.verified ? (
-                                        <div className="p-3 bg-green-50 dark:bg-green-950/30 rounded-md text-sm space-y-3 border border-green-200 dark:border-green-800">
+                                        <div className="p-3 bg-zoru-success/10 rounded-md text-sm space-y-3 border border-zoru-success/40">
                                             <div className="grid grid-cols-[auto,1fr] gap-x-4 gap-y-1 font-mono text-xs">
-                                                <span className="text-muted-foreground font-semibold">DNS Status:</span> <span className="text-green-600 dark:text-green-400">Active & Verified</span>
-                                                <span className="text-muted-foreground font-semibold">Usage:</span> <span>Use this domain when creating new short links.</span>
+                                                <span className="text-zoru-ink-muted">DNS Status:</span> <span className="text-zoru-success-ink">Active & Verified</span>
+                                                <span className="text-zoru-ink-muted">Usage:</span> <span>Use this domain when creating new short links.</span>
                                             </div>
                                         </div>
                                     ) : (
@@ -170,36 +178,36 @@ export default function UrlShortenerSettingsPage() {
                                 </div>
                             ))
                         ) : (
-                            <div className="text-center py-8 bg-muted/30 rounded-lg border border-dashed">
-                                <Globe className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-                                <p className="text-sm text-muted-foreground">No custom domains added yet.</p>
+                            <div className="text-center py-8 bg-zoru-surface-2 rounded-lg border border-dashed border-zoru-line">
+                                <Globe className="h-8 w-8 mx-auto text-zoru-ink-muted mb-2" />
+                                <p className="text-sm text-zoru-ink-muted">No custom domains added yet.</p>
                             </div>
                         )}
                     </div>
-                </CardContent>
-            </Card>
+                </ZoruCardContent>
+            </ZoruCard>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Key className="h-5 w-5" /> Developer Options</CardTitle>
-                    <CardDescription>Proprietary access for programmatic URL shortening.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
+            <ZoruCard>
+                <ZoruCardHeader>
+                    <ZoruCardTitle className="flex items-center gap-2"><Key className="h-5 w-5" /> Developer Options</ZoruCardTitle>
+                    <ZoruCardDescription>Proprietary access for programmatic URL shortening.</ZoruCardDescription>
+                </ZoruCardHeader>
+                <ZoruCardContent className="space-y-4">
                     <div className="space-y-2">
-                        <Label htmlFor="apiKey">API Key (Read-only)</Label>
+                        <ZoruLabel htmlFor="apiKey">API Key (Read-only)</ZoruLabel>
                         <div className="flex gap-2">
-                            <Input id="apiKey" name="apiKey" value="sk_live_********************************" disabled />
-                            <Button type="button" variant="secondary" disabled>Regenerate</Button>
+                            <ZoruInput id="apiKey" name="apiKey" value="sk_live_********************************" disabled />
+                            <ZoruButton type="button" variant="outline" disabled>Regenerate</ZoruButton>
                         </div>
-                        <p className="text-xs text-muted-foreground">API access for creating short links is currently in closed beta.</p>
+                        <p className="text-xs text-zoru-ink-muted">API access for creating short links is currently in closed beta.</p>
                     </div>
-                </CardContent>
-                <CardFooter>
-                    <Button type="button" variant="outline" disabled>
+                </ZoruCardContent>
+                <ZoruCardFooter>
+                    <ZoruButton type="button" variant="outline" disabled>
                         <BookOpen className="mr-2 h-4 w-4" /> View API Docs
-                    </Button>
-                </CardFooter>
-            </Card>
+                    </ZoruButton>
+                </ZoruCardFooter>
+            </ZoruCard>
 
         </div>
     );

@@ -1,17 +1,25 @@
 import { getSmsConfig } from "@/app/actions/sms-config.actions";
 import { ProviderConfigForm } from "@/components/wabasimplify/sms/provider-config-form";
+import {
+    ZoruPageHeader,
+    ZoruPageHeading,
+    ZoruPageTitle,
+    ZoruPageDescription,
+} from '@/components/zoruui';
 
 export default async function SmsConfigPage() {
     const config = await getSmsConfig();
 
     return (
         <div className="space-y-6 max-w-4xl">
-            <div>
-                <h3 className="text-lg font-medium">SMS Provider Configuration</h3>
-                <p className="text-sm text-muted-foreground">
-                    Configure your preferred SMS gateway. Connect one of 20+ supported providers.
-                </p>
-            </div>
+            <ZoruPageHeader>
+                <ZoruPageHeading>
+                    <ZoruPageTitle>SMS Provider Configuration</ZoruPageTitle>
+                    <ZoruPageDescription>
+                        Configure your preferred SMS gateway. Connect one of 20+ supported providers.
+                    </ZoruPageDescription>
+                </ZoruPageHeading>
+            </ZoruPageHeader>
 
             <ProviderConfigForm initialConfig={config} />
         </div>

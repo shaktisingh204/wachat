@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
+import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
 import { type LucideIcon } from 'lucide-react';
 
 export interface TelegramPlaceholderProps {
@@ -26,7 +26,7 @@ export function TelegramPlaceholder({
     badge = 'Coming soon',
 }: TelegramPlaceholderProps) {
     return (
-        <div className="flex flex-col gap-6 clay-enter">
+        <div className="flex flex-col gap-6">
             <div className="flex items-start justify-between gap-4">
                 <div className="flex items-start gap-4">
                     <div
@@ -40,48 +40,47 @@ export function TelegramPlaceholder({
                     </div>
                     <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                            <h1 className="text-[22px] font-semibold leading-tight tracking-tight text-foreground">
+                            <h1 className="text-[22px] leading-tight text-zoru-ink">
                                 {title}
                             </h1>
-                            {badge ? <ClayBadge tone="neutral">{badge}</ClayBadge> : null}
+                            {badge ? <ZoruBadge variant="ghost">{badge}</ZoruBadge> : null}
                         </div>
-                        <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-muted-foreground">
+                        <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-zoru-ink-muted">
                             {description}
                         </p>
                     </div>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
                     {docsHref ? (
-                        <ClayButton
-                            variant="pill"
+                        <ZoruButton
+                            variant="outline"
                             size="sm"
                             onClick={() => window.open(docsHref, '_blank', 'noopener,noreferrer')}
                         >
                             Docs
-                        </ClayButton>
+                        </ZoruButton>
                     ) : null}
                     {ctaLabel && ctaHref ? (
-                        <ClayButton
-                            variant="obsidian"
+                        <ZoruButton
                             size="sm"
                             onClick={() => {
                                 window.location.href = ctaHref;
                             }}
                         >
                             {ctaLabel}
-                        </ClayButton>
+                        </ZoruButton>
                     ) : null}
                 </div>
             </div>
 
             {bullets && bullets.length > 0 ? (
-                <ClayCard variant="soft" padded>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                <ZoruCard className="p-6">
+                    <p className="text-[11px] uppercase tracking-[0.12em] text-zoru-ink-muted">
                         What this will do
                     </p>
                     <ul className="mt-3 flex flex-col gap-2.5">
                         {bullets.map((b) => (
-                            <li key={b} className="flex items-start gap-2 text-[13px] text-foreground">
+                            <li key={b} className="flex items-start gap-2 text-[13px] text-zoru-ink">
                                 <span
                                     className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full"
                                     style={{ background: '#37BBFE' }}
@@ -90,7 +89,7 @@ export function TelegramPlaceholder({
                             </li>
                         ))}
                     </ul>
-                </ClayCard>
+                </ZoruCard>
             ) : null}
         </div>
     );
