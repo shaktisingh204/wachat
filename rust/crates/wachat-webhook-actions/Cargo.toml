@@ -1,0 +1,31 @@
+[package]
+name = "wachat-webhook-actions"
+version = "0.1.0"
+edition = "2024"
+description = "Thin API/shim crate exposing the four user-facing webhook server actions (list, payload, reprocess, clear) at /v1/wachat/webhook-actions. Wraps the wachat-webhook-config admin handlers."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "wachat_webhook_actions"
+path = "src/lib.rs"
+
+[dependencies]
+# Axum HTTP — `Router`, `State`, `Path`, `Query`, `Json` extractors.
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Sibling crates — shared error envelope, JWT extractor, Mongo handle.
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+
+# Reuse the existing webhook admin handlers + DTOs verbatim. This crate
+# is a routing/state-shape adapter — it does not duplicate the logic.
+wachat-webhook-config = { path = "../wachat-webhook-config" }
+
+[lints]
+workspace = true

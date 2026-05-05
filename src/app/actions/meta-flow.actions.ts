@@ -3,10 +3,12 @@
 /**
  * Meta Flows — server actions.
  *
- * Graph API v23.0 · Flow JSON 7.3 · Data API 3.0.
+ * Migrated to the Rust BFF (`meta-flows` crate, mounted at
+ * `/v1/meta/flows`). Each function below is a thin shim around
+ * `rustClient.metaFlows.*`. The shim layer preserves the legacy
+ * return-type contracts that the existing UI relies on.
  *
- * Operations are split so the UI can offer explicit Save vs Publish
- * vs Deprecate vs Preview, each of which maps 1:1 to a Meta endpoint:
+ * Operations on Meta:
  *
  *   createMetaFlow           POST /{WABA}/flows
  *   saveMetaFlowDraft        POST /{FLOW}/assets          (multipart, flow.json)
@@ -19,18 +21,11 @@
  */
 
 import { revalidatePath } from 'next/cache';
-import { ObjectId, type WithId } from 'mongodb';
-import axios, { isAxiosError } from 'axios';
-import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById } from '@/app/actions/project.actions';
+import type { WithId } from 'mongodb';
 import type { MetaFlow, MetaFlowValidationError } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
-import { cleanMetaFlowData, quickValidateFlow } from '@/lib/meta-flow-utils';
-
-const GRAPH_API_VERSION = 'v23.0';
-const GRAPH_BASE = `https://graph.facebook.com/${GRAPH_API_VERSION}`;
-const FLOW_JSON_VERSION = '7.3';
-const DATA_API_VERSION = '3.0';
+import { cleanMetaFlowData } from '@/lib/meta-flow-utils';
+import { rustClient } from '@/lib/rust-client';
 
 type ActionResult<T = {}> = {
     success: boolean;
@@ -39,105 +34,23 @@ type ActionResult<T = {}> = {
     validation_errors?: MetaFlowValidationError[];
 } & Partial<T>;
 
-/* ── helpers ─────────────────────────────────────────────────────── */
-
-function authHeaders(token: string) {
-    return { Authorization: `Bearer ${token}` };
-}
-
-function pickGraphError(e: unknown): { message: string; validation_errors?: MetaFlowValidationError[] } {
-    if (isAxiosError(e) && e.response?.data) {
-        const data: any = e.response.data;
-        const validation = data?.error?.error_user_msg
-            ? undefined
-            : (data?.validation_errors as MetaFlowValidationError[] | undefined);
-        return {
-            message: data?.error?.error_user_msg
-                || data?.error?.message
-                || data?.message
-                || e.message,
-            validation_errors: validation,
-        };
-    }
-    return { message: getErrorMessage(e) };
-}
-
-async function loadOwnedFlow(flowId: string) {
-    if (!ObjectId.isValid(flowId)) return { error: 'Invalid Flow ID.' as const };
-    const { db } = await connectToDatabase();
-    const flow = await db.collection<MetaFlow>('meta_flows').findOne({ _id: new ObjectId(flowId) });
-    if (!flow) return { error: 'Flow not found.' as const };
-    const project = await getProjectById(flow.projectId.toString());
-    if (!project || !project.accessToken) return { error: 'Project access denied.' as const };
-    return { db, flow, project };
-}
-
 /* ── reads ───────────────────────────────────────────────────────── */
 
 export async function getMetaFlows(projectId: string): Promise<WithId<MetaFlow>[]> {
-    if (!ObjectId.isValid(projectId)) return [];
     try {
-        const { db } = await connectToDatabase();
-        const flows = await db.collection('meta_flows')
-            .find({ projectId: new ObjectId(projectId) })
-            .sort({ createdAt: -1 })
-            .toArray();
-        return JSON.parse(JSON.stringify(flows));
+        const flows = await rustClient.metaFlows.listFlows(projectId);
+        return flows as unknown as WithId<MetaFlow>[];
     } catch {
         return [];
     }
 }
 
 export async function getMetaFlowById(flowId: string): Promise<WithId<MetaFlow> | null> {
-    const ctx = await loadOwnedFlow(flowId);
-    if ('error' in ctx) return null;
-    const { db, flow, project } = ctx;
-
     try {
-        const metaResp = await axios.get(`${GRAPH_BASE}/${flow.metaId}`, {
-            params: {
-                fields: 'id,name,status,categories,validation_errors,json_version,endpoint_uri,preview,health_status',
-            },
-            headers: authHeaders(project.accessToken!),
-        });
-
-        const meta = metaResp.data || {};
-        const update: Partial<MetaFlow> = {
-            name: meta.name ?? flow.name,
-            categories: meta.categories ?? flow.categories,
-            status: meta.status ?? flow.status,
-            json_version: meta.json_version ?? flow.json_version,
-            endpoint_uri: meta.endpoint_uri ?? flow.endpoint_uri,
-            validation_errors: meta.validation_errors ?? [],
-            health_status: meta.health_status ?? null,
-            preview: meta.preview ?? null,
-            updatedAt: new Date(),
-        };
-
-        // Fetch the full Flow JSON via the assets download URL.
-        try {
-            const assetsResp = await axios.get(`${GRAPH_BASE}/${flow.metaId}/assets`, {
-                headers: authHeaders(project.accessToken!),
-            });
-            const asset = assetsResp.data?.data?.find((a: any) => a.asset_type === 'FLOW_JSON') ?? assetsResp.data?.data?.[0];
-            if (asset?.download_url) {
-                const jsonResp = await axios.get(asset.download_url, { responseType: 'text' });
-                const raw = typeof jsonResp.data === 'string' ? jsonResp.data : JSON.stringify(jsonResp.data);
-                try { update.flow_data = JSON.parse(raw); } catch { /* keep local */ }
-            } else if (asset?.asset_content) {
-                // Older Graph versions inline the content.
-                try { update.flow_data = JSON.parse(asset.asset_content); } catch { /* keep local */ }
-            }
-        } catch (e) {
-            console.warn(`[meta-flow] assets fetch failed for ${flow.metaId}: ${getErrorMessage(e)}`);
-        }
-
-        await db.collection('meta_flows').updateOne({ _id: flow._id }, { $set: update });
-        const fresh = await db.collection<MetaFlow>('meta_flows').findOne({ _id: flow._id });
-        return fresh ? JSON.parse(JSON.stringify(fresh)) : null;
-    } catch (e) {
-        console.warn(`[meta-flow] sync failed for ${flow.metaId}: ${getErrorMessage(e)}`);
-        return JSON.parse(JSON.stringify(flow));
+        const flow = await rustClient.metaFlows.getFlow(flowId);
+        return flow ? (flow as unknown as WithId<MetaFlow>) : null;
+    } catch {
+        return null;
     }
 }
 
@@ -151,145 +64,46 @@ export async function createMetaFlow(input: {
     endpoint_uri?: string;
     clone_flow_id?: string;
 }): Promise<ActionResult<{ flowId: string; metaId: string }>> {
-    const { projectId, name, categories } = input;
-    if (!ObjectId.isValid(projectId)) return { success: false, error: 'Invalid project.' };
-    if (!name) return { success: false, error: 'Flow name is required.' };
-    if (!categories?.length) return { success: false, error: 'Select at least one category.' };
-
-    const project = await getProjectById(projectId);
-    if (!project?.accessToken || !project?.wabaId) {
-        return { success: false, error: 'Project is missing an access token or WABA ID.' };
-    }
-
-    const flowData = input.flow_data
-        ? cleanMetaFlowData(input.flow_data)
-        : {
-            version: FLOW_JSON_VERSION,
-            data_api_version: input.endpoint_uri ? DATA_API_VERSION : undefined,
-            routing_model: {},
-            screens: [],
-        };
-
-    // Meta's POST /flows applies strict integrity checks to `flow_json`
-    // (at least one terminal screen, reachable Footer, etc.) and returns
-    // a vague "Integrity requirements not met" on failure. The /assets
-    // endpoint is much more informative and returns structured
-    // validation_errors. So we create an empty shell here and let the
-    // caller follow up with saveMetaFlowDraft() which hits /assets.
-    const body: Record<string, any> = { name, categories };
-    if (input.endpoint_uri) body.endpoint_uri = input.endpoint_uri;
-    if (input.clone_flow_id) body.clone_flow_id = input.clone_flow_id;
-
     try {
-        const resp = await axios.post(
-            `${GRAPH_BASE}/${project.wabaId}/flows`,
-            body,
-            { headers: authHeaders(project.accessToken) },
-        );
-        const data = resp.data || {};
-        const newMetaId: string | undefined = data.id;
-        if (!newMetaId) return { success: false, error: 'Meta did not return a flow id.' };
-
-        const { db } = await connectToDatabase();
-        const now = new Date();
-        const doc: Omit<MetaFlow, '_id'> = {
-            name,
-            projectId: new ObjectId(projectId),
-            metaId: newMetaId,
-            status: 'DRAFT',
-            json_version: flowData.version,
-            categories,
-            flow_data: flowData,
+        const cleaned = input.flow_data ? cleanMetaFlowData(input.flow_data) : undefined;
+        const r = await rustClient.metaFlows.createFlow(input.projectId, {
+            name: input.name,
+            categories: input.categories,
+            flow_data: cleaned,
             endpoint_uri: input.endpoint_uri,
-            validation_errors: data.validation_errors ?? [],
-            health_status: null,
-            preview: null,
-            createdAt: now,
-            updatedAt: now,
-        };
-        const ins = await db.collection('meta_flows').insertOne(doc as any);
-
+            clone_flow_id: input.clone_flow_id,
+        });
+        if (!r.success) {
+            return { success: false, error: r.error, validation_errors: r.validation_errors };
+        }
         revalidatePath('/wachat/flows');
         return {
             success: true,
-            flowId: ins.insertedId.toString(),
-            metaId: newMetaId,
-            message: `Flow "${name}" created as DRAFT.`,
-            validation_errors: data.validation_errors ?? [],
+            flowId: r.flowId!,
+            metaId: r.metaId!,
+            message: r.message,
+            validation_errors: r.validation_errors ?? [],
         };
     } catch (e) {
-        const err = pickGraphError(e);
-        return { success: false, error: err.message, validation_errors: err.validation_errors };
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
-/**
- * Save Flow JSON to Meta as a DRAFT asset without publishing.
- * Meta accepts JSON updates only while the flow is in DRAFT.
- */
 export async function saveMetaFlowDraft(input: {
     flowId: string;
     flow_data: any;
 }): Promise<ActionResult> {
-    const ctx = await loadOwnedFlow(input.flowId);
-    if ('error' in ctx) return { success: false, error: ctx.error };
-    const { db, flow, project } = ctx;
-
-    if (flow.status && flow.status !== 'DRAFT') {
-        return {
-            success: false,
-            error: `Cannot edit JSON while flow is ${flow.status}. Create a new version or deprecate first.`,
-        };
-    }
-
-    // Drafts are permissive on purpose — Meta's /assets validator is the
-    // source of truth, and users need to iterate freely while building.
-    // We still clean the JSON to drop builder-only keys and empty strings
-    // Meta would reject outright.
-    const cleaned = cleanMetaFlowData(input.flow_data);
-
     try {
-        // Meta's /assets endpoint expects multipart/form-data.
-        const form = new FormData();
-        const blob = new Blob([JSON.stringify(cleaned)], { type: 'application/json' });
-        form.append('file', blob, 'flow.json');
-        form.append('name', 'flow.json');
-        form.append('asset_type', 'FLOW_JSON');
-
-        const resp = await axios.post(
-            `${GRAPH_BASE}/${flow.metaId}/assets`,
-            form,
-            { headers: authHeaders(project.accessToken!) },
-        );
-        const data = resp.data || {};
-        const validation: MetaFlowValidationError[] = data.validation_errors ?? [];
-
-        if (data.success === false && validation.length) {
-            await db.collection('meta_flows').updateOne(
-                { _id: flow._id },
-                { $set: { validation_errors: validation, updatedAt: new Date() } },
-            );
-            return { success: false, error: 'Flow JSON validation failed.', validation_errors: validation };
+        const cleaned = cleanMetaFlowData(input.flow_data);
+        const r = await rustClient.metaFlows.saveDraft(input.flowId, { flow_data: cleaned });
+        if (!r.success) {
+            return { success: false, error: r.error, validation_errors: r.validation_errors };
         }
-
-        await db.collection('meta_flows').updateOne(
-            { _id: flow._id },
-            {
-                $set: {
-                    flow_data: cleaned,
-                    json_version: cleaned.version ?? FLOW_JSON_VERSION,
-                    validation_errors: validation,
-                    updatedAt: new Date(),
-                },
-            },
-        );
-
         revalidatePath('/wachat/flows');
         revalidatePath(`/wachat/flows/create`);
-        return { success: true, message: 'Draft saved.', validation_errors: validation };
+        return { success: true, message: r.message ?? 'Draft saved.', validation_errors: r.validation_errors };
     } catch (e) {
-        const err = pickGraphError(e);
-        return { success: false, error: err.message, validation_errors: err.validation_errors };
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
@@ -300,124 +114,56 @@ export async function updateMetaFlowMetadata(input: {
     endpoint_uri?: string | null;
     application_id?: string;
 }): Promise<ActionResult> {
-    const ctx = await loadOwnedFlow(input.flowId);
-    if ('error' in ctx) return { success: false, error: ctx.error };
-    const { db, flow, project } = ctx;
-
-    const body: Record<string, any> = {};
-    if (input.name !== undefined) body.name = input.name;
-    if (input.categories !== undefined) body.categories = input.categories;
-    if (input.endpoint_uri !== undefined) body.endpoint_uri = input.endpoint_uri ?? '';
-    if (input.application_id !== undefined) body.application_id = input.application_id;
-
-    if (Object.keys(body).length === 0) return { success: true, message: 'Nothing to update.' };
-
     try {
-        await axios.post(
-            `${GRAPH_BASE}/${flow.metaId}`,
-            body,
-            { headers: authHeaders(project.accessToken!) },
-        );
-
-        await db.collection('meta_flows').updateOne(
-            { _id: flow._id },
-            {
-                $set: {
-                    ...(input.name !== undefined ? { name: input.name } : {}),
-                    ...(input.categories !== undefined ? { categories: input.categories } : {}),
-                    ...(input.endpoint_uri !== undefined ? { endpoint_uri: input.endpoint_uri ?? undefined } : {}),
-                    ...(input.application_id !== undefined ? { application_id: input.application_id } : {}),
-                    updatedAt: new Date(),
-                },
-            },
-        );
-
+        const r = await rustClient.metaFlows.updateMetadata(input.flowId, {
+            name: input.name,
+            categories: input.categories,
+            endpoint_uri: input.endpoint_uri,
+            application_id: input.application_id,
+        });
+        if (!r.success) return { success: false, error: r.error };
         revalidatePath('/wachat/flows');
-        return { success: true, message: 'Metadata updated.' };
+        return { success: true, message: r.message ?? 'Metadata updated.' };
     } catch (e) {
-        const err = pickGraphError(e);
-        return { success: false, error: err.message };
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
 /* ── publish / deprecate / delete ────────────────────────────────── */
 
 export async function publishMetaFlow(flowId: string): Promise<ActionResult> {
-    const ctx = await loadOwnedFlow(flowId);
-    if ('error' in ctx) return { success: false, error: ctx.error };
-    const { db, flow, project } = ctx;
-
     try {
-        await axios.post(
-            `${GRAPH_BASE}/${flow.metaId}/publish`,
-            {},
-            { headers: authHeaders(project.accessToken!) },
-        );
-
-        await db.collection('meta_flows').updateOne(
-            { _id: flow._id },
-            { $set: { status: 'PUBLISHED', lastPublishedAt: new Date(), updatedAt: new Date() } },
-        );
-
+        const r = await rustClient.metaFlows.publish(flowId);
+        if (!r.success) {
+            return { success: false, error: r.error, validation_errors: r.validation_errors };
+        }
         revalidatePath('/wachat/flows');
-        return { success: true, message: 'Flow published.' };
+        return { success: true, message: r.message ?? 'Flow published.' };
     } catch (e) {
-        const err = pickGraphError(e);
-        return { success: false, error: err.message, validation_errors: err.validation_errors };
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
 export async function deprecateMetaFlow(flowId: string): Promise<ActionResult> {
-    const ctx = await loadOwnedFlow(flowId);
-    if ('error' in ctx) return { success: false, error: ctx.error };
-    const { db, flow, project } = ctx;
-
     try {
-        await axios.post(
-            `${GRAPH_BASE}/${flow.metaId}/deprecate`,
-            {},
-            { headers: authHeaders(project.accessToken!) },
-        );
-
-        await db.collection('meta_flows').updateOne(
-            { _id: flow._id },
-            { $set: { status: 'DEPRECATED', updatedAt: new Date() } },
-        );
-
+        const r = await rustClient.metaFlows.deprecate(flowId);
+        if (!r.success) return { success: false, error: r.error };
         revalidatePath('/wachat/flows');
-        return { success: true, message: 'Flow deprecated.' };
+        return { success: true, message: r.message ?? 'Flow deprecated.' };
     } catch (e) {
-        const err = pickGraphError(e);
-        return { success: false, error: err.message };
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
 export async function deleteMetaFlow(flowId: string, metaId?: string): Promise<ActionResult> {
-    const ctx = await loadOwnedFlow(flowId);
-    if ('error' in ctx) return { success: false, error: ctx.error };
-    const { db, flow, project } = ctx;
-
-    if (flow.status && flow.status !== 'DRAFT') {
-        // Meta only allows deleting DRAFT flows; everything else must be deprecated.
-        return { success: false, error: `Only DRAFT flows can be deleted. Current status: ${flow.status}.` };
-    }
-
     try {
-        await axios.delete(
-            `${GRAPH_BASE}/${metaId ?? flow.metaId}`,
-            { headers: authHeaders(project.accessToken!) },
-        );
+        const r = await rustClient.metaFlows.deleteFlow(flowId, metaId);
+        if (!r.success) return { success: false, error: r.error };
+        revalidatePath('/wachat/flows');
+        return { success: true, message: r.message };
     } catch (e) {
-        // Tolerate "not found" on Meta so local cleanup still succeeds.
-        const err = pickGraphError(e);
-        if (!/not found|does not exist/i.test(err.message)) {
-            return { success: false, error: err.message };
-        }
+        return { success: false, error: getErrorMessage(e) };
     }
-
-    await db.collection('meta_flows').deleteOne({ _id: flow._id });
-    revalidatePath('/wachat/flows');
-    return { success: true, message: `Flow "${flow.name}" deleted.` };
 }
 
 /* ── preview / health ────────────────────────────────────────────── */
@@ -431,96 +177,37 @@ export async function getMetaFlowPreview(input: {
     phone_number?: string;
     interactive?: boolean;
 }): Promise<ActionResult<{ preview_url: string; expires_at: string }>> {
-    const ctx = await loadOwnedFlow(input.flowId);
-    if ('error' in ctx) return { success: false, error: ctx.error };
-    const { db, flow, project } = ctx;
-
-    const invalidate = input.invalidate ? 'true' : 'false';
-    const params: Record<string, string> = { fields: `preview.invalidate(${invalidate})` };
-    if (input.flow_token) params.flow_token = input.flow_token;
-    if (input.flow_action) params.flow_action = input.flow_action;
-    if (input.flow_action_payload) params.flow_action_payload = JSON.stringify(input.flow_action_payload);
-    if (input.phone_number) params.phone_number = input.phone_number;
-    if (input.interactive !== undefined) params.interactive = String(input.interactive);
-
     try {
-        const resp = await axios.get(`${GRAPH_BASE}/${flow.metaId}`, {
-            params,
-            headers: authHeaders(project.accessToken!),
+        const r = await rustClient.metaFlows.preview(input.flowId, {
+            invalidate: input.invalidate,
+            flow_token: input.flow_token,
+            flow_action: input.flow_action,
+            flow_action_payload: input.flow_action_payload,
+            phone_number: input.phone_number,
+            interactive: input.interactive,
         });
-        const preview = resp.data?.preview;
-        if (!preview?.preview_url) return { success: false, error: 'Meta returned no preview URL.' };
-
-        await db.collection('meta_flows').updateOne(
-            { _id: flow._id },
-            { $set: { preview, updatedAt: new Date() } },
-        );
-
+        if (!r.success) return { success: false, error: r.error };
         return {
             success: true,
-            message: 'Preview ready.',
-            preview_url: preview.preview_url,
-            expires_at: preview.expires_at,
+            message: r.message ?? 'Preview ready.',
+            preview_url: r.preview_url!,
+            expires_at: r.expires_at!,
         };
     } catch (e) {
-        const err = pickGraphError(e);
-        return { success: false, error: err.message };
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
 /* ── bulk sync from Meta ─────────────────────────────────────────── */
 
 export async function handleSyncMetaFlows(projectId: string): Promise<ActionResult<{ count: number }>> {
-    const project = await getProjectById(projectId);
-    if (!project?.accessToken || !project?.wabaId) {
-        return { success: false, error: 'Project not connected to a WABA.' };
-    }
-
     try {
-        const { db } = await connectToDatabase();
-        const all: any[] = [];
-        let nextUrl: string | undefined = `${GRAPH_BASE}/${project.wabaId}/flows?fields=id,name,status,categories,validation_errors,json_version,endpoint_uri&limit=100`;
-
-        while (nextUrl) {
-            const resp: any = await axios.get(nextUrl, { headers: authHeaders(project.accessToken) });
-            if (resp.data?.data?.length) all.push(...resp.data.data);
-            nextUrl = resp.data?.paging?.next;
-        }
-
-        if (!all.length) return { success: true, count: 0, message: 'No flows on Meta yet.' };
-
-        const ops = all.map((f: any) => ({
-            updateOne: {
-                filter: { metaId: f.id, projectId: new ObjectId(projectId) },
-                update: {
-                    $set: {
-                        name: f.name,
-                        status: f.status,
-                        categories: f.categories,
-                        json_version: f.json_version,
-                        endpoint_uri: f.endpoint_uri,
-                        validation_errors: f.validation_errors ?? [],
-                        updatedAt: new Date(),
-                    },
-                    $setOnInsert: {
-                        metaId: f.id,
-                        projectId: new ObjectId(projectId),
-                        createdAt: new Date(),
-                        flow_data: {},
-                    },
-                },
-                upsert: true,
-            },
-        }));
-
-        const result = await db.collection('meta_flows').bulkWrite(ops);
-        const count = result.upsertedCount + result.modifiedCount;
-
+        const r = await rustClient.metaFlows.syncFlows(projectId);
+        if (!r.success) return { success: false, error: r.error };
         revalidatePath('/wachat/flows');
-        return { success: true, count, message: `Synced ${count} flow(s) from Meta.` };
+        return { success: true, count: r.count ?? 0, message: r.message };
     } catch (e) {
-        const err = pickGraphError(e);
-        return { success: false, error: err.message };
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 

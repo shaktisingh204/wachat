@@ -1,58 +1,58 @@
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { type Db, ObjectId, type WithId, type Filter } from 'mongodb';
+import { ObjectId, type WithId, type Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { enqueueBroadcastControl } from '@/lib/queue/broadcast-queue';
 import { getProjectById } from '@/app/actions/project.actions';
-import { getAdminSession } from '@/lib/admin-session';
-import { handleManualWachatSetup } from '@/app/actions/whatsapp.actions';
+import { rustClient, RustApiError } from '@/lib/rust-client';
+import type {
+    ContactRecord,
+    StartBroadcastBody,
+} from '@/lib/rust-client/wachat-broadcast';
 import { getErrorMessage, validateFile } from '@/lib/utils';
-import type { Project, Template, BroadcastJob, Contact } from '@/lib/definitions';
+import type { Template, BroadcastJob } from '@/lib/definitions';
 import Papa from 'papaparse';
 import * as xlsx from 'xlsx';
-import { nanoid } from 'nanoid';
 import axios from 'axios';
 import NodeFormData from 'form-data';
 
-// Aligned with the rest of the Wachat module (whatsapp.actions.ts,
-// facebook.actions.ts, instagram.actions.ts, user.actions.ts, and the
-// broadcast send-message.js worker) — they all target v23.0. Leaving this
-// at v21.0 meant media uploads from the broadcast CSV path went to an older
-// Meta API endpoint than every other send path, and any v21-only bug would
-// silently affect broadcasts only.
+// Aligned with the rest of the Wachat module — Meta Cloud API v23.0.
+// Used by the inline media upload path that still runs in TS (see
+// `uploadMediaToMeta`); the broadcast worker reads it from the env so
+// we keep the constant here for parity.
 const API_VERSION = 'v23.0';
 
+// ---------------------------------------------------------------------------
+// Phase 6: every server action below is a thin shim around the Rust
+// `wachat-broadcast` crate. CSV parsing and Meta media uploads stay on
+// the TS side (multipart/binary doesn't move cleanly over JSON), but
+// every Mongo write, BullMQ enqueue, and tenancy gate now lives in
+// Rust.
+//
+// Error contract: the legacy actions returned `{ error?, message? }`.
+// `RustApiError` carries the same human-readable message in `.message`,
+// so we surface that to callers and never re-throw — the UI components
+// switch on the presence of `error` vs `message`.
+// ---------------------------------------------------------------------------
+
+function toErrorResponse<T extends { error?: string }>(e: unknown, base?: T): T {
+    const msg = e instanceof RustApiError ? e.message : getErrorMessage(e);
+    return { ...(base ?? ({} as T)), error: msg };
+}
+
+// ---------------------------------------------------------------------------
+// Reads
+// ---------------------------------------------------------------------------
 
 export async function getAllBroadcasts(
     page: number = 1,
-    limit: number = 20
-): Promise<{ broadcasts: WithId<BroadcastJob>[], total: number }> {
-    // P0 fix: this is a cross-tenant action (returns broadcasts across every
-    // project). A 'use server' action is callable from any client in the app
-    // via a crafted POST, so guarding only at the admin page layer is not
-    // enough. We verify the admin session cookie inside the action itself.
-    const session = await getAdminSession();
-    if (!session.isAdmin) {
-        return { broadcasts: [], total: 0 };
-    }
-
+    limit: number = 20,
+): Promise<{ broadcasts: WithId<BroadcastJob>[]; total: number }> {
     try {
-        const { db } = await connectToDatabase();
-        const skip = (page - 1) * limit;
-        const [broadcasts, total] = await Promise.all([
-            db.collection('broadcasts').find().sort({ createdAt: -1 }).skip(skip).limit(limit).toArray(),
-            db.collection('broadcasts').countDocuments()
-        ]);
-
-        return {
-            broadcasts: JSON.parse(JSON.stringify(broadcasts)),
-            total
-        };
-
+        const r = await rustClient.wachatBroadcast.adminList({ page, limit });
+        return { broadcasts: r.broadcasts as WithId<BroadcastJob>[], total: r.total };
     } catch (e) {
-        console.error("Failed to get all broadcasts:", e);
+        console.error('Failed to get all broadcasts:', e);
         return { broadcasts: [], total: 0 };
     }
 }
@@ -60,52 +60,26 @@ export async function getAllBroadcasts(
 export async function getBroadcasts(
     projectId: string,
     page: number = 1,
-    limit: number = 10
-): Promise<{ broadcasts: WithId<BroadcastJob>[], total: number }> {
+    limit: number = 10,
+): Promise<{ broadcasts: WithId<BroadcastJob>[]; total: number }> {
     if (!projectId || !ObjectId.isValid(projectId)) {
         return { broadcasts: [], total: 0 };
     }
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return { broadcasts: [], total: 0 };
-
     try {
-        const { db } = await connectToDatabase();
-        const skip = (page - 1) * limit;
-        const [broadcasts, total] = await Promise.all([
-            db.collection('broadcasts')
-                .find({ projectId: new ObjectId(projectId) })
-                .sort({ createdAt: -1 })
-                .skip(skip)
-                .limit(limit)
-                .toArray(),
-            db.collection('broadcasts').countDocuments({ projectId: new ObjectId(projectId) })
-        ]);
-
-        return {
-            broadcasts: JSON.parse(JSON.stringify(broadcasts)),
-            total
-        };
+        const r = await rustClient.wachatBroadcast.listForProject(projectId, { page, limit });
+        return { broadcasts: r.broadcasts as WithId<BroadcastJob>[], total: r.total };
     } catch (e) {
-        console.error("Failed to get broadcasts for project:", e);
+        console.error('Failed to get broadcasts for project:', e);
         return { broadcasts: [], total: 0 };
     }
 }
 
 export async function getBroadcastById(broadcastId: string): Promise<WithId<any> | null> {
     if (!broadcastId || !ObjectId.isValid(broadcastId)) return null;
-
     try {
-        const { db } = await connectToDatabase();
-        const broadcast = await db.collection('broadcasts').findOne({ _id: new ObjectId(broadcastId) });
-        if (!broadcast) return null;
-
-        const hasAccess = await getProjectById(broadcast.projectId.toString());
-        if (!hasAccess) return null;
-
-        return JSON.parse(JSON.stringify(broadcast));
-
+        return (await rustClient.wachatBroadcast.getById(broadcastId)) as WithId<any>;
     } catch (e) {
-        console.error("Failed to get broadcast by ID:", e);
+        console.error('Failed to get broadcast by ID:', e);
         return null;
     }
 }
@@ -114,64 +88,50 @@ export async function getBroadcastAttempts(
     broadcastId: string,
     page: number = 1,
     limit: number = 50,
-    statusFilter?: string
-): Promise<{ attempts: any[], total: number }> {
+    statusFilter?: string,
+): Promise<{ attempts: any[]; total: number }> {
     if (!broadcastId || !ObjectId.isValid(broadcastId)) return { attempts: [], total: 0 };
     try {
-        const { db } = await connectToDatabase();
-
-        const filter: Filter<any> = { broadcastId: new ObjectId(broadcastId) };
-        if (statusFilter && statusFilter !== 'ALL') {
-            filter.status = statusFilter;
-        }
-
-        const skip = (page - 1) * limit;
-
-        const [attempts, total] = await Promise.all([
-            db.collection('broadcast_contacts').find(filter).sort({ _id: 1 }).skip(skip).limit(limit).toArray(),
-            db.collection('broadcast_contacts').countDocuments(filter)
-        ]);
-
-        return {
-            attempts: JSON.parse(JSON.stringify(attempts)),
-            total
-        };
-
-    } catch (e) {
+        return await rustClient.wachatBroadcast.listAttempts(broadcastId, {
+            page,
+            limit,
+            statusFilter,
+        });
+    } catch {
         return { attempts: [], total: 0 };
     }
 }
 
-export async function getBroadcastAttemptsForExport(broadcastId: string, statusFilter?: string): Promise<any[]> {
+export async function getBroadcastAttemptsForExport(
+    broadcastId: string,
+    statusFilter?: string,
+): Promise<any[]> {
     if (!broadcastId || !ObjectId.isValid(broadcastId)) return [];
     try {
-        const { db } = await connectToDatabase();
-        const filter: Filter<any> = { broadcastId: new ObjectId(broadcastId) };
-        if (statusFilter && statusFilter !== 'ALL') {
-            filter.status = statusFilter;
-        }
-        const attempts = await db.collection('broadcast_contacts').find(filter).project({ phone: 1, status: 1, messageId: 1, error: 1, sentAt: 1 }).toArray();
-        return JSON.parse(JSON.stringify(attempts));
-    } catch (e) {
+        return await rustClient.wachatBroadcast.exportAttempts(broadcastId, statusFilter);
+    } catch {
         return [];
     }
 }
-
 
 export async function getBroadcastLogs(broadcastId: string): Promise<WithId<any>[]> {
     if (!broadcastId || !ObjectId.isValid(broadcastId)) return [];
     try {
-        const { db } = await connectToDatabase();
-        const logs = await db.collection('broadcast_logs').find({ broadcastId: new ObjectId(broadcastId) }).sort({ timestamp: -1 }).limit(100).toArray();
-        return JSON.parse(JSON.stringify(logs));
-    } catch (e) {
+        return (await rustClient.wachatBroadcast.listLogs(broadcastId)) as WithId<any>[];
+    } catch {
         return [];
     }
 }
 
+// ---------------------------------------------------------------------------
+// FormData / file helpers
+// ---------------------------------------------------------------------------
 
-const parseContactFile = async (file: File) => {
-    const { isValid, error } = validateFile(file, ['text/csv', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']);
+const parseContactFile = async (file: File): Promise<ContactRecord[]> => {
+    const { isValid, error } = validateFile(file, [
+        'text/csv',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    ]);
     if (!isValid) throw new Error(error || 'Invalid file');
 
     const buffer = await file.arrayBuffer();
@@ -179,14 +139,14 @@ const parseContactFile = async (file: File) => {
 
     let rows: any[] = [];
     if (file.type === 'text/csv') {
-        const text = new TextDecoder("utf-8").decode(data);
-        rows = Papa.parse(text, { header: true, skipEmptyLines: true }).data;
+        const text = new TextDecoder('utf-8').decode(data);
+        rows = Papa.parse(text, { header: true, skipEmptyLines: true }).data as any[];
     } else {
         const workbook = xlsx.read(data, { type: 'array' });
         const sheetName = workbook.SheetNames[0];
-        rows = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
-        const header = rows[0];
-        rows = rows.slice(1).map(row => {
+        rows = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 }) as any[];
+        const header = rows[0] as string[];
+        rows = rows.slice(1).map((row: any[]) => {
             const rowData: any = {};
             header.forEach((h: any, i: number) => {
                 rowData[h] = row[i];
@@ -199,79 +159,99 @@ const parseContactFile = async (file: File) => {
         throw new Error("Invalid file format. The first column must be named 'phone'.");
     }
 
-    return rows.map((row) => ({
+    return rows.map((row: any) => ({
         phone: String(row.phone || row.Phone || row.PHONE).trim().replace(/\D/g, ''),
         name: row.name || row.Name || 'Subscriber',
-        ...row // include other columns as variables
+        variables: { ...row },
     }));
 };
 
-async function createBroadcastContacts(db: Db, broadcastId: ObjectId, contacts: any[]) {
-    if (contacts.length === 0) return 0;
-
-    const contactsToInsert = contacts.map(c => ({
-        broadcastId: broadcastId,
-        phone: c.phone,
-        name: c.name,
-        variables: { ...c }, // All columns are available as variables
-        status: 'PENDING',
-    }));
-
-    // Use bulk write for efficient insertion
-    const batchSize = 1000;
-    let totalInserted = 0;
-    for (let i = 0; i < contactsToInsert.length; i += batchSize) {
-        const batch = contactsToInsert.slice(i, i + batchSize);
-        const result = await db.collection('broadcast_contacts').insertMany(batch);
-        totalInserted += result.insertedCount;
-    }
-    return totalInserted;
+/**
+ * Upload a single header-media file to Meta and return the media id.
+ * Kept on the TS side because multipart binary doesn't fit the
+ * JSON-only Rust API surface; the existing accessToken-on-project path
+ * is the same one `whatsapp.actions.ts` uses elsewhere.
+ */
+async function uploadMediaToMeta(
+    file: File,
+    phoneNumberId: string,
+    accessToken: string,
+): Promise<string> {
+    const form = new NodeFormData();
+    const buffer = Buffer.from(await file.arrayBuffer());
+    form.append('file', buffer, {
+        filename: file.name,
+        contentType: file.type,
+        knownLength: buffer.length,
+    });
+    form.append('messaging_product', 'whatsapp');
+    const res = await axios.post(
+        `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/media`,
+        form,
+        {
+            headers: {
+                ...form.getHeaders(),
+                Authorization: `Bearer ${accessToken}`,
+            },
+        },
+    );
+    return res.data.id;
 }
 
+// ---------------------------------------------------------------------------
+// Mutations — the heavy ones (build a normalized JSON body, then call Rust)
+// ---------------------------------------------------------------------------
 
 export async function handleStartBroadcast(
-    prevState: { message?: string; error?: string },
-    formData: FormData
+    _prevState: { message?: string; error?: string },
+    formData: FormData,
 ): Promise<{ message?: string; error?: string }> {
     const projectId = formData.get('projectId') as string;
     const phoneNumberId = formData.get('phoneNumberId') as string;
-    const audienceType = formData.get('audienceType') as 'file' | 'tags';
+    const audienceType = (formData.get('audienceType') as 'file' | 'tags') || 'file';
     const tagIds = formData.getAll('tagIds') as string[];
     const broadcastType = (formData.get('broadcastType') as 'template' | 'flow') || 'template';
 
-    const { db } = await connectToDatabase();
     const project = await getProjectById(projectId);
     if (!project) return { error: 'Project not found.' };
 
+    // Pre-resolve template / flow doc so we can build the `components`
+    // array (with header media ids substituted in) before forwarding to
+    // Rust. The Rust handler re-validates project ownership and the
+    // template's APPROVED status.
+    const { db } = await connectToDatabase();
     let template: WithId<Template> | null = null;
-    let flow: WithId<any> | null = null; // MetaFlow
+    let flow: WithId<any> | null = null;
 
     if (broadcastType === 'template') {
         const templateId = formData.get('templateId') as string;
-        template = await db.collection<Template>('templates').findOne({ _id: new ObjectId(templateId), projectId: new ObjectId(projectId) });
+        if (!templateId || !ObjectId.isValid(templateId)) {
+            return { error: 'Invalid templateId.' };
+        }
+        template = await db.collection<Template>('templates').findOne({
+            _id: new ObjectId(templateId),
+            projectId: new ObjectId(projectId),
+        });
         if (!template) return { error: 'Template not found for this project.' };
-        // J3 P1-1 fix: surface approval status at enqueue time instead of at
-        // worker send time. Previously a broadcast with a PENDING or REJECTED
-        // template would enqueue successfully and fail later when Meta
-        // returned error #132015, leaving users confused about why their
-        // campaign "just broke". `send-template.actions.ts:45` already does
-        // this check — mirroring it here.
         if (template.status !== 'APPROVED') {
-            return { error: `Template '${template.name}' is ${template.status || 'not approved'}. Only APPROVED templates can be broadcast.` };
+            return {
+                error: `Template '${template.name}' is ${
+                    template.status || 'not approved'
+                }. Only APPROVED templates can be broadcast.`,
+            };
         }
     } else {
         const flowId = formData.get('flowId') as string;
-        flow = await db.collection('meta_flows').findOne({ _id: new ObjectId(flowId), projectId: new ObjectId(projectId) });
+        if (!flowId || !ObjectId.isValid(flowId)) return { error: 'Invalid flowId.' };
+        flow = await db.collection('meta_flows').findOne({
+            _id: new ObjectId(flowId),
+            projectId: new ObjectId(projectId),
+        });
         if (!flow) return { error: 'Flow not found for this project.' };
     }
 
-    // Header variables
-    const headerImageUrl = formData.get('headerMediaUrl') as string | null;
-    const headerMediaFile = formData.get('headerMediaFile') as File | null;
-    const baseMediaSource = formData.get('mediaSource') as string | null;
-
-    let contacts: any[] = [];
-
+    // Audience: file → CSV / XLSX parsing happens here.
+    let contacts: ContactRecord[] = [];
     if (audienceType === 'file') {
         const csvFile = formData.get('csvFile') as File;
         if (!csvFile || csvFile.size === 0) return { error: 'Contact file is required.' };
@@ -280,397 +260,308 @@ export async function handleStartBroadcast(
         } catch (e: any) {
             return { error: `Failed to parse file: ${e.message}` };
         }
-    } else if (audienceType === 'tags' && tagIds.length > 0) {
-        const validTagIds = tagIds.map(id => new ObjectId(id));
-        contacts = await db.collection<Contact>('contacts').find({
-            projectId: new ObjectId(projectId),
-            tagIds: { $in: validTagIds }
-        }).toArray();
     }
 
-    if (contacts.length === 0) {
-        return { error: 'No contacts found for the selected audience.' };
-    }
-
-    // Per-broadcast rate limit. The form may override the project default; the
-    // worker reads broadcast.messagesPerSecond first, then projectMessagesPerSecond,
-    // then falls back to BROADCAST_DEFAULT_MPS (80).
+    // Per-broadcast MPS override (worker reads broadcast → project →
+    // BROADCAST_DEFAULT_MPS).
     const formMps = parseInt(formData.get('messagesPerSecond') as string, 10);
     const broadcastMps =
-        Number.isFinite(formMps) && formMps > 0
-            ? formMps
-            : (project as any).messagesPerSecond || undefined;
-
-    // Option to create contacts from broadcast — default NO to avoid polluting CRM
+        Number.isFinite(formMps) && formMps > 0 ? formMps : undefined;
     const createContacts = formData.get('createContacts') === 'true';
 
-    const broadcastData: any = {
-        projectId: new ObjectId(projectId),
-        phoneNumberId,
-        status: 'PENDING_PROCESSING',
-        contactCount: contacts.length,
-        successCount: 0,
-        errorCount: 0,
-        enqueuedCount: 0,
-        fileName: audienceType === 'file' ? (formData.get('csvFile') as File).name : 'Audience Tag',
-        audienceType: audienceType,
-        tagIds: audienceType === 'tags' ? tagIds.map(id => new ObjectId(id)) : [],
-        accessToken: project.accessToken,
-        createdAt: new Date(),
-        broadcastType,
-        createContacts,
-        // Always carry the template definition so the worker doesn't need to
-        // re-fetch it (and so resends after template edits stay reproducible).
-        components: broadcastType === 'template' && template ? [...(template.components || [])] : [],
-        messagesPerSecond: broadcastMps,
-        projectMessagesPerSecond: (project as any).messagesPerSecond || undefined,
-    };
+    // Build the `components` array. Start from the template definition
+    // (so the worker doesn't need to re-fetch) and rewrite header /
+    // carousel / button entries based on the form inputs.
+    const components: any[] = template ? [...(template.components || [])] : [];
 
-    if (broadcastType === 'template' && template) {
-        broadcastData.name = `${template.name} - ${new Date().toLocaleString()}`;
-        broadcastData.templateName = template.name;
-        broadcastData.templateId = template._id;
-        broadcastData.language = template.language || 'en_US';
-        // --- HEADER ---
+    if (template) {
+        const headerImageUrl = formData.get('headerMediaUrl') as string | null;
+        const headerMediaFile = formData.get('headerMediaFile') as File | null;
+        const baseMediaSource = formData.get('mediaSource') as string | null;
+        const accessToken = project.accessToken!;
+
+        // Header — text variable, location, image / video / document.
         const headerComponentDef = template.components?.find(c => c.type === 'HEADER');
         if (headerComponentDef) {
             const format = headerComponentDef.format?.toUpperCase();
-
-            // Text Header with Variables
             if (format === 'TEXT') {
                 const matches = headerComponentDef.text?.match(/{{\s*(\d+)\s*}}/g);
                 if (matches && matches.length > 0) {
-                    const varNum = matches[0].replace(/\D/g, ''); // Get first variable number
+                    const varNum = matches[0].replace(/\D/g, '');
                     const headerVar = formData.get(`variable_header_${varNum}`) as string;
-
                     if (headerVar) {
-                        const headerIndex = broadcastData.components.findIndex((c: any) => c.type === 'HEADER');
+                        const headerIndex = components.findIndex(
+                            (c: any) => c.type === 'HEADER',
+                        );
                         if (headerIndex !== -1) {
-                            broadcastData.components[headerIndex] = {
+                            components[headerIndex] = {
                                 type: 'header',
-                                parameters: [{ type: 'text', text: headerVar }]
+                                parameters: [{ type: 'text', text: headerVar }],
                             };
                         }
                     }
                 }
-            }
-            // Location Header
-            else if (format === 'LOCATION') {
+            } else if (format === 'LOCATION') {
                 const locName = formData.get('header_location_name') as string;
                 const locAddress = formData.get('header_location_address') as string;
                 const locLat = formData.get('header_location_latitude') as string;
                 const locLong = formData.get('header_location_longitude') as string;
-
                 if (locLat && locLong) {
-                    const headerIndex = broadcastData.components.findIndex((c: any) => c.type === 'HEADER');
+                    const headerIndex = components.findIndex(
+                        (c: any) => c.type === 'HEADER',
+                    );
                     if (headerIndex !== -1) {
-                        broadcastData.components[headerIndex] = {
+                        components[headerIndex] = {
                             type: 'header',
-                            parameters: [{
-                                type: 'location',
-                                location: {
-                                    latitude: locLat,
-                                    longitude: locLong,
-                                    name: locName || undefined,
-                                    address: locAddress || undefined
-                                }
-                            }]
+                            parameters: [
+                                {
+                                    type: 'location',
+                                    location: {
+                                        latitude: locLat,
+                                        longitude: locLong,
+                                        name: locName || undefined,
+                                        address: locAddress || undefined,
+                                    },
+                                },
+                            ],
+                        };
+                    }
+                }
+            } else if (
+                baseMediaSource === 'file' &&
+                headerMediaFile &&
+                headerMediaFile.size > 0
+            ) {
+                try {
+                    const mediaId = await uploadMediaToMeta(
+                        headerMediaFile,
+                        phoneNumberId,
+                        accessToken,
+                    );
+                    const headerIndex = components.findIndex(
+                        (c: any) => c.type === 'HEADER',
+                    );
+                    if (headerIndex !== -1) {
+                        const f = components[headerIndex].format;
+                        if (f === 'IMAGE') {
+                            components[headerIndex] = {
+                                type: 'header',
+                                parameters: [{ type: 'image', image: { id: mediaId } }],
+                            };
+                        } else if (f === 'VIDEO') {
+                            components[headerIndex] = {
+                                type: 'header',
+                                parameters: [{ type: 'video', video: { id: mediaId } }],
+                            };
+                        } else if (f === 'DOCUMENT') {
+                            components[headerIndex] = {
+                                type: 'header',
+                                parameters: [
+                                    { type: 'document', document: { id: mediaId } },
+                                ],
+                            };
+                        }
+                    }
+                } catch (uploadError: any) {
+                    return { error: `Failed to upload header media: ${uploadError.message}` };
+                }
+            } else if (headerImageUrl) {
+                const headerIndex = components.findIndex(
+                    (c: any) => c.type === 'HEADER',
+                );
+                if (headerIndex !== -1) {
+                    const f = components[headerIndex].format;
+                    if (f === 'IMAGE') {
+                        components[headerIndex] = {
+                            type: 'header',
+                            parameters: [
+                                { type: 'image', image: { link: headerImageUrl } },
+                            ],
+                        };
+                    } else if (f === 'VIDEO') {
+                        components[headerIndex] = {
+                            type: 'header',
+                            parameters: [
+                                { type: 'video', video: { link: headerImageUrl } },
+                            ],
+                        };
+                    } else if (f === 'DOCUMENT') {
+                        components[headerIndex] = {
+                            type: 'header',
+                            parameters: [
+                                { type: 'document', document: { link: headerImageUrl } },
+                            ],
                         };
                     }
                 }
             }
         }
 
-        // --- BODY ---
-        // For Broadcasts, body variables are usually per-contact (from file/tags). 
-        // IF the variable is NOT in the file (e.g. valid hardcoded value?), we might need to handle it?
-        // Current logic expects body vars to be in the contact object (from file/tags).
-        // However, if the user inputs a static value for a body variable in the form (which TemplateInputRenderer allows),
-        // we should probably use that as a fallback or default?
-        // actually, TemplateInputRenderer outputs `variable_body_${i}`.
-        // But `createBroadcastContacts` maps file columns to variables. 
-        // If we want to support "static" body values from the form that apply to EVERYONE, we should extract them here
-        // and merge them into the contact's variables during creation, OR update the component parameters here?
-        // 
-        // Standard Broadcast behavior usually implies variables come from the Audience list.
-        // But if `TemplateInputRenderer` allows typing a value, it acts as a constant for the whole batch.
-        // Let's support that:
-
+        // Body — collect any global static variable values.
+        let globalBodyVars: Record<string, string> | null = null;
         const bodyComponent = template.components?.find(c => c.type === 'BODY');
         if (bodyComponent && bodyComponent.text) {
-            const bodyParams: any[] = [];
-            // Count variables
             const matches = bodyComponent.text.match(/{{(\d+)}}/g);
             if (matches) {
                 const uniqueVars = new Set(matches) as Set<string>;
-                // We can't pre-fill parameters here because they differ per contact (usually).
-                // BUT if the user provided a value in the form, it should override/be used.
-                // The `worker` or sending logic needs to know about these "Global" variables.
-                // 
-                // Strategy: Store these "global" body values in `broadcastData` so the worker can use them 
-                // if the contact specific variable is missing.
-
-                const globalBodyVars: Record<string, string> = {};
-                uniqueVars.forEach((v) => {
+                const collected: Record<string, string> = {};
+                uniqueVars.forEach(v => {
                     const varNum = v.replace(/\D/g, '');
                     const formValue = formData.get(`variable_body_${varNum}`) as string;
-                    if (formValue) {
-                        globalBodyVars[`variable_body_${varNum}`] = formValue;
-                    }
+                    if (formValue) collected[`variable_body_${varNum}`] = formValue;
                 });
-
-                if (Object.keys(globalBodyVars).length > 0) {
-                    broadcastData.globalBodyVars = globalBodyVars;
-                }
+                if (Object.keys(collected).length > 0) globalBodyVars = collected;
             }
         }
 
-        // --- BUTTONS ---
+        // Buttons — append URL-suffix / copy-code parameter components.
         const buttons = template.components?.find(c => c.type === 'BUTTONS')?.buttons;
         if (buttons) {
-            const buttonComponents: any[] = [];
             buttons.forEach((btn: any, index: number) => {
                 if (btn.type === 'URL' && btn.url?.includes('{{1}}')) {
                     const suffix = formData.get(`button_url_suffix_${index}`) as string;
                     if (suffix) {
-                        buttonComponents.push({
+                        components.push({
                             type: 'button',
                             sub_type: 'url',
-                            index: index,
-                            parameters: [{ type: 'text', text: suffix }]
+                            index,
+                            parameters: [{ type: 'text', text: suffix }],
                         });
                     }
                 } else if (btn.type === 'COPY_CODE') {
                     const code = formData.get(`button_copy_code_${index}`) as string;
                     if (code) {
-                        buttonComponents.push({
+                        components.push({
                             type: 'button',
                             sub_type: 'copy_code',
-                            index: index,
-                            parameters: [{ type: 'coupon_code', coupon_code: code }]
+                            index,
+                            parameters: [{ type: 'coupon_code', coupon_code: code }],
                         });
                     }
                 }
             });
-
-            if (buttonComponents.length > 0) {
-                // Add to broadcast components. 
-                // NOTE: Broadcast components array structure is flat for header/body etc, but buttons are separate?
-                // No, standard `components` payload is an array of objects.
-                // We don't replace the BUTTONS definition from the template, we append the button parameter objects.
-                // WAIT: `broadcastData.components` currently holds the Template Definition (with types and formats).
-                // The WASAPI message payload structure (parameters) is DIFFERENT from Template Definition.
-                // 
-                // For Broadcasts, we act as a definitions storage. The `worker` constructs the actual message payload.
-                // So we should store these values in `broadcastData` (e.g. `presets` or `staticParameters`) 
-                // OR we modify `broadcastData.components` to act as the "Preset" configuration?
-                // 
-                // The `worker.js` (or broadcasting service) iterates through contacts and constructs the call.
-                // It likely looks at `broadcastData.components`.
-                // If we change `broadcastData.components` to look like the MESSAGE payload (components with parameters),
-                // then the worker might break if it expects the TEMPLATE definition.
-                // 
-                // Let's look at how the worker uses `broadcastData.components`.
-                // (I can't see the worker code right now, but assuming standard behavior or how I treated Header Media).
-                // 
-                // I treated Header Media by REPLACING the component in `broadcastData.components` with the Message Payload version:
-                // `{ type: 'header', parameters: [...] }`
-                // This implies `broadcastData.components` is expected to optionally contain PRE-FILLED component payloads.
-
-                buttonComponents.forEach(bc => {
-                    broadcastData.components.push(bc);
-                });
-            }
         }
 
-        // Handle Header Media (Standard)
-        if (baseMediaSource === 'file' && headerMediaFile && headerMediaFile.size > 0) {
-            try {
-                const form = new NodeFormData();
-                const buffer = Buffer.from(await headerMediaFile.arrayBuffer());
-                form.append('file', buffer, {
-                    filename: headerMediaFile.name,
-                    contentType: headerMediaFile.type,
-                    knownLength: buffer.length
-                });
-                form.append('messaging_product', 'whatsapp');
-
-                console.log('Uploading broadcast header media to Meta...', { size: buffer.length, type: headerMediaFile.type });
-
-                const uploadResponse = await axios.post(
-                    `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/media`,
-                    form,
-                    {
-                        headers: {
-                            ...form.getHeaders(),
-                            'Authorization': `Bearer ${project.accessToken}`
-                        }
-                    }
-                );
-                const mediaId = uploadResponse.data.id;
-
-                // Update the HEADER component in broadcastData.components
-                const headerIndex = broadcastData.components.findIndex((c: any) => c.type === 'HEADER');
-                if (headerIndex !== -1) {
-                    const format = broadcastData.components[headerIndex].format;
-                    if (format === 'IMAGE') {
-                        broadcastData.components[headerIndex] = { type: 'header', parameters: [{ type: 'image', image: { id: mediaId } }] };
-                    } else if (format === 'VIDEO') {
-                        broadcastData.components[headerIndex] = { type: 'header', parameters: [{ type: 'video', video: { id: mediaId } }] };
-                    } else if (format === 'DOCUMENT') {
-                        broadcastData.components[headerIndex] = { type: 'header', parameters: [{ type: 'document', document: { id: mediaId } }] };
-                    }
-                }
-
-            } catch (uploadError: any) {
-                console.error('Meta Header Media Upload Error:', uploadError.response?.data || uploadError.message);
-                return { error: `Failed to upload header media: ${uploadError.message}` };
-            }
-        } else if (headerImageUrl) {
-            // Handle URL based header media by updating the component parameters
-            const headerIndex = broadcastData.components.findIndex((c: any) => c.type === 'HEADER');
-            if (headerIndex !== -1) {
-                const format = broadcastData.components[headerIndex].format;
-                if (format === 'IMAGE') {
-                    broadcastData.components[headerIndex] = { type: 'header', parameters: [{ type: 'image', image: { link: headerImageUrl } }] };
-                } else if (format === 'VIDEO') {
-                    broadcastData.components[headerIndex] = { type: 'header', parameters: [{ type: 'video', video: { link: headerImageUrl } }] };
-                } else if (format === 'DOCUMENT') {
-                    broadcastData.components[headerIndex] = { type: 'header', parameters: [{ type: 'document', document: { link: headerImageUrl } }] };
-                }
-            }
-        }
-
-        // Handle Carousel Media
+        // Carousel media — upload each card image / video and rewrite
+        // the CAROUSEL component's `cards` array.
         if (template.type === 'MARKETING_CAROUSEL') {
-            const carouselComponent = broadcastData.components.find((c: any) => c.type === 'CAROUSEL');
-
+            const carouselComponent = components.find((c: any) => c.type === 'CAROUSEL');
             if (carouselComponent && Array.isArray(carouselComponent.cards)) {
-                console.log('Processing Marketing Carousel for Broadcast...');
                 const cardsPayload: any[] = [];
-
-                // Process cards in order
                 for (let i = 0; i < carouselComponent.cards.length; i++) {
                     const cardDef = carouselComponent.cards[i];
-                    const cardHeader = cardDef.components?.find((c: any) => c.type === 'HEADER');
+                    const cardHeader = cardDef.components?.find(
+                        (c: any) => c.type === 'HEADER',
+                    );
                     const cardComponents: any[] = [];
-
-                    // 1. Handle Header Media Upload
                     if (cardHeader && ['IMAGE', 'VIDEO'].includes(cardHeader.format)) {
                         const fileKey = `card_${i}_media_file`;
                         const file = formData.get(fileKey) as File;
-
-                        let mediaId: string | null = null;
-
                         if (file && file.size > 0) {
                             try {
-                                const form = new NodeFormData();
-                                const buffer = Buffer.from(await file.arrayBuffer());
-                                form.append('file', buffer, {
-                                    filename: file.name,
-                                    contentType: file.type,
-                                    knownLength: buffer.length
-                                });
-                                form.append('messaging_product', 'whatsapp');
-
-                                console.log(`Uploading broadcast carousel card ${i} media to Meta...`, { size: buffer.length, type: file.type });
-
-                                const uploadResponse = await axios.post(
-                                    `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/media`,
-                                    form,
-                                    {
-                                        headers: {
-                                            ...form.getHeaders(),
-                                            'Authorization': `Bearer ${project.accessToken}`
-                                        }
-                                    }
+                                const mediaId = await uploadMediaToMeta(
+                                    file,
+                                    phoneNumberId,
+                                    accessToken,
                                 );
-                                mediaId = uploadResponse.data.id;
-                                console.log(`Uploaded media ID for card ${i}: ${mediaId}`);
+                                cardComponents.push({
+                                    type: 'header',
+                                    parameters: [
+                                        cardHeader.format === 'IMAGE'
+                                            ? { type: 'image', image: { id: mediaId } }
+                                            : { type: 'video', video: { id: mediaId } },
+                                    ],
+                                });
                             } catch (uploadError: any) {
-                                console.error(`Meta Media Upload Error (Card ${i}):`, uploadError.response?.data || uploadError.message);
-                                return { error: `Failed to upload media for card ${i + 1}: ${uploadError.message}` };
-                            }
-                        }
-
-                        if (mediaId) {
-                            if (cardHeader.format === 'IMAGE') {
-                                cardComponents.push({
-                                    type: 'header',
-                                    parameters: [{ type: 'image', image: { id: mediaId } }]
-                                });
-                            } else if (cardHeader.format === 'VIDEO') {
-                                cardComponents.push({
-                                    type: 'header',
-                                    parameters: [{ type: 'video', video: { id: mediaId } }]
-                                });
+                                return {
+                                    error: `Failed to upload media for card ${i + 1}: ${uploadError.message}`,
+                                };
                             }
                         }
                     }
-
                     if (cardComponents.length > 0) {
-                        cardsPayload.push({
-                            card_index: i,
-                            components: cardComponents
-                        });
+                        cardsPayload.push({ card_index: i, components: cardComponents });
                     }
                 }
-
                 if (cardsPayload.length > 0) {
-                    // Replace the CAROUSEL component definition with the constructed payload
-                    const newCarouselComponent = {
-                        type: 'CAROUSEL',
-                        cards: cardsPayload
-                    };
-
-                    // Replace in components array
-                    const carouselIndex = broadcastData.components.findIndex((c: any) => c.type === 'CAROUSEL');
+                    const carouselIndex = components.findIndex(
+                        (c: any) => c.type === 'CAROUSEL',
+                    );
                     if (carouselIndex !== -1) {
-                        broadcastData.components[carouselIndex] = newCarouselComponent;
+                        components[carouselIndex] = {
+                            type: 'CAROUSEL',
+                            cards: cardsPayload,
+                        };
                     }
                 }
             }
         }
-    } else if (broadcastType === 'flow' && flow) {
-        broadcastData.name = `Flow: ${flow.name} - ${new Date().toLocaleString()}`;
-        broadcastData.templateName = `Flow: ${flow.name}`; // Fallback for display
-        broadcastData.flowId = flow._id;
-        broadcastData.flowName = flow.name;
-        broadcastData.flowMetaId = flow.metaId;
 
-        // Flow message configuration
-        broadcastData.flowConfig = {
-            header: formData.get('flowHeader'),
-            body: formData.get('flowBody'),
-            footer: formData.get('flowFooter'),
-            cta: formData.get('flowCta'),
+        const body: StartBroadcastBody = {
+            projectId,
+            phoneNumberId,
+            broadcastType: 'template',
+            templateId: String(template._id),
+            audienceType,
+            contacts: audienceType === 'file' ? contacts : undefined,
+            tagIds: audienceType === 'tags' ? tagIds : undefined,
+            fileName:
+                audienceType === 'file'
+                    ? (formData.get('csvFile') as File).name
+                    : 'Audience Tag',
+            messagesPerSecond: broadcastMps,
+            createContacts,
+            components,
+            globalBodyVars,
         };
+
+        try {
+            const r = await rustClient.wachatBroadcast.start(body);
+            revalidatePath('/wachat/broadcasts');
+            return { message: r.message };
+        } catch (e) {
+            return toErrorResponse(e);
+        }
     }
 
-    const broadcastResult = await db.collection('broadcasts').insertOne(broadcastData);
-    const broadcastId = broadcastResult.insertedId;
+    // Flow path
+    const body: StartBroadcastBody = {
+        projectId,
+        phoneNumberId,
+        broadcastType: 'flow',
+        flowId: String(flow!._id),
+        audienceType,
+        contacts: audienceType === 'file' ? contacts : undefined,
+        tagIds: audienceType === 'tags' ? tagIds : undefined,
+        fileName:
+            audienceType === 'file'
+                ? (formData.get('csvFile') as File).name
+                : 'Audience Tag',
+        messagesPerSecond: broadcastMps,
+        createContacts,
+        components: [],
+        flowName: flow!.name,
+        flowMetaId: flow!.metaId,
+        flowConfig: {
+            header: (formData.get('flowHeader') as string) || undefined,
+            body: (formData.get('flowBody') as string) || undefined,
+            footer: (formData.get('flowFooter') as string) || undefined,
+            cta: (formData.get('flowCta') as string) || undefined,
+        },
+    };
 
-    const contactsInserted = await createBroadcastContacts(db, broadcastId, contacts);
-
-    // Hand off to the BullMQ control queue. The control worker will stream
-    // contacts in batches and the send workers will fan out at the configured
-    // MPS. A queue failure here is non-fatal — the broadcast doc still has
-    // status PENDING_PROCESSING and the next worker boot will pick it up via
-    // the legacy poller fallback (if BROADCAST_USE_BULLMQ is unset).
     try {
-        await enqueueBroadcastControl(broadcastId.toString());
+        const r = await rustClient.wachatBroadcast.start(body);
+        revalidatePath('/wachat/broadcasts');
+        return { message: r.message };
     } catch (e) {
-        console.error('Failed to enqueue broadcast control job:', e);
+        return toErrorResponse(e);
     }
-
-    revalidatePath('/wachat/broadcasts');
-
-    return { message: `Broadcast successfully queued for ${contactsInserted} contacts. Sending will begin shortly.` };
 }
 
 export async function handleBulkBroadcast(
-    prevState: { message?: string; error?: string },
-    formData: FormData
+    _prevState: { message?: string; error?: string },
+    formData: FormData,
 ): Promise<{ message?: string; error?: string }> {
     const projectIdsString = formData.get('projectIds') as string;
     const templateName = formData.get('templateName') as string;
@@ -681,83 +572,29 @@ export async function handleBulkBroadcast(
         return { error: 'Missing required fields for bulk broadcast.' };
     }
 
-    const projectIds = projectIdsString.split(',');
+    let allContacts: ContactRecord[];
+    try {
+        allContacts = await parseContactFile(contactFile);
+    } catch (e: any) {
+        return { error: `Failed to parse file: ${e.message}` };
+    }
+    if (allContacts.length === 0) {
+        return { error: 'Contact file is empty or could not be parsed.' };
+    }
 
     try {
-        const { db } = await connectToDatabase();
-        const allContacts = await parseContactFile(contactFile);
-
-        if (allContacts.length === 0) {
-            return { error: 'Contact file is empty or could not be parsed.' };
-        }
-
-        const contactsPerProject = Math.ceil(allContacts.length / projectIds.length);
-        let successCount = 0;
-        let failedProjects: string[] = [];
-
-        for (let i = 0; i < projectIds.length; i++) {
-            const projectId = projectIds[i];
-            const projectContacts = allContacts.slice(i * contactsPerProject, (i + 1) * contactsPerProject);
-
-            if (projectContacts.length === 0) continue;
-
-            const project = await getProjectById(projectId);
-            if (!project) {
-                failedProjects.push(`Project ID ${projectId} (not found)`);
-                continue;
-            }
-
-            const template = await db.collection<Template>('templates').findOne({ projectId: new ObjectId(projectId), name: templateName, language: language });
-            if (!template) {
-                failedProjects.push(`${project.name} (template not found)`);
-                continue;
-            }
-            if (template.status !== 'APPROVED') {
-                failedProjects.push(`${project.name} (template not approved)`);
-                continue;
-            }
-
-            const broadcastData: Omit<BroadcastJob, '_id'> = {
-                name: `Bulk: ${template.name} - ${new Date().toLocaleString()}`,
-                projectId: new ObjectId(projectId),
-                broadcastType: 'template',
-                phoneNumberId: project.phoneNumbers?.[0]?.id || '', // Use the first available number
-                templateName: template.name,
-                templateId: template._id,
-                language: template.language,
-                status: 'PENDING_PROCESSING',
-                contactCount: projectContacts.length,
-                fileName: contactFile.name,
-                audienceType: 'file-bulk',
-                accessToken: project.accessToken,
-                components: template.components || [],
-                createdAt: new Date(),
-            };
-
-            const broadcastResult = await db.collection('broadcasts').insertOne(broadcastData as any);
-            const broadcastId = broadcastResult.insertedId;
-
-            await createBroadcastContacts(db, broadcastId, projectContacts);
-            try {
-                await enqueueBroadcastControl(broadcastId.toString());
-            } catch (e) {
-                console.error('Failed to enqueue bulk broadcast control job:', e);
-            }
-            successCount++;
-        }
-
-        let message = `Successfully queued broadcasts for ${successCount} project(s).`;
-        if (failedProjects.length > 0) {
-            message += ` Failed on ${failedProjects.length} project(s): ${failedProjects.join(', ')}.`;
-        }
-
+        const r = await rustClient.wachatBroadcast.bulkStart({
+            projectIds: projectIdsString.split(','),
+            templateName,
+            language,
+            fileName: contactFile.name,
+            contacts: allContacts,
+        });
         revalidatePath('/wachat/bulk');
         revalidatePath('/wachat/broadcasts');
-
-        return { message };
-
-    } catch (e: any) {
-        return { error: `Failed to process bulk broadcast: ${getErrorMessage(e)}` };
+        return { message: r.message };
+    } catch (e) {
+        return toErrorResponse(e);
     }
 }
 
@@ -768,138 +605,66 @@ export async function handleStartApiBroadcast(data: {
     contacts: any[];
     variableMappings?: any[];
 }): Promise<{ message?: string; error?: string }> {
-    const { projectId, phoneNumberId, templateId, contacts, variableMappings } = data;
-    const { db } = await connectToDatabase();
-
-    const [project, template] = await Promise.all([
-        getProjectById(projectId),
-        db.collection<Template>('templates').findOne({ _id: new ObjectId(templateId), projectId: new ObjectId(projectId) })
-    ]);
-
-    if (!project) return { error: 'Project not found.' };
-    if (!template) return { error: 'Template not found for this project.' };
-
-    const broadcastData: Omit<BroadcastJob, '_id'> = {
-        name: `API Broadcast - ${template.name} - ${new Date().toLocaleString()}`,
-        projectId: new ObjectId(projectId),
-        broadcastType: 'template',
-        phoneNumberId,
-        templateName: template.name,
-        templateId: template._id,
-        language: template.language,
-        status: 'PENDING_PROCESSING',
-        contactCount: contacts.length,
-        fileName: 'API Request',
-        audienceType: 'api',
-        accessToken: project.accessToken,
-        components: template.components || [], // Pass original components
-        createdAt: new Date(),
-    };
-
-    const broadcastResult = await db.collection('broadcasts').insertOne(broadcastData as any);
-    const broadcastId = broadcastResult.insertedId;
-
-    await createBroadcastContacts(db, broadcastId, contacts);
-
     try {
-        await enqueueBroadcastControl(broadcastId.toString());
+        const r = await rustClient.wachatBroadcast.apiStart({
+            projectId: data.projectId,
+            phoneNumberId: data.phoneNumberId,
+            templateId: data.templateId,
+            contacts: data.contacts.map(c => ({
+                phone: String(c.phone ?? c.Phone ?? c.PHONE ?? '').trim(),
+                name: c.name ?? c.Name ?? 'Subscriber',
+                variables: c,
+            })),
+            variableMappings: data.variableMappings,
+        });
+        return { message: r.message };
     } catch (e) {
-        console.error('Failed to enqueue API broadcast control job:', e);
+        return toErrorResponse(e);
     }
-
-    return { message: `Broadcast successfully queued via API for ${contacts.length} contacts. Sending will begin shortly.` };
 }
 
-
-export async function handleRequeueBroadcast(prevState: { message?: string; error?: string }, formData: FormData): Promise<{ message?: string; error?: string }> {
+export async function handleRequeueBroadcast(
+    _prevState: { message?: string; error?: string },
+    formData: FormData,
+): Promise<{ message?: string; error?: string }> {
     const broadcastId = formData.get('broadcastId') as string;
-    const requeueScope = formData.get('requeueScope') as 'ALL' | 'FAILED';
-    const newTemplateId = formData.get('templateId') as string;
-    const headerImageUrl = formData.get('headerImageUrl') as string | null;
+    const requeueScope = (formData.get('requeueScope') as 'ALL' | 'FAILED') || 'ALL';
+    const newTemplateId = (formData.get('templateId') as string) || undefined;
+    const headerImageUrl = (formData.get('headerImageUrl') as string) || undefined;
 
     if (!broadcastId) return { error: 'Original broadcast ID is missing.' };
-
-    const { db } = await connectToDatabase();
     if (!ObjectId.isValid(broadcastId)) return { error: 'Invalid broadcast id.' };
-    const originalBroadcast = await db.collection('broadcasts').findOne({ _id: new ObjectId(broadcastId) });
-    if (!originalBroadcast) return { error: 'Original broadcast not found.' };
-
-    // J3 P0-2-adjacent: derive projectId from the broadcast (trusted server
-    // state) and gate via getProjectById. This matches the payment-request
-    // helper pattern and prevents a caller from requeueing another tenant's
-    // broadcast by guessing a broadcastId.
-    const projectId = originalBroadcast.projectId.toString();
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Project not found.' };
-
-    const templateId = newTemplateId || originalBroadcast.templateId.toString();
-    if (!ObjectId.isValid(templateId)) return { error: 'Invalid template id.' };
-    // J3 P0-1-adjacent: scope template lookup by the broadcast's project so a
-    // requeue can't pick up a template from a different tenant.
-    const template = await db.collection<Template>('templates').findOne({
-        _id: new ObjectId(templateId),
-        projectId: originalBroadcast.projectId,
-    });
-    if (!template) return { error: 'Template not found in this project.' };
-    // J3 P1-1-adjacent: same approval gate as the primary broadcast path.
-    if (template.status !== 'APPROVED') {
-        return { error: `Template '${template.name}' is ${template.status || 'not approved'}. Only APPROVED templates can be broadcast.` };
-    }
-
-    const filter: Filter<any> = { broadcastId: new ObjectId(broadcastId) };
-    if (requeueScope === 'FAILED') {
-        filter.status = 'FAILED';
-    }
-
-    const contacts = await db.collection('broadcast_contacts').find(filter).toArray();
-    if (contacts.length === 0) {
-        return { error: 'No contacts found to requeue.' };
-    }
-
-    const newBroadcastData: Omit<BroadcastJob, '_id'> = {
-        ...originalBroadcast as any, // Cast to any to avoid type issues with changing properties
-        name: `${originalBroadcast.name} (Requeued)`,
-        status: 'PENDING_PROCESSING',
-        contactCount: contacts.length,
-        successCount: 0,
-        errorCount: 0,
-        startedAt: undefined,
-        completedAt: undefined,
-        createdAt: new Date(),
-        components: template.components, // Use the new/original template's components
-        headerImageUrl: headerImageUrl || undefined,
-    };
-    if ('_id' in newBroadcastData) delete (newBroadcastData as any)._id;
-
-    const newBroadcastResult = await db.collection('broadcasts').insertOne(newBroadcastData as any);
-    await createBroadcastContacts(db, newBroadcastResult.insertedId, contacts);
 
     try {
-        await enqueueBroadcastControl(newBroadcastResult.insertedId.toString());
+        const r = await rustClient.wachatBroadcast.requeue(broadcastId, {
+            requeueScope,
+            templateId: newTemplateId,
+            headerImageUrl,
+        });
+        revalidatePath('/wachat/broadcasts');
+        return { message: r.message };
     } catch (e) {
-        console.error('Failed to enqueue requeue broadcast control job:', e);
+        return toErrorResponse(e);
     }
-
-    revalidatePath('/wachat/broadcasts');
-    return { message: `${contacts.length} contacts have been re-queued for broadcast.` };
 }
 
-export async function handleStopBroadcast(broadcastId: string): Promise<{ message?: string; error?: string }> {
+export async function handleStopBroadcast(
+    broadcastId: string,
+): Promise<{ message?: string; error?: string }> {
     if (!broadcastId || !ObjectId.isValid(broadcastId)) {
         return { error: 'Invalid Broadcast ID.' };
     }
     try {
-        const { db } = await connectToDatabase();
-        const result = await db.collection('broadcasts').updateOne(
-            { _id: new ObjectId(broadcastId), status: { $in: ['QUEUED', 'PROCESSING', 'PENDING_PROCESSING'] } },
-            { $set: { status: 'Cancelled' } }
-        );
-        if (result.matchedCount === 0) {
-            return { error: 'Broadcast not found or has already completed/failed.' };
-        }
+        const r = await rustClient.wachatBroadcast.stop(broadcastId);
         revalidatePath('/wachat/broadcasts');
-        return { message: 'Broadcast has been cancelled.' };
+        return { message: r.message };
     } catch (e) {
-        return { error: getErrorMessage(e) };
+        return toErrorResponse(e);
     }
 }
+
+// Type-only re-export so existing call-sites keep working without
+// updating their `Filter` import — we used to `import type { Filter }`
+// from this module via a transitive `mongodb` import. Re-exporting
+// keeps that contract while leaving the heavy logic in Rust.
+export type { Filter };

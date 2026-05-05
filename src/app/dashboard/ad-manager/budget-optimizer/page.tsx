@@ -31,10 +31,10 @@ type Rec = {
     reason: string;
 };
 
-const recStyles: Record<string, { variant: 'default' | 'destructive' | 'outline' | 'secondary'; icon: typeof TrendingUp }> = {
+const recStyles: Record<string, { variant: 'default' | 'danger' | 'outline' | 'secondary'; icon: typeof TrendingUp }> = {
     increase: { variant: 'default', icon: TrendingUp },
     decrease: { variant: 'secondary', icon: TrendingDown },
-    pause: { variant: 'destructive', icon: Pause },
+    pause: { variant: 'danger', icon: Pause },
     maintain: { variant: 'outline', icon: Minus },
 };
 

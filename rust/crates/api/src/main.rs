@@ -12,12 +12,22 @@ use std::{net::SocketAddr, sync::Arc};
 
 use anyhow::Context;
 use common::Settings;
+use facebook_flow::FacebookFlowState;
+use meta_flows::MetaFlowsState;
+use meta_suite::MetaSuiteState;
+use meta_token::MetaTokenState;
+use qr_codes::QrCodesState;
 use sabnode_auth::AuthConfig;
 use sabnode_db::{mongo::MongoHandle, redis::RedisHandle};
 use tokio::{net::TcpListener, signal};
 use tracing::{error, info};
+use wachat_analytics::WachatAnalyticsState;
+use wachat_broadcast::WachatBroadcastState;
+use wachat_calling::WachatCallingState;
 use wachat_chat_mark::ChatMarker;
 use wachat_config::WachatConfigState;
+use wachat_features::WachatFeaturesState;
+use wachat_pay::WachatPayState;
 use wachat_chat_read::ChatReader;
 use wachat_contacts_resolve::ContactResolver;
 use wachat_media::MediaUploader;
@@ -32,11 +42,13 @@ use wachat_send_router::WachatSendState;
 use wachat_templates::TemplatesReader;
 use wachat_templates_categories::TemplatesLibrary;
 use wachat_templates_mutate::TemplatesMutator;
+use wachat_templates_actions::WachatTemplatesActionsState;
 use wachat_templates_router::TemplatesState;
 use wachat_templates_send::TemplateSender;
 use wachat_templates_sync::TemplatesSyncer;
 use wachat_webhook::WebhookState;
 use wachat_webhook_account::AccountProcessor;
+use wachat_webhook_actions::WachatWebhookActionsState;
 use wachat_webhook_contacts::ContactsUpserter;
 use wachat_webhook_conversations::ConversationTracker;
 use wachat_webhook_dlq::DlqWriter;
@@ -95,6 +107,10 @@ async fn run() -> anyhow::Result<()> {
     let webhook_verifier = Arc::new(WebhookVerifier::new(app_secret.into_bytes()));
 
     let bull = BullProducer::new(redis.clone());
+    let broadcast = WachatBroadcastState {
+        mongo: mongo.clone(),
+        bull: bull.clone(),
+    };
     let webhook = WebhookState {
         mongo: mongo.clone(),
         redis: redis.clone(),
@@ -112,14 +128,28 @@ async fn run() -> anyhow::Result<()> {
     // one engine per concern. Pin Meta to v23.0 (matches Node code today).
     let meta = MetaClient::new("v23.0");
     let media = MediaUploader::new("v23.0");
+    let templates_reader = Arc::new(TemplatesReader::new(mongo.clone()));
+    let templates_mutator = Arc::new(TemplatesMutator::new(mongo.clone(), meta.clone(), media));
+    let templates_syncer = Arc::new(TemplatesSyncer::new(mongo.clone(), meta.clone()));
+    let templates_library = Arc::new(TemplatesLibrary::new(mongo.clone()));
     let templates = TemplatesState {
-        reader: Arc::new(TemplatesReader::new(mongo.clone())),
-        mutator: Arc::new(TemplatesMutator::new(mongo.clone(), meta.clone(), media)),
-        syncer: Arc::new(TemplatesSyncer::new(mongo.clone(), meta.clone())),
-        library: Arc::new(TemplatesLibrary::new(mongo.clone())),
+        reader: templates_reader.clone(),
+        mutator: templates_mutator.clone(),
+        syncer: templates_syncer.clone(),
+        library: templates_library.clone(),
         sender: Arc::new(TemplateSender::new(mongo.clone(), meta.clone())),
         mongo: mongo.clone(),
     };
+
+    // Action-state-shaped facade over the same engines, mounted at
+    // `/v1/wachat/templates-actions` for the Next.js Server Actions shim.
+    let templates_actions = WachatTemplatesActionsState::new(
+        templates_reader,
+        templates_mutator,
+        templates_syncer,
+        templates_library,
+        mongo.clone(),
+    );
 
     // Send/chat/payment stack — Phase 4. Each engine takes the shared
     // Mongo handle (and MetaClient where it talks to Meta).
@@ -141,6 +171,38 @@ async fn run() -> anyhow::Result<()> {
 
     let config = WachatConfigState::new(mongo.clone(), meta.clone());
 
+    let pay = WachatPayState::new(mongo.clone(), meta.clone());
+
+    let calling = WachatCallingState::new(mongo.clone(), meta.clone());
+
+    let analytics = WachatAnalyticsState::new(mongo.clone(), meta.clone());
+
+    let webhook_actions = WachatWebhookActionsState::new(mongo.clone());
+
+    let meta_suite = MetaSuiteState::new(mongo.clone(), meta.clone());
+
+    // Meta-token endpoints — read Facebook app credentials via the same env
+    // vars the legacy Next.js code uses (`NEXT_PUBLIC_FACEBOOK_APP_ID` and
+    // `FACEBOOK_APP_SECRET`). Missing values aren't fatal at boot: handlers
+    // that need app-level tokens return `BadRequest("Server credentials not
+    // configured.")`, mirroring legacy TS behavior.
+    let fb_app_id = std::env::var("NEXT_PUBLIC_FACEBOOK_APP_ID")
+        .or_else(|_| std::env::var("FACEBOOK_APP_ID"))
+        .unwrap_or_default();
+    let fb_app_secret_token = std::env::var("FACEBOOK_APP_SECRET").unwrap_or_default();
+    let meta_token = MetaTokenState::new(mongo.clone(), fb_app_id, fb_app_secret_token);
+
+    let meta_flows = MetaFlowsState::new(mongo.clone(), meta.clone());
+
+    let qr_codes = QrCodesState::new(mongo.clone());
+
+    let facebook_flow = FacebookFlowState::new(mongo.clone());
+
+    let features = WachatFeaturesState {
+        mongo: mongo.clone(),
+        meta: meta.clone(),
+    };
+
     let state = AppState::new(
         mongo,
         redis,
@@ -148,8 +210,20 @@ async fn run() -> anyhow::Result<()> {
         webhook,
         webhook_verifier,
         templates,
+        templates_actions,
         send,
         config,
+        pay,
+        broadcast,
+        calling,
+        features,
+        analytics,
+        webhook_actions,
+        meta_suite,
+        meta_token,
+        meta_flows,
+        qr_codes,
+        facebook_flow,
     );
     let app = router::build(state.clone());
 

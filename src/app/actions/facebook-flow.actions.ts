@@ -1,39 +1,43 @@
 'use server';
 
+/**
+ * Facebook Messenger flow-builder — server actions.
+ *
+ * Migrated to the Rust BFF (`facebook-flow` crate, mounted at
+ * `/v1/facebook/flow`). Each function below is a thin shim around
+ * `rustClient.facebookFlow.*`. The shim layer preserves the legacy
+ * return-type contracts that the existing UI relies on (`WithId<FacebookFlow>`
+ * etc.).
+ *
+ * Operations:
+ *
+ *   getFacebookFlows       GET    /projects/:projectId/flows
+ *   getFacebookFlowById    GET    /:flowId
+ *   saveFacebookFlow       POST   /projects/:projectId/flows  (upsert)
+ *   deleteFlow             DELETE /:flowId
+ */
+
 import { revalidatePath } from 'next/cache';
-import { type Db, ObjectId, type WithId } from 'mongodb';
-import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById, getSession } from '@/app/actions/index';
+import { type WithId } from 'mongodb';
 import type { FacebookFlow, FacebookFlowNode, FacebookFlowEdge } from '@/lib/definitions';
+import { rustClient } from '@/lib/rust-client';
 
 export async function getFacebookFlows(projectId: string): Promise<WithId<FacebookFlow>[]> {
-    if (!ObjectId.isValid(projectId)) return [];
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return [];
-
     try {
-        const { db } = await connectToDatabase();
-        const flows = await db.collection<FacebookFlow>('facebook_flows')
-            .find({ projectId: new ObjectId(projectId) })
-            .project({ name: 1, triggerKeywords: 1, updatedAt: 1 })
-            .sort({ updatedAt: -1 })
-            .toArray();
-        return JSON.parse(JSON.stringify(flows));
-    } catch (e) {
+        const flows = await rustClient.facebookFlow.listFlows(projectId);
+        return flows as unknown as WithId<FacebookFlow>[];
+    } catch {
         return [];
     }
 }
 
 export async function getFacebookFlowById(flowId: string): Promise<WithId<FacebookFlow> | null> {
-    if (!ObjectId.isValid(flowId)) return null;
-    const { db } = await connectToDatabase();
-    const flow = await db.collection<FacebookFlow>('facebook_flows').findOne({ _id: new ObjectId(flowId) });
-    if (!flow) return null;
-
-    const hasAccess = await getProjectById(flow.projectId.toString());
-    if (!hasAccess) return null;
-
-    return flow ? JSON.parse(JSON.stringify(flow)) : null;
+    try {
+        const flow = await rustClient.facebookFlow.getFlow(flowId);
+        return flow ? (flow as unknown as WithId<FacebookFlow>) : null;
+    } catch {
+        return null;
+    }
 }
 
 export async function saveFacebookFlow(data: {
@@ -46,54 +50,30 @@ export async function saveFacebookFlow(data: {
 }): Promise<{ message?: string, error?: string, flowId?: string }> {
     const { flowId, projectId, name, nodes, edges, triggerKeywords } = data;
     if (!projectId || !name) return { error: 'Project ID and Flow Name are required.' };
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return { error: 'Access denied' };
-
-    const isNew = !flowId;
-
-    const flowData: Omit<FacebookFlow, '_id' | 'createdAt'> = {
-        name,
-        projectId: new ObjectId(projectId),
-        nodes,
-        edges,
-        triggerKeywords,
-        updatedAt: new Date(),
-    };
 
     try {
-        const { db } = await connectToDatabase();
-        if (isNew) {
-            const result = await db.collection('facebook_flows').insertOne({ ...flowData, createdAt: new Date() } as any);
-            revalidatePath('/dashboard/facebook/flow-builder');
-            return { message: 'Flow created successfully.', flowId: result.insertedId.toString() };
-        } else {
-            await db.collection('facebook_flows').updateOne(
-                { _id: new ObjectId(flowId) },
-                { $set: flowData }
-            );
-            revalidatePath('/dashboard/facebook/flow-builder');
-            return { message: 'Flow updated successfully.', flowId };
-        }
-    } catch (e: any) {
+        const r = await rustClient.facebookFlow.saveFlow(projectId, {
+            flowId,
+            name,
+            nodes: nodes as any,
+            edges: edges as any,
+            triggerKeywords,
+        });
+        if (r.error) return { error: r.error };
+        revalidatePath('/dashboard/facebook/flow-builder');
+        return { message: r.message, flowId: r.flowId };
+    } catch {
         return { error: 'Failed to save flow.' };
     }
 }
 
 export async function deleteFlow(flowId: string): Promise<{ message?: string; error?: string }> {
-    if (!ObjectId.isValid(flowId)) return { error: 'Invalid Flow ID.' };
-
-    const { db } = await connectToDatabase();
-    const flow = await db.collection<FacebookFlow>('facebook_flows').findOne({ _id: new ObjectId(flowId) });
-    if (!flow) return { error: 'Flow not found.' };
-
-    const hasAccess = await getProjectById(flow.projectId.toString());
-    if (!hasAccess) return { error: 'Access denied' };
-
     try {
-        await db.collection('facebook_flows').deleteOne({ _id: new ObjectId(flowId) });
+        const r = await rustClient.facebookFlow.deleteFlow(flowId);
+        if (r.error) return { error: r.error };
         revalidatePath('/dashboard/facebook/flow-builder');
-        return { message: 'Flow deleted.' };
-    } catch (e) {
+        return { message: r.message };
+    } catch {
         return { error: 'Failed to delete flow.' };
     }
 }

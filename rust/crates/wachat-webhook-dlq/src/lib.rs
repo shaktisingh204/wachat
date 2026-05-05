@@ -45,9 +45,11 @@
 //! forgotten — that's the bug we're paid to prevent. So a Mongo failure logs
 //! a warning and falls through; a Redis failure bubbles up as `ApiError`.
 
+pub mod cron;
 pub mod error;
 pub mod writer;
 
 // Re-export the public surface so callers can `use wachat_webhook_dlq::{...}`
 // without subpath imports.
+pub use cron::{DRAIN_DLQ_PATH, DrainResp, router as cron_router};
 pub use writer::{DlqId, DlqWriter, WEBHOOK_DLQ_QUEUE, WEBHOOK_LOGS_COLLECTION};

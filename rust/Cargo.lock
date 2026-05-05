@@ -824,6 +824,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "facebook-flow"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "wachat-types",
+]
+
+[[package]]
 name = "figment"
 version = "0.10.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1747,6 +1767,69 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f8ca58f447f06ed17d5fc4043ce1b10dd205e060fb3ce5b979b8ed8e59ff3f79"
 
 [[package]]
+name = "meta-flows"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "reqwest",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "wachat-meta-client",
+ "wachat-types",
+]
+
+[[package]]
+name = "meta-suite"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "wachat-meta-client",
+ "wachat-types",
+]
+
+[[package]]
+name = "meta-token"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "mongodb",
+ "reqwest",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "wachat-meta-auth",
+ "wachat-types",
+]
+
+[[package]]
 name = "mime"
 version = "0.3.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2265,6 +2348,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "qr-codes"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "quinn"
 version = "0.11.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2675,6 +2777,11 @@ dependencies = [
  "axum",
  "chrono",
  "dotenvy",
+ "facebook-flow",
+ "meta-flows",
+ "meta-suite",
+ "meta-token",
+ "qr-codes",
  "sabnode-auth",
  "sabnode-common",
  "sabnode-db",
@@ -2687,20 +2794,28 @@ dependencies = [
  "tower-http",
  "tracing",
  "tracing-subscriber",
+ "wachat-analytics",
+ "wachat-broadcast",
+ "wachat-calling",
  "wachat-chat-mark",
  "wachat-chat-read",
  "wachat-config",
  "wachat-contacts-resolve",
+ "wachat-features",
  "wachat-media",
  "wachat-meta-client",
+ "wachat-pay",
  "wachat-payment-request",
+ "wachat-public-api",
  "wachat-queue",
+ "wachat-rate-limit",
  "wachat-send",
  "wachat-send-cta",
  "wachat-send-flows",
  "wachat-send-orders",
  "wachat-send-router",
  "wachat-templates",
+ "wachat-templates-actions",
  "wachat-templates-categories",
  "wachat-templates-mutate",
  "wachat-templates-router",
@@ -2708,6 +2823,7 @@ dependencies = [
  "wachat-templates-sync",
  "wachat-webhook",
  "wachat-webhook-account",
+ "wachat-webhook-actions",
  "wachat-webhook-config",
  "wachat-webhook-contacts",
  "wachat-webhook-conversations",
@@ -3815,6 +3931,69 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
 
 [[package]]
+name = "wachat-analytics"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "wachat-meta-client",
+ "wachat-types",
+]
+
+[[package]]
+name = "wachat-broadcast"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "wachat-queue",
+ "wachat-types",
+]
+
+[[package]]
+name = "wachat-calling"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "wachat-meta-client",
+ "wachat-types",
+]
+
+[[package]]
 name = "wachat-chat-mark"
 version = "0.1.0"
 dependencies = [
@@ -3887,6 +4066,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "wachat-features"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "reqwest",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "wachat-meta-client",
+ "wachat-types",
+]
+
+[[package]]
 name = "wachat-media"
 version = "0.1.0"
 dependencies = [
@@ -3950,6 +4151,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "wachat-pay"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "wachat-meta-client",
+ "wachat-types",
+]
+
+[[package]]
 name = "wachat-payment-request"
 version = "0.1.0"
 dependencies = [
@@ -3980,6 +4201,30 @@ dependencies = [
  "serde",
  "thiserror 1.0.69",
  "tracing",
+]
+
+[[package]]
+name = "wachat-public-api"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "axum",
+ "bson",
+ "chrono",
+ "hex",
+ "mongodb",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "sha2",
+ "thiserror 2.0.18",
+ "tokio",
+ "tracing",
+ "wachat-rate-limit",
+ "wachat-send",
+ "wachat-types",
 ]
 
 [[package]]
@@ -4153,6 +4398,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "wachat-templates-actions"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "wachat-templates",
+ "wachat-templates-categories",
+ "wachat-templates-mutate",
+ "wachat-templates-sync",
+ "wachat-types",
+]
+
+[[package]]
 name = "wachat-templates-categories"
 version = "0.1.0"
 dependencies = [
@@ -4215,6 +4483,7 @@ dependencies = [
  "anyhow",
  "axum",
  "bson",
+ "futures",
  "sabnode-auth",
  "sabnode-common",
  "sabnode-db",
@@ -4372,6 +4641,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "wachat-webhook-actions"
+version = "0.1.0"
+dependencies = [
+ "axum",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "wachat-webhook-config",
+]
+
+[[package]]
 name = "wachat-webhook-config"
 version = "0.1.0"
 dependencies = [
@@ -4434,6 +4717,7 @@ name = "wachat-webhook-dlq"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "axum",
  "bson",
  "chrono",
  "fred",

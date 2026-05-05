@@ -18,6 +18,11 @@ path = "src/lib.rs"
 # driver futures used inside it.
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 
+# HTTP framework — used by the `cron` module to expose the legacy
+# `/v1/wachat/webhook/cron/drain-dlq` endpoint that ports
+# `src/app/api/cron/process-webhooks/route.ts`.
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros"] }
+
 # Serialization. The webhook payload is opaque JSON we just persist verbatim,
 # so we depend on `serde` + `serde_json::Value` rather than a typed DTO.
 serde = { version = "1", features = ["derive"] }

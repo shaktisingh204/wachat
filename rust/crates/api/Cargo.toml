@@ -18,6 +18,7 @@ sabnode-users = { path = "../users" }
 sabnode-observability = { path = "../observability" }
 
 wachat-webhook = { path = "../wachat-webhook" }
+wachat-webhook-actions = { path = "../wachat-webhook-actions" }
 wachat-webhook-config = { path = "../wachat-webhook-config" }
 wachat-webhook-verify = { path = "../wachat-webhook-verify" }
 wachat-webhook-status = { path = "../wachat-webhook-status" }
@@ -35,6 +36,7 @@ wachat-templates-sync = { path = "../wachat-templates-sync" }
 wachat-templates-categories = { path = "../wachat-templates-categories" }
 wachat-templates-send = { path = "../wachat-templates-send" }
 wachat-templates-router = { path = "../wachat-templates-router" }
+wachat-templates-actions = { path = "../wachat-templates-actions" }
 wachat-meta-client = { path = "../wachat-meta-client" }
 wachat-media = { path = "../wachat-media" }
 
@@ -46,8 +48,20 @@ wachat-contacts-resolve = { path = "../wachat-contacts-resolve" }
 wachat-chat-read = { path = "../wachat-chat-read" }
 wachat-chat-mark = { path = "../wachat-chat-mark" }
 wachat-payment-request = { path = "../wachat-payment-request" }
+wachat-pay = { path = "../wachat-pay" }
+wachat-broadcast = { path = "../wachat-broadcast" }
+wachat-calling = { path = "../wachat-calling" }
+wachat-features = { path = "../wachat-features" }
 wachat-send-router = { path = "../wachat-send-router" }
+wachat-public-api = { path = "../wachat-public-api" }
+wachat-rate-limit = { path = "../wachat-rate-limit" }
 wachat-config = { path = "../wachat-config" }
+wachat-analytics = { path = "../wachat-analytics" }
+meta-suite = { path = "../meta-suite" }
+meta-token = { path = "../meta-token" }
+meta-flows = { path = "../meta-flows" }
+qr-codes = { path = "../qr-codes" }
+facebook-flow = { path = "../facebook-flow" }
 
 axum = "0.8"
 tokio = { version = "1", features = ["full"] }
