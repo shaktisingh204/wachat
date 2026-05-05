@@ -15,7 +15,9 @@ import { facebookFlowApi } from './facebook-flow';
 import { metaFlowsApi } from './meta-flows';
 import { metaSuiteApi } from './meta-suite';
 import { metaTokenApi } from './meta-token';
+import { projectsApi } from './projects';
 import { qrCodesApi } from './qr-codes';
+import { sessionApi } from './session';
 import { templatesApi } from './templates';
 import { usersApi } from './users';
 import { wachatTemplatesActionsApi } from './wachat-templates-actions';
@@ -31,6 +33,8 @@ import { whatsappSendApi } from './whatsapp-send';
 
 export const rustClient = {
     users: usersApi,
+    session: sessionApi,
+    projects: projectsApi,
     wachatWebhook: wachatWebhookApi,
     wachatWebhookActions: wachatWebhookActionsApi,
     wachatConfig: wachatConfigApi,

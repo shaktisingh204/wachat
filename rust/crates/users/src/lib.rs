@@ -39,5 +39,7 @@ where
     MongoHandle: FromRef<S>,
     Arc<AuthConfig>: FromRef<S>,
 {
-    Router::new().route("/me", get(handlers::me))
+    Router::new()
+        .route("/me", get(handlers::me))
+        .route("/session", get(handlers::session))
 }

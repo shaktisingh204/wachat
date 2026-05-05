@@ -31,6 +31,10 @@ thiserror = "2.0"
 anyhow = "1.0"
 tracing = "0.1"
 
+# `bson_to_clean_json` renders binary blobs as hex when they sneak into a
+# document; we never store them today but the conversion shouldn't panic.
+hex = "0.4"
+
 # Shared types — declared even though it may be built in parallel; cargo will
 # pick it up from the workspace path once the workspace root is wired.
 sabnode-common = { path = "../common" }

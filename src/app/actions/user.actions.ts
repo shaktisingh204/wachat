@@ -224,104 +224,34 @@ export async function handleForgotPassword(prevState: { message?: string; error?
 }
 
 export async function getSession() {
-    // This function is now designed to be robust against being called
-    // in different server-side contexts.
+    // Cookie decode stays on the Next.js side (it's an httpOnly Next.js
+    // cookie); the heavy Mongo work — user lookup, plan join, credits
+    // init, and permission merge — runs in Rust via `GET /v1/session`.
+    // This function now exists only to keep the legacy call sites
+    // working with the same return shape they always saw.
     try {
-
         const cookieStore = await cookies();
-        const sessionCookie = cookieStore.get("session")?.value;
-
-        if (!sessionCookie) {
-            console.log('[getSession] No session cookie found.');
-            return null;
-        }
+        const sessionCookie = cookieStore.get('session')?.value;
+        if (!sessionCookie) return null;
 
         const decoded = await getDecodedSession(sessionCookie);
-        if (!decoded) {
-            console.log('[getSession] Failed to decode session cookie.');
-            return null;
-        }
+        if (!decoded) return null;
 
-        const { db } = await connectToDatabase();
+        const { sessionApi } = await import('@/lib/rust-client/session');
+        const rust = await sessionApi.me();
+        if (!rust?.user) return null;
 
-        const dbUser = await db.collection<User>('users').findOne(
-            { email: decoded.email },
-            { projection: { password: 0 } }
-        );
-
-        if (!dbUser) {
-            console.log(`[getSession] User not found in DB for email: ${decoded.email}`);
-            return null;
-        }
-
-        let plan: WithId<Plan> | null = null;
-        if (dbUser.planId && ObjectId.isValid(dbUser.planId)) {
-            plan = await db.collection<WithId<Plan>>('plans').findOne({
-                _id: new ObjectId(dbUser.planId),
-            });
-        }
-        if (!plan) {
-            plan = await db.collection<WithId<Plan>>('plans').findOne({ isDefault: true });
-        }
-
-        // Sanitize dbUser to ensure all ObjectIds and Dates are stringified (especially nested ones like apiKeys)
-        const serializedUser = JSON.parse(JSON.stringify(dbUser));
-
-        // Initialize credits if missing
-        if (!dbUser.credits && plan) {
-            const initialCredits = plan.initialCredits || {
-                broadcast: 0,
-                sms: 0,
-                meta: 0,
-                email: 0
-            };
-
-            // If legacy signupCredits exists and initialCredits doesn't, we might want to map it?
-            // For now, we rely on the specific initialCredits object or defaults to 0.
-            // If we wanted to use signupCredits as a fallback for 'broadcast' or all, we could:
-            if (!plan.initialCredits && plan.signupCredits) {
-                initialCredits.broadcast = plan.signupCredits; // Default legacy behavior assumption
-            }
-
-            await db.collection('users').updateOne(
-                { _id: dbUser._id },
-                { $set: { credits: initialCredits } }
-            );
-            serializedUser.credits = initialCredits;
-        }
-
-
-        // Merge permissions: customPermissions override plan permissions
-        const userPermissions: any = dbUser.customPermissions || {};
-        const planPermissions: any = plan?.permissions || {};
-
-        let finalPermissions: any = { ...planPermissions };
-
-        if (userPermissions) {
-            // For each role in userPermissions (e.g. 'agent', 'admin'), merge with plan
-            for (const [key, value] of Object.entries(userPermissions)) {
-                if (['agent', 'admin', 'owner', 'member'].includes(key)) {
-                    finalPermissions[key] = { ...(finalPermissions[key] || {}), ...(value as any) };
-                }
-            }
-        }
-
-        if (plan) {
-            plan.permissions = finalPermissions;
-        }
-
-        return {
-            user: {
-                ...serializedUser,
-                _id: dbUser._id.toString(),
-                planId: dbUser.planId?.toString(),
-                name: dbUser.name || decoded.name,
-                image: dbUser.image || decoded.picture,
-                plan: plan ? JSON.parse(JSON.stringify(plan)) : null,
-            },
+        // Backfill `name`/`image` from the JWT for parity with the legacy
+        // shape — Rust returns whatever's in Mongo, while the old action
+        // preferred decoded JWT values when the DB row was missing them.
+        const user = {
+            ...rust.user,
+            name: rust.user.name || (decoded as any).name,
+            image: rust.user.image || (decoded as any).picture,
         };
+
+        return { user };
     } catch (error) {
-        // Catches errors when the session cookie is read outside a request context.
         console.error('[getSession] Error accessing session:', error);
         return null;
     }

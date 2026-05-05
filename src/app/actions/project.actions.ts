@@ -10,51 +10,25 @@ import type { Project, Contact, KanbanColumnData, OptInOutSettings, UserAttribut
 import { getErrorMessage } from '@/lib/utils';
 
 export async function getProjectById(projectId?: string | null): Promise<WithId<Project> | null> {
-    const session = await getSession();
-    if (!session?.user || !projectId || !ObjectId.isValid(projectId)) {
+    if (!projectId || !ObjectId.isValid(projectId)) {
         return null;
     }
-
     try {
-        const { db } = await connectToDatabase();
-        const projectObjectId = new ObjectId(projectId);
-
-        const project = await db.collection('projects').aggregate([
-            { $match: { _id: projectObjectId } },
-            {
-                $lookup: {
-                    from: 'plans',
-                    localField: 'planId',
-                    foreignField: '_id',
-                    as: 'planInfo'
-                }
-            },
-            {
-                $unwind: {
-                    path: '$planInfo',
-                    preserveNullAndEmptyArrays: true
-                }
-            },
-            {
-                $addFields: {
-                    plan: '$planInfo'
-                }
-            },
-            { $project: { planInfo: 0 } }
-        ]).next();
-
-        if (!project) return null;
-
-        const isOwner = project.userId.toString() === session.user._id.toString();
-        const isAgent = project.agents?.some((agent: any) => agent.userId.toString() === session.user._id.toString());
-
-        if (!isOwner && !isAgent) {
-            return null;
+        const { projectsApi } = await import('@/lib/rust-client/projects');
+        const { RustApiError } = await import('@/lib/rust-client/fetcher');
+        try {
+            const res = await projectsApi.byId(projectId);
+            return (res?.project as WithId<Project> | null) ?? null;
+        } catch (err) {
+            // 404 → not found / not accessible. 401 → unauthenticated.
+            // Both legacy paths returned `null` rather than throwing.
+            if (err instanceof RustApiError && (err.status === 404 || err.status === 401)) {
+                return null;
+            }
+            throw err;
         }
-
-        return JSON.parse(JSON.stringify(project));
     } catch (error) {
-        console.error("Failed to fetch project:", error);
+        console.error('Failed to fetch project:', error);
         return null;
     }
 }
@@ -123,40 +97,21 @@ export async function getProjectForBroadcast(projectId: string): Promise<(Pick<W
 
 
 export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'): Promise<WithId<Project>[]> {
-    const session = await getSession();
-    if (!session?.user) {
-        return [];
-    }
-
     try {
-        const { db } = await connectToDatabase();
-        const userObjectId = new ObjectId(session.user._id);
-
-        const projectFilter: Filter<Project> = {
-            $or: [
-                { userId: userObjectId },
-                { 'agents.userId': userObjectId },
-            ],
-        };
-
-        if (query) {
-            projectFilter.name = { $regex: query, $options: 'i' };
+        const { projectsApi } = await import('@/lib/rust-client/projects');
+        const { RustApiError } = await import('@/lib/rust-client/fetcher');
+        try {
+            const res = await projectsApi.list({ query, type });
+            return (res?.projects as WithId<Project>[]) || [];
+        } catch (err) {
+            // Unauthenticated → return empty list, matching legacy behaviour.
+            if (err instanceof RustApiError && err.status === 401) {
+                return [];
+            }
+            throw err;
         }
-
-        if (type === 'whatsapp') {
-            projectFilter.wabaId = { $exists: true, $ne: null as any };
-        } else if (type === 'facebook') {
-            projectFilter.facebookPageId = { $exists: true, $ne: null as any };
-        }
-
-        const projects = await db.collection<Project>('projects')
-            .find(projectFilter)
-            .sort({ createdAt: -1 })
-            .toArray();
-
-        return JSON.parse(JSON.stringify(projects));
     } catch (error) {
-        console.error("Failed to fetch projects:", error);
+        console.error('Failed to fetch projects:', error);
         return [];
     }
 }

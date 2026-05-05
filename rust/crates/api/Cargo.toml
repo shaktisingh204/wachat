@@ -54,6 +54,7 @@ wachat-calling = { path = "../wachat-calling" }
 wachat-features = { path = "../wachat-features" }
 wachat-send-router = { path = "../wachat-send-router" }
 wachat-public-api = { path = "../wachat-public-api" }
+wachat-projects = { path = "../wachat-projects" }
 wachat-rate-limit = { path = "../wachat-rate-limit" }
 wachat-config = { path = "../wachat-config" }
 wachat-analytics = { path = "../wachat-analytics" }

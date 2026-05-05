@@ -9,6 +9,7 @@
 //! the storage representation without breaking the API.
 
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use utoipa::ToSchema;
 
 /// Response body for `GET /v1/me`.
@@ -26,4 +27,21 @@ pub struct MeResponse {
     pub name: Option<String>,
     /// When the user record was first created, in UTC.
     pub created_at: chrono::DateTime<chrono::Utc>,
+}
+
+/// Response body for `GET /v1/session`.
+///
+/// The user payload is intentionally an open `Value` because the Next.js
+/// session shape is still evolving (custom permissions, plan overrides,
+/// CRM settings, ...) and shapes get added regularly. Treat this as the
+/// "passthrough" view of the user document with plan joined and
+/// permissions merged, matching the legacy `getSession()` action.
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
+pub struct SessionResponse {
+    /// Stored user document with `_id`/`planId` rendered as hex strings,
+    /// `password` stripped, `credits` initialized, and an embedded `plan`
+    /// field whose `permissions` already merge `customPermissions` on
+    /// top of the plan's defaults.
+    #[schema(value_type = Object)]
+    pub user: Value,
 }
