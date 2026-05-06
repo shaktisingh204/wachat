@@ -20,24 +20,7 @@
 import { revalidatePath } from 'next/cache';
 import type { WithId } from 'mongodb';
 
-import {
-    validate,
-    CreateCampaignInput,
-    CreateAdSetInput,
-    CreateAdInput,
-    CreateCreativeInput,
-    CreateCustomAudienceInput,
-    CreateLookalikeInput,
-    InsightsQueryInput,
-    ReachEstimateInput,
-    DeliveryEstimateInput,
-    CustomConversionInput,
-    ConversionApiEventInput,
-    AdRuleInput,
-    AdAccountId as AdAccountIdSchema,
-    FbId as FbIdSchema,
-    type ActionResult,
-} from '@/lib/ad-manager/validators';
+import type { ActionResult } from '@/lib/ad-manager/validators';
 import { AD_PREVIEW_FORMATS } from '@/components/wabasimplify/ad-manager/constants';
 import { getSession } from '@/app/actions/user.actions';
 import { rustClient, RustApiError } from '@/lib/rust-client';
@@ -163,28 +146,23 @@ export async function createCampaign(
         stop_time?: string;
     },
 ): Promise<ActionResult<{ id: string }>> {
-    const acc = validate(AdAccountIdSchema, adAccountId);
-    if ('error' in acc) return { error: acc.error };
-    const v = validate(CreateCampaignInput, payload);
-    if ('error' in v) return { error: v.error };
-
     const body: Record<string, any> = {
-        name: v.data.name,
-        objective: v.data.objective,
-        status: v.data.status || 'PAUSED',
+        name: payload.name,
+        objective: payload.objective,
+        status: payload.status || 'PAUSED',
         special_ad_categories: JSON.stringify(
-            (v.data.special_ad_categories || []).filter((c) => c !== 'NONE'),
+            (payload.special_ad_categories || []).filter((c) => c !== 'NONE'),
         ),
     };
-    if (v.data.buying_type) body.buying_type = v.data.buying_type;
-    if (v.data.bid_strategy) body.bid_strategy = v.data.bid_strategy;
-    if (v.data.daily_budget) body.daily_budget = v.data.daily_budget;
-    if (v.data.lifetime_budget) body.lifetime_budget = v.data.lifetime_budget;
-    if (v.data.spend_cap) body.spend_cap = v.data.spend_cap;
-    if (v.data.start_time) body.start_time = v.data.start_time;
-    if (v.data.stop_time) body.stop_time = v.data.stop_time;
+    if (payload.buying_type) body.buying_type = payload.buying_type;
+    if (payload.bid_strategy) body.bid_strategy = payload.bid_strategy;
+    if (payload.daily_budget) body.daily_budget = payload.daily_budget;
+    if (payload.lifetime_budget) body.lifetime_budget = payload.lifetime_budget;
+    if (payload.spend_cap) body.spend_cap = payload.spend_cap;
+    if (payload.start_time) body.start_time = payload.start_time;
+    if (payload.stop_time) body.stop_time = payload.stop_time;
 
-    const res = await graph<{ id: string }>(`${withActPrefix(acc.data)}/campaigns`, { method: 'POST', body });
+    const res = await graph<{ id: string }>(`${withActPrefix(adAccountId)}/campaigns`, { method: 'POST', body });
     if (res.error) return { error: res.error };
     revalidatePath('/dashboard/ad-manager/campaigns');
     return { data: res.data };
@@ -274,34 +252,30 @@ export async function createAdSet(
         pacing_type?: string[];
     },
 ): Promise<ActionResult<{ id: string }>> {
-    const acc = validate(AdAccountIdSchema, adAccountId);
-    if ('error' in acc) return { error: acc.error };
-    const v = validate(CreateAdSetInput, payload);
-    if ('error' in v) return { error: v.error };
-    if (!v.data.daily_budget && !v.data.lifetime_budget) {
+    if (!payload.daily_budget && !payload.lifetime_budget) {
         return { error: 'Either daily_budget or lifetime_budget is required' };
     }
 
     const body: Record<string, any> = {
-        name: v.data.name,
-        campaign_id: v.data.campaign_id,
-        status: v.data.status || 'PAUSED',
-        billing_event: v.data.billing_event,
-        optimization_goal: v.data.optimization_goal,
-        targeting: JSON.stringify(v.data.targeting),
+        name: payload.name,
+        campaign_id: payload.campaign_id,
+        status: payload.status || 'PAUSED',
+        billing_event: payload.billing_event,
+        optimization_goal: payload.optimization_goal,
+        targeting: JSON.stringify(payload.targeting),
     };
-    if (v.data.daily_budget) body.daily_budget = v.data.daily_budget;
-    if (v.data.lifetime_budget) body.lifetime_budget = v.data.lifetime_budget;
-    if (v.data.bid_amount) body.bid_amount = v.data.bid_amount;
-    if (v.data.bid_strategy) body.bid_strategy = v.data.bid_strategy;
-    if (v.data.start_time) body.start_time = v.data.start_time;
-    if (v.data.end_time) body.end_time = v.data.end_time;
-    if (v.data.promoted_object) body.promoted_object = JSON.stringify(v.data.promoted_object);
-    if (v.data.destination_type) body.destination_type = v.data.destination_type;
-    if (v.data.attribution_spec) body.attribution_spec = JSON.stringify(v.data.attribution_spec);
-    if (v.data.pacing_type) body.pacing_type = JSON.stringify(v.data.pacing_type);
+    if (payload.daily_budget) body.daily_budget = payload.daily_budget;
+    if (payload.lifetime_budget) body.lifetime_budget = payload.lifetime_budget;
+    if (payload.bid_amount) body.bid_amount = payload.bid_amount;
+    if (payload.bid_strategy) body.bid_strategy = payload.bid_strategy;
+    if (payload.start_time) body.start_time = payload.start_time;
+    if (payload.end_time) body.end_time = payload.end_time;
+    if (payload.promoted_object) body.promoted_object = JSON.stringify(payload.promoted_object);
+    if (payload.destination_type) body.destination_type = payload.destination_type;
+    if (payload.attribution_spec) body.attribution_spec = JSON.stringify(payload.attribution_spec);
+    if (payload.pacing_type) body.pacing_type = JSON.stringify(payload.pacing_type);
 
-    const res = await graph<{ id: string }>(`${withActPrefix(acc.data)}/adsets`, { method: 'POST', body });
+    const res = await graph<{ id: string }>(`${withActPrefix(adAccountId)}/adsets`, { method: 'POST', body });
     if (!res.error) revalidatePath('/dashboard/ad-manager/campaigns');
     return res;
 }
@@ -362,21 +336,16 @@ export async function createAd(
         tracking_specs?: any[];
     },
 ): Promise<ActionResult<{ id: string }>> {
-    const acc = validate(AdAccountIdSchema, adAccountId);
-    if ('error' in acc) return { error: acc.error };
-    const v = validate(CreateAdInput, payload);
-    if ('error' in v) return { error: v.error };
-
     const body: Record<string, any> = {
-        name: v.data.name,
-        adset_id: v.data.adset_id,
-        status: v.data.status || 'PAUSED',
+        name: payload.name,
+        adset_id: payload.adset_id,
+        status: payload.status || 'PAUSED',
     };
-    if (v.data.creative_id) body.creative = JSON.stringify({ creative_id: v.data.creative_id });
-    else if (v.data.creative) body.creative = JSON.stringify(v.data.creative);
-    if (v.data.tracking_specs) body.tracking_specs = JSON.stringify(v.data.tracking_specs);
+    if (payload.creative_id) body.creative = JSON.stringify({ creative_id: payload.creative_id });
+    else if (payload.creative) body.creative = JSON.stringify(payload.creative);
+    if (payload.tracking_specs) body.tracking_specs = JSON.stringify(payload.tracking_specs);
 
-    return graph(`${withActPrefix(acc.data)}/ads`, { method: 'POST', body });
+    return graph(`${withActPrefix(adAccountId)}/ads`, { method: 'POST', body });
 }
 
 export async function updateAd(adId: string, patch: Record<string, any>): Promise<ActionResult> {
@@ -426,17 +395,12 @@ export async function createCreative(
         degrees_of_freedom_spec?: Record<string, any>;
     },
 ): Promise<ActionResult<{ id: string }>> {
-    const acc = validate(AdAccountIdSchema, adAccountId);
-    if ('error' in acc) return { error: acc.error };
-    const v = validate(CreateCreativeInput, payload);
-    if ('error' in v) return { error: v.error };
-
-    const body: Record<string, any> = { name: v.data.name };
-    if (v.data.object_story_spec) body.object_story_spec = JSON.stringify(v.data.object_story_spec);
-    if (v.data.asset_feed_spec) body.asset_feed_spec = JSON.stringify(v.data.asset_feed_spec);
-    if (v.data.url_tags) body.url_tags = v.data.url_tags;
-    if (v.data.degrees_of_freedom_spec) body.degrees_of_freedom_spec = JSON.stringify(v.data.degrees_of_freedom_spec);
-    return graph(`${withActPrefix(acc.data)}/adcreatives`, { method: 'POST', body });
+    const body: Record<string, any> = { name: payload.name };
+    if (payload.object_story_spec) body.object_story_spec = JSON.stringify(payload.object_story_spec);
+    if (payload.asset_feed_spec) body.asset_feed_spec = JSON.stringify(payload.asset_feed_spec);
+    if (payload.url_tags) body.url_tags = payload.url_tags;
+    if (payload.degrees_of_freedom_spec) body.degrees_of_freedom_spec = JSON.stringify(payload.degrees_of_freedom_spec);
+    return graph(`${withActPrefix(adAccountId)}/adcreatives`, { method: 'POST', body });
 }
 
 export async function deleteCreative(creativeId: string): Promise<ActionResult> {
@@ -524,17 +488,12 @@ export async function createCustomAudience(
         rule?: Record<string, any>;
     },
 ): Promise<ActionResult<{ id: string }>> {
-    const acc = validate(AdAccountIdSchema, adAccountId);
-    if ('error' in acc) return { error: acc.error };
-    const v = validate(CreateCustomAudienceInput, payload);
-    if ('error' in v) return { error: v.error };
-
-    const body: Record<string, any> = { name: v.data.name, subtype: v.data.subtype };
-    if (v.data.description) body.description = v.data.description;
-    if (v.data.customer_file_source) body.customer_file_source = v.data.customer_file_source;
-    if (v.data.retention_days) body.retention_days = v.data.retention_days;
-    if (v.data.rule) body.rule = JSON.stringify(v.data.rule);
-    const res = await graph<{ id: string }>(`${withActPrefix(acc.data)}/customaudiences`, { method: 'POST', body });
+    const body: Record<string, any> = { name: payload.name, subtype: payload.subtype };
+    if (payload.description) body.description = payload.description;
+    if (payload.customer_file_source) body.customer_file_source = payload.customer_file_source;
+    if (payload.retention_days) body.retention_days = payload.retention_days;
+    if (payload.rule) body.rule = JSON.stringify(payload.rule);
+    const res = await graph<{ id: string }>(`${withActPrefix(adAccountId)}/customaudiences`, { method: 'POST', body });
     if (!res.error) revalidatePath('/dashboard/ad-manager/audiences');
     return res;
 }
@@ -543,18 +502,13 @@ export async function createLookalikeAudience(
     adAccountId: string,
     payload: { name: string; origin_audience_id: string; country: string; ratio?: number },
 ): Promise<ActionResult> {
-    const acc = validate(AdAccountIdSchema, adAccountId);
-    if ('error' in acc) return { error: acc.error };
-    const v = validate(CreateLookalikeInput, payload);
-    if ('error' in v) return { error: v.error };
-
     const body = {
-        name: v.data.name,
+        name: payload.name,
         subtype: 'LOOKALIKE',
-        origin_audience_id: v.data.origin_audience_id,
-        lookalike_spec: JSON.stringify({ type: 'similarity', country: v.data.country, ratio: v.data.ratio ?? 0.01 }),
+        origin_audience_id: payload.origin_audience_id,
+        lookalike_spec: JSON.stringify({ type: 'similarity', country: payload.country, ratio: payload.ratio ?? 0.01 }),
     };
-    const res = await graph(`${withActPrefix(acc.data)}/customaudiences`, { method: 'POST', body });
+    const res = await graph(`${withActPrefix(adAccountId)}/customaudiences`, { method: 'POST', body });
     if (!res.error) revalidatePath('/dashboard/ad-manager/audiences');
     return res;
 }
@@ -602,28 +556,20 @@ export async function getReachEstimate(
     targeting: Record<string, any>,
     opts?: { optimization_goal?: string; currency?: string },
 ): Promise<ActionResult> {
-    const acc = validate(AdAccountIdSchema, adAccountId);
-    if ('error' in acc) return { error: acc.error };
-    const v = validate(ReachEstimateInput, { targeting, ...opts });
-    if ('error' in v) return { error: v.error };
-    const params: any = { targeting_spec: JSON.stringify(v.data.targeting) };
-    if (v.data.optimization_goal) params.optimization_goal = v.data.optimization_goal;
-    return graph(`${withActPrefix(acc.data)}/reachestimate`, { params });
+    const params: any = { targeting_spec: JSON.stringify(targeting) };
+    if (opts?.optimization_goal) params.optimization_goal = opts.optimization_goal;
+    return graph(`${withActPrefix(adAccountId)}/reachestimate`, { params });
 }
 
 export async function getDeliveryEstimate(
     adAccountId: string,
     payload: { targeting_spec: Record<string, any>; optimization_goal: string; daily_budget?: number },
 ): Promise<ActionResult> {
-    const acc = validate(AdAccountIdSchema, adAccountId);
-    if ('error' in acc) return { error: acc.error };
-    const v = validate(DeliveryEstimateInput, payload);
-    if ('error' in v) return { error: v.error };
-    return graph(`${withActPrefix(acc.data)}/delivery_estimate`, {
+    return graph(`${withActPrefix(adAccountId)}/delivery_estimate`, {
         params: {
-            targeting_spec: JSON.stringify(v.data.targeting_spec),
-            optimization_goal: v.data.optimization_goal,
-            daily_budget: v.data.daily_budget,
+            targeting_spec: JSON.stringify(payload.targeting_spec),
+            optimization_goal: payload.optimization_goal,
+            daily_budget: payload.daily_budget,
         },
     });
 }
@@ -659,8 +605,7 @@ export async function getInsights(
 ): Promise<ActionResult<any[]>> {
     if (!objectId) return { error: 'objectId is required' };
     if (opts) {
-        const v = validate(InsightsQueryInput, opts);
-        if ('error' in v) return { error: v.error };
+        // Validation now runs in Rust + Graph; opts pass through.
     }
     const isAct = objectId.startsWith('act_') || /^\d+$/.test(objectId);
     const nodeId = opts?.level === 'account' && isAct ? withActPrefix(objectId) : objectId;
@@ -871,18 +816,14 @@ export async function createCustomConversion(
         default_conversion_value?: number;
     },
 ): Promise<ActionResult> {
-    const acc = validate(AdAccountIdSchema, adAccountId);
-    if ('error' in acc) return { error: acc.error };
-    const v = validate(CustomConversionInput, payload);
-    if ('error' in v) return { error: v.error };
-    return graph(`${withActPrefix(acc.data)}/customconversions`, {
+    return graph(`${withActPrefix(adAccountId)}/customconversions`, {
         method: 'POST',
         body: {
-            name: v.data.name,
-            description: v.data.description || '',
-            custom_event_type: v.data.custom_event_type,
-            rule: JSON.stringify(v.data.rule),
-            default_conversion_value: v.data.default_conversion_value,
+            name: payload.name,
+            description: payload.description || '',
+            custom_event_type: payload.custom_event_type,
+            rule: JSON.stringify(payload.rule),
+            default_conversion_value: payload.default_conversion_value,
         },
     });
 }
@@ -893,20 +834,16 @@ export async function sendConversionApiEvent(
     pixelId: string,
     payload: { event_name: string; event_time: number; user_data: Record<string, any>; custom_data?: Record<string, any>; action_source?: string; event_source_url?: string },
 ): Promise<ActionResult> {
-    const p = validate(FbIdSchema, pixelId);
-    if ('error' in p) return { error: p.error };
-    const v = validate(ConversionApiEventInput, payload);
-    if ('error' in v) return { error: v.error };
-    return graph(`${p.data}/events`, {
+    return graph(`${pixelId}/events`, {
         method: 'POST',
         body: {
             data: JSON.stringify([{
-                event_name: v.data.event_name,
-                event_time: v.data.event_time,
-                action_source: v.data.action_source || 'website',
-                event_source_url: v.data.event_source_url,
-                user_data: v.data.user_data,
-                custom_data: v.data.custom_data,
+                event_name: payload.event_name,
+                event_time: payload.event_time,
+                action_source: payload.action_source || 'website',
+                event_source_url: payload.event_source_url,
+                user_data: payload.user_data,
+                custom_data: payload.custom_data,
             }]),
         },
     });
@@ -1168,17 +1105,13 @@ export async function createAdRule(
         schedule_spec?: Record<string, any>;
     },
 ): Promise<ActionResult> {
-    const acc = validate(AdAccountIdSchema, adAccountId);
-    if ('error' in acc) return { error: acc.error };
-    const v = validate(AdRuleInput, payload);
-    if ('error' in v) return { error: v.error };
-    return graph(`${withActPrefix(acc.data)}/adrules_library`, {
+    return graph(`${withActPrefix(adAccountId)}/adrules_library`, {
         method: 'POST',
         body: {
-            name: v.data.name,
-            evaluation_spec: JSON.stringify(v.data.evaluation_spec),
-            execution_spec: JSON.stringify(v.data.execution_spec),
-            schedule_spec: v.data.schedule_spec ? JSON.stringify(v.data.schedule_spec) : undefined,
+            name: payload.name,
+            evaluation_spec: JSON.stringify(payload.evaluation_spec),
+            execution_spec: JSON.stringify(payload.execution_spec),
+            schedule_spec: payload.schedule_spec ? JSON.stringify(payload.schedule_spec) : undefined,
         },
     });
 }

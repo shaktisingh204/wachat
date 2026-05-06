@@ -535,9 +535,25 @@ Custom field type `entity_ref` (with target entity key) plugs into `<EntityPicke
 
 ### 13.10 Migration / rollout phasing
 
-1. Build `EntityPicker` + `lookupRegistry` for top 8 entities (Client, Vendor, Item, Employee, User, Account, Warehouse, Bank). One PR.
-2. Migrate Invoice / Quotation / SO / Bill / PO forms to the picker. One PR each module.
-3. Migrate Lead / Deal / Task / Ticket / Employee forms.
+> **Backend-language directive (2026-05-06):** From this point on, any *new* CRM backend code introduced by §13.10 work (lookup endpoints, conversion/lineage actions, codemod-installed helpers, etc.) is to be authored in **Rust** in `rust/crates/`. Already-shipped TypeScript server actions (e.g. `crm-lookup.actions.ts`) stay as-is — no retroactive rewrite. Steps that only touch frontend forms (2, 3) remain TS/TSX.
+
+1. Build `EntityPicker` + `lookupRegistry` for top 8 entities (Client, Vendor, Item, Employee, User, Account, Warehouse, Bank). One PR. **— DONE** (Phase 2 foundation + Phase 3 expansion, see §15)
+   - [src/lib/lookup-registry.ts](src/lib/lookup-registry.ts) — `EntityKey` union + `ENTITY_KEYS` (18 entities; top-8 fully covered: `client`, `vendor`, `item`, `employee`, `user`, `account`, `warehouse`, `bankAccount`)
+   - [src/app/actions/crm-lookup.actions.ts](src/app/actions/crm-lookup.actions.ts) — tenant-scoped `lookupEntity(entity, params)` server action + `makeMongoLookup()` helper + concrete registry entries
+   - [src/components/crm/entity-picker.tsx](src/components/crm/entity-picker.tsx) — `<EntityPicker>` + `<EntityPickerChip>` (debounce, abort, recents, infinite scroll, multi-select, quick-create)
+2. Migrate Invoice / Quotation / SO / Bill / PO forms to the picker. One PR each module. **— DONE** (Phase 2, see §15)
+   - [src/app/dashboard/crm/sales/invoices/new/page.tsx](src/app/dashboard/crm/sales/invoices/new/page.tsx) — `client` picker (PoC)
+   - [src/app/dashboard/crm/sales/quotations/new/page.tsx](src/app/dashboard/crm/sales/quotations/new/page.tsx) — `client` + line-item `item` pickers
+   - [src/app/dashboard/crm/sales/orders/new/page.tsx](src/app/dashboard/crm/sales/orders/new/page.tsx) — `client` + line-item `item` pickers
+   - [src/app/dashboard/crm/purchases/orders/new/new-order-form.tsx](src/app/dashboard/crm/purchases/orders/new/new-order-form.tsx) — `vendor`, `warehouse`, line-item `item` pickers (PO)
+   - [src/app/dashboard/crm/purchases/expenses/new/new-expense-form.tsx](src/app/dashboard/crm/purchases/expenses/new/new-expense-form.tsx) — `vendor` + optional billable `client` (Bill)
+   - All preserve original submit shape via hidden `<input>` so server actions stayed untouched.
+3. Migrate Lead / Deal / Task / Ticket / Employee forms. **— DONE (Lead, Deal, Employee)** — partial; Task/Ticket pending in next runs.
+   - Employee — Phase 2: [src/components/wabasimplify/crm-employee-form.tsx](src/components/wabasimplify/crm-employee-form.tsx) — `reportingTo` (`employee`, self-excluded) + linked `bankAccount`.
+   - Lead — 2026-05-06: [src/app/dashboard/crm/sales-crm/all-leads/new/page.tsx](src/app/dashboard/crm/sales-crm/all-leads/new/page.tsx) — `assignedTo` migrated from `<ZoruSelect>` (single hard-coded "Me" option) to `<EntityPicker entity="user">`. Submit shape preserved via hidden `<input name="assignedTo">`. Pipeline/stage left on `SmartPipelineSelect` because they aren't in the canonical-8 picker set and `stage` requires name-not-id submit shape pinned to the loaded pipeline.
+   - Deal — 2026-05-06: [src/components/wabasimplify/crm-create-deal-dialog.tsx](src/components/wabasimplify/crm-create-deal-dialog.tsx) — `accountId` migrated from `<ZoruSelect>` (driven by injected `accounts` prop, ~unbounded list) to `<EntityPicker entity="client">` (paginated/searchable). Submit shape preserved via hidden `<input name="accountId">`. State seeded from `defaultAccountId`, reset on submit-success. `contactId` left as-is — `contact` is not in `ENTITY_KEYS` yet (registry addition required, P1). Stage left as static `dealStages[]` select.
+   - **NEXT sub-form →** Task form (entity refs: `assignedTo` user, related-to `client`/`vendor`/`deal`/`lead`).
+   - Ticket form (next after Task) — entity refs: requester `client`, `assignedTo` user.
 4. Add lineage rail to detail pages.
 5. Ship Cmd-K palette (reuses registry).
 6. Ship custom-fields `entity_ref` type.

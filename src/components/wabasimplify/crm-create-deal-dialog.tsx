@@ -27,6 +27,7 @@ import {
 import { LoaderCircle, Plus } from 'lucide-react';
 import { createCrmDeal } from '@/app/actions/crm-deals.actions';
 import type { WithId, CrmContact, CrmAccount } from '@/lib/definitions';
+import { EntityPicker } from '@/components/crm/entity-picker';
 
 const initialState = { message: undefined, error: undefined };
 
@@ -74,6 +75,7 @@ export function CreateDealDialog({
   const { toast } = useZoruToast();
   const formRef = useRef<HTMLFormElement>(null);
   const [closeDate, setCloseDate] = useState<Date | undefined>();
+  const [selectedAccountId, setSelectedAccountId] = useState<string>(defaultAccountId || '');
   const lastHandledRef = useRef<typeof state | null>(null);
 
   useEffect(() => {
@@ -83,13 +85,14 @@ export function CreateDealDialog({
       toast({ title: 'Success!', description: state.message });
       formRef.current?.reset();
       setCloseDate(undefined);
+      setSelectedAccountId(defaultAccountId || '');
       setOpen(false);
       onDealCreated();
     } else if (state.error) {
       lastHandledRef.current = state;
       toast({ title: 'Error', description: state.error, variant: 'destructive' });
     }
-  }, [state, toast, onDealCreated]);
+  }, [state, toast, onDealCreated, defaultAccountId]);
 
   return (
     <ZoruDialog open={open} onOpenChange={setOpen}>
@@ -104,6 +107,7 @@ export function CreateDealDialog({
       <ZoruDialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
         <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
           <input type="hidden" name="closeDate" value={closeDate?.toISOString()} />
+          <input type="hidden" name="accountId" value={selectedAccountId} />
           <ZoruDialogHeader className="px-6 pt-6 pb-2">
             <ZoruDialogTitle className="text-zoru-ink">Create New Deal</ZoruDialogTitle>
             <ZoruDialogDescription className="text-zoru-ink-muted">Track a new sales opportunity.</ZoruDialogDescription>
@@ -130,7 +134,18 @@ export function CreateDealDialog({
                 <div className="space-y-2"><ZoruLabel className="text-zoru-ink">Expected Close Date</ZoruLabel><ZoruDatePicker value={closeDate} onChange={setCloseDate} /></div>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2"><ZoruLabel htmlFor="accountId" className="text-zoru-ink">Account</ZoruLabel><ZoruSelect name="accountId" required defaultValue={defaultAccountId}><ZoruSelectTrigger id="accountId"><ZoruSelectValue placeholder="Select an account..." /></ZoruSelectTrigger><ZoruSelectContent>{accounts.map(acc => <ZoruSelectItem key={acc._id.toString()} value={acc._id.toString()}>{acc.name}</ZoruSelectItem>)}</ZoruSelectContent></ZoruSelect></div>
+                <div className="space-y-2">
+                  <ZoruLabel htmlFor="accountId" className="text-zoru-ink">Account</ZoruLabel>
+                  <EntityPicker
+                    entity="client"
+                    value={selectedAccountId || null}
+                    placeholder="Select an account…"
+                    onChange={(next) => {
+                      const id = Array.isArray(next) ? next[0] ?? '' : (next ?? '');
+                      setSelectedAccountId(id);
+                    }}
+                  />
+                </div>
                 <div className="space-y-2"><ZoruLabel htmlFor="contactId" className="text-zoru-ink">Primary Contact</ZoruLabel><ZoruSelect name="contactId" required defaultValue={defaultContactId}><ZoruSelectTrigger id="contactId"><ZoruSelectValue placeholder="Select a contact..." /></ZoruSelectTrigger><ZoruSelectContent>{contacts.map(c => <ZoruSelectItem key={c._id.toString()} value={c._id.toString()}>{c.name}</ZoruSelectItem>)}</ZoruSelectContent></ZoruSelect></div>
               </div>
               <div className="grid grid-cols-2 gap-4">
