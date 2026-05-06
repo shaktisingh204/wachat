@@ -1,11 +1,8 @@
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, BookOpen, Pin, CheckSquare } from 'lucide-react';
 
-import { ClayCard, ClayBadge, ClayButton } from '@/components/clay';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import {
   getKnowledgeBaseById,
@@ -35,25 +32,25 @@ export default async function KnowledgeBaseDetailPage({
         icon={BookOpen}
         actions={
           <Link href="/dashboard/crm/workspace/knowledge-base">
-            <ClayButton variant="pill" leading={<ArrowLeft className="h-4 w-4" strokeWidth={1.75} />}>
+            <ZoruButton variant="outline">
               Back
-            </ClayButton>
+            </ZoruButton>
           </Link>
         }
       />
 
-      <ClayCard>
+      <ZoruCard>
         <div className="mb-4 flex flex-wrap items-center gap-2">
-          <ClayBadge tone="neutral" className="capitalize">{article.type}</ClayBadge>
+          <ZoruBadge variant="ghost" className="capitalize">{article.type}</ZoruBadge>
           {article.pinned ? (
-            <ClayBadge tone="amber">
+            <ZoruBadge variant="warning">
               <Pin className="h-3 w-3" /> Pinned
-            </ClayBadge>
+            </ZoruBadge>
           ) : null}
           {article.to_do === 'yes' ? (
-            <ClayBadge tone="blue">
+            <ZoruBadge variant="info">
               <CheckSquare className="h-3 w-3" /> To-do
-            </ClayBadge>
+            </ZoruBadge>
           ) : null}
         </div>
         <div
@@ -61,7 +58,7 @@ export default async function KnowledgeBaseDetailPage({
         >
           {article.description || 'No content.'}
         </div>
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

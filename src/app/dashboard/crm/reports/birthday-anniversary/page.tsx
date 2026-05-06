@@ -1,11 +1,9 @@
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruBadge, ZoruCard } from '@/components/zoruui';
 export const dynamic = 'force-dynamic';
 
 import { Cake, Gift } from 'lucide-react';
 import { format } from 'date-fns';
-import { ClayBadge, ClayCard } from '@/components/clay';
+
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import { StatCard } from '../_components/report-toolbar';
 import { getUpcomingBirthdays } from '@/app/actions/worksuite/reports.actions';
@@ -38,7 +36,7 @@ export default async function BirthdayAnniversaryPage(props: {
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <ClayCard>
+        <ZoruCard>
           <div className="mb-3 flex items-center gap-2">
             <Cake className="h-4 w-4 text-accent-foreground" />
             <h2 className="text-[16px] font-semibold text-foreground">
@@ -59,16 +57,16 @@ export default async function BirthdayAnniversaryPage(props: {
                   <span className="text-[13px] font-medium text-foreground">
                     {r.employeeName}
                   </span>
-                  <ClayBadge tone="blue">
+                  <ZoruBadge variant="info">
                     {format(new Date(r.date), 'PP')}
-                  </ClayBadge>
+                  </ZoruBadge>
                 </li>
               ))}
             </ul>
           )}
-        </ClayCard>
+        </ZoruCard>
 
-        <ClayCard>
+        <ZoruCard>
           <div className="mb-3 flex items-center gap-2">
             <Gift className="h-4 w-4 text-accent-foreground" />
             <h2 className="text-[16px] font-semibold text-foreground">
@@ -95,14 +93,14 @@ export default async function BirthdayAnniversaryPage(props: {
                       {r.years === 1 ? 'year' : 'years'}
                     </div>
                   </div>
-                  <ClayBadge tone="green">
+                  <ZoruBadge variant="success">
                     {format(new Date(r.date), 'PP')}
-                  </ClayBadge>
+                  </ZoruBadge>
                 </li>
               ))}
             </ul>
           )}
-        </ClayCard>
+        </ZoruCard>
       </div>
     </div>
   );

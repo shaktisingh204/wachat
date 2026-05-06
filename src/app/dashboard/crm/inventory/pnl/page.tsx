@@ -1,16 +1,12 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ZoruButton, ZoruCard, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow, useZoruToast } from '@/components/zoruui';
 import { Download, TrendingUp, LoaderCircle, ArrowUpDown } from 'lucide-react';
 import { useState, useEffect, useTransition, useCallback, useMemo } from 'react';
 import { generateProductPnlData } from '@/app/actions/crm-reports.actions';
-import { useToast } from "@/hooks/use-toast";
+
 import Papa from 'papaparse';
 
-import { ClayCard, ClayButton } from '@/components/clay';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 type ProductPnlData = {
@@ -39,7 +35,7 @@ const formatCurrency = (amount: number) => {
 export default function ProductPnlPage() {
     const [reportData, setReportData] = useState<ProductPnlData[]>([]);
     const [isLoading, startTransition] = useTransition();
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
     const [sortConfig, setSortConfig] = useState<SortConfig | null>({ key: 'grossProfit', direction: 'descending' });
 
     const fetchData = useCallback(() => {
@@ -106,14 +102,13 @@ export default function ProductPnlPage() {
     };
 
     const SortableHeader = ({ columnKey, label }: { columnKey: keyof ProductPnlData, label: string }) => (
-        <TableHead onClick={() => requestSort(columnKey)} className="cursor-pointer text-muted-foreground hover:text-foreground">
+        <ZoruTableHead onClick={() => requestSort(columnKey)} className="cursor-pointer text-muted-foreground hover:text-foreground">
             <div className="flex items-center gap-2">
                 {label}
                 <ArrowUpDown className="h-3 w-3" />
             </div>
-        </TableHead>
+        </ZoruTableHead>
     );
-
 
     return (
         <div className="flex w-full flex-col gap-6">
@@ -122,19 +117,19 @@ export default function ProductPnlPage() {
                 subtitle="Analyze the profitability of each product in your inventory."
                 icon={TrendingUp}
                 actions={
-                    <ClayButton variant="pill" leading={<Download className="h-4 w-4" strokeWidth={1.75} />} onClick={handleDownload} disabled={isLoading || reportData.length === 0}>
+                    <ZoruButton variant="outline" onClick={handleDownload} disabled={isLoading || reportData.length === 0}>
                         Download CSV
-                    </ClayButton>
+                    </ZoruButton>
                 }
             />
 
-            <ClayCard>
+            <ZoruCard>
                 <h2 className="text-[16px] font-semibold text-foreground">Profitability Report</h2>
                 <p className="mt-0.5 text-[12.5px] text-muted-foreground">All figures are in INR (₹)</p>
                 <div className="mt-4 overflow-x-auto rounded-lg border border-border">
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="border-border hover:bg-transparent">
+                    <ZoruTable>
+                        <ZoruTableHeader>
+                            <ZoruTableRow className="border-border hover:bg-transparent">
                                 <SortableHeader columnKey="productName" label="Product" />
                                 <SortableHeader columnKey="netSoldQty" label="Net Qty Sold" />
                                 <SortableHeader columnKey="totalRevenue" label="Total Revenue" />
@@ -142,33 +137,33 @@ export default function ProductPnlPage() {
                                 <SortableHeader columnKey="totalCogs" label="Total COGS" />
                                 <SortableHeader columnKey="grossProfit" label="Gross Profit" />
                                 <SortableHeader columnKey="grossMargin" label="Gross Margin" />
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
+                            </ZoruTableRow>
+                        </ZoruTableHeader>
+                        <ZoruTableBody>
                             {isLoading ? (
-                                <TableRow className="border-border"><TableCell colSpan={7} className="h-64 text-center"><LoaderCircle className="mx-auto animate-spin h-8 w-8 text-muted-foreground"/></TableCell></TableRow>
+                                <ZoruTableRow className="border-border"><ZoruTableCell colSpan={7} className="h-64 text-center"><LoaderCircle className="mx-auto animate-spin h-8 w-8 text-muted-foreground"/></ZoruTableCell></ZoruTableRow>
                             ) : sortedData.length > 0 ? (
                                 sortedData.map(item => (
-                                    <TableRow key={item.productId} className="border-border">
-                                        <TableCell>
+                                    <ZoruTableRow key={item.productId} className="border-border">
+                                        <ZoruTableCell>
                                             <p className="font-medium text-foreground">{item.productName}</p>
                                             <p className="text-[11.5px] text-muted-foreground font-mono">{item.sku}</p>
-                                        </TableCell>
-                                        <TableCell className="text-center text-foreground">{item.netSoldQty}</TableCell>
-                                        <TableCell className="text-foreground">{formatCurrency(item.totalRevenue)}</TableCell>
-                                        <TableCell className="text-foreground">{formatCurrency(item.avgSellingPrice)}</TableCell>
-                                        <TableCell className="text-foreground">{formatCurrency(item.totalCogs)}</TableCell>
-                                        <TableCell className="font-semibold text-foreground">{formatCurrency(item.grossProfit)}</TableCell>
-                                        <TableCell className="font-semibold text-foreground">{item.grossMargin.toFixed(2)}%</TableCell>
-                                    </TableRow>
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-center text-foreground">{item.netSoldQty}</ZoruTableCell>
+                                        <ZoruTableCell className="text-foreground">{formatCurrency(item.totalRevenue)}</ZoruTableCell>
+                                        <ZoruTableCell className="text-foreground">{formatCurrency(item.avgSellingPrice)}</ZoruTableCell>
+                                        <ZoruTableCell className="text-foreground">{formatCurrency(item.totalCogs)}</ZoruTableCell>
+                                        <ZoruTableCell className="font-semibold text-foreground">{formatCurrency(item.grossProfit)}</ZoruTableCell>
+                                        <ZoruTableCell className="font-semibold text-foreground">{item.grossMargin.toFixed(2)}%</ZoruTableCell>
+                                    </ZoruTableRow>
                                 ))
                             ) : (
-                                <TableRow className="border-border"><TableCell colSpan={7} className="h-64 text-center text-muted-foreground">No sales data found to generate the report.</TableCell></TableRow>
+                                <ZoruTableRow className="border-border"><ZoruTableCell colSpan={7} className="h-64 text-center text-muted-foreground">No sales data found to generate the report.</ZoruTableCell></ZoruTableRow>
                             )}
-                        </TableBody>
-                    </Table>
+                        </ZoruTableBody>
+                    </ZoruTable>
                 </div>
-            </ClayCard>
+            </ZoruCard>
         </div>
     );
 }

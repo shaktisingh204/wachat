@@ -1,10 +1,8 @@
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruBadge, ZoruCard } from '@/components/zoruui';
 export const dynamic = 'force-dynamic';
 
 import { Clock4 } from 'lucide-react';
-import { ClayBadge, ClayCard } from '@/components/clay';
+
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import { StatCard, fmtMoney, BarRow } from '../_components/report-toolbar';
 import { getInvoiceAging } from '@/app/actions/worksuite/reports.actions';
@@ -41,7 +39,7 @@ export default async function InvoiceAgingPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <ClayCard>
+        <ZoruCard>
           <div className="mb-3">
             <h2 className="text-[16px] font-semibold text-foreground">
               Age buckets
@@ -57,9 +55,9 @@ export default async function InvoiceAgingPage() {
               tone={toneFor[b.bucket]}
             />
           ))}
-        </ClayCard>
+        </ZoruCard>
 
-        <ClayCard>
+        <ZoruCard>
           <div className="mb-3">
             <h2 className="text-[16px] font-semibold text-foreground">
               Breakdown
@@ -71,9 +69,9 @@ export default async function InvoiceAgingPage() {
                 key={b.bucket}
                 className="flex items-center justify-between gap-3 py-2.5"
               >
-                <ClayBadge tone={toneFor[b.bucket] === 'obsidian' ? 'obsidian' : toneFor[b.bucket]}>
+                <ZoruBadge variant={(toneFor[b.bucket] === 'obsidian' ? 'obsidian' : toneFor[b.bucket]) as any}>
                   {b.bucket} days
-                </ClayBadge>
+                </ZoruBadge>
                 <div className="flex items-center gap-4">
                   <span className="text-[12.5px] text-muted-foreground">
                     {b.count} invoice{b.count === 1 ? '' : 's'}
@@ -85,7 +83,7 @@ export default async function InvoiceAgingPage() {
               </div>
             ))}
           </div>
-        </ClayCard>
+        </ZoruCard>
       </div>
     </div>
   );

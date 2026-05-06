@@ -74,6 +74,7 @@ members = [
     "crates/wachat-facebook-lead-gen",
     "crates/wachat-instagram",
     "crates/sabfiles",
+    "crates/wachat-ads-pixels",
 ]
 
 [workspace.package]

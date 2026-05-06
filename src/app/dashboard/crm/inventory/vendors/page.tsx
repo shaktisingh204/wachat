@@ -1,37 +1,20 @@
 'use client';
-
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruAlertDialog, ZoruAlertDialogAction, ZoruAlertDialogCancel, ZoruAlertDialogContent, ZoruAlertDialogDescription, ZoruAlertDialogFooter, ZoruAlertDialogHeader, ZoruAlertDialogTitle, ZoruAlertDialogTrigger, ZoruBadge, ZoruButton, ZoruCard, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow, useZoruToast } from '@/components/zoruui';
 import { useState, useEffect, useCallback, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+
 import { Plus, LoaderCircle, Trash2, Truck } from "lucide-react";
 import Link from 'next/link';
 import { getCrmVendors, deleteCrmVendor } from '@/app/actions/crm-vendors.actions';
 import type { WithId, CrmVendor } from '@/lib/definitions';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { useToast } from '@/hooks/use-toast';
 
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 export default function VendorsPage() {
     const [vendors, setVendors] = useState<WithId<CrmVendor>[]>([]);
     const [isLoading, startTransition] = useTransition();
     const router = useRouter();
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
 
     const fetchData = useCallback(() => {
         startTransition(async () => {
@@ -72,64 +55,64 @@ export default function VendorsPage() {
                 icon={Truck}
                 actions={
                     <Link href="/dashboard/crm/purchases/vendors/new">
-                        <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}>
+                        <ZoruButton>
                             New Vendor
-                        </ClayButton>
+                        </ZoruButton>
                     </Link>
                 }
             />
 
-            <ClayCard>
+            <ZoruCard>
                 <h2 className="text-[16px] font-semibold text-foreground">All Vendors</h2>
                 <div className="mt-4 overflow-x-auto rounded-lg border border-border">
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="border-border hover:bg-transparent">
-                                <TableHead className="text-muted-foreground">Vendor Name</TableHead>
-                                <TableHead className="text-muted-foreground">Email</TableHead>
-                                <TableHead className="text-muted-foreground">Phone</TableHead>
-                                <TableHead className="text-muted-foreground">Type</TableHead>
-                                <TableHead className="text-muted-foreground text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
+                    <ZoruTable>
+                        <ZoruTableHeader>
+                            <ZoruTableRow className="border-border hover:bg-transparent">
+                                <ZoruTableHead className="text-muted-foreground">Vendor Name</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Email</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Phone</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Type</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground text-right">Actions</ZoruTableHead>
+                            </ZoruTableRow>
+                        </ZoruTableHeader>
+                        <ZoruTableBody>
                             {vendors.length > 0 ? (
                                 vendors.map(vendor => (
-                                    <TableRow key={vendor._id.toString()} className="border-border">
-                                        <TableCell className="font-medium text-foreground">{vendor.name}</TableCell>
-                                        <TableCell className="text-foreground">{vendor.email || 'N/A'}</TableCell>
-                                        <TableCell className="text-foreground">{vendor.phone || 'N/A'}</TableCell>
-                                        <TableCell><ClayBadge tone="neutral" className="capitalize">{vendor.vendorType}</ClayBadge></TableCell>
-                                        <TableCell className="text-right">
-                                            <AlertDialog>
-                                                <AlertDialogTrigger asChild>
-                                                    <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive"/></Button>
-                                                </AlertDialogTrigger>
-                                                <AlertDialogContent>
-                                                    <AlertDialogHeader>
-                                                        <AlertDialogTitle>Delete Vendor?</AlertDialogTitle>
-                                                        <AlertDialogDescription>Are you sure you want to delete {vendor.name}?</AlertDialogDescription>
-                                                    </AlertDialogHeader>
-                                                    <AlertDialogFooter>
-                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                        <AlertDialogAction onClick={() => handleDelete(vendor._id.toString())}>Delete</AlertDialogAction>
-                                                    </AlertDialogFooter>
-                                                </AlertDialogContent>
-                                            </AlertDialog>
-                                        </TableCell>
-                                    </TableRow>
+                                    <ZoruTableRow key={vendor._id.toString()} className="border-border">
+                                        <ZoruTableCell className="font-medium text-foreground">{vendor.name}</ZoruTableCell>
+                                        <ZoruTableCell className="text-foreground">{vendor.email || 'N/A'}</ZoruTableCell>
+                                        <ZoruTableCell className="text-foreground">{vendor.phone || 'N/A'}</ZoruTableCell>
+                                        <ZoruTableCell><ZoruBadge variant="ghost" className="capitalize">{vendor.vendorType}</ZoruBadge></ZoruTableCell>
+                                        <ZoruTableCell className="text-right">
+                                            <ZoruAlertDialog>
+                                                <ZoruAlertDialogTrigger asChild>
+                                                    <ZoruButton variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive"/></ZoruButton>
+                                                </ZoruAlertDialogTrigger>
+                                                <ZoruAlertDialogContent>
+                                                    <ZoruAlertDialogHeader>
+                                                        <ZoruAlertDialogTitle>Delete Vendor?</ZoruAlertDialogTitle>
+                                                        <ZoruAlertDialogDescription>Are you sure you want to delete {vendor.name}?</ZoruAlertDialogDescription>
+                                                    </ZoruAlertDialogHeader>
+                                                    <ZoruAlertDialogFooter>
+                                                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+                                                        <ZoruAlertDialogAction onClick={() => handleDelete(vendor._id.toString())}>Delete</ZoruAlertDialogAction>
+                                                    </ZoruAlertDialogFooter>
+                                                </ZoruAlertDialogContent>
+                                            </ZoruAlertDialog>
+                                        </ZoruTableCell>
+                                    </ZoruTableRow>
                                 ))
                             ) : (
-                                <TableRow className="border-border">
-                                    <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">
+                                <ZoruTableRow className="border-border">
+                                    <ZoruTableCell colSpan={5} className="text-center h-24 text-muted-foreground">
                                         No vendors have been added yet.
-                                    </TableCell>
-                                </TableRow>
+                                    </ZoruTableCell>
+                                </ZoruTableRow>
                             )}
-                        </TableBody>
-                    </Table>
+                        </ZoruTableBody>
+                    </ZoruTable>
                 </div>
-            </ClayCard>
+            </ZoruCard>
         </div>
     )
 }

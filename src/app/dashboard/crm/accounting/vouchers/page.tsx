@@ -1,13 +1,7 @@
 'use client';
-
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruBadge, ZoruButton, ZoruCard, ZoruDropdownMenu, ZoruDropdownMenuContent, ZoruDropdownMenuItem, ZoruDropdownMenuTrigger, ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow, useZoruToast } from '@/components/zoruui';
 import { useState, useEffect, useCallback, useTransition } from 'react';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+
 import { Download, LoaderCircle, ChevronDown, Receipt, CheckCircle, XCircle } from 'lucide-react';
 import { CreateVoucherBookDialog } from '@/components/wabasimplify/create-voucher-book-dialog';
 import Link from 'next/link';
@@ -15,15 +9,13 @@ import type { WithId } from 'mongodb';
 import { getVoucherBooks } from '@/app/actions/crm-vouchers.actions';
 import type { CrmVoucherBook } from '@/lib/definitions';
 import Papa from 'papaparse';
-import { useToast } from '@/hooks/use-toast';
 
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 export default function VoucherBooksPage() {
     const [books, setBooks] = useState<WithId<CrmVoucherBook>[]>([]);
     const [isLoading, startTransition] = useTransition();
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
     const [financialYear, setFinancialYear] = useState('fy2526');
 
     const fetchBooks = useCallback(() => {
@@ -57,7 +49,6 @@ export default function VoucherBooksPage() {
         }
     };
 
-
     return (
         <div className="flex w-full flex-col gap-6">
             <CrmPageHeader
@@ -67,81 +58,81 @@ export default function VoucherBooksPage() {
                 actions={
                     <div className="flex items-center gap-2">
                         <CreateVoucherBookDialog onSave={fetchBooks} />
-                        <Select value={financialYear} onValueChange={setFinancialYear}>
-                            <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="fy2526">FY 2025-2026</SelectItem>
-                                <SelectItem value="fy2425">FY 2024-2025</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <ClayButton variant="pill" leading={<Download className="h-4 w-4" strokeWidth={1.75} />} trailing={<ChevronDown className="h-4 w-4" strokeWidth={1.75} />}>
+                        <ZoruSelect value={financialYear} onValueChange={setFinancialYear}>
+                            <ZoruSelectTrigger className="w-[180px]"><ZoruSelectValue /></ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                <ZoruSelectItem value="fy2526">FY 2025-2026</ZoruSelectItem>
+                                <ZoruSelectItem value="fy2425">FY 2024-2025</ZoruSelectItem>
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                        <ZoruDropdownMenu>
+                            <ZoruDropdownMenuTrigger asChild>
+                                <ZoruButton variant="outline">
                                     Download As
-                                </ClayButton>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent>
-                                <DropdownMenuItem onSelect={() => handleDownload('csv')}>CSV</DropdownMenuItem>
-                                <DropdownMenuItem disabled>XLS</DropdownMenuItem>
-                                <DropdownMenuItem disabled>PDF</DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                                </ZoruButton>
+                            </ZoruDropdownMenuTrigger>
+                            <ZoruDropdownMenuContent>
+                                <ZoruDropdownMenuItem onSelect={() => handleDownload('csv')}>CSV</ZoruDropdownMenuItem>
+                                <ZoruDropdownMenuItem disabled>XLS</ZoruDropdownMenuItem>
+                                <ZoruDropdownMenuItem disabled>PDF</ZoruDropdownMenuItem>
+                            </ZoruDropdownMenuContent>
+                        </ZoruDropdownMenu>
                     </div>
                 }
             />
-            <ClayCard>
+            <ZoruCard>
                 <div className="overflow-x-auto rounded-lg border border-border">
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="border-border hover:bg-transparent">
-                                <TableHead className="text-muted-foreground">Voucher Book</TableHead>
-                                <TableHead className="text-muted-foreground">Voucher Book Type</TableHead>
-                                <TableHead className="text-muted-foreground">Entries</TableHead>
-                                <TableHead className="text-muted-foreground">Reversed Entries</TableHead>
-                                <TableHead className="text-muted-foreground">Last Entry Date</TableHead>
-                                <TableHead className="text-muted-foreground">Is Default</TableHead>
-                                <TableHead className="text-muted-foreground">Created By</TableHead>
-                                <TableHead className="text-muted-foreground text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
+                    <ZoruTable>
+                        <ZoruTableHeader>
+                            <ZoruTableRow className="border-border hover:bg-transparent">
+                                <ZoruTableHead className="text-muted-foreground">Voucher Book</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Voucher Book Type</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Entries</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Reversed Entries</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Last Entry Date</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Is Default</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Created By</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground text-right">Actions</ZoruTableHead>
+                            </ZoruTableRow>
+                        </ZoruTableHeader>
+                        <ZoruTableBody>
                             {isLoading ? (
-                                <TableRow className="border-border"><TableCell colSpan={8} className="text-center h-24"><LoaderCircle className="h-6 w-6 animate-spin mx-auto text-muted-foreground"/></TableCell></TableRow>
+                                <ZoruTableRow className="border-border"><ZoruTableCell colSpan={8} className="text-center h-24"><LoaderCircle className="h-6 w-6 animate-spin mx-auto text-muted-foreground"/></ZoruTableCell></ZoruTableRow>
                             ) : books.length > 0 ? (
                                 books.map(book => (
-                                    <TableRow key={book._id.toString()} className="border-border">
-                                        <TableCell className="font-medium text-foreground">{book.name}</TableCell>
-                                        <TableCell><ClayBadge tone="neutral">{book.type}</ClayBadge></TableCell>
-                                        <TableCell className="text-foreground">{book.entryCount || 0}</TableCell>
-                                        <TableCell className="text-foreground">0</TableCell>
-                                        <TableCell className="text-foreground">{book.lastEntryDate ? new Date(book.lastEntryDate).toLocaleDateString() : '-'}</TableCell>
-                                        <TableCell>
+                                    <ZoruTableRow key={book._id.toString()} className="border-border">
+                                        <ZoruTableCell className="font-medium text-foreground">{book.name}</ZoruTableCell>
+                                        <ZoruTableCell><ZoruBadge variant="ghost">{book.type}</ZoruBadge></ZoruTableCell>
+                                        <ZoruTableCell className="text-foreground">{book.entryCount || 0}</ZoruTableCell>
+                                        <ZoruTableCell className="text-foreground">0</ZoruTableCell>
+                                        <ZoruTableCell className="text-foreground">{book.lastEntryDate ? new Date(book.lastEntryDate).toLocaleDateString() : '-'}</ZoruTableCell>
+                                        <ZoruTableCell>
                                             {book.isDefault ? <CheckCircle className="h-5 w-5 text-emerald-500" /> : <XCircle className="h-5 w-5 text-muted-foreground" />}
-                                        </TableCell>
-                                        <TableCell className="text-foreground">System</TableCell>
-                                        <TableCell className="text-right">
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-foreground">System</ZoruTableCell>
+                                        <ZoruTableCell className="text-right">
                                             <div className="flex justify-end items-center gap-1">
-                                                <Button asChild variant="ghost" size="sm">
+                                                <ZoruButton asChild variant="ghost" size="sm">
                                                     <Link href={`/dashboard/crm/accounting/vouchers/${book._id.toString()}`}>Open</Link>
-                                                </Button>
-                                                <Button asChild variant="default" size="sm">
+                                                </ZoruButton>
+                                                <ZoruButton asChild variant="default" size="sm">
                                                     <Link href="/dashboard/crm/accounting/vouchers/new">New Entry</Link>
-                                                </Button>
+                                                </ZoruButton>
                                             </div>
-                                        </TableCell>
-                                    </TableRow>
+                                        </ZoruTableCell>
+                                    </ZoruTableRow>
                                 ))
                             ) : (
-                                 <TableRow className="border-border">
-                                    <TableCell colSpan={8} className="h-24 text-center text-muted-foreground">
+                                 <ZoruTableRow className="border-border">
+                                    <ZoruTableCell colSpan={8} className="h-24 text-center text-muted-foreground">
                                         No voucher books found. Create one to get started.
-                                    </TableCell>
-                                </TableRow>
+                                    </ZoruTableCell>
+                                </ZoruTableRow>
                             )}
-                        </TableBody>
-                    </Table>
+                        </ZoruTableBody>
+                    </ZoruTable>
                 </div>
-            </ClayCard>
+            </ZoruCard>
         </div>
     )
 }

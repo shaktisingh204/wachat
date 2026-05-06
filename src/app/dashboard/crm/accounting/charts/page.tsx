@@ -1,39 +1,22 @@
 'use client';
-
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruAlertDialog, ZoruAlertDialogAction, ZoruAlertDialogCancel, ZoruAlertDialogContent, ZoruAlertDialogDescription, ZoruAlertDialogFooter, ZoruAlertDialogHeader, ZoruAlertDialogTitle, ZoruAlertDialogTrigger, ZoruBadge, ZoruButton, ZoruCard, ZoruDropdownMenu, ZoruDropdownMenuContent, ZoruDropdownMenuItem, ZoruDropdownMenuTrigger, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow, useZoruToast } from '@/components/zoruui';
 import { useState, useEffect, useCallback, useTransition } from 'react';
 import type { WithId } from 'mongodb';
 import { getCrmChartOfAccounts, deleteCrmChartOfAccount } from '@/app/actions/crm-accounting.actions';
 import { getCrmAccountGroups } from '@/app/actions/crm-accounting.actions';
 import type { CrmAccountGroup } from '@/lib/definitions';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 import { Plus, LoaderCircle, Edit, Trash2, Download, ChevronDown, Network } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+
 import { CrmChartOfAccountDialog } from '@/components/wabasimplify/crm-chart-of-account-dialog';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
+
 import Link from 'next/link';
 import Papa from 'papaparse';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 function DeleteButton({ account, onDeleted }: { account: WithId<any>, onDeleted: () => void }) {
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
     const [isPending, startTransition] = useTransition();
 
     const handleDelete = () => {
@@ -49,23 +32,23 @@ function DeleteButton({ account, onDeleted }: { account: WithId<any>, onDeleted:
     }
 
     return (
-        <AlertDialog>
-            <AlertDialogTrigger asChild>
-                <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive"/></Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-                <AlertDialogHeader>
-                    <AlertDialogTitle>Delete Account?</AlertDialogTitle>
-                    <AlertDialogDescription>Are you sure you want to delete the "{account.name}" account? This action cannot be undone.</AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleDelete} disabled={isPending}>
+        <ZoruAlertDialog>
+            <ZoruAlertDialogTrigger asChild>
+                <ZoruButton variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive"/></ZoruButton>
+            </ZoruAlertDialogTrigger>
+            <ZoruAlertDialogContent>
+                <ZoruAlertDialogHeader>
+                    <ZoruAlertDialogTitle>Delete Account?</ZoruAlertDialogTitle>
+                    <ZoruAlertDialogDescription>Are you sure you want to delete the "{account.name}" account? This action cannot be undone.</ZoruAlertDialogDescription>
+                </ZoruAlertDialogHeader>
+                <ZoruAlertDialogFooter>
+                    <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+                    <ZoruAlertDialogAction onClick={handleDelete} disabled={isPending}>
                         {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>} Delete
-                    </AlertDialogAction>
-                </AlertDialogFooter>
-            </AlertDialogContent>
-        </AlertDialog>
+                    </ZoruAlertDialogAction>
+                </ZoruAlertDialogFooter>
+            </ZoruAlertDialogContent>
+        </ZoruAlertDialog>
     )
 }
 
@@ -135,38 +118,38 @@ export default function ChartOfAccountsPage() {
                     icon={Network}
                     actions={
                         <div className="flex items-center gap-2">
-                            <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" strokeWidth={1.75} />} onClick={() => handleOpenDialog(null)}>
+                            <ZoruButton onClick={() => handleOpenDialog(null)}>
                                 New Account
-                            </ClayButton>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <ClayButton variant="pill" leading={<Download className="h-4 w-4" strokeWidth={1.75} />} trailing={<ChevronDown className="h-4 w-4" strokeWidth={1.75} />}>
+                            </ZoruButton>
+                            <ZoruDropdownMenu>
+                                <ZoruDropdownMenuTrigger asChild>
+                                    <ZoruButton variant="outline">
                                         Download As
-                                    </ClayButton>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent>
-                                    <DropdownMenuItem onSelect={() => handleDownload('csv')}>CSV</DropdownMenuItem>
-                                    <DropdownMenuItem disabled>XLS</DropdownMenuItem>
-                                    <DropdownMenuItem disabled>PDF</DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
+                                    </ZoruButton>
+                                </ZoruDropdownMenuTrigger>
+                                <ZoruDropdownMenuContent>
+                                    <ZoruDropdownMenuItem onSelect={() => handleDownload('csv')}>CSV</ZoruDropdownMenuItem>
+                                    <ZoruDropdownMenuItem disabled>XLS</ZoruDropdownMenuItem>
+                                    <ZoruDropdownMenuItem disabled>PDF</ZoruDropdownMenuItem>
+                                </ZoruDropdownMenuContent>
+                            </ZoruDropdownMenu>
                         </div>
                     }
                 />
-                <ClayCard>
-                    <Tabs defaultValue="active">
-                        <TabsList className="grid w-full grid-cols-2">
-                            <TabsTrigger value="active">Active ({activeAccounts.length})</TabsTrigger>
-                            <TabsTrigger value="inactive">Inactive ({inactiveAccounts.length})</TabsTrigger>
-                        </TabsList>
-                        <TabsContent value="active" className="mt-4">
+                <ZoruCard>
+                    <div defaultValue="active">
+                        <div className="grid w-full grid-cols-2">
+                            <button type="button">Active ({activeAccounts.length})</button>
+                            <button type="button">Inactive ({inactiveAccounts.length})</button>
+                        </div>
+                        <div className="mt-4">
                             <AccountsTable accounts={activeAccounts} isLoading={isLoading} onEdit={handleOpenDialog} onDelete={fetchData} />
-                        </TabsContent>
-                         <TabsContent value="inactive" className="mt-4">
+                        </div>
+                         <div className="mt-4">
                             <AccountsTable accounts={inactiveAccounts} isLoading={isLoading} onEdit={handleOpenDialog} onDelete={fetchData} />
-                        </TabsContent>
-                    </Tabs>
-                </ClayCard>
+                        </div>
+                    </div>
+                </ZoruCard>
             </div>
         </>
     );
@@ -175,45 +158,45 @@ export default function ChartOfAccountsPage() {
 function AccountsTable({ accounts, isLoading, onEdit, onDelete }: { accounts: WithId<any>[], isLoading: boolean, onEdit: (acc: any) => void, onDelete: () => void }) {
     return (
          <div className="overflow-x-auto rounded-lg border border-border">
-            <Table>
-                <TableHeader>
-                    <TableRow className="border-border hover:bg-transparent">
-                        <TableHead className="text-muted-foreground">Account Name</TableHead>
-                        <TableHead className="text-muted-foreground">Account Group</TableHead>
-                        <TableHead className="text-muted-foreground">Category</TableHead>
-                        <TableHead className="text-muted-foreground">Type</TableHead>
-                        <TableHead className="text-muted-foreground text-right">Opening Balance</TableHead>
-                        <TableHead className="text-muted-foreground text-right">Actions</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
+            <ZoruTable>
+                <ZoruTableHeader>
+                    <ZoruTableRow className="border-border hover:bg-transparent">
+                        <ZoruTableHead className="text-muted-foreground">Account Name</ZoruTableHead>
+                        <ZoruTableHead className="text-muted-foreground">Account Group</ZoruTableHead>
+                        <ZoruTableHead className="text-muted-foreground">Category</ZoruTableHead>
+                        <ZoruTableHead className="text-muted-foreground">Type</ZoruTableHead>
+                        <ZoruTableHead className="text-muted-foreground text-right">Opening Balance</ZoruTableHead>
+                        <ZoruTableHead className="text-muted-foreground text-right">Actions</ZoruTableHead>
+                    </ZoruTableRow>
+                </ZoruTableHeader>
+                <ZoruTableBody>
                     {isLoading ? (
-                        <TableRow className="border-border"><TableCell colSpan={6} className="h-24 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground"/></TableCell></TableRow>
+                        <ZoruTableRow className="border-border"><ZoruTableCell colSpan={6} className="h-24 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground"/></ZoruTableCell></ZoruTableRow>
                     ) : accounts.length > 0 ? (
                         accounts.map(acc => (
-                            <TableRow key={acc._id.toString()} className="border-border">
-                                <TableCell className="font-medium">
+                            <ZoruTableRow key={acc._id.toString()} className="border-border">
+                                <ZoruTableCell className="font-medium">
                                     <Link href={`/dashboard/crm/accounting/charts/${acc._id.toString()}`} className="hover:underline text-accent-foreground">
                                         {acc.name}
                                     </Link>
-                                </TableCell>
-                                <TableCell className="text-foreground">{acc.accountGroupName || 'N/A'}</TableCell>
-                                <TableCell className="text-foreground">{acc.accountGroupCategory?.replace(/_/g, ' ')}</TableCell>
-                                <TableCell><ClayBadge tone="neutral">{acc.accountGroupType}</ClayBadge></TableCell>
-                                <TableCell className="text-right font-mono text-foreground">
+                                </ZoruTableCell>
+                                <ZoruTableCell className="text-foreground">{acc.accountGroupName || 'N/A'}</ZoruTableCell>
+                                <ZoruTableCell className="text-foreground">{acc.accountGroupCategory?.replace(/_/g, ' ')}</ZoruTableCell>
+                                <ZoruTableCell><ZoruBadge variant="ghost">{acc.accountGroupType}</ZoruBadge></ZoruTableCell>
+                                <ZoruTableCell className="text-right font-mono text-foreground">
                                     {new Intl.NumberFormat('en-IN', { style: 'currency', currency: acc.currency || 'INR' }).format(acc.openingBalance)} {acc.balanceType || 'Dr'}
-                                </TableCell>
-                                <TableCell className="text-right">
-                                    <Button variant="ghost" size="icon" onClick={() => onEdit(acc)}><Edit className="h-4 w-4"/></Button>
+                                </ZoruTableCell>
+                                <ZoruTableCell className="text-right">
+                                    <ZoruButton variant="ghost" size="icon" onClick={() => onEdit(acc)}><Edit className="h-4 w-4"/></ZoruButton>
                                     <DeleteButton account={acc} onDeleted={onDelete} />
-                                </TableCell>
-                            </TableRow>
+                                </ZoruTableCell>
+                            </ZoruTableRow>
                         ))
                     ) : (
-                        <TableRow className="border-border"><TableCell colSpan={6} className="h-24 text-center text-muted-foreground">No accounts in this category.</TableCell></TableRow>
+                        <ZoruTableRow className="border-border"><ZoruTableCell colSpan={6} className="h-24 text-center text-muted-foreground">No accounts in this category.</ZoruTableCell></ZoruTableRow>
                     )}
-                </TableBody>
-            </Table>
+                </ZoruTableBody>
+            </ZoruTable>
         </div>
     );
 }

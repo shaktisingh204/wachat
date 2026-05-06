@@ -4721,6 +4721,29 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5c3082ca00d5a5ef149bb8b555a72ae84c9c59f7250f013ac822ac2e49b19c64"
 
 [[package]]
+name = "wachat-ads-pixels"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "reqwest",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "urlencoding",
+ "utoipa",
+ "wachat-meta-client",
+]
+
+[[package]]
 name = "wachat-analytics"
 version = "0.1.0"
 dependencies = [

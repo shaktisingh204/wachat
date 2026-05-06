@@ -1,18 +1,14 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ZoruButton, ZoruCard, ZoruDropdownMenu, ZoruDropdownMenuContent, ZoruDropdownMenuItem, ZoruDropdownMenuTrigger, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow, useZoruToast } from '@/components/zoruui';
 import { Download, ChevronDown, BarChart3 } from 'lucide-react';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+
 import { generateBalanceSheetData } from "@/app/actions/crm-accounting.actions";
-import { useToast } from "@/hooks/use-toast";
+
 import { useEffect, useState, useTransition, useCallback } from "react";
 import Papa from "papaparse";
 import { LoaderCircle } from "lucide-react";
 
-import { ClayCard, ClayButton } from '@/components/clay';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 const StatCard = ({ title, value }: { title: string; value: string }) => (
@@ -23,7 +19,7 @@ const StatCard = ({ title, value }: { title: string; value: string }) => (
 );
 
 const BalanceSheetClient = ({ data }: { data: any }) => {
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
     const { summary, entries } = data;
 
     const totalAll = Math.abs(summary.totalAssets) + Math.abs(summary.totalLiabilities) + Math.abs(summary.totalCapital);
@@ -56,7 +52,7 @@ const BalanceSheetClient = ({ data }: { data: any }) => {
                 icon={BarChart3}
             />
 
-            <ClayCard>
+            <ZoruCard>
                 <h2 className="text-[16px] font-semibold text-foreground">Summary</h2>
                 <p className="mt-0.5 text-[12.5px] text-muted-foreground">Figures are in INR (₹)</p>
                 <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -65,48 +61,48 @@ const BalanceSheetClient = ({ data }: { data: any }) => {
                     <StatCard title="Total Capital" value={`₹${summary.totalCapital.toFixed(2)}`} />
                     <StatCard title="Debt to Equity Ratio" value={`${summary.debtToEquity.toFixed(2)}%`} />
                 </div>
-            </ClayCard>
+            </ZoruCard>
 
-            <ClayCard>
+            <ZoruCard>
                 <div className="flex justify-end mb-4">
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <ClayButton variant="pill" leading={<Download className="h-4 w-4" strokeWidth={1.75} />} trailing={<ChevronDown className="h-4 w-4" strokeWidth={1.75} />}>
+                    <ZoruDropdownMenu>
+                        <ZoruDropdownMenuTrigger asChild>
+                            <ZoruButton variant="outline">
                                 Download As
-                            </ClayButton>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent>
-                            <DropdownMenuItem onSelect={() => handleDownload('csv')}>CSV</DropdownMenuItem>
-                            <DropdownMenuItem disabled>XLS</DropdownMenuItem>
-                            <DropdownMenuItem disabled>PDF</DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                            </ZoruButton>
+                        </ZoruDropdownMenuTrigger>
+                        <ZoruDropdownMenuContent>
+                            <ZoruDropdownMenuItem onSelect={() => handleDownload('csv')}>CSV</ZoruDropdownMenuItem>
+                            <ZoruDropdownMenuItem disabled>XLS</ZoruDropdownMenuItem>
+                            <ZoruDropdownMenuItem disabled>PDF</ZoruDropdownMenuItem>
+                        </ZoruDropdownMenuContent>
+                    </ZoruDropdownMenu>
                 </div>
                 <div className="overflow-x-auto rounded-lg border border-border">
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="border-border hover:bg-transparent">
-                                <TableHead className="text-muted-foreground">Accounts</TableHead>
-                                <TableHead className="text-muted-foreground text-right">Amount</TableHead>
-                                <TableHead className="text-muted-foreground text-right">% of Total</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
+                    <ZoruTable>
+                        <ZoruTableHeader>
+                            <ZoruTableRow className="border-border hover:bg-transparent">
+                                <ZoruTableHead className="text-muted-foreground">Accounts</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground text-right">Amount</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground text-right">% of Total</ZoruTableHead>
+                            </ZoruTableRow>
+                        </ZoruTableHeader>
+                        <ZoruTableBody>
                             {entries.map((entry: any, index: number) => (
-                                <TableRow key={index} className={`border-border ${entry.isMain ? 'bg-secondary font-semibold' : ''}`}>
-                                    <TableCell className={`text-foreground ${entry.isSub ? 'pl-8' : ''}`}>{entry.account}</TableCell>
-                                    <TableCell className="text-right font-mono text-foreground">₹{entry.amount.toFixed(2)}</TableCell>
-                                    <TableCell className="text-right font-mono text-foreground">{totalAll > 0 ? ((Math.abs(entry.amount) / totalAll) * 100).toFixed(2) : '0.00'}%</TableCell>
-                                </TableRow>
+                                <ZoruTableRow key={index} className={`border-border ${entry.isMain ? 'bg-secondary font-semibold' : ''}`}>
+                                    <ZoruTableCell className={`text-foreground ${entry.isSub ? 'pl-8' : ''}`}>{entry.account}</ZoruTableCell>
+                                    <ZoruTableCell className="text-right font-mono text-foreground">₹{entry.amount.toFixed(2)}</ZoruTableCell>
+                                    <ZoruTableCell className="text-right font-mono text-foreground">{totalAll > 0 ? ((Math.abs(entry.amount) / totalAll) * 100).toFixed(2) : '0.00'}%</ZoruTableCell>
+                                </ZoruTableRow>
                             ))}
-                        </TableBody>
-                    </Table>
+                        </ZoruTableBody>
+                    </ZoruTable>
                 </div>
                 <div className="flex items-center justify-between pt-4 text-[11.5px] text-muted-foreground">
                     <p>Showing 1 to {entries.length} of {entries.length} entries</p>
                     <p>* Reports are in your business currency INR</p>
                 </div>
-            </ClayCard>
+            </ZoruCard>
         </div>
     )
 }

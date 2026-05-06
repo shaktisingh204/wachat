@@ -1,14 +1,11 @@
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruBadge, ZoruCard, ZoruInput, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
 import { getDebitNotes } from '@/app/actions/crm-debit-notes.actions';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+
 import { Plus, Search, FileMinus } from 'lucide-react';
 import Link from 'next/link';
-import { Input } from '@/components/ui/input';
+
 import { format } from 'date-fns';
 
-import { ClayCard, ClayBadge } from '@/components/clay';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 export default async function DebitNotesPage({
@@ -41,7 +38,7 @@ export default async function DebitNotesPage({
                 }
             />
 
-            <ClayCard>
+            <ZoruCard>
                 <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
                     <div>
                         <h2 className="text-[16px] font-semibold text-foreground">All Debit Notes</h2>
@@ -49,7 +46,7 @@ export default async function DebitNotesPage({
                     </div>
                     <div className="relative w-full max-w-sm">
                         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                        <Input
+                        <ZoruInput
                             type="search"
                             placeholder="Search debit notes..."
                             className="h-10 rounded-lg border-border bg-card pl-9 text-[13px]"
@@ -59,59 +56,59 @@ export default async function DebitNotesPage({
                 </div>
 
                 <div className="overflow-x-auto rounded-lg border border-border">
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="border-border hover:bg-transparent">
-                                <TableHead className="text-muted-foreground">Note #</TableHead>
-                                <TableHead className="text-muted-foreground">Date</TableHead>
-                                <TableHead className="text-muted-foreground">Vendor</TableHead>
-                                <TableHead className="text-muted-foreground">Status</TableHead>
-                                <TableHead className="text-muted-foreground">Reason</TableHead>
-                                <TableHead className="text-right text-muted-foreground">Amount</TableHead>
-                                <TableHead className="text-right text-muted-foreground">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
+                    <ZoruTable>
+                        <ZoruTableHeader>
+                            <ZoruTableRow className="border-border hover:bg-transparent">
+                                <ZoruTableHead className="text-muted-foreground">Note #</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Date</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Vendor</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Status</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Reason</ZoruTableHead>
+                                <ZoruTableHead className="text-right text-muted-foreground">Amount</ZoruTableHead>
+                                <ZoruTableHead className="text-right text-muted-foreground">Actions</ZoruTableHead>
+                            </ZoruTableRow>
+                        </ZoruTableHeader>
+                        <ZoruTableBody>
                             {notes.length === 0 ? (
-                                <TableRow className="border-border">
-                                    <TableCell colSpan={7} className="h-24 text-center text-[13px] text-muted-foreground">
+                                <ZoruTableRow className="border-border">
+                                    <ZoruTableCell colSpan={7} className="h-24 text-center text-[13px] text-muted-foreground">
                                         No debit notes found.
-                                    </TableCell>
-                                </TableRow>
+                                    </ZoruTableCell>
+                                </ZoruTableRow>
                             ) : (
                                 notes.map((note) => (
-                                    <TableRow key={note._id.toString()} className="border-border">
-                                        <TableCell className="font-medium text-foreground">{note.noteNumber}</TableCell>
-                                        <TableCell className="text-[13px] text-foreground">{format(new Date(note.noteDate), 'PP')}</TableCell>
-                                        <TableCell>
+                                    <ZoruTableRow key={note._id.toString()} className="border-border">
+                                        <ZoruTableCell className="font-medium text-foreground">{note.noteNumber}</ZoruTableCell>
+                                        <ZoruTableCell className="text-[13px] text-foreground">{format(new Date(note.noteDate), 'PP')}</ZoruTableCell>
+                                        <ZoruTableCell>
                                             <span className="text-[12.5px] italic text-muted-foreground">Vendor {note.vendorId.toString().slice(-4)}</span>
-                                        </TableCell>
-                                        <TableCell>
-                                            <ClayBadge tone={note.status === 'Applied' ? 'green' : 'rose-soft'}>
+                                        </ZoruTableCell>
+                                        <ZoruTableCell>
+                                            <ZoruBadge variant={(note.status === 'Applied' ? 'green' : 'rose-soft') as any}>
                                                 {note.status}
-                                            </ClayBadge>
-                                        </TableCell>
-                                        <TableCell className="max-w-[150px] truncate text-[13px] text-foreground" title={note.reason}>
+                                            </ZoruBadge>
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="max-w-[150px] truncate text-[13px] text-foreground" title={note.reason}>
                                             {note.reason || '-'}
-                                        </TableCell>
-                                        <TableCell className="text-right text-[13px] text-foreground">
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-right text-[13px] text-foreground">
                                             {note.currency} {note.total.toFixed(2)}
-                                        </TableCell>
-                                        <TableCell className="text-right">
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-right">
                                             <Link
                                                 href={`/dashboard/crm/purchases/debit-notes/${note._id}`}
                                                 className="text-[12.5px] font-medium text-foreground hover:underline"
                                             >
                                                 View
                                             </Link>
-                                        </TableCell>
-                                    </TableRow>
+                                        </ZoruTableCell>
+                                    </ZoruTableRow>
                                 ))
                             )}
-                        </TableBody>
-                    </Table>
+                        </ZoruTableBody>
+                    </ZoruTable>
                 </div>
-            </ClayCard>
+            </ZoruCard>
         </div>
     );
 }

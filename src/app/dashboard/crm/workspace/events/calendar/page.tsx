@@ -1,13 +1,9 @@
 'use client';
-
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
 import * as React from 'react';
 import Link from 'next/link';
 import { CalendarDays, ChevronLeft, ChevronRight, LoaderCircle } from 'lucide-react';
 
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { getEvents } from '@/app/actions/worksuite/knowledge.actions';
 import type { WsEvent } from '@/lib/worksuite/knowledge-types';
@@ -64,22 +60,22 @@ export default function EventsCalendarPage() {
         icon={CalendarDays}
         actions={
           <div className="flex items-center gap-2">
-            <ClayButton variant="pill" size="icon" onClick={prev}>
+            <ZoruButton variant="outline" size="icon" onClick={prev}>
               <ChevronLeft className="h-4 w-4" strokeWidth={1.75} />
-            </ClayButton>
-            <ClayButton variant="pill" size="icon" onClick={next}>
+            </ZoruButton>
+            <ZoruButton variant="outline" size="icon" onClick={next}>
               <ChevronRight className="h-4 w-4" strokeWidth={1.75} />
-            </ClayButton>
+            </ZoruButton>
           </div>
         }
       />
 
       {loading ? (
-        <ClayCard className="flex items-center justify-center py-10">
+        <ZoruCard className="flex items-center justify-center py-10">
           <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />
-        </ClayCard>
+        </ZoruCard>
       ) : (
-        <ClayCard>
+        <ZoruCard>
           <div className="grid grid-cols-7 gap-1">
             {DAYS.map((d) => (
               <div
@@ -111,9 +107,9 @@ export default function EventsCalendarPage() {
                             href={`/dashboard/crm/workspace/events/${e._id}`}
                             className="truncate"
                           >
-                            <ClayBadge tone="rose-soft" className="w-full justify-start truncate">
+                            <ZoruBadge variant="ghost" className="w-full justify-start truncate">
                               {e.event_name}
-                            </ClayBadge>
+                            </ZoruBadge>
                           </Link>
                         ))}
                         {dayEvents.length > 3 ? (
@@ -128,7 +124,7 @@ export default function EventsCalendarPage() {
               );
             })}
           </div>
-        </ClayCard>
+        </ZoruCard>
       )}
     </div>
   );

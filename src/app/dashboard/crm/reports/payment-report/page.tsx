@@ -1,10 +1,8 @@
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruCard } from '@/components/zoruui';
 export const dynamic = 'force-dynamic';
 
 import { CreditCard } from 'lucide-react';
-import { ClayCard } from '@/components/clay';
+
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import {
   ReportToolbar,
@@ -39,7 +37,7 @@ export default async function PaymentReportPage(props: {
         <StatCard label="Gateways" value={String(rows.length)} />
       </div>
 
-      <ClayCard>
+      <ZoruCard>
         <div className="mb-3">
           <h2 className="text-[16px] font-semibold text-foreground">By gateway</h2>
         </div>
@@ -59,7 +57,7 @@ export default async function PaymentReportPage(props: {
             />
           ))
         )}
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

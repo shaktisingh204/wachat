@@ -1,8 +1,5 @@
 'use client';
-
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruButton, ZoruCard, ZoruInput, ZoruLabel, ZoruSkeleton, ZoruTextarea, useZoruToast } from '@/components/zoruui';
 import {
   use,
   useActionState,
@@ -12,13 +9,9 @@ import {
 } from 'react';
 import Link from 'next/link';
 import { FileText, ArrowLeft, LoaderCircle } from 'lucide-react';
-import { ClayCard, ClayButton } from '@/components/clay';
+
 import { CrmPageHeader } from '../../../_components/crm-page-header';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
+
 import {
   getContractTemplateById,
   saveContractTemplate,
@@ -31,7 +24,7 @@ export default function ContractTemplateEditorPage(props: {
   params: Promise<{ templateId: string }>;
 }) {
   const { templateId } = use(props.params);
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [tpl, setTpl] = useState<Template | null>(null);
   const [isLoading, startLoading] = useTransition();
   const [saveState, saveFormAction, isSaving] = useActionState(
@@ -63,30 +56,30 @@ export default function ContractTemplateEditorPage(props: {
         icon={FileText}
         actions={
           <Link href="/dashboard/crm/contracts/templates">
-            <ClayButton
-              variant="pill"
-              leading={<ArrowLeft className="h-4 w-4" strokeWidth={1.75} />}
+            <ZoruButton
+              variant="outline"
+             
             >
               Back
-            </ClayButton>
+            </ZoruButton>
           </Link>
         }
       />
 
-      <ClayCard>
+      <ZoruCard>
         {isLoading && !tpl ? (
           <div className="space-y-3 p-6">
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-64 w-full" />
+            <ZoruSkeleton className="h-10 w-full" />
+            <ZoruSkeleton className="h-64 w-full" />
           </div>
         ) : (
           <form action={saveFormAction} className="space-y-4 p-6">
             <input type="hidden" name="_id" value={templateId} />
             <div>
-              <Label htmlFor="name" className="text-foreground">
+              <ZoruLabel htmlFor="name" className="text-foreground">
                 Template Name <span className="text-destructive">*</span>
-              </Label>
-              <Input
+              </ZoruLabel>
+              <ZoruInput
                 id="name"
                 name="name"
                 required
@@ -95,10 +88,10 @@ export default function ContractTemplateEditorPage(props: {
               />
             </div>
             <div>
-              <Label htmlFor="body" className="text-foreground">
+              <ZoruLabel htmlFor="body" className="text-foreground">
                 Body <span className="text-destructive">*</span>
-              </Label>
-              <Textarea
+              </ZoruLabel>
+              <ZoruTextarea
                 id="body"
                 name="body"
                 required
@@ -113,22 +106,18 @@ export default function ContractTemplateEditorPage(props: {
               </p>
             </div>
             <div className="flex justify-end">
-              <ClayButton
+              <ZoruButton
                 type="submit"
-                variant="obsidian"
+               
                 disabled={isSaving}
-                leading={
-                  isSaving ? (
-                    <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.75} />
-                  ) : null
-                }
+               
               >
                 Save
-              </ClayButton>
+              </ZoruButton>
             </div>
           </form>
         )}
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

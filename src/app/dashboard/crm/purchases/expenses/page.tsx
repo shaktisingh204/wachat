@@ -1,14 +1,11 @@
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruCard, ZoruInput, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
 import { getExpenses } from '@/app/actions/crm-expenses.actions';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+
 import { Plus, Search, Wallet } from 'lucide-react';
 import Link from 'next/link';
-import { Input } from '@/components/ui/input';
+
 import { format } from 'date-fns';
 
-import { ClayCard } from '@/components/clay';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 export default async function ExpensesPage({
@@ -41,7 +38,7 @@ export default async function ExpensesPage({
                 }
             />
 
-            <ClayCard>
+            <ZoruCard>
                 <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
                     <div>
                         <h2 className="text-[16px] font-semibold text-foreground">All Expenses</h2>
@@ -49,7 +46,7 @@ export default async function ExpensesPage({
                     </div>
                     <div className="relative w-full max-w-sm">
                         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                        <Input
+                        <ZoruInput
                             type="search"
                             placeholder="Search expenses..."
                             className="h-10 rounded-lg border-border bg-card pl-9 text-[13px]"
@@ -59,46 +56,46 @@ export default async function ExpensesPage({
                 </div>
 
                 <div className="overflow-x-auto rounded-lg border border-border">
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="border-border hover:bg-transparent">
-                                <TableHead className="text-muted-foreground">Date</TableHead>
-                                <TableHead className="text-muted-foreground">Account</TableHead>
-                                <TableHead className="text-muted-foreground">Vendor/Payee</TableHead>
-                                <TableHead className="text-muted-foreground">Reference</TableHead>
-                                <TableHead className="text-muted-foreground">Description</TableHead>
-                                <TableHead className="text-right text-muted-foreground">Amount</TableHead>
-                                <TableHead className="text-right text-muted-foreground">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
+                    <ZoruTable>
+                        <ZoruTableHeader>
+                            <ZoruTableRow className="border-border hover:bg-transparent">
+                                <ZoruTableHead className="text-muted-foreground">Date</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Account</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Vendor/Payee</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Reference</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Description</ZoruTableHead>
+                                <ZoruTableHead className="text-right text-muted-foreground">Amount</ZoruTableHead>
+                                <ZoruTableHead className="text-right text-muted-foreground">Actions</ZoruTableHead>
+                            </ZoruTableRow>
+                        </ZoruTableHeader>
+                        <ZoruTableBody>
                             {expenses.length === 0 ? (
-                                <TableRow className="border-border">
-                                    <TableCell colSpan={7} className="h-24 text-center text-[13px] text-muted-foreground">
+                                <ZoruTableRow className="border-border">
+                                    <ZoruTableCell colSpan={7} className="h-24 text-center text-[13px] text-muted-foreground">
                                         No expenses found.
-                                    </TableCell>
-                                </TableRow>
+                                    </ZoruTableCell>
+                                </ZoruTableRow>
                             ) : (
                                 expenses.map((expense) => (
-                                    <TableRow key={expense._id.toString()} className="border-border">
-                                        <TableCell className="text-[13px] text-foreground">{format(new Date(expense.expenseDate), 'PP')}</TableCell>
-                                        <TableCell className="font-medium text-foreground">{expense.expenseAccount}</TableCell>
-                                        <TableCell>
+                                    <ZoruTableRow key={expense._id.toString()} className="border-border">
+                                        <ZoruTableCell className="text-[13px] text-foreground">{format(new Date(expense.expenseDate), 'PP')}</ZoruTableCell>
+                                        <ZoruTableCell className="font-medium text-foreground">{expense.expenseAccount}</ZoruTableCell>
+                                        <ZoruTableCell>
                                             {expense.vendorId ? <span className="text-[12.5px] italic text-muted-foreground">Vendor {expense.vendorId.toString().slice(-4)}</span> : <span className="text-[13px] text-foreground">-</span>}
-                                        </TableCell>
-                                        <TableCell className="text-[13px] text-foreground">{expense.referenceNumber || '-'}</TableCell>
-                                        <TableCell className="max-w-[200px] truncate text-[13px] text-foreground">{expense.description}</TableCell>
-                                        <TableCell className="text-right text-[13px] text-foreground">
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-[13px] text-foreground">{expense.referenceNumber || '-'}</ZoruTableCell>
+                                        <ZoruTableCell className="max-w-[200px] truncate text-[13px] text-foreground">{expense.description}</ZoruTableCell>
+                                        <ZoruTableCell className="text-right text-[13px] text-foreground">
                                             {expense.currency} {expense.amount.toFixed(2)}
-                                        </TableCell>
-                                        <TableCell className="text-right" />
-                                    </TableRow>
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-right" />
+                                    </ZoruTableRow>
                                 ))
                             )}
-                        </TableBody>
-                    </Table>
+                        </ZoruTableBody>
+                    </ZoruTable>
                 </div>
-            </ClayCard>
+            </ZoruCard>
         </div>
     );
 }

@@ -1,24 +1,15 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { DatePicker } from "@/components/ui/date-picker";
+import { ZoruButton, ZoruCard, ZoruDatePicker, ZoruDropdownMenu, ZoruDropdownMenuContent, ZoruDropdownMenuItem, ZoruDropdownMenuTrigger, ZoruLabel, ZoruPopover, ZoruPopoverContent, ZoruPopoverTrigger, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow, useZoruToast } from '@/components/zoruui';
 import { Download, ChevronDown, SlidersHorizontal, TrendingUp } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+
 import { useState, useEffect, useTransition, useCallback } from 'react';
 import { generateProfitAndLossData } from "@/app/actions/crm-accounting.actions";
 import { LoaderCircle } from "lucide-react";
 import { format } from "date-fns";
 import Papa from 'papaparse';
-import { useToast } from "@/hooks/use-toast";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Label } from "@/components/ui/label";
 
-import { ClayCard, ClayButton } from '@/components/clay';
 import { CrmPageHeader } from '../../_components/crm-page-header';
-
 
 const StatCard = ({ title, value, percentage, isProfit }: { title: string; value: string; percentage?: string, isProfit?: boolean }) => (
     <div className="bg-secondary border border-border p-4 rounded-lg text-center">
@@ -30,7 +21,7 @@ const StatCard = ({ title, value, percentage, isProfit }: { title: string; value
 
 const PnlClient = ({ data, startDate, endDate }: { data: any, startDate?: Date, endDate?: Date }) => {
     const { summary, entries } = data;
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
 
     const handleDownload = (format: 'csv' | 'xls' | 'pdf') => {
         if (format === 'csv') {
@@ -54,7 +45,7 @@ const PnlClient = ({ data, startDate, endDate }: { data: any, startDate?: Date, 
 
     return (
         <div className="flex w-full flex-col gap-6">
-            <ClayCard>
+            <ZoruCard>
                 <div className="flex justify-between items-center">
                     <h2 className="text-[16px] font-semibold text-foreground">Summary</h2>
                     <p className="text-[12.5px] text-muted-foreground">
@@ -67,44 +58,44 @@ const PnlClient = ({ data, startDate, endDate }: { data: any, startDate?: Date, 
                     <StatCard title="Expense" value={`₹${summary.totalExpense.toFixed(2)}`} percentage={`${summary.totalIncome > 0 ? ((summary.totalExpense / summary.totalIncome) * 100).toFixed(0) : 0}% of Income`} />
                     <StatCard title="Net Profit" value={`₹${summary.netProfit.toFixed(2)}`} percentage={`${summary.totalIncome > 0 ? ((summary.netProfit / summary.totalIncome) * 100).toFixed(0) : 0}% of Income`} isProfit={true}/>
                 </div>
-            </ClayCard>
+            </ZoruCard>
 
-            <ClayCard>
+            <ZoruCard>
                 <div className="flex justify-end mb-4">
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <ClayButton variant="pill" leading={<Download className="h-4 w-4" strokeWidth={1.75} />} trailing={<ChevronDown className="h-4 w-4" strokeWidth={1.75} />}>
+                    <ZoruDropdownMenu>
+                        <ZoruDropdownMenuTrigger asChild>
+                            <ZoruButton variant="outline">
                                 Download As
-                            </ClayButton>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent>
-                            <DropdownMenuItem onSelect={() => handleDownload('csv')}>CSV</DropdownMenuItem>
-                            <DropdownMenuItem disabled>XLS</DropdownMenuItem>
-                            <DropdownMenuItem disabled>PDF</DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                            </ZoruButton>
+                        </ZoruDropdownMenuTrigger>
+                        <ZoruDropdownMenuContent>
+                            <ZoruDropdownMenuItem onSelect={() => handleDownload('csv')}>CSV</ZoruDropdownMenuItem>
+                            <ZoruDropdownMenuItem disabled>XLS</ZoruDropdownMenuItem>
+                            <ZoruDropdownMenuItem disabled>PDF</ZoruDropdownMenuItem>
+                        </ZoruDropdownMenuContent>
+                    </ZoruDropdownMenu>
                 </div>
                 <div className="overflow-x-auto rounded-lg border border-border">
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="border-border hover:bg-transparent">
-                                <TableHead className="text-muted-foreground">Accounts</TableHead>
-                                <TableHead className="text-muted-foreground text-right">Amount</TableHead>
-                                <TableHead className="text-muted-foreground text-right">% of Total</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
+                    <ZoruTable>
+                        <ZoruTableHeader>
+                            <ZoruTableRow className="border-border hover:bg-transparent">
+                                <ZoruTableHead className="text-muted-foreground">Accounts</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground text-right">Amount</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground text-right">% of Total</ZoruTableHead>
+                            </ZoruTableRow>
+                        </ZoruTableHeader>
+                        <ZoruTableBody>
                             {entries.map((entry: any, index: number) => (
-                                <TableRow key={index} className={`border-border ${entry.isMain ? 'bg-secondary font-semibold' : ''}`}>
-                                    <TableCell className="text-foreground">{index + 1}. {entry.account}</TableCell>
-                                    <TableCell className="text-right font-mono text-foreground">₹{entry.amount.toFixed(2)}</TableCell>
-                                    <TableCell className="text-right font-mono text-foreground">{summary.totalIncome > 0 ? ((entry.amount / summary.totalIncome) * 100).toFixed(2) : '0.00'}%</TableCell>
-                                </TableRow>
+                                <ZoruTableRow key={index} className={`border-border ${entry.isMain ? 'bg-secondary font-semibold' : ''}`}>
+                                    <ZoruTableCell className="text-foreground">{index + 1}. {entry.account}</ZoruTableCell>
+                                    <ZoruTableCell className="text-right font-mono text-foreground">₹{entry.amount.toFixed(2)}</ZoruTableCell>
+                                    <ZoruTableCell className="text-right font-mono text-foreground">{summary.totalIncome > 0 ? ((entry.amount / summary.totalIncome) * 100).toFixed(2) : '0.00'}%</ZoruTableCell>
+                                </ZoruTableRow>
                             ))}
-                        </TableBody>
-                    </Table>
+                        </ZoruTableBody>
+                    </ZoruTable>
                 </div>
-            </ClayCard>
+            </ZoruCard>
         </div>
     )
 }
@@ -149,29 +140,29 @@ export default function PnlPage() {
                 subtitle="An overview of your business's profitability."
                 icon={TrendingUp}
                 actions={
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <ClayButton variant="pill" leading={<SlidersHorizontal className="h-4 w-4" strokeWidth={1.75} />}>
+                    <ZoruPopover>
+                        <ZoruPopoverTrigger asChild>
+                            <ZoruButton variant="outline">
                                 Filters
-                            </ClayButton>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-96 space-y-4">
+                            </ZoruButton>
+                        </ZoruPopoverTrigger>
+                        <ZoruPopoverContent className="w-96 space-y-4">
                             <div className="space-y-2">
-                                <Label>Start Date</Label>
-                                <DatePicker date={startDate} setDate={setStartDate} />
+                                <ZoruLabel>Start Date</ZoruLabel>
+                                <ZoruDatePicker value={startDate} onChange={setStartDate} />
                             </div>
                             <div className="space-y-2">
-                                <Label>End Date</Label>
-                                <DatePicker date={endDate} setDate={setEndDate} />
+                                <ZoruLabel>End Date</ZoruLabel>
+                                <ZoruDatePicker value={endDate} onChange={setEndDate} />
                             </div>
                             <div className="flex justify-end">
-                                <ClayButton variant="obsidian" onClick={fetchData} disabled={isLoading}>
+                                <ZoruButton onClick={fetchData} disabled={isLoading}>
                                     {isLoading && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
                                     Apply
-                                </ClayButton>
+                                </ZoruButton>
                             </div>
-                        </PopoverContent>
-                    </Popover>
+                        </ZoruPopoverContent>
+                    </ZoruPopover>
                 }
             />
             <PnlClient data={data} startDate={startDate} endDate={endDate} />

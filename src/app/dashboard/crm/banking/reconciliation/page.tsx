@@ -1,24 +1,15 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
-import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { ZoruButton, ZoruCard, ZoruCheckbox, ZoruDatePicker, ZoruInput, ZoruLabel, ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow, useZoruToast } from '@/components/zoruui';
 import { LoaderCircle, GitCompare, Check } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+
 import React, { useState, useEffect, useMemo, useTransition } from 'react';
 import { getCrmPaymentAccounts } from '@/app/actions/crm-payment-accounts.actions';
 import { importBankStatement, getReconciliationData } from '@/app/actions/crm-reconciliation.actions';
 import type { WithId, CrmPaymentAccount } from '@/lib/definitions';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DatePicker } from '@/components/ui/date-picker';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
+
 import { format } from 'date-fns';
 
-import { ClayCard, ClayButton } from '@/components/clay';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 type ReconciliationData = {
@@ -44,7 +35,7 @@ export default function BankReconciliationPage() {
     const [matchedStatementEntries, setMatchedStatementEntries] = useState<Set<string>>(new Set());
 
     const [isLoading, startLoading] = useTransition();
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
 
     useEffect(() => {
         getCrmPaymentAccounts().then(data => {
@@ -177,21 +168,21 @@ export default function BankReconciliationPage() {
                 icon={GitCompare}
             />
 
-            <ClayCard>
+            <ZoruCard>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
-                    <div className="space-y-2"><Label>Bank Account</Label><Select value={selectedAccountId} onValueChange={setSelectedAccountId}><SelectTrigger><SelectValue placeholder="Select Account..." /></SelectTrigger><SelectContent>{accounts.map(acc => <SelectItem key={acc._id.toString()} value={acc._id.toString()}>{acc.accountName}</SelectItem>)}</SelectContent></Select></div>
-                    <div className="space-y-2"><Label>From</Label><DatePicker date={startDate} setDate={setStartDate} /></div>
-                    <div className="space-y-2"><Label>To</Label><DatePicker date={endDate} setDate={setEndDate} /></div>
-                    <div className="space-y-2"><Label>Bank Statement (CSV)</Label><Input type="file" accept=".csv" onChange={(e) => setStatementFile(e.target.files?.[0] || null)} className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
+                    <div className="space-y-2"><ZoruLabel>Bank Account</ZoruLabel><ZoruSelect value={selectedAccountId} onValueChange={setSelectedAccountId}><ZoruSelectTrigger><ZoruSelectValue placeholder="Select Account..." /></ZoruSelectTrigger><ZoruSelectContent>{accounts.map(acc => <ZoruSelectItem key={acc._id.toString()} value={acc._id.toString()}>{acc.accountName}</ZoruSelectItem>)}</ZoruSelectContent></ZoruSelect></div>
+                    <div className="space-y-2"><ZoruLabel>From</ZoruLabel><ZoruDatePicker value={startDate} onChange={setStartDate} /></div>
+                    <div className="space-y-2"><ZoruLabel>To</ZoruLabel><ZoruDatePicker value={endDate} onChange={setEndDate} /></div>
+                    <div className="space-y-2"><ZoruLabel>Bank Statement (CSV)</ZoruLabel><ZoruInput type="file" accept=".csv" onChange={(e) => setStatementFile(e.target.files?.[0] || null)} className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
                 </div>
                 <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
                     <div className="flex gap-2">
-                        <ClayButton variant="obsidian" onClick={handleFetchData} disabled={isLoading} leading={isLoading ? <LoaderCircle className="h-4 w-4 animate-spin"/> : undefined}>Load Data</ClayButton>
-                        <ClayButton variant="pill" onClick={handleAutoMatch} disabled={!reconciliationData}>Auto-Match</ClayButton>
+                        <ZoruButton onClick={handleFetchData} disabled={isLoading}>Load Data</ZoruButton>
+                        <ZoruButton variant="outline" onClick={handleAutoMatch} disabled={!reconciliationData}>Auto-Match</ZoruButton>
                     </div>
-                    <ClayButton variant="obsidian" onClick={handleSave} disabled={!reconciliationData || difference !== 0}>Save Reconciliation</ClayButton>
+                    <ZoruButton onClick={handleSave} disabled={!reconciliationData || difference !== 0}>Save Reconciliation</ZoruButton>
                 </div>
-            </ClayCard>
+            </ZoruCard>
 
             {reconciliationData && (
                 <>
@@ -212,39 +203,39 @@ export default function BankReconciliationPage() {
 }
 
 const TransactionTable = ({ title, entries, matchedIds, onMatchToggle, totalDebit, totalCredit, isBankStatement = false }: { title: string, entries: any[], matchedIds: Set<string>, onMatchToggle: (id: string) => void, totalDebit: number, totalCredit: number, isBankStatement?: boolean }) => (
-    <ClayCard>
+    <ZoruCard>
         <h3 className="mb-4 text-[15px] font-semibold text-foreground">{title}</h3>
         <div className="overflow-x-auto rounded-lg border border-border max-h-96 overflow-y-auto">
-            <Table>
-                <TableHeader className="sticky top-0 bg-card">
-                    <TableRow className="border-border hover:bg-transparent">
-                        <TableHead className="w-10 text-muted-foreground"><Check className="h-4 w-4"/></TableHead>
-                        <TableHead className="text-muted-foreground">Date</TableHead>
-                        <TableHead className="text-muted-foreground">Description</TableHead>
-                        <TableHead className="text-right text-muted-foreground">Debit</TableHead>
-                        <TableHead className="text-right text-muted-foreground">Credit</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
+            <ZoruTable>
+                <ZoruTableHeader className="sticky top-0 bg-card">
+                    <ZoruTableRow className="border-border hover:bg-transparent">
+                        <ZoruTableHead className="w-10 text-muted-foreground"><Check className="h-4 w-4"/></ZoruTableHead>
+                        <ZoruTableHead className="text-muted-foreground">Date</ZoruTableHead>
+                        <ZoruTableHead className="text-muted-foreground">Description</ZoruTableHead>
+                        <ZoruTableHead className="text-right text-muted-foreground">Debit</ZoruTableHead>
+                        <ZoruTableHead className="text-right text-muted-foreground">Credit</ZoruTableHead>
+                    </ZoruTableRow>
+                </ZoruTableHeader>
+                <ZoruTableBody>
                     {entries.map(entry => {
                          const debit = isBankStatement ? (entry.amount > 0 ? entry.amount : 0) : (entry.type === 'debit' ? entry.amount : 0);
                          const credit = isBankStatement ? (entry.amount < 0 ? Math.abs(entry.amount) : 0) : (entry.type === 'credit' ? entry.amount : 0);
                         return (
-                            <TableRow key={entry._id} className="border-border" data-state={matchedIds.has(entry._id) ? 'selected' : ''}>
-                                <TableCell><Checkbox checked={matchedIds.has(entry._id)} onCheckedChange={() => onMatchToggle(entry._id)} /></TableCell>
-                                <TableCell className="text-xs text-foreground">{format(new Date(entry.date), 'dd MMM')}</TableCell>
-                                <TableCell className="text-xs text-foreground">{entry.description}</TableCell>
-                                <TableCell className="text-right text-xs font-mono text-foreground">{debit > 0 ? debit.toFixed(2) : ''}</TableCell>
-                                <TableCell className="text-right text-xs font-mono text-foreground">{credit > 0 ? credit.toFixed(2) : ''}</TableCell>
-                            </TableRow>
+                            <ZoruTableRow key={entry._id} className="border-border" data-state={matchedIds.has(entry._id) ? 'selected' : ''}>
+                                <ZoruTableCell><ZoruCheckbox checked={matchedIds.has(entry._id)} onCheckedChange={() => onMatchToggle(entry._id)} /></ZoruTableCell>
+                                <ZoruTableCell className="text-xs text-foreground">{format(new Date(entry.date), 'dd MMM')}</ZoruTableCell>
+                                <ZoruTableCell className="text-xs text-foreground">{entry.description}</ZoruTableCell>
+                                <ZoruTableCell className="text-right text-xs font-mono text-foreground">{debit > 0 ? debit.toFixed(2) : ''}</ZoruTableCell>
+                                <ZoruTableCell className="text-right text-xs font-mono text-foreground">{credit > 0 ? credit.toFixed(2) : ''}</ZoruTableCell>
+                            </ZoruTableRow>
                         )
                     })}
-                </TableBody>
-            </Table>
+                </ZoruTableBody>
+            </ZoruTable>
         </div>
         <div className="flex justify-end gap-6 mt-4 font-semibold text-[13px] pt-2 border-t border-border text-foreground">
             <div className="text-right">Debit: <span className="font-mono">₹{totalDebit.toFixed(2)}</span></div>
             <div className="text-right">Credit: <span className="font-mono">₹{totalCredit.toFixed(2)}</span></div>
         </div>
-    </ClayCard>
+    </ZoruCard>
 )

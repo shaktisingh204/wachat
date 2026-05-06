@@ -1,27 +1,23 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ZoruButton, ZoruCard, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow, useZoruToast } from '@/components/zoruui';
 import { IndianRupee, Box, Download, LoaderCircle, DollarSign } from 'lucide-react';
 import { useState, useEffect, useTransition, useCallback } from 'react';
 import { generateStockValueReport } from "@/app/actions/crm-reports.actions";
-import { useToast } from "@/hooks/use-toast";
+
 import Papa from "papaparse";
 import { format } from "date-fns";
 
-import { ClayCard, ClayButton } from '@/components/clay';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 const StatCard = ({ title, value, icon: Icon }: { title: string; value: string | number; icon: React.ElementType }) => (
-    <ClayCard>
+    <ZoruCard>
         <div className="flex items-center justify-between">
             <p className="text-[12.5px] font-medium text-muted-foreground">{title}</p>
             <Icon className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
         </div>
         <div className="mt-2 text-[22px] font-semibold text-foreground">{typeof value === 'number' ? value.toLocaleString() : value}</div>
-    </ClayCard>
+    </ZoruCard>
 );
 
 const formatCurrency = (amount: number) => {
@@ -32,7 +28,7 @@ export default function StockValueReportPage() {
     const [reportData, setReportData] = useState<any[]>([]);
     const [summary, setSummary] = useState<any>({});
     const [isLoading, startTransition] = useTransition();
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
 
     const fetchData = useCallback(() => {
         startTransition(async () => {
@@ -79,9 +75,9 @@ export default function StockValueReportPage() {
                 subtitle="Get a real-time valuation of your entire inventory."
                 icon={DollarSign}
                 actions={
-                    <ClayButton variant="pill" leading={<Download className="h-4 w-4" strokeWidth={1.75} />} onClick={handleDownload} disabled={isLoading || reportData.length === 0}>
+                    <ZoruButton variant="outline" onClick={handleDownload} disabled={isLoading || reportData.length === 0}>
                         Download CSV
-                    </ClayButton>
+                    </ZoruButton>
                 }
             />
 
@@ -91,43 +87,43 @@ export default function StockValueReportPage() {
                 <StatCard title="Products with Stock" value={summary.productCount || 0} icon={Box} />
             </div>
 
-            <ClayCard>
+            <ZoruCard>
                 <h2 className="text-[16px] font-semibold text-foreground">Inventory Valuation Details</h2>
                 <div className="mt-4 overflow-x-auto rounded-lg border border-border">
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="border-border hover:bg-transparent">
-                                <TableHead className="text-muted-foreground">Product</TableHead>
-                                <TableHead className="text-muted-foreground">Warehouse</TableHead>
-                                <TableHead className="text-muted-foreground text-right">Stock Quantity</TableHead>
-                                <TableHead className="text-muted-foreground text-right">Unit Cost</TableHead>
-                                <TableHead className="text-muted-foreground text-right">Stock Value</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
+                    <ZoruTable>
+                        <ZoruTableHeader>
+                            <ZoruTableRow className="border-border hover:bg-transparent">
+                                <ZoruTableHead className="text-muted-foreground">Product</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Warehouse</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground text-right">Stock Quantity</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground text-right">Unit Cost</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground text-right">Stock Value</ZoruTableHead>
+                            </ZoruTableRow>
+                        </ZoruTableHeader>
+                        <ZoruTableBody>
                             {isLoading ? (
-                                <TableRow className="border-border"><TableCell colSpan={5} className="h-64 text-center"><LoaderCircle className="mx-auto animate-spin h-8 w-8 text-muted-foreground"/></TableCell></TableRow>
+                                <ZoruTableRow className="border-border"><ZoruTableCell colSpan={5} className="h-64 text-center"><LoaderCircle className="mx-auto animate-spin h-8 w-8 text-muted-foreground"/></ZoruTableCell></ZoruTableRow>
                             ) : reportData.length > 0 ? (
                                 reportData.map(item => (
-                                    <TableRow key={`${item.productId}-${item.warehouseId}`} className="border-border">
-                                        <TableCell>
+                                    <ZoruTableRow key={`${item.productId}-${item.warehouseId}`} className="border-border">
+                                        <ZoruTableCell>
                                             <p className="font-medium text-foreground">{item.productName}</p>
                                             <p className="text-[11.5px] text-muted-foreground font-mono">{item.sku || 'N/A'}</p>
-                                        </TableCell>
-                                        <TableCell className="text-foreground">{item.warehouseName}</TableCell>
-                                        <TableCell className="text-right font-medium text-foreground">{item.stock}</TableCell>
-                                        <TableCell className="text-right font-mono text-foreground">{formatCurrency(item.unitCost)}</TableCell>
-                                        <TableCell className="text-right font-semibold text-foreground">{formatCurrency(item.stockValue)}</TableCell>
-                                    </TableRow>
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-foreground">{item.warehouseName}</ZoruTableCell>
+                                        <ZoruTableCell className="text-right font-medium text-foreground">{item.stock}</ZoruTableCell>
+                                        <ZoruTableCell className="text-right font-mono text-foreground">{formatCurrency(item.unitCost)}</ZoruTableCell>
+                                        <ZoruTableCell className="text-right font-semibold text-foreground">{formatCurrency(item.stockValue)}</ZoruTableCell>
+                                    </ZoruTableRow>
                                 ))
                             ) : (
-                                <TableRow className="border-border"><TableCell colSpan={5} className="h-64 text-center text-muted-foreground">No stock data found for any products.</TableCell></TableRow>
+                                <ZoruTableRow className="border-border"><ZoruTableCell colSpan={5} className="h-64 text-center text-muted-foreground">No stock data found for any products.</ZoruTableCell></ZoruTableRow>
                             )}
-                        </TableBody>
-                    </Table>
+                        </ZoruTableBody>
+                    </ZoruTable>
                 </div>
                 <p className="mt-4 text-[11.5px] text-muted-foreground">This report is based on the 'Buying Price' (cost) set for each product. If cost is not set, it falls back to the 'Selling Price'.</p>
-            </ClayCard>
+            </ZoruCard>
         </div>
     );
 }

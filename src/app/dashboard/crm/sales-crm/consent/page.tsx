@@ -1,27 +1,11 @@
 'use client';
-
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruBadge, ZoruButton, ZoruCard, ZoruCheckbox, ZoruInput, ZoruLabel, ZoruSkeleton, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow, useZoruToast } from '@/components/zoruui';
 import * as React from 'react';
 import { useEffect, useMemo, useState, useTransition } from 'react';
 import { ShieldCheck, LoaderCircle } from 'lucide-react';
 
-import { ClayCard, ClayBadge, ClayButton } from '@/components/clay';
 import { CrmPageHeader } from '../../_components/crm-page-header';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Skeleton } from '@/components/ui/skeleton';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { useToast } from '@/hooks/use-toast';
+
 import {
   getPurposeConsents,
   getLeadConsents,
@@ -50,7 +34,7 @@ function formatDateTime(value?: Date | string) {
  * all-leads pages so we don't touch lead UI.
  */
 export default function LeadConsentPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [leadId, setLeadId] = useState('');
   const [activeLeadId, setActiveLeadId] = useState('');
   const [purposes, setPurposes] = useState<PurposeRow[]>([]);
@@ -189,14 +173,14 @@ export default function LeadConsentPage() {
         icon={ShieldCheck}
       />
 
-      <ClayCard>
+      <ZoruCard>
         <div className="flex flex-wrap items-end gap-3">
           <div className="min-w-[240px] flex-1">
-            <Label htmlFor="lead-id" className="text-foreground">
+            <ZoruLabel htmlFor="lead-id" className="text-foreground">
               Lead ID
-            </Label>
+            </ZoruLabel>
             <div className="mt-1.5">
-              <Input
+              <ZoruInput
                 id="lead-id"
                 value={leadId}
                 onChange={(e) => setLeadId(e.target.value)}
@@ -205,39 +189,32 @@ export default function LeadConsentPage() {
               />
             </div>
           </div>
-          <ClayButton variant="obsidian" onClick={onLookup}>
+          <ZoruButton onClick={onLookup}>
             Load
-          </ClayButton>
+          </ZoruButton>
         </div>
-      </ClayCard>
+      </ZoruCard>
 
       {activeLeadId ? (
         <>
-          <ClayCard>
+          <ZoruCard>
             <div className="mb-3 flex items-center justify-between">
               <h2 className="text-[14px] font-semibold text-foreground">
                 Active purposes
               </h2>
-              <ClayButton
-                variant="obsidian"
+              <ZoruButton
+               
                 disabled={pending}
                 onClick={onGrant}
-                leading={
-                  pending ? (
-                    <LoaderCircle
-                      className="h-4 w-4 animate-spin"
-                      strokeWidth={1.75}
-                    />
-                  ) : null
-                }
+               
               >
                 Grant selected
-              </ClayButton>
+              </ZoruButton>
             </div>
             {isLoading && purposes.length === 0 ? (
               <div className="space-y-2">
-                <Skeleton className="h-8 w-full" />
-                <Skeleton className="h-8 w-full" />
+                <ZoruSkeleton className="h-8 w-full" />
+                <ZoruSkeleton className="h-8 w-full" />
               </div>
             ) : purposes.length === 0 ? (
               <p className="text-[13px] text-muted-foreground">
@@ -245,86 +222,86 @@ export default function LeadConsentPage() {
               </p>
             ) : (
               <div className="overflow-x-auto rounded-lg border border-border">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="border-border hover:bg-transparent">
-                      <TableHead className="w-[40px]" />
-                      <TableHead className="text-muted-foreground">
+                <ZoruTable>
+                  <ZoruTableHeader>
+                    <ZoruTableRow className="border-border hover:bg-transparent">
+                      <ZoruTableHead className="w-[40px]" />
+                      <ZoruTableHead className="text-muted-foreground">
                         Purpose
-                      </TableHead>
-                      <TableHead className="text-muted-foreground">
+                      </ZoruTableHead>
+                      <ZoruTableHead className="text-muted-foreground">
                         State
-                      </TableHead>
-                      <TableHead className="text-muted-foreground">
+                      </ZoruTableHead>
+                      <ZoruTableHead className="text-muted-foreground">
                         Last updated
-                      </TableHead>
-                      <TableHead className="w-[120px] text-right text-muted-foreground">
+                      </ZoruTableHead>
+                      <ZoruTableHead className="w-[120px] text-right text-muted-foreground">
                         Actions
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
+                      </ZoruTableHead>
+                    </ZoruTableRow>
+                  </ZoruTableHeader>
+                  <ZoruTableBody>
                     {purposes.map((p) => {
                       const latest = latestByPurpose.get(p._id);
                       const isGranted = latest?.granted === true;
                       return (
-                        <TableRow
+                        <ZoruTableRow
                           key={p._id}
                           className="border-border"
                         >
-                          <TableCell>
-                            <Checkbox
+                          <ZoruTableCell>
+                            <ZoruCheckbox
                               checked={!!selected[p._id]}
                               onCheckedChange={(v) =>
                                 togglePurpose(p._id, !!v)
                               }
                               aria-label={`Select ${p.title}`}
                             />
-                          </TableCell>
-                          <TableCell className="text-[13px] text-foreground">
+                          </ZoruTableCell>
+                          <ZoruTableCell className="text-[13px] text-foreground">
                             <div className="font-medium">{p.title}</div>
                             {p.description ? (
                               <div className="text-[11.5px] text-muted-foreground">
                                 {p.description}
                               </div>
                             ) : null}
-                          </TableCell>
-                          <TableCell>
+                          </ZoruTableCell>
+                          <ZoruTableCell>
                             {latest ? (
-                              <ClayBadge
-                                tone={isGranted ? 'green' : 'red'}
+                              <ZoruBadge
+                                variant={(isGranted ? 'green' : 'red') as any}
                               >
                                 {isGranted ? 'Granted' : 'Revoked'}
-                              </ClayBadge>
+                              </ZoruBadge>
                             ) : (
-                              <ClayBadge tone="neutral">No record</ClayBadge>
+                              <ZoruBadge variant="ghost">No record</ZoruBadge>
                             )}
-                          </TableCell>
-                          <TableCell className="text-[13px] text-muted-foreground">
+                          </ZoruTableCell>
+                          <ZoruTableCell className="text-[13px] text-muted-foreground">
                             {formatDateTime(latest?.granted_at)}
-                          </TableCell>
-                          <TableCell className="text-right">
+                          </ZoruTableCell>
+                          <ZoruTableCell className="text-right">
                             {isGranted ? (
-                              <ClayButton
+                              <ZoruButton
                                 type="button"
-                                variant="pill"
+                                variant="outline"
                                 disabled={pending}
                                 onClick={() => onRevoke(p._id)}
                               >
                                 Revoke
-                              </ClayButton>
+                              </ZoruButton>
                             ) : null}
-                          </TableCell>
-                        </TableRow>
+                          </ZoruTableCell>
+                        </ZoruTableRow>
                       );
                     })}
-                  </TableBody>
-                </Table>
+                  </ZoruTableBody>
+                </ZoruTable>
               </div>
             )}
-          </ClayCard>
+          </ZoruCard>
 
-          <ClayCard>
+          <ZoruCard>
             <h2 className="mb-3 text-[14px] font-semibold text-foreground">
               History
             </h2>
@@ -334,57 +311,57 @@ export default function LeadConsentPage() {
               </p>
             ) : (
               <div className="overflow-x-auto rounded-lg border border-border">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="border-border hover:bg-transparent">
-                      <TableHead className="text-muted-foreground">
+                <ZoruTable>
+                  <ZoruTableHeader>
+                    <ZoruTableRow className="border-border hover:bg-transparent">
+                      <ZoruTableHead className="text-muted-foreground">
                         Purpose
-                      </TableHead>
-                      <TableHead className="text-muted-foreground">
+                      </ZoruTableHead>
+                      <ZoruTableHead className="text-muted-foreground">
                         State
-                      </TableHead>
-                      <TableHead className="text-muted-foreground">
+                      </ZoruTableHead>
+                      <ZoruTableHead className="text-muted-foreground">
                         Timestamp
-                      </TableHead>
-                      <TableHead className="text-muted-foreground">
+                      </ZoruTableHead>
+                      <ZoruTableHead className="text-muted-foreground">
                         IP
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
+                      </ZoruTableHead>
+                    </ZoruTableRow>
+                  </ZoruTableHeader>
+                  <ZoruTableBody>
                     {history.map((row) => {
                       const p = purposes.find(
                         (x) => x._id === row.purpose_consent_id,
                       );
                       return (
-                        <TableRow
+                        <ZoruTableRow
                           key={row._id}
                           className="border-border"
                         >
-                          <TableCell className="text-[13px] text-foreground">
+                          <ZoruTableCell className="text-[13px] text-foreground">
                             {p ? p.title : row.purpose_consent_id}
-                          </TableCell>
-                          <TableCell>
-                            <ClayBadge
-                              tone={row.granted ? 'green' : 'red'}
+                          </ZoruTableCell>
+                          <ZoruTableCell>
+                            <ZoruBadge
+                              variant={(row.granted ? 'green' : 'red') as any}
                             >
                               {row.granted ? 'Granted' : 'Revoked'}
-                            </ClayBadge>
-                          </TableCell>
-                          <TableCell className="text-[13px] text-muted-foreground">
+                            </ZoruBadge>
+                          </ZoruTableCell>
+                          <ZoruTableCell className="text-[13px] text-muted-foreground">
                             {formatDateTime(row.granted_at)}
-                          </TableCell>
-                          <TableCell className="text-[13px] text-muted-foreground">
+                          </ZoruTableCell>
+                          <ZoruTableCell className="text-[13px] text-muted-foreground">
                             {row.ip_address || '—'}
-                          </TableCell>
-                        </TableRow>
+                          </ZoruTableCell>
+                        </ZoruTableRow>
                       );
                     })}
-                  </TableBody>
-                </Table>
+                  </ZoruTableBody>
+                </ZoruTable>
               </div>
             )}
-          </ClayCard>
+          </ZoruCard>
         </>
       ) : null}
     </div>

@@ -1,27 +1,19 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { DatePicker } from "@/components/ui/date-picker";
+import { ZoruButton, ZoruCard, ZoruDatePicker, ZoruLabel, ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow, useZoruToast } from '@/components/zoruui';
 import { Download, BarChart } from "lucide-react";
 import { useState, useEffect, useTransition, useCallback } from 'react';
 import { generateLeadSourceReportData, generateTeamSalesReportData } from '@/app/actions/crm-reports.actions';
 import { LoaderCircle } from 'lucide-react';
 import Papa from 'papaparse';
-import { useToast } from "@/hooks/use-toast";
-import { Label } from "@/components/ui/label";
 
-import { ClayButton, ClayCard } from '@/components/clay';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 export default function LeadSourceReportPage() {
     const [reportData, setReportData] = useState<any[]>([]);
     const [users, setUsers] = useState<any[]>([]);
     const [isLoading, startTransition] = useTransition();
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
 
     const [startDate, setStartDate] = useState<Date | undefined>();
     const [endDate, setEndDate] = useState<Date | undefined>();
@@ -82,76 +74,76 @@ export default function LeadSourceReportPage() {
                 subtitle="Analyze the effectiveness of your lead sources."
                 icon={BarChart}
                 actions={
-                    <ClayButton variant="pill" leading={<Download className="h-4 w-4" strokeWidth={1.75} />} onClick={handleDownload}>
+                    <ZoruButton variant="outline" onClick={handleDownload}>
                         Download CSV
-                    </ClayButton>
+                    </ZoruButton>
                 }
             />
 
-            <ClayCard>
+            <ZoruCard>
                 <div className="mb-4">
                     <h2 className="text-[16px] font-semibold text-foreground">Filters</h2>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    <div className="space-y-1"><Label className="text-foreground">Lead Created At</Label><DatePicker date={startDate} setDate={setStartDate as any} placeholder="Start Date" /></div>
-                    <div className="space-y-1"><Label>&nbsp;</Label><DatePicker date={endDate} setDate={setEndDate as any} placeholder="End Date" /></div>
-                    <div className="space-y-1"><Label className="text-foreground">Pipeline</Label><Select value={pipelineId} onValueChange={setPipelineId}><SelectTrigger><SelectValue placeholder="All Pipelines" /></SelectTrigger><SelectContent><SelectItem value="sales">Sales Pipeline</SelectItem></SelectContent></Select></div>
-                    <div className="space-y-1"><Label className="text-foreground">Assigned To</Label><Select value={assigneeId} onValueChange={setAssigneeId}><SelectTrigger><SelectValue placeholder="All Assignees" /></SelectTrigger><SelectContent>{users.map(u => <SelectItem key={u.salespersonId} value={u.salespersonId}>{u.salespersonName}</SelectItem>)}</SelectContent></Select></div>
+                    <div className="space-y-1"><ZoruLabel className="text-foreground">Lead Created At</ZoruLabel><ZoruDatePicker value={startDate} onChange={setStartDate as any} placeholder="Start Date" /></div>
+                    <div className="space-y-1"><ZoruLabel>&nbsp;</ZoruLabel><ZoruDatePicker value={endDate} onChange={setEndDate as any} placeholder="End Date" /></div>
+                    <div className="space-y-1"><ZoruLabel className="text-foreground">Pipeline</ZoruLabel><ZoruSelect value={pipelineId} onValueChange={setPipelineId}><ZoruSelectTrigger><ZoruSelectValue placeholder="All Pipelines" /></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="sales">Sales Pipeline</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
+                    <div className="space-y-1"><ZoruLabel className="text-foreground">Assigned To</ZoruLabel><ZoruSelect value={assigneeId} onValueChange={setAssigneeId}><ZoruSelectTrigger><ZoruSelectValue placeholder="All Assignees" /></ZoruSelectTrigger><ZoruSelectContent>{users.map(u => <ZoruSelectItem key={u.salespersonId} value={u.salespersonId}>{u.salespersonName}</ZoruSelectItem>)}</ZoruSelectContent></ZoruSelect></div>
                 </div>
                 <div className="mt-4 flex gap-2">
-                    <ClayButton variant="obsidian" onClick={fetchData} disabled={isLoading} leading={isLoading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : undefined}>
+                    <ZoruButton onClick={fetchData} disabled={isLoading}>
                         Apply Filters
-                    </ClayButton>
-                    <ClayButton variant="ghost" onClick={clearFilters}>Clear Filters</ClayButton>
+                    </ZoruButton>
+                    <ZoruButton variant="ghost" onClick={clearFilters}>Clear Filters</ZoruButton>
                 </div>
-            </ClayCard>
+            </ZoruCard>
 
-            <ClayCard>
+            <ZoruCard>
                 <div className="mb-4">
                     <h2 className="text-[16px] font-semibold text-foreground">Report Data</h2>
                     <p className="mt-0.5 text-[12.5px] text-muted-foreground">Showing results for {reportData.length} lead source(s).</p>
                 </div>
                 <div className="overflow-x-auto rounded-lg border border-border">
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="border-border hover:bg-transparent">
-                                <TableHead className="text-muted-foreground">Lead Source</TableHead>
-                                <TableHead className="text-muted-foreground">Total Revenue</TableHead>
-                                <TableHead className="text-muted-foreground">Lead Conversion Rate</TableHead>
-                                <TableHead className="text-muted-foreground">Leads Generated</TableHead>
-                                <TableHead className="text-muted-foreground">Open Leads</TableHead>
-                                <TableHead className="text-muted-foreground">Closed Leads</TableHead>
-                                <TableHead className="text-muted-foreground">Lost Leads</TableHead>
-                                <TableHead className="text-muted-foreground">Not Serviceable</TableHead>
-                                <TableHead className="text-muted-foreground">Avg. Deal Value</TableHead>
-                                <TableHead className="text-muted-foreground">Avg Lead Closure Time (Days)</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
+                    <ZoruTable>
+                        <ZoruTableHeader>
+                            <ZoruTableRow className="border-border hover:bg-transparent">
+                                <ZoruTableHead className="text-muted-foreground">Lead Source</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Total Revenue</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Lead Conversion Rate</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Leads Generated</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Open Leads</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Closed Leads</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Lost Leads</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Not Serviceable</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Avg. Deal Value</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Avg Lead Closure Time (Days)</ZoruTableHead>
+                            </ZoruTableRow>
+                        </ZoruTableHeader>
+                        <ZoruTableBody>
                             {isLoading ? (
-                                <TableRow className="border-border"><TableCell colSpan={10} className="h-24 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" /></TableCell></TableRow>
+                                <ZoruTableRow className="border-border"><ZoruTableCell colSpan={10} className="h-24 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" /></ZoruTableCell></ZoruTableRow>
                             ) : reportData.length > 0 ? (
                                 reportData.map(row => (
-                                    <TableRow key={row.leadSource} className="border-border">
-                                        <TableCell className="font-medium text-foreground">{row.leadSource}</TableCell>
-                                        <TableCell className="text-foreground">₹{row.totalRevenue.toLocaleString()}</TableCell>
-                                        <TableCell className="text-foreground">{row.leadConversionRate.toFixed(1)}%</TableCell>
-                                        <TableCell className="text-foreground">{row.leadsGenerated}</TableCell>
-                                        <TableCell className="text-foreground">{row.openLeads}</TableCell>
-                                        <TableCell className="text-green-600">{row.closedLeads}</TableCell>
-                                        <TableCell className="text-red-600">{row.lostLeads}</TableCell>
-                                        <TableCell className="text-foreground">{row.notServiceable}</TableCell>
-                                        <TableCell className="text-foreground">₹{row.avgDealValue.toLocaleString()}</TableCell>
-                                        <TableCell className="text-foreground">{row.avgLeadClosureTime}</TableCell>
-                                    </TableRow>
+                                    <ZoruTableRow key={row.leadSource} className="border-border">
+                                        <ZoruTableCell className="font-medium text-foreground">{row.leadSource}</ZoruTableCell>
+                                        <ZoruTableCell className="text-foreground">₹{row.totalRevenue.toLocaleString()}</ZoruTableCell>
+                                        <ZoruTableCell className="text-foreground">{row.leadConversionRate.toFixed(1)}%</ZoruTableCell>
+                                        <ZoruTableCell className="text-foreground">{row.leadsGenerated}</ZoruTableCell>
+                                        <ZoruTableCell className="text-foreground">{row.openLeads}</ZoruTableCell>
+                                        <ZoruTableCell className="text-green-600">{row.closedLeads}</ZoruTableCell>
+                                        <ZoruTableCell className="text-red-600">{row.lostLeads}</ZoruTableCell>
+                                        <ZoruTableCell className="text-foreground">{row.notServiceable}</ZoruTableCell>
+                                        <ZoruTableCell className="text-foreground">₹{row.avgDealValue.toLocaleString()}</ZoruTableCell>
+                                        <ZoruTableCell className="text-foreground">{row.avgLeadClosureTime}</ZoruTableCell>
+                                    </ZoruTableRow>
                                 ))
                             ) : (
-                                <TableRow className="border-border"><TableCell colSpan={10} className="h-24 text-center text-[13px] text-muted-foreground">No data available for the selected filters.</TableCell></TableRow>
+                                <ZoruTableRow className="border-border"><ZoruTableCell colSpan={10} className="h-24 text-center text-[13px] text-muted-foreground">No data available for the selected filters.</ZoruTableCell></ZoruTableRow>
                             )}
-                        </TableBody>
-                    </Table>
+                        </ZoruTableBody>
+                    </ZoruTable>
                 </div>
-            </ClayCard>
+            </ZoruCard>
         </div>
     );
 }

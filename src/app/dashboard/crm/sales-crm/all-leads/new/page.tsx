@@ -1,28 +1,18 @@
 'use client';
-
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruButton, ZoruCard, ZoruDatePicker, ZoruInput, ZoruLabel, ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue, ZoruSeparator, ZoruSkeleton, ZoruTextarea, useZoruToast } from '@/components/zoruui';
 import { useActionState, useEffect, useRef, useState, useTransition, useCallback } from 'react';
 import { useFormStatus } from 'react-dom';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+
 import { LoaderCircle, ArrowLeft, UserPlus } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+
 import { addCrmLead } from '@/app/actions/crm-leads.actions';
 import { getCrmPipelines } from '@/app/actions/crm-pipelines.actions';
 import { getSession } from '@/app/actions/user.actions';
 import type { WithId, CrmPipeline, User } from '@/lib/definitions';
 import { SmartPipelineSelect } from '@/components/crm/sales-crm/smart-pipeline-select';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
+
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Skeleton } from '@/components/ui/skeleton';
-import { DatePicker } from '@/components/ui/date-picker';
-import { Separator } from '@/components/ui/separator';
-
-import { ClayButton, ClayCard } from '@/components/clay';
 
 const initialState: { message?: string; error?: string; leadId?: string } = { message: undefined, error: undefined, leadId: undefined };
 
@@ -37,27 +27,27 @@ const leadSources = [
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <ClayButton type="submit" variant="obsidian" size="lg" disabled={pending} leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : undefined}>
+        <ZoruButton type="submit" size="lg" disabled={pending}>
             Add Lead
-        </ClayButton>
+        </ZoruButton>
     );
 }
 
 function NewLeadPageSkeleton() {
     return (
         <div className="max-w-4xl mx-auto space-y-6">
-            <Skeleton className="h-8 w-48" />
-            <ClayCard>
-                <Skeleton className="h-8 w-1/3" />
-                <Skeleton className="mt-2 h-4 w-2/3" />
+            <ZoruSkeleton className="h-8 w-48" />
+            <ZoruCard>
+                <ZoruSkeleton className="h-8 w-1/3" />
+                <ZoruSkeleton className="mt-2 h-4 w-2/3" />
                 <div className="mt-6 space-y-6">
-                    <Skeleton className="h-10 w-full" />
-                    <Skeleton className="h-10 w-full" />
-                    <Skeleton className="h-24 w-full" />
-                    <Skeleton className="h-10 w-full" />
+                    <ZoruSkeleton className="h-10 w-full" />
+                    <ZoruSkeleton className="h-10 w-full" />
+                    <ZoruSkeleton className="h-24 w-full" />
+                    <ZoruSkeleton className="h-10 w-full" />
                 </div>
-                <Skeleton className="mt-6 h-12 w-32" />
-            </ClayCard>
+                <ZoruSkeleton className="mt-6 h-12 w-32" />
+            </ZoruCard>
         </div>
     );
 }
@@ -65,7 +55,7 @@ function NewLeadPageSkeleton() {
 export default function AddLeadPage() {
     const [state, formAction] = useActionState(addCrmLead, initialState);
     const router = useRouter();
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
     const formRef = useRef<HTMLFormElement>(null);
     const [isLoading, startLoading] = useTransition();
 
@@ -118,7 +108,7 @@ export default function AddLeadPage() {
             </div>
             <form action={formAction} ref={formRef}>
                 <input type="hidden" name="nextFollowUp" value={nextFollowUp?.toISOString() || ''} />
-                <ClayCard className="mt-4">
+                <ZoruCard className="mt-4">
                     <div className="mb-6">
                         <h2 className="text-[20px] font-semibold text-foreground flex items-center gap-2">
                             <UserPlus className="h-5 w-5 text-accent-foreground" />
@@ -128,67 +118,67 @@ export default function AddLeadPage() {
                     </div>
                     <div className="space-y-6">
                         <div className="space-y-2">
-                            <Label htmlFor="title" className="text-foreground">Lead Title / Subject *</Label>
-                            <Input id="title" name="title" required placeholder="e.g. Mobile App Development for Retail Client" className="h-10 rounded-lg border-border bg-card text-[13px]" />
+                            <ZoruLabel htmlFor="title" className="text-foreground">Lead Title / Subject *</ZoruLabel>
+                            <ZoruInput id="title" name="title" required placeholder="e.g. Mobile App Development for Retail Client" className="h-10 rounded-lg border-border bg-card text-[13px]" />
                         </div>
                         <div className="grid md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="value" className="text-foreground">Estimated Value</Label>
-                                <Input id="value" name="value" type="number" placeholder="e.g. 50000" className="h-10 rounded-lg border-border bg-card text-[13px]" />
+                                <ZoruLabel htmlFor="value" className="text-foreground">Estimated Value</ZoruLabel>
+                                <ZoruInput id="value" name="value" type="number" placeholder="e.g. 50000" className="h-10 rounded-lg border-border bg-card text-[13px]" />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="currency" className="text-foreground">Currency</Label>
-                                <Select name="currency" defaultValue="INR">
-                                    <SelectTrigger id="currency"><SelectValue /></SelectTrigger>
-                                    <SelectContent><SelectItem value="INR">INR</SelectItem><SelectItem value="USD">USD</SelectItem></SelectContent>
-                                </Select>
+                                <ZoruLabel htmlFor="currency" className="text-foreground">Currency</ZoruLabel>
+                                <ZoruSelect name="currency" defaultValue="INR">
+                                    <ZoruSelectTrigger id="currency"><ZoruSelectValue /></ZoruSelectTrigger>
+                                    <ZoruSelectContent><ZoruSelectItem value="INR">INR</ZoruSelectItem><ZoruSelectItem value="USD">USD</ZoruSelectItem></ZoruSelectContent>
+                                </ZoruSelect>
                             </div>
                         </div>
-                        <Separator />
+                        <ZoruSeparator />
                         <h3 className="text-[15px] font-semibold text-foreground pb-2">Contact Information</h3>
                         <div className="grid md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="contactName" className="text-foreground">Contact Name *</Label>
-                                <Input id="contactName" name="contactName" required placeholder="Full name of the lead contact" className="h-10 rounded-lg border-border bg-card text-[13px]" />
+                                <ZoruLabel htmlFor="contactName" className="text-foreground">Contact Name *</ZoruLabel>
+                                <ZoruInput id="contactName" name="contactName" required placeholder="Full name of the lead contact" className="h-10 rounded-lg border-border bg-card text-[13px]" />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="email" className="text-foreground">Email *</Label>
-                                <Input id="email" name="email" type="email" required placeholder="Email address of the lead" className="h-10 rounded-lg border-border bg-card text-[13px]" />
+                                <ZoruLabel htmlFor="email" className="text-foreground">Email *</ZoruLabel>
+                                <ZoruInput id="email" name="email" type="email" required placeholder="Email address of the lead" className="h-10 rounded-lg border-border bg-card text-[13px]" />
                             </div>
                         </div>
                         <div className="grid md:grid-cols-2 gap-4">
-                            <div className="space-y-2"><Label htmlFor="phone" className="text-foreground">Phone</Label><Input id="phone" name="phone" className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
-                            <div className="space-y-2"><Label htmlFor="company" className="text-foreground">Company</Label><Input id="company" name="company" className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
+                            <div className="space-y-2"><ZoruLabel htmlFor="phone" className="text-foreground">Phone</ZoruLabel><ZoruInput id="phone" name="phone" className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
+                            <div className="space-y-2"><ZoruLabel htmlFor="company" className="text-foreground">Company</ZoruLabel><ZoruInput id="company" name="company" className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
                         </div>
                         <div className="grid md:grid-cols-2 gap-4">
-                            <div className="space-y-2"><Label htmlFor="website" className="text-foreground">Website</Label><Input id="website" name="website" className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
-                            <div className="space-y-2"><Label htmlFor="contactCountry" className="text-foreground">Contact Country</Label><Select name="contactCountry" defaultValue="India"><SelectTrigger id="contactCountry"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="India">India</SelectItem><SelectItem value="USA">United States</SelectItem></SelectContent></Select></div>
+                            <div className="space-y-2"><ZoruLabel htmlFor="website" className="text-foreground">Website</ZoruLabel><ZoruInput id="website" name="website" className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
+                            <div className="space-y-2"><ZoruLabel htmlFor="contactCountry" className="text-foreground">Contact Country</ZoruLabel><ZoruSelect name="contactCountry" defaultValue="India"><ZoruSelectTrigger id="contactCountry"><ZoruSelectValue /></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="India">India</ZoruSelectItem><ZoruSelectItem value="USA">United States</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
                         </div>
-                        <Separator />
+                        <ZoruSeparator />
                         <h3 className="text-[15px] font-semibold text-foreground pb-2">Lead Status & Assignment</h3>
                         <div className="grid md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="source" className="text-foreground">Lead Source</Label>
-                                <Select name="source">
-                                    <SelectTrigger id="source"><SelectValue placeholder="Select lead source..." /></SelectTrigger>
-                                    <SelectContent>
-                                        {leadSources.map(source => (<SelectItem key={source} value={source}>{source}</SelectItem>))}
-                                    </SelectContent>
-                                </Select>
+                                <ZoruLabel htmlFor="source" className="text-foreground">Lead Source</ZoruLabel>
+                                <ZoruSelect name="source">
+                                    <ZoruSelectTrigger id="source"><ZoruSelectValue placeholder="Select lead source..." /></ZoruSelectTrigger>
+                                    <ZoruSelectContent>
+                                        {leadSources.map(source => (<ZoruSelectItem key={source} value={source}>{source}</ZoruSelectItem>))}
+                                    </ZoruSelectContent>
+                                </ZoruSelect>
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="status" className="text-foreground">Lead Status</Label>
-                                <Select name="status" defaultValue="New">
-                                    <SelectTrigger id="status"><SelectValue /></SelectTrigger>
-                                    <SelectContent>
-                                        {leadStatuses.map(s => (<SelectItem key={s} value={s}>{s}</SelectItem>))}
-                                    </SelectContent>
-                                </Select>
+                                <ZoruLabel htmlFor="status" className="text-foreground">Lead Status</ZoruLabel>
+                                <ZoruSelect name="status" defaultValue="New">
+                                    <ZoruSelectTrigger id="status"><ZoruSelectValue /></ZoruSelectTrigger>
+                                    <ZoruSelectContent>
+                                        {leadStatuses.map(s => (<ZoruSelectItem key={s} value={s}>{s}</ZoruSelectItem>))}
+                                    </ZoruSelectContent>
+                                </ZoruSelect>
                             </div>
                         </div>
                         <div className="grid md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="pipelineId" className="text-foreground">Sales Pipeline</Label>
+                                <ZoruLabel htmlFor="pipelineId" className="text-foreground">Sales Pipeline</ZoruLabel>
                                 <input type="hidden" name="pipelineId" value={selectedPipelineId} />
                                 <SmartPipelineSelect
                                     value={selectedPipelineId}
@@ -201,36 +191,36 @@ export default function AddLeadPage() {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="stage" className="text-foreground">Pipeline Stage</Label>
-                                <Select name="stage">
-                                    <SelectTrigger id="stage"><SelectValue placeholder="Select stage..." /></SelectTrigger>
-                                    <SelectContent>
-                                        {(selectedPipeline?.stages || []).map(stage => <SelectItem key={stage.id} value={stage.name}>{stage.name}</SelectItem>)}
-                                    </SelectContent>
-                                </Select>
+                                <ZoruLabel htmlFor="stage" className="text-foreground">Pipeline Stage</ZoruLabel>
+                                <ZoruSelect name="stage">
+                                    <ZoruSelectTrigger id="stage"><ZoruSelectValue placeholder="Select stage..." /></ZoruSelectTrigger>
+                                    <ZoruSelectContent>
+                                        {(selectedPipeline?.stages || []).map(stage => <ZoruSelectItem key={stage.id} value={stage.name}>{stage.name}</ZoruSelectItem>)}
+                                    </ZoruSelectContent>
+                                </ZoruSelect>
                             </div>
                         </div>
                         <div className="grid md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="assignedTo" className="text-foreground">Assigned To</Label>
-                                <Select name="assignedTo"><SelectTrigger id="assignedTo"><SelectValue placeholder="Unassigned" /></SelectTrigger><SelectContent>
-                                    <SelectItem value={user._id.toString()}>Me ({user.name})</SelectItem>
-                                </SelectContent></Select>
+                                <ZoruLabel htmlFor="assignedTo" className="text-foreground">Assigned To</ZoruLabel>
+                                <ZoruSelect name="assignedTo"><ZoruSelectTrigger id="assignedTo"><ZoruSelectValue placeholder="Unassigned" /></ZoruSelectTrigger><ZoruSelectContent>
+                                    <ZoruSelectItem value={user._id.toString()}>Me ({user.name})</ZoruSelectItem>
+                                </ZoruSelectContent></ZoruSelect>
                             </div>
                             <div className="space-y-2">
-                                <Label className="text-foreground">Next Follow-up</Label>
-                                <DatePicker date={nextFollowUp} setDate={setNextFollowUp} />
+                                <ZoruLabel className="text-foreground">Next Follow-up</ZoruLabel>
+                                <ZoruDatePicker value={nextFollowUp} onChange={setNextFollowUp} />
                             </div>
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="description" className="text-foreground">Notes</Label>
-                            <Textarea id="description" name="description" placeholder="Any additional notes or details about this lead..." />
+                            <ZoruLabel htmlFor="description" className="text-foreground">Notes</ZoruLabel>
+                            <ZoruTextarea id="description" name="description" placeholder="Any additional notes or details about this lead..." />
                         </div>
                     </div>
                     <div className="mt-6">
                         <SubmitButton />
                     </div>
-                </ClayCard>
+                </ZoruCard>
             </form>
         </div>
     );

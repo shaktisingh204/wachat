@@ -1,13 +1,10 @@
 'use client';
-
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruBadge, ZoruButton } from '@/components/zoruui';
 import { MessagesSquare, Folder } from 'lucide-react';
 import Link from 'next/link';
 
-import { ClayBadge, HrEntityPage } from '../../_components/hr-entity-page';
-import { ClayButton } from '@/components/clay';
+import { HrEntityPage } from '../../_components/hr-entity-page';
+
 import {
   getDiscussions,
   getDiscussionCategories,
@@ -35,9 +32,9 @@ export default function DiscussionsPage() {
     <div className="flex w-full flex-col gap-3">
       <div className="flex justify-end">
         <Link href="/dashboard/crm/workspace/discussions/categories">
-          <ClayButton variant="pill" leading={<Folder className="h-4 w-4" strokeWidth={1.75} />}>
+          <ZoruButton variant="outline">
             Manage Categories
-          </ClayButton>
+          </ZoruButton>
         </Link>
       </div>
       <HrEntityPage<WsDiscussion & { _id: string }>
@@ -66,7 +63,7 @@ export default function DiscussionsPage() {
             label: 'Category',
             render: (row) => {
               const c = categories.find((x) => x._id === row.category_id);
-              return <ClayBadge tone="rose-soft">{c?.name || '—'}</ClayBadge>;
+              return <ZoruBadge variant="ghost">{c?.name || '—'}</ZoruBadge>;
             },
           },
         ]}

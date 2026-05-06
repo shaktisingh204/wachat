@@ -1,10 +1,7 @@
 'use client';
-
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruCard } from '@/components/zoruui';
 import { UserPlus, Star } from 'lucide-react';
-import { ClayCard } from '@/components/clay';
+
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 export default function HireVendorsPage() {
@@ -16,7 +13,7 @@ export default function HireVendorsPage() {
                 icon={UserPlus}
             />
 
-            <ClayCard variant="outline" className="border-dashed">
+            <ZoruCard variant="outline" className="border-dashed">
                 <div className="flex flex-col items-center gap-4 py-12 text-center">
                     <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-accent">
                         <Star className="h-7 w-7 text-accent-foreground" strokeWidth={1.75} />
@@ -29,7 +26,7 @@ export default function HireVendorsPage() {
                     </div>
                     <p className="text-[12.5px] text-muted-foreground">This feature is under development.</p>
                 </div>
-            </ClayCard>
+            </ZoruCard>
         </div>
     );
 }

@@ -1,16 +1,12 @@
 'use client';
-
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruBadge, ZoruButton, ZoruCard, useZoruToast } from '@/components/zoruui';
 import * as React from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { ArrowLeft, Calendar, MapPin, Link as LinkIcon, LoaderCircle } from 'lucide-react';
 
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
-import { useToast } from '@/hooks/use-toast';
+
 import {
   getEventById,
   getEventAttendees,
@@ -31,7 +27,7 @@ function fmt(v: unknown) {
 export default function EventDetailPage() {
   const params = useParams<{ id: string }>();
   const id = params?.id;
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [event, setEvent] = React.useState<(WsEvent & { _id: string }) | null>(null);
   const [attendees, setAttendees] = React.useState<WsEventAttendee[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -71,7 +67,7 @@ export default function EventDetailPage() {
     return (
       <div className="flex w-full flex-col gap-4">
         <CrmPageHeader title="Event" subtitle="Not found" icon={Calendar} />
-        <ClayCard><p className="text-center text-[13px] text-muted-foreground">Event not found.</p></ClayCard>
+        <ZoruCard><p className="text-center text-[13px] text-muted-foreground">Event not found.</p></ZoruCard>
       </div>
     );
   }
@@ -84,18 +80,18 @@ export default function EventDetailPage() {
         icon={Calendar}
         actions={
           <Link href="/dashboard/crm/workspace/events">
-            <ClayButton variant="pill" leading={<ArrowLeft className="h-4 w-4" strokeWidth={1.75} />}>
+            <ZoruButton variant="outline">
               Back
-            </ClayButton>
+            </ZoruButton>
           </Link>
         }
       />
 
-      <ClayCard>
+      <ZoruCard>
         <div className="mb-3 flex flex-wrap items-center gap-2">
-          <ClayBadge tone="blue">Start: {fmt(event.start_date_time)}</ClayBadge>
-          <ClayBadge tone="neutral">End: {fmt(event.end_date_time)}</ClayBadge>
-          {event.repeat ? <ClayBadge tone="amber">Repeats</ClayBadge> : null}
+          <ZoruBadge variant="info">Start: {fmt(event.start_date_time)}</ZoruBadge>
+          <ZoruBadge variant="ghost">End: {fmt(event.end_date_time)}</ZoruBadge>
+          {event.repeat ? <ZoruBadge variant="warning">Repeats</ZoruBadge> : null}
         </div>
         {event.where ? (
           <p className="flex items-center gap-1 text-[13px] text-muted-foreground">
@@ -115,20 +111,20 @@ export default function EventDetailPage() {
             {event.description}
           </p>
         ) : null}
-      </ClayCard>
+      </ZoruCard>
 
-      <ClayCard>
+      <ZoruCard>
         <h3 className="mb-3 text-[14px] font-semibold text-foreground">RSVP</h3>
         <div className="flex flex-wrap gap-2">
           {(['yes', 'no', 'maybe'] as WsEventAttendeeStatus[]).map((s) => (
-            <ClayButton key={s} variant="pill" onClick={() => handleRsvp(s)}>
+            <ZoruButton key={s} variant="outline" onClick={() => handleRsvp(s)}>
               {s === 'yes' ? 'Going' : s === 'no' ? 'Not going' : 'Maybe'}
-            </ClayButton>
+            </ZoruButton>
           ))}
         </div>
-      </ClayCard>
+      </ZoruCard>
 
-      <ClayCard>
+      <ZoruCard>
         <h3 className="mb-3 text-[14px] font-semibold text-foreground">
           Attendees ({attendees.length})
         </h3>
@@ -139,24 +135,22 @@ export default function EventDetailPage() {
             {attendees.map((a) => (
               <li key={String(a._id)} className="flex items-center justify-between py-2 text-[13px]">
                 <span className="text-foreground">{a.user_name || a.user_id}</span>
-                <ClayBadge
-                  tone={
-                    a.status === 'yes'
+                <ZoruBadge
+                  variant={(a.status === 'yes'
                       ? 'green'
                       : a.status === 'no'
                       ? 'red'
                       : a.status === 'maybe'
                       ? 'amber'
-                      : 'neutral'
-                  }
+                      : 'neutral') as any}
                 >
                   {a.status}
-                </ClayBadge>
+                </ZoruBadge>
               </li>
             ))}
           </ul>
         )}
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

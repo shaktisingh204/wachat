@@ -1,10 +1,8 @@
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruCard } from '@/components/zoruui';
 export const dynamic = 'force-dynamic';
 
 import { Timer } from 'lucide-react';
-import { ClayCard } from '@/components/clay';
+
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import { ReportToolbar, StatCard, BarRow } from '../_components/report-toolbar';
 import { getLateArrivals } from '@/app/actions/worksuite/reports.actions';
@@ -31,7 +29,7 @@ export default async function LateReportPage(props: {
         <StatCard label="Employees affected" value={String(rows.length)} />
       </div>
 
-      <ClayCard>
+      <ZoruCard>
         <div className="mb-3">
           <h2 className="text-[16px] font-semibold text-foreground">
             By employee
@@ -53,7 +51,7 @@ export default async function LateReportPage(props: {
             />
           ))
         )}
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

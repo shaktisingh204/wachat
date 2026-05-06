@@ -1,15 +1,11 @@
 'use client';
-
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruBadge, ZoruButton, ZoruCard, useZoruToast } from '@/components/zoruui';
 import * as React from 'react';
 import Link from 'next/link';
 import { Calendar, Plus, MapPin, Link as LinkIcon, LoaderCircle, CalendarDays } from 'lucide-react';
 
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
 import { CrmPageHeader } from '../../_components/crm-page-header';
-import { useToast } from '@/hooks/use-toast';
+
 import {
   getEvents,
   deleteEvent,
@@ -23,7 +19,7 @@ function fmt(v: unknown) {
 }
 
 export default function EventsPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [events, setEvents] = React.useState<(WsEvent & { _id: string })[]>([]);
   const [loading, setLoading] = React.useState(true);
 
@@ -60,33 +56,33 @@ export default function EventsPage() {
         actions={
           <>
             <Link href="/dashboard/crm/workspace/events/calendar">
-              <ClayButton variant="pill" leading={<CalendarDays className="h-4 w-4" strokeWidth={1.75} />}>
+              <ZoruButton variant="outline">
                 Calendar
-              </ClayButton>
+              </ZoruButton>
             </Link>
             <Link href="/dashboard/crm/workspace/events/new">
-              <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}>
+              <ZoruButton>
                 New Event
-              </ClayButton>
+              </ZoruButton>
             </Link>
           </>
         }
       />
 
       {loading ? (
-        <ClayCard className="flex items-center justify-center py-10">
+        <ZoruCard className="flex items-center justify-center py-10">
           <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />
-        </ClayCard>
+        </ZoruCard>
       ) : events.length === 0 ? (
-        <ClayCard>
+        <ZoruCard>
           <p className="text-center text-[13px] text-muted-foreground">
             No events yet — click New Event to schedule one.
           </p>
-        </ClayCard>
+        </ZoruCard>
       ) : (
         <div className="flex flex-col gap-3">
           {events.map((e) => (
-            <ClayCard key={e._id}>
+            <ZoruCard key={e._id}>
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
                   <Link
@@ -96,10 +92,10 @@ export default function EventsPage() {
                     {e.event_name}
                   </Link>
                   <div className="mt-1 flex flex-wrap items-center gap-2">
-                    <ClayBadge tone="blue">{fmt(e.start_date_time)}</ClayBadge>
-                    <ClayBadge tone="neutral">→ {fmt(e.end_date_time)}</ClayBadge>
-                    {e.repeat ? <ClayBadge tone="amber">Repeating</ClayBadge> : null}
-                    {e.google_calendar ? <ClayBadge tone="rose-soft">Google</ClayBadge> : null}
+                    <ZoruBadge variant="info">{fmt(e.start_date_time)}</ZoruBadge>
+                    <ZoruBadge variant="ghost">→ {fmt(e.end_date_time)}</ZoruBadge>
+                    {e.repeat ? <ZoruBadge variant="warning">Repeating</ZoruBadge> : null}
+                    {e.google_calendar ? <ZoruBadge variant="ghost">Google</ZoruBadge> : null}
                   </div>
                   {e.where ? (
                     <p className="mt-1 flex items-center gap-1 text-[12px] text-muted-foreground">
@@ -115,11 +111,11 @@ export default function EventsPage() {
                     </p>
                   ) : null}
                 </div>
-                <ClayButton variant="ghost" size="sm" onClick={() => handleDelete(e._id)}>
+                <ZoruButton variant="ghost" size="sm" onClick={() => handleDelete(e._id)}>
                   Delete
-                </ClayButton>
+                </ZoruButton>
               </div>
-            </ClayCard>
+            </ZoruCard>
           ))}
         </div>
       )}

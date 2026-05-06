@@ -1,15 +1,5 @@
-import * as React from 'react';
+import { redirect } from 'next/navigation';
 
-import { RouteComingSoon } from '@/components/zoruui';
-
-export const metadata = { title: "WhatsApp · SabNode" };
-
-export default function Page(): React.JSX.Element {
-  return (
-    <RouteComingSoon
-      title={"WhatsApp"}
-      parentHref={"/dashboard"}
-      parentLabel={"Back to dashboard"}
-    />
-  );
+export default function Page(): never {
+  redirect("/wachat");
 }

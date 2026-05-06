@@ -1,18 +1,13 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ZoruButton, ZoruCard, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow, useZoruToast } from '@/components/zoruui';
 import { Download, CalendarClock, LoaderCircle } from 'lucide-react';
 import { useState, useEffect, useTransition, useCallback } from 'react';
 import { generateBatchExpiryReportData } from '@/app/actions/crm-reports.actions';
-import { useToast } from "@/hooks/use-toast";
+
 import Papa from 'papaparse';
 import { format } from "date-fns";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import { ClayCard, ClayButton } from '@/components/clay';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 type ReportData = {
@@ -24,48 +19,48 @@ type ReportData = {
 };
 
 const StatCard = ({ title, value }: { title: string, value: number }) => (
-    <ClayCard>
+    <ZoruCard>
         <p className="text-[12.5px] font-medium text-muted-foreground">{title}</p>
         <p className="mt-2 text-[26px] font-semibold text-foreground">{value.toLocaleString()}</p>
-    </ClayCard>
+    </ZoruCard>
 );
 
 const BatchTable = ({ title, batches }: { title: string, batches: any[] }) => (
-    <ClayCard>
+    <ZoruCard>
         <h2 className="text-[15px] font-semibold text-foreground">{title}</h2>
         <div className="mt-4 overflow-x-auto rounded-lg border border-border">
-            <Table>
-                <TableHeader>
-                    <TableRow className="border-border hover:bg-transparent">
-                        <TableHead className="text-muted-foreground">Product</TableHead>
-                        <TableHead className="text-muted-foreground">Batch No.</TableHead>
-                        <TableHead className="text-muted-foreground">Expiry Date</TableHead>
-                        <TableHead className="text-muted-foreground text-right">Stock</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
+            <ZoruTable>
+                <ZoruTableHeader>
+                    <ZoruTableRow className="border-border hover:bg-transparent">
+                        <ZoruTableHead className="text-muted-foreground">Product</ZoruTableHead>
+                        <ZoruTableHead className="text-muted-foreground">Batch No.</ZoruTableHead>
+                        <ZoruTableHead className="text-muted-foreground">Expiry Date</ZoruTableHead>
+                        <ZoruTableHead className="text-muted-foreground text-right">Stock</ZoruTableHead>
+                    </ZoruTableRow>
+                </ZoruTableHeader>
+                <ZoruTableBody>
                     {batches.length > 0 ? (
                         batches.map(item => (
-                            <TableRow key={`${item.productId}-${item.batchId}`} className="border-border">
-                                <TableCell className="font-medium text-foreground">{item.productName}</TableCell>
-                                <TableCell className="font-mono text-[11.5px] text-foreground">{item.batchNumber}</TableCell>
-                                <TableCell className="text-foreground">{format(new Date(item.expiryDate), 'PPP')}</TableCell>
-                                <TableCell className="text-right font-semibold text-foreground">{item.stock}</TableCell>
-                            </TableRow>
+                            <ZoruTableRow key={`${item.productId}-${item.batchId}`} className="border-border">
+                                <ZoruTableCell className="font-medium text-foreground">{item.productName}</ZoruTableCell>
+                                <ZoruTableCell className="font-mono text-[11.5px] text-foreground">{item.batchNumber}</ZoruTableCell>
+                                <ZoruTableCell className="text-foreground">{format(new Date(item.expiryDate), 'PPP')}</ZoruTableCell>
+                                <ZoruTableCell className="text-right font-semibold text-foreground">{item.stock}</ZoruTableCell>
+                            </ZoruTableRow>
                         ))
                     ) : (
-                        <TableRow className="border-border"><TableCell colSpan={4} className="h-24 text-center text-muted-foreground">No items in this category.</TableCell></TableRow>
+                        <ZoruTableRow className="border-border"><ZoruTableCell colSpan={4} className="h-24 text-center text-muted-foreground">No items in this category.</ZoruTableCell></ZoruTableRow>
                     )}
-                </TableBody>
-            </Table>
+                </ZoruTableBody>
+            </ZoruTable>
         </div>
-    </ClayCard>
+    </ZoruCard>
 );
 
 export default function BatchExpiryReportPage() {
     const [reportData, setReportData] = useState<ReportData | null>(null);
     const [isLoading, startTransition] = useTransition();
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
 
     const fetchData = useCallback(() => {
         startTransition(async () => {
@@ -122,9 +117,9 @@ export default function BatchExpiryReportPage() {
                 subtitle="Track expiry dates for your batch-managed items to reduce wastage."
                 icon={CalendarClock}
                 actions={
-                    <ClayButton variant="pill" leading={<Download className="h-4 w-4" strokeWidth={1.75} />} onClick={() => handleDownload(allBatches, 'full_expiry_report')} disabled={allBatches.length === 0}>
+                    <ZoruButton variant="outline" onClick={() => handleDownload(allBatches, 'full_expiry_report')} disabled={allBatches.length === 0}>
                         Download Full Report
-                    </ClayButton>
+                    </ZoruButton>
                 }
             />
 
@@ -135,24 +130,24 @@ export default function BatchExpiryReportPage() {
                 <StatCard title="Expiring in 90 Days" value={reportData.expiringIn90.length} />
             </div>
 
-            <Tabs defaultValue="expiring_soon">
-                <TabsList className="grid w-full grid-cols-3">
-                    <TabsTrigger value="expiring_soon">Expiring Soon</TabsTrigger>
-                    <TabsTrigger value="expired">Expired</TabsTrigger>
-                    <TabsTrigger value="safe">Safe Stock</TabsTrigger>
-                </TabsList>
-                <TabsContent value="expiring_soon" className="space-y-6 mt-6">
+            <div defaultValue="expiring_soon">
+                <div className="grid w-full grid-cols-3">
+                    <button type="button">Expiring Soon</button>
+                    <button type="button">Expired</button>
+                    <button type="button">Safe Stock</button>
+                </div>
+                <div className="space-y-6 mt-6">
                     <BatchTable title="Expiring in 30 Days" batches={reportData.expiringIn30} />
                     <BatchTable title="Expiring in 60 Days" batches={reportData.expiringIn60} />
                     <BatchTable title="Expiring in 90 Days" batches={reportData.expiringIn90} />
-                </TabsContent>
-                 <TabsContent value="expired" className="mt-6">
+                </div>
+                 <div className="mt-6">
                     <BatchTable title="Expired Items" batches={reportData.expired} />
-                </TabsContent>
-                 <TabsContent value="safe" className="mt-6">
+                </div>
+                 <div className="mt-6">
                      <BatchTable title="Safe Stock (Expires > 90 days)" batches={reportData.safe} />
-                </TabsContent>
-            </Tabs>
+                </div>
+            </div>
         </div>
     )
 }
