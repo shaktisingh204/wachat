@@ -101,6 +101,7 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from "@/components/zoruui";
+import { SabFileUrlInput } from "@/components/sabfiles";
 
 type NodeType =
   | "start"
@@ -664,11 +665,12 @@ function PropertiesPanel({
           <div className="space-y-4">
             <div className="space-y-1.5">
               <ZoruLabel htmlFor="image-url">Image URL</ZoruLabel>
-              <ZoruInput
+              <SabFileUrlInput
                 id="image-url"
+                accept="image"
                 placeholder="https://example.com/image.png"
                 value={selectedNode.data.imageUrl || ""}
-                onChange={(e) => handleDataChange("imageUrl", e.target.value)}
+                onChange={(v) => handleDataChange("imageUrl", v)}
               />
             </div>
             <div className="space-y-1.5">

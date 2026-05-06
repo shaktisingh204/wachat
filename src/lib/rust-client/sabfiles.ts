@@ -96,6 +96,14 @@ export type ListNodesQuery = {
     query?: string;
 };
 
+export type SabfilesCategory = 'all' | 'image' | 'video' | 'audio' | 'document' | 'other';
+
+export type LibraryQuery = {
+    category?: SabfilesCategory;
+    query?: string;
+    limit?: number;
+};
+
 function qs(params: Record<string, string | number | undefined | null>): string {
     const search = new URLSearchParams();
     for (const [k, v] of Object.entries(params)) {
@@ -122,6 +130,14 @@ export const sabfilesApi = {
     search: (query: string, limit?: number) =>
         rustFetch<SabfilesNodesResponse>(
             `/v1/sabfiles/search${qs({ q: query, limit })}`,
+        ),
+    library: (q?: LibraryQuery) =>
+        rustFetch<SabfilesNodesResponse>(
+            `/v1/sabfiles/library${qs({
+                category: q?.category,
+                query: q?.query,
+                limit: q?.limit,
+            })}`,
         ),
     starred: () => rustFetch<SabfilesNodesResponse>(`/v1/sabfiles/starred`),
     recent: () => rustFetch<SabfilesNodesResponse>(`/v1/sabfiles/recent`),

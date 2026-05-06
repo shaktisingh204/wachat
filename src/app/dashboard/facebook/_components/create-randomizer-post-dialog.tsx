@@ -8,7 +8,7 @@
  */
 
 import * as React from "react";
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { Loader2, PlusCircle } from "lucide-react";
 
@@ -28,6 +28,7 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from "@/components/zoruui";
+import { SabFileUrlInput } from "@/components/sabfiles";
 
 const initialState = {
   success: false,
@@ -63,10 +64,12 @@ export function CreateRandomizerPostDialog({
   );
   const { toast } = useZoruToast();
   const formRef = useRef<HTMLFormElement>(null);
+  const [imageUrl, setImageUrl] = useState("");
 
   useEffect(() => {
     if (state?.success) {
       toast({ title: "Added", description: "Post added to randomizer pool." });
+      setImageUrl("");
       onOpenChange(false);
       onPostAdded();
     }
@@ -81,7 +84,10 @@ export function CreateRandomizerPostDialog({
   }, [state]);
 
   const handleOpenChange = (open: boolean) => {
-    if (!open) formRef.current?.reset();
+    if (!open) {
+      formRef.current?.reset();
+      setImageUrl("");
+    }
     onOpenChange(open);
   };
 
@@ -114,11 +120,13 @@ export function CreateRandomizerPostDialog({
             </div>
             <div className="grid gap-2">
               <ZoruLabel htmlFor="imageUrl">Image URL (optional)</ZoruLabel>
-              <ZoruInput
+              <SabFileUrlInput
                 id="imageUrl"
                 name="imageUrl"
-                type="url"
+                accept="image"
                 placeholder="https://example.com/image.jpg"
+                value={imageUrl}
+                onChange={setImageUrl}
               />
               <p className="text-[11px] text-zoru-ink-muted">
                 If provided, this post will be published as a photo post.

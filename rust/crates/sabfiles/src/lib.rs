@@ -77,6 +77,7 @@ where
         .route("/nodes/{id}", get(handlers::get_node))
         .route("/breadcrumb/{id}", get(handlers::breadcrumb))
         .route("/search", get(handlers::search_nodes))
+        .route("/library", get(handlers::library))
         .route("/starred", get(handlers::list_starred))
         .route("/recent", get(handlers::list_recent))
         .route("/trash", get(handlers::list_trash))

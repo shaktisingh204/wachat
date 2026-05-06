@@ -33,6 +33,7 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from "@/components/zoruui";
+import { SabFileUrlInput } from "@/components/sabfiles";
 
 const initialState: { message: string | null; error?: string } = {
   message: null,
@@ -204,11 +205,12 @@ export function ZoruSabChatWidgetGenerator({
               </div>
               <div className="space-y-2">
                 <ZoruLabel htmlFor="widget-avatar">Avatar URL</ZoruLabel>
-                <ZoruInput
+                <SabFileUrlInput
                   id="widget-avatar"
-                  value={settings.avatarUrl}
-                  onChange={(e) =>
-                    handleSettingChange("avatarUrl", e.target.value)
+                  accept="image"
+                  value={settings.avatarUrl ?? ""}
+                  onChange={(v) =>
+                    handleSettingChange("avatarUrl", v)
                   }
                 />
               </div>

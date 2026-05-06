@@ -46,6 +46,7 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from "@/components/zoruui";
+import { SabFileUrlInput } from "@/components/sabfiles";
 
 const initialState: { message?: string | null; error?: string } = {
   message: null,
@@ -93,6 +94,7 @@ export function EcommProductDialog({
   const [salePriceEffectiveDate, setSalePriceEffectiveDate] = useState<
     Date | undefined
   >();
+  const [imageLink, setImageLink] = useState<string>("");
 
   useEffect(() => {
     if (isOpen) {
@@ -100,6 +102,7 @@ export function EcommProductDialog({
       const raw = (product as unknown as { sale_price_effective_date?: string })
         ?.sale_price_effective_date;
       setSalePriceEffectiveDate(raw ? new Date(raw) : undefined);
+      setImageLink(product?.imageUrl ?? "");
     }
   }, [isOpen, product]);
 
@@ -136,6 +139,7 @@ export function EcommProductDialog({
       formRef.current?.reset();
       setVariants([]);
       setSalePriceEffectiveDate(undefined);
+      setImageLink("");
     }
     onOpenChange(open);
   };
@@ -215,12 +219,12 @@ export function EcommProductDialog({
                 <ZoruAccordionContent className="space-y-4 pt-4">
                   <div className="space-y-1.5">
                     <ZoruLabel htmlFor="image_link">Main image URL *</ZoruLabel>
-                    <ZoruInput
+                    <SabFileUrlInput
                       id="image_link"
                       name="image_link"
-                      type="url"
-                      defaultValue={product?.imageUrl}
-                      required
+                      accept="image"
+                      value={imageLink}
+                      onChange={setImageLink}
                     />
                   </div>
                   <div className="space-y-1.5">

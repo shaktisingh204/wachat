@@ -12,6 +12,7 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import { SabFileUrlInput } from '@/components/sabfiles';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import {
   getCompanyProfile,
@@ -57,6 +58,7 @@ function Field({
 export default function CompanyProfilePage() {
   const { toast } = useZoruToast();
   const [profile, setProfile] = useState<WsCompanyProfile | null>(null);
+  const [logo, setLogo] = useState<string>('');
   const [isLoading, startLoading] = useTransition();
   const [saveState, formAction, isSaving] = useActionState(
     saveCompanyProfile,
@@ -67,6 +69,7 @@ export default function CompanyProfilePage() {
     startLoading(async () => {
       const p = await getCompanyProfile();
       setProfile(p);
+      setLogo(p?.logo ?? '');
     });
   }, []);
 
@@ -117,13 +120,20 @@ export default function CompanyProfilePage() {
                   label="Legal Name"
                   defaultValue={profile?.legal_name}
                 />
-                <Field
-                  name="logo"
-                  label="Logo URL"
-                  type="url"
-                  defaultValue={profile?.logo}
-                  placeholder="https://…"
-                />
+                <div>
+                  <ZoruLabel htmlFor="logo" className="text-[13px] text-zoru-ink">
+                    Logo URL
+                  </ZoruLabel>
+                  <SabFileUrlInput
+                    id="logo"
+                    name="logo"
+                    value={logo}
+                    onChange={(v) => setLogo(v)}
+                    accept="image"
+                    placeholder="https://…"
+                    className="mt-1.5"
+                  />
+                </div>
                 <Field
                   name="website"
                   label="Website"

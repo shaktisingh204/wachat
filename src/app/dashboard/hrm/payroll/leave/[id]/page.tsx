@@ -21,6 +21,7 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import { SabFileUrlInput } from '@/components/sabfiles';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import {
   getLeave,
@@ -328,12 +329,11 @@ export default function LeaveDetailPage({
                 onChange={(e) => setFileName(e.target.value)}
                 className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
               />
-              <ZoruInput
-                type="url"
+              <SabFileUrlInput
+                accept="document"
                 placeholder="https://…"
                 value={fileUrl}
-                onChange={(e) => setFileUrl(e.target.value)}
-                className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                onChange={(v) => setFileUrl(v)}
               />
               <ZoruButton type="submit">
                 <Plus className="h-4 w-4" />

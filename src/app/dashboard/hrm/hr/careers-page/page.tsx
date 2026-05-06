@@ -18,6 +18,7 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import { SabFileUrlInput } from '@/components/sabfiles';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import {
   getCareersPageConfig,
@@ -32,6 +33,7 @@ type ConfigDoc =
 export default function CareersPageConfigPage() {
   const { toast } = useZoruToast();
   const [config, setConfig] = useState<ConfigDoc>(null);
+  const [logoUrl, setLogoUrl] = useState('');
   const [isLoading, startLoading] = useTransition();
   const [saveState, saveFormAction, isSaving] = useActionState(
     saveCareersPageConfig,
@@ -46,7 +48,13 @@ export default function CareersPageConfigPage() {
     startLoading(async () => {
       try {
         const doc = await getCareersPageConfig();
-        setConfig((doc as ConfigDoc) ?? null);
+        const next = (doc as ConfigDoc) ?? null;
+        setConfig(next);
+        setLogoUrl(
+          next && (next as any).logoUrl != null
+            ? String((next as any).logoUrl)
+            : '',
+        );
       } catch (e) {
         console.error('Failed to load careers page config:', e);
       }
@@ -134,10 +142,12 @@ export default function CareersPageConfigPage() {
                   Logo URL
                 </ZoruLabel>
                 <div className="mt-1.5">
-                  <ZoruInput
+                  <SabFileUrlInput
                     id="logoUrl"
                     name="logoUrl"
-                    defaultValue={value('logoUrl')}
+                    accept="image"
+                    value={logoUrl}
+                    onChange={(v) => setLogoUrl(v)}
                   />
                 </div>
               </div>

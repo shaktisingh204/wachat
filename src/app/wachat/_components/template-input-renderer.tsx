@@ -39,6 +39,7 @@ import {
   ZoruRadioGroupItem,
   cn,
 } from '@/components/zoruui';
+import { SabFileUrlInput } from '@/components/sabfiles';
 
 interface SmartVariableInputProps {
   id: string;
@@ -152,6 +153,7 @@ export function TemplateInputRenderer({
   const [headerMediaSource, setHeaderMediaSource] = useState<'url' | 'file'>(
     'file',
   );
+  const [headerMediaUrl, setHeaderMediaUrl] = useState('');
 
   const components = template.components || [];
 
@@ -272,11 +274,20 @@ export function TemplateInputRenderer({
                 ) : (
                   <div className="space-y-1">
                     <input type="hidden" name="mediaSource" value="url" />
-                    <ZoruInput
+                    <SabFileUrlInput
                       name="headerMediaUrl"
-                      type="url"
+                      value={headerMediaUrl}
+                      onChange={(v) => setHeaderMediaUrl(v)}
+                      accept={
+                        component.format === 'IMAGE'
+                          ? 'image'
+                          : component.format === 'VIDEO'
+                            ? 'video'
+                            : component.format === 'DOCUMENT'
+                              ? 'document'
+                              : 'all'
+                      }
                       placeholder={`https://example.com/${component.format?.toLowerCase()}`}
-                      required
                     />
                   </div>
                 )}

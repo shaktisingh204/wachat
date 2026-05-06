@@ -19,6 +19,7 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import { SabFileUrlInput } from '@/components/sabfiles';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 import {
@@ -44,6 +45,7 @@ export default function NewFileRecordPage() {
   const { toast } = useZoruToast();
   const [state, formAction] = useActionState(saveFile, initialState);
   const [folders, setFolders] = useState<WsFileFolder[]>([]);
+  const [url, setUrl] = useState('');
   const [_, startTransition] = useTransition();
 
   useEffect(() => {
@@ -106,11 +108,12 @@ export default function NewFileRecordPage() {
 
           <div className="space-y-1.5">
             <ZoruLabel htmlFor="url">File URL *</ZoruLabel>
-            <ZoruInput
+            <SabFileUrlInput
               id="url"
               name="url"
-              type="url"
-              required
+              value={url}
+              onChange={(v) => setUrl(v)}
+              accept="all"
               placeholder="https://..."
             />
             <p className="text-[11.5px] text-zoru-ink-muted">

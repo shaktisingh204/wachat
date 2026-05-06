@@ -97,6 +97,15 @@ export default {
           'ink-subtle': 'hsl(var(--zoru-ink-subtle))',
           line: 'hsl(var(--zoru-line))',
           'line-strong': 'hsl(var(--zoru-line-strong))',
+          // `on-*` aliases — many call sites already use `text-zoru-on-primary`
+          // / `bg-zoru-on-primary` etc. Expose them as real Tailwind utilities
+          // so the existing JSX renders correctly without rewriting every
+          // call site to `text-zoru-primary-foreground`.
+          'on-primary': 'hsl(var(--zoru-on-primary))',
+          'on-danger': 'hsl(var(--zoru-on-danger))',
+          'on-success': 'hsl(var(--zoru-on-success))',
+          'on-warning': 'hsl(var(--zoru-on-warning))',
+          'on-info': 'hsl(var(--zoru-on-info))',
           primary: {
             DEFAULT: 'hsl(var(--zoru-primary))',
             hover: 'hsl(var(--zoru-primary-hover))',
