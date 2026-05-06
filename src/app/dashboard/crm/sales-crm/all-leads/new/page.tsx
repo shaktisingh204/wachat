@@ -10,6 +10,7 @@ import { getCrmPipelines } from '@/app/actions/crm-pipelines.actions';
 import { getSession } from '@/app/actions/user.actions';
 import type { WithId, CrmPipeline, User } from '@/lib/definitions';
 import { SmartPipelineSelect } from '@/components/crm/sales-crm/smart-pipeline-select';
+import { EntityPicker } from '@/components/crm/entity-picker';
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -62,6 +63,7 @@ export default function AddLeadPage() {
     const [pipelines, setPipelines] = useState<CrmPipeline[]>([]);
     const [user, setUser] = useState<WithId<User> | null>(null);
     const [selectedPipelineId, setSelectedPipelineId] = useState<string>('');
+    const [assignedToId, setAssignedToId] = useState<string>('');
     const [nextFollowUp, setNextFollowUp] = useState<Date | undefined>();
 
     const fetchData = useCallback(() => {
@@ -108,6 +110,7 @@ export default function AddLeadPage() {
             </div>
             <form action={formAction} ref={formRef}>
                 <input type="hidden" name="nextFollowUp" value={nextFollowUp?.toISOString() || ''} />
+                <input type="hidden" name="assignedTo" value={assignedToId} />
                 <ZoruCard className="mt-4">
                     <div className="mb-6">
                         <h2 className="text-[20px] font-semibold text-foreground flex items-center gap-2">
@@ -203,9 +206,15 @@ export default function AddLeadPage() {
                         <div className="grid md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <ZoruLabel htmlFor="assignedTo" className="text-foreground">Assigned To</ZoruLabel>
-                                <ZoruSelect name="assignedTo"><ZoruSelectTrigger id="assignedTo"><ZoruSelectValue placeholder="Unassigned" /></ZoruSelectTrigger><ZoruSelectContent>
-                                    <ZoruSelectItem value={user._id.toString()}>Me ({user.name})</ZoruSelectItem>
-                                </ZoruSelectContent></ZoruSelect>
+                                <EntityPicker
+                                    entity="user"
+                                    value={assignedToId || null}
+                                    placeholder="Unassigned"
+                                    onChange={(next) => {
+                                        const id = Array.isArray(next) ? next[0] ?? '' : (next ?? '');
+                                        setAssignedToId(id);
+                                    }}
+                                />
                             </div>
                             <div className="space-y-2">
                                 <ZoruLabel className="text-foreground">Next Follow-up</ZoruLabel>

@@ -904,8 +904,7 @@ async fn acquire_blocking(
         match res {
             AcquireResult::Granted => return Ok(()),
             AcquireResult::Denied { retry_after_ms } => {
-                let sleep =
-                    retry_after_ms.max(1).min(ACQUIRE_MAX_SLEEP_MS);
+                let sleep = retry_after_ms.clamp(1, ACQUIRE_MAX_SLEEP_MS);
                 tokio::time::sleep(Duration::from_millis(sleep)).await;
                 if start.elapsed() >= ACQUIRE_HARD_DEADLINE {
                     return Err(anyhow!(
@@ -1046,26 +1045,30 @@ async fn send_one(
 
 /// Apply a list of `updateOne` ops as individual updates against the
 /// `broadcast_contacts` collection. We avoid the typed `bulk_write` API
-/// because mongodb 3.x's typed `BulkWriteOperation` shape is in flux
-/// (and the volume per call here is bounded by `BROADCAST_BATCH_SIZE`).
+/// because mongodb 3.x's typed `BulkWriteOperation` shape is in flux —
+/// instead we fan the per-row `update_one` calls out concurrently with
+/// a bounded buffer so a 200-contact batch costs ~one round trip's worth
+/// of wall-clock time, not 200. Pool size (default 60) is the ceiling.
 async fn bulk_apply_opt_out_updates(
     coll: &mongodb::Collection<Document>,
     ops: &[Document],
 ) -> Result<()> {
-    for op in ops {
-        let Some(update_one) = op.get_document("updateOne").ok() else {
-            continue;
-        };
-        let Ok(filter) = update_one.get_document("filter") else {
-            continue;
-        };
-        let Ok(update) = update_one.get_document("update") else {
-            continue;
-        };
-        if let Err(e) = coll.update_one(filter.clone(), update.clone()).await {
+    use futures::stream::{self, StreamExt};
+
+    const PARALLELISM: usize = 32;
+
+    stream::iter(ops.iter().filter_map(|op| {
+        let update_one = op.get_document("updateOne").ok()?;
+        let filter = update_one.get_document("filter").ok()?.clone();
+        let update = update_one.get_document("update").ok()?.clone();
+        Some((filter, update))
+    }))
+    .for_each_concurrent(PARALLELISM, |(filter, update)| async move {
+        if let Err(e) = coll.update_one(filter, update).await {
             debug!(error = %e, "broadcast_contacts.update_one failed (best-effort)");
         }
-    }
+    })
+    .await;
     Ok(())
 }
 
