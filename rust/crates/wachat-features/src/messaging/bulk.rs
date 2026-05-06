@@ -45,7 +45,10 @@ pub async fn send_bulk(
         .phone_numbers
         .first()
         .ok_or_else(|| ApiError::BadRequest("No phone number configured.".to_owned()))?;
-    let phone_number_id = pn.id.clone();
+    let phone_number_id = pn
+        .id
+        .clone()
+        .ok_or_else(|| ApiError::BadRequest("Phone number id missing.".to_owned()))?;
     let total = body.phones.len() as u32;
 
     let mut success = 0u32;

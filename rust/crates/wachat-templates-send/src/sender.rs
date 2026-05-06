@@ -98,8 +98,10 @@ impl TemplateSender {
         let template = self.fetch_template(project.id, request.template_id).await?;
 
         // ---- 2. Approval gate ------------------------------------------
-        if template.status != TemplateStatus::Approved {
-            // TS line 54: "Cannot send a template that is not approved."
+        // `status` is now stored as `Option<String>` for resilience against
+        // legacy values like `"INTERACTIVE"`. We treat anything that isn't
+        // the exact `"APPROVED"` enum value as not-approved.
+        if template.status.as_deref() != Some("APPROVED") {
             return Err(ApiError::BadRequest(
                 "Cannot send a template that is not approved.".to_owned(),
             ));
@@ -128,7 +130,7 @@ impl TemplateSender {
         let phone_number_id = project
             .phone_numbers
             .first()
-            .map(|p| p.id.clone())
+            .and_then(|p| p.id.clone())
             .ok_or_else(|| {
                 ApiError::BadRequest("Project has no phone number configured.".to_owned())
             })?;
@@ -178,9 +180,15 @@ impl TemplateSender {
             // logs/dedup by the bare-digits form).
             to: recipient.trim_start_matches('+').to_owned(),
             template: TemplateBody {
-                name: template.name.clone(),
+                name: template.name.clone().ok_or_else(|| {
+                    ApiError::BadRequest("Template is missing required `name`".to_owned())
+                })?,
                 language: TemplateLanguage {
-                    code: template.language.clone(),
+                    code: template.language.clone().ok_or_else(|| {
+                        ApiError::BadRequest(
+                            "Template is missing required `language`".to_owned(),
+                        )
+                    })?,
                 },
                 components: components.clone(),
             },
@@ -394,8 +402,8 @@ fn template_to_spec(t: &Template) -> TemplateSpec {
     }
 
     TemplateSpec {
-        name: t.name.clone(),
-        language_code: t.language.clone(),
+        name: t.name.clone().unwrap_or_default(),
+        language_code: t.language.clone().unwrap_or_default(),
         header,
         body,
         footer,

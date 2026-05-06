@@ -237,7 +237,7 @@ impl OrdersSender {
         let phone_number_id = project
             .phone_numbers
             .first()
-            .map(|p| p.id.as_str())
+            .and_then(|p| p.id.as_deref())
             .ok_or_else(|| {
                 ApiError::BadRequest("Project has no phone number configured.".to_owned())
             })?;

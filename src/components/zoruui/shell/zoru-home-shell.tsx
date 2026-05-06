@@ -5,7 +5,6 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   Bell,
   Briefcase,
-  CheckCircle2,
   Home,
   LogOut,
   Search,
@@ -16,7 +15,7 @@ import {
 
 import { cn } from "../lib/cn";
 import { ZoruAppSidebar, type ZoruSidebarGroup } from "./zoru-app-sidebar";
-import { ZORU_APPS, ZORU_MIGRATED_APPS } from "./zoru-apps";
+import { ZORU_APPS } from "./zoru-apps";
 import { findAppSidebarConfig } from "./zoru-app-sidebars";
 import { ZoruDock, ZoruDockIcon } from "./zoru-dock";
 import { ZoruHeader } from "./zoru-header";
@@ -97,25 +96,6 @@ export function ZoruHomeShell({
     [router],
   );
 
-  const migratedAppsGroup: ZoruSidebarGroup = {
-    id: "migrated-apps",
-    label: "Apps · Migrated",
-    defaultOpen: true,
-    items: ZORU_MIGRATED_APPS.map((app) => ({
-      id: `migrated-${app.id}`,
-      label: app.name,
-      icon: <app.Icon />,
-      href: app.href,
-      active: app.isActive(pathname),
-      badge: (
-        <CheckCircle2
-          aria-label="Migration complete"
-          className="h-3 w-3 text-zoru-success"
-        />
-      ),
-    })),
-  };
-
   // Auto-select per-app sidebar groups from the central registry based on
   // the current pathname. Each app declares its own grouped menu in
   // `zoru-app-sidebars.tsx`; the active config wins, the fallback is the
@@ -154,13 +134,9 @@ export function ZoruHomeShell({
           },
         ];
 
-  // Always surface migrated apps at the top of the sidebar, even when
-  // a module overrides the rest of the groups (e.g. /wachat passes its
-  // own inbox/broadcasts/settings nav).
-  const sidebarGroups: ZoruSidebarGroup[] = [
-    migratedAppsGroup,
-    ...(sidebarGroupsProp ?? defaultSidebarGroups),
-  ];
+  // The dock already lists every app — show only the active app's
+  // grouped menu in the sidebar (or the override passed by the layout).
+  const sidebarGroups: ZoruSidebarGroup[] = sidebarGroupsProp ?? defaultSidebarGroups;
 
   // Auto-resolve the heading + caption from the active app config when
   // the caller hasn't explicitly overridden them.

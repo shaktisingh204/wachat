@@ -8,22 +8,27 @@
  * the user navigates between apps, the sidebar swaps to the menu set for
  * the currently active app.
  *
- * The registry is checked in order; first matching `prefix` wins. Put
- * deeper routes first (e.g. `/dashboard/facebook` before `/dashboard`).
+ * Every href in this file has been verified against the real
+ * `src/app/.../page.tsx` files — there should be no 404s. Top-level
+ * routes are exhaustive; deep-link sub-routes (e.g. /broadcasts/[id])
+ * are reached from their parent list page.
  */
 
 import type { ComponentType, SVGProps } from "react";
 import {
   Activity,
+  AlertTriangle,
   Archive,
   ArrowDown,
   AtSign,
   BadgeCheck,
   BarChart3,
   Bell,
+  BellOff,
   Bookmark,
   BookOpen,
   Briefcase,
+  Building,
   Building2,
   Calendar,
   Check,
@@ -31,11 +36,15 @@ import {
   CheckCircle2,
   CircleDollarSign,
   ClipboardList,
+  Clock,
   Code2,
   Coins,
   Compass,
+  Contact,
   CreditCard,
   Database,
+  DollarSign,
+  Eye,
   FileImage,
   FileSearch,
   FileSpreadsheet,
@@ -43,24 +52,29 @@ import {
   Files,
   Filter,
   Flag,
+  Folder,
+  FolderOpen,
+  HardDrive,
+  Gauge,
   GitBranch,
   Globe,
+  Headphones,
   Heart,
   History,
   Home,
   Image as ImageIcon,
   Inbox,
-  Instagram,
   Key,
+  Kanban,
   Layers,
   Lightbulb,
   Link as LinkIcon,
   Link2,
   ListChecks,
-  Loader,
   LogOut,
   Mail,
   Map as MapIcon,
+  MapPin,
   Megaphone,
   MessageCircle,
   MessageSquare,
@@ -68,20 +82,25 @@ import {
   Mic,
   Network,
   Package,
+  PackageCheck,
   Palette,
   Paperclip,
   Pause,
+  Percent,
   Phone,
+  PhoneCall,
+  PhoneOff,
   PieChart,
   Pin,
   Play,
+  Plug,
   Plus,
   PlusCircle,
   Puzzle,
   QrCode,
   Receipt,
   Repeat,
-  Rocket,
+  RotateCw,
   Search,
   Send,
   Server,
@@ -89,12 +108,15 @@ import {
   Settings,
   Share2,
   Shield,
+  ShieldCheck,
   ShoppingBag,
   ShoppingCart,
   Smartphone,
   Sparkles,
+  SquareSlash,
   Star,
   Tag,
+  Tags,
   Target,
   Ticket,
   Timer,
@@ -104,6 +126,7 @@ import {
   User,
   UserCheck,
   UserCog,
+  UserMinus,
   UserPlus,
   Users,
   Video,
@@ -111,18 +134,16 @@ import {
   Wand2,
   Webhook,
   Workflow,
+  WrenchIcon,
+  Zap,
 } from "lucide-react";
 
 import type { ZoruSidebarGroup } from "./zoru-app-sidebar";
 
 export interface ZoruAppSidebarConfig {
-  /** Pathname prefix that activates this config. */
   prefix: string;
-  /** Heading shown above the menu (the app's name). */
   heading: string;
-  /** Optional caption under the heading. */
   caption?: string;
-  /** Builder receives current pathname so each item can flag `active`. */
   build: (pathname: string) => ZoruSidebarGroup[];
 }
 
@@ -140,82 +161,178 @@ function leaf(
     label,
     href,
     icon: <IconComp />,
-    active: pathname === href || (href !== "/" && pathname.startsWith(href + "/")),
+    active:
+      pathname === href || (href !== "/" && pathname.startsWith(href + "/")),
   };
 }
 
 /* ────────────────────────────────────────────────────────────────────
- * Per-app menus.
- *
- * The ordering here matters — `findAppSidebarConfig` returns the first
- * config whose `prefix` matches the current pathname. Deeper-prefixed
- * apps must come BEFORE the catch-all `/dashboard` config, otherwise
- * /dashboard/foo would always match the home menu.
+ * Per-app menus.  Order matters — deeper-prefixed apps must come BEFORE
+ * the catch-all `/dashboard`.
  * ────────────────────────────────────────────────────────────────── */
 
 export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
-  /* WaChat ─────────── handled by WachatShell directly; left here for
-     completeness so any /wachat page that doesn't go through that shell
-     still gets a wachat sidebar. */
+  /* ─────────────────────────────  WaChat  ─────────────────────────── */
   {
     prefix: "/wachat",
     heading: "WaChat",
     caption: "WhatsApp workspace",
     build: (p) => [
       {
-        id: "inbox",
+        id: "wa-inbox",
         label: "Inbox",
         items: [
-          leaf("home", "Overview", "/wachat/overview", Home, p),
+          leaf("overview", "Overview", "/wachat/overview", Home, p),
           leaf("chat", "Chat", "/wachat/chat", MessageSquare, p),
-          leaf("contacts", "Contacts", "/wachat/contacts", Users, p),
+          leaf("kanban", "Conversation kanban", "/wachat/conversation-kanban", Kanban, p),
+          leaf("filters", "Conversation filters", "/wachat/conversation-filters", Filter, p),
+          leaf("search", "Conversation search", "/wachat/conversation-search", Search, p),
+          leaf("summary", "Conversation summary", "/wachat/conversation-summary", FileText, p),
+          leaf("transfer", "Transfer", "/wachat/chat-transfer", Share2, p),
+          leaf("ratings", "Ratings", "/wachat/chat-ratings", Star, p),
+          leaf("export", "Export chat", "/wachat/chat-export", FileSpreadsheet, p),
+          leaf("labels", "Labels", "/wachat/chat-labels", Tag, p),
         ],
       },
       {
-        id: "outbound",
-        label: "Outbound",
+        id: "wa-contacts",
+        label: "Contacts",
+        items: [
+          leaf("contacts", "All contacts", "/wachat/contacts", Users, p),
+          leaf("groups", "Groups", "/wachat/contact-groups", Users, p),
+          leaf("merge", "Merge", "/wachat/contact-merge", UserCheck, p),
+          leaf("notes", "Notes", "/wachat/contact-notes", FileText, p),
+          leaf("timeline", "Timeline", "/wachat/contact-timeline", History, p),
+          leaf("blacklist", "Blacklist", "/wachat/contact-blacklist", UserMinus, p),
+          leaf("blocked", "Blocked", "/wachat/blocked-contacts", UserMinus, p),
+          leaf("import", "Import history", "/wachat/contact-import-history", Files, p),
+        ],
+      },
+      {
+        id: "wa-broadcast",
+        label: "Broadcasts",
         items: [
           leaf("broadcasts", "Broadcasts", "/wachat/broadcasts", Megaphone, p),
-          leaf("templates", "Templates", "/wachat/templates", FileText, p),
-          leaf("flows", "Meta Flows", "/wachat/flows", GitBranch, p),
-          leaf("flow-builder", "Flow builder", "/wachat/flow-builder", Workflow, p),
-          leaf("scheduled", "Scheduled", "/wachat/scheduled-messages", Calendar, p),
+          leaf("history", "History", "/wachat/broadcast-history", History, p),
+          leaf("scheduler", "Scheduler", "/wachat/broadcast-scheduler", Calendar, p),
+          leaf("segments", "Segments", "/wachat/broadcast-segments", Layers, p),
+          leaf("ab-test", "A/B test", "/wachat/campaign-ab-test", Filter, p),
+          leaf("scheduled", "Scheduled messages", "/wachat/scheduled-messages", Clock, p),
+          leaf("bulk", "Bulk send", "/wachat/bulk", Send, p),
+          leaf("bulk-msg", "Bulk messaging", "/wachat/bulk-messaging", Send, p),
+          leaf("opt-out", "Opt-out", "/wachat/opt-out", BellOff, p),
         ],
       },
       {
-        id: "engage",
-        label: "Engage",
+        id: "wa-templates",
+        label: "Templates",
         items: [
-          leaf("calls", "Calls", "/wachat/calls", Phone, p),
-          leaf("auto-reply", "Auto-reply", "/wachat/auto-reply", Repeat, p),
-          leaf("quick-replies", "Quick replies", "/wachat/saved-replies", Bookmark, p),
-          leaf("tags", "Tags", "/wachat/message-tags", Tag, p),
+          leaf("templates", "Templates", "/wachat/templates", FileText, p),
+          leaf("template-create", "Create template", "/wachat/templates/create", Plus, p),
+          leaf("template-library", "Library", "/wachat/templates/library", BookOpen, p),
+          leaf("template-builder", "Template builder", "/wachat/template-builder", WrenchIcon, p),
+          leaf("template-analytics", "Template analytics", "/wachat/template-analytics", BarChart3, p),
+          leaf("templates-library", "Messages library", "/wachat/message-templates-library", BookOpen, p),
+          leaf("interactive", "Interactive messages", "/wachat/interactive-messages", Sparkles, p),
         ],
       },
       {
-        id: "commerce",
+        id: "wa-flows",
+        label: "Flows & automation",
+        items: [
+          leaf("flows", "Meta Flows", "/wachat/flows", GitBranch, p),
+          leaf("flows-create", "Create flow", "/wachat/flows/create", Plus, p),
+          leaf("flow-builder", "Flow builder", "/wachat/flow-builder", Workflow, p),
+          leaf("automation", "Automation", "/wachat/automation", Zap, p),
+          leaf("chatbot", "Chatbot", "/wachat/chatbot", MessageCircle, p),
+          leaf("auto-reply", "Auto-reply", "/wachat/auto-reply", Repeat, p),
+          leaf("auto-reply-rules", "Auto-reply rules", "/wachat/auto-reply-rules", Filter, p),
+          leaf("greetings", "Greetings", "/wachat/greeting-messages", MessageSquare, p),
+          leaf("away", "Away messages", "/wachat/away-messages", PhoneOff, p),
+          leaf("assignments", "Assignments", "/wachat/assignments", UserCheck, p),
+        ],
+      },
+      {
+        id: "wa-quick",
+        label: "Quick replies & saved",
+        items: [
+          leaf("saved-replies", "Saved replies", "/wachat/saved-replies", Bookmark, p),
+          leaf("canned", "Canned messages", "/wachat/canned-messages", BookOpen, p),
+          leaf("quick-cats", "Quick reply cats", "/wachat/quick-reply-categories", Tags, p),
+          leaf("tags", "Message tags", "/wachat/message-tags", Tag, p),
+        ],
+      },
+      {
+        id: "wa-calls",
+        label: "Calls",
+        items: [
+          leaf("calls", "Call logs", "/wachat/calls/logs", PhoneCall, p),
+          leaf("call-settings", "Call settings", "/wachat/calls/settings", Settings, p),
+        ],
+      },
+      {
+        id: "wa-commerce",
         label: "Commerce",
         items: [
           leaf("catalog", "Catalog", "/wachat/catalog", ShoppingBag, p),
-          leaf("payments", "Payments", "/wachat/whatsapp-pay", CreditCard, p),
+          leaf("catalog-new", "New product", "/wachat/catalog/new", Plus, p),
+          leaf("pay", "WhatsApp Pay", "/wachat/whatsapp-pay", CreditCard, p),
+          leaf("pay-settings", "Pay settings", "/wachat/whatsapp-pay/settings", Settings, p),
+          leaf("ads", "WhatsApp ads", "/wachat/whatsapp-ads", Megaphone, p),
+          leaf("ads-setup", "Ads setup", "/wachat/whatsapp-ads/setup", Sparkles, p),
         ],
       },
       {
-        id: "analytics",
+        id: "wa-team",
+        label: "Team",
+        items: [
+          leaf("availability", "Agent availability", "/wachat/agent-availability", UserCheck, p),
+          leaf("performance", "Team performance", "/wachat/team-performance", TrendingUp, p),
+          leaf("response", "Response times", "/wachat/response-time-tracker", Timer, p),
+          leaf("csat", "Customer satisfaction", "/wachat/customer-satisfaction", Heart, p),
+          leaf("hours", "Business hours", "/wachat/business-hours", Clock, p),
+        ],
+      },
+      {
+        id: "wa-tools",
+        label: "Tools",
+        items: [
+          leaf("link-tracking", "Link tracking", "/wachat/link-tracking", LinkIcon, p),
+          leaf("link-gen", "Link generator", "/wachat/whatsapp-link-generator", Link2, p),
+          leaf("post-gen", "Post generator", "/wachat/post-generator", Wand2, p),
+          leaf("qr-codes", "QR codes", "/wachat/qr-codes", QrCode, p),
+          leaf("media", "Media library", "/wachat/media-library", Files, p),
+          leaf("two-line", "Two-line", "/wachat/two-line", Layers, p),
+        ],
+      },
+      {
+        id: "wa-analytics",
         label: "Analytics",
         items: [
           leaf("analytics", "Analytics", "/wachat/analytics", BarChart3, p),
           leaf("delivery", "Delivery reports", "/wachat/delivery-reports", CheckCheck, p),
+          leaf("msg-analytics", "Message analytics", "/wachat/message-analytics", PieChart, p),
+          leaf("msg-stats", "Message stats", "/wachat/message-statistics", BarChart3, p),
           leaf("health", "Account health", "/wachat/health", Activity, p),
         ],
       },
       {
-        id: "wachat-settings",
+        id: "wa-numbers",
+        label: "Numbers & dev",
+        items: [
+          leaf("numbers", "Numbers", "/wachat/numbers", Phone, p),
+          leaf("phone-settings", "Phone settings", "/wachat/phone-number-settings", Settings, p),
+          leaf("webhooks", "Webhooks", "/wachat/webhooks", Webhook, p),
+          leaf("webhook-logs", "Webhook logs", "/wachat/webhook-logs", FileSearch, p),
+        ],
+      },
+      {
+        id: "wa-settings",
         label: "Settings",
         items: [
           leaf("agents", "Agents & roles", "/wachat/settings/agents", UserCog, p),
           leaf("attributes", "Attributes", "/wachat/settings/attributes", Layers, p),
-          leaf("canned", "Canned messages", "/wachat/settings/canned", BookOpen, p),
+          leaf("canned-set", "Canned messages", "/wachat/settings/canned", BookOpen, p),
           leaf("general", "General", "/wachat/settings/general", Settings, p),
           leaf("integrations", "Integrations", "/wachat/integrations", Puzzle, p),
         ],
@@ -223,7 +340,7 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
     ],
   },
 
-  /* Meta Suite ─────────── */
+  /* ─────────────────────────────  Meta Suite  ─────────────────────── */
   {
     prefix: "/dashboard/facebook",
     heading: "Meta Suite",
@@ -234,10 +351,14 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         label: "Account",
         items: [
           leaf("home", "Overview", "/dashboard/facebook", Home, p),
-          leaf("projects", "All projects", "/dashboard/facebook/all-projects", Briefcase, p),
+          leaf("all-projects", "All projects", "/dashboard/facebook/all-projects", Briefcase, p),
+          leaf("all-projects2", "Projects (alt)", "/dashboard/facebook/all/projects", Briefcase, p),
+          leaf("pages", "Pages", "/dashboard/facebook/pages", Files, p),
           leaf("setup", "Setup", "/dashboard/facebook/setup", Sparkles, p),
           leaf("settings", "Page settings", "/dashboard/facebook/settings", Settings, p),
-          leaf("roles", "Page roles", "/dashboard/facebook/page-roles", UserCog, p),
+          leaf("page-roles", "Page roles", "/dashboard/facebook/page-roles", UserCog, p),
+          leaf("messenger", "Messenger settings", "/dashboard/facebook/messenger-settings", MessageCircle, p),
+          leaf("agents", "Agents", "/dashboard/facebook/agents", UserCheck, p),
         ],
       },
       {
@@ -245,28 +366,64 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         label: "Content",
         items: [
           leaf("posts", "Posts", "/dashboard/facebook/posts", FileText, p),
-          leaf("scheduled", "Scheduled", "/dashboard/facebook/scheduled-posts", Calendar, p),
+          leaf("create-post", "Create post", "/dashboard/facebook/create-post", PlusCircle, p),
+          leaf("scheduled", "Scheduled", "/dashboard/facebook/scheduled", Clock, p),
+          leaf("calendar", "Calendar", "/dashboard/facebook/calendar", Calendar, p),
           leaf("reels", "Reels", "/dashboard/facebook/reels", Video, p),
           leaf("stories", "Stories", "/dashboard/facebook/stories", ImageIcon, p),
-          leaf("live", "Live", "/dashboard/facebook/live", Mic, p),
+          leaf("live", "Live studio", "/dashboard/facebook/live-studio", Mic, p),
+          leaf("media", "Media", "/dashboard/facebook/media", Files, p),
+          leaf("kanban", "Kanban", "/dashboard/facebook/kanban", Kanban, p),
+          leaf("randomizer", "Post randomizer", "/dashboard/facebook/post-randomizer", Sparkles, p),
+          leaf("bulk-create", "Bulk create", "/dashboard/facebook/bulk-create", Layers, p),
         ],
       },
       {
         id: "meta-engage",
         label: "Engagement",
         items: [
-          leaf("inbox", "Inbox", "/dashboard/facebook/inbox", Inbox, p),
-          leaf("comments", "Comments", "/dashboard/facebook/comments", MessageCircle, p),
+          leaf("messages", "Messages", "/dashboard/facebook/messages", MessageSquare, p),
+          leaf("auto-reply", "Auto-reply", "/dashboard/facebook/auto-reply", Repeat, p),
+          leaf("moderation", "Moderation", "/dashboard/facebook/moderation", Shield, p),
           leaf("audience", "Audience", "/dashboard/facebook/audience", Users, p),
           leaf("subscribers", "Subscribers", "/dashboard/facebook/subscribers", BadgeCheck, p),
+          leaf("visitors", "Visitor posts", "/dashboard/facebook/visitor-posts", User, p),
+          leaf("reviews", "Reviews", "/dashboard/facebook/reviews", Star, p),
+        ],
+      },
+      {
+        id: "meta-marketing",
+        label: "Marketing",
+        items: [
+          leaf("broadcasts", "Broadcasts", "/dashboard/facebook/broadcasts", Megaphone, p),
+          leaf("leads", "Leads", "/dashboard/facebook/leads", Target, p),
+          leaf("competitors", "Competitors", "/dashboard/facebook/competitors", Eye, p),
+          leaf("events", "Events", "/dashboard/facebook/events", Calendar, p),
+          leaf("knowledge", "Knowledge", "/dashboard/facebook/knowledge", BookOpen, p),
+        ],
+      },
+      {
+        id: "meta-flows",
+        label: "Automation",
+        items: [
+          leaf("flow-builder", "Flow builder", "/dashboard/facebook/flow-builder", Workflow, p),
+          leaf("flow-docs", "Flow docs", "/dashboard/facebook/flow-builder/docs", BookOpen, p),
+          leaf("webhooks", "Webhooks", "/dashboard/facebook/webhooks", Webhook, p),
         ],
       },
       {
         id: "meta-commerce",
         label: "Commerce",
         items: [
-          leaf("catalog", "Catalog", "/dashboard/facebook/catalog", ShoppingBag, p),
           leaf("ecomm", "Custom e-commerce", "/dashboard/facebook/custom-ecommerce", ShoppingCart, p),
+          leaf("ecomm-dash", "E-comm dashboard", "/dashboard/facebook/custom-ecommerce/dashboard", Home, p),
+          leaf("ecomm-appearance", "Appearance", "/dashboard/facebook/custom-ecommerce/appearance", Palette, p),
+          leaf("shop", "Shop", "/dashboard/facebook/commerce/shop", ShoppingBag, p),
+          leaf("products", "Products", "/dashboard/facebook/commerce/products", Package, p),
+          leaf("collections", "Collections", "/dashboard/facebook/commerce/collections", Layers, p),
+          leaf("orders", "Orders", "/dashboard/facebook/commerce/orders", ShoppingCart, p),
+          leaf("commerce-analytics", "Commerce analytics", "/dashboard/facebook/commerce/analytics", BarChart3, p),
+          leaf("commerce-api", "Commerce API", "/dashboard/facebook/commerce/api", Code2, p),
         ],
       },
       {
@@ -274,13 +431,13 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         label: "Insights",
         items: [
           leaf("insights", "Insights", "/dashboard/facebook/insights", BarChart3, p),
-          leaf("analytics", "Analytics", "/dashboard/facebook/analytics", PieChart, p),
+          leaf("roadmap", "Roadmap", "/dashboard/facebook/roadmap", MapIcon, p),
         ],
       },
     ],
   },
 
-  /* Ad Manager ─────────── */
+  /* ─────────────────────────────  Ad Manager  ─────────────────────── */
   {
     prefix: "/dashboard/ad-manager",
     heading: "Ad Manager",
@@ -292,16 +449,53 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         items: [
           leaf("home", "Home", "/dashboard/ad-manager", Home, p),
           leaf("accounts", "Ad accounts", "/dashboard/ad-manager/ad-accounts", CreditCard, p),
+          leaf("calendar", "Calendar", "/dashboard/ad-manager/calendar", Calendar, p),
+          leaf("billing", "Billing", "/dashboard/ad-manager/billing", DollarSign, p),
         ],
       },
       {
         id: "ad-build",
         label: "Build",
         items: [
-          leaf("create", "Create campaign", "/dashboard/ad-manager/create", Plus, p),
+          leaf("create", "Create campaign", "/dashboard/ad-manager/create", PlusCircle, p),
           leaf("campaigns", "Campaigns", "/dashboard/ad-manager/campaigns", Megaphone, p),
           leaf("adsets", "Ad sets", "/dashboard/ad-manager/ad-sets", Layers, p),
           leaf("ads", "Ads", "/dashboard/ad-manager/ads", FileImage, p),
+          leaf("previews", "Ad previews", "/dashboard/ad-manager/ad-previews", Eye, p),
+          leaf("creative", "Creative library", "/dashboard/ad-manager/creative-library", Files, p),
+          leaf("bulk-editor", "Bulk editor", "/dashboard/ad-manager/bulk-editor", Layers, p),
+          leaf("split-tests", "Split tests", "/dashboard/ad-manager/split-tests", GitBranch, p),
+          leaf("compare", "Compare", "/dashboard/ad-manager/compare", Filter, p),
+        ],
+      },
+      {
+        id: "ad-audiences",
+        label: "Audiences",
+        items: [
+          leaf("audiences", "Audiences", "/dashboard/ad-manager/audiences", Users, p),
+          leaf("customer-lists", "Customer lists", "/dashboard/ad-manager/customer-lists", ClipboardList, p),
+          leaf("lead-forms", "Lead forms", "/dashboard/ad-manager/lead-forms", FileText, p),
+          leaf("catalogs", "Catalogs", "/dashboard/ad-manager/catalogs", ShoppingBag, p),
+        ],
+      },
+      {
+        id: "ad-tracking",
+        label: "Tracking",
+        items: [
+          leaf("pixels", "Pixels", "/dashboard/ad-manager/pixels", Target, p),
+          leaf("capi", "Conversions API", "/dashboard/ad-manager/capi", Plug, p),
+          leaf("custom-conv", "Custom conversions", "/dashboard/ad-manager/custom-conversions", Filter, p),
+          leaf("events", "Events manager", "/dashboard/ad-manager/events-manager", Activity, p),
+          leaf("funnel", "Conversion funnel", "/dashboard/ad-manager/conversion-funnel", PieChart, p),
+        ],
+      },
+      {
+        id: "ad-optimize",
+        label: "Optimize",
+        items: [
+          leaf("ai-lab", "AI lab", "/dashboard/ad-manager/ai-lab", Sparkles, p),
+          leaf("auto-rules", "Automated rules", "/dashboard/ad-manager/automated-rules", Workflow, p),
+          leaf("budget", "Budget optimizer", "/dashboard/ad-manager/budget-optimizer", DollarSign, p),
         ],
       },
       {
@@ -309,13 +503,20 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         label: "Measure",
         items: [
           leaf("reports", "Reports", "/dashboard/ad-manager/reports", BarChart3, p),
-          leaf("audiences", "Audiences", "/dashboard/ad-manager/audiences", Users, p),
+          leaf("insights", "Insights", "/dashboard/ad-manager/insights", PieChart, p),
+        ],
+      },
+      {
+        id: "ad-config",
+        label: "Settings",
+        items: [
+          leaf("settings", "Settings", "/dashboard/ad-manager/settings", Settings, p),
         ],
       },
     ],
   },
 
-  /* SabFlow ─────────── */
+  /* ─────────────────────────────  SabFlow  ────────────────────────── */
   {
     prefix: "/dashboard/sabflow",
     heading: "SabFlow",
@@ -325,34 +526,47 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         id: "sabflow-main",
         label: "Workspace",
         items: [
-          leaf("flows", "All flows", "/dashboard/sabflow/flow-builder", Workflow, p),
-          leaf("templates", "Templates", "/dashboard/sabflow/templates", FileText, p),
-          leaf("history", "History", "/dashboard/sabflow/history", History, p),
+          leaf("home", "All flows", "/dashboard/sabflow/flow-builder", Workflow, p),
+          leaf("logs", "Logs", "/dashboard/sabflow/logs", FileSearch, p),
+          leaf("connections", "Connections", "/dashboard/sabflow/connections", Plug, p),
+          leaf("docs", "Docs", "/dashboard/sabflow/docs", BookOpen, p),
+          leaf("settings", "Settings", "/dashboard/sabflow/settings", Settings, p),
         ],
       },
     ],
   },
 
-  /* SabChat ─────────── */
+  /* ─────────────────────────────  SabChat  ────────────────────────── */
   {
     prefix: "/dashboard/sabchat",
     heading: "SabChat",
     caption: "Multi-agent inbox",
     build: (p) => [
       {
-        id: "sabchat-main",
+        id: "sabchat-inbox",
         label: "Inbox",
         items: [
           leaf("inbox", "Conversations", "/dashboard/sabchat/inbox", Inbox, p),
-          leaf("widgets", "Widgets", "/dashboard/sabchat/widgets", Code2, p),
-          leaf("agents", "Agents", "/dashboard/sabchat/agents", UserCog, p),
+          leaf("visitors", "Visitors", "/dashboard/sabchat/visitors", Users, p),
+          leaf("auto-reply", "Auto-reply", "/dashboard/sabchat/auto-reply", Repeat, p),
+          leaf("ai-replies", "AI replies", "/dashboard/sabchat/ai-replies", Sparkles, p),
+          leaf("quick-replies", "Quick replies", "/dashboard/sabchat/quick-replies", Bookmark, p),
+          leaf("faq", "FAQ", "/dashboard/sabchat/faq", BookOpen, p),
+        ],
+      },
+      {
+        id: "sabchat-deploy",
+        label: "Deploy",
+        items: [
+          leaf("widget", "Widget", "/dashboard/sabchat/widget", Code2, p),
+          leaf("analytics", "Analytics", "/dashboard/sabchat/analytics", BarChart3, p),
           leaf("settings", "Settings", "/dashboard/sabchat/settings", Settings, p),
         ],
       },
     ],
   },
 
-  /* Telegram ─────────── */
+  /* ─────────────────────────────  Telegram  ───────────────────────── */
   {
     prefix: "/dashboard/telegram",
     heading: "Telegram",
@@ -364,22 +578,48 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         items: [
           leaf("home", "Home", "/dashboard/telegram", Home, p),
           leaf("connections", "Connections", "/dashboard/telegram/connections", LinkIcon, p),
+          leaf("bots", "Bots", "/dashboard/telegram/bots", ServerCog, p),
+          leaf("api", "API credentials", "/dashboard/telegram/api-credentials", Key, p),
+          leaf("settings", "Settings", "/dashboard/telegram/settings", Settings, p),
         ],
       },
       {
         id: "tg-content",
         label: "Content",
         items: [
-          leaf("messages", "Messages", "/dashboard/telegram/messages", MessageSquare, p),
+          leaf("chat", "Chat", "/dashboard/telegram/chat", MessageSquare, p),
+          leaf("inbox", "Business inbox", "/dashboard/telegram/business-inbox", Inbox, p),
           leaf("broadcasts", "Broadcasts", "/dashboard/telegram/broadcasts", Megaphone, p),
-          leaf("templates", "Templates", "/dashboard/telegram/templates", FileText, p),
-          leaf("scheduled", "Scheduled", "/dashboard/telegram/scheduled", Calendar, p),
+          leaf("channels", "Channels", "/dashboard/telegram/channels", Server, p),
+          leaf("contacts", "Contacts", "/dashboard/telegram/contacts", Users, p),
+          leaf("stories", "Stories", "/dashboard/telegram/stories", ImageIcon, p),
+          leaf("stickers", "Stickers", "/dashboard/telegram/stickers", Sparkles, p),
+        ],
+      },
+      {
+        id: "tg-automation",
+        label: "Automation",
+        items: [
+          leaf("flows", "Flows", "/dashboard/telegram/flows", GitBranch, p),
+          leaf("commands", "Commands", "/dashboard/telegram/commands", SquareSlash, p),
+          leaf("auto-reply", "Auto-reply", "/dashboard/telegram/auto-reply", Repeat, p),
+          leaf("webhooks", "Webhooks", "/dashboard/telegram/webhooks", Webhook, p),
+        ],
+      },
+      {
+        id: "tg-monetize",
+        label: "Monetize",
+        items: [
+          leaf("ads", "Ads", "/dashboard/telegram/ads", Megaphone, p),
+          leaf("payments", "Payments", "/dashboard/telegram/payments", CreditCard, p),
+          leaf("apps", "Mini apps", "/dashboard/telegram/mini-apps", Sparkles, p),
+          leaf("analytics", "Analytics", "/dashboard/telegram/analytics", BarChart3, p),
         ],
       },
     ],
   },
 
-  /* Instagram ─────────── */
+  /* ─────────────────────────────  Instagram  ──────────────────────── */
   {
     prefix: "/dashboard/instagram",
     heading: "Instagram",
@@ -392,6 +632,7 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
           leaf("home", "Home", "/dashboard/instagram", Home, p),
           leaf("connections", "Connections", "/dashboard/instagram/connections", LinkIcon, p),
           leaf("setup", "Setup", "/dashboard/instagram/setup", Sparkles, p),
+          leaf("setup-docs", "Setup docs", "/dashboard/instagram/setup/docs", BookOpen, p),
         ],
       },
       {
@@ -402,7 +643,6 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
           leaf("reels", "Reels", "/dashboard/instagram/reels", Video, p),
           leaf("stories", "Stories", "/dashboard/instagram/stories", ImageIcon, p),
           leaf("create", "Create post", "/dashboard/instagram/create-post", PlusCircle, p),
-          leaf("media", "Media library", "/dashboard/instagram/media", Files, p),
         ],
       },
       {
@@ -417,7 +657,7 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
     ],
   },
 
-  /* CRM ─────────── */
+  /* ─────────────────────────────  CRM  ────────────────────────────── */
   {
     prefix: "/dashboard/crm",
     heading: "CRM",
@@ -433,6 +673,7 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
           leaf("mentions", "Mentions", "/dashboard/crm/mentions", AtSign, p),
           leaf("notifications", "Notifications", "/dashboard/crm/notifications", Bell, p),
           leaf("pinned", "Pinned", "/dashboard/crm/pinned", Pin, p),
+          leaf("search", "Search", "/dashboard/crm/search", Search, p),
         ],
       },
       {
@@ -489,24 +730,29 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
           leaf("integrations", "Integrations", "/dashboard/crm/integrations", Puzzle, p),
           leaf("setup", "Setup", "/dashboard/crm/setup", Sparkles, p),
           leaf("settings", "Settings", "/dashboard/crm/settings", Settings, p),
-          leaf("search", "Search", "/dashboard/crm/search", Search, p),
         ],
       },
     ],
   },
 
-  /* HRM ─────────── */
+  /* ─────────────────────────────  HRM  ────────────────────────────── */
   {
     prefix: "/dashboard/hrm",
     heading: "HR Manager",
-    caption: "People & payroll",
+    caption: "People, payroll & culture",
     build: (p) => [
+      {
+        id: "hrm-overview",
+        label: "Overview",
+        items: [
+          leaf("home", "Home", "/dashboard/hrm", Home, p),
+          leaf("hr", "HR overview", "/dashboard/hrm/hr", Users, p),
+        ],
+      },
       {
         id: "hrm-people",
         label: "People",
         items: [
-          leaf("home", "Home", "/dashboard/hrm", Home, p),
-          leaf("hr", "HR overview", "/dashboard/hrm/hr", Users, p),
           leaf("directory", "Directory", "/dashboard/hrm/hr/directory", UserCheck, p),
           leaf("org-chart", "Org chart", "/dashboard/hrm/hr/org-chart", Network, p),
           leaf("onboarding", "Onboarding", "/dashboard/hrm/hr/onboarding", UserPlus, p),
@@ -514,6 +760,7 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
           leaf("candidates", "Candidates", "/dashboard/hrm/hr/candidates", Search, p),
           leaf("jobs", "Jobs", "/dashboard/hrm/hr/jobs", Briefcase, p),
           leaf("interviews", "Interviews", "/dashboard/hrm/hr/interviews", Users, p),
+          leaf("careers", "Careers page", "/dashboard/hrm/hr/careers-page", Globe, p),
         ],
       },
       {
@@ -566,7 +813,6 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         items: [
           leaf("announcements", "Announcements", "/dashboard/hrm/hr/announcements", Megaphone, p),
           leaf("surveys", "Surveys", "/dashboard/hrm/hr/surveys", ClipboardList, p),
-          leaf("careers", "Careers page", "/dashboard/hrm/hr/careers-page", Globe, p),
         ],
       },
       {
@@ -574,20 +820,42 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         label: "Payroll",
         items: [
           leaf("payroll", "Payroll", "/dashboard/hrm/payroll", Wallet, p),
+          leaf("employees", "Employees", "/dashboard/hrm/payroll/employees", Users, p),
+          leaf("payslips", "Payslips", "/dashboard/hrm/payroll/payslips", Receipt, p),
+          leaf("salary", "Salary structure", "/dashboard/hrm/payroll/salary-structure", DollarSign, p),
+          leaf("attendance", "Attendance", "/dashboard/hrm/payroll/attendance", UserCheck, p),
+          leaf("leave", "Leave", "/dashboard/hrm/payroll/leave", Calendar, p),
+          leaf("holidays", "Holidays", "/dashboard/hrm/payroll/holidays", Calendar, p),
+          leaf("shifts", "Shifts", "/dashboard/hrm/payroll/shifts", Clock, p),
+          leaf("shift-rot", "Shift rotations", "/dashboard/hrm/payroll/shift-rotations", RotateCw, p),
+          leaf("shift-change", "Shift changes", "/dashboard/hrm/payroll/shift-change-requests", Repeat, p),
+          leaf("time-logs", "Time logs", "/dashboard/hrm/payroll/time-logs", Timer, p),
+          leaf("weekly", "Weekly timesheets", "/dashboard/hrm/payroll/weekly-timesheets", Calendar, p),
+          leaf("departments", "Departments", "/dashboard/hrm/payroll/departments", Building, p),
+          leaf("designations", "Designations", "/dashboard/hrm/payroll/designations", Briefcase, p),
+          leaf("appraisals", "Appraisals", "/dashboard/hrm/payroll/appraisal-reviews", Star, p),
+          leaf("goals", "Goal setting", "/dashboard/hrm/payroll/goal-setting", Target, p),
+          leaf("kpi", "KPI tracking", "/dashboard/hrm/payroll/kpi-tracking", Gauge, p),
+          leaf("form-16", "Form 16", "/dashboard/hrm/payroll/form-16", FileText, p),
+          leaf("pf-esi", "PF & ESI", "/dashboard/hrm/payroll/pf-esi", ShieldCheck, p),
+          leaf("ptax", "Professional tax", "/dashboard/hrm/payroll/professional-tax", Percent, p),
+          leaf("tds", "TDS", "/dashboard/hrm/payroll/tds", Percent, p),
+          leaf("reports", "Reports", "/dashboard/hrm/payroll/reports", BarChart3, p),
+          leaf("payroll-settings", "Payroll settings", "/dashboard/hrm/payroll/settings", Settings, p),
         ],
       },
     ],
   },
 
-  /* SEO Suite ─────────── */
+  /* ─────────────────────────────  SEO Suite  ──────────────────────── */
   {
     prefix: "/dashboard/seo",
     heading: "SEO Suite",
     caption: "Site audits, tools & rankings",
     build: (p) => [
       {
-        id: "seo-projects",
-        label: "Projects",
+        id: "seo-overview",
+        label: "Overview",
         items: [
           leaf("home", "Home", "/dashboard/seo", Home, p),
           leaf("brand-radar", "Brand radar", "/dashboard/seo/brand-radar", Compass, p),
@@ -605,7 +873,7 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
     ],
   },
 
-  /* Email ─────────── */
+  /* ─────────────────────────────  Email  ──────────────────────────── */
   {
     prefix: "/dashboard/email",
     heading: "Email",
@@ -634,7 +902,7 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
     ],
   },
 
-  /* SMS ─────────── */
+  /* ─────────────────────────────  SMS  ────────────────────────────── */
   {
     prefix: "/dashboard/sms",
     heading: "SMS",
@@ -646,6 +914,7 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         items: [
           leaf("home", "Overview", "/dashboard/sms", Home, p),
           leaf("campaigns", "Campaigns", "/dashboard/sms/campaigns", Megaphone, p),
+          leaf("campaigns-new", "New campaign", "/dashboard/sms/campaigns/new", Plus, p),
           leaf("templates", "Templates", "/dashboard/sms/templates", FileText, p),
           leaf("logs", "Logs", "/dashboard/sms/logs", FileSearch, p),
         ],
@@ -661,7 +930,7 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
     ],
   },
 
-  /* URL Shortener ─────────── */
+  /* ─────────────────────────────  URL Shortener  ──────────────────── */
   {
     prefix: "/dashboard/url-shortener",
     heading: "URL Shortener",
@@ -678,7 +947,7 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
     ],
   },
 
-  /* QR Code Maker ─────────── */
+  /* ─────────────────────────────  QR Code Maker  ──────────────────── */
   {
     prefix: "/dashboard/qr-code-maker",
     heading: "QR Code",
@@ -695,7 +964,7 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
     ],
   },
 
-  /* Team ─────────── */
+  /* ─────────────────────────────  Team  ───────────────────────────── */
   {
     prefix: "/dashboard/team",
     heading: "Team",
@@ -725,7 +994,15 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
     ],
   },
 
-  /* Settings ─────────── */
+  /* ─────────────────────────────  Global Settings  ─────────────────
+   *
+   * Owns ONLY `/dashboard/settings/*` (profile / security / billing /
+   * etc.). It's a peer to product modules — its own dock icon, its own
+   * sidebar. Clicking "Settings" inside a product app (CRM, Email,
+   * WaChat, …) NEVER lands here — those go to the app's own settings
+   * URL.  This config exists strictly so /dashboard/settings/* itself
+   * has a sensible sidebar.
+   */
   {
     prefix: "/dashboard/settings",
     heading: "Settings",
@@ -762,7 +1039,7 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
     ],
   },
 
-  /* N8N ─────────── */
+  /* ─────────────────────────────  N8N  ────────────────────────────── */
   {
     prefix: "/dashboard/n8n",
     heading: "n8n",
@@ -771,14 +1048,12 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
       {
         id: "n8n-main",
         label: "Workspace",
-        items: [
-          leaf("home", "Workflows", "/dashboard/n8n", Workflow, p),
-        ],
+        items: [leaf("home", "Workflows", "/dashboard/n8n", Workflow, p)],
       },
     ],
   },
 
-  /* Portfolio ─────────── */
+  /* ─────────────────────────────  Portfolio  ──────────────────────── */
   {
     prefix: "/dashboard/portfolio",
     heading: "Portfolio",
@@ -787,14 +1062,12 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
       {
         id: "portfolio-main",
         label: "Workspace",
-        items: [
-          leaf("home", "Sites", "/dashboard/portfolio", Globe, p),
-        ],
+        items: [leaf("home", "Sites", "/dashboard/portfolio", Globe, p)],
       },
     ],
   },
 
-  /* Marketplace ─────────── */
+  /* ─────────────────────────────  Marketplace  ────────────────────── */
   {
     prefix: "/dashboard/marketplace",
     heading: "Marketplace",
@@ -811,23 +1084,29 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
     ],
   },
 
-  /* Plans ─────────── */
+  /* ─────────────────────────────  Plans (no index — only [planId]) ─ */
   {
     prefix: "/dashboard/plans",
     heading: "Plans",
     caption: "Subscription plans",
-    build: (p) => [
+    build: () => [
       {
         id: "plans-main",
-        label: "Workspace",
-        items: [
-          leaf("home", "All plans", "/dashboard/plans", CreditCard, p),
-        ],
+        label: "Plans",
+        items: [],
       },
     ],
   },
 
-  /* Account dashboard root — catch-all, must come LAST. */
+  /* ─────────────────────────────  Home (catch-all)  ─────────────────
+   *
+   * Home is a peer to other product apps. Its sidebar exposes the
+   * user's global account utilities (notifications, credit usage,
+   * billing) and shortcuts to other apps. Account-level Settings sub-
+   * pages (profile / security / api-keys / billing / etc.) live in
+   * the Settings dock app — NOT here. Per-app settings live in each
+   * product app's own sidebar at that app's URL.
+   */
   {
     prefix: "/dashboard",
     heading: "Home",
@@ -839,9 +1118,11 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         items: [
           leaf("home", "Home", "/dashboard", Home, p),
           leaf("notifications", "Notifications", "/dashboard/notifications", Bell, p),
-          leaf("credits", "Credit usage", "/dashboard/credit-usage", Coins, p),
-          leaf("api-keys", "API keys", "/dashboard/api-keys", Key, p),
+          leaf("setup", "Setup", "/dashboard/setup", Sparkles, p),
+          leaf("notif-prefs", "Notification prefs", "/dashboard/notification-preferences", BellOff, p),
+          leaf("credit-usage", "Credit usage", "/dashboard/credit-usage", Coins, p),
           leaf("billing", "Billing", "/dashboard/billing", CreditCard, p),
+          leaf("api-keys", "API keys", "/dashboard/api-keys", Key, p),
         ],
       },
       {

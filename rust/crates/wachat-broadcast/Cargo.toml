@@ -28,7 +28,7 @@ path = "src/lib.rs"
 [dependencies]
 # Axum HTTP — same feature union as sibling routers so the api crate
 # resolves a single set of cargo features at build time.
-axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query", "multipart"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 
 # Standard serialization stack used across the workspace.
@@ -59,6 +59,7 @@ sabnode-auth = { path = "../auth" }
 sabnode-db = { path = "../db" }
 wachat-types = { path = "../wachat-types" }
 wachat-queue = { path = "../wachat-queue" }
+wachat-media = { path = "../wachat-media" }
 
 [lints]
 workspace = true

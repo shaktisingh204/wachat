@@ -41,38 +41,55 @@ pub enum TemplateCategory {
 /// A WhatsApp message template under a project.
 ///
 /// Mongo collection: `templates`.
+///
+/// All fields beyond `_id` are `Option` for resilience against legacy
+/// documents that pre-date the current schema or were written by code paths
+/// that omitted optional fields. A brittle struct rejects the entire row
+/// for one missing field — handlers that need a specific field should
+/// surface a `BadRequest` instead.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Template {
     #[serde(rename = "_id")]
     pub id: ObjectId,
 
-    /// Owning project.
-    pub project_id: ObjectId,
+    /// Owning project. Optional only because some very old rows imported
+    /// from legacy backups may have lost it.
+    #[serde(default)]
+    pub project_id: Option<ObjectId>,
 
     /// Template name. Globally unique within a (project, language) tuple.
-    pub name: String,
+    #[serde(default)]
+    pub name: Option<String>,
 
     /// BCP-47-ish language code as Meta uses them (`en_US`, `hi`, `pt_BR`).
-    pub language: String,
+    #[serde(default)]
+    pub language: Option<String>,
 
-    /// Approval state. See [`TemplateStatus`].
-    pub status: TemplateStatus,
+    /// Approval state. See [`TemplateStatus`]. Stored as a free string so a
+    /// rare legacy `INTERACTIVE` value (a SabNode extension) doesn't crash
+    /// deserialization for the whole document.
+    #[serde(default)]
+    pub status: Option<String>,
 
-    /// Category. See [`TemplateCategory`].
-    pub category: TemplateCategory,
+    /// Category. See [`TemplateCategory`]. Stored as a free string for the
+    /// same reason as `status`.
+    #[serde(default)]
+    pub category: Option<String>,
 
     /// Raw template components in Meta's wire shape (header / body / footer /
     /// buttons). Kept as opaque JSON because the structure is variable and
     /// is best decoded by the `wachat-meta-dto` crate when actually sending.
+    #[serde(default)]
     pub components: serde_json::Value,
 
     /// Meta-assigned template id. `Option` because templates can be drafted
     /// locally before being submitted to Meta. The TS calls this `metaId`.
-    #[serde(rename = "metaId")]
+    #[serde(default, rename = "metaId")]
     pub meta_template_id: Option<String>,
 
     /// Created-at timestamp. Optional in the TS schema (`createdAt?: Date`)
     /// because some legacy rows pre-date the field — we honor that here.
+    #[serde(default)]
     pub created_at: Option<DateTime<Utc>>,
 }

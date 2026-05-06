@@ -2,6 +2,7 @@ import type { ComponentType, SVGProps } from "react";
 import {
   Bot,
   Briefcase,
+  FolderOpen,
   Globe,
   Home,
   Instagram,
@@ -139,12 +140,27 @@ export const ZORU_APPS: ZoruAppDescriptor[] = [
     isActive: (p) => !!p?.startsWith("/dashboard/qr-code-maker"),
   },
   {
+    id: "sabfiles",
+    name: "SabFiles",
+    href: "/dashboard/sabfiles",
+    Icon: FolderOpen,
+    migration: "done",
+    isActive: (p) => !!p?.startsWith("/dashboard/sabfiles"),
+  },
+  // Global account Settings is its own dock app. It owns ONLY
+  // `/dashboard/settings/*` (profile/security/billing/etc.). Each
+  // product app keeps its own settings AT that app's URL
+  // (/wachat/settings/*, /dashboard/email/settings, /dashboard/crm/settings,
+  // …). The two never cross — clicking "Settings" in any app's sidebar
+  // goes to that app's own URL, never to /dashboard/settings.
+  {
     id: "settings",
     name: "Settings",
     href: "/dashboard/settings",
     Icon: Settings,
     migration: "done",
-    isActive: (p) => !!p?.startsWith("/dashboard/settings"),
+    isActive: (p) =>
+      p === "/dashboard/settings" || !!p?.startsWith("/dashboard/settings/"),
   },
 ];
 

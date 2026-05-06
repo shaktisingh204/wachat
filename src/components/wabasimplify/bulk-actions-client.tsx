@@ -1,72 +1,95 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { FileText } from 'lucide-react';
+
 import type { WithId, Project, Template } from '@/lib/definitions';
 import { BulkTemplateForm } from '@/components/wabasimplify/bulk-template-form';
-import { Button } from '@/components/ui/button';
-import { FileText, Rows, Send } from 'lucide-react';
-import Link from 'next/link';
 import { BulkBroadcastForm } from './bulk-broadcast-form';
-import { useRouter } from 'next/navigation';
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+} from '@/components/zoruui';
 
 interface BulkActionsClientProps {
-    sourceProjectName: string;
-    allProjects: WithId<Project>[];
-    initialTemplates: WithId<Template>[];
-    initialSelectedProjects: WithId<Project>[];
+  sourceProjectName: string;
+  allProjects: WithId<Project>[];
+  initialTemplates: WithId<Template>[];
+  initialSelectedProjects: WithId<Project>[];
 }
 
-export function BulkActionsClient({ sourceProjectName, allProjects, initialTemplates, initialSelectedProjects }: BulkActionsClientProps) {
-    const [selectedProjects, setSelectedProjects] = useState<WithId<Project>[]>(initialSelectedProjects);
-    const router = useRouter();
-    
-    useEffect(() => {
-        document.title = "Bulk Actions | SabNode";
-    }, []);
+export function BulkActionsClient({
+  sourceProjectName,
+  initialTemplates,
+  initialSelectedProjects,
+}: BulkActionsClientProps) {
+  const [selectedProjects] = useState<WithId<Project>[]>(initialSelectedProjects);
+  const router = useRouter();
 
-    const handleCreateTemplateClick = () => {
-        localStorage.setItem('bulkProjectIds', JSON.stringify(selectedProjects.map(p => p._id.toString())));
-        router.push('/wachat/bulk/template');
-    }
+  useEffect(() => {
+    document.title = 'Bulk Actions | SabNode';
+  }, []);
 
-    return (
-         <div className="flex flex-col gap-8">
-            <div className="flex justify-between items-start gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold font-headline">Bulk Actions</h1>
-                    <p className="text-muted-foreground">
-                        Performing actions on {selectedProjects.length} selected project(s).
-                    </p>
-                </div>
+  const handleCreateTemplateClick = () => {
+    localStorage.setItem(
+      'bulkProjectIds',
+      JSON.stringify(selectedProjects.map((p) => p._id.toString())),
+    );
+    router.push('/wachat/bulk/template');
+  };
+
+  return (
+    <div className="flex flex-col gap-8">
+      <ZoruPageHeader>
+        <ZoruPageHeading>
+          <ZoruPageTitle>Bulk Actions</ZoruPageTitle>
+          <ZoruPageDescription>
+            Performing actions on {selectedProjects.length} selected project
+            {selectedProjects.length === 1 ? '' : 's'}.
+          </ZoruPageDescription>
+        </ZoruPageHeading>
+      </ZoruPageHeader>
+
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <BulkTemplateForm
+          sourceProjectName={sourceProjectName}
+          targetProjects={selectedProjects}
+          templates={initialTemplates}
+        />
+        <BulkBroadcastForm
+          sourceProjectName={sourceProjectName}
+          targetProjects={selectedProjects}
+        />
+
+        {/* Create-new-template CTA — readable card with explicit
+            ink/muted tokens (no shadcn-button-as-card hack). */}
+        <ZoruCard className="flex h-full flex-col">
+          <ZoruCardHeader>
+            <div className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink">
+              <FileText className="h-5 w-5" />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-1">
-                    <BulkTemplateForm
-                        sourceProjectName={sourceProjectName}
-                        targetProjects={selectedProjects}
-                        templates={initialTemplates}
-                    />
-                </div>
-                 <div className="lg:col-span-1">
-                    <BulkBroadcastForm
-                        {...({
-                            sourceProjectName: sourceProjectName,
-                            targetProjects: selectedProjects,
-                            templates: initialTemplates,
-                        } as any)}
-                    />
-                </div>
-                 <div className="lg:col-span-1">
-                    <Button onClick={handleCreateTemplateClick} className="w-full h-full min-h-48 text-lg">
-                        <FileText className="mr-4 h-8 w-8" />
-                        <div>
-                            <p className="font-semibold">Create & Apply New Template</p>
-                            <p className="text-sm font-normal text-primary-foreground/80">Build a template from scratch and apply to all.</p>
-                        </div>
-                    </Button>
-                </div>
-            </div>
-        </div>
-    )
+            <ZoruCardTitle className="mt-3">Create &amp; Apply New Template</ZoruCardTitle>
+            <ZoruCardDescription>
+              Build a template from scratch and apply it to all selected projects in one step.
+            </ZoruCardDescription>
+          </ZoruCardHeader>
+          <ZoruCardContent className="mt-auto">
+            <ZoruButton block onClick={handleCreateTemplateClick}>
+              <FileText className="h-4 w-4" />
+              New template
+            </ZoruButton>
+          </ZoruCardContent>
+        </ZoruCard>
+      </div>
+    </div>
+  );
 }

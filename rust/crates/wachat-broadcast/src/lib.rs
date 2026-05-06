@@ -128,6 +128,13 @@ where
             "/projects/{project_id}/list",
             get(handlers::list_for_project),
         )
+        // Multipart upload: replaces the legacy `uploadMediaToMeta`
+        // axios call from `broadcast.actions.ts`. Forwards the binary
+        // body to Meta via `wachat-media::MediaUploader`.
+        .route(
+            "/projects/{project_id}/media",
+            post(handlers::upload_media),
+        )
         // ---- per-broadcast endpoints ----------------------------------
         .route("/{broadcast_id}", get(handlers::get_by_id))
         .route(

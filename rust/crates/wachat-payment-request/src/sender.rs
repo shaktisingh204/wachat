@@ -62,7 +62,7 @@ impl PaymentRequestSender {
         let phone_number_id = project
             .phone_numbers
             .first()
-            .map(|p| p.id.as_str())
+            .and_then(|p| p.id.as_deref())
             .ok_or_else(|| {
                 ApiError::BadRequest("project has no registered phone numbers".to_owned())
             })?;

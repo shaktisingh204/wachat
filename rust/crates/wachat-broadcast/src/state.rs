@@ -13,6 +13,7 @@
 //! from its `AppState` via `FromRef`.
 
 use sabnode_db::mongo::MongoHandle;
+use wachat_media::MediaUploader;
 use wachat_queue::BullProducer;
 
 /// Bundle of handles the broadcast router needs to satisfy every route.
@@ -32,4 +33,11 @@ pub struct WachatBroadcastState {
     /// name on each `add()` so the same producer can target multiple
     /// queues without state churn.
     pub bull: BullProducer,
+
+    /// Resumable-upload helper for sending header/body media to Meta
+    /// before kicking off a broadcast. The legacy server action did the
+    /// upload from Node with a multipart axios call; the new endpoint
+    /// accepts the same multipart payload and forwards via this handle
+    /// so all Graph traffic exits the BFF.
+    pub media: MediaUploader,
 }

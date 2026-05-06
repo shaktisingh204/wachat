@@ -261,7 +261,7 @@ pub async fn create_flow(
     match s.mutator.create_flow(&project, req).await {
         Ok(t) => Json(CreateFlowActionResult {
             error: None,
-            name: Some(t.name),
+            name: t.name,
         }),
         Err(e) => Json(CreateFlowActionResult {
             error: Some(e.to_string()),

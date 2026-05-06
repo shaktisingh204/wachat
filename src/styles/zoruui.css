@@ -127,3 +127,63 @@
   background-color: hsl(var(--zoru-ink) / 0.92);
   color: hsl(var(--zoru-on-primary));
 }
+
+/* ──────────────────────────────────────────────────────────────────
+ * Legacy primitive overrides
+ *
+ * The shadcn Button (`@/components/ui/button`) default variant
+ * hardcodes an indigo→violet gradient via `--prism-*` tokens that
+ * aren't remapped by the .zoruui scope. Result: every legacy <Button>
+ * in CRM/HRM/SEO renders with a colorful gradient on top of an
+ * otherwise neutral page, and "primary" buttons end up with low
+ * contrast when the gradient blends.
+ *
+ * The cleanest fix is to neutralize the gradient with solid Zoru
+ * tokens *inside the scope*, so:
+ *   • <Button> (default) → solid zinc-900 bg, white text
+ *   • <Button variant="premium" / "shimmer" / "elevated"> → same
+ * Outline / ghost / link / destructive / secondary variants don't use
+ * the prism gradient and need no override.
+ *
+ * Anywhere a Zoru primitive is used (ZoruButton), this override has
+ * no effect because ZoruButton uses different tailwind classes.
+ * ───────────────────────────────────────────────────────────────── */
+
+.zoruui button[class*="from-"][class*="--prism"],
+.zoruui [data-slot="button"][class*="from-"],
+.zoruui button[class*="prism-indigo"],
+.zoruui button[class*="prism-violet"] {
+  background: hsl(var(--zoru-primary)) !important;
+  color: hsl(var(--zoru-on-primary)) !important;
+  box-shadow: var(--zoru-shadow-sm) !important;
+}
+
+/* The prism-gradient inline-style escape hatch — shadcn embeds
+ * `[background:linear-gradient(...)]` arbitrary-value classes that
+ * Tailwind compiles to inline `background:` declarations winning the
+ * cascade. We ride the !important hammer to undo them. */
+.zoruui :where(button, [role="button"])[class*="[background:"] {
+  background: hsl(var(--zoru-primary)) !important;
+  color: hsl(var(--zoru-on-primary)) !important;
+}
+.zoruui :where(button, [role="button"])[class*="[background:"]:hover {
+  background: hsl(var(--zoru-primary-hover)) !important;
+}
+
+/* Cards: shadcn `Card` may pick up `--card` which we already remap.
+ * But some pages add explicit `bg-gradient-*` classes that resolve to
+ * indigo/violet. Strip those gradients within the scope. */
+.zoruui [class*="bg-gradient-to-"][class*="from-indigo"],
+.zoruui [class*="bg-gradient-to-"][class*="from-violet"],
+.zoruui [class*="bg-gradient-to-"][class*="from-purple"],
+.zoruui [class*="bg-gradient-to-"][class*="from-fuchsia"],
+.zoruui [class*="bg-gradient-to-"][class*="from-pink"] {
+  background: hsl(var(--zoru-surface-2)) !important;
+  color: hsl(var(--zoru-ink)) !important;
+}
+
+/* Primary-foreground text inside any element with the prism gradient
+ * was rendering invisible on dark backgrounds — force white. */
+.zoruui [class*="text-primary-foreground"] {
+  color: hsl(var(--zoru-on-primary)) !important;
+}

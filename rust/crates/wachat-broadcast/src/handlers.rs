@@ -21,7 +21,8 @@
 
 use axum::{
     Json,
-    extract::{Path, Query, State},
+    body::Bytes,
+    extract::{Multipart, Path, Query, State},
 };
 use bson::{Bson, Document, doc, oid::ObjectId};
 use chrono::Utc;
@@ -641,12 +642,12 @@ pub async fn bulk_start(
             })? {
             Some(t) => t,
             None => {
-                failed_projects.push(format!("{} (template not found)", project.name));
+                failed_projects.push(format!("{} (template not found)", project.name.as_deref().unwrap_or("(unnamed project)")));
                 continue;
             }
         };
         if template.get_str("status").unwrap_or("") != "APPROVED" {
-            failed_projects.push(format!("{} (template not approved)", project.name));
+            failed_projects.push(format!("{} (template not approved)", project.name.as_deref().unwrap_or("(unnamed project)")));
             continue;
         }
 
@@ -1091,3 +1092,84 @@ fn serde_value_to_bson(v: &Value) -> Bson {
 // crates; not used yet but anticipated by the requeue path's projection
 // follow-up.
 const _: Option<FindOneOptions> = None;
+
+// ===========================================================================
+// Media upload — multipart passthrough to Meta
+// ===========================================================================
+
+/// `POST /v1/wachat/broadcast/projects/{project_id}/media`
+///
+/// Accepts a multipart form with two fields:
+///
+/// * `phoneNumberId` — the Meta phone-number id whose `/media` edge
+///   the upload should target.
+/// * `file` — the actual binary blob (image / video / document).
+///
+/// The endpoint resolves the project's stored access token, verifies
+/// caller tenancy, and forwards the bytes to Meta via
+/// [`wachat_media::MediaUploader::upload_for_messages`]. Returns the
+/// resulting Meta media id (`{ id: "..." }`) so the legacy TS
+/// `uploadMediaToMeta` shim collapses to a one-line `rustClient` call.
+pub async fn upload_media(
+    user: AuthUser,
+    State(s): State<WachatBroadcastState>,
+    Path(project_id): Path<String>,
+    mut form: Multipart,
+) -> Result<Json<Value>> {
+    let project = load_project_for(&user, &s.mongo, &project_id).await?;
+    let access_token = project.access_token.clone().ok_or_else(|| {
+        ApiError::BadRequest("Project is missing a Meta access token.".to_owned())
+    })?;
+
+    let mut phone_number_id: Option<String> = None;
+    let mut file_bytes: Option<Bytes> = None;
+    let mut file_mime: Option<String> = None;
+    let mut file_name: Option<String> = None;
+
+    while let Some(field) = form
+        .next_field()
+        .await
+        .map_err(|e| ApiError::BadRequest(format!("invalid multipart body: {e}")))?
+    {
+        let name = field.name().unwrap_or("").to_owned();
+        match name.as_str() {
+            "phoneNumberId" => {
+                let v = field
+                    .text()
+                    .await
+                    .map_err(|e| ApiError::BadRequest(format!("phoneNumberId: {e}")))?;
+                phone_number_id = Some(v.trim().to_owned());
+            }
+            "file" => {
+                file_mime = field.content_type().map(|m| m.to_owned());
+                file_name = field.file_name().map(|m| m.to_owned());
+                let bytes = field
+                    .bytes()
+                    .await
+                    .map_err(|e| ApiError::BadRequest(format!("file body: {e}")))?;
+                file_bytes = Some(bytes);
+            }
+            _ => {
+                // Unknown fields are tolerated for forward compatibility.
+                let _ = field.bytes().await;
+            }
+        }
+    }
+
+    let phone_number_id = phone_number_id.filter(|s| !s.is_empty()).ok_or_else(|| {
+        ApiError::BadRequest("missing form field `phoneNumberId`".to_owned())
+    })?;
+    let bytes = file_bytes
+        .ok_or_else(|| ApiError::BadRequest("missing form field `file`".to_owned()))?;
+    let mime = file_mime.unwrap_or_else(|| "application/octet-stream".to_owned());
+    let filename = file_name.unwrap_or_else(|| "upload".to_owned());
+
+    let media_id = s
+        .media
+        .upload_for_messages(&phone_number_id, &access_token, bytes, &mime, &filename)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("meta.media.upload")))?;
+
+    Ok(Json(json!({ "id": media_id.0 })))
+}
+

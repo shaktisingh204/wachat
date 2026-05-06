@@ -1,16 +1,23 @@
-
 'use client';
 
-import { useState, useTransition, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useFormStatus, useFormState } from 'react-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { LoaderCircle, Send } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { LoaderCircle } from 'lucide-react';
+
 import type { WithId, Project } from '@/lib/definitions';
 import { handleBulkBroadcast } from '@/app/actions/broadcast.actions';
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardFooter,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruInput,
+  ZoruLabel,
+  useZoruToast,
+} from '@/components/zoruui';
 
 const initialState = {
   message: null,
@@ -20,10 +27,10 @@ const initialState = {
 function SubmitButton({ disabled }: { disabled: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending || disabled}>
-      {pending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
-      Distribute & Send
-    </Button>
+    <ZoruButton type="submit" disabled={pending || disabled}>
+      {pending && <LoaderCircle className="h-4 w-4 animate-spin" />}
+      Distribute &amp; send
+    </ZoruButton>
   );
 }
 
@@ -32,60 +39,85 @@ interface BulkBroadcastFormProps {
   targetProjects: WithId<Project>[];
 }
 
-export function BulkBroadcastForm({ sourceProjectName, targetProjects }: BulkBroadcastFormProps) {
+export function BulkBroadcastForm({ targetProjects }: BulkBroadcastFormProps) {
   const [state, formAction] = useFormState(handleBulkBroadcast as any, initialState as any);
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const formRef = useRef<HTMLFormElement>(null);
   const [file, setFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (state.message) {
-      toast({ title: 'Success!', description: state.message });
+      toast({ title: 'Success', description: state.message });
       formRef.current?.reset();
       setFile(null);
     }
     if (state.error) {
-      toast({ title: 'Error Starting Broadcasts', description: state.error, variant: 'destructive' });
+      toast({
+        title: 'Error starting broadcasts',
+        description: state.error,
+        variant: 'destructive',
+      });
     }
   }, [state, toast]);
 
   return (
-    <Card>
+    <ZoruCard>
       <form action={formAction} ref={formRef}>
-        <input type="hidden" name="projectIds" value={targetProjects.map(p => p._id.toString()).join(',')} />
-        <CardHeader>
-          <CardTitle>Bulk Broadcast from File</CardTitle>
-          <CardDescription>
-            Upload a single contact file. The contacts will be evenly distributed and sent from all {targetProjects.length} selected projects.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+        <input
+          type="hidden"
+          name="projectIds"
+          value={targetProjects.map((p) => p._id.toString()).join(',')}
+        />
+        <ZoruCardHeader>
+          <ZoruCardTitle>Bulk Broadcast from File</ZoruCardTitle>
+          <ZoruCardDescription>
+            Upload a single contact file. The contacts will be evenly distributed and sent from
+            all {targetProjects.length} selected project
+            {targetProjects.length === 1 ? '' : 's'}.
+          </ZoruCardDescription>
+        </ZoruCardHeader>
+        <ZoruCardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="templateName">Template Name</Label>
-            <Input id="templateName" name="templateName" required placeholder="e.g., offer_update_v2" />
-            <p className="text-xs text-muted-foreground">This template must exist with the same name and language across all selected projects.</p>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="language">Language Code</Label>
-            <Input id="language" name="language" required placeholder="e.g., en_US" defaultValue="en_US" />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="contactFile">Contact File</Label>
-            <Input 
-                id="contactFile" 
-                name="contactFile" 
-                type="file" 
-                required 
-                accept=".csv,.xlsx"
-                onChange={(e) => setFile(e.target.files?.[0] || null)}
+            <ZoruLabel htmlFor="templateName">Template name</ZoruLabel>
+            <ZoruInput
+              id="templateName"
+              name="templateName"
+              required
+              placeholder="e.g. offer_update_v2"
             />
-             <p className="text-xs text-muted-foreground">A CSV or XLSX file. The first column must be the phone number.</p>
+            <p className="text-xs text-zoru-ink-muted">
+              This template must exist with the same name and language across all selected projects.
+            </p>
           </div>
-        </CardContent>
-        <CardFooter>
+          <div className="space-y-2">
+            <ZoruLabel htmlFor="language">Language code</ZoruLabel>
+            <ZoruInput
+              id="language"
+              name="language"
+              required
+              placeholder="e.g. en_US"
+              defaultValue="en_US"
+            />
+          </div>
+          <div className="space-y-2">
+            <ZoruLabel htmlFor="contactFile">Contact file</ZoruLabel>
+            <ZoruInput
+              id="contactFile"
+              name="contactFile"
+              type="file"
+              required
+              accept=".csv,.xlsx"
+              onChange={(e) => setFile(e.target.files?.[0] || null)}
+            />
+            <p className="text-xs text-zoru-ink-muted">
+              A CSV or XLSX file. The first column must be the phone number.
+            </p>
+          </div>
+        </ZoruCardContent>
+        <ZoruCardFooter>
           <SubmitButton disabled={!file} />
-        </CardFooter>
+        </ZoruCardFooter>
       </form>
-    </Card>
+    </ZoruCard>
   );
 }
