@@ -1,9 +1,12 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent } from '@/components/ui/card';
+import {
+  ZoruCard,
+  ZoruCardContent,
+  ZoruInput,
+  ZoruLabel,
+} from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 export default function AdwordsCpcPage() {
@@ -21,14 +24,14 @@ export default function AdwordsCpcPage() {
   return (
     <ToolShell title="AdWords CPC Calculator" description="Estimate clicks, conversions, and CPA from budget + CPC.">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <div className="space-y-1"><Label>Budget</Label><Input type="number" value={budget} onChange={(e) => setBudget(Number(e.target.value) || 0)} /></div>
-        <div className="space-y-1"><Label>CPC</Label><Input type="number" step="0.01" value={cpc} onChange={(e) => setCpc(Number(e.target.value) || 0)} /></div>
-        <div className="space-y-1"><Label>Conversion rate %</Label><Input type="number" step="0.1" value={cvr} onChange={(e) => setCvr(Number(e.target.value) || 0)} /></div>
+        <div className="space-y-1"><ZoruLabel>Budget</ZoruLabel><ZoruInput type="number" value={budget} onChange={(e) => setBudget(Number(e.target.value) || 0)} /></div>
+        <div className="space-y-1"><ZoruLabel>CPC</ZoruLabel><ZoruInput type="number" step="0.01" value={cpc} onChange={(e) => setCpc(Number(e.target.value) || 0)} /></div>
+        <div className="space-y-1"><ZoruLabel>Conversion rate %</ZoruLabel><ZoruInput type="number" step="0.1" value={cvr} onChange={(e) => setCvr(Number(e.target.value) || 0)} /></div>
       </div>
       <div className="grid grid-cols-3 gap-3">
-        <Card><CardContent className="p-4"><div className="text-2xl font-bold">{clicks.toFixed(0)}</div><div className="text-xs text-muted-foreground">Clicks</div></CardContent></Card>
-        <Card><CardContent className="p-4"><div className="text-2xl font-bold">{conversions.toFixed(1)}</div><div className="text-xs text-muted-foreground">Conversions</div></CardContent></Card>
-        <Card><CardContent className="p-4"><div className="text-2xl font-bold">${cpa.toFixed(2)}</div><div className="text-xs text-muted-foreground">Cost per acquisition</div></CardContent></Card>
+        <ZoruCard><ZoruCardContent className="p-4"><div className="text-2xl text-zoru-ink">{clicks.toFixed(0)}</div><div className="text-xs text-zoru-ink-muted">Clicks</div></ZoruCardContent></ZoruCard>
+        <ZoruCard><ZoruCardContent className="p-4"><div className="text-2xl text-zoru-ink">{conversions.toFixed(1)}</div><div className="text-xs text-zoru-ink-muted">Conversions</div></ZoruCardContent></ZoruCard>
+        <ZoruCard><ZoruCardContent className="p-4"><div className="text-2xl text-zoru-ink">${cpa.toFixed(2)}</div><div className="text-xs text-zoru-ink-muted">Cost per acquisition</div></ZoruCardContent></ZoruCard>
       </div>
     </ToolShell>
   );

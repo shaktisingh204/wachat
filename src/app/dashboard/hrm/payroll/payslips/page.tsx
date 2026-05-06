@@ -2,11 +2,22 @@
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
 import { Receipt, LoaderCircle, Download, Printer } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { startOfMonth } from 'date-fns';
 
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+} from '@/components/zoruui';
 import { getPayslips } from '@/app/actions/crm-payroll.actions';
 import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
 import type { WithId, CrmEmployee } from '@/lib/definitions';
@@ -21,10 +32,10 @@ const months = [
 ];
 
 function statusBadge(status: string) {
-    if (status === 'paid') return <ClayBadge tone="green" dot>Paid</ClayBadge>;
-    if (status === 'pending') return <ClayBadge tone="amber" dot>Pending</ClayBadge>;
-    if (status === 'processing') return <ClayBadge tone="blue" dot>Processing</ClayBadge>;
-    return <ClayBadge tone="neutral">{status}</ClayBadge>;
+    if (status === 'paid') return <ZoruBadge variant="success">Paid</ZoruBadge>;
+    if (status === 'pending') return <ZoruBadge variant="warning">Pending</ZoruBadge>;
+    if (status === 'processing') return <ZoruBadge variant="info">Processing</ZoruBadge>;
+    return <ZoruBadge variant="ghost">{status}</ZoruBadge>;
 }
 
 export default function PayslipsPage() {
@@ -57,86 +68,92 @@ export default function PayslipsPage() {
 
     return (
         <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Payslips"
-                subtitle="View and manage generated payslips for your employees."
-                icon={Receipt}
-                actions={
-                    <>
-                        <Select value={String(month)} onValueChange={val => setMonth(Number(val))}>
-                            <SelectTrigger className="w-36 h-9 rounded-full border-border bg-card text-[13px]">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {months.map(m => <SelectItem key={m.value} value={String(m.value)}>{m.label}</SelectItem>)}
-                            </SelectContent>
-                        </Select>
-                        <Select value={String(year)} onValueChange={val => setYear(Number(val))}>
-                            <SelectTrigger className="w-28 h-9 rounded-full border-border bg-card text-[13px]">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {years.map(y => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}
-                            </SelectContent>
-                        </Select>
-                        <ClayButton variant="pill" disabled leading={<Printer className="h-4 w-4" />}>
-                            Print All
-                        </ClayButton>
-                    </>
-                }
-            />
+            <div className="flex flex-wrap items-start justify-between gap-4">
+                <div className="flex items-start gap-3">
+                    <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink">
+                        <Receipt className="h-5 w-5" strokeWidth={1.75} />
+                    </div>
+                    <ZoruPageHeader>
+                        <ZoruPageHeading>
+                            <ZoruPageTitle>Payslips</ZoruPageTitle>
+                            <ZoruPageDescription>
+                                View and manage generated payslips for your employees.
+                            </ZoruPageDescription>
+                        </ZoruPageHeading>
+                    </ZoruPageHeader>
+                </div>
+                <div className="flex shrink-0 flex-wrap items-center gap-2">
+                    <ZoruSelect value={String(month)} onValueChange={val => setMonth(Number(val))}>
+                        <ZoruSelectTrigger className="w-36"><ZoruSelectValue /></ZoruSelectTrigger>
+                        <ZoruSelectContent>
+                            {months.map(m => <ZoruSelectItem key={m.value} value={String(m.value)}>{m.label}</ZoruSelectItem>)}
+                        </ZoruSelectContent>
+                    </ZoruSelect>
+                    <ZoruSelect value={String(year)} onValueChange={val => setYear(Number(val))}>
+                        <ZoruSelectTrigger className="w-28"><ZoruSelectValue /></ZoruSelectTrigger>
+                        <ZoruSelectContent>
+                            {years.map(y => <ZoruSelectItem key={y} value={String(y)}>{y}</ZoruSelectItem>)}
+                        </ZoruSelectContent>
+                    </ZoruSelect>
+                    <ZoruButton variant="outline" disabled>
+                        <Printer className="h-4 w-4" />
+                        Print All
+                    </ZoruButton>
+                </div>
+            </div>
 
-            <ClayCard>
+            <ZoruCard className="p-6">
                 <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-foreground">
+                    <h2 className="text-[16px] text-zoru-ink">
                         Payslips for {monthLabel}, {year}
                     </h2>
-                    <p className="mt-0.5 text-[12.5px] text-muted-foreground">{payslips.length} payslips generated for this period.</p>
+                    <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">{payslips.length} payslips generated for this period.</p>
                 </div>
-                <div className="overflow-x-auto rounded-lg border border-border">
+                <div className="overflow-x-auto rounded-lg border border-zoru-line">
                     <table className="w-full text-left text-[13px]">
                         <thead>
-                            <tr className="border-b border-border bg-secondary">
-                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Employee</th>
-                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Month / Year</th>
-                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Gross</th>
-                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Deductions</th>
-                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Net Pay</th>
-                                <th className="px-4 py-3 text-center text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Status</th>
-                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Download</th>
+                            <tr className="border-b border-zoru-line bg-zoru-surface-2">
+                                <th className="px-4 py-3 text-[12px] uppercase tracking-wide text-zoru-ink-muted">Employee</th>
+                                <th className="px-4 py-3 text-[12px] uppercase tracking-wide text-zoru-ink-muted">Month / Year</th>
+                                <th className="px-4 py-3 text-right text-[12px] uppercase tracking-wide text-zoru-ink-muted">Gross</th>
+                                <th className="px-4 py-3 text-right text-[12px] uppercase tracking-wide text-zoru-ink-muted">Deductions</th>
+                                <th className="px-4 py-3 text-right text-[12px] uppercase tracking-wide text-zoru-ink-muted">Net Pay</th>
+                                <th className="px-4 py-3 text-center text-[12px] uppercase tracking-wide text-zoru-ink-muted">Status</th>
+                                <th className="px-4 py-3 text-right text-[12px] uppercase tracking-wide text-zoru-ink-muted">Download</th>
                             </tr>
                         </thead>
                         <tbody>
                             {isLoading ? (
                                 <tr>
                                     <td colSpan={7} className="h-48 text-center">
-                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
+                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-zoru-ink-muted" />
                                     </td>
                                 </tr>
                             ) : payslips.length > 0 ? (
                                 payslips.map((p, idx) => (
-                                    <tr key={p._id?.toString() ?? idx} className="border-b border-border last:border-0 hover:bg-secondary/50 transition-colors">
+                                    <tr key={p._id?.toString() ?? idx} className="border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2/50 transition-colors">
                                         <td className="px-4 py-3">
-                                            <div className="font-medium text-foreground">
+                                            <div className="text-zoru-ink">
                                                 {p.employee?.firstName} {p.employee?.lastName}
                                             </div>
-                                            <div className="text-[11.5px] text-muted-foreground">{p.employee?.designationName ?? '—'}</div>
+                                            <div className="text-[11.5px] text-zoru-ink-muted">{p.employee?.designationName ?? '—'}</div>
                                         </td>
-                                        <td className="px-4 py-3 text-foreground">{monthLabel}, {year}</td>
-                                        <td className="px-4 py-3 text-right font-mono text-foreground">₹{(p.grossSalary ?? 0).toLocaleString('en-IN')}</td>
-                                        <td className="px-4 py-3 text-right font-mono text-destructive">₹{(p.totalDeductions ?? 0).toLocaleString('en-IN')}</td>
-                                        <td className="px-4 py-3 text-right font-mono font-semibold text-foreground">₹{(p.netPay ?? 0).toLocaleString('en-IN')}</td>
+                                        <td className="px-4 py-3 text-zoru-ink">{monthLabel}, {year}</td>
+                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">₹{(p.grossSalary ?? 0).toLocaleString('en-IN')}</td>
+                                        <td className="px-4 py-3 text-right font-mono text-zoru-danger-ink">₹{(p.totalDeductions ?? 0).toLocaleString('en-IN')}</td>
+                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">₹{(p.netPay ?? 0).toLocaleString('en-IN')}</td>
                                         <td className="px-4 py-3 text-center">{statusBadge(p.status)}</td>
                                         <td className="px-4 py-3 text-right">
-                                            <ClayButton variant="pill" size="sm" leading={<Download className="h-3.5 w-3.5" />} disabled>
+                                            <ZoruButton variant="outline" size="sm" disabled>
+                                                <Download className="h-3.5 w-3.5" />
                                                 PDF
-                                            </ClayButton>
+                                            </ZoruButton>
                                         </td>
                                     </tr>
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan={7} className="h-24 text-center text-[13px] text-muted-foreground">
+                                    <td colSpan={7} className="h-24 text-center text-[13px] text-zoru-ink-muted">
                                         No payslips generated for this period.
                                     </td>
                                 </tr>
@@ -144,7 +161,7 @@ export default function PayslipsPage() {
                         </tbody>
                     </table>
                 </div>
-            </ClayCard>
+            </ZoruCard>
         </div>
     );
 }

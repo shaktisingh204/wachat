@@ -1,7 +1,8 @@
 'use client';
 
 import { Link2 } from 'lucide-react';
-import { ClayBadge, HrEntityPage } from '../../_components/hr-entity-page';
+import { HrEntityPage } from '../../_components/hr-entity-page';
+import { ZoruBadge } from '@/components/zoruui';
 import {
   getCustomLinks,
   saveCustomLink,
@@ -27,9 +28,9 @@ export default function CustomLinksPage() {
           key: 'open_in_new_tab',
           label: 'New tab',
           render: (row) => (
-            <ClayBadge tone={row.open_in_new_tab ? 'amber' : 'neutral'}>
+            <ZoruBadge variant={row.open_in_new_tab ? 'warning' : 'ghost'}>
               {row.open_in_new_tab ? 'Yes' : 'No'}
-            </ClayBadge>
+            </ZoruBadge>
           ),
         },
         { key: 'position', label: 'Order' },

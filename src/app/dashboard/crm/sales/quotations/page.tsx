@@ -2,14 +2,23 @@
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Plus, FileText, LoaderCircle } from 'lucide-react';
 import { getQuotations } from '@/app/actions/crm-quotations.actions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
 import type { WithId, CrmQuotation } from '@/lib/definitions';
 import Link from 'next/link';
 
-import { ClayButton, ClayCard, ClayBadge } from '@/components/clay';
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 export default function QuotationsPage() {
@@ -34,12 +43,12 @@ export default function QuotationsPage() {
         fetchData();
     }, [fetchData]);
 
-    const getStatusTone = (status: string): 'green' | 'amber' | 'red' | 'rose-soft' => {
+    const getStatusVariant = (status: string): 'success' | 'warning' | 'danger' | 'ghost' => {
         const s = status.toLowerCase();
-        if (s === 'accepted') return 'green';
-        if (s === 'sent') return 'amber';
-        if (s === 'declined' || s === 'expired') return 'red';
-        return 'rose-soft';
+        if (s === 'accepted') return 'success';
+        if (s === 'sent') return 'warning';
+        if (s === 'declined' || s === 'expired') return 'danger';
+        return 'ghost';
     };
 
     return (
@@ -50,57 +59,58 @@ export default function QuotationsPage() {
                 icon={FileText}
                 actions={
                     <Link href="/dashboard/crm/sales/quotations/new">
-                        <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}>
+                        <ZoruButton>
+                            <Plus className="h-4 w-4" strokeWidth={1.75} />
                             New Quotation
-                        </ClayButton>
+                        </ZoruButton>
                     </Link>
                 }
             />
 
-            <ClayCard>
+            <ZoruCard className="p-6">
                 <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-foreground">Recent Quotations</h2>
-                    <p className="mt-0.5 text-[12.5px] text-muted-foreground">A list of quotations you have created.</p>
+                    <h2 className="text-[16px] text-zoru-ink">Recent Quotations</h2>
+                    <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">A list of quotations you have created.</p>
                 </div>
-                <div className="overflow-x-auto rounded-lg border border-border">
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="border-border hover:bg-transparent">
-                                <TableHead className="text-muted-foreground">Quotation #</TableHead>
-                                <TableHead className="text-muted-foreground">Client</TableHead>
-                                <TableHead className="text-muted-foreground">Date</TableHead>
-                                <TableHead className="text-muted-foreground">Status</TableHead>
-                                <TableHead className="text-muted-foreground text-right">Amount</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
+                <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                    <ZoruTable>
+                        <ZoruTableHeader>
+                            <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                                <ZoruTableHead className="text-zoru-ink-muted">Quotation #</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted">Client</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted">Date</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted text-right">Amount</ZoruTableHead>
+                            </ZoruTableRow>
+                        </ZoruTableHeader>
+                        <ZoruTableBody>
                             {isLoading ? (
-                                <TableRow className="border-border">
-                                    <TableCell colSpan={5} className="text-center h-24">
-                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
-                                    </TableCell>
-                                </TableRow>
+                                <ZoruTableRow className="border-zoru-line">
+                                    <ZoruTableCell colSpan={5} className="text-center h-24">
+                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
+                                    </ZoruTableCell>
+                                </ZoruTableRow>
                             ) : quotations.length > 0 ? (
                                 quotations.map(q => (
-                                    <TableRow key={q._id.toString()} className="border-border cursor-pointer">
-                                        <TableCell className="font-medium text-foreground">{q.quotationNumber}</TableCell>
-                                        <TableCell className="text-foreground">{accountsMap.get(q.accountId.toString()) || 'Unknown Client'}</TableCell>
-                                        <TableCell className="text-foreground">{new Date(q.quotationDate).toLocaleDateString()}</TableCell>
-                                        <TableCell><ClayBadge tone={getStatusTone(q.status)} dot>{q.status}</ClayBadge></TableCell>
-                                        <TableCell className="text-right font-medium text-foreground">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: q.currency || 'INR' }).format(q.total)}</TableCell>
-                                    </TableRow>
+                                    <ZoruTableRow key={q._id.toString()} className="border-zoru-line cursor-pointer">
+                                        <ZoruTableCell className="text-zoru-ink">{q.quotationNumber}</ZoruTableCell>
+                                        <ZoruTableCell className="text-zoru-ink">{accountsMap.get(q.accountId.toString()) || 'Unknown Client'}</ZoruTableCell>
+                                        <ZoruTableCell className="text-zoru-ink">{new Date(q.quotationDate).toLocaleDateString()}</ZoruTableCell>
+                                        <ZoruTableCell><ZoruBadge variant={getStatusVariant(q.status)}>{q.status}</ZoruBadge></ZoruTableCell>
+                                        <ZoruTableCell className="text-right text-zoru-ink">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: q.currency || 'INR' }).format(q.total)}</ZoruTableCell>
+                                    </ZoruTableRow>
                                 ))
                             ) : (
-                                <TableRow className="border-border">
-                                    <TableCell colSpan={5} className="h-24 text-center text-[13px] text-muted-foreground">
+                                <ZoruTableRow className="border-zoru-line">
+                                    <ZoruTableCell colSpan={5} className="h-24 text-center text-[13px] text-zoru-ink-muted">
                                         No quotations found.
-                                    </TableCell>
-                                </TableRow>
+                                    </ZoruTableCell>
+                                </ZoruTableRow>
                             )}
-                        </TableBody>
-                    </Table>
+                        </ZoruTableBody>
+                    </ZoruTable>
                 </div>
-            </ClayCard>
+            </ZoruCard>
         </div>
     );
 }

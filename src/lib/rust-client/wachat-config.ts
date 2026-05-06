@@ -31,6 +31,10 @@
  *
  *   POST   /projects/:id/widget-settings                                   → saveWidgetSettings
  *
+ *   GET    /me/businesses?accessToken=...                                  → getMeBusinesses
+ *   GET    /waba/:wabaId/details?accessToken=...                           → getWabaDetails
+ *   POST   /waba/:wabaId/name                                              → updateWabaName
+ *
  * Server-only — uses the shared JWT-issuing fetcher.
  */
 import 'server-only';
@@ -247,6 +251,27 @@ export interface QrCode {
 /** Result of `GET /v1/wachat/config/projects/:id/webhook-subscription`. */
 export interface SubscriptionStatus {
     isActive: boolean;
+}
+
+/**
+ * One entry from Meta's `GET /me/businesses` response. Mirrors
+ * `wachat_config::waba_setup::Business` — only `id` is guaranteed; `name`
+ * is best-effort for diagnostics. Used by the OAuth-linked WABA flow to
+ * seed `businessId` for catalog features.
+ */
+export interface Business {
+    id: string;
+    name?: string;
+}
+
+/** Result of `GET /v1/wachat/config/me/businesses`. */
+export interface BusinessesResponse {
+    data: Business[];
+}
+
+/** Result of `GET /v1/wachat/config/waba/:wabaId/details`. */
+export interface WabaDetails {
+    name: string;
 }
 
 /** Per-project failure record from `subscribeAllWebhooks`. */
@@ -474,6 +499,45 @@ export const wachatConfigApi = {
             {
                 method: 'POST',
                 body: JSON.stringify(body),
+            },
+        ),
+
+    // ----------- /me/businesses + /waba/:wabaId/* (pre-project setup) -----------
+
+    /**
+     * `GET /v1/wachat/config/me/businesses` — proxies to Meta
+     * `GET /me/businesses`. Used by the OAuth-linked WABA flow to seed
+     * `businessId` when `includeCatalog=true`. The accessToken travels in
+     * the query string because at call time the project doc may not exist
+     * yet (the BFF therefore can't read it from Mongo).
+     */
+    getMeBusinesses: (accessToken: string) =>
+        rustFetch<BusinessesResponse>(
+            `${BASE}/me/businesses${qs({ accessToken })}`,
+        ),
+
+    /**
+     * `GET /v1/wachat/config/waba/:wabaId/details` — proxies to Meta
+     * `GET /{wabaId}?fields=name`. Returns the WABA's display name so the
+     * OAuth-linked setup flow can seed the new project's `name` field.
+     */
+    getWabaDetails: (wabaId: string, accessToken: string) =>
+        rustFetch<WabaDetails>(
+            `${BASE}/waba/${encodeURIComponent(wabaId)}/details${qs({ accessToken })}`,
+        ),
+
+    /**
+     * `POST /v1/wachat/config/waba/:wabaId/name` — proxies to Meta
+     * `POST /{wabaId}` with `{ name }`. Renames the WABA on Meta's side.
+     * The accessToken travels in the JSON body so it doesn't end up in
+     * server access logs.
+     */
+    updateWabaName: (wabaId: string, accessToken: string, name: string) =>
+        rustFetch<Record<string, unknown>>(
+            `${BASE}/waba/${encodeURIComponent(wabaId)}/name`,
+            {
+                method: 'POST',
+                body: JSON.stringify({ accessToken, name }),
             },
         ),
 };

@@ -6,8 +6,26 @@
  */
 
 import Link from 'next/link';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import {
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruEmptyState,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+} from '@/components/zoruui';
+import { Store } from 'lucide-react';
 import { listApps } from '@/lib/marketplace';
 import type { AppListFilter, AppPricing } from '@/lib/marketplace';
 
@@ -49,21 +67,43 @@ export default async function MarketplacePage({ searchParams }: PageProps) {
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <header className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold tracking-tight">App Marketplace</h1>
-        <p className="text-muted-foreground">
-          Extend SabNode with apps from our developer community
-          {total > 0 ? ` — ${total} app${total === 1 ? '' : 's'} available` : ''}.
-        </p>
-      </header>
+    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Marketplace</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
+
+      <ZoruPageHeader>
+        <ZoruPageHeading>
+          <ZoruPageTitle>App Marketplace</ZoruPageTitle>
+          <ZoruPageDescription>
+            Extend SabNode with apps from our developer community
+            {total > 0 ? ` — ${total} app${total === 1 ? '' : 's'} available` : ''}.
+          </ZoruPageDescription>
+        </ZoruPageHeading>
+      </ZoruPageHeader>
 
       {loadError ? (
-        <div className="rounded-md border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
+        <div className="rounded-md border border-zoru-danger/40 bg-zoru-danger/10 p-4 text-sm text-zoru-danger-ink">
           {loadError}
         </div>
       ) : apps.length === 0 ? (
-        <EmptyState query={filter.q} />
+        <ZoruEmptyState
+          icon={<Store />}
+          title="No apps found"
+          description={
+            filter.q
+              ? `Nothing matched "${filter.q}". Try a different search or clear filters.`
+              : 'The marketplace is currently empty. Check back soon — new apps are on the way.'
+          }
+        />
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {apps.map((app) => (
@@ -72,8 +112,8 @@ export default async function MarketplacePage({ searchParams }: PageProps) {
               href={`/dashboard/marketplace/${encodeURIComponent(app.appId)}`}
               className="group focus:outline-none"
             >
-              <Card variant="interactive" className="h-full">
-                <CardHeader>
+              <ZoruCard interactive className="h-full">
+                <ZoruCardHeader>
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3">
                       {app.manifest.iconUrl ? (
@@ -81,51 +121,51 @@ export default async function MarketplacePage({ searchParams }: PageProps) {
                         <img
                           src={app.manifest.iconUrl}
                           alt=""
-                          className="h-10 w-10 rounded-md border object-cover"
+                          className="h-10 w-10 rounded-md border border-zoru-line object-cover"
                         />
                       ) : (
-                        <div className="flex h-10 w-10 items-center justify-center rounded-md border bg-muted text-base font-semibold text-muted-foreground">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-md border border-zoru-line bg-zoru-surface-2 text-base font-semibold text-zoru-ink-muted">
                           {app.manifest.name.slice(0, 1).toUpperCase()}
                         </div>
                       )}
                       <div className="flex flex-col">
-                        <CardTitle className="text-base group-hover:text-primary">
+                        <ZoruCardTitle className="text-base">
                           {app.manifest.name}
-                        </CardTitle>
-                        <span className="text-xs text-muted-foreground">
+                        </ZoruCardTitle>
+                        <span className="text-xs text-zoru-ink-muted">
                           by {app.manifest.publisher.name}
                         </span>
                       </div>
                     </div>
                     <PriceBadge pricing={app.manifest.pricing} />
                   </div>
-                </CardHeader>
-                <CardContent className="flex flex-col gap-3">
+                </ZoruCardHeader>
+                <ZoruCardContent className="flex flex-col gap-3">
                   {app.manifest.description ? (
-                    <CardDescription className="line-clamp-3">
+                    <ZoruCardDescription className="line-clamp-3">
                       {app.manifest.description}
-                    </CardDescription>
+                    </ZoruCardDescription>
                   ) : (
-                    <CardDescription className="text-muted-foreground/70 italic">
+                    <ZoruCardDescription className="italic text-zoru-ink-muted">
                       No description provided.
-                    </CardDescription>
+                    </ZoruCardDescription>
                   )}
                   <div className="flex flex-wrap gap-1.5">
                     {app.manifest.categories.slice(0, 3).map((cat) => (
-                      <Badge key={cat} variant="secondary" className="text-[10px]">
+                      <ZoruBadge key={cat} variant="secondary" className="text-[10px]">
                         {cat}
-                      </Badge>
+                      </ZoruBadge>
                     ))}
                   </div>
-                  <div className="mt-auto flex items-center justify-between text-xs text-muted-foreground">
+                  <div className="mt-auto flex items-center justify-between text-xs text-zoru-ink-muted">
                     <span>v{app.manifest.version}</span>
                     <span>
                       {app.installCount.toLocaleString()} install
                       {app.installCount === 1 ? '' : 's'}
                     </span>
                   </div>
-                </CardContent>
-              </Card>
+                </ZoruCardContent>
+              </ZoruCard>
             </Link>
           ))}
         </div>
@@ -136,7 +176,7 @@ export default async function MarketplacePage({ searchParams }: PageProps) {
 
 function PriceBadge({ pricing }: { pricing: AppPricing }) {
   if (pricing.type === 'free') {
-    return <Badge variant="secondary">Free</Badge>;
+    return <ZoruBadge variant="secondary">Free</ZoruBadge>;
   }
   const label =
     pricing.type === 'subscription'
@@ -149,23 +189,8 @@ function PriceBadge({ pricing }: { pricing: AppPricing }) {
       ? `${pricing.currency} ${(pricing.amount / 100).toFixed(2)}`
       : null;
   return (
-    <Badge variant="outline" className="whitespace-nowrap">
+    <ZoruBadge variant="outline" className="whitespace-nowrap">
       {formatted ? `${formatted} · ${label}` : label}
-    </Badge>
-  );
-}
-
-function EmptyState({ query }: { query?: string }) {
-  return (
-    <Card>
-      <CardContent className="flex flex-col items-center justify-center gap-2 py-16 text-center">
-        <h2 className="text-lg font-semibold">No apps found</h2>
-        <p className="max-w-md text-sm text-muted-foreground">
-          {query
-            ? `Nothing matched "${query}". Try a different search or clear filters.`
-            : 'The marketplace is currently empty. Check back soon — new apps are on the way.'}
-        </p>
-      </CardContent>
-    </Card>
+    </ZoruBadge>
   );
 }

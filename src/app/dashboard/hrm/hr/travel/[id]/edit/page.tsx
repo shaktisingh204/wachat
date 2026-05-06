@@ -8,7 +8,7 @@ import {
   getTravelRequests,
   saveTravelRequest,
 } from '@/app/actions/hr.actions';
-import { Skeleton } from '@/components/ui/skeleton';
+import { ZoruSkeleton } from '@/components/zoruui';
 
 export default function EditTravelRequestPage({
   params,
@@ -39,8 +39,8 @@ export default function EditTravelRequestPage({
   if (loading) {
     return (
       <div className="flex w-full flex-col gap-4">
-        <Skeleton className="h-12 w-full" />
-        <Skeleton className="h-64 w-full" />
+        <ZoruSkeleton className="h-12 w-full" />
+        <ZoruSkeleton className="h-64 w-full" />
       </div>
     );
   }

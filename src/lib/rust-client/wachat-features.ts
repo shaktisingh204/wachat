@@ -379,6 +379,54 @@ export const wachatFeaturesApi = {
         post<MessageEnvelope>(`/projects/${enc(projectId)}/conversation-filters`, { name, conditions }),
     deleteConversationFilter: (filterId: string) =>
         del<OkEnvelope>(`/conversation-filters/${enc(filterId)}`),
+
+    // ---- health / conversational automation / commerce settings ----------
+    // Wraps Meta Cloud API calls previously inlined in
+    // `src/app/actions/whatsapp.actions.ts` (getWabaHealthStatus,
+    // getPhoneNumberHealthStatus, getConversationalAutomation +
+    // update/delete, getCommerceSettings + update).
+    getWabaHealth: (wabaId: string) =>
+        get<{ healthStatus: any | null }>(`/waba/${enc(wabaId)}/health`),
+    getPhoneNumberHealth: (phoneNumberId: string) =>
+        get<{
+            healthStatus: any | null;
+            messagingLimitTier: any | null;
+            nameStatus: any | null;
+            qualityRating: any | null;
+        }>(`/phone-numbers/${enc(phoneNumberId)}/health`),
+
+    getConversationalAutomation: (phoneNumberId: string) =>
+        get<{ automation: any }>(
+            `/phone-numbers/${enc(phoneNumberId)}/conversational-automation`,
+        ),
+    updateConversationalAutomation: (
+        phoneNumberId: string,
+        body: {
+            enable_welcome_message?: boolean;
+            prompts?: string[];
+            commands?: Array<{ command_name: string; command_description: string }>;
+        },
+    ) =>
+        post<MessageEnvelope>(
+            `/phone-numbers/${enc(phoneNumberId)}/conversational-automation`,
+            body,
+        ),
+    deleteConversationalAutomation: (phoneNumberId: string, fields: string[]) =>
+        rustFetch<MessageEnvelope>(
+            `${BASE}/phone-numbers/${enc(phoneNumberId)}/conversational-automation`,
+            { method: 'DELETE', body: JSON.stringify({ fields }) },
+        ),
+
+    getCommerceSettings: (phoneNumberId: string) =>
+        get<{ settings: any }>(`/phone-numbers/${enc(phoneNumberId)}/commerce-settings`),
+    updateCommerceSettings: (
+        phoneNumberId: string,
+        body: { is_cart_enabled?: boolean; is_catalog_visible?: boolean },
+    ) =>
+        post<MessageEnvelope>(
+            `/phone-numbers/${enc(phoneNumberId)}/commerce-settings`,
+            body,
+        ),
 };
 
 export type WachatFeaturesApi = typeof wachatFeaturesApi;

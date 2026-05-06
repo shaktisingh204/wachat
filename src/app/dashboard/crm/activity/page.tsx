@@ -1,6 +1,11 @@
 import { Activity } from 'lucide-react';
 
-import { CrmPageHeader } from '../_components/crm-page-header';
+import {
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+} from '@/components/zoruui';
 import { getUserActivities } from '@/app/actions/worksuite/chat.actions';
 import type { WsUserActivity } from '@/lib/worksuite/chat-types';
 import { ActivityBrowser } from './_components/activity-browser';
@@ -29,11 +34,17 @@ export default async function ActivityPage({
 
   return (
     <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="User Activity Log"
-        subtitle="Audit trail of everything your teammates do."
-        icon={Activity}
-      />
+      <ZoruPageHeader>
+        <div className="flex items-start gap-3">
+          <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-zoru-surface-2">
+            <Activity className="h-5 w-5 text-zoru-ink" strokeWidth={1.75} />
+          </div>
+          <ZoruPageHeading>
+            <ZoruPageTitle>User Activity Log</ZoruPageTitle>
+            <ZoruPageDescription>Audit trail of everything your teammates do.</ZoruPageDescription>
+          </ZoruPageHeading>
+        </div>
+      </ZoruPageHeader>
       <ActivityBrowser
         activities={activities}
         initialFilters={{

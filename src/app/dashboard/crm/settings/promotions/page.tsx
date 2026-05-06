@@ -1,7 +1,8 @@
 'use client';
 
 import { BadgePercent } from 'lucide-react';
-import { ClayBadge, HrEntityPage } from '../../_components/hr-entity-page';
+import { HrEntityPage } from '../../_components/hr-entity-page';
+import { ZoruBadge } from '@/components/zoruui';
 import {
   getPromotionsExt,
   savePromotionExt,
@@ -33,7 +34,7 @@ export default function PromotionsPage() {
           key: 'code',
           label: 'Code',
           render: (row) => (
-            <ClayBadge tone="obsidian">{String(row.code || '')}</ClayBadge>
+            <ZoruBadge>{String(row.code || '')}</ZoruBadge>
           ),
         },
         {
@@ -56,9 +57,9 @@ export default function PromotionsPage() {
           key: 'status',
           label: 'Status',
           render: (row) => (
-            <ClayBadge tone={row.status === 'active' ? 'green' : 'neutral'}>
+            <ZoruBadge variant={row.status === 'active' ? 'success' : 'ghost'}>
               {row.status}
-            </ClayBadge>
+            </ZoruBadge>
           ),
         },
       ]}

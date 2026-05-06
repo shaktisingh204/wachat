@@ -3,7 +3,7 @@
 import { Wallet } from 'lucide-react';
 
 import { HrEntityPage } from '../../_components/hr-entity-page';
-import { ClayBadge } from '@/components/clay';
+import { ZoruBadge } from '@/components/zoruui';
 import {
   getOfflinePaymentMethods,
   saveOfflinePaymentMethod,
@@ -37,9 +37,9 @@ export default function OfflinePaymentMethodsPage() {
           key: 'is_active',
           label: 'Status',
           render: (row) => (
-            <ClayBadge tone={row.is_active ? 'green' : 'neutral'} dot>
+            <ZoruBadge variant={row.is_active ? 'success' : 'ghost'}>
               {row.is_active ? 'active' : 'inactive'}
-            </ClayBadge>
+            </ZoruBadge>
           ),
         },
       ]}
