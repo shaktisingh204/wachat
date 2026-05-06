@@ -12,11 +12,25 @@ function getJwtSecretKey(): Uint8Array {
 export async function verifyJwtEdge(token: string): Promise<boolean> {
     try {
         const { payload } = await jwtVerify(token, getJwtSecretKey());
-        return !!payload; // If verification succeeds, return true.
+        if (!isBrowserSessionPayload(payload)) {
+            throw new Error('Session JWT payload missing required browser-session claims.');
+        }
+        return true;
     } catch (e: any) {
         // Re-throw the error so the middleware can catch it and handle cookie deletion.
         throw e;
     }
+}
+
+function isBrowserSessionPayload(payload: JWTPayload): boolean {
+    return Boolean(
+        payload.jti &&
+        payload.exp &&
+        typeof payload.userId === 'string' &&
+        payload.userId.length > 0 &&
+        typeof payload.email === 'string' &&
+        payload.email.length > 0,
+    );
 }
 
 

@@ -223,6 +223,44 @@ export async function handleForgotPassword(prevState: { message?: string; error?
     return { message: "If an account with this email exists, a password reset link has been sent." };
 }
 
+async function getSessionFromMongo(decoded: Awaited<ReturnType<typeof getDecodedSession>>) {
+    const userId = (decoded as any)?.userId;
+    if (!userId || !ObjectId.isValid(userId)) return null;
+
+    const { db } = await connectToDatabase();
+    const dbUser = await db.collection<User>('users').findOne(
+        { _id: new ObjectId(userId) },
+        { projection: { password: 0 } },
+    );
+
+    if (!dbUser) {
+        console.log(`[getSession] User not found in DB for ID: ${userId}`);
+        return null;
+    }
+
+    let plan: WithId<Plan> | null = null;
+    const planId = (dbUser as any).planId;
+    if (planId && ObjectId.isValid(String(planId))) {
+        plan = await db.collection<WithId<Plan>>('plans').findOne({
+            _id: new ObjectId(String(planId)),
+        });
+    }
+    if (!plan) {
+        plan = await db.collection<WithId<Plan>>('plans').findOne({ isDefault: true });
+    }
+
+    return {
+        user: {
+            ...JSON.parse(JSON.stringify(dbUser)),
+            _id: dbUser._id.toString(),
+            planId: planId?.toString?.() ?? planId,
+            name: dbUser.name || (decoded as any).name,
+            image: (dbUser as any).image || (decoded as any).picture,
+            plan: plan ? JSON.parse(JSON.stringify(plan)) : null,
+        },
+    };
+}
+
 export async function getSession() {
     // Cookie decode stays on the Next.js side (it's an httpOnly Next.js
     // cookie); the heavy Mongo work — user lookup, plan join, credits
@@ -238,8 +276,14 @@ export async function getSession() {
         if (!decoded) return null;
 
         const { sessionApi } = await import('@/lib/rust-client/session');
-        const rust = await sessionApi.me();
-        if (!rust?.user) return null;
+        let rust;
+        try {
+            rust = await sessionApi.me();
+        } catch (error) {
+            console.error('[getSession] Rust session lookup failed; falling back to Mongo:', error);
+            return await getSessionFromMongo(decoded);
+        }
+        if (!rust?.user) return await getSessionFromMongo(decoded);
 
         // Backfill `name`/`image` from the JWT for parity with the legacy
         // shape — Rust returns whatever's in Mongo, while the old action
@@ -439,4 +483,3 @@ export async function getCurrentUserViaRust() {
     const { rustClient } = await import('@/lib/rust-client');
     return rustClient.users.me();
 }
-
