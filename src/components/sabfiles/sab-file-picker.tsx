@@ -285,7 +285,7 @@ export function SabFilePicker({
                 setTasks((t) =>
                     t.map((x) =>
                         x.id === taskId
-                            ? { ...x, status: 'error', error: 'Upload to R2 failed' }
+                            ? { ...x, status: 'error', error: 'Upload failed' }
                             : x,
                     ),
                 );

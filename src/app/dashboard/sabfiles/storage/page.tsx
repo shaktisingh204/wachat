@@ -38,9 +38,9 @@ export default async function SabFilesStoragePage() {
 
             <ZoruCard>
                 <ZoruCardHeader>
-                    <ZoruCardTitle>Cloudflare R2</ZoruCardTitle>
+                    <ZoruCardTitle>Cloud storage</ZoruCardTitle>
                     <ZoruCardDescription>
-                        Files uploaded to SabFiles are stored on Cloudflare R2.
+                        Files uploaded to SabFiles are stored in cloud storage.
                     </ZoruCardDescription>
                 </ZoruCardHeader>
                 <ZoruCardContent className="flex flex-col gap-3">

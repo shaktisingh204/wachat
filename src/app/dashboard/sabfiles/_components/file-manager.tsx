@@ -221,7 +221,7 @@ export function FileManager({
                                     ? {
                                           ...t,
                                           status: 'error',
-                                          error: `R2 returned ${xhr.status}`,
+                                          error: `Storage returned ${xhr.status}`,
                                       }
                                     : t,
                             ),
