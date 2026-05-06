@@ -16,6 +16,23 @@ A comprehensive, exhaustive list of every CRM/HRM feature and the **maximum poss
 - ◇ `assignedTo`, `teamId`, `pipelineId`, `stageId`
 - ◇ `source`, `referrerId`, `campaignId`, `utm{ source, medium, campaign, term, content }`
 
+**Rust port — §0 foundation: DONE (2026-05-06).** New workspace crate `crm-core` provides each fragment as a `#[serde(flatten)]`-able struct that every CRM/HRM entity DTO will compose. Pure types, no I/O, no async — same contract as `wachat-types`. Per the user's "CRM backend in Rust from now" directive, all subsequent §1+ entity crates flatten these fragments instead of redefining them.
+
+- [rust/crates/crm-core/Cargo.toml](rust/crates/crm-core/Cargo.toml) — package + workspace registration
+- [rust/crates/crm-core/src/lib.rs](rust/crates/crm-core/src/lib.rs) — module orchestration + re-exports
+- [rust/crates/crm-core/src/identity.rs](rust/crates/crm-core/src/identity.rs) — `Identity { _id, projectId, userId, tenantId? }`
+- [rust/crates/crm-core/src/audit.rs](rust/crates/crm-core/src/audit.rs) — `Audit { createdAt, updatedAt, createdBy?, updatedBy? }` + `new(actor)` / `touch(actor)` helpers
+- [rust/crates/crm-core/src/lifecycle.rs](rust/crates/crm-core/src/lifecycle.rs) — `Status` (transparent string newtype, entity-specific vocab), `Priority` (low/medium/high/critical), `SoftDelete { archived, deletedAt? }`, composite `Lifecycle`
+- [rust/crates/crm-core/src/assignment.rs](rust/crates/crm-core/src/assignment.rs) — `Assignment { assignedTo?, teamId?, pipelineId?, stageId? }`
+- [rust/crates/crm-core/src/attribution.rs](rust/crates/crm-core/src/attribution.rs) — `Attribution { source?, referrerId?, campaignId?, utm }` + `Utm { source, medium, campaign, term, content }`
+- [rust/crates/crm-core/src/tagging.rs](rust/crates/crm-core/src/tagging.rs) — `Tags(Vec<String>)` denormalized pointer list
+- [rust/crates/crm-core/src/note.rs](rust/crates/crm-core/src/note.rs) — `Note { _id?, body, authorId?, createdAt, editedAt? }`
+- [rust/crates/crm-core/src/attachment.rs](rust/crates/crm-core/src/attachment.rs) — `Attachment { fileId, name?, mimeType?, size? }` (SabFile pointer; raw URLs forbidden per project policy)
+- [rust/crates/crm-core/src/custom_fields.rs](rust/crates/crm-core/src/custom_fields.rs) — `CustomFields(BTreeMap<String, serde_json::Value>)` opaque bag
+- Workspace registration: [rust/Cargo.toml](rust/Cargo.toml) `members` extended with `crates/crm-core`.
+- Verification: `cargo check -p crm-core` clean; `cargo test -p crm-core` → 6 unit tests pass (camelCase round-trip, lowercase priority, default-skip, UTM empty/populated round-trip).
+- **NEXT (§0 follow-on) →** §1.1 Clients & Prospects DTO crate that flattens `Identity` + `Audit` + `Lifecycle` + `Assignment` + `Attribution` + `Tags` + `CustomFields` + `Attachment[]` + `Note[]` and adds the §1.1 entity-specific fields.
+
 ---
 
 ## 1 · CRM — Sales

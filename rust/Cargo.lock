@@ -1083,6 +1083,31 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "790eea4361631c5e7d22598ecd5723ff611904e3344ce8720784c93e3d83d40b"
 
 [[package]]
+name = "crm-core"
+version = "0.1.0"
+dependencies = [
+ "bson",
+ "chrono",
+ "sabnode-common",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+]
+
+[[package]]
+name = "crm-sales-types"
+version = "0.1.0"
+dependencies = [
+ "bson",
+ "chrono",
+ "crm-core",
+ "sabnode-common",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+]
+
+[[package]]
 name = "crossbeam-channel"
 version = "0.5.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
