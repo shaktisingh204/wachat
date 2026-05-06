@@ -1,4 +1,5 @@
 require('dotenv').config();
+require('dotenv').config({ path: './rust/.env', override: false });
 
 module.exports = {
   apps: [
