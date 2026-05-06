@@ -178,6 +178,10 @@ export async function saveCustomField(_prev: any, formData: FormData) {
     const raw = formToObject(formData, ['position']);
     raw.is_required = asBool(raw.is_required);
     raw.display_in_table = asBool(raw.display_in_table);
+    // `multi` is only meaningful for `entity_ref`, but coercing it
+    // unconditionally keeps the code uniform and is harmless for other
+    // types (the field is optional so an unused `false` is fine).
+    raw.multi = asBool(raw.multi);
 
     // values: comma-delimited string → array
     if (typeof raw.values === 'string') {
@@ -190,6 +194,14 @@ export async function saveCustomField(_prev: any, formData: FormData) {
     // ensure a slug
     if (!raw.name && raw.label) raw.name = slugify(raw.label);
     else if (raw.name) raw.name = slugify(raw.name);
+
+    // entity_ref: scrub `targetEntity` for non-ref types so we don't
+    // leave stale config on disk if a field is converted between types.
+    if (raw.type !== 'entity_ref') {
+      delete raw.targetEntity;
+    } else if (typeof raw.targetEntity === 'string') {
+      raw.targetEntity = raw.targetEntity.trim() || undefined;
+    }
 
     // Denormalise belongs_to from the chosen group, if missing
     if (!raw.belongs_to && raw.group_id && typeof raw.group_id === 'string') {

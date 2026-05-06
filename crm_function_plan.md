@@ -569,3 +569,222 @@ Once everything is linked through pickers + lineage, the following cross-module 
 - Quotation accepted (e-sign) → create SO + send to warehouse + create Invoice draft.
 
 Each rule becomes a row in the Automations table, all entity references via pickers; conditions and actions traverse the same lookup registry — no code change per rule.
+
+---
+
+## 15 · Execution log (what's already shipped)
+
+This section is the **source of truth for what's done vs. pending** so a fresh session can pick up without re-discovering. Date-stamped in absolute dates. Read this first before touching code in `src/app/dashboard/crm/**` or `src/components/crm/**`.
+
+### ✅ Phase 1 — Sidebar IA + cards-to-redirects (2026-05-06)
+
+#### Sidebar rewrite
+
+- `src/components/wabasimplify/crm-tab-layout.tsx` — `crmMenuItems` rewritten to mirror §11 IA (~264 lines changed). New top-level **Reports** group; **Sales CRM** sub-grouping introduced; **HR & Payroll** expanded from 7 → 14 sub-groups: Recruitment, People, Employee Mgmt, Attendance & Leave, Shifts & Time, Payroll Mgmt, Statutory, Performance & Growth, Learning, Docs & Assets, Travel & Expenses, Exit & Comp, Reports, Settings. Awards/Recognition links to `/dashboard/hrm/hr/awards`; Disciplinary Cases to `/dashboard/hrm/hr/disciplinary`.
+- The active dashboard chrome on most routes is `src/components/zoruui/shell/zoru-home-shell.tsx` (mounted via `src/app/dashboard/layout.tsx`). `crm-tab-layout.tsx` itself is no longer on the active path but is still imported elsewhere — left alone.
+
+#### Cards-to-redirect (9 module landing pages)
+
+Each previously rendered `<CrmModuleOverview>` cards. All now `redirect()` server-side to the first concrete sub-route:
+
+| Path | Redirects to |
+|---|---|
+| `src/app/dashboard/crm/sales/page.tsx` | `/dashboard/crm/sales/clients` |
+| `src/app/dashboard/crm/purchases/page.tsx` | `/dashboard/crm/purchases/vendors` |
+| `src/app/dashboard/crm/accounting/page.tsx` | `/dashboard/crm/accounting/charts` |
+| `src/app/dashboard/crm/banking/page.tsx` | `/dashboard/crm/banking/all` |
+| `src/app/dashboard/crm/sales-crm/page.tsx` | `/dashboard/crm/sales-crm/leads` |
+| `src/app/dashboard/crm/hrm/page.tsx` | first concrete payroll route |
+| `src/app/dashboard/crm/hrm/hr/page.tsx` | first concrete HR route |
+| `src/app/dashboard/crm/workspace/page.tsx` | `/dashboard/crm` |
+| `src/app/dashboard/crm/time-tracking/page.tsx` | `/dashboard/crm` |
+
+#### What was kept (do not delete)
+
+- `src/components/crm/crm-module-overview.tsx` — still imported by other callers.
+- `src/components/crm/crm-page-header.tsx` — same.
+- `src/app/dashboard/crm/inventory/page.tsx` — already redirected before this work.
+
+### ✅ Phase 2 — EntityPicker foundation + 21 §12 skeleton routes + 7 form migrations + lineage + Cmd-K (2026-05-06)
+
+#### Foundation files (import these directly, do not re-create)
+
+| Path | Exports | Purpose |
+|---|---|---|
+| `src/lib/lookup-registry.ts` | `EntityKey`, `ENTITY_KEYS`, `LookupChip`, `LookupItem`, `LookupParams`, `LookupResult`, `EntityLookupConfig`, `LookupRegistry`, `LOOKUP_MAX_LIMIT` | Pure type/contract module — safe to import in client code. |
+| `src/app/actions/crm-lookup.actions.ts` | `lookupEntity(entity, params)` server action; internal `registry: LookupRegistry` and `makeMongoLookup({ collection, searchableFields, toChip, defaultFilter? })` helper | Tenant-scoped (`userId`-filtered), paginated, supports `ids[]` hydration + free-text `$regex` search. |
+| `src/components/crm/entity-picker.tsx` | `<EntityPicker>`, `<EntityPickerChip>` | 200ms debounce + AbortController, hydrate-on-mount, recents in `localStorage` keyed `entityPicker.recent.<entity>` (max 5), infinite scroll, multi-select, optional `+ Create new …` row, zoru-ui styled. |
+
+#### 21 §12 skeleton routes (one `page.tsx` each, all from commit `189d4eabe`)
+
+CRM-side (19):
+
+| Path | §12 ref |
+|---|---|
+| `src/app/dashboard/crm/sales/subscriptions/page.tsx` | §12.1 |
+| `src/app/dashboard/crm/sales/contracts/page.tsx` | §12.2 |
+| `src/app/dashboard/crm/sales/coupons/page.tsx` | §12.7 |
+| `src/app/dashboard/crm/sales/loyalty/page.tsx` | §12.7 |
+| `src/app/dashboard/crm/sales/gift-cards/page.tsx` | §12.7 |
+| `src/app/dashboard/crm/purchases/rfqs/page.tsx` | §12.3 |
+| `src/app/dashboard/crm/inventory/grn/page.tsx` | §12.4 |
+| `src/app/dashboard/crm/inventory/bom/page.tsx` | §12.5 |
+| `src/app/dashboard/crm/budgets/page.tsx` | §12.14 (top-level — **not** under accounting/) |
+| `src/app/dashboard/crm/petty-cash/page.tsx` | §12.15 (top-level — **not** under banking/) |
+| `src/app/dashboard/crm/loans/page.tsx` | §12.16 (top-level — **not** under banking/) |
+| `src/app/dashboard/crm/tickets/sla/page.tsx` | §12.8 |
+| `src/app/dashboard/crm/tickets/knowledge-base/page.tsx` | §12.9 |
+| `src/app/dashboard/crm/service-contracts/page.tsx` | §12.11 (top-level) |
+| `src/app/dashboard/crm/bookings/page.tsx` | §12.12 (top-level) |
+| `src/app/dashboard/crm/fixed-assets/page.tsx` | §12.13 (top-level) |
+| `src/app/dashboard/crm/audit-log/page.tsx` | §12.21 (top-level) |
+| `src/app/dashboard/crm/portal/page.tsx` | §12.10 (top-level) |
+| `src/app/dashboard/crm/dashboards/page.tsx` | §12.24 (top-level) |
+
+HRM-side (2):
+
+| Path | §12 ref |
+|---|---|
+| `src/app/dashboard/hrm/hr/awards/page.tsx` | §12.28 |
+| `src/app/dashboard/hrm/hr/disciplinary/page.tsx` | §12.28 |
+
+> Each is a 21-line placeholder with the §12 subsection title and a "coming soon" body. **Replace, don't recreate**, when implementing the real feature.
+
+#### Form migrations to `<EntityPicker>` (1 PoC + 6 forms = 7 total)
+
+Submit shapes preserved on every form via hidden `<input>` so server actions stayed untouched. Legacy `Smart*Select` components left in place pending a codemod sweep (P0).
+
+| Form path | Pickers wired |
+|---|---|
+| `src/app/dashboard/crm/sales/invoices/new/page.tsx` (PoC) | `client` |
+| `src/app/dashboard/crm/sales/quotations/new/page.tsx` | `client`, line-item `item` |
+| `src/app/dashboard/crm/sales/orders/new/page.tsx` | `client`, line-item `item` |
+| `src/app/dashboard/crm/purchases/orders/new/new-order-form.tsx` | `vendor`, `warehouse`, line-item `item` |
+| `src/app/dashboard/crm/purchases/expenses/new/new-expense-form.tsx` | `vendor`, optional billable `client` |
+| `src/app/dashboard/crm/sales/receipts/new/page.tsx` | `client`, `bankAccount` |
+| `src/components/wabasimplify/crm-employee-form.tsx` | reporting-to `employee` (self-excluded), linked `bankAccount` |
+
+#### Lineage system (§13.5)
+
+| Path | Exports / change |
+|---|---|
+| `src/lib/lineage.ts` | `appendLineage(prev, next)`, `buildLineageFromParent(parent, parentKind)` — pure helpers. |
+| `src/components/crm/lineage-rail.tsx` | `<LineageRail>`, `kindToHref: Record<LineageKind, (id) => string>`, `SALES_CHAIN`, `PURCHASE_CHAIN`. Auto-detects chain from `current.kind`. |
+| `src/lib/definitions.ts` | New `LineageKind` union (16 values): `lead`, `deal`, `quotation`, `proforma`, `salesOrder`, `deliveryChallan`, `invoice`, `paymentReceipt`, `creditNote`, `rfq`, `vendorBid`, `purchaseOrder`, `grn`, `bill`, `payout`, `debitNote`. New `LineageRef`. Optional `lineage?: LineageRef[]` field added to **13 doc types**: `Deal`, `Lead`, `CrmPurchaseOrder`, `CrmDebitNote`, `CrmExpense` (Bill), `CrmPayout`, `CrmInvoice`, `CrmQuotation`, `CrmProformaInvoice`, `CrmPaymentReceipt`, `CrmSalesOrder`, `CrmDeliveryChallan`, `CrmCreditNote`. |
+
+Conversion paths wired so far:
+- `convertInvoiceToCreditNote` propagates lineage end-to-end.
+- `saveInvoice` accepts optional `fromKind` / `fromId` form fields to seed lineage on creation.
+- `src/app/dashboard/crm/sales/invoices/[invoiceId]/page.tsx` — minimal detail page rendering `<LineageRail>` (template for other detail pages).
+
+#### Cmd-K palette (§13.6)
+
+| Path | Exports | Behaviour |
+|---|---|---|
+| `src/components/crm/command-palette.tsx` | `<CommandPaletteProvider>`, `useCommandPalette()` hook, internal `<CommandPalette>` | Provider owns open state + the global `Cmd/Ctrl+K` listener (skipped while typing in inputs). Empty state: 11 quick actions + recents (round-robin from `entityPicker.recent.<entity>` localStorage, capped at 8). Search: 8-way parallel `lookupEntity` fan-out, debounced + aborted, grouped by entity. |
+
+Mounted in `src/app/dashboard/layout.tsx` as `<CommandPaletteProvider>{children}</CommandPaletteProvider>`. Open programmatically from any client component: `const { open } = useCommandPalette(); open();`.
+
+### ✅ Phase 3 — Registry expansion + 3 persistence wirings + entity_ref custom-field type (2026-05-06)
+
+#### Registry — 18 entities total (10 → 18)
+
+`ENTITY_KEYS` in `src/lib/lookup-registry.ts` (alphabetical, `as const satisfies readonly EntityKey[]`) and implemented in `registry: LookupRegistry` in `src/app/actions/crm-lookup.actions.ts`.
+
+| Entity key | Backing source | Implementation | Status |
+|---|---|---|---|
+| `account` | `crm_chart_of_accounts` | inline lookup | ✅ |
+| `bankAccount` | `crm_payment_accounts` | `makeMongoLookup` | ✅ |
+| `branch` | (collection TBD) | inline, returns `[]` | 🟡 TODO-empty — swap to `makeMongoLookup` once `crm_branches` exists |
+| `category` | `crm_product_categories` | `makeMongoLookup` | ✅ |
+| `client` | `crm_accounts` | `makeMongoLookup` | ✅ |
+| `currency` | static (12 ISO codes) | inline | ✅ |
+| `department` | `crm_departments` | `makeMongoLookup` | ✅ |
+| `designation` | `crm_designations` (`$lookup` joined to departments) | inline aggregation | ✅ |
+| `employee` | `crm_employees` | inline | ✅ |
+| `item` | `crm_products` | `makeMongoLookup` | ✅ |
+| `pipeline` | embedded `users.crmPipelines[]` | inline (in-memory filter) | ✅ |
+| `project` | `crm_projects` | `makeMongoLookup` | ✅ |
+| `stage` | embedded `users.crmPipelines[].stages` | inline; composite id `pipelineId:stageId` | ✅ |
+| `tag` | (collection TBD) | inline, returns `[]` | 🟡 TODO-empty — swap to `makeMongoLookup` once `crm_tags` exists |
+| `taxRate` | `crm_taxes` + GST fallback slabs | inline | ✅ |
+| `user` | `users` | inline | ✅ |
+| `vendor` | `crm_vendors` | `makeMongoLookup` | ✅ |
+| `warehouse` | `crm_warehouses` | `makeMongoLookup` | ✅ |
+
+Exhaustive `Record<EntityKey, …>` maps are kept in lock-step in `entity-picker.tsx` (labels) and `command-palette.tsx` (labels, hrefs, empty-results). Adding a new entity → update `EntityKey` union + `ENTITY_KEYS` + registry entry + both maps.
+
+#### 3 persistence wirings (fields now actually save)
+
+| Server action | Form field | Stored as | Schema field added |
+|---|---|---|---|
+| `savePurchaseOrder` (`src/app/actions/crm-purchase-orders.actions.ts:95`) | hidden `warehouseId` | `ObjectId` (`ObjectId.isValid` validated) | `CrmPurchaseOrder.warehouseId?: ObjectId` |
+| `savePaymentReceipt` (`src/app/actions/crm-payment-receipts.actions.ts:58`) | hidden `bankAccountId` | `ObjectId` (validated) | `CrmPaymentReceipt.bankAccountId?: ObjectId` |
+| `saveCrmEmployee` (`src/app/actions/crm-employees.actions.ts:238`) | hidden `ext_bank_account_id` | written into `crm_employee_details.bank_account_id` | `ExtendedDetail.bank_account_id?` |
+
+All three are optional and backward-compatible. Employee edit form hydrates `bank_account_id`. PO and Receipt edit pages don't exist yet (see P0).
+
+#### `entity_ref` custom-field type (§13.8)
+
+| Path | Change |
+|---|---|
+| `src/lib/worksuite/meta-types.ts:55` | `WsCustomFieldType` union extended with `'entity_ref'`. `WsCustomField` got `targetEntity?: EntityKey` + `multi?: boolean`. |
+| `src/app/dashboard/crm/settings/custom-fields/new/new-field-form.tsx` | Settings UI got "Linked record" option, conditional entity-Select + Single/Multi toggle, driven by `ENTITY_KEYS` from `@/lib/lookup-registry`. |
+| `saveCustomField` server action | Coerces `multi` via `asBool`; scrubs `targetEntity` for non-ref types. |
+| `src/components/crm/custom-field-input.tsx` (new) | Exports `<CustomFieldInput>` + `<CustomFieldDisplay>`. Handles every `WsCustomFieldType`; `entity_ref` renders `<EntityPicker>` (input) / `<EntityPickerChip>` (display). **No consumers yet** — see P1. |
+
+### 📌 Open follow-ups (priority order — pick the top item without hunting)
+
+#### P0 — high-impact, cheap
+
+- ~~**Dead `getCrmEmployees()` call**~~ ✅ done 2026-05-06 — removed from `src/app/dashboard/hrm/payroll/employees/new/page.tsx` and `[employeeId]/edit/page.tsx`; `managers` prop dropped from `EmployeeForm` (the form now uses `<EntityPicker entity="employee">` for reporting-to). Action `getCrmEmployees` itself stays — still used by 25+ directory/payroll list pages.
+- ~~**Proforma lineage**~~ ✅ done 2026-05-06 — `lineage?: LineageRef[]` added to `CrmProformaInvoice` in `src/lib/definitions.ts:3097`; the `proforma` kind now renders in `<LineageRail>`.
+- ~~**PO edit page**~~ ✅ done 2026-05-06 — `src/app/dashboard/crm/purchases/orders/[orderId]/edit/page.tsx` shipped. `getPurchaseOrderById` added to `crm-purchase-orders.actions.ts`; `savePurchaseOrder` extended to UPDATE branch when hidden `orderId` is present (matchCount-checked, scoped by `userId`). `NewPurchaseOrderForm` now accepts optional `order?: WithId<CrmPurchaseOrder>`, hydrating `vendorId`, `warehouseId`, dates, currency, paymentTerms, notes, and lineItems. Listing page's "View" link swapped to "Edit" → reaches the new route.
+- ~~**Receipt edit page**~~ ✅ done 2026-05-06 — `src/app/dashboard/crm/sales/receipts/[receiptId]/edit/page.tsx` (server) + `edit-receipt-form.tsx` (client). Light-edit only: `bankAccountId`, `notes`, `receiptDate` are editable. Payment records and invoice settlements are immutable — reverting them safely would require unwinding `paidAmount` mutations on linked invoices, which is out of scope. New `getPaymentReceiptById` + `updatePaymentReceipt` actions in `crm-payment-receipts.actions.ts`. Receipts listing got an Actions column with an Edit link.
+
+#### P1 — wire the shipped foundation into more places
+
+- **Custom-field display in entity edit forms**: render `<CustomFieldInput>` / `<CustomFieldDisplay>` (from `src/components/crm/custom-field-input.tsx`) in deal, account, ticket, employee edit forms. Foundation ready, no consumers yet — call `getCustomFieldsFor(entity_type)` + `applyCustomFieldsToEntity` from worksuite meta actions.
+- **Build remaining doc types** so their lineage kinds light up: `CrmRfq`, `CrmVendorBid`, `CrmGrn`, `CrmBill` (currently the `bill` kind maps to `CrmExpense`).
+- **Backfill `lineage` propagation** beyond `convertInvoiceToCreditNote` + `saveInvoice` manual create: quotation → invoice, salesOrder → deliveryChallan, salesOrder → invoice, PO → bill, PO → GRN, GRN → bill.
+
+#### P2 — performance + DX
+
+- **Mongo text indexes** on each registry entity's `searchableFields`. Today's `$regex` is fine at small scale; index for big tenants (§13.9).
+- **Server-side recents (Redis)** to replace `localStorage entityPicker.recent.*`. Key by `<tenantId>:<entity>` LRU of 1000 items per §13.9.
+- **Swap TODO-empty registry entries** to `makeMongoLookup` once `crm_branches` and `crm_tags` collections land.
+- **Pipelines collection migration**: when pipelines move from embedded-on-user to a real collection, replace the in-memory filter in `pipeline` and `stage` registry entries with a Mongo aggregation; preserve composite stage id `pipelineId:stageId`.
+- **Cmd-K trigger button**: the `ZoruHomeShell` header has a `⌘K` chip that's purely visual — wire it to `useCommandPalette().open()`. Today the palette is keyboard-only.
+
+#### P3 — broader form migration
+
+Migrate remaining forms to `<EntityPicker>` (search for older `Smart*Select` and native `<Select>` references first):
+- Lead, Deal, Contact, Task, Ticket forms.
+- Item form: `vendor[]`, `category`, `salesAccount`/`purchaseAccount`/`stockAccount`/`cogsAccount`, `hsn`, `taxRate`.
+- Credit-note, Debit-note, Delivery-challan forms.
+- Salary-structure form.
+- Drop `SmartDepartmentSelect` / `SmartDesignationSelect` from the employee form now that the registry has both.
+- Backfill saved views / segments / dashboards to use the lookup registry as their filter source.
+- **Broader `Smart*Select` codemod**: 12+ form files still import legacy components from `src/components/crm/**/smart-*-select.tsx`. Not 1:1 with the registry — `smart-vendor-type-select`, `smart-industry-select`, `smart-unit-select`, `smart-brand-select`, `smart-location-select` have no registry entity yet (need a registry addition or stay as static dropdowns). The rest (`smart-client-select`, `smart-vendor-select`, `smart-product-select`, `smart-warehouse-select`, `smart-pipeline-select`, `smart-department-select`, `smart-designation-select`, `smart-account-group-select`, `smart-ledger-select`, `smart-category-select`) can be swapped for `<EntityPicker>` directly.
+
+#### P4 — flesh out the §12 skeleton pages with real features
+
+(Skeleton routes already exist; replace the placeholder `page.tsx`.)
+- Subscriptions & recurring billing — cron + dunning ladder.
+- Contracts & e-signature — Aadhaar e-sign + Digio/Razorpay integration.
+- RFQ → Bid → PO conversion flow (lineage already mapped).
+- GRN, BOM, manufacturing job cards.
+- POS terminal + online store.
+- Tickets/help-desk + SLA engine + KB.
+- Bookings/appointments.
+- Fixed assets + depreciation runs.
+- Budgets & forecasting.
+- Petty cash, loans/advances.
+- Custom dashboards (BI builder).
+- Customer / vendor / employee portals.
+- Audit log surface.
+- Awards & recognition, disciplinary cases (HRM).
+
+---
+
+> When picking up: read §15 first, then jump to the highest-priority P-tier with capacity. Each item is small enough to dispatch as a single agent with a tight prompt — file paths and exports are noted above so the prompt can stay self-contained.

@@ -21,20 +21,16 @@
 //!
 //! The bucket schema (HASH fields `tokens` + `ts`, 60s TTL, refill formula
 //! `tokens + elapsed_sec * mps` clamped to capacity) matches
-//! `src/workers/broadcast/rate-limiter.js` exactly. The bucket *key*,
-//! however, currently differs:
+//! `src/workers/broadcast/rate-limiter.js` exactly, AND so does the bucket
+//! key:
 //!
-//!   * Node side: `bcast:tb:<broadcastId>`
-//!   * Rust side: `wrl:bucket:bcast:tb:<broadcastId>`  (the `wrl:bucket:`
-//!     prefix is added by `TokenBucket::redis_key`)
+//!   * Both sides: `wrl:bucket:bcast:tb:<broadcastId>`
 //!
-//! That deliberate prefix lets Rust-side limiters share a Redis with other
-//! state without colliding, but it means until we reconcile keys (either
-//! by adding the same prefix on the Node side, or by switching the Rust
-//! `BroadcastLimiter` to bypass the prefix) **a single broadcast must be
-//! acquired from one side only** — mixing sides for the same broadcast
-//! will let each side burn through tokens the other doesn't see, and the
-//! broadcast will exceed its configured MPS.
+//! The Node side was aligned to the Rust prefix in the broadcast-worker
+//! migration so a Node and a Rust acquirer can coordinate against the same
+//! bucket without drift. The Lua script body is also identical between the
+//! two sides — both source `now` from `redis.call('TIME')` so neither side
+//! is sensitive to client clock skew.
 //!
 //! ## Example
 //!

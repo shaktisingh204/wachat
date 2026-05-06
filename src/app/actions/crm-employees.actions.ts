@@ -235,6 +235,10 @@ export async function saveCrmEmployee(_prev: any, formData: FormData): Promise<{
         overtime_hourly_rate: gNum('overtime_hourly_rate'),
         hourly_rate: gNum('hourly_rate'),
         slack_username: g('slack_username'),
+        bank_account_id: (() => {
+            const v = formData.get('ext_bank_account_id') as string | null;
+            return v && ObjectId.isValid(v) ? v : undefined;
+        })(),
         bank_account_number: g('bank_account_number'),
         bank_name: g('bank_name'),
         tax_regime: g('tax_regime'),

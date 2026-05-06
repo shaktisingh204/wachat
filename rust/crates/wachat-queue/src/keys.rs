@@ -116,6 +116,22 @@ pub fn priority_counter_key(prefix: &str, queue: &str) -> String {
     format!("{prefix}:{queue}:pc")
 }
 
+/// SET of currently-locked job ids — populated by `moveToActive` and read
+/// by the stalled-job sweep. BullMQ uses this to find jobs whose lock has
+/// expired without an explicit completion / failure call.
+#[inline]
+pub fn stalled_key(prefix: &str, queue: &str) -> String {
+    format!("{prefix}:{queue}:stalled")
+}
+
+/// STRING (with PEXPIRE) holding the worker token for an in-flight job.
+/// `moveToActive` writes it; the in-flight task PEXPIREs it; the stalled
+/// sweep treats its absence as evidence the worker is gone.
+#[inline]
+pub fn lock_key(prefix: &str, queue: &str, id: &str) -> String {
+    format!("{prefix}:{queue}:{id}:lock")
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

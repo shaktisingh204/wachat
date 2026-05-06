@@ -1,0 +1,736 @@
+'use client';
+
+/**
+ * <EntityPicker> — unified picker UI for any registered entity.
+ *
+ * Backed by the single `lookupEntity` server action declared in
+ * `src/app/actions/crm-lookup.actions.ts`. The picker itself is
+ * entity-agnostic: the chip projection, search fields, and tenant
+ * scope all live in the registry, so adding a new entity is a
+ * server-side change with zero churn here.
+ *
+ * Notable behaviours:
+ *   - Debounced search (200ms) with AbortController so stale results
+ *     never overwrite a fresh query.
+ *   - Hydrate-on-mount: if `value` is set, fetch by ids so the chip
+ *     can render even if the doc isn't on page 1 of search results.
+ *   - Recent ids: max 5 per entity in localStorage. Surfaced as a
+ *     "Recent" group when the search box is empty.
+ *   - Infinite scroll: appends pages on near-bottom scroll until
+ *     `hasMore` is false.
+ *   - Quick-create: optional last item that fires `onCreateClick` —
+ *     this component never renders a modal itself.
+ *
+ * Visual: matches the zoru-ui input frame so pickers sit naturally
+ * alongside `<ZoruInput>`/`<ZoruSelect>` in CRM forms.
+ */
+
+import * as React from 'react';
+import {
+  Check,
+  ChevronDown,
+  Plus,
+  X,
+  Loader2,
+} from 'lucide-react';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from '@/components/ui/avatar';
+import { cn } from '@/lib/utils';
+import { lookupEntity } from '@/app/actions/crm-lookup.actions';
+import type {
+  EntityKey,
+  LookupItem,
+  LookupParams,
+  LookupResult,
+} from '@/lib/lookup-registry';
+
+/* ------------------------------------------------------------------ */
+/* Public types                                                        */
+/* ------------------------------------------------------------------ */
+
+export interface EntityPickerProps {
+  entity: EntityKey;
+  value: string | string[] | null;
+  onChange: (
+    next: string | string[] | null,
+    hydrated?: LookupItem | LookupItem[],
+  ) => void;
+  multi?: boolean;
+  required?: boolean;
+  disabled?: boolean;
+  label?: string;
+  placeholder?: string;
+  filter?: Record<string, unknown>;
+  scope?: 'project' | 'tenant' | 'global';
+  allowCreate?: boolean;
+  onCreateClick?: () => void;
+  recentLimit?: number;
+  showChipMeta?: boolean;
+  popoverWidth?: 'trigger' | 'auto' | number;
+  className?: string;
+}
+
+/* ------------------------------------------------------------------ */
+/* Helpers                                                             */
+/* ------------------------------------------------------------------ */
+
+const ENTITY_LABEL: Record<EntityKey, string> = {
+  client: 'client',
+  vendor: 'vendor',
+  item: 'item',
+  employee: 'employee',
+  user: 'user',
+  account: 'account',
+  warehouse: 'warehouse',
+  bankAccount: 'bank account',
+  branch: 'branch',
+  category: 'category',
+  currency: 'currency',
+  department: 'department',
+  designation: 'designation',
+  pipeline: 'pipeline',
+  project: 'project',
+  stage: 'stage',
+  tag: 'tag',
+  taxRate: 'tax rate',
+};
+
+function recentsKey(entity: EntityKey) {
+  return `entityPicker.recent.${entity}`;
+}
+
+function loadRecents(entity: EntityKey): string[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = window.localStorage.getItem(recentsKey(entity));
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed)
+      ? parsed.filter((id) => typeof id === 'string').slice(0, 5)
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+function pushRecent(entity: EntityKey, id: string, max = 5) {
+  if (typeof window === 'undefined') return;
+  try {
+    const current = loadRecents(entity).filter((x) => x !== id);
+    const next = [id, ...current].slice(0, max);
+    window.localStorage.setItem(recentsKey(entity), JSON.stringify(next));
+  } catch {
+    /* localStorage might be unavailable / full — non-fatal. */
+  }
+}
+
+function initials(text: string): string {
+  return text
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0]?.toUpperCase() ?? '')
+    .join('');
+}
+
+/** Hand-rolled debounced value hook — kept inline to avoid a new dep. */
+function useDebouncedValue<T>(value: T, delay = 200): T {
+  const [debounced, setDebounced] = React.useState(value);
+  React.useEffect(() => {
+    const t = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(t);
+  }, [value, delay]);
+  return debounced;
+}
+
+/* ------------------------------------------------------------------ */
+/* Chip row                                                            */
+/* ------------------------------------------------------------------ */
+
+function ChipRow({
+  item,
+  showMeta,
+}: {
+  item: LookupItem;
+  showMeta: boolean;
+}) {
+  const { primary, secondary, tertiary, avatarUrl } = item.chip;
+  return (
+    <div className="flex min-w-0 items-center gap-2">
+      <Avatar className="h-6 w-6 shrink-0">
+        {avatarUrl ? (
+          <AvatarImage src={avatarUrl} alt={primary} />
+        ) : null}
+        <AvatarFallback className="bg-zoru-surface-2 text-[10px] text-zoru-ink-muted">
+          {initials(primary) || '·'}
+        </AvatarFallback>
+      </Avatar>
+      <div className="flex min-w-0 flex-col leading-tight">
+        <span className="truncate text-sm text-zoru-ink">{primary}</span>
+        {showMeta && (secondary || tertiary) ? (
+          <span className="truncate text-[11px] text-zoru-ink-muted">
+            {[secondary, tertiary].filter(Boolean).join(' · ')}
+          </span>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Read-only chip — hydrates one id, useful in table cells             */
+/* ------------------------------------------------------------------ */
+
+export function EntityPickerChip({
+  entity,
+  id,
+  fallback,
+  showMeta = false,
+  className,
+}: {
+  entity: EntityKey;
+  id: string | null | undefined;
+  fallback?: string;
+  showMeta?: boolean;
+  className?: string;
+}) {
+  const [item, setItem] = React.useState<LookupItem | null>(null);
+
+  React.useEffect(() => {
+    if (!id) {
+      setItem(null);
+      return;
+    }
+    let cancelled = false;
+    lookupEntity(entity, { ids: [id] })
+      .then((res) => {
+        if (cancelled) return;
+        setItem(res.items[0] ?? null);
+      })
+      .catch(() => {
+        /* network/auth failures fall through to fallback */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [entity, id]);
+
+  if (!id) {
+    return (
+      <span className={cn('text-sm text-zoru-ink-muted', className)}>
+        {fallback ?? '—'}
+      </span>
+    );
+  }
+
+  if (!item) {
+    return (
+      <span
+        className={cn(
+          'inline-flex items-center gap-2 text-sm text-zoru-ink-muted',
+          className,
+        )}
+      >
+        <Loader2 className="h-3 w-3 animate-spin" />
+        {fallback ?? '…'}
+      </span>
+    );
+  }
+
+  return (
+    <span
+      className={cn(
+        'inline-flex max-w-full items-center gap-2 rounded-md border border-zoru-line bg-zoru-bg px-2 py-1',
+        className,
+      )}
+    >
+      <ChipRow item={item} showMeta={showMeta} />
+    </span>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Main picker                                                         */
+/* ------------------------------------------------------------------ */
+
+export function EntityPicker({
+  entity,
+  value,
+  onChange,
+  multi = false,
+  required = false,
+  disabled = false,
+  label,
+  placeholder,
+  filter,
+  scope,
+  allowCreate = false,
+  onCreateClick,
+  recentLimit = 5,
+  showChipMeta = true,
+  popoverWidth = 'trigger',
+  className,
+}: EntityPickerProps) {
+  const [open, setOpen] = React.useState(false);
+  const [search, setSearch] = React.useState('');
+  const debouncedSearch = useDebouncedValue(search, 200);
+
+  // Result state — separate buckets for "search results" and the
+  // hydrated chips so closing/reopening the popover doesn't lose the
+  // selected item display.
+  const [results, setResults] = React.useState<LookupItem[]>([]);
+  const [page, setPage] = React.useState(1);
+  const [hasMore, setHasMore] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
+
+  const [recentItems, setRecentItems] = React.useState<LookupItem[]>([]);
+
+  // Hydrated currently-selected items (keyed by id).
+  const [selectedItems, setSelectedItems] = React.useState<
+    Record<string, LookupItem>
+  >({});
+
+  const abortRef = React.useRef<AbortController | null>(null);
+  const listRef = React.useRef<HTMLDivElement | null>(null);
+  const triggerRef = React.useRef<HTMLButtonElement | null>(null);
+
+  const valueAsArray: string[] = React.useMemo(() => {
+    if (value == null) return [];
+    return Array.isArray(value) ? value : [value];
+  }, [value]);
+
+  // Stable signature so the hydration effect doesn't fire each render
+  // when the parent passes a fresh array literal.
+  const valueKey = React.useMemo(
+    () => valueAsArray.join('|'),
+    [valueAsArray],
+  );
+
+  // Hydrate selected ids on mount + whenever the upstream value changes.
+  React.useEffect(() => {
+    if (valueAsArray.length === 0) {
+      setSelectedItems((prev) => (Object.keys(prev).length === 0 ? prev : {}));
+      return;
+    }
+    const missing = valueAsArray.filter((id) => !selectedItems[id]);
+    if (missing.length === 0) return;
+
+    let cancelled = false;
+    lookupEntity(entity, { ids: missing })
+      .then((res: LookupResult) => {
+        if (cancelled) return;
+        setSelectedItems((prev) => {
+          const next = { ...prev };
+          for (const it of res.items) next[it.id] = it;
+          return next;
+        });
+      })
+      .catch(() => {
+        /* leave id raw — chip will render id-only fallback */
+      });
+    return () => {
+      cancelled = true;
+    };
+    // We deliberately exclude `selectedItems` to avoid a refetch loop;
+    // hydration is keyed by the *upstream* value identity.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [entity, valueKey]);
+
+  // Hydrate recents when the popover opens (or entity changes) so
+  // chips render immediately without the user having to type.
+  React.useEffect(() => {
+    if (!open) return;
+    const ids = loadRecents(entity).slice(0, recentLimit);
+    if (ids.length === 0) {
+      setRecentItems([]);
+      return;
+    }
+    let cancelled = false;
+    lookupEntity(entity, { ids })
+      .then((res) => {
+        if (cancelled) return;
+        // Preserve the recents order.
+        const byId = new Map(res.items.map((it) => [it.id, it]));
+        const ordered: LookupItem[] = [];
+        for (const id of ids) {
+          const it = byId.get(id);
+          if (it) ordered.push(it);
+        }
+        setRecentItems(ordered);
+      })
+      .catch(() => {
+        if (!cancelled) setRecentItems([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [open, entity, recentLimit]);
+
+  // Run the search whenever the debounced query (or filter/scope) changes
+  // while the popover is open. Aborts the previous in-flight request.
+  React.useEffect(() => {
+    if (!open) return;
+
+    abortRef.current?.abort();
+    const ac = new AbortController();
+    abortRef.current = ac;
+
+    const params: LookupParams = {
+      q: debouncedSearch || undefined,
+      page: 1,
+      limit: 20,
+      filter,
+      scope,
+    };
+
+    setLoading(true);
+    lookupEntity(entity, params)
+      .then((res) => {
+        if (ac.signal.aborted) return;
+        setResults(res.items);
+        setPage(res.page);
+        setHasMore(res.hasMore);
+      })
+      .catch(() => {
+        if (ac.signal.aborted) return;
+        setResults([]);
+        setHasMore(false);
+      })
+      .finally(() => {
+        if (!ac.signal.aborted) setLoading(false);
+      });
+
+    return () => {
+      ac.abort();
+    };
+    // `filter` is an object — stringify guards against new-literal churn.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, entity, debouncedSearch, scope, JSON.stringify(filter ?? null)]);
+
+  const loadNextPage = React.useCallback(async () => {
+    if (loading || !hasMore) return;
+    setLoading(true);
+    try {
+      const res = await lookupEntity(entity, {
+        q: debouncedSearch || undefined,
+        page: page + 1,
+        limit: 20,
+        filter,
+        scope,
+      });
+      setResults((prev) => {
+        // Dedupe by id in case a doc shifts pages.
+        const seen = new Set(prev.map((it) => it.id));
+        const merged = [...prev];
+        for (const it of res.items) {
+          if (!seen.has(it.id)) merged.push(it);
+        }
+        return merged;
+      });
+      setPage(res.page);
+      setHasMore(res.hasMore);
+    } catch {
+      setHasMore(false);
+    } finally {
+      setLoading(false);
+    }
+  }, [loading, hasMore, entity, debouncedSearch, page, filter, scope]);
+
+  const handleScroll = React.useCallback(
+    (e: React.UIEvent<HTMLDivElement>) => {
+      const el = e.currentTarget;
+      if (el.scrollTop + el.clientHeight >= el.scrollHeight - 24) {
+        void loadNextPage();
+      }
+    },
+    [loadNextPage],
+  );
+
+  const commitSelection = React.useCallback(
+    (item: LookupItem) => {
+      pushRecent(entity, item.id, recentLimit);
+      setSelectedItems((prev) => ({ ...prev, [item.id]: item }));
+
+      if (multi) {
+        const current = valueAsArray;
+        let next: string[];
+        let hydrated: LookupItem[];
+        if (current.includes(item.id)) {
+          next = current.filter((x) => x !== item.id);
+          hydrated = next
+            .map((id) => (id === item.id ? item : selectedItems[id]))
+            .filter((x): x is LookupItem => Boolean(x));
+        } else {
+          next = [...current, item.id];
+          hydrated = [
+            ...current
+              .map((id) => selectedItems[id])
+              .filter((x): x is LookupItem => Boolean(x)),
+            item,
+          ];
+        }
+        onChange(next.length > 0 ? next : null, hydrated);
+      } else {
+        onChange(item.id, item);
+        setOpen(false);
+        setSearch('');
+      }
+    },
+    [
+      entity,
+      recentLimit,
+      multi,
+      valueAsArray,
+      selectedItems,
+      onChange,
+    ],
+  );
+
+  const removeSelected = React.useCallback(
+    (id: string) => {
+      if (multi) {
+        const next = valueAsArray.filter((x) => x !== id);
+        const hydrated = next
+          .map((x) => selectedItems[x])
+          .filter((x): x is LookupItem => Boolean(x));
+        onChange(next.length > 0 ? next : null, hydrated);
+      } else {
+        onChange(null, undefined);
+      }
+    },
+    [multi, valueAsArray, selectedItems, onChange],
+  );
+
+  // Keyboard: backspace on an empty search input in multi mode pops
+  // the last chip — matches the standard token-input affordance.
+  const handleSearchKeyDown = React.useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (
+        multi &&
+        e.key === 'Backspace' &&
+        search.length === 0 &&
+        valueAsArray.length > 0
+      ) {
+        e.preventDefault();
+        removeSelected(valueAsArray[valueAsArray.length - 1]);
+      }
+    },
+    [multi, search, valueAsArray, removeSelected],
+  );
+
+  /* ----- trigger contents ----- */
+
+  const selectedHydrated: LookupItem[] = valueAsArray
+    .map((id) => selectedItems[id])
+    .filter((x): x is LookupItem => Boolean(x));
+
+  const triggerPlaceholder =
+    placeholder ??
+    (multi
+      ? `Select ${ENTITY_LABEL[entity]}s…`
+      : `Select ${ENTITY_LABEL[entity]}…`);
+
+  const popoverStyle: React.CSSProperties | undefined =
+    typeof popoverWidth === 'number'
+      ? { width: popoverWidth }
+      : popoverWidth === 'trigger'
+      ? { width: 'var(--radix-popover-trigger-width)' }
+      : undefined;
+
+  const showRecent =
+    debouncedSearch.trim() === '' && recentItems.length > 0;
+
+  return (
+    <div className={cn('w-full', className)}>
+      {label ? (
+        <label className="mb-1 block text-xs text-zoru-ink">
+          {label}
+          {required ? <span className="ml-0.5 text-zoru-danger">*</span> : null}
+        </label>
+      ) : null}
+
+      <Popover open={open} onOpenChange={(o) => !disabled && setOpen(o)}>
+        <PopoverTrigger asChild>
+          <button
+            ref={triggerRef}
+            type="button"
+            disabled={disabled}
+            aria-required={required || undefined}
+            aria-haspopup="listbox"
+            aria-expanded={open}
+            className={cn(
+              'flex h-9 w-full items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 text-left text-sm text-zoru-ink',
+              'transition-colors hover:border-zoru-ink/40',
+              'focus-visible:outline-none focus-visible:border-zoru-ink',
+              'disabled:cursor-not-allowed disabled:opacity-50',
+              multi && selectedHydrated.length > 0 && 'h-auto min-h-9 py-1.5',
+            )}
+          >
+            <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
+              {selectedHydrated.length === 0 ? (
+                <span className="truncate text-zoru-ink-subtle">
+                  {triggerPlaceholder}
+                </span>
+              ) : multi ? (
+                selectedHydrated.map((it) => (
+                  <span
+                    key={it.id}
+                    className="inline-flex max-w-full items-center gap-1 rounded-md border border-zoru-line bg-zoru-surface-2 px-1.5 py-0.5 text-xs text-zoru-ink"
+                  >
+                    <span className="truncate">{it.chip.primary}</span>
+                    {!disabled && (
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        aria-label={`Remove ${it.chip.primary}`}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          removeSelected(it.id);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            removeSelected(it.id);
+                          }
+                        }}
+                        className="rounded p-0.5 text-zoru-ink-muted hover:text-zoru-ink"
+                      >
+                        <X className="h-3 w-3" />
+                      </span>
+                    )}
+                  </span>
+                ))
+              ) : (
+                <span className="flex min-w-0 flex-1 items-center gap-2">
+                  <ChipRow
+                    item={selectedHydrated[0]}
+                    showMeta={showChipMeta}
+                  />
+                </span>
+              )}
+            </div>
+            <ChevronDown className="h-4 w-4 shrink-0 text-zoru-ink-muted" />
+          </button>
+        </PopoverTrigger>
+        <PopoverContent
+          align="start"
+          className="z-[100] p-0"
+          style={popoverStyle}
+        >
+          <Command shouldFilter={false}>
+            <CommandInput
+              placeholder={`Search ${ENTITY_LABEL[entity]}s…`}
+              value={search}
+              onValueChange={setSearch}
+              onKeyDown={handleSearchKeyDown}
+            />
+            <CommandList ref={listRef} onScroll={handleScroll}>
+              <CommandEmpty>
+                {loading ? (
+                  <span className="inline-flex items-center gap-2 text-zoru-ink-muted">
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                    Searching…
+                  </span>
+                ) : (
+                  <span className="text-zoru-ink-muted">
+                    No {ENTITY_LABEL[entity]}s found.
+                  </span>
+                )}
+              </CommandEmpty>
+
+              {showRecent ? (
+                <CommandGroup heading="Recent">
+                  {recentItems.map((item) => {
+                    const selected = valueAsArray.includes(item.id);
+                    return (
+                      <CommandItem
+                        key={`recent-${item.id}`}
+                        value={`recent-${item.id}`}
+                        onSelect={() => commitSelection(item)}
+                      >
+                        <ChipRow item={item} showMeta={showChipMeta} />
+                        {selected ? (
+                          <Check className="ml-auto h-4 w-4 text-zoru-ink" />
+                        ) : null}
+                      </CommandItem>
+                    );
+                  })}
+                </CommandGroup>
+              ) : null}
+
+              <CommandGroup
+                heading={
+                  showRecent ? 'All results' : undefined
+                }
+              >
+                {results.map((item) => {
+                  const selected = valueAsArray.includes(item.id);
+                  return (
+                    <CommandItem
+                      key={item.id}
+                      value={item.id}
+                      onSelect={() => commitSelection(item)}
+                    >
+                      <ChipRow item={item} showMeta={showChipMeta} />
+                      {selected ? (
+                        <Check className="ml-auto h-4 w-4 text-zoru-ink" />
+                      ) : null}
+                    </CommandItem>
+                  );
+                })}
+                {loading && results.length > 0 ? (
+                  <div className="flex items-center justify-center py-2 text-xs text-zoru-ink-muted">
+                    <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                    Loading…
+                  </div>
+                ) : null}
+              </CommandGroup>
+
+              {allowCreate ? (
+                <CommandGroup>
+                  <CommandItem
+                    key="__create__"
+                    value="__create__"
+                    onSelect={() => {
+                      setOpen(false);
+                      onCreateClick?.();
+                    }}
+                    className="text-zoru-ink"
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Create new {ENTITY_LABEL[entity]}
+                    {search.trim() ? (
+                      <span className="ml-1 truncate text-zoru-ink-muted">
+                        “{search.trim()}”
+                      </span>
+                    ) : null}
+                  </CommandItem>
+                </CommandGroup>
+              ) : null}
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
+}
+
+export default EntityPicker;

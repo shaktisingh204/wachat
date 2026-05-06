@@ -20,6 +20,7 @@ import { getCachedSession, getCachedProjects } from "@/lib/server-cache";
 import { RBACGuard } from "@/components/wabasimplify/rbac-guard";
 import { ZoruHomeShell } from "@/components/zoruui";
 import { ProjectProvider } from "@/context/project-context";
+import { CommandPaletteProvider } from "@/components/crm/command-palette";
 
 export default async function DashboardLayout({
   children,
@@ -76,7 +77,7 @@ export default async function DashboardLayout({
             credits: totalCredits,
           }}
         >
-          {children}
+          <CommandPaletteProvider>{children}</CommandPaletteProvider>
         </ZoruHomeShell>
       </ProjectProvider>
     </RBACGuard>

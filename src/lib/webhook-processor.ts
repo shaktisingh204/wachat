@@ -1752,55 +1752,43 @@ export async function processStatusUpdateBatch(db: Db, statuses: any[]) {
                 };
             });
 
-        // 2) Batch-lookup broadcast contacts — ONE query instead of N findOne calls
-        const broadcastContacts = await db.collection('broadcast_contacts')
-            .find({ messageId: { $in: wamids } }, { projection: { _id: 1, messageId: 1, broadcastId: 1, status: 1 } })
-            .toArray();
-
-        const bcByWamid = new Map(broadcastContacts.map(bc => [bc.messageId, bc]));
-        const statusHierarchy: Record<string, number> = { PENDING: 0, SENT: 1, DELIVERED: 2, READ: 3, FAILED: 4 };
-
-        const broadcastContactOps: any[] = [];
-        const broadcastCounterUpdates: Record<string, { delivered: number; read: number }> = {};
-
-        for (const status of statuses) {
-            const bc = bcByWamid.get(status.id);
-            if (!bc) continue;
-
-            const newStatus = (status.status || 'unknown').toUpperCase();
-            const currentStatus = (bc.status || 'PENDING').toUpperCase();
-            const broadcastIdStr = bc.broadcastId.toString();
-
-            if ((statusHierarchy[newStatus] || 0) > (statusHierarchy[currentStatus] || 0)) {
-                broadcastContactOps.push({
-                    updateOne: {
-                        filter: { _id: bc._id },
-                        update: { $set: { status: newStatus } },
-                    },
+        // 2) Broadcast counter side effects — moved to the Rust BFF in
+        //    Phase 9 of the broadcast-worker port. The Rust handler owns
+        //    the `broadcast_contacts.status` updates and the
+        //    `broadcasts.$inc deliveredCount/readCount` rolls; we just
+        //    forward the raw status batch via the rust-client wrapper.
+        //    See `rust/crates/wachat-webhook-status/src/broadcast.rs` for
+        //    the source-of-truth port (status hierarchy + field names are
+        //    preserved verbatim so a Rust + Node consumer can coexist
+        //    behind the BROADCAST_WORKER feature flag during cutover).
+        //
+        //    This call is fail-soft: a Rust outage (e.g. process restart)
+        //    must not stop the `outgoing_messages` write below from
+        //    landing — Meta will retry the webhook delivery and the
+        //    broadcast counter side effects will catch up on the retry.
+        const broadcastCounterPromise = (async () => {
+            try {
+                const { wachatWebhookStatusApi } = await import('./rust-client/wachat-webhook-status');
+                await wachatWebhookStatusApi.broadcastStatuses({
+                    statuses: statuses
+                        .filter((s: any) => s?.id && s?.status)
+                        .map((s: any) => ({
+                            id: String(s.id),
+                            status: String(s.status),
+                            timestamp: s.timestamp != null ? String(s.timestamp) : undefined,
+                        })),
                 });
-
-                if (!broadcastCounterUpdates[broadcastIdStr]) {
-                    broadcastCounterUpdates[broadcastIdStr] = { delivered: 0, read: 0 };
-                }
-                if (newStatus === 'DELIVERED') broadcastCounterUpdates[broadcastIdStr].delivered += 1;
-                if (newStatus === 'READ') broadcastCounterUpdates[broadcastIdStr].read += 1;
+            } catch (err) {
+                // Log + swallow. The `outgoing_messages` write must still
+                // run regardless — see the comment above for retry plan.
+                console.error('[webhook] broadcast-counter forward to Rust failed:', err);
             }
-        }
+        })();
 
         // 3) Execute all writes in parallel
         const promises: Promise<any>[] = [];
         if (liveChatOps.length > 0) promises.push(db.collection('outgoing_messages').bulkWrite(liveChatOps, { ordered: false }));
-        if (broadcastContactOps.length > 0) promises.push(db.collection('broadcast_contacts').bulkWrite(broadcastContactOps, { ordered: false }));
-
-        const broadcastCounterOps = Object.entries(broadcastCounterUpdates)
-            .filter(([_, counts]) => counts.delivered > 0 || counts.read > 0)
-            .map(([broadcastId, counts]) => ({
-                updateOne: {
-                    filter: { _id: new ObjectId(broadcastId) },
-                    update: { $inc: { deliveredCount: counts.delivered, readCount: counts.read } },
-                },
-            }));
-        if (broadcastCounterOps.length > 0) promises.push(db.collection('broadcasts').bulkWrite(broadcastCounterOps, { ordered: false }));
+        promises.push(broadcastCounterPromise);
 
         if (promises.length > 0) await Promise.all(promises);
 

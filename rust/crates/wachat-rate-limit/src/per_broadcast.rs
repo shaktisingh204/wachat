@@ -7,16 +7,14 @@
 //! Rust producers / handlers can charge against the same bucket without
 //! re-implementing the bucket math at every call site.
 //!
-//! Bucket key layout:
+//! Bucket key layout (both Rust and Node acquirers use the same key):
 //!     wrl:bucket:bcast:tb:<broadcastId>
 //!
-//! The `bcast:tb:` segment matches the existing TS `bucketKey()` helper
-//! (`src/workers/broadcast/rate-limiter.js` `bucketKey`). The `wrl:bucket:`
-//! prefix is added by `TokenBucket::redis_key`. **Note**: this means the
-//! Rust bucket key is NOT byte-identical to the TS one; see the README for
-//! the migration plan to reconcile them. Until then, do NOT mix Rust and
-//! Node acquirers against the same broadcast — pick one side per
-//! broadcast for the duration of its run.
+//! The `wrl:bucket:` prefix is added by `TokenBucket::redis_key`; the
+//! `bcast:tb:` suffix matches the Node `bucketKey()` helper in
+//! `src/workers/broadcast/rate-limiter.js`. Both sides also load the same
+//! Lua script body (TIME-based, capacity/refill_per_sec/cost ARGV), so
+//! mixing acquirers during the broadcast-worker cutover is safe.
 
 use sabnode_common::ApiError;
 

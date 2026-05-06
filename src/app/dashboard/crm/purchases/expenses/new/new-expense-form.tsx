@@ -2,19 +2,18 @@
 
 import { useActionState, useState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { saveExpense } from '@/app/actions/crm-expenses.actions';
 import { ClayCard, ClayButton } from '@/components/clay';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { DatePicker } from '@/components/ui/date-picker';
-import { SmartVendorSelect } from '@/components/crm/purchases/smart-vendor-select';
-import { SmartClientSelect } from '@/components/crm/sales/smart-client-select';
 import { LoaderCircle, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import { EntityPicker } from '@/components/crm/entity-picker';
 
 const initialState = { message: '', error: '' };
 
@@ -36,6 +35,7 @@ export function NewExpenseForm() {
     const [state, formAction] = useActionState(saveExpense, initialState);
     const { toast } = useToast();
     const router = useRouter();
+    const pathname = usePathname();
 
     const [expenseDate, setExpenseDate] = useState<Date | undefined>(new Date());
     const [vendorId, setVendorId] = useState('');
@@ -122,10 +122,19 @@ export function NewExpenseForm() {
 
                         <div className="space-y-2">
                             <Label className="text-foreground">Vendor (Optional)</Label>
-                            <SmartVendorSelect
-                                value={vendorId}
-                                onSelect={setVendorId}
-                                onVendorAdded={(newVendor) => setVendorId(newVendor._id.toString())}
+                            <EntityPicker
+                                entity="vendor"
+                                value={vendorId || null}
+                                allowCreate
+                                placeholder="Select vendor…"
+                                onCreateClick={() => {
+                                    const ret = encodeURIComponent(pathname);
+                                    router.push(`/dashboard/crm/purchases/vendors/new?return=${ret}`);
+                                }}
+                                onChange={(next) => {
+                                    const id = Array.isArray(next) ? next[0] ?? '' : (next ?? '');
+                                    setVendorId(id);
+                                }}
                             />
                         </div>
 
@@ -148,10 +157,19 @@ export function NewExpenseForm() {
                             {isBillable && (
                                 <div className="space-y-2">
                                     <Label className="text-foreground">Customer</Label>
-                                    <SmartClientSelect
-                                        value={customerId}
-                                        onSelect={setCustomerId}
-                                        onClientAdded={(newClient: any) => setCustomerId(newClient._id?.toString() || newClient.insertedId?.toString())}
+                                    <EntityPicker
+                                        entity="client"
+                                        value={customerId || null}
+                                        allowCreate
+                                        placeholder="Select client…"
+                                        onCreateClick={() => {
+                                            const ret = encodeURIComponent(pathname);
+                                            router.push(`/dashboard/crm/sales/clients/new?return=${ret}`);
+                                        }}
+                                        onChange={(next) => {
+                                            const id = Array.isArray(next) ? next[0] ?? '' : (next ?? '');
+                                            setCustomerId(id);
+                                        }}
                                     />
                                 </div>
                             )}

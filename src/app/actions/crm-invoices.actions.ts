@@ -5,8 +5,9 @@ import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
-import type { CrmInvoice } from '@/lib/definitions';
+import type { CrmInvoice, LineageKind, LineageRef } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
+import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
 
 export async function getInvoices(
     page: number = 1,
@@ -93,11 +94,85 @@ export async function saveInvoice(prevState: any, formData: FormData): Promise<{
         }
 
         const { db } = await connectToDatabase();
-        await db.collection('crm_invoices').insertOne({
+
+        // Lineage seeding (crm_function_plan.md §13.5). The form may
+        // optionally pass `fromKind` + `fromId` when an invoice is
+        // created in the context of a parent doc (typically a
+        // Quotation or Sales Order). Both fields are optional, so
+        // existing flows keep working unchanged.
+        let lineage: LineageRef[] | undefined;
+        const fromKind = (formData.get('fromKind') as string | null) || null;
+        const fromId = (formData.get('fromId') as string | null) || null;
+        const ALLOWED_PARENT_KINDS: LineageKind[] = ['quotation', 'salesOrder', 'proforma', 'deal', 'lead'];
+        if (fromKind && fromId && ALLOWED_PARENT_KINDS.includes(fromKind as LineageKind) && ObjectId.isValid(fromId)) {
+            const parentCollection: Record<string, string> = {
+                quotation: 'crm_quotations',
+                salesOrder: 'crm_sales_orders',
+                proforma: 'crm_proforma_invoices',
+                deal: 'crm_deals',
+                lead: 'crm_leads',
+            };
+            const parentNoField: Record<string, string> = {
+                quotation: 'quotationNumber',
+                salesOrder: 'orderNumber',
+                proforma: 'proformaNumber',
+                deal: 'name',
+                lead: 'title',
+            };
+            const coll = parentCollection[fromKind];
+            try {
+                const parent = await db.collection(coll).findOne({
+                    _id: new ObjectId(fromId),
+                    userId: new ObjectId(session.user._id),
+                });
+                if (parent) {
+                    lineage = buildLineageFromParent({
+                        kind: fromKind as LineageKind,
+                        id: parent._id.toString(),
+                        no: (parent[parentNoField[fromKind]] as string | undefined) || undefined,
+                        status: (parent.status as string | undefined) || undefined,
+                        lineage: (parent.lineage as LineageRef[] | undefined) ?? undefined,
+                    });
+                }
+            } catch {
+                // ignore lineage seed failures — invoice still saves
+            }
+        }
+
+        const insertResult = await db.collection('crm_invoices').insertOne({
             ...invoiceData,
+            ...(lineage ? { lineage } : {}),
             createdAt: new Date(),
             updatedAt: new Date()
         } as any);
+
+        // Best-effort back-link onto the parent doc.
+        if (lineage && fromKind && fromId) {
+            try {
+                const parentCollection: Record<string, string> = {
+                    quotation: 'crm_quotations',
+                    salesOrder: 'crm_sales_orders',
+                    proforma: 'crm_proforma_invoices',
+                    deal: 'crm_deals',
+                    lead: 'crm_leads',
+                };
+                const coll = parentCollection[fromKind];
+                const parent = await db.collection(coll).findOne({ _id: new ObjectId(fromId) });
+                const updatedParentLineage = appendLineage(parent?.lineage as LineageRef[] | undefined, {
+                    kind: 'invoice',
+                    id: insertResult.insertedId.toString(),
+                    no: invoiceData.invoiceNumber,
+                    status: invoiceData.status,
+                    createdAt: new Date().toISOString(),
+                });
+                await db.collection(coll).updateOne(
+                    { _id: new ObjectId(fromId) },
+                    { $set: { lineage: updatedParentLineage, updatedAt: new Date() } },
+                );
+            } catch {
+                // non-fatal
+            }
+        }
 
         revalidatePath('/dashboard/crm/sales/invoices');
         return { message: 'Invoice saved successfully.' };
@@ -150,6 +225,25 @@ export async function updateInvoice(
         return { success: true };
     } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function getInvoiceById(invoiceId: string): Promise<WithId<CrmInvoice> | null> {
+    const session = await getSession();
+    if (!session?.user) return null;
+    if (!ObjectId.isValid(invoiceId)) return null;
+
+    try {
+        const { db } = await connectToDatabase();
+        const invoice = await db.collection('crm_invoices').findOne({
+            _id: new ObjectId(invoiceId),
+            userId: new ObjectId(session.user._id),
+        });
+        if (!invoice) return null;
+        return JSON.parse(JSON.stringify(invoice));
+    } catch (e) {
+        console.error('Failed to fetch invoice by id:', e);
+        return null;
     }
 }
 

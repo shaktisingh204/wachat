@@ -3,10 +3,11 @@
 
   Wire-compatible with `src/workers/broadcast/rate-limiter.js` (Node side) so a
   Rust acquirer and a Node acquirer can share the same bucket without drift.
-  The hash schema and refill math below MUST stay identical to that file —
-  any change here without a matching TS change will let one side burn
-  through tokens that the other side thinks are still in the bucket, and
-  the broadcast will exceed its configured MPS.
+  The hash schema, key prefix (`wrl:bucket:bcast:tb:<id>`), refill math, and
+  ARGV signature (capacity, refill_per_sec, cost) below MUST stay identical
+  to the script body in that file — any change here without a matching TS
+  change will let one side burn through tokens that the other side thinks
+  are still in the bucket, and the broadcast will exceed its configured MPS.
 
   Bucket schema (Redis HASH at KEYS[1]):
     tokens : float — tokens currently available
@@ -32,12 +33,6 @@
       command, which returns {seconds, microseconds} on the master. Using
       it makes the bucket immune to caller clock skew — every acquirer,
       Rust or Node, sees the same monotonic-ish reference frame.
-    * The Node side currently passes Date.now() as ARGV; client clocks
-      drifting against the Redis server can let one process double-spend
-      a refill window. Sourcing `now` from Redis fixes that and matches
-      the rest of the SabNode Lua scripts (BullMQ also uses TIME).
-  See README in this crate for the migration plan to switch the Node side
-  over to the same source of truth.
 ]]
 
 local key       = KEYS[1]

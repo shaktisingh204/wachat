@@ -76,6 +76,24 @@ export async function getPurchaseOrders(
     }
 }
 
+export async function getPurchaseOrderById(id: string): Promise<WithId<CrmPurchaseOrder> | null> {
+    if (!ObjectId.isValid(id)) return null;
+    const session = await getSession();
+    if (!session?.user) return null;
+
+    try {
+        const { db } = await connectToDatabase();
+        const order = await db.collection<CrmPurchaseOrder>('crm_purchase_orders').findOne({
+            _id: new ObjectId(id),
+            userId: new ObjectId(session.user._id),
+        });
+        return order ? JSON.parse(JSON.stringify(order)) : null;
+    } catch (e) {
+        console.error('Failed to fetch purchase order:', e);
+        return null;
+    }
+}
+
 export async function savePurchaseOrder(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
@@ -84,17 +102,58 @@ export async function savePurchaseOrder(prevState: any, formData: FormData): Pro
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(session.user._id);
 
+        const orderIdRaw = formData.get('orderId') as string | null;
+        const isEdit = !!orderIdRaw && ObjectId.isValid(orderIdRaw);
+
         let orderNumber = formData.get('orderNumber') as string;
-        if (!orderNumber) {
+        if (!orderNumber && !isEdit) {
             orderNumber = await getNextPurchaseOrderNumber(db, userObjectId);
         }
 
         const lineItems = JSON.parse(formData.get('lineItems') as string || '[]');
         const total = lineItems.reduce((sum: number, item: any) => sum + (item.quantity * item.rate), 0);
 
+        const warehouseIdRaw = formData.get('warehouseId') as string | null;
+        const warehouseId = warehouseIdRaw && ObjectId.isValid(warehouseIdRaw)
+            ? new ObjectId(warehouseIdRaw)
+            : undefined;
+
+        const vendorIdRaw = formData.get('vendorId') as string | null;
+        if (!vendorIdRaw || !ObjectId.isValid(vendorIdRaw)) {
+            return { error: 'Vendor is required.' };
+        }
+
+        if (isEdit) {
+            const result = await db.collection('crm_purchase_orders').updateOne(
+                { _id: new ObjectId(orderIdRaw!), userId: userObjectId },
+                {
+                    $set: {
+                        vendorId: new ObjectId(vendorIdRaw),
+                        orderDate: new Date(formData.get('orderDate') as string),
+                        expectedDeliveryDate: formData.get('expectedDeliveryDate') ? new Date(formData.get('expectedDeliveryDate') as string) : undefined,
+                        currency: formData.get('currency') as string,
+                        lineItems,
+                        total,
+                        paymentTerms: formData.get('paymentTerms') as string,
+                        notes: formData.get('notes') as string,
+                        warehouseId,
+                        updatedAt: new Date(),
+                    },
+                }
+            );
+
+            if (result.matchedCount === 0) {
+                return { error: 'Purchase order not found or permission denied.' };
+            }
+
+            revalidatePath('/dashboard/crm/purchases/orders');
+            revalidatePath(`/dashboard/crm/purchases/orders/${orderIdRaw}/edit`);
+            return { message: 'Purchase order updated successfully.' };
+        }
+
         const orderData: Omit<CrmPurchaseOrder, '_id' | 'createdAt' | 'updatedAt'> = {
             userId: userObjectId,
-            vendorId: new ObjectId(formData.get('vendorId') as string),
+            vendorId: new ObjectId(vendorIdRaw),
             orderNumber: orderNumber,
             orderDate: new Date(formData.get('orderDate') as string),
             expectedDeliveryDate: formData.get('expectedDeliveryDate') ? new Date(formData.get('expectedDeliveryDate') as string) : undefined,
@@ -104,10 +163,11 @@ export async function savePurchaseOrder(prevState: any, formData: FormData): Pro
             paymentTerms: formData.get('paymentTerms') as string,
             notes: formData.get('notes') as string,
             status: 'Draft',
+            warehouseId,
         };
 
-        if (!orderData.orderNumber || !orderData.vendorId) {
-            return { error: 'Order number and vendor are required.' };
+        if (!orderData.orderNumber) {
+            return { error: 'Order number is required.' };
         }
 
         const existing = await db.collection('crm_purchase_orders').findOne({ userId: userObjectId, orderNumber: orderData.orderNumber });

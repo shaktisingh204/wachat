@@ -748,69 +748,89 @@ function MobileNav({ onClose }: { onClose: () => void }) {
 
 function Hero({ session, loading }: { session: any; loading: boolean }) {
   return (
-    <section className="relative pt-10 md:pt-16 pb-10 md:pb-20">
-      <div className="container mx-auto px-6">
-        <div className="flex flex-col items-center text-center max-w-5xl mx-auto">
-          <div className="sn-reveal sn-tag sn-tag-live" style={{ animationDelay: '40ms' }}>
-            <span className="dot" />
-            SabNode v26.04 · 4,812 workspaces live
+    <section className="relative pt-12 md:pt-20 pb-10 md:pb-16 overflow-hidden">
+      {/* concentric orbits + integration logos */}
+      <div aria-hidden className="absolute inset-x-0 top-8 md:top-16 bottom-0 pointer-events-none">
+        <OrbitField />
+      </div>
+
+      <div className="container relative mx-auto px-6">
+        <div className="flex flex-col items-center text-center max-w-3xl mx-auto">
+          {/* trust ratings */}
+          <div className="sn-reveal flex items-center gap-7 text-[12.5px]" style={{ animationDelay: '40ms' }}>
+            <span className="inline-flex items-center gap-1.5">
+              <GoogleGlyph className="h-[15px] w-[15px]" />
+              <span className="font-semibold text-[#121126] tabular-nums">4.8</span>
+              <span className="text-[#7878A1]">Google</span>
+            </span>
+            <span className="h-4 w-px bg-black/10" />
+            <span className="inline-flex items-center gap-1.5">
+              <Star className="h-[15px] w-[15px] fill-[#00B67A] text-[#00B67A]" strokeWidth={0} />
+              <span className="font-semibold text-[#121126] tabular-nums">4.9</span>
+              <span className="text-[#7878A1]">Trustpilot</span>
+            </span>
           </div>
 
-          <h1 className="sn-reveal mt-7 font-display text-[#121126] leading-[0.90] text-[14vw] sm:text-[9vw] md:text-[100px] lg:text-[120px]" style={{ animationDelay: '120ms' }}>
+          {/* headline */}
+          <h1 className="sn-reveal mt-6 font-display text-[#121126] leading-[0.94] text-[12vw] sm:text-[9vw] md:text-[78px] lg:text-[92px]" style={{ animationDelay: '120ms' }}>
             One platform for
             <br />
-            every{' '}
-            <span className="font-display-italic sn-gradient-text">conversation.</span>
+            every{' '}<span className="font-display-italic sn-gradient-text">conversation.</span>
           </h1>
 
-          <p className="sn-reveal mt-7 text-base md:text-[18px] text-[#4A4A6B] max-w-2xl leading-relaxed" style={{ animationDelay: '260ms' }}>
-            WhatsApp inbox, chatbots, workflows, CRM, broadcasts and analytics —
-            every module shares the same contacts, the same data model and the
-            same AI layer. Replace eight subscriptions with one bill.
+          {/* subtext */}
+          <p className="sn-reveal mt-6 text-[15px] md:text-[17px] text-[#4A4A6B] max-w-xl leading-relaxed" style={{ animationDelay: '260ms' }}>
+            From WhatsApp inboxes to no-code flows and CRM, run every customer
+            interaction in one place — and keep your team moving forward.
           </p>
 
-          <div className="sn-reveal mt-9 flex flex-col sm:flex-row items-center gap-3" style={{ animationDelay: '380ms' }}>
+          {/* CTAs */}
+          <div className="sn-reveal mt-8 flex flex-col sm:flex-row items-center gap-3" style={{ animationDelay: '380ms' }}>
             {loading ? null : session?.user ? (
-              <Link href="/wachat" className="sn-btn-primary inline-flex h-12 items-center gap-2 rounded-full px-6 text-[14px] font-semibold">
-                Open workspace <ArrowRight className="h-4 w-4" />
+              <Link href="/wachat" className="sn-btn-dark inline-flex h-12 items-center gap-2 rounded-full px-7 text-[14px] font-semibold">
+                Open workspace
               </Link>
             ) : (
-              <Link href="/signup" className="sn-btn-primary inline-flex h-12 items-center gap-2 rounded-full px-6 text-[14px] font-semibold">
-                Start free — no card <ArrowRight className="h-4 w-4" />
+              <Link href="/signup" className="sn-btn-dark inline-flex h-12 items-center gap-2 rounded-full px-7 text-[14px] font-semibold">
+                Get started free
               </Link>
             )}
-            <Link href="#products" className="sn-btn-ghost inline-flex h-12 items-center gap-2 rounded-full px-6 text-[14px] font-semibold">
-              <Play className="h-4 w-4 fill-current" /> See every module
+            <Link
+              href="/contact"
+              className="inline-flex h-12 items-center gap-2 rounded-full px-6 text-[14px] font-semibold text-[#121126] bg-white border sn-hair hover:bg-black/[0.03] transition"
+            >
+              Talk to sales team
             </Link>
           </div>
 
-          <div className="sn-reveal mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[12.5px] text-[#7878A1]" style={{ animationDelay: '500ms' }}>
-            <span className="inline-flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-[#4F46E5]" /> No credit card</span>
-            <span className="inline-flex items-center gap-1.5"><Shield className="h-3.5 w-3.5 text-[#4F46E5]" /> SOC 2 ready</span>
-            <span className="inline-flex items-center gap-1.5"><Clock className="h-3.5 w-3.5 text-[#4F46E5]" /> 10-min setup</span>
+          {/* floating activity card */}
+          <div className="sn-reveal relative mt-12 md:mt-16 w-full max-w-md" style={{ animationDelay: '520ms' }}>
+            <div
+              aria-hidden
+              className="absolute -inset-10 pointer-events-none"
+              style={{
+                background:
+                  'radial-gradient(60% 50% at 50% 40%, rgba(99,102,241,0.28), transparent 70%)',
+                filter: 'blur(24px)',
+              }}
+            />
+            <ActivityCardStack />
           </div>
-        </div>
 
-        <div className="sn-reveal relative mt-16 md:mt-20 max-w-6xl mx-auto" style={{ animationDelay: '640ms' }}>
-          <div aria-hidden className="absolute -inset-10 blur-3xl opacity-60 pointer-events-none" style={{
-            background: 'radial-gradient(60% 50% at 50% 40%, rgba(99,102,241,0.30), transparent 70%)',
-          }} />
-          <div className="relative">
-            <ChatAppMock />
-            <div className="hidden md:block absolute -right-4 md:-right-10 -top-8 sn-float">
-              <WhatsappPhoneMock />
-            </div>
-          </div>
-          <div className="hidden md:flex absolute -bottom-4 left-10 rotate-[-4deg]" aria-hidden>
-            <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-full text-[12px] font-semibold text-white" style={{
-              background: 'linear-gradient(135deg, #4F46E5, #8B5CF6)',
-              boxShadow: '0 14px 30px -12px rgba(79,70,229,0.5)',
-            }}>
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inset-0 rounded-full bg-white opacity-60 animate-ping" />
-                <span className="relative rounded-full h-2 w-2 bg-white" />
-              </span>
-              17 flows live · 254k chats today
+          {/* trusted by + logos */}
+          <div className="sn-reveal mt-14 md:mt-20 w-full" style={{ animationDelay: '640ms' }}>
+            <p className="text-[11.5px] text-center text-[#7878A1] tracking-wide">
+              Trusted by 200,000+ teams worldwide
+            </p>
+            <div className="mt-5 flex flex-wrap items-center justify-center gap-x-9 gap-y-4 opacity-80">
+              {['Google', 'airbnb', 'coinbase', 'Notion', 'Gumroad', 'PayPal', 'upwork', 'shopify', 'stripe', 'ZOOM'].map((n) => (
+                <span
+                  key={n}
+                  className="font-display text-[18px] md:text-[20px] tracking-[-0.04em] text-[#121126]/60 hover:text-[#121126] transition"
+                >
+                  {n}
+                </span>
+              ))}
             </div>
           </div>
         </div>
@@ -820,342 +840,353 @@ function Hero({ session, loading }: { session: any; loading: boolean }) {
 }
 
 /* -------------------------------------------------------------------------- */
-/*  Hero mock — mirrors /wachat/chat (sidebar + thread + info panel)       */
+/*  Hero — orbit field + integration logos                                    */
 /* -------------------------------------------------------------------------- */
 
-function ChatAppMock() {
+function OrbitField() {
   return (
-    <div className="relative sn-window">
-      <WindowChrome title="app.sabnode.io / dashboard / chat" />
-      <div className="grid grid-cols-12 min-h-[520px]">
-        {/* left sidebar — app nav */}
-        <aside className="hidden md:flex col-span-2 border-r sn-hair p-3 flex-col gap-0.5 bg-[#FAF9F4]">
-          <div className="px-2 pb-2 text-[9.5px] uppercase tracking-[0.18em] font-bold text-[#7878A1]">Workspace</div>
-          {[
-            { icon: Inbox, label: 'Chat', n: '24', active: true },
-            { icon: Workflow, label: 'Flows', n: '12' },
-            { icon: Users2, label: 'Contacts', n: '3.2k' },
-            { icon: Send, label: 'Broadcasts' },
-            { icon: Bot, label: 'Chatbot' },
-            { icon: LineChart, label: 'Analytics' },
-          ].map(it => {
-            const Icon = it.icon;
-            return (
-              <div key={it.label} className={`flex items-center gap-2 rounded-lg px-2.5 py-2 text-[12.5px] ${
-                it.active ? 'text-[#121126] font-semibold' : 'text-[#4A4A6B] hover:bg-black/5'
-              }`} style={it.active ? { background: '#EEF2FF' } : undefined}>
-                <Icon className={`h-3.5 w-3.5 ${it.active ? 'text-[#4F46E5]' : 'text-[#7878A1]'}`} strokeWidth={2} />
-                <span className="flex-1 truncate">{it.label}</span>
-                {it.n && (
-                  <span className={`text-[9.5px] font-mono tabular-nums rounded px-1.5 py-[1px] ${
-                    it.active ? 'bg-[#4F46E5] text-white' : 'bg-black/5 text-[#7878A1]'
-                  }`}>{it.n}</span>
-                )}
-              </div>
-            );
-          })}
-          <div className="mt-auto rounded-2xl p-3 text-white" style={{
-            background: 'linear-gradient(160deg, #4F46E5 0%, #8B5CF6 100%)',
-          }}>
-            <div className="text-[9.5px] uppercase tracking-widest text-white/80 font-bold">Plan · Growth</div>
-            <div className="mt-1 text-[11.5px] font-semibold">14 days left</div>
-            <div className="mt-2 h-1 rounded-full bg-white/25 overflow-hidden">
-              <div className="h-full w-[68%] rounded-full bg-white" />
-            </div>
-          </div>
-        </aside>
+    <div className="relative h-full w-full">
+      {/* SVG rings — 5 concentric ellipses centered horizontally */}
+      <svg
+        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] sm:w-[130%] md:w-[110%] max-w-none"
+        viewBox="0 0 1400 760"
+        fill="none"
+        preserveAspectRatio="xMidYMid meet"
+        aria-hidden
+      >
+        <ellipse cx="700" cy="380" rx="240" ry="170" stroke="rgba(17,17,38,0.07)" />
+        <ellipse cx="700" cy="380" rx="370" ry="240" stroke="rgba(17,17,38,0.06)" />
+        <ellipse cx="700" cy="380" rx="500" ry="305" stroke="rgba(17,17,38,0.05)" />
+        <ellipse cx="700" cy="380" rx="630" ry="365" stroke="rgba(17,17,38,0.04)" />
+        <ellipse cx="700" cy="380" rx="760" ry="420" stroke="rgba(17,17,38,0.035)" />
+        {/* indigo accent arc */}
+        <ellipse
+          cx="700"
+          cy="380"
+          rx="370"
+          ry="240"
+          stroke="#4F46E5"
+          strokeWidth="1"
+          strokeDasharray="2 14"
+          opacity="0.55"
+        />
+        <ellipse
+          cx="700"
+          cy="380"
+          rx="630"
+          ry="365"
+          stroke="#8B5CF6"
+          strokeWidth="1"
+          strokeDasharray="2 18"
+          opacity="0.35"
+        />
+      </svg>
 
-        {/* contact list (380px-ish) */}
-        <div className="col-span-5 md:col-span-4 border-r sn-hair">
-          <div className="px-3 py-2.5 border-b sn-hair flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="text-[13px] font-semibold text-[#121126]">Chats</div>
-              <span className="text-[10px] font-mono tabular-nums rounded bg-black/5 text-[#4A4A6B] px-1.5 py-[1px]">142</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <IconBtn><UserPlus className="h-3.5 w-3.5" /></IconBtn>
-              <IconBtn><MoreHorizontal className="h-3.5 w-3.5" /></IconBtn>
-            </div>
-          </div>
-          <div className="px-3 py-2 border-b sn-hair">
-            <div className="flex items-center gap-2 rounded-full px-3 py-1.5 bg-black/[0.04]">
-              <Search className="h-3.5 w-3.5 text-[#7878A1]" />
-              <div className="text-[11px] text-[#7878A1]">Search contacts or messages</div>
-              <span className="ml-auto text-[9.5px] font-mono text-[#7878A1] bg-white rounded px-1.5 py-[1px] border sn-hair">⌘ K</span>
-            </div>
-          </div>
-          <div className="flex gap-1 p-2 border-b sn-hair overflow-x-auto">
-            {[
-              { t: 'All', active: true, n: 142 },
-              { t: 'Unread', n: 3 },
-              { t: 'WhatsApp', n: 98, c: '#25D366' },
-              { t: 'Instagram', n: 24, c: '#E4405F' },
-              { t: 'Email', n: 14 },
-            ].map(f => (
-              <button key={f.t} className={`flex-shrink-0 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10.5px] font-medium ${
-                f.active ? 'bg-[#121126] text-white' : 'text-[#4A4A6B] bg-black/[0.04]'
-              }`}>
-                {f.c && <span className="h-1.5 w-1.5 rounded-full" style={{ background: f.c }} />}
-                {f.t}
-                <span className="font-mono tabular-nums opacity-70">{f.n}</span>
-              </button>
-            ))}
-          </div>
-          <ul className="divide-y sn-hair">
-            {[
-              { n: 'Priya Shah', i: 'PS', m: 'Is the discount still valid for the large size?', t: '2m', grad: 'linear-gradient(135deg,#4F46E5,#8B5CF6)', ch: 'whatsapp', unread: true, typing: true, active: true },
-              { n: 'Jordan Mateo', i: 'JM', m: "Great — send the invoice to billing@acme.co", t: '6m', grad: 'linear-gradient(135deg,#EC4899,#F472B6)', ch: 'email', unread: true },
-              { n: 'Lee Park', i: 'LP', m: 'Need help setting up the post-purchase flow.', t: '12m', grad: 'linear-gradient(135deg,#06B6D4,#3B82F6)', ch: 'web' },
-              { n: 'Ama Kusi', i: 'AK', m: 'Thanks — resolved on my end 🙌', t: '34m', grad: 'linear-gradient(135deg,#10B981,#059669)', ch: 'whatsapp' },
-              { n: 'Nikhil R.', i: 'NR', m: 'Can we push the demo to Friday?', t: '1h', grad: 'linear-gradient(135deg,#F59E0B,#EAB308)', ch: 'instagram' },
-            ].map(r => (
-              <li key={r.n} className={`flex items-center gap-2.5 px-3 py-2.5 relative transition-colors ${r.active ? 'bg-[#EEF2FF]/60' : 'hover:bg-black/[0.02]'}`}>
-                {r.active && <span className="absolute left-0 top-2 bottom-2 w-[3px] rounded-r bg-[#4F46E5]" />}
-                <div className="relative flex-shrink-0">
-                  <div className="h-9 w-9 rounded-full flex items-center justify-center text-[10.5px] font-bold text-white" style={{ background: r.grad }}>{r.i}</div>
-                  <span className="absolute -bottom-0.5 -right-0.5 h-4 w-4 rounded-full bg-white flex items-center justify-center">
-                    <ChannelDot type={r.ch} />
-                  </span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-baseline justify-between gap-2">
-                    <div className="text-[12.5px] font-semibold text-[#121126] truncate">{r.n}</div>
-                    <div className="text-[9.5px] text-[#7878A1] font-mono tabular-nums flex-shrink-0">{r.t}</div>
-                  </div>
-                  {r.typing ? (
-                    <div className="flex items-center gap-1 mt-0.5 text-[11px] text-[#4F46E5] font-semibold">
-                      typing
-                      <span className="flex gap-0.5">
-                        <span className="h-1 w-1 rounded-full bg-[#4F46E5] sn-float" style={{ animationDelay: '0s' }} />
-                        <span className="h-1 w-1 rounded-full bg-[#4F46E5] sn-float" style={{ animationDelay: '0.15s' }} />
-                        <span className="h-1 w-1 rounded-full bg-[#4F46E5] sn-float" style={{ animationDelay: '0.3s' }} />
-                      </span>
-                    </div>
-                  ) : (
-                    <div className="text-[11.5px] text-[#7878A1] truncate mt-0.5">{r.m}</div>
-                  )}
-                </div>
-                {r.unread && <span className="h-2 w-2 rounded-full bg-[#4F46E5] flex-shrink-0" />}
-              </li>
-            ))}
-          </ul>
-        </div>
+      {/* logo bubbles — desktop only, anchored relative to the section */}
+      <div className="absolute inset-0 hidden md:block">
+        {ORBIT_LOGOS.map(({ key, ...rest }) => (
+          <LogoBubble key={key} {...rest} />
+        ))}
+      </div>
 
-        {/* message thread */}
-        <section className="hidden md:flex col-span-6 lg:col-span-4 flex-col">
-          <header className="px-4 py-2.5 border-b sn-hair flex items-center gap-3">
-            <div className="h-9 w-9 rounded-full flex items-center justify-center text-[10.5px] font-bold text-white" style={{ background: 'linear-gradient(135deg,#4F46E5,#8B5CF6)' }}>PS</div>
-            <div className="flex-1 min-w-0">
-              <div className="text-[13px] font-semibold text-[#121126] flex items-center gap-1.5">
-                Priya Shah
-                <BadgeCheck className="h-3 w-3 text-[#4F46E5]" />
-                <span className="text-[10px] font-mono text-[#7878A1]">#C-47293</span>
-              </div>
-              <div className="text-[10.5px] text-[#7878A1] flex items-center gap-1">
-                <ChannelDot type="whatsapp" /> WhatsApp · +91 98234 44211 · Mumbai
-              </div>
-            </div>
-            <div className="flex items-center gap-1">
-              <IconBtn><Phone className="h-3.5 w-3.5" /></IconBtn>
-              <IconBtn><Video className="h-3.5 w-3.5" /></IconBtn>
-              <IconBtn><MoreHorizontal className="h-3.5 w-3.5" /></IconBtn>
-            </div>
-          </header>
-
-          <div className="flex-1 p-4 space-y-2.5 bg-[#FAF9F4]">
-            <div className="text-center text-[9.5px] uppercase tracking-[0.18em] text-[#7878A1] font-semibold">Today</div>
-            <ChatBubble side="in" time="9:32">Hi, is the XL size back in stock?</ChatBubble>
-            <ChatBubble side="out" time="9:33" ai>Hey Priya 👋 Yes — XL is back in the Linen Crew and the Merino Tee. Want me to send the links?</ChatBubble>
-            <ChatBubble side="in" time="9:36">Is the discount still valid for the large size?</ChatBubble>
-            <div className="flex items-center gap-2 pl-1">
-              <div className="flex gap-1">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#4F46E5] sn-float" style={{ animationDelay: '0s' }} />
-                <span className="h-1.5 w-1.5 rounded-full bg-[#4F46E5] sn-float" style={{ animationDelay: '0.15s' }} />
-                <span className="h-1.5 w-1.5 rounded-full bg-[#4F46E5] sn-float" style={{ animationDelay: '0.3s' }} />
-              </div>
-              <span className="text-[10.5px] text-[#4F46E5] font-semibold">SabNode AI is drafting a reply…</span>
-            </div>
-          </div>
-
-          <div className="border-t sn-hair p-3">
-            <div className="rounded-xl bg-[#EEF2FF] border border-[#4F46E5]/15 p-2.5">
-              <div className="flex items-center gap-1.5 mb-1.5">
-                <span className="inline-flex items-center gap-1 rounded-full bg-white px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-widest text-[#4F46E5]">
-                  <Sparkles className="h-2.5 w-2.5" /> AI suggests
-                </span>
-                <button className="inline-flex items-center gap-1 text-[10.5px] font-semibold text-[#4F46E5] hover:text-[#4338CA] ml-auto">
-                  Insert <ArrowRight className="h-3 w-3" />
-                </button>
-                <button className="text-[10.5px] text-[#7878A1] hover:text-[#121126]">Regenerate</button>
-              </div>
-              <div className="text-[12px] text-[#121126] leading-relaxed">
-                Yes! <b>SAVE20</b> is valid on everything till Sun 28 Apr. Want me to apply it to your cart automatically?
-              </div>
-              <div className="flex items-center justify-between mt-2 pt-2 border-t border-[#4F46E5]/15">
-                <div className="flex gap-1">
-                  <IconBtn sm><Paperclip className="h-3 w-3" /></IconBtn>
-                  <IconBtn sm><ImageIcon className="h-3 w-3" /></IconBtn>
-                  <IconBtn sm><Smile className="h-3 w-3" /></IconBtn>
-                </div>
-                <div className="flex gap-1.5">
-                  <button className="sn-btn-ghost inline-flex h-7 items-center gap-1 rounded-full px-2.5 text-[10.5px] font-semibold">Save draft</button>
-                  <button className="sn-btn-primary inline-flex h-7 items-center gap-1 rounded-full px-3 text-[10.5px] font-semibold">
-                    Send <Send className="h-3 w-3" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* right info panel */}
-        <aside className="hidden lg:block col-span-2 border-l sn-hair p-3 bg-[#FAF9F4]">
-          <div className="flex flex-col items-center pb-3 border-b sn-hair">
-            <div className="h-14 w-14 rounded-full flex items-center justify-center text-white font-bold text-[16px]" style={{ background: 'linear-gradient(135deg,#4F46E5,#8B5CF6)' }}>PS</div>
-            <div className="mt-2 text-[12px] font-semibold text-[#121126]">Priya Shah</div>
-            <div className="text-[10px] text-[#7878A1]">Mumbai · IN</div>
-          </div>
-          <div className="py-3 space-y-2 border-b sn-hair">
-            <div className="text-[9.5px] uppercase tracking-widest text-[#7878A1] font-bold">Tags</div>
-            <div className="flex flex-wrap gap-1">
-              {[
-                { t: 'VIP', c: '#F59E0B' },
-                { t: 'repeat', c: '#4F46E5' },
-                { t: 'IN', c: '#8B5CF6' },
-              ].map(tg => (
-                <span key={tg.t} className="text-[9px] font-bold uppercase tracking-widest rounded px-1.5 py-[1px]" style={{ background: `${tg.c}15`, color: tg.c }}>
-                  {tg.t}
-                </span>
-              ))}
-            </div>
-          </div>
-          <div className="py-3 space-y-1.5">
-            <div className="text-[9.5px] uppercase tracking-widest text-[#7878A1] font-bold mb-1">Last orders</div>
-            {[
-              { id: '#47293', v: '₹2,480', d: '2d' },
-              { id: '#46188', v: '₹1,650', d: '3w' },
-            ].map(o => (
-              <div key={o.id} className="flex items-center justify-between text-[10.5px]">
-                <span className="text-[#121126] font-mono">{o.id}</span>
-                <span className="text-[#121126] font-semibold tabular-nums">{o.v}</span>
-                <span className="text-[#7878A1] tabular-nums">{o.d}</span>
-              </div>
-            ))}
-          </div>
-          <div className="pt-3 border-t sn-hair">
-            <div className="text-[9.5px] uppercase tracking-widest text-[#7878A1] font-bold mb-1.5">Lifetime</div>
-            <div className="font-display text-[22px] text-[#121126] tabular-nums leading-none">₹48,320</div>
-            <div className="text-[10px] text-[#22C55E] font-semibold">+₹2,480 this month</div>
-          </div>
-        </aside>
+      {/* condensed bubbles for small screens */}
+      <div className="absolute inset-x-0 top-2 flex justify-between px-3 md:hidden">
+        <LogoBubbleStatic glyph={<SlackGlyph />} size="sm" />
+        <LogoBubbleStatic glyph={<MetaGlyph />} size="sm" />
+        <LogoBubbleStatic glyph={<MailchimpGlyph />} size="sm" />
+        <LogoBubbleStatic glyph={<NotionGlyph />} size="sm" />
       </div>
     </div>
   );
 }
 
-function WhatsappPhoneMock() {
+type LogoSpec = {
+  key: string;
+  top: string;
+  left: string;
+  size?: 'sm' | 'md' | 'lg';
+  delay?: number;
+  glyph: React.ReactNode;
+};
+
+const ORBIT_LOGOS: LogoSpec[] = [
+  { key: 'slack',    top: '4%',  left: '22%', size: 'lg', delay: 0,    glyph: <SlackGlyph /> },
+  { key: 'zapier',   top: '4%',  left: '78%', size: 'lg', delay: 0.6,  glyph: <ZapierGlyph /> },
+  { key: 'meta',     top: '32%', left: '12%', size: 'md', delay: 1.1,  glyph: <MetaGlyph /> },
+  { key: 'aws',      top: '32%', left: '88%', size: 'md', delay: 1.7,  glyph: <AwsGlyph /> },
+  { key: 'gcal',     top: '46%', left: '21%', size: 'md', delay: 2.2,  glyph: <GoogleCalendarGlyph /> },
+  { key: 'figma',    top: '50%', left: '79%', size: 'md', delay: 2.6,  glyph: <FigmaGlyph /> },
+  { key: 'mailchimp',top: '64%', left: '10%', size: 'md', delay: 0.4,  glyph: <MailchimpGlyph /> },
+  { key: 'clickup',  top: '64%', left: '90%', size: 'md', delay: 1.3,  glyph: <ClickupGlyph /> },
+  { key: 'gads',     top: '82%', left: '24%', size: 'md', delay: 2.0,  glyph: <GoogleAdsGlyph /> },
+  { key: 'airtable', top: '84%', left: '76%', size: 'md', delay: 2.8,  glyph: <AirtableGlyph /> },
+  { key: 'notion',   top: '20%', left: '46%', size: 'sm', delay: 1.9,  glyph: <NotionGlyph /> },
+  { key: 'stripe',   top: '78%', left: '52%', size: 'sm', delay: 3.1,  glyph: <StripeGlyph /> },
+];
+
+function LogoBubble({ top, left, size = 'md', delay = 0, glyph }: Omit<LogoSpec, 'key'>) {
+  const dim = size === 'lg' ? 'h-14 w-14' : size === 'sm' ? 'h-10 w-10' : 'h-12 w-12';
   return (
-    <div className="relative w-[232px] h-[474px] rounded-[44px] p-[6px]" style={{
-      background: 'linear-gradient(160deg, #2D2A4A 0%, #141128 30%, #07051F 100%)',
-      boxShadow: '0 50px 100px -20px rgba(17,17,38,0.45), 0 0 0 1.5px rgba(255,255,255,0.08) inset',
-    }}>
-      <span aria-hidden className="absolute -left-[3px] top-24 h-8 w-[3px] rounded-l bg-[#2D2A4A]" />
-      <span aria-hidden className="absolute -right-[3px] top-28 h-16 w-[3px] rounded-r bg-[#2D2A4A]" />
-      <div className="relative w-full h-full rounded-[38px] overflow-hidden flex flex-col" style={{ background: '#E5DED5' }}>
-        <div aria-hidden className="absolute left-1/2 -translate-x-1/2 top-[6px] h-[22px] w-[82px] rounded-full bg-black z-20" />
-        <div className="flex items-center justify-between px-5 pt-[10px] pb-1 text-[10.5px] font-semibold text-black tabular-nums">
-          <span>9:41</span>
-          <span className="opacity-0">·</span>
-          <span className="flex items-center gap-1">
-            <svg width="14" height="8" viewBox="0 0 14 8" fill="none">
-              <rect x="0" y="3" width="2" height="5" rx="0.5" fill="currentColor" />
-              <rect x="3" y="2" width="2" height="6" rx="0.5" fill="currentColor" />
-              <rect x="6" y="1" width="2" height="7" rx="0.5" fill="currentColor" />
-              <rect x="9" y="0" width="2" height="8" rx="0.5" fill="currentColor" />
-            </svg>
-            <span className="text-[9px]">5G</span>
-            <svg width="18" height="9" viewBox="0 0 18 9" fill="none">
-              <rect x="0.5" y="0.5" width="14" height="8" rx="2" stroke="currentColor" />
-              <rect x="2" y="2" width="10" height="5" rx="1" fill="currentColor" />
-              <rect x="15" y="3" width="1.5" height="3" rx="0.5" fill="currentColor" />
-            </svg>
+    <div
+      className={`sn-float absolute ${dim} -translate-x-1/2 -translate-y-1/2 rounded-full bg-white flex items-center justify-center`}
+      style={{
+        top,
+        left,
+        boxShadow:
+          '0 1px 2px rgba(17,17,38,0.06), 0 12px 28px -10px rgba(17,17,38,0.18), 0 0 0 1px rgba(17,17,38,0.05) inset',
+        animationDelay: `${delay}s`,
+      }}
+    >
+      <div className="flex items-center justify-center">{glyph}</div>
+    </div>
+  );
+}
+
+function LogoBubbleStatic({ glyph, size = 'md' }: { glyph: React.ReactNode; size?: 'sm' | 'md' | 'lg' }) {
+  const dim = size === 'lg' ? 'h-14 w-14' : size === 'sm' ? 'h-10 w-10' : 'h-12 w-12';
+  return (
+    <div
+      className={`${dim} rounded-full bg-white flex items-center justify-center`}
+      style={{
+        boxShadow:
+          '0 1px 2px rgba(17,17,38,0.06), 0 12px 28px -10px rgba(17,17,38,0.18), 0 0 0 1px rgba(17,17,38,0.05) inset',
+      }}
+    >
+      {glyph}
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Activity card stack (hero overlay)                                        */
+/* -------------------------------------------------------------------------- */
+
+function ActivityCardStack() {
+  return (
+    <div className="relative">
+      {/* row 1 — primary */}
+      <div className="relative z-30 sn-card-soft rounded-2xl px-3.5 py-3 flex items-center gap-3" style={{
+        boxShadow: '0 24px 48px -20px rgba(17,17,38,0.18), 0 2px 4px rgba(17,17,38,0.04)',
+      }}>
+        <div className="relative h-9 w-9 flex-shrink-0">
+          <div className="h-9 w-9 rounded-full flex items-center justify-center text-[11px] font-bold text-white" style={{ background: 'linear-gradient(135deg,#4F46E5,#8B5CF6)' }}>WC</div>
+          <span className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-white flex items-center justify-center">
+            <BadgeCheck className="h-3 w-3 text-[#4F46E5]" />
           </span>
         </div>
-        <div className="flex items-center gap-2.5 px-3.5 pt-4 pb-2.5" style={{ background: '#075E54', color: '#fff' }}>
-          <ChevronRight className="h-3.5 w-3.5 text-white rotate-180" strokeWidth={2.5} />
-          <div className="h-8 w-8 rounded-full flex items-center justify-center text-white text-[11px] font-bold" style={{ background: 'linear-gradient(135deg, #4F46E5, #8B5CF6)' }}>
-            <Sparkles className="h-3.5 w-3.5" />
+        <div className="flex-1 min-w-0 text-left">
+          <div className="text-[13px] text-[#121126] truncate">
+            <span className="font-semibold">Wei Chen</span>{' '}
+            <span className="text-[#4A4A6B]">joined to</span>{' '}
+            <span className="font-semibold">Final Presentation</span>
           </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-[11.5px] font-semibold text-white truncate flex items-center gap-1">Northpeak</div>
-            <div className="text-[9px] text-white/80">online · WhatsApp Business</div>
-          </div>
-          <Video className="h-3.5 w-3.5 text-white" />
-          <Phone className="h-3.5 w-3.5 text-white" />
-          <MoreHorizontal className="h-4 w-4 text-white" />
-        </div>
-        <div className="flex-1 px-2.5 py-3 overflow-hidden" style={{
-          backgroundColor: '#ECE5DD',
-          backgroundImage: "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'><circle cx='40' cy='40' r='1' fill='rgba(7,94,84,0.06)'/><circle cx='10' cy='15' r='0.8' fill='rgba(7,94,84,0.05)'/><circle cx='70' cy='65' r='0.8' fill='rgba(7,94,84,0.05)'/></svg>\")",
-          backgroundSize: '60px 60px',
-        }}>
-          <div className="text-center py-1">
-            <span className="inline-block text-[9px] font-medium px-2 py-0.5 rounded-md" style={{ background: '#FFF3C4', color: '#54583C' }}>TODAY</span>
-          </div>
-
-          <div className="mt-1.5 flex items-start">
-            <div className="relative max-w-[82%] rounded-lg rounded-tl-none px-2.5 py-1.5 text-[10.5px] text-[#0B141A] shadow-[0_1px_1px_rgba(0,0,0,0.08)]" style={{ background: '#fff' }}>
-              <span className="text-[9.5px] font-semibold" style={{ color: '#4F46E5' }}>Northpeak</span>
-              <div>Hey Priya — your order #47293 just shipped 📦</div>
-              <div className="text-[8.5px] text-black/45 text-right mt-0.5">9:38</div>
-              <span aria-hidden className="absolute -left-[5px] top-0 w-2.5 h-2.5" style={{ background: '#fff', clipPath: 'polygon(100% 0, 0 0, 100% 100%)' }} />
-            </div>
-          </div>
-
-          <div className="mt-1.5 flex items-start justify-end">
-            <div className="relative max-w-[75%] rounded-lg rounded-tr-none px-2.5 py-1.5 text-[10.5px] text-[#0B141A]" style={{ background: '#DCF8C6' }}>
-              Perfect! Is the SAVE20 code still valid for a reorder?
-              <div className="flex items-center justify-end gap-0.5 mt-0.5 text-[8.5px] text-black/50">
-                9:39
-                <svg width="12" height="8" viewBox="0 0 12 8" fill="none" style={{ color: '#53BDEB' }}>
-                  <path d="M1 4 L3.5 6.5 L7 3" stroke="currentColor" strokeWidth="1.2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M4 4 L6.5 6.5 L11 1.5" stroke="currentColor" strokeWidth="1.2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </div>
-              <span aria-hidden className="absolute -right-[5px] top-0 w-2.5 h-2.5" style={{ background: '#DCF8C6', clipPath: 'polygon(0 0, 100% 0, 0 100%)' }} />
-            </div>
-          </div>
-
-          <div className="mt-1.5 flex items-start">
-            <div className="relative max-w-[82%] rounded-lg rounded-tl-none px-2.5 py-1.5 text-[10.5px] text-[#0B141A] shadow-[0_1px_1px_rgba(0,0,0,0.08)]" style={{ background: '#fff' }}>
-              <span className="inline-flex items-center gap-1 text-[8.5px] font-bold uppercase tracking-widest" style={{ color: '#4F46E5' }}>
-                <Sparkles className="h-2 w-2" /> SabNode AI
-              </span>
-              <div className="mt-0.5">Yes — <b>SAVE20</b> works till Sun 28 Apr. Want me to prep a one-tap reorder?</div>
-              <div className="text-[8.5px] text-black/45 text-right mt-0.5">9:40</div>
-              <span aria-hidden className="absolute -left-[5px] top-0 w-2.5 h-2.5" style={{ background: '#fff', clipPath: 'polygon(100% 0, 0 0, 100% 100%)' }} />
-            </div>
-          </div>
-
-          <div className="mt-1.5 flex justify-end gap-1">
-            <button className="rounded-full px-2.5 py-1 text-[9.5px] font-semibold shadow-[0_1px_2px_rgba(0,0,0,0.1)]" style={{ background: '#fff', color: '#075E54' }}>👍 Yes please</button>
-            <button className="rounded-full px-2.5 py-1 text-[9.5px] font-medium shadow-[0_1px_2px_rgba(0,0,0,0.1)]" style={{ background: '#fff', color: '#54656F' }}>Later</button>
+          <div className="text-[11px] text-[#7878A1] mt-0.5 flex items-center gap-1.5">
+            <span>8 min ago</span>
+            <span className="text-[#7878A1]/50">·</span>
+            <span>SabNode CRM</span>
           </div>
         </div>
-        <div className="flex items-center gap-1.5 px-2 py-1.5" style={{ background: '#F0F0F0' }}>
-          <div className="flex-1 h-8 rounded-full bg-white flex items-center px-2.5 gap-2 text-[10.5px]" style={{ color: '#54656F' }}>
-            <Smile className="h-3.5 w-3.5" />
-            <span className="flex-1">Message</span>
-            <Paperclip className="h-3.5 w-3.5" />
-            <ImageIcon className="h-3.5 w-3.5" />
-          </div>
-          <div className="h-8 w-8 rounded-full flex items-center justify-center" style={{ background: '#075E54' }}>
-            <Mic className="h-3.5 w-3.5 text-white" />
-          </div>
+      </div>
+
+      {/* row 2 — offset right */}
+      <div className="relative z-20 -mt-2 ml-8 sn-card-soft rounded-2xl px-3.5 py-3 flex items-center gap-3" style={{
+        boxShadow: '0 18px 38px -18px rgba(17,17,38,0.14)',
+      }}>
+        <div className="h-9 w-9 rounded-full flex items-center justify-center text-[11px] font-bold text-white flex-shrink-0" style={{ background: 'linear-gradient(135deg,#10B981,#059669)' }}>MJ</div>
+        <div className="flex-1 min-w-0 text-left">
+          <div className="text-[13px] text-[#121126] truncate font-semibold">Matthew Johnson</div>
+          <div className="text-[11px] text-[#7878A1] mt-0.5">Content Writer · @sabnode</div>
         </div>
-        <div aria-hidden className="absolute bottom-1 left-1/2 -translate-x-1/2 h-1 w-24 rounded-full bg-black/50" />
+        <MoreHorizontal className="h-4 w-4 text-[#7878A1]" />
+      </div>
+
+      {/* row 3 — offset left */}
+      <div className="relative z-10 -mt-2 mr-10 sn-card-soft rounded-2xl px-3.5 py-3 flex items-center gap-3" style={{
+        boxShadow: '0 14px 30px -16px rgba(17,17,38,0.12)',
+      }}>
+        <div className="h-9 w-9 rounded-full flex items-center justify-center bg-[#EA4335]/10 flex-shrink-0">
+          <GmailGlyph className="h-4 w-4" />
+        </div>
+        <div className="flex-1 min-w-0 text-left">
+          <div className="text-[13px] text-[#121126] truncate font-semibold">Terry Lipshutz</div>
+          <div className="text-[11px] text-[#7878A1] mt-0.5 truncate">Approved the design of the iOS app...</div>
+        </div>
       </div>
     </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Brand glyphs — small inline SVGs for the orbit logos                     */
+/* -------------------------------------------------------------------------- */
+
+function GoogleGlyph({ className = 'h-4 w-4' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 48 48" className={className} aria-hidden>
+      <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.6-6 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.3-.4-3.5z"/>
+      <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 16 18.9 13 24 13c3.1 0 5.8 1.2 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.6 8.3 6.3 14.7z"/>
+      <path fill="#4CAF50" d="M24 44c5.2 0 9.8-2 13.3-5.2l-6.1-5c-2 1.4-4.5 2.2-7.2 2.2-5.3 0-9.7-3.4-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/>
+      <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4-4.1 5.3l6.1 5C41.4 35.2 44 30 44 24c0-1.3-.1-2.3-.4-3.5z"/>
+    </svg>
+  );
+}
+
+function SlackGlyph({ className = 'h-5 w-5' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 60 60" className={className} aria-hidden>
+      <path fill="#36C5F0" d="M16 38a4 4 0 1 1 0-8h4v4a4 4 0 0 1-4 4Zm2-12a4 4 0 0 1-4-4 4 4 0 0 1 4-4 4 4 0 0 1 4 4v4Z"/>
+      <path fill="#2EB67D" d="M22 14a4 4 0 1 1 8 0v4h-4a4 4 0 0 1-4-4Zm12 2a4 4 0 0 1 4-4 4 4 0 0 1 4 4 4 4 0 0 1-4 4h-4Z"/>
+      <path fill="#ECB22E" d="M44 22a4 4 0 1 1 0 8h-4v-4a4 4 0 0 1 4-4Zm-2 12a4 4 0 0 1 4 4 4 4 0 0 1-4 4 4 4 0 0 1-4-4v-4Z"/>
+      <path fill="#E01E5A" d="M38 46a4 4 0 1 1-8 0v-4h4a4 4 0 0 1 4 4Zm-12-2a4 4 0 0 1-4 4 4 4 0 0 1-4-4 4 4 0 0 1 4-4h4Z"/>
+    </svg>
+  );
+}
+
+function ZapierGlyph({ className = 'h-5 w-5' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 32 32" className={className} aria-hidden>
+      <circle cx="16" cy="16" r="15" fill="#FF4F00"/>
+      <path
+        fill="#fff"
+        d="M21 16a5 5 0 0 1-.3 1.7H17v3.7a5 5 0 0 1-2 0V17.7h-3.7a5 5 0 0 1 0-3.4H15V10.6a5 5 0 0 1 2 0v3.7h3.7a5 5 0 0 1 .3 1.7Z"
+      />
+      <path
+        fill="#fff"
+        d="m13.6 8.6 2-2 2 2-2 2-2-2Zm0 14.8 2-2 2 2-2 2-2-2ZM6 16l2-2 2 2-2 2-2-2Zm15.4 0 2-2 2 2-2 2-2-2Z"
+      />
+    </svg>
+  );
+}
+
+function MetaGlyph({ className = 'h-5 w-5' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 287 191" className={className} aria-hidden>
+      <path
+        fill="#0866FF"
+        d="M31 96c0-13 7-23 17-23 7 0 13 4 21 16l16 24c-9 14-17 19-25 19-14 0-23-12-29-36ZM82 51c-15 0-27 11-35 27-10-12-20-27-32-27C5 51 0 78 0 96c0 19 8 41 27 41 13 0 23-7 36-29 6 11 12 17 21 25 4 4 11 4 14-2 4-7 0-12-5-16-9-7-13-13-19-26 11-22 19-33 29-33 9 0 18 7 18 24 0 11-3 23-8 33-3 7 1 14 9 14 4 0 7-2 9-6 9-19 13-43 13-58 0-30-15-52-44-52Z"
+      />
+    </svg>
+  );
+}
+
+function AwsGlyph({ className = 'h-5 w-5' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 30 30" className={className} aria-hidden>
+      <path
+        fill="#252F3E"
+        d="M8.5 13.4c0 .4 0 .7.1.9.1.2.2.5.4.7 0 .1.1.2.1.3 0 .1-.1.2-.2.3l-.6.4h-.2l-.3-.2c-.2-.2-.3-.4-.4-.6-.1-.2-.2-.5-.4-.8-.7.9-1.7 1.3-2.8 1.3-.8 0-1.5-.2-2-.7-.5-.5-.7-1.1-.7-1.9 0-.8.3-1.5.9-2 .6-.5 1.4-.8 2.4-.8.3 0 .7 0 1 .1.4.1.7.1 1.1.2v-.7c0-.7-.2-1.2-.5-1.5-.3-.3-.9-.4-1.6-.4-.3 0-.7 0-1 .1-.3.1-.7.2-1 .3-.1.1-.3.1-.4.1-.1 0-.1 0-.2-.1l-.1-.2v-.5c0-.1 0-.2.1-.3.1-.1.2-.1.3-.2.3-.2.7-.3 1.2-.4.4-.1.9-.2 1.4-.2 1.1 0 1.9.2 2.4.7.5.5.7 1.2.7 2.2v3Zm-3.9 1.5c.3 0 .6 0 1-.2.4-.1.7-.3 1-.6.2-.2.3-.4.4-.6 0-.2.1-.5.1-.8v-.4c-.3-.1-.6-.1-.9-.2h-1c-.7 0-1.2.1-1.5.4-.3.3-.5.7-.5 1.2 0 .4.1.8.4 1 .2.1.5.2 1 .2Zm7.7 1c-.2 0-.3 0-.4-.1-.1-.1-.1-.2-.2-.4l-2-6.7v-.3c0-.1.1-.2.2-.2h.7c.2 0 .3 0 .4.1.1.1.1.2.2.4l1.5 5.7 1.4-5.7c0-.2.1-.3.1-.4.1-.1.2-.1.4-.1h.6c.2 0 .3 0 .4.1.1.1.2.2.2.4l1.4 5.8 1.5-5.8c0-.2.1-.3.2-.4.1-.1.2-.1.4-.1h.7c.1 0 .2.1.2.2v.3l-2 6.7c-.1.2-.1.3-.2.4-.1.1-.2.1-.4.1h-.7c-.2 0-.3 0-.4-.1-.1-.1-.2-.2-.2-.4L13.7 9l-1.4 5.6c0 .2-.1.3-.2.4-.1.1-.2.1-.4.1h-.4Zm12.2.2c-.5 0-1-.1-1.4-.2-.5-.1-.8-.2-1.1-.4-.2-.1-.3-.2-.3-.3v-.6c0-.2.1-.3.2-.3h.2c.1 0 .1.1.2.1.4.2.7.3 1.1.4.4.1.7.1 1.1.1.6 0 1-.1 1.3-.3.3-.2.5-.5.5-.9 0-.3-.1-.5-.3-.7-.2-.2-.5-.4-1-.5l-1.4-.4c-.7-.2-1.2-.5-1.5-1-.3-.4-.5-.9-.5-1.4 0-.4.1-.8.3-1.1.2-.3.4-.6.7-.8.3-.2.7-.4 1.1-.5.4-.1.8-.2 1.3-.2.2 0 .4 0 .7.1.2 0 .4.1.6.1.2 0 .4.1.5.2.2.1.3.1.4.2.1.1.2.2.2.3 0 .1.1.2.1.4v.5c0 .2-.1.3-.2.3-.1 0-.3 0-.5-.1-.6-.3-1.3-.4-2.1-.4-.5 0-.9.1-1.2.2-.3.1-.4.4-.4.8 0 .3.1.5.3.7.2.2.6.3 1.1.5l1.3.4c.7.2 1.2.5 1.5.9.3.4.5.8.5 1.4 0 .4-.1.8-.3 1.1-.2.3-.4.6-.7.9-.3.2-.7.4-1.1.6-.4 0-.8.1-1.3.1Z"
+      />
+      <path
+        fill="#F90"
+        d="M28 19.6c-3.4 2.5-8.3 3.8-12.5 3.8-5.9 0-11.2-2.2-15.3-5.8-.3-.3 0-.7.4-.4 4.4 2.5 9.7 4.1 15.3 4.1 3.7 0 7.8-.8 11.6-2.4.5-.2 1 .4.5.7Zm1.1-1.6c-.4-.5-2.9-.3-4-.1-.3 0-.4-.2-.1-.5 2-1.4 5.3-1 5.7-.5.4.5-.1 3.7-2 5.2-.3.2-.6.1-.4-.2.4-.9 1.2-3.4.8-3.9Z"
+      />
+    </svg>
+  );
+}
+
+function GoogleCalendarGlyph({ className = 'h-5 w-5' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 200 200" className={className} aria-hidden>
+      <rect x="40" y="40" width="120" height="120" rx="8" fill="#fff"/>
+      <path fill="#4285F4" d="M159 40h-118a4 4 0 0 0-4 4v32h126V44a4 4 0 0 0-4-4Z"/>
+      <path fill="#34A853" d="M159 160h-32v-37h37v33a4 4 0 0 1-5 4Z"/>
+      <path fill="#FBBC05" d="M127 160H45a4 4 0 0 1-4-4v-33h86v37Z"/>
+      <path fill="#EA4335" d="M41 76h126v47H41z"/>
+      <path fill="#1A73E8" d="M85 110c-3 0-6-1-8-3l3-4c1 1 3 2 5 2s4-1 4-3-2-3-4-3h-2v-4h2c2 0 3-1 3-2s-1-2-3-2-3 1-4 2l-3-3c2-2 4-3 7-3 4 0 7 2 7 5 0 2-1 4-3 4 2 1 3 3 3 5 0 4-3 6-7 6Zm17 0V90l-5 4-2-3 8-6h3v25h-4Z"/>
+      <path fill="#188038" d="M159 165h5v-9l-5-1z"/>
+    </svg>
+  );
+}
+
+function FigmaGlyph({ className = 'h-5 w-5' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 38 57" className={className} aria-hidden>
+      <path fill="#1ABCFE" d="M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0Z"/>
+      <path fill="#0ACF83" d="M0 47.5C0 42.3 4.3 38 9.5 38H19v9.5a9.5 9.5 0 1 1-19 0Z"/>
+      <path fill="#FF7262" d="M19 0v19h9.5a9.5 9.5 0 1 0 0-19H19Z"/>
+      <path fill="#F24E1E" d="M0 9.5C0 14.7 4.3 19 9.5 19H19V0H9.5C4.3 0 0 4.3 0 9.5Z"/>
+      <path fill="#A259FF" d="M0 28.5C0 33.7 4.3 38 9.5 38H19V19H9.5C4.3 19 0 23.3 0 28.5Z"/>
+    </svg>
+  );
+}
+
+function MailchimpGlyph({ className = 'h-5 w-5' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 32 32" className={className} aria-hidden>
+      <circle cx="16" cy="16" r="15" fill="#FFE01B"/>
+      <circle cx="12" cy="14" r="2" fill="#241C15"/>
+      <circle cx="20" cy="14" r="2" fill="#241C15"/>
+      <path d="M11 19c1.5 1.5 3 2.2 5 2.2s3.5-.7 5-2.2" stroke="#241C15" strokeWidth="1.6" strokeLinecap="round" fill="none"/>
+    </svg>
+  );
+}
+
+function ClickupGlyph({ className = 'h-5 w-5' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 32 32" className={className} aria-hidden>
+      <defs>
+        <linearGradient id="cu" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#8930FD"/>
+          <stop offset=".5" stopColor="#49CCF9"/>
+          <stop offset="1" stopColor="#FFC800"/>
+        </linearGradient>
+      </defs>
+      <path fill="url(#cu)" d="m4 22 4-3c1.7 2.4 4.5 4 7.7 4 3.3 0 6-1.6 7.8-4l4 3c-2.6 3.5-6.8 5.8-11.8 5.8S6.6 25.5 4 22Zm11.7-12.3 7.5 6.4-3 3.5L16 15l-4.2 4.6-3-3.5 7-6.4Z"/>
+    </svg>
+  );
+}
+
+function GoogleAdsGlyph({ className = 'h-5 w-5' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 192 192" className={className} aria-hidden>
+      <path fill="#FBBC04" d="M70 13c-9 5-13 17-7 27l49 84c5 9 17 13 27 7 9-5 13-17 7-27L97 20c-5-9-17-13-27-7Z"/>
+      <path fill="#4285F4" d="M64 178c11 7 25 3 31-8l49-84c7-11 3-25-8-31s-25-3-31 8l-49 84c-7 11-3 25 8 31Z"/>
+      <circle fill="#34A853" cx="50" cy="153" r="25"/>
+    </svg>
+  );
+}
+
+function AirtableGlyph({ className = 'h-5 w-5' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 200 170" className={className} aria-hidden>
+      <path fill="#FCB400" d="m87 7-78 32c-5 2-5 8 0 10l78 32c8 3 17 3 25 0l78-32c5-2 5-8 0-10l-78-32c-8-3-17-3-25 0Z"/>
+      <path fill="#18BFFF" d="m172 60-79 33v76c0 4 4 7 8 5l78-33c2-1 3-3 3-5V60Z"/>
+      <path fill="#F82B60" d="M85 95 26 65 9 73c-3 1-3 5 0 7l69 35c4 2 8 2 11-1l4-3v-6c0-4-3-8-8-10Z"/>
+      <path fill="#fff" opacity=".25" d="m172 60-79 33v9l79-33Z"/>
+    </svg>
+  );
+}
+
+function NotionGlyph({ className = 'h-4 w-4' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 32 32" className={className} aria-hidden>
+      <rect x="3" y="3" width="26" height="26" rx="3" fill="#fff" stroke="#111" strokeWidth="1.5"/>
+      <path d="M11 9v14M11 9l10 14M21 9v14" stroke="#111" strokeWidth="2" strokeLinecap="round"/>
+    </svg>
+  );
+}
+
+function StripeGlyph({ className = 'h-4 w-4' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 32 32" className={className} aria-hidden>
+      <rect width="32" height="32" rx="6" fill="#635BFF"/>
+      <path
+        fill="#fff"
+        d="M14.5 13.6c0-.7.5-1 1.4-1 1.3 0 3 .4 4.3 1.1V9.5a11.4 11.4 0 0 0-4.3-.8c-3.5 0-5.9 1.8-5.9 4.9 0 4.7 6.5 4 6.5 6 0 .8-.7 1.1-1.7 1.1-1.4 0-3.3-.6-4.7-1.4v4.2c1.6.7 3.2 1 4.7 1 3.6 0 6.1-1.7 6.1-4.9 0-5-6.5-4.2-6.5-6Z"
+      />
+    </svg>
+  );
+}
+
+function GmailGlyph({ className = 'h-4 w-4' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 256 193" className={className} aria-hidden>
+      <path fill="#4285F4" d="M58 193V93l-29-22L0 96v83a14 14 0 0 0 14 14h44Z"/>
+      <path fill="#34A853" d="M198 193h44a14 14 0 0 0 14-14V96l-29-25-29 22v100Z"/>
+      <path fill="#EA4335" d="M58 93 51 60l7-31 70 53 70-53 7 33-7 31-70 53Z"/>
+      <path fill="#FBBC04" d="M198 29v64L256 49V14c0-13-15-21-26-13l-32 28Z"/>
+      <path fill="#C5221F" d="M0 49v44l58-2V29L26 1C15-7 0 1 0 14v35Z"/>
+    </svg>
   );
 }
 

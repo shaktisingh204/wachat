@@ -165,80 +165,75 @@ export async function setTelegramBotCommands(
     commands: Array<{ command: string; description: string }>,
 ): Promise<ActionResult> {
     try {
-        const r = await requireBot(botId);
-        if (!r.ok) return { success: false, error: r.error };
-        await TelegramBotApi.setMyCommands(r.bot.token, { commands });
-        const { db } = await connectToDatabase();
-        await db.collection<TelegramBot>('telegram_bots').updateOne(
-            { _id: r.bot._id },
-            { $set: { commands, updatedAt: new Date() } },
-        );
+        const res = await rustClient.telegramCommands.set(botId, commands);
+        if (!res.success) return { success: false, error: res.error };
         invalidateTelegramBotCache(botId);
-        return { success: true, message: 'Commands saved.' };
+        return { success: true, message: res.message ?? 'Commands saved.' };
     } catch (err) {
-        if (err instanceof TelegramApiError) return { success: false, error: err.description };
+        if (err instanceof RustApiError) return { success: false, error: err.message };
         return { success: false, error: getErrorMessage(err) };
     }
 }
 
 /* ── chats & messages ──────────────────────────────────────────── */
+//
+// Chat inbox (list / list-messages / send / mark-read) is served by the
+// `telegram-chats` Rust crate. The TS actions below are thin
+// pass-throughs that translate the Rust envelope into the
+// `ActionResult` / row shape callers already expect.
+
+export type { ChatRow as TelegramChatListRow, MessageRow as TelegramMessageRow }
+    from '@/lib/rust-client/telegram-chats';
+
+import type {
+    ChatRow as TelegramChatListRowType,
+    MessageRow as TelegramMessageRowType,
+} from '@/lib/rust-client/telegram-chats';
 
 export async function listTelegramChats(
     botId: string,
     query?: string,
     limit = 50,
-): Promise<WithId<TelegramChat>[]> {
-    const r = await requireBot(botId);
-    if (!r.ok) return [];
-    const { db } = await connectToDatabase();
-    const filter: Filter<TelegramChat> = { botId: r.bot._id };
-    if (query) {
-        filter.$or = [
-            { username: { $regex: query, $options: 'i' } },
-            { firstName: { $regex: query, $options: 'i' } },
-            { lastName: { $regex: query, $options: 'i' } },
-            { title: { $regex: query, $options: 'i' } },
-            { chatId: query },
-        ];
+): Promise<TelegramChatListRowType[]> {
+    try {
+        const res = await rustClient.telegramChats.list(botId, query, limit);
+        if (res.error) return [];
+        return res.chats ?? [];
+    } catch (err) {
+        if (err instanceof RustApiError) return [];
+        console.error('[telegram.listChats]', err);
+        return [];
     }
-    const chats = await db
-        .collection<TelegramChat>('telegram_chats')
-        .find(filter)
-        .sort({ lastMessageAt: -1 })
-        .limit(Math.min(Math.max(limit, 1), 500))
-        .toArray();
-    return normalize(chats);
 }
 
 export async function listTelegramMessages(
     botId: string,
     chatId: string,
     limit = 100,
-): Promise<WithId<TelegramMessage>[]> {
-    const r = await requireBot(botId);
-    if (!r.ok) return [];
-    const { db } = await connectToDatabase();
-    const msgs = await db
-        .collection<TelegramMessage>('telegram_messages')
-        .find({ botId: r.bot._id, chatId })
-        .sort({ messageId: -1 })
-        .limit(Math.min(Math.max(limit, 1), 500))
-        .toArray();
-    return normalize(msgs.reverse());
+): Promise<TelegramMessageRowType[]> {
+    try {
+        const res = await rustClient.telegramChats.messages(botId, chatId, limit);
+        if (res.error) return [];
+        return res.messages ?? [];
+    } catch (err) {
+        if (err instanceof RustApiError) return [];
+        console.error('[telegram.listMessages]', err);
+        return [];
+    }
 }
 
 export async function markTelegramChatRead(
     botId: string,
     chatId: string,
 ): Promise<ActionResult> {
-    const r = await requireBot(botId);
-    if (!r.ok) return { success: false, error: r.error };
-    const { db } = await connectToDatabase();
-    await db.collection<TelegramChat>('telegram_chats').updateOne(
-        { botId: r.bot._id, chatId },
-        { $set: { unreadCount: 0, updatedAt: new Date() } },
-    );
-    return { success: true };
+    try {
+        const res = await rustClient.telegramChats.markRead(botId, chatId);
+        if (!res.success) return { success: false, error: res.error };
+        return { success: true, message: res.message };
+    } catch (err) {
+        if (err instanceof RustApiError) return { success: false, error: err.message };
+        return { success: false, error: getErrorMessage(err) };
+    }
 }
 
 export async function sendTelegramTextMessage(input: {
@@ -250,48 +245,16 @@ export async function sendTelegramTextMessage(input: {
     parseMode?: 'HTML' | 'MarkdownV2';
 }): Promise<ActionResult<{ messageId: number }>> {
     try {
-        const r = await requireBot(input.botId);
-        if (!r.ok) return { success: false, error: r.error };
-
-        const sent = await TelegramBotApi.sendMessage(r.bot.token, {
-            chat_id: input.chatId,
+        const res = await rustClient.telegramChats.sendText(input.botId, input.chatId, {
             text: input.text,
-            parse_mode: input.parseMode,
-            reply_to_message_id: input.replyToMessageId,
-            business_connection_id: input.businessConnectionId,
-        });
-
-        const { db } = await connectToDatabase();
-        const now = new Date();
-        await db.collection<TelegramMessage>('telegram_messages').insertOne({
-            botId: r.bot._id,
-            projectId: r.bot.projectId,
-            chatId: input.chatId,
-            messageId: sent.message_id,
-            direction: 'outbound',
-            type: 'text',
-            text: input.text,
-            businessConnectionId: input.businessConnectionId,
             replyToMessageId: input.replyToMessageId,
-            status: 'sent',
-            createdAt: now,
-        } as any);
-
-        await db.collection<TelegramChat>('telegram_chats').updateOne(
-            { botId: r.bot._id, chatId: input.chatId },
-            {
-                $set: {
-                    lastMessageId: sent.message_id,
-                    lastMessageAt: now,
-                    lastMessagePreview: input.text.slice(0, 140),
-                    updatedAt: now,
-                },
-            },
-        );
-
-        return { success: true, messageId: sent.message_id };
+            businessConnectionId: input.businessConnectionId,
+            parseMode: input.parseMode,
+        });
+        if (!res.success) return { success: false, error: res.error };
+        return { success: true, messageId: res.messageId, message: res.message };
     } catch (err) {
-        if (err instanceof TelegramApiError) return { success: false, error: err.description };
+        if (err instanceof RustApiError) return { success: false, error: err.message };
         return { success: false, error: getErrorMessage(err) };
     }
 }
@@ -306,183 +269,58 @@ export async function createTelegramBroadcast(input: {
     scheduledAt?: Date;
 }): Promise<ActionResult<{ broadcastId: string }>> {
     try {
-        const r = await requireBot(input.botId);
-        if (!r.ok) return { success: false, error: r.error };
-        const session = await getSession();
-        if (!session?.user) return { success: false, error: 'Not authenticated.' };
-
-        const { db } = await connectToDatabase();
-        const now = new Date();
-        const ins = await db.collection<TelegramBroadcast>('telegram_broadcasts').insertOne({
-            botId: r.bot._id,
-            projectId: r.bot.projectId,
-            userId: new ObjectId(session.user._id),
+        const res = await rustClient.telegramBroadcasts.create({
+            botId: input.botId,
             name: input.name,
-            audience: input.audience,
-            message: input.message,
-            status: input.scheduledAt ? 'QUEUED' : 'DRAFT',
-            stats: { total: 0, sent: 0, failed: 0 },
-            scheduledAt: input.scheduledAt,
-            createdAt: now,
-            updatedAt: now,
-        } as any);
-
+            audience: input.audience as any,
+            message: input.message as any,
+            scheduledAt: input.scheduledAt?.toISOString(),
+        });
+        if (!res.success) return { success: false, error: res.error };
         revalidatePath('/dashboard/telegram/broadcasts');
-        return { success: true, broadcastId: ins.insertedId.toString() };
+        return { success: true, broadcastId: res.broadcastId, message: res.message };
     } catch (err) {
+        if (err instanceof RustApiError) return { success: false, error: err.message };
         return { success: false, error: getErrorMessage(err) };
     }
 }
 
-export async function sendTelegramBroadcastNow(broadcastId: string): Promise<ActionResult> {
+// Rust-backed entry point used by the dashboard. The legacy Node-side
+// implementation (`sendTelegramBroadcastNowLegacy` and its helper
+// `sendBroadcastToChat`) was deleted in Phase 9 of the broadcast-worker
+// port — it had no remaining callers and the Rust router owns the
+// throttled-send pipeline now.
+export async function sendTelegramBroadcastNow(
+    broadcastId: string,
+): Promise<ActionResult> {
     try {
-        if (!ObjectId.isValid(broadcastId)) {
-            return { success: false, error: 'Invalid broadcast id.' };
-        }
-        const { db } = await connectToDatabase();
-        const broadcast = await db
-            .collection<TelegramBroadcast>('telegram_broadcasts')
-            .findOne({ _id: new ObjectId(broadcastId) });
-        if (!broadcast) return { success: false, error: 'Broadcast not found.' };
-
-        const r = await requireBot(broadcast.botId.toString());
-        if (!r.ok) return { success: false, error: r.error };
-
-        // Gather audience
-        let chats: Pick<WithId<TelegramChat>, 'chatId'>[] = [];
-        if (broadcast.audience.kind === 'channel' && broadcast.audience.channelChatId) {
-            chats = [{ _id: new ObjectId(), chatId: broadcast.audience.channelChatId } as any];
-        } else {
-            const filter: Filter<TelegramChat> = {
-                botId: r.bot._id,
-                isOptedOut: { $ne: true },
-                type: 'private',
-            };
-            if (broadcast.audience.kind === 'tag' && broadcast.audience.tag) {
-                filter.tags = broadcast.audience.tag;
-            }
-            chats = await db
-                .collection<TelegramChat>('telegram_chats')
-                .find(filter, { projection: { chatId: 1 } })
-                .toArray();
-        }
-
-        await db.collection<TelegramBroadcast>('telegram_broadcasts').updateOne(
-            { _id: broadcast._id },
-            {
-                $set: {
-                    status: 'SENDING',
-                    startedAt: new Date(),
-                    'stats.total': chats.length,
-                    updatedAt: new Date(),
-                },
-            },
-        );
-
-        // Throttled send (~25 msg/s to stay well under the 30 msg/s global cap).
-        let sent = 0;
-        let failed = 0;
-        const batchSize = 25;
-        for (let i = 0; i < chats.length; i += batchSize) {
-            const batch = chats.slice(i, i + batchSize);
-            const results = await Promise.allSettled(
-                batch.map((c) => sendBroadcastToChat(r.bot!, c.chatId, broadcast.message)),
-            );
-            for (const res of results) {
-                if (res.status === 'fulfilled') sent += 1;
-                else failed += 1;
-            }
-            if (i + batchSize < chats.length) {
-                await new Promise((resolve) => setTimeout(resolve, 1000));
-            }
-        }
-
-        await db.collection<TelegramBroadcast>('telegram_broadcasts').updateOne(
-            { _id: broadcast._id },
-            {
-                $set: {
-                    status: failed === chats.length && chats.length > 0 ? 'FAILED' : 'COMPLETED',
-                    finishedAt: new Date(),
-                    'stats.sent': sent,
-                    'stats.failed': failed,
-                    updatedAt: new Date(),
-                },
-            },
-        );
-
+        const res = await rustClient.telegramBroadcasts.sendNow(broadcastId);
+        if (!res.success) return { success: false, error: res.error };
         revalidatePath('/dashboard/telegram/broadcasts');
-        return { success: true, message: `Sent ${sent}, failed ${failed}.` };
+        return { success: true, message: res.message };
     } catch (err) {
+        if (err instanceof RustApiError) return { success: false, error: err.message };
         return { success: false, error: getErrorMessage(err) };
     }
 }
 
-async function sendBroadcastToChat(
-    bot: WithId<TelegramBot>,
-    chatId: string,
-    message: TelegramBroadcast['message'],
-): Promise<void> {
-    const reply_markup = message.buttons?.length
-        ? {
-              inline_keyboard: [
-                  message.buttons.map((b) =>
-                      b.url
-                          ? { text: b.text, url: b.url }
-                          : { text: b.text, callback_data: b.callbackData ?? b.text },
-                  ),
-              ],
-          }
-        : undefined;
-
-    if (message.type === 'text' && message.text) {
-        await TelegramBotApi.sendMessage(bot.token, {
-            chat_id: chatId,
-            text: message.text,
-            parse_mode: message.parseMode,
-            disable_notification: message.disableNotification,
-            reply_markup,
-        });
-    } else if (message.type === 'photo' && message.mediaUrl) {
-        await TelegramBotApi.sendPhoto(bot.token, {
-            chat_id: chatId,
-            photo: message.mediaUrl,
-            caption: message.caption,
-            parse_mode: message.parseMode,
-            reply_markup,
-        });
-    } else if (message.type === 'video' && message.mediaUrl) {
-        await TelegramBotApi.sendVideo(bot.token, {
-            chat_id: chatId,
-            video: message.mediaUrl,
-            caption: message.caption,
-            parse_mode: message.parseMode,
-            reply_markup,
-        });
-    } else if (message.type === 'document' && message.mediaUrl) {
-        await TelegramBotApi.sendDocument(bot.token, {
-            chat_id: chatId,
-            document: message.mediaUrl,
-            caption: message.caption,
-            parse_mode: message.parseMode,
-        });
-    } else {
-        throw new Error('Invalid broadcast message payload.');
-    }
-}
+export type { BroadcastRow as TelegramBroadcastRow }
+    from '@/lib/rust-client/telegram-broadcasts';
+import type { BroadcastRow as TelegramBroadcastRowType }
+    from '@/lib/rust-client/telegram-broadcasts';
 
 export async function listTelegramBroadcasts(
     botId: string,
-): Promise<WithId<TelegramBroadcast>[]> {
-    const r = await requireBot(botId);
-    if (!r.ok) return [];
-    const { db } = await connectToDatabase();
-    const rows = await db
-        .collection<TelegramBroadcast>('telegram_broadcasts')
-        .find({ botId: r.bot._id })
-        .sort({ createdAt: -1 })
-        .limit(100)
-        .toArray();
-    return normalize(rows);
+): Promise<TelegramBroadcastRowType[]> {
+    try {
+        const res = await rustClient.telegramBroadcasts.list(botId);
+        if (res.error) return [];
+        return res.broadcasts ?? [];
+    } catch (err) {
+        if (err instanceof RustApiError) return [];
+        console.error('[telegram.listBroadcasts]', err);
+        return [];
+    }
 }
 
 /* ── bot profile & menu button ─────────────────────────────────── */
@@ -496,41 +334,19 @@ export async function updateTelegramBotProfile(input: {
     paymentProviderToken?: string;
 }): Promise<ActionResult> {
     try {
-        const r = await requireBot(input.botId);
-        if (!r.ok) return { success: false, error: r.error };
-
-        if (typeof input.name === 'string' && input.name !== r.bot.name) {
-            await TelegramBotApi.setMyName(r.bot.token, { name: input.name.slice(0, 64) });
-        }
-        if (typeof input.description === 'string') {
-            await TelegramBotApi.setMyDescription(r.bot.token, {
-                description: input.description.slice(0, 512),
-            });
-        }
-        if (typeof input.shortDescription === 'string') {
-            await TelegramBotApi.setMyShortDescription(r.bot.token, {
-                short_description: input.shortDescription.slice(0, 120),
-            });
-        }
-
-        const { db } = await connectToDatabase();
-        const set: Partial<TelegramBot> & { updatedAt: Date } = { updatedAt: new Date() };
-        if (input.name !== undefined) set.name = input.name;
-        if (input.description !== undefined) set.description = input.description;
-        if (input.shortDescription !== undefined) set.shortDescription = input.shortDescription;
-        if (input.miniAppUrl !== undefined) set.miniAppUrl = input.miniAppUrl;
-        if (input.paymentProviderToken !== undefined)
-            set.paymentProviderToken = input.paymentProviderToken;
-
-        await db.collection<TelegramBot>('telegram_bots').updateOne(
-            { _id: r.bot._id },
-            { $set: set },
-        );
+        const res = await rustClient.telegramBotProfile.updateProfile(input.botId, {
+            name: input.name,
+            description: input.description,
+            shortDescription: input.shortDescription,
+            miniAppUrl: input.miniAppUrl,
+            paymentProviderToken: input.paymentProviderToken,
+        });
+        if (!res.success) return { success: false, error: res.error };
         invalidateTelegramBotCache(input.botId);
         revalidatePath('/dashboard/telegram', 'layout');
-        return { success: true, message: 'Profile updated.' };
+        return { success: true, message: res.message ?? 'Profile updated.' };
     } catch (err) {
-        if (err instanceof TelegramApiError) return { success: false, error: err.description };
+        if (err instanceof RustApiError) return { success: false, error: err.message };
         return { success: false, error: getErrorMessage(err) };
     }
 }
@@ -543,26 +359,15 @@ export async function setTelegramMenuButton(input: {
         | { type: 'web_app'; text: string; url: string };
 }): Promise<ActionResult> {
     try {
-        const r = await requireBot(input.botId);
-        if (!r.ok) return { success: false, error: r.error };
-
-        const menu = input.menuButton;
-        const tgPayload =
-            menu.type === 'web_app'
-                ? { type: 'web_app' as const, text: menu.text, web_app: { url: menu.url } }
-                : { type: menu.type };
-
-        await TelegramBotApi.setChatMenuButton(r.bot.token, { menu_button: tgPayload });
-
-        const { db } = await connectToDatabase();
-        await db.collection<TelegramBot>('telegram_bots').updateOne(
-            { _id: r.bot._id },
-            { $set: { menuButton: menu, updatedAt: new Date() } },
+        const res = await rustClient.telegramBotProfile.setMenuButton(
+            input.botId,
+            input.menuButton,
         );
+        if (!res.success) return { success: false, error: res.error };
         invalidateTelegramBotCache(input.botId);
-        return { success: true, message: 'Menu button updated.' };
+        return { success: true, message: res.message ?? 'Menu button updated.' };
     } catch (err) {
-        if (err instanceof TelegramApiError) return { success: false, error: err.description };
+        if (err instanceof RustApiError) return { success: false, error: err.message };
         return { success: false, error: getErrorMessage(err) };
     }
 }
@@ -570,13 +375,12 @@ export async function setTelegramMenuButton(input: {
 export async function getTelegramBotCommands(botId: string): Promise<
     Array<{ command: string; description: string }>
 > {
-    const r = await requireBot(botId);
-    if (!r.ok) return [];
     try {
-        const cmds = await TelegramBotApi.getMyCommands(r.bot.token);
-        return cmds;
-    } catch {
-        return r.bot.commands ?? [];
+        const res = await rustClient.telegramCommands.get(botId);
+        return res.commands ?? [];
+    } catch (err) {
+        if (err instanceof RustApiError) return [];
+        return [];
     }
 }
 
@@ -795,18 +599,22 @@ export async function sendTelegramTypingAction(input: {
 
 /* ── auto-reply rules ──────────────────────────────────────────── */
 
+export type { RuleRow as TelegramAutoReplyRuleRow }
+    from '@/lib/rust-client/telegram-auto-reply';
+import type { RuleRow as TelegramAutoReplyRuleRowType }
+    from '@/lib/rust-client/telegram-auto-reply';
+
 export async function listTelegramAutoReplyRules(
     botId: string,
-): Promise<WithId<TelegramAutoReplyRule>[]> {
-    const r = await requireBot(botId);
-    if (!r.ok) return [];
-    const { db } = await connectToDatabase();
-    const rows = await db
-        .collection<TelegramAutoReplyRule>('telegram_auto_replies')
-        .find({ botId: r.bot._id })
-        .sort({ priority: 1, createdAt: 1 })
-        .toArray();
-    return normalize(rows);
+): Promise<TelegramAutoReplyRuleRowType[]> {
+    try {
+        const res = await rustClient.telegramAutoReply.list(botId);
+        if (res.error) return [];
+        return res.rules ?? [];
+    } catch (err) {
+        if (err instanceof RustApiError) return [];
+        return [];
+    }
 }
 
 export async function upsertTelegramAutoReplyRule(input: {
@@ -824,45 +632,24 @@ export async function upsertTelegramAutoReplyRule(input: {
     priority?: number;
 }): Promise<ActionResult<{ ruleId: string }>> {
     try {
-        const r = await requireBot(input.botId);
-        if (!r.ok) return { success: false, error: r.error };
-        const { db } = await connectToDatabase();
-        const now = new Date();
-        const base: Partial<TelegramAutoReplyRule> = {
-            botId: r.bot._id,
-            projectId: r.bot.projectId,
+        const res = await rustClient.telegramAutoReply.upsert({
+            botId: input.botId,
+            ruleId: input.ruleId,
             name: input.name,
-            trigger: input.trigger,
+            trigger: input.trigger as any,
             pattern: input.pattern,
-            caseSensitive: input.caseSensitive ?? false,
-            matchMode: input.matchMode ?? 'contains',
-            response: input.response,
-            flowId: input.flowId && ObjectId.isValid(input.flowId) ? new ObjectId(input.flowId) : undefined,
-            insideBusinessHoursOnly: input.insideBusinessHoursOnly ?? false,
-            isActive: input.isActive ?? true,
-            priority: input.priority ?? 100,
-            updatedAt: now,
-        };
-
-        let ruleId: string;
-        if (input.ruleId && ObjectId.isValid(input.ruleId)) {
-            const res = await db.collection<TelegramAutoReplyRule>('telegram_auto_replies').updateOne(
-                { _id: new ObjectId(input.ruleId), botId: r.bot._id },
-                { $set: base },
-            );
-            if (res.matchedCount === 0) return { success: false, error: 'Rule not found.' };
-            ruleId = input.ruleId;
-        } else {
-            const ins = await db.collection<TelegramAutoReplyRule>('telegram_auto_replies').insertOne({
-                ...base,
-                hits: 0,
-                createdAt: now,
-            } as any);
-            ruleId = ins.insertedId.toString();
-        }
+            caseSensitive: input.caseSensitive,
+            matchMode: input.matchMode as any,
+            response: input.response as any,
+            isActive: input.isActive,
+            priority: input.priority,
+            insideBusinessHoursOnly: input.insideBusinessHoursOnly,
+        });
+        if (!res.success) return { success: false, error: res.error };
         revalidatePath('/dashboard/telegram/auto-reply');
-        return { success: true, ruleId };
+        return { success: true, ruleId: res.ruleId, message: res.message };
     } catch (err) {
+        if (err instanceof RustApiError) return { success: false, error: err.message };
         return { success: false, error: getErrorMessage(err) };
     }
 }
@@ -871,16 +658,15 @@ export async function deleteTelegramAutoReplyRule(input: {
     botId: string;
     ruleId: string;
 }): Promise<ActionResult> {
-    const r = await requireBot(input.botId);
-    if (!r.ok) return { success: false, error: r.error };
-    if (!ObjectId.isValid(input.ruleId)) return { success: false, error: 'Invalid rule id.' };
-    const { db } = await connectToDatabase();
-    await db.collection<TelegramAutoReplyRule>('telegram_auto_replies').deleteOne({
-        _id: new ObjectId(input.ruleId),
-        botId: r.bot._id,
-    });
-    revalidatePath('/dashboard/telegram/auto-reply');
-    return { success: true };
+    try {
+        const res = await rustClient.telegramAutoReply.deleteRule(input.ruleId, input.botId);
+        if (!res.success) return { success: false, error: res.error };
+        revalidatePath('/dashboard/telegram/auto-reply');
+        return { success: true, message: res.message };
+    } catch (err) {
+        if (err instanceof RustApiError) return { success: false, error: err.message };
+        return { success: false, error: getErrorMessage(err) };
+    }
 }
 
 export async function toggleTelegramAutoReplyRule(input: {
@@ -888,29 +674,36 @@ export async function toggleTelegramAutoReplyRule(input: {
     ruleId: string;
     isActive: boolean;
 }): Promise<ActionResult> {
-    const r = await requireBot(input.botId);
-    if (!r.ok) return { success: false, error: r.error };
-    if (!ObjectId.isValid(input.ruleId)) return { success: false, error: 'Invalid rule id.' };
-    const { db } = await connectToDatabase();
-    await db.collection<TelegramAutoReplyRule>('telegram_auto_replies').updateOne(
-        { _id: new ObjectId(input.ruleId), botId: r.bot._id },
-        { $set: { isActive: input.isActive, updatedAt: new Date() } },
-    );
-    return { success: true };
+    try {
+        const res = await rustClient.telegramAutoReply.toggle(
+            input.ruleId,
+            input.botId,
+            input.isActive,
+        );
+        if (!res.success) return { success: false, error: res.error };
+        return { success: true, message: res.message };
+    } catch (err) {
+        if (err instanceof RustApiError) return { success: false, error: err.message };
+        return { success: false, error: getErrorMessage(err) };
+    }
 }
 
 /* ── channels ──────────────────────────────────────────────────── */
 
-export async function listTelegramChannels(botId: string): Promise<WithId<TelegramChannel>[]> {
-    const r = await requireBot(botId);
-    if (!r.ok) return [];
-    const { db } = await connectToDatabase();
-    const rows = await db
-        .collection<TelegramChannel>('telegram_channels')
-        .find({ botId: r.bot._id })
-        .sort({ createdAt: -1 })
-        .toArray();
-    return normalize(rows);
+export type { ChannelRow as TelegramChannelRow }
+    from '@/lib/rust-client/telegram-channels';
+import type { ChannelRow as TelegramChannelRowType }
+    from '@/lib/rust-client/telegram-channels';
+
+export async function listTelegramChannels(botId: string): Promise<TelegramChannelRowType[]> {
+    try {
+        const res = await rustClient.telegramChannels.list(botId);
+        if (res.error) return [];
+        return res.channels ?? [];
+    } catch (err) {
+        if (err instanceof RustApiError) return [];
+        return [];
+    }
 }
 
 export async function linkTelegramChannel(input: {

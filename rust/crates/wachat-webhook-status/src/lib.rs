@@ -16,8 +16,24 @@
 //!   crate keeps `update_one` per status for clarity and idempotency).
 //! - **Conditional filter** on the previous status to make `read → read`
 //!   (and other backwards transitions) a no-op without an extra round-trip.
-//! - **No broadcast / broadcast_contacts updates** — those live in a
-//!   separate slice (`wachat-broadcast-status`).
+//!
+//! ## Phase 9 — broadcast counter migration
+//!
+//! Originally this crate explicitly *avoided* the broadcast-counter side
+//! effects (the `broadcast_contacts` row updates and the `broadcasts.$inc`
+//! deliveredCount/readCount roll). Phase 9 of the broadcast-worker port
+//! moves those writes off the Node webhook receiver and onto a Rust HTTP
+//! endpoint that the Node receiver calls during webhook processing. The
+//! migration lives in:
+//!
+//! - [`broadcast`] — `BroadcastCounterProcessor` (the Mongo writer).
+//! - [`handlers`] — `broadcast_statuses` (the axum handler).
+//! - [`router`] — `router()` (mounts at `/v1/wachat/webhook-status`).
+//! - [`state`] — `WachatWebhookStatusState` (the per-app state slice).
+//!
+//! The legacy [`StatusProcessor`] library entry point is unchanged and
+//! still drives the `outgoing_messages` write that the Node receiver does
+//! today.
 //!
 //! Public API (consumed by the receiver crate):
 //! ```ignore
@@ -27,9 +43,17 @@
 //! let outcome: StatusOutcome = proc.process(&project, &change_value).await?;
 //! ```
 
+pub mod broadcast;
 pub mod error;
+pub mod handlers;
 pub mod mapping;
 pub mod processor;
+pub mod router;
+pub mod state;
 
+pub use broadcast::{BroadcastCounterProcessor, BroadcastStatusOutcome, StatusInput};
+pub use handlers::{BroadcastStatusesBody, BroadcastStatusesResponse};
 pub use mapping::{VALID_STATUS_TRANSITIONS, meta_status_to_domain};
 pub use processor::{StatusOutcome, StatusProcessor};
+pub use router::router;
+pub use state::WachatWebhookStatusState;

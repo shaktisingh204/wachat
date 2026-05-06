@@ -1,0 +1,65 @@
+# wachat-broadcast-worker — Phase 7 worker port.
+#
+# Port of `src/workers/broadcast/control.worker.js` and
+# `src/workers/broadcast/send.worker.js` to Rust.  Drains the BullMQ
+# `broadcast-control` and `broadcast-send` queues using the consumer
+# primitives delivered by `wachat-queue::consumer`.
+#
+# This crate ships:
+#   * a `lib` half so other crates / tests can construct the handlers,
+#   * a `[[bin]]` half (`broadcast-worker`) that wires Mongo + Redis +
+#     the two handlers and runs them under a Tokio runtime with graceful
+#     shutdown.
+[package]
+name = "wachat-broadcast-worker"
+version = "0.1.0"
+edition = "2024"
+description = "Rust port of the SabNode broadcast control + send workers. Drains the BullMQ `broadcast-control` and `broadcast-send` queues, streams `broadcast_contacts` cursors, fans out per-broadcast Meta Cloud API sends with token-bucket rate limiting, and finalises broadcasts atomically."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "wachat_broadcast_worker"
+path = "src/lib.rs"
+
+[[bin]]
+name = "broadcast-worker"
+path = "src/bin/broadcast-worker.rs"
+
+[dependencies]
+# Sibling crates — queue consumer, rate limiter, send helpers, plus the
+# shared error envelope and Mongo / Redis handles.
+wachat-queue       = { path = "../wachat-queue" }
+wachat-rate-limit  = { path = "../wachat-rate-limit" }
+wachat-send        = { path = "../wachat-send" }
+sabnode-common     = { path = "../common" }
+sabnode-db         = { path = "../db" }
+
+# Async runtime + structured concurrency.
+tokio              = { version = "1", features = ["macros", "rt-multi-thread", "sync", "time", "signal"] }
+async-trait        = "0.1"
+futures            = "0.3"
+
+# Serde + JSON for BullMQ payload shapes.
+serde              = { version = "1", features = ["derive"] }
+serde_json         = "1"
+
+# Mongo + BSON for the broadcast / contact / log collections.
+mongodb            = "3.2"
+bson               = { version = "2.13", features = ["chrono-0_4"] }
+
+# Meta Graph API + media upload over HTTP — reqwest because that's what
+# the existing send / media crates use.
+reqwest            = { version = "0.12", default-features = false, features = ["json", "multipart", "rustls-tls", "stream"] }
+
+# Error plumbing + structured logging.
+anyhow             = "1"
+thiserror          = "2"
+tracing            = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+
+# Wall clock for `sentAt` / `messageTimestamp` etc.
+chrono             = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+[lints]
+workspace = true

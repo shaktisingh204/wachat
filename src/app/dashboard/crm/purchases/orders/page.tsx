@@ -96,10 +96,10 @@ export default async function PurchaseOrdersPage({
                                         </ZoruTableCell>
                                         <ZoruTableCell className="text-right">
                                             <Link
-                                                href={`/dashboard/crm/purchases/orders/${order._id}`}
+                                                href={`/dashboard/crm/purchases/orders/${order._id}/edit`}
                                                 className="text-[12.5px] font-medium text-foreground hover:underline"
                                             >
-                                                View
+                                                Edit
                                             </Link>
                                         </ZoruTableCell>
                                     </ZoruTableRow>

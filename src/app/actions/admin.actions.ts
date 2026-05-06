@@ -14,6 +14,7 @@ import { ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import type { Plan, Project, User } from '@/lib/definitions';
 import cache from '@/lib/cache';
+import { rustClient } from '@/lib/rust-client';
 
 const DIWALI_THEME_KEY = 'diwali_theme_enabled';
 let isDiwaliThemeEnabled: boolean | null = null;
@@ -479,8 +480,8 @@ export async function getAdminDashboardStats(): Promise<AdminStats> {
             count('crm_forms'),
             count('crm_form_submissions'),
             count('crm_voucher_entries'),
-            // Ads
-            count('ad_campaigns'),
+            // Ads — `ad_campaigns` lives behind the Rust ad-manager BFF.
+            rustClient.adManager.countLocalCampaignsGlobal().then((r) => r.count).catch(() => 0),
             count('facebook_broadcasts'),
             count('facebook_flows'),
             count('facebook_subscribers'),
@@ -502,9 +503,9 @@ export async function getAdminDashboardStats(): Promise<AdminStats> {
             count('team_messages'),
             count('team_tasks'),
             count('notifications'),
-            // Tools
-            count('short_urls'),
-            count('qr_codes'),
+            // Tools — `short_urls` and `qr_codes` are owned by the Rust BFF.
+            rustClient.urlShortener.countGlobal().then((r) => r.count).catch(() => 0),
+            rustClient.qrCodes.countGlobal().then((r) => r.count).catch(() => 0),
             count('ecomm_shops'),
             count('ecomm_products'),
             count('ecomm_orders'),

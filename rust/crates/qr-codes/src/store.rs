@@ -277,6 +277,22 @@ pub async fn delete_many(
     })
 }
 
+/// User-scoped count of saved QR codes.
+pub async fn count_for_user(mongo: &MongoHandle, user_oid: ObjectId) -> Result<u64> {
+    let coll = mongo.collection::<Document>(QR_COLL);
+    coll.count_documents(doc! { "userId": user_oid })
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))
+}
+
+/// Global count for admin dashboards.
+pub async fn count_global(mongo: &MongoHandle) -> Result<u64> {
+    let coll = mongo.collection::<Document>(QR_COLL);
+    coll.count_documents(doc! {})
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))
+}
+
 /// Single delete — also drops the dependent short-URL row when present.
 pub async fn delete_one(
     mongo: &MongoHandle,

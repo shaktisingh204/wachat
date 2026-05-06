@@ -3,6 +3,7 @@
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 import { getSession } from '@/app/actions/user.actions';
+import { rustClient } from '@/lib/rust-client';
 
 export type AccountHomeData = {
     stats: {
@@ -181,8 +182,10 @@ export async function getAccountHomeData(): Promise<AccountHomeData> {
         const seoProjects = db.collection('seo_projects');
         const seoAudits = db.collection('seo_audits');
         const seoKeywords = db.collection('seo_keywords');
-        const shortUrls = db.collection('short_urls');
-        const qrCodes = db.collection('qr_codes');
+        // `short_urls` and `qr_codes` are now owned by the Rust BFF —
+        // these counts route through `rustClient.{urlShortener,qrCodes}.countForUser`
+        // below. The legacy `db.collection(...)` handles are intentionally
+        // not declared here.
         const ecommOrders = db.collection('ecomm_orders');
         const ecommProducts = db.collection('ecomm_products');
         const sites = db.collection('sites');
@@ -281,8 +284,8 @@ export async function getAccountHomeData(): Promise<AccountHomeData> {
             seoAudits.countDocuments({ userId: uid }).catch(() => 0),
             seoKeywords.countDocuments({ userId: uid }).catch(() => 0),
 
-            shortUrls.countDocuments({ userId: uid }).catch(() => 0),
-            qrCodes.countDocuments({ userId: uid }).catch(() => 0),
+            rustClient.urlShortener.countForUser().then((r) => r.count).catch(() => 0),
+            rustClient.qrCodes.countForUser().then((r) => r.count).catch(() => 0),
 
             ecommOrders.countDocuments(ownFilter).catch(() => 0),
             ecommProducts.countDocuments(ownFilter).catch(() => 0),

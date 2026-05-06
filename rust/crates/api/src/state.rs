@@ -18,6 +18,8 @@ use meta_flows::MetaFlowsState;
 use meta_suite::MetaSuiteState;
 use meta_token::MetaTokenState;
 use qr_codes::QrCodesState;
+use url_shortener::UrlShortenerState;
+use ad_manager::AdManagerState;
 use sabfiles::SabfilesState;
 use sabnode_auth::AuthConfig;
 use sabnode_db::{mongo::MongoHandle, redis::RedisHandle};
@@ -44,6 +46,19 @@ use wachat_facebook_pages::WachatFacebookPagesState;
 use wachat_flows::WachatFlowsState;
 use wachat_instagram::WachatInstagramState;
 use telegram_bots::TelegramBotsState;
+use telegram_chats::TelegramChatsState;
+use telegram_broadcasts::TelegramBroadcastsState;
+use telegram_auto_reply::TelegramAutoReplyState;
+use telegram_commands::TelegramCommandsState;
+use telegram_bot_profile::TelegramBotProfileState;
+use telegram_channels::TelegramChannelsState;
+use telegram_analytics::TelegramAnalyticsState;
+use telegram_payments::TelegramPaymentsState;
+use telegram_stickers::TelegramStickersState;
+use telegram_stories::TelegramStoriesState;
+use telegram_flows::TelegramFlowsState;
+use telegram_mini_apps::TelegramMiniAppsState;
+use telegram_ads::TelegramAdsState;
 use wachat_projects::WachatProjectsState;
 use wachat_public_api::{ApiKeyVerifier, PublicApiState};
 use wachat_send_router::WachatSendState;
@@ -51,6 +66,7 @@ use wachat_templates_actions::WachatTemplatesActionsState;
 use wachat_templates_router::TemplatesState;
 use wachat_webhook::WebhookState;
 use wachat_webhook_actions::WachatWebhookActionsState;
+use wachat_webhook_status::WachatWebhookStatusState;
 use wachat_webhook_verify::WebhookVerifier;
 
 #[derive(Clone)]
@@ -71,10 +87,13 @@ pub struct AppState {
     pub features: WachatFeaturesState,
     pub analytics: WachatAnalyticsState,
     pub webhook_actions: WachatWebhookActionsState,
+    pub webhook_status: WachatWebhookStatusState,
     pub meta_suite: MetaSuiteState,
     pub meta_token: MetaTokenState,
     pub meta_flows: MetaFlowsState,
     pub qr_codes: QrCodesState,
+    pub url_shortener: UrlShortenerState,
+    pub ad_manager: AdManagerState,
     pub facebook_flow: FacebookFlowState,
     pub public_api: PublicApiState,
     pub api_key_verifier: Arc<ApiKeyVerifier>,
@@ -97,6 +116,19 @@ pub struct AppState {
     pub instagram: WachatInstagramState,
     pub sabfiles: SabfilesState,
     pub telegram_bots: TelegramBotsState,
+    pub telegram_chats: TelegramChatsState,
+    pub telegram_broadcasts: TelegramBroadcastsState,
+    pub telegram_auto_reply: TelegramAutoReplyState,
+    pub telegram_commands: TelegramCommandsState,
+    pub telegram_bot_profile: TelegramBotProfileState,
+    pub telegram_channels: TelegramChannelsState,
+    pub telegram_analytics: TelegramAnalyticsState,
+    pub telegram_payments: TelegramPaymentsState,
+    pub telegram_stickers: TelegramStickersState,
+    pub telegram_stories: TelegramStoriesState,
+    pub telegram_flows: TelegramFlowsState,
+    pub telegram_mini_apps: TelegramMiniAppsState,
+    pub telegram_ads: TelegramAdsState,
     pub ready: Arc<AtomicBool>,
 }
 
@@ -118,10 +150,13 @@ impl AppState {
         features: WachatFeaturesState,
         analytics: WachatAnalyticsState,
         webhook_actions: WachatWebhookActionsState,
+        webhook_status: WachatWebhookStatusState,
         meta_suite: MetaSuiteState,
         meta_token: MetaTokenState,
         meta_flows: MetaFlowsState,
         qr_codes: QrCodesState,
+        url_shortener: UrlShortenerState,
+        ad_manager: AdManagerState,
         facebook_flow: FacebookFlowState,
         public_api: PublicApiState,
         api_key_verifier: Arc<ApiKeyVerifier>,
@@ -144,6 +179,19 @@ impl AppState {
         instagram: WachatInstagramState,
         sabfiles: SabfilesState,
         telegram_bots: TelegramBotsState,
+        telegram_chats: TelegramChatsState,
+        telegram_broadcasts: TelegramBroadcastsState,
+        telegram_auto_reply: TelegramAutoReplyState,
+        telegram_commands: TelegramCommandsState,
+        telegram_bot_profile: TelegramBotProfileState,
+        telegram_channels: TelegramChannelsState,
+        telegram_analytics: TelegramAnalyticsState,
+        telegram_payments: TelegramPaymentsState,
+        telegram_stickers: TelegramStickersState,
+        telegram_stories: TelegramStoriesState,
+        telegram_flows: TelegramFlowsState,
+        telegram_mini_apps: TelegramMiniAppsState,
+        telegram_ads: TelegramAdsState,
     ) -> Self {
         Self {
             started_at: Utc::now(),
@@ -162,10 +210,13 @@ impl AppState {
             features,
             analytics,
             webhook_actions,
+            webhook_status,
             meta_suite,
             meta_token,
             meta_flows,
             qr_codes,
+            url_shortener,
+            ad_manager,
             facebook_flow,
             public_api,
             api_key_verifier,
@@ -188,6 +239,19 @@ impl AppState {
             instagram,
             sabfiles,
             telegram_bots,
+            telegram_chats,
+            telegram_broadcasts,
+            telegram_auto_reply,
+            telegram_commands,
+            telegram_bot_profile,
+            telegram_channels,
+            telegram_analytics,
+            telegram_payments,
+            telegram_stickers,
+            telegram_stories,
+            telegram_flows,
+            telegram_mini_apps,
+            telegram_ads,
             ready: Arc::new(AtomicBool::new(false)),
         }
     }
@@ -273,6 +337,12 @@ impl FromRef<AppState> for WachatWebhookActionsState {
     }
 }
 
+impl FromRef<AppState> for WachatWebhookStatusState {
+    fn from_ref(s: &AppState) -> Self {
+        s.webhook_status.clone()
+    }
+}
+
 impl FromRef<AppState> for MetaSuiteState {
     fn from_ref(s: &AppState) -> Self {
         s.meta_suite.clone()
@@ -312,6 +382,18 @@ impl FromRef<AppState> for WachatFeaturesState {
 impl FromRef<AppState> for QrCodesState {
     fn from_ref(s: &AppState) -> Self {
         s.qr_codes.clone()
+    }
+}
+
+impl FromRef<AppState> for UrlShortenerState {
+    fn from_ref(s: &AppState) -> Self {
+        s.url_shortener.clone()
+    }
+}
+
+impl FromRef<AppState> for AdManagerState {
+    fn from_ref(s: &AppState) -> Self {
+        s.ad_manager.clone()
     }
 }
 
@@ -444,5 +526,83 @@ impl FromRef<AppState> for SabfilesState {
 impl FromRef<AppState> for TelegramBotsState {
     fn from_ref(s: &AppState) -> Self {
         s.telegram_bots.clone()
+    }
+}
+
+impl FromRef<AppState> for TelegramChatsState {
+    fn from_ref(s: &AppState) -> Self {
+        s.telegram_chats.clone()
+    }
+}
+
+impl FromRef<AppState> for TelegramBroadcastsState {
+    fn from_ref(s: &AppState) -> Self {
+        s.telegram_broadcasts.clone()
+    }
+}
+
+impl FromRef<AppState> for TelegramAutoReplyState {
+    fn from_ref(s: &AppState) -> Self {
+        s.telegram_auto_reply.clone()
+    }
+}
+
+impl FromRef<AppState> for TelegramCommandsState {
+    fn from_ref(s: &AppState) -> Self {
+        s.telegram_commands.clone()
+    }
+}
+
+impl FromRef<AppState> for TelegramBotProfileState {
+    fn from_ref(s: &AppState) -> Self {
+        s.telegram_bot_profile.clone()
+    }
+}
+
+impl FromRef<AppState> for TelegramChannelsState {
+    fn from_ref(s: &AppState) -> Self {
+        s.telegram_channels.clone()
+    }
+}
+
+impl FromRef<AppState> for TelegramAnalyticsState {
+    fn from_ref(s: &AppState) -> Self {
+        s.telegram_analytics.clone()
+    }
+}
+
+impl FromRef<AppState> for TelegramPaymentsState {
+    fn from_ref(s: &AppState) -> Self {
+        s.telegram_payments.clone()
+    }
+}
+
+impl FromRef<AppState> for TelegramStickersState {
+    fn from_ref(s: &AppState) -> Self {
+        s.telegram_stickers.clone()
+    }
+}
+
+impl FromRef<AppState> for TelegramStoriesState {
+    fn from_ref(s: &AppState) -> Self {
+        s.telegram_stories.clone()
+    }
+}
+
+impl FromRef<AppState> for TelegramFlowsState {
+    fn from_ref(s: &AppState) -> Self {
+        s.telegram_flows.clone()
+    }
+}
+
+impl FromRef<AppState> for TelegramMiniAppsState {
+    fn from_ref(s: &AppState) -> Self {
+        s.telegram_mini_apps.clone()
+    }
+}
+
+impl FromRef<AppState> for TelegramAdsState {
+    fn from_ref(s: &AppState) -> Self {
+        s.telegram_ads.clone()
     }
 }

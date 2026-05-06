@@ -26,6 +26,29 @@ import type {
   WsCustomField,
   WsCustomFieldGroup,
 } from '@/lib/worksuite/meta-types';
+import { ENTITY_KEYS, type EntityKey } from '@/lib/lookup-registry';
+
+/** Friendly labels for the `targetEntity` dropdown — keep aligned with `ENTITY_KEYS`. */
+const ENTITY_LABELS: Record<EntityKey, string> = {
+  account: 'Chart of Accounts',
+  bankAccount: 'Bank Account',
+  branch: 'Branch',
+  category: 'Product Category',
+  client: 'Client',
+  currency: 'Currency',
+  department: 'Department',
+  designation: 'Designation',
+  employee: 'Employee',
+  item: 'Item / Product',
+  pipeline: 'Pipeline',
+  project: 'Project',
+  stage: 'Pipeline Stage',
+  tag: 'Tag',
+  taxRate: 'Tax Rate',
+  user: 'User',
+  vendor: 'Vendor',
+  warehouse: 'Warehouse',
+};
 
 type GroupRow = WsCustomFieldGroup & { _id: string };
 type FieldRow = WsCustomField & { _id: string };
@@ -43,6 +66,14 @@ export function NewCustomFieldForm() {
   const [existing, setExisting] = useState<FieldRow | null>(null);
   const [loaded, setLoaded] = useState(false);
 
+  // Track the currently-selected type and entity_ref config in local
+  // state so we can conditionally render the `targetEntity` / `multi`
+  // controls without round-tripping through the form. The hidden
+  // inputs below mirror this state into FormData on submit.
+  const [type, setType] = useState<string>('text');
+  const [targetEntity, setTargetEntity] = useState<string>('');
+  const [multi, setMulti] = useState<boolean>(false);
+
   const [state, formAction, isPending] = useActionState(saveCustomField, {
     message: '',
     error: '',
@@ -54,7 +85,12 @@ export function NewCustomFieldForm() {
       setGroups(Array.isArray(g) ? g : []);
       if (idParam) {
         const doc = (await getCustomFieldById(idParam)) as FieldRow | null;
-        if (doc) setExisting(doc);
+        if (doc) {
+          setExisting(doc);
+          setType(doc.type || 'text');
+          setTargetEntity(doc.targetEntity || '');
+          setMulti(Boolean(doc.multi));
+        }
       }
       setLoaded(true);
     })();
@@ -140,7 +176,7 @@ export function NewCustomFieldForm() {
             <Label htmlFor="type" className="text-foreground">
               Type
             </Label>
-            <Select name="type" defaultValue={existing?.type || 'text'}>
+            <Select name="type" value={type} onValueChange={setType}>
               <SelectTrigger
                 id="type"
                 className="h-10 rounded-lg border-border bg-card text-[13px]"
@@ -157,6 +193,7 @@ export function NewCustomFieldForm() {
                 <SelectItem value="date">Date</SelectItem>
                 <SelectItem value="email">Email</SelectItem>
                 <SelectItem value="url">URL</SelectItem>
+                <SelectItem value="entity_ref">Linked record</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -187,6 +224,60 @@ export function NewCustomFieldForm() {
             className="rounded-lg border-border bg-card text-[13px]"
           />
         </div>
+
+        {type === 'entity_ref' ? (
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <Label htmlFor="targetEntity" className="text-foreground">
+                Linked entity <span className="text-destructive">*</span>
+              </Label>
+              <Select
+                name="targetEntity"
+                value={targetEntity}
+                onValueChange={setTargetEntity}
+                required
+              >
+                <SelectTrigger
+                  id="targetEntity"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
+                >
+                  <SelectValue placeholder="Pick an entity to link" />
+                </SelectTrigger>
+                <SelectContent>
+                  {ENTITY_KEYS.map((k) => (
+                    <SelectItem key={k} value={k}>
+                      {ENTITY_LABELS[k]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="mt-1 text-[11px] text-muted-foreground">
+                Renders as a searchable picker for the chosen entity.
+              </p>
+            </div>
+            <div>
+              <Label htmlFor="multi" className="text-foreground">
+                Multiple values
+              </Label>
+              <Select
+                name="multi"
+                value={multi ? 'true' : 'false'}
+                onValueChange={(v) => setMulti(v === 'true')}
+              >
+                <SelectTrigger
+                  id="multi"
+                  className="h-10 rounded-lg border-border bg-card text-[13px]"
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="false">Single</SelectItem>
+                  <SelectItem value="true">Multiple</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        ) : null}
 
         <div className="grid gap-4 md:grid-cols-2">
           <div>

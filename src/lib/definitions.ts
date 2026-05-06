@@ -3,6 +3,34 @@
 import type { ObjectId, WithId } from 'mongodb';
 export type { WithId };
 
+// --- Cross-feature data lineage (see crm_function_plan.md §13.5) ---
+//
+// Every CRM document in the canonical chain (Lead → Deal → Quotation →
+// Sales Order → Delivery Challan → Invoice → Payment Receipt; and the
+// purchase mirror RFQ → Bid → PO → GRN → Bill → Payout) carries an
+// optional `lineage[]` array of references to upstream/downstream docs
+// so the UI can render a "Linked Documents" rail and conversion flows
+// can prefill from prior docs.
+//
+// `lineage` is optional everywhere — pre-existing docs simply have it
+// undefined, which the rail renders as empty steps.
+export type LineageKind =
+    | 'lead' | 'deal'
+    | 'quotation' | 'proforma' | 'salesOrder' | 'deliveryChallan' | 'invoice' | 'paymentReceipt' | 'creditNote'
+    | 'rfq' | 'vendorBid' | 'purchaseOrder' | 'grn' | 'bill' | 'payout' | 'debitNote';
+
+export interface LineageRef {
+    kind: LineageKind;
+    /** Stable id of the linked doc (Mongo ObjectId as string). */
+    id: string;
+    /** Human-friendly number of the linked doc (e.g. "INV-2024-001"). */
+    no?: string;
+    /** Optional ISO timestamp. */
+    createdAt?: string;
+    /** Optional status snapshot at the time of linking. */
+    status?: string;
+}
+
 export type WalletTransaction = {
     _id: ObjectId;
     type: 'CREDIT' | 'DEBIT';
@@ -490,6 +518,7 @@ export type CrmDeal = {
     }[];
     products?: { name: string; quantity: number; price: number }[];
     labels?: string[];
+    lineage?: LineageRef[];
 };
 
 export type CrmAccount = {
@@ -580,6 +609,7 @@ export type CrmLead = {
     nextFollowUp?: Date;
     createdAt: Date;
     updatedAt: Date;
+    lineage?: LineageRef[];
 };
 
 export type EmailContact = {
@@ -799,8 +829,10 @@ export type CrmPurchaseOrder = {
     paymentTerms?: string;
     notes?: string;
     status: 'Draft' | 'Sent' | 'Received' | 'Cancelled';
+    warehouseId?: ObjectId;
     createdAt: Date;
     updatedAt: Date;
+    lineage?: LineageRef[];
 };
 
 export type CrmDebitNote = {
@@ -822,6 +854,7 @@ export type CrmDebitNote = {
     status: 'Draft' | 'Sent' | 'Applied' | 'Refunded';
     createdAt: Date;
     updatedAt: Date;
+    lineage?: LineageRef[];
 };
 
 export type CrmProductCategory = {
@@ -957,6 +990,8 @@ export type CrmExpense = {
     customerId?: ObjectId; // If billable
     createdAt: Date;
     updatedAt: Date;
+    /** Lineage chain when an expense is treated as a Bill (PO → GRN → Bill → Payout). */
+    lineage?: LineageRef[];
 };
 
 export type CrmPayout = {
@@ -972,6 +1007,7 @@ export type CrmPayout = {
     purchaseOrderIds?: ObjectId[]; // Optional link to specific POs
     createdAt: Date;
     updatedAt: Date;
+    lineage?: LineageRef[];
 };
 
 // --- HR & Payroll Types ---
@@ -2828,6 +2864,7 @@ export type CrmInvoice = {
     total: number;
     createdAt: Date;
     updatedAt: Date;
+    lineage?: LineageRef[];
 };
 
 export type QuotationLineItem = {
@@ -2856,6 +2893,7 @@ export type CrmQuotation = {
     total: number;
     createdAt: Date;
     updatedAt: Date;
+    lineage?: LineageRef[];
 };
 
 export type PaymentRecord = {
@@ -2880,8 +2918,10 @@ export type CrmPaymentReceipt = {
         invoiceId: string;
         amountSettled: number;
     }[];
+    bankAccountId?: ObjectId;
     createdAt: Date;
     updatedAt: Date;
+    lineage?: LineageRef[];
 };
 
 export type SalesOrderLineItem = {
@@ -2908,6 +2948,7 @@ export type CrmSalesOrder = {
     total: number;
     createdAt: Date;
     updatedAt: Date;
+    lineage?: LineageRef[];
 };
 
 export type DeliveryChallanLineItem = {
@@ -2935,6 +2976,7 @@ export type CrmDeliveryChallan = {
     status: 'Draft' | 'In Transit' | 'Delivered' | 'Returned';
     createdAt: Date;
     updatedAt: Date;
+    lineage?: LineageRef[];
 };
 
 export type CrmCreditNote = {
@@ -2950,6 +2992,7 @@ export type CrmCreditNote = {
     total: number;
     createdAt: Date;
     updatedAt: Date;
+    lineage?: LineageRef[];
 };
 
 export type CreditNoteLineItem = {
@@ -3050,6 +3093,7 @@ export type CrmProformaInvoice = {
     currency: string;
     subtotal: number;
     total: number;
+    lineage?: LineageRef[];
     createdAt: Date;
     updatedAt: Date;
 };

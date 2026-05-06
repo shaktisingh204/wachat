@@ -6,6 +6,7 @@
 //! NOT to be confused with `wachat-config::qr` which manages Meta WhatsApp
 //! `/message_qrdls` — that's a different system bound to a phone number.
 
+pub mod from_form;
 pub mod router;
 pub mod state;
 pub mod store;

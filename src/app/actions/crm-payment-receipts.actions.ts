@@ -45,6 +45,77 @@ export async function getPaymentReceipts(
     }
 }
 
+export async function getPaymentReceiptById(id: string): Promise<WithId<CrmPaymentReceipt> | null> {
+    if (!ObjectId.isValid(id)) return null;
+    const session = await getSession();
+    if (!session?.user) return null;
+
+    try {
+        const { db } = await connectToDatabase();
+        const receipt = await db.collection<CrmPaymentReceipt>('crm_payment_receipts').findOne({
+            _id: new ObjectId(id),
+            userId: new ObjectId(session.user._id),
+        });
+        return receipt ? JSON.parse(JSON.stringify(receipt)) : null;
+    } catch (e) {
+        console.error('Failed to fetch payment receipt:', e);
+        return null;
+    }
+}
+
+/**
+ * Light-edit action — round-trips only the non-financial fields:
+ * bankAccountId, notes, receiptDate. Payment records and invoice
+ * settlement stay immutable on edit since reverting them safely
+ * would require unwinding paid-amount mutations on linked invoices,
+ * which is out of scope for this surface. Use a void+recreate flow
+ * for amount changes.
+ */
+export async function updatePaymentReceipt(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Access denied' };
+
+    const receiptIdRaw = formData.get('receiptId') as string | null;
+    if (!receiptIdRaw || !ObjectId.isValid(receiptIdRaw)) {
+        return { error: 'Receipt id is required.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id);
+
+        const bankAccountIdRaw = formData.get('bankAccountId') as string | null;
+        const bankAccountId = bankAccountIdRaw && ObjectId.isValid(bankAccountIdRaw)
+            ? new ObjectId(bankAccountIdRaw)
+            : undefined;
+
+        const receiptDateRaw = formData.get('receiptDate') as string | null;
+        const $set: Record<string, unknown> = {
+            bankAccountId,
+            notes: (formData.get('notes') as string) ?? '',
+            updatedAt: new Date(),
+        };
+        if (receiptDateRaw) {
+            $set.receiptDate = new Date(receiptDateRaw);
+        }
+
+        const result = await db.collection('crm_payment_receipts').updateOne(
+            { _id: new ObjectId(receiptIdRaw), userId: userObjectId },
+            { $set }
+        );
+
+        if (result.matchedCount === 0) {
+            return { error: 'Payment receipt not found or permission denied.' };
+        }
+
+        revalidatePath('/dashboard/crm/sales/receipts');
+        revalidatePath(`/dashboard/crm/sales/receipts/${receiptIdRaw}/edit`);
+        return { message: 'Payment receipt updated successfully.' };
+    } catch (e) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
 export async function savePaymentReceipt(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
@@ -55,6 +126,11 @@ export async function savePaymentReceipt(prevState: any, formData: FormData): Pr
         const totalAmountReceived = paymentRecords.reduce((sum: number, record: any) => sum + Number(record.amount || 0), 0);
 
         const newReceiptId = new ObjectId();
+        const bankAccountIdRaw = formData.get('bankAccountId') as string | null;
+        const bankAccountId = bankAccountIdRaw && ObjectId.isValid(bankAccountIdRaw)
+            ? new ObjectId(bankAccountIdRaw)
+            : undefined;
+
         const receiptData: Omit<CrmPaymentReceipt, 'createdAt' | 'updatedAt'> = {
             _id: newReceiptId,
             userId: new ObjectId(session.user._id),
@@ -66,6 +142,7 @@ export async function savePaymentReceipt(prevState: any, formData: FormData): Pr
             paymentRecords,
             settledInvoices,
             notes: formData.get('notes') as string,
+            bankAccountId,
         };
 
         if (!receiptData.receiptNumber || !receiptData.accountId || totalAmountReceived <= 0) {
