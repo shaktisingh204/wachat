@@ -970,7 +970,6 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         label: "Operations",
         items: [
           leaf("storage", "Storage usage", "/dashboard/sabfiles/storage", HardDrive, p),
-          leaf("settings", "Settings", "/dashboard/sabfiles/settings", Settings, p),
         ],
       },
     ],
