@@ -348,8 +348,8 @@ export function FileManager({
         if (node.shareToken) {
             setShareUrl(
                 typeof window !== 'undefined'
-                    ? `${window.location.origin}/s/${node.shareToken}`
-                    : `/s/${node.shareToken}`,
+                    ? `${window.location.origin}/share/${node.shareToken}`
+                    : `/share/${node.shareToken}`,
             );
         } else {
             setShareUrl(null);
