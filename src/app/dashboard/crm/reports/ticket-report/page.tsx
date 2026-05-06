@@ -1,10 +1,8 @@
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruCard } from '@/components/zoruui';
 export const dynamic = 'force-dynamic';
 
 import { Ticket } from 'lucide-react';
-import { ClayCard } from '@/components/clay';
+
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import {
   ReportToolbar,
@@ -49,7 +47,7 @@ export default async function TicketReportPage(props: {
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <ClayCard>
+        <ZoruCard>
           <div className="mb-3">
             <h2 className="text-[16px] font-semibold text-foreground">
               By status
@@ -71,9 +69,9 @@ export default async function TicketReportPage(props: {
               />
             ))
           )}
-        </ClayCard>
+        </ZoruCard>
 
-        <ClayCard>
+        <ZoruCard>
           <div className="mb-3">
             <h2 className="text-[16px] font-semibold text-foreground">
               By channel
@@ -89,9 +87,9 @@ export default async function TicketReportPage(props: {
               tone="blue"
             />
           ))}
-        </ClayCard>
+        </ZoruCard>
 
-        <ClayCard>
+        <ZoruCard>
           <div className="mb-3">
             <h2 className="text-[16px] font-semibold text-foreground">
               By agent
@@ -107,7 +105,7 @@ export default async function TicketReportPage(props: {
               tone="rose"
             />
           ))}
-        </ClayCard>
+        </ZoruCard>
       </div>
     </div>
   );

@@ -1,15 +1,11 @@
 'use client';
-
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruBadge, ZoruButton, ZoruCard, useZoruToast } from '@/components/zoruui';
 import * as React from 'react';
 import Link from 'next/link';
 import { Megaphone, Plus, Pin, Eye, EyeOff, LoaderCircle } from 'lucide-react';
 
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
 import { CrmPageHeader } from '../../_components/crm-page-header';
-import { useToast } from '@/hooks/use-toast';
+
 import {
   getNotices,
   getNoticeViewsForUser,
@@ -24,7 +20,7 @@ function fmtDate(v: unknown) {
 }
 
 export default function NoticesPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [notices, setNotices] = React.useState<(WsNotice & { _id: string })[]>([]);
   const [views, setViews] = React.useState<WsNoticeView[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -78,29 +74,29 @@ export default function NoticesPage() {
         icon={Megaphone}
         actions={
           <Link href="/dashboard/crm/workspace/notices/new">
-            <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}>
+            <ZoruButton>
               New Notice
-            </ClayButton>
+            </ZoruButton>
           </Link>
         }
       />
 
       {loading ? (
-        <ClayCard className="flex items-center justify-center py-10">
+        <ZoruCard className="flex items-center justify-center py-10">
           <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />
-        </ClayCard>
+        </ZoruCard>
       ) : sorted.length === 0 ? (
-        <ClayCard>
+        <ZoruCard>
           <p className="text-center text-[13px] text-muted-foreground">
             No notices yet — click New Notice to publish your first.
           </p>
-        </ClayCard>
+        </ZoruCard>
       ) : (
         <div className="flex flex-col gap-3">
           {sorted.map((n) => {
             const viewed = viewedSet.has(n._id);
             return (
-              <ClayCard key={n._id}>
+              <ZoruCard key={n._id}>
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
@@ -111,21 +107,21 @@ export default function NoticesPage() {
                         {n.heading}
                       </Link>
                       {n.pinned ? (
-                        <ClayBadge tone="rose-soft">
+                        <ZoruBadge variant="ghost">
                           <Pin className="h-3 w-3" /> Pinned
-                        </ClayBadge>
+                        </ZoruBadge>
                       ) : null}
-                      <ClayBadge tone="neutral" className="capitalize">
+                      <ZoruBadge variant="ghost" className="capitalize">
                         {n.notice_to}
-                      </ClayBadge>
+                      </ZoruBadge>
                       {viewed ? (
-                        <ClayBadge tone="green">
+                        <ZoruBadge variant="success">
                           <Eye className="h-3 w-3" /> Viewed
-                        </ClayBadge>
+                        </ZoruBadge>
                       ) : (
-                        <ClayBadge tone="amber">
+                        <ZoruBadge variant="warning">
                           <EyeOff className="h-3 w-3" /> Unread
-                        </ClayBadge>
+                        </ZoruBadge>
                       )}
                     </div>
                     <p className="mt-1 line-clamp-2 text-[13px] text-muted-foreground">
@@ -135,11 +131,11 @@ export default function NoticesPage() {
                       {fmtDate(n.createdAt)}
                     </p>
                   </div>
-                  <ClayButton variant="ghost" size="sm" onClick={() => handleDelete(n._id)}>
+                  <ZoruButton variant="ghost" size="sm" onClick={() => handleDelete(n._id)}>
                     Delete
-                  </ClayButton>
+                  </ZoruButton>
                 </div>
-              </ClayCard>
+              </ZoruCard>
             );
           })}
         </div>

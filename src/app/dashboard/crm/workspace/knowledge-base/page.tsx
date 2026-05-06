@@ -1,8 +1,5 @@
 'use client';
-
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruBadge, ZoruButton, ZoruCard, useZoruToast } from '@/components/zoruui';
 import * as React from 'react';
 import Link from 'next/link';
 import {
@@ -19,9 +16,8 @@ import {
   CheckSquare,
 } from 'lucide-react';
 
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
 import { CrmPageHeader } from '../../_components/crm-page-header';
-import { useToast } from '@/hooks/use-toast';
+
 import {
   getKnowledgeBases,
   getKnowledgeBaseCategories,
@@ -43,7 +39,7 @@ const typeIcon: Record<WsKnowledgeBaseType, React.ElementType> = {
 };
 
 export default function KnowledgeBasePage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [articles, setArticles] = React.useState<
     (WsKnowledgeBase & { _id: string })[]
   >([]);
@@ -105,47 +101,47 @@ export default function KnowledgeBasePage() {
         actions={
           <>
             <Link href="/dashboard/crm/workspace/knowledge-base/categories">
-              <ClayButton variant="pill" leading={<Folder className="h-4 w-4" strokeWidth={1.75} />}>
+              <ZoruButton variant="outline">
                 Categories
-              </ClayButton>
+              </ZoruButton>
             </Link>
             <Link href="/dashboard/crm/workspace/knowledge-base/new">
-              <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}>
+              <ZoruButton>
                 New Article
-              </ClayButton>
+              </ZoruButton>
             </Link>
           </>
         }
       />
 
       {loading ? (
-        <ClayCard className="flex items-center justify-center py-10">
+        <ZoruCard className="flex items-center justify-center py-10">
           <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />
-        </ClayCard>
+        </ZoruCard>
       ) : articles.length === 0 ? (
-        <ClayCard>
+        <ZoruCard>
           <p className="text-center text-[13px] text-muted-foreground">
             No articles yet — click New Article to get started.
           </p>
-        </ClayCard>
+        </ZoruCard>
       ) : (
         <div className="flex flex-col gap-4">
           {[...grouped.entries()].map(([catId, items]) => {
             const cat = categories.find((c) => c._id === catId);
             return (
-              <ClayCard key={catId}>
+              <ZoruCard key={catId}>
                 <div className="mb-3 flex items-center gap-2">
                   <Folder className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
                   <h3 className="text-[14px] font-semibold text-foreground">
                     {cat?.name || 'Uncategorized'}
                   </h3>
-                  <ClayBadge tone="neutral">{items.length}</ClayBadge>
+                  <ZoruBadge variant="ghost">{items.length}</ZoruBadge>
                 </div>
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
                   {items.map((a) => {
                     const Icon = typeIcon[a.type] || FileText;
                     return (
-                      <ClayCard key={a._id} variant="soft" className="flex flex-col gap-2">
+                      <ZoruCard key={a._id} className="flex flex-col gap-2">
                         <div className="flex items-start justify-between gap-2">
                           <Link
                             href={`/dashboard/crm/workspace/knowledge-base/${a._id}`}
@@ -164,27 +160,27 @@ export default function KnowledgeBasePage() {
                             </div>
                           </Link>
                           <div className="flex items-center gap-1">
-                            {a.pinned ? <ClayBadge tone="amber"><Pin className="h-3 w-3" /> Pinned</ClayBadge> : null}
+                            {a.pinned ? <ZoruBadge variant="warning"><Pin className="h-3 w-3" /> Pinned</ZoruBadge> : null}
                             {a.to_do === 'yes' ? (
-                              <ClayBadge tone="blue">
+                              <ZoruBadge variant="info">
                                 <CheckSquare className="h-3 w-3" /> To-do
-                              </ClayBadge>
+                              </ZoruBadge>
                             ) : null}
                           </div>
                         </div>
                         <div className="flex justify-end gap-1">
-                          <ClayButton variant="ghost" size="sm" onClick={() => handlePin(a._id)}>
+                          <ZoruButton variant="ghost" size="sm" onClick={() => handlePin(a._id)}>
                             {a.pinned ? 'Unpin' : 'Pin'}
-                          </ClayButton>
-                          <ClayButton variant="ghost" size="sm" onClick={() => handleDelete(a._id)}>
+                          </ZoruButton>
+                          <ZoruButton variant="ghost" size="sm" onClick={() => handleDelete(a._id)}>
                             Delete
-                          </ClayButton>
+                          </ZoruButton>
                         </div>
-                      </ClayCard>
+                      </ZoruCard>
                     );
                   })}
                 </div>
-              </ClayCard>
+              </ZoruCard>
             );
           })}
         </div>

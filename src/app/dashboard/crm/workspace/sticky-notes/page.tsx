@@ -1,15 +1,10 @@
 'use client';
-
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruBadge, ZoruButton, ZoruCard, ZoruTextarea, useZoruToast } from '@/components/zoruui';
 import * as React from 'react';
 import { StickyNote, Plus, Pin, Trash2, LoaderCircle } from 'lucide-react';
 
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
 import { CrmPageHeader } from '../../_components/crm-page-header';
-import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/hooks/use-toast';
+
 import {
   getStickyNotes,
   saveStickyNote,
@@ -29,7 +24,7 @@ const COLORS: { key: WsStickyNoteColour; bg: string; border: string; label: stri
 ];
 
 export default function StickyNotesPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [notes, setNotes] = React.useState<(WsStickyNote & { _id: string })[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [text, setText] = React.useState('');
@@ -88,9 +83,9 @@ export default function StickyNotesPage() {
         icon={StickyNote}
       />
 
-      <ClayCard>
+      <ZoruCard>
         <form onSubmit={handleCreate} className="flex flex-col gap-3">
-          <Textarea
+          <ZoruTextarea
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder="Write a sticky note…"
@@ -113,42 +108,36 @@ export default function StickyNotesPage() {
               />
             ))}
             <div className="ml-auto">
-              <ClayButton
+              <ZoruButton
                 type="submit"
-                variant="obsidian"
+               
                 disabled={submitting || !text.trim()}
-                leading={
-                  submitting ? (
-                    <LoaderCircle className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Plus className="h-4 w-4" strokeWidth={1.75} />
-                  )
-                }
+               
               >
                 Add note
-              </ClayButton>
+              </ZoruButton>
             </div>
           </div>
         </form>
-      </ClayCard>
+      </ZoruCard>
 
       {loading ? (
-        <ClayCard className="flex items-center justify-center py-10">
+        <ZoruCard className="flex items-center justify-center py-10">
           <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />
-        </ClayCard>
+        </ZoruCard>
       ) : notes.length === 0 ? (
-        <ClayCard>
+        <ZoruCard>
           <p className="text-center text-[13px] text-muted-foreground">
             No sticky notes yet — jot one down above.
           </p>
-        </ClayCard>
+        </ZoruCard>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {notes.map((n, i) => {
             const meta = colourMeta(n.colour);
             const rotate = i % 2 === 0 ? 'rotate-1' : '-rotate-1';
             return (
-              <ClayCard
+              <ZoruCard
                 key={n._id}
                 className={
                   'flex flex-col gap-2 shadow-md transform ' +
@@ -161,9 +150,9 @@ export default function StickyNotesPage() {
               >
                 <div className="flex items-start justify-between">
                   {n.pinned ? (
-                    <ClayBadge tone="rose-soft">
+                    <ZoruBadge variant="ghost">
                       <Pin className="h-3 w-3" /> Pinned
-                    </ClayBadge>
+                    </ZoruBadge>
                   ) : (
                     <span />
                   )}
@@ -189,7 +178,7 @@ export default function StickyNotesPage() {
                 <p className="whitespace-pre-wrap text-[13.5px] leading-relaxed text-foreground">
                   {n.note_text}
                 </p>
-              </ClayCard>
+              </ZoruCard>
             );
           })}
         </div>

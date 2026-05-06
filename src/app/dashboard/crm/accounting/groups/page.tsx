@@ -1,38 +1,16 @@
 'use client';
-
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruAlertDialog, ZoruAlertDialogAction, ZoruAlertDialogCancel, ZoruAlertDialogContent, ZoruAlertDialogDescription, ZoruAlertDialogFooter, ZoruAlertDialogHeader, ZoruAlertDialogTitle, ZoruAlertDialogTrigger, ZoruButton, ZoruCard, ZoruDialog, ZoruDialogContent, ZoruDialogFooter, ZoruDialogHeader, ZoruDialogTitle, ZoruDropdownMenu, ZoruDropdownMenuContent, ZoruDropdownMenuItem, ZoruDropdownMenuTrigger, ZoruInput, ZoruLabel, ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow, useZoruToast } from '@/components/zoruui';
 import { useState, useEffect, useCallback, useTransition, useActionState, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import type { WithId } from 'mongodb';
 import { getCrmAccountGroups, saveCrmAccountGroup, deleteCrmAccountGroup } from '@/app/actions/crm-accounting.actions';
 import type { CrmAccountGroup } from '@/lib/definitions';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
 import { LoaderCircle, Plus, Trash2, Edit, Download, ChevronDown, Layers } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
+
 import Papa from 'papaparse';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
-import { ClayCard, ClayButton } from '@/components/clay';
 import { CrmPageHeader } from '../../_components/crm-page-header';
-
 
 const saveInitialState: any = { message: null, error: null };
 
@@ -49,10 +27,10 @@ const categoryMap: Record<string, string[]> = {
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <Button type="submit" disabled={pending}>
+        <ZoruButton type="submit" disabled={pending}>
             {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
             {isEditing ? 'Save Changes' : 'Submit'}
-        </Button>
+        </ZoruButton>
     )
 }
 
@@ -69,7 +47,7 @@ function AccountGroupDialog({
 }) {
     const isEditing = !!initialData;
     const [state, formAction] = useActionState(saveCrmAccountGroup, saveInitialState);
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
     const formRef = useRef<HTMLFormElement>(null);
     const [selectedType, setSelectedType] = useState(initialData?.type || '');
 
@@ -89,51 +67,51 @@ function AccountGroupDialog({
     }, [state, toast, onSave, onOpenChange]);
 
     return (
-        <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <DialogContent>
+        <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+            <ZoruDialogContent>
                 <form action={formAction} ref={formRef}>
                     {isEditing && <input type="hidden" name="groupId" value={initialData?._id.toString()} />}
-                    <DialogHeader>
-                        <DialogTitle>{isEditing ? 'Edit' : 'Create New'} Account Group</DialogTitle>
-                    </DialogHeader>
+                    <ZoruDialogHeader>
+                        <ZoruDialogTitle>{isEditing ? 'Edit' : 'Create New'} Account Group</ZoruDialogTitle>
+                    </ZoruDialogHeader>
                     <div className="py-4 space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="name">Account Group Name *</Label>
-                            <Input id="name" name="name" placeholder="Type Account Group Name" required defaultValue={initialData?.name} />
+                            <ZoruLabel htmlFor="name">Account Group Name *</ZoruLabel>
+                            <ZoruInput id="name" name="name" placeholder="Type Account Group Name" required defaultValue={initialData?.name} />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="type">Type</Label>
-                            <Select name="type" required onValueChange={setSelectedType} defaultValue={initialData?.type}>
-                                <SelectTrigger><SelectValue placeholder="Select a type..."/></SelectTrigger>
-                                <SelectContent>
-                                    {accountTypes.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
-                                </SelectContent>
-                            </Select>
+                            <ZoruLabel htmlFor="type">Type</ZoruLabel>
+                            <ZoruSelect name="type" required onValueChange={setSelectedType} defaultValue={initialData?.type}>
+                                <ZoruSelectTrigger><ZoruSelectValue placeholder="Select a type..."/></ZoruSelectTrigger>
+                                <ZoruSelectContent>
+                                    {accountTypes.map(type => <ZoruSelectItem key={type} value={type}>{type}</ZoruSelectItem>)}
+                                </ZoruSelectContent>
+                            </ZoruSelect>
                         </div>
                          {selectedType && categoryMap[selectedType] && (
                             <div className="space-y-2">
-                                <Label htmlFor="category">Category</Label>
-                                <Select name="category" required defaultValue={initialData?.category}>
-                                    <SelectTrigger><SelectValue placeholder="Select a category..."/></SelectTrigger>
-                                    <SelectContent>
-                                        {categoryMap[selectedType].map(cat => <SelectItem key={cat} value={cat}>{cat.replace(/_/g, ' ')}</SelectItem>)}
-                                    </SelectContent>
-                                </Select>
+                                <ZoruLabel htmlFor="category">Category</ZoruLabel>
+                                <ZoruSelect name="category" required defaultValue={initialData?.category}>
+                                    <ZoruSelectTrigger><ZoruSelectValue placeholder="Select a category..."/></ZoruSelectTrigger>
+                                    <ZoruSelectContent>
+                                        {categoryMap[selectedType].map(cat => <ZoruSelectItem key={cat} value={cat}>{cat.replace(/_/g, ' ')}</ZoruSelectItem>)}
+                                    </ZoruSelectContent>
+                                </ZoruSelect>
                             </div>
                         )}
                     </div>
-                    <DialogFooter>
-                        <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+                    <ZoruDialogFooter>
+                        <ZoruButton type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</ZoruButton>
                         <SubmitButton isEditing={isEditing} />
-                    </DialogFooter>
+                    </ZoruDialogFooter>
                 </form>
-            </DialogContent>
-        </Dialog>
+            </ZoruDialogContent>
+        </ZoruDialog>
     );
 }
 
 function DeleteButton({ account, onDeleted }: { account: WithId<any>, onDeleted: () => void }) {
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
     const [isPending, startTransition] = useTransition();
 
     const handleDelete = () => {
@@ -149,30 +127,30 @@ function DeleteButton({ account, onDeleted }: { account: WithId<any>, onDeleted:
     }
 
     return (
-        <AlertDialog>
-            <AlertDialogTrigger asChild>
-                <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive"/></Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-                <AlertDialogHeader>
-                    <AlertDialogTitle>Delete Account Group?</AlertDialogTitle>
-                    <AlertDialogDescription>Are you sure you want to delete the "{account.name}" account group? This will also delete all accounts within this group.</AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleDelete} disabled={isPending}>
+        <ZoruAlertDialog>
+            <ZoruAlertDialogTrigger asChild>
+                <ZoruButton variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive"/></ZoruButton>
+            </ZoruAlertDialogTrigger>
+            <ZoruAlertDialogContent>
+                <ZoruAlertDialogHeader>
+                    <ZoruAlertDialogTitle>Delete Account Group?</ZoruAlertDialogTitle>
+                    <ZoruAlertDialogDescription>Are you sure you want to delete the "{account.name}" account group? This will also delete all accounts within this group.</ZoruAlertDialogDescription>
+                </ZoruAlertDialogHeader>
+                <ZoruAlertDialogFooter>
+                    <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+                    <ZoruAlertDialogAction onClick={handleDelete} disabled={isPending}>
                         {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>} Delete
-                    </AlertDialogAction>
-                </AlertDialogFooter>
-            </AlertDialogContent>
-        </AlertDialog>
+                    </ZoruAlertDialogAction>
+                </ZoruAlertDialogFooter>
+            </ZoruAlertDialogContent>
+        </ZoruAlertDialog>
     )
 }
 
 export default function AccountGroupsPage() {
     const [groups, setGroups] = useState<WithId<CrmAccountGroup>[]>([]);
     const [isLoading, startTransition] = useTransition();
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
     const [editingGroup, setEditingGroup] = useState<WithId<CrmAccountGroup> | null>(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -222,57 +200,57 @@ export default function AccountGroupsPage() {
                     icon={Layers}
                     actions={
                         <div className="flex items-center gap-2">
-                            <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" strokeWidth={1.75} />} onClick={() => handleOpenDialog(null)}>
+                            <ZoruButton onClick={() => handleOpenDialog(null)}>
                                 New Account Group
-                            </ClayButton>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <ClayButton variant="pill" leading={<Download className="h-4 w-4" strokeWidth={1.75} />} trailing={<ChevronDown className="h-4 w-4" strokeWidth={1.75} />}>
+                            </ZoruButton>
+                            <ZoruDropdownMenu>
+                                <ZoruDropdownMenuTrigger asChild>
+                                    <ZoruButton variant="outline">
                                         Download As
-                                    </ClayButton>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent>
-                                    <DropdownMenuItem onSelect={() => handleDownload('csv')}>CSV</DropdownMenuItem>
-                                    <DropdownMenuItem disabled>XLS</DropdownMenuItem>
-                                    <DropdownMenuItem disabled>PDF</DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
+                                    </ZoruButton>
+                                </ZoruDropdownMenuTrigger>
+                                <ZoruDropdownMenuContent>
+                                    <ZoruDropdownMenuItem onSelect={() => handleDownload('csv')}>CSV</ZoruDropdownMenuItem>
+                                    <ZoruDropdownMenuItem disabled>XLS</ZoruDropdownMenuItem>
+                                    <ZoruDropdownMenuItem disabled>PDF</ZoruDropdownMenuItem>
+                                </ZoruDropdownMenuContent>
+                            </ZoruDropdownMenu>
                         </div>
                     }
                 />
-                <ClayCard>
+                <ZoruCard>
                     <div className="overflow-x-auto rounded-lg border border-border">
-                        <Table>
-                            <TableHeader>
-                                <TableRow className="border-border hover:bg-transparent">
-                                    <TableHead className="text-muted-foreground">Group Name</TableHead>
-                                    <TableHead className="text-muted-foreground">Type</TableHead>
-                                    <TableHead className="text-muted-foreground">Category</TableHead>
-                                    <TableHead className="text-muted-foreground text-right">Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
+                        <ZoruTable>
+                            <ZoruTableHeader>
+                                <ZoruTableRow className="border-border hover:bg-transparent">
+                                    <ZoruTableHead className="text-muted-foreground">Group Name</ZoruTableHead>
+                                    <ZoruTableHead className="text-muted-foreground">Type</ZoruTableHead>
+                                    <ZoruTableHead className="text-muted-foreground">Category</ZoruTableHead>
+                                    <ZoruTableHead className="text-muted-foreground text-right">Actions</ZoruTableHead>
+                                </ZoruTableRow>
+                            </ZoruTableHeader>
+                            <ZoruTableBody>
                                 {isLoading ? (
-                                    <TableRow className="border-border"><TableCell colSpan={4} className="h-24 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground"/></TableCell></TableRow>
+                                    <ZoruTableRow className="border-border"><ZoruTableCell colSpan={4} className="h-24 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground"/></ZoruTableCell></ZoruTableRow>
                                 ) : groups.length > 0 ? (
                                     groups.map(group => (
-                                        <TableRow key={group._id.toString()} className="border-border">
-                                            <TableCell className="font-medium text-foreground">{group.name}</TableCell>
-                                            <TableCell className="text-foreground">{group.type}</TableCell>
-                                            <TableCell className="text-foreground">{group.category?.replace(/_/g, ' ')}</TableCell>
-                                            <TableCell className="text-right">
-                                                <Button variant="ghost" size="icon" onClick={() => handleOpenDialog(group)}><Edit className="h-4 w-4"/></Button>
+                                        <ZoruTableRow key={group._id.toString()} className="border-border">
+                                            <ZoruTableCell className="font-medium text-foreground">{group.name}</ZoruTableCell>
+                                            <ZoruTableCell className="text-foreground">{group.type}</ZoruTableCell>
+                                            <ZoruTableCell className="text-foreground">{group.category?.replace(/_/g, ' ')}</ZoruTableCell>
+                                            <ZoruTableCell className="text-right">
+                                                <ZoruButton variant="ghost" size="icon" onClick={() => handleOpenDialog(group)}><Edit className="h-4 w-4"/></ZoruButton>
                                                 <DeleteButton account={group} onDeleted={fetchData} />
-                                            </TableCell>
-                                        </TableRow>
+                                            </ZoruTableCell>
+                                        </ZoruTableRow>
                                     ))
                                 ) : (
-                                    <TableRow className="border-border"><TableCell colSpan={4} className="h-24 text-center text-muted-foreground">No account groups found.</TableCell></TableRow>
+                                    <ZoruTableRow className="border-border"><ZoruTableCell colSpan={4} className="h-24 text-center text-muted-foreground">No account groups found.</ZoruTableCell></ZoruTableRow>
                                 )}
-                            </TableBody>
-                        </Table>
+                            </ZoruTableBody>
+                        </ZoruTable>
                     </div>
-                </ClayCard>
+                </ZoruCard>
             </div>
         </>
     );

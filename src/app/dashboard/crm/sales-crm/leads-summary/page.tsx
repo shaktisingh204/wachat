@@ -1,39 +1,31 @@
 'use client';
-
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruAlert, ZoruAlertDescription, ZoruAlertTitle, ZoruBadge, ZoruButton, ZoruCard, ZoruDatePicker, ZoruLabel, ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue, ZoruSkeleton, useZoruToast } from '@/components/zoruui';
 import { useState, useEffect, useTransition, useCallback } from 'react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { DatePicker } from "@/components/ui/date-picker";
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+
 import { getLeadsSummaryData } from '@/app/actions/crm-reports.actions';
 import { LoaderCircle, AlertCircle, Users } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Label } from '@/components/ui/label';
-import { format } from 'date-fns';
-import { useToast } from '@/hooks/use-toast';
 
-import { ClayButton, ClayCard, ClayBadge } from '@/components/clay';
+import { format } from 'date-fns';
+
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 const StatCard = ({ title, value }: { title: string, value: number }) => (
-    <ClayCard>
+    <ZoruCard>
         <p className="text-[13px] font-medium text-muted-foreground">{title}</p>
         <p className="mt-1 text-[28px] font-semibold text-foreground">{value.toLocaleString()}</p>
-    </ClayCard>
+    </ZoruCard>
 );
 
 function PageSkeleton() {
     return (
         <div className="space-y-6">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-28" />)}
+                {[...Array(4)].map((_, i) => <ZoruSkeleton key={i} className="h-28" />)}
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-1"><Skeleton className="h-96" /></div>
-                <div className="lg:col-span-2"><Skeleton className="h-96" /></div>
+                <div className="lg:col-span-1"><ZoruSkeleton className="h-96" /></div>
+                <div className="lg:col-span-2"><ZoruSkeleton className="h-96" /></div>
             </div>
         </div>
     );
@@ -42,7 +34,7 @@ function PageSkeleton() {
 export default function LeadsSummaryPage() {
     const [summaryData, setSummaryData] = useState<any>(null);
     const [isLoading, startTransition] = useTransition();
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
 
     const [filters, setFilters] = useState({
         pipelineId: '',
@@ -92,11 +84,11 @@ export default function LeadsSummaryPage() {
 
     if (!summaryData) {
         return (
-            <Alert variant="destructive">
+            <ZoruAlert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Error</AlertTitle>
-                <AlertDescription>Could not load summary data. Please ensure deals have been added to the CRM.</AlertDescription>
-            </Alert>
+                <ZoruAlertTitle>Error</ZoruAlertTitle>
+                <ZoruAlertDescription>Could not load summary data. Please ensure deals have been added to the CRM.</ZoruAlertDescription>
+            </ZoruAlert>
         );
     }
 
@@ -112,9 +104,9 @@ export default function LeadsSummaryPage() {
         }
 
         return (
-            <ClayBadge tone="rose-soft">
+            <ZoruBadge variant="ghost">
                 {label}: {displayValue}
-            </ClayBadge>
+            </ZoruBadge>
         );
     };
 
@@ -133,28 +125,28 @@ export default function LeadsSummaryPage() {
                 <StatCard title="Leads Closed" value={summary.closedLeads} />
             </div>
 
-            <ClayCard>
+            <ZoruCard>
                 <div className="mb-4">
                     <h2 className="text-[16px] font-semibold text-foreground">Filters</h2>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    <div className="space-y-1"><Label className="text-foreground">Pipeline</Label><Select value={filters.pipelineId} onValueChange={v => handleFilterChange('pipelineId', v)}><SelectTrigger><SelectValue placeholder="Sales Pipeline" /></SelectTrigger><SelectContent>{(filtersData.pipelines || []).map((p: any) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent></Select></div>
-                    <div className="space-y-1"><Label className="text-foreground">Lead Source</Label><Select value={filters.leadSource} onValueChange={v => handleFilterChange('leadSource', v)}><SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent>{(filtersData.leadSources || []).map((s: string) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select></div>
-                    <div className="space-y-1"><Label className="text-foreground">Assigned To</Label><Select value={filters.assigneeId} onValueChange={v => handleFilterChange('assigneeId', v)}><SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent>{(filtersData.assignees || []).map((a: any) => <SelectItem key={a._id} value={a._id}>{a.name}</SelectItem>)}</SelectContent></Select></div>
-                    <div className="space-y-1"><Label className="text-foreground">Current Stage</Label><Select value={filters.currentStage} onValueChange={v => handleFilterChange('currentStage', v)}><SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent>{(filtersData.pipelines[0]?.stages || []).map((s: any) => <SelectItem key={s.id} value={s.name}>{s.name}</SelectItem>)}</SelectContent></Select></div>
-                    <div className="space-y-1"><Label className="text-foreground">Created Date</Label><DatePicker date={filters.createdFrom} setDate={((d: any) => handleFilterChange('createdFrom', d)) as any} placeholder="Start Date" /></div>
-                    <div className="space-y-1"><Label>&nbsp;</Label><DatePicker date={filters.createdTo} setDate={((d: any) => handleFilterChange('createdTo', d)) as any} placeholder="End Date" /></div>
-                    <div className="space-y-1"><Label className="text-foreground">Updated Date</Label><DatePicker date={filters.updatedFrom} setDate={((d: any) => handleFilterChange('updatedFrom', d)) as any} placeholder="Start Date" /></div>
-                    <div className="space-y-1"><Label>&nbsp;</Label><DatePicker date={filters.updatedTo} setDate={((d: any) => handleFilterChange('updatedTo', d)) as any} placeholder="End Date" /></div>
-                    <div className="space-y-1"><Label className="text-foreground">Closed Date</Label><DatePicker date={filters.closedFrom} setDate={((d: any) => handleFilterChange('closedFrom', d)) as any} placeholder="Start Date" /></div>
-                    <div className="space-y-1"><Label>&nbsp;</Label><DatePicker date={filters.closedTo} setDate={((d: any) => handleFilterChange('closedTo', d)) as any} placeholder="End Date" /></div>
+                    <div className="space-y-1"><ZoruLabel className="text-foreground">Pipeline</ZoruLabel><ZoruSelect value={filters.pipelineId} onValueChange={v => handleFilterChange('pipelineId', v)}><ZoruSelectTrigger><ZoruSelectValue placeholder="Sales Pipeline" /></ZoruSelectTrigger><ZoruSelectContent>{(filtersData.pipelines || []).map((p: any) => <ZoruSelectItem key={p.id} value={p.id}>{p.name}</ZoruSelectItem>)}</ZoruSelectContent></ZoruSelect></div>
+                    <div className="space-y-1"><ZoruLabel className="text-foreground">Lead Source</ZoruLabel><ZoruSelect value={filters.leadSource} onValueChange={v => handleFilterChange('leadSource', v)}><ZoruSelectTrigger><ZoruSelectValue placeholder="Select..." /></ZoruSelectTrigger><ZoruSelectContent>{(filtersData.leadSources || []).map((s: string) => <ZoruSelectItem key={s} value={s}>{s}</ZoruSelectItem>)}</ZoruSelectContent></ZoruSelect></div>
+                    <div className="space-y-1"><ZoruLabel className="text-foreground">Assigned To</ZoruLabel><ZoruSelect value={filters.assigneeId} onValueChange={v => handleFilterChange('assigneeId', v)}><ZoruSelectTrigger><ZoruSelectValue placeholder="Select..." /></ZoruSelectTrigger><ZoruSelectContent>{(filtersData.assignees || []).map((a: any) => <ZoruSelectItem key={a._id} value={a._id}>{a.name}</ZoruSelectItem>)}</ZoruSelectContent></ZoruSelect></div>
+                    <div className="space-y-1"><ZoruLabel className="text-foreground">Current Stage</ZoruLabel><ZoruSelect value={filters.currentStage} onValueChange={v => handleFilterChange('currentStage', v)}><ZoruSelectTrigger><ZoruSelectValue placeholder="Select..." /></ZoruSelectTrigger><ZoruSelectContent>{(filtersData.pipelines[0]?.stages || []).map((s: any) => <ZoruSelectItem key={s.id} value={s.name}>{s.name}</ZoruSelectItem>)}</ZoruSelectContent></ZoruSelect></div>
+                    <div className="space-y-1"><ZoruLabel className="text-foreground">Created Date</ZoruLabel><ZoruDatePicker value={filters.createdFrom} onChange={((d: any) => handleFilterChange('createdFrom', d)) as any} placeholder="Start Date" /></div>
+                    <div className="space-y-1"><ZoruLabel>&nbsp;</ZoruLabel><ZoruDatePicker value={filters.createdTo} onChange={((d: any) => handleFilterChange('createdTo', d)) as any} placeholder="End Date" /></div>
+                    <div className="space-y-1"><ZoruLabel className="text-foreground">Updated Date</ZoruLabel><ZoruDatePicker value={filters.updatedFrom} onChange={((d: any) => handleFilterChange('updatedFrom', d)) as any} placeholder="Start Date" /></div>
+                    <div className="space-y-1"><ZoruLabel>&nbsp;</ZoruLabel><ZoruDatePicker value={filters.updatedTo} onChange={((d: any) => handleFilterChange('updatedTo', d)) as any} placeholder="End Date" /></div>
+                    <div className="space-y-1"><ZoruLabel className="text-foreground">Closed Date</ZoruLabel><ZoruDatePicker value={filters.closedFrom} onChange={((d: any) => handleFilterChange('closedFrom', d)) as any} placeholder="Start Date" /></div>
+                    <div className="space-y-1"><ZoruLabel>&nbsp;</ZoruLabel><ZoruDatePicker value={filters.closedTo} onChange={((d: any) => handleFilterChange('closedTo', d)) as any} placeholder="End Date" /></div>
                 </div>
                 <div className="mt-4">
-                    <ClayButton variant="obsidian" onClick={fetchData} disabled={isLoading} leading={isLoading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : undefined}>
+                    <ZoruButton onClick={fetchData} disabled={isLoading}>
                         Apply Filters
-                    </ClayButton>
+                    </ZoruButton>
                 </div>
-            </ClayCard>
+            </ZoruCard>
 
             <div className="flex flex-wrap gap-2 items-center">
                 <span className="text-[13px] font-semibold text-foreground">Applied Filters:</span>
@@ -163,10 +155,10 @@ export default function LeadsSummaryPage() {
                 ) : (
                     <span className="text-[13px] text-muted-foreground">None</span>
                 )}
-                {activeFilters.length > 0 && <ClayButton variant="ghost" size="sm" onClick={resetFilters}>Reset all filters</ClayButton>}
+                {activeFilters.length > 0 && <ZoruButton variant="ghost" size="sm" onClick={resetFilters}>Reset all filters</ZoruButton>}
             </div>
 
-            <ClayCard>
+            <ZoruCard>
                 <div className="mb-4">
                     <h2 className="text-[16px] font-semibold text-foreground">Graph</h2>
                 </div>
@@ -183,9 +175,9 @@ export default function LeadsSummaryPage() {
                         <Bar yAxisId="right" dataKey="weightedValue" fill="hsl(var(--accent-foreground))" name="Weighted Value" />
                     </BarChart>
                 </ResponsiveContainer>
-            </ClayCard>
+            </ZoruCard>
 
-            <ClayCard>
+            <ZoruCard>
                 <div className="mb-4">
                     <h2 className="text-[16px] font-semibold text-foreground">Sales Pipeline Summary</h2>
                 </div>
@@ -200,7 +192,7 @@ export default function LeadsSummaryPage() {
                         </div>
                     ))}
                 </div>
-            </ClayCard>
+            </ZoruCard>
         </div>
     );
 }

@@ -1,12 +1,9 @@
 'use client';
-
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruBadge, ZoruButton } from '@/components/zoruui';
 import { Award } from 'lucide-react';
 import Link from 'next/link';
-import { ClayBadge, HrEntityPage } from '../../_components/hr-entity-page';
-import { ClayButton } from '@/components/clay';
+import { HrEntityPage } from '../../_components/hr-entity-page';
+
 import {
   getAwards,
   saveAward,
@@ -19,7 +16,7 @@ export default function AwardsPage() {
     <div className="flex w-full flex-col gap-3">
       <div className="flex justify-end">
         <Link href="/dashboard/crm/workspace/awards/appreciations">
-          <ClayButton variant="pill">View Appreciations</ClayButton>
+          <ZoruButton variant="outline">View Appreciations</ZoruButton>
         </Link>
       </div>
       <HrEntityPage<WsAward & { _id: string }>
@@ -40,7 +37,7 @@ export default function AwardsPage() {
           {
             key: 'frequency',
             label: 'Frequency',
-            render: (row) => <ClayBadge tone="amber">{row.frequency}</ClayBadge>,
+            render: (row) => <ZoruBadge variant="warning">{row.frequency}</ZoruBadge>,
           },
         ]}
         fields={[

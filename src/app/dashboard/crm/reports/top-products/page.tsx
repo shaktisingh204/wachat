@@ -1,19 +1,10 @@
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruCard, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
 export const dynamic = 'force-dynamic';
 
 import { Package } from 'lucide-react';
-import { ClayCard } from '@/components/clay';
+
 import { CrmPageHeader } from '../../_components/crm-page-header';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+
 import { fmtMoney, fmtNumber } from '../_components/report-toolbar';
 import { getTopProducts } from '@/app/actions/worksuite/reports.actions';
 
@@ -28,56 +19,56 @@ export default async function TopProductsPage() {
         icon={Package}
       />
 
-      <ClayCard>
+      <ZoruCard>
         <div className="overflow-x-auto rounded-lg border border-border">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border hover:bg-transparent">
-                <TableHead className="w-10 text-muted-foreground">#</TableHead>
-                <TableHead className="text-muted-foreground">Product</TableHead>
-                <TableHead className="text-right text-muted-foreground">
+          <ZoruTable>
+            <ZoruTableHeader>
+              <ZoruTableRow className="border-border hover:bg-transparent">
+                <ZoruTableHead className="w-10 text-muted-foreground">#</ZoruTableHead>
+                <ZoruTableHead className="text-muted-foreground">Product</ZoruTableHead>
+                <ZoruTableHead className="text-right text-muted-foreground">
                   Units
-                </TableHead>
-                <TableHead className="text-right text-muted-foreground">
+                </ZoruTableHead>
+                <ZoruTableHead className="text-right text-muted-foreground">
                   Revenue
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+                </ZoruTableHead>
+              </ZoruTableRow>
+            </ZoruTableHeader>
+            <ZoruTableBody>
               {rows.length === 0 ? (
-                <TableRow className="border-border">
-                  <TableCell
+                <ZoruTableRow className="border-border">
+                  <ZoruTableCell
                     colSpan={4}
                     className="h-20 text-center text-[13px] text-muted-foreground"
                   >
                     No products sold.
-                  </TableCell>
-                </TableRow>
+                  </ZoruTableCell>
+                </ZoruTableRow>
               ) : (
                 rows.map((r, i) => (
-                  <TableRow
+                  <ZoruTableRow
                     key={`${r.productName}-${i}`}
                     className="border-border"
                   >
-                    <TableCell className="text-muted-foreground">
+                    <ZoruTableCell className="text-muted-foreground">
                       {i + 1}
-                    </TableCell>
-                    <TableCell className="font-medium text-foreground">
+                    </ZoruTableCell>
+                    <ZoruTableCell className="font-medium text-foreground">
                       {r.productName}
-                    </TableCell>
-                    <TableCell className="text-right text-[13px] text-foreground">
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-right text-[13px] text-foreground">
                       {fmtNumber(r.units)}
-                    </TableCell>
-                    <TableCell className="text-right text-[13px] font-medium text-emerald-500">
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-right text-[13px] font-medium text-emerald-500">
                       {fmtMoney(r.revenue)}
-                    </TableCell>
-                  </TableRow>
+                    </ZoruTableCell>
+                  </ZoruTableRow>
                 ))
               )}
-            </TableBody>
-          </Table>
+            </ZoruTableBody>
+          </ZoruTable>
         </div>
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

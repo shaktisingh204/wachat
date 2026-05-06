@@ -1,15 +1,13 @@
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruCard, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
 export const dynamic = 'force-dynamic';
 
 import { getPurchaseOrders } from '@/app/actions/crm-purchase-orders.actions';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+
 import { FileBarChart } from 'lucide-react';
 import { format } from 'date-fns';
 
 import { MonthPicker } from '@/components/crm/month-picker';
-import { ClayCard } from '@/components/clay';
+
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 export default async function Gstr2bPage(props: { searchParams: Promise<{ month?: string, year?: string }> }) {
@@ -28,48 +26,48 @@ export default async function Gstr2bPage(props: { searchParams: Promise<{ month?
                 actions={<MonthPicker />}
             />
 
-            <ClayCard>
+            <ZoruCard>
                 <div className="mb-4">
                     <h2 className="text-[16px] font-semibold text-foreground">Purchase Documents</h2>
                     <p className="mt-0.5 text-[12.5px] text-muted-foreground">Eligible ITC from recorded purchase orders.</p>
                 </div>
                 <div className="overflow-x-auto rounded-lg border border-border">
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="border-border hover:bg-transparent">
-                                <TableHead className="text-muted-foreground">Date</TableHead>
-                                <TableHead className="text-muted-foreground">Order No.</TableHead>
-                                <TableHead className="text-muted-foreground">Vendor</TableHead>
-                                <TableHead className="text-right text-muted-foreground">Total Amount</TableHead>
-                                <TableHead className="text-muted-foreground">Status</TableHead>
-                                <TableHead className="text-muted-foreground">ITC Eligibility</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
+                    <ZoruTable>
+                        <ZoruTableHeader>
+                            <ZoruTableRow className="border-border hover:bg-transparent">
+                                <ZoruTableHead className="text-muted-foreground">Date</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Order No.</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Vendor</ZoruTableHead>
+                                <ZoruTableHead className="text-right text-muted-foreground">Total Amount</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Status</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">ITC Eligibility</ZoruTableHead>
+                            </ZoruTableRow>
+                        </ZoruTableHeader>
+                        <ZoruTableBody>
                             {orders.length === 0 ? (
-                                <TableRow className="border-border">
-                                    <TableCell colSpan={6} className="h-24 text-center text-[13px] text-muted-foreground">
+                                <ZoruTableRow className="border-border">
+                                    <ZoruTableCell colSpan={6} className="h-24 text-center text-[13px] text-muted-foreground">
                                         No documents found.
-                                    </TableCell>
-                                </TableRow>
+                                    </ZoruTableCell>
+                                </ZoruTableRow>
                             ) : (
                                 orders.map((po) => (
-                                    <TableRow key={po._id.toString()} className="border-border">
-                                        <TableCell className="text-[13px] text-foreground">{format(new Date(po.orderDate), 'PP')}</TableCell>
-                                        <TableCell className="font-medium text-foreground">{po.orderNumber}</TableCell>
-                                        <TableCell className="text-[13px] text-foreground">Vendor</TableCell>
-                                        <TableCell className="text-right text-[13px] text-foreground">
+                                    <ZoruTableRow key={po._id.toString()} className="border-border">
+                                        <ZoruTableCell className="text-[13px] text-foreground">{format(new Date(po.orderDate), 'PP')}</ZoruTableCell>
+                                        <ZoruTableCell className="font-medium text-foreground">{po.orderNumber}</ZoruTableCell>
+                                        <ZoruTableCell className="text-[13px] text-foreground">Vendor</ZoruTableCell>
+                                        <ZoruTableCell className="text-right text-[13px] text-foreground">
                                             {po.currency} {po.total.toFixed(2)}
-                                        </TableCell>
-                                        <TableCell className="text-[13px] text-foreground">{po.status}</TableCell>
-                                        <TableCell className="text-[13px] text-foreground">Yes</TableCell>
-                                    </TableRow>
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-[13px] text-foreground">{po.status}</ZoruTableCell>
+                                        <ZoruTableCell className="text-[13px] text-foreground">Yes</ZoruTableCell>
+                                    </ZoruTableRow>
                                 ))
                             )}
-                        </TableBody>
-                    </Table>
+                        </ZoruTableBody>
+                    </ZoruTable>
                 </div>
-            </ClayCard>
+            </ZoruCard>
         </div>
     )
 }

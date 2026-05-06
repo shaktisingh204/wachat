@@ -1,18 +1,13 @@
 'use client';
-
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruAccordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger, ZoruButton, ZoruCard, ZoruSkeleton } from '@/components/zoruui';
 import { useState, useEffect, useTransition } from 'react';
 import { getCrmPipelines } from '@/app/actions/crm-pipelines.actions';
 import type { CrmPipeline } from '@/lib/definitions';
 import { Plus, Eye, Edit, Columns3 } from "lucide-react";
 import { EditPipelinesDialog } from '@/components/wabasimplify/edit-pipelines-dialog';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+
 import Link from 'next/link';
 
-import { ClayButton, ClayCard } from '@/components/clay';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 function PageSkeleton() {
@@ -20,17 +15,17 @@ function PageSkeleton() {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div className="space-y-2">
-                    <Skeleton className="h-8 w-64" />
-                    <Skeleton className="h-4 w-96" />
+                    <ZoruSkeleton className="h-8 w-64" />
+                    <ZoruSkeleton className="h-4 w-96" />
                 </div>
                 <div className="flex gap-2">
-                    <Skeleton className="h-10 w-32" />
-                    <Skeleton className="h-10 w-32" />
+                    <ZoruSkeleton className="h-10 w-32" />
+                    <ZoruSkeleton className="h-10 w-32" />
                 </div>
             </div>
             <div className="space-y-4">
-                <Skeleton className="h-24 w-full" />
-                <Skeleton className="h-24 w-full" />
+                <ZoruSkeleton className="h-24 w-full" />
+                <ZoruSkeleton className="h-24 w-full" />
             </div>
         </div>
     );
@@ -80,24 +75,24 @@ export default function SalesPipelinePage() {
                     icon={Columns3}
                     actions={
                         <>
-                            <ClayButton variant="pill" leading={<Edit className="h-4 w-4" strokeWidth={1.75} />} onClick={() => setIsEditOpen(true)}>
+                            <ZoruButton variant="outline" onClick={() => setIsEditOpen(true)}>
                                 Edit Pipelines
-                            </ClayButton>
-                            <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" strokeWidth={1.75} />} onClick={() => setIsCreateOpen(true)}>
+                            </ZoruButton>
+                            <ZoruButton onClick={() => setIsCreateOpen(true)}>
                                 New Pipeline
-                            </ClayButton>
+                            </ZoruButton>
                         </>
                     }
                 />
 
                 {pipelines.length > 0 ? (
-                    <Accordion type="multiple" defaultValue={pipelines.map(p => p.id)} className="w-full space-y-4">
+                    <ZoruAccordion type="multiple" defaultValue={pipelines.map(p => p.id)} className="w-full space-y-4">
                         {pipelines.map(pipeline => (
-                            <AccordionItem key={pipeline.id} value={pipeline.id} className="rounded-xl border border-border bg-card">
-                                <AccordionTrigger className="p-4 text-[15px] font-semibold text-foreground hover:no-underline">
+                            <ZoruAccordionItem key={pipeline.id} value={pipeline.id} className="rounded-xl border border-border bg-card">
+                                <ZoruAccordionTrigger className="p-4 text-[15px] font-semibold text-foreground hover:no-underline">
                                     {pipeline.name}
-                                </AccordionTrigger>
-                                <AccordionContent className="p-4 pt-0">
+                                </ZoruAccordionTrigger>
+                                <ZoruAccordionContent className="p-4 pt-0">
                                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                                         {pipeline.stages.map((stage) => (
                                             <div key={stage.id} className="rounded-lg border border-border bg-secondary p-3 text-center">
@@ -108,28 +103,28 @@ export default function SalesPipelinePage() {
                                     </div>
                                     <div className="mt-4 flex justify-end">
                                         <Link href="/dashboard/crm/deals">
-                                            <ClayButton variant="pill" size="sm" leading={<Eye className="h-4 w-4" strokeWidth={1.75} />}>
+                                            <ZoruButton variant="outline" size="sm">
                                                 View Leads in this Pipeline
-                                            </ClayButton>
+                                            </ZoruButton>
                                         </Link>
                                     </div>
-                                </AccordionContent>
-                            </AccordionItem>
+                                </ZoruAccordionContent>
+                            </ZoruAccordionItem>
                         ))}
-                    </Accordion>
+                    </ZoruAccordion>
                 ) : (
-                    <ClayCard variant="outline" className="border-dashed">
+                    <ZoruCard variant="outline" className="border-dashed">
                         <div className="flex flex-col items-center gap-3 py-16 text-center">
                             <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent">
                                 <Columns3 className="h-6 w-6 text-accent-foreground" strokeWidth={1.75} />
                             </div>
                             <h3 className="text-[15px] font-semibold text-foreground">No Pipelines Found</h3>
                             <p className="text-[12.5px] text-muted-foreground">You haven&apos;t created any pipelines yet.</p>
-                            <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" strokeWidth={1.75} />} onClick={() => setIsCreateOpen(true)}>
+                            <ZoruButton onClick={() => setIsCreateOpen(true)}>
                                 Create Your First Pipeline
-                            </ClayButton>
+                            </ZoruButton>
                         </div>
-                    </ClayCard>
+                    </ZoruCard>
                 )}
             </div>
         </>

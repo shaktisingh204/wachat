@@ -1,10 +1,8 @@
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruCard } from '@/components/zoruui';
 export const dynamic = 'force-dynamic';
 
 import { FolderKanban } from 'lucide-react';
-import { ClayCard } from '@/components/clay';
+
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import { StatCard, BarRow } from '../_components/report-toolbar';
 import { getProjectStatusReport } from '@/app/actions/worksuite/reports.actions';
@@ -38,7 +36,7 @@ export default async function ProjectStatusReportPage() {
         />
       </div>
 
-      <ClayCard>
+      <ZoruCard>
         <div className="mb-3">
           <h2 className="text-[16px] font-semibold text-foreground">By status</h2>
         </div>
@@ -58,7 +56,7 @@ export default async function ProjectStatusReportPage() {
             />
           ))
         )}
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

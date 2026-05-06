@@ -1,26 +1,17 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ZoruAlert, ZoruAlertDescription, ZoruAlertTitle, ZoruButton, ZoruCard, ZoruDatePicker, ZoruDropdownMenu, ZoruDropdownMenuContent, ZoruDropdownMenuItem, ZoruDropdownMenuTrigger, ZoruLabel, ZoruPopover, ZoruPopoverContent, ZoruPopoverTrigger, ZoruSwitch, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow, useZoruToast } from '@/components/zoruui';
 import { Download, SlidersHorizontal, ChevronDown, AlertCircle, Scale } from 'lucide-react';
-import { DatePicker } from "@/components/ui/date-picker";
-import { Switch } from "@/components/ui/switch";
-import { Label } from '@/components/ui/label';
+
 import { useState, useEffect, useTransition, useCallback } from "react";
 import { generateTrialBalanceData } from "@/app/actions/crm-accounting.actions";
 import { LoaderCircle } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { useToast } from "@/hooks/use-toast";
+
 import Papa from "papaparse";
 import { getSession } from "@/app/actions";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import Link from 'next/link';
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
-import { ClayCard, ClayButton } from '@/components/clay';
+import Link from 'next/link';
+
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 type TrialBalanceEntry = {
@@ -37,7 +28,7 @@ type TrialBalanceEntry = {
 function TrialBalanceClient({ data, totals, user }: { data: TrialBalanceEntry[], totals: any, user: any }) {
     const [hideZero, setHideZero] = useState(false);
     const filteredData = hideZero ? data.filter(d => d.totalDebit > 0 || d.totalCredit > 0) : data;
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
 
     const businessProfile = user?.businessProfile;
 
@@ -66,7 +57,7 @@ function TrialBalanceClient({ data, totals, user }: { data: TrialBalanceEntry[],
 
     return (
         <div className="flex w-full flex-col gap-6">
-            <ClayCard>
+            <ZoruCard>
                 <div className="flex flex-wrap items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
                         <div className="w-14 h-14 rounded-full bg-accent text-accent-foreground flex items-center justify-center text-2xl font-semibold">
@@ -78,67 +69,67 @@ function TrialBalanceClient({ data, totals, user }: { data: TrialBalanceEntry[],
                             <p className="text-[12.5px] text-muted-foreground">GSTIN: {businessProfile?.gstin || 'N/A'}</p>
                         </div>
                     </div>
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <ClayButton variant="pill" leading={<Download className="h-4 w-4" strokeWidth={1.75} />} trailing={<ChevronDown className="h-4 w-4" strokeWidth={1.75} />}>
+                    <ZoruDropdownMenu>
+                        <ZoruDropdownMenuTrigger asChild>
+                            <ZoruButton variant="outline">
                                 Download As
-                            </ClayButton>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent>
-                            <DropdownMenuItem onSelect={() => handleDownload('csv')}>CSV</DropdownMenuItem>
-                            <DropdownMenuItem disabled>XLS</DropdownMenuItem>
-                            <DropdownMenuItem disabled>PDF</DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                            </ZoruButton>
+                        </ZoruDropdownMenuTrigger>
+                        <ZoruDropdownMenuContent>
+                            <ZoruDropdownMenuItem onSelect={() => handleDownload('csv')}>CSV</ZoruDropdownMenuItem>
+                            <ZoruDropdownMenuItem disabled>XLS</ZoruDropdownMenuItem>
+                            <ZoruDropdownMenuItem disabled>PDF</ZoruDropdownMenuItem>
+                        </ZoruDropdownMenuContent>
+                    </ZoruDropdownMenu>
                 </div>
-            </ClayCard>
+            </ZoruCard>
 
-            <ClayCard>
+            <ZoruCard>
                 <h2 className="text-[16px] font-semibold text-foreground">Trial Balance</h2>
                 <div className="mt-4 overflow-x-auto rounded-lg border border-border">
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="border-border hover:bg-transparent">
-                                <TableHead className="text-muted-foreground">Account</TableHead>
-                                <TableHead className="text-muted-foreground text-right">Opening Balance</TableHead>
-                                <TableHead className="text-muted-foreground text-right">Debit</TableHead>
-                                <TableHead className="text-muted-foreground text-right">Credit</TableHead>
-                                <TableHead className="text-muted-foreground text-right">Closing Balance</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
+                    <ZoruTable>
+                        <ZoruTableHeader>
+                            <ZoruTableRow className="border-border hover:bg-transparent">
+                                <ZoruTableHead className="text-muted-foreground">Account</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground text-right">Opening Balance</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground text-right">Debit</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground text-right">Credit</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground text-right">Closing Balance</ZoruTableHead>
+                            </ZoruTableRow>
+                        </ZoruTableHeader>
+                        <ZoruTableBody>
                             {filteredData.length > 0 ? (
                                 filteredData.map(entry => (
-                                    <TableRow key={entry.accountId} className="border-border">
-                                        <TableCell className="font-medium text-foreground">{entry.accountName}</TableCell>
-                                        <TableCell className="text-right font-mono text-foreground">{Math.abs(entry.openingBalance).toFixed(2)} {entry.openingBalanceType}</TableCell>
-                                        <TableCell className="text-right font-mono text-foreground">{entry.totalDebit.toFixed(2)}</TableCell>
-                                        <TableCell className="text-right font-mono text-foreground">{entry.totalCredit.toFixed(2)}</TableCell>
-                                        <TableCell className="text-right font-mono text-foreground">{Math.abs(entry.closingBalance).toFixed(2)} {entry.closingBalanceType}</TableCell>
-                                    </TableRow>
+                                    <ZoruTableRow key={entry.accountId} className="border-border">
+                                        <ZoruTableCell className="font-medium text-foreground">{entry.accountName}</ZoruTableCell>
+                                        <ZoruTableCell className="text-right font-mono text-foreground">{Math.abs(entry.openingBalance).toFixed(2)} {entry.openingBalanceType}</ZoruTableCell>
+                                        <ZoruTableCell className="text-right font-mono text-foreground">{entry.totalDebit.toFixed(2)}</ZoruTableCell>
+                                        <ZoruTableCell className="text-right font-mono text-foreground">{entry.totalCredit.toFixed(2)}</ZoruTableCell>
+                                        <ZoruTableCell className="text-right font-mono text-foreground">{Math.abs(entry.closingBalance).toFixed(2)} {entry.closingBalanceType}</ZoruTableCell>
+                                    </ZoruTableRow>
                                 ))
                             ) : (
-                                <TableRow className="border-border">
-                                    <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">No Data</TableCell>
-                                </TableRow>
+                                <ZoruTableRow className="border-border">
+                                    <ZoruTableCell colSpan={5} className="h-24 text-center text-muted-foreground">No Data</ZoruTableCell>
+                                </ZoruTableRow>
                             )}
-                            <TableRow className="border-border bg-secondary font-semibold">
-                                <TableCell className="text-foreground">Total</TableCell>
-                                <TableCell className="text-right font-mono text-foreground">{Math.abs(totals.totalOpening).toFixed(2)} {totals.totalOpening >= 0 ? 'Dr' : 'Cr'}</TableCell>
-                                <TableCell className="text-right font-mono text-foreground">{totals.totalDebit.toFixed(2)}</TableCell>
-                                <TableCell className="text-right font-mono text-foreground">{totals.totalCredit.toFixed(2)}</TableCell>
-                                <TableCell className="text-right font-mono text-foreground">{Math.abs(totals.totalClosing).toFixed(2)} {totals.totalClosing >= 0 ? 'Dr' : 'Cr'}</TableCell>
-                            </TableRow>
-                        </TableBody>
-                    </Table>
+                            <ZoruTableRow className="border-border bg-secondary font-semibold">
+                                <ZoruTableCell className="text-foreground">Total</ZoruTableCell>
+                                <ZoruTableCell className="text-right font-mono text-foreground">{Math.abs(totals.totalOpening).toFixed(2)} {totals.totalOpening >= 0 ? 'Dr' : 'Cr'}</ZoruTableCell>
+                                <ZoruTableCell className="text-right font-mono text-foreground">{totals.totalDebit.toFixed(2)}</ZoruTableCell>
+                                <ZoruTableCell className="text-right font-mono text-foreground">{totals.totalCredit.toFixed(2)}</ZoruTableCell>
+                                <ZoruTableCell className="text-right font-mono text-foreground">{Math.abs(totals.totalClosing).toFixed(2)} {totals.totalClosing >= 0 ? 'Dr' : 'Cr'}</ZoruTableCell>
+                            </ZoruTableRow>
+                        </ZoruTableBody>
+                    </ZoruTable>
                 </div>
                 <div className="flex items-center justify-end mt-4">
                     <div className="flex items-center space-x-2">
-                        <Switch id="hide-zero" checked={hideZero} onCheckedChange={setHideZero} />
-                        <Label htmlFor="hide-zero" className="text-[13px] text-foreground">Hide Zero-Entry Accounts</Label>
+                        <ZoruSwitch id="hide-zero" checked={hideZero} onCheckedChange={setHideZero} />
+                        <ZoruLabel htmlFor="hide-zero" className="text-[13px] text-foreground">Hide Zero-Entry Accounts</ZoruLabel>
                     </div>
                 </div>
-            </ClayCard>
+            </ZoruCard>
         </div>
     )
 }
@@ -189,14 +180,14 @@ export default function TrialBalancePage() {
 
     if (!user.businessProfile?.name || !user.businessProfile.address) {
         return (
-            <Alert variant="destructive">
+            <ZoruAlert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Business Profile Incomplete</AlertTitle>
-                <AlertDescription>
+                <ZoruAlertTitle>Business Profile Incomplete</ZoruAlertTitle>
+                <ZoruAlertDescription>
                     Please complete your business profile in the user settings to view accounting reports.
-                    <Button asChild variant="link" className="p-0 h-auto ml-2"><Link href="/dashboard/user/settings/profile">Go to Settings</Link></Button>
-                </AlertDescription>
-            </Alert>
+                    <ZoruButton asChild variant="link" className="p-0 h-auto ml-2"><Link href="/dashboard/user/settings/profile">Go to Settings</Link></ZoruButton>
+                </ZoruAlertDescription>
+            </ZoruAlert>
         );
     }
 
@@ -207,30 +198,30 @@ export default function TrialBalancePage() {
                 subtitle="Review debits and credits across all accounts."
                 icon={Scale}
                 actions={
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <ClayButton variant="pill" leading={<SlidersHorizontal className="h-4 w-4" strokeWidth={1.75} />}>
+                    <ZoruPopover>
+                        <ZoruPopoverTrigger asChild>
+                            <ZoruButton variant="outline">
                                 Filters
-                            </ClayButton>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-96 space-y-4">
+                            </ZoruButton>
+                        </ZoruPopoverTrigger>
+                        <ZoruPopoverContent className="w-96 space-y-4">
                             <div className="space-y-2">
-                                <Label>Start Date</Label>
-                                <DatePicker date={startDate} setDate={setStartDate} />
+                                <ZoruLabel>Start Date</ZoruLabel>
+                                <ZoruDatePicker value={startDate} onChange={setStartDate} />
                             </div>
                             <div className="space-y-2">
-                                <Label>End Date</Label>
-                                <DatePicker date={endDate} setDate={setEndDate} />
+                                <ZoruLabel>End Date</ZoruLabel>
+                                <ZoruDatePicker value={endDate} onChange={setEndDate} />
                             </div>
                             <div className="flex justify-end gap-2">
-                                <ClayButton variant="ghost" onClick={handleClearFilters}>Clear</ClayButton>
-                                <ClayButton variant="obsidian" onClick={fetchData} disabled={isLoading}>
+                                <ZoruButton variant="ghost" onClick={handleClearFilters}>Clear</ZoruButton>
+                                <ZoruButton onClick={fetchData} disabled={isLoading}>
                                     {isLoading && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
                                     Apply
-                                </ClayButton>
+                                </ZoruButton>
                             </div>
-                        </PopoverContent>
-                    </Popover>
+                        </ZoruPopoverContent>
+                    </ZoruPopover>
                 }
             />
             <TrialBalanceClient data={data.data} totals={data.totals} user={user} />

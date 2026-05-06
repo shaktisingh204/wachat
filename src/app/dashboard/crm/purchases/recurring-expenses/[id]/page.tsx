@@ -1,8 +1,5 @@
 'use client';
-
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruBadge, ZoruButton, ZoruCard, ZoruSkeleton, useZoruToast } from '@/components/zoruui';
 import { use, useCallback, useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -17,10 +14,7 @@ import {
   Trash2,
 } from 'lucide-react';
 
-import { ClayBadge, ClayButton, ClayCard } from '@/components/clay';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
 
 import {
   getRecurringExpenseById,
@@ -62,7 +56,7 @@ export default function RecurringExpenseDetailPage(props: {
 }) {
   const { id } = use(props.params);
   const router = useRouter();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [doc, setDoc] = useState<Row | null>(null);
   const [isLoading, startLoading] = useTransition();
   const [isMutating, startMutating] = useTransition();
@@ -120,8 +114,8 @@ export default function RecurringExpenseDetailPage(props: {
   if (isLoading && !doc) {
     return (
       <div className="flex w-full flex-col gap-6">
-        <Skeleton className="h-12 w-full" />
-        <Skeleton className="h-64 w-full" />
+        <ZoruSkeleton className="h-12 w-full" />
+        <ZoruSkeleton className="h-64 w-full" />
       </div>
     );
   }
@@ -135,9 +129,9 @@ export default function RecurringExpenseDetailPage(props: {
           icon={Repeat}
         />
         <Link href="/dashboard/crm/purchases/recurring-expenses">
-          <ClayButton variant="pill" leading={<ArrowLeft className="h-4 w-4" />}>
+          <ZoruButton variant="outline">
             Back
-          </ClayButton>
+          </ZoruButton>
         </Link>
       </div>
     );
@@ -156,79 +150,73 @@ export default function RecurringExpenseDetailPage(props: {
         actions={
           <>
             <Link href="/dashboard/crm/purchases/recurring-expenses">
-              <ClayButton
-                variant="pill"
-                leading={<ArrowLeft className="h-4 w-4" />}
+              <ZoruButton
+                variant="outline"
+               
               >
                 Back
-              </ClayButton>
+              </ZoruButton>
             </Link>
-            <ClayButton
-              variant="obsidian"
+            <ZoruButton
+             
               disabled={isMutating || doc.status === 'stopped'}
               onClick={() =>
                 handle(() => runRecurringExpenseNow(id), 'Expense recorded')
               }
-              leading={
-                isMutating ? (
-                  <LoaderCircle className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Zap className="h-4 w-4" />
-                )
-              }
+             
             >
               Run now
-            </ClayButton>
+            </ZoruButton>
             {doc.status === 'active' ? (
-              <ClayButton
-                variant="pill"
+              <ZoruButton
+                variant="outline"
                 onClick={() => handle(() => pauseRecurringExpense(id), 'Paused')}
                 disabled={isMutating}
-                leading={<Pause className="h-4 w-4" />}
+               
               >
                 Pause
-              </ClayButton>
+              </ZoruButton>
             ) : doc.status === 'paused' ? (
-              <ClayButton
-                variant="pill"
+              <ZoruButton
+                variant="outline"
                 onClick={() => handle(() => resumeRecurringExpense(id), 'Resumed')}
                 disabled={isMutating}
-                leading={<Play className="h-4 w-4" />}
+               
               >
                 Resume
-              </ClayButton>
+              </ZoruButton>
             ) : null}
             {doc.status !== 'stopped' ? (
-              <ClayButton
-                variant="pill"
+              <ZoruButton
+                variant="outline"
                 onClick={() => handle(() => stopRecurringExpense(id), 'Stopped')}
                 disabled={isMutating}
-                leading={<StopCircle className="h-4 w-4" />}
+               
               >
                 Stop
-              </ClayButton>
+              </ZoruButton>
             ) : null}
-            <ClayButton
-              variant="pill"
+            <ZoruButton
+              variant="outline"
               onClick={handleDelete}
               disabled={isMutating}
-              leading={<Trash2 className="h-4 w-4" />}
+             
             >
               Delete
-            </ClayButton>
+            </ZoruButton>
           </>
         }
       />
 
-      <ClayCard>
+      <ZoruCard>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="text-[12px] uppercase tracking-wide text-muted-foreground">
               Status
             </p>
-            <ClayBadge tone={STATUS_TONES[doc.status] || 'neutral'} dot>
+            <ZoruBadge variant={(STATUS_TONES[doc.status] || 'neutral') as any}>
               {doc.status}
-            </ClayBadge>
+            </ZoruBadge>
           </div>
           <div>
             <p className="text-[12px] uppercase tracking-wide text-muted-foreground">
@@ -256,9 +244,9 @@ export default function RecurringExpenseDetailPage(props: {
             </p>
           </div>
         </div>
-      </ClayCard>
+      </ZoruCard>
 
-      <ClayCard>
+      <ZoruCard>
         <div className="grid gap-6 md:grid-cols-2">
           <div>
             <h3 className="mb-2 text-[13px] font-semibold text-foreground">Vendor</h3>
@@ -295,9 +283,9 @@ export default function RecurringExpenseDetailPage(props: {
             </div>
           ) : null}
         </div>
-      </ClayCard>
+      </ZoruCard>
 
-      <ClayCard>
+      <ZoruCard>
         <h2 className="mb-3 text-[15px] font-semibold text-foreground">
           Generated Expenses
         </h2>
@@ -314,7 +302,7 @@ export default function RecurringExpenseDetailPage(props: {
             ))}
           </ul>
         )}
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

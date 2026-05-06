@@ -2052,24 +2052,52 @@ export async function handlePostComment(
     prevState: { success: boolean; error?: string },
     formData: FormData,
 ): Promise<{ success: boolean; error?: string }> {
-    void formData;
-    return { success: false, error: NOT_IMPL };
+    const objectId = String(formData.get('objectId') || '');
+    const projectId = String(formData.get('projectId') || '');
+    const message = String(formData.get('message') || '').trim();
+    if (!objectId || !projectId || !message) {
+        return { success: false, error: 'objectId, projectId and message are required.' };
+    }
+    try {
+        const res = await rustClient.wachatFacebookComments.handlePostComment(objectId, { projectId, message });
+        if (res.error) return { success: false, error: res.error };
+        revalidatePath('/dashboard/facebook/comments');
+        return { success: true };
+    } catch (e) {
+        if (e instanceof RustApiError) return { success: false, error: e.message };
+        throw e;
+    }
 }
 
 export async function handleDeleteComment(
     commentId: string,
     projectId: string,
 ): Promise<{ success: boolean; error?: string }> {
-    void commentId; void projectId;
-    return { success: false, error: NOT_IMPL };
+    if (!commentId || !projectId) return { success: false, error: 'commentId and projectId are required.' };
+    try {
+        const res = await rustClient.wachatFacebookComments.handleDeleteComment(commentId, projectId);
+        if (res.error) return { success: false, error: res.error };
+        revalidatePath('/dashboard/facebook/comments');
+        return { success: true };
+    } catch (e) {
+        if (e instanceof RustApiError) return { success: false, error: e.message };
+        throw e;
+    }
 }
 
 export async function handleLikeObject(
     objectId: string,
     projectId: string,
 ): Promise<{ success: boolean; error?: string }> {
-    void objectId; void projectId;
-    return { success: false, error: NOT_IMPL };
+    if (!objectId || !projectId) return { success: false, error: 'objectId and projectId are required.' };
+    try {
+        const res = await rustClient.wachatFacebookComments.handleLikeObject(objectId, { projectId });
+        if (res.error) return { success: false, error: res.error };
+        return { success: true };
+    } catch (e) {
+        if (e instanceof RustApiError) return { success: false, error: e.message };
+        throw e;
+    }
 }
 
 export async function savePersistentMenu(
@@ -2220,16 +2248,30 @@ export async function getPostComments(
     postId: string,
     projectId: string,
 ): Promise<{ comments?: any[]; error?: string }> {
-    void postId; void projectId;
-    return { comments: [], error: NOT_IMPL };
+    if (!postId || !projectId) return { comments: [], error: 'postId and projectId are required.' };
+    try {
+        const res = await rustClient.wachatFacebookComments.getPostComments(postId, projectId);
+        if (res.error) return { comments: [], error: res.error };
+        return { comments: res.comments || [] };
+    } catch (e) {
+        if (e instanceof RustApiError) return { comments: [], error: e.message };
+        throw e;
+    }
 }
 
 export async function getCommentReplies(
     commentId: string,
     projectId: string,
 ): Promise<{ replies?: any[]; error?: string }> {
-    void commentId; void projectId;
-    return { replies: [], error: NOT_IMPL };
+    if (!commentId || !projectId) return { replies: [], error: 'commentId and projectId are required.' };
+    try {
+        const res = await rustClient.wachatFacebookComments.getCommentReplies(commentId, projectId);
+        if (res.error) return { replies: [], error: res.error };
+        return { replies: res.replies || [] };
+    } catch (e) {
+        if (e instanceof RustApiError) return { replies: [], error: e.message };
+        throw e;
+    }
 }
 
 export async function getPersonas(projectId: string): Promise<{ personas?: any[]; error?: string }> {

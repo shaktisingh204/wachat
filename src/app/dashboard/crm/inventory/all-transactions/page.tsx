@@ -1,21 +1,13 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { DatePicker } from "@/components/ui/date-picker";
+import { ZoruBadge, ZoruButton, ZoruCard, ZoruDatePicker, ZoruLabel, ZoruPopover, ZoruPopoverContent, ZoruPopoverTrigger, ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow, useZoruToast } from '@/components/zoruui';
 import { Download, SlidersHorizontal, LoaderCircle, ArrowLeftRight } from "lucide-react";
 import { useState, useEffect, useTransition, useCallback } from 'react';
 import { generateAllTransactionsReport } from "@/app/actions/crm-reports.actions";
-import { useToast } from "@/hooks/use-toast";
+
 import Papa from "papaparse";
 import { format } from "date-fns";
-import { Label } from "@/components/ui/label";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 type Transaction = {
@@ -31,7 +23,7 @@ type Transaction = {
 export default function AllTransactionsReportPage() {
     const [reportData, setReportData] = useState<Transaction[]>([]);
     const [isLoading, startTransition] = useTransition();
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
 
     const [startDate, setStartDate] = useState<Date | undefined>();
     const [endDate, setEndDate] = useState<Date | undefined>();
@@ -93,63 +85,63 @@ export default function AllTransactionsReportPage() {
                 icon={ArrowLeftRight}
                 actions={
                     <div className="flex items-center gap-2">
-                        <Popover>
-                            <PopoverTrigger asChild>
-                                <ClayButton variant="pill" leading={<SlidersHorizontal className="h-4 w-4" strokeWidth={1.75} />}>
+                        <ZoruPopover>
+                            <ZoruPopoverTrigger asChild>
+                                <ZoruButton variant="outline">
                                     Filters
-                                </ClayButton>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-80 space-y-4">
-                                <div className="space-y-2"><Label>Start Date</Label><DatePicker date={startDate} setDate={setStartDate} /></div>
-                                <div className="space-y-2"><Label>End Date</Label><DatePicker date={endDate} setDate={setEndDate} /></div>
-                                <div className="space-y-2"><Label>Transaction Type</Label><Select value={transactionType} onValueChange={setTransactionType}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="all">All Types</SelectItem><SelectItem value="Sale">Sales</SelectItem><SelectItem value="Sales Return">Sales Returns</SelectItem><SelectItem value="Stock Adjustment">Stock Adjustments</SelectItem></SelectContent></Select></div>
-                                <ClayButton variant="obsidian" onClick={fetchData} disabled={isLoading} className="w-full">Apply</ClayButton>
-                            </PopoverContent>
-                        </Popover>
-                        <ClayButton variant="pill" leading={<Download className="h-4 w-4" strokeWidth={1.75} />} onClick={handleDownload} disabled={isLoading || reportData.length === 0}>
+                                </ZoruButton>
+                            </ZoruPopoverTrigger>
+                            <ZoruPopoverContent className="w-80 space-y-4">
+                                <div className="space-y-2"><ZoruLabel>Start Date</ZoruLabel><ZoruDatePicker value={startDate} onChange={setStartDate} /></div>
+                                <div className="space-y-2"><ZoruLabel>End Date</ZoruLabel><ZoruDatePicker value={endDate} onChange={setEndDate} /></div>
+                                <div className="space-y-2"><ZoruLabel>Transaction Type</ZoruLabel><ZoruSelect value={transactionType} onValueChange={setTransactionType}><ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="all">All Types</ZoruSelectItem><ZoruSelectItem value="Sale">Sales</ZoruSelectItem><ZoruSelectItem value="Sales Return">Sales Returns</ZoruSelectItem><ZoruSelectItem value="Stock Adjustment">Stock Adjustments</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
+                                <ZoruButton onClick={fetchData} disabled={isLoading} className="w-full">Apply</ZoruButton>
+                            </ZoruPopoverContent>
+                        </ZoruPopover>
+                        <ZoruButton variant="outline" onClick={handleDownload} disabled={isLoading || reportData.length === 0}>
                             Download CSV
-                        </ClayButton>
+                        </ZoruButton>
                     </div>
                 }
             />
 
-            <ClayCard>
+            <ZoruCard>
                 <h2 className="text-[16px] font-semibold text-foreground">Transaction Log</h2>
                 <div className="mt-4 overflow-x-auto rounded-lg border border-border">
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="border-border hover:bg-transparent">
-                                <TableHead className="text-muted-foreground">Date</TableHead>
-                                <TableHead className="text-muted-foreground">Item Name</TableHead>
-                                <TableHead className="text-muted-foreground">Type</TableHead>
-                                <TableHead className="text-muted-foreground">Quantity</TableHead>
-                                <TableHead className="text-muted-foreground">Party</TableHead>
-                                <TableHead className="text-muted-foreground">Reference</TableHead>
-                                <TableHead className="text-muted-foreground">Warehouse</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
+                    <ZoruTable>
+                        <ZoruTableHeader>
+                            <ZoruTableRow className="border-border hover:bg-transparent">
+                                <ZoruTableHead className="text-muted-foreground">Date</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Item Name</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Type</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Quantity</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Party</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Reference</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Warehouse</ZoruTableHead>
+                            </ZoruTableRow>
+                        </ZoruTableHeader>
+                        <ZoruTableBody>
                             {isLoading ? (
-                                <TableRow className="border-border"><TableCell colSpan={7} className="h-48 text-center"><LoaderCircle className="mx-auto h-8 w-8 animate-spin text-muted-foreground"/></TableCell></TableRow>
+                                <ZoruTableRow className="border-border"><ZoruTableCell colSpan={7} className="h-48 text-center"><LoaderCircle className="mx-auto h-8 w-8 animate-spin text-muted-foreground"/></ZoruTableCell></ZoruTableRow>
                             ) : reportData.length > 0 ? (
                                 reportData.map((row, index) => (
-                                    <TableRow key={index} className="border-border">
-                                        <TableCell className="text-[11.5px] text-foreground">{format(new Date(row.date), 'PP p')}</TableCell>
-                                        <TableCell className="font-medium text-foreground">{row.itemName}</TableCell>
-                                        <TableCell><ClayBadge tone={getTypeTone(row.type)}>{row.type}</ClayBadge></TableCell>
-                                        <TableCell className={`font-semibold ${row.quantity < 0 ? 'text-destructive' : 'text-emerald-500'}`}>{row.quantity}</TableCell>
-                                        <TableCell className="text-foreground">{row.partyName || 'N/A'}</TableCell>
-                                        <TableCell className="font-mono text-[11.5px] text-foreground">{row.reference}</TableCell>
-                                        <TableCell className="text-foreground">{row.warehouseName || 'Default'}</TableCell>
-                                    </TableRow>
+                                    <ZoruTableRow key={index} className="border-border">
+                                        <ZoruTableCell className="text-[11.5px] text-foreground">{format(new Date(row.date), 'PP p')}</ZoruTableCell>
+                                        <ZoruTableCell className="font-medium text-foreground">{row.itemName}</ZoruTableCell>
+                                        <ZoruTableCell><ZoruBadge variant={(getTypeTone(row.type)) as any}>{row.type}</ZoruBadge></ZoruTableCell>
+                                        <ZoruTableCell className={`font-semibold ${row.quantity < 0 ? 'text-destructive' : 'text-emerald-500'}`}>{row.quantity}</ZoruTableCell>
+                                        <ZoruTableCell className="text-foreground">{row.partyName || 'N/A'}</ZoruTableCell>
+                                        <ZoruTableCell className="font-mono text-[11.5px] text-foreground">{row.reference}</ZoruTableCell>
+                                        <ZoruTableCell className="text-foreground">{row.warehouseName || 'Default'}</ZoruTableCell>
+                                    </ZoruTableRow>
                                 ))
                             ) : (
-                                <TableRow className="border-border"><TableCell colSpan={7} className="h-48 text-center text-muted-foreground">No transactions found for the selected filters.</TableCell></TableRow>
+                                <ZoruTableRow className="border-border"><ZoruTableCell colSpan={7} className="h-48 text-center text-muted-foreground">No transactions found for the selected filters.</ZoruTableCell></ZoruTableRow>
                             )}
-                        </TableBody>
-                    </Table>
+                        </ZoruTableBody>
+                    </ZoruTable>
                 </div>
-            </ClayCard>
+            </ZoruCard>
         </div>
     );
 }

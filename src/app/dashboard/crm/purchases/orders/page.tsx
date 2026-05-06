@@ -1,14 +1,11 @@
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruBadge, ZoruCard, ZoruInput, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
 import { getPurchaseOrders } from '@/app/actions/crm-purchase-orders.actions';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+
 import { Plus, Search, ShoppingBag } from 'lucide-react';
 import Link from 'next/link';
-import { Input } from '@/components/ui/input';
+
 import { format } from 'date-fns';
 
-import { ClayCard, ClayBadge } from '@/components/clay';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 export default async function PurchaseOrdersPage({
@@ -41,7 +38,7 @@ export default async function PurchaseOrdersPage({
                 }
             />
 
-            <ClayCard>
+            <ZoruCard>
                 <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
                     <div>
                         <h2 className="text-[16px] font-semibold text-foreground">All Orders</h2>
@@ -49,7 +46,7 @@ export default async function PurchaseOrdersPage({
                     </div>
                     <div className="relative w-full max-w-sm">
                         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                        <Input
+                        <ZoruInput
                             type="search"
                             placeholder="Search orders..."
                             className="h-10 rounded-lg border-border bg-card pl-9 text-[13px]"
@@ -59,59 +56,59 @@ export default async function PurchaseOrdersPage({
                 </div>
 
                 <div className="overflow-x-auto rounded-lg border border-border">
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="border-border hover:bg-transparent">
-                                <TableHead className="text-muted-foreground">Order #</TableHead>
-                                <TableHead className="text-muted-foreground">Date</TableHead>
-                                <TableHead className="text-muted-foreground">Vendor</TableHead>
-                                <TableHead className="text-muted-foreground">Status</TableHead>
-                                <TableHead className="text-muted-foreground">Exp. Delivery</TableHead>
-                                <TableHead className="text-right text-muted-foreground">Amount</TableHead>
-                                <TableHead className="text-right text-muted-foreground">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
+                    <ZoruTable>
+                        <ZoruTableHeader>
+                            <ZoruTableRow className="border-border hover:bg-transparent">
+                                <ZoruTableHead className="text-muted-foreground">Order #</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Date</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Vendor</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Status</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Exp. Delivery</ZoruTableHead>
+                                <ZoruTableHead className="text-right text-muted-foreground">Amount</ZoruTableHead>
+                                <ZoruTableHead className="text-right text-muted-foreground">Actions</ZoruTableHead>
+                            </ZoruTableRow>
+                        </ZoruTableHeader>
+                        <ZoruTableBody>
                             {orders.length === 0 ? (
-                                <TableRow className="border-border">
-                                    <TableCell colSpan={7} className="h-24 text-center text-[13px] text-muted-foreground">
+                                <ZoruTableRow className="border-border">
+                                    <ZoruTableCell colSpan={7} className="h-24 text-center text-[13px] text-muted-foreground">
                                         No orders found.
-                                    </TableCell>
-                                </TableRow>
+                                    </ZoruTableCell>
+                                </ZoruTableRow>
                             ) : (
                                 orders.map((order) => (
-                                    <TableRow key={order._id.toString()} className="border-border">
-                                        <TableCell className="font-medium text-foreground">{order.orderNumber}</TableCell>
-                                        <TableCell className="text-[13px] text-foreground">{format(new Date(order.orderDate), 'PP')}</TableCell>
-                                        <TableCell>
+                                    <ZoruTableRow key={order._id.toString()} className="border-border">
+                                        <ZoruTableCell className="font-medium text-foreground">{order.orderNumber}</ZoruTableCell>
+                                        <ZoruTableCell className="text-[13px] text-foreground">{format(new Date(order.orderDate), 'PP')}</ZoruTableCell>
+                                        <ZoruTableCell>
                                             <span className="text-[12.5px] italic text-muted-foreground">Vendor {order.vendorId.toString().slice(-4)}</span>
-                                        </TableCell>
-                                        <TableCell>
-                                            <ClayBadge tone={order.status === 'Sent' ? 'green' : 'rose-soft'}>
+                                        </ZoruTableCell>
+                                        <ZoruTableCell>
+                                            <ZoruBadge variant={(order.status === 'Sent' ? 'green' : 'rose-soft') as any}>
                                                 {order.status}
-                                            </ClayBadge>
-                                        </TableCell>
-                                        <TableCell className="text-[13px] text-foreground">
+                                            </ZoruBadge>
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-[13px] text-foreground">
                                             {order.expectedDeliveryDate ? format(new Date(order.expectedDeliveryDate), 'PP') : '-'}
-                                        </TableCell>
-                                        <TableCell className="text-right text-[13px] text-foreground">
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-right text-[13px] text-foreground">
                                             {order.currency} {order.total.toFixed(2)}
-                                        </TableCell>
-                                        <TableCell className="text-right">
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-right">
                                             <Link
                                                 href={`/dashboard/crm/purchases/orders/${order._id}`}
                                                 className="text-[12.5px] font-medium text-foreground hover:underline"
                                             >
                                                 View
                                             </Link>
-                                        </TableCell>
-                                    </TableRow>
+                                        </ZoruTableCell>
+                                    </ZoruTableRow>
                                 ))
                             )}
-                        </TableBody>
-                    </Table>
+                        </ZoruTableBody>
+                    </ZoruTable>
                 </div>
-            </ClayCard>
+            </ZoruCard>
         </div>
     );
 }

@@ -1,23 +1,12 @@
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruBadge, ZoruButton, ZoruCard, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
 export const dynamic = 'force-dynamic';
 
-import { Button } from "@/components/ui/button";
 import { Plus, MapPin, Warehouse as WarehouseIcon } from "lucide-react";
 import Link from "next/link";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
+
 import { getCrmWarehouses, deleteCrmWarehouse } from "@/app/actions/crm-warehouses.actions";
 import { DeleteButton } from "@/components/wabasimplify/delete-button";
 
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 export default async function WarehousesPage() {
@@ -31,51 +20,51 @@ export default async function WarehousesPage() {
                 icon={WarehouseIcon}
                 actions={
                     <Link href="/dashboard/crm/inventory/warehouses/new">
-                        <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}>
+                        <ZoruButton>
                             Add Warehouse
-                        </ClayButton>
+                        </ZoruButton>
                     </Link>
                 }
             />
 
-            <ClayCard>
+            <ZoruCard>
                 <div className="overflow-x-auto rounded-lg border border-border">
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="border-border hover:bg-transparent">
-                                <TableHead className="text-muted-foreground">Name</TableHead>
-                                <TableHead className="text-muted-foreground">Location</TableHead>
-                                <TableHead className="text-muted-foreground">Status</TableHead>
-                                <TableHead className="text-muted-foreground text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
+                    <ZoruTable>
+                        <ZoruTableHeader>
+                            <ZoruTableRow className="border-border hover:bg-transparent">
+                                <ZoruTableHead className="text-muted-foreground">Name</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Location</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Status</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground text-right">Actions</ZoruTableHead>
+                            </ZoruTableRow>
+                        </ZoruTableHeader>
+                        <ZoruTableBody>
                             {warehouses.length === 0 ? (
-                                <TableRow className="border-border">
-                                    <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
+                                <ZoruTableRow className="border-border">
+                                    <ZoruTableCell colSpan={4} className="h-24 text-center text-muted-foreground">
                                         No warehouses found.
-                                    </TableCell>
-                                </TableRow>
+                                    </ZoruTableCell>
+                                </ZoruTableRow>
                             ) : (
                                 warehouses.map((warehouse) => (
-                                    <TableRow key={warehouse._id.toString()} className="border-border">
-                                        <TableCell className="font-medium">
+                                    <ZoruTableRow key={warehouse._id.toString()} className="border-border">
+                                        <ZoruTableCell className="font-medium">
                                             <span className="text-foreground">{warehouse.name}</span>
-                                            {warehouse.isDefault && <ClayBadge tone="rose-soft" className="ml-2">Default</ClayBadge>}
-                                        </TableCell>
-                                        <TableCell>
+                                            {warehouse.isDefault && <ZoruBadge variant="ghost" className="ml-2">Default</ZoruBadge>}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell>
                                             <div className="flex items-center text-muted-foreground">
                                                 <MapPin className="mr-1 h-3 w-3" />
                                                 {warehouse.address || (warehouse as any).location || '-'}
                                             </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <ClayBadge tone="green">Active</ClayBadge>
-                                        </TableCell>
-                                        <TableCell className="text-right">
+                                        </ZoruTableCell>
+                                        <ZoruTableCell>
+                                            <ZoruBadge variant="success">Active</ZoruBadge>
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-right">
                                             <div className="flex justify-end gap-2">
                                                 <Link href={`/dashboard/crm/inventory/warehouses/${warehouse._id}/edit`}>
-                                                    <Button variant="ghost" size="sm">Edit</Button>
+                                                    <ZoruButton variant="ghost" size="sm">Edit</ZoruButton>
                                                 </Link>
                                                 <DeleteButton
                                                     id={warehouse._id.toString()}
@@ -84,14 +73,14 @@ export default async function WarehousesPage() {
                                                     disabled={warehouse.isDefault}
                                                 />
                                             </div>
-                                        </TableCell>
-                                    </TableRow>
+                                        </ZoruTableCell>
+                                    </ZoruTableRow>
                                 ))
                             )}
-                        </TableBody>
-                    </Table>
+                        </ZoruTableBody>
+                    </ZoruTable>
                 </div>
-            </ClayCard>
+            </ZoruCard>
         </div>
     );
 }

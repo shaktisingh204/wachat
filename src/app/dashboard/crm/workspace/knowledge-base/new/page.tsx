@@ -1,26 +1,12 @@
 'use client';
-
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruButton, ZoruCard, ZoruInput, ZoruLabel, ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue, ZoruTextarea, useZoruToast } from '@/components/zoruui';
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { useActionState, useEffect } from 'react';
 import { BookOpen, LoaderCircle } from 'lucide-react';
 
-import { ClayCard, ClayButton } from '@/components/clay';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { useToast } from '@/hooks/use-toast';
+
 import {
   saveKnowledgeBase,
   getKnowledgeBaseCategories,
@@ -29,7 +15,7 @@ import type { WsKnowledgeBaseCategory } from '@/lib/worksuite/knowledge-types';
 
 export default function NewKnowledgeBasePage() {
   const router = useRouter();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [state, formAction, isPending] = useActionState(saveKnowledgeBase, {
     message: '',
     error: '',
@@ -60,16 +46,16 @@ export default function NewKnowledgeBasePage() {
         icon={BookOpen}
       />
 
-      <ClayCard>
+      <ZoruCard>
         <form action={formAction} className="grid gap-4 md:grid-cols-2">
           <div className="md:col-span-2">
-            <Label htmlFor="title" className="text-foreground">Title *</Label>
-            <Input id="title" name="title" required className="mt-1.5 h-10" />
+            <ZoruLabel htmlFor="title" className="text-foreground">Title *</ZoruLabel>
+            <ZoruInput id="title" name="title" required className="mt-1.5 h-10" />
           </div>
 
           <div className="md:col-span-2">
-            <Label htmlFor="description" className="text-foreground">Description</Label>
-            <Textarea
+            <ZoruLabel htmlFor="description" className="text-foreground">Description</ZoruLabel>
+            <ZoruTextarea
               id="description"
               name="description"
               rows={8}
@@ -79,80 +65,78 @@ export default function NewKnowledgeBasePage() {
           </div>
 
           <div>
-            <Label htmlFor="category_id" className="text-foreground">Category</Label>
-            <Select name="category_id">
-              <SelectTrigger id="category_id" className="mt-1.5 h-10">
-                <SelectValue placeholder="Select category" />
-              </SelectTrigger>
-              <SelectContent>
+            <ZoruLabel htmlFor="category_id" className="text-foreground">Category</ZoruLabel>
+            <ZoruSelect name="category_id">
+              <ZoruSelectTrigger id="category_id" className="mt-1.5 h-10">
+                <ZoruSelectValue placeholder="Select category" />
+              </ZoruSelectTrigger>
+              <ZoruSelectContent>
                 {categories.map((c) => (
-                  <SelectItem key={c._id} value={c._id}>
+                  <ZoruSelectItem key={c._id} value={c._id}>
                     {c.name}
-                  </SelectItem>
+                  </ZoruSelectItem>
                 ))}
-              </SelectContent>
-            </Select>
+              </ZoruSelectContent>
+            </ZoruSelect>
           </div>
 
           <div>
-            <Label htmlFor="type" className="text-foreground">Type *</Label>
-            <Select name="type" defaultValue="article">
-              <SelectTrigger id="type" className="mt-1.5 h-10">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="article">Article</SelectItem>
-                <SelectItem value="video">Video</SelectItem>
-                <SelectItem value="audio">Audio</SelectItem>
-                <SelectItem value="image">Image</SelectItem>
-                <SelectItem value="document">Document</SelectItem>
-              </SelectContent>
-            </Select>
+            <ZoruLabel htmlFor="type" className="text-foreground">Type *</ZoruLabel>
+            <ZoruSelect name="type" defaultValue="article">
+              <ZoruSelectTrigger id="type" className="mt-1.5 h-10">
+                <ZoruSelectValue />
+              </ZoruSelectTrigger>
+              <ZoruSelectContent>
+                <ZoruSelectItem value="article">Article</ZoruSelectItem>
+                <ZoruSelectItem value="video">Video</ZoruSelectItem>
+                <ZoruSelectItem value="audio">Audio</ZoruSelectItem>
+                <ZoruSelectItem value="image">Image</ZoruSelectItem>
+                <ZoruSelectItem value="document">Document</ZoruSelectItem>
+              </ZoruSelectContent>
+            </ZoruSelect>
           </div>
 
           <div>
-            <Label htmlFor="to_do" className="text-foreground">To-do</Label>
-            <Select name="to_do" defaultValue="no">
-              <SelectTrigger id="to_do" className="mt-1.5 h-10">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="no">No</SelectItem>
-                <SelectItem value="yes">Yes</SelectItem>
-              </SelectContent>
-            </Select>
+            <ZoruLabel htmlFor="to_do" className="text-foreground">To-do</ZoruLabel>
+            <ZoruSelect name="to_do" defaultValue="no">
+              <ZoruSelectTrigger id="to_do" className="mt-1.5 h-10">
+                <ZoruSelectValue />
+              </ZoruSelectTrigger>
+              <ZoruSelectContent>
+                <ZoruSelectItem value="no">No</ZoruSelectItem>
+                <ZoruSelectItem value="yes">Yes</ZoruSelectItem>
+              </ZoruSelectContent>
+            </ZoruSelect>
           </div>
 
           <div>
-            <Label htmlFor="pinned" className="text-foreground">Pinned</Label>
-            <Select name="pinned" defaultValue="false">
-              <SelectTrigger id="pinned" className="mt-1.5 h-10">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="false">No</SelectItem>
-                <SelectItem value="true">Yes</SelectItem>
-              </SelectContent>
-            </Select>
+            <ZoruLabel htmlFor="pinned" className="text-foreground">Pinned</ZoruLabel>
+            <ZoruSelect name="pinned" defaultValue="false">
+              <ZoruSelectTrigger id="pinned" className="mt-1.5 h-10">
+                <ZoruSelectValue />
+              </ZoruSelectTrigger>
+              <ZoruSelectContent>
+                <ZoruSelectItem value="false">No</ZoruSelectItem>
+                <ZoruSelectItem value="true">Yes</ZoruSelectItem>
+              </ZoruSelectContent>
+            </ZoruSelect>
           </div>
 
           <div className="md:col-span-2 flex justify-end gap-2">
-            <ClayButton variant="pill" type="button" onClick={() => router.back()}>
+            <ZoruButton variant="outline" type="button" onClick={() => router.back()}>
               Cancel
-            </ClayButton>
-            <ClayButton
-              variant="obsidian"
+            </ZoruButton>
+            <ZoruButton
+             
               type="submit"
               disabled={isPending}
-              leading={
-                isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null
-              }
+             
             >
               Save Article
-            </ClayButton>
+            </ZoruButton>
           </div>
         </form>
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

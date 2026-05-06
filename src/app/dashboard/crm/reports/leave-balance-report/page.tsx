@@ -1,20 +1,11 @@
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruCard, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
 export const dynamic = 'force-dynamic';
 
 import { Scale } from 'lucide-react';
-import { ClayCard } from '@/components/clay';
+
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import { StatCard } from '../_components/report-toolbar';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+
 import { getLeaveBalanceReport } from '@/app/actions/worksuite/reports.actions';
 
 export default async function LeaveBalanceReportPage() {
@@ -36,62 +27,62 @@ export default async function LeaveBalanceReportPage() {
         <StatCard label="Used days" value={String(totalUsed)} tone="amber" />
       </div>
 
-      <ClayCard>
+      <ZoruCard>
         <div className="overflow-x-auto rounded-lg border border-border">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border hover:bg-transparent">
-                <TableHead className="text-muted-foreground">Employee</TableHead>
-                <TableHead className="text-muted-foreground">Leave Type</TableHead>
-                <TableHead className="text-right text-muted-foreground">
+          <ZoruTable>
+            <ZoruTableHeader>
+              <ZoruTableRow className="border-border hover:bg-transparent">
+                <ZoruTableHead className="text-muted-foreground">Employee</ZoruTableHead>
+                <ZoruTableHead className="text-muted-foreground">Leave Type</ZoruTableHead>
+                <ZoruTableHead className="text-right text-muted-foreground">
                   Allocated
-                </TableHead>
-                <TableHead className="text-right text-muted-foreground">
+                </ZoruTableHead>
+                <ZoruTableHead className="text-right text-muted-foreground">
                   Used
-                </TableHead>
-                <TableHead className="text-right text-muted-foreground">
+                </ZoruTableHead>
+                <ZoruTableHead className="text-right text-muted-foreground">
                   Remaining
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+                </ZoruTableHead>
+              </ZoruTableRow>
+            </ZoruTableHeader>
+            <ZoruTableBody>
               {rows.length === 0 ? (
-                <TableRow className="border-border">
-                  <TableCell
+                <ZoruTableRow className="border-border">
+                  <ZoruTableCell
                     colSpan={5}
                     className="h-20 text-center text-[13px] text-muted-foreground"
                   >
                     No employees or leave types configured.
-                  </TableCell>
-                </TableRow>
+                  </ZoruTableCell>
+                </ZoruTableRow>
               ) : (
                 rows.map((r, i) => (
-                  <TableRow
+                  <ZoruTableRow
                     key={`${r.employeeId}-${r.leaveTypeName}-${i}`}
                     className="border-border"
                   >
-                    <TableCell className="font-medium text-foreground">
+                    <ZoruTableCell className="font-medium text-foreground">
                       {r.employeeName}
-                    </TableCell>
-                    <TableCell className="text-[13px] text-foreground">
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-[13px] text-foreground">
                       {r.leaveTypeName}
-                    </TableCell>
-                    <TableCell className="text-right text-[13px] text-foreground">
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-right text-[13px] text-foreground">
                       {r.allocated}
-                    </TableCell>
-                    <TableCell className="text-right text-[13px] text-amber-500">
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-right text-[13px] text-amber-500">
                       {r.used}
-                    </TableCell>
-                    <TableCell className="text-right text-[13px] font-medium text-emerald-500">
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-right text-[13px] font-medium text-emerald-500">
                       {r.remaining}
-                    </TableCell>
-                  </TableRow>
+                    </ZoruTableCell>
+                  </ZoruTableRow>
                 ))
               )}
-            </TableBody>
-          </Table>
+            </ZoruTableBody>
+          </ZoruTable>
         </div>
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

@@ -1,14 +1,9 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { ZoruAccordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger, ZoruBadge, ZoruCard, ZoruSeparator } from '@/components/zoruui';
 import Link from 'next/link';
 import { ChevronLeft, BookOpen } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
 
-import { ClayCard, ClayBadge } from '@/components/clay';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 const blockDocs = [
@@ -80,7 +75,7 @@ export default function CrmAutomationDocsPage() {
                 icon={BookOpen}
             />
 
-            <ClayCard>
+            <ZoruCard>
                 <div className="mb-4">
                     <h2 className="text-[16px] font-semibold text-foreground">Using Variables</h2>
                     <p className="mt-0.5 text-[12.5px] text-muted-foreground">
@@ -89,15 +84,15 @@ export default function CrmAutomationDocsPage() {
                 </div>
                 <div className="text-[13px] text-foreground space-y-4">
                     <p>
-                        Variables are placeholders for data. In the Automation builder, you use double curly braces to insert a variable, like this: <ClayBadge tone="neutral" className="font-mono">{'{{contact.name}}'}</ClayBadge>.
+                        Variables are placeholders for data. In the Automation builder, you use double curly braces to insert a variable, like this: <ZoruBadge variant="ghost" className="font-mono">{'{{contact.name}}'}</ZoruBadge>.
                     </p>
                     <p>
-                        The system provides several default variables you can use in any action, such as <ClayBadge tone="neutral" className="font-mono">{'{{contact.name}}'}</ClayBadge>, <ClayBadge tone="neutral" className="font-mono">{'{{contact.email}}'}</ClayBadge>, or <ClayBadge tone="neutral" className="font-mono">{'{{deal.value}}'}</ClayBadge>.
+                        The system provides several default variables you can use in any action, such as <ZoruBadge variant="ghost" className="font-mono">{'{{contact.name}}'}</ZoruBadge>, <ZoruBadge variant="ghost" className="font-mono">{'{{contact.email}}'}</ZoruBadge>, or <ZoruBadge variant="ghost" className="font-mono">{'{{deal.value}}'}</ZoruBadge>.
                     </p>
                 </div>
-            </ClayCard>
+            </ZoruCard>
 
-            <Separator />
+            <ZoruSeparator />
 
             <div>
                 <h2 className="text-[20px] font-bold text-foreground">Automation Blocks</h2>
@@ -106,11 +101,11 @@ export default function CrmAutomationDocsPage() {
                 </p>
             </div>
 
-            <Accordion type="single" collapsible className="w-full">
+            <ZoruAccordion type="single" collapsible className="w-full">
                 {blockDocs.map((doc, index) => (
-                     <AccordionItem value={`item-${index}`} key={index} className="border-border">
-                        <AccordionTrigger className="text-[15px] font-semibold">{doc.title}</AccordionTrigger>
-                        <AccordionContent className="space-y-4 pt-2">
+                     <ZoruAccordionItem value={`item-${index}`} key={index} className="border-border">
+                        <ZoruAccordionTrigger className="text-[15px] font-semibold">{doc.title}</ZoruAccordionTrigger>
+                        <ZoruAccordionContent className="space-y-4 pt-2">
                              <p className="text-[13px] text-muted-foreground">{doc.description}</p>
                              <div className="space-y-2">
                                  <h4 className="font-semibold text-foreground">Properties:</h4>
@@ -126,10 +121,10 @@ export default function CrmAutomationDocsPage() {
                                      {doc.outputs.map((out, oIndex) => <li key={oIndex}>{out}</li>)}
                                  </ul>
                              </div>
-                        </AccordionContent>
-                    </AccordionItem>
+                        </ZoruAccordionContent>
+                    </ZoruAccordionItem>
                 ))}
-            </Accordion>
+            </ZoruAccordion>
         </div>
     );
 }

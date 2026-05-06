@@ -1,10 +1,8 @@
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruCard } from '@/components/zoruui';
 export const dynamic = 'force-dynamic';
 
 import { Calculator } from 'lucide-react';
-import { ClayCard } from '@/components/clay';
+
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import {
   ReportToolbar,
@@ -48,7 +46,7 @@ export default async function TaxReportPage(props: {
         />
       </div>
 
-      <ClayCard>
+      <ZoruCard>
         <p className="text-[13px] text-muted-foreground">
           This is an overview. For line-item compliance reports see{' '}
           <a
@@ -66,7 +64,7 @@ export default async function TaxReportPage(props: {
           </a>
           .
         </p>
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

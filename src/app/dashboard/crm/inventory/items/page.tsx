@@ -1,25 +1,12 @@
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruAvatar, ZoruAvatarFallback, ZoruAvatarImage, ZoruButton, ZoruCard, ZoruInput, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
 export const dynamic = 'force-dynamic';
 
-import { Button } from "@/components/ui/button";
 import { Plus, Search, Package } from "lucide-react";
 import Link from "next/link";
-import { Input } from "@/components/ui/input";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
+
 import { getCrmProducts, deleteCrmProduct } from "@/app/actions/crm-products.actions";
 import { DeleteButton } from "@/components/wabasimplify/delete-button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-import { ClayCard, ClayButton } from '@/components/clay';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 export default async function InventoryItemsPage(
@@ -41,61 +28,61 @@ export default async function InventoryItemsPage(
                 icon={Package}
                 actions={
                     <Link href="/dashboard/crm/inventory/items/new">
-                        <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}>
+                        <ZoruButton>
                             Add Item
-                        </ClayButton>
+                        </ZoruButton>
                     </Link>
                 }
             />
 
-            <ClayCard>
+            <ZoruCard>
                 <div className="mb-4 relative max-w-md">
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
+                    <ZoruInput
                         placeholder="Search items..."
                         className="h-10 rounded-lg border-border bg-card pl-9 text-[13px]"
                         defaultValue={query}
                     />
                 </div>
                 <div className="overflow-x-auto rounded-lg border border-border">
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="border-border hover:bg-transparent">
-                                <TableHead className="text-muted-foreground w-[80px]">Image</TableHead>
-                                <TableHead className="text-muted-foreground">Name</TableHead>
-                                <TableHead className="text-muted-foreground">SKU</TableHead>
-                                <TableHead className="text-muted-foreground">Price</TableHead>
-                                <TableHead className="text-muted-foreground">Stock</TableHead>
-                                <TableHead className="text-muted-foreground text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
+                    <ZoruTable>
+                        <ZoruTableHeader>
+                            <ZoruTableRow className="border-border hover:bg-transparent">
+                                <ZoruTableHead className="text-muted-foreground w-[80px]">Image</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Name</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">SKU</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Price</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Stock</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground text-right">Actions</ZoruTableHead>
+                            </ZoruTableRow>
+                        </ZoruTableHeader>
+                        <ZoruTableBody>
                             {products.length === 0 ? (
-                                <TableRow className="border-border">
-                                    <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                                <ZoruTableRow className="border-border">
+                                    <ZoruTableCell colSpan={6} className="h-24 text-center text-muted-foreground">
                                         No items found.
-                                    </TableCell>
-                                </TableRow>
+                                    </ZoruTableCell>
+                                </ZoruTableRow>
                             ) : (
                                 products.map((product) => (
-                                    <TableRow key={product._id.toString()} className="border-border">
-                                        <TableCell>
-                                            <Avatar className="h-10 w-10 rounded-sm">
-                                                <AvatarImage src={product.images?.[0] || (product as any).imageUrl} alt={product.name} />
-                                                <AvatarFallback className="rounded-sm bg-accent text-accent-foreground">{product.name.charAt(0)}</AvatarFallback>
-                                            </Avatar>
-                                        </TableCell>
-                                        <TableCell className="font-medium">
+                                    <ZoruTableRow key={product._id.toString()} className="border-border">
+                                        <ZoruTableCell>
+                                            <ZoruAvatar className="h-10 w-10 rounded-sm">
+                                                <ZoruAvatarImage src={product.images?.[0] || (product as any).imageUrl} alt={product.name} />
+                                                <ZoruAvatarFallback className="rounded-sm bg-accent text-accent-foreground">{product.name.charAt(0)}</ZoruAvatarFallback>
+                                            </ZoruAvatar>
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="font-medium">
                                             <div className="flex flex-col">
                                                 <span className="text-foreground">{product.name}</span>
                                                 {product.itemType && <span className="text-[11.5px] text-muted-foreground capitalize">{product.itemType}</span>}
                                             </div>
-                                        </TableCell>
-                                        <TableCell className="text-foreground">{product.sku || '-'}</TableCell>
-                                        <TableCell className="text-foreground">
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-foreground">{product.sku || '-'}</ZoruTableCell>
+                                        <ZoruTableCell className="text-foreground">
                                             {product.currency} {product.sellingPrice}
-                                        </TableCell>
-                                        <TableCell>
+                                        </ZoruTableCell>
+                                        <ZoruTableCell>
                                             {product.isTrackInventory ? (
                                                 <span className={product.totalStock <= 5 ? "text-destructive font-medium" : "text-foreground"}>
                                                     {product.totalStock}
@@ -103,11 +90,11 @@ export default async function InventoryItemsPage(
                                             ) : (
                                                 <span className="text-muted-foreground text-[12.5px]">N/A</span>
                                             )}
-                                        </TableCell>
-                                        <TableCell className="text-right">
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-right">
                                             <div className="flex justify-end gap-2">
                                                 <Link href={`/dashboard/crm/inventory/items/${product._id}/edit`}>
-                                                    <Button variant="ghost" size="sm">Edit</Button>
+                                                    <ZoruButton variant="ghost" size="sm">Edit</ZoruButton>
                                                 </Link>
                                                 <DeleteButton
                                                     id={product._id.toString()}
@@ -115,14 +102,14 @@ export default async function InventoryItemsPage(
                                                     resourceName="Product"
                                                 />
                                             </div>
-                                        </TableCell>
-                                    </TableRow>
+                                        </ZoruTableCell>
+                                    </ZoruTableRow>
                                 ))
                             )}
-                        </TableBody>
-                    </Table>
+                        </ZoruTableBody>
+                    </ZoruTable>
                 </div>
-            </ClayCard>
+            </ZoruCard>
         </div>
     );
 }

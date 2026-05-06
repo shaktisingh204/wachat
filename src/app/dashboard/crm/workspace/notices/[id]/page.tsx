@@ -1,14 +1,10 @@
 'use client';
-
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
 import * as React from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { ArrowLeft, Megaphone, Pin, LoaderCircle } from 'lucide-react';
 
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import {
   getNoticeById,
@@ -52,9 +48,9 @@ export default function NoticeDetailPage() {
     return (
       <div className="flex w-full flex-col gap-4">
         <CrmPageHeader title="Notice" subtitle="Not found" icon={Megaphone} />
-        <ClayCard>
+        <ZoruCard>
           <p className="text-center text-[13px] text-muted-foreground">Notice not found.</p>
-        </ClayCard>
+        </ZoruCard>
       </div>
     );
   }
@@ -67,25 +63,25 @@ export default function NoticeDetailPage() {
         icon={Megaphone}
         actions={
           <Link href="/dashboard/crm/workspace/notices">
-            <ClayButton variant="pill" leading={<ArrowLeft className="h-4 w-4" strokeWidth={1.75} />}>
+            <ZoruButton variant="outline">
               Back
-            </ClayButton>
+            </ZoruButton>
           </Link>
         }
       />
-      <ClayCard>
+      <ZoruCard>
         <div className="mb-4 flex flex-wrap items-center gap-2">
-          <ClayBadge tone="neutral" className="capitalize">{notice.notice_to}</ClayBadge>
+          <ZoruBadge variant="ghost" className="capitalize">{notice.notice_to}</ZoruBadge>
           {notice.pinned ? (
-            <ClayBadge tone="rose-soft">
+            <ZoruBadge variant="ghost">
               <Pin className="h-3 w-3" /> Pinned
-            </ClayBadge>
+            </ZoruBadge>
           ) : null}
         </div>
         <div className="whitespace-pre-wrap text-[14px] leading-relaxed text-foreground">
           {notice.description}
         </div>
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

@@ -1,20 +1,10 @@
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruBadge, ZoruButton, ZoruCard, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
 import { Plus, SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
 import { getCrmStockAdjustments } from "@/app/actions/crm-inventory.actions";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
+
 import { format } from "date-fns";
 
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 export default async function StockAdjustmentsPage() {
@@ -28,57 +18,57 @@ export default async function StockAdjustmentsPage() {
                 icon={SlidersHorizontal}
                 actions={
                     <Link href="/dashboard/crm/inventory/adjustments/new">
-                        <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}>
+                        <ZoruButton>
                             New Adjustment
-                        </ClayButton>
+                        </ZoruButton>
                     </Link>
                 }
             />
 
-            <ClayCard>
+            <ZoruCard>
                 <div className="overflow-x-auto rounded-lg border border-border">
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="border-border hover:bg-transparent">
-                                <TableHead className="text-muted-foreground">Date</TableHead>
-                                <TableHead className="text-muted-foreground">Product</TableHead>
-                                <TableHead className="text-muted-foreground">Warehouse</TableHead>
-                                <TableHead className="text-muted-foreground">Reason</TableHead>
-                                <TableHead className="text-muted-foreground text-right">Quantity</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
+                    <ZoruTable>
+                        <ZoruTableHeader>
+                            <ZoruTableRow className="border-border hover:bg-transparent">
+                                <ZoruTableHead className="text-muted-foreground">Date</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Product</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Warehouse</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Reason</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground text-right">Quantity</ZoruTableHead>
+                            </ZoruTableRow>
+                        </ZoruTableHeader>
+                        <ZoruTableBody>
                             {adjustments.length === 0 ? (
-                                <TableRow className="border-border">
-                                    <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                                <ZoruTableRow className="border-border">
+                                    <ZoruTableCell colSpan={5} className="h-24 text-center text-muted-foreground">
                                         No adjustments found.
-                                    </TableCell>
-                                </TableRow>
+                                    </ZoruTableCell>
+                                </ZoruTableRow>
                             ) : (
                                 adjustments.map((adj) => (
-                                    <TableRow key={adj._id.toString()} className="border-border">
-                                        <TableCell className="text-foreground">
+                                    <ZoruTableRow key={adj._id.toString()} className="border-border">
+                                        <ZoruTableCell className="text-foreground">
                                             {format(new Date(adj.date), 'dd MMM yyyy')}
-                                        </TableCell>
-                                        <TableCell className="font-medium text-foreground">
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="font-medium text-foreground">
                                             {(adj as any).productName || 'Unknown Product'}
-                                        </TableCell>
-                                        <TableCell className="text-foreground">
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-foreground">
                                             {(adj as any).warehouseName || 'Unknown Warehouse'}
-                                        </TableCell>
-                                        <TableCell>
-                                            <ClayBadge tone="neutral">{adj.reason}</ClayBadge>
-                                        </TableCell>
-                                        <TableCell className={`text-right font-medium ${adj.quantity > 0 ? "text-emerald-500" : "text-destructive"}`}>
+                                        </ZoruTableCell>
+                                        <ZoruTableCell>
+                                            <ZoruBadge variant="ghost">{adj.reason}</ZoruBadge>
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className={`text-right font-medium ${adj.quantity > 0 ? "text-emerald-500" : "text-destructive"}`}>
                                             {adj.quantity > 0 ? "+" : ""}{adj.quantity}
-                                        </TableCell>
-                                    </TableRow>
+                                        </ZoruTableCell>
+                                    </ZoruTableRow>
                                 ))
                             )}
-                        </TableBody>
-                    </Table>
+                        </ZoruTableBody>
+                    </ZoruTable>
                 </div>
-            </ClayCard>
+            </ZoruCard>
         </div>
     );
 }

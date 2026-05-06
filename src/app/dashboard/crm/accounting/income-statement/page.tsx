@@ -1,23 +1,17 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ZoruAlert, ZoruAlertDescription, ZoruAlertTitle, ZoruButton, ZoruCard, ZoruDropdownMenu, ZoruDropdownMenuContent, ZoruDropdownMenuItem, ZoruDropdownMenuTrigger, ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow, useZoruToast } from '@/components/zoruui';
 import { Download, ChevronDown, AlertCircle, TrendingUp } from 'lucide-react';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+
 import { useState, useEffect, useTransition, Fragment } from 'react';
 import { generateIncomeStatementData } from "@/app/actions/crm-accounting.actions";
 import { LoaderCircle } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+
 import Papa from "papaparse";
 import { getSession } from "@/app/actions";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+
 import Link from 'next/link';
 
-import { ClayCard, ClayButton } from '@/components/clay';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 type AccountData = {
@@ -33,12 +27,12 @@ type GroupData = {
 }
 
 const DataRow = ({ label, value, level = 0 }: { label: string; value?: number; level?: number }) => (
-    <TableRow className={`border-border ${level === 0 ? 'font-semibold bg-secondary' : ''}`}>
-        <TableCell className="text-foreground" style={{ paddingLeft: `${1 + level * 1.5}rem` }}>{label}</TableCell>
-        <TableCell className="text-right font-mono text-foreground">
+    <ZoruTableRow className={`border-border ${level === 0 ? 'font-semibold bg-secondary' : ''}`}>
+        <ZoruTableCell className="text-foreground" style={{ paddingLeft: `${1 + level * 1.5}rem` }}>{label}</ZoruTableCell>
+        <ZoruTableCell className="text-right font-mono text-foreground">
             {value !== undefined ? new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(value) : ''}
-        </TableCell>
-    </TableRow>
+        </ZoruTableCell>
+    </ZoruTableRow>
 );
 
 const Section = ({ title, data }: { title: string, data: GroupData[] }) => {
@@ -74,7 +68,7 @@ export default function IncomeStatementPage() {
     const [data, setData] = useState<{ incomeData: GroupData[], expenseData: GroupData[], netSurplus: number } | null>(null);
     const [user, setUser] = useState<any>(null);
     const [isLoading, startTransition] = useTransition();
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
 
     useEffect(() => {
         startTransition(async () => {
@@ -121,7 +115,6 @@ export default function IncomeStatementPage() {
         }
     };
 
-
     if (isLoading || !data || !user) {
         return (
             <div className="flex justify-center items-center h-full">
@@ -132,14 +125,14 @@ export default function IncomeStatementPage() {
 
      if (!user.businessProfile?.name || !user.businessProfile.address) {
         return (
-            <Alert variant="destructive">
+            <ZoruAlert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Business Profile Incomplete</AlertTitle>
-                <AlertDescription>
+                <ZoruAlertTitle>Business Profile Incomplete</ZoruAlertTitle>
+                <ZoruAlertDescription>
                     Please complete your business profile in the user settings to view accounting reports.
-                    <Button asChild variant="link" className="p-0 h-auto ml-2"><Link href="/dashboard/user/settings/profile">Go to Settings</Link></Button>
-                </AlertDescription>
-            </Alert>
+                    <ZoruButton asChild variant="link" className="p-0 h-auto ml-2"><Link href="/dashboard/user/settings/profile">Go to Settings</Link></ZoruButton>
+                </ZoruAlertDescription>
+            </ZoruAlert>
         );
     }
 
@@ -154,30 +147,30 @@ export default function IncomeStatementPage() {
                 icon={TrendingUp}
                 actions={
                     <div className="flex items-center gap-2">
-                        <Select defaultValue="fy2526">
-                            <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="fy2526">FY 2025-2026</SelectItem>
-                                <SelectItem value="fy2425">FY 2024-2025</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <ClayButton variant="pill" leading={<Download className="h-4 w-4" strokeWidth={1.75} />} trailing={<ChevronDown className="h-4 w-4" strokeWidth={1.75} />}>
+                        <ZoruSelect defaultValue="fy2526">
+                            <ZoruSelectTrigger className="w-[180px]"><ZoruSelectValue /></ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                <ZoruSelectItem value="fy2526">FY 2025-2026</ZoruSelectItem>
+                                <ZoruSelectItem value="fy2425">FY 2024-2025</ZoruSelectItem>
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                        <ZoruDropdownMenu>
+                            <ZoruDropdownMenuTrigger asChild>
+                                <ZoruButton variant="outline">
                                     Download As
-                                </ClayButton>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent>
-                                <DropdownMenuItem onSelect={() => handleDownload('csv')}>CSV</DropdownMenuItem>
-                                <DropdownMenuItem disabled>XLS</DropdownMenuItem>
-                                <DropdownMenuItem disabled>PDF</DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                                </ZoruButton>
+                            </ZoruDropdownMenuTrigger>
+                            <ZoruDropdownMenuContent>
+                                <ZoruDropdownMenuItem onSelect={() => handleDownload('csv')}>CSV</ZoruDropdownMenuItem>
+                                <ZoruDropdownMenuItem disabled>XLS</ZoruDropdownMenuItem>
+                                <ZoruDropdownMenuItem disabled>PDF</ZoruDropdownMenuItem>
+                            </ZoruDropdownMenuContent>
+                        </ZoruDropdownMenu>
                     </div>
                 }
             />
 
-            <ClayCard>
+            <ZoruCard>
                 <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-full bg-accent text-accent-foreground flex items-center justify-center text-xl font-semibold">
                         {businessProfile?.name?.charAt(0) || 'B'}
@@ -187,30 +180,30 @@ export default function IncomeStatementPage() {
                         <p className="text-[12.5px] text-muted-foreground">GSTIN: {businessProfile.gstin}</p>
                     </div>
                 </div>
-            </ClayCard>
+            </ZoruCard>
 
-            <ClayCard>
+            <ZoruCard>
                 <h2 className="text-[16px] font-semibold text-foreground">Income Statement</h2>
                 <div className="mt-4 overflow-x-auto rounded-lg border border-border">
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="border-border hover:bg-transparent">
-                                <TableHead className="text-muted-foreground">Account</TableHead>
-                                <TableHead className="text-muted-foreground text-right">Balance</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
+                    <ZoruTable>
+                        <ZoruTableHeader>
+                            <ZoruTableRow className="border-border hover:bg-transparent">
+                                <ZoruTableHead className="text-muted-foreground">Account</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground text-right">Balance</ZoruTableHead>
+                            </ZoruTableRow>
+                        </ZoruTableHeader>
+                        <ZoruTableBody>
                             <Section title="Income" data={incomeData} />
                             <Section title="Expense" data={expenseData} />
-                            <TableRow className="border-border bg-accent font-semibold">
-                                <TableCell className="text-accent-foreground">Net Surplus</TableCell>
-                                <TableCell className="text-right font-mono text-accent-foreground">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(netSurplus)}</TableCell>
-                            </TableRow>
-                        </TableBody>
-                    </Table>
+                            <ZoruTableRow className="border-border bg-accent font-semibold">
+                                <ZoruTableCell className="text-accent-foreground">Net Surplus</ZoruTableCell>
+                                <ZoruTableCell className="text-right font-mono text-accent-foreground">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(netSurplus)}</ZoruTableCell>
+                            </ZoruTableRow>
+                        </ZoruTableBody>
+                    </ZoruTable>
                 </div>
                 <p className="mt-4 text-[11.5px] text-muted-foreground">* Reports are in your business currency INR</p>
-            </ClayCard>
+            </ZoruCard>
         </div>
     )
 }

@@ -1,21 +1,13 @@
 'use client';
-
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruBadge, ZoruButton, ZoruCard, ZoruPopover, ZoruPopoverContent, ZoruPopoverTrigger } from '@/components/zoruui';
 import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { Calendar as CalendarIcon, ArrowDownCircle, ArrowUpCircle, BookOpen, LoaderCircle } from 'lucide-react';
 import { cn } from "@/lib/utils";
-import { Calendar } from "@/components/ui/calendar";
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover";
+import { Calendar } from '@/components/ui/calendar';
+
 import { getDayBookTransactions, type DayBookTransaction } from "@/app/actions/crm-accounting-reports.actions";
 
-import { ClayCard, ClayBadge, ClayButton } from '@/components/clay';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 export default function DayBookPage() {
@@ -48,51 +40,51 @@ export default function DayBookPage() {
                 subtitle={`Transactions for ${format(date, 'PPP')}`}
                 icon={BookOpen}
                 actions={
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <ClayButton
-                                variant="pill"
-                                leading={<CalendarIcon className="h-4 w-4" strokeWidth={1.75} />}
+                    <ZoruPopover>
+                        <ZoruPopoverTrigger asChild>
+                            <ZoruButton
+                                variant="outline"
+                               
                             >
                                 {date ? format(date, "PPP") : 'Pick a date'}
-                            </ClayButton>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="end">
+                            </ZoruButton>
+                        </ZoruPopoverTrigger>
+                        <ZoruPopoverContent className="w-auto p-0" align="end">
                             <Calendar
                                 mode="single"
                                 selected={date}
                                 onSelect={(d) => d && setDate(d)}
                                 initialFocus
                             />
-                        </PopoverContent>
-                    </Popover>
+                        </ZoruPopoverContent>
+                    </ZoruPopover>
                 }
             />
 
             <div className="grid gap-4 md:grid-cols-3">
-                <ClayCard>
+                <ZoruCard>
                     <div className="flex items-center justify-between">
                         <p className="text-[12.5px] font-medium text-muted-foreground">Total In (Receipts)</p>
                         <ArrowDownCircle className="h-4 w-4 text-emerald-500" strokeWidth={1.75} />
                     </div>
                     <div className="mt-2 text-[24px] font-semibold text-emerald-500">+{totals.in.toLocaleString()}</div>
-                </ClayCard>
-                <ClayCard>
+                </ZoruCard>
+                <ZoruCard>
                     <div className="flex items-center justify-between">
                         <p className="text-[12.5px] font-medium text-muted-foreground">Total Out (Payouts/Exp)</p>
                         <ArrowUpCircle className="h-4 w-4 text-destructive" strokeWidth={1.75} />
                     </div>
                     <div className="mt-2 text-[24px] font-semibold text-destructive">-{totals.out.toLocaleString()}</div>
-                </ClayCard>
-                <ClayCard>
+                </ZoruCard>
+                <ZoruCard>
                     <p className="text-[12.5px] font-medium text-muted-foreground">Net Cash Flow</p>
                     <div className={cn("mt-2 text-[24px] font-semibold", (totals.in - totals.out) >= 0 ? "text-emerald-500" : "text-destructive")}>
                         {(totals.in - totals.out).toLocaleString()}
                     </div>
-                </ClayCard>
+                </ZoruCard>
             </div>
 
-            <ClayCard>
+            <ZoruCard>
                 <h2 className="text-[16px] font-semibold text-foreground">Transactions</h2>
                 <p className="mt-0.5 text-[12.5px] text-muted-foreground">All financial activity for the selected day.</p>
                 <div className="mt-4">
@@ -121,14 +113,14 @@ export default function DayBookPage() {
                                         <p className={cn("font-semibold text-[13px]", tx.flow === 'In' ? "text-emerald-500" : "text-destructive")}>
                                             {tx.flow === 'In' ? '+' : '-'}{tx.amount.toLocaleString()}
                                         </p>
-                                        <ClayBadge tone="neutral" className="mt-1">{tx.status}</ClayBadge>
+                                        <ZoruBadge variant="ghost" className="mt-1">{tx.status}</ZoruBadge>
                                     </div>
                                 </div>
                             ))}
                         </div>
                     )}
                 </div>
-            </ClayCard>
+            </ZoruCard>
         </div>
     )
 }

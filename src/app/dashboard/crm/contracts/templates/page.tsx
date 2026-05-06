@@ -1,8 +1,5 @@
 'use client';
-
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruAlertDialog, ZoruAlertDialogAction, ZoruAlertDialogCancel, ZoruAlertDialogContent, ZoruAlertDialogDescription, ZoruAlertDialogFooter, ZoruAlertDialogHeader, ZoruAlertDialogTitle, ZoruButton, ZoruCard, ZoruDialog, ZoruDialogContent, ZoruDialogDescription, ZoruDialogFooter, ZoruDialogHeader, ZoruDialogTitle, ZoruInput, ZoruLabel, ZoruSkeleton, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow, ZoruTextarea, useZoruToast } from '@/components/zoruui';
 import { useEffect, useState, useTransition, useActionState } from 'react';
 import Link from 'next/link';
 import {
@@ -13,40 +10,9 @@ import {
   LoaderCircle,
   ExternalLink,
 } from 'lucide-react';
-import { ClayCard, ClayButton } from '@/components/clay';
+
 import { CrmPageHeader } from '../../_components/crm-page-header';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
+
 import {
   getContractTemplates,
   saveContractTemplate,
@@ -57,7 +23,7 @@ import type { WsContractTemplate } from '@/lib/worksuite/contracts-ext-types';
 type Row = WsContractTemplate & { _id: string };
 
 export default function ContractTemplatesPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [rows, setRows] = useState<Row[]>([]);
   const [isLoading, startLoading] = useTransition();
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -116,66 +82,66 @@ export default function ContractTemplatesPage() {
         subtitle="Reusable contract templates with placeholders."
         icon={FileText}
         actions={
-          <ClayButton
-            variant="obsidian"
-            leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}
+          <ZoruButton
+           
+           
             onClick={() => {
               setEditing(null);
               setDialogOpen(true);
             }}
           >
             Add Template
-          </ClayButton>
+          </ZoruButton>
         }
       />
 
-      <ClayCard>
+      <ZoruCard>
         <div className="overflow-x-auto rounded-lg border border-border">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border hover:bg-transparent">
-                <TableHead className="text-muted-foreground">Name</TableHead>
-                <TableHead className="text-muted-foreground">Preview</TableHead>
-                <TableHead className="w-[160px] text-right text-muted-foreground">
+          <ZoruTable>
+            <ZoruTableHeader>
+              <ZoruTableRow className="border-border hover:bg-transparent">
+                <ZoruTableHead className="text-muted-foreground">Name</ZoruTableHead>
+                <ZoruTableHead className="text-muted-foreground">Preview</ZoruTableHead>
+                <ZoruTableHead className="w-[160px] text-right text-muted-foreground">
                   Actions
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+                </ZoruTableHead>
+              </ZoruTableRow>
+            </ZoruTableHeader>
+            <ZoruTableBody>
               {isLoading && rows.length === 0 ? (
                 [...Array(3)].map((_, i) => (
-                  <TableRow key={i} className="border-border">
-                    <TableCell colSpan={3}>
-                      <Skeleton className="h-8 w-full" />
-                    </TableCell>
-                  </TableRow>
+                  <ZoruTableRow key={i} className="border-border">
+                    <ZoruTableCell colSpan={3}>
+                      <ZoruSkeleton className="h-8 w-full" />
+                    </ZoruTableCell>
+                  </ZoruTableRow>
                 ))
               ) : rows.length === 0 ? (
-                <TableRow className="border-border">
-                  <TableCell
+                <ZoruTableRow className="border-border">
+                  <ZoruTableCell
                     colSpan={3}
                     className="h-24 text-center text-[13px] text-muted-foreground"
                   >
                     No templates yet — click Add Template to get started.
-                  </TableCell>
-                </TableRow>
+                  </ZoruTableCell>
+                </ZoruTableRow>
               ) : (
                 rows.map((row) => (
-                  <TableRow key={row._id} className="border-border">
-                    <TableCell className="text-[13px] text-foreground">
+                  <ZoruTableRow key={row._id} className="border-border">
+                    <ZoruTableCell className="text-[13px] text-foreground">
                       {row.name}
-                    </TableCell>
-                    <TableCell className="max-w-[400px] truncate text-[13px] text-muted-foreground">
+                    </ZoruTableCell>
+                    <ZoruTableCell className="max-w-[400px] truncate text-[13px] text-muted-foreground">
                       {(row.body || '').slice(0, 120)}
-                    </TableCell>
-                    <TableCell className="text-right">
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-right">
                       <div className="flex justify-end gap-1">
                         <Link href={`/dashboard/crm/contracts/templates/${row._id}`}>
-                          <Button variant="ghost" size="sm">
+                          <ZoruButton variant="ghost" size="sm">
                             <ExternalLink className="h-3.5 w-3.5" />
-                          </Button>
+                          </ZoruButton>
                         </Link>
-                        <Button
+                        <ZoruButton
                           variant="ghost"
                           size="sm"
                           onClick={() => {
@@ -184,41 +150,41 @@ export default function ContractTemplatesPage() {
                           }}
                         >
                           <Pencil className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button
+                        </ZoruButton>
+                        <ZoruButton
                           variant="ghost"
                           size="sm"
                           onClick={() => setDeletingId(row._id)}
                         >
                           <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                        </Button>
+                        </ZoruButton>
                       </div>
-                    </TableCell>
-                  </TableRow>
+                    </ZoruTableCell>
+                  </ZoruTableRow>
                 ))
               )}
-            </TableBody>
-          </Table>
+            </ZoruTableBody>
+          </ZoruTable>
         </div>
-      </ClayCard>
+      </ZoruCard>
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-foreground">
+      <ZoruDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <ZoruDialogContent className="max-w-2xl">
+          <ZoruDialogHeader>
+            <ZoruDialogTitle className="text-foreground">
               {editing ? 'Edit Template' : 'Add Template'}
-            </DialogTitle>
-            <DialogDescription className="text-muted-foreground">
+            </ZoruDialogTitle>
+            <ZoruDialogDescription className="text-muted-foreground">
               Placeholders like {'{{client_name}}'} are supported.
-            </DialogDescription>
-          </DialogHeader>
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
           <form action={saveFormAction} className="space-y-4">
             {editing?._id ? <input type="hidden" name="_id" value={editing._id} /> : null}
             <div>
-              <Label htmlFor="name" className="text-foreground">
+              <ZoruLabel htmlFor="name" className="text-foreground">
                 Template Name <span className="text-destructive">*</span>
-              </Label>
-              <Input
+              </ZoruLabel>
+              <ZoruInput
                 id="name"
                 name="name"
                 required
@@ -227,10 +193,10 @@ export default function ContractTemplatesPage() {
               />
             </div>
             <div>
-              <Label htmlFor="body" className="text-foreground">
+              <ZoruLabel htmlFor="body" className="text-foreground">
                 Body <span className="text-destructive">*</span>
-              </Label>
-              <Textarea
+              </ZoruLabel>
+              <ZoruTextarea
                 id="body"
                 name="body"
                 required
@@ -240,44 +206,40 @@ export default function ContractTemplatesPage() {
                 placeholder="Contract body with placeholders like {{client_name}}, {{start_date}}…"
               />
             </div>
-            <DialogFooter className="gap-2">
-              <ClayButton type="button" variant="pill" onClick={() => setDialogOpen(false)}>
+            <ZoruDialogFooter className="gap-2">
+              <ZoruButton type="button" variant="outline" onClick={() => setDialogOpen(false)}>
                 Cancel
-              </ClayButton>
-              <ClayButton
+              </ZoruButton>
+              <ZoruButton
                 type="submit"
-                variant="obsidian"
+               
                 disabled={isSaving}
-                leading={
-                  isSaving ? (
-                    <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.75} />
-                  ) : null
-                }
+               
               >
                 Save
-              </ClayButton>
-            </DialogFooter>
+              </ZoruButton>
+            </ZoruDialogFooter>
           </form>
-        </DialogContent>
-      </Dialog>
+        </ZoruDialogContent>
+      </ZoruDialog>
 
-      <AlertDialog
+      <ZoruAlertDialog
         open={deletingId !== null}
         onOpenChange={(o) => !o && setDeletingId(null)}
       >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-foreground">Delete Template?</AlertDialogTitle>
-            <AlertDialogDescription className="text-muted-foreground">
+        <ZoruAlertDialogContent>
+          <ZoruAlertDialogHeader>
+            <ZoruAlertDialogTitle className="text-foreground">Delete Template?</ZoruAlertDialogTitle>
+            <ZoruAlertDialogDescription className="text-muted-foreground">
               This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </ZoruAlertDialogDescription>
+          </ZoruAlertDialogHeader>
+          <ZoruAlertDialogFooter>
+            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+            <ZoruAlertDialogAction onClick={handleDelete}>Delete</ZoruAlertDialogAction>
+          </ZoruAlertDialogFooter>
+        </ZoruAlertDialogContent>
+      </ZoruAlertDialog>
     </div>
   );
 }

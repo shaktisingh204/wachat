@@ -1,23 +1,16 @@
 'use client';
-
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruBadge, ZoruCard, ZoruInput, ZoruSkeleton, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow, useZoruToast } from '@/components/zoruui';
 import { useState, useEffect, useCallback, useTransition } from 'react';
 import Link from 'next/link';
 import { useDebouncedCallback } from 'use-debounce';
 import { Search, Plus, Users, Building, LoaderCircle } from 'lucide-react';
 import { convertLeadToAccount } from '@/app/actions/worksuite/conversions.actions';
-import { useToast } from '@/hooks/use-toast';
+
 import type { WithId } from 'mongodb';
 
 import { getCrmLeads } from '@/app/actions/crm-leads.actions';
 import type { CrmLead } from '@/lib/definitions';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Input } from '@/components/ui/input';
 
-import { ClayCard, ClayBadge } from '@/components/clay';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import { cn } from '@/lib/utils';
 
@@ -25,15 +18,15 @@ const LEADS_PER_PAGE = 15;
 
 function LeadsPageSkeleton() {
   return (
-    <ClayCard>
-      <Skeleton className="h-6 w-48" />
-      <Skeleton className="mt-2 h-4 w-64" />
+    <ZoruCard>
+      <ZoruSkeleton className="h-6 w-48" />
+      <ZoruSkeleton className="mt-2 h-4 w-64" />
       <div className="mt-6 flex items-center justify-between">
-        <Skeleton className="h-10 w-64" />
-        <Skeleton className="h-10 w-48" />
+        <ZoruSkeleton className="h-10 w-64" />
+        <ZoruSkeleton className="h-10 w-48" />
       </div>
-      <Skeleton className="mt-4 h-96 w-full" />
-    </ClayCard>
+      <ZoruSkeleton className="mt-4 h-96 w-full" />
+    </ZoruCard>
   );
 }
 
@@ -53,7 +46,7 @@ export default function CrmAllLeadsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [totalPages, setTotalPages] = useState(0);
   const [convertingId, setConvertingId] = useState<string | null>(null);
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
 
   const fetchData = useCallback(() => {
     startTransition(async () => {
@@ -97,7 +90,7 @@ export default function CrmAllLeadsPage() {
         }
       />
 
-      <ClayCard>
+      <ZoruCard>
         <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
           <div>
             <h2 className="text-[16px] font-semibold text-foreground">Leads Directory</h2>
@@ -107,7 +100,7 @@ export default function CrmAllLeadsPage() {
           </div>
           <div className="relative w-full max-w-sm">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
+            <ZoruInput
               placeholder="Search by title, name, email, or company..."
               className="h-10 rounded-lg border-border bg-card pl-9 text-[13px]"
               onChange={(e) => handleSearch(e.target.value)}
@@ -116,65 +109,65 @@ export default function CrmAllLeadsPage() {
         </div>
 
         <div className="overflow-x-auto rounded-lg border border-border">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border hover:bg-transparent">
-                <TableHead className="text-muted-foreground">Lead Title</TableHead>
-                <TableHead className="text-muted-foreground">Contact</TableHead>
-                <TableHead className="text-muted-foreground">Company</TableHead>
-                <TableHead className="text-muted-foreground">Stage</TableHead>
-                <TableHead className="text-muted-foreground">Value</TableHead>
-                <TableHead className="text-muted-foreground">Source</TableHead>
-                <TableHead className="text-muted-foreground">Created</TableHead>
-                <TableHead className="text-muted-foreground">Follow-up</TableHead>
-                <TableHead className="text-muted-foreground w-[160px]">Action</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+          <ZoruTable>
+            <ZoruTableHeader>
+              <ZoruTableRow className="border-border hover:bg-transparent">
+                <ZoruTableHead className="text-muted-foreground">Lead Title</ZoruTableHead>
+                <ZoruTableHead className="text-muted-foreground">Contact</ZoruTableHead>
+                <ZoruTableHead className="text-muted-foreground">Company</ZoruTableHead>
+                <ZoruTableHead className="text-muted-foreground">Stage</ZoruTableHead>
+                <ZoruTableHead className="text-muted-foreground">Value</ZoruTableHead>
+                <ZoruTableHead className="text-muted-foreground">Source</ZoruTableHead>
+                <ZoruTableHead className="text-muted-foreground">Created</ZoruTableHead>
+                <ZoruTableHead className="text-muted-foreground">Follow-up</ZoruTableHead>
+                <ZoruTableHead className="text-muted-foreground w-[160px]">Action</ZoruTableHead>
+              </ZoruTableRow>
+            </ZoruTableHeader>
+            <ZoruTableBody>
               {isLoading ? (
                 [...Array(5)].map((_, i) => (
-                  <TableRow key={i} className="border-border">
-                    <TableCell colSpan={9}>
-                      <Skeleton className="h-10 w-full" />
-                    </TableCell>
-                  </TableRow>
+                  <ZoruTableRow key={i} className="border-border">
+                    <ZoruTableCell colSpan={9}>
+                      <ZoruSkeleton className="h-10 w-full" />
+                    </ZoruTableCell>
+                  </ZoruTableRow>
                 ))
               ) : leads.length > 0 ? (
                 leads.map((lead) => {
                   const stage = lead.stage || lead.status || '';
                   return (
-                    <TableRow key={lead._id.toString()} className="border-border">
-                      <TableCell className="font-medium text-foreground">{lead.title}</TableCell>
-                      <TableCell>
+                    <ZoruTableRow key={lead._id.toString()} className="border-border">
+                      <ZoruTableCell className="font-medium text-foreground">{lead.title}</ZoruTableCell>
+                      <ZoruTableCell>
                         <div className="text-[13px] font-medium text-foreground">
                           {lead.contactName}
                         </div>
                         <div className="text-[11.5px] text-muted-foreground">{lead.email}</div>
-                      </TableCell>
-                      <TableCell className="text-[13px] text-foreground">
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-[13px] text-foreground">
                         {lead.company || 'N/A'}
-                      </TableCell>
-                      <TableCell>
-                        <ClayBadge tone={statusTone(stage)}>{stage}</ClayBadge>
-                      </TableCell>
-                      <TableCell className="font-mono text-[13px] text-foreground">
+                      </ZoruTableCell>
+                      <ZoruTableCell>
+                        <ZoruBadge variant={(statusTone(stage)) as any}>{stage}</ZoruBadge>
+                      </ZoruTableCell>
+                      <ZoruTableCell className="font-mono text-[13px] text-foreground">
                         {new Intl.NumberFormat('en-IN', {
                           style: 'currency',
                           currency: lead.currency || 'INR',
                         }).format(lead.value)}
-                      </TableCell>
-                      <TableCell className="text-[13px] text-foreground">
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-[13px] text-foreground">
                         {lead.source || 'N/A'}
-                      </TableCell>
-                      <TableCell className="text-[13px] text-foreground">
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-[13px] text-foreground">
                         {new Date(lead.createdAt).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell className="text-[13px] text-foreground">
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-[13px] text-foreground">
                         {lead.nextFollowUp
                           ? new Date(lead.nextFollowUp).toLocaleDateString()
                           : 'N/A'}
-                      </TableCell>
-                      <TableCell>
+                      </ZoruTableCell>
+                      <ZoruTableCell>
                         {(lead.status as string) === 'Converted' ? (
                           <span className="text-[11.5px] text-muted-foreground">
                             Converted
@@ -209,24 +202,24 @@ export default function CrmAllLeadsPage() {
                             Convert to Account
                           </button>
                         )}
-                      </TableCell>
-                    </TableRow>
+                      </ZoruTableCell>
+                    </ZoruTableRow>
                   );
                 })
               ) : (
-                <TableRow className="border-border">
-                  <TableCell
+                <ZoruTableRow className="border-border">
+                  <ZoruTableCell
                     colSpan={9}
                     className="h-24 text-center text-[13px] text-muted-foreground"
                   >
                     No leads found.
-                  </TableCell>
-                </TableRow>
+                  </ZoruTableCell>
+                </ZoruTableRow>
               )}
-            </TableBody>
-          </Table>
+            </ZoruTableBody>
+          </ZoruTable>
         </div>
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

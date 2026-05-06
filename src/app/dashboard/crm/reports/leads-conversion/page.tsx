@@ -1,10 +1,8 @@
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruCard } from '@/components/zoruui';
 export const dynamic = 'force-dynamic';
 
 import { ArrowRightLeft } from 'lucide-react';
-import { ClayCard } from '@/components/clay';
+
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import { ReportToolbar, StatCard } from '../_components/report-toolbar';
 import { getLeadConversion } from '@/app/actions/worksuite/reports.actions';
@@ -38,14 +36,14 @@ export default async function LeadsConversionPage(props: {
         />
       </div>
 
-      <ClayCard>
+      <ZoruCard>
         <p className="text-[13px] text-muted-foreground">
           Cycle time is measured from lead creation to conversion (using{' '}
           <code className="rounded bg-secondary px-1">convertedAt</code>{' '}
           or{' '}
           <code className="rounded bg-secondary px-1">updatedAt</code>).
         </p>
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

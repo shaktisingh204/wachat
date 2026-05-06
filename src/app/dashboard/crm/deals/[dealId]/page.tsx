@@ -1,15 +1,12 @@
 'use client';
-
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruBadge, ZoruButton, ZoruCard, ZoruSkeleton, useZoruToast } from '@/components/zoruui';
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { useParams } from 'next/navigation';
 import { getCrmDealById } from '@/app/actions/crm-deals.actions';
 import { getCrmContactById } from '@/app/actions/crm.actions';
 import { getCrmAccountById } from '@/app/actions/crm-accounts.actions';
 import type { CrmDeal, CrmContact, CrmAccount, WithId, CrmTask } from '@/lib/definitions';
-import { Skeleton } from '@/components/ui/skeleton';
+
 import {
   ArrowLeft,
   Building,
@@ -20,29 +17,28 @@ import {
   ReceiptText,
   LoaderCircle,
 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+
 import { convertDealToInvoice } from '@/app/actions/worksuite/conversions.actions';
-import { ClayButton } from '@/components/clay';
+
 import { CrmNotes } from '@/components/wabasimplify/crm-notes';
 import Link from 'next/link';
 import { CrmTaskList } from '@/components/wabasimplify/crm-task-list';
 import { getCrmTasks } from '@/app/actions/crm-tasks.actions';
 import { CreateTaskDialog } from '@/components/wabasimplify/crm-create-task-dialog';
 
-import { ClayCard, ClayBadge } from '@/components/clay';
 import { useRouter } from 'next/navigation';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 function DealDetailPageSkeleton() {
   return (
     <div className="flex w-full flex-col gap-6">
-      <Skeleton className="h-8 w-48" />
+      <ZoruSkeleton className="h-8 w-48" />
       <div className="grid gap-6 md:grid-cols-3">
         <div className="space-y-4 md:col-span-1">
-          <Skeleton className="h-48 w-full rounded-xl" />
+          <ZoruSkeleton className="h-48 w-full rounded-xl" />
         </div>
         <div className="space-y-4 md:col-span-2">
-          <Skeleton className="h-96 w-full rounded-xl" />
+          <ZoruSkeleton className="h-96 w-full rounded-xl" />
         </div>
       </div>
     </div>
@@ -61,7 +57,7 @@ export default function CrmDealDetailPage() {
   const [isCreatingInvoice, setIsCreatingInvoice] = useState(false);
   const invoiceInFlightRef = useRef(false);
   const router = useRouter();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
 
   const fetchData = () => {
     if (dealId) {
@@ -120,8 +116,8 @@ export default function CrmDealDetailPage() {
         subtitle="Deal details, related contacts, and tasks"
         icon={Handshake}
         actions={
-          <ClayButton
-            variant="obsidian"
+          <ZoruButton
+           
             disabled={isCreatingInvoice}
             onClick={async () => {
               if (invoiceInFlightRef.current) return;
@@ -147,28 +143,22 @@ export default function CrmDealDetailPage() {
                 throw e;
               }
             }}
-            leading={
-              isCreatingInvoice ? (
-                <LoaderCircle className="h-4 w-4 animate-spin" />
-              ) : (
-                <ReceiptText className="h-4 w-4" />
-              )
-            }
+           
           >
             Create Invoice
-          </ClayButton>
+          </ZoruButton>
         }
       />
 
       <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-1">
-          <ClayCard>
+          <ZoruCard>
             <div className="space-y-2">
               <h2 className="text-[16px] font-semibold leading-tight text-foreground">
                 {deal.name}
               </h2>
               <div>
-                <ClayBadge tone={stageTone(deal.stage)}>{deal.stage}</ClayBadge>
+                <ZoruBadge variant={(stageTone(deal.stage)) as any}>{deal.stage}</ZoruBadge>
               </div>
             </div>
 
@@ -217,7 +207,7 @@ export default function CrmDealDetailPage() {
                 </div>
               )}
             </div>
-          </ClayCard>
+          </ZoruCard>
 
           <CrmNotes
             recordId={deal._id.toString()}
@@ -227,7 +217,7 @@ export default function CrmDealDetailPage() {
         </div>
 
         <div className="space-y-6 lg:col-span-2">
-          <ClayCard>
+          <ZoruCard>
             <div className="mb-4 flex flex-row items-center justify-between">
               <div className="flex items-center gap-2">
                 <Handshake className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
@@ -236,7 +226,7 @@ export default function CrmDealDetailPage() {
               <CreateTaskDialog onTaskCreated={fetchData} dealId={deal._id.toString()} />
             </div>
             <CrmTaskList tasks={tasks} onTaskUpdated={fetchData} />
-          </ClayCard>
+          </ZoruCard>
         </div>
       </div>
     </div>

@@ -1,8 +1,5 @@
 'use client';
-
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruAlertDialog, ZoruAlertDialogAction, ZoruAlertDialogCancel, ZoruAlertDialogContent, ZoruAlertDialogDescription, ZoruAlertDialogFooter, ZoruAlertDialogHeader, ZoruAlertDialogTitle, ZoruBadge, ZoruButton, ZoruCard, ZoruDialog, ZoruDialogContent, ZoruDialogFooter, ZoruDialogHeader, ZoruDialogTitle, ZoruInput, ZoruLabel, ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow, ZoruTextarea, useZoruToast } from '@/components/zoruui';
 import {
   useCallback,
   useEffect,
@@ -19,45 +16,8 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 
-import { ClayCard, ClayBadge, ClayButton } from '@/components/clay';
 import { CrmPageHeader } from '../../_components/crm-page-header';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { useToast } from '@/hooks/use-toast';
+
 import {
   getBankTransactionsExt,
   saveBankTransactionExt,
@@ -83,7 +43,7 @@ function formatMoney(amount: number, currency = 'INR') {
 }
 
 export default function BankTransactionsExtPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [rows, setRows] = useState<any[]>([]);
   const [banks, setBanks] = useState<any[]>([]);
   const [filterBank, setFilterBank] = useState('');
@@ -152,37 +112,37 @@ export default function BankTransactionsExtPage() {
         subtitle="Extended ledger — deposits, withdrawals, transfers. Auto-populated by payments & refunds."
         icon={ArrowLeftRight}
         actions={
-          <ClayButton
-            variant="obsidian"
-            leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}
+          <ZoruButton
+           
+           
             onClick={() => {
               setEditing(null);
               setOpen(true);
             }}
           >
             Add Transaction
-          </ClayButton>
+          </ZoruButton>
         }
       />
 
-      <ClayCard>
+      <ZoruCard>
         <div className="mb-4 flex flex-wrap items-end gap-3">
-          <Select
+          <ZoruSelect
             value={filterBank || 'all'}
             onValueChange={(v) => setFilterBank(v === 'all' ? '' : v)}
           >
-            <SelectTrigger className="h-9 w-[220px] rounded-lg border-border bg-card text-[12.5px]">
-              <SelectValue placeholder="All accounts" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All accounts</SelectItem>
+            <ZoruSelectTrigger className="h-9 w-[220px] rounded-lg border-border bg-card text-[12.5px]">
+              <ZoruSelectValue placeholder="All accounts" />
+            </ZoruSelectTrigger>
+            <ZoruSelectContent>
+              <ZoruSelectItem value="all">All accounts</ZoruSelectItem>
               {banks.map((b) => (
-                <SelectItem key={b._id} value={b._id}>
+                <ZoruSelectItem key={b._id} value={b._id}>
                   {b.accountName}
-                </SelectItem>
+                </ZoruSelectItem>
               ))}
-            </SelectContent>
-          </Select>
+            </ZoruSelectContent>
+          </ZoruSelect>
         </div>
 
         {isLoading && rows.length === 0 ? (
@@ -195,56 +155,56 @@ export default function BankTransactionsExtPage() {
           </div>
         ) : (
           <div className="overflow-x-auto rounded-lg border border-border">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-border hover:bg-transparent">
-                  <TableHead className="text-muted-foreground">Date</TableHead>
-                  <TableHead className="text-muted-foreground">Type</TableHead>
-                  <TableHead className="text-muted-foreground">
+            <ZoruTable>
+              <ZoruTableHeader>
+                <ZoruTableRow className="border-border hover:bg-transparent">
+                  <ZoruTableHead className="text-muted-foreground">Date</ZoruTableHead>
+                  <ZoruTableHead className="text-muted-foreground">Type</ZoruTableHead>
+                  <ZoruTableHead className="text-muted-foreground">
                     Description
-                  </TableHead>
-                  <TableHead className="text-muted-foreground">Category</TableHead>
-                  <TableHead className="text-right text-muted-foreground">
+                  </ZoruTableHead>
+                  <ZoruTableHead className="text-muted-foreground">Category</ZoruTableHead>
+                  <ZoruTableHead className="text-right text-muted-foreground">
                     Amount
-                  </TableHead>
-                  <TableHead className="text-muted-foreground">Status</TableHead>
-                  <TableHead className="text-right text-muted-foreground">
+                  </ZoruTableHead>
+                  <ZoruTableHead className="text-muted-foreground">Status</ZoruTableHead>
+                  <ZoruTableHead className="text-right text-muted-foreground">
                     &nbsp;
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+                  </ZoruTableHead>
+                </ZoruTableRow>
+              </ZoruTableHeader>
+              <ZoruTableBody>
                 {rows.map((r) => (
-                  <TableRow key={r._id} className="border-border">
-                    <TableCell className="text-[12.5px] text-foreground">
+                  <ZoruTableRow key={r._id} className="border-border">
+                    <ZoruTableCell className="text-[12.5px] text-foreground">
                       {r.date ? new Date(r.date).toLocaleDateString() : '—'}
-                    </TableCell>
-                    <TableCell>
-                      <ClayBadge tone={TYPE_TONES[r.type] || 'neutral'}>
+                    </ZoruTableCell>
+                    <ZoruTableCell>
+                      <ZoruBadge variant={(TYPE_TONES[r.type] || 'neutral') as any}>
                         {r.type}
-                      </ClayBadge>
-                    </TableCell>
-                    <TableCell className="text-[12.5px] text-foreground">
+                      </ZoruBadge>
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-[12.5px] text-foreground">
                       {r.description || '—'}
-                    </TableCell>
-                    <TableCell className="text-[12px] text-muted-foreground">
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-[12px] text-muted-foreground">
                       {r.category || '—'}
-                    </TableCell>
-                    <TableCell className="text-right font-semibold text-foreground">
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-right font-semibold text-foreground">
                       {formatMoney(r.amount)}
-                    </TableCell>
-                    <TableCell>
+                    </ZoruTableCell>
+                    <ZoruTableCell>
                       {r.reconciled ? (
-                        <ClayBadge tone="green">
+                        <ZoruBadge variant="success">
                           <CheckCircle2 className="h-3 w-3" />
                           reconciled
-                        </ClayBadge>
+                        </ZoruBadge>
                       ) : (
-                        <ClayBadge tone="amber">pending</ClayBadge>
+                        <ZoruBadge variant="warning">pending</ZoruBadge>
                       )}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-right">
+                      <ZoruButton
                         variant="ghost"
                         size="icon"
                         onClick={() => {
@@ -253,76 +213,76 @@ export default function BankTransactionsExtPage() {
                         }}
                       >
                         <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
+                      </ZoruButton>
+                      <ZoruButton
                         variant="ghost"
                         size="icon"
                         onClick={() => setConfirmDelete(r)}
                       >
                         <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
+                      </ZoruButton>
+                    </ZoruTableCell>
+                  </ZoruTableRow>
                 ))}
-              </TableBody>
-            </Table>
+              </ZoruTableBody>
+            </ZoruTable>
           </div>
         )}
-      </ClayCard>
+      </ZoruCard>
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
+      <ZoruDialog open={open} onOpenChange={setOpen}>
+        <ZoruDialogContent>
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>
               {editing ? 'Edit Transaction' : 'Add Transaction'}
-            </DialogTitle>
-          </DialogHeader>
+            </ZoruDialogTitle>
+          </ZoruDialogHeader>
           <form action={formAction} className="grid gap-3">
             {editing?._id ? (
               <input type="hidden" name="_id" value={editing._id} />
             ) : null}
 
             <div>
-              <Label htmlFor="bank_account_id">Bank Account</Label>
-              <Select
+              <ZoruLabel htmlFor="bank_account_id">Bank Account</ZoruLabel>
+              <ZoruSelect
                 name="bank_account_id"
                 defaultValue={editing?.bank_account_id || ''}
               >
-                <SelectTrigger
+                <ZoruSelectTrigger
                   id="bank_account_id"
                   className="h-10 rounded-lg border-border bg-card text-[13px]"
                 >
-                  <SelectValue placeholder="Pick account" />
-                </SelectTrigger>
-                <SelectContent>
+                  <ZoruSelectValue placeholder="Pick account" />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
                   {banks.map((b) => (
-                    <SelectItem key={b._id} value={b._id}>
+                    <ZoruSelectItem key={b._id} value={b._id}>
                       {b.accountName}
-                    </SelectItem>
+                    </ZoruSelectItem>
                   ))}
-                </SelectContent>
-              </Select>
+                </ZoruSelectContent>
+              </ZoruSelect>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label htmlFor="type">Type</Label>
-                <Select name="type" defaultValue={editing?.type || 'deposit'}>
-                  <SelectTrigger
+                <ZoruLabel htmlFor="type">Type</ZoruLabel>
+                <ZoruSelect name="type" defaultValue={editing?.type || 'deposit'}>
+                  <ZoruSelectTrigger
                     id="type"
                     className="h-10 rounded-lg border-border bg-card text-[13px]"
                   >
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="deposit">deposit</SelectItem>
-                    <SelectItem value="withdrawal">withdrawal</SelectItem>
-                    <SelectItem value="transfer">transfer</SelectItem>
-                  </SelectContent>
-                </Select>
+                    <ZoruSelectValue />
+                  </ZoruSelectTrigger>
+                  <ZoruSelectContent>
+                    <ZoruSelectItem value="deposit">deposit</ZoruSelectItem>
+                    <ZoruSelectItem value="withdrawal">withdrawal</ZoruSelectItem>
+                    <ZoruSelectItem value="transfer">transfer</ZoruSelectItem>
+                  </ZoruSelectContent>
+                </ZoruSelect>
               </div>
               <div>
-                <Label htmlFor="date">Date</Label>
-                <Input
+                <ZoruLabel htmlFor="date">Date</ZoruLabel>
+                <ZoruInput
                   id="date"
                   name="date"
                   type="date"
@@ -337,8 +297,8 @@ export default function BankTransactionsExtPage() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label htmlFor="amount">Amount</Label>
-                <Input
+                <ZoruLabel htmlFor="amount">Amount</ZoruLabel>
+                <ZoruInput
                   id="amount"
                   name="amount"
                   type="number"
@@ -349,8 +309,8 @@ export default function BankTransactionsExtPage() {
                 />
               </div>
               <div>
-                <Label htmlFor="category">Category</Label>
-                <Input
+                <ZoruLabel htmlFor="category">Category</ZoruLabel>
+                <ZoruInput
                   id="category"
                   name="category"
                   defaultValue={editing?.category || ''}
@@ -359,8 +319,8 @@ export default function BankTransactionsExtPage() {
               </div>
             </div>
             <div>
-              <Label htmlFor="reference">Reference</Label>
-              <Input
+              <ZoruLabel htmlFor="reference">Reference</ZoruLabel>
+              <ZoruInput
                 id="reference"
                 name="reference"
                 defaultValue={editing?.reference || ''}
@@ -368,8 +328,8 @@ export default function BankTransactionsExtPage() {
               />
             </div>
             <div>
-              <Label htmlFor="description">Description</Label>
-              <Textarea
+              <ZoruLabel htmlFor="description">Description</ZoruLabel>
+              <ZoruTextarea
                 id="description"
                 name="description"
                 rows={3}
@@ -386,42 +346,42 @@ export default function BankTransactionsExtPage() {
               />
               Reconciled
             </label>
-            <DialogFooter>
-              <Button
+            <ZoruDialogFooter>
+              <ZoruButton
                 type="button"
                 variant="ghost"
                 onClick={() => setOpen(false)}
               >
                 Cancel
-              </Button>
-              <Button type="submit">Save</Button>
-            </DialogFooter>
+              </ZoruButton>
+              <ZoruButton type="submit">Save</ZoruButton>
+            </ZoruDialogFooter>
           </form>
-        </DialogContent>
-      </Dialog>
+        </ZoruDialogContent>
+      </ZoruDialog>
 
-      <AlertDialog
+      <ZoruAlertDialog
         open={!!confirmDelete}
         onOpenChange={(o) => !o && setConfirmDelete(null)}
       >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete transaction?</AlertDialogTitle>
-            <AlertDialogDescription>
+        <ZoruAlertDialogContent>
+          <ZoruAlertDialogHeader>
+            <ZoruAlertDialogTitle>Delete transaction?</ZoruAlertDialogTitle>
+            <ZoruAlertDialogDescription>
               This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={onDelete} disabled={isPending}>
+            </ZoruAlertDialogDescription>
+          </ZoruAlertDialogHeader>
+          <ZoruAlertDialogFooter>
+            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+            <ZoruAlertDialogAction onClick={onDelete} disabled={isPending}>
               {isPending && (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
               )}
               Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </ZoruAlertDialogAction>
+          </ZoruAlertDialogFooter>
+        </ZoruAlertDialogContent>
+      </ZoruAlertDialog>
     </div>
   );
 }

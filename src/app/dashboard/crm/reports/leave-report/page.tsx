@@ -1,20 +1,11 @@
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruCard, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
 export const dynamic = 'force-dynamic';
 
 import { PlaneTakeoff } from 'lucide-react';
-import { ClayCard } from '@/components/clay';
+
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import { ReportToolbar, StatCard } from '../_components/report-toolbar';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+
 import { getLeavesReport } from '@/app/actions/worksuite/reports.actions';
 
 export default async function LeaveReportPage(props: {
@@ -42,62 +33,62 @@ export default async function LeaveReportPage(props: {
         <StatCard label="Rejected days" value={String(totalRejected)} tone="red" />
       </div>
 
-      <ClayCard>
+      <ZoruCard>
         <div className="overflow-x-auto rounded-lg border border-border">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border hover:bg-transparent">
-                <TableHead className="text-muted-foreground">Employee</TableHead>
-                <TableHead className="text-muted-foreground">Leave Type</TableHead>
-                <TableHead className="text-right text-muted-foreground">
+          <ZoruTable>
+            <ZoruTableHeader>
+              <ZoruTableRow className="border-border hover:bg-transparent">
+                <ZoruTableHead className="text-muted-foreground">Employee</ZoruTableHead>
+                <ZoruTableHead className="text-muted-foreground">Leave Type</ZoruTableHead>
+                <ZoruTableHead className="text-right text-muted-foreground">
                   Approved
-                </TableHead>
-                <TableHead className="text-right text-muted-foreground">
+                </ZoruTableHead>
+                <ZoruTableHead className="text-right text-muted-foreground">
                   Pending
-                </TableHead>
-                <TableHead className="text-right text-muted-foreground">
+                </ZoruTableHead>
+                <ZoruTableHead className="text-right text-muted-foreground">
                   Rejected
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+                </ZoruTableHead>
+              </ZoruTableRow>
+            </ZoruTableHeader>
+            <ZoruTableBody>
               {rows.length === 0 ? (
-                <TableRow className="border-border">
-                  <TableCell
+                <ZoruTableRow className="border-border">
+                  <ZoruTableCell
                     colSpan={5}
                     className="h-20 text-center text-[13px] text-muted-foreground"
                   >
                     No leaves in this range.
-                  </TableCell>
-                </TableRow>
+                  </ZoruTableCell>
+                </ZoruTableRow>
               ) : (
                 rows.map((r, i) => (
-                  <TableRow
+                  <ZoruTableRow
                     key={`${r.employeeId}-${i}`}
                     className="border-border"
                   >
-                    <TableCell className="font-medium text-foreground">
+                    <ZoruTableCell className="font-medium text-foreground">
                       {r.employeeName}
-                    </TableCell>
-                    <TableCell className="text-[13px] text-foreground">
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-[13px] text-foreground">
                       {r.leaveTypeName}
-                    </TableCell>
-                    <TableCell className="text-right text-[13px] text-emerald-500">
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-right text-[13px] text-emerald-500">
                       {r.approvedDays}
-                    </TableCell>
-                    <TableCell className="text-right text-[13px] text-amber-500">
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-right text-[13px] text-amber-500">
                       {r.pendingDays}
-                    </TableCell>
-                    <TableCell className="text-right text-[13px] text-destructive">
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-right text-[13px] text-destructive">
                       {r.rejectedDays}
-                    </TableCell>
-                  </TableRow>
+                    </ZoruTableCell>
+                  </ZoruTableRow>
                 ))
               )}
-            </TableBody>
-          </Table>
+            </ZoruTableBody>
+          </ZoruTable>
         </div>
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

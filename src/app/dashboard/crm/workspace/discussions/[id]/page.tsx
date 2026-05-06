@@ -1,8 +1,5 @@
 'use client';
-
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruButton, ZoruCard, ZoruTextarea, useZoruToast } from '@/components/zoruui';
 import * as React from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -13,10 +10,8 @@ import {
   Send,
 } from 'lucide-react';
 
-import { ClayCard, ClayButton } from '@/components/clay';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
-import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/hooks/use-toast';
+
 import {
   getDiscussionById,
   getDiscussionReplies,
@@ -37,7 +32,7 @@ function fmt(v: unknown) {
 export default function DiscussionDetailPage() {
   const params = useParams<{ id: string }>();
   const id = params?.id;
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [discussion, setDiscussion] = React.useState<
     (WsDiscussion & { _id: string }) | null
   >(null);
@@ -95,7 +90,7 @@ export default function DiscussionDetailPage() {
     return (
       <div className="flex w-full flex-col gap-4">
         <CrmPageHeader title="Discussion" subtitle="Not found" icon={MessagesSquare} />
-        <ClayCard><p className="text-center text-[13px] text-muted-foreground">Discussion not found.</p></ClayCard>
+        <ZoruCard><p className="text-center text-[13px] text-muted-foreground">Discussion not found.</p></ZoruCard>
       </div>
     );
   }
@@ -108,20 +103,20 @@ export default function DiscussionDetailPage() {
         icon={MessagesSquare}
         actions={
           <Link href="/dashboard/crm/workspace/discussions">
-            <ClayButton variant="pill" leading={<ArrowLeft className="h-4 w-4" strokeWidth={1.75} />}>
+            <ZoruButton variant="outline">
               Back
-            </ClayButton>
+            </ZoruButton>
           </Link>
         }
       />
 
-      <ClayCard>
+      <ZoruCard>
         <p className="whitespace-pre-wrap text-[14px] leading-relaxed text-foreground">
           {discussion.description || 'No description.'}
         </p>
-      </ClayCard>
+      </ZoruCard>
 
-      <ClayCard>
+      <ZoruCard>
         <h3 className="mb-3 text-[14px] font-semibold text-foreground">
           Replies ({replies.length})
         </h3>
@@ -130,49 +125,43 @@ export default function DiscussionDetailPage() {
             <p className="text-[13px] text-muted-foreground">No replies yet — be the first.</p>
           ) : (
             replies.map((r) => (
-              <ClayCard key={r._id} variant="soft">
+              <ZoruCard key={r._id}>
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <p className="text-[12px] font-semibold text-foreground">{r.user_name || r.user_id}</p>
                     <p className="text-[11px] text-muted-foreground">{fmt(r.createdAt)}</p>
                     <p className="mt-1 whitespace-pre-wrap text-[13.5px] text-foreground">{r.body}</p>
                   </div>
-                  <ClayButton variant="ghost" size="sm" onClick={() => handleDeleteReply(r._id)}>
+                  <ZoruButton variant="ghost" size="sm" onClick={() => handleDeleteReply(r._id)}>
                     Delete
-                  </ClayButton>
+                  </ZoruButton>
                 </div>
-              </ClayCard>
+              </ZoruCard>
             ))
           )}
         </div>
-      </ClayCard>
+      </ZoruCard>
 
-      <ClayCard>
+      <ZoruCard>
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-          <Textarea
+          <ZoruTextarea
             value={body}
             onChange={(e) => setBody(e.target.value)}
             placeholder="Write a reply…"
             rows={3}
           />
           <div className="flex justify-end">
-            <ClayButton
+            <ZoruButton
               type="submit"
-              variant="obsidian"
+             
               disabled={submitting || !body.trim()}
-              leading={
-                submitting ? (
-                  <LoaderCircle className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Send className="h-4 w-4" strokeWidth={1.75} />
-                )
-              }
+             
             >
               Post reply
-            </ClayButton>
+            </ZoruButton>
           </div>
         </form>
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

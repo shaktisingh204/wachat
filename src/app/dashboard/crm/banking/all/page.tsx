@@ -1,34 +1,18 @@
 'use client';
-
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruAlertDialog, ZoruAlertDialogAction, ZoruAlertDialogCancel, ZoruAlertDialogContent, ZoruAlertDialogDescription, ZoruAlertDialogFooter, ZoruAlertDialogHeader, ZoruAlertDialogTitle, ZoruAlertDialogTrigger, ZoruBadge, ZoruButton, ZoruCard, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow, useZoruToast } from '@/components/zoruui';
 import { useState, useEffect, useCallback, useTransition } from 'react';
 import type { WithId } from 'mongodb';
 import { getCrmPaymentAccounts, deleteCrmPaymentAccount } from '@/app/actions/crm-payment-accounts.actions';
 import type { CrmPaymentAccount } from '@/lib/definitions';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
+
 import { LoaderCircle, Plus, Trash2, Edit, Banknote, Wallet, ArrowLeftRight } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
+
 import Link from 'next/link';
 
-import { ClayCard, ClayBadge, ClayButton } from '@/components/clay';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 const StatCard = ({ title, value, icon: Icon }: { title: string; value: number; icon: React.ElementType }) => (
-    <ClayCard>
+    <ZoruCard>
         <div className="flex items-center justify-between">
             <p className="text-[13px] font-medium text-muted-foreground">{title}</p>
             <Icon className="h-4 w-4 text-muted-foreground" />
@@ -36,11 +20,11 @@ const StatCard = ({ title, value, icon: Icon }: { title: string; value: number; 
         <div className="mt-2 text-[22px] font-bold text-foreground">
             {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(value)}
         </div>
-    </ClayCard>
+    </ZoruCard>
 );
 
 function DeleteButton({ account, onDeleted }: { account: WithId<CrmPaymentAccount>, onDeleted: () => void }) {
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
     const [isPending, startTransition] = useTransition();
 
     const handleDelete = () => {
@@ -56,23 +40,23 @@ function DeleteButton({ account, onDeleted }: { account: WithId<CrmPaymentAccoun
     }
 
     return (
-        <AlertDialog>
-            <AlertDialogTrigger asChild>
-                <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive"/></Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-                <AlertDialogHeader>
-                    <AlertDialogTitle>Delete Account?</AlertDialogTitle>
-                    <AlertDialogDescription>Are you sure you want to delete the &ldquo;{account.accountName}&rdquo; account? This action cannot be undone.</AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleDelete} disabled={isPending}>
+        <ZoruAlertDialog>
+            <ZoruAlertDialogTrigger asChild>
+                <ZoruButton variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive"/></ZoruButton>
+            </ZoruAlertDialogTrigger>
+            <ZoruAlertDialogContent>
+                <ZoruAlertDialogHeader>
+                    <ZoruAlertDialogTitle>Delete Account?</ZoruAlertDialogTitle>
+                    <ZoruAlertDialogDescription>Are you sure you want to delete the &ldquo;{account.accountName}&rdquo; account? This action cannot be undone.</ZoruAlertDialogDescription>
+                </ZoruAlertDialogHeader>
+                <ZoruAlertDialogFooter>
+                    <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+                    <ZoruAlertDialogAction onClick={handleDelete} disabled={isPending}>
                         {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>} Delete
-                    </AlertDialogAction>
-                </AlertDialogFooter>
-            </AlertDialogContent>
-        </AlertDialog>
+                    </ZoruAlertDialogAction>
+                </ZoruAlertDialogFooter>
+            </ZoruAlertDialogContent>
+        </ZoruAlertDialog>
     )
 }
 
@@ -102,9 +86,9 @@ export default function AllPaymentAccountsPage() {
                 icon={ArrowLeftRight}
                 actions={
                     <Link href="/dashboard/crm/banking/all/new">
-                        <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}>
+                        <ZoruButton>
                             Add Payment Account
-                        </ClayButton>
+                        </ZoruButton>
                     </Link>
                 }
             />
@@ -114,48 +98,48 @@ export default function AllPaymentAccountsPage() {
                 <StatCard title="Total Cash In Hand" value={totalCashBalance} icon={Wallet} />
             </div>
 
-            <ClayCard>
+            <ZoruCard>
                 <div className="mb-4">
                     <h2 className="text-[16px] font-semibold text-foreground">Accounts List</h2>
                 </div>
                 <div className="overflow-x-auto rounded-lg border border-border">
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="border-border hover:bg-transparent">
-                                <TableHead className="text-muted-foreground">Account Name</TableHead>
-                                <TableHead className="text-muted-foreground">Account Type</TableHead>
-                                <TableHead className="text-muted-foreground">Bank</TableHead>
-                                <TableHead className="text-muted-foreground">Account Number</TableHead>
-                                <TableHead className="text-right text-muted-foreground">Balance</TableHead>
-                                <TableHead className="text-muted-foreground">Status</TableHead>
-                                <TableHead className="text-right text-muted-foreground">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
+                    <ZoruTable>
+                        <ZoruTableHeader>
+                            <ZoruTableRow className="border-border hover:bg-transparent">
+                                <ZoruTableHead className="text-muted-foreground">Account Name</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Account Type</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Bank</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Account Number</ZoruTableHead>
+                                <ZoruTableHead className="text-right text-muted-foreground">Balance</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Status</ZoruTableHead>
+                                <ZoruTableHead className="text-right text-muted-foreground">Actions</ZoruTableHead>
+                            </ZoruTableRow>
+                        </ZoruTableHeader>
+                        <ZoruTableBody>
                             {isLoading ? (
-                                <TableRow className="border-border"><TableCell colSpan={7} className="h-24 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin"/></TableCell></TableRow>
+                                <ZoruTableRow className="border-border"><ZoruTableCell colSpan={7} className="h-24 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin"/></ZoruTableCell></ZoruTableRow>
                             ) : accounts.length > 0 ? (
                                 accounts.map(account => (
-                                    <TableRow key={account._id.toString()} className="border-border">
-                                        <TableCell className="font-medium text-foreground">{account.accountName}</TableCell>
-                                        <TableCell className="capitalize text-[13px] text-foreground">{account.accountType}</TableCell>
-                                        <TableCell className="text-[13px] text-foreground">{account.bankDetails?.bankName || 'N/A'}</TableCell>
-                                        <TableCell className="font-mono text-xs text-foreground">{account.bankDetails?.accountNumber || 'N/A'}</TableCell>
-                                        <TableCell className="text-right font-semibold text-foreground">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: account.currency }).format(account.currentBalance || 0)}</TableCell>
-                                        <TableCell><ClayBadge tone={account.status === 'active' ? 'green' : 'rose-soft'}>{account.status}</ClayBadge></TableCell>
-                                        <TableCell className="text-right">
-                                            <Button variant="ghost" size="icon" disabled><Edit className="h-4 w-4"/></Button>
+                                    <ZoruTableRow key={account._id.toString()} className="border-border">
+                                        <ZoruTableCell className="font-medium text-foreground">{account.accountName}</ZoruTableCell>
+                                        <ZoruTableCell className="capitalize text-[13px] text-foreground">{account.accountType}</ZoruTableCell>
+                                        <ZoruTableCell className="text-[13px] text-foreground">{account.bankDetails?.bankName || 'N/A'}</ZoruTableCell>
+                                        <ZoruTableCell className="font-mono text-xs text-foreground">{account.bankDetails?.accountNumber || 'N/A'}</ZoruTableCell>
+                                        <ZoruTableCell className="text-right font-semibold text-foreground">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: account.currency }).format(account.currentBalance || 0)}</ZoruTableCell>
+                                        <ZoruTableCell><ZoruBadge variant={(account.status === 'active' ? 'green' : 'rose-soft') as any}>{account.status}</ZoruBadge></ZoruTableCell>
+                                        <ZoruTableCell className="text-right">
+                                            <ZoruButton variant="ghost" size="icon" disabled><Edit className="h-4 w-4"/></ZoruButton>
                                             <DeleteButton account={account} onDeleted={fetchData} />
-                                        </TableCell>
-                                    </TableRow>
+                                        </ZoruTableCell>
+                                    </ZoruTableRow>
                                 ))
                             ) : (
-                                <TableRow className="border-border"><TableCell colSpan={7} className="h-24 text-center text-[13px] text-muted-foreground">No payment accounts created yet.</TableCell></TableRow>
+                                <ZoruTableRow className="border-border"><ZoruTableCell colSpan={7} className="h-24 text-center text-[13px] text-muted-foreground">No payment accounts created yet.</ZoruTableCell></ZoruTableRow>
                             )}
-                        </TableBody>
-                    </Table>
+                        </ZoruTableBody>
+                    </ZoruTable>
                 </div>
-            </ClayCard>
+            </ZoruCard>
         </div>
     );
 }

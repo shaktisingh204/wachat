@@ -1,25 +1,17 @@
 'use client';
-
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruButton, ZoruCard, ZoruDatePicker, ZoruInput, ZoruLabel, ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue, ZoruSwitch, useZoruToast } from '@/components/zoruui';
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+
 import { LoaderCircle, Save, ArrowLeft, Landmark } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+
 import { saveCrmPaymentAccount } from '@/app/actions/crm-payment-accounts.actions';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
+
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { BankAccountDetails } from '@/lib/definitions';
 import { CrmAddBankAccountDialog } from '@/components/wabasimplify/crm-add-bank-account-dialog';
-import { DatePicker } from '@/components/ui/date-picker';
 
-import { ClayCard, ClayButton } from '@/components/clay';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 
 const initialState = { message: null, error: null };
@@ -27,20 +19,20 @@ const initialState = { message: null, error: null };
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <ClayButton
+        <ZoruButton
             type="submit"
-            variant="obsidian"
+           
             disabled={pending}
-            leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+           
         >
             Add Account
-        </ClayButton>
+        </ZoruButton>
     );
 }
 
 export default function NewPaymentAccountPage() {
     const [state, formAction] = useActionState(saveCrmPaymentAccount as any, initialState as any);
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
     const router = useRouter();
     const formRef = useRef<HTMLFormElement>(null);
     const [accountType, setAccountType] = useState<string>('bank');
@@ -81,24 +73,24 @@ export default function NewPaymentAccountPage() {
             <form action={formAction} ref={formRef}>
                 <input type="hidden" name="bankAccountDetails" value={JSON.stringify(bankDetails)} />
                 <input type="hidden" name="openingBalanceDate" value={openingBalanceDate?.toISOString()} />
-                <ClayCard>
+                <ZoruCard>
                     <div className="space-y-6">
                         <div className="space-y-2">
-                            <Label>Account Type *</Label>
-                            <Select name="accountType" required value={accountType} onValueChange={setAccountType}>
-                                <SelectTrigger><SelectValue/></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="bank">Bank</SelectItem>
-                                    <SelectItem value="cash">Cash</SelectItem>
-                                    <SelectItem value="employee">Employee</SelectItem>
-                                    <SelectItem value="wallet">Wallet</SelectItem>
-                                    <SelectItem value="other">Other</SelectItem>
-                                </SelectContent>
-                            </Select>
+                            <ZoruLabel>Account Type *</ZoruLabel>
+                            <ZoruSelect name="accountType" required value={accountType} onValueChange={setAccountType}>
+                                <ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger>
+                                <ZoruSelectContent>
+                                    <ZoruSelectItem value="bank">Bank</ZoruSelectItem>
+                                    <ZoruSelectItem value="cash">Cash</ZoruSelectItem>
+                                    <ZoruSelectItem value="employee">Employee</ZoruSelectItem>
+                                    <ZoruSelectItem value="wallet">Wallet</ZoruSelectItem>
+                                    <ZoruSelectItem value="other">Other</ZoruSelectItem>
+                                </ZoruSelectContent>
+                            </ZoruSelect>
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="accountName">Account Name *</Label>
-                            <Input id="accountName" name="accountName" required className="h-10 rounded-lg border-border bg-card text-[13px]" />
+                            <ZoruLabel htmlFor="accountName">Account Name *</ZoruLabel>
+                            <ZoruInput id="accountName" name="accountName" required className="h-10 rounded-lg border-border bg-card text-[13px]" />
                         </div>
 
                         {accountType === 'bank' && (
@@ -109,47 +101,47 @@ export default function NewPaymentAccountPage() {
                                         <p><strong>Holder:</strong> {bankDetails.accountHolder}</p>
                                         <p><strong>Account:</strong> {bankDetails.accountNumber}</p>
                                         <p><strong>IFSC:</strong> {bankDetails.ifsc}</p>
-                                        <Button variant="link" size="sm" className="p-0 h-auto mt-2" onClick={() => setIsBankDialogOpen(true)}>Edit Details</Button>
+                                        <ZoruButton variant="link" size="sm" className="p-0 h-auto mt-2" onClick={() => setIsBankDialogOpen(true)}>Edit Details</ZoruButton>
                                     </div>
                                 ) : (
-                                    <ClayButton type="button" variant="pill" onClick={() => setIsBankDialogOpen(true)}>
+                                    <ZoruButton type="button" variant="outline" onClick={() => setIsBankDialogOpen(true)}>
                                         Add Bank Details
-                                    </ClayButton>
+                                    </ZoruButton>
                                 )}
                             </div>
                         )}
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label>Opening Balance *</Label>
-                                <Input name="openingBalance" type="number" defaultValue="0" required className="h-10 rounded-lg border-border bg-card text-[13px]" />
+                                <ZoruLabel>Opening Balance *</ZoruLabel>
+                                <ZoruInput name="openingBalance" type="number" defaultValue="0" required className="h-10 rounded-lg border-border bg-card text-[13px]" />
                             </div>
                             <div className="space-y-2">
-                                <Label>As of *</Label>
-                                <DatePicker date={openingBalanceDate} setDate={setOpeningBalanceDate} />
+                                <ZoruLabel>As of *</ZoruLabel>
+                                <ZoruDatePicker value={openingBalanceDate} onChange={setOpeningBalanceDate} />
                             </div>
                         </div>
                         <div className="space-y-2">
-                            <Label>Currency *</Label>
-                            <Select name="currency" defaultValue="INR" required>
-                                <SelectTrigger><SelectValue/></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="INR">Indian Rupee (INR)</SelectItem>
-                                </SelectContent>
-                            </Select>
+                            <ZoruLabel>Currency *</ZoruLabel>
+                            <ZoruSelect name="currency" defaultValue="INR" required>
+                                <ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger>
+                                <ZoruSelectContent>
+                                    <ZoruSelectItem value="INR">Indian Rupee (INR)</ZoruSelectItem>
+                                </ZoruSelectContent>
+                            </ZoruSelect>
                         </div>
                         <div className="flex items-center space-x-2">
-                            <Switch id="isDefault" name="isDefault" />
-                            <Label htmlFor="isDefault">Set as default account</Label>
+                            <ZoruSwitch id="isDefault" name="isDefault" />
+                            <ZoruLabel htmlFor="isDefault">Set as default account</ZoruLabel>
                         </div>
                         <div className="flex items-center space-x-2">
-                            <Switch id="status" name="status" defaultChecked={true} />
-                            <Label htmlFor="status">Set as Active</Label>
+                            <ZoruSwitch id="status" name="status" defaultChecked={true} />
+                            <ZoruLabel htmlFor="status">Set as Active</ZoruLabel>
                         </div>
                     </div>
                     <div className="flex justify-end pt-6">
                         <SubmitButton />
                     </div>
-                </ClayCard>
+                </ZoruCard>
             </form>
         </div>
     );

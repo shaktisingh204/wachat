@@ -1,27 +1,19 @@
 'use client';
-
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruAccordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger, ZoruButton, ZoruCard, ZoruCheckbox, ZoruInput, ZoruLabel, ZoruRadioGroup, ZoruRadioGroupItem, ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue, useZoruToast } from '@/components/zoruui';
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+
 import { LoaderCircle, Save, ArrowLeft, User, Truck } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+
 import { saveCrmVendor } from '@/app/actions/crm-vendors.actions';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { CrmAddBankAccountDialog } from '@/components/wabasimplify/crm-add-bank-account-dialog';
 import type { BankAccountDetails } from '@/lib/definitions';
-import { Checkbox } from '@/components/ui/checkbox';
 
 import { SmartLocationSelect } from '@/components/crm/smart-location-select';
-import { ClayCard, ClayButton } from '@/components/clay';
+
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 
 const initialState = { message: '', error: '' };
@@ -29,15 +21,15 @@ const initialState = { message: '', error: '' };
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <ClayButton type="submit" variant="obsidian" disabled={pending} leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}>
+        <ZoruButton type="submit" disabled={pending}>
             Add Vendor
-        </ClayButton>
+        </ZoruButton>
     );
 }
 
 export default function NewVendorPage() {
     const [state, formAction] = useActionState(saveCrmVendor, initialState);
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
     const router = useRouter();
     const formRef = useRef<HTMLFormElement>(null);
     const [bankDetails, setBankDetails] = useState<Partial<BankAccountDetails>>({});
@@ -88,26 +80,26 @@ export default function NewVendorPage() {
 
             <form action={formAction} ref={formRef}>
                 <input type="hidden" name="bankAccountDetails" value={JSON.stringify(bankDetails)} />
-                <ClayCard>
-                    <Accordion type="multiple" defaultValue={['basic', 'tax', 'address', 'additional']} className="w-full">
-                        <AccordionItem value="basic">
-                            <AccordionTrigger>Basic Information</AccordionTrigger>
-                            <AccordionContent className="space-y-4 pt-2">
+                <ZoruCard>
+                    <ZoruAccordion type="multiple" defaultValue={['basic', 'tax', 'address', 'additional']} className="w-full">
+                        <ZoruAccordionItem value="basic">
+                            <ZoruAccordionTrigger>Basic Information</ZoruAccordionTrigger>
+                            <ZoruAccordionContent className="space-y-4 pt-2">
                                 <div className="space-y-2">
-                                    <Label htmlFor="logo">Upload Logo</Label>
-                                    <Input id="logo" name="logo" type="file" accept="image/jpeg,image/png" className="h-10 rounded-lg border-border bg-card text-[13px]" />
+                                    <ZoruLabel htmlFor="logo">Upload Logo</ZoruLabel>
+                                    <ZoruInput id="logo" name="logo" type="file" accept="image/jpeg,image/png" className="h-10 rounded-lg border-border bg-card text-[13px]" />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="name">Vendor&apos;s Business Name *</Label>
-                                    <Input id="name" name="name" required maxLength={100} className="h-10 rounded-lg border-border bg-card text-[13px]" />
+                                    <ZoruLabel htmlFor="name">Vendor&apos;s Business Name *</ZoruLabel>
+                                    <ZoruInput id="name" name="name" required maxLength={100} className="h-10 rounded-lg border-border bg-card text-[13px]" />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="clientIndustry">Vendor Industry</Label>
-                                    <Select name="clientIndustry"><SelectTrigger><SelectValue placeholder="-Select an Industry-" /></SelectTrigger><SelectContent><SelectItem value="tech">Technology</SelectItem><SelectItem value="retail">Retail</SelectItem></SelectContent></Select>
+                                    <ZoruLabel htmlFor="clientIndustry">Vendor Industry</ZoruLabel>
+                                    <ZoruSelect name="clientIndustry"><ZoruSelectTrigger><ZoruSelectValue placeholder="-Select an Industry-" /></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="tech">Technology</ZoruSelectItem><ZoruSelectItem value="retail">Retail</ZoruSelectItem></ZoruSelectContent></ZoruSelect>
                                 </div>
                                 <div className="grid grid-cols-3 gap-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="country">Country *</Label>
+                                        <ZoruLabel htmlFor="country">Country *</ZoruLabel>
                                         <SmartLocationSelect
                                             type="country"
                                             value={country}
@@ -122,7 +114,7 @@ export default function NewVendorPage() {
                                         <input type="hidden" name="country" value={countryName} />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="state">State</Label>
+                                        <ZoruLabel htmlFor="state">State</ZoruLabel>
                                         <SmartLocationSelect
                                             type="state"
                                             selectedCountryCode={country}
@@ -136,7 +128,7 @@ export default function NewVendorPage() {
                                         <input type="hidden" name="state" value={selectedStateName} />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="city">City/Town</Label>
+                                        <ZoruLabel htmlFor="city">City/Town</ZoruLabel>
                                         <SmartLocationSelect
                                             type="city"
                                             selectedCountryCode={country}
@@ -147,28 +139,28 @@ export default function NewVendorPage() {
                                         <input type="hidden" name="city" value={cityName} />
                                     </div>
                                 </div>
-                            </AccordionContent>
-                        </AccordionItem>
-                        <AccordionItem value="tax">
-                            <AccordionTrigger>Tax Information (Optional)</AccordionTrigger>
-                            <AccordionContent className="space-y-4 pt-2">
+                            </ZoruAccordionContent>
+                        </ZoruAccordionItem>
+                        <ZoruAccordionItem value="tax">
+                            <ZoruAccordionTrigger>Tax Information (Optional)</ZoruAccordionTrigger>
+                            <ZoruAccordionContent className="space-y-4 pt-2">
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-2"><Label>Business GSTIN</Label><Input name="gstin" maxLength={15} className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
-                                    <div className="space-y-2"><Label>Business PAN</Label><Input name="pan" maxLength={10} className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
+                                    <div className="space-y-2"><ZoruLabel>Business GSTIN</ZoruLabel><ZoruInput name="gstin" maxLength={15} className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
+                                    <div className="space-y-2"><ZoruLabel>Business PAN</ZoruLabel><ZoruInput name="pan" maxLength={10} className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
                                 </div>
-                                <div className="space-y-2"><Label>Name as Per PAN</Label><Input name="panName" maxLength={100} className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
+                                <div className="space-y-2"><ZoruLabel>Name as Per PAN</ZoruLabel><ZoruInput name="panName" maxLength={100} className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-2"><Label>Vendor Type</Label><RadioGroup name="vendorType" defaultValue="individual" className="flex gap-4 pt-2"><div className="flex items-center space-x-2"><RadioGroupItem value="individual" id="type-individual" /><Label htmlFor="type-individual" className="font-normal">Individual</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="company" id="type-company" /><Label htmlFor="type-company" className="font-normal">Company</Label></div></RadioGroup></div>
-                                    <div className="space-y-2"><Label>Tax Treatment</Label><Select name="taxTreatment"><SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger><SelectContent><SelectItem value="registered">Registered</SelectItem><SelectItem value="unregistered">Unregistered</SelectItem></SelectContent></Select></div>
+                                    <div className="space-y-2"><ZoruLabel>Vendor Type</ZoruLabel><ZoruRadioGroup name="vendorType" defaultValue="individual" className="flex gap-4 pt-2"><div className="flex items-center space-x-2"><ZoruRadioGroupItem value="individual" id="type-individual" /><ZoruLabel htmlFor="type-individual" className="font-normal">Individual</ZoruLabel></div><div className="flex items-center space-x-2"><ZoruRadioGroupItem value="company" id="type-company" /><ZoruLabel htmlFor="type-company" className="font-normal">Company</ZoruLabel></div></ZoruRadioGroup></div>
+                                    <div className="space-y-2"><ZoruLabel>Tax Treatment</ZoruLabel><ZoruSelect name="taxTreatment"><ZoruSelectTrigger><ZoruSelectValue placeholder="Select..." /></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="registered">Registered</ZoruSelectItem><ZoruSelectItem value="unregistered">Unregistered</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
                                 </div>
-                            </AccordionContent>
-                        </AccordionItem>
-                        <AccordionItem value="address">
-                            <AccordionTrigger>Address (Optional)</AccordionTrigger>
-                            <AccordionContent className="space-y-4 pt-2">
+                            </ZoruAccordionContent>
+                        </ZoruAccordionItem>
+                        <ZoruAccordionItem value="address">
+                            <ZoruAccordionTrigger>Address (Optional)</ZoruAccordionTrigger>
+                            <ZoruAccordionContent className="space-y-4 pt-2">
                                 <div className="grid grid-cols-3 gap-4">
                                     <div className="space-y-2">
-                                        <Label>Country</Label>
+                                        <ZoruLabel>Country</ZoruLabel>
                                         <SmartLocationSelect
                                             type="country"
                                             value={addressCountry}
@@ -183,7 +175,7 @@ export default function NewVendorPage() {
                                         <input type="hidden" name="addressCountry" value={addressCountryName} />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label>State / Province</Label>
+                                        <ZoruLabel>State / Province</ZoruLabel>
                                         <SmartLocationSelect
                                             type="state"
                                             selectedCountryCode={addressCountry}
@@ -197,7 +189,7 @@ export default function NewVendorPage() {
                                         <input type="hidden" name="addressState" value={addressStateName} />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label>City</Label>
+                                        <ZoruLabel>City</ZoruLabel>
                                         <SmartLocationSelect
                                             type="city"
                                             selectedCountryCode={addressCountry}
@@ -208,61 +200,61 @@ export default function NewVendorPage() {
                                         <input type="hidden" name="addressCity" value={addressCityName} />
                                     </div>
                                 </div>
-                                <div className="space-y-2"><Label>Postal Code / Zip Code</Label><Input name="pincode" maxLength={20} className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
-                                <div className="space-y-2"><Label>Street Address</Label><Input name="street" maxLength={200} className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
-                            </AccordionContent>
-                        </AccordionItem>
-                        <AccordionItem value="additional">
-                            <AccordionTrigger>Additional Details (Optional)</AccordionTrigger>
-                            <AccordionContent className="space-y-4 pt-2">
-                                <div className="space-y-2"><Label htmlFor="displayName">Display Name</Label><Input id="displayName" name="displayName" maxLength={100} className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
+                                <div className="space-y-2"><ZoruLabel>Postal Code / Zip Code</ZoruLabel><ZoruInput name="pincode" maxLength={20} className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
+                                <div className="space-y-2"><ZoruLabel>Street Address</ZoruLabel><ZoruInput name="street" maxLength={200} className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
+                            </ZoruAccordionContent>
+                        </ZoruAccordionItem>
+                        <ZoruAccordionItem value="additional">
+                            <ZoruAccordionTrigger>Additional Details (Optional)</ZoruAccordionTrigger>
+                            <ZoruAccordionContent className="space-y-4 pt-2">
+                                <div className="space-y-2"><ZoruLabel htmlFor="displayName">Display Name</ZoruLabel><ZoruInput id="displayName" name="displayName" maxLength={100} className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="email">Email</Label>
-                                        <Input id="email" name="email" type="email" maxLength={100} className="h-10 rounded-lg border-border bg-card text-[13px]" />
-                                        <div className="flex items-center space-x-2"><Checkbox id="show-email" /><Label htmlFor="show-email" className="font-normal text-xs">Show in Invoice</Label></div>
+                                        <ZoruLabel htmlFor="email">Email</ZoruLabel>
+                                        <ZoruInput id="email" name="email" type="email" maxLength={100} className="h-10 rounded-lg border-border bg-card text-[13px]" />
+                                        <div className="flex items-center space-x-2"><ZoruCheckbox id="show-email" /><ZoruLabel htmlFor="show-email" className="font-normal text-xs">Show in Invoice</ZoruLabel></div>
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="phone">Phone No.</Label>
-                                        <Input id="phone" name="phone" maxLength={30} className="h-10 rounded-lg border-border bg-card text-[13px]" />
-                                        <div className="flex items-center space-x-2"><Checkbox id="show-phone" /><Label htmlFor="show-phone" className="font-normal text-xs">Show in Invoice</Label></div>
+                                        <ZoruLabel htmlFor="phone">Phone No.</ZoruLabel>
+                                        <ZoruInput id="phone" name="phone" maxLength={30} className="h-10 rounded-lg border-border bg-card text-[13px]" />
+                                        <div className="flex items-center space-x-2"><ZoruCheckbox id="show-phone" /><ZoruLabel htmlFor="show-phone" className="font-normal text-xs">Show in Invoice</ZoruLabel></div>
                                     </div>
                                 </div>
-                                <div className="space-y-2"><Label htmlFor="subject">Subject</Label><Input id="subject" name="subject" placeholder="Brief 4-5 words on what they&rsquo;re looking for" maxLength={100} className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
-                                <div className="space-y-2"><Label>Attachments</Label><Input type="file" multiple className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
-                            </AccordionContent>
-                        </AccordionItem>
-                        <AccordionItem value="bank">
-                            <AccordionTrigger>Bank Account Details (Optional)</AccordionTrigger>
-                            <AccordionContent className="space-y-4 pt-2">
+                                <div className="space-y-2"><ZoruLabel htmlFor="subject">Subject</ZoruLabel><ZoruInput id="subject" name="subject" placeholder="Brief 4-5 words on what they&rsquo;re looking for" maxLength={100} className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
+                                <div className="space-y-2"><ZoruLabel>Attachments</ZoruLabel><ZoruInput type="file" multiple className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
+                            </ZoruAccordionContent>
+                        </ZoruAccordionItem>
+                        <ZoruAccordionItem value="bank">
+                            <ZoruAccordionTrigger>Bank Account Details (Optional)</ZoruAccordionTrigger>
+                            <ZoruAccordionContent className="space-y-4 pt-2">
                                 <p className="text-[12.5px] text-muted-foreground">Record all payments made to your Vendor&apos;s Bank Accounts against this and future Purchases.</p>
                                 {bankDetails.accountNumber ? (
                                     <div className="p-3 rounded-lg border border-border">
                                         <p className="font-medium text-foreground">{bankDetails.accountHolder}</p>
                                         <p className="text-[12.5px] text-muted-foreground">Account: {bankDetails.accountNumber}</p>
                                         <p className="text-[12.5px] text-muted-foreground">IFSC: {bankDetails.ifsc}</p>
-                                        <Button variant="link" size="sm" className="p-0 h-auto mt-2" onClick={() => setIsBankDialogOpen(true)}>Edit Details</Button>
+                                        <ZoruButton variant="link" size="sm" className="p-0 h-auto mt-2" onClick={() => setIsBankDialogOpen(true)}>Edit Details</ZoruButton>
                                     </div>
                                 ) : (
-                                    <ClayButton type="button" variant="pill" onClick={() => setIsBankDialogOpen(true)}>
+                                    <ZoruButton type="button" variant="outline" onClick={() => setIsBankDialogOpen(true)}>
                                         Add Bank Account
-                                    </ClayButton>
+                                    </ZoruButton>
                                 )}
-                            </AccordionContent>
-                        </AccordionItem>
-                        <AccordionItem value="account-details">
-                            <AccordionTrigger>Account Details (Optional)</AccordionTrigger>
-                            <AccordionContent className="pt-2 text-center text-muted-foreground">
+                            </ZoruAccordionContent>
+                        </ZoruAccordionItem>
+                        <ZoruAccordionItem value="account-details">
+                            <ZoruAccordionTrigger>Account Details (Optional)</ZoruAccordionTrigger>
+                            <ZoruAccordionContent className="pt-2 text-center text-muted-foreground">
                                 <p className="text-[13px]">Enable Advanced Accounting to create or link ledger.</p>
-                                <ClayButton variant="pill" size="sm" className="mt-2" disabled>Enable Now</ClayButton>
-                            </AccordionContent>
-                        </AccordionItem>
-                    </Accordion>
+                                <ZoruButton variant="outline" size="sm" className="mt-2" disabled>Enable Now</ZoruButton>
+                            </ZoruAccordionContent>
+                        </ZoruAccordionItem>
+                    </ZoruAccordion>
 
                     <div className="flex justify-end pt-6">
                         <SubmitButton />
                     </div>
-                </ClayCard>
+                </ZoruCard>
             </form>
         </div>
     )

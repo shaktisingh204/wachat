@@ -1,8 +1,5 @@
 'use client';
-
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
+import { ZoruBadge, ZoruButton, ZoruCard, ZoruInput, ZoruLabel, ZoruSkeleton, useZoruToast } from '@/components/zoruui';
 import {
   use,
   useCallback,
@@ -27,13 +24,9 @@ import {
   signContract,
 } from '@/app/actions/crm-services.actions';
 import type { HrContract } from '@/lib/hr-types';
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
+
 import { SharePublicLinkButton } from '@/components/worksuite/share-public-link-button';
 import { CrmPageHeader } from '../../_components/crm-page-header';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
 
 type Contract = HrContract & { _id: string };
 
@@ -61,7 +54,7 @@ export default function ContractDetailPage(props: {
   params: Promise<{ contractId: string }>;
 }) {
   const { contractId } = use(props.params);
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
 
   const [contract, setContract] = useState<Contract | null>(null);
   const [isLoading, startLoading] = useTransition();
@@ -216,24 +209,24 @@ export default function ContractDetailPage(props: {
   if (isLoading && !contract) {
     return (
       <div className="flex w-full flex-col gap-6">
-        <Skeleton className="h-10 w-64" />
-        <Skeleton className="h-64 w-full" />
+        <ZoruSkeleton className="h-10 w-64" />
+        <ZoruSkeleton className="h-64 w-full" />
       </div>
     );
   }
 
   if (!contract) {
     return (
-      <ClayCard variant="outline" className="border-dashed">
+      <ZoruCard variant="outline" className="border-dashed">
         <div className="flex flex-col items-center gap-3 py-12 text-center">
           <p className="text-[13px] text-muted-foreground">Contract not found.</p>
           <Link href="/dashboard/crm/contracts">
-            <ClayButton variant="pill" leading={<ArrowLeft className="h-4 w-4" />}>
+            <ZoruButton variant="outline">
               Back to Contracts
-            </ClayButton>
+            </ZoruButton>
           </Link>
         </div>
-      </ClayCard>
+      </ZoruCard>
     );
   }
 
@@ -248,9 +241,9 @@ export default function ContractDetailPage(props: {
         actions={
           <>
             <Link href="/dashboard/crm/contracts">
-              <ClayButton variant="pill" leading={<ArrowLeft className="h-4 w-4" />}>
+              <ZoruButton variant="outline">
                 All Contracts
-              </ClayButton>
+              </ZoruButton>
             </Link>
             <SharePublicLinkButton
               resourceType="contract"
@@ -260,11 +253,11 @@ export default function ContractDetailPage(props: {
         }
       />
 
-      <ClayCard>
+      <ZoruCard>
         <div className="mb-4 flex items-center gap-2">
-          <ClayBadge tone={STATUS_TONES[contract.status] || 'neutral'} dot>
+          <ZoruBadge variant={(STATUS_TONES[contract.status] || 'neutral') as any}>
             {contract.status}
-          </ClayBadge>
+          </ZoruBadge>
         </div>
         <div className="grid gap-4 md:grid-cols-4">
           <div className="flex items-start gap-3">
@@ -330,10 +323,10 @@ export default function ContractDetailPage(props: {
             </div>
           </div>
         ) : null}
-      </ClayCard>
+      </ZoruCard>
 
       {isSigned ? (
-        <ClayCard>
+        <ZoruCard>
           <div className="flex items-center gap-2">
             <CheckCircle2 className="h-5 w-5 text-emerald-500" />
             <h2 className="text-[16px] font-semibold text-foreground">
@@ -371,9 +364,9 @@ export default function ContractDetailPage(props: {
               )}
             </div>
           </div>
-        </ClayCard>
+        </ZoruCard>
       ) : (
-        <ClayCard>
+        <ZoruCard>
           <div className="mb-4">
             <h2 className="text-[16px] font-semibold text-foreground">
               Sign this contract
@@ -385,8 +378,8 @@ export default function ContractDetailPage(props: {
 
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <Label className="text-foreground">Full Name</Label>
-              <Input
+              <ZoruLabel className="text-foreground">Full Name</ZoruLabel>
+              <ZoruInput
                 value={signerName}
                 onChange={(e) => setSignerName(e.target.value)}
                 placeholder="Jane Doe"
@@ -394,8 +387,8 @@ export default function ContractDetailPage(props: {
               />
             </div>
             <div>
-              <Label className="text-foreground">Email</Label>
-              <Input
+              <ZoruLabel className="text-foreground">Email</ZoruLabel>
+              <ZoruInput
                 type="email"
                 value={signerEmail}
                 onChange={(e) => setSignerEmail(e.target.value)}
@@ -406,7 +399,7 @@ export default function ContractDetailPage(props: {
           </div>
 
           <div className="mt-4">
-            <Label className="text-foreground">Signature</Label>
+            <ZoruLabel className="text-foreground">Signature</ZoruLabel>
             <div className="mt-1.5 rounded-lg border border-border bg-white p-2">
               <canvas
                 ref={canvasRef}
@@ -425,33 +418,24 @@ export default function ContractDetailPage(props: {
           </div>
 
           <div className="mt-4 flex flex-wrap justify-end gap-2">
-            <ClayButton
-              variant="pill"
-              leading={<Eraser className="h-4 w-4" strokeWidth={1.75} />}
+            <ZoruButton
+              variant="outline"
+             
               onClick={clearCanvas}
               disabled={isSubmitting}
             >
               Clear
-            </ClayButton>
-            <ClayButton
-              variant="obsidian"
+            </ZoruButton>
+            <ZoruButton
+             
               onClick={handleSign}
               disabled={isSubmitting}
-              leading={
-                isSubmitting ? (
-                  <LoaderCircle
-                    className="h-4 w-4 animate-spin"
-                    strokeWidth={1.75}
-                  />
-                ) : (
-                  <CheckCircle2 className="h-4 w-4" strokeWidth={1.75} />
-                )
-              }
+             
             >
               Sign &amp; Submit
-            </ClayButton>
+            </ZoruButton>
           </div>
-        </ClayCard>
+        </ZoruCard>
       )}
     </div>
   );
