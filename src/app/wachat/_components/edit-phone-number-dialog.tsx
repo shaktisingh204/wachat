@@ -36,6 +36,7 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import { SabFileToFileButton } from '@/components/sabfiles';
 
 const initialState: { message?: string; error?: string } = {
   message: undefined,
@@ -95,6 +96,7 @@ export function EditPhoneNumberDialog({
   );
   const { toast } = useZoruToast();
   const formRef = useRef<HTMLFormElement>(null);
+  const profilePictureInputRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(
     phone.profile?.profile_picture_url || null,
   );
@@ -114,12 +116,26 @@ export function EditPhoneNumberDialog({
     }
   }, [profileState, toast, onOpenChange, onUpdateSuccess]);
 
+  const acceptProfileImage = (file: File) => {
+    const url = URL.createObjectURL(file);
+    setPreviewUrl(url);
+  };
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const url = URL.createObjectURL(file);
-      setPreviewUrl(url);
+      acceptProfileImage(file);
     }
+  };
+
+  const handleSabFilePick = (file: File) => {
+    const input = profilePictureInputRef.current;
+    if (input) {
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      input.files = dt.files;
+    }
+    acceptProfileImage(file);
   };
 
   return (
@@ -174,6 +190,7 @@ export function EditPhoneNumberDialog({
                       Change
                     </label>
                     <input
+                      ref={profilePictureInputRef}
                       id="profilePicture"
                       name="profilePicture"
                       type="file"
@@ -185,6 +202,19 @@ export function EditPhoneNumberDialog({
                   <p className="px-2 text-center text-[10.5px] text-zoru-ink-muted">
                     Recommended: 500x500 px, JPG or PNG.
                   </p>
+                  <SabFileToFileButton
+                    accept="image"
+                    onPickFile={handleSabFilePick}
+                    onError={(err) =>
+                      toast({
+                        title: 'Pick failed',
+                        description: err.message,
+                        variant: 'destructive',
+                      })
+                    }
+                  >
+                    Pick from SabFiles
+                  </SabFileToFileButton>
                 </div>
 
                 <div className="flex flex-col gap-4">

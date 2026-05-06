@@ -49,6 +49,7 @@ import {
 import { getInvitedUsers } from '@/app/actions/team.actions';
 import { useCan, useProject } from '@/context/project-context';
 import type { TeamMessage, User, WithId } from '@/lib/definitions';
+import { SabFileToFileButton } from '@/components/sabfiles';
 
 const POLL_MS = 3000;
 
@@ -188,9 +189,7 @@ export default function TeamChatPage() {
 
     const onPickFile = () => fileInputRef.current?.click();
 
-    const onFileChosen = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const files = Array.from(e.target.files || []);
-        e.target.value = '';
+    const queueFiles = async (files: File[]) => {
         if (!files.length) return;
         const next: OutgoingAttachment[] = [];
         for (const f of files) {
@@ -198,6 +197,12 @@ export default function TeamChatPage() {
             next.push({ filename: f.name, contentType: f.type, base64 });
         }
         setAttachmentQueue((prev) => [...prev, ...next].slice(0, 6));
+    };
+
+    const onFileChosen = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(e.target.files || []);
+        e.target.value = '';
+        await queueFiles(files);
     };
 
     const filteredChannels = React.useMemo(() => {
@@ -383,6 +388,21 @@ export default function TeamChatPage() {
                                             multiple
                                             onChange={onFileChosen}
                                         />
+                                        <SabFileToFileButton
+                                            accept="all"
+                                            variant="outline"
+                                            className="h-9 px-2 text-[11.5px]"
+                                            onPickFile={(file) => queueFiles([file])}
+                                            onError={(err) =>
+                                                toast({
+                                                    title: 'Pick failed',
+                                                    description: err.message,
+                                                    variant: 'destructive',
+                                                })
+                                            }
+                                        >
+                                            SabFiles
+                                        </SabFileToFileButton>
                                         <ZoruInput
                                             className="flex-1"
                                             placeholder="Message…"

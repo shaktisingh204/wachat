@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Upload } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -13,6 +13,7 @@ import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Card, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
+import { SabFilePickerButton } from '@/components/sabfiles';
 
 type RepeaterItem = {
   id: string;
@@ -21,15 +22,6 @@ type RepeaterItem = {
   description?: string;
   buttonText?: string;
   buttonLink?: string;
-};
-
-const handleFileChange = (file: File | null, callback: (dataUri: string) => void) => {
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => {
-        callback(reader.result as string);
-    };
-    reader.readAsDataURL(file);
 };
 
 
@@ -82,7 +74,13 @@ export function RepeaterBlockEditor({ settings, onUpdate }: { settings: any, onU
                                     <div className="space-y-2">
                                         <Label>Image</Label>
                                          <div className="flex items-center gap-2">
-                                            <Input type="file" accept="image/*" className="flex-1" onChange={(e) => handleFileChange(e.target.files?.[0] || null, (dataUri) => handleItemChange(index, 'imageUrl', dataUri))} />
+                                            <SabFilePickerButton
+                                                accept="image"
+                                                className="flex-1"
+                                                onPick={({ url }) => handleItemChange(index, 'imageUrl', url)}
+                                            >
+                                                <Upload className="mr-2 h-4 w-4" /> {item.imageUrl ? 'Replace image' : 'Pick image'}
+                                            </SabFilePickerButton>
                                             {item.imageUrl && <Image src={item.imageUrl} alt="preview" width={40} height={40} className="rounded-md object-cover" />}
                                         </div>
                                     </div>

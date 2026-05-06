@@ -43,6 +43,7 @@ use wachat_facebook_misc::WachatFacebookMiscState;
 use wachat_facebook_pages::WachatFacebookPagesState;
 use wachat_flows::WachatFlowsState;
 use wachat_instagram::WachatInstagramState;
+use telegram_bots::TelegramBotsState;
 use wachat_projects::WachatProjectsState;
 use wachat_public_api::{ApiKeyVerifier, PublicApiState};
 use wachat_send_router::WachatSendState;
@@ -95,6 +96,7 @@ pub struct AppState {
     pub fb_messenger_profile: WachatFacebookMessengerProfileState,
     pub instagram: WachatInstagramState,
     pub sabfiles: SabfilesState,
+    pub telegram_bots: TelegramBotsState,
     pub ready: Arc<AtomicBool>,
 }
 
@@ -141,6 +143,7 @@ impl AppState {
         fb_messenger_profile: WachatFacebookMessengerProfileState,
         instagram: WachatInstagramState,
         sabfiles: SabfilesState,
+        telegram_bots: TelegramBotsState,
     ) -> Self {
         Self {
             started_at: Utc::now(),
@@ -184,6 +187,7 @@ impl AppState {
             fb_messenger_profile,
             instagram,
             sabfiles,
+            telegram_bots,
             ready: Arc::new(AtomicBool::new(false)),
         }
     }
@@ -434,5 +438,11 @@ impl FromRef<AppState> for WachatInstagramState {
 impl FromRef<AppState> for SabfilesState {
     fn from_ref(s: &AppState) -> Self {
         s.sabfiles.clone()
+    }
+}
+
+impl FromRef<AppState> for TelegramBotsState {
+    fn from_ref(s: &AppState) -> Self {
+        s.telegram_bots.clone()
     }
 }

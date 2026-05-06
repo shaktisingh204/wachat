@@ -73,6 +73,7 @@ pub fn build(state: AppState) -> Router {
     let fb_messenger_profile = wachat_facebook_messenger_profile::router::<AppState>();
     let instagram = wachat_instagram::router::<AppState>();
     let sabfiles_router = sabfiles::router::<AppState>();
+    let telegram_bots_router = telegram_bots::router::<AppState>();
 
     Router::new()
         .merge(routes::health::router())
@@ -113,6 +114,7 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/facebook/messenger-profile", fb_messenger_profile)
         .nest("/v1/instagram", instagram)
         .nest("/v1/sabfiles", sabfiles_router)
+        .nest("/v1/telegram/bots", telegram_bots_router)
         .nest("/v1", v1)
         .with_state(state)
         .layer(SetRequestIdLayer::new(

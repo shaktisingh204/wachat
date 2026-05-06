@@ -19,6 +19,7 @@ import { LoaderCircle, PlusCircle } from 'lucide-react';
 import { addRandomizerPost } from '@/app/actions/facebook.actions';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId, Project } from '@/lib/definitions';
+import { SabFileUrlInput } from '@/components/sabfiles';
 
 const initialState = { success: false, error: undefined };
 
@@ -44,6 +45,7 @@ export function CreateRandomizerPostDialog({ isOpen, onOpenChange, project, onPo
   const [state, formAction] = useActionState(addRandomizerPost, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
+  const [imageUrl, setImageUrl] = useState('');
 
   useEffect(() => {
     if (state.success) {
@@ -59,6 +61,7 @@ export function CreateRandomizerPostDialog({ isOpen, onOpenChange, project, onPo
   const handleOpenChange = (open: boolean) => {
     if (!open) {
       formRef.current?.reset();
+      setImageUrl('');
     }
     onOpenChange(open);
   }
@@ -83,7 +86,14 @@ export function CreateRandomizerPostDialog({ isOpen, onOpenChange, project, onPo
               </div>
               <div className="space-y-2">
                 <Label htmlFor="imageUrl">Image URL (Optional)</Label>
-                <Input id="imageUrl" name="imageUrl" type="url" placeholder="https://example.com/image.jpg" />
+                <SabFileUrlInput
+                  id="imageUrl"
+                  name="imageUrl"
+                  accept="image"
+                  placeholder="https://example.com/image.jpg"
+                  value={imageUrl}
+                  onChange={setImageUrl}
+                />
                 <p className="text-xs text-muted-foreground">If provided, this post will be published as a photo post.</p>
               </div>
             </div>

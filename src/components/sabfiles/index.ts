@@ -8,10 +8,13 @@
 export {
     SabFilePicker,
     SabFilePickerButton,
+    SabFileToFileButton,
     SabFileUrlInput,
+    fetchSabFilePickAsFile,
     type SabFileAccept,
     type SabFilePick,
     type SabFilePickerProps,
     type SabFilePickerButtonProps,
+    type SabFileToFileButtonProps,
     type SabFileUrlInputProps,
 } from './sab-file-picker';

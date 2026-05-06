@@ -7,20 +7,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { v4 as uuidv4 } from 'uuid';
-import { Plus, Trash2, Lightbulb } from 'lucide-react';
+import { Plus, Trash2, Lightbulb, Upload } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-
-const handleFileChange = (file: File | null, callback: (dataUri: string) => void) => {
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => {
-        callback(reader.result as string);
-    };
-    reader.readAsDataURL(file);
-};
+import { SabFilePickerButton, SabFileUrlInput } from '@/components/sabfiles';
 
 export function ColumnBlockEditor({ settings, onUpdate }: { settings: any, onUpdate: (newSettings: any) => void }) {
     const handleUpdate = (field: string, value: any) => {
@@ -130,7 +122,15 @@ export function ColumnBlockEditor({ settings, onUpdate }: { settings: any, onUpd
                              {settings.backgroundType === 'classic' && (
                                 <div className="p-3 border rounded-md space-y-4">
                                     <div className="space-y-2"><Label>Color</Label><Input type="color" value={settings.backgroundColor || '#FFFFFF'} onChange={e => handleUpdate('backgroundColor', e.target.value)} /></div>
-                                    <div className="space-y-2"><Label>Image</Label><Input type="file" accept="image/*" onChange={(e) => handleFileChange(e.target.files?.[0] || null, (dataUri) => handleUpdate('backgroundImageUrl', dataUri))} /></div>
+                                    <div className="space-y-2">
+                                        <Label>Image</Label>
+                                        <SabFilePickerButton
+                                            accept="image"
+                                            onPick={({ url }) => handleUpdate('backgroundImageUrl', url)}
+                                        >
+                                            <Upload className="mr-2 h-4 w-4" /> Pick image
+                                        </SabFilePickerButton>
+                                    </div>
                                     <div className="space-y-2"><Label>Position</Label><Select value={settings.backgroundPosition || 'center center'} onValueChange={v => handleUpdate('backgroundPosition', v)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="center center">Center Center</SelectItem><SelectItem value="top center">Top Center</SelectItem><SelectItem value="bottom center">Bottom Center</SelectItem></SelectContent></Select></div>
                                     <div className="space-y-2"><Label>Attachment</Label><Select value={settings.backgroundAttachment || 'scroll'} onValueChange={v => handleUpdate('backgroundAttachment', v)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="scroll">Scroll</SelectItem><SelectItem value="fixed">Fixed</SelectItem></SelectContent></Select></div>
                                     <div className="space-y-2"><Label>Repeat</Label><Select value={settings.backgroundRepeat || 'no-repeat'} onValueChange={v => handleUpdate('backgroundRepeat', v)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="no-repeat">No-repeat</SelectItem><SelectItem value="repeat">Repeat</SelectItem></SelectContent></Select></div>
@@ -147,7 +147,7 @@ export function ColumnBlockEditor({ settings, onUpdate }: { settings: any, onUpd
                              )}
                             {settings.backgroundType === 'video' && (
                                 <div className="p-3 border rounded-md space-y-4">
-                                    <div className="space-y-2"><Label>Video URL</Label><Input placeholder="https://example.com/video.mp4" value={settings.backgroundVideoUrl || ''} onChange={e => handleUpdate('backgroundVideoUrl', e.target.value)} /></div>
+                                    <div className="space-y-2"><Label>Video URL</Label><SabFileUrlInput accept="video" placeholder="https://example.com/video.mp4" value={settings.backgroundVideoUrl || ''} onChange={(v) => handleUpdate('backgroundVideoUrl', v)} /></div>
                                     <div className="space-y-2"><Label>Start Time (s)</Label><Input type="number" value={settings.backgroundVideoStartTime || 0} onChange={e => handleUpdate('backgroundVideoStartTime', e.target.value)} /></div>
                                     <div className="space-y-2"><Label>End Time (s)</Label><Input type="number" value={settings.backgroundVideoEndTime || ''} onChange={e => handleUpdate('backgroundVideoEndTime', e.target.value)} placeholder="End of video" /></div>
                                 </div>

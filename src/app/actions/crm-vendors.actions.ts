@@ -33,6 +33,20 @@ export async function saveCrmVendor(prevState: any, formData: FormData): Promise
     const isEditing = !!vendorId;
 
     try {
+        const logoUrlRaw = formData.get('logoUrl') as string | null;
+        const attachmentsRaw = formData.get('attachmentUrls') as string | null;
+        let attachmentUrls: string[] | undefined;
+        if (attachmentsRaw) {
+            try {
+                const parsed = JSON.parse(attachmentsRaw);
+                if (Array.isArray(parsed)) {
+                    attachmentUrls = parsed.filter((u): u is string => typeof u === 'string' && !!u);
+                }
+            } catch {
+                // ignore malformed JSON
+            }
+        }
+
         const vendorData: Partial<Omit<CrmVendor, '_id'>> = {
             userId: new ObjectId(session.user._id),
             name: formData.get('name') as string,
@@ -52,6 +66,8 @@ export async function saveCrmVendor(prevState: any, formData: FormData): Promise
             displayName: formData.get('displayName') as string,
             subject: formData.get('subject') as string,
             bankAccountDetails: JSON.parse(formData.get('bankAccountDetails') as string || '{}'),
+            logoUrl: logoUrlRaw || undefined,
+            attachments: attachmentUrls && attachmentUrls.length ? attachmentUrls : undefined,
             updatedAt: new Date(),
         };
 

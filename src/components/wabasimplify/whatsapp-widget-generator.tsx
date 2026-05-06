@@ -20,6 +20,8 @@ import { ColorPicker } from '../ui/color-picker';
 import { saveWidgetSettings } from '@/app/actions/widget.actions';
 import { useFormStatus } from 'react-dom';
 import Image from 'next/image';
+import { SabFilePickerButton } from '@/components/sabfiles';
+import { Upload } from 'lucide-react';
 
 interface WhatsAppWidgetGeneratorProps {
     project: WithId<Project>;
@@ -72,15 +74,6 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
         setSettings(prev => ({ ...prev, [field]: value }));
     }
 
-    const handleFileChange = (file: File | null) => {
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            handleSettingChange('headerAvatarUrl', reader.result as string);
-        };
-        reader.readAsDataURL(file);
-    };
 
     const embedCode = useMemo(() => {
         const appUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
@@ -138,7 +131,12 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
                                     <div className="space-y-2">
                                         <Label>Avatar URL or Upload</Label>
                                         <Input placeholder="https://..." value={settings.headerAvatarUrl} onChange={e => handleSettingChange('headerAvatarUrl', e.target.value)} />
-                                        <Input type="file" accept="image/*" onChange={(e) => handleFileChange(e.target.files?.[0] || null)} className="text-xs" />
+                                        <SabFilePickerButton
+                                            accept="image"
+                                            onPick={({ url }) => handleSettingChange('headerAvatarUrl', url)}
+                                        >
+                                            <Upload className="h-4 w-4" /> Choose file
+                                        </SabFilePickerButton>
                                     </div>
                                     <div className="space-y-2"><Label>CTA Text</Label><Input value={settings.ctaText} onChange={e => handleSettingChange('ctaText', e.target.value)} /></div>
                                     <Separator />

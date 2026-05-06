@@ -47,6 +47,7 @@ import { wachatPayApi } from './wachat-pay';
 import { wachatWebhookApi } from './wachat-webhook';
 import { wachatWebhookActionsApi } from './wachat-webhook-actions';
 import { whatsappSendApi } from './whatsapp-send';
+import { telegramBotsApi } from './telegram-bots';
 
 export const rustClient = {
     users: usersApi,
@@ -85,6 +86,7 @@ export const rustClient = {
     facebookFlow: facebookFlowApi,
     qrCodes: qrCodesApi,
     sabfiles: sabfilesApi,
+    telegramBots: telegramBotsApi,
 };
 
 export type RustClient = typeof rustClient;

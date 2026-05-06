@@ -30,6 +30,7 @@ import { handleUpdatePhoneNumberProfile } from '@/app/actions/whatsapp.actions';
 import { useToast } from '@/hooks/use-toast';
 import type { Project, PhoneNumber } from '@/lib/definitions';
 import { ClayButton } from '@/components/clay';
+import { SabFileToFileButton } from '@/components/sabfiles';
 
 const initialState: { message?: string; error?: string } = {
   message: undefined,
@@ -77,6 +78,7 @@ export function EditPhoneNumberDialog({ isOpen, onOpenChange, project, phone, on
   const [profileState, profileFormAction] = useActionState(handleUpdatePhoneNumberProfile, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
+  const profilePictureInputRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(phone.profile?.profile_picture_url || null);
 
   useEffect(() => {
@@ -90,12 +92,26 @@ export function EditPhoneNumberDialog({ isOpen, onOpenChange, project, phone, on
     }
   }, [profileState, toast, onOpenChange, onUpdateSuccess]);
 
+  const acceptProfileImage = (file: File) => {
+    const url = URL.createObjectURL(file);
+    setPreviewUrl(url);
+  };
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const url = URL.createObjectURL(file);
-      setPreviewUrl(url);
+      acceptProfileImage(file);
     }
+  };
+
+  const handleSabFilePick = (file: File) => {
+    const input = profilePictureInputRef.current;
+    if (input) {
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      input.files = dt.files;
+    }
+    acceptProfileImage(file);
   };
 
   return (
@@ -153,6 +169,7 @@ export function EditPhoneNumberDialog({ isOpen, onOpenChange, project, phone, on
                       Change
                     </label>
                     <Input
+                      ref={profilePictureInputRef}
                       id="profilePicture"
                       name="profilePicture"
                       type="file"
@@ -164,6 +181,19 @@ export function EditPhoneNumberDialog({ isOpen, onOpenChange, project, phone, on
                   <p className="px-2 text-center text-[10.5px] text-muted-foreground">
                     Recommended: 500×500 px, JPG or PNG.
                   </p>
+                  <SabFileToFileButton
+                    accept="image"
+                    onPickFile={handleSabFilePick}
+                    onError={(err) =>
+                      toast({
+                        title: 'Pick failed',
+                        description: err.message,
+                        variant: 'destructive',
+                      })
+                    }
+                  >
+                    Pick from SabFiles
+                  </SabFileToFileButton>
                 </div>
 
                 <div className="space-y-4">

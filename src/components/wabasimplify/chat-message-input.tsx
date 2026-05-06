@@ -22,6 +22,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { SabFileToFileButton } from '@/components/sabfiles';
 
 interface ChatMessageInputProps {
     project: WithId<Project>;
@@ -107,10 +108,7 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
     };
 
 
-    const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (!file) return;
-
+    const uploadMediaFile = async (file: File) => {
         setIsUploading(true); // Start upload state
         try {
             const base64String = await fileToBase64(file);
@@ -129,6 +127,14 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
             console.error("File processing error:", error);
             setIsUploading(false);
             toast({ title: "Error", description: "Failed to process file.", variant: "destructive" });
+        }
+    };
+
+    const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+        try {
+            await uploadMediaFile(file);
         } finally {
             // Reset the file input so the same file can be selected again if needed
             event.target.value = '';
@@ -249,6 +255,15 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
                     onWaPaySelect={() => setTimeout(() => setIsWhatsAppPaymentOpen(true), 0)}
                     project={project}
                 />
+                <SabFileToFileButton
+                    accept="all"
+                    variant="ghost"
+                    className="h-9 px-2 text-xs"
+                    onPickFile={(file) => uploadMediaFile(file)}
+                    onError={(err) => toast({ title: 'Pick failed', description: err.message, variant: 'destructive' })}
+                >
+                    SabFiles
+                </SabFileToFileButton>
 
                 {/* Template Selection Dialog (Quick Fix: Reuse the popover logic but in a dialog or just a command palette?) */}
                 {/* For now, I will use a simple logical trick:

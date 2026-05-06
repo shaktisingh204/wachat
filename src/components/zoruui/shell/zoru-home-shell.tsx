@@ -221,10 +221,14 @@ export function ZoruHomeShell({
           {children}
         </main>
 
-        {/* Bottom-anchored, centered dock — every app lives here now. */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-3 z-30 flex justify-center">
-          <div className="pointer-events-auto rounded-[26px] border border-zoru-line bg-zoru-bg/95 p-1 shadow-[var(--zoru-shadow-lg)] backdrop-blur">
-            <ZoruDock iconSize={48} static>
+        {/* Bottom-anchored, centered dock — every app lives here now.
+            Wrapper stays overflow-visible so the per-icon tooltip pill
+            (rendered ABOVE the icons) is never clipped. The
+            `max-w-[calc(100vw-1.5rem)]` cap lets the dock spill wider
+            than its content but never past the viewport. */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-3 z-30 flex justify-center px-3">
+          <div className="pointer-events-auto max-w-[calc(100vw-1.5rem)] overflow-visible rounded-[26px] border border-zoru-line bg-zoru-bg/95 p-1 shadow-[var(--zoru-shadow-lg)] backdrop-blur">
+            <ZoruDock iconSize={44} static>
               {DOCK_APPS.map((app) => {
                 const isPending = pendingDockHref === app.href;
                 const Icon = app.Icon;

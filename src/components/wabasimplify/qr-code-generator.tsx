@@ -11,7 +11,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { LoaderCircle, QrCode, Link as LinkIcon, Type, Mail, Phone, Wifi, MessageSquare, Download, Save, RefreshCw, Wand2 } from 'lucide-react';
+import { LoaderCircle, QrCode, Link as LinkIcon, Type, Mail, Phone, Wifi, MessageSquare, Download, Save, RefreshCw, Wand2, Upload } from 'lucide-react';
+import { SabFilePickerButton } from '@/components/sabfiles';
 import { useToast } from '@/hooks/use-toast';
 import { createQrCode } from '@/app/actions/qr-code.actions';
 import { QrCodeRenderer } from './qr-code-renderer';
@@ -78,19 +79,6 @@ export function QrCodeGenerator({ user }: { user: Omit<User, 'password'> & { _id
 
     const qrValue = getQrValue();
 
-    // Handlers
-    const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            if (file.size > 200 * 1024) { // 200KB limit
-                toast({ title: 'File too large', description: 'Logo must be under 200KB', variant: 'destructive' });
-                return;
-            }
-            const reader = new FileReader();
-            reader.onloadend = () => setLogoDataUri(reader.result as string);
-            reader.readAsDataURL(file);
-        }
-    };
 
     const handleDownload = async (format: 'png' | 'svg') => {
         const svg = qrWrapperRef.current?.querySelector('svg');
@@ -333,8 +321,13 @@ export function QrCodeGenerator({ user }: { user: Omit<User, 'password'> & { _id
                                                 </div>
                                             )}
                                             <div className="flex-1">
-                                                <Input type="file" accept="image/png, image/jpeg, image/svg+xml" onChange={handleLogoUpload} />
-                                                <p className="text-xs text-muted-foreground mt-1">Recommended: Square PNG with transparent background. Max 200KB.</p>
+                                                <SabFilePickerButton
+                                                    accept="image"
+                                                    onPick={({ url }) => setLogoDataUri(url)}
+                                                >
+                                                    <Upload className="h-4 w-4" /> Choose logo
+                                                </SabFilePickerButton>
+                                                <p className="text-xs text-muted-foreground mt-1">Recommended: Square PNG with transparent background.</p>
                                             </div>
                                         </div>
                                     </div>

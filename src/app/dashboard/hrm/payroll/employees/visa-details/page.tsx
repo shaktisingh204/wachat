@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useMemo, useState, useTransition } from 'react';
-import { Plane, Plus, Pencil, Trash2, LoaderCircle, ExternalLink } from 'lucide-react';
+import { Plane, Plus, Pencil, Trash2, LoaderCircle, ExternalLink, Upload } from 'lucide-react';
+import { SabFilePickerButton } from '@/components/sabfiles';
 import { format } from 'date-fns';
 import {
   ZoruDialog,
@@ -248,7 +249,15 @@ export default function VisaDetailsPage() {
             </div>
             <div className="md:col-span-2">
               <ZoruLabel className="text-[12px] text-zoru-ink-muted">File URL</ZoruLabel>
-              <ZoruInput type="url" value={form.file} onChange={(e) => set('file', e.target.value)} placeholder="https://…" className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
+              <div className="mt-1.5 flex items-center gap-2">
+                <ZoruInput type="url" value={form.file} onChange={(e) => set('file', e.target.value)} placeholder="https://…" className="h-10 flex-1 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
+                <SabFilePickerButton
+                  accept="document"
+                  onPick={({ url }) => set('file', url)}
+                >
+                  <Upload className="h-4 w-4" /> Choose file
+                </SabFilePickerButton>
+              </div>
             </div>
           </div>
           <ZoruDialogFooter className="gap-2">

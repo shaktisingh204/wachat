@@ -34,6 +34,7 @@ use wachat_facebook_agents::WachatFacebookAgentsState;
 use wachat_facebook_automation::WachatFacebookAutomationState;
 use wachat_facebook_business::WachatFacebookBusinessState;
 use wachat_facebook_comments::WachatFacebookCommentsState;
+use telegram_bots::{TelegramBotsState, bot_api::BotApiClient as TelegramBotApiClient};
 use wachat_facebook_content::WachatFacebookContentState;
 use wachat_facebook_crm::WachatFacebookCrmState;
 use wachat_facebook_events::WachatFacebookEventsState;
@@ -276,6 +277,19 @@ async fn run() -> anyhow::Result<()> {
         WachatFacebookMessengerProfileState::new(mongo.clone(), meta.clone());
     let instagram = WachatInstagramState::new(mongo.clone(), meta.clone());
 
+    // Telegram BFF — talks directly to api.telegram.org/bot{token}.
+    // The webhook target is built from NEXT_PUBLIC_APP_URL (or empty if
+    // the var is missing; in that case connect_bot saves the bot but
+    // skips setWebhook and surfaces a hint to the caller).
+    let telegram_app_url = std::env::var("NEXT_PUBLIC_APP_URL")
+        .or_else(|_| std::env::var("VERCEL_URL"))
+        .unwrap_or_default();
+    let telegram_bots_state = TelegramBotsState::new(
+        mongo.clone(),
+        TelegramBotApiClient::new(),
+        telegram_app_url,
+    );
+
     // SabFiles — file manager backed by Cloudflare R2. R2 credentials are
     // optional at boot: if any are missing we boot anyway with a stubbed
     // client that returns errors on use, so the rest of the API stays up.
@@ -349,6 +363,7 @@ async fn run() -> anyhow::Result<()> {
         fb_messenger_profile,
         instagram,
         sabfiles_state,
+        telegram_bots_state,
     );
     let app = router::build(state.clone());
 

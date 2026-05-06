@@ -11,11 +11,13 @@ import { useToast } from '@/hooks/use-toast';
 import { setAppLogo } from '@/app/actions/admin.actions';
 import { useRouter } from 'next/navigation';
 import { Separator } from '../ui/separator';
+import { SabFileUrlInput } from '@/components/sabfiles';
 
 export function AppLogoForm() {
     const [isPending, startTransition] = useTransition();
     const { toast } = useToast();
     const router = useRouter();
+    const [logoUrl, setLogoUrl] = useState('');
 
     const formAction = (formData: FormData) => {
         startTransition(async () => {
@@ -55,7 +57,15 @@ export function AppLogoForm() {
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="logoUrl">Logo URL</Label>
-                        <Input id="logoUrl" name="logoUrl" placeholder="https://example.com/logo.png" />
+                        <SabFileUrlInput
+                            id="logoUrl"
+                            name="logoUrl"
+                            accept="image"
+                            placeholder="https://example.com/logo.png"
+                            value={logoUrl}
+                            onChange={setLogoUrl}
+                            disabled={isPending}
+                        />
                     </div>
                 </CardContent>
                 <CardFooter>

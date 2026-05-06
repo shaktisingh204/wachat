@@ -5,9 +5,10 @@
  *
  * Two-pane layout:
  *  - Left  : multi-section ZoruCard form (page identity, message, media,
- *             scheduling). Same hidden-field contract as before
- *             (projectId, postType, message, mediaFile, isScheduled,
- *             scheduledDate, scheduledTime).
+ *             scheduling). Files now flow through SabFiles first, so the
+ *             form submits a `mediaUrl` instead of a binary `mediaFile`.
+ *             Hidden fields: projectId, postType, message, mediaUrl,
+ *             isScheduled, scheduledDate, scheduledTime.
  *  - Right : elevated preview pane mimicking the published Facebook card.
  *
  * Server action: `handleCreateFacebookPost` (unchanged).
@@ -40,6 +41,7 @@ import {
   handleCreateFacebookPost,
 } from "@/app/actions/facebook.actions";
 import type { FacebookPageDetails } from "@/lib/definitions";
+import { SabFilePickerButton } from "@/components/sabfiles";
 
 import {
   ZoruAvatar,
@@ -95,7 +97,6 @@ export default function CreateFacebookPostPage() {
   );
   const { toast } = useZoruToast();
   const formRef = useRef<HTMLFormElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [projectId, setProjectId] = useState<string | null>(null);
   const [projectIdReady, setProjectIdReady] = useState(false);
@@ -103,9 +104,11 @@ export default function CreateFacebookPostPage() {
     null,
   );
 
-  // Form state
+  // Form state — media now flows through SabFiles, so the form holds a URL
+  // and a display name instead of a binary File.
   const [message, setMessage] = useState("");
-  const [mediaFile, setMediaFile] = useState<File | null>(null);
+  const [mediaUrl, setMediaUrl] = useState<string>("");
+  const [mediaName, setMediaName] = useState<string>("");
   const [mediaPreview, setMediaPreview] = useState<string | null>(null);
   const [postType, setPostType] = useState<PostType>("text");
 
@@ -134,13 +137,13 @@ export default function CreateFacebookPostPage() {
       toast({ title: "Post published", description: state.message });
       formRef.current?.reset();
       setMessage("");
-      setMediaFile(null);
+      setMediaUrl("");
+      setMediaName("");
       setMediaPreview(null);
       setPostType("text");
       setIsScheduled(false);
       setScheduledDate(undefined);
       setScheduledTime("");
-      if (fileInputRef.current) fileInputRef.current.value = "";
     }
     if (state.error) {
       toast({
@@ -151,31 +154,34 @@ export default function CreateFacebookPostPage() {
     }
   }, [state, toast]);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setMediaFile(file);
-      if (file.type.startsWith("image/")) {
-        setPostType("image");
-      } else if (file.type.startsWith("video/")) {
-        setPostType("video");
-      }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setMediaPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+  const handlePickedMedia = (pick: {
+    url: string;
+    name: string;
+    mime?: string;
+  }) => {
+    setMediaUrl(pick.url);
+    setMediaName(pick.name);
+    if (pick.mime?.startsWith("image/")) {
+      setPostType("image");
+    } else if (pick.mime?.startsWith("video/")) {
+      setPostType("video");
+    } else {
+      // Fall back to extension sniff if MIME is missing.
+      const lower = pick.name.toLowerCase();
+      if (/\.(mp4|mov|webm|m4v)$/.test(lower)) setPostType("video");
+      else setPostType("image");
     }
+    setMediaPreview(pick.url);
   };
 
   const clearMedia = () => {
-    setMediaFile(null);
+    setMediaUrl("");
+    setMediaName("");
     setMediaPreview(null);
     setPostType("text");
-    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const isPostDisabled = message.trim() === "" && !mediaFile;
+  const isPostDisabled = message.trim() === "" && !mediaUrl;
 
   const previewTimestamp = useMemo(() => {
     if (isScheduled && scheduledDate) {
@@ -318,15 +324,10 @@ export default function CreateFacebookPostPage() {
                 <ZoruCardTitle>Media</ZoruCardTitle>
               </ZoruCardHeader>
               <ZoruCardContent className="flex flex-col gap-4">
-                <input
-                  ref={fileInputRef}
-                  id="mediaFile"
-                  name="mediaFile"
-                  type="file"
-                  accept="image/*,video/*"
-                  className="sr-only"
-                  onChange={handleFileChange}
-                />
+                {/* The server action expects `mediaUrl` — a public URL that
+                    Meta can pull. Files now go to SabFiles first, then we
+                    pass the resulting URL down here. */}
+                <input type="hidden" name="mediaUrl" value={mediaUrl} />
                 {mediaPreview ? (
                   <div className="relative overflow-hidden rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-surface-2">
                     {postType === "image" ? (
@@ -336,6 +337,7 @@ export default function CreateFacebookPostPage() {
                         height={420}
                         alt="Post media preview"
                         className="h-auto w-full object-cover"
+                        unoptimized
                       />
                     ) : (
                       <video
@@ -356,41 +358,35 @@ export default function CreateFacebookPostPage() {
                     </ZoruButton>
                   </div>
                 ) : (
-                  <label
-                    htmlFor="mediaFile"
-                    className="flex cursor-pointer flex-col items-center gap-2 rounded-[var(--zoru-radius-lg)] border border-dashed border-zoru-line bg-zoru-bg p-8 text-center transition-colors hover:border-zoru-line-strong hover:bg-zoru-surface focus-within:border-zoru-ink"
-                  >
+                  <div className="flex flex-col items-center gap-2 rounded-[var(--zoru-radius-lg)] border border-dashed border-zoru-line bg-zoru-bg p-8 text-center">
                     <span className="flex h-10 w-10 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
                       <Upload className="h-5 w-5" />
                     </span>
                     <span className="text-sm font-medium text-zoru-ink">
-                      Click to attach an image or video
+                      Attach an image or video from SabFiles
                     </span>
                     <span className="text-xs text-zoru-ink-muted">
-                      JPG, PNG, MP4 or MOV — up to a few hundred MB
+                      JPG, PNG, MP4 or MOV — pick from your library or upload
+                      a new file.
                     </span>
-                  </label>
+                  </div>
                 )}
-                <div className="flex items-center gap-2">
-                  <ZoruButton
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => fileInputRef.current?.click()}
+                <div className="flex flex-wrap items-center gap-2">
+                  <SabFilePickerButton
+                    accept="image"
+                    onPick={handlePickedMedia}
                   >
                     <ImageIcon /> Add image
-                  </ZoruButton>
-                  <ZoruButton
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => fileInputRef.current?.click()}
+                  </SabFilePickerButton>
+                  <SabFilePickerButton
+                    accept="video"
+                    onPick={handlePickedMedia}
                   >
                     <Video /> Add video
-                  </ZoruButton>
-                  {mediaFile && (
+                  </SabFilePickerButton>
+                  {mediaName && (
                     <span className="ml-2 truncate text-[12px] text-zoru-ink-muted">
-                      {mediaFile.name}
+                      {mediaName}
                     </span>
                   )}
                 </div>
@@ -525,6 +521,7 @@ export default function CreateFacebookPostPage() {
                         height={236}
                         alt="Preview media"
                         className="h-auto w-full object-cover"
+                        unoptimized
                       />
                     ) : (
                       <video

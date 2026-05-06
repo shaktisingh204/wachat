@@ -12,7 +12,7 @@ import {
     useZoruToast,
 } from '@/components/zoruui';
 import { DatePicker } from '@/components/ui/date-picker';
-import { PlusCircle, Trash2, ArrowLeft, Save, LoaderCircle, Image as ImageIcon, Upload } from 'lucide-react';
+import { PlusCircle, Trash2, ArrowLeft, Save, LoaderCircle, Image as ImageIcon, Upload, X } from 'lucide-react';
 import { SmartClientSelect } from '@/components/crm/sales/smart-client-select';
 import { SmartProductSelect } from '@/components/crm/inventory/smart-product-select';
 import Link from 'next/link';
@@ -21,6 +21,7 @@ import type { WithId, CrmAccount, QuotationLineItem } from '@/lib/definitions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
 import { saveQuotation } from '@/app/actions/crm-quotations.actions';
 import { useRouter } from 'next/navigation';
+import { SabFilePickerButton } from '@/components/sabfiles';
 
 type TermItem = { id: string; text: string; }
 type AdditionalInfoItem = { id: string; key: string; value: string; }
@@ -177,6 +178,7 @@ export default function NewQuotationPage() {
     const [additionalInfo, setAdditionalInfo] = useState<AdditionalInfoItem[]>([]);
     const [notes, setNotes] = useState('');
     const [contactDetails, setContactDetails] = useState({ email: '', phone: '' });
+    const [attachments, setAttachments] = useState<{ url: string; name: string }[]>([]);
 
     useEffect(() => {
         getCrmAccounts().then(data => setClients(data.accounts));
@@ -203,6 +205,7 @@ export default function NewQuotationPage() {
             <input type="hidden" name="termsAndConditions" value={JSON.stringify(terms.map(t => t.text))} />
             <input type="hidden" name="additionalInfo" value={JSON.stringify(additionalInfo.map(f => ({ key: f.key, value: f.value })))} />
             <input type="hidden" name="notes" value={notes} />
+            <input type="hidden" name="attachmentUrls" value={JSON.stringify(attachments.map(a => a.url))} />
 
             <div>
                 <div className="max-w-6xl mx-auto flex flex-col gap-6">
@@ -278,10 +281,36 @@ export default function NewQuotationPage() {
                                     <div className="space-y-2"><ZoruLabel className="text-zoru-ink">Additional Notes</ZoruLabel><ZoruTextarea placeholder="Any additional notes for the client..." value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={500} /></div>
                                     <div className="space-y-2">
                                         <ZoruLabel className="text-zoru-ink">Attachments</ZoruLabel>
-                                        <div className="flex items-center justify-center w-full">
-                                            <label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-zoru-line rounded-lg cursor-pointer bg-zoru-surface-2 hover:bg-zoru-bg"><div className="flex flex-col items-center justify-center"><Upload className="w-6 h-6 mb-2 text-zoru-ink-muted" /><p className="text-xs text-zoru-ink-muted"><span>Click to upload</span> or drag and drop</p></div><input id="dropzone-file" type="file" className="hidden" /></label>
-                                        </div>
-                                        <p className="text-xs text-zoru-ink-muted">Max file size is 10 MB.</p>
+                                        <SabFilePickerButton
+                                            accept="all"
+                                            title="Attach a file"
+                                            onPick={({ url, name }) => {
+                                                setAttachments((prev) => [...prev, { url, name }]);
+                                            }}
+                                        >
+                                            <Upload className="h-4 w-4" /> Add attachment
+                                        </SabFilePickerButton>
+                                        {attachments.length > 0 && (
+                                            <ul className="flex flex-col gap-1.5">
+                                                {attachments.map((a, idx) => (
+                                                    <li key={`${a.url}-${idx}`} className="flex items-center justify-between gap-2 rounded-lg border border-zoru-line px-2 py-1.5">
+                                                        <span className="text-xs text-zoru-ink truncate">{a.name}</span>
+                                                        <ZoruButton
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            aria-label={`Remove ${a.name}`}
+                                                            onClick={() =>
+                                                                setAttachments((prev) => prev.filter((_, i) => i !== idx))
+                                                            }
+                                                        >
+                                                            <X className="h-4 w-4" />
+                                                        </ZoruButton>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        )}
+                                        <p className="text-xs text-zoru-ink-muted">Files are stored in your SabFiles library.</p>
                                     </div>
                                 </div>
                                 <div className="space-y-6">

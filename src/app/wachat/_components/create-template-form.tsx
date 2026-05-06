@@ -72,7 +72,7 @@ import {
   cn,
   useZoruToast,
 } from '@/components/zoruui';
-import { SabFileUrlInput } from '@/components/sabfiles';
+import { SabFileToFileButton, SabFileUrlInput } from '@/components/sabfiles';
 
 const createTemplateInitialState: CreateTemplateState = {
   message: null,
@@ -224,6 +224,10 @@ export function CreateTemplateForm({
   const [headerFormat, setHeaderFormat] = useState('NONE');
   const [headerText, setHeaderText] = useState('');
   const [headerSampleUrl, setHeaderSampleUrl] = useState('');
+  const [pickedHeaderFileName, setPickedHeaderFileName] = useState<
+    string | null
+  >(null);
+  const headerSampleFileRef = React.useRef<HTMLInputElement>(null);
   const [buttons, setButtons] = useState<ButtonType[]>([]);
   const [categories, setCategories] = useState<
     { id: string; name: string }[]
@@ -537,6 +541,7 @@ export function CreateTemplateForm({
                     headerFormat === 'DOCUMENT') && (
                     <div className="space-y-2">
                       <ZoruInput
+                        ref={headerSampleFileRef}
                         type="file"
                         name="headerSampleFile"
                         accept={
@@ -549,6 +554,40 @@ export function CreateTemplateForm({
                                 : undefined
                         }
                       />
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="text-xs text-zoru-ink-muted">
+                          {pickedHeaderFileName
+                            ? `Picked from SabFiles: ${pickedHeaderFileName}`
+                            : 'Pick from SabFiles instead of uploading'}
+                        </div>
+                        <SabFileToFileButton
+                          accept={
+                            headerFormat === 'IMAGE'
+                              ? 'image'
+                              : headerFormat === 'VIDEO'
+                                ? 'video'
+                                : 'document'
+                          }
+                          onPickFile={(file) => {
+                            const input = headerSampleFileRef.current;
+                            if (input) {
+                              const dt = new DataTransfer();
+                              dt.items.add(file);
+                              input.files = dt.files;
+                            }
+                            setPickedHeaderFileName(file.name);
+                          }}
+                          onError={(err) =>
+                            toast({
+                              title: 'Pick failed',
+                              description: err.message,
+                              variant: 'destructive',
+                            })
+                          }
+                        >
+                          Pick from SabFiles
+                        </SabFileToFileButton>
+                      </div>
                       <div className="text-xs text-zoru-ink-muted">OR</div>
                       <SabFileUrlInput
                         name="headerSampleUrl"

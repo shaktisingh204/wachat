@@ -1,23 +1,19 @@
 'use client';
 
 /**
- * SabFilePicker — the project-wide single source for "pick a file or
- * paste a URL". Replaces every ad-hoc `<input type="file">` and every
- * "media URL" text field across the app.
+ * SabFilePicker — the project-wide single source for picking a file.
+ * Replaces every ad-hoc `<input type="file">` and every "media URL"
+ * text field across the app.
  *
- * Three modes inside one dialog:
- *   1. Library  — every file the user already has on SabFiles, filtered
- *                 by category (image / video / audio / document / other).
- *   2. Upload   — drop / browse to add new files. Files land in SabFiles
- *                 first, then the freshly-uploaded item is selected and
- *                 returned to the calling form.
- *   3. URL      — paste an external URL when the user really doesn't
- *                 want to mirror the file. Disabled by setting `allowUrl=false`.
+ * **No external URLs.** SabNode policy is that every file lives in
+ * SabFiles. The picker has exactly two modes — Library (existing
+ * SabFiles) and Upload (new). External URL paste is intentionally
+ * absent; users cannot point at random hosts.
  *
  * The picker calls back with a `SabFilePick` object describing the
  * selected file. Callers can render `<SabFilePicker>` controlled (with
- * `open` + `onOpenChange`) or use the helper trigger `<SabFilePickerButton>`
- * below.
+ * `open` + `onOpenChange`) or use the helper trigger
+ * `<SabFilePickerButton>` below.
  */
 
 import * as React from 'react';
@@ -28,7 +24,6 @@ import {
     FileText,
     FileVideo,
     FileAudio,
-    Link as LinkIcon,
     Loader2,
     Search,
     Upload,
@@ -62,8 +57,8 @@ import type {
 export type SabFileAccept = SabfilesCategory | 'all';
 
 export interface SabFilePick {
-    /** SabFiles node id (when picked from library or freshly uploaded). */
-    id?: string;
+    /** SabFiles node id (always present — every file lives in SabFiles). */
+    id: string;
     /** Stable URL the caller should use as the value. */
     url: string;
     /** Display name. */
@@ -72,8 +67,6 @@ export interface SabFilePick {
     mime?: string;
     /** Size in bytes if known. */
     size?: number;
-    /** `true` when the user pasted an external URL instead of picking. */
-    isExternal?: boolean;
 }
 
 export interface SabFilePickerProps {
@@ -82,8 +75,6 @@ export interface SabFilePickerProps {
     onPick: (pick: SabFilePick) => void;
     /** Restrict the library + upload tabs to a single category. */
     accept?: SabFileAccept;
-    /** Allow pasting an external URL. Defaults to `true`. */
-    allowUrl?: boolean;
     /** Allow uploading new files. Defaults to `true`. */
     allowUpload?: boolean;
     /** Cap upload size per file (bytes). Defaults to 200 MB. */
@@ -92,7 +83,7 @@ export interface SabFilePickerProps {
     title?: string;
 }
 
-type Mode = 'library' | 'upload' | 'url';
+type Mode = 'library' | 'upload';
 
 const CATEGORY_TABS: { id: SabfilesCategory; label: string; mime?: string }[] = [
     { id: 'all', label: 'All' },
@@ -146,7 +137,6 @@ export function SabFilePicker({
     onOpenChange,
     onPick,
     accept = 'all',
-    allowUrl = true,
     allowUpload = true,
     maxSize = 200 * 1024 * 1024,
     title = 'Pick a file',
@@ -160,7 +150,6 @@ export function SabFilePicker({
     const [items, setItems] = React.useState<SabfilesNode[]>([]);
     const [loading, setLoading] = React.useState(false);
     const [selectedId, setSelectedId] = React.useState<string | null>(null);
-    const [externalUrl, setExternalUrl] = React.useState('');
     const [tasks, setTasks] = React.useState<UploadTask[]>([]);
     const fileInputRef = React.useRef<HTMLInputElement>(null);
     const { toast } = useZoruToast();
@@ -173,7 +162,6 @@ export function SabFilePicker({
         setQuery('');
         setDebouncedQuery('');
         setSelectedId(null);
-        setExternalUrl('');
         setTasks([]);
     }, [open, accept]);
 
@@ -330,21 +318,6 @@ export function SabFilePicker({
     );
 
     const onConfirmPick = React.useCallback(() => {
-        if (mode === 'url') {
-            const url = externalUrl.trim();
-            if (!url) return;
-            try {
-                // Normalise — throws on garbage.
-                new URL(url, window.location.origin);
-            } catch {
-                toast({ title: 'Invalid URL', variant: 'destructive' });
-                return;
-            }
-            const guessName = url.split('?')[0].split('/').pop() || 'link';
-            onPick({ url, name: guessName, isExternal: true });
-            onOpenChange(false);
-            return;
-        }
         if (!selectedId) return;
         const node =
             tasks.find((t) => t.node?.id === selectedId)?.node ??
@@ -365,7 +338,7 @@ export function SabFilePicker({
             size: node.size,
         });
         onOpenChange(false);
-    }, [mode, externalUrl, selectedId, tasks, items, onPick, onOpenChange, toast]);
+    }, [selectedId, tasks, items, onPick, onOpenChange]);
 
     const visibleTabs = restrictAccept
         ? CATEGORY_TABS.filter((t) => t.id === 'all' || t.id === accept)
@@ -381,7 +354,7 @@ export function SabFilePicker({
                 <ZoruDialogHeader>
                     <ZoruDialogTitle>{title}</ZoruDialogTitle>
                     <ZoruDialogDescription>
-                        Pick from your SabFiles library, upload a new file, or paste a link.
+                        Pick a file from your SabFiles library or upload a new one.
                     </ZoruDialogDescription>
                 </ZoruDialogHeader>
 
@@ -398,14 +371,6 @@ export function SabFilePicker({
                             icon={<Upload />}
                             label="Upload"
                             onClick={() => setMode('upload')}
-                        />
-                    )}
-                    {allowUrl && (
-                        <ModeButton
-                            active={mode === 'url'}
-                            icon={<LinkIcon />}
-                            label="From URL"
-                            onClick={() => setMode('url')}
                         />
                     )}
                 </div>
@@ -576,34 +541,11 @@ export function SabFilePicker({
                     </div>
                 )}
 
-                {mode === 'url' && (
-                    <div className="flex flex-col gap-3 py-4">
-                        <ZoruLabel>External URL</ZoruLabel>
-                        <ZoruInput
-                            value={externalUrl}
-                            onChange={(e) => setExternalUrl(e.target.value)}
-                            placeholder="https://example.com/image.png"
-                            autoFocus
-                        />
-                        <p className="text-xs text-zoru-ink-muted">
-                            The file is referenced by its URL. SabNode does not mirror it,
-                            so make sure the host stays available.
-                        </p>
-                    </div>
-                )}
-
                 <ZoruDialogFooter>
                     <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
                         Cancel
                     </ZoruButton>
-                    <ZoruButton
-                        onClick={onConfirmPick}
-                        disabled={
-                            (mode === 'library' && !selectedId) ||
-                            (mode === 'upload' && !selectedId) ||
-                            (mode === 'url' && !externalUrl.trim())
-                        }
-                    >
+                    <ZoruButton onClick={onConfirmPick} disabled={!selectedId}>
                         Use this file
                     </ZoruButton>
                 </ZoruDialogFooter>
@@ -639,57 +581,116 @@ function ModeButton({
 }
 
 // ──────────────────────────────────────────────────────────────────────
-// Convenience: a controlled input that opens the picker on click and
-// stores the picked URL as its value. Use this as a near-drop-in for
-// `<input type="url" />` fields that expect a media URL.
+// Controlled "file chip" input: holds a SabFiles URL as its value, but
+// the UI only shows the picked file's name + Browse + Clear. Free-text
+// URL paste is intentionally disabled — every file MUST come from
+// SabFiles (library or upload). The component still exposes `name=`
+// and `value=` so existing forms that POST a `*Url` field via FormData
+// keep working transparently.
+//
+// Backwards compatibility: kept the `SabFileUrlInput` export name (and
+// its `value` / `onChange(value)` shape) so the 16+ migrated call sites
+// don't need updates. The legacy `placeholder` and `allowFreeText`
+// props are accepted but ignored.
 // ──────────────────────────────────────────────────────────────────────
 export interface SabFileUrlInputProps {
     value: string;
     onChange: (value: string, pick?: SabFilePick) => void;
     accept?: SabFileAccept;
+    /** Hint shown when no file is picked. */
     placeholder?: string;
     className?: string;
     disabled?: boolean;
-    /** Allow free-form URL paste in the input itself (defaults true). */
+    /** @deprecated Free-text URL paste is no longer allowed. Ignored. */
     allowFreeText?: boolean;
     /** Title for the picker dialog. */
     pickerTitle?: string;
+    /** No-op (kept for backwards compatibility with migrated call sites). */
     id?: string;
+    /** Renders a hidden input with this name + value for FormData submission. */
     name?: string;
+}
+
+/**
+ * Derive a friendly file name from a SabFiles URL when the picker
+ * hasn't told us the actual name yet (e.g. value loaded from saved
+ * state on first render).
+ */
+function nameFromUrl(url: string): string {
+    if (!url) return '';
+    try {
+        const path = new URL(url, 'http://x').pathname;
+        const last = path.split('/').filter(Boolean).pop() ?? '';
+        // R2 keys we mint look like `users/<id>/files/<yyyy>/<mm>/<rand>-<safe>`,
+        // so strip the leading random hex prefix when present.
+        const decoded = decodeURIComponent(last);
+        const stripRandHex = decoded.replace(/^[0-9a-f]{16,}-/i, '');
+        return stripRandHex || decoded || url;
+    } catch {
+        return url;
+    }
 }
 
 export function SabFileUrlInput({
     value,
     onChange,
     accept = 'all',
-    placeholder = 'Pick from SabFiles or paste a URL',
+    placeholder = 'No file chosen',
     className,
     disabled,
-    allowFreeText = true,
     pickerTitle,
-    id,
     name,
 }: SabFileUrlInputProps) {
     const [open, setOpen] = React.useState(false);
+    // Latest pick name (preferred over deriving from URL).
+    const [lastName, setLastName] = React.useState<string | null>(null);
+    const [lastMime, setLastMime] = React.useState<string | undefined>(undefined);
+
+    // Reset cached display fields when the value is cleared from outside.
+    React.useEffect(() => {
+        if (!value) {
+            setLastName(null);
+            setLastMime(undefined);
+        }
+    }, [value]);
+
+    const displayName = lastName ?? (value ? nameFromUrl(value) : '');
+
     return (
         <div className={cn('flex items-center gap-2', className)}>
-            <ZoruInput
-                id={id}
-                name={name}
-                value={value}
-                onChange={(e) => allowFreeText && onChange(e.target.value)}
-                readOnly={!allowFreeText}
-                placeholder={placeholder}
-                disabled={disabled}
-                className="flex-1"
-            />
+            <div
+                className={cn(
+                    'flex h-9 flex-1 items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 text-sm',
+                    disabled && 'opacity-60',
+                )}
+            >
+                {value ? (
+                    <>
+                        {lastMime?.startsWith('image/') ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                                src={value}
+                                alt=""
+                                className="h-5 w-5 rounded object-cover"
+                            />
+                        ) : (
+                            <FileIcon className="h-4 w-4 text-zoru-ink-muted" />
+                        )}
+                        <span className="truncate text-zoru-ink">{displayName}</span>
+                    </>
+                ) : (
+                    <span className="text-zoru-ink-muted">{placeholder}</span>
+                )}
+            </div>
+            {/* Hidden field so existing FormData-based submissions still work. */}
+            {name && <input type="hidden" name={name} value={value} />}
             <ZoruButton
                 type="button"
                 variant="outline"
                 disabled={disabled}
                 onClick={() => setOpen(true)}
             >
-                Browse
+                <Upload /> {value ? 'Change' : 'Choose file'}
             </ZoruButton>
             {value && (
                 <ZoruButton
@@ -698,7 +699,11 @@ export function SabFileUrlInput({
                     size="icon-sm"
                     aria-label="Clear"
                     disabled={disabled}
-                    onClick={() => onChange('')}
+                    onClick={() => {
+                        setLastName(null);
+                        setLastMime(undefined);
+                        onChange('');
+                    }}
                 >
                     <X />
                 </ZoruButton>
@@ -708,9 +713,99 @@ export function SabFileUrlInput({
                 onOpenChange={setOpen}
                 accept={accept}
                 title={pickerTitle}
-                onPick={(p) => onChange(p.url, p)}
+                onPick={(p) => {
+                    setLastName(p.name);
+                    setLastMime(p.mime);
+                    onChange(p.url, p);
+                }}
             />
         </div>
+    );
+}
+
+// ──────────────────────────────────────────────────────────────────────
+// Bridge utility: download a picked SabFile back into a `File` object.
+//
+// Used by Meta-pipeline forms (template headers, broadcast media,
+// WhatsApp profile picture, chat-message attachments, etc.) whose
+// existing handlers expect a `File` to feed into Meta's resumable
+// upload. The user picks from SabFiles, the browser pulls the bytes
+// from R2 (or the `/api/sabfiles/raw/:id` proxy), and the form gets
+// the same `File` shape it would have got from a `<input type="file">`.
+// ──────────────────────────────────────────────────────────────────────
+export async function fetchSabFilePickAsFile(pick: SabFilePick): Promise<File> {
+    const res = await fetch(pick.url, { credentials: 'include' });
+    if (!res.ok) {
+        throw new Error(`Failed to fetch SabFile (${res.status})`);
+    }
+    const blob = await res.blob();
+    return new File([blob], pick.name, {
+        type: pick.mime || blob.type || 'application/octet-stream',
+    });
+}
+
+export interface SabFileToFileButtonProps
+    extends Omit<SabFilePickerProps, 'open' | 'onOpenChange' | 'onPick'> {
+    /** Called with the picked file as a `File` object once it's been fetched. */
+    onPickFile: (file: File, pick: SabFilePick) => void | Promise<void>;
+    onError?: (err: Error) => void;
+    children?: React.ReactNode;
+    className?: string;
+    variant?: 'default' | 'outline' | 'ghost' | 'destructive';
+}
+
+/**
+ * Variant of `SabFilePickerButton` for legacy `File`-based handlers.
+ * The button opens the SabFiles picker, then transparently downloads
+ * the picked object and hands the resulting `File` to `onPickFile`.
+ *
+ * Use this in chat composers, template forms, and anywhere else whose
+ * existing pipeline expects a `File`. It augments rather than replaces
+ * the existing `<input type="file">`.
+ */
+export function SabFileToFileButton({
+    onPickFile,
+    onError,
+    children,
+    className,
+    variant = 'outline',
+    ...rest
+}: SabFileToFileButtonProps) {
+    const [open, setOpen] = React.useState(false);
+    const [busy, setBusy] = React.useState(false);
+    return (
+        <>
+            <ZoruButton
+                type="button"
+                variant={variant}
+                className={className}
+                disabled={busy}
+                onClick={() => setOpen(true)}
+            >
+                {busy ? <Loader2 className="animate-spin" /> : null}
+                {children ?? 'Pick from SabFiles'}
+            </ZoruButton>
+            <SabFilePicker
+                {...rest}
+                open={open}
+                onOpenChange={setOpen}
+                onPick={async (p) => {
+                    setBusy(true);
+                    try {
+                        const file = await fetchSabFilePickAsFile(p);
+                        await onPickFile(file, p);
+                    } catch (e) {
+                        if (onError) onError(e as Error);
+                        else if (typeof window !== 'undefined') {
+                            // Fallback so silent failures don't go unnoticed.
+                            console.error('SabFileToFileButton fetch failed', e);
+                        }
+                    } finally {
+                        setBusy(false);
+                    }
+                }}
+            />
+        </>
     );
 }
 
