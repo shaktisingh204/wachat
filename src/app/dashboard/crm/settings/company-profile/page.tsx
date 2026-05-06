@@ -1,18 +1,18 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useActionState, useCallback, useEffect, useState, useTransition } from 'react';
 import { Building2, LoaderCircle } from 'lucide-react';
 
-import { ClayButton, ClayCard } from '@/components/clay';
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSkeleton,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
 import {
   getCompanyProfile,
   saveCompanyProfile,
@@ -21,9 +21,6 @@ import type { WsCompanyProfile } from '@/lib/worksuite/company-types';
 
 type FormState = { message?: string; error?: string; id?: string };
 const initialState: FormState = {};
-
-const inputClass =
-  'h-10 rounded-lg border-border bg-card text-[13px]';
 
 function Field({
   name,
@@ -42,23 +39,23 @@ function Field({
 }) {
   return (
     <div className={fullWidth ? 'md:col-span-2' : ''}>
-      <Label htmlFor={name} className="text-[13px] text-foreground">
+      <ZoruLabel htmlFor={name} className="text-[13px] text-zoru-ink">
         {label}
-      </Label>
-      <Input
+      </ZoruLabel>
+      <ZoruInput
         id={name}
         name={name}
         type={type}
         defaultValue={defaultValue ?? ''}
         placeholder={placeholder}
-        className={`mt-1.5 ${inputClass}`}
+        className="mt-1.5"
       />
     </div>
   );
 }
 
 export default function CompanyProfilePage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [profile, setProfile] = useState<WsCompanyProfile | null>(null);
   const [isLoading, startLoading] = useTransition();
   const [saveState, formAction, isSaving] = useActionState(
@@ -100,16 +97,14 @@ export default function CompanyProfilePage() {
       />
 
       {isLoading && !profile ? (
-        <ClayCard>
-          <Skeleton className="h-[420px] w-full" />
-        </ClayCard>
+        <ZoruCard className="p-6">
+          <ZoruSkeleton className="h-[420px] w-full" />
+        </ZoruCard>
       ) : (
         <form action={formAction}>
           <div className="grid items-start gap-6 lg:grid-cols-2">
-            <ClayCard>
-              <h2 className="mb-4 text-[16px] font-semibold text-foreground">
-                Identity
-              </h2>
+            <ZoruCard className="p-6">
+              <h2 className="mb-4 text-[16px] text-zoru-ink">Identity</h2>
               <div className="grid gap-4 md:grid-cols-2">
                 <Field
                   name="company_name"
@@ -148,15 +143,15 @@ export default function CompanyProfilePage() {
                   defaultValue={profile?.phone}
                 />
                 <div className="md:col-span-2">
-                  <Label htmlFor="address" className="text-[13px] text-foreground">
+                  <ZoruLabel htmlFor="address" className="text-[13px] text-zoru-ink">
                     Primary Address
-                  </Label>
-                  <Textarea
+                  </ZoruLabel>
+                  <ZoruTextarea
                     id="address"
                     name="address"
                     rows={2}
                     defaultValue={profile?.address ?? ''}
-                    className="mt-1.5 rounded-lg border-border bg-card text-[13px]"
+                    className="mt-1.5"
                   />
                 </div>
                 <Field name="city" label="City" defaultValue={profile?.city} />
@@ -182,12 +177,10 @@ export default function CompanyProfilePage() {
                   defaultValue={profile?.pan_number}
                 />
               </div>
-            </ClayCard>
+            </ZoruCard>
 
-            <ClayCard>
-              <h2 className="mb-4 text-[16px] font-semibold text-foreground">
-                Locale & Fiscal
-              </h2>
+            <ZoruCard className="p-6">
+              <h2 className="mb-4 text-[16px] text-zoru-ink">Locale & Fiscal</h2>
               <div className="grid gap-4 md:grid-cols-2">
                 <Field
                   name="currency_code"
@@ -233,9 +226,7 @@ export default function CompanyProfilePage() {
                 />
               </div>
 
-              <h2 className="mb-4 mt-6 text-[16px] font-semibold text-foreground">
-                Document Prefixes
-              </h2>
+              <h2 className="mb-4 mt-6 text-[16px] text-zoru-ink">Document Prefixes</h2>
               <div className="grid gap-4 md:grid-cols-3">
                 <Field
                   name="invoice_prefix"
@@ -258,20 +249,12 @@ export default function CompanyProfilePage() {
               </div>
 
               <div className="mt-6 flex justify-end">
-                <ClayButton
-                  type="submit"
-                  variant="obsidian"
-                  disabled={isSaving}
-                  leading={
-                    isSaving ? (
-                      <LoaderCircle className="h-4 w-4 animate-spin" />
-                    ) : undefined
-                  }
-                >
+                <ZoruButton type="submit" disabled={isSaving}>
+                  {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
                   Save Profile
-                </ClayButton>
+                </ZoruButton>
               </div>
-            </ClayCard>
+            </ZoruCard>
           </div>
         </form>
       )}

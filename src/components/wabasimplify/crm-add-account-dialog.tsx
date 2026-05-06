@@ -4,36 +4,31 @@
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+  ZoruButton,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogTrigger,
+  ZoruInput,
+  ZoruLabel,
+  useZoruToast,
+} from '@/components/zoruui';
 import { LoaderCircle, Plus } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
 import { addCrmAccount } from '@/app/actions/crm-accounts.actions';
 import { SmartCombobox } from './smart-combobox';
-import { ClayButton } from '@/components/clay';
 
 const initialState = { message: undefined, error: undefined };
 
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ClayButton
-      type="submit"
-      variant="obsidian"
-      disabled={pending}
-      leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : undefined}
-    >
+    <ZoruButton type="submit" disabled={pending}>
+      {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
       Add Account
-    </ClayButton>
+    </ZoruButton>
   );
 }
 
@@ -48,7 +43,7 @@ interface CrmAddAccountDialogProps {
 export function CrmAddAccountDialog({ onAdded }: CrmAddAccountDialogProps) {
   const [open, setOpen] = useState(false);
   const [state, formAction] = useActionState(addCrmAccount, initialState);
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const formRef = useRef<HTMLFormElement>(null);
 
   // State for SmartComboboxes
@@ -99,27 +94,27 @@ export function CrmAddAccountDialog({ onAdded }: CrmAddAccountDialogProps) {
   }, [state, toast, onAdded]);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline">
+    <ZoruDialog open={open} onOpenChange={setOpen}>
+      <ZoruDialogTrigger asChild>
+        <ZoruButton variant="outline">
           <Plus className="mr-2 h-4 w-4" />
           Add Account
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden p-0">
+        </ZoruButton>
+      </ZoruDialogTrigger>
+      <ZoruDialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden p-0">
         <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
-          <DialogHeader className="px-6 pt-6 pb-2">
-            <DialogTitle className="text-foreground">Add New Account</DialogTitle>
-            <DialogDescription className="text-muted-foreground">Create a new company record in your CRM.</DialogDescription>
-          </DialogHeader>
+          <ZoruDialogHeader className="px-6 pt-6 pb-2">
+            <ZoruDialogTitle className="text-zoru-ink">Add New Account</ZoruDialogTitle>
+            <ZoruDialogDescription className="text-zoru-ink-muted">Create a new company record in your CRM.</ZoruDialogDescription>
+          </ZoruDialogHeader>
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="grid gap-4">
               <div className="space-y-2">
-                <Label htmlFor="name" className="text-foreground">Company Name</Label>
-                <Input id="name" name="name" required />
+                <ZoruLabel htmlFor="name" className="text-zoru-ink">Company Name</ZoruLabel>
+                <ZoruInput id="name" name="name" required />
               </div>
               <div className="space-y-2">
-                <Label className="text-foreground">Industry</Label>
+                <ZoruLabel className="text-zoru-ink">Industry</ZoruLabel>
                 <input type="hidden" name="industry" value={industry} />
                 <SmartCombobox
                   options={industryOptions}
@@ -132,18 +127,18 @@ export function CrmAddAccountDialog({ onAdded }: CrmAddAccountDialogProps) {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="website" className="text-foreground">Website</Label>
-                  <Input id="website" name="website" type="url" placeholder="https://example.com" />
+                  <ZoruLabel htmlFor="website" className="text-zoru-ink">Website</ZoruLabel>
+                  <ZoruInput id="website" name="website" type="url" placeholder="https://example.com" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="phone" className="text-foreground">Phone</Label>
-                  <Input id="phone" name="phone" />
+                  <ZoruLabel htmlFor="phone" className="text-zoru-ink">Phone</ZoruLabel>
+                  <ZoruInput id="phone" name="phone" />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-foreground">Country</Label>
+                  <ZoruLabel className="text-zoru-ink">Country</ZoruLabel>
                   <input type="hidden" name="country" value={country} />
                   <SmartCombobox
                     options={countryOptions}
@@ -155,7 +150,7 @@ export function CrmAddAccountDialog({ onAdded }: CrmAddAccountDialogProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-foreground">State</Label>
+                  <ZoruLabel className="text-zoru-ink">State</ZoruLabel>
                   <input type="hidden" name="state" value={addressState} />
                   <SmartCombobox
                     options={stateOptions}
@@ -169,12 +164,12 @@ export function CrmAddAccountDialog({ onAdded }: CrmAddAccountDialogProps) {
               </div>
             </div>
           </div>
-          <DialogFooter className="px-6 pb-6 pt-2">
-            <ClayButton type="button" variant="pill" onClick={() => setOpen(false)}>Cancel</ClayButton>
+          <ZoruDialogFooter className="px-6 pb-6 pt-2">
+            <ZoruButton type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</ZoruButton>
             <SubmitButton />
-          </DialogFooter>
+          </ZoruDialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      </ZoruDialogContent>
+    </ZoruDialog>
   );
 }

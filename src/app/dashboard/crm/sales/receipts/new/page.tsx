@@ -1,16 +1,24 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
-
 import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
-import { Button } from '@/components/ui/button';
-import { ClayCard, ClayButton } from '@/components/clay';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+    ZoruAlert,
+    ZoruAlertDescription,
+    ZoruAlertTitle,
+    ZoruButton,
+    ZoruCard,
+    ZoruInput,
+    ZoruLabel,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+    ZoruSeparator,
+    ZoruTextarea,
+    useZoruToast,
+} from '@/components/zoruui';
 import { DatePicker } from '@/components/ui/date-picker';
 import { ArrowLeft, Save, LoaderCircle, PlusCircle, Trash2, Check } from 'lucide-react';
 import { SmartClientSelect } from '@/components/crm/sales/smart-client-select';
@@ -20,37 +28,29 @@ import type { WithId, CrmAccount, CrmInvoice, PaymentRecord } from '@/lib/defini
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
 import { getUnpaidInvoicesByAccount } from '@/app/actions/crm-invoices.actions';
 import { savePaymentReceipt } from '@/app/actions/crm-payment-receipts.actions';
-import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { NotebookText } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
-import { Textarea } from '@/components/ui/textarea';
 
 const initialState = { message: '', error: '' };
 
 function SaveButton({ disabled }: { disabled: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <ClayButton
-            type="submit"
-            variant="obsidian"
-            disabled={pending || disabled}
-            leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-        >
+        <ZoruButton type="submit" disabled={pending || disabled}>
+            {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Save Payment
-        </ClayButton>
+        </ZoruButton>
     );
 }
 
 const StepIndicator = ({ currentStep, step, title }: { currentStep: number, step: number, title: string }) => (
     <div className="flex items-center gap-3">
-        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep >= step ? 'bg-foreground text-white' : 'bg-secondary border border-border'}`}>
+        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep >= step ? 'bg-zoru-ink text-white' : 'bg-zoru-surface-2 border border-zoru-line'}`}>
             {currentStep > step ? <Check className="h-5 w-5" /> : step}
         </div>
         <div>
-            <p className="text-sm text-muted-foreground">Step {step}</p>
-            <p className="font-semibold text-foreground">{title}</p>
+            <p className="text-sm text-zoru-ink-muted">Step {step}</p>
+            <p className="text-zoru-ink">{title}</p>
         </div>
     </div>
 );
@@ -58,7 +58,7 @@ const StepIndicator = ({ currentStep, step, title }: { currentStep: number, step
 export default function RecordPaymentPage() {
     const [state, formAction] = useActionState(savePaymentReceipt, initialState);
     const router = useRouter();
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
     const formRef = useRef<HTMLFormElement>(null);
 
     const [step, setStep] = useState(1);
@@ -139,7 +139,7 @@ export default function RecordPaymentPage() {
                 if (existingIndex > -1) {
                     return prev.filter((_, index) => index !== existingIndex);
                 }
-                return prev; // Nothing to remove
+                return prev;
             }
 
             if (existingIndex > -1) {
@@ -170,9 +170,9 @@ export default function RecordPaymentPage() {
                 <div className="flex justify-between items-center">
                     <div>
                         <Link href="/dashboard/crm/sales/receipts">
-                            <ClayButton variant="pill" size="sm" leading={<ArrowLeft className="h-4 w-4" />}>Back to Receipts</ClayButton>
+                            <ZoruButton variant="outline" size="sm"><ArrowLeft className="h-4 w-4" />Back to Receipts</ZoruButton>
                         </Link>
-                        <h1 className="text-[26px] font-semibold tracking-tight text-foreground mt-2">Record Payment Received</h1>
+                        <h1 className="text-[26px] text-zoru-ink mt-2">Record Payment Received</h1>
                     </div>
                 </div>
 
@@ -186,15 +186,15 @@ export default function RecordPaymentPage() {
                     </div>
                     <div className="md:col-span-8">
                         {step === 1 && (
-                            <ClayCard padded={false}>
+                            <ZoruCard className="p-0">
                                 <div className="p-6 space-y-6">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div className="space-y-1.5"><Label htmlFor="receiptNumber" className="text-foreground">Payment Receipt No *</Label><Input id="receiptNumber" name="receiptNumber" defaultValue="A00001" required maxLength={50} /></div>
-                                        <div className="space-y-1.5"><Label htmlFor="receiptDate" className="text-foreground">Receipt Date *</Label><DatePicker date={receiptDate} setDate={setReceiptDate} /></div>
+                                        <div className="space-y-1.5"><ZoruLabel htmlFor="receiptNumber" className="text-zoru-ink">Payment Receipt No *</ZoruLabel><ZoruInput id="receiptNumber" name="receiptNumber" defaultValue="A00001" required maxLength={50} /></div>
+                                        <div className="space-y-1.5"><ZoruLabel htmlFor="receiptDate" className="text-zoru-ink">Receipt Date *</ZoruLabel><DatePicker date={receiptDate} setDate={setReceiptDate} /></div>
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="space-y-1.5">
-                                            <Label htmlFor="client-select" className="text-foreground">Payment Received From *</Label>
+                                            <ZoruLabel htmlFor="client-select" className="text-zoru-ink">Payment Received From *</ZoruLabel>
                                             <SmartClientSelect
                                                 value={selectedClientId}
                                                 onSelect={handleClientChange}
@@ -209,79 +209,79 @@ export default function RecordPaymentPage() {
                                             />
                                         </div>
                                         <div className="space-y-1.5">
-                                            <Label htmlFor="currency" className="text-foreground">Currency *</Label>
-                                            <Select name="currency" defaultValue={currency} onValueChange={setCurrency} required><SelectTrigger id="currency"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="INR">Indian Rupee (INR, ₹)</SelectItem><SelectItem value="USD">US Dollar (USD, $)</SelectItem></SelectContent></Select>
+                                            <ZoruLabel htmlFor="currency" className="text-zoru-ink">Currency *</ZoruLabel>
+                                            <ZoruSelect name="currency" defaultValue={currency} onValueChange={setCurrency} required><ZoruSelectTrigger id="currency"><ZoruSelectValue /></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="INR">Indian Rupee (INR, ₹)</ZoruSelectItem><ZoruSelectItem value="USD">US Dollar (USD, $)</ZoruSelectItem></ZoruSelectContent></ZoruSelect>
                                         </div>
                                     </div>
                                 </div>
                                 <div className="flex justify-end p-6 pt-0">
-                                    <ClayButton type="button" variant="obsidian" onClick={() => setStep(2)} disabled={!selectedClientId}>Continue</ClayButton>
+                                    <ZoruButton type="button" onClick={() => setStep(2)} disabled={!selectedClientId}>Continue</ZoruButton>
                                 </div>
-                            </ClayCard>
+                            </ZoruCard>
                         )}
                         {step === 2 && (
-                            <ClayCard padded={false}>
+                            <ZoruCard className="p-0">
                                 <div className="p-6">
-                                    <h2 className="text-[15px] font-semibold text-foreground">Record Payments</h2>
-                                    <p className="text-[12.5px] text-muted-foreground mt-1">Record multiple payments against multiple invoices.</p>
+                                    <h2 className="text-[15px] text-zoru-ink">Record Payments</h2>
+                                    <p className="text-[12.5px] text-zoru-ink-muted mt-1">Record multiple payments against multiple invoices.</p>
                                 </div>
                                 <div className="space-y-4 px-6">
                                     {paymentRecords.map((record, index) => (
-                                        <div key={record.id} className="p-3 border border-border rounded-lg space-y-3 relative bg-secondary">
-                                            <Button variant="ghost" size="icon" className="absolute top-1 right-1 h-7 w-7" onClick={() => handleRemovePaymentRecord(record.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
-                                            <div className="grid md:grid-cols-2 gap-4"><div className="space-y-1.5"><Label className="text-foreground">Amount *</Label><Input type="number" value={record.amount} onChange={(e) => handleRecordChange(record.id, 'amount', e.target.value)} /></div><div className="space-y-1.5"><Label className="text-foreground">Payment Date *</Label><DatePicker date={record.date} setDate={(d: any) => handleRecordChange(record.id, 'date', d)} /></div></div>
-                                            <div className="space-y-1.5"><Label className="text-foreground">Mode *</Label><Select value={record.mode} onValueChange={(v) => handleRecordChange(record.id, 'mode', v)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="Bank Transfer">Bank Transfer</SelectItem><SelectItem value="Cash">Cash</SelectItem><SelectItem value="Cheque">Cheque</SelectItem></SelectContent></Select></div>
-                                            <div className="space-y-1.5"><Label className="text-foreground">Reference # (Optional)</Label><Input value={record.reference || ''} onChange={(e) => handleRecordChange(record.id, 'reference', e.target.value)} maxLength={100} /></div>
+                                        <div key={record.id} className="p-3 border border-zoru-line rounded-lg space-y-3 relative bg-zoru-surface-2">
+                                            <ZoruButton variant="ghost" size="icon" className="absolute top-1 right-1 h-7 w-7" onClick={() => handleRemovePaymentRecord(record.id)}><Trash2 className="h-4 w-4 text-zoru-danger-ink" /></ZoruButton>
+                                            <div className="grid md:grid-cols-2 gap-4"><div className="space-y-1.5"><ZoruLabel className="text-zoru-ink">Amount *</ZoruLabel><ZoruInput type="number" value={record.amount} onChange={(e) => handleRecordChange(record.id, 'amount', e.target.value)} /></div><div className="space-y-1.5"><ZoruLabel className="text-zoru-ink">Payment Date *</ZoruLabel><DatePicker date={record.date} setDate={(d: any) => handleRecordChange(record.id, 'date', d)} /></div></div>
+                                            <div className="space-y-1.5"><ZoruLabel className="text-zoru-ink">Mode *</ZoruLabel><ZoruSelect value={record.mode} onValueChange={(v) => handleRecordChange(record.id, 'mode', v)}><ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="Bank Transfer">Bank Transfer</ZoruSelectItem><ZoruSelectItem value="Cash">Cash</ZoruSelectItem><ZoruSelectItem value="Cheque">Cheque</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
+                                            <div className="space-y-1.5"><ZoruLabel className="text-zoru-ink">Reference # (Optional)</ZoruLabel><ZoruInput value={record.reference || ''} onChange={(e) => handleRecordChange(record.id, 'reference', e.target.value)} maxLength={100} /></div>
                                         </div>
                                     ))}
-                                    <ClayButton type="button" variant="pill" onClick={handleAddPaymentRecord} leading={<PlusCircle className="h-4 w-4" />}>Add New Payment Record</ClayButton>
+                                    <ZoruButton type="button" variant="outline" onClick={handleAddPaymentRecord}><PlusCircle className="h-4 w-4" />Add New Payment Record</ZoruButton>
                                 </div>
                                 <div className="flex justify-between p-6">
-                                    <ClayButton type="button" variant="pill" onClick={() => setStep(1)}>Back</ClayButton>
-                                    <ClayButton type="button" variant="obsidian" onClick={() => setStep(3)} disabled={totalAmountReceived <= 0}>Continue</ClayButton>
+                                    <ZoruButton type="button" variant="outline" onClick={() => setStep(1)}>Back</ZoruButton>
+                                    <ZoruButton type="button" onClick={() => setStep(3)} disabled={totalAmountReceived <= 0}>Continue</ZoruButton>
                                 </div>
-                            </ClayCard>
+                            </ZoruCard>
                         )}
                         {step === 3 && (
-                            <ClayCard padded={false}>
+                            <ZoruCard className="p-0">
                                 <div className="p-6">
-                                    <h2 className="text-[15px] font-semibold text-foreground">Settle Unpaid Invoices</h2>
+                                    <h2 className="text-[15px] text-zoru-ink">Settle Unpaid Invoices</h2>
                                 </div>
                                 <div className="space-y-6 px-6">
-                                    <ClayCard variant="soft" padded={false} className="bg-accent/30 border-accent">
+                                    <ZoruCard className="p-0 bg-zoru-surface-2 border border-zoru-line">
                                         <div className="p-3 grid grid-cols-2 gap-4">
-                                            <div><Label className="text-xs text-foreground">Amount Received</Label><p className="font-bold text-lg text-foreground">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalAmountReceived)}</p></div>
-                                            <div><Label className="text-xs text-foreground">Amount to Settle</Label><p className="font-bold text-lg text-foreground">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalAmountSettled)}</p></div>
-                                            <div className="col-span-2"><Separator /></div>
-                                            <div className="col-span-2"><Label className="text-xs text-foreground">Amount to be recorded as Advance</Label><p className="font-bold text-xl text-accent-foreground">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(advanceAmount)}</p></div>
+                                            <div><ZoruLabel className="text-xs text-zoru-ink">Amount Received</ZoruLabel><p className="text-lg text-zoru-ink">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalAmountReceived)}</p></div>
+                                            <div><ZoruLabel className="text-xs text-zoru-ink">Amount to Settle</ZoruLabel><p className="text-lg text-zoru-ink">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalAmountSettled)}</p></div>
+                                            <div className="col-span-2"><ZoruSeparator /></div>
+                                            <div className="col-span-2"><ZoruLabel className="text-xs text-zoru-ink">Amount to be recorded as Advance</ZoruLabel><p className="text-xl text-zoru-ink">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(advanceAmount)}</p></div>
                                         </div>
-                                    </ClayCard>
+                                    </ZoruCard>
                                     {isDataLoading ? (<LoaderCircle className="animate-spin" />) : unpaidInvoices.length > 0 ? (
                                         <div className="space-y-2">
                                             {unpaidInvoices.map(invoice => (
-                                                <div key={invoice._id.toString()} className="flex items-center gap-2 p-2 border border-border rounded-lg">
-                                                    <div className="flex-1 space-y-1"><p className="font-medium text-sm text-foreground">{invoice.invoiceNumber}</p><p className="text-xs text-muted-foreground">Due: {new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(invoice.total)}</p></div>
-                                                    <Input type="number" placeholder="Settle Amount" className="w-32" max={invoice.total} onChange={(e) => handleSettlementChange(invoice._id.toString(), e.target.value)} />
+                                                <div key={invoice._id.toString()} className="flex items-center gap-2 p-2 border border-zoru-line rounded-lg">
+                                                    <div className="flex-1 space-y-1"><p className="text-sm text-zoru-ink">{invoice.invoiceNumber}</p><p className="text-xs text-zoru-ink-muted">Due: {new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(invoice.total)}</p></div>
+                                                    <ZoruInput type="number" placeholder="Settle Amount" className="w-32" max={invoice.total} onChange={(e) => handleSettlementChange(invoice._id.toString(), e.target.value)} />
                                                 </div>
                                             ))}
                                         </div>
                                     ) : (
-                                        <Alert>
+                                        <ZoruAlert>
                                             <NotebookText className="h-4 w-4" />
-                                            <AlertTitle>No Unpaid Invoices Found</AlertTitle>
-                                            <AlertDescription>This payment will be recorded as an advance.</AlertDescription>
-                                        </Alert>
+                                            <ZoruAlertTitle>No Unpaid Invoices Found</ZoruAlertTitle>
+                                            <ZoruAlertDescription>This payment will be recorded as an advance.</ZoruAlertDescription>
+                                        </ZoruAlert>
                                     )}
                                     <div className="space-y-2">
-                                        <Label htmlFor="notes" className="text-foreground">Notes (Optional)</Label>
-                                        <Textarea id="notes" name="notes" placeholder="e.g. Received via GPay" maxLength={500} />
+                                        <ZoruLabel htmlFor="notes" className="text-zoru-ink">Notes (Optional)</ZoruLabel>
+                                        <ZoruTextarea id="notes" name="notes" placeholder="e.g. Received via GPay" maxLength={500} />
                                     </div>
                                 </div>
                                 <div className="flex justify-between p-6">
-                                    <ClayButton type="button" variant="pill" onClick={() => setStep(2)}>Back</ClayButton>
+                                    <ZoruButton type="button" variant="outline" onClick={() => setStep(2)}>Back</ZoruButton>
                                     <SaveButton disabled={isDataLoading} />
                                 </div>
-                            </ClayCard>
+                            </ZoruCard>
                         )}
                     </div>
                 </div>

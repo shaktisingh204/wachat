@@ -1,9 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
-import * as React from 'react';
 import {
   useActionState,
   useCallback,
@@ -13,11 +9,14 @@ import {
 } from 'react';
 import { BellRing, LoaderCircle } from 'lucide-react';
 
-import { ClayCard, ClayButton } from '@/components/clay';
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruSkeleton,
+  ZoruSwitch,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
-import { Switch } from '@/components/ui/switch';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
 import {
   getEmailNotificationSetting,
   saveEmailNotificationSetting,
@@ -32,7 +31,7 @@ type Doc = (WsEmailNotificationSetting & { _id: unknown }) | null;
 type ToggleKey = (typeof WS_EMAIL_NOTIFICATION_KEYS)[number]['key'];
 
 export default function EmailNotificationsIntegrationPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [doc, setDoc] = useState<Doc>(null);
   const [values, setValues] = useState<Record<ToggleKey, boolean>>(
     () =>
@@ -101,12 +100,12 @@ export default function EmailNotificationsIntegrationPage() {
         icon={BellRing}
       />
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         {!doc && !id ? (
           <div className="space-y-3">
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
+            <ZoruSkeleton className="h-10 w-full" />
+            <ZoruSkeleton className="h-10 w-full" />
+            <ZoruSkeleton className="h-10 w-full" />
           </div>
         ) : null}
 
@@ -121,21 +120,19 @@ export default function EmailNotificationsIntegrationPage() {
             />
           ))}
 
-          <div className="divide-y divide-border rounded-lg border border-border bg-card">
+          <div className="divide-y divide-zoru-line rounded-lg border border-zoru-line bg-zoru-bg">
             {WS_EMAIL_NOTIFICATION_KEYS.map((row) => (
               <div
                 key={row.key}
                 className="flex items-center justify-between gap-4 px-4 py-3"
               >
                 <div className="min-w-0">
-                  <div className="text-[13px] font-medium text-foreground">
-                    {row.label}
-                  </div>
-                  <div className="text-[12px] text-muted-foreground">
+                  <div className="text-[13px] text-zoru-ink">{row.label}</div>
+                  <div className="text-[12px] text-zoru-ink-muted">
                     {row.description}
                   </div>
                 </div>
-                <Switch
+                <ZoruSwitch
                   checked={values[row.key]}
                   onCheckedChange={(n) => setValue(row.key, n)}
                   aria-label={row.label}
@@ -145,24 +142,13 @@ export default function EmailNotificationsIntegrationPage() {
           </div>
 
           <div className="flex justify-end gap-2 pt-2">
-            <ClayButton
-              type="submit"
-              variant="obsidian"
-              disabled={isSaving}
-              leading={
-                isSaving ? (
-                  <LoaderCircle
-                    className="h-4 w-4 animate-spin"
-                    strokeWidth={1.75}
-                  />
-                ) : null
-              }
-            >
+            <ZoruButton type="submit" disabled={isSaving}>
+              {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
               Save
-            </ClayButton>
+            </ZoruButton>
           </div>
         </form>
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

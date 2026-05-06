@@ -1,15 +1,19 @@
 'use client';
 
-import { ClayCard, ClayBadge } from '@/components/clay';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+  ZoruAvatar,
+  ZoruAvatarFallback,
+  ZoruAvatarImage,
+  ZoruBadge,
+  ZoruCard,
+  ZoruScrollArea,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
 import {
   Users,
   UserPlus,
@@ -20,7 +24,6 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import { format } from 'date-fns';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 function SectionHead({
   icon: Icon,
@@ -33,12 +36,12 @@ function SectionHead({
 }) {
   return (
     <div className="mb-4 flex items-start gap-3">
-      <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent">
-        <Icon className="h-4 w-4 text-accent-foreground" strokeWidth={1.75} />
+      <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2">
+        <Icon className="h-4 w-4 text-zoru-ink" strokeWidth={1.75} />
       </div>
       <div className="min-w-0">
-        <h3 className="text-[15px] font-semibold leading-tight text-foreground">{title}</h3>
-        <p className="mt-0.5 text-[12.5px] text-muted-foreground">{subtitle}</p>
+        <h3 className="text-[15px] leading-tight text-zoru-ink">{title}</h3>
+        <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">{subtitle}</p>
       </div>
     </div>
   );
@@ -52,9 +55,9 @@ function EmptyState({
   text: string;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-lg bg-secondary p-10 text-center">
-      <Icon className="mb-3 h-10 w-10 text-muted-foreground/70" strokeWidth={1.5} />
-      <p className="text-[13px] text-muted-foreground">{text}</p>
+    <div className="flex flex-col items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 p-10 text-center">
+      <Icon className="mb-3 h-10 w-10 text-zoru-ink-muted/70" strokeWidth={1.5} />
+      <p className="text-[13px] text-zoru-ink-muted">{text}</p>
     </div>
   );
 }
@@ -65,7 +68,7 @@ interface RecentDealsCardProps {
 }
 
 export const RecentDealsCard = ({ deals, currency }: RecentDealsCardProps) => (
-  <ClayCard className="md:col-span-2">
+  <ZoruCard className="p-6 md:col-span-2">
     <SectionHead
       icon={Handshake}
       title="Recent Deals"
@@ -74,33 +77,33 @@ export const RecentDealsCard = ({ deals, currency }: RecentDealsCardProps) => (
     {deals.length === 0 ? (
       <EmptyState icon={Handshake} text="No recent deals found." />
     ) : (
-      <Table>
-        <TableHeader>
-          <TableRow className="border-border hover:bg-transparent">
-            <TableHead className="text-muted-foreground">Deal Name</TableHead>
-            <TableHead className="text-muted-foreground">Stage</TableHead>
-            <TableHead className="text-right text-muted-foreground">Value</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
+      <ZoruTable>
+        <ZoruTableHeader>
+          <ZoruTableRow>
+            <ZoruTableHead>Deal Name</ZoruTableHead>
+            <ZoruTableHead>Stage</ZoruTableHead>
+            <ZoruTableHead className="text-right">Value</ZoruTableHead>
+          </ZoruTableRow>
+        </ZoruTableHeader>
+        <ZoruTableBody>
           {deals.map((deal) => (
-            <TableRow key={deal._id} className="border-border">
-              <TableCell className="font-medium text-foreground">{deal.name}</TableCell>
-              <TableCell>
-                <ClayBadge tone="rose-soft">{deal.stage}</ClayBadge>
-              </TableCell>
-              <TableCell className="text-right font-medium text-foreground">
+            <ZoruTableRow key={deal._id}>
+              <ZoruTableCell className="font-medium text-zoru-ink">{deal.name}</ZoruTableCell>
+              <ZoruTableCell>
+                <ZoruBadge variant="ghost">{deal.stage}</ZoruBadge>
+              </ZoruTableCell>
+              <ZoruTableCell className="text-right font-medium text-zoru-ink">
                 {new Intl.NumberFormat('en-US', {
                   style: 'currency',
                   currency: deal.currency || currency || 'USD',
                 }).format(deal.value || 0)}
-              </TableCell>
-            </TableRow>
+              </ZoruTableCell>
+            </ZoruTableRow>
           ))}
-        </TableBody>
-      </Table>
+        </ZoruTableBody>
+      </ZoruTable>
     )}
-  </ClayCard>
+  </ZoruCard>
 );
 
 interface UpcomingTasksCardProps {
@@ -108,7 +111,7 @@ interface UpcomingTasksCardProps {
 }
 
 export const UpcomingTasksCard = ({ tasks }: UpcomingTasksCardProps) => (
-  <ClayCard>
+  <ZoruCard className="p-6">
     <SectionHead
       icon={Calendar}
       title="Upcoming Tasks"
@@ -117,39 +120,39 @@ export const UpcomingTasksCard = ({ tasks }: UpcomingTasksCardProps) => (
     {tasks.length === 0 ? (
       <EmptyState icon={CheckCircle2} text="No pending tasks." />
     ) : (
-      <ScrollArea className="h-[250px] pr-3">
+      <ZoruScrollArea className="h-[250px] pr-3">
         <div className="space-y-3">
           {tasks.map((task) => (
             <div
               key={task._id}
-              className="flex items-start justify-between gap-3 border-b border-border pb-3 last:border-0 last:pb-0"
+              className="flex items-start justify-between gap-3 border-b border-zoru-line pb-3 last:border-0 last:pb-0"
             >
               <div className="min-w-0 space-y-1">
-                <p className="text-[13px] font-medium leading-tight text-foreground">
+                <p className="text-[13px] font-medium leading-tight text-zoru-ink">
                   {task.title}
                 </p>
-                <div className="flex flex-wrap items-center gap-2 text-[11.5px] text-muted-foreground">
-                  <ClayBadge tone={task.priority === 'High' ? 'red' : 'neutral'} dot>
+                <div className="flex flex-wrap items-center gap-2 text-[11.5px] text-zoru-ink-muted">
+                  <ZoruBadge variant={task.priority === 'High' ? 'danger' : 'ghost'}>
                     {task.priority || 'Normal'}
-                  </ClayBadge>
+                  </ZoruBadge>
                   {task.dueDate && (
                     <span>{format(new Date(task.dueDate), 'MMM d, yyyy')}</span>
                   )}
                 </div>
               </div>
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-zoru-surface-2">
                 {task.type === 'Call' ? (
-                  <Users className="h-3 w-3 text-accent-foreground" strokeWidth={1.75} />
+                  <Users className="h-3 w-3 text-zoru-ink" strokeWidth={1.75} />
                 ) : (
-                  <FileText className="h-3 w-3 text-accent-foreground" strokeWidth={1.75} />
+                  <FileText className="h-3 w-3 text-zoru-ink" strokeWidth={1.75} />
                 )}
               </div>
             </div>
           ))}
         </div>
-      </ScrollArea>
+      </ZoruScrollArea>
     )}
-  </ClayCard>
+  </ZoruCard>
 );
 
 interface PipelineBreakdownCardProps {
@@ -158,7 +161,7 @@ interface PipelineBreakdownCardProps {
 }
 
 export const PipelineBreakdownCard = ({ stages, currency }: PipelineBreakdownCardProps) => (
-  <ClayCard className="md:col-span-2">
+  <ZoruCard className="p-6 md:col-span-2">
     <SectionHead
       icon={TrendingUp}
       title="Pipeline Breakdown"
@@ -171,15 +174,15 @@ export const PipelineBreakdownCard = ({ stages, currency }: PipelineBreakdownCar
         {stages.map((item, index) => (
           <div
             key={index}
-            className="flex items-center gap-4 rounded-lg bg-secondary px-4 py-3"
+            className="flex items-center gap-4 rounded-[var(--zoru-radius)] bg-zoru-surface-2 px-4 py-3"
           >
             <div className="min-w-0 flex-1 space-y-0.5">
-              <p className="text-[13px] font-medium leading-tight text-foreground">
+              <p className="text-[13px] font-medium leading-tight text-zoru-ink">
                 {item.stage}
               </p>
-              <p className="text-[11.5px] text-muted-foreground">{item.count} deals</p>
+              <p className="text-[11.5px] text-zoru-ink-muted">{item.count} deals</p>
             </div>
-            <div className="text-[14px] font-semibold text-foreground">
+            <div className="text-[14px] font-semibold text-zoru-ink">
               {new Intl.NumberFormat('en-US', {
                 style: 'currency',
                 currency: currency || 'USD',
@@ -189,7 +192,7 @@ export const PipelineBreakdownCard = ({ stages, currency }: PipelineBreakdownCar
         ))}
       </div>
     )}
-  </ClayCard>
+  </ZoruCard>
 );
 
 interface RecentContactsCardProps {
@@ -197,7 +200,7 @@ interface RecentContactsCardProps {
 }
 
 export const RecentContactsCard = ({ contacts }: RecentContactsCardProps) => (
-  <ClayCard>
+  <ZoruCard className="p-6">
     <SectionHead
       icon={UserPlus}
       title="Recent Contacts"
@@ -209,23 +212,23 @@ export const RecentContactsCard = ({ contacts }: RecentContactsCardProps) => (
       <div className="space-y-3">
         {contacts.map((contact) => (
           <div key={contact._id} className="flex items-center gap-3">
-            <Avatar className="h-9 w-9 border border-border">
-              <AvatarImage src={contact.avatarUrl} alt={contact.name} />
-              <AvatarFallback className="bg-accent text-[12px] text-accent-foreground">
+            <ZoruAvatar className="h-9 w-9 border border-zoru-line">
+              <ZoruAvatarImage src={contact.avatarUrl} alt={contact.name} />
+              <ZoruAvatarFallback className="bg-zoru-surface-2 text-[12px] text-zoru-ink">
                 {contact.name?.charAt(0) ?? '?'}
-              </AvatarFallback>
-            </Avatar>
+              </ZoruAvatarFallback>
+            </ZoruAvatar>
             <div className="min-w-0">
-              <p className="truncate text-[13px] font-medium leading-tight text-foreground">
+              <p className="truncate text-[13px] font-medium leading-tight text-zoru-ink">
                 {contact.name}
               </p>
-              <p className="truncate text-[11.5px] text-muted-foreground">{contact.email}</p>
+              <p className="truncate text-[11.5px] text-zoru-ink-muted">{contact.email}</p>
             </div>
           </div>
         ))}
       </div>
     )}
-  </ClayCard>
+  </ZoruCard>
 );
 
 interface InvoiceStatsCardProps {
@@ -238,39 +241,39 @@ export const InvoiceSummaryCard = ({ stats, currency }: InvoiceStatsCardProps) =
     new Intl.NumberFormat('en-US', { style: 'currency', currency: currency || 'USD' }).format(n);
 
   return (
-    <ClayCard>
+    <ZoruCard className="p-6">
       <SectionHead
         icon={FileText}
         title="Invoices"
         subtitle="Overview of pending payments"
       />
       <div className="space-y-3">
-        <div className="flex items-center justify-between gap-4 rounded-lg border border-rose-50 bg-rose-50/60 px-4 py-3">
+        <div className="flex items-center justify-between gap-4 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 px-4 py-3">
           <div className="min-w-0">
-            <p className="text-[12px] font-medium text-destructive">Overdue</p>
-            <p className="mt-0.5 text-[22px] font-semibold leading-none text-destructive">
+            <p className="text-[12px] font-medium text-zoru-danger-ink">Overdue</p>
+            <p className="mt-0.5 text-[22px] font-semibold leading-none text-zoru-danger-ink">
               {fmt(stats.overdueAmount)}
             </p>
           </div>
           <div className="text-right">
-            <p className="text-[11px] text-muted-foreground">Invoices</p>
-            <p className="text-[15px] font-semibold text-foreground">{stats.overdueCount}</p>
+            <p className="text-[11px] text-zoru-ink-muted">Invoices</p>
+            <p className="text-[15px] font-semibold text-zoru-ink">{stats.overdueCount}</p>
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-4 rounded-lg border border-sky-50 bg-sky-50/60 px-4 py-3">
+        <div className="flex items-center justify-between gap-4 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 px-4 py-3">
           <div className="min-w-0">
-            <p className="text-[12px] font-medium text-sky-500">Sent (Due)</p>
-            <p className="mt-0.5 text-[22px] font-semibold leading-none text-sky-500">
+            <p className="text-[12px] font-medium text-zoru-ink">Sent (Due)</p>
+            <p className="mt-0.5 text-[22px] font-semibold leading-none text-zoru-ink">
               {fmt(stats.sentAmount)}
             </p>
           </div>
           <div className="text-right">
-            <p className="text-[11px] text-muted-foreground">Invoices</p>
-            <p className="text-[15px] font-semibold text-foreground">{stats.sentCount}</p>
+            <p className="text-[11px] text-zoru-ink-muted">Invoices</p>
+            <p className="text-[15px] font-semibold text-zoru-ink">{stats.sentCount}</p>
           </div>
         </div>
       </div>
-    </ClayCard>
+    </ZoruCard>
   );
 };

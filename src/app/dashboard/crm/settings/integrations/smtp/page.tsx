@@ -1,9 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
-import * as React from 'react';
 import {
   useActionState,
   useCallback,
@@ -13,12 +9,16 @@ import {
 } from 'react';
 import { LoaderCircle, Mail, Play } from 'lucide-react';
 
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSkeleton,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
 import {
   getSmtpSetting,
   saveSmtpSetting,
@@ -29,7 +29,7 @@ import type { WsSmtpSetting } from '@/lib/worksuite/integrations-types';
 type Doc = (WsSmtpSetting & { _id: unknown }) | null;
 
 export default function SmtpIntegrationPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [doc, setDoc] = useState<Doc>(null);
   const [, startLoading] = useTransition();
   const [isTesting, startTesting] = useTransition();
@@ -90,17 +90,17 @@ export default function SmtpIntegrationPage() {
         icon={Mail}
       />
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         <div className="mb-4 flex items-center gap-2">
-          <ClayBadge tone={doc?.verified ? 'green' : 'neutral'}>
+          <ZoruBadge variant={doc?.verified ? 'success' : 'ghost'}>
             {doc?.verified ? 'Verified' : 'Unverified'}
-          </ClayBadge>
+          </ZoruBadge>
         </div>
 
         {!doc && !id ? (
           <div className="space-y-4">
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
+            <ZoruSkeleton className="h-10 w-full" />
+            <ZoruSkeleton className="h-10 w-full" />
           </div>
         ) : null}
 
@@ -109,161 +109,120 @@ export default function SmtpIntegrationPage() {
 
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <Label htmlFor="mail_driver" className="text-foreground">
-                Mail Driver
-              </Label>
+              <ZoruLabel htmlFor="mail_driver">Mail Driver</ZoruLabel>
               <div className="mt-1.5">
-                <Input
+                <ZoruInput
                   id="mail_driver"
                   name="mail_driver"
                   defaultValue={v('mail_driver') || 'smtp'}
                   placeholder="smtp"
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="encryption" className="text-foreground">
-                Encryption
-              </Label>
+              <ZoruLabel htmlFor="encryption">Encryption</ZoruLabel>
               <div className="mt-1.5">
-                <Input
+                <ZoruInput
                   id="encryption"
                   name="encryption"
                   defaultValue={v('encryption')}
                   placeholder="tls / ssl"
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="host" className="text-foreground">
-                Host
-              </Label>
+              <ZoruLabel htmlFor="host">Host</ZoruLabel>
               <div className="mt-1.5">
-                <Input
+                <ZoruInput
                   id="host"
                   name="host"
                   defaultValue={v('host')}
                   placeholder="smtp.example.com"
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="port" className="text-foreground">
-                Port
-              </Label>
+              <ZoruLabel htmlFor="port">Port</ZoruLabel>
               <div className="mt-1.5">
-                <Input
+                <ZoruInput
                   id="port"
                   name="port"
                   defaultValue={v('port')}
                   placeholder="587"
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="username" className="text-foreground">
-                Username
-              </Label>
+              <ZoruLabel htmlFor="username">Username</ZoruLabel>
               <div className="mt-1.5">
-                <Input
+                <ZoruInput
                   id="username"
                   name="username"
                   defaultValue={v('username')}
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="password" className="text-foreground">
-                Password
-              </Label>
+              <ZoruLabel htmlFor="password">Password</ZoruLabel>
               <div className="mt-1.5">
-                <Input
+                <ZoruInput
                   id="password"
                   name="password"
                   type="password"
                   defaultValue={v('password')}
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="from_email" className="text-foreground">
-                From Email
-              </Label>
+              <ZoruLabel htmlFor="from_email">From Email</ZoruLabel>
               <div className="mt-1.5">
-                <Input
+                <ZoruInput
                   id="from_email"
                   name="from_email"
                   type="email"
                   defaultValue={v('from_email')}
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="from_name" className="text-foreground">
-                From Name
-              </Label>
+              <ZoruLabel htmlFor="from_name">From Name</ZoruLabel>
               <div className="mt-1.5">
-                <Input
+                <ZoruInput
                   id="from_name"
                   name="from_name"
                   defaultValue={v('from_name')}
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
           </div>
 
           <div className="flex flex-wrap justify-end gap-2 pt-2">
-            <ClayButton
+            <ZoruButton
               type="button"
-              variant="obsidian"
               onClick={onTest}
               disabled={isTesting}
-              leading={
-                isTesting ? (
-                  <LoaderCircle
-                    className="h-4 w-4 animate-spin"
-                    strokeWidth={1.75}
-                  />
-                ) : (
-                  <Play className="h-4 w-4" strokeWidth={1.75} />
-                )
-              }
             >
+              {isTesting ? (
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+              ) : (
+                <Play className="h-4 w-4" />
+              )}
               Test
-            </ClayButton>
-            <ClayButton
-              type="submit"
-              variant="obsidian"
-              disabled={isSaving}
-              leading={
-                isSaving ? (
-                  <LoaderCircle
-                    className="h-4 w-4 animate-spin"
-                    strokeWidth={1.75}
-                  />
-                ) : null
-              }
-            >
+            </ZoruButton>
+            <ZoruButton type="submit" disabled={isSaving}>
+              {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
               Save
-            </ClayButton>
+            </ZoruButton>
           </div>
         </form>
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

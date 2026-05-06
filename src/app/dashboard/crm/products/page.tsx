@@ -1,33 +1,35 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useEffect, useState, useTransition } from 'react';
 import { AlertCircle, PlusCircle, ShoppingBag } from 'lucide-react';
 
 import { getCrmProducts } from '@/app/actions/crm-products.actions';
 import { getSession } from '@/app/actions/user.actions';
 import type { WithId, CrmProduct, User, Plan } from '@/lib/definitions';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { CrmProductDialog } from '@/components/wabasimplify/crm-product-dialog';
 import { CrmProductCard } from '@/components/wabasimplify/crm-product-card';
 
-import { ClayButton, ClayCard } from '@/components/clay';
+import {
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruAlertTitle,
+  ZoruButton,
+  ZoruCard,
+  ZoruSkeleton,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../_components/crm-page-header';
 
 function PageSkeleton() {
   return (
     <div className="flex w-full flex-col gap-6">
       <div className="flex items-center justify-between">
-        <Skeleton className="h-10 w-64" />
-        <Skeleton className="h-10 w-32" />
+        <ZoruSkeleton className="h-10 w-64" />
+        <ZoruSkeleton className="h-10 w-32" />
       </div>
-      <Skeleton className="h-4 w-96" />
+      <ZoruSkeleton className="h-4 w-96" />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {[...Array(3)].map((_, i) => (
-          <Skeleton key={i} className="h-80 w-full rounded-xl" />
+          <ZoruSkeleton key={i} className="h-80 w-full rounded-xl" />
         ))}
       </div>
     </div>
@@ -67,11 +69,11 @@ export default function CrmProductsPage() {
 
   if (!user) {
     return (
-      <Alert variant="destructive">
+      <ZoruAlert variant="destructive">
         <AlertCircle className="h-4 w-4" />
-        <AlertTitle>Not Logged In</AlertTitle>
-        <AlertDescription>Please log in to manage your CRM products.</AlertDescription>
-      </Alert>
+        <ZoruAlertTitle>Not Logged In</ZoruAlertTitle>
+        <ZoruAlertDescription>Please log in to manage your CRM products.</ZoruAlertDescription>
+      </ZoruAlert>
     );
   }
 
@@ -92,13 +94,10 @@ export default function CrmProductsPage() {
           subtitle="Manage products for your CRM and sales pipeline."
           icon={ShoppingBag}
           actions={
-            <ClayButton
-              variant="obsidian"
-              leading={<PlusCircle className="h-4 w-4" strokeWidth={1.75} />}
-              onClick={() => handleOpenDialog(null)}
-            >
+            <ZoruButton onClick={() => handleOpenDialog(null)}>
+              <PlusCircle className="h-4 w-4" strokeWidth={1.75} />
               Add Product
-            </ClayButton>
+            </ZoruButton>
           }
         />
 
@@ -115,17 +114,17 @@ export default function CrmProductsPage() {
             ))}
           </div>
         ) : (
-          <ClayCard variant="outline" className="border-dashed">
+          <ZoruCard className="border-dashed p-6">
             <div className="flex flex-col items-center gap-3 py-12 text-center">
               <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent">
                 <ShoppingBag className="h-6 w-6 text-accent-foreground" strokeWidth={1.75} />
               </div>
-              <h3 className="text-[15px] font-semibold text-foreground">No Products Yet</h3>
-              <p className="text-[12.5px] text-muted-foreground">
+              <h3 className="text-[15px] font-semibold text-zoru-ink">No Products Yet</h3>
+              <p className="text-[12.5px] text-zoru-ink-muted">
                 Click &ldquo;Add Product&rdquo; to get started.
               </p>
             </div>
-          </ClayCard>
+          </ZoruCard>
         )}
       </div>
     </>

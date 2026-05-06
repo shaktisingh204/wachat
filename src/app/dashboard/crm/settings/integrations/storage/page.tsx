@@ -1,9 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
-import * as React from 'react';
 import {
   useActionState,
   useCallback,
@@ -13,19 +9,20 @@ import {
 } from 'react';
 import { HardDrive, LoaderCircle } from 'lucide-react';
 
-import { ClayCard, ClayButton } from '@/components/clay';
-import { CrmPageHeader } from '../../../_components/crm-page-header';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSkeleton,
+  useZoruToast,
+} from '@/components/zoruui';
+import { CrmPageHeader } from '../../../_components/crm-page-header';
 import {
   getStorageSetting,
   saveStorageSetting,
@@ -38,7 +35,7 @@ import type {
 type Doc = (WsStorageSetting & { _id: unknown }) | null;
 
 export default function StorageIntegrationPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [doc, setDoc] = useState<Doc>(null);
   const [driver, setDriver] = useState<WsStorageDriver>('local');
   const [, startLoading] = useTransition();
@@ -91,11 +88,11 @@ export default function StorageIntegrationPage() {
         icon={HardDrive}
       />
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         {!doc && !id ? (
           <div className="space-y-4">
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
+            <ZoruSkeleton className="h-10 w-full" />
+            <ZoruSkeleton className="h-10 w-full" />
           </div>
         ) : null}
 
@@ -104,84 +101,67 @@ export default function StorageIntegrationPage() {
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="md:col-span-2">
-              <Label htmlFor="storage_driver" className="text-foreground">
-                Storage Driver
-              </Label>
+              <ZoruLabel htmlFor="storage_driver">Storage Driver</ZoruLabel>
               <div className="mt-1.5">
-                <Select
+                <ZoruSelect
                   value={driver}
                   onValueChange={(val) => setDriver(val as WsStorageDriver)}
                   name="storage_driver"
                 >
-                  <SelectTrigger
-                    id="storage_driver"
-                    className="h-10 rounded-lg border-border bg-card text-[13px]"
-                  >
-                    <SelectValue placeholder="Select driver" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="local">Local</SelectItem>
-                    <SelectItem value="s3">Amazon S3</SelectItem>
-                    <SelectItem value="google-drive">Google Drive</SelectItem>
-                    <SelectItem value="azure">Azure Blob</SelectItem>
-                  </SelectContent>
-                </Select>
+                  <ZoruSelectTrigger id="storage_driver">
+                    <ZoruSelectValue placeholder="Select driver" />
+                  </ZoruSelectTrigger>
+                  <ZoruSelectContent>
+                    <ZoruSelectItem value="local">Local</ZoruSelectItem>
+                    <ZoruSelectItem value="s3">Amazon S3</ZoruSelectItem>
+                    <ZoruSelectItem value="google-drive">Google Drive</ZoruSelectItem>
+                    <ZoruSelectItem value="azure">Azure Blob</ZoruSelectItem>
+                  </ZoruSelectContent>
+                </ZoruSelect>
               </div>
             </div>
 
             {driver === 's3' && (
               <>
                 <div>
-                  <Label htmlFor="aws_access_key" className="text-foreground">
-                    AWS Access Key
-                  </Label>
+                  <ZoruLabel htmlFor="aws_access_key">AWS Access Key</ZoruLabel>
                   <div className="mt-1.5">
-                    <Input
+                    <ZoruInput
                       id="aws_access_key"
                       name="aws_access_key"
                       defaultValue={v('aws_access_key')}
-                      className="h-10 rounded-lg border-border bg-card text-[13px]"
                     />
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="aws_secret" className="text-foreground">
-                    AWS Secret
-                  </Label>
+                  <ZoruLabel htmlFor="aws_secret">AWS Secret</ZoruLabel>
                   <div className="mt-1.5">
-                    <Input
+                    <ZoruInput
                       id="aws_secret"
                       name="aws_secret"
                       type="password"
                       defaultValue={v('aws_secret')}
-                      className="h-10 rounded-lg border-border bg-card text-[13px]"
                     />
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="aws_region" className="text-foreground">
-                    AWS Region
-                  </Label>
+                  <ZoruLabel htmlFor="aws_region">AWS Region</ZoruLabel>
                   <div className="mt-1.5">
-                    <Input
+                    <ZoruInput
                       id="aws_region"
                       name="aws_region"
                       defaultValue={v('aws_region')}
                       placeholder="us-east-1"
-                      className="h-10 rounded-lg border-border bg-card text-[13px]"
                     />
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="aws_bucket" className="text-foreground">
-                    AWS Bucket
-                  </Label>
+                  <ZoruLabel htmlFor="aws_bucket">AWS Bucket</ZoruLabel>
                   <div className="mt-1.5">
-                    <Input
+                    <ZoruInput
                       id="aws_bucket"
                       name="aws_bucket"
                       defaultValue={v('aws_bucket')}
-                      className="h-10 rounded-lg border-border bg-card text-[13px]"
                     />
                   </div>
                 </div>
@@ -191,29 +171,23 @@ export default function StorageIntegrationPage() {
             {driver === 'google-drive' && (
               <>
                 <div>
-                  <Label htmlFor="gd_client_id" className="text-foreground">
-                    Google Drive Client ID
-                  </Label>
+                  <ZoruLabel htmlFor="gd_client_id">Google Drive Client ID</ZoruLabel>
                   <div className="mt-1.5">
-                    <Input
+                    <ZoruInput
                       id="gd_client_id"
                       name="gd_client_id"
                       defaultValue={v('gd_client_id')}
-                      className="h-10 rounded-lg border-border bg-card text-[13px]"
                     />
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="gd_client_secret" className="text-foreground">
-                    Google Drive Client Secret
-                  </Label>
+                  <ZoruLabel htmlFor="gd_client_secret">Google Drive Client Secret</ZoruLabel>
                   <div className="mt-1.5">
-                    <Input
+                    <ZoruInput
                       id="gd_client_secret"
                       name="gd_client_secret"
                       type="password"
                       defaultValue={v('gd_client_secret')}
-                      className="h-10 rounded-lg border-border bg-card text-[13px]"
                     />
                   </div>
                 </div>
@@ -222,15 +196,12 @@ export default function StorageIntegrationPage() {
 
             {driver === 'azure' && (
               <div className="md:col-span-2">
-                <Label htmlFor="azure_account" className="text-foreground">
-                  Azure Account
-                </Label>
+                <ZoruLabel htmlFor="azure_account">Azure Account</ZoruLabel>
                 <div className="mt-1.5">
-                  <Input
+                  <ZoruInput
                     id="azure_account"
                     name="azure_account"
                     defaultValue={v('azure_account')}
-                    className="h-10 rounded-lg border-border bg-card text-[13px]"
                   />
                 </div>
               </div>
@@ -238,24 +209,13 @@ export default function StorageIntegrationPage() {
           </div>
 
           <div className="flex justify-end gap-2 pt-2">
-            <ClayButton
-              type="submit"
-              variant="obsidian"
-              disabled={isSaving}
-              leading={
-                isSaving ? (
-                  <LoaderCircle
-                    className="h-4 w-4 animate-spin"
-                    strokeWidth={1.75}
-                  />
-                ) : null
-              }
-            >
+            <ZoruButton type="submit" disabled={isSaving}>
+              {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
               Save
-            </ClayButton>
+            </ZoruButton>
           </div>
         </form>
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

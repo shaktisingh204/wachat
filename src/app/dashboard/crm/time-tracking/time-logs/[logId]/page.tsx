@@ -1,8 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import * as React from 'react';
 import Link from 'next/link';
 import { useEffect, useState, useTransition, use } from 'react';
@@ -15,20 +12,22 @@ import {
   Trash2,
 } from 'lucide-react';
 
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
-import { CrmPageHeader } from '../../../_components/crm-page-header';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSkeleton,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  useZoruToast,
+} from '@/components/zoruui';
+import { CrmPageHeader } from '../../../_components/crm-page-header';
 import {
   getTimeLogById,
   getBreaksForLog,
@@ -56,7 +55,7 @@ export default function TimeLogDetailPage({
   params: Promise<{ logId: string }>;
 }) {
   const { logId } = use(params);
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [log, setLog] = useState<WsProjectTimeLog | null>(null);
   const [breaks, setBreaks] = useState<WsProjectTimeLogBreak[]>([]);
   const [isLoading, startLoading] = useTransition();
@@ -128,7 +127,7 @@ export default function TimeLogDetailPage({
       <div>
         <Link
           href="/dashboard/crm/time-tracking/time-logs"
-          className="inline-flex items-center gap-1.5 text-[12.5px] text-muted-foreground hover:text-foreground"
+          className="inline-flex items-center gap-1.5 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
         >
           <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.75} />
           Back to Time Logs
@@ -141,32 +140,31 @@ export default function TimeLogDetailPage({
         icon={Clock}
         actions={
           log && !log.end_time ? (
-            <ClayButton
-              variant="obsidian"
+            <ZoruButton
               className="bg-destructive text-white hover:bg-destructive/90"
-              leading={<Square className="h-4 w-4" strokeWidth={1.75} />}
               disabled={isBusy}
               onClick={handleStopTimer}
             >
+              <Square className="h-4 w-4" strokeWidth={1.75} />
               Stop Timer
-            </ClayButton>
+            </ZoruButton>
           ) : null
         }
       />
 
       {isLoading && !log ? (
-        <ClayCard>
-          <Skeleton className="h-24 w-full" />
-        </ClayCard>
+        <ZoruCard className="p-6">
+          <ZoruSkeleton className="h-24 w-full" />
+        </ZoruCard>
       ) : !log ? (
-        <ClayCard>
-          <p className="text-center text-[13px] text-muted-foreground">
+        <ZoruCard className="p-6">
+          <p className="text-center text-[13px] text-zoru-ink-muted">
             Log not found.
           </p>
-        </ClayCard>
+        </ZoruCard>
       ) : (
         <>
-          <ClayCard>
+          <ZoruCard className="p-6">
             <div className="grid gap-4 md:grid-cols-4">
               <Field label="Project" value={log.project_id ? String(log.project_id) : '—'} />
               <Field label="Task" value={log.task_id ? String(log.task_id) : '—'} />
@@ -188,17 +186,16 @@ export default function TimeLogDetailPage({
               <Field
                 label="Status"
                 value={
-                  <ClayBadge
-                    tone={
+                  <ZoruBadge
+                    variant={
                       log.status === 'approved' || log.approved
-                        ? 'green'
+                        ? 'success'
                         : log.status === 'rejected'
-                          ? 'red'
+                          ? 'danger'
                           : !log.end_time
-                            ? 'amber'
-                            : 'neutral'
+                            ? 'warning'
+                            : 'ghost'
                     }
-                    dot
                   >
                     {log.status === 'approved' || log.approved
                       ? 'Approved'
@@ -207,123 +204,115 @@ export default function TimeLogDetailPage({
                         : !log.end_time
                           ? 'Running'
                           : 'Pending'}
-                  </ClayBadge>
+                  </ZoruBadge>
                 }
               />
             </div>
             {log.reason ? (
-              <div className="mt-4 rounded-lg border border-rose-50 bg-rose-50/40 p-3 text-[12.5px] text-destructive">
+              <div className="mt-4 rounded-lg border border-rose-50 bg-rose-50/40 p-3 text-[12.5px] text-zoru-danger-ink">
                 <span className="font-semibold">Reason: </span>
                 {log.reason}
               </div>
             ) : null}
-          </ClayCard>
+          </ZoruCard>
 
-          <ClayCard>
+          <ZoruCard className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-[16px] font-semibold text-foreground">
+                <h2 className="text-[16px] font-semibold text-zoru-ink">
                   Breaks
                 </h2>
-                <p className="text-[12.5px] text-muted-foreground">
+                <p className="text-[12.5px] text-zoru-ink-muted">
                   Record pauses during this session.
                 </p>
               </div>
             </div>
 
             {!log.end_time ? (
-              <div className="mt-4 flex flex-wrap items-end gap-3 rounded-lg border border-dashed border-border bg-secondary p-3">
+              <div className="mt-4 flex flex-wrap items-end gap-3 rounded-lg border border-dashed border-zoru-line bg-zoru-surface-2 p-3">
                 <div className="min-w-[220px] flex-1">
-                  <Label className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                  <ZoruLabel className="text-[11px] uppercase tracking-[0.18em] text-zoru-ink-muted">
                     Reason
-                  </Label>
-                  <Input
+                  </ZoruLabel>
+                  <ZoruInput
                     value={reason}
                     onChange={(e) => setReason(e.target.value)}
                     placeholder="Coffee, lunch…"
-                    className="mt-1 h-9 rounded-lg border-border bg-card text-[13px]"
+                    className="mt-1 h-9 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                   />
                 </div>
                 {activeBreak ? (
-                  <ClayButton
-                    variant="obsidian"
+                  <ZoruButton
                     className="bg-destructive text-white hover:bg-destructive/90"
-                    leading={<Square className="h-4 w-4" strokeWidth={1.75} />}
                     disabled={isBusy}
                     onClick={() =>
                       activeBreak._id && handleStopBreak(activeBreak._id)
                     }
                   >
+                    <Square className="h-4 w-4" strokeWidth={1.75} />
                     Stop Break
-                  </ClayButton>
+                  </ZoruButton>
                 ) : (
-                  <ClayButton
-                    variant="obsidian"
-                    leading={
-                      isBusy ? (
-                        <LoaderCircle
-                          className="h-4 w-4 animate-spin"
-                          strokeWidth={1.75}
-                        />
-                      ) : (
-                        <Coffee className="h-4 w-4" strokeWidth={1.75} />
-                      )
-                    }
-                    disabled={isBusy}
-                    onClick={handleStartBreak}
-                  >
+                  <ZoruButton disabled={isBusy} onClick={handleStartBreak}>
+                    {isBusy ? (
+                      <LoaderCircle
+                        className="h-4 w-4 animate-spin"
+                        strokeWidth={1.75}
+                      />
+                    ) : (
+                      <Coffee className="h-4 w-4" strokeWidth={1.75} />
+                    )}
                     Start Break
-                  </ClayButton>
+                  </ZoruButton>
                 )}
               </div>
             ) : null}
 
-            <div className="mt-4 overflow-x-auto rounded-lg border border-border">
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-border hover:bg-transparent">
-                    <TableHead className="text-muted-foreground">Reason</TableHead>
-                    <TableHead className="text-muted-foreground">Start</TableHead>
-                    <TableHead className="text-muted-foreground">End</TableHead>
-                    <TableHead className="text-muted-foreground">Duration</TableHead>
-                    <TableHead className="w-[100px] text-right text-muted-foreground">
+            <div className="mt-4 overflow-x-auto rounded-lg border border-zoru-line">
+              <ZoruTable>
+                <ZoruTableHeader>
+                  <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                    <ZoruTableHead className="text-zoru-ink-muted">Reason</ZoruTableHead>
+                    <ZoruTableHead className="text-zoru-ink-muted">Start</ZoruTableHead>
+                    <ZoruTableHead className="text-zoru-ink-muted">End</ZoruTableHead>
+                    <ZoruTableHead className="text-zoru-ink-muted">Duration</ZoruTableHead>
+                    <ZoruTableHead className="w-[100px] text-right text-zoru-ink-muted">
                       Actions
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+                    </ZoruTableHead>
+                  </ZoruTableRow>
+                </ZoruTableHeader>
+                <ZoruTableBody>
                   {breaks.length === 0 ? (
-                    <TableRow className="border-border">
-                      <TableCell
+                    <ZoruTableRow className="border-zoru-line">
+                      <ZoruTableCell
                         colSpan={5}
-                        className="h-20 text-center text-[13px] text-muted-foreground"
+                        className="h-20 text-center text-[13px] text-zoru-ink-muted"
                       >
                         No breaks recorded.
-                      </TableCell>
-                    </TableRow>
+                      </ZoruTableCell>
+                    </ZoruTableRow>
                   ) : (
                     breaks.map((br) => (
-                      <TableRow key={br._id} className="border-border">
-                        <TableCell className="text-[13px] text-foreground">
+                      <ZoruTableRow key={br._id} className="border-zoru-line">
+                        <ZoruTableCell className="text-[13px] text-zoru-ink">
                           {br.reason || '—'}
-                        </TableCell>
-                        <TableCell className="text-[13px] text-muted-foreground">
+                        </ZoruTableCell>
+                        <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
                           {fmt(br.start_time)}
-                        </TableCell>
-                        <TableCell className="text-[13px] text-muted-foreground">
+                        </ZoruTableCell>
+                        <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
                           {br.end_time ? fmt(br.end_time) : '—'}
-                        </TableCell>
-                        <TableCell className="text-[13px] text-foreground">
+                        </ZoruTableCell>
+                        <ZoruTableCell className="text-[13px] text-zoru-ink">
                           {br.end_time
                             ? wsFormatDuration(br.start_time, br.end_time)
                             : '— running'}
-                        </TableCell>
-                        <TableCell className="text-right">
+                        </ZoruTableCell>
+                        <ZoruTableCell className="text-right">
                           <div className="flex justify-end gap-1.5">
                             {!br.end_time ? (
-                              <ClayButton
+                              <ZoruButton
                                 size="sm"
-                                variant="obsidian"
                                 className="bg-destructive text-white hover:bg-destructive/90"
                                 onClick={() =>
                                   br._id && handleStopBreak(br._id)
@@ -334,9 +323,9 @@ export default function TimeLogDetailPage({
                                   className="h-3.5 w-3.5"
                                   strokeWidth={1.75}
                                 />
-                              </ClayButton>
+                              </ZoruButton>
                             ) : (
-                              <ClayButton
+                              <ZoruButton
                                 size="sm"
                                 variant="ghost"
                                 onClick={() =>
@@ -345,20 +334,20 @@ export default function TimeLogDetailPage({
                                 aria-label="Delete"
                               >
                                 <Trash2
-                                  className="h-3.5 w-3.5 text-destructive"
+                                  className="h-3.5 w-3.5 text-zoru-danger-ink"
                                   strokeWidth={1.75}
                                 />
-                              </ClayButton>
+                              </ZoruButton>
                             )}
                           </div>
-                        </TableCell>
-                      </TableRow>
+                        </ZoruTableCell>
+                      </ZoruTableRow>
                     ))
                   )}
-                </TableBody>
-              </Table>
+                </ZoruTableBody>
+              </ZoruTable>
             </div>
-          </ClayCard>
+          </ZoruCard>
         </>
       )}
     </div>
@@ -374,10 +363,10 @@ function Field({
 }) {
   return (
     <div>
-      <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+      <p className="text-[11px] uppercase tracking-[0.18em] text-zoru-ink-muted">
         {label}
       </p>
-      <div className="mt-1 text-[13.5px] text-foreground">{value}</div>
+      <div className="mt-1 text-[13.5px] text-zoru-ink">{value}</div>
     </div>
   );
 }

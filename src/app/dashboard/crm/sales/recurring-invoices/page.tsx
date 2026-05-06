@@ -1,38 +1,37 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { Plus, Repeat, LoaderCircle } from 'lucide-react';
 
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { ClayBadge, ClayButton, ClayCard } from '@/components/clay';
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import { getRecurringInvoices } from '@/app/actions/worksuite/billing.actions';
 import type { WsRecurringInvoice } from '@/lib/worksuite/billing-types';
 
 type Row = WsRecurringInvoice & { _id: string };
 
-const STATUS_TONES: Record<string, 'green' | 'amber' | 'red'> = {
-  active: 'green',
-  paused: 'amber',
-  stopped: 'red',
+const STATUS_VARIANTS: Record<string, 'success' | 'warning' | 'danger'> = {
+  active: 'success',
+  paused: 'warning',
+  stopped: 'danger',
 };
 
-const FREQUENCY_TONES: Record<string, 'blue' | 'rose-soft' | 'amber' | 'green'> = {
-  days: 'blue',
-  weeks: 'rose-soft',
-  months: 'amber',
-  years: 'green',
+const FREQUENCY_VARIANTS: Record<string, 'ghost' | 'danger' | 'warning' | 'success'> = {
+  days: 'ghost',
+  weeks: 'danger',
+  months: 'warning',
+  years: 'success',
 };
 
 function fmtDate(v: unknown): string {
@@ -75,89 +74,87 @@ export default function RecurringInvoicesPage() {
         icon={Repeat}
         actions={
           <Link href="/dashboard/crm/sales/recurring-invoices/new">
-            <ClayButton
-              variant="obsidian"
-              leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}
-            >
+            <ZoruButton>
+              <Plus className="h-4 w-4" strokeWidth={1.75} />
               New Recurring
-            </ClayButton>
+            </ZoruButton>
           </Link>
         }
       />
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         <div className="mb-4">
-          <h2 className="text-[16px] font-semibold text-foreground">Schedules</h2>
+          <h2 className="text-[16px] text-zoru-ink">Schedules</h2>
         </div>
-        <div className="overflow-x-auto rounded-lg border border-border">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border hover:bg-transparent">
-                <TableHead className="text-muted-foreground">Client</TableHead>
-                <TableHead className="text-muted-foreground">Frequency</TableHead>
-                <TableHead className="text-muted-foreground">Next Issue</TableHead>
-                <TableHead className="text-muted-foreground">Issued</TableHead>
-                <TableHead className="text-muted-foreground">Status</TableHead>
-                <TableHead className="text-muted-foreground text-right">Total</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+          <ZoruTable>
+            <ZoruTableHeader>
+              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                <ZoruTableHead className="text-zoru-ink-muted">Client</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Frequency</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Next Issue</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Issued</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted text-right">Total</ZoruTableHead>
+              </ZoruTableRow>
+            </ZoruTableHeader>
+            <ZoruTableBody>
               {isLoading ? (
-                <TableRow className="border-border">
-                  <TableCell colSpan={6} className="h-24 text-center">
-                    <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
-                  </TableCell>
-                </TableRow>
+                <ZoruTableRow className="border-zoru-line">
+                  <ZoruTableCell colSpan={6} className="h-24 text-center">
+                    <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
+                  </ZoruTableCell>
+                </ZoruTableRow>
               ) : rows.length === 0 ? (
-                <TableRow className="border-border">
-                  <TableCell
+                <ZoruTableRow className="border-zoru-line">
+                  <ZoruTableCell
                     colSpan={6}
-                    className="h-24 text-center text-[13px] text-muted-foreground"
+                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
                   >
                     No recurring invoices yet.
-                  </TableCell>
-                </TableRow>
+                  </ZoruTableCell>
+                </ZoruTableRow>
               ) : (
                 rows.map((row) => (
-                  <TableRow
+                  <ZoruTableRow
                     key={String(row._id)}
-                    className="cursor-pointer border-border"
+                    className="cursor-pointer border-zoru-line"
                   >
-                    <TableCell className="text-foreground">
+                    <ZoruTableCell className="text-zoru-ink">
                       <Link
                         href={`/dashboard/crm/sales/recurring-invoices/${row._id}`}
                         className="hover:underline"
                       >
                         {row.client_name || '—'}
                       </Link>
-                    </TableCell>
-                    <TableCell>
-                      <ClayBadge tone={FREQUENCY_TONES[row.frequency] || 'neutral'}>
+                    </ZoruTableCell>
+                    <ZoruTableCell>
+                      <ZoruBadge variant={FREQUENCY_VARIANTS[row.frequency] || 'ghost'}>
                         Every {row.frequency_count} {row.frequency}
-                      </ClayBadge>
-                    </TableCell>
-                    <TableCell className="text-foreground">
+                      </ZoruBadge>
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-zoru-ink">
                       {fmtDate(row.next_issue_date)}
-                    </TableCell>
-                    <TableCell className="text-foreground">
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-zoru-ink">
                       {row.issued_count || 0}
                       {row.stop_at_count ? ` / ${row.stop_at_count}` : ''}
-                    </TableCell>
-                    <TableCell>
-                      <ClayBadge tone={STATUS_TONES[row.status] || 'neutral'} dot>
+                    </ZoruTableCell>
+                    <ZoruTableCell>
+                      <ZoruBadge variant={STATUS_VARIANTS[row.status] || 'ghost'}>
                         {row.status}
-                      </ClayBadge>
-                    </TableCell>
-                    <TableCell className="text-right font-medium text-foreground">
+                      </ZoruBadge>
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-right text-zoru-ink">
                       {fmtMoney(row.total, row.currency)}
-                    </TableCell>
-                  </TableRow>
+                    </ZoruTableCell>
+                  </ZoruTableRow>
                 ))
               )}
-            </TableBody>
-          </Table>
+            </ZoruTableBody>
+          </ZoruTable>
         </div>
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

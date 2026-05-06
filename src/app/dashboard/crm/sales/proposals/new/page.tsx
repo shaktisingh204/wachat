@@ -1,8 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -13,19 +10,20 @@ import {
   LoaderCircle,
   Save,
 } from 'lucide-react';
-import { ClayButton, ClayCard } from '@/components/clay';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSwitch,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
-import { useToast } from '@/hooks/use-toast';
 import {
   saveProposal,
   createProposalFromTemplate,
@@ -45,7 +43,7 @@ function newId() {
 
 export default function NewProposalPage() {
   const router = useRouter();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
 
   const [title, setTitle] = useState('');
   const [clientId, setClientId] = useState('');
@@ -173,132 +171,131 @@ export default function NewProposalPage() {
         icon={FileText}
         actions={
           <Link href="/dashboard/crm/sales/proposals">
-            <ClayButton variant="pill" leading={<ArrowLeft className="h-4 w-4" />}>
+            <ZoruButton variant="outline">
+              <ArrowLeft className="h-4 w-4" />
               All Proposals
-            </ClayButton>
+            </ZoruButton>
           </Link>
         }
       />
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         <div className="grid gap-4 md:grid-cols-3">
           <div className="md:col-span-2">
-            <Label className="text-foreground">Title</Label>
-            <Input
+            <ZoruLabel className="text-zoru-ink">Title</ZoruLabel>
+            <ZoruInput
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Website redesign – Phase 1"
-              className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+              className="mt-1.5"
             />
           </div>
           <div>
-            <Label className="text-foreground">Currency</Label>
-            <Input
+            <ZoruLabel className="text-zoru-ink">Currency</ZoruLabel>
+            <ZoruInput
               value={currency}
               onChange={(e) => setCurrency(e.target.value.toUpperCase())}
-              className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+              className="mt-1.5"
             />
           </div>
 
           <div>
-            <Label className="text-foreground">Client</Label>
-            <Select value={clientId} onValueChange={setClientId}>
-              <SelectTrigger className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]">
-                <SelectValue placeholder="Select client" />
-              </SelectTrigger>
-              <SelectContent>
+            <ZoruLabel className="text-zoru-ink">Client</ZoruLabel>
+            <ZoruSelect value={clientId} onValueChange={setClientId}>
+              <ZoruSelectTrigger className="mt-1.5">
+                <ZoruSelectValue placeholder="Select client" />
+              </ZoruSelectTrigger>
+              <ZoruSelectContent>
                 {accountOptions.length === 0 ? (
-                  <SelectItem value="__none" disabled>
+                  <ZoruSelectItem value="__none" disabled>
                     No clients yet
-                  </SelectItem>
+                  </ZoruSelectItem>
                 ) : (
                   accountOptions.map((a) => (
-                    <SelectItem key={a.id} value={a.id}>
+                    <ZoruSelectItem key={a.id} value={a.id}>
                       {a.name}
-                    </SelectItem>
+                    </ZoruSelectItem>
                   ))
                 )}
-              </SelectContent>
-            </Select>
+              </ZoruSelectContent>
+            </ZoruSelect>
           </div>
           <div>
-            <Label className="text-foreground">Issue Date</Label>
-            <Input
+            <ZoruLabel className="text-zoru-ink">Issue Date</ZoruLabel>
+            <ZoruInput
               type="date"
               value={issueDate}
               onChange={(e) => setIssueDate(e.target.value)}
-              className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+              className="mt-1.5"
             />
           </div>
           <div>
-            <Label className="text-foreground">Valid Until</Label>
-            <Input
+            <ZoruLabel className="text-zoru-ink">Valid Until</ZoruLabel>
+            <ZoruInput
               type="date"
               value={validUntil}
               onChange={(e) => setValidUntil(e.target.value)}
-              className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+              className="mt-1.5"
             />
           </div>
         </div>
 
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-dashed border-border bg-secondary p-3">
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-dashed border-zoru-line bg-zoru-surface-2 p-3">
           <div className="flex items-center gap-3">
             <LayoutTemplate
-              className="h-4 w-4 text-muted-foreground"
+              className="h-4 w-4 text-zoru-ink-muted"
               strokeWidth={1.75}
             />
-            <span className="text-[12.5px] text-foreground">
+            <span className="text-[12.5px] text-zoru-ink">
               Start from a template
             </span>
-            <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
-              <SelectTrigger className="h-9 w-60 rounded-lg border-border bg-card text-[13px]">
-                <SelectValue placeholder="Select template" />
-              </SelectTrigger>
-              <SelectContent>
+            <ZoruSelect value={selectedTemplate} onValueChange={setSelectedTemplate}>
+              <ZoruSelectTrigger className="w-60">
+                <ZoruSelectValue placeholder="Select template" />
+              </ZoruSelectTrigger>
+              <ZoruSelectContent>
                 {templates.length === 0 ? (
-                  <SelectItem value="__none" disabled>
+                  <ZoruSelectItem value="__none" disabled>
                     No templates yet
-                  </SelectItem>
+                  </ZoruSelectItem>
                 ) : (
                   templates.map((t) => (
-                    <SelectItem key={t._id} value={t._id}>
+                    <ZoruSelectItem key={t._id} value={t._id}>
                       {t.name}
-                    </SelectItem>
+                    </ZoruSelectItem>
                   ))
                 )}
-              </SelectContent>
-            </Select>
+              </ZoruSelectContent>
+            </ZoruSelect>
           </div>
-          <ClayButton
-            variant="pill"
+          <ZoruButton
+            variant="outline"
             disabled={!selectedTemplate || isApplyingTemplate}
             onClick={applyTemplate}
-            leading={
-              isApplyingTemplate ? (
-                <LoaderCircle className="h-4 w-4 animate-spin" />
-              ) : undefined
-            }
           >
+            {isApplyingTemplate ? (
+              <LoaderCircle className="h-4 w-4 animate-spin" />
+            ) : null}
             Use Template
-          </ClayButton>
+          </ZoruButton>
         </div>
 
         <div className="mt-3 flex items-center gap-3">
-          <Switch
+          <ZoruSwitch
             id="signature_required"
             checked={signatureRequired}
             onCheckedChange={setSignatureRequired}
           />
-          <Label
+          <ZoruLabel
             htmlFor="signature_required"
-            className="cursor-pointer text-[13px] text-foreground"
+            className="cursor-pointer text-[13px] text-zoru-ink"
           >
             Require e-signature on acceptance
-          </Label>
+          </ZoruLabel>
         </div>
-      </ClayCard>
+      </ZoruCard>
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         <ProposalComposer
           lines={lines}
           onLinesChange={setLines}
@@ -310,33 +307,28 @@ export default function NewProposalPage() {
           onTermsChange={setTerms}
           currency={currency}
         />
-      </ClayCard>
+      </ZoruCard>
 
       <div className="flex flex-wrap justify-end gap-2">
-        <ClayButton
-          variant="pill"
+        <ZoruButton
+          variant="outline"
           disabled={isSaving}
           onClick={() => handleSave('draft')}
-          leading={
-            isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : undefined
-          }
         >
+          {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
           Save as Draft
-        </ClayButton>
-        <ClayButton
-          variant="obsidian"
+        </ZoruButton>
+        <ZoruButton
           disabled={isSaving}
           onClick={() => handleSave('sent')}
-          leading={
-            isSaving ? (
-              <LoaderCircle className="h-4 w-4 animate-spin" />
-            ) : (
-              <Save className="h-4 w-4" />
-            )
-          }
         >
+          {isSaving ? (
+            <LoaderCircle className="h-4 w-4 animate-spin" />
+          ) : (
+            <Save className="h-4 w-4" />
+          )}
           Save &amp; Send
-        </ClayButton>
+        </ZoruButton>
       </div>
     </div>
   );

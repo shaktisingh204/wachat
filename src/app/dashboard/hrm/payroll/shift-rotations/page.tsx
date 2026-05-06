@@ -1,14 +1,15 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { Edit, Play, Plus, RotateCw, Trash2 } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { ClayCard, ClayBadge, ClayButton } from '@/components/clay';
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import {
   getShiftRotations,
@@ -60,22 +61,20 @@ export default function ShiftRotationsPage() {
         icon={RotateCw}
         actions={
           <Link href="/dashboard/hrm/payroll/shift-rotations/automate">
-            <ClayButton
-              variant="obsidian"
-              leading={<Play className="h-4 w-4" strokeWidth={1.75} />}
-            >
+            <ZoruButton>
+              <Play className="h-4 w-4" strokeWidth={1.75} />
               Automate Shift
-            </ClayButton>
+            </ZoruButton>
           </Link>
         }
       />
 
-      <ClayCard>
-        <h2 className="mb-3 text-[16px] font-semibold text-foreground">Create Rotation</h2>
+      <ZoruCard className="p-6">
+        <h2 className="mb-3 text-[16px] text-zoru-ink">Create Rotation</h2>
         <form onSubmit={handleCreate} className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_2fr_auto]">
           <div className="flex flex-col gap-1.5">
-            <Label className="text-[12px] text-muted-foreground">Name</Label>
-            <Input
+            <ZoruLabel className="text-[12px] text-zoru-ink-muted">Name</ZoruLabel>
+            <ZoruInput
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
@@ -83,81 +82,80 @@ export default function ShiftRotationsPage() {
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label className="text-[12px] text-muted-foreground">Description</Label>
-            <Input
+            <ZoruLabel className="text-[12px] text-zoru-ink-muted">Description</ZoruLabel>
+            <ZoruInput
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Optional"
             />
           </div>
           <div className="flex items-end">
-            <ClayButton
-              variant="obsidian"
+            <ZoruButton
               type="submit"
               disabled={pending}
-              leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}
             >
+              <Plus className="h-4 w-4" strokeWidth={1.75} />
               Add
-            </ClayButton>
+            </ZoruButton>
           </div>
         </form>
-      </ClayCard>
+      </ZoruCard>
 
-      <ClayCard>
-        <h2 className="mb-3 text-[16px] font-semibold text-foreground">All Rotations</h2>
-        <div className="overflow-x-auto rounded-lg border border-border">
+      <ZoruCard className="p-6">
+        <h2 className="mb-3 text-[16px] text-zoru-ink">All Rotations</h2>
+        <div className="overflow-x-auto rounded-lg border border-zoru-line">
           <table className="w-full border-collapse text-[13px]">
             <thead>
-              <tr className="border-b border-border bg-secondary">
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Name</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Description</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Status</th>
-                <th className="px-4 py-2.5 text-right text-[12px] font-medium text-muted-foreground">Actions</th>
+              <tr className="border-b border-zoru-line bg-zoru-surface-2">
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-zoru-ink-muted">Name</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-zoru-ink-muted">Description</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-zoru-ink-muted">Status</th>
+                <th className="px-4 py-2.5 text-right text-[12px] font-medium text-zoru-ink-muted">Actions</th>
               </tr>
             </thead>
             <tbody>
               {pending && rotations.length === 0 ? (
-                <tr className="border-b border-border">
-                  <td colSpan={4} className="h-24 text-center text-[13px] text-muted-foreground">
+                <tr className="border-b border-zoru-line">
+                  <td colSpan={4} className="h-24 text-center text-[13px] text-zoru-ink-muted">
                     Loading…
                   </td>
                 </tr>
               ) : rotations.length > 0 ? (
                 rotations.map((r) => (
-                  <tr key={String(r._id)} className="border-b border-border last:border-0 hover:bg-secondary/50">
-                    <td className="px-4 py-2.5 text-[13px] font-medium text-foreground">
+                  <tr key={String(r._id)} className="border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2/50">
+                    <td className="px-4 py-2.5 text-[13px] font-medium text-zoru-ink">
                       {r.name}
                     </td>
-                    <td className="px-4 py-2.5 text-[13px] text-muted-foreground">
+                    <td className="px-4 py-2.5 text-[13px] text-zoru-ink-muted">
                       {r.description || '—'}
                     </td>
                     <td className="px-4 py-2.5">
-                      <ClayBadge tone={r.is_active ? 'green' : 'neutral'}>
+                      <ZoruBadge variant={r.is_active ? 'success' : 'secondary'}>
                         {r.is_active ? 'active' : 'inactive'}
-                      </ClayBadge>
+                      </ZoruBadge>
                     </td>
                     <td className="px-4 py-2.5 text-right">
                       <div className="flex items-center justify-end gap-1">
                         <Link href={`/dashboard/hrm/payroll/shift-rotations/${r._id}`}>
-                          <ClayButton variant="pill" size="icon" aria-label="Edit rotation">
+                          <ZoruButton variant="outline" size="icon" aria-label="Edit rotation">
                             <Edit className="h-4 w-4" />
-                          </ClayButton>
+                          </ZoruButton>
                         </Link>
-                        <ClayButton
-                          variant="pill"
+                        <ZoruButton
+                          variant="outline"
                           size="icon"
                           aria-label="Delete rotation"
                           onClick={() => handleDelete(r._id)}
                         >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </ClayButton>
+                          <Trash2 className="h-4 w-4 text-zoru-danger-ink" />
+                        </ZoruButton>
                       </div>
                     </td>
                   </tr>
                 ))
               ) : (
-                <tr className="border-b border-border">
-                  <td colSpan={4} className="h-24 text-center text-[13px] text-muted-foreground">
+                <tr className="border-b border-zoru-line">
+                  <td colSpan={4} className="h-24 text-center text-[13px] text-zoru-ink-muted">
                     No rotations yet.
                   </td>
                 </tr>
@@ -165,7 +163,7 @@ export default function ShiftRotationsPage() {
             </tbody>
           </table>
         </div>
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

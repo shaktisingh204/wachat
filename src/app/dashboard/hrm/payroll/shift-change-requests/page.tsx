@@ -1,28 +1,25 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useEffect, useMemo, useState, useTransition } from 'react';
 import { ArrowLeftRight, Check, Plus, X } from 'lucide-react';
 import { format } from 'date-fns';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
-import { ClayCard, ClayBadge, ClayButton } from '@/components/clay';
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
 import type { WithId, CrmEmployee } from '@/lib/definitions';
@@ -134,10 +131,10 @@ export default function ShiftChangeRequestsPage() {
     });
   };
 
-  const tone = (s: WsShiftChangeStatus): 'amber' | 'green' | 'red' => {
-    if (s === 'approved') return 'green';
-    if (s === 'rejected') return 'red';
-    return 'amber';
+  const variant = (s: WsShiftChangeStatus): 'warning' | 'success' | 'danger' => {
+    if (s === 'approved') return 'success';
+    if (s === 'rejected') return 'danger';
+    return 'warning';
   };
 
   return (
@@ -147,35 +144,34 @@ export default function ShiftChangeRequestsPage() {
         subtitle="Review and action employee requests to swap shifts."
         icon={ArrowLeftRight}
         actions={
-          <ClayButton
-            variant="obsidian"
-            leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}
+          <ZoruButton
             onClick={() => { resetForm(); setDialogOpen(true); }}
           >
+            <Plus className="h-4 w-4" strokeWidth={1.75} />
             New Request
-          </ClayButton>
+          </ZoruButton>
         }
       />
 
-      <ClayCard>
-        <h2 className="mb-3 text-[16px] font-semibold text-foreground">All Requests</h2>
-        <div className="overflow-x-auto rounded-lg border border-border">
+      <ZoruCard className="p-6">
+        <h2 className="mb-3 text-[16px] text-zoru-ink">All Requests</h2>
+        <div className="overflow-x-auto rounded-lg border border-zoru-line">
           <table className="w-full border-collapse text-[13px]">
             <thead>
-              <tr className="border-b border-border bg-secondary">
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Employee</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Date</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Current Shift</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Requested Shift</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Reason</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Status</th>
-                <th className="px-4 py-2.5 text-right text-[12px] font-medium text-muted-foreground">Actions</th>
+              <tr className="border-b border-zoru-line bg-zoru-surface-2">
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-zoru-ink-muted">Employee</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-zoru-ink-muted">Date</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-zoru-ink-muted">Current Shift</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-zoru-ink-muted">Requested Shift</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-zoru-ink-muted">Reason</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-zoru-ink-muted">Status</th>
+                <th className="px-4 py-2.5 text-right text-[12px] font-medium text-zoru-ink-muted">Actions</th>
               </tr>
             </thead>
             <tbody>
               {pending && requests.length === 0 ? (
-                <tr className="border-b border-border">
-                  <td colSpan={7} className="h-24 text-center text-[13px] text-muted-foreground">
+                <tr className="border-b border-zoru-line">
+                  <td colSpan={7} className="h-24 text-center text-[13px] text-zoru-ink-muted">
                     Loading…
                   </td>
                 </tr>
@@ -185,11 +181,11 @@ export default function ShiftChangeRequestsPage() {
                   const cur = shiftMap.get(r.current_shift_id);
                   const req = shiftMap.get(r.requested_shift_id);
                   return (
-                    <tr key={String(r._id)} className="border-b border-border last:border-0 hover:bg-secondary/50">
-                      <td className="px-4 py-2.5 text-foreground">
+                    <tr key={String(r._id)} className="border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2/50">
+                      <td className="px-4 py-2.5 text-zoru-ink">
                         {emp ? `${emp.firstName} ${emp.lastName}` : r.user_id}
                       </td>
-                      <td className="px-4 py-2.5 text-foreground">
+                      <td className="px-4 py-2.5 text-zoru-ink">
                         {format(new Date(r.date), 'PP')}
                       </td>
                       <td className="px-4 py-2.5">
@@ -198,42 +194,42 @@ export default function ShiftChangeRequestsPage() {
                       <td className="px-4 py-2.5">
                         <ShiftCell shift={req} />
                       </td>
-                      <td className="max-w-[240px] truncate px-4 py-2.5 text-[12.5px] text-muted-foreground">
+                      <td className="max-w-[240px] truncate px-4 py-2.5 text-[12.5px] text-zoru-ink-muted">
                         {r.reason || '—'}
                       </td>
                       <td className="px-4 py-2.5">
-                        <ClayBadge tone={tone(r.status)}>{r.status}</ClayBadge>
+                        <ZoruBadge variant={variant(r.status)}>{r.status}</ZoruBadge>
                       </td>
                       <td className="px-4 py-2.5 text-right">
                         {r.status === 'pending' ? (
                           <div className="flex items-center justify-end gap-2">
-                            <ClayButton
-                              variant="pill"
+                            <ZoruButton
+                              variant="outline"
                               size="sm"
-                              leading={<Check className="h-3.5 w-3.5" strokeWidth={2} />}
                               onClick={() => handleApprove(r._id)}
                             >
+                              <Check className="h-3.5 w-3.5" strokeWidth={2} />
                               Approve
-                            </ClayButton>
-                            <ClayButton
-                              variant="pill"
+                            </ZoruButton>
+                            <ZoruButton
+                              variant="outline"
                               size="sm"
-                              leading={<X className="h-3.5 w-3.5" strokeWidth={2} />}
                               onClick={() => handleReject(r._id)}
                             >
+                              <X className="h-3.5 w-3.5" strokeWidth={2} />
                               Reject
-                            </ClayButton>
+                            </ZoruButton>
                           </div>
                         ) : (
-                          <span className="text-[11.5px] text-muted-foreground">—</span>
+                          <span className="text-[11.5px] text-zoru-ink-muted">—</span>
                         )}
                       </td>
                     </tr>
                   );
                 })
               ) : (
-                <tr className="border-b border-border">
-                  <td colSpan={7} className="h-24 text-center text-[13px] text-muted-foreground">
+                <tr className="border-b border-zoru-line">
+                  <td colSpan={7} className="h-24 text-center text-[13px] text-zoru-ink-muted">
                     No shift change requests.
                   </td>
                 </tr>
@@ -241,37 +237,37 @@ export default function ShiftChangeRequestsPage() {
             </tbody>
           </table>
         </div>
-      </ClayCard>
+      </ZoruCard>
 
-      <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
-        <DialogContent className="sm:max-w-[520px]">
-          <DialogHeader>
-            <DialogTitle>New Shift Change Request</DialogTitle>
-          </DialogHeader>
+      <ZoruDialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
+        <ZoruDialogContent className="sm:max-w-[520px]">
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>New Shift Change Request</ZoruDialogTitle>
+          </ZoruDialogHeader>
           <form onSubmit={handleCreateRequest} className="flex flex-col gap-4 py-2">
             <div className="flex flex-col gap-1.5">
-              <Label className="text-[12px] text-muted-foreground">
-                Employee <span className="text-destructive">*</span>
-              </Label>
-              <Select value={newUserId} onValueChange={setNewUserId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select employee" />
-                </SelectTrigger>
-                <SelectContent>
+              <ZoruLabel className="text-[12px] text-zoru-ink-muted">
+                Employee <span className="text-zoru-danger-ink">*</span>
+              </ZoruLabel>
+              <ZoruSelect value={newUserId} onValueChange={setNewUserId}>
+                <ZoruSelectTrigger>
+                  <ZoruSelectValue placeholder="Select employee" />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
                   {employees.map((e) => (
-                    <SelectItem key={e._id.toString()} value={e._id.toString()}>
+                    <ZoruSelectItem key={e._id.toString()} value={e._id.toString()}>
                       {e.firstName} {e.lastName}
-                    </SelectItem>
+                    </ZoruSelectItem>
                   ))}
-                </SelectContent>
-              </Select>
+                </ZoruSelectContent>
+              </ZoruSelect>
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <Label className="text-[12px] text-muted-foreground">
-                Date <span className="text-destructive">*</span>
-              </Label>
-              <Input
+              <ZoruLabel className="text-[12px] text-zoru-ink-muted">
+                Date <span className="text-zoru-danger-ink">*</span>
+              </ZoruLabel>
+              <ZoruInput
                 type="date"
                 value={newDate}
                 onChange={(e) => setNewDate(e.target.value)}
@@ -281,86 +277,86 @@ export default function ShiftChangeRequestsPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="flex flex-col gap-1.5">
-                <Label className="text-[12px] text-muted-foreground">
-                  Current Shift <span className="text-destructive">*</span>
-                </Label>
-                <Select value={newCurrentShiftId} onValueChange={setNewCurrentShiftId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Current" />
-                  </SelectTrigger>
-                  <SelectContent>
+                <ZoruLabel className="text-[12px] text-zoru-ink-muted">
+                  Current Shift <span className="text-zoru-danger-ink">*</span>
+                </ZoruLabel>
+                <ZoruSelect value={newCurrentShiftId} onValueChange={setNewCurrentShiftId}>
+                  <ZoruSelectTrigger>
+                    <ZoruSelectValue placeholder="Current" />
+                  </ZoruSelectTrigger>
+                  <ZoruSelectContent>
                     {shifts.map((s) => (
-                      <SelectItem key={String(s._id)} value={String(s._id)}>
+                      <ZoruSelectItem key={String(s._id)} value={String(s._id)}>
                         {s.name}
-                      </SelectItem>
+                      </ZoruSelectItem>
                     ))}
-                  </SelectContent>
-                </Select>
+                  </ZoruSelectContent>
+                </ZoruSelect>
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <Label className="text-[12px] text-muted-foreground">
-                  Requested Shift <span className="text-destructive">*</span>
-                </Label>
-                <Select value={newRequestedShiftId} onValueChange={setNewRequestedShiftId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Requested" />
-                  </SelectTrigger>
-                  <SelectContent>
+                <ZoruLabel className="text-[12px] text-zoru-ink-muted">
+                  Requested Shift <span className="text-zoru-danger-ink">*</span>
+                </ZoruLabel>
+                <ZoruSelect value={newRequestedShiftId} onValueChange={setNewRequestedShiftId}>
+                  <ZoruSelectTrigger>
+                    <ZoruSelectValue placeholder="Requested" />
+                  </ZoruSelectTrigger>
+                  <ZoruSelectContent>
                     {shifts.map((s) => (
-                      <SelectItem key={String(s._id)} value={String(s._id)}>
+                      <ZoruSelectItem key={String(s._id)} value={String(s._id)}>
                         {s.name}
-                      </SelectItem>
+                      </ZoruSelectItem>
                     ))}
-                  </SelectContent>
-                </Select>
+                  </ZoruSelectContent>
+                </ZoruSelect>
               </div>
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <Label className="text-[12px] text-muted-foreground">Reason (optional)</Label>
+              <ZoruLabel className="text-[12px] text-zoru-ink-muted">Reason (optional)</ZoruLabel>
               <textarea
                 value={newReason}
                 onChange={(e) => setNewReason(e.target.value)}
                 rows={3}
                 placeholder="Explain the reason for the shift change…"
-                className="w-full resize-none rounded-lg border border-border bg-card px-3 py-2 text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                className="w-full resize-none rounded-lg border border-zoru-line bg-zoru-bg px-3 py-2 text-[13px] text-zoru-ink placeholder:text-zoru-ink-muted focus:outline-none focus:ring-1 focus:ring-ring"
               />
             </div>
 
             {formError ? (
-              <div className="rounded-lg border border-rose-50 bg-rose-50/50 px-3 py-2 text-[13px] text-destructive">
+              <div className="rounded-lg border border-rose-50 bg-rose-50/50 px-3 py-2 text-[13px] text-zoru-danger-ink">
                 {formError}
               </div>
             ) : null}
 
-            <DialogFooter>
-              <ClayButton
-                variant="pill"
+            <ZoruDialogFooter>
+              <ZoruButton
+                variant="outline"
                 type="button"
                 onClick={() => { setDialogOpen(false); resetForm(); }}
               >
                 Cancel
-              </ClayButton>
-              <ClayButton variant="obsidian" type="submit" disabled={pending}>
+              </ZoruButton>
+              <ZoruButton type="submit" disabled={pending}>
                 {pending ? 'Saving…' : 'Submit Request'}
-              </ClayButton>
-            </DialogFooter>
+              </ZoruButton>
+            </ZoruDialogFooter>
           </form>
-        </DialogContent>
-      </Dialog>
+        </ZoruDialogContent>
+      </ZoruDialog>
     </div>
   );
 }
 
 function ShiftCell({ shift }: { shift?: WsEmployeeShift }) {
   if (!shift)
-    return <span className="text-[12.5px] text-muted-foreground">—</span>;
+    return <span className="text-[12.5px] text-zoru-ink-muted">—</span>;
   return (
-    <span className="inline-flex items-center gap-2 text-[13px] text-foreground">
+    <span className="inline-flex items-center gap-2 text-[13px] text-zoru-ink">
       <span
         aria-hidden
-        className="inline-block h-3 w-3 rounded-[3px] border border-border"
+        className="inline-block h-3 w-3 rounded-[3px] border border-zoru-line"
         style={{ backgroundColor: shift.color_code || '#EAB308' }}
       />
       {shift.name}

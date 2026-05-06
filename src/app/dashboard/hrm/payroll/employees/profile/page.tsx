@@ -1,23 +1,21 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useEffect, useState, useTransition } from 'react';
 import { UserCog, LoaderCircle, Save } from 'lucide-react';
-import { ClayCard, ClayButton } from '@/components/clay';
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { useToast } from '@/hooks/use-toast';
+  ZoruCard,
+  ZoruButton,
+  ZoruInput,
+  ZoruLabel,
+  ZoruTextarea,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  useZoruToast,
+} from '@/components/zoruui';
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import {
   saveEmployeeDetail,
   getEmployeeDetails,
@@ -27,7 +25,6 @@ import type { WsEmployeeDetail } from '@/lib/worksuite/hr-ext-types';
 
 type EmployeeLite = { _id: string; name: string };
 
-/** All date fields stored as YYYY-MM-DD strings for HTML <input type="date"> */
 type FormState = {
   _id?: string;
   employee_id?: string;
@@ -135,14 +132,13 @@ function detailToForm(d: WsEmployeeDetail): FormState {
 }
 
 export default function EmployeeProfilePage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [employees, setEmployees] = useState<EmployeeLite[]>([]);
   const [selectedEmpId, setSelectedEmpId] = useState<string>('');
   const [form, setForm] = useState<FormState>(EMPTY);
   const [isLoading, startLoading] = useTransition();
   const [isSaving, startSave] = useTransition();
 
-  // Load employee list once
   useEffect(() => {
     startLoading(async () => {
       const es = await getCrmEmployees();
@@ -158,7 +154,6 @@ export default function EmployeeProfilePage() {
     });
   }, []);
 
-  // When employee selection changes, load their detail
   const handleEmpChange = (empId: string) => {
     setSelectedEmpId(empId);
     if (!empId) {
@@ -249,27 +244,26 @@ export default function EmployeeProfilePage() {
         icon={UserCog}
       />
 
-      {/* Employee Selector */}
-      <ClayCard>
+      <ZoruCard className="p-6">
         <div className="flex flex-col gap-1.5">
-          <Label className="text-foreground">Select Employee</Label>
-          <Select value={selectedEmpId} onValueChange={handleEmpChange}>
-            <SelectTrigger className="h-10 w-full max-w-sm rounded-lg border-border bg-card text-[13px]">
-              <SelectValue placeholder="Choose an employee…" />
-            </SelectTrigger>
-            <SelectContent>
+          <ZoruLabel className="text-zoru-ink">Select Employee</ZoruLabel>
+          <ZoruSelect value={selectedEmpId} onValueChange={handleEmpChange}>
+            <ZoruSelectTrigger className="h-10 w-full max-w-sm rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+              <ZoruSelectValue placeholder="Choose an employee…" />
+            </ZoruSelectTrigger>
+            <ZoruSelectContent>
               {employees.map((e) => (
-                <SelectItem key={e._id} value={e._id}>
+                <ZoruSelectItem key={e._id} value={e._id}>
                   {e.name}
-                </SelectItem>
+                </ZoruSelectItem>
               ))}
-            </SelectContent>
-          </Select>
+            </ZoruSelectContent>
+          </ZoruSelect>
         </div>
-      </ClayCard>
+      </ZoruCard>
 
       {isLoading && (
-        <div className="flex items-center justify-center py-10 text-[13px] text-muted-foreground">
+        <div className="flex items-center justify-center py-10 text-[13px] text-zoru-ink-muted">
           <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
           Loading…
         </div>
@@ -277,16 +271,15 @@ export default function EmployeeProfilePage() {
 
       {!isLoading && selectedEmpId && (
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-          {/* Section 1 — Personal Info */}
-          <ClayCard>
-            <h2 className="mb-4 text-[15px] font-semibold text-foreground">Personal Info</h2>
+          <ZoruCard className="p-6">
+            <h2 className="mb-4 text-[15px] text-zoru-ink">Personal Info</h2>
             <div className="grid gap-4 md:grid-cols-2">
               <Field label="About Me" fullWidth>
-                <Textarea
+                <ZoruTextarea
                   rows={3}
                   value={form.about_me ?? ''}
                   onChange={(e) => set('about_me', e.target.value)}
-                  className="rounded-lg border-border bg-card text-[13px]"
+                  className="rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                 />
               </Field>
 
@@ -348,20 +341,20 @@ export default function EmployeeProfilePage() {
               />
 
               <Field label="Hobbies" fullWidth>
-                <Textarea
+                <ZoruTextarea
                   rows={2}
                   value={form.hobbies ?? ''}
                   onChange={(e) => set('hobbies', e.target.value)}
-                  className="rounded-lg border-border bg-card text-[13px]"
+                  className="rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                 />
               </Field>
 
               <Field label="Address" fullWidth>
-                <Textarea
+                <ZoruTextarea
                   rows={2}
                   value={form.address ?? ''}
                   onChange={(e) => set('address', e.target.value)}
-                  className="rounded-lg border-border bg-card text-[13px]"
+                  className="rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                 />
               </Field>
 
@@ -371,11 +364,10 @@ export default function EmployeeProfilePage() {
                 onChange={(v) => set('marriage_anniversary_date', v)}
               />
             </div>
-          </ClayCard>
+          </ZoruCard>
 
-          {/* Section 2 — Employment */}
-          <ClayCard>
-            <h2 className="mb-4 text-[15px] font-semibold text-foreground">Employment</h2>
+          <ZoruCard className="p-6">
+            <h2 className="mb-4 text-[15px] text-zoru-ink">Employment</h2>
             <div className="grid gap-4 md:grid-cols-2">
               <SelectField
                 label="Employment Type"
@@ -409,12 +401,12 @@ export default function EmployeeProfilePage() {
               />
 
               <Field label="Notice Period (days)">
-                <Input
+                <ZoruInput
                   type="number"
                   min="0"
                   value={form.notice_period ?? ''}
                   onChange={(e) => set('notice_period', e.target.value ? Number(e.target.value) : undefined)}
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
+                  className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                 />
               </Field>
 
@@ -437,26 +429,26 @@ export default function EmployeeProfilePage() {
               />
 
               <Field label="Reporting To">
-                <Select
+                <ZoruSelect
                   value={form.reporting_to ?? '__none__'}
                   onValueChange={(v) => set('reporting_to', v === '__none__' ? '' : v)}
                 >
-                  <SelectTrigger className="h-10 w-full rounded-lg border-border bg-card text-[13px]">
-                    <SelectValue placeholder="Select manager…" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="__none__">— None —</SelectItem>
+                  <ZoruSelectTrigger className="h-10 w-full rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                    <ZoruSelectValue placeholder="Select manager…" />
+                  </ZoruSelectTrigger>
+                  <ZoruSelectContent>
+                    <ZoruSelectItem value="__none__">— None —</ZoruSelectItem>
                     {employees
                       .filter((e) => e._id !== selectedEmpId)
                       .map((e) => (
-                        <SelectItem key={e._id} value={e._id}>{e.name}</SelectItem>
+                        <ZoruSelectItem key={e._id} value={e._id}>{e.name}</ZoruSelectItem>
                       ))}
-                  </SelectContent>
-                </Select>
+                  </ZoruSelectContent>
+                </ZoruSelect>
               </Field>
 
               <Field label="Overtime Hourly Rate">
-                <Input
+                <ZoruInput
                   type="number"
                   min="0"
                   step="0.01"
@@ -464,12 +456,12 @@ export default function EmployeeProfilePage() {
                   onChange={(e) =>
                     set('overtime_hourly_rate', e.target.value ? Number(e.target.value) : undefined)
                   }
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
+                  className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                 />
               </Field>
 
               <Field label="Hourly Rate">
-                <Input
+                <ZoruInput
                   type="number"
                   min="0"
                   step="0.01"
@@ -477,7 +469,7 @@ export default function EmployeeProfilePage() {
                   onChange={(e) =>
                     set('hourly_rate', e.target.value ? Number(e.target.value) : undefined)
                   }
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
+                  className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                 />
               </Field>
 
@@ -497,11 +489,10 @@ export default function EmployeeProfilePage() {
                 ]}
               />
             </div>
-          </ClayCard>
+          </ZoruCard>
 
-          {/* Section 3 — Banking & Tax */}
-          <ClayCard>
-            <h2 className="mb-4 text-[15px] font-semibold text-foreground">Banking &amp; Tax</h2>
+          <ZoruCard className="p-6">
+            <h2 className="mb-4 text-[15px] text-zoru-ink">Banking &amp; Tax</h2>
             <div className="grid gap-4 md:grid-cols-2">
               <TextField
                 label="Bank Account Number"
@@ -525,31 +516,26 @@ export default function EmployeeProfilePage() {
                 ]}
               />
             </div>
-          </ClayCard>
+          </ZoruCard>
 
           <div className="flex justify-end">
-            <ClayButton
+            <ZoruButton
               type="submit"
-              variant="obsidian"
               disabled={isSaving}
-              leading={
-                isSaving ? (
-                  <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.75} />
-                ) : (
-                  <Save className="h-4 w-4" strokeWidth={1.75} />
-                )
-              }
             >
+              {isSaving ? (
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="h-4 w-4" />
+              )}
               Save Profile
-            </ClayButton>
+            </ZoruButton>
           </div>
         </form>
       )}
     </div>
   );
 }
-
-/* ── Small helper components ─────────────────────────────────────── */
 
 function Field({
   label,
@@ -562,7 +548,7 @@ function Field({
 }) {
   return (
     <div className={fullWidth ? 'md:col-span-2' : ''}>
-      <Label className="text-foreground">{label}</Label>
+      <ZoruLabel className="text-zoru-ink">{label}</ZoruLabel>
       <div className="mt-1.5">{children}</div>
     </div>
   );
@@ -581,10 +567,10 @@ function TextField({
 }) {
   return (
     <Field label={label} fullWidth={fullWidth}>
-      <Input
+      <ZoruInput
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="h-10 rounded-lg border-border bg-card text-[13px]"
+        className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
       />
     </Field>
   );
@@ -601,11 +587,11 @@ function DateField({
 }) {
   return (
     <Field label={label}>
-      <Input
+      <ZoruInput
         type="date"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="h-10 rounded-lg border-border bg-card text-[13px]"
+        className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
       />
     </Field>
   );
@@ -626,19 +612,19 @@ function SelectField({
 }) {
   return (
     <Field label={label} fullWidth={fullWidth}>
-      <Select value={value || '__none__'} onValueChange={(v) => onChange(v === '__none__' ? '' : v)}>
-        <SelectTrigger className="h-10 w-full rounded-lg border-border bg-card text-[13px]">
-          <SelectValue placeholder="Select…" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="__none__">— None —</SelectItem>
+      <ZoruSelect value={value || '__none__'} onValueChange={(v) => onChange(v === '__none__' ? '' : v)}>
+        <ZoruSelectTrigger className="h-10 w-full rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+          <ZoruSelectValue placeholder="Select…" />
+        </ZoruSelectTrigger>
+        <ZoruSelectContent>
+          <ZoruSelectItem value="__none__">— None —</ZoruSelectItem>
           {options.map((o) => (
-            <SelectItem key={o.value} value={o.value}>
+            <ZoruSelectItem key={o.value} value={o.value}>
               {o.label}
-            </SelectItem>
+            </ZoruSelectItem>
           ))}
-        </SelectContent>
-      </Select>
+        </ZoruSelectContent>
+      </ZoruSelect>
     </Field>
   );
 }

@@ -1,29 +1,22 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import * as React from 'react';
 import { useEffect, useState, useTransition } from 'react';
 import { ScrollText } from 'lucide-react';
 
-import { ClayCard, ClayBadge } from '@/components/clay';
+import {
+  ZoruBadge,
+  ZoruCard,
+  ZoruSkeleton,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  cn,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from '@/components/ui/tabs';
-import { Skeleton } from '@/components/ui/skeleton';
 import {
   getPurposeConsentLeads,
   getPurposeConsentUsers,
@@ -47,6 +40,7 @@ function formatDateTime(value?: Date | string) {
 }
 
 export default function ConsentLogsPage() {
+  const [tab, setTab] = useState<'leads' | 'users'>('leads');
   const [leads, setLeads] = useState<LeadRow[]>([]);
   const [users, setUsers] = useState<UserRow[]>([]);
   const [purposes, setPurposes] = useState<PurposeRow[]>([]);
@@ -87,150 +81,139 @@ export default function ConsentLogsPage() {
         icon={ScrollText}
       />
 
-      <ClayCard>
-        <Tabs defaultValue="leads" className="w-full">
-          <TabsList className="mb-4">
-            <TabsTrigger value="leads">
-              Leads ({leads.length})
-            </TabsTrigger>
-            <TabsTrigger value="users">
-              Users ({users.length})
-            </TabsTrigger>
-          </TabsList>
+      <ZoruCard className="p-6">
+        <div className="mb-4 inline-flex gap-1 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-1">
+          {(['leads', 'users'] as const).map((id) => (
+            <button
+              key={id}
+              type="button"
+              onClick={() => setTab(id)}
+              className={cn(
+                'rounded-[var(--zoru-radius-sm)] px-3 py-1.5 text-sm transition-colors',
+                tab === id
+                  ? 'bg-zoru-bg text-zoru-ink shadow-[var(--zoru-shadow-sm)]'
+                  : 'text-zoru-ink-muted hover:text-zoru-ink',
+              )}
+            >
+              {id === 'leads' ? `Leads (${leads.length})` : `Users (${users.length})`}
+            </button>
+          ))}
+        </div>
 
-          <TabsContent value="leads">
-            <div className="overflow-x-auto rounded-lg border border-border">
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-border hover:bg-transparent">
-                    <TableHead className="text-muted-foreground">
-                      Lead ID
-                    </TableHead>
-                    <TableHead className="text-muted-foreground">
-                      Purpose
-                    </TableHead>
-                    <TableHead className="text-muted-foreground">
-                      State
-                    </TableHead>
-                    <TableHead className="text-muted-foreground">
-                      Timestamp
-                    </TableHead>
-                    <TableHead className="text-muted-foreground">IP</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {isLoading && leads.length === 0 ? (
-                    [...Array(3)].map((_, i) => (
-                      <TableRow key={i} className="border-border">
-                        <TableCell colSpan={5}>
-                          <Skeleton className="h-8 w-full" />
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : leads.length === 0 ? (
-                    <TableRow className="border-border">
-                      <TableCell
-                        colSpan={5}
-                        className="h-24 text-center text-[13px] text-muted-foreground"
-                      >
-                        No lead consent entries yet.
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    leads.map((row) => (
-                      <TableRow key={row._id} className="border-border">
-                        <TableCell className="text-[13px] text-foreground">
-                          {row.lead_id || '—'}
-                        </TableCell>
-                        <TableCell className="text-[13px] text-foreground">
-                          {purposeTitle(row.purpose_consent_id)}
-                        </TableCell>
-                        <TableCell>
-                          <ClayBadge tone={row.granted ? 'green' : 'red'}>
-                            {row.granted ? 'Granted' : 'Revoked'}
-                          </ClayBadge>
-                        </TableCell>
-                        <TableCell className="text-[13px] text-muted-foreground">
-                          {formatDateTime(row.granted_at)}
-                        </TableCell>
-                        <TableCell className="text-[13px] text-muted-foreground">
-                          {row.ip_address || '—'}
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="users">
-            <div className="overflow-x-auto rounded-lg border border-border">
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-border hover:bg-transparent">
-                    <TableHead className="text-muted-foreground">
-                      User ID
-                    </TableHead>
-                    <TableHead className="text-muted-foreground">
-                      Purpose
-                    </TableHead>
-                    <TableHead className="text-muted-foreground">
-                      State
-                    </TableHead>
-                    <TableHead className="text-muted-foreground">
-                      Timestamp
-                    </TableHead>
-                    <TableHead className="text-muted-foreground">IP</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {isLoading && users.length === 0 ? (
-                    [...Array(3)].map((_, i) => (
-                      <TableRow key={i} className="border-border">
-                        <TableCell colSpan={5}>
-                          <Skeleton className="h-8 w-full" />
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : users.length === 0 ? (
-                    <TableRow className="border-border">
-                      <TableCell
-                        colSpan={5}
-                        className="h-24 text-center text-[13px] text-muted-foreground"
-                      >
-                        No user consent entries yet.
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    users.map((row) => (
-                      <TableRow key={row._id} className="border-border">
-                        <TableCell className="text-[13px] text-foreground">
-                          {row.target_user_id || '—'}
-                        </TableCell>
-                        <TableCell className="text-[13px] text-foreground">
-                          {purposeTitle(row.purpose_consent_id)}
-                        </TableCell>
-                        <TableCell>
-                          <ClayBadge tone={row.granted ? 'green' : 'red'}>
-                            {row.granted ? 'Granted' : 'Revoked'}
-                          </ClayBadge>
-                        </TableCell>
-                        <TableCell className="text-[13px] text-muted-foreground">
-                          {formatDateTime(row.granted_at)}
-                        </TableCell>
-                        <TableCell className="text-[13px] text-muted-foreground">
-                          {row.ip_address || '—'}
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          </TabsContent>
-        </Tabs>
-      </ClayCard>
+        {tab === 'leads' ? (
+          <div className="overflow-x-auto rounded-lg border border-zoru-line">
+            <ZoruTable>
+              <ZoruTableHeader>
+                <ZoruTableRow className="hover:bg-transparent">
+                  <ZoruTableHead className="text-zoru-ink-muted">Lead ID</ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">Purpose</ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">State</ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">Timestamp</ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">IP</ZoruTableHead>
+                </ZoruTableRow>
+              </ZoruTableHeader>
+              <ZoruTableBody>
+                {isLoading && leads.length === 0 ? (
+                  [...Array(3)].map((_, i) => (
+                    <ZoruTableRow key={i}>
+                      <ZoruTableCell colSpan={5}>
+                        <ZoruSkeleton className="h-8 w-full" />
+                      </ZoruTableCell>
+                    </ZoruTableRow>
+                  ))
+                ) : leads.length === 0 ? (
+                  <ZoruTableRow>
+                    <ZoruTableCell
+                      colSpan={5}
+                      className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                    >
+                      No lead consent entries yet.
+                    </ZoruTableCell>
+                  </ZoruTableRow>
+                ) : (
+                  leads.map((row) => (
+                    <ZoruTableRow key={row._id}>
+                      <ZoruTableCell className="text-[13px] text-zoru-ink">
+                        {row.lead_id || '—'}
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-[13px] text-zoru-ink">
+                        {purposeTitle(row.purpose_consent_id)}
+                      </ZoruTableCell>
+                      <ZoruTableCell>
+                        <ZoruBadge variant={row.granted ? 'success' : 'danger'}>
+                          {row.granted ? 'Granted' : 'Revoked'}
+                        </ZoruBadge>
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                        {formatDateTime(row.granted_at)}
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                        {row.ip_address || '—'}
+                      </ZoruTableCell>
+                    </ZoruTableRow>
+                  ))
+                )}
+              </ZoruTableBody>
+            </ZoruTable>
+          </div>
+        ) : (
+          <div className="overflow-x-auto rounded-lg border border-zoru-line">
+            <ZoruTable>
+              <ZoruTableHeader>
+                <ZoruTableRow className="hover:bg-transparent">
+                  <ZoruTableHead className="text-zoru-ink-muted">User ID</ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">Purpose</ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">State</ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">Timestamp</ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">IP</ZoruTableHead>
+                </ZoruTableRow>
+              </ZoruTableHeader>
+              <ZoruTableBody>
+                {isLoading && users.length === 0 ? (
+                  [...Array(3)].map((_, i) => (
+                    <ZoruTableRow key={i}>
+                      <ZoruTableCell colSpan={5}>
+                        <ZoruSkeleton className="h-8 w-full" />
+                      </ZoruTableCell>
+                    </ZoruTableRow>
+                  ))
+                ) : users.length === 0 ? (
+                  <ZoruTableRow>
+                    <ZoruTableCell
+                      colSpan={5}
+                      className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                    >
+                      No user consent entries yet.
+                    </ZoruTableCell>
+                  </ZoruTableRow>
+                ) : (
+                  users.map((row) => (
+                    <ZoruTableRow key={row._id}>
+                      <ZoruTableCell className="text-[13px] text-zoru-ink">
+                        {row.target_user_id || '—'}
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-[13px] text-zoru-ink">
+                        {purposeTitle(row.purpose_consent_id)}
+                      </ZoruTableCell>
+                      <ZoruTableCell>
+                        <ZoruBadge variant={row.granted ? 'success' : 'danger'}>
+                          {row.granted ? 'Granted' : 'Revoked'}
+                        </ZoruBadge>
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                        {formatDateTime(row.granted_at)}
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                        {row.ip_address || '—'}
+                      </ZoruTableCell>
+                    </ZoruTableRow>
+                  ))
+                )}
+              </ZoruTableBody>
+            </ZoruTable>
+          </div>
+        )}
+      </ZoruCard>
     </div>
   );
 }

@@ -1,18 +1,23 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useState, useEffect, useCallback, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, FileMinus, LoaderCircle } from "lucide-react";
 import Link from 'next/link';
 import { getCreditNotes } from '@/app/actions/crm-credit-notes.actions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
 import type { WithId, CrmCreditNote } from '@/lib/definitions';
 
-import { ClayButton, ClayCard } from '@/components/clay';
+import {
+    ZoruButton,
+    ZoruCard,
+    ZoruTable,
+    ZoruTableBody,
+    ZoruTableCell,
+    ZoruTableHead,
+    ZoruTableHeader,
+    ZoruTableRow,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 export default function CreditNotesPage() {
@@ -40,7 +45,7 @@ export default function CreditNotesPage() {
     if (isLoading && notes.length === 0) {
         return (
             <div className="flex justify-center items-center h-full">
-                <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />
+                <LoaderCircle className="h-8 w-8 animate-spin text-zoru-ink-muted" />
             </div>
         );
     }
@@ -53,22 +58,23 @@ export default function CreditNotesPage() {
                     subtitle="Issue refunds or credits to your customers with professional credit notes."
                     icon={FileMinus}
                 />
-                <ClayCard variant="outline" className="border-dashed">
+                <ZoruCard className="p-6 border-dashed">
                     <div className="flex flex-col items-center gap-3 py-12 text-center">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent">
-                            <FileMinus className="h-6 w-6 text-accent-foreground" strokeWidth={1.75} />
+                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-zoru-surface-2">
+                            <FileMinus className="h-6 w-6 text-zoru-ink" strokeWidth={1.75} />
                         </div>
-                        <h3 className="text-[15px] font-semibold text-foreground">Credit Notes</h3>
-                        <p className="max-w-md text-[12.5px] text-muted-foreground">
+                        <h3 className="text-[15px] text-zoru-ink">Credit Notes</h3>
+                        <p className="max-w-md text-[12.5px] text-zoru-ink-muted">
                             Issue refunds or credits to your customers with professional credit notes.
                         </p>
                         <Link href="/dashboard/crm/sales/credit-notes/new">
-                            <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}>
+                            <ZoruButton>
+                                <Plus className="h-4 w-4" strokeWidth={1.75} />
                                 Create First Credit Note
-                            </ClayButton>
+                            </ZoruButton>
                         </Link>
                     </div>
-                </ClayCard>
+                </ZoruCard>
             </div>
         );
     }
@@ -81,44 +87,45 @@ export default function CreditNotesPage() {
                 icon={FileMinus}
                 actions={
                     <Link href="/dashboard/crm/sales/credit-notes/new">
-                        <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}>
+                        <ZoruButton>
+                            <Plus className="h-4 w-4" strokeWidth={1.75} />
                             New Credit Note
-                        </ClayButton>
+                        </ZoruButton>
                     </Link>
                 }
             />
 
-            <ClayCard>
+            <ZoruCard className="p-6">
                 <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-foreground">Recent Credit Notes</h2>
+                    <h2 className="text-[16px] text-zoru-ink">Recent Credit Notes</h2>
                 </div>
-                <div className="overflow-x-auto rounded-lg border border-border">
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="border-border hover:bg-transparent">
-                                <TableHead className="text-muted-foreground">Credit Note #</TableHead>
-                                <TableHead className="text-muted-foreground">Client</TableHead>
-                                <TableHead className="text-muted-foreground">Date</TableHead>
-                                <TableHead className="text-muted-foreground">Reason</TableHead>
-                                <TableHead className="text-muted-foreground">Original Invoice #</TableHead>
-                                <TableHead className="text-muted-foreground text-right">Amount</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
+                <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                    <ZoruTable>
+                        <ZoruTableHeader>
+                            <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                                <ZoruTableHead className="text-zoru-ink-muted">Credit Note #</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted">Client</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted">Date</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted">Reason</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted">Original Invoice #</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted text-right">Amount</ZoruTableHead>
+                            </ZoruTableRow>
+                        </ZoruTableHeader>
+                        <ZoruTableBody>
                             {notes.map(note => (
-                                <TableRow key={note._id.toString()} className="border-border">
-                                    <TableCell className="font-medium text-foreground">{note.creditNoteNumber}</TableCell>
-                                    <TableCell className="text-foreground">{accountsMap.get(note.accountId.toString()) || 'Unknown'}</TableCell>
-                                    <TableCell className="text-foreground">{new Date(note.creditNoteDate).toLocaleDateString()}</TableCell>
-                                    <TableCell className="text-[12px] text-muted-foreground">{note.reason}</TableCell>
-                                    <TableCell className="font-mono text-xs text-foreground">{note.originalInvoiceNumber || 'N/A'}</TableCell>
-                                    <TableCell className="text-right font-medium text-foreground">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: note.currency || 'INR' }).format(note.total)}</TableCell>
-                                </TableRow>
+                                <ZoruTableRow key={note._id.toString()} className="border-zoru-line">
+                                    <ZoruTableCell className="text-zoru-ink">{note.creditNoteNumber}</ZoruTableCell>
+                                    <ZoruTableCell className="text-zoru-ink">{accountsMap.get(note.accountId.toString()) || 'Unknown'}</ZoruTableCell>
+                                    <ZoruTableCell className="text-zoru-ink">{new Date(note.creditNoteDate).toLocaleDateString()}</ZoruTableCell>
+                                    <ZoruTableCell className="text-[12px] text-zoru-ink-muted">{note.reason}</ZoruTableCell>
+                                    <ZoruTableCell className="font-mono text-xs text-zoru-ink">{note.originalInvoiceNumber || 'N/A'}</ZoruTableCell>
+                                    <ZoruTableCell className="text-right text-zoru-ink">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: note.currency || 'INR' }).format(note.total)}</ZoruTableCell>
+                                </ZoruTableRow>
                             ))}
-                        </TableBody>
-                    </Table>
+                        </ZoruTableBody>
+                    </ZoruTable>
                 </div>
-            </ClayCard>
+            </ZoruCard>
         </div>
     );
 }

@@ -1,30 +1,27 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useEffect, useMemo, useState, useTransition } from 'react';
 import { Plane, Plus, Pencil, Trash2, LoaderCircle, ExternalLink } from 'lucide-react';
 import { format } from 'date-fns';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogFooter,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruInput,
+  ZoruLabel,
+  ZoruCard,
+  ZoruButton,
+  ZoruBadge,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import { useToast } from '@/hooks/use-toast';
 import {
   getVisaDetails,
   saveVisaDetail,
@@ -58,18 +55,18 @@ function fmtDate(v: any): string {
   try { return format(new Date(v), 'dd MMM yyyy'); } catch { return '—'; }
 }
 
-function expiryTone(v: any): 'green' | 'amber' | 'red' | 'neutral' {
-  if (!v) return 'neutral';
+function expiryVariant(v: any): 'success' | 'warning' | 'danger' | 'secondary' {
+  if (!v) return 'secondary';
   try {
     const days = Math.ceil((new Date(v).getTime() - Date.now()) / 86400000);
-    if (days < 0) return 'red';
-    if (days < 90) return 'amber';
-    return 'green';
-  } catch { return 'neutral'; }
+    if (days < 0) return 'danger';
+    if (days < 90) return 'warning';
+    return 'success';
+  } catch { return 'secondary'; }
 }
 
 export default function VisaDetailsPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [visas, setVisas] = useState<VisaRow[]>([]);
   const [employees, setEmployees] = useState<EmployeeLite[]>([]);
   const [isLoading, startLoading] = useTransition();
@@ -148,61 +145,62 @@ export default function VisaDetailsPage() {
         subtitle="Track employee work visas and expiry dates."
         icon={Plane}
         actions={
-          <ClayButton variant="obsidian" onClick={openAdd} leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}>
+          <ZoruButton onClick={openAdd}>
+            <Plus className="h-4 w-4" />
             Add Visa
-          </ClayButton>
+          </ZoruButton>
         }
       />
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         {isLoading ? (
           <div className="flex h-32 items-center justify-center">
-            <LoaderCircle className="h-6 w-6 animate-spin text-muted-foreground" />
+            <LoaderCircle className="h-6 w-6 animate-spin text-zoru-ink-muted" />
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-lg border border-border">
+          <div className="overflow-x-auto rounded-lg border border-zoru-line">
             <table className="w-full text-[13px]">
               <thead>
-                <tr className="border-b border-border bg-secondary">
-                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Employee</th>
-                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Country</th>
-                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Visa #</th>
-                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Issued</th>
-                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Expires</th>
-                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">File</th>
-                  <th className="px-4 py-2.5 text-right text-[12px] font-medium text-muted-foreground">Actions</th>
+                <tr className="border-b border-zoru-line bg-zoru-surface-2">
+                  <th className="px-4 py-2.5 text-left text-[12px] text-zoru-ink-muted">Employee</th>
+                  <th className="px-4 py-2.5 text-left text-[12px] text-zoru-ink-muted">Country</th>
+                  <th className="px-4 py-2.5 text-left text-[12px] text-zoru-ink-muted">Visa #</th>
+                  <th className="px-4 py-2.5 text-left text-[12px] text-zoru-ink-muted">Issued</th>
+                  <th className="px-4 py-2.5 text-left text-[12px] text-zoru-ink-muted">Expires</th>
+                  <th className="px-4 py-2.5 text-left text-[12px] text-zoru-ink-muted">File</th>
+                  <th className="px-4 py-2.5 text-right text-[12px] text-zoru-ink-muted">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {visas.length === 0 ? (
-                  <tr><td colSpan={7} className="py-10 text-center text-[13px] text-muted-foreground">No visa records found.</td></tr>
+                  <tr><td colSpan={7} className="py-10 text-center text-[13px] text-zoru-ink-muted">No visa records found.</td></tr>
                 ) : (
                   visas.map((v) => (
-                    <tr key={String(v._id)} className="border-t border-border hover:bg-secondary/50">
-                      <td className="px-4 py-2.5 font-medium text-foreground">{empMap.get(String(v.user_id)) || v.user_id}</td>
-                      <td className="px-4 py-2.5 text-foreground">{v.country}</td>
-                      <td className="px-4 py-2.5 font-mono text-[12px] text-foreground">{v.visa_number || '—'}</td>
-                      <td className="px-4 py-2.5 text-muted-foreground">{fmtDate(v.issue_date)}</td>
+                    <tr key={String(v._id)} className="border-t border-zoru-line hover:bg-zoru-surface-2/50">
+                      <td className="px-4 py-2.5 text-zoru-ink">{empMap.get(String(v.user_id)) || v.user_id}</td>
+                      <td className="px-4 py-2.5 text-zoru-ink">{v.country}</td>
+                      <td className="px-4 py-2.5 font-mono text-[12px] text-zoru-ink">{v.visa_number || '—'}</td>
+                      <td className="px-4 py-2.5 text-zoru-ink-muted">{fmtDate(v.issue_date)}</td>
                       <td className="px-4 py-2.5">
                         {v.expiry_date ? (
-                          <ClayBadge tone={expiryTone(v.expiry_date)}>{fmtDate(v.expiry_date)}</ClayBadge>
-                        ) : <span className="text-muted-foreground">—</span>}
+                          <ZoruBadge variant={expiryVariant(v.expiry_date)}>{fmtDate(v.expiry_date)}</ZoruBadge>
+                        ) : <span className="text-zoru-ink-muted">—</span>}
                       </td>
                       <td className="px-4 py-2.5">
                         {v.file ? (
                           <a href={v.file} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[12px] text-sky-500 hover:underline">
                             <ExternalLink className="h-3 w-3" /> View
                           </a>
-                        ) : <span className="text-muted-foreground">—</span>}
+                        ) : <span className="text-zoru-ink-muted">—</span>}
                       </td>
                       <td className="px-4 py-2.5 text-right">
                         <div className="flex justify-end gap-1">
-                          <ClayButton variant="pill" size="sm" onClick={() => openEdit(v)}>
+                          <ZoruButton variant="ghost" size="sm" onClick={() => openEdit(v)}>
                             <Pencil className="h-3.5 w-3.5" />
-                          </ClayButton>
-                          <ClayButton variant="pill" size="sm" onClick={() => handleDelete(String(v._id))}>
-                            <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                          </ClayButton>
+                          </ZoruButton>
+                          <ZoruButton variant="ghost" size="sm" onClick={() => handleDelete(String(v._id))}>
+                            <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                          </ZoruButton>
                         </div>
                       </td>
                     </tr>
@@ -212,56 +210,56 @@ export default function VisaDetailsPage() {
             </table>
           </div>
         )}
-      </ClayCard>
+      </ZoruCard>
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-lg border-border bg-card">
-          <DialogHeader>
-            <DialogTitle className="text-foreground">{form._id ? 'Edit Visa Details' : 'Add Visa Details'}</DialogTitle>
-          </DialogHeader>
+      <ZoruDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <ZoruDialogContent className="max-w-lg border-zoru-line bg-zoru-bg">
+          <ZoruDialogHeader>
+            <ZoruDialogTitle className="text-zoru-ink">{form._id ? 'Edit Visa Details' : 'Add Visa Details'}</ZoruDialogTitle>
+          </ZoruDialogHeader>
           <div className="grid gap-4 py-2 md:grid-cols-2">
             <div className="md:col-span-2">
-              <Label className="text-[12px] text-muted-foreground">Employee <span className="text-destructive">*</span></Label>
-              <Select value={form.user_id || '__none__'} onValueChange={(v) => set('user_id', v === '__none__' ? '' : v)}>
-                <SelectTrigger className="mt-1.5 h-10 w-full rounded-lg border-border bg-card text-[13px]">
-                  <SelectValue placeholder="Select employee…" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__none__">— Select employee —</SelectItem>
-                  {employees.map((e) => <SelectItem key={e._id} value={e._id}>{e.name}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <ZoruLabel className="text-[12px] text-zoru-ink-muted">Employee <span className="text-zoru-danger-ink">*</span></ZoruLabel>
+              <ZoruSelect value={form.user_id || '__none__'} onValueChange={(v) => set('user_id', v === '__none__' ? '' : v)}>
+                <ZoruSelectTrigger className="mt-1.5 h-10 w-full rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                  <ZoruSelectValue placeholder="Select employee…" />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                  <ZoruSelectItem value="__none__">— Select employee —</ZoruSelectItem>
+                  {employees.map((e) => <ZoruSelectItem key={e._id} value={e._id}>{e.name}</ZoruSelectItem>)}
+                </ZoruSelectContent>
+              </ZoruSelect>
             </div>
             <div>
-              <Label className="text-[12px] text-muted-foreground">Country <span className="text-destructive">*</span></Label>
-              <Input value={form.country} onChange={(e) => set('country', e.target.value)} placeholder="e.g. United States" className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]" />
+              <ZoruLabel className="text-[12px] text-zoru-ink-muted">Country <span className="text-zoru-danger-ink">*</span></ZoruLabel>
+              <ZoruInput value={form.country} onChange={(e) => set('country', e.target.value)} placeholder="e.g. United States" className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
             </div>
             <div>
-              <Label className="text-[12px] text-muted-foreground">Visa Number</Label>
-              <Input value={form.visa_number} onChange={(e) => set('visa_number', e.target.value)} className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]" />
+              <ZoruLabel className="text-[12px] text-zoru-ink-muted">Visa Number</ZoruLabel>
+              <ZoruInput value={form.visa_number} onChange={(e) => set('visa_number', e.target.value)} className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
             </div>
             <div>
-              <Label className="text-[12px] text-muted-foreground">Issue Date</Label>
-              <Input type="date" value={form.issue_date} onChange={(e) => set('issue_date', e.target.value)} className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]" />
+              <ZoruLabel className="text-[12px] text-zoru-ink-muted">Issue Date</ZoruLabel>
+              <ZoruInput type="date" value={form.issue_date} onChange={(e) => set('issue_date', e.target.value)} className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
             </div>
             <div>
-              <Label className="text-[12px] text-muted-foreground">Expiry Date</Label>
-              <Input type="date" value={form.expiry_date} onChange={(e) => set('expiry_date', e.target.value)} className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]" />
+              <ZoruLabel className="text-[12px] text-zoru-ink-muted">Expiry Date</ZoruLabel>
+              <ZoruInput type="date" value={form.expiry_date} onChange={(e) => set('expiry_date', e.target.value)} className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
             </div>
             <div className="md:col-span-2">
-              <Label className="text-[12px] text-muted-foreground">File URL</Label>
-              <Input type="url" value={form.file} onChange={(e) => set('file', e.target.value)} placeholder="https://…" className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]" />
+              <ZoruLabel className="text-[12px] text-zoru-ink-muted">File URL</ZoruLabel>
+              <ZoruInput type="url" value={form.file} onChange={(e) => set('file', e.target.value)} placeholder="https://…" className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
             </div>
           </div>
-          <DialogFooter className="gap-2">
-            <ClayButton variant="pill" onClick={() => setDialogOpen(false)}>Cancel</ClayButton>
-            <ClayButton variant="obsidian" onClick={handleSave} disabled={isSaving}
-              leading={isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.75} /> : undefined}>
+          <ZoruDialogFooter className="gap-2">
+            <ZoruButton variant="outline" onClick={() => setDialogOpen(false)}>Cancel</ZoruButton>
+            <ZoruButton onClick={handleSave} disabled={isSaving}>
+              {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
               {form._id ? 'Update' : 'Add'}
-            </ClayButton>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            </ZoruButton>
+          </ZoruDialogFooter>
+        </ZoruDialogContent>
+      </ZoruDialog>
     </div>
   );
 }

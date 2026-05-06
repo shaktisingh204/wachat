@@ -17,6 +17,7 @@ use meta_flows::MetaFlowsState;
 use meta_suite::MetaSuiteState;
 use meta_token::MetaTokenState;
 use qr_codes::QrCodesState;
+use sabfiles::{SabfilesState, r2::{R2Client, R2Config}};
 use sabnode_auth::AuthConfig;
 use sabnode_db::{mongo::MongoHandle, redis::RedisHandle};
 use tokio::{net::TcpListener, signal};
@@ -275,6 +276,38 @@ async fn run() -> anyhow::Result<()> {
         WachatFacebookMessengerProfileState::new(mongo.clone(), meta.clone());
     let instagram = WachatInstagramState::new(mongo.clone(), meta.clone());
 
+    // SabFiles — file manager backed by Cloudflare R2. R2 credentials are
+    // optional at boot: if any are missing we boot anyway with a stubbed
+    // client that returns errors on use, so the rest of the API stays up.
+    let sabfiles_state = match R2Config::from_env() {
+        Some(cfg) => {
+            let r2 = R2Client::new(cfg).await.context("initializing R2 client")?;
+            let quota = std::env::var("SABFILES_USER_QUOTA_BYTES")
+                .ok()
+                .and_then(|v| v.parse::<u64>().ok());
+            info!(quota = ?quota, "sabfiles R2 client ready");
+            SabfilesState::new(mongo.clone(), Arc::new(r2), quota)
+        }
+        None => {
+            tracing::warn!(
+                "SabFiles: R2 not configured — uploads will fail. \
+                 Set R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET."
+            );
+            // Build a minimally-valid client pointed at a sentinel endpoint;
+            // it will return runtime errors on first use but lets the
+            // service boot and serve other endpoints.
+            let cfg = R2Config {
+                account_id: "missing".to_owned(),
+                access_key_id: "missing".to_owned(),
+                secret_access_key: "missing".to_owned(),
+                bucket: "missing".to_owned(),
+                public_url: None,
+            };
+            let r2 = R2Client::new(cfg).await.context("initializing R2 stub client")?;
+            SabfilesState::new(mongo.clone(), Arc::new(r2), None)
+        }
+    };
+
     let state = AppState::new(
         mongo,
         redis,
@@ -315,6 +348,7 @@ async fn run() -> anyhow::Result<()> {
         fb_lead_gen,
         fb_messenger_profile,
         instagram,
+        sabfiles_state,
     );
     let app = router::build(state.clone());
 

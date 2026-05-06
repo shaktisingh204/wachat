@@ -25,7 +25,7 @@ import {
 
 import { cn } from '@/lib/utils';
 import { useProject } from '@/context/project-context';
-import { useAdManager } from '@/context/ad-manager-context';
+import { AdManagerProvider, useAdManager } from '@/context/ad-manager-context';
 import {
   ZoruButton,
   ZoruCard,
@@ -195,12 +195,19 @@ export default function AdManagerLayout({ children }: { children: React.ReactNod
     return <MetaFeatureLock />;
   }
 
+  // Wrap children in `AdManagerProvider` so child pages — and the
+  // `AccountPill` below, which calls `useAdManager` — always have a
+  // provider in scope. Some higher-level chromes provide it ambiently
+  // and others don't; making this layout self-sufficient avoids the
+  // "useAdManager must be used within an AdManagerProvider" runtime
+  // crash on direct `/dashboard/ad-manager/*` page loads.
   return (
-    <AdManagerShellContext.Provider value={state}>
-      {/* In-page toolbar */}
-      <div className="flex items-center justify-between gap-3 mb-6">
-        <div className="flex items-center gap-2">
-          <AccountPill />
+    <AdManagerProvider>
+      <AdManagerShellContext.Provider value={state}>
+        {/* In-page toolbar */}
+        <div className="flex items-center justify-between gap-3 mb-6">
+          <div className="flex items-center gap-2">
+            <AccountPill />
 
           {/* Search */}
           <div className="relative hidden sm:block">
@@ -227,8 +234,9 @@ export default function AdManagerLayout({ children }: { children: React.ReactNod
         </div>
       </div>
 
-      {/* Page content */}
-      {children}
-    </AdManagerShellContext.Provider>
+        {/* Page content */}
+        {children}
+      </AdManagerShellContext.Provider>
+    </AdManagerProvider>
   );
 }

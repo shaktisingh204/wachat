@@ -1,8 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useState, useEffect, useCallback, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -24,45 +21,48 @@ import {
   unarchiveCrmAccount,
 } from '@/app/actions/crm-accounts.actions';
 import type { CrmAccount } from '@/lib/definitions';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { useToast } from '@/hooks/use-toast';
 import { CrmAddClientDialog } from '@/components/wabasimplify/crm-add-client-dialog';
 import { ClientReportButton } from '@/components/wabasimplify/client-report-button';
 
-import { ClayCard, ClayBadge } from '@/components/clay';
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruAlertDialogTrigger,
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuTrigger,
+  ZoruInput,
+  ZoruSkeleton,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 const ACCOUNTS_PER_PAGE = 20;
 
 function ClientsPageSkeleton() {
   return (
-    <ClayCard>
-      <Skeleton className="h-6 w-48" />
-      <Skeleton className="mt-2 h-4 w-64" />
-      <Skeleton className="mt-6 h-10 w-full" />
-      <Skeleton className="mt-4 h-64 w-full" />
-    </ClayCard>
+    <ZoruCard className="p-6">
+      <ZoruSkeleton className="h-6 w-48" />
+      <ZoruSkeleton className="mt-2 h-4 w-64" />
+      <ZoruSkeleton className="mt-6 h-10 w-full" />
+      <ZoruSkeleton className="mt-4 h-64 w-full" />
+    </ZoruCard>
   );
 }
 
@@ -70,12 +70,12 @@ export default function CrmClientsPage() {
   const [accounts, setAccounts] = useState<WithId<CrmAccount>[]>([]);
   const [isLoading, startTransition] = useTransition();
   const router = useRouter();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
 
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [totalPages, setTotalPages] = useState(0);
-  const [activeTab, setActiveTab] = useState('active');
+  const [activeTab, setActiveTab] = useState<'active' | 'archived'>('active');
 
   const fetchData = useCallback(() => {
     startTransition(async () => {
@@ -135,156 +135,164 @@ export default function CrmClientsPage() {
         }
       />
 
-      <ClayCard>
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <h2 className="text-[16px] font-semibold text-foreground">All Accounts</h2>
-              <p className="mt-0.5 text-[12.5px] text-muted-foreground">
-                A list of all companies in your CRM.
-              </p>
+      <ZoruCard className="p-6">
+        <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 className="text-[16px] text-zoru-ink">All Accounts</h2>
+            <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+              A list of all companies in your CRM.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap gap-1.5">
+              <ZoruButton
+                size="sm"
+                variant={activeTab === 'active' ? 'default' : 'outline'}
+                onClick={() => setActiveTab('active')}
+              >
+                Active
+              </ZoruButton>
+              <ZoruButton
+                size="sm"
+                variant={activeTab === 'archived' ? 'default' : 'outline'}
+                onClick={() => setActiveTab('archived')}
+              >
+                Archived
+              </ZoruButton>
             </div>
-            <div className="flex flex-wrap items-center gap-3">
-              <TabsList className="bg-secondary">
-                <TabsTrigger value="active">Active</TabsTrigger>
-                <TabsTrigger value="archived">Archived</TabsTrigger>
-              </TabsList>
-              <div className="relative w-full max-w-xs">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  placeholder="Search by name, industry, or website..."
-                  className="h-10 rounded-lg border-border bg-card pl-9 text-[13px]"
-                  onChange={(e) => handleSearch(e.target.value)}
-                  defaultValue={searchQuery}
-                />
-              </div>
+            <div className="relative w-full max-w-xs">
+              <ZoruInput
+                placeholder="Search by name, industry, or website..."
+                onChange={(e) => handleSearch(e.target.value)}
+                defaultValue={searchQuery}
+                leadingSlot={<Search />}
+              />
             </div>
           </div>
+        </div>
 
-          <div className="overflow-x-auto rounded-lg border border-border">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-border hover:bg-transparent">
-                  <TableHead className="text-muted-foreground">Account Name</TableHead>
-                  <TableHead className="text-muted-foreground">Industry</TableHead>
-                  <TableHead className="text-muted-foreground">Phone</TableHead>
-                  <TableHead className="text-muted-foreground">Status</TableHead>
-                  <TableHead className="text-right text-muted-foreground">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isLoading ? (
-                  [...Array(5)].map((_, i) => (
-                    <TableRow key={i} className="border-border">
-                      <TableCell colSpan={5}>
-                        <Skeleton className="h-10 w-full" />
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : accounts.length > 0 ? (
-                  accounts.map((account) => (
-                    <TableRow key={account._id.toString()} className="border-border">
-                      <TableCell>
-                        <Link
-                          href={`/dashboard/crm/accounts/${account._id.toString()}`}
-                          className="flex items-center gap-2 text-[13px] font-medium text-foreground hover:underline"
-                        >
-                          <Building className="h-4 w-4 text-muted-foreground" />
-                          {account.name}
-                        </Link>
-                      </TableCell>
-                      <TableCell className="text-[13px] text-foreground">
-                        {account.industry || 'N/A'}
-                      </TableCell>
-                      <TableCell className="text-[13px] text-foreground">
-                        {account.phone || 'N/A'}
-                      </TableCell>
-                      <TableCell>
-                        <ClayBadge
-                          tone={account.status === 'archived' ? 'neutral' : 'green'}
-                          dot
-                          className="capitalize"
-                        >
-                          {account.status || 'active'}
-                        </ClayBadge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onSelect={() =>
-                                router.push(
-                                  `/dashboard/crm/accounts/${account._id.toString()}/edit`,
-                                )
-                              }
-                            >
-                              <Edit className="mr-2 h-4 w-4" />
-                              Edit
-                            </DropdownMenuItem>
-                            {account.status !== 'archived' ? (
-                              <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <DropdownMenuItem
-                                    onSelect={(e) => e.preventDefault()}
-                                    className="text-destructive focus:bg-destructive/10"
+        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+          <ZoruTable>
+            <ZoruTableHeader>
+              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                <ZoruTableHead className="text-zoru-ink-muted">Account Name</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Industry</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Phone</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
+                <ZoruTableHead className="text-right text-zoru-ink-muted">Actions</ZoruTableHead>
+              </ZoruTableRow>
+            </ZoruTableHeader>
+            <ZoruTableBody>
+              {isLoading ? (
+                [...Array(5)].map((_, i) => (
+                  <ZoruTableRow key={i} className="border-zoru-line">
+                    <ZoruTableCell colSpan={5}>
+                      <ZoruSkeleton className="h-10 w-full" />
+                    </ZoruTableCell>
+                  </ZoruTableRow>
+                ))
+              ) : accounts.length > 0 ? (
+                accounts.map((account) => (
+                  <ZoruTableRow key={account._id.toString()} className="border-zoru-line">
+                    <ZoruTableCell>
+                      <Link
+                        href={`/dashboard/crm/accounts/${account._id.toString()}`}
+                        className="flex items-center gap-2 text-[13px] text-zoru-ink hover:underline"
+                      >
+                        <Building className="h-4 w-4 text-zoru-ink-muted" />
+                        {account.name}
+                      </Link>
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-[13px] text-zoru-ink">
+                      {account.industry || 'N/A'}
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-[13px] text-zoru-ink">
+                      {account.phone || 'N/A'}
+                    </ZoruTableCell>
+                    <ZoruTableCell>
+                      <ZoruBadge
+                        variant={account.status === 'archived' ? 'ghost' : 'success'}
+                        className="capitalize"
+                      >
+                        {account.status || 'active'}
+                      </ZoruBadge>
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-right">
+                      <ZoruDropdownMenu>
+                        <ZoruDropdownMenuTrigger asChild>
+                          <ZoruButton variant="ghost" size="icon">
+                            <MoreVertical className="h-4 w-4" />
+                          </ZoruButton>
+                        </ZoruDropdownMenuTrigger>
+                        <ZoruDropdownMenuContent align="end">
+                          <ZoruDropdownMenuItem
+                            onSelect={() =>
+                              router.push(
+                                `/dashboard/crm/accounts/${account._id.toString()}/edit`,
+                              )
+                            }
+                          >
+                            <Edit className="mr-2 h-4 w-4" />
+                            Edit
+                          </ZoruDropdownMenuItem>
+                          {account.status !== 'archived' ? (
+                            <ZoruAlertDialog>
+                              <ZoruAlertDialogTrigger asChild>
+                                <ZoruDropdownMenuItem
+                                  onSelect={(e) => e.preventDefault()}
+                                  className="text-zoru-danger-ink focus:bg-zoru-surface-2"
+                                >
+                                  <Archive className="mr-2 h-4 w-4" />
+                                  Archive
+                                </ZoruDropdownMenuItem>
+                              </ZoruAlertDialogTrigger>
+                              <ZoruAlertDialogContent>
+                                <ZoruAlertDialogHeader>
+                                  <ZoruAlertDialogTitle>Archive Account?</ZoruAlertDialogTitle>
+                                  <ZoruAlertDialogDescription>
+                                    Archiving this account will hide it from the main list but
+                                    will not delete its data.
+                                  </ZoruAlertDialogDescription>
+                                </ZoruAlertDialogHeader>
+                                <ZoruAlertDialogFooter>
+                                  <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+                                  <ZoruAlertDialogAction
+                                    onClick={() =>
+                                      handleArchiveAccount(account._id!.toString())
+                                    }
                                   >
-                                    <Archive className="mr-2 h-4 w-4" />
                                     Archive
-                                  </DropdownMenuItem>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>Archive Account?</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      Archiving this account will hide it from the main list but
-                                      will not delete its data.
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                    <AlertDialogAction
-                                      onClick={() =>
-                                        handleArchiveAccount(account._id!.toString())
-                                      }
-                                    >
-                                      Archive
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
-                            ) : (
-                              <DropdownMenuItem
-                                onSelect={() => handleUnarchiveAccount(account._id!.toString())}
-                              >
-                                <ArchiveRestore className="mr-2 h-4 w-4" />
-                                Unarchive
-                              </DropdownMenuItem>
-                            )}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow className="border-border">
-                    <TableCell
-                      colSpan={5}
-                      className="h-24 text-center text-[13px] text-muted-foreground"
-                    >
-                      No accounts found.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </Tabs>
-      </ClayCard>
+                                  </ZoruAlertDialogAction>
+                                </ZoruAlertDialogFooter>
+                              </ZoruAlertDialogContent>
+                            </ZoruAlertDialog>
+                          ) : (
+                            <ZoruDropdownMenuItem
+                              onSelect={() => handleUnarchiveAccount(account._id!.toString())}
+                            >
+                              <ArchiveRestore className="mr-2 h-4 w-4" />
+                              Unarchive
+                            </ZoruDropdownMenuItem>
+                          )}
+                        </ZoruDropdownMenuContent>
+                      </ZoruDropdownMenu>
+                    </ZoruTableCell>
+                  </ZoruTableRow>
+                ))
+              ) : (
+                <ZoruTableRow className="border-zoru-line">
+                  <ZoruTableCell
+                    colSpan={5}
+                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                  >
+                    No accounts found.
+                  </ZoruTableCell>
+                </ZoruTableRow>
+              )}
+            </ZoruTableBody>
+          </ZoruTable>
+        </div>
+      </ZoruCard>
     </div>
   );
 }

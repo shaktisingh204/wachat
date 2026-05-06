@@ -1,8 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { use, useCallback, useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -17,10 +14,14 @@ import {
   Trash2,
 } from 'lucide-react';
 
-import { ClayBadge, ClayButton, ClayCard } from '@/components/clay';
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruSkeleton,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
 
 import {
   getRecurringInvoiceById,
@@ -34,10 +35,10 @@ import type { WsRecurringInvoice } from '@/lib/worksuite/billing-types';
 
 type Row = WsRecurringInvoice & { _id: string };
 
-const STATUS_TONES: Record<string, 'green' | 'amber' | 'red'> = {
-  active: 'green',
-  paused: 'amber',
-  stopped: 'red',
+const STATUS_VARIANTS: Record<string, 'success' | 'warning' | 'danger'> = {
+  active: 'success',
+  paused: 'warning',
+  stopped: 'danger',
 };
 
 function fmtDate(v: unknown): string {
@@ -62,7 +63,7 @@ export default function RecurringInvoiceDetailPage(props: {
 }) {
   const { id } = use(props.params);
   const router = useRouter();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [doc, setDoc] = useState<Row | null>(null);
   const [isLoading, startLoading] = useTransition();
   const [isMutating, startMutating] = useTransition();
@@ -120,8 +121,8 @@ export default function RecurringInvoiceDetailPage(props: {
   if (isLoading && !doc) {
     return (
       <div className="flex w-full flex-col gap-6">
-        <Skeleton className="h-12 w-full" />
-        <Skeleton className="h-64 w-full" />
+        <ZoruSkeleton className="h-12 w-full" />
+        <ZoruSkeleton className="h-64 w-full" />
       </div>
     );
   }
@@ -135,9 +136,10 @@ export default function RecurringInvoiceDetailPage(props: {
           icon={Repeat}
         />
         <Link href="/dashboard/crm/sales/recurring-invoices">
-          <ClayButton variant="pill" leading={<ArrowLeft className="h-4 w-4" />}>
+          <ZoruButton variant="outline">
+            <ArrowLeft className="h-4 w-4" />
             Back
-          </ClayButton>
+          </ZoruButton>
         </Link>
       </div>
     );
@@ -157,116 +159,111 @@ export default function RecurringInvoiceDetailPage(props: {
         actions={
           <>
             <Link href="/dashboard/crm/sales/recurring-invoices">
-              <ClayButton
-                variant="pill"
-                leading={<ArrowLeft className="h-4 w-4" />}
-              >
+              <ZoruButton variant="outline">
+                <ArrowLeft className="h-4 w-4" />
                 Back
-              </ClayButton>
+              </ZoruButton>
             </Link>
-            <ClayButton
-              variant="obsidian"
+            <ZoruButton
               disabled={isMutating || doc.status === 'stopped'}
               onClick={() => handle(() => runRecurringInvoiceNow(id), 'Invoice generated')}
-              leading={
-                isMutating ? (
-                  <LoaderCircle className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Zap className="h-4 w-4" />
-                )
-              }
             >
+              {isMutating ? (
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+              ) : (
+                <Zap className="h-4 w-4" />
+              )}
               Run now
-            </ClayButton>
+            </ZoruButton>
             {doc.status === 'active' ? (
-              <ClayButton
-                variant="pill"
+              <ZoruButton
+                variant="outline"
                 onClick={() => handle(() => pauseRecurringInvoice(id), 'Paused')}
                 disabled={isMutating}
-                leading={<Pause className="h-4 w-4" />}
               >
+                <Pause className="h-4 w-4" />
                 Pause
-              </ClayButton>
+              </ZoruButton>
             ) : doc.status === 'paused' ? (
-              <ClayButton
-                variant="pill"
+              <ZoruButton
+                variant="outline"
                 onClick={() => handle(() => resumeRecurringInvoice(id), 'Resumed')}
                 disabled={isMutating}
-                leading={<Play className="h-4 w-4" />}
               >
+                <Play className="h-4 w-4" />
                 Resume
-              </ClayButton>
+              </ZoruButton>
             ) : null}
             {doc.status !== 'stopped' ? (
-              <ClayButton
-                variant="pill"
+              <ZoruButton
+                variant="outline"
                 onClick={() => handle(() => stopRecurringInvoice(id), 'Stopped')}
                 disabled={isMutating}
-                leading={<StopCircle className="h-4 w-4" />}
               >
+                <StopCircle className="h-4 w-4" />
                 Stop
-              </ClayButton>
+              </ZoruButton>
             ) : null}
-            <ClayButton
-              variant="pill"
+            <ZoruButton
+              variant="outline"
               onClick={handleDelete}
               disabled={isMutating}
-              leading={<Trash2 className="h-4 w-4" />}
             >
+              <Trash2 className="h-4 w-4" />
               Delete
-            </ClayButton>
+            </ZoruButton>
           </>
         }
       />
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-[12px] uppercase tracking-wide text-muted-foreground">
+            <p className="text-[12px] uppercase text-zoru-ink-muted">
               Status
             </p>
-            <ClayBadge tone={STATUS_TONES[doc.status] || 'neutral'} dot>
+            <ZoruBadge variant={STATUS_VARIANTS[doc.status] || 'ghost'}>
               {doc.status}
-            </ClayBadge>
+            </ZoruBadge>
           </div>
           <div>
-            <p className="text-[12px] uppercase tracking-wide text-muted-foreground">
+            <p className="text-[12px] uppercase text-zoru-ink-muted">
               Issued
             </p>
-            <p className="text-[15px] font-medium text-foreground">
+            <p className="text-[15px] text-zoru-ink">
               {doc.issued_count || 0}
               {doc.stop_at_count ? ` / ${doc.stop_at_count}` : ''}
             </p>
           </div>
           <div>
-            <p className="text-[12px] uppercase tracking-wide text-muted-foreground">
+            <p className="text-[12px] uppercase text-zoru-ink-muted">
               Last Issued
             </p>
-            <p className="text-[15px] font-medium text-foreground">
+            <p className="text-[15px] text-zoru-ink">
               {fmtDate(doc.last_issued_at)}
             </p>
           </div>
           <div>
-            <p className="text-[12px] uppercase tracking-wide text-muted-foreground">
+            <p className="text-[12px] uppercase text-zoru-ink-muted">
               Total
             </p>
-            <p className="text-[18px] font-semibold text-foreground">
+            <p className="text-[18px] text-zoru-ink">
               {fmtMoney(doc.total, doc.currency)}
             </p>
           </div>
         </div>
-      </ClayCard>
+      </ZoruCard>
 
-      <ClayCard>
-        <h2 className="mb-3 text-[15px] font-semibold text-foreground">Line Items</h2>
-        <div className="overflow-x-auto rounded-lg border border-border">
+      <ZoruCard className="p-6">
+        <h2 className="mb-3 text-[15px] text-zoru-ink">Line Items</h2>
+        <div className="overflow-x-auto rounded-lg border border-zoru-line">
           <table className="w-full text-sm">
-            <thead className="bg-secondary">
-              <tr className="border-b border-border text-left">
-                <th className="p-3 font-medium text-foreground">Item</th>
-                <th className="p-3 text-right font-medium text-foreground">Qty</th>
-                <th className="p-3 text-right font-medium text-foreground">Unit</th>
-                <th className="p-3 text-right font-medium text-foreground">Total</th>
+            <thead className="bg-zoru-surface-2">
+              <tr className="border-b border-zoru-line text-left">
+                <th className="p-3 text-zoru-ink">Item</th>
+                <th className="p-3 text-right text-zoru-ink">Qty</th>
+                <th className="p-3 text-right text-zoru-ink">Unit</th>
+                <th className="p-3 text-right text-zoru-ink">Total</th>
               </tr>
             </thead>
             <tbody>
@@ -274,18 +271,18 @@ export default function RecurringInvoiceDetailPage(props: {
                 <tr>
                   <td
                     colSpan={4}
-                    className="p-4 text-center text-[13px] text-muted-foreground"
+                    className="p-4 text-center text-[13px] text-zoru-ink-muted"
                   >
                     No items.
                   </td>
                 </tr>
               ) : (
                 items.map((it, idx) => (
-                  <tr key={idx} className="border-b border-border">
-                    <td className="p-3 text-foreground">
-                      <div className="font-medium">{it.name || '—'}</div>
+                  <tr key={idx} className="border-b border-zoru-line">
+                    <td className="p-3 text-zoru-ink">
+                      <div>{it.name || '—'}</div>
                       {it.description ? (
-                        <div className="text-[12px] text-muted-foreground">
+                        <div className="text-[12px] text-zoru-ink-muted">
                           {it.description}
                         </div>
                       ) : null}
@@ -294,7 +291,7 @@ export default function RecurringInvoiceDetailPage(props: {
                     <td className="p-3 text-right">
                       {fmtMoney(it.unit_price, doc.currency)}
                     </td>
-                    <td className="p-3 text-right font-medium">
+                    <td className="p-3 text-right">
                       {fmtMoney(
                         it.total ?? it.quantity * it.unit_price,
                         doc.currency,
@@ -306,18 +303,18 @@ export default function RecurringInvoiceDetailPage(props: {
             </tbody>
           </table>
         </div>
-      </ClayCard>
+      </ZoruCard>
 
-      <ClayCard>
-        <h2 className="mb-3 text-[15px] font-semibold text-foreground">
+      <ZoruCard className="p-6">
+        <h2 className="mb-3 text-[15px] text-zoru-ink">
           Generated Invoices
         </h2>
         {generated.length === 0 ? (
-          <p className="text-[13px] text-muted-foreground">
+          <p className="text-[13px] text-zoru-ink-muted">
             No invoices generated yet. Click <em>Run now</em> to create one.
           </p>
         ) : (
-          <ul className="space-y-1 text-[13px] text-foreground">
+          <ul className="space-y-1 text-[13px] text-zoru-ink">
             {generated.map((inv, i) => (
               <li key={i} className="font-mono">
                 {String(inv)}
@@ -325,7 +322,7 @@ export default function RecurringInvoiceDetailPage(props: {
             ))}
           </ul>
         )}
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

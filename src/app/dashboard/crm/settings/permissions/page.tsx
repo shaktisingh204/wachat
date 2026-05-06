@@ -1,8 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import * as React from 'react';
 import {
   KeyRound,
@@ -13,39 +10,36 @@ import {
 } from 'lucide-react';
 import { useActionState, useEffect, useState, useTransition } from 'react';
 
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruInput,
+  ZoruLabel,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
 import {
   getPermissionsGroupedByModule,
   getModules,
@@ -62,7 +56,7 @@ type ModRow = WsModule & { _id: string };
 type Group = { module: ModRow | null; permissions: PermRow[] };
 
 export default function PermissionsPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [groups, setGroups] = useState<Group[]>([]);
   const [modules, setModules] = useState<ModRow[]>([]);
   const [isLoading, startLoading] = useTransition();
@@ -128,90 +122,89 @@ export default function PermissionsPage() {
         subtitle="Grouped by module. Create granular permissions to reference from roles."
         icon={KeyRound}
         actions={
-          <ClayButton
-            variant="obsidian"
-            leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}
+          <ZoruButton
             onClick={() => {
               setEditing(null);
               setDialogOpen(true);
             }}
           >
+            <Plus className="h-4 w-4" />
             Add Permission
-          </ClayButton>
+          </ZoruButton>
         }
       />
 
       {isLoading && groups.length === 0 ? (
-        <ClayCard>
+        <ZoruCard className="p-6">
           <div className="flex h-40 items-center justify-center">
-            <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />
+            <LoaderCircle className="h-5 w-5 animate-spin text-zoru-ink-muted" />
           </div>
-        </ClayCard>
+        </ZoruCard>
       ) : groups.length === 0 ? (
-        <ClayCard>
-          <div className="p-8 text-center text-[13px] text-muted-foreground">
+        <ZoruCard className="p-6">
+          <div className="p-8 text-center text-[13px] text-zoru-ink-muted">
             No permissions yet.
           </div>
-        </ClayCard>
+        </ZoruCard>
       ) : (
         groups.map((g, gi) => (
-          <ClayCard key={g.module?._id || `orphan-${gi}`}>
-            <div className="flex items-center justify-between border-b border-border p-4">
+          <ZoruCard key={g.module?._id || `orphan-${gi}`} className="p-0">
+            <div className="flex items-center justify-between border-b border-zoru-line p-4">
               <div>
-                <h2 className="text-[15px] font-semibold text-foreground">
+                <h2 className="text-[15px] text-zoru-ink">
                   {g.module?.display_name ||
                     g.module?.module_name ||
                     'Uncategorised'}
                 </h2>
-                <p className="text-[12px] text-muted-foreground">
+                <p className="text-[12px] text-zoru-ink-muted">
                   {g.permissions.length} permission(s)
                 </p>
               </div>
             </div>
             <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-border hover:bg-transparent">
-                    <TableHead className="text-muted-foreground">Name</TableHead>
-                    <TableHead className="text-muted-foreground">Slug</TableHead>
-                    <TableHead className="text-muted-foreground">Custom</TableHead>
-                    <TableHead className="w-[140px] text-right text-muted-foreground">
+              <ZoruTable>
+                <ZoruTableHeader>
+                  <ZoruTableRow className="hover:bg-transparent">
+                    <ZoruTableHead className="text-zoru-ink-muted">Name</ZoruTableHead>
+                    <ZoruTableHead className="text-zoru-ink-muted">Slug</ZoruTableHead>
+                    <ZoruTableHead className="text-zoru-ink-muted">Custom</ZoruTableHead>
+                    <ZoruTableHead className="w-[140px] text-right text-zoru-ink-muted">
                       Actions
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+                    </ZoruTableHead>
+                  </ZoruTableRow>
+                </ZoruTableHeader>
+                <ZoruTableBody>
                   {g.permissions.length === 0 ? (
-                    <TableRow className="border-border">
-                      <TableCell
+                    <ZoruTableRow>
+                      <ZoruTableCell
                         colSpan={4}
-                        className="h-14 text-center text-[13px] text-muted-foreground"
+                        className="h-14 text-center text-[13px] text-zoru-ink-muted"
                       >
                         No permissions.
-                      </TableCell>
-                    </TableRow>
+                      </ZoruTableCell>
+                    </ZoruTableRow>
                   ) : (
                     g.permissions.map((p) => (
-                      <TableRow key={p._id} className="border-border">
-                        <TableCell className="text-[13px] text-foreground">
+                      <ZoruTableRow key={p._id}>
+                        <ZoruTableCell className="text-[13px] text-zoru-ink">
                           {p.display_name || p.name}
                           {p.description ? (
-                            <div className="text-[12px] text-muted-foreground">
+                            <div className="text-[12px] text-zoru-ink-muted">
                               {p.description}
                             </div>
                           ) : null}
-                        </TableCell>
-                        <TableCell className="text-[12px] text-muted-foreground">
+                        </ZoruTableCell>
+                        <ZoruTableCell className="text-[12px] text-zoru-ink-muted">
                           <code>{p.name}</code>
-                        </TableCell>
-                        <TableCell>
-                          <ClayBadge tone={p.is_custom ? 'green' : 'neutral'}>
+                        </ZoruTableCell>
+                        <ZoruTableCell>
+                          <ZoruBadge variant={p.is_custom ? 'success' : 'ghost'}>
                             {p.is_custom ? 'Custom' : 'Built-in'}
-                          </ClayBadge>
-                        </TableCell>
-                        <TableCell className="text-right">
+                          </ZoruBadge>
+                        </ZoruTableCell>
+                        <ZoruTableCell className="text-right">
                           <div className="flex justify-end gap-1">
-                            <Button
+                            <ZoruButton
                               variant="ghost"
                               size="sm"
                               onClick={() => {
@@ -221,76 +214,70 @@ export default function PermissionsPage() {
                               aria-label="Edit"
                             >
                               <Pencil className="h-3.5 w-3.5" />
-                            </Button>
-                            <Button
+                            </ZoruButton>
+                            <ZoruButton
                               variant="ghost"
                               size="sm"
                               onClick={() => setDeletingId(p._id)}
                               aria-label="Delete"
                             >
-                              <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                            </Button>
+                              <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                            </ZoruButton>
                           </div>
-                        </TableCell>
-                      </TableRow>
+                        </ZoruTableCell>
+                      </ZoruTableRow>
                     ))
                   )}
-                </TableBody>
-              </Table>
+                </ZoruTableBody>
+              </ZoruTable>
             </div>
-          </ClayCard>
+          </ZoruCard>
         ))
       )}
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="text-foreground">
+      <ZoruDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <ZoruDialogContent className="max-w-lg">
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>
               {editing ? 'Edit Permission' : 'Add Permission'}
-            </DialogTitle>
-            <DialogDescription className="text-muted-foreground">
+            </ZoruDialogTitle>
+            <ZoruDialogDescription>
               Permissions belong to a module and are assigned to roles with a
               type (all / added / owned / both / none).
-            </DialogDescription>
-          </DialogHeader>
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
 
           <form action={saveAction} className="space-y-4">
             {editing?._id ? (
               <input type="hidden" name="_id" value={editing._id} />
             ) : null}
             <div>
-              <Label htmlFor="display_name" className="text-foreground">
-                Display name <span className="text-destructive">*</span>
-              </Label>
-              <Input
+              <ZoruLabel htmlFor="display_name">
+                Display name <span className="text-zoru-danger-ink">*</span>
+              </ZoruLabel>
+              <ZoruInput
                 id="display_name"
                 name="display_name"
                 required
                 defaultValue={editing?.display_name || ''}
-                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div>
-              <Label htmlFor="name" className="text-foreground">
-                Slug
-              </Label>
-              <Input
+              <ZoruLabel htmlFor="name">Slug</ZoruLabel>
+              <ZoruInput
                 id="name"
                 name="name"
                 defaultValue={editing?.name || ''}
                 placeholder="auto_generated"
-                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div>
-              <Label htmlFor="module_id" className="text-foreground">
-                Module
-              </Label>
+              <ZoruLabel htmlFor="module_id">Module</ZoruLabel>
               <select
                 id="module_id"
                 name="module_id"
                 defaultValue={editing?.module_id ? String(editing.module_id) : ''}
-                className="h-10 w-full rounded-lg border border-border bg-card px-3 text-[13px]"
+                className="h-10 w-full rounded-lg border border-zoru-line bg-zoru-bg px-3 text-[13px] text-zoru-ink"
               >
                 <option value="">— None —</option>
                 {modules.map((m) => (
@@ -301,15 +288,12 @@ export default function PermissionsPage() {
               </select>
             </div>
             <div>
-              <Label htmlFor="description" className="text-foreground">
-                Description
-              </Label>
-              <Textarea
+              <ZoruLabel htmlFor="description">Description</ZoruLabel>
+              <ZoruTextarea
                 id="description"
                 name="description"
                 rows={3}
                 defaultValue={editing?.description || ''}
-                className="rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div className="flex items-center gap-2">
@@ -319,60 +303,49 @@ export default function PermissionsPage() {
                 name="is_custom"
                 value="true"
                 defaultChecked={!!editing?.is_custom}
-                className="h-4 w-4 accent-foreground"
+                className="h-4 w-4 accent-zoru-ink"
               />
-              <Label htmlFor="is_custom" className="text-[13px] text-foreground">
+              <ZoruLabel htmlFor="is_custom" className="text-[13px] text-zoru-ink">
                 Custom (user-defined)
-              </Label>
+              </ZoruLabel>
             </div>
 
-            <DialogFooter className="gap-2">
-              <ClayButton
+            <ZoruDialogFooter className="gap-2">
+              <ZoruButton
                 type="button"
-                variant="pill"
+                variant="outline"
                 onClick={() => setDialogOpen(false)}
               >
                 Cancel
-              </ClayButton>
-              <ClayButton
-                type="submit"
-                variant="obsidian"
-                disabled={isSaving}
-                leading={
-                  isSaving ? (
-                    <LoaderCircle
-                      className="h-4 w-4 animate-spin"
-                      strokeWidth={1.75}
-                    />
-                  ) : null
-                }
-              >
+              </ZoruButton>
+              <ZoruButton type="submit" disabled={isSaving}>
+                {isSaving ? (
+                  <LoaderCircle className="h-4 w-4 animate-spin" />
+                ) : null}
                 Save
-              </ClayButton>
-            </DialogFooter>
+              </ZoruButton>
+            </ZoruDialogFooter>
           </form>
-        </DialogContent>
-      </Dialog>
+        </ZoruDialogContent>
+      </ZoruDialog>
 
-      <AlertDialog
+      <ZoruAlertDialog
         open={deletingId !== null}
         onOpenChange={(o) => !o && setDeletingId(null)}
       >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-foreground">
-              Delete permission?
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-muted-foreground">
+        <ZoruAlertDialogContent>
+          <ZoruAlertDialogHeader>
+            <ZoruAlertDialogTitle>Delete permission?</ZoruAlertDialogTitle>
+            <ZoruAlertDialogDescription>
               All role and user grants for this permission will be removed.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </ZoruAlertDialogDescription>
+          </ZoruAlertDialogHeader>
+          <ZoruAlertDialogFooter>
+            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+            <ZoruAlertDialogAction onClick={handleDelete}>Delete</ZoruAlertDialogAction>
+          </ZoruAlertDialogFooter>
+        </ZoruAlertDialogContent>
+      </ZoruAlertDialog>
     </div>
   );
 }

@@ -1,8 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import * as React from 'react';
 import Link from 'next/link';
 import {
@@ -17,10 +14,13 @@ import {
   StickyNote,
 } from 'lucide-react';
 
-import { ClayCard, ClayBadge, ClayButton } from '@/components/clay';
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../_components/crm-page-header';
-import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
 import {
   getMyPinnedItems,
   unpinItem,
@@ -52,14 +52,17 @@ const HREFS: Partial<Record<WsPinnedResourceType, (id: string) => string>> = {
   note: (id) => `/dashboard/crm/workspace/sticky-notes?id=${id}`,
 };
 
-const TONES: Record<WsPinnedResourceType, Parameters<typeof ClayBadge>[0]['tone']> = {
-  project: 'blue',
-  task: 'rose-soft',
-  lead: 'amber',
-  deal: 'green',
-  ticket: 'red',
-  kb: 'neutral',
-  note: 'rose',
+const VARIANTS: Record<
+  WsPinnedResourceType,
+  'success' | 'warning' | 'danger' | 'ghost'
+> = {
+  project: 'success',
+  task: 'danger',
+  lead: 'warning',
+  deal: 'success',
+  ticket: 'danger',
+  kb: 'ghost',
+  note: 'danger',
 };
 
 /**
@@ -68,7 +71,7 @@ const TONES: Record<WsPinnedResourceType, Parameters<typeof ClayBadge>[0]['tone'
  * KB articles, sticky notes).
  */
 export default function PinnedItemsPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [items, setItems] = React.useState<Row[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
 
@@ -122,35 +125,35 @@ export default function PinnedItemsPage() {
       />
 
       {isLoading ? (
-        <ClayCard>
-          <p className="text-[13px] text-muted-foreground">Loading…</p>
-        </ClayCard>
+        <ZoruCard className="p-6">
+          <p className="text-[13px] text-zoru-ink-muted">Loading…</p>
+        </ZoruCard>
       ) : items.length === 0 ? (
-        <ClayCard>
+        <ZoruCard className="p-6">
           <div className="text-center">
-            <p className="text-[13px] text-muted-foreground">
+            <p className="text-[13px] text-zoru-ink-muted">
               Nothing pinned yet. Pin projects, deals, tasks or articles to
               have them show up here.
             </p>
           </div>
-        </ClayCard>
+        </ZoruCard>
       ) : (
         grouped.map(([type, rows]) => {
           const Icon = ICONS[type];
           return (
-            <ClayCard key={type}>
+            <ZoruCard key={type} className="p-6">
               <div className="flex items-center justify-between pb-3">
                 <div className="flex items-center gap-2">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-surface-2">
                     <Icon
-                      className="h-4 w-4 text-foreground"
+                      className="h-4 w-4 text-zoru-ink"
                       strokeWidth={1.75}
                     />
                   </div>
-                  <h2 className="text-[15px] font-semibold capitalize text-foreground">
+                  <h2 className="text-[15px] font-semibold capitalize text-zoru-ink">
                     {type}s
                   </h2>
-                  <ClayBadge tone={TONES[type]}>{rows.length}</ClayBadge>
+                  <ZoruBadge variant={VARIANTS[type]}>{rows.length}</ZoruBadge>
                 </div>
               </div>
               <ul className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
@@ -159,13 +162,13 @@ export default function PinnedItemsPage() {
                   return (
                     <li
                       key={r._id}
-                      className="flex items-start justify-between gap-2 rounded-lg border border-border bg-white p-3"
+                      className="flex items-start justify-between gap-2 rounded-lg border border-zoru-line bg-white p-3"
                     >
                       <div className="min-w-0 flex-1">
                         {href ? (
                           <Link
                             href={href}
-                            className="text-[13px] font-medium text-foreground hover:underline"
+                            className="text-[13px] font-medium text-zoru-ink hover:underline"
                           >
                             <span className="line-clamp-2">
                               {r.title ||
@@ -175,52 +178,52 @@ export default function PinnedItemsPage() {
                             </span>
                           </Link>
                         ) : (
-                          <p className="line-clamp-2 text-[13px] font-medium text-foreground">
+                          <p className="line-clamp-2 text-[13px] font-medium text-zoru-ink">
                             {r.title ||
                               `${r.resource_type} ${String(
                                 r.resource_id,
                               ).slice(-6)}`}
                           </p>
                         )}
-                        <p className="mt-1 text-[11.5px] text-muted-foreground">
+                        <p className="mt-1 text-[11.5px] text-zoru-ink-muted">
                           {new Date(
                             (r.pinned_at as any) || r.createdAt || Date.now(),
                           ).toLocaleString()}
                         </p>
                       </div>
-                      <Button
+                      <ZoruButton
                         variant="ghost"
                         size="sm"
                         aria-label="Unpin"
                         onClick={() => handleUnpin(r._id)}
                       >
-                        <PinOff className="h-3.5 w-3.5 text-destructive" />
-                      </Button>
+                        <PinOff className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                      </ZoruButton>
                     </li>
                   );
                 })}
               </ul>
-            </ClayCard>
+            </ZoruCard>
           );
         })
       )}
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-[13px] font-medium text-foreground">
+            <p className="text-[13px] font-medium text-zoru-ink">
               Tip: pin anything
             </p>
-            <p className="text-[12.5px] text-muted-foreground">
+            <p className="text-[12.5px] text-zoru-ink-muted">
               Look for the pin icon on projects, deals, tasks, tickets or KB
               articles. Pins sync across your devices.
             </p>
           </div>
           <Link href="/dashboard/crm">
-            <ClayButton variant="pill">Back to CRM</ClayButton>
+            <ZoruButton variant="outline">Back to CRM</ZoruButton>
           </Link>
         </div>
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

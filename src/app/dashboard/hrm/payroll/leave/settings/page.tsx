@@ -1,16 +1,16 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useEffect, useState, useTransition } from 'react';
 import { Settings, LoaderCircle, Save } from 'lucide-react';
-import { ClayCard, ClayButton } from '@/components/clay';
+import {
+  ZoruCard,
+  ZoruButton,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSwitch,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { useToast } from '@/hooks/use-toast';
 import {
   getLeaveSettings,
   saveLeaveSettings,
@@ -29,7 +29,7 @@ const DEFAULT: Partial<WsLeaveSetting> = {
 };
 
 export default function LeaveSettingsPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [settings, setSettings] = useState<Partial<WsLeaveSetting>>(DEFAULT);
   const [isLoading, startLoading] = useTransition();
   const [isSaving, startSave] = useTransition();
@@ -64,9 +64,9 @@ export default function LeaveSettingsPage() {
         subtitle="Configure how leave applications behave across the organization."
         icon={Settings}
       />
-      <ClayCard>
+      <ZoruCard className="p-6">
         {isLoading ? (
-          <div className="py-12 text-center text-[13px] text-muted-foreground">
+          <div className="py-12 text-center text-[13px] text-zoru-ink-muted">
             Loading…
           </div>
         ) : (
@@ -114,24 +114,21 @@ export default function LeaveSettingsPage() {
             />
 
             <div className="flex justify-end md:col-span-2">
-              <ClayButton
+              <ZoruButton
                 type="submit"
-                variant="obsidian"
                 disabled={isSaving}
-                leading={
-                  isSaving ? (
-                    <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.75} />
-                  ) : (
-                    <Save className="h-4 w-4" strokeWidth={1.75} />
-                  )
-                }
               >
+                {isSaving ? (
+                  <LoaderCircle className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4" />
+                )}
                 Save Settings
-              </ClayButton>
+              </ZoruButton>
             </div>
           </form>
         )}
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }
@@ -147,13 +144,13 @@ function Numeric({
 }) {
   return (
     <div>
-      <Label className="text-foreground">{label}</Label>
-      <Input
+      <ZoruLabel className="text-zoru-ink">{label}</ZoruLabel>
+      <ZoruInput
         type="number"
         min="0"
         value={value ?? 0}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+        className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
       />
     </div>
   );
@@ -169,9 +166,9 @@ function Toggle({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <div className="flex items-center justify-between rounded-lg border border-border bg-secondary px-3 py-2.5">
-      <Label className="text-[13px] text-foreground">{label}</Label>
-      <Switch checked={Boolean(checked)} onCheckedChange={onChange} />
+    <div className="flex items-center justify-between rounded-lg border border-zoru-line bg-zoru-surface-2 px-3 py-2.5">
+      <ZoruLabel className="text-[13px] text-zoru-ink">{label}</ZoruLabel>
+      <ZoruSwitch checked={Boolean(checked)} onCheckedChange={onChange} />
     </div>
   );
 }

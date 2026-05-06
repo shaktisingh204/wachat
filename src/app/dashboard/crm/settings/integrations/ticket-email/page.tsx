@@ -1,9 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
-import * as React from 'react';
 import {
   useActionState,
   useCallback,
@@ -13,14 +9,17 @@ import {
 } from 'react';
 import { LoaderCircle, Ticket } from 'lucide-react';
 
-import { ClayCard, ClayButton } from '@/components/clay';
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSkeleton,
+  ZoruSwitch,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
 import {
   getTicketEmailSetting,
   saveTicketEmailSetting,
@@ -30,7 +29,7 @@ import type { WsTicketEmailSetting } from '@/lib/worksuite/integrations-types';
 type Doc = (WsTicketEmailSetting & { _id: unknown }) | null;
 
 export default function TicketEmailIntegrationPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [doc, setDoc] = useState<Doc>(null);
   const [autoReply, setAutoReply] = useState(false);
   const [, startLoading] = useTransition();
@@ -83,11 +82,11 @@ export default function TicketEmailIntegrationPage() {
         icon={Ticket}
       />
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         {!doc && !id ? (
           <div className="space-y-4">
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
+            <ZoruSkeleton className="h-10 w-full" />
+            <ZoruSkeleton className="h-10 w-full" />
           </div>
         ) : null}
 
@@ -101,91 +100,74 @@ export default function TicketEmailIntegrationPage() {
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="md:col-span-2">
-              <Label htmlFor="email_address" className="text-foreground">
-                Email Address
-              </Label>
+              <ZoruLabel htmlFor="email_address">Email Address</ZoruLabel>
               <div className="mt-1.5">
-                <Input
+                <ZoruInput
                   id="email_address"
                   name="email_address"
                   type="email"
                   defaultValue={v('email_address')}
                   placeholder="support@example.com"
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="imap_host" className="text-foreground">
-                IMAP Host
-              </Label>
+              <ZoruLabel htmlFor="imap_host">IMAP Host</ZoruLabel>
               <div className="mt-1.5">
-                <Input
+                <ZoruInput
                   id="imap_host"
                   name="imap_host"
                   defaultValue={v('imap_host')}
                   placeholder="imap.example.com"
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="imap_port" className="text-foreground">
-                IMAP Port
-              </Label>
+              <ZoruLabel htmlFor="imap_port">IMAP Port</ZoruLabel>
               <div className="mt-1.5">
-                <Input
+                <ZoruInput
                   id="imap_port"
                   name="imap_port"
                   defaultValue={v('imap_port')}
                   placeholder="993"
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="password" className="text-foreground">
-                Password
-              </Label>
+              <ZoruLabel htmlFor="password">Password</ZoruLabel>
               <div className="mt-1.5">
-                <Input
+                <ZoruInput
                   id="password"
                   name="password"
                   type="password"
                   defaultValue={v('password')}
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="encryption" className="text-foreground">
-                Encryption
-              </Label>
+              <ZoruLabel htmlFor="encryption">Encryption</ZoruLabel>
               <div className="mt-1.5">
-                <Input
+                <ZoruInput
                   id="encryption"
                   name="encryption"
                   defaultValue={v('encryption')}
                   placeholder="ssl / tls"
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
-            <div className="md:col-span-2 flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3">
+            <div className="md:col-span-2 flex items-center justify-between rounded-lg border border-zoru-line bg-zoru-bg px-4 py-3">
               <div>
-                <div className="text-[13px] font-medium text-foreground">
-                  Auto-reply
-                </div>
-                <div className="text-[12px] text-muted-foreground">
+                <div className="text-[13px] text-zoru-ink">Auto-reply</div>
+                <div className="text-[12px] text-zoru-ink-muted">
                   Send an automatic acknowledgement when a ticket is created.
                 </div>
               </div>
-              <Switch
+              <ZoruSwitch
                 checked={autoReply}
                 onCheckedChange={setAutoReply}
                 aria-label="Auto-reply"
@@ -193,41 +175,27 @@ export default function TicketEmailIntegrationPage() {
             </div>
 
             <div className="md:col-span-2">
-              <Label htmlFor="auto_reply_body" className="text-foreground">
-                Auto-reply Body
-              </Label>
+              <ZoruLabel htmlFor="auto_reply_body">Auto-reply Body</ZoruLabel>
               <div className="mt-1.5">
-                <Textarea
+                <ZoruTextarea
                   id="auto_reply_body"
                   name="auto_reply_body"
                   rows={5}
                   defaultValue={v('auto_reply_body')}
                   placeholder="Thanks for contacting us — we'll reply shortly."
-                  className="rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
           </div>
 
           <div className="flex justify-end gap-2 pt-2">
-            <ClayButton
-              type="submit"
-              variant="obsidian"
-              disabled={isSaving}
-              leading={
-                isSaving ? (
-                  <LoaderCircle
-                    className="h-4 w-4 animate-spin"
-                    strokeWidth={1.75}
-                  />
-                ) : null
-              }
-            >
+            <ZoruButton type="submit" disabled={isSaving}>
+              {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
               Save
-            </ClayButton>
+            </ZoruButton>
           </div>
         </form>
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

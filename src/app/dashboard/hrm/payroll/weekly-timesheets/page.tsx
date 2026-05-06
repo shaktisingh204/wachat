@@ -1,8 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useEffect, useMemo, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { format } from 'date-fns';
@@ -15,15 +12,17 @@ import {
   Eye,
 } from 'lucide-react';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { ClayCard, ClayBadge, ClayButton } from '@/components/clay';
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import { useToast } from '@/hooks/use-toast';
 import {
   getWeeklyTimesheets,
   submitWeeklyTimesheet,
@@ -36,13 +35,13 @@ import type {
   WsWeeklyTimesheetStatus,
 } from '@/lib/worksuite/time-types';
 
-type StatusTone = 'neutral' | 'amber' | 'green' | 'red';
+type StatusVariant = 'secondary' | 'warning' | 'success' | 'danger';
 
-const STATUS_TONE: Record<WsWeeklyTimesheetStatus, StatusTone> = {
-  draft: 'neutral',
-  submitted: 'amber',
-  approved: 'green',
-  rejected: 'red',
+const STATUS_VARIANT: Record<WsWeeklyTimesheetStatus, StatusVariant> = {
+  draft: 'secondary',
+  submitted: 'warning',
+  approved: 'success',
+  rejected: 'danger',
 };
 
 function fmtDate(v: unknown): string {
@@ -55,7 +54,7 @@ function fmtHours(h: number, m: number): string {
 }
 
 export default function WeeklyTimesheetsPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [sheets, setSheets] = useState<WsWeeklyTimesheet[]>([]);
   const [employees, setEmployees] = useState<{ _id: string; name: string }[]>([]);
   const [statusFilter, setStatusFilter] = useState<WsWeeklyTimesheetStatus | 'all'>('all');
@@ -120,84 +119,85 @@ export default function WeeklyTimesheetsPage() {
         icon={CalendarClock}
         actions={
           <Link href="/dashboard/hrm/payroll/weekly-timesheets/new">
-            <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}>
+            <ZoruButton>
+              <Plus className="h-4 w-4" strokeWidth={1.75} />
               New Timesheet
-            </ClayButton>
+            </ZoruButton>
           </Link>
         }
       />
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 className="text-[16px] font-semibold text-foreground">All Timesheets</h2>
-            <p className="mt-0.5 text-[12.5px] text-muted-foreground">
+            <h2 className="text-[16px] text-zoru-ink">All Timesheets</h2>
+            <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
               {filtered.length} timesheet{filtered.length === 1 ? '' : 's'}
             </p>
           </div>
-          <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as any)}>
-            <SelectTrigger className="h-9 w-[160px] rounded-lg border-border bg-card text-[13px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All statuses</SelectItem>
-              <SelectItem value="draft">Draft</SelectItem>
-              <SelectItem value="submitted">Submitted</SelectItem>
-              <SelectItem value="approved">Approved</SelectItem>
-              <SelectItem value="rejected">Rejected</SelectItem>
-            </SelectContent>
-          </Select>
+          <ZoruSelect value={statusFilter} onValueChange={(v) => setStatusFilter(v as any)}>
+            <ZoruSelectTrigger className="h-9 w-[160px] rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+              <ZoruSelectValue />
+            </ZoruSelectTrigger>
+            <ZoruSelectContent>
+              <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
+              <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
+              <ZoruSelectItem value="submitted">Submitted</ZoruSelectItem>
+              <ZoruSelectItem value="approved">Approved</ZoruSelectItem>
+              <ZoruSelectItem value="rejected">Rejected</ZoruSelectItem>
+            </ZoruSelectContent>
+          </ZoruSelect>
         </div>
 
-        <div className="overflow-x-auto rounded-lg border border-border">
+        <div className="overflow-x-auto rounded-lg border border-zoru-line">
           <table className="w-full text-[13px]">
             <thead>
-              <tr className="border-b border-border bg-secondary">
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Employee</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Week Start</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Week End</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Total Hours</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Status</th>
-                <th className="px-4 py-2.5 text-right text-[12px] font-medium text-muted-foreground">Actions</th>
+              <tr className="border-b border-zoru-line bg-zoru-surface-2">
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-zoru-ink-muted">Employee</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-zoru-ink-muted">Week Start</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-zoru-ink-muted">Week End</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-zoru-ink-muted">Total Hours</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-zoru-ink-muted">Status</th>
+                <th className="px-4 py-2.5 text-right text-[12px] font-medium text-zoru-ink-muted">Actions</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
-                <tr><td colSpan={6} className="h-24 text-center text-[13px] text-muted-foreground">Loading…</td></tr>
+                <tr><td colSpan={6} className="h-24 text-center text-[13px] text-zoru-ink-muted">Loading…</td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={6} className="h-24 text-center text-[13px] text-muted-foreground">No timesheets found.</td></tr>
+                <tr><td colSpan={6} className="h-24 text-center text-[13px] text-zoru-ink-muted">No timesheets found.</td></tr>
               ) : (
                 filtered.map((s) => (
-                  <tr key={String(s._id)} className="border-t border-border hover:bg-secondary/50">
-                    <td className="px-4 py-2.5 font-medium text-foreground">
+                  <tr key={String(s._id)} className="border-t border-zoru-line hover:bg-zoru-surface-2/50">
+                    <td className="px-4 py-2.5 font-medium text-zoru-ink">
                       {empMap.get(String(s.user_id)) || `…${String(s.user_id).slice(-6)}`}
                     </td>
-                    <td className="px-4 py-2.5 text-foreground">{fmtDate(s.week_start_date)}</td>
-                    <td className="px-4 py-2.5 text-foreground">{fmtDate(s.week_end_date)}</td>
-                    <td className="px-4 py-2.5 font-mono text-foreground">{fmtHours(s.total_hours, s.total_minutes)}</td>
+                    <td className="px-4 py-2.5 text-zoru-ink">{fmtDate(s.week_start_date)}</td>
+                    <td className="px-4 py-2.5 text-zoru-ink">{fmtDate(s.week_end_date)}</td>
+                    <td className="px-4 py-2.5 font-mono text-zoru-ink">{fmtHours(s.total_hours, s.total_minutes)}</td>
                     <td className="px-4 py-2.5">
-                      <ClayBadge tone={STATUS_TONE[s.status]} dot>{s.status}</ClayBadge>
+                      <ZoruBadge variant={STATUS_VARIANT[s.status]}>{s.status}</ZoruBadge>
                     </td>
                     <td className="px-4 py-2.5 text-right">
                       <div className="flex items-center justify-end gap-1">
                         <Link href={`/dashboard/hrm/payroll/weekly-timesheets/${s._id}`}>
-                          <ClayButton variant="pill" size="sm" title="View detail">
+                          <ZoruButton variant="outline" size="sm" title="View detail">
                             <Eye className="h-3.5 w-3.5" />
-                          </ClayButton>
+                          </ZoruButton>
                         </Link>
                         {s.status === 'draft' && (
-                          <ClayButton variant="pill" size="sm" onClick={() => handleSubmit(s._id)} title="Submit for approval">
+                          <ZoruButton variant="outline" size="sm" onClick={() => handleSubmit(s._id)} title="Submit for approval">
                             <Send className="h-3.5 w-3.5" />
-                          </ClayButton>
+                          </ZoruButton>
                         )}
                         {s.status === 'submitted' && (
                           <>
-                            <ClayButton variant="pill" size="sm" onClick={() => handleApprove(s._id)} title="Approve">
+                            <ZoruButton variant="outline" size="sm" onClick={() => handleApprove(s._id)} title="Approve">
                               <Check className="h-3.5 w-3.5 text-emerald-500" />
-                            </ClayButton>
-                            <ClayButton variant="pill" size="sm" onClick={() => handleReject(s._id)} title="Reject">
-                              <X className="h-3.5 w-3.5 text-destructive" />
-                            </ClayButton>
+                            </ZoruButton>
+                            <ZoruButton variant="outline" size="sm" onClick={() => handleReject(s._id)} title="Reject">
+                              <X className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                            </ZoruButton>
                           </>
                         )}
                       </div>
@@ -208,7 +208,7 @@ export default function WeeklyTimesheetsPage() {
             </tbody>
           </table>
         </div>
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

@@ -1,21 +1,20 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useEffect, useState, useTransition } from 'react';
 import { Play, RotateCw } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { ClayCard, ClayBadge, ClayButton } from '@/components/clay';
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruCheckbox,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
 import type { WithId, CrmEmployee } from '@/lib/definitions';
@@ -110,27 +109,27 @@ export default function AutomateShiftPage() {
       />
 
       <form onSubmit={handleRun} className="flex flex-col gap-4">
-        <ClayCard>
-          <h2 className="mb-3 text-[16px] font-semibold text-foreground">Rotation &amp; Date Range</h2>
+        <ZoruCard className="p-6">
+          <h2 className="mb-3 text-[16px] text-zoru-ink">Rotation &amp; Date Range</h2>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div className="flex flex-col gap-1.5">
-              <Label className="text-[12px] text-muted-foreground">Rotation</Label>
-              <Select value={rotationId} onValueChange={setRotationId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose rotation" />
-                </SelectTrigger>
-                <SelectContent>
+              <ZoruLabel className="text-[12px] text-zoru-ink-muted">Rotation</ZoruLabel>
+              <ZoruSelect value={rotationId} onValueChange={setRotationId}>
+                <ZoruSelectTrigger>
+                  <ZoruSelectValue placeholder="Choose rotation" />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
                   {rotations.map((r) => (
-                    <SelectItem key={String(r._id)} value={String(r._id)}>
+                    <ZoruSelectItem key={String(r._id)} value={String(r._id)}>
                       {r.name}
-                    </SelectItem>
+                    </ZoruSelectItem>
                   ))}
-                </SelectContent>
-              </Select>
+                </ZoruSelectContent>
+              </ZoruSelect>
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label className="text-[12px] text-muted-foreground">Start Date</Label>
-              <Input
+              <ZoruLabel className="text-[12px] text-zoru-ink-muted">Start Date</ZoruLabel>
+              <ZoruInput
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
@@ -138,8 +137,8 @@ export default function AutomateShiftPage() {
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label className="text-[12px] text-muted-foreground">End Date</Label>
-              <Input
+              <ZoruLabel className="text-[12px] text-zoru-ink-muted">End Date</ZoruLabel>
+              <ZoruInput
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
@@ -147,10 +146,10 @@ export default function AutomateShiftPage() {
               />
             </div>
           </div>
-        </ClayCard>
+        </ZoruCard>
 
-        <ClayCard>
-          <h2 className="mb-3 text-[16px] font-semibold text-foreground">
+        <ZoruCard className="p-6">
+          <h2 className="mb-3 text-[16px] text-zoru-ink">
             Employees ({selectedEmps.size} selected)
           </h2>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -160,9 +159,9 @@ export default function AutomateShiftPage() {
               return (
                 <label
                   key={id}
-                  className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-[13px] text-foreground"
+                  className="flex items-center gap-2 rounded-lg border border-zoru-line bg-zoru-bg px-3 py-2 text-[13px] text-zoru-ink"
                 >
-                  <Checkbox
+                  <ZoruCheckbox
                     checked={on}
                     onCheckedChange={(v) => toggleEmp(id, Boolean(v))}
                   />
@@ -170,7 +169,7 @@ export default function AutomateShiftPage() {
                     <div className="truncate font-medium">
                       {e.firstName} {e.lastName}
                     </div>
-                    <div className="truncate text-[11px] text-muted-foreground">
+                    <div className="truncate text-[11px] text-zoru-ink-muted">
                       {e.employeeId}
                     </div>
                   </div>
@@ -178,13 +177,13 @@ export default function AutomateShiftPage() {
               );
             })}
             {employees.length === 0 ? (
-              <div className="col-span-full text-[13px] text-muted-foreground">No employees found.</div>
+              <div className="col-span-full text-[13px] text-zoru-ink-muted">No employees found.</div>
             ) : null}
           </div>
-        </ClayCard>
+        </ZoruCard>
 
         {error ? (
-          <div className="rounded-lg border border-rose-50 bg-rose-50/50 px-3 py-2 text-[13px] text-destructive">
+          <div className="rounded-lg border border-rose-50 bg-rose-50/50 px-3 py-2 text-[13px] text-zoru-danger-ink">
             {error}
           </div>
         ) : null}
@@ -195,55 +194,54 @@ export default function AutomateShiftPage() {
         ) : null}
 
         <div className="flex items-center justify-end">
-          <ClayButton
-            variant="obsidian"
+          <ZoruButton
             type="submit"
             disabled={pending}
-            leading={<Play className="h-4 w-4" strokeWidth={1.75} />}
           >
+            <Play className="h-4 w-4" strokeWidth={1.75} />
             {pending ? 'Running…' : 'Run Rotation'}
-          </ClayButton>
+          </ZoruButton>
         </div>
       </form>
 
-      <ClayCard>
-        <h2 className="mb-3 text-[16px] font-semibold text-foreground">Recent Runs</h2>
+      <ZoruCard className="p-6">
+        <h2 className="mb-3 text-[16px] text-zoru-ink">Recent Runs</h2>
         <div className="flex flex-col gap-2">
           {runs.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-border bg-secondary p-4 text-center text-[13px] text-muted-foreground">
+            <div className="rounded-lg border border-dashed border-zoru-line bg-zoru-surface-2 p-4 text-center text-[13px] text-zoru-ink-muted">
               No automation runs yet.
             </div>
           ) : (
             runs.map((r) => (
               <div
                 key={String(r._id)}
-                className="flex items-center gap-3 rounded-lg border border-border bg-card px-3 py-2 text-[13px]"
+                className="flex items-center gap-3 rounded-lg border border-zoru-line bg-zoru-bg px-3 py-2 text-[13px]"
               >
-                <RotateCw className="h-4 w-4 text-muted-foreground" />
+                <RotateCw className="h-4 w-4 text-zoru-ink-muted" />
                 <div className="min-w-0 flex-1">
-                  <div className="truncate font-medium text-foreground">
+                  <div className="truncate font-medium text-zoru-ink">
                     {new Date(r.start_date).toDateString()} → {new Date(r.end_date).toDateString()}
                   </div>
-                  <div className="truncate text-[11.5px] text-muted-foreground">
+                  <div className="truncate text-[11.5px] text-zoru-ink-muted">
                     {r.user_ids.length} employee{r.user_ids.length === 1 ? '' : 's'}
                   </div>
                 </div>
-                <ClayBadge
-                  tone={
+                <ZoruBadge
+                  variant={
                     r.status === 'completed' || r.status === 'running'
-                      ? 'green'
+                      ? 'success'
                       : r.status === 'failed'
-                      ? 'red'
-                      : 'neutral'
+                      ? 'danger'
+                      : 'secondary'
                   }
                 >
                   {r.status}
-                </ClayBadge>
+                </ZoruBadge>
               </div>
             ))
           )}
         </div>
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

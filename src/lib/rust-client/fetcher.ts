@@ -86,6 +86,33 @@ async function buildAuthHeader(): Promise<string> {
 }
 
 /**
+ * Issue a public JSON request to the Rust BFF — no Authorization header.
+ * Use ONLY for routes the Rust side has explicitly mounted as public
+ * (today: the SabFiles share endpoints `/v1/sabfiles/share/*`).
+ *
+ * Throws {@link RustApiError} on non-2xx so callers can branch on `status`.
+ */
+export async function rustPublicFetch<T>(path: string, init?: RequestInit): Promise<T> {
+    const url = `${getBaseUrl()}${path}`;
+    const headers = new Headers(init?.headers);
+    headers.set('Accept', 'application/json');
+    if (!headers.has('Content-Type') && init?.body && !(init.body instanceof FormData)) {
+        headers.set('Content-Type', 'application/json');
+    }
+    const res = await fetch(url, { ...init, headers, cache: 'no-store' });
+    if (!res.ok) {
+        let envelope: RustErrorEnvelope | null = null;
+        try {
+            envelope = (await res.json()) as RustErrorEnvelope;
+        } catch {
+            // ignore
+        }
+        throw new RustApiError(res.status, envelope, `Rust API ${res.status} ${res.statusText}`);
+    }
+    return (await res.json()) as T;
+}
+
+/**
  * Issue a JSON request to the Rust BFF.
  *
  * @typeParam T - Expected success response shape.

@@ -1,22 +1,20 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { LayoutTemplate, LoaderCircle, Trash2 } from 'lucide-react';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { ClayButton, ClayCard } from '@/components/clay';
+  ZoruButton,
+  ZoruCard,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
-import { useToast } from '@/hooks/use-toast';
 import {
   deleteEstimateTemplate,
   getEstimateTemplates,
@@ -37,7 +35,7 @@ function fmtCurrency(v: number, currency?: string): string {
 }
 
 export default function EstimateTemplatesPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [rows, setRows] = useState<Row[]>([]);
   const [isLoading, startLoading] = useTransition();
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -74,58 +72,58 @@ export default function EstimateTemplatesPage() {
         icon={LayoutTemplate}
         actions={
           <Link href="/dashboard/crm/sales/proposals/templates">
-            <ClayButton variant="pill">Proposal Templates</ClayButton>
+            <ZoruButton variant="outline">Proposal Templates</ZoruButton>
           </Link>
         }
       />
 
-      <ClayCard>
-        <div className="overflow-x-auto rounded-lg border border-border">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border hover:bg-transparent">
-                <TableHead className="text-muted-foreground">Name</TableHead>
-                <TableHead className="text-muted-foreground">Title</TableHead>
-                <TableHead className="text-muted-foreground">Currency</TableHead>
-                <TableHead className="text-right text-muted-foreground">
+      <ZoruCard className="p-6">
+        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+          <ZoruTable>
+            <ZoruTableHeader>
+              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                <ZoruTableHead className="text-zoru-ink-muted">Name</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Title</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Currency</ZoruTableHead>
+                <ZoruTableHead className="text-right text-zoru-ink-muted">
                   Total
-                </TableHead>
-                <TableHead className="w-24 text-muted-foreground" />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+                </ZoruTableHead>
+                <ZoruTableHead className="w-24 text-zoru-ink-muted" />
+              </ZoruTableRow>
+            </ZoruTableHeader>
+            <ZoruTableBody>
               {isLoading ? (
-                <TableRow className="border-border">
-                  <TableCell colSpan={5} className="h-24 text-center">
-                    <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
-                  </TableCell>
-                </TableRow>
+                <ZoruTableRow className="border-zoru-line">
+                  <ZoruTableCell colSpan={5} className="h-24 text-center">
+                    <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
+                  </ZoruTableCell>
+                </ZoruTableRow>
               ) : rows.length === 0 ? (
-                <TableRow className="border-border">
-                  <TableCell
+                <ZoruTableRow className="border-zoru-line">
+                  <ZoruTableCell
                     colSpan={5}
-                    className="h-24 text-center text-[13px] text-muted-foreground"
+                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
                   >
                     No estimate templates yet.
-                  </TableCell>
-                </TableRow>
+                  </ZoruTableCell>
+                </ZoruTableRow>
               ) : (
                 rows.map((t) => (
-                  <TableRow key={t._id} className="border-border">
-                    <TableCell className="font-medium text-foreground">
+                  <ZoruTableRow key={t._id} className="border-zoru-line">
+                    <ZoruTableCell className="text-zoru-ink">
                       {t.name}
-                    </TableCell>
-                    <TableCell className="text-foreground">{t.title}</TableCell>
-                    <TableCell className="text-foreground">{t.currency}</TableCell>
-                    <TableCell className="text-right font-medium text-foreground">
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-zoru-ink">{t.title}</ZoruTableCell>
+                    <ZoruTableCell className="text-zoru-ink">{t.currency}</ZoruTableCell>
+                    <ZoruTableCell className="text-right text-zoru-ink">
                       {fmtCurrency(t.total, t.currency)}
-                    </TableCell>
-                    <TableCell>
+                    </ZoruTableCell>
+                    <ZoruTableCell>
                       <button
                         type="button"
                         onClick={() => handleDelete(t._id)}
                         disabled={deletingId === t._id}
-                        className="rounded-lg p-1.5 text-muted-foreground hover:bg-rose-50 hover:text-destructive disabled:opacity-50"
+                        className="rounded-lg p-1.5 text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-danger-ink disabled:opacity-50"
                         aria-label="Delete template"
                       >
                         {deletingId === t._id ? (
@@ -134,14 +132,14 @@ export default function EstimateTemplatesPage() {
                           <Trash2 className="h-4 w-4" />
                         )}
                       </button>
-                    </TableCell>
-                  </TableRow>
+                    </ZoruTableCell>
+                  </ZoruTableRow>
                 ))
               )}
-            </TableBody>
-          </Table>
+            </ZoruTableBody>
+          </ZoruTable>
         </div>
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

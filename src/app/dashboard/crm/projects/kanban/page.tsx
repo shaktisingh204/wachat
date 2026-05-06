@@ -1,8 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import Link from 'next/link';
 import {
@@ -22,27 +19,32 @@ import type {
   WsTask,
   WsTaskboardColumn,
 } from '@/lib/worksuite/project-types';
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
-import { CrmPageHeader } from '../../_components/crm-page-header';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSkeleton,
+  useZoruToast,
+} from '@/components/zoruui';
+import { CrmPageHeader } from '../../_components/crm-page-header';
 
 type Task = WsTask & { _id: string };
 type Project = WsProject & { _id: string };
 type Column = WsTaskboardColumn & { _id: string };
 
-const PRIORITY_TONES: Record<string, 'neutral' | 'blue' | 'amber' | 'red'> = {
-  low: 'neutral',
-  medium: 'blue',
-  high: 'amber',
-  urgent: 'red',
+const PRIORITY_VARIANTS: Record<
+  string,
+  'ghost' | 'success' | 'warning' | 'danger'
+> = {
+  low: 'ghost',
+  medium: 'success',
+  high: 'warning',
+  urgent: 'danger',
 };
 
 /** Fallback columns when the user hasn't created custom ones yet. */
@@ -82,7 +84,7 @@ const DEFAULT_COLUMNS: Column[] = [
 ];
 
 export default function KanbanPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [projects, setProjects] = useState<Project[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [columns, setColumns] = useState<Column[]>([]);
@@ -161,10 +163,10 @@ export default function KanbanPage() {
   if (isLoading && tasks.length === 0) {
     return (
       <div className="flex w-full flex-col gap-6">
-        <Skeleton className="h-10 w-64" />
+        <ZoruSkeleton className="h-10 w-64" />
         <div className="grid gap-4 md:grid-cols-4">
           {DEFAULT_COLUMNS.map((c) => (
-            <Skeleton key={c._id} className="h-[60vh] rounded-xl" />
+            <ZoruSkeleton key={c._id} className="h-[60vh] rounded-xl" />
           ))}
         </div>
       </div>
@@ -180,35 +182,31 @@ export default function KanbanPage() {
         actions={
           <>
             <div className="w-[220px]">
-              <Select value={projectFilter} onValueChange={setProjectFilter}>
-                <SelectTrigger className="h-9 rounded-full border-border bg-card text-[13px]">
-                  <SelectValue placeholder="All projects" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All projects</SelectItem>
+              <ZoruSelect value={projectFilter} onValueChange={setProjectFilter}>
+                <ZoruSelectTrigger className="h-9 rounded-full border-zoru-line bg-zoru-bg text-[13px]">
+                  <ZoruSelectValue placeholder="All projects" />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                  <ZoruSelectItem value="all">All projects</ZoruSelectItem>
                   {projects.map((p) => (
-                    <SelectItem key={p._id} value={p._id}>
+                    <ZoruSelectItem key={p._id} value={p._id}>
                       {p.name || p.projectName}
-                    </SelectItem>
+                    </ZoruSelectItem>
                   ))}
-                </SelectContent>
-              </Select>
+                </ZoruSelectContent>
+              </ZoruSelect>
             </div>
             <Link href="/dashboard/crm/projects/taskboard-columns">
-              <ClayButton
-                variant="pill"
-                leading={<Columns3 className="h-4 w-4" />}
-              >
+              <ZoruButton variant="outline" size="sm">
+                <Columns3 className="h-4 w-4" />
                 Columns
-              </ClayButton>
+              </ZoruButton>
             </Link>
             <Link href="/dashboard/crm/projects">
-              <ClayButton
-                variant="pill"
-                leading={<ArrowLeft className="h-4 w-4" />}
-              >
+              <ZoruButton variant="outline" size="sm">
+                <ArrowLeft className="h-4 w-4" />
                 Projects
-              </ClayButton>
+              </ZoruButton>
             </Link>
           </>
         }
@@ -228,11 +226,7 @@ export default function KanbanPage() {
               ? effectiveColumns[idx + 1]
               : null;
           return (
-            <ClayCard
-              key={col._id}
-              variant="soft"
-              className="flex flex-col"
-            >
+            <ZoruCard key={col._id} className="flex flex-col p-4">
               <div className="mb-3 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span
@@ -240,36 +234,37 @@ export default function KanbanPage() {
                     style={{ backgroundColor: col.labelColor }}
                     aria-hidden
                   />
-                  <p className="text-[13px] font-semibold text-foreground">
+                  <p className="text-[13px] font-semibold text-zoru-ink">
                     {col.columnName}
                   </p>
                 </div>
-                <span className="text-[11.5px] text-muted-foreground">
+                <span className="text-[11.5px] text-zoru-ink-muted">
                   {colTasks.length}
                 </span>
               </div>
               <div className="flex flex-col gap-2">
                 {colTasks.length === 0 ? (
-                  <div className="rounded-lg border border-dashed border-border p-4 text-center text-[12px] text-muted-foreground">
+                  <div className="rounded-lg border border-dashed border-zoru-line p-4 text-center text-[12px] text-zoru-ink-muted">
                     No tasks
                   </div>
                 ) : (
                   colTasks.map((task) => (
-                    <ClayCard key={task._id} padded={false} className="p-3">
-                      <p className="text-[13px] font-medium text-foreground">
+                    <ZoruCard key={task._id} className="p-3">
+                      <p className="text-[13px] font-medium text-zoru-ink">
                         {task.heading}
                       </p>
-                      <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11.5px] text-muted-foreground">
+                      <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11.5px] text-zoru-ink-muted">
                         {task.assigneeName ? (
                           <span>{task.assigneeName}</span>
                         ) : null}
                         {task.priority ? (
-                          <ClayBadge
-                            tone={PRIORITY_TONES[task.priority] || 'neutral'}
-                            dot
+                          <ZoruBadge
+                            variant={
+                              PRIORITY_VARIANTS[task.priority] || 'ghost'
+                            }
                           >
                             {task.priority}
-                          </ClayBadge>
+                          </ZoruBadge>
                         ) : null}
                         {projectFilter === 'all' ? (
                           <span className="truncate">
@@ -282,7 +277,7 @@ export default function KanbanPage() {
                           <button
                             type="button"
                             onClick={() => moveTask(task._id, prevCol)}
-                            className="inline-flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary hover:text-foreground"
+                            className="inline-flex h-7 w-7 items-center justify-center rounded-full text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
                             aria-label="Move left"
                           >
                             <ArrowLeft className="h-3.5 w-3.5" />
@@ -294,7 +289,7 @@ export default function KanbanPage() {
                           <button
                             type="button"
                             onClick={() => moveTask(task._id, nextCol)}
-                            className="inline-flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary hover:text-foreground"
+                            className="inline-flex h-7 w-7 items-center justify-center rounded-full text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
                             aria-label="Move right"
                           >
                             <ArrowRight className="h-3.5 w-3.5" />
@@ -303,11 +298,11 @@ export default function KanbanPage() {
                           <span className="h-7 w-7" />
                         )}
                       </div>
-                    </ClayCard>
+                    </ZoruCard>
                   ))
                 )}
               </div>
-            </ClayCard>
+            </ZoruCard>
           );
         })}
       </div>

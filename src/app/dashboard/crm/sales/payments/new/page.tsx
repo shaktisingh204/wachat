@@ -1,26 +1,24 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { CreditCard, LoaderCircle, Save, ChevronLeft } from 'lucide-react';
 
-import { ClayCard, ClayButton } from '@/components/clay';
-import { CrmPageHeader } from '../../../_components/crm-page-header';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { useToast } from '@/hooks/use-toast';
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
+import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { recordPayment } from '@/app/actions/worksuite/payments.actions';
 import {
   getOfflinePaymentMethods,
@@ -42,7 +40,7 @@ const GATEWAYS = [
 
 export default function NewPaymentPage() {
   const router = useRouter();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [isPending, startTransition] = useTransition();
 
   const [invoices, setInvoices] = useState<any[]>([]);
@@ -110,125 +108,111 @@ export default function NewPaymentPage() {
         icon={CreditCard}
         actions={
           <Link href="/dashboard/crm/sales/payments">
-            <ClayButton
-              variant="ghost"
-              leading={<ChevronLeft className="h-4 w-4" strokeWidth={1.75} />}
-            >
+            <ZoruButton variant="ghost">
+              <ChevronLeft className="h-4 w-4" strokeWidth={1.75} />
               Back
-            </ClayButton>
+            </ZoruButton>
           </Link>
         }
       />
 
       <form onSubmit={onSubmit}>
-        <ClayCard>
+        <ZoruCard className="p-6">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="md:col-span-2">
-              <Label htmlFor="invoice_id" className="text-[12.5px]">
+              <ZoruLabel htmlFor="invoice_id" className="text-[12.5px]">
                 Invoice
-              </Label>
-              <Select value={invoiceId} onValueChange={setInvoiceId}>
-                <SelectTrigger
-                  id="invoice_id"
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
-                >
-                  <SelectValue placeholder="Pick an invoice" />
-                </SelectTrigger>
-                <SelectContent>
+              </ZoruLabel>
+              <ZoruSelect value={invoiceId} onValueChange={setInvoiceId}>
+                <ZoruSelectTrigger id="invoice_id">
+                  <ZoruSelectValue placeholder="Pick an invoice" />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
                   {invoices.map((inv) => (
-                    <SelectItem key={inv._id} value={inv._id}>
+                    <ZoruSelectItem key={inv._id} value={inv._id}>
                       {inv.invoiceNumber || inv._id} —{' '}
                       {inv.accountName || 'Client'} ({inv.total || 0})
-                    </SelectItem>
+                    </ZoruSelectItem>
                   ))}
-                </SelectContent>
-              </Select>
+                </ZoruSelectContent>
+              </ZoruSelect>
             </div>
 
             <div>
-              <Label htmlFor="amount" className="text-[12.5px]">
+              <ZoruLabel htmlFor="amount" className="text-[12.5px]">
                 Amount *
-              </Label>
-              <Input
+              </ZoruLabel>
+              <ZoruInput
                 id="amount"
                 type="number"
                 step="0.01"
                 required
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
 
             <div>
-              <Label htmlFor="gateway" className="text-[12.5px]">
+              <ZoruLabel htmlFor="gateway" className="text-[12.5px]">
                 Gateway / Method
-              </Label>
-              <Select value={gateway} onValueChange={setGateway}>
-                <SelectTrigger
-                  id="gateway"
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
-                >
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
+              </ZoruLabel>
+              <ZoruSelect value={gateway} onValueChange={setGateway}>
+                <ZoruSelectTrigger id="gateway">
+                  <ZoruSelectValue />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
                   {GATEWAYS.map((g) => (
-                    <SelectItem key={g} value={g}>
+                    <ZoruSelectItem key={g} value={g}>
                       {g}
-                    </SelectItem>
+                    </ZoruSelectItem>
                   ))}
-                </SelectContent>
-              </Select>
+                </ZoruSelectContent>
+              </ZoruSelect>
             </div>
 
             <div>
-              <Label htmlFor="paid_on" className="text-[12.5px]">
+              <ZoruLabel htmlFor="paid_on" className="text-[12.5px]">
                 Paid on
-              </Label>
-              <Input
+              </ZoruLabel>
+              <ZoruInput
                 id="paid_on"
                 type="date"
                 value={paidOn}
                 onChange={(e) => setPaidOn(e.target.value)}
-                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
 
             <div>
-              <Label htmlFor="transaction_id" className="text-[12.5px]">
+              <ZoruLabel htmlFor="transaction_id" className="text-[12.5px]">
                 Transaction ID
-              </Label>
-              <Input
+              </ZoruLabel>
+              <ZoruInput
                 id="transaction_id"
                 value={transactionId}
                 onChange={(e) => setTransactionId(e.target.value)}
-                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
 
             <div>
-              <Label htmlFor="bank_account_id" className="text-[12.5px]">
+              <ZoruLabel htmlFor="bank_account_id" className="text-[12.5px]">
                 Bank Account
-              </Label>
-              <Select
+              </ZoruLabel>
+              <ZoruSelect
                 value={bankAccountId}
                 onValueChange={(v) => setBankAccountId(v === 'none' ? '' : v)}
               >
-                <SelectTrigger
-                  id="bank_account_id"
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
-                >
-                  <SelectValue placeholder="None" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">— None —</SelectItem>
+                <ZoruSelectTrigger id="bank_account_id">
+                  <ZoruSelectValue placeholder="None" />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                  <ZoruSelectItem value="none">— None —</ZoruSelectItem>
                   {banks.map((b) => (
-                    <SelectItem key={b._id} value={b._id}>
+                    <ZoruSelectItem key={b._id} value={b._id}>
                       {b.accountName}
-                    </SelectItem>
+                    </ZoruSelectItem>
                   ))}
-                </SelectContent>
-              </Select>
+                </ZoruSelectContent>
+              </ZoruSelect>
             </div>
 
             {(gateway === 'manual' ||
@@ -236,53 +220,49 @@ export default function NewPaymentPage() {
               gateway === 'cash' ||
               gateway === 'cheque') && (
               <div>
-                <Label htmlFor="offline_method_id" className="text-[12.5px]">
+                <ZoruLabel htmlFor="offline_method_id" className="text-[12.5px]">
                   Offline Method
-                </Label>
-                <Select
+                </ZoruLabel>
+                <ZoruSelect
                   value={offlineMethodId}
                   onValueChange={(v) =>
                     setOfflineMethodId(v === 'none' ? '' : v)
                   }
                 >
-                  <SelectTrigger
-                    id="offline_method_id"
-                    className="h-10 rounded-lg border-border bg-card text-[13px]"
-                  >
-                    <SelectValue placeholder="None" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">— None —</SelectItem>
+                  <ZoruSelectTrigger id="offline_method_id">
+                    <ZoruSelectValue placeholder="None" />
+                  </ZoruSelectTrigger>
+                  <ZoruSelectContent>
+                    <ZoruSelectItem value="none">— None —</ZoruSelectItem>
                     {offlineMethods.map((m: any) => (
-                      <SelectItem key={m._id} value={m._id}>
+                      <ZoruSelectItem key={m._id} value={m._id}>
                         {m.name}
-                      </SelectItem>
+                      </ZoruSelectItem>
                     ))}
-                  </SelectContent>
-                </Select>
+                  </ZoruSelectContent>
+                </ZoruSelect>
               </div>
             )}
 
             <div className="md:col-span-2">
-              <Label htmlFor="remarks" className="text-[12.5px]">
+              <ZoruLabel htmlFor="remarks" className="text-[12.5px]">
                 Remarks
-              </Label>
-              <Textarea
+              </ZoruLabel>
+              <ZoruTextarea
                 id="remarks"
                 rows={3}
                 value={remarks}
                 onChange={(e) => setRemarks(e.target.value)}
-                className="rounded-lg border-border bg-card text-[13px]"
               />
             </div>
 
             <div className="md:col-span-2">
-              <label className="inline-flex items-center gap-2 text-[12.5px] text-foreground">
+              <label className="inline-flex items-center gap-2 text-[12.5px] text-zoru-ink">
                 <input
                   type="checkbox"
                   checked={createTxn}
                   onChange={(e) => setCreateTxn(e.target.checked)}
-                  className="h-4 w-4 accent-primary"
+                  className="h-4 w-4"
                 />
                 Also create a bank-transaction entry for this payment
               </label>
@@ -290,22 +270,19 @@ export default function NewPaymentPage() {
           </div>
 
           <div className="mt-6 flex justify-end">
-            <ClayButton
+            <ZoruButton
               type="submit"
-              variant="obsidian"
               disabled={isPending || !invoiceId || !amount}
-              leading={
-                isPending ? (
-                  <LoaderCircle className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Save className="h-4 w-4" strokeWidth={1.75} />
-                )
-              }
             >
+              {isPending ? (
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="h-4 w-4" strokeWidth={1.75} />
+              )}
               Record Payment
-            </ClayButton>
+            </ZoruButton>
           </div>
-        </ClayCard>
+        </ZoruCard>
       </form>
     </div>
   );

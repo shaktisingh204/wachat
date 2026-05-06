@@ -1,8 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import {
   useCallback,
   useEffect,
@@ -21,44 +18,39 @@ import {
   Power,
 } from 'lucide-react';
 
-import { ClayCard, ClayBadge, ClayButton } from '@/components/clay';
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { useToast } from '@/hooks/use-toast';
 import {
   getGatewayCredentials,
   saveGatewayCredential,
@@ -78,14 +70,14 @@ const GATEWAY_PROVIDERS = [
 ];
 
 const COLORS: Record<string, string> = {
-  razorpay: 'bg-sky-50 text-sky-500',
-  stripe: 'bg-accent text-accent-foreground',
-  paypal: 'bg-amber-50 text-amber-500',
-  payfast: 'bg-emerald-50 text-emerald-500',
-  paytm: 'bg-sky-50 text-sky-500',
-  mollie: 'bg-rose-50 text-destructive',
-  authorize_net: 'bg-accent text-accent-foreground',
-  square: 'bg-foreground text-white',
+  razorpay: 'bg-zoru-info/10 text-zoru-info-ink',
+  stripe: 'bg-zoru-surface-2 text-zoru-ink',
+  paypal: 'bg-zoru-warning/15 text-zoru-warning-ink',
+  payfast: 'bg-zoru-success/10 text-zoru-success-ink',
+  paytm: 'bg-zoru-info/10 text-zoru-info-ink',
+  mollie: 'bg-zoru-danger/10 text-zoru-danger-ink',
+  authorize_net: 'bg-zoru-surface-2 text-zoru-ink',
+  square: 'bg-zoru-ink text-white',
 };
 
 function SecretInput({
@@ -100,17 +92,17 @@ function SecretInput({
   const [show, setShow] = useState(false);
   return (
     <div className="relative">
-      <Input
+      <ZoruInput
         id={id}
         name={name}
         defaultValue={defaultValue || ''}
         type={show ? 'text' : 'password'}
-        className="h-10 rounded-lg border-border bg-card pr-10 text-[13px]"
+        className="pr-10"
       />
       <button
         type="button"
         onClick={() => setShow((s) => !s)}
-        className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+        className="absolute right-2 top-1/2 -translate-y-1/2 text-zoru-ink-muted hover:text-zoru-ink"
         aria-label={show ? 'Hide' : 'Show'}
       >
         {show ? (
@@ -124,7 +116,7 @@ function SecretInput({
 }
 
 export default function PaymentGatewaysPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [rows, setRows] = useState<any[]>([]);
   const [isLoading, startLoad] = useTransition();
   const [isPending, startPending] = useTransition();
@@ -198,82 +190,77 @@ export default function PaymentGatewaysPage() {
         subtitle="Configure API credentials for each supported gateway."
         icon={KeyRound}
         actions={
-          <ClayButton
-            variant="obsidian"
-            leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}
+          <ZoruButton
             onClick={() => {
               setEditing(null);
               setOpen(true);
             }}
           >
+            <Plus className="h-4 w-4" strokeWidth={1.75} />
             Add Gateway
-          </ClayButton>
+          </ZoruButton>
         }
       />
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         {isLoading && rows.length === 0 ? (
           <div className="flex justify-center py-10">
-            <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />
+            <LoaderCircle className="h-5 w-5 animate-spin text-zoru-ink-muted" />
           </div>
         ) : rows.length === 0 ? (
-          <div className="py-10 text-center text-[13px] text-muted-foreground">
+          <div className="py-10 text-center text-[13px] text-zoru-ink-muted">
             No gateway credentials configured yet.
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-lg border border-border">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-border hover:bg-transparent">
-                  <TableHead className="text-muted-foreground">Gateway</TableHead>
-                  <TableHead className="text-muted-foreground">Mode</TableHead>
-                  <TableHead className="text-muted-foreground">
-                    API Key
-                  </TableHead>
-                  <TableHead className="text-muted-foreground">Active</TableHead>
-                  <TableHead className="text-right text-muted-foreground">
+          <div className="overflow-x-auto rounded-lg border border-zoru-line">
+            <ZoruTable>
+              <ZoruTableHeader>
+                <ZoruTableRow className="hover:bg-transparent">
+                  <ZoruTableHead className="text-zoru-ink-muted">Gateway</ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">Mode</ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">API Key</ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">Active</ZoruTableHead>
+                  <ZoruTableHead className="text-right text-zoru-ink-muted">
                     &nbsp;
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+                  </ZoruTableHead>
+                </ZoruTableRow>
+              </ZoruTableHeader>
+              <ZoruTableBody>
                 {rows.map((r) => {
                   const letter = (r.gateway || '?')
                     .charAt(0)
                     .toUpperCase();
                   return (
-                    <TableRow key={r._id} className="border-border">
-                      <TableCell>
+                    <ZoruTableRow key={r._id}>
+                      <ZoruTableCell>
                         <div className="flex items-center gap-2">
                           <span
-                            className={`flex h-7 w-7 items-center justify-center rounded-lg text-[12px] font-semibold ${
-                              COLORS[r.gateway] || 'bg-secondary text-foreground'
+                            className={`flex h-7 w-7 items-center justify-center rounded-lg text-[12px] ${
+                              COLORS[r.gateway] || 'bg-zoru-surface-2 text-zoru-ink'
                             }`}
                           >
                             {letter}
                           </span>
-                          <span className="font-medium text-foreground">
-                            {r.gateway}
-                          </span>
+                          <span className="text-zoru-ink">{r.gateway}</span>
                         </div>
-                      </TableCell>
-                      <TableCell>
-                        <ClayBadge tone={r.mode === 'live' ? 'green' : 'amber'}>
+                      </ZoruTableCell>
+                      <ZoruTableCell>
+                        <ZoruBadge variant={r.mode === 'live' ? 'success' : 'warning'}>
                           {r.mode}
-                        </ClayBadge>
-                      </TableCell>
-                      <TableCell className="font-mono text-[12px] text-foreground">
+                        </ZoruBadge>
+                      </ZoruTableCell>
+                      <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
                         {r.api_key
                           ? `${String(r.api_key).slice(0, 6)}…`
                           : '—'}
-                      </TableCell>
-                      <TableCell>
-                        <ClayBadge tone={r.is_active ? 'green' : 'neutral'} dot>
+                      </ZoruTableCell>
+                      <ZoruTableCell>
+                        <ZoruBadge variant={r.is_active ? 'success' : 'ghost'}>
                           {r.is_active ? 'active' : 'inactive'}
-                        </ClayBadge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
+                        </ZoruBadge>
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-right">
+                        <ZoruButton
                           variant="ghost"
                           size="icon"
                           title={r.is_active ? 'Deactivate' : 'Activate'}
@@ -281,8 +268,8 @@ export default function PaymentGatewaysPage() {
                           onClick={() => onToggle(r._id)}
                         >
                           <Power className="h-4 w-4" />
-                        </Button>
-                        <Button
+                        </ZoruButton>
+                        <ZoruButton
                           variant="ghost"
                           size="icon"
                           title="Edit"
@@ -292,87 +279,77 @@ export default function PaymentGatewaysPage() {
                           }}
                         >
                           <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
+                        </ZoruButton>
+                        <ZoruButton
                           variant="ghost"
                           size="icon"
                           title="Delete"
                           onClick={() => setConfirmDelete(r)}
                         >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
+                          <Trash2 className="h-4 w-4 text-zoru-danger-ink" />
+                        </ZoruButton>
+                      </ZoruTableCell>
+                    </ZoruTableRow>
                   );
                 })}
-              </TableBody>
-            </Table>
+              </ZoruTableBody>
+            </ZoruTable>
           </div>
         )}
-      </ClayCard>
+      </ZoruCard>
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
+      <ZoruDialog open={open} onOpenChange={setOpen}>
+        <ZoruDialogContent>
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>
               {editing ? 'Edit Gateway' : 'Add Gateway'}
-            </DialogTitle>
-          </DialogHeader>
+            </ZoruDialogTitle>
+          </ZoruDialogHeader>
           <form action={formAction} className="grid gap-3">
             {editing?._id ? (
               <input type="hidden" name="_id" value={editing._id} />
             ) : null}
 
             <div>
-              <Label htmlFor="gateway">Gateway</Label>
-              <Select
+              <ZoruLabel htmlFor="gateway">Gateway</ZoruLabel>
+              <ZoruSelect
                 name="gateway"
                 defaultValue={editing?.gateway || 'razorpay'}
               >
-                <SelectTrigger
-                  id="gateway"
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
-                >
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
+                <ZoruSelectTrigger id="gateway">
+                  <ZoruSelectValue />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
                   {GATEWAY_PROVIDERS.map((g) => (
-                    <SelectItem key={g} value={g}>
+                    <ZoruSelectItem key={g} value={g}>
                       {g}
-                    </SelectItem>
+                    </ZoruSelectItem>
                   ))}
-                </SelectContent>
-              </Select>
+                </ZoruSelectContent>
+              </ZoruSelect>
             </div>
             <div>
-              <Label htmlFor="mode">Mode</Label>
-              <Select
-                name="mode"
-                defaultValue={editing?.mode || 'test'}
-              >
-                <SelectTrigger
-                  id="mode"
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
-                >
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="test">test</SelectItem>
-                  <SelectItem value="live">live</SelectItem>
-                </SelectContent>
-              </Select>
+              <ZoruLabel htmlFor="mode">Mode</ZoruLabel>
+              <ZoruSelect name="mode" defaultValue={editing?.mode || 'test'}>
+                <ZoruSelectTrigger id="mode">
+                  <ZoruSelectValue />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                  <ZoruSelectItem value="test">test</ZoruSelectItem>
+                  <ZoruSelectItem value="live">live</ZoruSelectItem>
+                </ZoruSelectContent>
+              </ZoruSelect>
             </div>
             <div>
-              <Label htmlFor="api_key">API Key</Label>
-              <Input
+              <ZoruLabel htmlFor="api_key">API Key</ZoruLabel>
+              <ZoruInput
                 id="api_key"
                 name="api_key"
                 defaultValue={editing?.api_key || ''}
-                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div>
-              <Label htmlFor="api_secret">API Secret</Label>
+              <ZoruLabel htmlFor="api_secret">API Secret</ZoruLabel>
               <SecretInput
                 id="api_secret"
                 name="api_secret"
@@ -380,68 +357,68 @@ export default function PaymentGatewaysPage() {
               />
             </div>
             <div>
-              <Label htmlFor="webhook_secret">Webhook Secret</Label>
+              <ZoruLabel htmlFor="webhook_secret">Webhook Secret</ZoruLabel>
               <SecretInput
                 id="webhook_secret"
                 name="webhook_secret"
                 defaultValue={editing?.webhook_secret}
               />
             </div>
-            <label className="inline-flex items-center gap-2 text-[12.5px] text-foreground">
+            <label className="inline-flex items-center gap-2 text-[12.5px] text-zoru-ink">
               <input
                 type="checkbox"
                 name="is_active"
                 defaultChecked={!!editing?.is_active}
-                className="h-4 w-4 accent-primary"
+                className="h-4 w-4 accent-zoru-ink"
               />
               Active
             </label>
-            <label className="inline-flex items-center gap-2 text-[12.5px] text-foreground">
+            <label className="inline-flex items-center gap-2 text-[12.5px] text-zoru-ink">
               <input
                 type="checkbox"
                 name="show_on_public"
                 defaultChecked={!!editing?.show_on_public}
-                className="h-4 w-4 accent-primary"
+                className="h-4 w-4 accent-zoru-ink"
               />
               Show on public invoice/proposal pay pages
             </label>
-            <DialogFooter>
-              <Button
+            <ZoruDialogFooter>
+              <ZoruButton
                 type="button"
                 variant="ghost"
                 onClick={() => setOpen(false)}
               >
                 Cancel
-              </Button>
-              <Button type="submit">Save</Button>
-            </DialogFooter>
+              </ZoruButton>
+              <ZoruButton type="submit">Save</ZoruButton>
+            </ZoruDialogFooter>
           </form>
-        </DialogContent>
-      </Dialog>
+        </ZoruDialogContent>
+      </ZoruDialog>
 
-      <AlertDialog
+      <ZoruAlertDialog
         open={!!confirmDelete}
         onOpenChange={(o) => !o && setConfirmDelete(null)}
       >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete gateway?</AlertDialogTitle>
-            <AlertDialogDescription>
+        <ZoruAlertDialogContent>
+          <ZoruAlertDialogHeader>
+            <ZoruAlertDialogTitle>Delete gateway?</ZoruAlertDialogTitle>
+            <ZoruAlertDialogDescription>
               Credentials for <strong>{confirmDelete?.gateway}</strong> will be
               removed.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={onDelete} disabled={isPending}>
+            </ZoruAlertDialogDescription>
+          </ZoruAlertDialogHeader>
+          <ZoruAlertDialogFooter>
+            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+            <ZoruAlertDialogAction onClick={onDelete} disabled={isPending}>
               {isPending && (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
               )}
               Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </ZoruAlertDialogAction>
+          </ZoruAlertDialogFooter>
+        </ZoruAlertDialogContent>
+      </ZoruAlertDialog>
     </div>
   );
 }

@@ -1,8 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import {
@@ -26,9 +23,7 @@ import {
 } from 'lucide-react';
 
 import { saveCrmIndustry } from '@/app/actions/crm.actions';
-import { useToast } from '@/hooks/use-toast';
-import { ClayCard, ClayButton } from '@/components/clay';
-import { cn } from '@/lib/utils';
+import { ZoruButton, cn, useZoruToast } from '@/components/zoruui';
 
 const industries = [
   { name: 'Manufacturing', description: 'For businesses that produce goods.', icon: Factory },
@@ -48,7 +43,7 @@ const industries = [
 ];
 
 export default function CrmSetupPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const router = useRouter();
   const [selectedIndustry, setSelectedIndustry] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -80,10 +75,10 @@ export default function CrmSetupPage() {
           <Wrench className="h-6 w-6 text-accent-foreground" strokeWidth={1.75} />
         </div>
         <div>
-          <h1 className="text-[28px] font-semibold leading-tight tracking-tight text-foreground">
+          <h1 className="text-[28px] font-semibold leading-tight tracking-tight text-zoru-ink">
             Welcome to the CRM Suite
           </h1>
-          <p className="mt-2 max-w-2xl text-[13.5px] text-muted-foreground">
+          <p className="mt-2 max-w-2xl text-[13.5px] text-zoru-ink-muted">
             To get started, select the industry that best describes your business. We'll tailor
             the CRM — stages, templates, and reports — to match.
           </p>
@@ -101,17 +96,17 @@ export default function CrmSetupPage() {
               onClick={() => setSelectedIndustry(industry.name)}
               className={cn(
                 'group text-left transition-all',
-                'rounded-xl border bg-card p-5 shadow-sm',
+                'rounded-xl border bg-zoru-bg p-5 shadow-sm',
                 selected
                   ? 'border-primary ring-2 ring-primary/30'
-                  : 'border-border hover:border-border',
+                  : 'border-zoru-line hover:border-zoru-line',
               )}
             >
               <div className="flex items-start justify-between gap-3">
                 <div
                   className={cn(
                     'flex h-10 w-10 items-center justify-center rounded-lg',
-                    selected ? 'bg-primary text-white' : 'bg-secondary text-muted-foreground',
+                    selected ? 'bg-primary text-white' : 'bg-zoru-surface-2 text-zoru-ink-muted',
                   )}
                 >
                   <Icon className="h-5 w-5" strokeWidth={1.75} />
@@ -120,10 +115,10 @@ export default function CrmSetupPage() {
                   <Check className="h-5 w-5 text-primary" strokeWidth={2} />
                 ) : null}
               </div>
-              <h3 className="mt-4 text-[14px] font-semibold leading-tight text-foreground">
+              <h3 className="mt-4 text-[14px] font-semibold leading-tight text-zoru-ink">
                 {industry.name}
               </h3>
-              <p className="mt-1 text-[12px] leading-snug text-muted-foreground">
+              <p className="mt-1 text-[12px] leading-snug text-zoru-ink-muted">
                 {industry.description}
               </p>
             </button>
@@ -132,17 +127,14 @@ export default function CrmSetupPage() {
       </div>
 
       <div className="flex justify-center">
-        <ClayButton
-          variant="obsidian"
+        <ZoruButton
           size="lg"
           onClick={handleSelect}
           disabled={!selectedIndustry || isPending}
-          leading={
-            isPending ? <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.75} /> : null
-          }
         >
+          {isPending ? <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.75} /> : null}
           Continue
-        </ClayButton>
+        </ZoruButton>
       </div>
     </div>
   );

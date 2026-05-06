@@ -1,8 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import {
   useActionState,
   useCallback,
@@ -24,90 +21,85 @@ import {
   deleteTicket,
 } from '@/app/actions/crm-services.actions';
 import type { HrTicket } from '@/lib/hr-types';
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSkeleton,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  ZoruTextarea,
+  cn,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../_components/crm-page-header';
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from '@/components/ui/tabs';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
 
 type Ticket = HrTicket & { _id: string };
+
+type StatusVariant = 'success' | 'ghost' | 'warning' | 'danger';
 
 const STATUS_COLUMNS: {
   status: Ticket['status'];
   label: string;
-  tone: 'amber' | 'blue' | 'neutral' | 'green';
+  variant: StatusVariant;
 }[] = [
-  { status: 'open', label: 'Open', tone: 'amber' },
-  { status: 'in-progress', label: 'In Progress', tone: 'blue' },
-  { status: 'waiting', label: 'Waiting', tone: 'neutral' },
-  { status: 'resolved', label: 'Resolved', tone: 'green' },
-  { status: 'closed', label: 'Closed', tone: 'neutral' },
+  { status: 'open', label: 'Open', variant: 'warning' },
+  { status: 'in-progress', label: 'In Progress', variant: 'success' },
+  { status: 'waiting', label: 'Waiting', variant: 'ghost' },
+  { status: 'resolved', label: 'Resolved', variant: 'success' },
+  { status: 'closed', label: 'Closed', variant: 'ghost' },
 ];
 
-const STATUS_TONES: Record<string, 'amber' | 'blue' | 'neutral' | 'green'> = {
-  open: 'amber',
-  'in-progress': 'blue',
-  waiting: 'neutral',
-  resolved: 'green',
-  closed: 'neutral',
+const STATUS_VARIANTS: Record<string, StatusVariant> = {
+  open: 'warning',
+  'in-progress': 'success',
+  waiting: 'ghost',
+  resolved: 'success',
+  closed: 'ghost',
 };
 
-const PRIORITY_TONES: Record<string, 'neutral' | 'blue' | 'amber' | 'red'> = {
-  low: 'neutral',
-  medium: 'blue',
-  high: 'amber',
-  urgent: 'red',
+const PRIORITY_VARIANTS: Record<string, StatusVariant> = {
+  low: 'ghost',
+  medium: 'success',
+  high: 'warning',
+  urgent: 'danger',
 };
+
+type ViewTab = 'board' | 'list';
 
 export default function TicketsPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [isLoading, startLoading] = useTransition();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Ticket | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [view, setView] = useState<ViewTab>('board');
 
   const [saveState, saveFormAction, isSaving] = useActionState(saveTicket, {
     message: '',
@@ -180,224 +172,232 @@ export default function TicketsPage() {
         subtitle="Customer support requests and issue tracking."
         icon={LifeBuoy}
         actions={
-          <ClayButton
-            variant="obsidian"
-            leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}
+          <ZoruButton
             onClick={() => {
               setEditing(null);
               setDialogOpen(true);
             }}
           >
+            <Plus className="h-4 w-4" strokeWidth={1.75} />
             Add Ticket
-          </ClayButton>
+          </ZoruButton>
         }
       />
 
-      <Tabs defaultValue="board">
-        <TabsList className="rounded-full bg-secondary p-1">
-          <TabsTrigger
-            value="board"
-            className="rounded-full data-[state=active]:bg-card data-[state=active]:text-foreground"
-          >
-            Board
-          </TabsTrigger>
-          <TabsTrigger
-            value="list"
-            className="rounded-full data-[state=active]:bg-card data-[state=active]:text-foreground"
-          >
-            List
-          </TabsTrigger>
-        </TabsList>
+      <div>
+        <div className="flex w-fit gap-1 rounded-full border border-zoru-line bg-zoru-surface-2 p-1">
+          {(['board', 'list'] as const).map((v) => (
+            <button
+              key={v}
+              type="button"
+              onClick={() => setView(v)}
+              className={cn(
+                'rounded-full px-4 py-1.5 text-sm transition-colors capitalize',
+                view === v
+                  ? 'bg-zoru-bg text-zoru-ink shadow-[var(--zoru-shadow-sm)]'
+                  : 'text-zoru-ink-muted hover:text-zoru-ink',
+              )}
+            >
+              {v}
+            </button>
+          ))}
+        </div>
 
-        <TabsContent value="board" className="mt-4">
-          {isLoading && tickets.length === 0 ? (
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-              {STATUS_COLUMNS.map((c) => (
-                <Skeleton key={c.status} className="h-[50vh] rounded-xl" />
-              ))}
-            </div>
-          ) : (
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-              {STATUS_COLUMNS.map((col) => {
-                const colTickets = tickets.filter((t) => t.status === col.status);
-                return (
-                  <ClayCard
-                    key={col.status}
-                    variant="soft"
-                    className="flex flex-col"
-                  >
-                    <div className="mb-3 flex items-center justify-between">
-                      <ClayBadge tone={col.tone} dot>
-                        {col.label}
-                      </ClayBadge>
-                      <span className="text-[11.5px] text-muted-foreground">
-                        {colTickets.length}
-                      </span>
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      {colTickets.length === 0 ? (
-                        <div className="rounded-lg border border-dashed border-border p-4 text-center text-[12px] text-muted-foreground">
-                          No tickets
-                        </div>
-                      ) : (
-                        colTickets.map((ticket) => (
-                          <ClayCard
-                            key={ticket._id}
-                            padded={false}
-                            className="p-3"
-                          >
-                            <p className="text-[13px] font-medium text-foreground">
-                              {ticket.subject}
-                            </p>
-                            <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11.5px] text-muted-foreground">
-                              {ticket.clientName ? (
-                                <span>{ticket.clientName}</span>
-                              ) : null}
-                              <ClayBadge
-                                tone={PRIORITY_TONES[ticket.priority] || 'neutral'}
-                                dot
-                              >
-                                {ticket.priority}
-                              </ClayBadge>
-                              {ticket.assigneeName ? (
-                                <span className="truncate">
-                                  → {ticket.assigneeName}
-                                </span>
-                              ) : null}
-                            </div>
-                            <div className="mt-2">
-                              <Select
-                                value={ticket.status}
-                                onValueChange={(v) =>
-                                  changeStatus(ticket._id, v as Ticket['status'])
-                                }
-                              >
-                                <SelectTrigger className="h-8 rounded-full border-border bg-card text-[11.5px]">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {STATUS_COLUMNS.map((c) => (
-                                    <SelectItem key={c.status} value={c.status}>
-                                      {c.label}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          </ClayCard>
-                        ))
-                      )}
-                    </div>
-                  </ClayCard>
-                );
-              })}
-            </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="list" className="mt-4">
-          <ClayCard>
-            <div className="overflow-x-auto rounded-lg border border-border">
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-border hover:bg-transparent">
-                    <TableHead className="text-muted-foreground">Subject</TableHead>
-                    <TableHead className="text-muted-foreground">Client</TableHead>
-                    <TableHead className="text-muted-foreground">Priority</TableHead>
-                    <TableHead className="text-muted-foreground">Status</TableHead>
-                    <TableHead className="text-muted-foreground">Assignee</TableHead>
-                    <TableHead className="w-[120px] text-right text-muted-foreground">
-                      Actions
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {isLoading && tickets.length === 0 ? (
-                    [...Array(3)].map((_, i) => (
-                      <TableRow key={i} className="border-border">
-                        <TableCell colSpan={6}>
-                          <Skeleton className="h-8 w-full" />
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : tickets.length === 0 ? (
-                    <TableRow className="border-border">
-                      <TableCell
-                        colSpan={6}
-                        className="h-24 text-center text-[13px] text-muted-foreground"
-                      >
-                        No tickets yet — click Add Ticket to get started.
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    tickets.map((ticket) => (
-                      <TableRow key={ticket._id} className="border-border">
-                        <TableCell className="text-[13px] font-medium text-foreground">
-                          {ticket.subject}
-                        </TableCell>
-                        <TableCell className="text-[13px] text-foreground">
-                          {ticket.clientName || '—'}
-                        </TableCell>
-                        <TableCell>
-                          <ClayBadge
-                            tone={PRIORITY_TONES[ticket.priority] || 'neutral'}
-                            dot
-                          >
-                            {ticket.priority}
-                          </ClayBadge>
-                        </TableCell>
-                        <TableCell>
-                          <ClayBadge
-                            tone={STATUS_TONES[ticket.status] || 'neutral'}
-                            dot
-                          >
-                            {ticket.status}
-                          </ClayBadge>
-                        </TableCell>
-                        <TableCell className="text-[13px] text-foreground">
-                          {ticket.assigneeName || '—'}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end gap-1">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => {
-                                setEditing(ticket);
-                                setDialogOpen(true);
-                              }}
-                            >
-                              <Pencil className="h-3.5 w-3.5" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => setDeletingId(ticket._id)}
-                            >
-                              <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                            </Button>
+        {view === 'board' && (
+          <div className="mt-4">
+            {isLoading && tickets.length === 0 ? (
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+                {STATUS_COLUMNS.map((c) => (
+                  <ZoruSkeleton key={c.status} className="h-[50vh] rounded-xl" />
+                ))}
+              </div>
+            ) : (
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+                {STATUS_COLUMNS.map((col) => {
+                  const colTickets = tickets.filter(
+                    (t) => t.status === col.status,
+                  );
+                  return (
+                    <ZoruCard key={col.status} className="flex flex-col p-4">
+                      <div className="mb-3 flex items-center justify-between">
+                        <ZoruBadge variant={col.variant}>{col.label}</ZoruBadge>
+                        <span className="text-[11.5px] text-zoru-ink-muted">
+                          {colTickets.length}
+                        </span>
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        {colTickets.length === 0 ? (
+                          <div className="rounded-lg border border-dashed border-zoru-line p-4 text-center text-[12px] text-zoru-ink-muted">
+                            No tickets
                           </div>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          </ClayCard>
-        </TabsContent>
-      </Tabs>
+                        ) : (
+                          colTickets.map((ticket) => (
+                            <ZoruCard key={ticket._id} className="p-3">
+                              <p className="text-[13px] font-medium text-zoru-ink">
+                                {ticket.subject}
+                              </p>
+                              <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11.5px] text-zoru-ink-muted">
+                                {ticket.clientName ? (
+                                  <span>{ticket.clientName}</span>
+                                ) : null}
+                                <ZoruBadge
+                                  variant={
+                                    PRIORITY_VARIANTS[ticket.priority] ||
+                                    'ghost'
+                                  }
+                                >
+                                  {ticket.priority}
+                                </ZoruBadge>
+                                {ticket.assigneeName ? (
+                                  <span className="truncate">
+                                    → {ticket.assigneeName}
+                                  </span>
+                                ) : null}
+                              </div>
+                              <div className="mt-2">
+                                <ZoruSelect
+                                  value={ticket.status}
+                                  onValueChange={(v) =>
+                                    changeStatus(
+                                      ticket._id,
+                                      v as Ticket['status'],
+                                    )
+                                  }
+                                >
+                                  <ZoruSelectTrigger className="h-8 rounded-full border-zoru-line bg-zoru-bg text-[11.5px]">
+                                    <ZoruSelectValue />
+                                  </ZoruSelectTrigger>
+                                  <ZoruSelectContent>
+                                    {STATUS_COLUMNS.map((c) => (
+                                      <ZoruSelectItem
+                                        key={c.status}
+                                        value={c.status}
+                                      >
+                                        {c.label}
+                                      </ZoruSelectItem>
+                                    ))}
+                                  </ZoruSelectContent>
+                                </ZoruSelect>
+                              </div>
+                            </ZoruCard>
+                          ))
+                        )}
+                      </div>
+                    </ZoruCard>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-foreground">
+        {view === 'list' && (
+          <div className="mt-4">
+            <ZoruCard className="p-6">
+              <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                <ZoruTable>
+                  <ZoruTableHeader>
+                    <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                      <ZoruTableHead className="text-zoru-ink-muted">Subject</ZoruTableHead>
+                      <ZoruTableHead className="text-zoru-ink-muted">Client</ZoruTableHead>
+                      <ZoruTableHead className="text-zoru-ink-muted">Priority</ZoruTableHead>
+                      <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
+                      <ZoruTableHead className="text-zoru-ink-muted">Assignee</ZoruTableHead>
+                      <ZoruTableHead className="w-[120px] text-right text-zoru-ink-muted">
+                        Actions
+                      </ZoruTableHead>
+                    </ZoruTableRow>
+                  </ZoruTableHeader>
+                  <ZoruTableBody>
+                    {isLoading && tickets.length === 0 ? (
+                      [...Array(3)].map((_, i) => (
+                        <ZoruTableRow key={i} className="border-zoru-line">
+                          <ZoruTableCell colSpan={6}>
+                            <ZoruSkeleton className="h-8 w-full" />
+                          </ZoruTableCell>
+                        </ZoruTableRow>
+                      ))
+                    ) : tickets.length === 0 ? (
+                      <ZoruTableRow className="border-zoru-line">
+                        <ZoruTableCell
+                          colSpan={6}
+                          className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                        >
+                          No tickets yet — click Add Ticket to get started.
+                        </ZoruTableCell>
+                      </ZoruTableRow>
+                    ) : (
+                      tickets.map((ticket) => (
+                        <ZoruTableRow key={ticket._id} className="border-zoru-line">
+                          <ZoruTableCell className="text-[13px] font-medium text-zoru-ink">
+                            {ticket.subject}
+                          </ZoruTableCell>
+                          <ZoruTableCell className="text-[13px] text-zoru-ink">
+                            {ticket.clientName || '—'}
+                          </ZoruTableCell>
+                          <ZoruTableCell>
+                            <ZoruBadge
+                              variant={
+                                PRIORITY_VARIANTS[ticket.priority] || 'ghost'
+                              }
+                            >
+                              {ticket.priority}
+                            </ZoruBadge>
+                          </ZoruTableCell>
+                          <ZoruTableCell>
+                            <ZoruBadge
+                              variant={
+                                STATUS_VARIANTS[ticket.status] || 'ghost'
+                              }
+                            >
+                              {ticket.status}
+                            </ZoruBadge>
+                          </ZoruTableCell>
+                          <ZoruTableCell className="text-[13px] text-zoru-ink">
+                            {ticket.assigneeName || '—'}
+                          </ZoruTableCell>
+                          <ZoruTableCell className="text-right">
+                            <div className="flex justify-end gap-1">
+                              <ZoruButton
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  setEditing(ticket);
+                                  setDialogOpen(true);
+                                }}
+                              >
+                                <Pencil className="h-3.5 w-3.5" />
+                              </ZoruButton>
+                              <ZoruButton
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setDeletingId(ticket._id)}
+                              >
+                                <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                              </ZoruButton>
+                            </div>
+                          </ZoruTableCell>
+                        </ZoruTableRow>
+                      ))
+                    )}
+                  </ZoruTableBody>
+                </ZoruTable>
+              </div>
+            </ZoruCard>
+          </div>
+        )}
+      </div>
+
+      <ZoruDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <ZoruDialogContent className="max-w-2xl">
+          <ZoruDialogHeader>
+            <ZoruDialogTitle className="text-zoru-ink">
               {editing ? 'Edit Ticket' : 'Add Ticket'}
-            </DialogTitle>
-            <DialogDescription className="text-muted-foreground">
+            </ZoruDialogTitle>
+            <ZoruDialogDescription className="text-zoru-ink-muted">
               Fill in the details below.
-            </DialogDescription>
-          </DialogHeader>
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
 
           <form action={saveFormAction} className="space-y-4">
             {editing?._id ? (
@@ -406,146 +406,140 @@ export default function TicketsPage() {
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="md:col-span-2">
-                <Label className="text-foreground">
-                  Subject <span className="text-destructive">*</span>
-                </Label>
-                <Input
+                <ZoruLabel className="text-zoru-ink">
+                  Subject <span className="text-zoru-danger-ink">*</span>
+                </ZoruLabel>
+                <ZoruInput
                   name="subject"
                   required
                   defaultValue={editing?.subject || ''}
-                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                 />
               </div>
               <div>
-                <Label className="text-foreground">Client Name</Label>
-                <Input
+                <ZoruLabel className="text-zoru-ink">Client Name</ZoruLabel>
+                <ZoruInput
                   name="clientName"
                   defaultValue={editing?.clientName || ''}
-                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                 />
               </div>
               <div>
-                <Label className="text-foreground">Requester Email</Label>
-                <Input
+                <ZoruLabel className="text-zoru-ink">Requester Email</ZoruLabel>
+                <ZoruInput
                   type="email"
                   name="requesterEmail"
                   defaultValue={editing?.requesterEmail || ''}
-                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                 />
               </div>
               <div>
-                <Label className="text-foreground">
-                  Priority <span className="text-destructive">*</span>
-                </Label>
-                <Select
+                <ZoruLabel className="text-zoru-ink">
+                  Priority <span className="text-zoru-danger-ink">*</span>
+                </ZoruLabel>
+                <ZoruSelect
                   name="priority"
                   defaultValue={editing?.priority || 'medium'}
                 >
-                  <SelectTrigger className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="low">Low</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="high">High</SelectItem>
-                    <SelectItem value="urgent">Urgent</SelectItem>
-                  </SelectContent>
-                </Select>
+                  <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                    <ZoruSelectValue />
+                  </ZoruSelectTrigger>
+                  <ZoruSelectContent>
+                    <ZoruSelectItem value="low">Low</ZoruSelectItem>
+                    <ZoruSelectItem value="medium">Medium</ZoruSelectItem>
+                    <ZoruSelectItem value="high">High</ZoruSelectItem>
+                    <ZoruSelectItem value="urgent">Urgent</ZoruSelectItem>
+                  </ZoruSelectContent>
+                </ZoruSelect>
               </div>
               <div>
-                <Label className="text-foreground">
-                  Status <span className="text-destructive">*</span>
-                </Label>
-                <Select
+                <ZoruLabel className="text-zoru-ink">
+                  Status <span className="text-zoru-danger-ink">*</span>
+                </ZoruLabel>
+                <ZoruSelect
                   name="status"
                   defaultValue={editing?.status || 'open'}
                 >
-                  <SelectTrigger className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="open">Open</SelectItem>
-                    <SelectItem value="in-progress">In Progress</SelectItem>
-                    <SelectItem value="waiting">Waiting</SelectItem>
-                    <SelectItem value="resolved">Resolved</SelectItem>
-                    <SelectItem value="closed">Closed</SelectItem>
-                  </SelectContent>
-                </Select>
+                  <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                    <ZoruSelectValue />
+                  </ZoruSelectTrigger>
+                  <ZoruSelectContent>
+                    <ZoruSelectItem value="open">Open</ZoruSelectItem>
+                    <ZoruSelectItem value="in-progress">In Progress</ZoruSelectItem>
+                    <ZoruSelectItem value="waiting">Waiting</ZoruSelectItem>
+                    <ZoruSelectItem value="resolved">Resolved</ZoruSelectItem>
+                    <ZoruSelectItem value="closed">Closed</ZoruSelectItem>
+                  </ZoruSelectContent>
+                </ZoruSelect>
               </div>
               <div>
-                <Label className="text-foreground">Assignee</Label>
-                <Input
+                <ZoruLabel className="text-zoru-ink">Assignee</ZoruLabel>
+                <ZoruInput
                   name="assigneeName"
                   defaultValue={editing?.assigneeName || ''}
-                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                 />
               </div>
               <div>
-                <Label className="text-foreground">Category</Label>
-                <Input
+                <ZoruLabel className="text-zoru-ink">Category</ZoruLabel>
+                <ZoruInput
                   name="category"
                   defaultValue={editing?.category || ''}
-                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                 />
               </div>
               <div className="md:col-span-2">
-                <Label className="text-foreground">Description</Label>
-                <Textarea
+                <ZoruLabel className="text-zoru-ink">Description</ZoruLabel>
+                <ZoruTextarea
                   name="description"
                   rows={4}
                   defaultValue={editing?.description || ''}
-                  className="mt-1.5 rounded-lg border-border bg-card text-[13px]"
+                  className="mt-1.5 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                 />
               </div>
             </div>
 
-            <DialogFooter className="gap-2">
-              <ClayButton
+            <ZoruDialogFooter className="gap-2">
+              <ZoruButton
                 type="button"
-                variant="pill"
+                variant="outline"
                 onClick={() => setDialogOpen(false)}
               >
                 Cancel
-              </ClayButton>
-              <ClayButton
-                type="submit"
-                variant="obsidian"
-                disabled={isSaving}
-                leading={
-                  isSaving ? (
-                    <LoaderCircle
-                      className="h-4 w-4 animate-spin"
-                      strokeWidth={1.75}
-                    />
-                  ) : null
-                }
-              >
+              </ZoruButton>
+              <ZoruButton type="submit" disabled={isSaving}>
+                {isSaving ? (
+                  <LoaderCircle
+                    className="h-4 w-4 animate-spin"
+                    strokeWidth={1.75}
+                  />
+                ) : null}
                 Save
-              </ClayButton>
-            </DialogFooter>
+              </ZoruButton>
+            </ZoruDialogFooter>
           </form>
-        </DialogContent>
-      </Dialog>
+        </ZoruDialogContent>
+      </ZoruDialog>
 
-      <AlertDialog
+      <ZoruAlertDialog
         open={deletingId !== null}
         onOpenChange={(o) => !o && setDeletingId(null)}
       >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-foreground">
+        <ZoruAlertDialogContent>
+          <ZoruAlertDialogHeader>
+            <ZoruAlertDialogTitle className="text-zoru-ink">
               Delete ticket?
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-muted-foreground">
+            </ZoruAlertDialogTitle>
+            <ZoruAlertDialogDescription className="text-zoru-ink-muted">
               This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </ZoruAlertDialogDescription>
+          </ZoruAlertDialogHeader>
+          <ZoruAlertDialogFooter>
+            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+            <ZoruAlertDialogAction onClick={handleDelete}>Delete</ZoruAlertDialogAction>
+          </ZoruAlertDialogFooter>
+        </ZoruAlertDialogContent>
+      </ZoruAlertDialog>
     </div>
   );
 }

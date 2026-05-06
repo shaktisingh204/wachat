@@ -1,8 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { use, useCallback, useEffect, useState, useTransition, useActionState } from 'react';
 import Link from 'next/link';
 import {
@@ -52,48 +49,43 @@ import type {
   WsProjectActivity,
   WsGanttLink,
 } from '@/lib/worksuite/project-types';
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSkeleton,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  ZoruTextarea,
+  cn,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
 
 type Task = WsTask & { _id: string };
 type Project = WsProject & { _id: string };
@@ -104,21 +96,37 @@ type Note = WsProjectNote & { _id: string };
 type ActivityRow = WsProjectActivity & { _id: string };
 type GanttLink = WsGanttLink & { _id: string };
 
-const TASK_STATUS_TONES: Record<string, 'neutral' | 'amber' | 'blue' | 'green'> = {
-  incomplete: 'neutral',
-  todo: 'neutral',
-  'in-progress': 'blue',
-  review: 'amber',
-  completed: 'green',
-  done: 'green',
+const TASK_STATUS_VARIANTS: Record<
+  string,
+  'ghost' | 'warning' | 'success' | 'danger'
+> = {
+  incomplete: 'ghost',
+  todo: 'ghost',
+  'in-progress': 'warning',
+  review: 'warning',
+  completed: 'success',
+  done: 'success',
 };
 
-const PRIORITY_TONES: Record<string, 'neutral' | 'blue' | 'amber' | 'red'> = {
-  low: 'neutral',
-  medium: 'blue',
-  high: 'amber',
-  urgent: 'red',
+const PRIORITY_VARIANTS: Record<
+  string,
+  'ghost' | 'success' | 'warning' | 'danger'
+> = {
+  low: 'ghost',
+  medium: 'success',
+  high: 'warning',
+  urgent: 'danger',
 };
+
+type TabId =
+  | 'overview'
+  | 'tasks'
+  | 'milestones'
+  | 'members'
+  | 'files'
+  | 'notes'
+  | 'activity'
+  | 'gantt';
 
 function fmtDate(v: unknown): string {
   if (!v) return '—';
@@ -130,7 +138,7 @@ export default function ProjectDetailPage(props: {
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = use(props.params);
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
 
   const [project, setProject] = useState<Project | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -140,6 +148,7 @@ export default function ProjectDetailPage(props: {
   const [notes, setNotes] = useState<Note[]>([]);
   const [activity, setActivity] = useState<ActivityRow[]>([]);
   const [ganttLinks, setGanttLinks] = useState<GanttLink[]>([]);
+  const [activeTab, setActiveTab] = useState<TabId>('overview');
 
   const [isLoading, startLoading] = useTransition();
 
@@ -338,29 +347,41 @@ export default function ProjectDetailPage(props: {
   if (isLoading && !project) {
     return (
       <div className="flex w-full flex-col gap-6">
-        <Skeleton className="h-10 w-64" />
-        <Skeleton className="h-32 w-full" />
-        <Skeleton className="h-64 w-full" />
+        <ZoruSkeleton className="h-10 w-64" />
+        <ZoruSkeleton className="h-32 w-full" />
+        <ZoruSkeleton className="h-64 w-full" />
       </div>
     );
   }
 
   if (!project) {
     return (
-      <ClayCard variant="outline" className="border-dashed">
+      <ZoruCard className="border-dashed p-6">
         <div className="flex flex-col items-center gap-3 py-12 text-center">
-          <p className="text-[13px] text-muted-foreground">Project not found.</p>
+          <p className="text-[13px] text-zoru-ink-muted">Project not found.</p>
           <Link href="/dashboard/crm/projects">
-            <ClayButton variant="pill" leading={<ArrowLeft className="h-4 w-4" />}>
+            <ZoruButton variant="outline" size="sm">
+              <ArrowLeft className="h-4 w-4" />
               Back to Projects
-            </ClayButton>
+            </ZoruButton>
           </Link>
         </div>
-      </ClayCard>
+      </ZoruCard>
     );
   }
 
   const projectName = project.name || project.projectName || 'Project';
+
+  const TABS: { id: TabId; label: string }[] = [
+    { id: 'overview', label: 'Overview' },
+    { id: 'tasks', label: `Tasks (${tasks.length})` },
+    { id: 'milestones', label: `Milestones (${milestones.length})` },
+    { id: 'members', label: `Members (${members.length})` },
+    { id: 'files', label: `Files (${files.length})` },
+    { id: 'notes', label: `Notes (${notes.length})` },
+    { id: 'activity', label: 'Activity' },
+    { id: 'gantt', label: 'Gantt' },
+  ];
 
   return (
     <div className="flex w-full flex-col gap-6">
@@ -370,15 +391,16 @@ export default function ProjectDetailPage(props: {
         icon={Briefcase}
         actions={
           <Link href="/dashboard/crm/projects">
-            <ClayButton variant="pill" leading={<ArrowLeft className="h-4 w-4" />}>
+            <ZoruButton variant="outline" size="sm">
+              <ArrowLeft className="h-4 w-4" />
               All Projects
-            </ClayButton>
+            </ZoruButton>
           </Link>
         }
       />
 
       {/* Overview summary */}
-      <ClayCard>
+      <ZoruCard className="p-6">
         <div className="grid gap-4 md:grid-cols-4">
           <SummaryTile
             icon={User}
@@ -411,21 +433,19 @@ export default function ProjectDetailPage(props: {
 
         <div className="mt-6 grid gap-4 md:grid-cols-3">
           <div className="flex flex-col">
-            <p className="text-[11.5px] text-muted-foreground">Status</p>
-            <ClayBadge tone="blue" dot>
-              {project.status}
-            </ClayBadge>
+            <p className="text-[11.5px] text-zoru-ink-muted">Status</p>
+            <ZoruBadge variant="success">{project.status}</ZoruBadge>
           </div>
           <div className="flex flex-col">
-            <p className="text-[11.5px] text-muted-foreground">Category</p>
-            <p className="text-[13px] font-medium text-foreground">
+            <p className="text-[11.5px] text-zoru-ink-muted">Category</p>
+            <p className="text-[13px] font-medium text-zoru-ink">
               {project.categoryName || '—'}
               {project.subCategoryName ? ` · ${project.subCategoryName}` : ''}
             </p>
           </div>
           <div className="flex flex-col">
-            <p className="text-[11.5px] text-muted-foreground">Department</p>
-            <p className="text-[13px] font-medium text-foreground">
+            <p className="text-[11.5px] text-zoru-ink-muted">Department</p>
+            <p className="text-[13px] font-medium text-zoru-ink">
               {project.departmentName || '—'}
             </p>
           </div>
@@ -433,12 +453,12 @@ export default function ProjectDetailPage(props: {
 
         <div className="mt-6">
           <div className="flex items-center justify-between">
-            <p className="text-[12.5px] font-medium text-foreground">
+            <p className="text-[12.5px] font-medium text-zoru-ink">
               Progress ({doneCount}/{tasks.length} tasks done)
             </p>
-            <ClayBadge tone="blue">{computedProgress}%</ClayBadge>
+            <ZoruBadge variant="success">{computedProgress}%</ZoruBadge>
           </div>
-          <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-secondary">
+          <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-zoru-surface-2">
             <div
               className="h-full bg-primary transition-all"
               style={{
@@ -447,143 +467,141 @@ export default function ProjectDetailPage(props: {
             />
           </div>
         </div>
-      </ClayCard>
+      </ZoruCard>
 
       {/* Tabs */}
-      <ClayCard>
-        <Tabs defaultValue="overview">
-          <TabsList className="mb-4 grid w-full grid-cols-4 md:grid-cols-8">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="tasks">
-              Tasks ({tasks.length})
-            </TabsTrigger>
-            <TabsTrigger value="milestones">
-              Milestones ({milestones.length})
-            </TabsTrigger>
-            <TabsTrigger value="members">
-              Members ({members.length})
-            </TabsTrigger>
-            <TabsTrigger value="files">Files ({files.length})</TabsTrigger>
-            <TabsTrigger value="notes">Notes ({notes.length})</TabsTrigger>
-            <TabsTrigger value="activity">Activity</TabsTrigger>
-            <TabsTrigger value="gantt">Gantt</TabsTrigger>
-          </TabsList>
+      <ZoruCard className="p-6">
+        <div className="mb-4 flex flex-wrap gap-1 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-1">
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => setActiveTab(t.id)}
+              className={cn(
+                'flex-1 rounded-[var(--zoru-radius-sm)] px-3 py-1.5 text-sm transition-colors',
+                activeTab === t.id
+                  ? 'bg-zoru-bg text-zoru-ink shadow-[var(--zoru-shadow-sm)]'
+                  : 'text-zoru-ink-muted hover:text-zoru-ink',
+              )}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
 
-          {/* ── Overview ── */}
-          <TabsContent value="overview">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div>
-                <p className="text-[11.5px] uppercase tracking-wide text-muted-foreground">
-                  Description
-                </p>
-                <p className="mt-1 whitespace-pre-wrap text-[13px] text-foreground">
-                  {project.description || project.projectSummary || '—'}
-                </p>
-              </div>
-              <div>
-                <p className="text-[11.5px] uppercase tracking-wide text-muted-foreground">
-                  Notes
-                </p>
-                <p className="mt-1 whitespace-pre-wrap text-[13px] text-foreground">
-                  {project.notes || '—'}
-                </p>
-              </div>
-              <div>
-                <p className="text-[11.5px] uppercase tracking-wide text-muted-foreground">
-                  Hours Allocated
-                </p>
-                <p className="mt-1 text-[13px] text-foreground">
-                  {project.hoursAllocated ?? '—'}
-                </p>
-              </div>
-              <div>
-                <p className="text-[11.5px] uppercase tracking-wide text-muted-foreground">
-                  Short Code
-                </p>
-                <p className="mt-1 text-[13px] text-foreground">
-                  {project.projectShortCode || '—'}
-                </p>
-              </div>
+        {/* ── Overview ── */}
+        {activeTab === 'overview' && (
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
+                Description
+              </p>
+              <p className="mt-1 whitespace-pre-wrap text-[13px] text-zoru-ink">
+                {project.description || project.projectSummary || '—'}
+              </p>
             </div>
-          </TabsContent>
+            <div>
+              <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
+                Notes
+              </p>
+              <p className="mt-1 whitespace-pre-wrap text-[13px] text-zoru-ink">
+                {project.notes || '—'}
+              </p>
+            </div>
+            <div>
+              <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
+                Hours Allocated
+              </p>
+              <p className="mt-1 text-[13px] text-zoru-ink">
+                {project.hoursAllocated ?? '—'}
+              </p>
+            </div>
+            <div>
+              <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
+                Short Code
+              </p>
+              <p className="mt-1 text-[13px] text-zoru-ink">
+                {project.projectShortCode || '—'}
+              </p>
+            </div>
+          </div>
+        )}
 
-          {/* ── Tasks ── */}
-          <TabsContent value="tasks">
+        {/* ── Tasks ── */}
+        {activeTab === 'tasks' && (
+          <div>
             <div className="mb-4 flex justify-end">
-              <ClayButton
-                variant="obsidian"
-                leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}
+              <ZoruButton
                 onClick={() => {
                   setEditingTask(null);
                   setTaskDialogOpen(true);
                 }}
               >
+                <Plus className="h-4 w-4" strokeWidth={1.75} />
                 Add Task
-              </ClayButton>
+              </ZoruButton>
             </div>
-            <div className="overflow-x-auto rounded-lg border border-border">
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-border hover:bg-transparent">
-                    <TableHead className="text-muted-foreground">Title</TableHead>
-                    <TableHead className="text-muted-foreground">
-                      Assignee
-                    </TableHead>
-                    <TableHead className="text-muted-foreground">Status</TableHead>
-                    <TableHead className="text-muted-foreground">
-                      Priority
-                    </TableHead>
-                    <TableHead className="text-muted-foreground">Due</TableHead>
-                    <TableHead className="w-[120px] text-right text-muted-foreground">
+            <div className="overflow-x-auto rounded-lg border border-zoru-line">
+              <ZoruTable>
+                <ZoruTableHeader>
+                  <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                    <ZoruTableHead className="text-zoru-ink-muted">Title</ZoruTableHead>
+                    <ZoruTableHead className="text-zoru-ink-muted">Assignee</ZoruTableHead>
+                    <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
+                    <ZoruTableHead className="text-zoru-ink-muted">Priority</ZoruTableHead>
+                    <ZoruTableHead className="text-zoru-ink-muted">Due</ZoruTableHead>
+                    <ZoruTableHead className="w-[120px] text-right text-zoru-ink-muted">
                       Actions
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+                    </ZoruTableHead>
+                  </ZoruTableRow>
+                </ZoruTableHeader>
+                <ZoruTableBody>
                   {tasks.length === 0 ? (
-                    <TableRow className="border-border">
-                      <TableCell
+                    <ZoruTableRow className="border-zoru-line">
+                      <ZoruTableCell
                         colSpan={6}
-                        className="h-24 text-center text-[13px] text-muted-foreground"
+                        className="h-24 text-center text-[13px] text-zoru-ink-muted"
                       >
                         No tasks yet — click Add Task to get started.
-                      </TableCell>
-                    </TableRow>
+                      </ZoruTableCell>
+                    </ZoruTableRow>
                   ) : (
                     tasks.map((t) => (
-                      <TableRow key={t._id} className="border-border">
-                        <TableCell className="text-[13px] font-medium text-foreground">
+                      <ZoruTableRow key={t._id} className="border-zoru-line">
+                        <ZoruTableCell className="text-[13px] font-medium text-zoru-ink">
                           {t.heading}
-                        </TableCell>
-                        <TableCell className="text-[13px] text-foreground">
+                        </ZoruTableCell>
+                        <ZoruTableCell className="text-[13px] text-zoru-ink">
                           {t.assigneeName || '—'}
-                        </TableCell>
-                        <TableCell>
-                          <ClayBadge
-                            tone={TASK_STATUS_TONES[t.status] || 'neutral'}
-                            dot
+                        </ZoruTableCell>
+                        <ZoruTableCell>
+                          <ZoruBadge
+                            variant={
+                              TASK_STATUS_VARIANTS[t.status] || 'ghost'
+                            }
                           >
                             {t.status}
-                          </ClayBadge>
-                        </TableCell>
-                        <TableCell>
+                          </ZoruBadge>
+                        </ZoruTableCell>
+                        <ZoruTableCell>
                           {t.priority ? (
-                            <ClayBadge
-                              tone={PRIORITY_TONES[t.priority] || 'neutral'}
-                              dot
+                            <ZoruBadge
+                              variant={
+                                PRIORITY_VARIANTS[t.priority] || 'ghost'
+                              }
                             >
                               {t.priority}
-                            </ClayBadge>
+                            </ZoruBadge>
                           ) : (
                             '—'
                           )}
-                        </TableCell>
-                        <TableCell className="text-[13px] text-foreground">
+                        </ZoruTableCell>
+                        <ZoruTableCell className="text-[13px] text-zoru-ink">
                           {fmtDate(t.dueDate)}
-                        </TableCell>
-                        <TableCell className="text-right">
+                        </ZoruTableCell>
+                        <ZoruTableCell className="text-right">
                           <div className="flex justify-end gap-1">
-                            <Button
+                            <ZoruButton
                               variant="ghost"
                               size="sm"
                               onClick={() => {
@@ -592,34 +610,33 @@ export default function ProjectDetailPage(props: {
                               }}
                             >
                               <Pencil className="h-3.5 w-3.5" />
-                            </Button>
-                            <Button
+                            </ZoruButton>
+                            <ZoruButton
                               variant="ghost"
                               size="sm"
                               onClick={() => setDeletingTaskId(t._id)}
                             >
-                              <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                            </Button>
+                              <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                            </ZoruButton>
                           </div>
-                        </TableCell>
-                      </TableRow>
+                        </ZoruTableCell>
+                      </ZoruTableRow>
                     ))
                   )}
-                </TableBody>
-              </Table>
+                </ZoruTableBody>
+              </ZoruTable>
             </div>
-          </TabsContent>
+          </div>
+        )}
 
-          {/* ── Milestones ── */}
-          <TabsContent value="milestones">
+        {/* ── Milestones ── */}
+        {activeTab === 'milestones' && (
+          <div>
             <div className="mb-4 flex justify-end">
-              <ClayButton
-                variant="obsidian"
-                leading={<Flag className="h-4 w-4" strokeWidth={1.75} />}
-                onClick={() => setMilestoneDialogOpen(true)}
-              >
+              <ZoruButton onClick={() => setMilestoneDialogOpen(true)}>
+                <Flag className="h-4 w-4" strokeWidth={1.75} />
                 Add Milestone
-              </ClayButton>
+              </ZoruButton>
             </div>
             {milestones.length === 0 ? (
               <EmptyRow text="No milestones yet." />
@@ -628,48 +645,46 @@ export default function ProjectDetailPage(props: {
                 {milestones.map((m) => (
                   <li
                     key={m._id}
-                    className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border p-3"
+                    className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-zoru-line p-3"
                   >
                     <div>
-                      <p className="text-[13px] font-medium text-foreground">
+                      <p className="text-[13px] font-medium text-zoru-ink">
                         {m.milestoneTitle}
                       </p>
-                      <p className="text-[11.5px] text-muted-foreground">
+                      <p className="text-[11.5px] text-zoru-ink-muted">
                         {fmtDate(m.startDate)} – {fmtDate(m.endDate)}
                         {m.cost ? ` · ${m.currency || 'INR'} ${m.cost}` : ''}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <ClayBadge
-                        tone={m.status === 'complete' ? 'green' : 'amber'}
-                        dot
+                      <ZoruBadge
+                        variant={m.status === 'complete' ? 'success' : 'warning'}
                       >
                         {m.status}
-                      </ClayBadge>
-                      <Button
+                      </ZoruBadge>
+                      <ZoruButton
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDeleteMilestone(m._id)}
                       >
-                        <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                      </Button>
+                        <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                      </ZoruButton>
                     </div>
                   </li>
                 ))}
               </ul>
             )}
-          </TabsContent>
+          </div>
+        )}
 
-          {/* ── Members ── */}
-          <TabsContent value="members">
+        {/* ── Members ── */}
+        {activeTab === 'members' && (
+          <div>
             <div className="mb-4 flex justify-end">
-              <ClayButton
-                variant="obsidian"
-                leading={<Users className="h-4 w-4" strokeWidth={1.75} />}
-                onClick={() => setMemberDialogOpen(true)}
-              >
+              <ZoruButton onClick={() => setMemberDialogOpen(true)}>
+                <Users className="h-4 w-4" strokeWidth={1.75} />
                 Add Member
-              </ClayButton>
+              </ZoruButton>
             </div>
             {members.length === 0 ? (
               <EmptyRow text="No members yet." />
@@ -678,44 +693,43 @@ export default function ProjectDetailPage(props: {
                 {members.map((m) => (
                   <li
                     key={m._id}
-                    className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border p-3"
+                    className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-zoru-line p-3"
                   >
                     <div>
-                      <p className="text-[13px] font-medium text-foreground">
+                      <p className="text-[13px] font-medium text-zoru-ink">
                         {m.memberName || String(m.memberUserId)}
                       </p>
-                      <p className="text-[11.5px] text-muted-foreground">
+                      <p className="text-[11.5px] text-zoru-ink-muted">
                         {m.memberEmail || m.role || '—'}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
                       {m.hourlyRate ? (
-                        <ClayBadge tone="blue">₹{m.hourlyRate}/hr</ClayBadge>
+                        <ZoruBadge variant="success">₹{m.hourlyRate}/hr</ZoruBadge>
                       ) : null}
-                      <Button
+                      <ZoruButton
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDeleteMember(m._id)}
                       >
-                        <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                      </Button>
+                        <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                      </ZoruButton>
                     </div>
                   </li>
                 ))}
               </ul>
             )}
-          </TabsContent>
+          </div>
+        )}
 
-          {/* ── Files ── */}
-          <TabsContent value="files">
+        {/* ── Files ── */}
+        {activeTab === 'files' && (
+          <div>
             <div className="mb-4 flex justify-end">
-              <ClayButton
-                variant="obsidian"
-                leading={<FileText className="h-4 w-4" strokeWidth={1.75} />}
-                onClick={() => setFileDialogOpen(true)}
-              >
+              <ZoruButton onClick={() => setFileDialogOpen(true)}>
+                <FileText className="h-4 w-4" strokeWidth={1.75} />
                 Add File
-              </ClayButton>
+              </ZoruButton>
             </div>
             {files.length === 0 ? (
               <EmptyRow text="No files yet." />
@@ -724,13 +738,13 @@ export default function ProjectDetailPage(props: {
                 {files.map((f) => (
                   <li
                     key={f._id}
-                    className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border p-3"
+                    className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-zoru-line p-3"
                   >
                     <div>
-                      <p className="text-[13px] font-medium text-foreground">
+                      <p className="text-[13px] font-medium text-zoru-ink">
                         {f.filename}
                       </p>
-                      <p className="text-[11.5px] text-muted-foreground">
+                      <p className="text-[11.5px] text-zoru-ink-muted">
                         {f.description || f.externalLinkName || '—'}
                       </p>
                       {f.url || f.externalLink ? (
@@ -744,62 +758,60 @@ export default function ProjectDetailPage(props: {
                         </a>
                       ) : null}
                     </div>
-                    <Button
+                    <ZoruButton
                       variant="ghost"
                       size="sm"
                       onClick={() => handleDeleteFile(f._id)}
                     >
-                      <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                    </Button>
+                      <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                    </ZoruButton>
                   </li>
                 ))}
               </ul>
             )}
-          </TabsContent>
+          </div>
+        )}
 
-          {/* ── Notes ── */}
-          <TabsContent value="notes">
+        {/* ── Notes ── */}
+        {activeTab === 'notes' && (
+          <div>
             <div className="mb-4 flex justify-end">
-              <ClayButton
-                variant="obsidian"
-                leading={<StickyNote className="h-4 w-4" strokeWidth={1.75} />}
-                onClick={() => setNoteDialogOpen(true)}
-              >
+              <ZoruButton onClick={() => setNoteDialogOpen(true)}>
+                <StickyNote className="h-4 w-4" strokeWidth={1.75} />
                 Add Note
-              </ClayButton>
+              </ZoruButton>
             </div>
             {notes.length === 0 ? (
               <EmptyRow text="No notes yet." />
             ) : (
               <ul className="space-y-2">
                 {notes.map((n) => (
-                  <li
-                    key={n._id}
-                    className="rounded-lg border border-border p-3"
-                  >
+                  <li key={n._id} className="rounded-lg border border-zoru-line p-3">
                     <div className="flex items-start justify-between gap-2">
-                      <p className="text-[13px] font-medium text-foreground">
+                      <p className="text-[13px] font-medium text-zoru-ink">
                         {n.title}
                       </p>
-                      <Button
+                      <ZoruButton
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDeleteNote(n._id)}
                       >
-                        <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                      </Button>
+                        <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                      </ZoruButton>
                     </div>
-                    <p className="mt-1 whitespace-pre-wrap text-[12.5px] text-muted-foreground">
+                    <p className="mt-1 whitespace-pre-wrap text-[12.5px] text-zoru-ink-muted">
                       {n.details || '—'}
                     </p>
                   </li>
                 ))}
               </ul>
             )}
-          </TabsContent>
+          </div>
+        )}
 
-          {/* ── Activity ── */}
-          <TabsContent value="activity">
+        {/* ── Activity ── */}
+        {activeTab === 'activity' && (
+          <div>
             {activity.length === 0 ? (
               <EmptyRow text="No activity yet." />
             ) : (
@@ -807,15 +819,15 @@ export default function ProjectDetailPage(props: {
                 {activity.map((a) => (
                   <li
                     key={a._id}
-                    className="flex items-start gap-3 rounded-lg border border-border p-3"
+                    className="flex items-start gap-3 rounded-lg border border-zoru-line p-3"
                   >
                     <ActivityIcon
-                      className="mt-0.5 h-4 w-4 text-muted-foreground"
+                      className="mt-0.5 h-4 w-4 text-zoru-ink-muted"
                       strokeWidth={1.75}
                     />
                     <div>
-                      <p className="text-[13px] text-foreground">{a.activity}</p>
-                      <p className="text-[11px] text-muted-foreground">
+                      <p className="text-[13px] text-zoru-ink">{a.activity}</p>
+                      <p className="text-[11px] text-zoru-ink-muted">
                         {a.actorName ? `${a.actorName} · ` : ''}
                         {fmtDate(a.createdAt)}
                       </p>
@@ -824,13 +836,15 @@ export default function ProjectDetailPage(props: {
                 ))}
               </ul>
             )}
-          </TabsContent>
+          </div>
+        )}
 
-          {/* ── Gantt (simple task + dependency count view) ── */}
-          <TabsContent value="gantt">
+        {/* ── Gantt (simple task + dependency count view) ── */}
+        {activeTab === 'gantt' && (
+          <div>
             <div className="mb-3 flex items-center gap-2">
-              <GanttChart className="h-4 w-4 text-muted-foreground" />
-              <p className="text-[12.5px] text-muted-foreground">
+              <GanttChart className="h-4 w-4 text-zoru-ink-muted" />
+              <p className="text-[12.5px] text-zoru-ink-muted">
                 {tasks.length} tasks · {ganttLinks.length} dependencies ·{' '}
                 {milestones.length} milestones
               </p>
@@ -838,57 +852,57 @@ export default function ProjectDetailPage(props: {
             {tasks.length === 0 ? (
               <EmptyRow text="No tasks to chart." />
             ) : (
-              <div className="overflow-x-auto rounded-lg border border-border">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="border-border">
-                      <TableHead className="text-muted-foreground">Task</TableHead>
-                      <TableHead className="text-muted-foreground">Start</TableHead>
-                      <TableHead className="text-muted-foreground">Due</TableHead>
-                      <TableHead className="text-muted-foreground">Deps</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
+              <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                <ZoruTable>
+                  <ZoruTableHeader>
+                    <ZoruTableRow className="border-zoru-line">
+                      <ZoruTableHead className="text-zoru-ink-muted">Task</ZoruTableHead>
+                      <ZoruTableHead className="text-zoru-ink-muted">Start</ZoruTableHead>
+                      <ZoruTableHead className="text-zoru-ink-muted">Due</ZoruTableHead>
+                      <ZoruTableHead className="text-zoru-ink-muted">Deps</ZoruTableHead>
+                    </ZoruTableRow>
+                  </ZoruTableHeader>
+                  <ZoruTableBody>
                     {tasks.map((t) => {
                       const deps = ganttLinks.filter(
                         (g) => String(g.target) === t._id,
                       ).length;
                       return (
-                        <TableRow key={t._id} className="border-border">
-                          <TableCell className="text-[13px] font-medium text-foreground">
+                        <ZoruTableRow key={t._id} className="border-zoru-line">
+                          <ZoruTableCell className="text-[13px] font-medium text-zoru-ink">
                             {t.heading}
-                          </TableCell>
-                          <TableCell className="text-[13px] text-foreground">
+                          </ZoruTableCell>
+                          <ZoruTableCell className="text-[13px] text-zoru-ink">
                             {fmtDate(t.startDate)}
-                          </TableCell>
-                          <TableCell className="text-[13px] text-foreground">
+                          </ZoruTableCell>
+                          <ZoruTableCell className="text-[13px] text-zoru-ink">
                             {fmtDate(t.dueDate)}
-                          </TableCell>
-                          <TableCell className="text-[13px] text-foreground">
+                          </ZoruTableCell>
+                          <ZoruTableCell className="text-[13px] text-zoru-ink">
                             {deps}
-                          </TableCell>
-                        </TableRow>
+                          </ZoruTableCell>
+                        </ZoruTableRow>
                       );
                     })}
-                  </TableBody>
-                </Table>
+                  </ZoruTableBody>
+                </ZoruTable>
               </div>
             )}
-          </TabsContent>
-        </Tabs>
-      </ClayCard>
+          </div>
+        )}
+      </ZoruCard>
 
       {/* ── Task dialog ── */}
-      <Dialog open={taskDialogOpen} onOpenChange={setTaskDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-foreground">
+      <ZoruDialog open={taskDialogOpen} onOpenChange={setTaskDialogOpen}>
+        <ZoruDialogContent className="max-w-2xl">
+          <ZoruDialogHeader>
+            <ZoruDialogTitle className="text-zoru-ink">
               {editingTask ? 'Edit Task' : 'Add Task'}
-            </DialogTitle>
-            <DialogDescription className="text-muted-foreground">
+            </ZoruDialogTitle>
+            <ZoruDialogDescription className="text-zoru-ink-muted">
               Fill in the task details below.
-            </DialogDescription>
-          </DialogHeader>
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
           <form action={taskSaveAction} className="space-y-4">
             {editingTask?._id ? (
               <input type="hidden" name="_id" value={editingTask._id} />
@@ -896,62 +910,62 @@ export default function ProjectDetailPage(props: {
             <input type="hidden" name="projectId" value={projectId} />
             <div className="grid gap-4 md:grid-cols-2">
               <div className="md:col-span-2">
-                <Label className="text-foreground">
-                  Title <span className="text-destructive">*</span>
-                </Label>
-                <Input
+                <ZoruLabel className="text-zoru-ink">
+                  Title <span className="text-zoru-danger-ink">*</span>
+                </ZoruLabel>
+                <ZoruInput
                   name="heading"
                   required
                   defaultValue={editingTask?.heading || ''}
-                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                 />
               </div>
               <div>
-                <Label className="text-foreground">Assignee</Label>
-                <Input
+                <ZoruLabel className="text-zoru-ink">Assignee</ZoruLabel>
+                <ZoruInput
                   name="assigneeName"
                   defaultValue={editingTask?.assigneeName || ''}
-                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                 />
               </div>
               <div>
-                <Label className="text-foreground">Status</Label>
-                <Select
+                <ZoruLabel className="text-zoru-ink">Status</ZoruLabel>
+                <ZoruSelect
                   name="status"
                   defaultValue={editingTask?.status || 'incomplete'}
                 >
-                  <SelectTrigger className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="incomplete">Incomplete</SelectItem>
-                    <SelectItem value="todo">To Do</SelectItem>
-                    <SelectItem value="in-progress">In Progress</SelectItem>
-                    <SelectItem value="review">Review</SelectItem>
-                    <SelectItem value="completed">Completed</SelectItem>
-                  </SelectContent>
-                </Select>
+                  <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                    <ZoruSelectValue />
+                  </ZoruSelectTrigger>
+                  <ZoruSelectContent>
+                    <ZoruSelectItem value="incomplete">Incomplete</ZoruSelectItem>
+                    <ZoruSelectItem value="todo">To Do</ZoruSelectItem>
+                    <ZoruSelectItem value="in-progress">In Progress</ZoruSelectItem>
+                    <ZoruSelectItem value="review">Review</ZoruSelectItem>
+                    <ZoruSelectItem value="completed">Completed</ZoruSelectItem>
+                  </ZoruSelectContent>
+                </ZoruSelect>
               </div>
               <div>
-                <Label className="text-foreground">Priority</Label>
-                <Select
+                <ZoruLabel className="text-zoru-ink">Priority</ZoruLabel>
+                <ZoruSelect
                   name="priority"
                   defaultValue={editingTask?.priority || 'medium'}
                 >
-                  <SelectTrigger className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="low">Low</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="high">High</SelectItem>
-                    <SelectItem value="urgent">Urgent</SelectItem>
-                  </SelectContent>
-                </Select>
+                  <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                    <ZoruSelectValue />
+                  </ZoruSelectTrigger>
+                  <ZoruSelectContent>
+                    <ZoruSelectItem value="low">Low</ZoruSelectItem>
+                    <ZoruSelectItem value="medium">Medium</ZoruSelectItem>
+                    <ZoruSelectItem value="high">High</ZoruSelectItem>
+                    <ZoruSelectItem value="urgent">Urgent</ZoruSelectItem>
+                  </ZoruSelectContent>
+                </ZoruSelect>
               </div>
               <div>
-                <Label className="text-foreground">Start Date</Label>
-                <Input
+                <ZoruLabel className="text-zoru-ink">Start Date</ZoruLabel>
+                <ZoruInput
                   type="date"
                   name="startDate"
                   defaultValue={
@@ -961,12 +975,12 @@ export default function ProjectDetailPage(props: {
                           .slice(0, 10)
                       : ''
                   }
-                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                 />
               </div>
               <div>
-                <Label className="text-foreground">Due Date</Label>
-                <Input
+                <ZoruLabel className="text-zoru-ink">Due Date</ZoruLabel>
+                <ZoruInput
                   type="date"
                   name="dueDate"
                   defaultValue={
@@ -976,86 +990,80 @@ export default function ProjectDetailPage(props: {
                           .slice(0, 10)
                       : ''
                   }
-                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                 />
               </div>
               <div>
-                <Label className="text-foreground">Estimate Hours</Label>
-                <Input
+                <ZoruLabel className="text-zoru-ink">Estimate Hours</ZoruLabel>
+                <ZoruInput
                   type="number"
                   name="estimatedHours"
                   defaultValue={editingTask?.estimatedHours ?? ''}
-                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                 />
               </div>
               <div>
-                <Label className="text-foreground">Actual Hours</Label>
-                <Input
+                <ZoruLabel className="text-zoru-ink">Actual Hours</ZoruLabel>
+                <ZoruInput
                   type="number"
                   name="actualHours"
                   defaultValue={editingTask?.actualHours ?? ''}
-                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                 />
               </div>
               <div className="md:col-span-2">
-                <Label className="text-foreground">Description</Label>
-                <Textarea
+                <ZoruLabel className="text-zoru-ink">Description</ZoruLabel>
+                <ZoruTextarea
                   name="description"
                   rows={3}
                   defaultValue={editingTask?.description || ''}
-                  className="mt-1.5 rounded-lg border-border bg-card text-[13px]"
+                  className="mt-1.5 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                 />
               </div>
             </div>
-            <DialogFooter className="gap-2">
-              <ClayButton
+            <ZoruDialogFooter className="gap-2">
+              <ZoruButton
                 type="button"
-                variant="pill"
+                variant="outline"
                 onClick={() => setTaskDialogOpen(false)}
               >
                 Cancel
-              </ClayButton>
-              <ClayButton
-                type="submit"
-                variant="obsidian"
-                disabled={isTaskSaving}
-                leading={
-                  isTaskSaving ? (
-                    <LoaderCircle
-                      className="h-4 w-4 animate-spin"
-                      strokeWidth={1.75}
-                    />
-                  ) : null
-                }
-              >
+              </ZoruButton>
+              <ZoruButton type="submit" disabled={isTaskSaving}>
+                {isTaskSaving ? (
+                  <LoaderCircle
+                    className="h-4 w-4 animate-spin"
+                    strokeWidth={1.75}
+                  />
+                ) : null}
                 Save
-              </ClayButton>
-            </DialogFooter>
+              </ZoruButton>
+            </ZoruDialogFooter>
           </form>
-        </DialogContent>
-      </Dialog>
+        </ZoruDialogContent>
+      </ZoruDialog>
 
-      <AlertDialog
+      <ZoruAlertDialog
         open={deletingTaskId !== null}
         onOpenChange={(o) => !o && setDeletingTaskId(null)}
       >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-foreground">
+        <ZoruAlertDialogContent>
+          <ZoruAlertDialogHeader>
+            <ZoruAlertDialogTitle className="text-zoru-ink">
               Delete task?
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-muted-foreground">
+            </ZoruAlertDialogTitle>
+            <ZoruAlertDialogDescription className="text-zoru-ink-muted">
               This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteTask}>
+            </ZoruAlertDialogDescription>
+          </ZoruAlertDialogHeader>
+          <ZoruAlertDialogFooter>
+            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+            <ZoruAlertDialogAction onClick={handleDeleteTask}>
               Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </ZoruAlertDialogAction>
+          </ZoruAlertDialogFooter>
+        </ZoruAlertDialogContent>
+      </ZoruAlertDialog>
 
       {/* ── Add-Member dialog ── */}
       <SimpleFormDialog
@@ -1153,8 +1161,8 @@ function SummaryTile({
         <Icon className="h-4 w-4 text-accent-foreground" strokeWidth={1.75} />
       </div>
       <div>
-        <p className="text-[11.5px] text-muted-foreground">{label}</p>
-        <p className="text-[13px] font-medium text-foreground">{value}</p>
+        <p className="text-[11.5px] text-zoru-ink-muted">{label}</p>
+        <p className="text-[13px] font-medium text-zoru-ink">{value}</p>
       </div>
     </div>
   );
@@ -1162,7 +1170,7 @@ function SummaryTile({
 
 function EmptyRow({ text }: { text: string }) {
   return (
-    <div className="rounded-lg border border-dashed border-border p-8 text-center text-[13px] text-muted-foreground">
+    <div className="rounded-lg border border-dashed border-zoru-line p-8 text-center text-[13px] text-zoru-ink-muted">
       {text}
     </div>
   );
@@ -1184,40 +1192,34 @@ function SimpleFormDialog({
   children: React.ReactNode;
 }) {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
-          <DialogTitle className="text-foreground">{title}</DialogTitle>
-        </DialogHeader>
+    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+      <ZoruDialogContent className="max-w-lg">
+        <ZoruDialogHeader>
+          <ZoruDialogTitle className="text-zoru-ink">{title}</ZoruDialogTitle>
+        </ZoruDialogHeader>
         <form action={action} className="space-y-3">
           {children}
-          <DialogFooter className="gap-2">
-            <ClayButton
+          <ZoruDialogFooter className="gap-2">
+            <ZoruButton
               type="button"
-              variant="pill"
+              variant="outline"
               onClick={() => onOpenChange(false)}
             >
               Cancel
-            </ClayButton>
-            <ClayButton
-              type="submit"
-              variant="obsidian"
-              disabled={isSaving}
-              leading={
-                isSaving ? (
-                  <LoaderCircle
-                    className="h-4 w-4 animate-spin"
-                    strokeWidth={1.75}
-                  />
-                ) : null
-              }
-            >
+            </ZoruButton>
+            <ZoruButton type="submit" disabled={isSaving}>
+              {isSaving ? (
+                <LoaderCircle
+                  className="h-4 w-4 animate-spin"
+                  strokeWidth={1.75}
+                />
+              ) : null}
               Save
-            </ClayButton>
-          </DialogFooter>
+            </ZoruButton>
+          </ZoruDialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      </ZoruDialogContent>
+    </ZoruDialog>
   );
 }
 
@@ -1238,26 +1240,26 @@ function FormInput({
 }) {
   return (
     <div>
-      <Label className="text-foreground">
+      <ZoruLabel className="text-zoru-ink">
         {label}
-        {required ? <span className="text-destructive"> *</span> : null}
-      </Label>
+        {required ? <span className="text-zoru-danger-ink"> *</span> : null}
+      </ZoruLabel>
       {type === 'textarea' ? (
-        <Textarea
+        <ZoruTextarea
           name={name}
           required={required}
           placeholder={placeholder}
           defaultValue={defaultValue}
-          className="mt-1.5 rounded-lg border-border bg-card text-[13px]"
+          className="mt-1.5 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
         />
       ) : (
-        <Input
+        <ZoruInput
           name={name}
           type={type}
           required={required}
           placeholder={placeholder}
           defaultValue={defaultValue}
-          className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+          className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
         />
       )}
     </div>
@@ -1277,19 +1279,19 @@ function FormSelect({
 }) {
   return (
     <div>
-      <Label className="text-foreground">{label}</Label>
-      <Select name={name} defaultValue={defaultValue}>
-        <SelectTrigger className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
+      <ZoruLabel className="text-zoru-ink">{label}</ZoruLabel>
+      <ZoruSelect name={name} defaultValue={defaultValue}>
+        <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+          <ZoruSelectValue />
+        </ZoruSelectTrigger>
+        <ZoruSelectContent>
           {options.map((o) => (
-            <SelectItem key={o.value} value={o.value}>
+            <ZoruSelectItem key={o.value} value={o.value}>
               {o.label}
-            </SelectItem>
+            </ZoruSelectItem>
           ))}
-        </SelectContent>
-      </Select>
+        </ZoruSelectContent>
+      </ZoruSelect>
     </div>
   );
 }

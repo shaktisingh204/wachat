@@ -1,11 +1,9 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { Flag } from 'lucide-react';
+
+import { ZoruBadge } from '@/components/zoruui';
 import { HrEntityPage } from '../../_components/hr-entity-page';
-import { ClayBadge } from '@/components/clay';
 import {
   getProjectStatusSettings,
   saveProjectStatusSetting,
@@ -38,10 +36,10 @@ export default function ProjectStatusesPage() {
             row.color ? (
               <span className="inline-flex items-center gap-2">
                 <span
-                  className="inline-block h-4 w-4 rounded-full border border-border"
+                  className="inline-block h-4 w-4 rounded-full border border-zoru-line"
                   style={{ backgroundColor: row.color }}
                 />
-                <span className="text-[12px] text-muted-foreground">{row.color}</span>
+                <span className="text-[12px] text-zoru-ink-muted">{row.color}</span>
               </span>
             ) : (
               '—'
@@ -56,18 +54,18 @@ export default function ProjectStatusesPage() {
           key: 'is_final',
           label: 'Final',
           render: (row) => (
-            <ClayBadge tone={row.is_final ? 'amber' : 'neutral'}>
+            <ZoruBadge variant={row.is_final ? 'warning' : 'ghost'}>
               {row.is_final ? 'Yes' : 'No'}
-            </ClayBadge>
+            </ZoruBadge>
           ),
         },
         {
           key: 'is_default',
           label: 'Default',
           render: (row) => (
-            <ClayBadge tone={row.is_default ? 'green' : 'neutral'}>
+            <ZoruBadge variant={row.is_default ? 'success' : 'ghost'}>
               {row.is_default ? 'Yes' : 'No'}
-            </ClayBadge>
+            </ZoruBadge>
           ),
         },
       ]}

@@ -17,6 +17,7 @@ import { metaSuiteApi } from './meta-suite';
 import { metaTokenApi } from './meta-token';
 import { projectsApi } from './projects';
 import { qrCodesApi } from './qr-codes';
+import { sabfilesApi } from './sabfiles';
 import { sessionApi } from './session';
 import { templatesApi } from './templates';
 import { usersApi } from './users';
@@ -83,6 +84,7 @@ export const rustClient = {
     metaFlows: metaFlowsApi,
     facebookFlow: facebookFlowApi,
     qrCodes: qrCodesApi,
+    sabfiles: sabfilesApi,
 };
 
 export type RustClient = typeof rustClient;

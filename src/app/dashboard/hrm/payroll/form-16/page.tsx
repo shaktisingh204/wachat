@@ -1,17 +1,17 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useState, useTransition } from 'react';
 import { FileText, Download, LoaderCircle, ChevronDown } from 'lucide-react';
 
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
+import {
+    ZoruCard,
+    ZoruButton,
+    ZoruBadge,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 
 const currentYear = new Date().getFullYear();
 
-// Financial years: April–March
 function getFinancialYears(count = 5) {
     const years = [];
     for (let i = 0; i < count; i++) {
@@ -27,7 +27,6 @@ function getFinancialYears(count = 5) {
     return years;
 }
 
-// Static mock data — replace with real server action when available
 const mockForm16Data = [
     {
         id: '1',
@@ -80,9 +79,9 @@ const mockForm16Data = [
 ];
 
 function statusBadge(status: string) {
-    if (status === 'generated') return <ClayBadge tone="green" dot>Generated</ClayBadge>;
-    if (status === 'pending') return <ClayBadge tone="amber" dot>Pending</ClayBadge>;
-    return <ClayBadge tone="neutral">{status}</ClayBadge>;
+    if (status === 'generated') return <ZoruBadge variant="success">Generated</ZoruBadge>;
+    if (status === 'pending') return <ZoruBadge variant="warning">Pending</ZoruBadge>;
+    return <ZoruBadge variant="secondary">{status}</ZoruBadge>;
 }
 
 export default function Form16Page() {
@@ -91,9 +90,8 @@ export default function Form16Page() {
     const [expandedFY, setExpandedFY] = useState<string>(financialYears[0].label);
     const [isGenerating, startTransition] = useTransition();
 
-    const handleGenerate = (fyLabel: string) => {
+    const handleGenerate = (_fyLabel: string) => {
         startTransition(async () => {
-            // Server action call would go here
             await new Promise(r => setTimeout(r, 1000));
         });
     };
@@ -108,110 +106,107 @@ export default function Form16Page() {
                 subtitle="Download Annual Tax Certificates (Part A & Part B) for all employees."
                 icon={FileText}
                 actions={
-                    <ClayButton
-                        variant="obsidian"
-                        leading={isGenerating ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
+                    <ZoruButton
                         disabled={isGenerating}
                         onClick={() => handleGenerate(selectedFY.label)}
                     >
+                        {isGenerating ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
                         Generate All — {selectedFY.label}
-                    </ClayButton>
+                    </ZoruButton>
                 }
             />
 
-            {/* Summary cards */}
             <div className="grid gap-4 md:grid-cols-3">
-                <ClayCard>
-                    <p className="text-[12.5px] font-medium text-muted-foreground">Total Tax Deducted (FY {selectedFY.label})</p>
-                    <div className="mt-2 text-2xl font-bold text-foreground">₹{totalTaxDeducted.toLocaleString('en-IN')}</div>
-                    <p className="mt-1 text-[11.5px] text-muted-foreground">Across {mockForm16Data.length} employees</p>
-                </ClayCard>
-                <ClayCard>
-                    <p className="text-[12.5px] font-medium text-muted-foreground">Form 16 Generated</p>
-                    <div className="mt-2 text-2xl font-bold text-foreground">{generated} / {mockForm16Data.length}</div>
-                    <p className="mt-1 text-[11.5px] text-muted-foreground">employees</p>
-                </ClayCard>
-                <ClayCard>
-                    <p className="text-[12.5px] font-medium text-muted-foreground">Financial Year</p>
-                    <div className="mt-2 text-2xl font-bold text-foreground">FY {selectedFY.label}</div>
-                    <p className="mt-1 text-[11.5px] text-muted-foreground">{selectedFY.period}</p>
-                </ClayCard>
+                <ZoruCard className="p-6">
+                    <p className="text-[12.5px] text-zoru-ink-muted">Total Tax Deducted (FY {selectedFY.label})</p>
+                    <div className="mt-2 text-2xl text-zoru-ink">₹{totalTaxDeducted.toLocaleString('en-IN')}</div>
+                    <p className="mt-1 text-[11.5px] text-zoru-ink-muted">Across {mockForm16Data.length} employees</p>
+                </ZoruCard>
+                <ZoruCard className="p-6">
+                    <p className="text-[12.5px] text-zoru-ink-muted">Form 16 Generated</p>
+                    <div className="mt-2 text-2xl text-zoru-ink">{generated} / {mockForm16Data.length}</div>
+                    <p className="mt-1 text-[11.5px] text-zoru-ink-muted">employees</p>
+                </ZoruCard>
+                <ZoruCard className="p-6">
+                    <p className="text-[12.5px] text-zoru-ink-muted">Financial Year</p>
+                    <div className="mt-2 text-2xl text-zoru-ink">FY {selectedFY.label}</div>
+                    <p className="mt-1 text-[11.5px] text-zoru-ink-muted">{selectedFY.period}</p>
+                </ZoruCard>
             </div>
 
-            {/* FY selector accordion */}
-            <ClayCard>
+            <ZoruCard className="p-6">
                 <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-foreground">Select Financial Year</h2>
-                    <p className="mt-0.5 text-[12.5px] text-muted-foreground">Expand a year to view and download individual Form 16 certificates.</p>
+                    <h2 className="text-[16px] text-zoru-ink">Select Financial Year</h2>
+                    <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">Expand a year to view and download individual Form 16 certificates.</p>
                 </div>
                 <div className="space-y-2">
                     {financialYears.map(fy => (
-                        <div key={fy.label} className="rounded-lg border border-border overflow-hidden">
+                        <div key={fy.label} className="rounded-lg border border-zoru-line overflow-hidden">
                             <button
                                 type="button"
                                 onClick={() => {
                                     setSelectedFY(fy);
                                     setExpandedFY(prev => prev === fy.label ? '' : fy.label);
                                 }}
-                                className="flex w-full items-center justify-between bg-secondary px-4 py-3 text-left hover:bg-card transition-colors"
+                                className="flex w-full items-center justify-between bg-zoru-surface-2 px-4 py-3 text-left hover:bg-zoru-bg transition-colors"
                             >
                                 <div>
-                                    <span className="text-[14px] font-semibold text-foreground">Financial Year {fy.label}</span>
-                                    <span className="ml-3 text-[12.5px] text-muted-foreground">{fy.period}</span>
+                                    <span className="text-[14px] text-zoru-ink">Financial Year {fy.label}</span>
+                                    <span className="ml-3 text-[12.5px] text-zoru-ink-muted">{fy.period}</span>
                                 </div>
                                 <div className="flex items-center gap-3">
                                     {fy.label === financialYears[0].label && (
-                                        <ClayBadge tone="blue">Current FY</ClayBadge>
+                                        <ZoruBadge variant="info">Current FY</ZoruBadge>
                                     )}
-                                    <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${expandedFY === fy.label ? 'rotate-180' : ''}`} />
+                                    <ChevronDown className={`h-4 w-4 text-zoru-ink-muted transition-transform ${expandedFY === fy.label ? 'rotate-180' : ''}`} />
                                 </div>
                             </button>
 
                             {expandedFY === fy.label && (
-                                <div className="border-t border-border">
+                                <div className="border-t border-zoru-line">
                                     <table className="w-full text-left text-[13px]">
                                         <thead>
-                                            <tr className="border-b border-border bg-card">
-                                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Employee</th>
-                                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">PAN Number</th>
-                                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Gross Salary</th>
-                                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Total Deductions</th>
-                                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Taxable Income</th>
-                                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Tax Deducted</th>
-                                                <th className="px-4 py-3 text-center text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Status</th>
-                                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Download</th>
+                                            <tr className="border-b border-zoru-line bg-zoru-bg">
+                                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">Employee</th>
+                                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">PAN Number</th>
+                                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">Gross Salary</th>
+                                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">Total Deductions</th>
+                                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">Taxable Income</th>
+                                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">Tax Deducted</th>
+                                                <th className="px-4 py-3 text-center text-[12px] uppercase text-zoru-ink-muted">Status</th>
+                                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">Download</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {mockForm16Data.map(emp => (
-                                                <tr key={emp.id} className="border-b border-border last:border-0 hover:bg-secondary/50 transition-colors">
+                                                <tr key={emp.id} className="border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2/50 transition-colors">
                                                     <td className="px-4 py-3">
-                                                        <div className="font-medium text-foreground">{emp.employeeName}</div>
-                                                        <div className="text-[11.5px] text-muted-foreground">{emp.designation}</div>
+                                                        <div className="text-zoru-ink">{emp.employeeName}</div>
+                                                        <div className="text-[11.5px] text-zoru-ink-muted">{emp.designation}</div>
                                                     </td>
-                                                    <td className="px-4 py-3 font-mono text-[12px] text-foreground">{emp.pan}</td>
-                                                    <td className="px-4 py-3 text-right font-mono text-foreground">₹{emp.grossSalary.toLocaleString('en-IN')}</td>
-                                                    <td className="px-4 py-3 text-right font-mono text-foreground">₹{emp.totalDeductions.toLocaleString('en-IN')}</td>
-                                                    <td className="px-4 py-3 text-right font-mono text-foreground">₹{emp.taxableIncome.toLocaleString('en-IN')}</td>
-                                                    <td className="px-4 py-3 text-right font-mono font-semibold text-foreground">₹{emp.taxDeducted.toLocaleString('en-IN')}</td>
+                                                    <td className="px-4 py-3 font-mono text-[12px] text-zoru-ink">{emp.pan}</td>
+                                                    <td className="px-4 py-3 text-right font-mono text-zoru-ink">₹{emp.grossSalary.toLocaleString('en-IN')}</td>
+                                                    <td className="px-4 py-3 text-right font-mono text-zoru-ink">₹{emp.totalDeductions.toLocaleString('en-IN')}</td>
+                                                    <td className="px-4 py-3 text-right font-mono text-zoru-ink">₹{emp.taxableIncome.toLocaleString('en-IN')}</td>
+                                                    <td className="px-4 py-3 text-right font-mono text-zoru-ink">₹{emp.taxDeducted.toLocaleString('en-IN')}</td>
                                                     <td className="px-4 py-3 text-center">{statusBadge(emp.status)}</td>
                                                     <td className="px-4 py-3 text-right">
-                                                        <ClayButton
-                                                            variant="pill"
+                                                        <ZoruButton
+                                                            variant="outline"
                                                             size="sm"
-                                                            leading={<Download className="h-3.5 w-3.5" />}
                                                             disabled={emp.status !== 'generated'}
                                                         >
+                                                            <Download className="h-3.5 w-3.5" />
                                                             Form 16
-                                                        </ClayButton>
+                                                        </ZoruButton>
                                                     </td>
                                                 </tr>
                                             ))}
                                         </tbody>
                                         <tfoot>
-                                            <tr className="border-t-2 border-border bg-secondary">
-                                                <td colSpan={5} className="px-4 py-3 text-[12.5px] font-semibold text-foreground">Total Tax Deducted</td>
-                                                <td className="px-4 py-3 text-right font-mono text-[12.5px] font-bold text-foreground">₹{totalTaxDeducted.toLocaleString('en-IN')}</td>
+                                            <tr className="border-t-2 border-zoru-line bg-zoru-surface-2">
+                                                <td colSpan={5} className="px-4 py-3 text-[12.5px] text-zoru-ink">Total Tax Deducted</td>
+                                                <td className="px-4 py-3 text-right font-mono text-[12.5px] text-zoru-ink">₹{totalTaxDeducted.toLocaleString('en-IN')}</td>
                                                 <td colSpan={2} />
                                             </tr>
                                         </tfoot>
@@ -222,13 +217,13 @@ export default function Form16Page() {
                     ))}
                 </div>
 
-                <div className="mt-4 rounded-lg border border-dashed border-border bg-secondary p-4 text-center">
-                    <p className="text-[12.5px] text-muted-foreground">
+                <div className="mt-4 rounded-lg border border-dashed border-zoru-line bg-zoru-surface-2 p-4 text-center">
+                    <p className="text-[12.5px] text-zoru-ink-muted">
                         Payroll data must be finalized for the complete financial year before generating Form 16.
                         Currently showing sample data — connect to live payroll actions to enable actual generation.
                     </p>
                 </div>
-            </ClayCard>
+            </ZoruCard>
         </div>
     );
 }

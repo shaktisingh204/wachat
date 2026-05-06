@@ -6,19 +6,20 @@ import { useRouter } from 'next/navigation';
 import { useActionState, useEffect, useState } from 'react';
 import { ArrowLeft, LoaderCircle, Plus, Trash2 } from 'lucide-react';
 
-import { ClayCard, ClayButton } from '@/components/clay';
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { useToast } from '@/hooks/use-toast';
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import type { HrField } from './hr-entity-page';
 
 /**
@@ -65,7 +66,7 @@ export function HrFormPage({
   sections,
 }: HrFormPageProps) {
   const router = useRouter();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [state, formAction, isPending] = useActionState(saveAction, {
     message: '',
     error: '',
@@ -98,16 +99,16 @@ export function HrFormPage({
     sectionFields.forEach((f) => renderedFieldNames.add(f.name));
     if (sectionFields.length === 0) return null;
     return (
-      <ClayCard key={title}>
+      <ZoruCard key={title} className="p-6">
         <div className="mb-4">
-          <h2 className="text-[15px] font-semibold text-foreground">{title}</h2>
+          <h2 className="text-[15px] text-zoru-ink">{title}</h2>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           {sectionFields.map((field) => (
             <FieldCell key={field.name} field={field} initial={initial} />
           ))}
         </div>
-      </ClayCard>
+      </ZoruCard>
     );
   };
 
@@ -120,14 +121,12 @@ export function HrFormPage({
         subtitle={subtitle}
         icon={Icon}
         actions={
-          <Link href={backHref}>
-            <ClayButton
-              variant="pill"
-              leading={<ArrowLeft className="h-4 w-4" strokeWidth={1.75} />}
-            >
+          <ZoruButton variant="outline" asChild>
+            <Link href={backHref}>
+              <ArrowLeft className="h-4 w-4" strokeWidth={1.75} />
               Back
-            </ClayButton>
-          </Link>
+            </Link>
+          </ZoruButton>
         }
       />
 
@@ -139,10 +138,10 @@ export function HrFormPage({
         {sections?.map((sec) => renderSection(sec.title, sec.fieldNames))}
 
         {remainingFields.length > 0 ? (
-          <ClayCard>
+          <ZoruCard className="p-6">
             {sections ? (
               <div className="mb-4">
-                <h2 className="text-[15px] font-semibold text-foreground">
+                <h2 className="text-[15px] text-zoru-ink">
                   Additional details
                 </h2>
               </div>
@@ -152,27 +151,19 @@ export function HrFormPage({
                 <FieldCell key={field.name} field={field} initial={initial} />
               ))}
             </div>
-          </ClayCard>
+          </ZoruCard>
         ) : null}
 
         <div className="flex justify-end gap-2">
-          <Link href={backHref}>
-            <ClayButton type="button" variant="pill">
-              Cancel
-            </ClayButton>
-          </Link>
-          <ClayButton
-            type="submit"
-            variant="obsidian"
-            disabled={isPending}
-            leading={
-              isPending ? (
-                <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.75} />
-              ) : null
-            }
-          >
+          <ZoruButton type="button" variant="outline" asChild>
+            <Link href={backHref}>Cancel</Link>
+          </ZoruButton>
+          <ZoruButton type="submit" disabled={isPending}>
+            {isPending ? (
+              <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.75} />
+            ) : null}
             {isEdit ? `Update ${singular}` : `Create ${singular}`}
-          </ClayButton>
+          </ZoruButton>
         </div>
       </form>
     </div>
@@ -189,15 +180,15 @@ function FieldCell({
   const raw = initial ? initial[field.name] : undefined;
   return (
     <div className={field.fullWidth ? 'md:col-span-2' : ''}>
-      <Label htmlFor={field.name} className="text-foreground">
+      <ZoruLabel htmlFor={field.name}>
         {field.label}
-        {field.required ? <span className="text-destructive"> *</span> : null}
-      </Label>
+        {field.required ? <span className="text-zoru-danger-ink"> *</span> : null}
+      </ZoruLabel>
       <div className="mt-1.5">
         {renderField(field, raw)}
       </div>
       {field.help ? (
-        <p className="mt-1 text-[11.5px] text-muted-foreground">{field.help}</p>
+        <p className="mt-1 text-[11.5px] text-zoru-ink-muted">{field.help}</p>
       ) : null}
     </div>
   );
@@ -218,40 +209,25 @@ function renderField(field: HrField, raw?: unknown) {
   };
 
   if (field.type === 'textarea') {
-    return (
-      <Textarea
-        {...common}
-        rows={4}
-        className="rounded-lg border-border bg-card text-[13px]"
-      />
-    );
+    return <ZoruTextarea {...common} rows={4} />;
   }
   if (field.type === 'select') {
     return (
-      <Select name={field.name} defaultValue={String(common.defaultValue || '')}>
-        <SelectTrigger
-          id={field.name}
-          className="h-10 rounded-lg border-border bg-card text-[13px]"
-        >
-          <SelectValue placeholder={field.placeholder || 'Select'} />
-        </SelectTrigger>
-        <SelectContent>
+      <ZoruSelect name={field.name} defaultValue={String(common.defaultValue || '')}>
+        <ZoruSelectTrigger id={field.name}>
+          <ZoruSelectValue placeholder={field.placeholder || 'Select'} />
+        </ZoruSelectTrigger>
+        <ZoruSelectContent>
           {(field.options || []).map((opt) => (
-            <SelectItem key={opt.value} value={opt.value}>
+            <ZoruSelectItem key={opt.value} value={opt.value}>
               {opt.label}
-            </SelectItem>
+            </ZoruSelectItem>
           ))}
-        </SelectContent>
-      </Select>
+        </ZoruSelectContent>
+      </ZoruSelect>
     );
   }
-  return (
-    <Input
-      {...common}
-      type={field.type || 'text'}
-      className="h-10 rounded-lg border-border bg-card text-[13px]"
-    />
-  );
+  return <ZoruInput {...common} type={field.type || 'text'} />;
 }
 
 function formatForInput(value: unknown, type?: string): string {
@@ -312,7 +288,7 @@ function FieldArray({
       <input type="hidden" name={field.name} value={hiddenValue} />
 
       {rows.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-border bg-secondary px-3 py-2.5 text-center text-[12px] text-muted-foreground">
+        <p className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-2.5 text-center text-[12px] text-zoru-ink-muted">
           No rows yet — click Add below to start.
         </p>
       ) : (
@@ -320,17 +296,15 @@ function FieldArray({
           {rows.map((row, i) => (
             <div
               key={i}
-              className="flex flex-wrap items-end gap-2 rounded-lg border border-border bg-secondary p-2"
+              className="flex flex-wrap items-end gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-2"
             >
               {subs.map((s) => {
                 const fieldId = `${field.name}-${i}-${s.name}`;
                 if (s.type === 'select') {
                   return (
                     <div key={s.name} className="min-w-[120px] flex-1">
-                      <Label htmlFor={fieldId} className="text-[11px] text-muted-foreground">
-                        {s.label}
-                      </Label>
-                      <Select
+                      <ZoruLabel htmlFor={fieldId}>{s.label}</ZoruLabel>
+                      <ZoruSelect
                         value={row[s.name] || ''}
                         onValueChange={(v) =>
                           setRows((prev) =>
@@ -340,29 +314,24 @@ function FieldArray({
                           )
                         }
                       >
-                        <SelectTrigger
-                          id={fieldId}
-                          className="h-9 rounded-lg border-border bg-card text-[13px]"
-                        >
-                          <SelectValue placeholder={s.placeholder || 'Select'} />
-                        </SelectTrigger>
-                        <SelectContent>
+                        <ZoruSelectTrigger id={fieldId}>
+                          <ZoruSelectValue placeholder={s.placeholder || 'Select'} />
+                        </ZoruSelectTrigger>
+                        <ZoruSelectContent>
                           {(s.options || []).map((opt) => (
-                            <SelectItem key={opt.value} value={opt.value}>
+                            <ZoruSelectItem key={opt.value} value={opt.value}>
                               {opt.label}
-                            </SelectItem>
+                            </ZoruSelectItem>
                           ))}
-                        </SelectContent>
-                      </Select>
+                        </ZoruSelectContent>
+                      </ZoruSelect>
                     </div>
                   );
                 }
                 return (
                   <div key={s.name} className="min-w-[120px] flex-1">
-                    <Label htmlFor={fieldId} className="text-[11px] text-muted-foreground">
-                      {s.label}
-                    </Label>
-                    <Input
+                    <ZoruLabel htmlFor={fieldId}>{s.label}</ZoruLabel>
+                    <ZoruInput
                       id={fieldId}
                       type={s.type || 'text'}
                       value={row[s.name] || ''}
@@ -375,34 +344,36 @@ function FieldArray({
                           ),
                         )
                       }
-                      className="h-9 rounded-lg border-border bg-card text-[13px]"
                     />
                   </div>
                 );
               })}
-              <ClayButton
+              <ZoruButton
                 type="button"
-                variant="pill"
+                variant="ghost"
+                size="sm"
                 aria-label="Remove row"
+                className="text-zoru-danger-ink"
                 onClick={() =>
                   setRows((prev) => prev.filter((_, idx) => idx !== i))
                 }
               >
-                <Trash2 className="h-3.5 w-3.5 text-destructive" />
-              </ClayButton>
+                <Trash2 className="h-3.5 w-3.5" />
+              </ZoruButton>
             </div>
           ))}
         </div>
       )}
 
-      <ClayButton
+      <ZoruButton
         type="button"
-        variant="pill"
+        variant="outline"
+        size="sm"
         onClick={() => setRows((prev) => [...prev, emptyRow()])}
-        leading={<Plus className="h-3.5 w-3.5" />}
       >
+        <Plus className="mr-1.5 h-3.5 w-3.5" />
         {field.addLabel || 'Add row'}
-      </ClayButton>
+      </ZoruButton>
     </div>
   );
 }

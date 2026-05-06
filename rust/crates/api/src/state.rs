@@ -18,6 +18,7 @@ use meta_flows::MetaFlowsState;
 use meta_suite::MetaSuiteState;
 use meta_token::MetaTokenState;
 use qr_codes::QrCodesState;
+use sabfiles::SabfilesState;
 use sabnode_auth::AuthConfig;
 use sabnode_db::{mongo::MongoHandle, redis::RedisHandle};
 use wachat_analytics::WachatAnalyticsState;
@@ -93,6 +94,7 @@ pub struct AppState {
     pub fb_lead_gen: WachatFacebookLeadGenState,
     pub fb_messenger_profile: WachatFacebookMessengerProfileState,
     pub instagram: WachatInstagramState,
+    pub sabfiles: SabfilesState,
     pub ready: Arc<AtomicBool>,
 }
 
@@ -138,6 +140,7 @@ impl AppState {
         fb_lead_gen: WachatFacebookLeadGenState,
         fb_messenger_profile: WachatFacebookMessengerProfileState,
         instagram: WachatInstagramState,
+        sabfiles: SabfilesState,
     ) -> Self {
         Self {
             started_at: Utc::now(),
@@ -180,6 +183,7 @@ impl AppState {
             fb_lead_gen,
             fb_messenger_profile,
             instagram,
+            sabfiles,
             ready: Arc::new(AtomicBool::new(false)),
         }
     }
@@ -424,5 +428,11 @@ impl FromRef<AppState> for WachatFacebookMessengerProfileState {
 impl FromRef<AppState> for WachatInstagramState {
     fn from_ref(s: &AppState) -> Self {
         s.instagram.clone()
+    }
+}
+
+impl FromRef<AppState> for SabfilesState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabfiles.clone()
     }
 }

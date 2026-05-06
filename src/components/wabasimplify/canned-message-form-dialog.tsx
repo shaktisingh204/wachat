@@ -1,38 +1,35 @@
 'use client';
 
 /**
- * CannedMessageFormDialog — Clay-styled create/edit canned message.
+ * CannedMessageFormDialog — ZoruUI create/edit canned message.
  */
 
 import * as React from 'react';
 import { useEffect, useRef, useState, useTransition } from 'react';
 import type { WithId } from 'mongodb';
-import { LuBookmark, LuLoader, LuSave } from 'react-icons/lu';
+import { Bookmark, Loader, Save } from 'lucide-react';
 
 import { saveCannedMessageAction } from '@/app/actions/project.actions';
 import type { CannedMessage } from '@/lib/definitions';
-import { useToast } from '@/hooks/use-toast';
-
-import { ClayButton } from '@/components/clay';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
+  ZoruButton,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSwitch,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
 
 const initialState = {
   message: null,
@@ -57,7 +54,7 @@ export function CannedMessageFormDialog({
   const [isPending, startTransition] = useTransition();
   const [state, setState] = useState<any>(initialState);
   const formRef = useRef<HTMLFormElement>(null);
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [messageType, setMessageType] = useState<CannedMessage['type'] | ''>(
     existingMessage?.type || 'text',
   );
@@ -92,8 +89,8 @@ export function CannedMessageFormDialog({
   }, [isOpen, existingMessage]);
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="max-w-[540px] rounded-[18px] border border-border bg-card p-0 shadow-lg">
+    <ZoruDialog open={isOpen} onOpenChange={setIsOpen}>
+      <ZoruDialogContent className="max-w-[540px] border border-zoru-line bg-zoru-bg p-0 shadow-lg">
         <form action={action} ref={formRef}>
           <input type="hidden" name="projectId" value={projectId} />
           {existingMessage && (
@@ -104,50 +101,50 @@ export function CannedMessageFormDialog({
             />
           )}
 
-          <DialogHeader className="flex flex-row items-start gap-3 border-b border-border px-6 py-5">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-accent text-accent-foreground">
-              <LuBookmark className="h-5 w-5" strokeWidth={2} />
+          <ZoruDialogHeader className="flex flex-row items-start gap-3 border-b border-zoru-line px-6 py-5">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-zoru-surface-2 text-zoru-ink">
+              <Bookmark className="h-5 w-5" strokeWidth={2} />
             </span>
             <div className="min-w-0 flex-1">
-              <DialogTitle className="text-[16px] font-semibold text-foreground leading-tight">
+              <ZoruDialogTitle className="text-[16px] font-semibold text-zoru-ink leading-tight">
                 {existingMessage ? 'Edit canned message' : 'Create canned message'}
-              </DialogTitle>
-              <DialogDescription className="mt-0.5 text-[12px] text-muted-foreground leading-snug">
+              </ZoruDialogTitle>
+              <ZoruDialogDescription className="mt-0.5 text-[12px] text-zoru-ink-muted leading-snug">
                 Save a message for quick use in live chat conversations.
-              </DialogDescription>
+              </ZoruDialogDescription>
             </div>
-          </DialogHeader>
+          </ZoruDialogHeader>
 
           <div className="flex flex-col gap-5 px-6 py-5">
             {/* Name */}
             <div className="flex flex-col gap-1.5">
-              <Label
+              <ZoruLabel
                 htmlFor="name"
-                className="text-[11.5px] font-semibold text-muted-foreground"
+                className="text-[11.5px] font-semibold text-zoru-ink-muted"
               >
-                Name <span className="ml-1 text-destructive">*</span>
-              </Label>
-              <Input
+                Name <span className="ml-1 text-zoru-danger-ink">*</span>
+              </ZoruLabel>
+              <ZoruInput
                 id="name"
                 name="name"
                 placeholder="e.g., Welcome Message"
                 defaultValue={existingMessage?.name}
                 required
               />
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-[11px] text-zoru-ink-muted">
                 A unique name to identify this message.
               </p>
             </div>
 
             {/* Type */}
             <div className="flex flex-col gap-1.5">
-              <Label
+              <ZoruLabel
                 htmlFor="type"
-                className="text-[11.5px] font-semibold text-muted-foreground"
+                className="text-[11.5px] font-semibold text-zoru-ink-muted"
               >
-                Type <span className="ml-1 text-destructive">*</span>
-              </Label>
-              <Select
+                Type <span className="ml-1 text-zoru-danger-ink">*</span>
+              </ZoruLabel>
+              <ZoruSelect
                 name="type"
                 value={messageType}
                 onValueChange={(val) =>
@@ -155,29 +152,29 @@ export function CannedMessageFormDialog({
                 }
                 required
               >
-                <SelectTrigger id="type">
-                  <SelectValue placeholder="Select message type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="text">Text</SelectItem>
-                  <SelectItem value="image">Image</SelectItem>
-                  <SelectItem value="video">Video</SelectItem>
-                  <SelectItem value="audio">Audio</SelectItem>
-                  <SelectItem value="document">Document</SelectItem>
-                </SelectContent>
-              </Select>
+                <ZoruSelectTrigger id="type">
+                  <ZoruSelectValue placeholder="Select message type" />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                  <ZoruSelectItem value="text">Text</ZoruSelectItem>
+                  <ZoruSelectItem value="image">Image</ZoruSelectItem>
+                  <ZoruSelectItem value="video">Video</ZoruSelectItem>
+                  <ZoruSelectItem value="audio">Audio</ZoruSelectItem>
+                  <ZoruSelectItem value="document">Document</ZoruSelectItem>
+                </ZoruSelectContent>
+              </ZoruSelect>
             </div>
 
             {/* Type-conditional fields */}
             {messageType === 'text' ? (
               <div className="flex flex-col gap-1.5">
-                <Label
+                <ZoruLabel
                   htmlFor="text"
-                  className="text-[11.5px] font-semibold text-muted-foreground"
+                  className="text-[11.5px] font-semibold text-zoru-ink-muted"
                 >
-                  Content <span className="ml-1 text-destructive">*</span>
-                </Label>
-                <Textarea
+                  Content <span className="ml-1 text-zoru-danger-ink">*</span>
+                </ZoruLabel>
+                <ZoruTextarea
                   id="text"
                   name="text"
                   placeholder="Enter your message…"
@@ -189,13 +186,13 @@ export function CannedMessageFormDialog({
             ) : (
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <Label
+                  <ZoruLabel
                     htmlFor="mediaUrl"
-                    className="text-[11.5px] font-semibold text-muted-foreground"
+                    className="text-[11.5px] font-semibold text-zoru-ink-muted"
                   >
-                    Media URL <span className="ml-1 text-destructive">*</span>
-                  </Label>
-                  <Input
+                    Media URL <span className="ml-1 text-zoru-danger-ink">*</span>
+                  </ZoruLabel>
+                  <ZoruInput
                     id="mediaUrl"
                     name="mediaUrl"
                     placeholder="https://example.com/image.png"
@@ -204,16 +201,16 @@ export function CannedMessageFormDialog({
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <Label
+                  <ZoruLabel
                     htmlFor="caption"
-                    className="text-[11.5px] font-semibold text-muted-foreground"
+                    className="text-[11.5px] font-semibold text-zoru-ink-muted"
                   >
                     Caption{' '}
-                    <span className="ml-1 text-muted-foreground/70 font-normal">
+                    <span className="ml-1 text-zoru-ink-muted/70 font-normal">
                       (optional)
                     </span>
-                  </Label>
-                  <Textarea
+                  </ZoruLabel>
+                  <ZoruTextarea
                     id="caption"
                     name="caption"
                     placeholder="A caption for your media…"
@@ -222,16 +219,16 @@ export function CannedMessageFormDialog({
                 </div>
                 {messageType === 'document' && (
                   <div className="flex flex-col gap-1.5">
-                    <Label
+                    <ZoruLabel
                       htmlFor="fileName"
-                      className="text-[11.5px] font-semibold text-muted-foreground"
+                      className="text-[11.5px] font-semibold text-zoru-ink-muted"
                     >
                       File name{' '}
-                      <span className="ml-1 text-muted-foreground/70 font-normal">
+                      <span className="ml-1 text-zoru-ink-muted/70 font-normal">
                         (optional)
                       </span>
-                    </Label>
-                    <Input
+                    </ZoruLabel>
+                    <ZoruInput
                       id="fileName"
                       name="fileName"
                       placeholder="e.g., product_catalog.pdf"
@@ -243,19 +240,19 @@ export function CannedMessageFormDialog({
             )}
 
             {/* Favourite toggle */}
-            <div className="flex items-center justify-between rounded-[12px] border border-border bg-secondary px-4 py-3">
+            <div className="flex items-center justify-between rounded-[12px] border border-zoru-line bg-zoru-surface-2 px-4 py-3">
               <div>
-                <Label
+                <ZoruLabel
                   htmlFor="isFavourite"
-                  className="text-[13px] font-medium text-foreground"
+                  className="text-[13px] font-medium text-zoru-ink"
                 >
                   Mark as favourite
-                </Label>
-                <div className="mt-0.5 text-[11px] text-muted-foreground">
+                </ZoruLabel>
+                <div className="mt-0.5 text-[11px] text-zoru-ink-muted">
                   Pins this message to the top of the canned list.
                 </div>
               </div>
-              <Switch
+              <ZoruSwitch
                 id="isFavourite"
                 name="isFavourite"
                 defaultChecked={existingMessage?.isFavourite}
@@ -263,33 +260,26 @@ export function CannedMessageFormDialog({
             </div>
           </div>
 
-          <DialogFooter className="border-t border-border px-6 py-4 sm:justify-end gap-2">
-            <ClayButton
+          <ZoruDialogFooter className="border-t border-zoru-line px-6 py-4 sm:justify-end gap-2">
+            <ZoruButton
               type="button"
-              variant="pill"
+              variant="outline"
               size="md"
               onClick={() => setIsOpen(false)}
             >
               Cancel
-            </ClayButton>
-            <ClayButton
-              type="submit"
-              variant="rose"
-              size="md"
-              disabled={isPending}
-              leading={
-                isPending ? (
-                  <LuLoader className="h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <LuSave className="h-3.5 w-3.5" strokeWidth={2} />
-                )
-              }
-            >
+            </ZoruButton>
+            <ZoruButton type="submit" size="md" disabled={isPending}>
+              {isPending ? (
+                <Loader className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Save className="h-3.5 w-3.5" strokeWidth={2} />
+              )}
               {isPending ? 'Saving…' : 'Save message'}
-            </ClayButton>
-          </DialogFooter>
+            </ZoruButton>
+          </ZoruDialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      </ZoruDialogContent>
+    </ZoruDialog>
   );
 }

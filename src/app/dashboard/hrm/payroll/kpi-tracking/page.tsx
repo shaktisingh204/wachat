@@ -1,43 +1,38 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import * as React from 'react';
 import { useTransition, useActionState, useEffect, useState } from 'react';
 import { LineChart, Plus, Pencil, Trash2, LoaderCircle } from 'lucide-react';
 
-import { ClayCard, ClayBadge, ClayButton } from '@/components/clay';
+import {
+  ZoruCard,
+  ZoruBadge,
+  ZoruButton,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogDescription,
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSkeleton,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
 import {
   getCrmKpis,
   saveCrmKpi,
@@ -46,10 +41,10 @@ import {
 } from '@/app/actions/crm-hr-appraisals.actions';
 import { WithId } from 'mongodb';
 
-const STATUS_TONES: Record<CrmKpi['status'], 'green' | 'amber' | 'red'> = {
-  achieved: 'green',
-  'on-track': 'amber',
-  behind: 'red',
+const STATUS_VARIANTS: Record<CrmKpi['status'], 'success' | 'warning' | 'danger'> = {
+  achieved: 'success',
+  'on-track': 'warning',
+  behind: 'danger',
 };
 
 function AchievementBar({ target, actual }: { target: number; actual: number }) {
@@ -58,10 +53,10 @@ function AchievementBar({ target, actual }: { target: number; actual: number }) 
     pct >= 100 ? 'bg-green-500' : pct >= 60 ? 'bg-amber-500' : 'bg-red-500';
   return (
     <div className="flex items-center gap-2">
-      <div className="h-1.5 w-20 overflow-hidden rounded-full bg-border">
+      <div className="h-1.5 w-20 overflow-hidden rounded-full bg-zoru-line">
         <div className={`h-full rounded-full ${color}`} style={{ width: `${pct}%` }} />
       </div>
-      <span className="text-[12px] tabular-nums text-muted-foreground">{pct}%</span>
+      <span className="text-[12px] tabular-nums text-zoru-ink-muted">{pct}%</span>
     </div>
   );
 }
@@ -79,7 +74,7 @@ function KpiFormDialog({
   kpi: WithId<CrmKpi> | null;
   onSaved: () => void;
 }) {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [state, formAction, isPending] = useActionState(saveCrmKpi, SAVE_INITIAL);
   const isEdit = Boolean(kpi?._id);
 
@@ -95,124 +90,119 @@ function KpiFormDialog({
   }, [state, toast, onOpenChange, onSaved]);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
-          <DialogTitle className="text-foreground">
+    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+      <ZoruDialogContent className="max-w-lg">
+        <ZoruDialogHeader>
+          <ZoruDialogTitle className="text-zoru-ink">
             {isEdit ? 'Edit KPI' : 'New KPI'}
-          </DialogTitle>
-          <DialogDescription className="text-muted-foreground">
+          </ZoruDialogTitle>
+          <ZoruDialogDescription className="text-zoru-ink-muted">
             Define a key performance indicator and track progress.
-          </DialogDescription>
-        </DialogHeader>
+          </ZoruDialogDescription>
+        </ZoruDialogHeader>
 
         <form action={formAction} className="space-y-4 py-2">
           {isEdit && <input type="hidden" name="id" value={String(kpi!._id)} />}
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-1.5 md:col-span-2">
-              <Label className="text-foreground">
-                KPI Name <span className="text-destructive">*</span>
-              </Label>
-              <Input
+              <ZoruLabel className="text-zoru-ink">
+                KPI Name <span className="text-zoru-danger-ink">*</span>
+              </ZoruLabel>
+              <ZoruInput
                 name="kpi_name"
                 required
                 defaultValue={kpi?.kpi_name ?? ''}
                 placeholder="e.g. Monthly Sales Revenue"
-                className="h-10 rounded-lg border-border bg-card text-[13px]"
+                className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-foreground">Employee</Label>
-              <Input
+              <ZoruLabel className="text-zoru-ink">Employee</ZoruLabel>
+              <ZoruInput
                 name="employee_id"
                 defaultValue={kpi?.employee_id ?? ''}
                 placeholder="Employee ID or name"
-                className="h-10 rounded-lg border-border bg-card text-[13px]"
+                className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-foreground">Period</Label>
-              <Input
+              <ZoruLabel className="text-zoru-ink">Period</ZoruLabel>
+              <ZoruInput
                 name="period"
                 defaultValue={kpi?.period ?? ''}
                 placeholder="Q1 2026"
-                className="h-10 rounded-lg border-border bg-card text-[13px]"
+                className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-foreground">Target Value</Label>
-              <Input
+              <ZoruLabel className="text-zoru-ink">Target Value</ZoruLabel>
+              <ZoruInput
                 name="target_value"
                 type="number"
                 defaultValue={kpi?.target_value ?? ''}
                 placeholder="100"
-                className="h-10 rounded-lg border-border bg-card text-[13px]"
+                className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-foreground">Actual Value</Label>
-              <Input
+              <ZoruLabel className="text-zoru-ink">Actual Value</ZoruLabel>
+              <ZoruInput
                 name="actual_value"
                 type="number"
                 defaultValue={kpi?.actual_value ?? ''}
                 placeholder="0"
-                className="h-10 rounded-lg border-border bg-card text-[13px]"
+                className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-foreground">Unit</Label>
-              <Select name="unit" defaultValue={kpi?.unit ?? '%'}>
-                <SelectTrigger className="h-10 rounded-lg border-border bg-card text-[13px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="%">% (Percentage)</SelectItem>
-                  <SelectItem value="$">$ (Currency)</SelectItem>
-                  <SelectItem value="count">Count</SelectItem>
-                </SelectContent>
-              </Select>
+              <ZoruLabel className="text-zoru-ink">Unit</ZoruLabel>
+              <ZoruSelect name="unit" defaultValue={kpi?.unit ?? '%'}>
+                <ZoruSelectTrigger className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                  <ZoruSelectValue />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                  <ZoruSelectItem value="%">% (Percentage)</ZoruSelectItem>
+                  <ZoruSelectItem value="$">$ (Currency)</ZoruSelectItem>
+                  <ZoruSelectItem value="count">Count</ZoruSelectItem>
+                </ZoruSelectContent>
+              </ZoruSelect>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-foreground">Status</Label>
-              <Select name="status" defaultValue={kpi?.status ?? 'on-track'}>
-                <SelectTrigger className="h-10 rounded-lg border-border bg-card text-[13px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="on-track">On Track</SelectItem>
-                  <SelectItem value="behind">Behind</SelectItem>
-                  <SelectItem value="achieved">Achieved</SelectItem>
-                </SelectContent>
-              </Select>
+              <ZoruLabel className="text-zoru-ink">Status</ZoruLabel>
+              <ZoruSelect name="status" defaultValue={kpi?.status ?? 'on-track'}>
+                <ZoruSelectTrigger className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                  <ZoruSelectValue />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                  <ZoruSelectItem value="on-track">On Track</ZoruSelectItem>
+                  <ZoruSelectItem value="behind">Behind</ZoruSelectItem>
+                  <ZoruSelectItem value="achieved">Achieved</ZoruSelectItem>
+                </ZoruSelectContent>
+              </ZoruSelect>
             </div>
           </div>
 
-          <DialogFooter className="gap-2">
-            <ClayButton type="button" variant="pill" onClick={() => onOpenChange(false)}>
+          <ZoruDialogFooter className="gap-2">
+            <ZoruButton type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
-            </ClayButton>
-            <ClayButton
+            </ZoruButton>
+            <ZoruButton
               type="submit"
-              variant="obsidian"
               disabled={isPending}
-              leading={
-                isPending ? (
-                  <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.75} />
-                ) : null
-              }
             >
+              {isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
               {isEdit ? 'Update KPI' : 'Create KPI'}
-            </ClayButton>
-          </DialogFooter>
+            </ZoruButton>
+          </ZoruDialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      </ZoruDialogContent>
+    </ZoruDialog>
   );
 }
 
 export default function KpiTrackingPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [kpis, setKpis] = useState<WithId<CrmKpi>[]>([]);
   const [isLoading, startLoading] = useTransition();
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -254,23 +244,23 @@ export default function KpiTrackingPage() {
         kpi={editing}
         onSaved={refresh}
       />
-      <AlertDialog
+      <ZoruAlertDialog
         open={deletingId !== null}
         onOpenChange={(o) => !o && setDeletingId(null)}
       >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-foreground">Delete KPI?</AlertDialogTitle>
-            <AlertDialogDescription className="text-muted-foreground">
+        <ZoruAlertDialogContent>
+          <ZoruAlertDialogHeader>
+            <ZoruAlertDialogTitle className="text-zoru-ink">Delete KPI?</ZoruAlertDialogTitle>
+            <ZoruAlertDialogDescription className="text-zoru-ink-muted">
               This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </ZoruAlertDialogDescription>
+          </ZoruAlertDialogHeader>
+          <ZoruAlertDialogFooter>
+            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+            <ZoruAlertDialogAction onClick={handleDelete}>Delete</ZoruAlertDialogAction>
+          </ZoruAlertDialogFooter>
+        </ZoruAlertDialogContent>
+      </ZoruAlertDialog>
 
       <div className="flex w-full flex-col gap-6">
         <CrmPageHeader
@@ -278,40 +268,39 @@ export default function KpiTrackingPage() {
           subtitle="Define and monitor key performance indicators for teams and employees."
           icon={LineChart}
           actions={
-            <ClayButton
-              variant="obsidian"
-              leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}
+            <ZoruButton
               onClick={() => {
                 setEditing(null);
                 setDialogOpen(true);
               }}
             >
+              <Plus className="h-4 w-4" />
               New KPI
-            </ClayButton>
+            </ZoruButton>
           }
         />
 
-        <ClayCard>
-          <div className="overflow-x-auto rounded-lg border border-border">
+        <ZoruCard className="p-6">
+          <div className="overflow-x-auto rounded-lg border border-zoru-line">
             <table className="w-full text-left text-[13px]">
               <thead>
-                <tr className="border-b border-border">
-                  <th className="px-4 py-3 text-[12px] font-medium text-muted-foreground">KPI Name</th>
-                  <th className="px-4 py-3 text-[12px] font-medium text-muted-foreground">Employee</th>
-                  <th className="px-4 py-3 text-[12px] font-medium text-muted-foreground">Period</th>
-                  <th className="px-4 py-3 text-[12px] font-medium text-muted-foreground">Target</th>
-                  <th className="px-4 py-3 text-[12px] font-medium text-muted-foreground">Actual</th>
-                  <th className="px-4 py-3 text-[12px] font-medium text-muted-foreground">Achievement</th>
-                  <th className="px-4 py-3 text-[12px] font-medium text-muted-foreground">Status</th>
-                  <th className="px-4 py-3 text-right text-[12px] font-medium text-muted-foreground">Actions</th>
+                <tr className="border-b border-zoru-line">
+                  <th className="px-4 py-3 text-[12px] text-zoru-ink-muted">KPI Name</th>
+                  <th className="px-4 py-3 text-[12px] text-zoru-ink-muted">Employee</th>
+                  <th className="px-4 py-3 text-[12px] text-zoru-ink-muted">Period</th>
+                  <th className="px-4 py-3 text-[12px] text-zoru-ink-muted">Target</th>
+                  <th className="px-4 py-3 text-[12px] text-zoru-ink-muted">Actual</th>
+                  <th className="px-4 py-3 text-[12px] text-zoru-ink-muted">Achievement</th>
+                  <th className="px-4 py-3 text-[12px] text-zoru-ink-muted">Status</th>
+                  <th className="px-4 py-3 text-right text-[12px] text-zoru-ink-muted">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {isLoading && kpis.length === 0 ? (
                   [0, 1, 2].map((i) => (
-                    <tr key={i} className="border-b border-border">
+                    <tr key={i} className="border-b border-zoru-line">
                       <td colSpan={8} className="px-4 py-3">
-                        <Skeleton className="h-5 w-full" />
+                        <ZoruSkeleton className="h-5 w-full" />
                       </td>
                     </tr>
                   ))
@@ -319,7 +308,7 @@ export default function KpiTrackingPage() {
                   <tr>
                     <td
                       colSpan={8}
-                      className="px-4 py-12 text-center text-[13px] text-muted-foreground"
+                      className="px-4 py-12 text-center text-[13px] text-zoru-ink-muted"
                     >
                       No KPIs yet — click New KPI to get started.
                     </td>
@@ -328,24 +317,24 @@ export default function KpiTrackingPage() {
                   kpis.map((kpi) => (
                     <tr
                       key={String(kpi._id)}
-                      className="border-b border-border last:border-0"
+                      className="border-b border-zoru-line last:border-0"
                     >
-                      <td className="px-4 py-3 font-medium text-foreground">
+                      <td className="px-4 py-3 text-zoru-ink">
                         {kpi.kpi_name}
                       </td>
-                      <td className="max-w-[120px] truncate px-4 py-3 text-muted-foreground">
+                      <td className="max-w-[120px] truncate px-4 py-3 text-zoru-ink-muted">
                         {kpi.employee_id || '—'}
                       </td>
-                      <td className="px-4 py-3 text-muted-foreground">{kpi.period || '—'}</td>
-                      <td className="px-4 py-3 tabular-nums text-foreground">
+                      <td className="px-4 py-3 text-zoru-ink-muted">{kpi.period || '—'}</td>
+                      <td className="px-4 py-3 tabular-nums text-zoru-ink">
                         {kpi.target_value}
-                        <span className="ml-0.5 text-[11px] text-muted-foreground">
+                        <span className="ml-0.5 text-[11px] text-zoru-ink-muted">
                           {kpi.unit}
                         </span>
                       </td>
-                      <td className="px-4 py-3 tabular-nums text-foreground">
+                      <td className="px-4 py-3 tabular-nums text-zoru-ink">
                         {kpi.actual_value}
-                        <span className="ml-0.5 text-[11px] text-muted-foreground">
+                        <span className="ml-0.5 text-[11px] text-zoru-ink-muted">
                           {kpi.unit}
                         </span>
                       </td>
@@ -356,29 +345,29 @@ export default function KpiTrackingPage() {
                         />
                       </td>
                       <td className="px-4 py-3">
-                        <ClayBadge tone={STATUS_TONES[kpi.status] ?? 'neutral'} dot>
+                        <ZoruBadge variant={STATUS_VARIANTS[kpi.status] ?? 'secondary'}>
                           {kpi.status}
-                        </ClayBadge>
+                        </ZoruBadge>
                       </td>
                       <td className="px-4 py-3 text-right">
                         <div className="flex justify-end gap-1">
-                          <ClayButton
-                            variant="pill"
+                          <ZoruButton
+                            variant="ghost"
                             size="sm"
-                            leading={<Pencil className="h-3.5 w-3.5" strokeWidth={1.75} />}
                             onClick={() => {
                               setEditing(kpi);
                               setDialogOpen(true);
                             }}
-                          />
-                          <ClayButton
-                            variant="pill"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </ZoruButton>
+                          <ZoruButton
+                            variant="ghost"
                             size="sm"
-                            leading={
-                              <Trash2 className="h-3.5 w-3.5 text-destructive" strokeWidth={1.75} />
-                            }
                             onClick={() => setDeletingId(String(kpi._id))}
-                          />
+                          >
+                            <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                          </ZoruButton>
                         </div>
                       </td>
                     </tr>
@@ -387,7 +376,7 @@ export default function KpiTrackingPage() {
               </tbody>
             </table>
           </div>
-        </ClayCard>
+        </ZoruCard>
       </div>
     </>
   );

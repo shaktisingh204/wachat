@@ -6,14 +6,27 @@ import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import { getPlanById, savePlan } from '@/app/actions/plan.actions';
 import type { Plan } from '@/lib/definitions';
-import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Skeleton } from '@/components/ui/skeleton';
+import {
+    ZoruBadge,
+    ZoruButton,
+    ZoruCard,
+    ZoruCardContent,
+    ZoruCardDescription,
+    ZoruCardHeader,
+    ZoruCardTitle,
+    ZoruInput,
+    ZoruLabel,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+    ZoruSkeleton,
+    ZoruSwitch,
+    cn,
+    useZoruToast,
+} from '@/components/zoruui';
 import {
     ChevronLeft,
     LoaderCircle,
@@ -26,12 +39,8 @@ import {
     Boxes,
     Crown,
 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PlanPermissionSelector } from '@/components/wabasimplify/plan-permission-selector';
 import { PlanFeaturesSelector } from '@/components/wabasimplify/plan-features-selector';
-import { cn } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,7 +49,7 @@ const initialState = { message: null, error: null };
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <Button
+        <ZoruButton
             type="submit"
             disabled={pending}
             size="lg"
@@ -52,7 +61,7 @@ function SubmitButton() {
                 <Save className="h-4 w-4" />
             )}
             Save Plan
-        </Button>
+        </ZoruButton>
     );
 }
 
@@ -105,13 +114,13 @@ function SectionCard({
     };
     const styles = accentMap[accent || 'primary'];
     return (
-        <Card
+        <ZoruCard
             className={cn(
                 'rounded-2xl border-slate-200 bg-white backdrop-blur-xl shadow-sm overflow-hidden',
                 premium && 'ring-1 ring-amber-500/40 shadow-amber-500/10',
             )}
         >
-            <CardHeader
+            <ZoruCardHeader
                 className={cn(
                     'border-b border-slate-200 bg-gradient-to-r to-transparent',
                     styles.glow,
@@ -130,24 +139,24 @@ function SectionCard({
                     )}
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                            <CardTitle className="text-base">{title}</CardTitle>
+                            <ZoruCardTitle className="text-base">{title}</ZoruCardTitle>
                             {premium && (
-                                <Badge className="rounded-full text-[9px] h-5 px-2 gap-1 bg-gradient-to-r from-amber-500/80 to-amber-400/80 text-zinc-950 border-0 font-bold uppercase tracking-wider">
+                                <ZoruBadge className="rounded-full text-[9px] h-5 px-2 gap-1 bg-gradient-to-r from-amber-500/80 to-amber-400/80 text-zinc-950 border-0 font-bold uppercase tracking-wider">
                                     <Crown className="h-2.5 w-2.5" />
                                     Premium
-                                </Badge>
+                                </ZoruBadge>
                             )}
                         </div>
                         {description && (
-                            <CardDescription className="text-xs mt-0.5">
+                            <ZoruCardDescription className="text-xs mt-0.5">
                                 {description}
-                            </CardDescription>
+                            </ZoruCardDescription>
                         )}
                     </div>
                 </div>
-            </CardHeader>
-            <CardContent className="pt-5">{children}</CardContent>
-        </Card>
+            </ZoruCardHeader>
+            <ZoruCardContent className="pt-5">{children}</ZoruCardContent>
+        </ZoruCard>
     );
 }
 
@@ -162,7 +171,7 @@ function Field({
 }) {
     return (
         <div className="space-y-1.5">
-            <Label className="text-xs font-medium text-muted-foreground">{label}</Label>
+            <ZoruLabel className="text-xs font-medium text-muted-foreground">{label}</ZoruLabel>
             {children}
             {hint && <p className="text-[10px] text-muted-foreground/70">{hint}</p>}
         </div>
@@ -175,12 +184,15 @@ export default function PlanEditorPage() {
     const params = useParams();
     const planId = params.planId as string;
     const router = useRouter();
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
     const [state, setState] = useState<any>(initialState);
     const [, startTransition] = useTransition();
 
     const [plan, setPlan] = useState<WithId<Plan> | null>(null);
     const [loading, setLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState<
+        'overview' | 'pricing' | 'limits' | 'modules' | 'features' | 'permissions'
+    >('overview');
 
     const isNew = planId === 'new';
 
@@ -229,9 +241,9 @@ export default function PlanEditorPage() {
     if (loading) {
         return (
             <div className="space-y-4">
-                <Skeleton className="h-10 w-48" />
-                <Skeleton className="h-32 w-full rounded-2xl" />
-                <Skeleton className="h-96 w-full rounded-2xl" />
+                <ZoruSkeleton className="h-10 w-48" />
+                <ZoruSkeleton className="h-32 w-full rounded-2xl" />
+                <ZoruSkeleton className="h-96 w-full rounded-2xl" />
             </div>
         );
     }
@@ -245,7 +257,7 @@ export default function PlanEditorPage() {
                 <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-primary/20 blur-3xl pointer-events-none" />
                 <div className="absolute -bottom-24 -left-16 h-64 w-64 rounded-full bg-violet-100 blur-3xl pointer-events-none" />
                 <div className="relative">
-                    <Button
+                    <ZoruButton
                         type="button"
                         variant="ghost"
                         asChild
@@ -256,12 +268,12 @@ export default function PlanEditorPage() {
                             <ChevronLeft className="mr-1 h-4 w-4" />
                             Back to Plans
                         </Link>
-                    </Button>
+                    </ZoruButton>
                     <div className="inline-flex items-center gap-2 text-xs font-medium text-primary mb-1">
                         <Sparkles className="h-3.5 w-3.5" />
                         {isNew ? 'New Plan' : 'Editing Plan'}
                     </div>
-                    <h1 className="text-2xl md:text-3xl font-bold font-headline tracking-tight">
+                    <h1 className="text-2xl md:text-3xl text-zoru-ink">
                         {isNew ? 'Create a new plan' : plan?.name}
                     </h1>
                     <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
@@ -271,41 +283,38 @@ export default function PlanEditorPage() {
                 </div>
             </div>
 
-            {/* Tabs */}
-            <Tabs defaultValue="overview" className="space-y-5">
-                <TabsList className="h-auto p-1 rounded-2xl bg-white border border-slate-200 backdrop-blur-xl flex-wrap w-full justify-start gap-1">
-                    <TabsTrigger value="overview" className="rounded-xl gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                        <CreditCard className="h-4 w-4" />
-                        Overview
-                    </TabsTrigger>
-                    <TabsTrigger value="pricing" className="rounded-xl gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                        <DollarSign className="h-4 w-4" />
-                        Pricing & Credits
-                    </TabsTrigger>
-                    <TabsTrigger value="limits" className="rounded-xl gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                        <Gauge className="h-4 w-4" />
-                        Usage Limits
-                    </TabsTrigger>
-                    <TabsTrigger value="modules" className="rounded-xl gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                        <Boxes className="h-4 w-4" />
-                        Module Limits
-                    </TabsTrigger>
-                    <TabsTrigger value="features" className="rounded-xl gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                        <Sparkles className="h-4 w-4" />
-                        Features
-                    </TabsTrigger>
-                    <TabsTrigger value="permissions" className="rounded-xl gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                        <ShieldCheck className="h-4 w-4" />
-                        Permissions
-                    </TabsTrigger>
-                </TabsList>
+            {/* Segmented tab strip */}
+            <div className="space-y-5">
+                <div className="flex w-full flex-wrap justify-start gap-1 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-1">
+                    {(
+                        [
+                            { key: 'overview', icon: CreditCard, label: 'Overview' },
+                            { key: 'pricing', icon: DollarSign, label: 'Pricing & Credits' },
+                            { key: 'limits', icon: Gauge, label: 'Usage Limits' },
+                            { key: 'modules', icon: Boxes, label: 'Module Limits' },
+                            { key: 'features', icon: Sparkles, label: 'Features' },
+                            { key: 'permissions', icon: ShieldCheck, label: 'Permissions' },
+                        ] as const
+                    ).map(({ key, icon: Icon, label }) => (
+                        <button
+                            key={key}
+                            type="button"
+                            onClick={() => setActiveTab(key)}
+                            className={cn(
+                                'flex items-center gap-2 rounded-[var(--zoru-radius-sm)] px-3 py-1.5 text-sm transition-colors',
+                                activeTab === key
+                                    ? 'bg-zoru-ink text-zoru-bg'
+                                    : 'text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink',
+                            )}
+                        >
+                            <Icon className="h-4 w-4" />
+                            {label}
+                        </button>
+                    ))}
+                </div>
 
                 {/* OVERVIEW */}
-                <TabsContent
-                    value="overview"
-                    forceMount
-                    className="space-y-5 mt-0 data-[state=inactive]:hidden"
-                >
+                <div className={cn('space-y-5', activeTab !== 'overview' && 'hidden')}>
                     <SectionCard
                         title="Basic details"
                         description="Name, category, and visibility flags for this plan."
@@ -313,7 +322,7 @@ export default function PlanEditorPage() {
                     >
                         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                             <Field label="Plan name">
-                                <Input
+                                <ZoruInput
                                     name="name"
                                     defaultValue={plan?.name}
                                     required
@@ -322,36 +331,36 @@ export default function PlanEditorPage() {
                                 />
                             </Field>
                             <Field label="Category">
-                                <Select name="appCategory" defaultValue={plan?.appCategory}>
-                                    <SelectTrigger className={inputClass}>
-                                        <SelectValue placeholder="Select category…" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="All-In-One">All-In-One</SelectItem>
-                                        <SelectItem value="Wachat">Wachat</SelectItem>
-                                        <SelectItem value="CRM">CRM</SelectItem>
-                                        <SelectItem value="Meta">Meta Suite</SelectItem>
-                                        <SelectItem value="Facebook">Facebook</SelectItem>
-                                        <SelectItem value="Instagram">Instagram</SelectItem>
-                                        <SelectItem value="Ad Manager">
+                                <ZoruSelect name="appCategory" defaultValue={plan?.appCategory}>
+                                    <ZoruSelectTrigger className={inputClass}>
+                                        <ZoruSelectValue placeholder="Select category…" />
+                                    </ZoruSelectTrigger>
+                                    <ZoruSelectContent>
+                                        <ZoruSelectItem value="All-In-One">All-In-One</ZoruSelectItem>
+                                        <ZoruSelectItem value="Wachat">Wachat</ZoruSelectItem>
+                                        <ZoruSelectItem value="CRM">CRM</ZoruSelectItem>
+                                        <ZoruSelectItem value="Meta">Meta Suite</ZoruSelectItem>
+                                        <ZoruSelectItem value="Facebook">Facebook</ZoruSelectItem>
+                                        <ZoruSelectItem value="Instagram">Instagram</ZoruSelectItem>
+                                        <ZoruSelectItem value="Ad Manager">
                                             Ad Manager (Premium)
-                                        </SelectItem>
-                                        <SelectItem value="Email">Email</SelectItem>
-                                        <SelectItem value="SMS">SMS</SelectItem>
-                                        <SelectItem value="SabChat">SabChat</SelectItem>
-                                        <SelectItem value="SEO">SEO</SelectItem>
-                                        <SelectItem value="Website Builder">
+                                        </ZoruSelectItem>
+                                        <ZoruSelectItem value="Email">Email</ZoruSelectItem>
+                                        <ZoruSelectItem value="SMS">SMS</ZoruSelectItem>
+                                        <ZoruSelectItem value="SabChat">SabChat</ZoruSelectItem>
+                                        <ZoruSelectItem value="SEO">SEO</ZoruSelectItem>
+                                        <ZoruSelectItem value="Website Builder">
                                             Website Builder
-                                        </SelectItem>
-                                        <SelectItem value="URL Shortener">URL Shortener</SelectItem>
-                                        <SelectItem value="QR Code Generator">
+                                        </ZoruSelectItem>
+                                        <ZoruSelectItem value="URL Shortener">URL Shortener</ZoruSelectItem>
+                                        <ZoruSelectItem value="QR Code Generator">
                                             QR Code Generator
-                                        </SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                        </ZoruSelectItem>
+                                    </ZoruSelectContent>
+                                </ZoruSelect>
                             </Field>
                             <Field label="Price / month">
-                                <Input
+                                <ZoruInput
                                     name="price"
                                     type="number"
                                     defaultValue={plan?.price ?? 49}
@@ -362,50 +371,46 @@ export default function PlanEditorPage() {
                                 />
                             </Field>
                             <Field label="Currency">
-                                <Select name="currency" defaultValue={plan?.currency || 'INR'} required>
-                                    <SelectTrigger className={inputClass}>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="INR">INR</SelectItem>
-                                        <SelectItem value="USD">USD</SelectItem>
-                                        <SelectItem value="EUR">EUR</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                <ZoruSelect name="currency" defaultValue={plan?.currency || 'INR'} required>
+                                    <ZoruSelectTrigger className={inputClass}>
+                                        <ZoruSelectValue />
+                                    </ZoruSelectTrigger>
+                                    <ZoruSelectContent>
+                                        <ZoruSelectItem value="INR">INR</ZoruSelectItem>
+                                        <ZoruSelectItem value="USD">USD</ZoruSelectItem>
+                                        <ZoruSelectItem value="EUR">EUR</ZoruSelectItem>
+                                    </ZoruSelectContent>
+                                </ZoruSelect>
                             </Field>
                         </div>
 
                         <div className="mt-6 flex flex-wrap gap-4 pt-4 border-t border-slate-200">
                             <div className="flex items-center gap-2 rounded-xl bg-white border border-slate-200 px-4 py-2">
-                                <Switch
+                                <ZoruSwitch
                                     id="isPublic"
                                     name="isPublic"
                                     defaultChecked={plan?.isPublic ?? false}
                                 />
-                                <Label htmlFor="isPublic" className="text-sm">
+                                <ZoruLabel htmlFor="isPublic" className="text-sm">
                                     Publicly visible
-                                </Label>
+                                </ZoruLabel>
                             </div>
                             <div className="flex items-center gap-2 rounded-xl bg-white border border-slate-200 px-4 py-2">
-                                <Switch
+                                <ZoruSwitch
                                     id="isDefault"
                                     name="isDefault"
                                     defaultChecked={plan?.isDefault ?? false}
                                 />
-                                <Label htmlFor="isDefault" className="text-sm">
+                                <ZoruLabel htmlFor="isDefault" className="text-sm">
                                     Default for new signups
-                                </Label>
+                                </ZoruLabel>
                             </div>
                         </div>
                     </SectionCard>
-                </TabsContent>
+                </div>
 
                 {/* PRICING & CREDITS */}
-                <TabsContent
-                    value="pricing"
-                    forceMount
-                    className="space-y-5 mt-0 data-[state=inactive]:hidden"
-                >
+                <div className={cn('space-y-5', activeTab !== 'pricing' && 'hidden')}>
                     <SectionCard
                         title="Signup & initial credits"
                         description="One-time credits granted to users when they land on this plan."
@@ -413,7 +418,7 @@ export default function PlanEditorPage() {
                     >
                         <div className="grid gap-4 md:grid-cols-5">
                             <Field label="Signup credits (legacy)">
-                                <Input
+                                <ZoruInput
                                     name="signupCredits"
                                     type="number"
                                     defaultValue={plan?.signupCredits ?? 0}
@@ -423,7 +428,7 @@ export default function PlanEditorPage() {
                                 />
                             </Field>
                             <Field label="Broadcast">
-                                <Input
+                                <ZoruInput
                                     name="init_broadcast"
                                     type="number"
                                     defaultValue={plan?.initialCredits?.broadcast ?? 0}
@@ -432,7 +437,7 @@ export default function PlanEditorPage() {
                                 />
                             </Field>
                             <Field label="SMS">
-                                <Input
+                                <ZoruInput
                                     name="init_sms"
                                     type="number"
                                     defaultValue={plan?.initialCredits?.sms ?? 0}
@@ -441,7 +446,7 @@ export default function PlanEditorPage() {
                                 />
                             </Field>
                             <Field label="Meta Suite">
-                                <Input
+                                <ZoruInput
                                     name="init_meta"
                                     type="number"
                                     defaultValue={plan?.initialCredits?.meta ?? 0}
@@ -450,7 +455,7 @@ export default function PlanEditorPage() {
                                 />
                             </Field>
                             <Field label="Email">
-                                <Input
+                                <ZoruInput
                                     name="init_email"
                                     type="number"
                                     defaultValue={plan?.initialCredits?.email ?? 0}
@@ -467,7 +472,7 @@ export default function PlanEditorPage() {
                     >
                         <div className="grid gap-4 md:grid-cols-3">
                             <Field label="Marketing">
-                                <Input
+                                <ZoruInput
                                     name="cost_marketing"
                                     type="number"
                                     defaultValue={plan?.messageCosts?.marketing ?? 0.05}
@@ -478,7 +483,7 @@ export default function PlanEditorPage() {
                                 />
                             </Field>
                             <Field label="Utility">
-                                <Input
+                                <ZoruInput
                                     name="cost_utility"
                                     type="number"
                                     defaultValue={plan?.messageCosts?.utility ?? 0.02}
@@ -489,7 +494,7 @@ export default function PlanEditorPage() {
                                 />
                             </Field>
                             <Field label="Authentication">
-                                <Input
+                                <ZoruInput
                                     name="cost_authentication"
                                     type="number"
                                     defaultValue={plan?.messageCosts?.authentication ?? 0.02}
@@ -510,7 +515,7 @@ export default function PlanEditorPage() {
                                 </div>
                                 <div className="grid gap-4 md:grid-cols-3">
                                     <Field label="Marketing rate">
-                                        <Input
+                                        <ZoruInput
                                             name="rate_whatsapp_marketing"
                                             type="number"
                                             defaultValue={plan?.rates?.whatsapp_marketing ?? 1}
@@ -521,7 +526,7 @@ export default function PlanEditorPage() {
                                         />
                                     </Field>
                                     <Field label="Utility rate">
-                                        <Input
+                                        <ZoruInput
                                             name="rate_whatsapp_utility"
                                             type="number"
                                             defaultValue={plan?.rates?.whatsapp_utility ?? 1}
@@ -532,7 +537,7 @@ export default function PlanEditorPage() {
                                         />
                                     </Field>
                                     <Field label="Authentication rate">
-                                        <Input
+                                        <ZoruInput
                                             name="rate_whatsapp_authentication"
                                             type="number"
                                             defaultValue={plan?.rates?.whatsapp_authentication ?? 1}
@@ -550,7 +555,7 @@ export default function PlanEditorPage() {
                                 </div>
                                 <div className="grid gap-4 md:grid-cols-3">
                                     <Field label="SMS rate">
-                                        <Input
+                                        <ZoruInput
                                             name="rate_sms"
                                             type="number"
                                             defaultValue={plan?.rates?.sms ?? 1}
@@ -561,7 +566,7 @@ export default function PlanEditorPage() {
                                         />
                                     </Field>
                                     <Field label="Meta rate">
-                                        <Input
+                                        <ZoruInput
                                             name="rate_meta"
                                             type="number"
                                             defaultValue={plan?.rates?.meta ?? 1}
@@ -572,7 +577,7 @@ export default function PlanEditorPage() {
                                         />
                                     </Field>
                                     <Field label="Email rate">
-                                        <Input
+                                        <ZoruInput
                                             name="rate_email"
                                             type="number"
                                             defaultValue={plan?.rates?.email ?? 1}
@@ -586,14 +591,10 @@ export default function PlanEditorPage() {
                             </div>
                         </div>
                     </SectionCard>
-                </TabsContent>
+                </div>
 
                 {/* USAGE LIMITS */}
-                <TabsContent
-                    value="limits"
-                    forceMount
-                    className="space-y-5 mt-0 data-[state=inactive]:hidden"
-                >
+                <div className={cn('space-y-5', activeTab !== 'limits' && 'hidden')}>
                     <SectionCard
                         title="General limits"
                         description="Set to 0 for unlimited."
@@ -601,7 +602,7 @@ export default function PlanEditorPage() {
                     >
                         <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-5">
                             <Field label="Projects">
-                                <Input
+                                <ZoruInput
                                     name="projectLimit"
                                     type="number"
                                     defaultValue={plan?.projectLimit ?? 5}
@@ -611,7 +612,7 @@ export default function PlanEditorPage() {
                                 />
                             </Field>
                             <Field label="Agents / project">
-                                <Input
+                                <ZoruInput
                                     name="agentLimit"
                                     type="number"
                                     defaultValue={plan?.agentLimit ?? 10}
@@ -621,7 +622,7 @@ export default function PlanEditorPage() {
                                 />
                             </Field>
                             <Field label="Custom attributes">
-                                <Input
+                                <ZoruInput
                                     name="attributeLimit"
                                     type="number"
                                     defaultValue={plan?.attributeLimit ?? 20}
@@ -631,7 +632,7 @@ export default function PlanEditorPage() {
                                 />
                             </Field>
                             <Field label="Templates">
-                                <Input
+                                <ZoruInput
                                     name="templateLimit"
                                     type="number"
                                     defaultValue={plan?.templateLimit ?? 50}
@@ -641,7 +642,7 @@ export default function PlanEditorPage() {
                                 />
                             </Field>
                             <Field label="Flow builder">
-                                <Input
+                                <ZoruInput
                                     name="flowLimit"
                                     type="number"
                                     defaultValue={plan?.flowLimit ?? 10}
@@ -651,7 +652,7 @@ export default function PlanEditorPage() {
                                 />
                             </Field>
                             <Field label="Meta flows">
-                                <Input
+                                <ZoruInput
                                     name="metaFlowLimit"
                                     type="number"
                                     defaultValue={plan?.metaFlowLimit ?? 10}
@@ -661,7 +662,7 @@ export default function PlanEditorPage() {
                                 />
                             </Field>
                             <Field label="Canned messages">
-                                <Input
+                                <ZoruInput
                                     name="cannedMessageLimit"
                                     type="number"
                                     defaultValue={plan?.cannedMessageLimit ?? 25}
@@ -671,7 +672,7 @@ export default function PlanEditorPage() {
                                 />
                             </Field>
                             <Field label="Custom roles">
-                                <Input
+                                <ZoruInput
                                     name="customRoleLimit"
                                     type="number"
                                     defaultValue={plan?.customRoleLimit ?? 3}
@@ -681,7 +682,7 @@ export default function PlanEditorPage() {
                                 />
                             </Field>
                             <Field label="Team channels">
-                                <Input
+                                <ZoruInput
                                     name="teamChannelLimit"
                                     type="number"
                                     defaultValue={plan?.teamChannelLimit ?? 10}
@@ -691,7 +692,7 @@ export default function PlanEditorPage() {
                                 />
                             </Field>
                             <Field label="Team tasks">
-                                <Input
+                                <ZoruInput
                                     name="teamTaskLimit"
                                     type="number"
                                     defaultValue={plan?.teamTaskLimit ?? 50}
@@ -702,14 +703,10 @@ export default function PlanEditorPage() {
                             </Field>
                         </div>
                     </SectionCard>
-                </TabsContent>
+                </div>
 
                 {/* MODULE LIMITS */}
-                <TabsContent
-                    value="modules"
-                    forceMount
-                    className="space-y-5 mt-0 data-[state=inactive]:hidden"
-                >
+                <div className={cn('space-y-5', activeTab !== 'modules' && 'hidden')}>
                     <SectionCard
                         title="WaChat"
                         description="Limits for WhatsApp Business tooling."
@@ -718,7 +715,7 @@ export default function PlanEditorPage() {
                     >
                         <div className="grid gap-4 md:grid-cols-4">
                             <Field label="Templates">
-                                <Input
+                                <ZoruInput
                                     name="limit_wachat_templates"
                                     type="number"
                                     defaultValue={plan?.appLimits?.wachat?.templates ?? 0}
@@ -727,7 +724,7 @@ export default function PlanEditorPage() {
                                 />
                             </Field>
                             <Field label="Flows">
-                                <Input
+                                <ZoruInput
                                     name="limit_wachat_flows"
                                     type="number"
                                     defaultValue={plan?.appLimits?.wachat?.flows ?? 0}
@@ -736,7 +733,7 @@ export default function PlanEditorPage() {
                                 />
                             </Field>
                             <Field label="Meta flows">
-                                <Input
+                                <ZoruInput
                                     name="limit_wachat_metaFlows"
                                     type="number"
                                     defaultValue={plan?.appLimits?.wachat?.metaFlows ?? 0}
@@ -745,7 +742,7 @@ export default function PlanEditorPage() {
                                 />
                             </Field>
                             <Field label="Canned messages">
-                                <Input
+                                <ZoruInput
                                     name="limit_wachat_cannedMessages"
                                     type="number"
                                     defaultValue={plan?.appLimits?.wachat?.cannedMessages ?? 0}
@@ -763,7 +760,7 @@ export default function PlanEditorPage() {
                     >
                         <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-5">
                             <Field label="Products">
-                                <Input
+                                <ZoruInput
                                     name="limit_crm_products"
                                     type="number"
                                     defaultValue={plan?.appLimits?.crm?.products ?? 0}
@@ -772,7 +769,7 @@ export default function PlanEditorPage() {
                                 />
                             </Field>
                             <Field label="Customers">
-                                <Input
+                                <ZoruInput
                                     name="limit_crm_customers"
                                     type="number"
                                     defaultValue={plan?.appLimits?.crm?.customers ?? 0}
@@ -781,7 +778,7 @@ export default function PlanEditorPage() {
                                 />
                             </Field>
                             <Field label="Vendors">
-                                <Input
+                                <ZoruInput
                                     name="limit_crm_vendors"
                                     type="number"
                                     defaultValue={plan?.appLimits?.crm?.vendors ?? 0}
@@ -790,7 +787,7 @@ export default function PlanEditorPage() {
                                 />
                             </Field>
                             <Field label="Warehouses">
-                                <Input
+                                <ZoruInput
                                     name="limit_crm_warehouses"
                                     type="number"
                                     defaultValue={plan?.appLimits?.crm?.warehouses ?? 0}
@@ -799,7 +796,7 @@ export default function PlanEditorPage() {
                                 />
                             </Field>
                             <Field label="Pipelines">
-                                <Input
+                                <ZoruInput
                                     name="limit_crm_pipelines"
                                     type="number"
                                     defaultValue={plan?.appLimits?.crm?.pipelines ?? 0}
@@ -817,7 +814,7 @@ export default function PlanEditorPage() {
                     >
                         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                             <Field label="Pages">
-                                <Input
+                                <ZoruInput
                                     name="limit_fb_pages"
                                     type="number"
                                     defaultValue={
@@ -830,7 +827,7 @@ export default function PlanEditorPage() {
                                 />
                             </Field>
                             <Field label="Scheduled posts">
-                                <Input
+                                <ZoruInput
                                     name="limit_fb_scheduled"
                                     type="number"
                                     defaultValue={plan?.appLimits?.facebook?.scheduledPosts ?? 0}
@@ -839,7 +836,7 @@ export default function PlanEditorPage() {
                                 />
                             </Field>
                             <Field label="Automation rules">
-                                <Input
+                                <ZoruInput
                                     name="limit_fb_automation"
                                     type="number"
                                     defaultValue={plan?.appLimits?.facebook?.automationRules ?? 0}
@@ -848,7 +845,7 @@ export default function PlanEditorPage() {
                                 />
                             </Field>
                             <Field label="Shops">
-                                <Input
+                                <ZoruInput
                                     name="limit_fb_shops"
                                     type="number"
                                     defaultValue={plan?.appLimits?.facebook?.shops ?? 0}
@@ -866,7 +863,7 @@ export default function PlanEditorPage() {
                     >
                         <div className="grid gap-4 md:grid-cols-3">
                             <Field label="Connected accounts">
-                                <Input
+                                <ZoruInput
                                     name="limit_ig_accounts"
                                     type="number"
                                     defaultValue={plan?.appLimits?.instagram?.accounts ?? 0}
@@ -875,7 +872,7 @@ export default function PlanEditorPage() {
                                 />
                             </Field>
                             <Field label="Scheduled posts">
-                                <Input
+                                <ZoruInput
                                     name="limit_ig_scheduled"
                                     type="number"
                                     defaultValue={plan?.appLimits?.instagram?.scheduledPosts ?? 0}
@@ -884,7 +881,7 @@ export default function PlanEditorPage() {
                                 />
                             </Field>
                             <Field label="Hashtag tracking">
-                                <Input
+                                <ZoruInput
                                     name="limit_ig_hashtags"
                                     type="number"
                                     defaultValue={plan?.appLimits?.instagram?.hashtagTracking ?? 0}
@@ -907,7 +904,7 @@ export default function PlanEditorPage() {
                                 label="Ad accounts"
                                 hint="Max Meta Ad Accounts linkable to projects."
                             >
-                                <Input
+                                <ZoruInput
                                     name="limit_ads_accounts"
                                     type="number"
                                     defaultValue={
@@ -920,7 +917,7 @@ export default function PlanEditorPage() {
                                 />
                             </Field>
                             <Field label="Active campaigns">
-                                <Input
+                                <ZoruInput
                                     name="limit_ads_campaigns"
                                     type="number"
                                     defaultValue={plan?.appLimits?.adManager?.campaigns ?? 0}
@@ -929,7 +926,7 @@ export default function PlanEditorPage() {
                                 />
                             </Field>
                             <Field label="Custom audiences">
-                                <Input
+                                <ZoruInput
                                     name="limit_ads_audiences"
                                     type="number"
                                     defaultValue={plan?.appLimits?.adManager?.audiences ?? 0}
@@ -941,7 +938,7 @@ export default function PlanEditorPage() {
                                 label="Monthly ad spend cap"
                                 hint="0 = uncapped. Enforced before placing ads."
                             >
-                                <Input
+                                <ZoruInput
                                     name="limit_ads_spend_cap"
                                     type="number"
                                     defaultValue={plan?.appLimits?.adManager?.monthlyAdSpendCap ?? 0}
@@ -959,7 +956,7 @@ export default function PlanEditorPage() {
                     >
                         <div className="grid gap-4 md:grid-cols-2">
                             <Field label="Connected accounts">
-                                <Input
+                                <ZoruInput
                                     name="limit_email_connectedAccounts"
                                     type="number"
                                     defaultValue={plan?.appLimits?.email?.connectedAccounts ?? 0}
@@ -968,7 +965,7 @@ export default function PlanEditorPage() {
                                 />
                             </Field>
                             <Field label="Daily sending limit">
-                                <Input
+                                <ZoruInput
                                     name="limit_email_dailyLimit"
                                     type="number"
                                     defaultValue={plan?.appLimits?.email?.dailyLimit ?? 0}
@@ -986,7 +983,7 @@ export default function PlanEditorPage() {
                     >
                         <div className="grid gap-4 md:grid-cols-3">
                             <Field label="Widgets">
-                                <Input
+                                <ZoruInput
                                     name="limit_sabchat_widgets"
                                     type="number"
                                     defaultValue={plan?.appLimits?.sabchat?.widgets ?? 0}
@@ -995,7 +992,7 @@ export default function PlanEditorPage() {
                                 />
                             </Field>
                             <Field label="Monthly visitors">
-                                <Input
+                                <ZoruInput
                                     name="limit_sabchat_visitors"
                                     type="number"
                                     defaultValue={plan?.appLimits?.sabchat?.monthlyVisitors ?? 0}
@@ -1004,7 +1001,7 @@ export default function PlanEditorPage() {
                                 />
                             </Field>
                             <Field label="Quick replies">
-                                <Input
+                                <ZoruInput
                                     name="limit_sabchat_replies"
                                     type="number"
                                     defaultValue={plan?.appLimits?.sabchat?.quickReplies ?? 0}
@@ -1022,7 +1019,7 @@ export default function PlanEditorPage() {
                     >
                         <div className="grid gap-4 md:grid-cols-3">
                             <Field label="Projects">
-                                <Input
+                                <ZoruInput
                                     name="limit_seo_projects"
                                     type="number"
                                     defaultValue={plan?.appLimits?.seo?.projects ?? 0}
@@ -1031,7 +1028,7 @@ export default function PlanEditorPage() {
                                 />
                             </Field>
                             <Field label="Brand radars">
-                                <Input
+                                <ZoruInput
                                     name="limit_seo_radars"
                                     type="number"
                                     defaultValue={plan?.appLimits?.seo?.brandRadars ?? 0}
@@ -1040,7 +1037,7 @@ export default function PlanEditorPage() {
                                 />
                             </Field>
                             <Field label="Tracked keywords">
-                                <Input
+                                <ZoruInput
                                     name="limit_seo_keywords"
                                     type="number"
                                     defaultValue={plan?.appLimits?.seo?.trackedKeywords ?? 0}
@@ -1058,7 +1055,7 @@ export default function PlanEditorPage() {
                     >
                         <div className="grid gap-4 md:grid-cols-3">
                             <Field label="Sites">
-                                <Input
+                                <ZoruInput
                                     name="limit_site_sites"
                                     type="number"
                                     defaultValue={plan?.appLimits?.websiteBuilder?.sites ?? 0}
@@ -1067,7 +1064,7 @@ export default function PlanEditorPage() {
                                 />
                             </Field>
                             <Field label="Pages / site">
-                                <Input
+                                <ZoruInput
                                     name="limit_site_pages"
                                     type="number"
                                     defaultValue={plan?.appLimits?.websiteBuilder?.pages ?? 0}
@@ -1076,7 +1073,7 @@ export default function PlanEditorPage() {
                                 />
                             </Field>
                             <Field label="Custom domains">
-                                <Input
+                                <ZoruInput
                                     name="limit_site_domains"
                                     type="number"
                                     defaultValue={
@@ -1092,7 +1089,7 @@ export default function PlanEditorPage() {
                     <SectionCard title="Other tools" description="SMS, URL shortener, QR code.">
                         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                             <Field label="SMS daily limit">
-                                <Input
+                                <ZoruInput
                                     name="limit_sms_dailyLimit"
                                     type="number"
                                     defaultValue={plan?.appLimits?.sms?.dailyLimit ?? 0}
@@ -1101,7 +1098,7 @@ export default function PlanEditorPage() {
                                 />
                             </Field>
                             <Field label="Shortened links">
-                                <Input
+                                <ZoruInput
                                     name="limit_url_links"
                                     type="number"
                                     defaultValue={plan?.appLimits?.urlShortener?.links ?? 0}
@@ -1110,7 +1107,7 @@ export default function PlanEditorPage() {
                                 />
                             </Field>
                             <Field label="Custom domains">
-                                <Input
+                                <ZoruInput
                                     name="limit_url_domains"
                                     type="number"
                                     defaultValue={plan?.appLimits?.urlShortener?.domains ?? 0}
@@ -1119,7 +1116,7 @@ export default function PlanEditorPage() {
                                 />
                             </Field>
                             <Field label="QR codes">
-                                <Input
+                                <ZoruInput
                                     name="limit_qrcode_limit"
                                     type="number"
                                     defaultValue={plan?.appLimits?.qrCode?.limit ?? 0}
@@ -1129,26 +1126,18 @@ export default function PlanEditorPage() {
                             </Field>
                         </div>
                     </SectionCard>
-                </TabsContent>
+                </div>
 
                 {/* FEATURES */}
-                <TabsContent
-                    value="features"
-                    forceMount
-                    className="mt-0 data-[state=inactive]:hidden"
-                >
+                <div className={cn(activeTab !== 'features' && 'hidden')}>
                     <PlanFeaturesSelector defaultFeatures={plan?.features} />
-                </TabsContent>
+                </div>
 
                 {/* PERMISSIONS */}
-                <TabsContent
-                    value="permissions"
-                    forceMount
-                    className="mt-0 data-[state=inactive]:hidden"
-                >
+                <div className={cn(activeTab !== 'permissions' && 'hidden')}>
                     <PlanPermissionSelector defaultPermissions={plan?.permissions as any} />
-                </TabsContent>
-            </Tabs>
+                </div>
+            </div>
 
             {/* Sticky save bar */}
             <div

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useTransition, useMemo } from 'react';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import { ZoruButton } from '@/components/zoruui';
 import { getLibraryTemplates } from '@/app/actions/template.actions';
 import type { LibraryTemplate } from '@/lib/definitions';
 import { AdminDeleteLibraryTemplateButton } from '@/components/wabasimplify/admin-delete-library-template-button';
@@ -37,12 +37,12 @@ export default function AdminTemplateLibraryPage() {
                     <h1 className="text-2xl font-bold text-slate-900">Template Library</h1>
                     <p className="text-sm text-slate-500 mt-1">Manage global templates available to all users.</p>
                 </div>
-                <Button asChild className="bg-amber-500 hover:bg-amber-400 text-zinc-950 font-semibold shadow-lg shadow-amber-500/25">
+                <ZoruButton asChild className="bg-amber-500 hover:bg-amber-400 text-zinc-950 shadow-lg shadow-amber-500/25">
                     <Link href="/admin/dashboard/template-library/create">
                         <PlusCircle className="mr-2 h-4 w-4" />
                         Add Template
                     </Link>
-                </Button>
+                </ZoruButton>
             </div>
 
             {/* Category manager */}

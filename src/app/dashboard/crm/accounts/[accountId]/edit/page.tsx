@@ -1,21 +1,21 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useParams } from 'next/navigation';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { LoaderCircle, Save, ArrowLeft, Building } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
 import { getCrmAccountById, updateCrmAccount } from '@/app/actions/crm-accounts.actions';
 import type { WithId, CrmAccount } from '@/lib/definitions';
-import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 
-import { ClayButton, ClayCard } from '@/components/clay';
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSkeleton,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 
 const initialState = { message: null, error: null, accountId: undefined };
@@ -23,20 +23,14 @@ const initialState = { message: null, error: null, accountId: undefined };
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ClayButton
-      type="submit"
-      variant="obsidian"
-      disabled={pending}
-      leading={
-        pending ? (
-          <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.75} />
-        ) : (
-          <Save className="h-4 w-4" strokeWidth={1.75} />
-        )
-      }
-    >
+    <ZoruButton type="submit" disabled={pending}>
+      {pending ? (
+        <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.75} />
+      ) : (
+        <Save className="h-4 w-4" strokeWidth={1.75} />
+      )}
       Save Changes
-    </ClayButton>
+    </ZoruButton>
   );
 }
 
@@ -48,7 +42,7 @@ export default function EditCrmAccountPage() {
   const [isLoading, startLoading] = useTransition();
 
   const [state, formAction] = useActionState(updateCrmAccount as any, initialState as any);
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
@@ -78,7 +72,7 @@ export default function EditCrmAccountPage() {
   if (isLoading || !account) {
     return (
       <div className="w-full max-w-2xl">
-        <Skeleton className="h-96 w-full rounded-xl" />
+        <ZoruSkeleton className="h-96 w-full rounded-xl" />
       </div>
     );
   }
@@ -88,7 +82,7 @@ export default function EditCrmAccountPage() {
       <div>
         <Link
           href={`/dashboard/crm/accounts/${accountId}`}
-          className="inline-flex items-center gap-1.5 text-[12.5px] text-muted-foreground hover:text-foreground"
+          className="inline-flex items-center gap-1.5 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
         >
           <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.75} />
           Back to Account
@@ -103,62 +97,62 @@ export default function EditCrmAccountPage() {
 
       <form action={formAction} ref={formRef}>
         <input type="hidden" name="accountId" value={account._id.toString()} />
-        <ClayCard>
+        <ZoruCard className="p-6">
           <div className="grid gap-4">
             <div className="space-y-2">
-              <Label htmlFor="name" className="text-[12.5px] text-muted-foreground">
+              <ZoruLabel htmlFor="name" className="text-[12.5px] text-zoru-ink-muted">
                 Company Name
-              </Label>
-              <Input
+              </ZoruLabel>
+              <ZoruInput
                 id="name"
                 name="name"
                 required
                 defaultValue={account.name}
-                className="h-10 rounded-lg border-border bg-card text-[13px]"
+                className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="industry" className="text-[12.5px] text-muted-foreground">
+              <ZoruLabel htmlFor="industry" className="text-[12.5px] text-zoru-ink-muted">
                 Industry
-              </Label>
-              <Input
+              </ZoruLabel>
+              <ZoruInput
                 id="industry"
                 name="industry"
                 defaultValue={account.industry}
-                className="h-10 rounded-lg border-border bg-card text-[13px]"
+                className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="website" className="text-[12.5px] text-muted-foreground">
+                <ZoruLabel htmlFor="website" className="text-[12.5px] text-zoru-ink-muted">
                   Website
-                </Label>
-                <Input
+                </ZoruLabel>
+                <ZoruInput
                   id="website"
                   name="website"
                   type="url"
                   placeholder="https://example.com"
                   defaultValue={account.website}
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
+                  className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="phone" className="text-[12.5px] text-muted-foreground">
+                <ZoruLabel htmlFor="phone" className="text-[12.5px] text-zoru-ink-muted">
                   Phone
-                </Label>
-                <Input
+                </ZoruLabel>
+                <ZoruInput
                   id="phone"
                   name="phone"
                   defaultValue={account.phone}
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
+                  className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                 />
               </div>
             </div>
           </div>
-          <div className="mt-6 flex justify-end border-t border-border pt-4">
+          <div className="mt-6 flex justify-end border-t border-zoru-line pt-4">
             <SubmitButton />
           </div>
-        </ClayCard>
+        </ZoruCard>
       </form>
     </div>
   );

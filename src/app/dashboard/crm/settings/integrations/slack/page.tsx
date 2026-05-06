@@ -1,9 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
-import * as React from 'react';
 import {
   useActionState,
   useCallback,
@@ -13,13 +9,16 @@ import {
 } from 'react';
 import { LoaderCircle, Play, Slack } from 'lucide-react';
 
-import { ClayCard, ClayButton } from '@/components/clay';
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSkeleton,
+  ZoruSwitch,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
 import {
   getSlackSetting,
   saveSlackSetting,
@@ -30,7 +29,7 @@ import type { WsSlackSetting } from '@/lib/worksuite/integrations-types';
 type Doc = (WsSlackSetting & { _id: unknown }) | null;
 
 export default function SlackIntegrationPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [doc, setDoc] = useState<Doc>(null);
   const [isActive, setIsActive] = useState(false);
   const [, startLoading] = useTransition();
@@ -100,12 +99,12 @@ export default function SlackIntegrationPage() {
         icon={Slack}
       />
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         {!doc && !id ? (
           <div className="space-y-4">
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
+            <ZoruSkeleton className="h-10 w-full" />
+            <ZoruSkeleton className="h-10 w-full" />
+            <ZoruSkeleton className="h-10 w-full" />
           </div>
         ) : null}
 
@@ -119,60 +118,49 @@ export default function SlackIntegrationPage() {
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="md:col-span-2">
-              <Label htmlFor="webhook_url" className="text-foreground">
-                Webhook URL
-              </Label>
+              <ZoruLabel htmlFor="webhook_url">Webhook URL</ZoruLabel>
               <div className="mt-1.5">
-                <Input
+                <ZoruInput
                   id="webhook_url"
                   name="webhook_url"
                   defaultValue={v('webhook_url')}
                   placeholder="https://hooks.slack.com/services/..."
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="channel" className="text-foreground">
-                Channel
-              </Label>
+              <ZoruLabel htmlFor="channel">Channel</ZoruLabel>
               <div className="mt-1.5">
-                <Input
+                <ZoruInput
                   id="channel"
                   name="channel"
                   defaultValue={v('channel')}
                   placeholder="#general"
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="username" className="text-foreground">
-                Username
-              </Label>
+              <ZoruLabel htmlFor="username">Username</ZoruLabel>
               <div className="mt-1.5">
-                <Input
+                <ZoruInput
                   id="username"
                   name="username"
                   defaultValue={v('username')}
                   placeholder="SabNode"
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
-            <div className="md:col-span-2 flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3">
+            <div className="md:col-span-2 flex items-center justify-between rounded-lg border border-zoru-line bg-zoru-bg px-4 py-3">
               <div>
-                <div className="text-[13px] font-medium text-foreground">
-                  Active
-                </div>
-                <div className="text-[12px] text-muted-foreground">
+                <div className="text-[13px] text-zoru-ink">Active</div>
+                <div className="text-[12px] text-zoru-ink-muted">
                   Enable Slack notifications.
                 </div>
               </div>
-              <Switch
+              <ZoruSwitch
                 checked={isActive}
                 onCheckedChange={setIsActive}
                 aria-label="Slack active"
@@ -181,42 +169,25 @@ export default function SlackIntegrationPage() {
           </div>
 
           <div className="flex flex-wrap justify-end gap-2 pt-2">
-            <ClayButton
+            <ZoruButton
               type="button"
-              variant="obsidian"
               onClick={onTest}
               disabled={isTesting}
-              leading={
-                isTesting ? (
-                  <LoaderCircle
-                    className="h-4 w-4 animate-spin"
-                    strokeWidth={1.75}
-                  />
-                ) : (
-                  <Play className="h-4 w-4" strokeWidth={1.75} />
-                )
-              }
             >
+              {isTesting ? (
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+              ) : (
+                <Play className="h-4 w-4" />
+              )}
               Test Webhook
-            </ClayButton>
-            <ClayButton
-              type="submit"
-              variant="obsidian"
-              disabled={isSaving}
-              leading={
-                isSaving ? (
-                  <LoaderCircle
-                    className="h-4 w-4 animate-spin"
-                    strokeWidth={1.75}
-                  />
-                ) : null
-              }
-            >
+            </ZoruButton>
+            <ZoruButton type="submit" disabled={isSaving}>
+              {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
               Save
-            </ClayButton>
+            </ZoruButton>
           </div>
         </form>
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

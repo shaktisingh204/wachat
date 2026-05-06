@@ -1,14 +1,18 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useState, useEffect, useTransition, useCallback } from 'react';
 import { FileMinus, LoaderCircle } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { startOfMonth, format } from 'date-fns';
 
-import { ClayCard, ClayBadge } from '@/components/clay';
+import {
+    ZoruBadge,
+    ZoruCard,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { getPayslips } from '@/app/actions/crm-payroll.actions';
 import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
@@ -23,8 +27,8 @@ const months = [
 ];
 
 function regimeBadge(regime: string) {
-    if (regime === 'new') return <ClayBadge tone="blue">New Regime</ClayBadge>;
-    return <ClayBadge tone="amber">Old Regime</ClayBadge>;
+    if (regime === 'new') return <ZoruBadge variant="info">New Regime</ZoruBadge>;
+    return <ZoruBadge variant="warning">Old Regime</ZoruBadge>;
 }
 
 export default function TdsPage() {
@@ -74,93 +78,93 @@ export default function TdsPage() {
                 icon={FileMinus}
                 actions={
                     <>
-                        <Select value={String(month)} onValueChange={val => setMonth(Number(val))}>
-                            <SelectTrigger className="w-36 h-9 rounded-full border-border bg-card text-[13px]">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {months.map(m => <SelectItem key={m.value} value={String(m.value)}>{m.label}</SelectItem>)}
-                            </SelectContent>
-                        </Select>
-                        <Select value={String(year)} onValueChange={val => setYear(Number(val))}>
-                            <SelectTrigger className="w-28 h-9 rounded-full border-border bg-card text-[13px]">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {years.map(y => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}
-                            </SelectContent>
-                        </Select>
+                        <ZoruSelect value={String(month)} onValueChange={val => setMonth(Number(val))}>
+                            <ZoruSelectTrigger className="w-36 h-9 rounded-full border-zoru-line bg-zoru-bg text-[13px]">
+                                <ZoruSelectValue />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                {months.map(m => <ZoruSelectItem key={m.value} value={String(m.value)}>{m.label}</ZoruSelectItem>)}
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                        <ZoruSelect value={String(year)} onValueChange={val => setYear(Number(val))}>
+                            <ZoruSelectTrigger className="w-28 h-9 rounded-full border-zoru-line bg-zoru-bg text-[13px]">
+                                <ZoruSelectValue />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                {years.map(y => <ZoruSelectItem key={y} value={String(y)}>{y}</ZoruSelectItem>)}
+                            </ZoruSelectContent>
+                        </ZoruSelect>
                     </>
                 }
             />
 
             <div className="grid gap-4 md:grid-cols-3">
-                <ClayCard>
-                    <p className="text-[12.5px] font-medium text-muted-foreground">Total TDS Collected</p>
-                    <div className="mt-2 text-2xl font-bold text-foreground">₹{totalTDS.toLocaleString('en-IN')}</div>
-                    <p className="mt-1 text-[11.5px] text-muted-foreground">{periodLabel}</p>
-                </ClayCard>
-                <ClayCard>
-                    <p className="text-[12.5px] font-medium text-muted-foreground">Employees with TDS</p>
-                    <div className="mt-2 text-2xl font-bold text-foreground">{rows.filter(r => r.tds > 0).length}</div>
-                    <p className="mt-1 text-[11.5px] text-muted-foreground">out of {rows.length} employees</p>
-                </ClayCard>
-                <ClayCard>
-                    <p className="text-[12.5px] font-medium text-muted-foreground">Avg. TDS per Employee</p>
-                    <div className="mt-2 text-2xl font-bold text-foreground">
+                <ZoruCard className="p-6">
+                    <p className="text-[12.5px] font-medium text-zoru-ink-muted">Total TDS Collected</p>
+                    <div className="mt-2 text-2xl text-zoru-ink">₹{totalTDS.toLocaleString('en-IN')}</div>
+                    <p className="mt-1 text-[11.5px] text-zoru-ink-muted">{periodLabel}</p>
+                </ZoruCard>
+                <ZoruCard className="p-6">
+                    <p className="text-[12.5px] font-medium text-zoru-ink-muted">Employees with TDS</p>
+                    <div className="mt-2 text-2xl text-zoru-ink">{rows.filter(r => r.tds > 0).length}</div>
+                    <p className="mt-1 text-[11.5px] text-zoru-ink-muted">out of {rows.length} employees</p>
+                </ZoruCard>
+                <ZoruCard className="p-6">
+                    <p className="text-[12.5px] font-medium text-zoru-ink-muted">Avg. TDS per Employee</p>
+                    <div className="mt-2 text-2xl text-zoru-ink">
                         ₹{rows.length > 0 ? Math.round(totalTDS / rows.filter(r => r.tds > 0).length || 0).toLocaleString('en-IN') : 0}
                     </div>
-                    <p className="mt-1 text-[11.5px] text-muted-foreground">among applicable employees</p>
-                </ClayCard>
+                    <p className="mt-1 text-[11.5px] text-zoru-ink-muted">among applicable employees</p>
+                </ZoruCard>
             </div>
 
-            <ClayCard>
+            <ZoruCard className="p-6">
                 <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-foreground">TDS Deduction Details</h2>
-                    <p className="mt-0.5 text-[12.5px] text-muted-foreground">Per-employee breakdown with PAN, tax regime, and deduction date.</p>
+                    <h2 className="text-[16px] text-zoru-ink">TDS Deduction Details</h2>
+                    <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">Per-employee breakdown with PAN, tax regime, and deduction date.</p>
                 </div>
-                <div className="overflow-x-auto rounded-lg border border-border">
+                <div className="overflow-x-auto rounded-lg border border-zoru-line">
                     <table className="w-full text-left text-[13px]">
                         <thead>
-                            <tr className="border-b border-border bg-secondary">
-                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Employee</th>
-                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">PAN Number</th>
-                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Tax Regime</th>
-                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Gross Salary</th>
-                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">TDS Amount</th>
-                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Month</th>
-                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Deduction Date</th>
+                            <tr className="border-b border-zoru-line bg-zoru-surface-2">
+                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">Employee</th>
+                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">PAN Number</th>
+                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">Tax Regime</th>
+                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">Gross Salary</th>
+                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">TDS Amount</th>
+                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">Month</th>
+                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">Deduction Date</th>
                             </tr>
                         </thead>
                         <tbody>
                             {isLoading ? (
                                 <tr>
                                     <td colSpan={7} className="h-48 text-center">
-                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
+                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-zoru-ink-muted" />
                                     </td>
                                 </tr>
                             ) : rows.length > 0 ? (
                                 rows.map((row, idx) => (
-                                    <tr key={row._id?.toString() ?? idx} className="border-b border-border last:border-0 hover:bg-secondary/50 transition-colors">
+                                    <tr key={row._id?.toString() ?? idx} className="border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2/50 transition-colors">
                                         <td className="px-4 py-3">
-                                            <div className="font-medium text-foreground">
+                                            <div className="font-medium text-zoru-ink">
                                                 {row.employee?.firstName} {row.employee?.lastName}
                                             </div>
-                                            <div className="text-[11.5px] text-muted-foreground">{row.employee?.designationName ?? '—'}</div>
+                                            <div className="text-[11.5px] text-zoru-ink-muted">{row.employee?.designationName ?? '—'}</div>
                                         </td>
-                                        <td className="px-4 py-3 font-mono text-[12px] text-foreground">{row.pan}</td>
+                                        <td className="px-4 py-3 font-mono text-[12px] text-zoru-ink">{row.pan}</td>
                                         <td className="px-4 py-3">{regimeBadge(row.taxRegime)}</td>
-                                        <td className="px-4 py-3 text-right font-mono text-foreground">₹{(row.grossSalary ?? 0).toLocaleString('en-IN')}</td>
-                                        <td className="px-4 py-3 text-right font-mono font-semibold text-foreground">
-                                            {row.tds > 0 ? `₹${row.tds.toLocaleString('en-IN')}` : <ClayBadge tone="neutral">Nil</ClayBadge>}
+                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">₹{(row.grossSalary ?? 0).toLocaleString('en-IN')}</td>
+                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">
+                                            {row.tds > 0 ? `₹${row.tds.toLocaleString('en-IN')}` : <ZoruBadge variant="secondary">Nil</ZoruBadge>}
                                         </td>
-                                        <td className="px-4 py-3 text-foreground">{periodLabel}</td>
-                                        <td className="px-4 py-3 text-muted-foreground">{row.deductionDate}</td>
+                                        <td className="px-4 py-3 text-zoru-ink">{periodLabel}</td>
+                                        <td className="px-4 py-3 text-zoru-ink-muted">{row.deductionDate}</td>
                                     </tr>
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan={7} className="h-24 text-center text-[13px] text-muted-foreground">
+                                    <td colSpan={7} className="h-24 text-center text-[13px] text-zoru-ink-muted">
                                         No TDS data for {periodLabel}.
                                     </td>
                                 </tr>
@@ -168,16 +172,16 @@ export default function TdsPage() {
                         </tbody>
                         {rows.length > 0 && (
                             <tfoot>
-                                <tr className="border-t-2 border-border bg-secondary">
-                                    <td colSpan={4} className="px-4 py-3 text-[12.5px] font-semibold text-foreground">Total TDS</td>
-                                    <td className="px-4 py-3 text-right font-mono text-[12.5px] font-bold text-foreground">₹{totalTDS.toLocaleString('en-IN')}</td>
+                                <tr className="border-t-2 border-zoru-line bg-zoru-surface-2">
+                                    <td colSpan={4} className="px-4 py-3 text-[12.5px] text-zoru-ink">Total TDS</td>
+                                    <td className="px-4 py-3 text-right font-mono text-[12.5px] text-zoru-ink">₹{totalTDS.toLocaleString('en-IN')}</td>
                                     <td colSpan={2} />
                                 </tr>
                             </tfoot>
                         )}
                     </table>
                 </div>
-            </ClayCard>
+            </ZoruCard>
         </div>
     );
 }

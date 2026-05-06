@@ -1,8 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import * as React from 'react';
 import {
   Boxes,
@@ -13,40 +10,37 @@ import {
 } from 'lucide-react';
 import { useActionState, useEffect, useState, useTransition } from 'react';
 
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSwitch,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
-import { useToast } from '@/hooks/use-toast';
 import {
   getModules,
   saveModule,
@@ -59,7 +53,7 @@ import type { WsModule } from '@/lib/worksuite/rbac-types';
 type Row = WsModule & { _id: string };
 
 export default function ModulesPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [rows, setRows] = useState<Row[]>([]);
   const [isLoading, startLoading] = useTransition();
   const [isBusy, startBusy] = useTransition();
@@ -136,87 +130,86 @@ export default function ModulesPage() {
         subtitle="Enable or disable CRM modules and control whether they appear in the menu."
         icon={Boxes}
         actions={
-          <ClayButton
-            variant="obsidian"
-            leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}
+          <ZoruButton
             onClick={() => {
               setEditing(null);
               setDialogOpen(true);
             }}
           >
+            <Plus className="h-4 w-4" />
             Add Module
-          </ClayButton>
+          </ZoruButton>
         }
       />
 
-      <ClayCard>
-        <div className="overflow-x-auto rounded-lg border border-border">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border hover:bg-transparent">
-                <TableHead className="text-muted-foreground">Module</TableHead>
-                <TableHead className="text-muted-foreground">Slug</TableHead>
-                <TableHead className="text-muted-foreground">Active</TableHead>
-                <TableHead className="text-muted-foreground">In Menu</TableHead>
-                <TableHead className="w-[120px] text-right text-muted-foreground">
+      <ZoruCard className="p-0">
+        <div className="overflow-x-auto rounded-lg">
+          <ZoruTable>
+            <ZoruTableHeader>
+              <ZoruTableRow className="hover:bg-transparent">
+                <ZoruTableHead className="text-zoru-ink-muted">Module</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Slug</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Active</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">In Menu</ZoruTableHead>
+                <ZoruTableHead className="w-[120px] text-right text-zoru-ink-muted">
                   Actions
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+                </ZoruTableHead>
+              </ZoruTableRow>
+            </ZoruTableHeader>
+            <ZoruTableBody>
               {isLoading && rows.length === 0 ? (
-                <TableRow className="border-border">
-                  <TableCell
+                <ZoruTableRow>
+                  <ZoruTableCell
                     colSpan={5}
-                    className="h-20 text-center text-[13px] text-muted-foreground"
+                    className="h-20 text-center text-[13px] text-zoru-ink-muted"
                   >
                     <LoaderCircle className="mx-auto h-4 w-4 animate-spin" />
-                  </TableCell>
-                </TableRow>
+                  </ZoruTableCell>
+                </ZoruTableRow>
               ) : rows.length === 0 ? (
-                <TableRow className="border-border">
-                  <TableCell
+                <ZoruTableRow>
+                  <ZoruTableCell
                     colSpan={5}
-                    className="h-20 text-center text-[13px] text-muted-foreground"
+                    className="h-20 text-center text-[13px] text-zoru-ink-muted"
                   >
                     No modules yet.
-                  </TableCell>
-                </TableRow>
+                  </ZoruTableCell>
+                </ZoruTableRow>
               ) : (
                 rows.map((row) => (
-                  <TableRow key={row._id} className="border-border">
-                    <TableCell className="text-[13px] font-medium text-foreground">
+                  <ZoruTableRow key={row._id}>
+                    <ZoruTableCell className="text-[13px] text-zoru-ink">
                       {row.display_name || row.module_name}
                       {row.description ? (
-                        <div className="text-[12px] text-muted-foreground">
+                        <div className="text-[12px] text-zoru-ink-muted">
                           {row.description}
                         </div>
                       ) : null}
-                    </TableCell>
-                    <TableCell>
-                      <ClayBadge tone="neutral">
+                    </ZoruTableCell>
+                    <ZoruTableCell>
+                      <ZoruBadge variant="ghost">
                         <code>{row.module_name}</code>
-                      </ClayBadge>
-                    </TableCell>
-                    <TableCell>
-                      <Switch
+                      </ZoruBadge>
+                    </ZoruTableCell>
+                    <ZoruTableCell>
+                      <ZoruSwitch
                         checked={!!row.is_active}
                         disabled={isBusy}
                         onCheckedChange={() => flip(row._id, 'active')}
                         aria-label="Toggle active"
                       />
-                    </TableCell>
-                    <TableCell>
-                      <Switch
+                    </ZoruTableCell>
+                    <ZoruTableCell>
+                      <ZoruSwitch
                         checked={!!row.in_menu}
                         disabled={isBusy}
                         onCheckedChange={() => flip(row._id, 'menu')}
                         aria-label="Toggle menu"
                       />
-                    </TableCell>
-                    <TableCell className="text-right">
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-right">
                       <div className="flex justify-end gap-1">
-                        <Button
+                        <ZoruButton
                           variant="ghost"
                           size="sm"
                           onClick={() => {
@@ -226,158 +219,135 @@ export default function ModulesPage() {
                           aria-label="Edit"
                         >
                           <Pencil className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button
+                        </ZoruButton>
+                        <ZoruButton
                           variant="ghost"
                           size="sm"
                           onClick={() => setDeletingId(row._id)}
                           aria-label="Delete"
                         >
-                          <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                        </Button>
+                          <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                        </ZoruButton>
                       </div>
-                    </TableCell>
-                  </TableRow>
+                    </ZoruTableCell>
+                  </ZoruTableRow>
                 ))
               )}
-            </TableBody>
-          </Table>
+            </ZoruTableBody>
+          </ZoruTable>
         </div>
-      </ClayCard>
+      </ZoruCard>
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="text-foreground">
+      <ZoruDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <ZoruDialogContent className="max-w-lg">
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>
               {editing ? 'Edit Module' : 'Add Module'}
-            </DialogTitle>
-            <DialogDescription className="text-muted-foreground">
+            </ZoruDialogTitle>
+            <ZoruDialogDescription>
               Modules group related permissions (e.g. Leads, Tasks).
-            </DialogDescription>
-          </DialogHeader>
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
 
           <form action={saveAction} className="space-y-4">
             {editing?._id ? (
               <input type="hidden" name="_id" value={editing._id} />
             ) : null}
             <div>
-              <Label htmlFor="display_name" className="text-foreground">
-                Display name <span className="text-destructive">*</span>
-              </Label>
-              <Input
+              <ZoruLabel htmlFor="display_name">
+                Display name <span className="text-zoru-danger-ink">*</span>
+              </ZoruLabel>
+              <ZoruInput
                 id="display_name"
                 name="display_name"
                 required
                 defaultValue={editing?.display_name || ''}
-                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div>
-              <Label htmlFor="module_name" className="text-foreground">
-                Slug
-              </Label>
-              <Input
+              <ZoruLabel htmlFor="module_name">Slug</ZoruLabel>
+              <ZoruInput
                 id="module_name"
                 name="module_name"
                 defaultValue={editing?.module_name || ''}
                 placeholder="leads"
-                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div>
-              <Label htmlFor="icon" className="text-foreground">
-                Icon name (lucide)
-              </Label>
-              <Input
+              <ZoruLabel htmlFor="icon">Icon name (lucide)</ZoruLabel>
+              <ZoruInput
                 id="icon"
                 name="icon"
                 defaultValue={editing?.icon || ''}
                 placeholder="Users"
-                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div>
-              <Label htmlFor="description" className="text-foreground">
-                Description
-              </Label>
-              <Textarea
+              <ZoruLabel htmlFor="description">Description</ZoruLabel>
+              <ZoruTextarea
                 id="description"
                 name="description"
                 rows={2}
                 defaultValue={editing?.description || ''}
-                className="rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div className="flex gap-4">
-              <label className="flex items-center gap-2 text-[13px] text-foreground">
+              <label className="flex items-center gap-2 text-[13px] text-zoru-ink">
                 <input
                   type="checkbox"
                   name="is_active"
                   value="true"
                   defaultChecked={editing?.is_active ?? true}
-                  className="h-4 w-4 accent-foreground"
+                  className="h-4 w-4 accent-zoru-ink"
                 />
                 Active
               </label>
-              <label className="flex items-center gap-2 text-[13px] text-foreground">
+              <label className="flex items-center gap-2 text-[13px] text-zoru-ink">
                 <input
                   type="checkbox"
                   name="in_menu"
                   value="true"
                   defaultChecked={editing?.in_menu ?? true}
-                  className="h-4 w-4 accent-foreground"
+                  className="h-4 w-4 accent-zoru-ink"
                 />
                 Show in menu
               </label>
             </div>
 
-            <DialogFooter className="gap-2">
-              <ClayButton
+            <ZoruDialogFooter className="gap-2">
+              <ZoruButton
                 type="button"
-                variant="pill"
+                variant="outline"
                 onClick={() => setDialogOpen(false)}
               >
                 Cancel
-              </ClayButton>
-              <ClayButton
-                type="submit"
-                variant="obsidian"
-                disabled={isSaving}
-                leading={
-                  isSaving ? (
-                    <LoaderCircle
-                      className="h-4 w-4 animate-spin"
-                      strokeWidth={1.75}
-                    />
-                  ) : null
-                }
-              >
+              </ZoruButton>
+              <ZoruButton type="submit" disabled={isSaving}>
+                {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
                 Save
-              </ClayButton>
-            </DialogFooter>
+              </ZoruButton>
+            </ZoruDialogFooter>
           </form>
-        </DialogContent>
-      </Dialog>
+        </ZoruDialogContent>
+      </ZoruDialog>
 
-      <AlertDialog
+      <ZoruAlertDialog
         open={deletingId !== null}
         onOpenChange={(o) => !o && setDeletingId(null)}
       >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-foreground">
-              Delete module?
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-muted-foreground">
+        <ZoruAlertDialogContent>
+          <ZoruAlertDialogHeader>
+            <ZoruAlertDialogTitle>Delete module?</ZoruAlertDialogTitle>
+            <ZoruAlertDialogDescription>
               Permissions referencing this module will become uncategorised.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </ZoruAlertDialogDescription>
+          </ZoruAlertDialogHeader>
+          <ZoruAlertDialogFooter>
+            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+            <ZoruAlertDialogAction onClick={handleDelete}>Delete</ZoruAlertDialogAction>
+          </ZoruAlertDialogFooter>
+        </ZoruAlertDialogContent>
+      </ZoruAlertDialog>
     </div>
   );
 }

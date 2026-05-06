@@ -1,8 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { use, useCallback, useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -14,10 +11,14 @@ import {
   Trash2,
 } from 'lucide-react';
 
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruSkeleton,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
 import {
   getOrderById,
   convertOrderToInvoice,
@@ -27,15 +28,15 @@ import type { WsOrder } from '@/lib/worksuite/billing-types';
 
 type OrderRow = WsOrder & { _id: string };
 
-const STATUS_TONES: Record<
+const STATUS_VARIANTS: Record<
   string,
-  'neutral' | 'amber' | 'green' | 'red' | 'blue'
+  'ghost' | 'warning' | 'success' | 'danger'
 > = {
-  pending: 'neutral',
-  confirmed: 'blue',
-  shipped: 'amber',
-  delivered: 'green',
-  cancelled: 'red',
+  pending: 'ghost',
+  confirmed: 'ghost',
+  shipped: 'warning',
+  delivered: 'success',
+  cancelled: 'danger',
 };
 
 function fmtDate(v: unknown): string {
@@ -74,7 +75,7 @@ export default function OrderDetailPage(props: {
 }) {
   const { orderId } = use(props.params);
   const router = useRouter();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [order, setOrder] = useState<OrderRow | null>(null);
   const [isLoading, startLoading] = useTransition();
   const [isConverting, startConverting] = useTransition();
@@ -134,8 +135,8 @@ export default function OrderDetailPage(props: {
   if (isLoading && !order) {
     return (
       <div className="flex w-full flex-col gap-6">
-        <Skeleton className="h-12 w-full" />
-        <Skeleton className="h-64 w-full" />
+        <ZoruSkeleton className="h-12 w-full" />
+        <ZoruSkeleton className="h-64 w-full" />
       </div>
     );
   }
@@ -149,16 +150,17 @@ export default function OrderDetailPage(props: {
           icon={ShoppingCart}
         />
         <Link href="/dashboard/crm/sales/orders">
-          <ClayButton variant="pill" leading={<ArrowLeft className="h-4 w-4" />}>
+          <ZoruButton variant="outline">
+            <ArrowLeft className="h-4 w-4" />
             Back to orders
-          </ClayButton>
+          </ZoruButton>
         </Link>
       </div>
     );
   }
 
   const items = Array.isArray(order.items) ? order.items : [];
-  const tone = STATUS_TONES[order.status] || 'neutral';
+  const variant = STATUS_VARIANTS[order.status] || 'ghost';
 
   return (
     <div className="flex w-full flex-col gap-6">
@@ -169,88 +171,83 @@ export default function OrderDetailPage(props: {
         actions={
           <>
             <Link href="/dashboard/crm/sales/orders">
-              <ClayButton
-                variant="pill"
-                leading={<ArrowLeft className="h-4 w-4" />}
-              >
+              <ZoruButton variant="outline">
+                <ArrowLeft className="h-4 w-4" />
                 Back
-              </ClayButton>
+              </ZoruButton>
             </Link>
             {!order.invoice_id ? (
-              <ClayButton
-                variant="obsidian"
+              <ZoruButton
                 onClick={handleConvert}
                 disabled={isConverting}
-                leading={
-                  isConverting ? (
-                    <LoaderCircle className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <FileText className="h-4 w-4" />
-                  )
-                }
               >
+                {isConverting ? (
+                  <LoaderCircle className="h-4 w-4 animate-spin" />
+                ) : (
+                  <FileText className="h-4 w-4" />
+                )}
                 Convert to Invoice
-              </ClayButton>
+              </ZoruButton>
             ) : (
-              <ClayBadge tone="green" dot>
+              <ZoruBadge variant="success">
                 Converted
-              </ClayBadge>
+              </ZoruBadge>
             )}
-            <ClayButton
-              variant="pill"
+            <ZoruButton
+              variant="outline"
               onClick={handleDelete}
               disabled={isDeleting}
-              leading={<Trash2 className="h-4 w-4" />}
             >
+              <Trash2 className="h-4 w-4" />
               Delete
-            </ClayButton>
+            </ZoruButton>
           </>
         }
       />
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-[12px] uppercase tracking-wide text-muted-foreground">
+            <p className="text-[12px] uppercase text-zoru-ink-muted">
               Client
             </p>
-            <p className="text-[15px] font-medium text-foreground">
+            <p className="text-[15px] text-zoru-ink">
               {order.client_name || '—'}
             </p>
           </div>
           <div>
-            <p className="text-[12px] uppercase tracking-wide text-muted-foreground">
+            <p className="text-[12px] uppercase text-zoru-ink-muted">
               Status
             </p>
-            <ClayBadge tone={tone} dot>
+            <ZoruBadge variant={variant}>
               {order.status}
-            </ClayBadge>
+            </ZoruBadge>
           </div>
           <div>
-            <p className="text-[12px] uppercase tracking-wide text-muted-foreground">
+            <p className="text-[12px] uppercase text-zoru-ink-muted">
               Total
             </p>
-            <p className="text-[18px] font-semibold text-foreground">
+            <p className="text-[18px] text-zoru-ink">
               {fmtMoney(order.total, order.currency)}
             </p>
           </div>
         </div>
-      </ClayCard>
+      </ZoruCard>
 
-      <ClayCard>
-        <h2 className="mb-3 text-[15px] font-semibold text-foreground">
+      <ZoruCard className="p-6">
+        <h2 className="mb-3 text-[15px] text-zoru-ink">
           Line Items
         </h2>
-        <div className="overflow-x-auto rounded-lg border border-border">
+        <div className="overflow-x-auto rounded-lg border border-zoru-line">
           <table className="w-full text-sm">
-            <thead className="bg-secondary">
-              <tr className="border-b border-border text-left">
-                <th className="p-3 font-medium text-foreground">Item</th>
-                <th className="p-3 text-right font-medium text-foreground">Qty</th>
-                <th className="p-3 text-right font-medium text-foreground">
+            <thead className="bg-zoru-surface-2">
+              <tr className="border-b border-zoru-line text-left">
+                <th className="p-3 text-zoru-ink">Item</th>
+                <th className="p-3 text-right text-zoru-ink">Qty</th>
+                <th className="p-3 text-right text-zoru-ink">
                   Unit price
                 </th>
-                <th className="p-3 text-right font-medium text-foreground">
+                <th className="p-3 text-right text-zoru-ink">
                   Total
                 </th>
               </tr>
@@ -260,18 +257,18 @@ export default function OrderDetailPage(props: {
                 <tr>
                   <td
                     colSpan={4}
-                    className="p-4 text-center text-[13px] text-muted-foreground"
+                    className="p-4 text-center text-[13px] text-zoru-ink-muted"
                   >
                     No line items on this order.
                   </td>
                 </tr>
               ) : (
                 items.map((it, idx) => (
-                  <tr key={idx} className="border-b border-border">
-                    <td className="p-3 text-foreground">
-                      <div className="font-medium">{it.name || '—'}</div>
+                  <tr key={idx} className="border-b border-zoru-line">
+                    <td className="p-3 text-zoru-ink">
+                      <div>{it.name || '—'}</div>
                       {it.description ? (
-                        <div className="text-[12px] text-muted-foreground">
+                        <div className="text-[12px] text-zoru-ink-muted">
                           {it.description}
                         </div>
                       ) : null}
@@ -280,7 +277,7 @@ export default function OrderDetailPage(props: {
                     <td className="p-3 text-right">
                       {fmtMoney(it.unit_price, order.currency)}
                     </td>
-                    <td className="p-3 text-right font-medium">
+                    <td className="p-3 text-right">
                       {fmtMoney(it.total ?? it.quantity * it.unit_price, order.currency)}
                     </td>
                   </tr>
@@ -288,83 +285,83 @@ export default function OrderDetailPage(props: {
               )}
             </tbody>
             <tfoot>
-              <tr className="bg-secondary">
-                <td colSpan={3} className="p-3 text-right text-muted-foreground">
+              <tr className="bg-zoru-surface-2">
+                <td colSpan={3} className="p-3 text-right text-zoru-ink-muted">
                   Subtotal
                 </td>
-                <td className="p-3 text-right font-medium">
+                <td className="p-3 text-right">
                   {fmtMoney(order.subtotal, order.currency)}
                 </td>
               </tr>
               <tr>
-                <td colSpan={3} className="p-3 text-right text-muted-foreground">
+                <td colSpan={3} className="p-3 text-right text-zoru-ink-muted">
                   Tax
                 </td>
-                <td className="p-3 text-right font-medium">
+                <td className="p-3 text-right">
                   {fmtMoney(order.tax, order.currency)}
                 </td>
               </tr>
               <tr>
-                <td colSpan={3} className="p-3 text-right text-muted-foreground">
+                <td colSpan={3} className="p-3 text-right text-zoru-ink-muted">
                   Discount
                 </td>
-                <td className="p-3 text-right font-medium">
+                <td className="p-3 text-right">
                   -{fmtMoney(order.discount, order.currency)}
                 </td>
               </tr>
-              <tr className="bg-secondary">
-                <td colSpan={3} className="p-3 text-right font-semibold text-foreground">
+              <tr className="bg-zoru-surface-2">
+                <td colSpan={3} className="p-3 text-right text-zoru-ink">
                   Total
                 </td>
-                <td className="p-3 text-right font-semibold text-foreground">
+                <td className="p-3 text-right text-zoru-ink">
                   {fmtMoney(order.total, order.currency)}
                 </td>
               </tr>
             </tfoot>
           </table>
         </div>
-      </ClayCard>
+      </ZoruCard>
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         <div className="grid gap-6 md:grid-cols-2">
           <div>
-            <h3 className="mb-2 text-[13px] font-semibold text-foreground">
+            <h3 className="mb-2 text-[13px] text-zoru-ink">
               Shipping Address
             </h3>
-            <p className="text-[13px] text-muted-foreground">
+            <p className="text-[13px] text-zoru-ink-muted">
               {fmtAddress(order.shipping_address)}
             </p>
           </div>
           <div>
-            <h3 className="mb-2 text-[13px] font-semibold text-foreground">
+            <h3 className="mb-2 text-[13px] text-zoru-ink">
               Billing Address
             </h3>
-            <p className="text-[13px] text-muted-foreground">
+            <p className="text-[13px] text-zoru-ink-muted">
               {fmtAddress(order.billing_address)}
             </p>
           </div>
           {order.payment_terms ? (
             <div className="md:col-span-2">
-              <h3 className="mb-2 text-[13px] font-semibold text-foreground">
+              <h3 className="mb-2 text-[13px] text-zoru-ink">
                 Payment Terms
               </h3>
-              <p className="whitespace-pre-wrap text-[13px] text-muted-foreground">
+              <p className="whitespace-pre-wrap text-[13px] text-zoru-ink-muted">
                 {order.payment_terms}
               </p>
             </div>
           ) : null}
           {order.notes ? (
             <div className="md:col-span-2">
-              <h3 className="mb-2 text-[13px] font-semibold text-foreground">
+              <h3 className="mb-2 text-[13px] text-zoru-ink">
                 Notes
               </h3>
-              <p className="whitespace-pre-wrap text-[13px] text-muted-foreground">
+              <p className="whitespace-pre-wrap text-[13px] text-zoru-ink-muted">
                 {order.notes}
               </p>
             </div>
           ) : null}
         </div>
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

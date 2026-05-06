@@ -1,8 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -14,19 +11,21 @@ import {
   Save,
 } from 'lucide-react';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { ClayBadge, ClayButton, ClayCard } from '@/components/clay';
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
-import { useToast } from '@/hooks/use-toast';
 import {
   getEstimateRequests,
   saveEstimateRequest,
@@ -37,13 +36,13 @@ import type {
 } from '@/lib/worksuite/proposals-types';
 
 type Row = WsEstimateRequest & { _id: string };
-type Tone = 'neutral' | 'amber' | 'green' | 'red' | 'blue';
+type Variant = 'ghost' | 'warning' | 'success' | 'danger';
 
-const STATUS_TONE: Record<WsEstimateRequestStatus, Tone> = {
-  pending: 'amber',
-  'in-review': 'blue',
-  quoted: 'blue',
-  declined: 'red',
+const STATUS_VARIANT: Record<WsEstimateRequestStatus, Variant> = {
+  pending: 'warning',
+  'in-review': 'ghost',
+  quoted: 'ghost',
+  declined: 'danger',
 };
 
 function fmtDate(v: unknown): string {
@@ -54,7 +53,7 @@ function fmtDate(v: unknown): string {
 
 export default function EstimateRequestsPage() {
   const router = useRouter();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
 
   const [rows, setRows] = useState<Row[]>([]);
   const [isLoading, startLoading] = useTransition();
@@ -110,156 +109,144 @@ export default function EstimateRequestsPage() {
         subtitle="Incoming estimate requests from clients and leads."
         icon={FileQuestion}
         actions={
-          <ClayButton
-            variant="obsidian"
-            onClick={() => setShowForm((v) => !v)}
-            leading={<Plus className="h-4 w-4" />}
-          >
+          <ZoruButton onClick={() => setShowForm((v) => !v)}>
+            <Plus className="h-4 w-4" />
             {showForm ? 'Close' : 'New Request'}
-          </ClayButton>
+          </ZoruButton>
         }
       />
 
       {showForm ? (
-        <ClayCard>
-          <h2 className="mb-3 text-[16px] font-semibold text-foreground">
+        <ZoruCard className="p-6">
+          <h2 className="mb-3 text-[16px] text-zoru-ink">
             New Estimate Request
           </h2>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <Label className="text-foreground">Requester Name</Label>
-              <Input
+              <ZoruLabel className="text-zoru-ink">Requester Name</ZoruLabel>
+              <ZoruInput
                 value={requesterName}
                 onChange={(e) => setRequesterName(e.target.value)}
-                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+                className="mt-1.5"
               />
             </div>
             <div>
-              <Label className="text-foreground">Requester Email</Label>
-              <Input
+              <ZoruLabel className="text-zoru-ink">Requester Email</ZoruLabel>
+              <ZoruInput
                 type="email"
                 value={requesterEmail}
                 onChange={(e) => setRequesterEmail(e.target.value)}
-                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+                className="mt-1.5"
               />
             </div>
             <div className="md:col-span-2">
-              <Label className="text-foreground">Description</Label>
-              <Textarea
+              <ZoruLabel className="text-zoru-ink">Description</ZoruLabel>
+              <ZoruTextarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={4}
                 placeholder="What work is being estimated?"
-                className="mt-1.5 rounded-lg border-border bg-card text-[13px]"
+                className="mt-1.5"
               />
             </div>
             <div>
-              <Label className="text-foreground">Desired Date</Label>
-              <Input
+              <ZoruLabel className="text-zoru-ink">Desired Date</ZoruLabel>
+              <ZoruInput
                 type="date"
                 value={desiredDate}
                 onChange={(e) => setDesiredDate(e.target.value)}
-                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+                className="mt-1.5"
               />
             </div>
           </div>
           <div className="mt-4 flex justify-end gap-2">
-            <ClayButton
-              variant="pill"
-              onClick={() => setShowForm(false)}
-              leading={<ArrowLeft className="h-4 w-4" />}
-            >
+            <ZoruButton variant="outline" onClick={() => setShowForm(false)}>
+              <ArrowLeft className="h-4 w-4" />
               Cancel
-            </ClayButton>
-            <ClayButton
-              variant="obsidian"
-              disabled={isSaving}
-              onClick={handleSave}
-              leading={
-                isSaving ? (
-                  <LoaderCircle className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Save className="h-4 w-4" />
-                )
-              }
-            >
+            </ZoruButton>
+            <ZoruButton disabled={isSaving} onClick={handleSave}>
+              {isSaving ? (
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="h-4 w-4" />
+              )}
               Save
-            </ClayButton>
+            </ZoruButton>
           </div>
-        </ClayCard>
+        </ZoruCard>
       ) : null}
 
-      <ClayCard>
-        <div className="overflow-x-auto rounded-lg border border-border">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border hover:bg-transparent">
-                <TableHead className="text-muted-foreground">Description</TableHead>
-                <TableHead className="text-muted-foreground">Requester</TableHead>
-                <TableHead className="text-muted-foreground">Desired Date</TableHead>
-                <TableHead className="text-muted-foreground">Status</TableHead>
-                <TableHead className="text-muted-foreground">Created</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+      <ZoruCard className="p-6">
+        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+          <ZoruTable>
+            <ZoruTableHeader>
+              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                <ZoruTableHead className="text-zoru-ink-muted">Description</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Requester</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Desired Date</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Created</ZoruTableHead>
+              </ZoruTableRow>
+            </ZoruTableHeader>
+            <ZoruTableBody>
               {isLoading ? (
-                <TableRow className="border-border">
-                  <TableCell colSpan={5} className="h-24 text-center">
-                    <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
-                  </TableCell>
-                </TableRow>
+                <ZoruTableRow className="border-zoru-line">
+                  <ZoruTableCell colSpan={5} className="h-24 text-center">
+                    <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
+                  </ZoruTableCell>
+                </ZoruTableRow>
               ) : rows.length === 0 ? (
-                <TableRow className="border-border">
-                  <TableCell
+                <ZoruTableRow className="border-zoru-line">
+                  <ZoruTableCell
                     colSpan={5}
-                    className="h-24 text-center text-[13px] text-muted-foreground"
+                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
                   >
                     No estimate requests yet.
-                  </TableCell>
-                </TableRow>
+                  </ZoruTableCell>
+                </ZoruTableRow>
               ) : (
                 rows.map((r) => (
-                  <TableRow
+                  <ZoruTableRow
                     key={r._id}
-                    className="cursor-pointer border-border hover:bg-secondary"
+                    className="cursor-pointer border-zoru-line hover:bg-zoru-surface-2"
                     onClick={() =>
                       router.push(`/dashboard/crm/sales/estimate-requests/${r._id}`)
                     }
                   >
-                    <TableCell className="max-w-[320px] truncate text-foreground">
+                    <ZoruTableCell className="max-w-[320px] truncate text-zoru-ink">
                       <Link
                         href={`/dashboard/crm/sales/estimate-requests/${r._id}`}
-                        className="font-medium hover:underline"
+                        className="hover:underline"
                       >
                         {r.description}
                       </Link>
-                    </TableCell>
-                    <TableCell className="text-foreground">
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-zoru-ink">
                       {r.requester_name || '—'}
                       {r.requester_email ? (
-                        <span className="block text-[11.5px] text-muted-foreground">
+                        <span className="block text-[11.5px] text-zoru-ink-muted">
                           {r.requester_email}
                         </span>
                       ) : null}
-                    </TableCell>
-                    <TableCell className="text-foreground">
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-zoru-ink">
                       {fmtDate(r.desired_date)}
-                    </TableCell>
-                    <TableCell>
-                      <ClayBadge tone={STATUS_TONE[r.status] || 'neutral'} dot>
+                    </ZoruTableCell>
+                    <ZoruTableCell>
+                      <ZoruBadge variant={STATUS_VARIANT[r.status] || 'ghost'}>
                         {r.status}
-                      </ClayBadge>
-                    </TableCell>
-                    <TableCell className="text-foreground">
+                      </ZoruBadge>
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-zoru-ink">
                       {fmtDate(r.createdAt)}
-                    </TableCell>
-                  </TableRow>
+                    </ZoruTableCell>
+                  </ZoruTableRow>
                 ))
               )}
-            </TableBody>
-          </Table>
+            </ZoruTableBody>
+          </ZoruTable>
         </div>
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

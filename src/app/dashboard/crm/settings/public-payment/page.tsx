@@ -1,8 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import {
   useCallback,
   useEffect,
@@ -11,27 +8,31 @@ import {
 } from 'react';
 import { Globe, LoaderCircle } from 'lucide-react';
 
-import { ClayCard, ClayBadge, ClayButton } from '@/components/clay';
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
-import { useToast } from '@/hooks/use-toast';
 import {
   getGatewayCredentials,
   togglePublicPayment,
 } from '@/app/actions/worksuite/payments.actions';
 
 const COLORS: Record<string, string> = {
-  razorpay: 'bg-sky-50 text-sky-500',
-  stripe: 'bg-accent text-accent-foreground',
-  paypal: 'bg-amber-50 text-amber-500',
-  payfast: 'bg-emerald-50 text-emerald-500',
-  paytm: 'bg-sky-50 text-sky-500',
-  mollie: 'bg-rose-50 text-destructive',
-  authorize_net: 'bg-accent text-accent-foreground',
-  square: 'bg-foreground text-white',
+  razorpay: 'bg-zoru-info/10 text-zoru-info-ink',
+  stripe: 'bg-zoru-surface-2 text-zoru-ink',
+  paypal: 'bg-zoru-warning/15 text-zoru-warning-ink',
+  payfast: 'bg-zoru-success/10 text-zoru-success-ink',
+  paytm: 'bg-zoru-info/10 text-zoru-info-ink',
+  mollie: 'bg-zoru-danger/10 text-zoru-danger-ink',
+  authorize_net: 'bg-zoru-surface-2 text-zoru-ink',
+  square: 'bg-zoru-ink text-white',
 };
 
 export default function PublicPaymentPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [rows, setRows] = useState<any[]>([]);
   const [isLoading, startLoad] = useTransition();
   const [isPending, startPending] = useTransition();
@@ -69,17 +70,17 @@ export default function PublicPaymentPage() {
         icon={Globe}
       />
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         {isLoading && rows.length === 0 ? (
           <div className="flex justify-center py-10">
-            <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />
+            <LoaderCircle className="h-5 w-5 animate-spin text-zoru-ink-muted" />
           </div>
         ) : rows.length === 0 ? (
-          <div className="py-10 text-center text-[13px] text-muted-foreground">
+          <div className="py-10 text-center text-[13px] text-zoru-ink-muted">
             Configure at least one gateway to expose it publicly.
           </div>
         ) : (
-          <ul className="flex flex-col divide-y divide-border">
+          <ul className="flex flex-col divide-y divide-zoru-line">
             {rows.map((r) => {
               const letter = (r.gateway || '?').charAt(0).toUpperCase();
               return (
@@ -89,50 +90,45 @@ export default function PublicPaymentPage() {
                 >
                   <div className="flex items-center gap-3">
                     <span
-                      className={`flex h-9 w-9 items-center justify-center rounded-lg text-[13px] font-semibold ${
+                      className={`flex h-9 w-9 items-center justify-center rounded-lg text-[13px] ${
                         COLORS[r.gateway] ||
-                        'bg-secondary text-foreground'
+                        'bg-zoru-surface-2 text-zoru-ink'
                       }`}
                     >
                       {letter}
                     </span>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-medium text-foreground">
-                          {r.gateway}
-                        </span>
-                        <ClayBadge
-                          tone={r.mode === 'live' ? 'green' : 'amber'}
+                        <span className="text-zoru-ink">{r.gateway}</span>
+                        <ZoruBadge
+                          variant={r.mode === 'live' ? 'success' : 'warning'}
                         >
                           {r.mode}
-                        </ClayBadge>
-                        <ClayBadge
-                          tone={r.is_active ? 'green' : 'neutral'}
-                          dot
-                        >
+                        </ZoruBadge>
+                        <ZoruBadge variant={r.is_active ? 'success' : 'ghost'}>
                           {r.is_active ? 'active' : 'inactive'}
-                        </ClayBadge>
+                        </ZoruBadge>
                       </div>
-                      <p className="mt-0.5 text-[12px] text-muted-foreground">
+                      <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
                         {r.show_on_public
                           ? 'Visible on public pay pages'
                           : 'Hidden from public pay pages'}
                       </p>
                     </div>
                   </div>
-                  <ClayButton
-                    variant={r.show_on_public ? 'obsidian' : 'ghost'}
+                  <ZoruButton
+                    variant={r.show_on_public ? 'default' : 'ghost'}
                     disabled={isPending || !r.is_active}
                     onClick={() => onToggle(r._id)}
                   >
                     {r.show_on_public ? 'Hide' : 'Show'}
-                  </ClayButton>
+                  </ZoruButton>
                 </li>
               );
             })}
           </ul>
         )}
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

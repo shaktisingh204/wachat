@@ -72,6 +72,7 @@ pub fn build(state: AppState) -> Router {
     let fb_lead_gen = wachat_facebook_lead_gen::router::<AppState>();
     let fb_messenger_profile = wachat_facebook_messenger_profile::router::<AppState>();
     let instagram = wachat_instagram::router::<AppState>();
+    let sabfiles_router = sabfiles::router::<AppState>();
 
     Router::new()
         .merge(routes::health::router())
@@ -111,6 +112,7 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/facebook/lead-gen", fb_lead_gen)
         .nest("/v1/facebook/messenger-profile", fb_messenger_profile)
         .nest("/v1/instagram", instagram)
+        .nest("/v1/sabfiles", sabfiles_router)
         .nest("/v1", v1)
         .with_state(state)
         .layer(SetRequestIdLayer::new(

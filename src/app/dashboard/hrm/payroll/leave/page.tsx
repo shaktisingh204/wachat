@@ -1,8 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useEffect, useMemo, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { format } from 'date-fns';
@@ -18,15 +15,17 @@ import {
   Filter,
 } from 'lucide-react';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { ClayCard, ClayBadge, ClayButton } from '@/components/clay';
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruCard,
+  ZoruBadge,
+  ZoruButton,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import { useToast } from '@/hooks/use-toast';
 import {
   getLeaves,
   getLeaveTypes,
@@ -43,7 +42,7 @@ import type {
 type EmployeeLite = { _id: string; firstName?: string; lastName?: string };
 
 export default function LeaveManagementPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [leaves, setLeaves] = useState<WsLeave[]>([]);
   const [types, setTypes] = useState<WsLeaveType[]>([]);
   const [employees, setEmployees] = useState<EmployeeLite[]>([]);
@@ -104,10 +103,10 @@ export default function LeaveManagementPage() {
     }
   };
 
-  const statusTone = (s: WsLeaveStatus): 'green' | 'red' | 'amber' => {
-    if (s === 'approved') return 'green';
-    if (s === 'rejected') return 'red';
-    return 'amber';
+  const statusVariant = (s: WsLeaveStatus): 'success' | 'danger' | 'warning' => {
+    if (s === 'approved') return 'success';
+    if (s === 'rejected') return 'danger';
+    return 'warning';
   };
 
   return (
@@ -119,94 +118,86 @@ export default function LeaveManagementPage() {
         actions={
           <>
             <Link href="/dashboard/hrm/payroll/leave/balance">
-              <ClayButton variant="pill">Balance</ClayButton>
+              <ZoruButton variant="outline">Balance</ZoruButton>
             </Link>
             <Link href="/dashboard/hrm/payroll/leave/calendar">
-              <ClayButton
-                variant="pill"
-                leading={<CalendarDays className="h-4 w-4" strokeWidth={1.75} />}
-              >
+              <ZoruButton variant="outline">
+                <CalendarDays className="h-4 w-4" />
                 Calendar
-              </ClayButton>
+              </ZoruButton>
             </Link>
             <Link href="/dashboard/hrm/payroll/leave/types">
-              <ClayButton
-                variant="pill"
-                leading={<Tags className="h-4 w-4" strokeWidth={1.75} />}
-              >
+              <ZoruButton variant="outline">
+                <Tags className="h-4 w-4" />
                 Types
-              </ClayButton>
+              </ZoruButton>
             </Link>
             <Link href="/dashboard/hrm/payroll/leave/settings">
-              <ClayButton
-                variant="pill"
-                leading={<SettingsIcon className="h-4 w-4" strokeWidth={1.75} />}
-              >
+              <ZoruButton variant="outline">
+                <SettingsIcon className="h-4 w-4" />
                 Settings
-              </ClayButton>
+              </ZoruButton>
             </Link>
             <Link href="/dashboard/hrm/payroll/leave/new">
-              <ClayButton
-                variant="obsidian"
-                leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}
-              >
+              <ZoruButton>
+                <Plus className="h-4 w-4" />
                 Apply Leave
-              </ClayButton>
+              </ZoruButton>
             </Link>
           </>
         }
       />
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 className="text-[16px] font-semibold text-foreground">Leave Requests</h2>
-            <p className="mt-0.5 text-[12.5px] text-muted-foreground">
+            <h2 className="text-[16px] text-zoru-ink">Leave Requests</h2>
+            <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
               Showing {leaves.length} {statusFilter === 'all' ? 'total' : statusFilter} request{leaves.length === 1 ? '' : 's'}.
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Filter className="h-4 w-4 text-muted-foreground" />
-            <Select
+            <Filter className="h-4 w-4 text-zoru-ink-muted" />
+            <ZoruSelect
               value={statusFilter}
               onValueChange={(v) => setStatusFilter(v as any)}
             >
-              <SelectTrigger className="h-9 w-[160px] rounded-lg border-border bg-card text-[13px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="approved">Approved</SelectItem>
-                <SelectItem value="rejected">Rejected</SelectItem>
-              </SelectContent>
-            </Select>
+              <ZoruSelectTrigger className="h-9 w-[160px] rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                <ZoruSelectValue />
+              </ZoruSelectTrigger>
+              <ZoruSelectContent>
+                <ZoruSelectItem value="all">All</ZoruSelectItem>
+                <ZoruSelectItem value="pending">Pending</ZoruSelectItem>
+                <ZoruSelectItem value="approved">Approved</ZoruSelectItem>
+                <ZoruSelectItem value="rejected">Rejected</ZoruSelectItem>
+              </ZoruSelectContent>
+            </ZoruSelect>
           </div>
         </div>
-        <div className="overflow-x-auto rounded-lg border border-border">
+        <div className="overflow-x-auto rounded-lg border border-zoru-line">
           <table className="w-full text-left text-[13px]">
             <thead>
-              <tr className="border-b border-border">
-                <th className="px-4 py-3 font-medium text-muted-foreground">Employee</th>
-                <th className="px-4 py-3 font-medium text-muted-foreground">Type</th>
-                <th className="px-4 py-3 font-medium text-muted-foreground">Duration</th>
-                <th className="px-4 py-3 font-medium text-muted-foreground">Date(s)</th>
-                <th className="px-4 py-3 font-medium text-muted-foreground">Days</th>
-                <th className="px-4 py-3 font-medium text-muted-foreground">Applied At</th>
-                <th className="px-4 py-3 font-medium text-muted-foreground">Status</th>
-                <th className="px-4 py-3 text-right font-medium text-muted-foreground">Actions</th>
+              <tr className="border-b border-zoru-line">
+                <th className="px-4 py-3 text-zoru-ink-muted">Employee</th>
+                <th className="px-4 py-3 text-zoru-ink-muted">Type</th>
+                <th className="px-4 py-3 text-zoru-ink-muted">Duration</th>
+                <th className="px-4 py-3 text-zoru-ink-muted">Date(s)</th>
+                <th className="px-4 py-3 text-zoru-ink-muted">Days</th>
+                <th className="px-4 py-3 text-zoru-ink-muted">Applied At</th>
+                <th className="px-4 py-3 text-zoru-ink-muted">Status</th>
+                <th className="px-4 py-3 text-right text-zoru-ink-muted">Actions</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={8} className="h-24 text-center text-muted-foreground">
+                  <td colSpan={8} className="h-24 text-center text-zoru-ink-muted">
                     Loading...
                   </td>
                 </tr>
               ) : leaves.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="h-24 text-center text-muted-foreground">
+                  <td colSpan={8} className="h-24 text-center text-zoru-ink-muted">
                     No leave requests.
                   </td>
                 </tr>
@@ -218,14 +209,14 @@ export default function LeaveManagementPage() {
                       ? `${format(new Date(l.leave_date), 'dd MMM yy')} – ${format(new Date(l.end_date), 'dd MMM yy')}`
                       : format(new Date(l.leave_date), 'dd MMM yy');
                   return (
-                    <tr key={String(l._id)} className="border-b border-border last:border-0">
-                      <td className="px-4 py-3 font-medium text-foreground">
+                    <tr key={String(l._id)} className="border-b border-zoru-line last:border-0">
+                      <td className="px-4 py-3 text-zoru-ink">
                         {empMap.get(String(l.user_id)) || l.user_id}
                       </td>
                       <td className="px-4 py-3">
                         {t ? (
                           <span
-                            className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11.5px] font-medium"
+                            className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11.5px]"
                             style={{
                               backgroundColor: (t.color || '#94A3B8') + '20',
                               color: t.color || '#64748B',
@@ -243,26 +234,26 @@ export default function LeaveManagementPage() {
                           '—'
                         )}
                       </td>
-                      <td className="px-4 py-3 text-foreground capitalize">
+                      <td className="px-4 py-3 text-zoru-ink capitalize">
                         {l.duration}
                         {l.duration === 'half-day' && l.half_day_type
                           ? ` (${l.half_day_type})`
                           : ''}
                       </td>
-                      <td className="px-4 py-3 text-foreground">{dates}</td>
-                      <td className="px-4 py-3 text-foreground">
+                      <td className="px-4 py-3 text-zoru-ink">{dates}</td>
+                      <td className="px-4 py-3 text-zoru-ink">
                         {l.days_count}
                         {l.duration === 'hours' && l.hours ? ` (${l.hours}h)` : ''}
                       </td>
-                      <td className="px-4 py-3 text-muted-foreground">
+                      <td className="px-4 py-3 text-zoru-ink-muted">
                         {l.applied_at
                           ? format(new Date(l.applied_at), 'dd MMM yy')
                           : '—'}
                       </td>
                       <td className="px-4 py-3">
-                        <ClayBadge tone={statusTone(l.status)}>{l.status}</ClayBadge>
+                        <ZoruBadge variant={statusVariant(l.status)}>{l.status}</ZoruBadge>
                         {l.status === 'rejected' && l.reject_reason ? (
-                          <p className="mt-1 max-w-[180px] truncate text-[11px] text-destructive">
+                          <p className="mt-1 max-w-[180px] truncate text-[11px] text-zoru-danger-ink">
                             {l.reject_reason}
                           </p>
                         ) : null}
@@ -270,32 +261,29 @@ export default function LeaveManagementPage() {
                       <td className="px-4 py-3">
                         <div className="flex justify-end gap-1">
                           <Link href={`/dashboard/hrm/payroll/leave/${l._id}`}>
-                            <ClayButton
-                              variant="pill"
-                              title="View"
-                              leading={<Eye className="h-3.5 w-3.5" strokeWidth={1.75} />}
-                            >
+                            <ZoruButton variant="outline" title="View">
+                              <Eye className="h-3.5 w-3.5" />
                               View
-                            </ClayButton>
+                            </ZoruButton>
                           </Link>
                           {l.status === 'pending' && (
                             <>
-                              <ClayButton
-                                variant="pill"
+                              <ZoruButton
+                                variant="outline"
                                 onClick={() => handleApprove(String(l._id))}
                                 title="Approve"
-                                leading={<Check className="h-3.5 w-3.5 text-green-600" strokeWidth={1.75} />}
                               >
+                                <Check className="h-3.5 w-3.5 text-green-600" />
                                 Approve
-                              </ClayButton>
-                              <ClayButton
-                                variant="pill"
+                              </ZoruButton>
+                              <ZoruButton
+                                variant="outline"
                                 onClick={() => handleReject(String(l._id))}
                                 title="Reject"
-                                leading={<X className="h-3.5 w-3.5 text-red-500" strokeWidth={1.75} />}
                               >
+                                <X className="h-3.5 w-3.5 text-red-500" />
                                 Reject
-                              </ClayButton>
+                              </ZoruButton>
                             </>
                           )}
                         </div>
@@ -307,7 +295,7 @@ export default function LeaveManagementPage() {
             </tbody>
           </table>
         </div>
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

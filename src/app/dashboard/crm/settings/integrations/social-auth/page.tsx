@@ -1,9 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
-import * as React from 'react';
 import {
   useActionState,
   useCallback,
@@ -13,12 +9,15 @@ import {
 } from 'react';
 import { KeyRound, LoaderCircle } from 'lucide-react';
 
-import { ClayCard, ClayButton } from '@/components/clay';
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSkeleton,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
 import {
   getSocialAuthSetting,
   saveSocialAuthSetting,
@@ -72,7 +71,7 @@ const PROVIDERS: Array<{
 ];
 
 export default function SocialAuthIntegrationPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [doc, setDoc] = useState<Doc>(null);
   const [, startLoading] = useTransition();
   const [saveState, saveFormAction, isSaving] = useActionState(
@@ -123,11 +122,11 @@ export default function SocialAuthIntegrationPage() {
         icon={KeyRound}
       />
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         {!doc && !id ? (
           <div className="space-y-4">
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
+            <ZoruSkeleton className="h-10 w-full" />
+            <ZoruSkeleton className="h-10 w-full" />
           </div>
         ) : null}
 
@@ -136,40 +135,26 @@ export default function SocialAuthIntegrationPage() {
 
           {PROVIDERS.map((p) => (
             <div key={p.title} className="space-y-3">
-              <h3 className="text-[13px] font-semibold text-foreground">
-                {p.title}
-              </h3>
+              <h3 className="text-[13px] text-zoru-ink">{p.title}</h3>
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
-                  <Label
-                    htmlFor={String(p.idKey)}
-                    className="text-foreground"
-                  >
-                    {p.idLabel}
-                  </Label>
+                  <ZoruLabel htmlFor={String(p.idKey)}>{p.idLabel}</ZoruLabel>
                   <div className="mt-1.5">
-                    <Input
+                    <ZoruInput
                       id={String(p.idKey)}
                       name={String(p.idKey)}
                       defaultValue={v(p.idKey)}
-                      className="h-10 rounded-lg border-border bg-card text-[13px]"
                     />
                   </div>
                 </div>
                 <div>
-                  <Label
-                    htmlFor={String(p.secretKey)}
-                    className="text-foreground"
-                  >
-                    {p.secretLabel}
-                  </Label>
+                  <ZoruLabel htmlFor={String(p.secretKey)}>{p.secretLabel}</ZoruLabel>
                   <div className="mt-1.5">
-                    <Input
+                    <ZoruInput
                       id={String(p.secretKey)}
                       name={String(p.secretKey)}
                       type="password"
                       defaultValue={v(p.secretKey)}
-                      className="h-10 rounded-lg border-border bg-card text-[13px]"
                     />
                   </div>
                 </div>
@@ -178,24 +163,13 @@ export default function SocialAuthIntegrationPage() {
           ))}
 
           <div className="flex justify-end gap-2 pt-2">
-            <ClayButton
-              type="submit"
-              variant="obsidian"
-              disabled={isSaving}
-              leading={
-                isSaving ? (
-                  <LoaderCircle
-                    className="h-4 w-4 animate-spin"
-                    strokeWidth={1.75}
-                  />
-                ) : null
-              }
-            >
+            <ZoruButton type="submit" disabled={isSaving}>
+              {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
               Save
-            </ClayButton>
+            </ZoruButton>
           </div>
         </form>
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

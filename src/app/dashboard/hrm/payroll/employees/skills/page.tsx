@@ -1,22 +1,20 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useEffect, useState, useTransition } from 'react';
 import { LoaderCircle, Pencil, Plus, Sparkles, Trash2 } from 'lucide-react';
 import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { ClayButton, ClayCard } from '@/components/clay';
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruInput,
+  ZoruLabel,
+  ZoruButton,
+  ZoruCard,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import { useToast } from '@/hooks/use-toast';
 import {
   deleteSkill,
   getSkills,
@@ -29,7 +27,7 @@ type FormState = { _id: string; name: string };
 const EMPTY_FORM: FormState = { _id: '', name: '' };
 
 export default function SkillsMasterPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [skills, setSkills] = useState<SkillRow[]>([]);
   const [isLoading, startLoading] = useTransition();
   const [isSaving, startSave] = useTransition();
@@ -89,30 +87,27 @@ export default function SkillsMasterPage() {
         subtitle={`Manage the master list of skills used across the organisation.${!isLoading && skills.length > 0 ? `  ${skills.length} skill${skills.length !== 1 ? 's' : ''} defined.` : ''}`}
         icon={Sparkles}
         actions={
-          <ClayButton
-            variant="obsidian"
-            onClick={openAdd}
-            leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}
-          >
+          <ZoruButton onClick={openAdd}>
+            <Plus className="h-4 w-4" />
             Add Skill
-          </ClayButton>
+          </ZoruButton>
         }
       />
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         {isLoading ? (
           <div className="flex h-32 items-center justify-center">
-            <LoaderCircle className="h-6 w-6 animate-spin text-muted-foreground" />
+            <LoaderCircle className="h-6 w-6 animate-spin text-zoru-ink-muted" />
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-lg border border-border">
+          <div className="overflow-x-auto rounded-lg border border-zoru-line">
             <table className="w-full text-[13px]">
               <thead>
-                <tr className="border-b border-border bg-secondary">
-                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">
+                <tr className="border-b border-zoru-line bg-zoru-surface-2">
+                  <th className="px-4 py-2.5 text-left text-[12px] text-zoru-ink-muted">
                     Skill Name
                   </th>
-                  <th className="px-4 py-2.5 text-right text-[12px] font-medium text-muted-foreground">
+                  <th className="px-4 py-2.5 text-right text-[12px] text-zoru-ink-muted">
                     Actions
                   </th>
                 </tr>
@@ -120,7 +115,7 @@ export default function SkillsMasterPage() {
               <tbody>
                 {skills.length === 0 ? (
                   <tr>
-                    <td colSpan={2} className="py-10 text-center text-[13px] text-muted-foreground">
+                    <td colSpan={2} className="py-10 text-center text-[13px] text-zoru-ink-muted">
                       No skills defined yet.
                     </td>
                   </tr>
@@ -128,21 +123,21 @@ export default function SkillsMasterPage() {
                   skills.map((s) => (
                     <tr
                       key={String(s._id)}
-                      className="border-t border-border hover:bg-secondary/50"
+                      className="border-t border-zoru-line hover:bg-zoru-surface-2/50"
                     >
-                      <td className="px-4 py-2.5 font-medium text-foreground">{s.name}</td>
+                      <td className="px-4 py-2.5 text-zoru-ink">{s.name}</td>
                       <td className="px-4 py-2.5 text-right">
                         <div className="flex justify-end gap-1">
-                          <ClayButton variant="pill" size="sm" onClick={() => openEdit(s)}>
+                          <ZoruButton variant="ghost" size="sm" onClick={() => openEdit(s)}>
                             <Pencil className="h-3.5 w-3.5" />
-                          </ClayButton>
-                          <ClayButton
-                            variant="pill"
+                          </ZoruButton>
+                          <ZoruButton
+                            variant="ghost"
                             size="sm"
                             onClick={() => handleDelete(String(s._id))}
                           >
-                            <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                          </ClayButton>
+                            <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                          </ZoruButton>
                         </div>
                       </td>
                     </tr>
@@ -152,49 +147,41 @@ export default function SkillsMasterPage() {
             </table>
           </div>
         )}
-      </ClayCard>
+      </ZoruCard>
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-sm border-border bg-card">
-          <DialogHeader>
-            <DialogTitle className="text-foreground">
+      <ZoruDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <ZoruDialogContent className="max-w-sm border-zoru-line bg-zoru-bg">
+          <ZoruDialogHeader>
+            <ZoruDialogTitle className="text-zoru-ink">
               {form._id ? 'Edit Skill' : 'Add Skill'}
-            </DialogTitle>
-          </DialogHeader>
+            </ZoruDialogTitle>
+          </ZoruDialogHeader>
 
           <div className="py-2">
-            <Label className="text-[12px] text-muted-foreground">
-              Skill Name <span className="text-destructive">*</span>
-            </Label>
-            <Input
+            <ZoruLabel className="text-[12px] text-zoru-ink-muted">
+              Skill Name <span className="text-zoru-danger-ink">*</span>
+            </ZoruLabel>
+            <ZoruInput
               value={form.name}
               onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
               onKeyDown={(e) => { if (e.key === 'Enter') handleSave(); }}
               placeholder="e.g. JavaScript, Project Management…"
-              className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+              className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
               autoFocus
             />
           </div>
 
-          <DialogFooter className="gap-2">
-            <ClayButton variant="pill" onClick={() => setDialogOpen(false)}>
+          <ZoruDialogFooter className="gap-2">
+            <ZoruButton variant="outline" onClick={() => setDialogOpen(false)}>
               Cancel
-            </ClayButton>
-            <ClayButton
-              variant="obsidian"
-              onClick={handleSave}
-              disabled={isSaving}
-              leading={
-                isSaving ? (
-                  <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.75} />
-                ) : undefined
-              }
-            >
+            </ZoruButton>
+            <ZoruButton onClick={handleSave} disabled={isSaving}>
+              {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
               {form._id ? 'Update' : 'Add'}
-            </ClayButton>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            </ZoruButton>
+          </ZoruDialogFooter>
+        </ZoruDialogContent>
+      </ZoruDialog>
     </div>
   );
 }

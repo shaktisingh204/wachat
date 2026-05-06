@@ -1,8 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import {
     useActionState,
     useCallback,
@@ -22,28 +19,27 @@ import {
     Trash2,
 } from 'lucide-react';
 
-import { ClayButton, ClayCard } from '@/components/clay';
+import {
+    ZoruButton,
+    ZoruCard,
+    ZoruDialog,
+    ZoruDialogContent,
+    ZoruDialogDescription,
+    ZoruDialogFooter,
+    ZoruDialogHeader,
+    ZoruDialogTitle,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+    ZoruInput,
+    ZoruLabel,
+    ZoruTextarea,
+    ZoruSkeleton,
+    useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
 import {
     getDesignationTree,
     getDesignationsExt,
@@ -85,10 +81,10 @@ function TreeRow({
     return (
         <div>
             <div
-                className="flex items-center gap-2 border-b border-border py-2.5 last:border-b-0"
+                className="flex items-center gap-2 border-b border-zoru-line py-2.5 last:border-b-0"
                 style={{ paddingLeft: `${level * 20 + 8}px` }}
             >
-                <ClayButton
+                <ZoruButton
                     type="button"
                     variant="ghost"
                     size="icon"
@@ -105,37 +101,37 @@ function TreeRow({
                     ) : (
                         <span className="inline-block h-3.5 w-3.5" />
                     )}
-                </ClayButton>
+                </ZoruButton>
 
                 <div className="min-w-0 flex-1">
-                    <div className="text-[13px] font-medium text-foreground">{node.name}</div>
+                    <div className="text-[13px] text-zoru-ink">{node.name}</div>
                     {node.description ? (
-                        <div className="text-[11.5px] text-muted-foreground">{node.description}</div>
+                        <div className="text-[11.5px] text-zoru-ink-muted">{node.description}</div>
                     ) : null}
                 </div>
 
                 <div className="w-[220px] shrink-0">
-                    <Select
+                    <ZoruSelect
                         value={node.parent_id ?? '__none__'}
                         onValueChange={(v) =>
                             onSetParent(node._id, v === '__none__' ? null : v)
                         }
                     >
-                        <SelectTrigger className="h-8 rounded-lg border-border bg-card text-[12px]">
-                            <SelectValue placeholder="No parent" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="__none__">— Root (no parent) —</SelectItem>
+                        <ZoruSelectTrigger className="h-8 rounded-lg border-zoru-line bg-zoru-bg text-[12px]">
+                            <ZoruSelectValue placeholder="No parent" />
+                        </ZoruSelectTrigger>
+                        <ZoruSelectContent>
+                            <ZoruSelectItem value="__none__">— Root (no parent) —</ZoruSelectItem>
                             {validParents.map((p) => (
-                                <SelectItem key={String(p._id)} value={String(p._id)}>
+                                <ZoruSelectItem key={String(p._id)} value={String(p._id)}>
                                     {p.name}
-                                </SelectItem>
+                                </ZoruSelectItem>
                             ))}
-                        </SelectContent>
-                    </Select>
+                        </ZoruSelectContent>
+                    </ZoruSelect>
                 </div>
 
-                <ClayButton
+                <ZoruButton
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8"
@@ -143,8 +139,8 @@ function TreeRow({
                     aria-label="Edit"
                 >
                     <Pencil className="h-3.5 w-3.5" />
-                </ClayButton>
-                <ClayButton
+                </ZoruButton>
+                <ZoruButton
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8"
@@ -152,7 +148,7 @@ function TreeRow({
                     aria-label="Delete"
                 >
                     <Trash2 className="h-3.5 w-3.5 text-red-500" />
-                </ClayButton>
+                </ZoruButton>
             </div>
             {hasChildren && isOpen ? (
                 <div>
@@ -176,7 +172,7 @@ function TreeRow({
 }
 
 export default function DesignationsHierarchyPage() {
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
     const [tree, setTree] = useState<WsHierarchyNode[]>([]);
     const [flat, setFlat] = useState<WsDesignationExt[]>([]);
     const [expanded, setExpanded] = useState<Record<string, boolean>>({});
@@ -271,25 +267,22 @@ export default function DesignationsHierarchyPage() {
                 subtitle="Nested job-title structure. Set a parent designation to model reporting chains."
                 icon={BadgeCheck}
                 actions={
-                    <ClayButton
-                        variant="obsidian"
-                        leading={<Plus className="h-4 w-4" />}
-                        onClick={handleAdd}
-                    >
+                    <ZoruButton onClick={handleAdd}>
+                        <Plus className="h-4 w-4" />
                         Add Designation
-                    </ClayButton>
+                    </ZoruButton>
                 }
             />
 
-            <ClayCard>
+            <ZoruCard className="p-6">
                 {isLoading && tree.length === 0 ? (
-                    <Skeleton className="h-[240px] w-full" />
+                    <ZoruSkeleton className="h-[240px] w-full" />
                 ) : tree.length === 0 ? (
-                    <div className="py-10 text-center text-[13px] text-muted-foreground">
+                    <div className="py-10 text-center text-[13px] text-zoru-ink-muted">
                         No designations yet — click Add to get started.
                     </div>
                 ) : (
-                    <div className="rounded-lg border border-border bg-card">
+                    <div className="rounded-lg border border-zoru-line bg-zoru-bg">
                         {tree.map((n) => (
                             <TreeRow
                                 key={n._id}
@@ -305,102 +298,97 @@ export default function DesignationsHierarchyPage() {
                         ))}
                     </div>
                 )}
-            </ClayCard>
+            </ZoruCard>
 
-            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle className="text-foreground">
+            <ZoruDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                <ZoruDialogContent>
+                    <ZoruDialogHeader>
+                        <ZoruDialogTitle className="text-zoru-ink">
                             {editing ? 'Edit Designation' : 'Add Designation'}
-                        </DialogTitle>
-                        <DialogDescription className="text-muted-foreground">
+                        </ZoruDialogTitle>
+                        <ZoruDialogDescription className="text-zoru-ink-muted">
                             Provide a name, optional description, and parent designation.
-                        </DialogDescription>
-                    </DialogHeader>
+                        </ZoruDialogDescription>
+                    </ZoruDialogHeader>
                     <form action={formAction} ref={formRef} className="space-y-4">
                         {editing?._id ? (
                             <input type="hidden" name="_id" value={String(editing._id)} />
                         ) : null}
                         <div>
-                            <Label htmlFor="name" className="text-[13px] text-foreground">
+                            <ZoruLabel htmlFor="name" className="text-[13px] text-zoru-ink">
                                 Name <span className="text-red-500">*</span>
-                            </Label>
-                            <Input
+                            </ZoruLabel>
+                            <ZoruInput
                                 id="name"
                                 name="name"
                                 required
                                 defaultValue={editing?.name ?? ''}
-                                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+                                className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                             />
                         </div>
                         <div>
-                            <Label htmlFor="description" className="text-[13px] text-foreground">
+                            <ZoruLabel htmlFor="description" className="text-[13px] text-zoru-ink">
                                 Description
-                            </Label>
-                            <Textarea
+                            </ZoruLabel>
+                            <ZoruTextarea
                                 id="description"
                                 name="description"
                                 rows={2}
                                 defaultValue={editing?.description ?? ''}
-                                className="mt-1.5 rounded-lg border-border bg-card text-[13px]"
+                                className="mt-1.5 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                             />
                         </div>
                         <div>
-                            <Label
+                            <ZoruLabel
                                 htmlFor="parent_designation_id"
-                                className="text-[13px] text-foreground"
+                                className="text-[13px] text-zoru-ink"
                             >
                                 Parent Designation
-                            </Label>
-                            <Select
+                            </ZoruLabel>
+                            <ZoruSelect
                                 name="parent_designation_id"
                                 defaultValue={editingParent}
                             >
-                                <SelectTrigger
+                                <ZoruSelectTrigger
                                     id="parent_designation_id"
-                                    className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+                                    className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                                 >
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="__none__">— Root (no parent) —</SelectItem>
+                                    <ZoruSelectValue />
+                                </ZoruSelectTrigger>
+                                <ZoruSelectContent>
+                                    <ZoruSelectItem value="__none__">— Root (no parent) —</ZoruSelectItem>
                                     {flat
                                         .filter((p) => String(p._id) !== String(editing?._id))
                                         .map((p) => (
-                                            <SelectItem key={String(p._id)} value={String(p._id)}>
+                                            <ZoruSelectItem key={String(p._id)} value={String(p._id)}>
                                                 {p.name}
-                                            </SelectItem>
+                                            </ZoruSelectItem>
                                         ))}
-                                </SelectContent>
-                            </Select>
-                            <p className="mt-1 text-[11px] text-muted-foreground">
-                                Select "Root" to make this a top-level designation.
+                                </ZoruSelectContent>
+                            </ZoruSelect>
+                            <p className="mt-1 text-[11px] text-zoru-ink-muted">
+                                Select &quot;Root&quot; to make this a top-level designation.
                             </p>
                         </div>
-                        <DialogFooter>
-                            <ClayButton
+                        <ZoruDialogFooter>
+                            <ZoruButton
                                 type="button"
-                                variant="pill"
+                                variant="outline"
                                 onClick={() => setDialogOpen(false)}
                             >
                                 Cancel
-                            </ClayButton>
-                            <ClayButton
+                            </ZoruButton>
+                            <ZoruButton
                                 type="submit"
-                                variant="obsidian"
                                 disabled={isSaving}
-                                leading={
-                                    isSaving ? (
-                                        <LoaderCircle className="h-4 w-4 animate-spin" />
-                                    ) : undefined
-                                }
                             >
+                                {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
                                 Save
-                            </ClayButton>
-                        </DialogFooter>
+                            </ZoruButton>
+                        </ZoruDialogFooter>
                     </form>
-                </DialogContent>
-            </Dialog>
+                </ZoruDialogContent>
+            </ZoruDialog>
         </div>
     );
 }

@@ -1,11 +1,8 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { format, addDays, parseISO } from 'date-fns';
+import { format, addDays } from 'date-fns';
 import {
   CalendarClock,
   ArrowLeft,
@@ -14,9 +11,13 @@ import {
   X,
   LoaderCircle,
 } from 'lucide-react';
-import { ClayCard, ClayBadge, ClayButton } from '@/components/clay';
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import { useToast } from '@/hooks/use-toast';
 import {
   getWeeklyTimesheetById,
   getWeeklyEntries,
@@ -32,12 +33,12 @@ import type {
   WsWeeklyTimesheetStatus,
 } from '@/lib/worksuite/time-types';
 
-type StatusTone = 'neutral' | 'amber' | 'green' | 'red';
-const STATUS_TONE: Record<WsWeeklyTimesheetStatus, StatusTone> = {
-  draft: 'neutral',
-  submitted: 'amber',
-  approved: 'green',
-  rejected: 'red',
+type StatusVariant = 'secondary' | 'warning' | 'success' | 'danger';
+const STATUS_VARIANT: Record<WsWeeklyTimesheetStatus, StatusVariant> = {
+  draft: 'secondary',
+  submitted: 'warning',
+  approved: 'success',
+  rejected: 'danger',
 };
 
 function fmtDate(v: unknown): string {
@@ -52,7 +53,7 @@ function fmtDate(v: unknown): string {
 export default function WeeklyTimesheetDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
 
   const [sheet, setSheet] = useState<WsWeeklyTimesheet | null>(null);
   const [entries, setEntries] = useState<WsWeeklyTimesheetEntry[]>([]);
@@ -159,14 +160,14 @@ export default function WeeklyTimesheetDetailPage() {
   if (isLoading && !sheet) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />
+        <LoaderCircle className="h-8 w-8 animate-spin text-zoru-ink-muted" />
       </div>
     );
   }
 
   if (!sheet) {
     return (
-      <div className="py-12 text-center text-[13px] text-muted-foreground">
+      <div className="py-12 text-center text-[13px] text-zoru-ink-muted">
         Timesheet not found.
       </div>
     );
@@ -182,41 +183,40 @@ export default function WeeklyTimesheetDetailPage() {
         icon={CalendarClock}
         actions={
           <div className="flex items-center gap-2">
-            <ClayButton
-              variant="pill"
-              leading={<ArrowLeft className="h-4 w-4" strokeWidth={1.75} />}
+            <ZoruButton
+              variant="outline"
               onClick={() => router.push('/dashboard/hrm/payroll/weekly-timesheets')}
             >
+              <ArrowLeft className="h-4 w-4" strokeWidth={1.75} />
               Back
-            </ClayButton>
+            </ZoruButton>
             {sheet.status === 'draft' && (
-              <ClayButton
-                variant="obsidian"
-                leading={<Send className="h-4 w-4" strokeWidth={1.75} />}
+              <ZoruButton
                 onClick={handleSubmit}
                 disabled={isSaving}
               >
+                <Send className="h-4 w-4" strokeWidth={1.75} />
                 Submit
-              </ClayButton>
+              </ZoruButton>
             )}
             {sheet.status === 'submitted' && (
               <>
-                <ClayButton
-                  variant="pill"
-                  leading={<Check className="h-4 w-4" strokeWidth={1.75} />}
+                <ZoruButton
+                  variant="outline"
                   onClick={handleApprove}
                   disabled={isSaving}
                 >
+                  <Check className="h-4 w-4" strokeWidth={1.75} />
                   Approve
-                </ClayButton>
-                <ClayButton
-                  variant="pill"
-                  leading={<X className="h-4 w-4" strokeWidth={1.75} />}
+                </ZoruButton>
+                <ZoruButton
+                  variant="outline"
                   onClick={handleReject}
                   disabled={isSaving}
                 >
+                  <X className="h-4 w-4" strokeWidth={1.75} />
                   Reject
-                </ClayButton>
+                </ZoruButton>
               </>
             )}
           </div>
@@ -225,61 +225,61 @@ export default function WeeklyTimesheetDetailPage() {
 
       {/* Summary bar */}
       <div className="flex flex-wrap gap-4">
-        <ClayCard>
-          <p className="text-[12px] text-muted-foreground">Status</p>
+        <ZoruCard className="p-6">
+          <p className="text-[12px] text-zoru-ink-muted">Status</p>
           <div className="mt-1">
-            <ClayBadge tone={STATUS_TONE[sheet.status]} dot>
+            <ZoruBadge variant={STATUS_VARIANT[sheet.status]}>
               {sheet.status}
-            </ClayBadge>
+            </ZoruBadge>
           </div>
-        </ClayCard>
-        <ClayCard>
-          <p className="text-[12px] text-muted-foreground">Total Hours</p>
-          <p className="mt-1 text-[22px] font-semibold text-foreground">
+        </ZoruCard>
+        <ZoruCard className="p-6">
+          <p className="text-[12px] text-zoru-ink-muted">Total Hours</p>
+          <p className="mt-1 text-[22px] text-zoru-ink">
             {sheet.total_hours}h {String(sheet.total_minutes ?? 0).padStart(2, '0')}m
           </p>
-        </ClayCard>
+        </ZoruCard>
         {sheet.reason && (
-          <ClayCard>
-            <p className="text-[12px] text-muted-foreground">Rejection Reason</p>
-            <p className="mt-1 text-[13px] text-destructive">{sheet.reason}</p>
-          </ClayCard>
+          <ZoruCard className="p-6">
+            <p className="text-[12px] text-zoru-ink-muted">Rejection Reason</p>
+            <p className="mt-1 text-[13px] text-zoru-danger-ink">{sheet.reason}</p>
+          </ZoruCard>
         )}
       </div>
 
       {/* Timesheet grid */}
-      <ClayCard>
-        <h2 className="mb-4 text-[16px] font-semibold text-foreground">Hours Grid</h2>
-        <div className="overflow-x-auto rounded-lg border border-border">
+      <ZoruCard className="p-6">
+        <h2 className="mb-4 text-[16px] text-zoru-ink">Hours Grid</h2>
+        <div className="overflow-x-auto rounded-lg border border-zoru-line">
           <table className="w-full min-w-[700px] text-[13px]">
             <thead>
-              <tr className="border-b border-border bg-secondary">
-                <th className="px-3 py-2 text-left text-[12px] font-medium text-muted-foreground">
+              <tr className="border-b border-zoru-line bg-zoru-surface-2">
+                <th className="px-3 py-2 text-left text-[12px] font-medium text-zoru-ink-muted">
                   Task / Description
                 </th>
                 {weekDays.map((d) => (
                   <th
                     key={d.toISOString()}
-                    className="border-l border-border px-3 py-2 text-center text-[12px] font-medium text-foreground"
+                    className="border-l border-zoru-line px-3 py-2 text-center text-[12px] font-medium text-zoru-ink"
                   >
                     <div>{format(d, 'EEE')}</div>
-                    <div className="text-[11px] text-muted-foreground">{format(d, 'MMM d')}</div>
+                    <div className="text-[11px] text-zoru-ink-muted">{format(d, 'MMM d')}</div>
                   </th>
                 ))}
-                <th className="border-l border-border px-3 py-2 text-center text-[12px] font-medium text-muted-foreground">
+                <th className="border-l border-zoru-line px-3 py-2 text-center text-[12px] font-medium text-zoru-ink-muted">
                   Total
                 </th>
               </tr>
             </thead>
             <tbody>
-              <tr className="border-t border-border">
-                <td className="px-3 py-2 text-[13px] text-muted-foreground">Hours logged</td>
+              <tr className="border-t border-zoru-line">
+                <td className="px-3 py-2 text-[13px] text-zoru-ink-muted">Hours logged</td>
                 {weekDays.map((d) => {
                   const key = wsToISODate(d);
                   return (
                     <td
                       key={d.toISOString()}
-                      className="border-l border-border px-2 py-1.5 text-center"
+                      className="border-l border-zoru-line px-2 py-1.5 text-center"
                     >
                       <input
                         type="number"
@@ -292,30 +292,30 @@ export default function WeeklyTimesheetDetailPage() {
                           setCellValues((prev) => ({ ...prev, [key]: e.target.value }))
                         }
                         onBlur={(e) => handleCellBlur(key, e.target.value)}
-                        className="w-16 rounded-md border border-border bg-card px-2 py-1 text-center text-[13px] text-foreground disabled:opacity-60"
+                        className="w-16 rounded-md border border-zoru-line bg-zoru-bg px-2 py-1 text-center text-[13px] text-zoru-ink disabled:opacity-60"
                       />
                     </td>
                   );
                 })}
-                <td className="border-l border-border px-3 py-2 text-center font-semibold text-foreground">
+                <td className="border-l border-zoru-line px-3 py-2 text-center font-semibold text-zoru-ink">
                   {grandTotal.toFixed(1)}h
                 </td>
               </tr>
             </tbody>
             <tfoot>
-              <tr className="border-t border-border bg-secondary">
-                <td className="px-3 py-2 text-[12px] font-medium text-muted-foreground">
+              <tr className="border-t border-zoru-line bg-zoru-surface-2">
+                <td className="px-3 py-2 text-[12px] font-medium text-zoru-ink-muted">
                   Daily Total
                 </td>
                 {columnTotals.map((h, i) => (
                   <td
                     key={i}
-                    className="border-l border-border px-3 py-2 text-center text-[13px] font-semibold text-foreground"
+                    className="border-l border-zoru-line px-3 py-2 text-center text-[13px] font-semibold text-zoru-ink"
                   >
                     {h.toFixed(1)}h
                   </td>
                 ))}
-                <td className="border-l border-border px-3 py-2 text-center text-[13px] font-bold text-foreground">
+                <td className="border-l border-zoru-line px-3 py-2 text-center text-[13px] font-bold text-zoru-ink">
                   {grandTotal.toFixed(1)}h
                 </td>
               </tr>
@@ -323,11 +323,11 @@ export default function WeeklyTimesheetDetailPage() {
           </table>
         </div>
         {!canEdit && (
-          <p className="mt-3 text-[12px] text-muted-foreground">
+          <p className="mt-3 text-[12px] text-zoru-ink-muted">
             Timesheet is {sheet.status} — editing is disabled.
           </p>
         )}
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

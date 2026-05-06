@@ -1,30 +1,27 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
-
 import { useState, useEffect, useActionState, useRef, useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
-import { Button } from '@/components/ui/button';
-import { ClayCard, ClayButton } from '@/components/clay';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+    ZoruButton,
+    ZoruCard,
+    ZoruCheckbox,
+    ZoruInput,
+    ZoruLabel,
+    ZoruSeparator,
+    ZoruSwitch,
+    ZoruTextarea,
+    useZoruToast,
+} from '@/components/zoruui';
 import { DatePicker } from '@/components/ui/date-picker';
-import { Separator } from '@/components/ui/separator';
-import { Textarea } from '@/components/ui/textarea';
 import { PlusCircle, Trash2, ArrowLeft, Save, File as FileIcon, Edit, ChevronDown, Info, Upload, Image as ImageIcon, Settings, Printer, Share2, LoaderCircle, Repeat } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { v4 as uuidv4 } from 'uuid';
 import type { WithId, CrmAccount, InvoiceLineItem } from '@/lib/definitions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
-import { useToast } from '@/hooks/use-toast';
 import { saveInvoice } from '@/app/actions/crm-invoices.actions';
 import { useRouter } from 'next/navigation';
-import { Switch } from '@/components/ui/switch';
-import { Checkbox } from '@/components/ui/checkbox';
 import { SmartClientSelect } from '@/components/crm/sales/smart-client-select';
 import { SmartProductSelect } from '@/components/crm/inventory/smart-product-select';
 
@@ -43,14 +40,10 @@ const initialState: { message?: string; error?: string } = { message: undefined,
 function SaveButton() {
     const { pending } = useFormStatus();
     return (
-        <ClayButton
-            type="submit"
-            variant="obsidian"
-            disabled={pending}
-            leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-        >
+        <ZoruButton type="submit" disabled={pending}>
+            {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Save & Continue
-        </ClayButton>
+        </ZoruButton>
     );
 }
 
@@ -71,25 +64,25 @@ const LineItemsTable = ({ items, setItems, currency }: { items: InvoiceLineItem[
 
     return (
         <div className="mt-6">
-            <div className="overflow-x-auto rounded-lg border border-border">
+            <div className="overflow-x-auto rounded-lg border border-zoru-line">
                 <table className="w-full text-sm">
-                    <thead className="bg-secondary">
-                        <tr className="border-b border-border">
-                            <th className="p-3 text-left font-medium text-foreground">Item</th>
-                            <th className="p-3 text-right font-medium text-foreground">Quantity</th>
-                            <th className="p-3 text-right font-medium text-foreground">Rate</th>
-                            <th className="p-3 text-right font-medium text-foreground">Amount</th>
+                    <thead className="bg-zoru-surface-2">
+                        <tr className="border-b border-zoru-line">
+                            <th className="p-3 text-left text-zoru-ink">Item</th>
+                            <th className="p-3 text-right text-zoru-ink">Quantity</th>
+                            <th className="p-3 text-right text-zoru-ink">Rate</th>
+                            <th className="p-3 text-right text-zoru-ink">Amount</th>
                             <th className="p-3"></th>
                         </tr>
                     </thead>
                     <tbody>
                         {items.map((item, index) => (
-                            <tr key={item.id} className="border-b border-border">
+                            <tr key={item.id} className="border-b border-zoru-line">
                                 <td className="p-2">
                                     <SmartProductSelect
                                         value={item.id.startsWith('item-') && !item.name ? '' : undefined}
                                         placeholder="Select Product"
-                                        onSelect={(val) => { /* handled via onProductChange mainly */ }}
+                                        onSelect={(val) => { }}
                                         onProductChange={(product) => {
                                             handleItemChange(item.id, 'name', product.name);
                                             handleItemChange(item.id, 'rate', product.sellingPrice);
@@ -97,22 +90,22 @@ const LineItemsTable = ({ items, setItems, currency }: { items: InvoiceLineItem[
                                         className="w-full"
                                     />
                                 </td>
-                                <td className="p-2"><Input type="number" className="w-24 text-right" value={item.quantity} onChange={e => handleItemChange(item.id, 'quantity', Number(e.target.value))} /></td>
-                                <td className="p-2"><Input type="number" className="w-32 text-right" value={item.rate} onChange={e => handleItemChange(item.id, 'rate', Number(e.target.value))} /></td>
-                                <td className="p-2 text-right font-medium">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(item.quantity * item.rate)}</td>
-                                <td className="p-2"><Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveItem(item.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button></td>
+                                <td className="p-2"><ZoruInput type="number" className="w-24 text-right" value={item.quantity} onChange={e => handleItemChange(item.id, 'quantity', Number(e.target.value))} /></td>
+                                <td className="p-2"><ZoruInput type="number" className="w-32 text-right" value={item.rate} onChange={e => handleItemChange(item.id, 'rate', Number(e.target.value))} /></td>
+                                <td className="p-2 text-right text-zoru-ink">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(item.quantity * item.rate)}</td>
+                                <td className="p-2"><ZoruButton type="button" variant="ghost" size="icon" onClick={() => handleRemoveItem(item.id)}><Trash2 className="h-4 w-4 text-zoru-danger-ink" /></ZoruButton></td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
             </div>
             <div className="p-4 space-y-2">
-                <ClayButton type="button" variant="pill" size="sm" onClick={handleAddItem} leading={<PlusCircle className="h-4 w-4" />}>Add New Line</ClayButton>
+                <ZoruButton type="button" variant="outline" size="sm" onClick={handleAddItem}><PlusCircle className="h-4 w-4" />Add New Line</ZoruButton>
             </div>
-            <Separator />
+            <ZoruSeparator />
             <div className="p-4 flex justify-end">
                 <div className="w-full max-w-sm space-y-2">
-                    <div className="flex justify-between items-center"><span className="text-muted-foreground">Total ({currency})</span><span className="font-bold text-lg text-foreground">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalAmount)}</span></div>
+                    <div className="flex justify-between items-center"><span className="text-zoru-ink-muted">Total ({currency})</span><span className="text-lg text-zoru-ink">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalAmount)}</span></div>
                 </div>
             </div>
         </div>
@@ -122,9 +115,8 @@ const LineItemsTable = ({ items, setItems, currency }: { items: InvoiceLineItem[
 export default function NewInvoicePage() {
     const [state, formAction] = useActionState(saveInvoice, initialState);
     const router = useRouter();
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
 
-    // Form State
     const [clients, setClients] = useState<WithId<CrmAccount>[]>([]);
     const [selectedClientId, setSelectedClientId] = useState<string>('');
     const [invoiceDate, setInvoiceDate] = useState<Date | undefined>(new Date());
@@ -159,7 +151,6 @@ export default function NewInvoicePage() {
 
     return (
         <form action={formAction}>
-            {/* Hidden inputs for form submission */}
             <input type="hidden" name="accountId" value={selectedClientId} />
             <input type="hidden" name="invoiceDate" value={invoiceDate?.toISOString()} />
             <input type="hidden" name="dueDate" value={dueDate?.toISOString()} />
@@ -174,37 +165,37 @@ export default function NewInvoicePage() {
                     <header className="flex justify-between items-center mb-6">
                         <div>
                             <Link href="/dashboard/crm/sales/invoices">
-                                <ClayButton variant="pill" size="sm" leading={<ArrowLeft className="h-4 w-4" />}>Back to Invoices</ClayButton>
+                                <ZoruButton variant="outline" size="sm"><ArrowLeft className="h-4 w-4" />Back to Invoices</ZoruButton>
                             </Link>
                         </div>
                         <div className="flex items-center gap-2">
-                            <ClayButton variant="pill" type="button">Save As Draft</ClayButton>
+                            <ZoruButton variant="outline" type="button">Save As Draft</ZoruButton>
                             <SaveButton />
                         </div>
                     </header>
-                    <ClayCard variant="floating" padded={false} className="max-w-4xl mx-auto p-4 sm:p-8 md:p-12">
+                    <ZoruCard className="p-0 max-w-4xl mx-auto p-4 sm:p-8 md:p-12">
                         <div className="p-0">
                             <header className="grid grid-cols-2 gap-8 mb-8">
                                 <div>
-                                    <h1 className="text-3xl font-bold text-foreground">INVOICE</h1>
-                                    <Input placeholder="Add Subtitle (e.g. For Website Redesign)" className="border-0 shadow-none -ml-3 p-0 h-auto text-muted-foreground focus-visible:ring-0 text-base" />
+                                    <h1 className="text-3xl text-zoru-ink">INVOICE</h1>
+                                    <ZoruInput placeholder="Add Subtitle (e.g. For Website Redesign)" className="border-0 shadow-none -ml-3 p-0 h-auto text-zoru-ink-muted text-base" />
                                 </div>
                                 <div className="flex justify-end">
-                                    <div className="w-32 h-32 bg-secondary flex items-center justify-center rounded-lg"><ImageIcon className="h-12 w-12 text-muted-foreground/50" /></div>
+                                    <div className="w-32 h-32 bg-zoru-surface-2 flex items-center justify-center rounded-lg"><ImageIcon className="h-12 w-12 text-zoru-ink-muted" /></div>
                                 </div>
                             </header>
 
-                            <Separator className="my-8" />
+                            <ZoruSeparator className="my-8" />
 
                             <section className="grid md:grid-cols-2 gap-8 text-sm mb-8">
                                 <div>
-                                    <h3 className="font-semibold mb-2 text-foreground">Billed By:</h3>
-                                    <p className="font-bold">{yourBusinessDetails.name}</p>
-                                    <p className="text-muted-foreground">{yourBusinessDetails.address}</p>
-                                    <p className="text-muted-foreground">GSTIN: {yourBusinessDetails.gstin}</p>
+                                    <h3 className="mb-2 text-zoru-ink">Billed By:</h3>
+                                    <p className="text-zoru-ink">{yourBusinessDetails.name}</p>
+                                    <p className="text-zoru-ink-muted">{yourBusinessDetails.address}</p>
+                                    <p className="text-zoru-ink-muted">GSTIN: {yourBusinessDetails.gstin}</p>
                                 </div>
                                 <div>
-                                    <h3 className="font-semibold mb-2 text-foreground">Billed To:</h3>
+                                    <h3 className="mb-2 text-zoru-ink">Billed To:</h3>
                                     <SmartClientSelect
                                         value={selectedClientId}
                                         onSelect={setSelectedClientId}
@@ -218,59 +209,58 @@ export default function NewInvoicePage() {
                                     />
                                     {selectedClient && (
                                         <div className="mt-2 space-y-1 text-sm">
-                                            <p className="font-medium">{selectedClient.name}</p>
-                                            <p className="text-muted-foreground">{selectedClient.address}</p>
-                                            <p className="text-muted-foreground">{selectedClient.phone}</p>
+                                            <p className="text-zoru-ink">{selectedClient.name}</p>
+                                            <p className="text-zoru-ink-muted">{selectedClient.address}</p>
+                                            <p className="text-zoru-ink-muted">{selectedClient.phone}</p>
                                         </div>
                                     )}
                                 </div>
                             </section>
 
                             <section className="grid grid-cols-3 gap-4 mb-8">
-                                <div className="space-y-1"><Label htmlFor="invoiceNumber" className="text-xs text-foreground">Invoice No *</Label><Input id="invoiceNumber" name="invoiceNumber" defaultValue="A00001" className="h-8" maxLength={50} /></div>
-                                <div className="space-y-1"><Label className="text-xs text-foreground">Invoice Date *</Label><DatePicker date={invoiceDate} setDate={setInvoiceDate} className="h-8" /></div>
-                                <div className="space-y-1"><Label className="text-xs text-foreground">Due Date</Label><DatePicker date={dueDate} setDate={setDueDate} className="h-8" /></div>
+                                <div className="space-y-1"><ZoruLabel htmlFor="invoiceNumber" className="text-xs text-zoru-ink">Invoice No *</ZoruLabel><ZoruInput id="invoiceNumber" name="invoiceNumber" defaultValue="A00001" className="h-8" maxLength={50} /></div>
+                                <div className="space-y-1"><ZoruLabel className="text-xs text-zoru-ink">Invoice Date *</ZoruLabel><DatePicker date={invoiceDate} setDate={setInvoiceDate} className="h-8" /></div>
+                                <div className="space-y-1"><ZoruLabel className="text-xs text-zoru-ink">Due Date</ZoruLabel><DatePicker date={dueDate} setDate={setDueDate} className="h-8" /></div>
                             </section>
 
                             <section>
                                 <LineItemsTable items={lineItems} setItems={setLineItems} currency="INR" />
                             </section>
 
-                            <Separator className="my-8" />
+                            <ZoruSeparator className="my-8" />
 
-                            {/* Footer Sections */}
                             <section className="mt-8 space-y-4">
-                                {showTerms ? (<div className="space-y-2"><Label className="font-semibold text-foreground">Terms & Conditions</Label>{terms.map((term, index) => (<div key={term.id} className="flex items-center gap-2"><span className="text-sm text-muted-foreground">{String(index + 1).padStart(2, '0')}</span><Input value={term.text} onChange={(e) => setTerms(terms.map(t => t.id === term.id ? { ...t, text: e.target.value } : t))} maxLength={500} /><Button type="button" variant="ghost" size="icon" onClick={() => setTerms(terms.filter(t => t.id !== term.id))}><Trash2 className="h-4 w-4" /></Button></div>))}<ClayButton type="button" variant="pill" size="sm" onClick={() => setTerms([...terms, { id: `term-${Date.now()}`, text: '' }])} leading={<PlusCircle className="h-4 w-4" />}>Add New Term</ClayButton></div>) : (<Button type="button" variant="link" size="sm" onClick={() => setShowTerms(true)}>Add Terms & Conditions</Button>)}
-                                {showNotes ? (<div className="space-y-2"><Label className="font-semibold text-foreground">Additional Notes</Label><Textarea placeholder="Any additional notes for the client..." value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={500} /></div>) : (<Button type="button" variant="link" size="sm" onClick={() => setShowNotes(true)}>Add Notes</Button>)}
-                                {showAttachments ? (<div className="space-y-2"><Label className="font-semibold text-foreground">Attachments</Label><div className="flex items-center justify-center w-full"><label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-border rounded-lg cursor-pointer bg-secondary hover:bg-card"><div className="flex flex-col items-center justify-center"><Upload className="w-6 h-6 mb-2 text-muted-foreground" /><p className="text-xs text-muted-foreground"><span className="font-semibold">Click to upload</span> or drag and drop</p></div><input id="dropzone-file" type="file" className="hidden" /></label></div><p className="text-xs text-muted-foreground">Max file size is 10 MB.</p></div>) : (<Button type="button" variant="link" size="sm" onClick={() => setShowAttachments(true)}>Add Attachments</Button>)}
-                                {showAdditionalInfo ? (<div className="space-y-2"><Label className="font-semibold text-foreground">Additional Info</Label>{additionalInfo.map((field, index) => (<div key={field.id} className="grid grid-cols-[1fr,1fr,auto] gap-2 items-center"><Input placeholder="Field Name" value={field.key} onChange={e => setAdditionalInfo(additionalInfo.map(f => f.id === field.id ? { ...f, key: e.target.value } : f))} maxLength={100} /><Input placeholder="Value" value={field.value} onChange={e => setAdditionalInfo(additionalInfo.map(f => f.id === field.id ? { ...f, value: e.target.value } : f))} maxLength={100} /><Button type="button" variant="ghost" size="icon" onClick={() => setAdditionalInfo(additionalInfo.filter(f => f.id !== field.id))}><Trash2 className="h-4 w-4 text-destructive" /></Button></div>))}<ClayButton type="button" variant="pill" size="sm" onClick={() => setAdditionalInfo([...additionalInfo, { id: uuidv4(), key: '', value: '' }])} leading={<PlusCircle className="h-4 w-4" />}>Add More Fields</ClayButton></div>) : (<Button type="button" variant="link" size="sm" onClick={() => setShowAdditionalInfo(true)}>Add Additional Info</Button>)}
-                                {showContactDetails ? (<div className="space-y-2"><Label className="font-semibold text-foreground">Your Contact Details</Label><div className="space-y-2"><Input type="email" placeholder="Your Email (optional)" value={contactDetails.email} onChange={e => setContactDetails(prev => ({ ...prev, email: e.target.value }))} /><Input type="tel" placeholder="Your Phone (optional)" value={contactDetails.phone} onChange={e => setContactDetails(prev => ({ ...prev, phone: e.target.value }))} /></div></div>) : (<Button type="button" variant="link" size="sm" onClick={() => setShowContactDetails(true)}>Add Contact Details</Button>)}
-                                {showSignature ? (<div className="space-y-2"><Label className="font-semibold text-foreground">Signature</Label><div className="h-24 border border-border rounded-lg bg-secondary flex items-center justify-center"><ClayButton type="button" variant="pill">Upload Signature</ClayButton></div></div>) : (<Button type="button" variant="link" size="sm" onClick={() => setShowSignature(true)}>Add Signature</Button>)}
+                                {showTerms ? (<div className="space-y-2"><ZoruLabel className="text-zoru-ink">Terms & Conditions</ZoruLabel>{terms.map((term, index) => (<div key={term.id} className="flex items-center gap-2"><span className="text-sm text-zoru-ink-muted">{String(index + 1).padStart(2, '0')}</span><ZoruInput value={term.text} onChange={(e) => setTerms(terms.map(t => t.id === term.id ? { ...t, text: e.target.value } : t))} maxLength={500} /><ZoruButton type="button" variant="ghost" size="icon" onClick={() => setTerms(terms.filter(t => t.id !== term.id))}><Trash2 className="h-4 w-4" /></ZoruButton></div>))}<ZoruButton type="button" variant="outline" size="sm" onClick={() => setTerms([...terms, { id: `term-${Date.now()}`, text: '' }])}><PlusCircle className="h-4 w-4" />Add New Term</ZoruButton></div>) : (<ZoruButton type="button" variant="ghost" size="sm" onClick={() => setShowTerms(true)}>Add Terms & Conditions</ZoruButton>)}
+                                {showNotes ? (<div className="space-y-2"><ZoruLabel className="text-zoru-ink">Additional Notes</ZoruLabel><ZoruTextarea placeholder="Any additional notes for the client..." value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={500} /></div>) : (<ZoruButton type="button" variant="ghost" size="sm" onClick={() => setShowNotes(true)}>Add Notes</ZoruButton>)}
+                                {showAttachments ? (<div className="space-y-2"><ZoruLabel className="text-zoru-ink">Attachments</ZoruLabel><div className="flex items-center justify-center w-full"><label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-zoru-line rounded-lg cursor-pointer bg-zoru-surface-2 hover:bg-zoru-bg"><div className="flex flex-col items-center justify-center"><Upload className="w-6 h-6 mb-2 text-zoru-ink-muted" /><p className="text-xs text-zoru-ink-muted"><span>Click to upload</span> or drag and drop</p></div><input id="dropzone-file" type="file" className="hidden" /></label></div><p className="text-xs text-zoru-ink-muted">Max file size is 10 MB.</p></div>) : (<ZoruButton type="button" variant="ghost" size="sm" onClick={() => setShowAttachments(true)}>Add Attachments</ZoruButton>)}
+                                {showAdditionalInfo ? (<div className="space-y-2"><ZoruLabel className="text-zoru-ink">Additional Info</ZoruLabel>{additionalInfo.map((field, index) => (<div key={field.id} className="grid grid-cols-[1fr,1fr,auto] gap-2 items-center"><ZoruInput placeholder="Field Name" value={field.key} onChange={e => setAdditionalInfo(additionalInfo.map(f => f.id === field.id ? { ...f, key: e.target.value } : f))} maxLength={100} /><ZoruInput placeholder="Value" value={field.value} onChange={e => setAdditionalInfo(additionalInfo.map(f => f.id === field.id ? { ...f, value: e.target.value } : f))} maxLength={100} /><ZoruButton type="button" variant="ghost" size="icon" onClick={() => setAdditionalInfo(additionalInfo.filter(f => f.id !== field.id))}><Trash2 className="h-4 w-4 text-zoru-danger-ink" /></ZoruButton></div>))}<ZoruButton type="button" variant="outline" size="sm" onClick={() => setAdditionalInfo([...additionalInfo, { id: uuidv4(), key: '', value: '' }])}><PlusCircle className="h-4 w-4" />Add More Fields</ZoruButton></div>) : (<ZoruButton type="button" variant="ghost" size="sm" onClick={() => setShowAdditionalInfo(true)}>Add Additional Info</ZoruButton>)}
+                                {showContactDetails ? (<div className="space-y-2"><ZoruLabel className="text-zoru-ink">Your Contact Details</ZoruLabel><div className="space-y-2"><ZoruInput type="email" placeholder="Your Email (optional)" value={contactDetails.email} onChange={e => setContactDetails(prev => ({ ...prev, email: e.target.value }))} /><ZoruInput type="tel" placeholder="Your Phone (optional)" value={contactDetails.phone} onChange={e => setContactDetails(prev => ({ ...prev, phone: e.target.value }))} /></div></div>) : (<ZoruButton type="button" variant="ghost" size="sm" onClick={() => setShowContactDetails(true)}>Add Contact Details</ZoruButton>)}
+                                {showSignature ? (<div className="space-y-2"><ZoruLabel className="text-zoru-ink">Signature</ZoruLabel><div className="h-24 border border-zoru-line rounded-lg bg-zoru-surface-2 flex items-center justify-center"><ZoruButton type="button" variant="outline">Upload Signature</ZoruButton></div></div>) : (<ZoruButton type="button" variant="ghost" size="sm" onClick={() => setShowSignature(true)}>Add Signature</ZoruButton>)}
                             </section>
-                            <Separator className="my-8" />
+                            <ZoruSeparator className="my-8" />
                             <div className="space-y-4">
                                 <div className="flex items-center space-x-2">
-                                    <Switch id="recurring-invoice" />
-                                    <Label htmlFor="recurring-invoice" className="text-foreground">This is a Recurring Invoice</Label>
+                                    <ZoruSwitch id="recurring-invoice" />
+                                    <ZoruLabel htmlFor="recurring-invoice" className="text-zoru-ink">This is a Recurring Invoice</ZoruLabel>
                                 </div>
-                                <p className="text-xs text-muted-foreground pl-7">
+                                <p className="text-xs text-zoru-ink-muted pl-7">
                                     A draft invoice will be created with the same details every next period.
                                 </p>
                             </div>
-                            <Separator className="my-8" />
+                            <ZoruSeparator className="my-8" />
                             <div className="space-y-2">
-                                <h3 className="font-semibold text-foreground">Advanced Options</h3>
+                                <h3 className="text-zoru-ink">Advanced Options</h3>
                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-2 text-sm">
-                                    <div className="flex items-center space-x-2"><Checkbox id="show-tax" /><Label htmlFor="show-tax" className="font-normal">Show tax summary</Label></div>
-                                    <div className="flex items-center space-x-2"><Checkbox id="hide-country" /><Label htmlFor="hide-country" className="font-normal">Hide place/country of supply</Label></div>
-                                    <div className="flex items-center space-x-2"><Checkbox id="show-images" /><Label htmlFor="show-images" className="font-normal">Show original images</Label></div>
-                                    <div className="flex items-center space-x-2"><Checkbox id="show-thumbnails" /><Label htmlFor="show-thumbnails" className="font-normal">Show thumbnails</Label></div>
-                                    <div className="flex items-center space-x-2"><Checkbox id="full-width-desc" /><Label htmlFor="full-width-desc" className="font-normal">Full width description</Label></div>
-                                    <div className="flex items-center space-x-2"><Checkbox id="show-sku" /><Label htmlFor="show-sku" className="font-normal">Show SKU in Invoice</Label></div>
+                                    <div className="flex items-center space-x-2"><ZoruCheckbox id="show-tax" /><ZoruLabel htmlFor="show-tax">Show tax summary</ZoruLabel></div>
+                                    <div className="flex items-center space-x-2"><ZoruCheckbox id="hide-country" /><ZoruLabel htmlFor="hide-country">Hide place/country of supply</ZoruLabel></div>
+                                    <div className="flex items-center space-x-2"><ZoruCheckbox id="show-images" /><ZoruLabel htmlFor="show-images">Show original images</ZoruLabel></div>
+                                    <div className="flex items-center space-x-2"><ZoruCheckbox id="show-thumbnails" /><ZoruLabel htmlFor="show-thumbnails">Show thumbnails</ZoruLabel></div>
+                                    <div className="flex items-center space-x-2"><ZoruCheckbox id="full-width-desc" /><ZoruLabel htmlFor="full-width-desc">Full width description</ZoruLabel></div>
+                                    <div className="flex items-center space-x-2"><ZoruCheckbox id="show-sku" /><ZoruLabel htmlFor="show-sku">Show SKU in Invoice</ZoruLabel></div>
                                 </div>
                             </div>
                         </div>
-                    </ClayCard>
+                    </ZoruCard>
                 </div>
             </div>
         </form>

@@ -1,9 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
-import * as React from 'react';
 import {
   useActionState,
   useCallback,
@@ -19,19 +15,21 @@ import {
   Unplug,
 } from 'lucide-react';
 
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
-import { CrmPageHeader } from '../../../_components/crm-page-header';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSkeleton,
+  useZoruToast,
+} from '@/components/zoruui';
+import { CrmPageHeader } from '../../../_components/crm-page-header';
 import {
   getQuickBooksSetting,
   saveQuickBooksSetting,
@@ -46,7 +44,7 @@ import type {
 type Doc = (WsQuickBooksSetting & { _id: unknown }) | null;
 
 export default function QuickBooksIntegrationPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [doc, setDoc] = useState<Doc>(null);
   const [env, setEnv] = useState<WsQuickBooksEnv>('sandbox');
   const [, startLoading] = useTransition();
@@ -136,59 +134,47 @@ export default function QuickBooksIntegrationPage() {
         icon={FileSpreadsheet}
       />
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <ClayBadge tone={isConnected ? 'green' : 'neutral'}>
+            <ZoruBadge variant={isConnected ? 'success' : 'ghost'}>
               {isConnected ? 'Connected' : 'Not Connected'}
-            </ClayBadge>
-            <div className="text-[12.5px] text-muted-foreground">
-              Last synced: <span className="text-foreground">{lastSyncedAt}</span>
+            </ZoruBadge>
+            <div className="text-[12.5px] text-zoru-ink-muted">
+              Last synced: <span className="text-zoru-ink">{lastSyncedAt}</span>
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
-            <ClayButton
+            <ZoruButton
               type="button"
-              variant="pill"
+              variant="outline"
               onClick={onSync}
               disabled={isSyncing || !isConnected}
-              leading={
-                isSyncing ? (
-                  <LoaderCircle
-                    className="h-4 w-4 animate-spin"
-                    strokeWidth={1.75}
-                  />
-                ) : (
-                  <RefreshCw className="h-4 w-4" strokeWidth={1.75} />
-                )
-              }
             >
+              {isSyncing ? (
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+              ) : (
+                <RefreshCw className="h-4 w-4" />
+              )}
               Sync Now
-            </ClayButton>
+            </ZoruButton>
             {isConnected ? (
-              <ClayButton
+              <ZoruButton
                 type="button"
-                variant="pill"
+                variant="outline"
                 onClick={onDisconnect}
                 disabled={isDisconnecting}
-                leading={
-                  isDisconnecting ? (
-                    <LoaderCircle
-                      className="h-4 w-4 animate-spin"
-                      strokeWidth={1.75}
-                    />
-                  ) : (
-                    <Unplug className="h-4 w-4" strokeWidth={1.75} />
-                  )
-                }
               >
+                {isDisconnecting ? (
+                  <LoaderCircle className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Unplug className="h-4 w-4" />
+                )}
                 Disconnect
-              </ClayButton>
+              </ZoruButton>
             ) : (
-              <ClayButton
+              <ZoruButton
                 type="button"
-                variant="obsidian"
-                leading={<Plug className="h-4 w-4" strokeWidth={1.75} />}
                 onClick={() =>
                   toast({
                     title: 'QuickBooks',
@@ -196,16 +182,17 @@ export default function QuickBooksIntegrationPage() {
                   })
                 }
               >
+                <Plug className="h-4 w-4" />
                 Connect
-              </ClayButton>
+              </ZoruButton>
             )}
           </div>
         </div>
 
         {!doc && !id ? (
           <div className="space-y-4">
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
+            <ZoruSkeleton className="h-10 w-full" />
+            <ZoruSkeleton className="h-10 w-full" />
           </div>
         ) : null}
 
@@ -214,137 +201,103 @@ export default function QuickBooksIntegrationPage() {
 
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <Label htmlFor="client_id" className="text-foreground">
-                Client ID
-              </Label>
+              <ZoruLabel htmlFor="client_id">Client ID</ZoruLabel>
               <div className="mt-1.5">
-                <Input
+                <ZoruInput
                   id="client_id"
                   name="client_id"
                   defaultValue={v('client_id')}
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="client_secret" className="text-foreground">
-                Client Secret
-              </Label>
+              <ZoruLabel htmlFor="client_secret">Client Secret</ZoruLabel>
               <div className="mt-1.5">
-                <Input
+                <ZoruInput
                   id="client_secret"
                   name="client_secret"
                   type="password"
                   defaultValue={v('client_secret')}
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div className="md:col-span-2">
-              <Label htmlFor="redirect_uri" className="text-foreground">
-                Redirect URI
-              </Label>
+              <ZoruLabel htmlFor="redirect_uri">Redirect URI</ZoruLabel>
               <div className="mt-1.5">
-                <Input
+                <ZoruInput
                   id="redirect_uri"
                   name="redirect_uri"
                   defaultValue={v('redirect_uri')}
                   placeholder="https://example.com/oauth/quickbooks/callback"
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="realm_id" className="text-foreground">
-                Realm ID
-              </Label>
+              <ZoruLabel htmlFor="realm_id">Realm ID</ZoruLabel>
               <div className="mt-1.5">
-                <Input
+                <ZoruInput
                   id="realm_id"
                   name="realm_id"
                   defaultValue={v('realm_id')}
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="environment" className="text-foreground">
-                Environment
-              </Label>
+              <ZoruLabel htmlFor="environment">Environment</ZoruLabel>
               <div className="mt-1.5">
-                <Select
+                <ZoruSelect
                   value={env}
                   onValueChange={(val) => setEnv(val as WsQuickBooksEnv)}
                   name="environment"
                 >
-                  <SelectTrigger
-                    id="environment"
-                    className="h-10 rounded-lg border-border bg-card text-[13px]"
-                  >
-                    <SelectValue placeholder="Select environment" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="sandbox">Sandbox</SelectItem>
-                    <SelectItem value="production">Production</SelectItem>
-                  </SelectContent>
-                </Select>
+                  <ZoruSelectTrigger id="environment">
+                    <ZoruSelectValue placeholder="Select environment" />
+                  </ZoruSelectTrigger>
+                  <ZoruSelectContent>
+                    <ZoruSelectItem value="sandbox">Sandbox</ZoruSelectItem>
+                    <ZoruSelectItem value="production">Production</ZoruSelectItem>
+                  </ZoruSelectContent>
+                </ZoruSelect>
               </div>
             </div>
 
             <div>
-              <Label htmlFor="access_token" className="text-foreground">
-                Access Token
-              </Label>
+              <ZoruLabel htmlFor="access_token">Access Token</ZoruLabel>
               <div className="mt-1.5">
-                <Input
+                <ZoruInput
                   id="access_token"
                   name="access_token"
                   type="password"
                   defaultValue={v('access_token')}
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="refresh_token" className="text-foreground">
-                Refresh Token
-              </Label>
+              <ZoruLabel htmlFor="refresh_token">Refresh Token</ZoruLabel>
               <div className="mt-1.5">
-                <Input
+                <ZoruInput
                   id="refresh_token"
                   name="refresh_token"
                   type="password"
                   defaultValue={v('refresh_token')}
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
           </div>
 
           <div className="flex justify-end gap-2 pt-2">
-            <ClayButton
-              type="submit"
-              variant="obsidian"
-              disabled={isSaving}
-              leading={
-                isSaving ? (
-                  <LoaderCircle
-                    className="h-4 w-4 animate-spin"
-                    strokeWidth={1.75}
-                  />
-                ) : null
-              }
-            >
+            <ZoruButton type="submit" disabled={isSaving}>
+              {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
               Save
-            </ClayButton>
+            </ZoruButton>
           </div>
         </form>
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

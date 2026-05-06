@@ -1,23 +1,21 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { CalendarClock, LoaderCircle } from 'lucide-react';
-import { ClayCard, ClayButton } from '@/components/clay';
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { useToast } from '@/hooks/use-toast';
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  useZoruToast,
+} from '@/components/zoruui';
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { saveWeeklyTimesheet } from '@/app/actions/worksuite/time.actions';
 import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
 import { wsToISODate } from '@/lib/worksuite/time-types';
@@ -32,7 +30,7 @@ function addDaysToDate(date: Date, days: number): Date {
 
 export default function NewWeeklyTimesheetPage() {
   const router = useRouter();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [employees, setEmployees] = useState<EmployeeLite[]>([]);
   const [isLoadingEmps, startLoad] = useTransition();
   const [isSaving, startSave] = useTransition();
@@ -110,78 +108,75 @@ export default function NewWeeklyTimesheetPage() {
         icon={CalendarClock}
       />
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         {isLoadingEmps ? (
-          <div className="py-12 text-center text-[13px] text-muted-foreground">
+          <div className="py-12 text-center text-[13px] text-zoru-ink-muted">
             Loading employees…
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="grid gap-5 md:grid-cols-2">
             <div className="md:col-span-2">
-              <Label className="text-[12px] text-muted-foreground">
-                Employee <span className="text-destructive">*</span>
-              </Label>
-              <Select value={userId} onValueChange={setUserId}>
-                <SelectTrigger className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]">
-                  <SelectValue placeholder="Select employee" />
-                </SelectTrigger>
-                <SelectContent>
+              <ZoruLabel className="text-[12px] text-zoru-ink-muted">
+                Employee <span className="text-zoru-danger-ink">*</span>
+              </ZoruLabel>
+              <ZoruSelect value={userId} onValueChange={setUserId}>
+                <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                  <ZoruSelectValue placeholder="Select employee" />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
                   {employees.map((e) => (
-                    <SelectItem key={e._id} value={e._id}>
+                    <ZoruSelectItem key={e._id} value={e._id}>
                       {[e.firstName, e.lastName].filter(Boolean).join(' ') || 'Unnamed'}
-                    </SelectItem>
+                    </ZoruSelectItem>
                   ))}
-                </SelectContent>
-              </Select>
+                </ZoruSelectContent>
+              </ZoruSelect>
             </div>
 
             <div>
-              <Label className="text-[12px] text-muted-foreground">
-                Week Start <span className="text-destructive">*</span>
-              </Label>
-              <Input
+              <ZoruLabel className="text-[12px] text-zoru-ink-muted">
+                Week Start <span className="text-zoru-danger-ink">*</span>
+              </ZoruLabel>
+              <ZoruInput
                 type="date"
                 value={weekStart}
                 onChange={(e) => setWeekStart(e.target.value)}
                 required
-                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+                className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
               />
             </div>
 
             <div>
-              <Label className="text-[12px] text-muted-foreground">Week End (auto)</Label>
-              <Input
+              <ZoruLabel className="text-[12px] text-zoru-ink-muted">Week End (auto)</ZoruLabel>
+              <ZoruInput
                 type="date"
                 value={weekEnd}
                 readOnly
-                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px] opacity-60"
+                className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px] opacity-60"
               />
             </div>
 
             <div className="flex gap-2 md:col-span-2 md:justify-end">
-              <ClayButton
+              <ZoruButton
                 type="button"
-                variant="pill"
+                variant="outline"
                 onClick={() => router.push('/dashboard/hrm/payroll/weekly-timesheets')}
               >
                 Cancel
-              </ClayButton>
-              <ClayButton
+              </ZoruButton>
+              <ZoruButton
                 type="submit"
-                variant="obsidian"
                 disabled={isSaving}
-                leading={
-                  isSaving ? (
-                    <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.75} />
-                  ) : null
-                }
               >
+                {isSaving ? (
+                  <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.75} />
+                ) : null}
                 Create Timesheet
-              </ClayButton>
+              </ZoruButton>
             </div>
           </form>
         )}
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

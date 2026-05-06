@@ -1,24 +1,24 @@
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 export const dynamic = 'force-dynamic';
 
 import Link from 'next/link';
-import { Zap, Mail, Bot, ShoppingCart, CheckCircle, MessageSquare } from 'lucide-react';
+import { Zap, Mail, Bot, ShoppingCart, MessageSquare } from 'lucide-react';
 
 import { getIntegrationTypes } from '@/app/actions/crm-integrations.actions';
-import { ClayCard, ClayBadge } from '@/components/clay';
+import {
+  ZoruBadge,
+  ZoruCard,
+  cn,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../_components/crm-page-header';
-import { cn } from '@/lib/utils';
 
 const btnBase =
   'inline-flex h-9 w-full items-center justify-center gap-2 rounded-full px-4 text-[13px] font-medium leading-none transition-colors';
 const btnObsidian =
-  'bg-foreground text-white hover:bg-foreground/90';
+  'bg-zoru-ink text-white hover:bg-zoru-ink/90';
 const btnRoseSoft =
   'bg-accent text-accent-foreground border border-accent hover:brightness-[0.97]';
 const btnDisabled =
-  'bg-card text-muted-foreground border border-border opacity-60 pointer-events-none';
+  'bg-zoru-bg text-zoru-ink-muted border border-zoru-line opacity-60 pointer-events-none';
 
 type IntegrationStatus = 'connected' | 'available' | 'coming_soon';
 
@@ -82,7 +82,7 @@ export default async function IntegrationsPage() {
           const connected = integration.status === 'connected';
 
           return (
-            <ClayCard key={integration.name} className="flex h-full flex-col">
+            <ZoruCard key={integration.name} className="flex h-full flex-col p-6">
               <div className="flex items-start gap-3">
                 <div
                   className={
@@ -96,16 +96,14 @@ export default async function IntegrationsPage() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <h3 className="text-[14.5px] font-semibold text-foreground">
+                    <h3 className="text-[14.5px] font-semibold text-zoru-ink">
                       {integration.name}
                     </h3>
                     {connected ? (
-                      <ClayBadge tone="green" dot>
-                        Connected
-                      </ClayBadge>
+                      <ZoruBadge variant="success">Connected</ZoruBadge>
                     ) : null}
                   </div>
-                  <p className="mt-1 text-[12.5px] leading-snug text-muted-foreground">
+                  <p className="mt-1 text-[12.5px] leading-snug text-zoru-ink-muted">
                     {integration.description}
                   </p>
                 </div>
@@ -124,7 +122,7 @@ export default async function IntegrationsPage() {
               ) : (
                 <span className={cn(btnBase, btnDisabled)}>Coming Soon</span>
               )}
-            </ClayCard>
+            </ZoruCard>
           );
         })}
       </div>

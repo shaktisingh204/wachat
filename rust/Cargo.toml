@@ -73,6 +73,7 @@ members = [
     "crates/wachat-facebook-events",
     "crates/wachat-facebook-lead-gen",
     "crates/wachat-instagram",
+    "crates/sabfiles",
 ]
 
 [workspace.package]

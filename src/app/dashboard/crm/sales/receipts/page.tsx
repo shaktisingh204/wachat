@@ -1,18 +1,23 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useState, useEffect, useCallback, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, FileCheck, LoaderCircle } from "lucide-react";
 import Link from 'next/link';
 import { getPaymentReceipts } from '@/app/actions/crm-payment-receipts.actions';
 import type { WithId, CrmPaymentReceipt } from '@/lib/definitions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
 
-import { ClayButton, ClayCard } from '@/components/clay';
+import {
+    ZoruButton,
+    ZoruCard,
+    ZoruTable,
+    ZoruTableBody,
+    ZoruTableCell,
+    ZoruTableHead,
+    ZoruTableHeader,
+    ZoruTableRow,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 export default function PaymentReceiptsPage() {
@@ -45,55 +50,56 @@ export default function PaymentReceiptsPage() {
                 icon={FileCheck}
                 actions={
                     <Link href="/dashboard/crm/sales/receipts/new">
-                        <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}>
+                        <ZoruButton>
+                            <Plus className="h-4 w-4" strokeWidth={1.75} />
                             New Receipt
-                        </ClayButton>
+                        </ZoruButton>
                     </Link>
                 }
             />
 
-            <ClayCard>
+            <ZoruCard className="p-6">
                 <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-foreground">Recent Receipts</h2>
-                    <p className="mt-0.5 text-[12.5px] text-muted-foreground">A list of payments you have recorded.</p>
+                    <h2 className="text-[16px] text-zoru-ink">Recent Receipts</h2>
+                    <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">A list of payments you have recorded.</p>
                 </div>
-                <div className="overflow-x-auto rounded-lg border border-border">
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="border-border hover:bg-transparent">
-                                <TableHead className="text-muted-foreground">Receipt #</TableHead>
-                                <TableHead className="text-muted-foreground">Client</TableHead>
-                                <TableHead className="text-muted-foreground">Date</TableHead>
-                                <TableHead className="text-muted-foreground text-right">Amount</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
+                <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                    <ZoruTable>
+                        <ZoruTableHeader>
+                            <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                                <ZoruTableHead className="text-zoru-ink-muted">Receipt #</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted">Client</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted">Date</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted text-right">Amount</ZoruTableHead>
+                            </ZoruTableRow>
+                        </ZoruTableHeader>
+                        <ZoruTableBody>
                             {isLoading ? (
-                                <TableRow className="border-border">
-                                    <TableCell colSpan={4} className="text-center h-24">
-                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
-                                    </TableCell>
-                                </TableRow>
+                                <ZoruTableRow className="border-zoru-line">
+                                    <ZoruTableCell colSpan={4} className="text-center h-24">
+                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
+                                    </ZoruTableCell>
+                                </ZoruTableRow>
                             ) : receipts.length > 0 ? (
                                 receipts.map(r => (
-                                    <TableRow key={r._id.toString()} className="border-border cursor-pointer">
-                                        <TableCell className="font-medium text-foreground">{r.receiptNumber}</TableCell>
-                                        <TableCell className="text-foreground">{accountsMap.get(r.accountId.toString()) || 'Unknown Client'}</TableCell>
-                                        <TableCell className="text-foreground">{new Date(r.receiptDate).toLocaleDateString()}</TableCell>
-                                        <TableCell className="text-right font-medium text-foreground">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: r.currency || 'INR' }).format(r.totalAmountReceived)}</TableCell>
-                                    </TableRow>
+                                    <ZoruTableRow key={r._id.toString()} className="border-zoru-line cursor-pointer">
+                                        <ZoruTableCell className="text-zoru-ink">{r.receiptNumber}</ZoruTableCell>
+                                        <ZoruTableCell className="text-zoru-ink">{accountsMap.get(r.accountId.toString()) || 'Unknown Client'}</ZoruTableCell>
+                                        <ZoruTableCell className="text-zoru-ink">{new Date(r.receiptDate).toLocaleDateString()}</ZoruTableCell>
+                                        <ZoruTableCell className="text-right text-zoru-ink">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: r.currency || 'INR' }).format(r.totalAmountReceived)}</ZoruTableCell>
+                                    </ZoruTableRow>
                                 ))
                             ) : (
-                                <TableRow className="border-border">
-                                    <TableCell colSpan={4} className="h-24 text-center text-[13px] text-muted-foreground">
+                                <ZoruTableRow className="border-zoru-line">
+                                    <ZoruTableCell colSpan={4} className="h-24 text-center text-[13px] text-zoru-ink-muted">
                                         No receipts found.
-                                    </TableCell>
-                                </TableRow>
+                                    </ZoruTableCell>
+                                </ZoruTableRow>
                             )}
-                        </TableBody>
-                    </Table>
+                        </ZoruTableBody>
+                    </ZoruTable>
                 </div>
-            </ClayCard>
+            </ZoruCard>
         </div>
     );
 }

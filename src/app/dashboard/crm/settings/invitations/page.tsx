@@ -1,6 +1,3 @@
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { UserPlus } from 'lucide-react';
 
 import { CrmPageHeader } from '../../_components/crm-page-header';

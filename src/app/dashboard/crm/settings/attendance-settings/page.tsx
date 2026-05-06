@@ -1,8 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import {
   useActionState,
   useCallback,
@@ -12,14 +9,17 @@ import {
 } from 'react';
 import { Clock, LoaderCircle } from 'lucide-react';
 
-import { ClayButton, ClayCard } from '@/components/clay';
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSkeleton,
+  ZoruSwitch,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
 import {
   getAttendanceSettings,
   saveAttendanceSettings,
@@ -28,9 +28,6 @@ import type { WsAttendanceSetting } from '@/lib/worksuite/module-settings-types'
 
 type FormState = { message?: string; error?: string; id?: string };
 const initialState: FormState = {};
-
-const inputClass =
-  'h-10 rounded-lg border-border bg-card text-[13px]';
 
 function ToggleRow({
   name,
@@ -45,23 +42,23 @@ function ToggleRow({
 }) {
   const [checked, setChecked] = useState<boolean>(!!defaultChecked);
   return (
-    <div className="flex items-start justify-between gap-4 rounded-lg border border-border bg-card/50 px-4 py-3">
+    <div className="flex items-start justify-between gap-4 rounded-lg border border-zoru-line bg-zoru-surface px-4 py-3">
       <div className="flex-1">
-        <Label htmlFor={name} className="text-[13px] font-medium text-foreground">
+        <ZoruLabel htmlFor={name} className="text-[13px] text-zoru-ink">
           {label}
-        </Label>
+        </ZoruLabel>
         {description ? (
-          <p className="mt-0.5 text-[12px] text-muted-foreground">{description}</p>
+          <p className="mt-0.5 text-[12px] text-zoru-ink-muted">{description}</p>
         ) : null}
       </div>
-      <Switch id={name} checked={checked} onCheckedChange={setChecked} />
+      <ZoruSwitch id={name} checked={checked} onCheckedChange={setChecked} />
       <input type="hidden" name={name} value={checked ? 'yes' : 'no'} />
     </div>
   );
 }
 
 export default function AttendanceSettingsPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [settings, setSettings] = useState<WsAttendanceSetting | null>(null);
   const [isLoading, startLoading] = useTransition();
   const [saveState, formAction, isSaving] = useActionState(
@@ -105,110 +102,110 @@ export default function AttendanceSettingsPage() {
       />
 
       {isLoading && !settings ? (
-        <ClayCard>
-          <Skeleton className="h-[520px] w-full" />
-        </ClayCard>
+        <ZoruCard className="p-6">
+          <ZoruSkeleton className="h-[520px] w-full" />
+        </ZoruCard>
       ) : (
-        <ClayCard>
+        <ZoruCard className="p-6">
           <form action={formAction} className="space-y-6">
             <section className="space-y-4">
-              <h3 className="text-[13px] font-semibold uppercase tracking-wide text-muted-foreground">
+              <h3 className="text-[13px] uppercase tracking-wide text-zoru-ink-muted">
                 Office Hours
               </h3>
               <div className="grid gap-4 md:grid-cols-3">
                 <div>
-                  <Label htmlFor="office_start_time" className="text-[13px] text-foreground">
+                  <ZoruLabel htmlFor="office_start_time" className="text-[13px] text-zoru-ink">
                     Start Time
-                  </Label>
-                  <Input
+                  </ZoruLabel>
+                  <ZoruInput
                     id="office_start_time"
                     name="office_start_time"
                     type="time"
                     defaultValue={settings?.office_start_time ?? '09:00'}
-                    className={`mt-1.5 ${inputClass}`}
+                    className="mt-1.5"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="office_end_time" className="text-[13px] text-foreground">
+                  <ZoruLabel htmlFor="office_end_time" className="text-[13px] text-zoru-ink">
                     End Time
-                  </Label>
-                  <Input
+                  </ZoruLabel>
+                  <ZoruInput
                     id="office_end_time"
                     name="office_end_time"
                     type="time"
                     defaultValue={settings?.office_end_time ?? '18:00'}
-                    className={`mt-1.5 ${inputClass}`}
+                    className="mt-1.5"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="office_hours" className="text-[13px] text-foreground">
+                  <ZoruLabel htmlFor="office_hours" className="text-[13px] text-zoru-ink">
                     Office Hours
-                  </Label>
-                  <Input
+                  </ZoruLabel>
+                  <ZoruInput
                     id="office_hours"
                     name="office_hours"
                     type="number"
                     step="0.25"
                     defaultValue={String(settings?.office_hours ?? 8)}
-                    className={`mt-1.5 ${inputClass}`}
+                    className="mt-1.5"
                   />
                 </div>
               </div>
             </section>
 
             <section className="space-y-4">
-              <h3 className="text-[13px] font-semibold uppercase tracking-wide text-muted-foreground">
+              <h3 className="text-[13px] uppercase tracking-wide text-zoru-ink-muted">
                 Lateness & Half-day Rules
               </h3>
               <div className="grid gap-4 md:grid-cols-3">
                 <div>
-                  <Label htmlFor="late_mark_after" className="text-[13px] text-foreground">
+                  <ZoruLabel htmlFor="late_mark_after" className="text-[13px] text-zoru-ink">
                     Late After (minutes)
-                  </Label>
-                  <Input
+                  </ZoruLabel>
+                  <ZoruInput
                     id="late_mark_after"
                     name="late_mark_after"
                     type="number"
                     min={0}
                     defaultValue={String(settings?.late_mark_after ?? 10)}
-                    className={`mt-1.5 ${inputClass}`}
+                    className="mt-1.5"
                   />
                 </div>
                 <div>
-                  <Label
+                  <ZoruLabel
                     htmlFor="early_clock_in_allowed"
-                    className="text-[13px] text-foreground"
+                    className="text-[13px] text-zoru-ink"
                   >
                     Early Clock-in (minutes)
-                  </Label>
-                  <Input
+                  </ZoruLabel>
+                  <ZoruInput
                     id="early_clock_in_allowed"
                     name="early_clock_in_allowed"
                     type="number"
                     min={0}
                     defaultValue={String(settings?.early_clock_in_allowed ?? 30)}
-                    className={`mt-1.5 ${inputClass}`}
+                    className="mt-1.5"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="half_day_after" className="text-[13px] text-foreground">
+                  <ZoruLabel htmlFor="half_day_after" className="text-[13px] text-zoru-ink">
                     Half-day After (hours)
-                  </Label>
-                  <Input
+                  </ZoruLabel>
+                  <ZoruInput
                     id="half_day_after"
                     name="half_day_after"
                     type="number"
                     step="0.25"
                     min={0}
                     defaultValue={String(settings?.half_day_after ?? 4)}
-                    className={`mt-1.5 ${inputClass}`}
+                    className="mt-1.5"
                   />
                 </div>
               </div>
             </section>
 
             <section className="space-y-3">
-              <h3 className="text-[13px] font-semibold uppercase tracking-wide text-muted-foreground">
+              <h3 className="text-[13px] uppercase tracking-wide text-zoru-ink-muted">
                 Check-in Methods
               </h3>
               <div className="grid gap-3 md:grid-cols-2">
@@ -246,44 +243,36 @@ export default function AttendanceSettingsPage() {
             </section>
 
             <section className="space-y-2">
-              <h3 className="text-[13px] font-semibold uppercase tracking-wide text-muted-foreground">
+              <h3 className="text-[13px] uppercase tracking-wide text-zoru-ink-muted">
                 IP Whitelist
               </h3>
-              <Label
+              <ZoruLabel
                 htmlFor="allowed_ip_addresses"
-                className="text-[13px] text-foreground"
+                className="text-[13px] text-zoru-ink"
               >
                 Allowed IP addresses
-              </Label>
-              <Textarea
+              </ZoruLabel>
+              <ZoruTextarea
                 id="allowed_ip_addresses"
                 name="allowed_ip_addresses"
                 rows={4}
                 placeholder="One IP per line, or comma-separated&#10;203.0.113.42&#10;203.0.113.43"
                 defaultValue={ipListInitial}
-                className="mt-1.5 rounded-lg border-border bg-card text-[13px] font-mono"
+                className="mt-1.5 font-mono"
               />
-              <p className="text-[12px] text-muted-foreground">
+              <p className="text-[12px] text-zoru-ink-muted">
                 Leave empty to allow check-in from any network.
               </p>
             </section>
 
             <div className="flex justify-end">
-              <ClayButton
-                type="submit"
-                variant="obsidian"
-                disabled={isSaving}
-                leading={
-                  isSaving ? (
-                    <LoaderCircle className="h-4 w-4 animate-spin" />
-                  ) : undefined
-                }
-              >
+              <ZoruButton type="submit" disabled={isSaving}>
+                {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
                 Save Attendance Settings
-              </ClayButton>
+              </ZoruButton>
             </div>
           </form>
-        </ClayCard>
+        </ZoruCard>
       )}
     </div>
   );

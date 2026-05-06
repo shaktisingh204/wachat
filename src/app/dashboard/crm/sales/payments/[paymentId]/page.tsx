@@ -1,8 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useEffect, useState, useTransition } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -13,25 +10,29 @@ import {
   LoaderCircle,
 } from 'lucide-react';
 
-import { ClayCard, ClayBadge, ClayButton } from '@/components/clay';
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/hooks/use-toast';
 import {
   getPaymentById,
   refundPayment,
 } from '@/app/actions/worksuite/payments.actions';
 
-const STATUS_TONES: Record<
+const STATUS_VARIANTS: Record<
   string,
-  'green' | 'amber' | 'red' | 'neutral'
+  'success' | 'warning' | 'danger' | 'ghost'
 > = {
-  completed: 'green',
-  pending: 'amber',
-  failed: 'red',
-  refunded: 'neutral',
+  completed: 'success',
+  pending: 'warning',
+  failed: 'danger',
+  refunded: 'ghost',
 };
 
 function formatMoney(amount: number, currency = 'INR') {
@@ -48,7 +49,7 @@ function formatMoney(amount: number, currency = 'INR') {
 export default function PaymentDetailPage() {
   const router = useRouter();
   const params = useParams<{ paymentId: string }>();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [isPending, startTransition] = useTransition();
   const [payment, setPayment] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -93,18 +94,18 @@ export default function PaymentDetailPage() {
   if (loading) {
     return (
       <div className="flex justify-center">
-        <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />
+        <LoaderCircle className="h-5 w-5 animate-spin text-zoru-ink-muted" />
       </div>
     );
   }
   if (!payment) {
     return (
       <div className="flex flex-col items-center gap-3 py-10 text-center">
-        <p className="text-[13px] text-muted-foreground">
+        <p className="text-[13px] text-zoru-ink-muted">
           Payment not found.
         </p>
         <Link href="/dashboard/crm/sales/payments">
-          <ClayButton variant="ghost">Back to payments</ClayButton>
+          <ZoruButton variant="ghost">Back to payments</ZoruButton>
         </Link>
       </div>
     );
@@ -125,124 +126,114 @@ export default function PaymentDetailPage() {
         icon={CreditCard}
         actions={
           <Link href="/dashboard/crm/sales/payments">
-            <ClayButton
-              variant="ghost"
-              leading={<ChevronLeft className="h-4 w-4" strokeWidth={1.75} />}
-            >
+            <ZoruButton variant="ghost">
+              <ChevronLeft className="h-4 w-4" strokeWidth={1.75} />
               Back
-            </ClayButton>
+            </ZoruButton>
           </Link>
         }
       />
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <ClayCard>
-          <h3 className="mb-3 text-[15px] font-semibold text-foreground">
+        <ZoruCard className="p-6">
+          <h3 className="mb-3 text-[15px] text-zoru-ink">
             Details
           </h3>
           <dl className="grid grid-cols-2 gap-3 text-[13px]">
-            <dt className="text-muted-foreground">Status</dt>
+            <dt className="text-zoru-ink-muted">Status</dt>
             <dd>
-              <ClayBadge
-                tone={STATUS_TONES[payment.status] || 'neutral'}
-                dot
-              >
+              <ZoruBadge variant={STATUS_VARIANTS[payment.status] || 'ghost'}>
                 {payment.status}
-              </ClayBadge>
+              </ZoruBadge>
             </dd>
 
-            <dt className="text-muted-foreground">Gateway</dt>
-            <dd className="text-foreground">{payment.gateway}</dd>
+            <dt className="text-zoru-ink-muted">Gateway</dt>
+            <dd className="text-zoru-ink">{payment.gateway}</dd>
 
-            <dt className="text-muted-foreground">Amount</dt>
-            <dd className="font-semibold text-foreground">
+            <dt className="text-zoru-ink-muted">Amount</dt>
+            <dd className="text-zoru-ink">
               {formatMoney(payment.amount, payment.currency)}
             </dd>
 
             {payment.refunded_amount ? (
               <>
-                <dt className="text-muted-foreground">Refunded</dt>
-                <dd className="text-foreground">
+                <dt className="text-zoru-ink-muted">Refunded</dt>
+                <dd className="text-zoru-ink">
                   {formatMoney(payment.refunded_amount, payment.currency)}
                 </dd>
               </>
             ) : null}
 
-            <dt className="text-muted-foreground">Paid on</dt>
-            <dd className="text-foreground">
+            <dt className="text-zoru-ink-muted">Paid on</dt>
+            <dd className="text-zoru-ink">
               {payment.paid_on
                 ? new Date(payment.paid_on).toLocaleDateString()
                 : '—'}
             </dd>
 
-            <dt className="text-muted-foreground">Transaction ID</dt>
-            <dd className="font-mono text-[12px] text-foreground">
+            <dt className="text-zoru-ink-muted">Transaction ID</dt>
+            <dd className="font-mono text-[12px] text-zoru-ink">
               {payment.transaction_id || '—'}
             </dd>
 
-            <dt className="text-muted-foreground">Client</dt>
-            <dd className="text-foreground">{payment.client_name || '—'}</dd>
+            <dt className="text-zoru-ink-muted">Client</dt>
+            <dd className="text-zoru-ink">{payment.client_name || '—'}</dd>
 
-            <dt className="text-muted-foreground">Remarks</dt>
-            <dd className="text-foreground">{payment.remarks || '—'}</dd>
+            <dt className="text-zoru-ink-muted">Remarks</dt>
+            <dd className="text-zoru-ink">{payment.remarks || '—'}</dd>
           </dl>
-        </ClayCard>
+        </ZoruCard>
 
-        <ClayCard>
-          <h3 className="mb-3 text-[15px] font-semibold text-foreground">
+        <ZoruCard className="p-6">
+          <h3 className="mb-3 text-[15px] text-zoru-ink">
             Refund
           </h3>
           {refundable <= 0 ? (
-            <p className="text-[13px] text-muted-foreground">
+            <p className="text-[13px] text-zoru-ink-muted">
               No refundable balance remaining on this payment.
             </p>
           ) : (
             <div className="flex flex-col gap-3">
               <div>
-                <Label htmlFor="refund_amount" className="text-[12.5px]">
+                <ZoruLabel htmlFor="refund_amount" className="text-[12.5px]">
                   Refund amount (max {formatMoney(refundable, payment.currency)})
-                </Label>
-                <Input
+                </ZoruLabel>
+                <ZoruInput
                   id="refund_amount"
                   type="number"
                   step="0.01"
                   value={refundAmount}
                   onChange={(e) => setRefundAmount(e.target.value)}
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
               <div>
-                <Label htmlFor="refund_reason" className="text-[12.5px]">
+                <ZoruLabel htmlFor="refund_reason" className="text-[12.5px]">
                   Reason
-                </Label>
-                <Textarea
+                </ZoruLabel>
+                <ZoruTextarea
                   id="refund_reason"
                   rows={3}
                   value={refundReason}
                   onChange={(e) => setRefundReason(e.target.value)}
-                  className="rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
               <div className="flex justify-end">
-                <ClayButton
+                <ZoruButton
                   type="button"
-                  variant="obsidian"
                   disabled={isPending || !refundAmount}
                   onClick={onRefund}
-                  leading={
-                    isPending ? (
-                      <LoaderCircle className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Undo2 className="h-4 w-4" strokeWidth={1.75} />
-                    )
-                  }
                 >
+                  {isPending ? (
+                    <LoaderCircle className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Undo2 className="h-4 w-4" strokeWidth={1.75} />
+                  )}
                   Record Refund
-                </ClayButton>
+                </ZoruButton>
               </div>
             </div>
           )}
-        </ClayCard>
+        </ZoruCard>
       </div>
     </div>
   );

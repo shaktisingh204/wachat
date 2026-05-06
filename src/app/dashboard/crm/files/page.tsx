@@ -1,8 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import Link from 'next/link';
 import {
@@ -15,17 +12,19 @@ import {
   FolderTree,
 } from 'lucide-react';
 
-import { ClayBadge, ClayButton, ClayCard } from '@/components/clay';
-import { Skeleton } from '@/components/ui/skeleton';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { useToast } from '@/hooks/use-toast';
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruSkeleton,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../_components/crm-page-header';
 
 import {
@@ -60,7 +59,7 @@ function TreeNode({
         className={`flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[13px] transition-colors ${
           isActive
             ? 'bg-accent text-accent-foreground'
-            : 'text-foreground hover:bg-muted'
+            : 'text-zoru-ink hover:bg-zoru-surface-2'
         }`}
         style={{ paddingLeft: 8 + depth * 12 }}
       >
@@ -89,7 +88,7 @@ function TreeNode({
 }
 
 export default function CrmFilesPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [tree, setTree] = useState<WsFolderTreeNode[]>([]);
   const [selected, setSelected] = useState<string | null>(null); // null = all
   const [files, setFiles] = useState<WsFileStorage[]>([]);
@@ -158,24 +157,26 @@ export default function CrmFilesPage() {
         actions={
           <>
             <Link href="/dashboard/crm/files/folders">
-              <ClayButton variant="ghost" leading={<FolderTree className="h-4 w-4" />}>
+              <ZoruButton variant="ghost">
+                <FolderTree className="h-4 w-4" />
                 Manage folders
-              </ClayButton>
+              </ZoruButton>
             </Link>
             <Link href="/dashboard/crm/files/new">
-              <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" />}>
+              <ZoruButton>
+                <Plus className="h-4 w-4" />
                 Attach file
-              </ClayButton>
+              </ZoruButton>
             </Link>
           </>
         }
       />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
-        <ClayCard>
+        <ZoruCard className="p-6">
           <div className="mb-3 flex items-center justify-between">
-            <h3 className="text-[13.5px] font-semibold text-foreground">Folders</h3>
-            <ClayBadge tone="neutral">{tree.length}</ClayBadge>
+            <h3 className="text-[13.5px] font-semibold text-zoru-ink">Folders</h3>
+            <ZoruBadge variant="ghost">{tree.length}</ZoruBadge>
           </div>
           <div className="space-y-0.5">
             <button
@@ -184,14 +185,14 @@ export default function CrmFilesPage() {
               className={`flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[13px] transition-colors ${
                 selected === null
                   ? 'bg-accent text-accent-foreground'
-                  : 'text-foreground hover:bg-muted'
+                  : 'text-zoru-ink hover:bg-zoru-surface-2'
               }`}
             >
               <Folder className="h-4 w-4" />
               All files
             </button>
             {tree.length === 0 ? (
-              <p className="mt-3 text-[12px] text-muted-foreground">
+              <p className="mt-3 text-[12px] text-zoru-ink-muted">
                 No folders yet — add one under&nbsp;
                 <Link href="/dashboard/crm/files/folders" className="underline">
                   Manage folders
@@ -210,83 +211,83 @@ export default function CrmFilesPage() {
               ))
             )}
           </div>
-        </ClayCard>
+        </ZoruCard>
 
-        <ClayCard>
+        <ZoruCard className="p-6">
           <div className="mb-4 flex items-center justify-between gap-3">
             <div>
-              <h2 className="text-[16px] font-semibold text-foreground">
+              <h2 className="text-[16px] font-semibold text-zoru-ink">
                 {selectedLabel}
               </h2>
-              <p className="mt-0.5 text-[12.5px] text-muted-foreground">
+              <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
                 {files.length} file{files.length === 1 ? '' : 's'} in this scope.
               </p>
             </div>
           </div>
 
-          <div className="overflow-x-auto rounded-lg border border-border">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-border hover:bg-transparent">
-                  <TableHead className="text-muted-foreground">Name</TableHead>
-                  <TableHead className="text-muted-foreground">Size</TableHead>
-                  <TableHead className="text-muted-foreground">Type</TableHead>
-                  <TableHead className="text-muted-foreground">Attached to</TableHead>
-                  <TableHead className="text-muted-foreground w-[140px]">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+          <div className="overflow-x-auto rounded-lg border border-zoru-line">
+            <ZoruTable>
+              <ZoruTableHeader>
+                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                  <ZoruTableHead className="text-zoru-ink-muted">Name</ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">Size</ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">Type</ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">Attached to</ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted w-[140px]">Actions</ZoruTableHead>
+                </ZoruTableRow>
+              </ZoruTableHeader>
+              <ZoruTableBody>
                 {isLoading && files.length === 0 ? (
                   [...Array(4)].map((_, i) => (
-                    <TableRow key={i} className="border-border">
-                      <TableCell colSpan={5}>
-                        <Skeleton className="h-10 w-full" />
-                      </TableCell>
-                    </TableRow>
+                    <ZoruTableRow key={i} className="border-zoru-line">
+                      <ZoruTableCell colSpan={5}>
+                        <ZoruSkeleton className="h-10 w-full" />
+                      </ZoruTableCell>
+                    </ZoruTableRow>
                   ))
                 ) : files.length === 0 ? (
-                  <TableRow className="border-border">
-                    <TableCell
+                  <ZoruTableRow className="border-zoru-line">
+                    <ZoruTableCell
                       colSpan={5}
-                      className="h-24 text-center text-[13px] text-muted-foreground"
+                      className="h-24 text-center text-[13px] text-zoru-ink-muted"
                     >
                       No files in this folder.
-                    </TableCell>
-                  </TableRow>
+                    </ZoruTableCell>
+                  </ZoruTableRow>
                 ) : (
                   files.map((file) => (
-                    <TableRow
+                    <ZoruTableRow
                       key={String(file._id)}
-                      className="border-border"
+                      className="border-zoru-line"
                     >
-                      <TableCell>
+                      <ZoruTableCell>
                         <div className="flex flex-col">
-                          <span className="text-[13px] font-medium text-foreground">
+                          <span className="text-[13px] font-medium text-zoru-ink">
                             {file.display_name || file.filename}
                           </span>
-                          <span className="text-[11.5px] text-muted-foreground">
+                          <span className="text-[11.5px] text-zoru-ink-muted">
                             {file.filename}
                           </span>
                         </div>
-                      </TableCell>
-                      <TableCell className="text-[12.5px] text-foreground">
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-[12.5px] text-zoru-ink">
                         {formatFileSize(file.size_bytes)}
-                      </TableCell>
-                      <TableCell className="text-[12.5px] text-foreground">
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-[12.5px] text-zoru-ink">
                         {file.extension || file.mime_type || '—'}
-                      </TableCell>
-                      <TableCell>
+                      </ZoruTableCell>
+                      <ZoruTableCell>
                         {file.attached_to_type ? (
-                          <ClayBadge tone="rose-soft">
+                          <ZoruBadge variant="danger">
                             {file.attached_to_type}
-                          </ClayBadge>
+                          </ZoruBadge>
                         ) : (
-                          <span className="text-[12.5px] text-muted-foreground">
+                          <span className="text-[12.5px] text-zoru-ink-muted">
                             —
                           </span>
                         )}
-                      </TableCell>
-                      <TableCell>
+                      </ZoruTableCell>
+                      <ZoruTableCell>
                         <div className="flex items-center gap-2">
                           {file.url ? (
                             <a
@@ -302,20 +303,20 @@ export default function CrmFilesPage() {
                           <button
                             type="button"
                             onClick={() => handleDelete(String(file._id))}
-                            className="inline-flex items-center gap-1 text-[12px] font-medium text-destructive hover:underline"
+                            className="inline-flex items-center gap-1 text-[12px] font-medium text-zoru-danger-ink hover:underline"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                             Delete
                           </button>
                         </div>
-                      </TableCell>
-                    </TableRow>
+                      </ZoruTableCell>
+                    </ZoruTableRow>
                   ))
                 )}
-              </TableBody>
-            </Table>
+              </ZoruTableBody>
+            </ZoruTable>
           </div>
-        </ClayCard>
+        </ZoruCard>
       </div>
     </div>
   );

@@ -1,35 +1,31 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import * as React from 'react';
 import Link from 'next/link';
 import { Shield, Plus, Pencil, Trash2, Users, LoaderCircle } from 'lucide-react';
 import { useEffect, useState, useTransition } from 'react';
 
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { useToast } from '@/hooks/use-toast';
 import {
   getRolesWithCounts,
   deleteRole,
@@ -44,7 +40,7 @@ type Row = WsRole & { _id: string; memberCount: number };
  * detail page where permissions and members are edited.
  */
 export default function RolesPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [rows, setRows] = useState<Row[]>([]);
   const [isLoading, startLoading] = useTransition();
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -87,54 +83,52 @@ export default function RolesPage() {
         subtitle="Define custom roles for your CRM and assign the permissions they grant."
         icon={Shield}
         actions={
-          <Link href="/dashboard/crm/settings/roles/new">
-            <ClayButton
-              variant="obsidian"
-              leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}
-            >
+          <ZoruButton asChild>
+            <Link href="/dashboard/crm/settings/roles/new">
+              <Plus className="h-4 w-4" />
               Add Role
-            </ClayButton>
-          </Link>
+            </Link>
+          </ZoruButton>
         }
       />
 
-      <ClayCard>
-        <div className="overflow-x-auto rounded-lg border border-border">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border hover:bg-transparent">
-                <TableHead className="text-muted-foreground">Role</TableHead>
-                <TableHead className="text-muted-foreground">Slug</TableHead>
-                <TableHead className="text-muted-foreground">Members</TableHead>
-                <TableHead className="text-muted-foreground">Type</TableHead>
-                <TableHead className="w-[180px] text-right text-muted-foreground">
+      <ZoruCard className="p-0">
+        <div className="overflow-x-auto rounded-lg">
+          <ZoruTable>
+            <ZoruTableHeader>
+              <ZoruTableRow className="hover:bg-transparent">
+                <ZoruTableHead className="text-zoru-ink-muted">Role</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Slug</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Members</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Type</ZoruTableHead>
+                <ZoruTableHead className="w-[180px] text-right text-zoru-ink-muted">
                   Actions
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+                </ZoruTableHead>
+              </ZoruTableRow>
+            </ZoruTableHeader>
+            <ZoruTableBody>
               {isLoading && rows.length === 0 ? (
-                <TableRow className="border-border">
-                  <TableCell
+                <ZoruTableRow>
+                  <ZoruTableCell
                     colSpan={5}
-                    className="h-20 text-center text-[13px] text-muted-foreground"
+                    className="h-20 text-center text-[13px] text-zoru-ink-muted"
                   >
                     <LoaderCircle className="mx-auto h-4 w-4 animate-spin" />
-                  </TableCell>
-                </TableRow>
+                  </ZoruTableCell>
+                </ZoruTableRow>
               ) : rows.length === 0 ? (
-                <TableRow className="border-border">
-                  <TableCell
+                <ZoruTableRow>
+                  <ZoruTableCell
                     colSpan={5}
-                    className="h-20 text-center text-[13px] text-muted-foreground"
+                    className="h-20 text-center text-[13px] text-zoru-ink-muted"
                   >
                     No roles yet — click Add Role to get started.
-                  </TableCell>
-                </TableRow>
+                  </ZoruTableCell>
+                </ZoruTableRow>
               ) : (
                 rows.map((row) => (
-                  <TableRow key={row._id} className="border-border">
-                    <TableCell className="text-[13px] font-medium text-foreground">
+                  <ZoruTableRow key={row._id}>
+                    <ZoruTableCell className="text-[13px] text-zoru-ink">
                       <Link
                         href={`/dashboard/crm/settings/roles/${row._id}`}
                         className="hover:underline"
@@ -142,85 +136,77 @@ export default function RolesPage() {
                         {row.display_name || row.name}
                       </Link>
                       {row.description ? (
-                        <div className="text-[12px] text-muted-foreground">
+                        <div className="text-[12px] text-zoru-ink-muted">
                           {row.description}
                         </div>
                       ) : null}
-                    </TableCell>
-                    <TableCell className="text-[12px] text-muted-foreground">
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-[12px] text-zoru-ink-muted">
                       <code>{row.name}</code>
-                    </TableCell>
-                    <TableCell>
-                      <ClayBadge tone="neutral">
-                        <Users className="mr-1 inline h-3 w-3" />
+                    </ZoruTableCell>
+                    <ZoruTableCell>
+                      <ZoruBadge variant="ghost">
+                        <Users className="h-3 w-3" />
                         {row.memberCount}
-                      </ClayBadge>
-                    </TableCell>
-                    <TableCell>
+                      </ZoruBadge>
+                    </ZoruTableCell>
+                    <ZoruTableCell>
                       <div className="flex gap-1">
                         {row.is_admin ? (
-                          <ClayBadge tone="rose-soft">Admin</ClayBadge>
+                          <ZoruBadge variant="default">Admin</ZoruBadge>
                         ) : null}
                         {row.is_system ? (
-                          <ClayBadge tone="neutral">System</ClayBadge>
+                          <ZoruBadge variant="ghost">System</ZoruBadge>
                         ) : null}
                         {!row.is_admin && !row.is_system ? (
-                          <ClayBadge tone="green">Custom</ClayBadge>
+                          <ZoruBadge variant="success">Custom</ZoruBadge>
                         ) : null}
                       </div>
-                    </TableCell>
-                    <TableCell className="text-right">
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-right">
                       <div className="flex justify-end gap-1">
-                        <Link
-                          href={`/dashboard/crm/settings/roles/${row._id}`}
-                        >
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            aria-label="Edit"
-                          >
+                        <ZoruButton variant="ghost" size="sm" asChild aria-label="Edit">
+                          <Link href={`/dashboard/crm/settings/roles/${row._id}`}>
                             <Pencil className="h-3.5 w-3.5" />
-                          </Button>
-                        </Link>
-                        <Button
+                          </Link>
+                        </ZoruButton>
+                        <ZoruButton
                           variant="ghost"
                           size="sm"
                           disabled={!!row.is_system}
                           onClick={() => setDeletingId(row._id)}
                           aria-label="Delete"
                         >
-                          <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                        </Button>
+                          <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                        </ZoruButton>
                       </div>
-                    </TableCell>
-                  </TableRow>
+                    </ZoruTableCell>
+                  </ZoruTableRow>
                 ))
               )}
-            </TableBody>
-          </Table>
+            </ZoruTableBody>
+          </ZoruTable>
         </div>
-      </ClayCard>
+      </ZoruCard>
 
-      <AlertDialog
+      <ZoruAlertDialog
         open={deletingId !== null}
         onOpenChange={(o) => !o && setDeletingId(null)}
       >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-foreground">
-              Delete role?
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-muted-foreground">
+        <ZoruAlertDialogContent>
+          <ZoruAlertDialogHeader>
+            <ZoruAlertDialogTitle>Delete role?</ZoruAlertDialogTitle>
+            <ZoruAlertDialogDescription>
               All member assignments and permission grants for this role will
               be removed. This cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </ZoruAlertDialogDescription>
+          </ZoruAlertDialogHeader>
+          <ZoruAlertDialogFooter>
+            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+            <ZoruAlertDialogAction onClick={handleDelete}>Delete</ZoruAlertDialogAction>
+          </ZoruAlertDialogFooter>
+        </ZoruAlertDialogContent>
+      </ZoruAlertDialog>
     </div>
   );
 }

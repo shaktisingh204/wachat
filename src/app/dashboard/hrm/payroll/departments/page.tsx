@@ -1,12 +1,29 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useState, useEffect, useCallback, useTransition, useActionState, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import { LoaderCircle, Trash2, Building, Pencil, Plus, X } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import {
+    ZoruInput,
+    ZoruLabel,
+    ZoruTextarea,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+    ZoruDialog,
+    ZoruDialogContent,
+    ZoruDialogDescription,
+    ZoruDialogFooter,
+    ZoruDialogHeader,
+    ZoruDialogTitle,
+    ZoruCard,
+    ZoruButton,
+    ZoruBadge,
+    useZoruToast,
+} from '@/components/zoruui';
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import {
     getCrmDepartments,
     saveCrmDepartment,
@@ -14,41 +31,16 @@ import {
     getCrmEmployees,
 } from '@/app/actions/crm-employees.actions';
 import type { WithId, CrmDepartment } from '@/lib/definitions';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
-
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 
 const saveInitialState: any = { message: null, error: null };
 
 function SaveButton({ label }: { label: string }) {
     const { pending } = useFormStatus();
     return (
-        <ClayButton
-            type="submit"
-            variant="obsidian"
-            disabled={pending}
-            leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : undefined}
-        >
+        <ZoruButton type="submit" disabled={pending}>
+            {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
             {label}
-        </ClayButton>
+        </ZoruButton>
     );
 }
 
@@ -57,14 +49,12 @@ export default function DepartmentsPage() {
     const [employees, setEmployees] = useState<any[]>([]);
     const [isLoading, startLoading] = useTransition();
     const [saveState, formAction] = useActionState(saveCrmDepartment, saveInitialState);
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
     const formRef = useRef<HTMLFormElement>(null);
 
-    // Dialog state for add/edit
     const [dialogOpen, setDialogOpen] = useState(false);
     const [editing, setEditing] = useState<WithId<CrmDepartment> | null>(null);
 
-    // Controlled select values in dialog (useActionState + Select needs controlled state)
     const [parentId, setParentId] = useState('__none__');
     const [managerId, setManagerId] = useState('__none__');
 
@@ -124,7 +114,6 @@ export default function DepartmentsPage() {
         setDialogOpen(true);
     };
 
-    // Build employee count per department
     const empCountByDept = employees.reduce<Record<string, number>>((acc, e) => {
         if (e.departmentId) {
             const key = e.departmentId.toString();
@@ -133,13 +122,11 @@ export default function DepartmentsPage() {
         return acc;
     }, {});
 
-    // Parent dept name lookup
     const deptNameById = departments.reduce<Record<string, string>>((acc, d) => {
         acc[d._id.toString()] = d.name;
         return acc;
     }, {});
 
-    // Manager name lookup
     const managerNameById = employees.reduce<Record<string, string>>((acc, e) => {
         acc[e._id.toString()] = `${e.firstName} ${e.lastName}`;
         return acc;
@@ -152,37 +139,34 @@ export default function DepartmentsPage() {
                 subtitle="Organize your team into departments with parent structure and managers."
                 icon={Building}
                 actions={
-                    <ClayButton
-                        variant="obsidian"
-                        leading={<Plus className="h-4 w-4" />}
-                        onClick={openAdd}
-                    >
+                    <ZoruButton onClick={openAdd}>
+                        <Plus className="h-4 w-4" />
                         Add Department
-                    </ClayButton>
+                    </ZoruButton>
                 }
             />
 
-            <ClayCard>
+            <ZoruCard className="p-6">
                 <div className="mb-4 flex items-center justify-between">
-                    <h2 className="text-[16px] font-semibold text-foreground">All Departments</h2>
-                    <ClayBadge tone="neutral">{departments.length} total</ClayBadge>
+                    <h2 className="text-[16px] text-zoru-ink">All Departments</h2>
+                    <ZoruBadge variant="secondary">{departments.length} total</ZoruBadge>
                 </div>
-                <div className="overflow-x-auto rounded-lg border border-border">
+                <div className="overflow-x-auto rounded-lg border border-zoru-line">
                     <table className="w-full text-left text-[13px]">
                         <thead>
-                            <tr className="border-b border-border bg-secondary">
-                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Department</th>
-                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Parent Dept.</th>
-                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Manager</th>
-                                <th className="px-4 py-3 text-center text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Employees</th>
-                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Actions</th>
+                            <tr className="border-b border-zoru-line bg-zoru-surface-2">
+                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">Department</th>
+                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">Parent Dept.</th>
+                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">Manager</th>
+                                <th className="px-4 py-3 text-center text-[12px] uppercase text-zoru-ink-muted">Employees</th>
+                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {isLoading ? (
                                 <tr>
                                     <td colSpan={5} className="h-24 text-center">
-                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
+                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
                                     </td>
                                 </tr>
                             ) : departments.length > 0 ? (
@@ -195,29 +179,29 @@ export default function DepartmentsPage() {
                                         : '—';
                                     const count = empCountByDept[dept._id.toString()] ?? 0;
                                     return (
-                                        <tr key={dept._id.toString()} className="border-b border-border last:border-0 hover:bg-secondary/50 transition-colors">
+                                        <tr key={dept._id.toString()} className="border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2/50 transition-colors">
                                             <td className="px-4 py-3">
-                                                <div className="font-medium text-foreground">{dept.name}</div>
+                                                <div className="text-zoru-ink">{dept.name}</div>
                                                 {dept.description ? (
-                                                    <div className="text-[11.5px] text-muted-foreground">{dept.description}</div>
+                                                    <div className="text-[11.5px] text-zoru-ink-muted">{dept.description}</div>
                                                 ) : null}
                                             </td>
-                                            <td className="px-4 py-3 text-muted-foreground">{parentName}</td>
-                                            <td className="px-4 py-3 text-foreground">{managerName}</td>
+                                            <td className="px-4 py-3 text-zoru-ink-muted">{parentName}</td>
+                                            <td className="px-4 py-3 text-zoru-ink">{managerName}</td>
                                             <td className="px-4 py-3 text-center">
-                                                <ClayBadge tone="neutral">{count}</ClayBadge>
+                                                <ZoruBadge variant="secondary">{count}</ZoruBadge>
                                             </td>
                                             <td className="px-4 py-3">
                                                 <div className="flex items-center justify-end gap-1">
-                                                    <ClayButton
+                                                    <ZoruButton
                                                         variant="ghost"
                                                         size="icon"
                                                         onClick={() => openEdit(dept)}
                                                         aria-label="Edit"
                                                     >
                                                         <Pencil className="h-3.5 w-3.5" />
-                                                    </ClayButton>
-                                                    <ClayButton
+                                                    </ZoruButton>
+                                                    <ZoruButton
                                                         variant="ghost"
                                                         size="icon"
                                                         onClick={() => handleDelete(dept)}
@@ -225,7 +209,7 @@ export default function DepartmentsPage() {
                                                         aria-label="Delete"
                                                     >
                                                         <Trash2 className="h-3.5 w-3.5 text-red-500" />
-                                                    </ClayButton>
+                                                    </ZoruButton>
                                                 </div>
                                             </td>
                                         </tr>
@@ -233,125 +217,123 @@ export default function DepartmentsPage() {
                                 })
                             ) : (
                                 <tr>
-                                    <td colSpan={5} className="h-24 text-center text-[13px] text-muted-foreground">
-                                        No departments yet. Click "Add Department" to create one.
+                                    <td colSpan={5} className="h-24 text-center text-[13px] text-zoru-ink-muted">
+                                        No departments yet. Click &quot;Add Department&quot; to create one.
                                     </td>
                                 </tr>
                             )}
                         </tbody>
                     </table>
                 </div>
-            </ClayCard>
+            </ZoruCard>
 
-            {/* Add / Edit dialog */}
-            <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) setEditing(null); }}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle className="text-foreground">
+            <ZoruDialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) setEditing(null); }}>
+                <ZoruDialogContent>
+                    <ZoruDialogHeader>
+                        <ZoruDialogTitle className="text-zoru-ink">
                             {editing ? 'Edit Department' : 'Add Department'}
-                        </DialogTitle>
-                        <DialogDescription className="text-muted-foreground">
+                        </ZoruDialogTitle>
+                        <ZoruDialogDescription className="text-zoru-ink-muted">
                             Fill in the department details. Only the name is required.
-                        </DialogDescription>
-                    </DialogHeader>
+                        </ZoruDialogDescription>
+                    </ZoruDialogHeader>
                     <form action={formAction} ref={formRef} className="space-y-4">
                         {editing?._id ? (
                             <input type="hidden" name="_id" value={editing._id.toString()} />
                         ) : null}
 
-                        {/* Hidden fields for controlled selects */}
                         <input type="hidden" name="parent_department_id" value={parentId === '__none__' ? '' : parentId} />
                         <input type="hidden" name="manager_id" value={managerId === '__none__' ? '' : managerId} />
 
                         <div>
-                            <Label htmlFor="dept-name" className="text-[13px] text-foreground">
+                            <ZoruLabel htmlFor="dept-name" className="text-[13px] text-zoru-ink">
                                 Department Name <span className="text-red-500">*</span>
-                            </Label>
-                            <Input
+                            </ZoruLabel>
+                            <ZoruInput
                                 id="dept-name"
                                 name="name"
                                 required
                                 defaultValue={editing?.name ?? ''}
                                 placeholder="e.g. Engineering"
-                                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+                                className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                             />
                         </div>
 
                         <div>
-                            <Label htmlFor="dept-desc" className="text-[13px] text-foreground">
+                            <ZoruLabel htmlFor="dept-desc" className="text-[13px] text-zoru-ink">
                                 Description
-                            </Label>
-                            <Textarea
+                            </ZoruLabel>
+                            <ZoruTextarea
                                 id="dept-desc"
                                 name="description"
                                 rows={2}
                                 defaultValue={editing?.description ?? ''}
                                 placeholder="Optional description"
-                                className="mt-1.5 rounded-lg border-border bg-card text-[13px]"
+                                className="mt-1.5 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                             />
                         </div>
 
                         <div>
-                            <Label htmlFor="dept-parent" className="text-[13px] text-foreground">
+                            <ZoruLabel htmlFor="dept-parent" className="text-[13px] text-zoru-ink">
                                 Parent Department
-                            </Label>
-                            <Select value={parentId} onValueChange={setParentId}>
-                                <SelectTrigger
+                            </ZoruLabel>
+                            <ZoruSelect value={parentId} onValueChange={setParentId}>
+                                <ZoruSelectTrigger
                                     id="dept-parent"
-                                    className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+                                    className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                                 >
-                                    <SelectValue placeholder="— Root (no parent) —" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="__none__">— Root (no parent) —</SelectItem>
+                                    <ZoruSelectValue placeholder="— Root (no parent) —" />
+                                </ZoruSelectTrigger>
+                                <ZoruSelectContent>
+                                    <ZoruSelectItem value="__none__">— Root (no parent) —</ZoruSelectItem>
                                     {departments
                                         .filter((d) => d._id.toString() !== editing?._id.toString())
                                         .map((d) => (
-                                            <SelectItem key={d._id.toString()} value={d._id.toString()}>
+                                            <ZoruSelectItem key={d._id.toString()} value={d._id.toString()}>
                                                 {d.name}
-                                            </SelectItem>
+                                            </ZoruSelectItem>
                                         ))}
-                                </SelectContent>
-                            </Select>
+                                </ZoruSelectContent>
+                            </ZoruSelect>
                         </div>
 
                         <div>
-                            <Label htmlFor="dept-manager" className="text-[13px] text-foreground">
+                            <ZoruLabel htmlFor="dept-manager" className="text-[13px] text-zoru-ink">
                                 Manager
-                            </Label>
-                            <Select value={managerId} onValueChange={setManagerId}>
-                                <SelectTrigger
+                            </ZoruLabel>
+                            <ZoruSelect value={managerId} onValueChange={setManagerId}>
+                                <ZoruSelectTrigger
                                     id="dept-manager"
-                                    className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+                                    className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                                 >
-                                    <SelectValue placeholder="— No manager assigned —" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="__none__">— No manager assigned —</SelectItem>
+                                    <ZoruSelectValue placeholder="— No manager assigned —" />
+                                </ZoruSelectTrigger>
+                                <ZoruSelectContent>
+                                    <ZoruSelectItem value="__none__">— No manager assigned —</ZoruSelectItem>
                                     {employees.map((e) => (
-                                        <SelectItem key={e._id.toString()} value={e._id.toString()}>
+                                        <ZoruSelectItem key={e._id.toString()} value={e._id.toString()}>
                                             {e.firstName} {e.lastName}
                                             {e.designationName ? ` · ${e.designationName}` : ''}
-                                        </SelectItem>
+                                        </ZoruSelectItem>
                                     ))}
-                                </SelectContent>
-                            </Select>
+                                </ZoruSelectContent>
+                            </ZoruSelect>
                         </div>
 
-                        <DialogFooter>
-                            <ClayButton
+                        <ZoruDialogFooter>
+                            <ZoruButton
                                 type="button"
-                                variant="pill"
+                                variant="outline"
                                 onClick={() => setDialogOpen(false)}
-                                leading={<X className="h-3.5 w-3.5" />}
                             >
+                                <X className="h-3.5 w-3.5" />
                                 Cancel
-                            </ClayButton>
+                            </ZoruButton>
                             <SaveButton label={editing ? 'Save Changes' : 'Add Department'} />
-                        </DialogFooter>
+                        </ZoruDialogFooter>
                     </form>
-                </DialogContent>
-            </Dialog>
+                </ZoruDialogContent>
+            </ZoruDialog>
         </div>
     );
 }

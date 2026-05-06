@@ -71,6 +71,7 @@ wachat-facebook-events = { path = "../wachat-facebook-events" }
 wachat-facebook-lead-gen = { path = "../wachat-facebook-lead-gen" }
 wachat-facebook-messenger-profile = { path = "../wachat-facebook-messenger-profile" }
 wachat-instagram = { path = "../wachat-instagram" }
+sabfiles = { path = "../sabfiles" }
 wachat-rate-limit = { path = "../wachat-rate-limit" }
 wachat-config = { path = "../wachat-config" }
 wachat-analytics = { path = "../wachat-analytics" }
