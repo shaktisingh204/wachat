@@ -929,7 +929,7 @@ pub async fn create_share(
 
     Ok(Json(ShareResponse {
         token: token.clone(),
-        url: format!("/s/{token}"),
+        url: format!("/share/{token}"),
         expires_at: expires,
         download_enabled: download,
         password_protected: password,
