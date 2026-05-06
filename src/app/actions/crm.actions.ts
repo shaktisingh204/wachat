@@ -177,6 +177,20 @@ export async function addCrmClient(prevState: any, formData: FormData): Promise<
         const paymentTerms = formData.get('paymentTerms') as string;
         const category = formData.get('category') as string;
 
+        const logoUrl = formData.get('logoUrl') as string | null;
+        const attachmentsRaw = formData.get('attachmentUrls') as string | null;
+        let attachmentUrls: string[] | undefined;
+        if (attachmentsRaw) {
+            try {
+                const parsed = JSON.parse(attachmentsRaw);
+                if (Array.isArray(parsed)) {
+                    attachmentUrls = parsed.filter((u): u is string => typeof u === 'string' && !!u);
+                }
+            } catch {
+                // ignore malformed JSON
+            }
+        }
+
         const accountDoc: Record<string, any> = {
             userId: new ObjectId(session.user._id),
             name: formData.get('businessName') as string,
@@ -194,6 +208,8 @@ export async function addCrmClient(prevState: any, formData: FormData): Promise<
         if (accountCurrency) accountDoc.currency = accountCurrency;
         if (paymentTerms) accountDoc.paymentTerms = paymentTerms;
         if (category) accountDoc.category = category;
+        if (logoUrl) accountDoc.logoUrl = logoUrl;
+        if (attachmentUrls && attachmentUrls.length) accountDoc.attachments = attachmentUrls;
 
         const accountResult = await db.collection('crm_accounts').insertOne(accountDoc);
 

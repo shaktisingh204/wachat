@@ -26,11 +26,12 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
-import { LoaderCircle, Save, Plus, Trash2 } from 'lucide-react';
+import { LoaderCircle, Save, Plus, Trash2, Upload, X } from 'lucide-react';
 import type { WithId, EcommProduct, EcommProductVariant, User, ProductBatch } from '@/lib/definitions';
 import { saveCrmProduct } from '@/app/actions/crm-products.actions';
 import { getSession } from '@/app/actions/index.ts';
 import { v4 as uuidv4 } from 'uuid';
+import { SabFilePickerButton } from '@/components/sabfiles';
 
 const initialState = { message: null, error: undefined };
 
@@ -53,12 +54,13 @@ export function CrmProductForm({ product }: CrmProductFormProps) {
     const { toast } = useZoruToast();
     const router = useRouter();
     const formRef = useRef<HTMLFormElement>(null);
-    const fileInputRef = useRef<HTMLInputElement>(null);
     const [user, setUser] = useState<User | null>(null);
 
     const isEditing = !!product;
     const [variants, setVariants] = useState<EcommProductVariant[]>([]);
     const [batches, setBatches] = useState<ProductBatch[]>([]);
+    const [imageUrl, setImageUrl] = useState<string>(product?.imageUrl || '');
+    const [imageName, setImageName] = useState<string>('');
 
     useEffect(() => {
         getSession().then(session => setUser(session?.user || null));
@@ -89,7 +91,7 @@ export function CrmProductForm({ product }: CrmProductFormProps) {
     return (
         <form action={formAction} ref={formRef}>
              <input type="hidden" name="productId" value={product?._id.toString()} />
-             <input type="hidden" name="imageUrl" value={product?.imageUrl || ''} />
+             <input type="hidden" name="imageUrl" value={imageUrl} />
              <input type="hidden" name="variants" value={JSON.stringify(variants)} />
              <input type="hidden" name="batches" value={JSON.stringify(batches)} />
 
@@ -149,7 +151,40 @@ export function CrmProductForm({ product }: CrmProductFormProps) {
                         </ZoruAccordionItem>
                         <ZoruAccordionItem value="image"><ZoruAccordionTrigger>Image & Variants</ZoruAccordionTrigger>
                             <ZoruAccordionContent className="pt-4 space-y-6">
-                                <div className="space-y-2"><ZoruLabel htmlFor="imageFile">Product Image</ZoruLabel><ZoruInput id="imageFile" name="imageFile" type="file" accept="image/*" ref={fileInputRef} /><p className="text-xs text-zoru-ink-muted">Current image is set. Uploading a new file will replace it.</p></div>
+                                <div className="space-y-2">
+                                    <ZoruLabel>Product Image</ZoruLabel>
+                                    <div className="flex items-center gap-2">
+                                        <SabFilePickerButton
+                                            accept="image"
+                                            title="Pick product image"
+                                            onPick={({ url, name }) => {
+                                                setImageUrl(url);
+                                                setImageName(name);
+                                            }}
+                                        >
+                                            <Upload className="h-4 w-4" /> {imageUrl ? 'Replace image' : 'Choose image'}
+                                        </SabFilePickerButton>
+                                        {imageUrl && (
+                                            <ZoruButton
+                                                type="button"
+                                                variant="ghost"
+                                                size="icon"
+                                                aria-label="Remove image"
+                                                onClick={() => {
+                                                    setImageUrl('');
+                                                    setImageName('');
+                                                }}
+                                            >
+                                                <X className="h-4 w-4" />
+                                            </ZoruButton>
+                                        )}
+                                    </div>
+                                    {imageUrl && (
+                                        <p className="text-xs text-zoru-ink-muted truncate">
+                                            <a href={imageUrl} target="_blank" rel="noreferrer" className="underline">{imageName || 'View current image'}</a>
+                                        </p>
+                                    )}
+                                </div>
                                 <ZoruSeparator />
                                 <div className="space-y-4">
                                     <div className="flex justify-between items-center"><ZoruLabel>Variants (e.g., Size, Color)</ZoruLabel><ZoruButton type="button" size="sm" variant="outline" onClick={handleAddVariant}><Plus className="mr-2 h-4 w-4"/>Add Variant</ZoruButton></div>

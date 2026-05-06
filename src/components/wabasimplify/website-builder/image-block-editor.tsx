@@ -9,19 +9,11 @@ import { Switch } from '@/components/ui/switch';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Upload } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { Separator } from '@/components/ui/separator';
 import { Slider } from '@/components/ui/slider';
-
-const handleFileChange = (file: File | null, callback: (dataUri: string) => void) => {
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => {
-        callback(reader.result as string);
-    };
-    reader.readAsDataURL(file);
-};
+import { SabFilePickerButton } from '@/components/sabfiles';
 
 export function ImageBlockEditor({ settings, onUpdate }: { settings: any, onUpdate: (newSettings: any) => void }) {
     const handleUpdate = (field: string, value: any) => {
@@ -69,8 +61,13 @@ export function ImageBlockEditor({ settings, onUpdate }: { settings: any, onUpda
                         <AccordionTrigger>Image</AccordionTrigger>
                         <AccordionContent className="space-y-4 pt-2">
                              <div className="space-y-2">
-                                <Label htmlFor={`src-${settings.id}`}>Image Upload</Label>
-                                <Input id={`src-${settings.id}`} type="file" accept="image/*" onChange={(e) => handleFileChange(e.target.files?.[0] || null, (dataUri) => handleUpdate('src', dataUri))} />
+                                <Label>Image</Label>
+                                <SabFilePickerButton
+                                    accept="image"
+                                    onPick={({ url }) => handleUpdate('src', url)}
+                                >
+                                    <Upload className="mr-2 h-4 w-4" /> Pick image
+                                </SabFilePickerButton>
                             </div>
                              <div className="space-y-2">
                                 <Label>Alignment</Label>

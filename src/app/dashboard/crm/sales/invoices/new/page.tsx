@@ -14,7 +14,7 @@ import {
     useZoruToast,
 } from '@/components/zoruui';
 import { DatePicker } from '@/components/ui/date-picker';
-import { PlusCircle, Trash2, ArrowLeft, Save, File as FileIcon, Edit, ChevronDown, Info, Upload, Image as ImageIcon, Settings, Printer, Share2, LoaderCircle, Repeat } from 'lucide-react';
+import { PlusCircle, Trash2, ArrowLeft, Save, File as FileIcon, Edit, ChevronDown, Info, Upload, Image as ImageIcon, Settings, Printer, Share2, LoaderCircle, Repeat, X } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { v4 as uuidv4 } from 'uuid';
@@ -24,6 +24,7 @@ import { saveInvoice } from '@/app/actions/crm-invoices.actions';
 import { useRouter } from 'next/navigation';
 import { SmartClientSelect } from '@/components/crm/sales/smart-client-select';
 import { SmartProductSelect } from '@/components/crm/inventory/smart-product-select';
+import { SabFilePickerButton } from '@/components/sabfiles';
 
 type TermItem = { id: string; text: string; }
 type AdditionalInfoItem = { id: string; key: string; value: string; }
@@ -132,6 +133,7 @@ export default function NewInvoicePage() {
     const [additionalInfo, setAdditionalInfo] = useState<AdditionalInfoItem[]>([]);
     const [notes, setNotes] = useState('');
     const [contactDetails, setContactDetails] = useState({ email: '', phone: '' });
+    const [attachments, setAttachments] = useState<{ url: string; name: string }[]>([]);
 
     useEffect(() => {
         getCrmAccounts().then(data => setClients(data.accounts));
@@ -159,6 +161,7 @@ export default function NewInvoicePage() {
             <input type="hidden" name="additionalInfo" value={JSON.stringify(additionalInfo.map(f => ({ key: f.key, value: f.value })))} />
             <input type="hidden" name="notes" value={notes} />
             <input type="hidden" name="currency" value="INR" />
+            <input type="hidden" name="attachmentUrls" value={JSON.stringify(attachments.map(a => a.url))} />
 
             <div>
                 <div className="max-w-6xl mx-auto flex flex-col gap-6">
@@ -232,7 +235,41 @@ export default function NewInvoicePage() {
                             <section className="mt-8 space-y-4">
                                 {showTerms ? (<div className="space-y-2"><ZoruLabel className="text-zoru-ink">Terms & Conditions</ZoruLabel>{terms.map((term, index) => (<div key={term.id} className="flex items-center gap-2"><span className="text-sm text-zoru-ink-muted">{String(index + 1).padStart(2, '0')}</span><ZoruInput value={term.text} onChange={(e) => setTerms(terms.map(t => t.id === term.id ? { ...t, text: e.target.value } : t))} maxLength={500} /><ZoruButton type="button" variant="ghost" size="icon" onClick={() => setTerms(terms.filter(t => t.id !== term.id))}><Trash2 className="h-4 w-4" /></ZoruButton></div>))}<ZoruButton type="button" variant="outline" size="sm" onClick={() => setTerms([...terms, { id: `term-${Date.now()}`, text: '' }])}><PlusCircle className="h-4 w-4" />Add New Term</ZoruButton></div>) : (<ZoruButton type="button" variant="ghost" size="sm" onClick={() => setShowTerms(true)}>Add Terms & Conditions</ZoruButton>)}
                                 {showNotes ? (<div className="space-y-2"><ZoruLabel className="text-zoru-ink">Additional Notes</ZoruLabel><ZoruTextarea placeholder="Any additional notes for the client..." value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={500} /></div>) : (<ZoruButton type="button" variant="ghost" size="sm" onClick={() => setShowNotes(true)}>Add Notes</ZoruButton>)}
-                                {showAttachments ? (<div className="space-y-2"><ZoruLabel className="text-zoru-ink">Attachments</ZoruLabel><div className="flex items-center justify-center w-full"><label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-zoru-line rounded-lg cursor-pointer bg-zoru-surface-2 hover:bg-zoru-bg"><div className="flex flex-col items-center justify-center"><Upload className="w-6 h-6 mb-2 text-zoru-ink-muted" /><p className="text-xs text-zoru-ink-muted"><span>Click to upload</span> or drag and drop</p></div><input id="dropzone-file" type="file" className="hidden" /></label></div><p className="text-xs text-zoru-ink-muted">Max file size is 10 MB.</p></div>) : (<ZoruButton type="button" variant="ghost" size="sm" onClick={() => setShowAttachments(true)}>Add Attachments</ZoruButton>)}
+                                {showAttachments ? (
+                                    <div className="space-y-2">
+                                        <ZoruLabel className="text-zoru-ink">Attachments</ZoruLabel>
+                                        <SabFilePickerButton
+                                            accept="all"
+                                            title="Attach a file"
+                                            onPick={({ url, name }) => {
+                                                setAttachments((prev) => [...prev, { url, name }]);
+                                            }}
+                                        >
+                                            <Upload className="h-4 w-4" /> Add attachment
+                                        </SabFilePickerButton>
+                                        {attachments.length > 0 && (
+                                            <ul className="flex flex-col gap-1.5">
+                                                {attachments.map((a, idx) => (
+                                                    <li key={`${a.url}-${idx}`} className="flex items-center justify-between gap-2 rounded-lg border border-zoru-line px-2 py-1.5">
+                                                        <span className="text-xs text-zoru-ink truncate">{a.name}</span>
+                                                        <ZoruButton
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            aria-label={`Remove ${a.name}`}
+                                                            onClick={() =>
+                                                                setAttachments((prev) => prev.filter((_, i) => i !== idx))
+                                                            }
+                                                        >
+                                                            <X className="h-4 w-4" />
+                                                        </ZoruButton>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        )}
+                                        <p className="text-xs text-zoru-ink-muted">Files are stored in your SabFiles library.</p>
+                                    </div>
+                                ) : (<ZoruButton type="button" variant="ghost" size="sm" onClick={() => setShowAttachments(true)}>Add Attachments</ZoruButton>)}
                                 {showAdditionalInfo ? (<div className="space-y-2"><ZoruLabel className="text-zoru-ink">Additional Info</ZoruLabel>{additionalInfo.map((field, index) => (<div key={field.id} className="grid grid-cols-[1fr,1fr,auto] gap-2 items-center"><ZoruInput placeholder="Field Name" value={field.key} onChange={e => setAdditionalInfo(additionalInfo.map(f => f.id === field.id ? { ...f, key: e.target.value } : f))} maxLength={100} /><ZoruInput placeholder="Value" value={field.value} onChange={e => setAdditionalInfo(additionalInfo.map(f => f.id === field.id ? { ...f, value: e.target.value } : f))} maxLength={100} /><ZoruButton type="button" variant="ghost" size="icon" onClick={() => setAdditionalInfo(additionalInfo.filter(f => f.id !== field.id))}><Trash2 className="h-4 w-4 text-zoru-danger-ink" /></ZoruButton></div>))}<ZoruButton type="button" variant="outline" size="sm" onClick={() => setAdditionalInfo([...additionalInfo, { id: uuidv4(), key: '', value: '' }])}><PlusCircle className="h-4 w-4" />Add More Fields</ZoruButton></div>) : (<ZoruButton type="button" variant="ghost" size="sm" onClick={() => setShowAdditionalInfo(true)}>Add Additional Info</ZoruButton>)}
                                 {showContactDetails ? (<div className="space-y-2"><ZoruLabel className="text-zoru-ink">Your Contact Details</ZoruLabel><div className="space-y-2"><ZoruInput type="email" placeholder="Your Email (optional)" value={contactDetails.email} onChange={e => setContactDetails(prev => ({ ...prev, email: e.target.value }))} /><ZoruInput type="tel" placeholder="Your Phone (optional)" value={contactDetails.phone} onChange={e => setContactDetails(prev => ({ ...prev, phone: e.target.value }))} /></div></div>) : (<ZoruButton type="button" variant="ghost" size="sm" onClick={() => setShowContactDetails(true)}>Add Contact Details</ZoruButton>)}
                                 {showSignature ? (<div className="space-y-2"><ZoruLabel className="text-zoru-ink">Signature</ZoruLabel><div className="h-24 border border-zoru-line rounded-lg bg-zoru-surface-2 flex items-center justify-center"><ZoruButton type="button" variant="outline">Upload Signature</ZoruButton></div></div>) : (<ZoruButton type="button" variant="ghost" size="sm" onClick={() => setShowSignature(true)}>Add Signature</ZoruButton>)}

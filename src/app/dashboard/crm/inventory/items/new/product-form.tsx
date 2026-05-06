@@ -13,9 +13,10 @@ import { SmartCategorySelect } from "@/components/crm/inventory/smart-category-s
 import { SmartBrandSelect } from "@/components/crm/inventory/smart-brand-select";
 import { SmartUnitSelect } from "@/components/crm/inventory/smart-unit-select";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ArrowLeft } from "lucide-react";
+import { Loader2, ArrowLeft, Upload, X } from "lucide-react";
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
+import { SabFilePickerButton } from "@/components/sabfiles";
 
 interface ProductFormProps {
     initialData?: any; // To be typed strictly later
@@ -31,6 +32,8 @@ export function ProductForm({ initialData }: ProductFormProps) {
     const [brandId, setBrandId] = React.useState(initialData?.brandId || '');
     const [unitId, setUnitId] = React.useState(initialData?.unitId || '');
     const [isTrackInventory, setIsTrackInventory] = React.useState(initialData?.isTrackInventory || false);
+    const [imageUrl, setImageUrl] = React.useState<string>(initialData?.images?.[0] || '');
+    const [imageName, setImageName] = React.useState<string>('');
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -41,6 +44,9 @@ export function ProductForm({ initialData }: ProductFormProps) {
         if (categoryId) formData.set('categoryId', categoryId);
         if (brandId) formData.set('brandId', brandId);
         if (unitId) formData.set('unitId', unitId);
+        if (imageUrl) formData.set('imageUrl', imageUrl);
+        // Drop the (now unused) imageFile entry — server prefers imageUrl.
+        formData.delete('imageFile');
         // Checkbox handling (if unchecked, formData doesn't send it, so manual append if checked, or rely on 'on' check in server)
         // My server action checks `=== 'on'`, so default checkbox behavior is fine if named correctly.
 
@@ -255,11 +261,38 @@ export function ProductForm({ initialData }: ProductFormProps) {
                         </CardHeader>
                         <CardContent>
                             <div className="grid gap-2">
-                                <Label htmlFor="imageFile">Product Image</Label>
-                                <Input id="imageFile" name="imageFile" type="file" accept="image/*" />
-                                {initialData?.images?.[0] && (
-                                    <div className="mt-2 text-sm text-muted-foreground">
-                                        Current image: <a href={initialData.images[0]} target="_blank" className="underline">View</a>
+                                <Label>Product Image</Label>
+                                <div className="flex items-center gap-2">
+                                    <SabFilePickerButton
+                                        accept="image"
+                                        title="Pick product image"
+                                        onPick={({ url, name }) => {
+                                            setImageUrl(url);
+                                            setImageName(name);
+                                        }}
+                                    >
+                                        <Upload className="h-4 w-4" /> {imageUrl ? 'Replace image' : 'Choose image'}
+                                    </SabFilePickerButton>
+                                    {imageUrl && (
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon"
+                                            aria-label="Remove image"
+                                            onClick={() => {
+                                                setImageUrl('');
+                                                setImageName('');
+                                            }}
+                                        >
+                                            <X className="h-4 w-4" />
+                                        </Button>
+                                    )}
+                                </div>
+                                {imageUrl && (
+                                    <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
+                                        <a href={imageUrl} target="_blank" rel="noreferrer" className="underline truncate max-w-[260px]">
+                                            {imageName || 'View image'}
+                                        </a>
                                     </div>
                                 )}
                             </div>

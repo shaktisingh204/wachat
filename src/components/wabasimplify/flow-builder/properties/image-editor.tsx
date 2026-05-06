@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
+import { SabFileUrlInput } from '@/components/sabfiles';
 
 interface EditorProps {
   node: any;
@@ -35,7 +36,13 @@ export function ImageEditor({ node, onUpdate }: EditorProps) {
             {mediaSource === 'url' ? (
                 <div className="space-y-2">
                     <Label htmlFor="image-url">Image URL</Label>
-                    <Input id="image-url" placeholder="https://example.com/image.png" value={node.data.imageUrl || ''} onChange={(e) => onUpdate({ imageUrl: e.target.value, imageBase64: null })} />
+                    <SabFileUrlInput
+                        id="image-url"
+                        accept="image"
+                        placeholder="https://example.com/image.png"
+                        value={node.data.imageUrl || ''}
+                        onChange={(v) => onUpdate({ imageUrl: v, imageBase64: null })}
+                    />
                 </div>
             ) : (
                  <div className="space-y-2">

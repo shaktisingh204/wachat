@@ -58,6 +58,19 @@ export async function saveInvoice(prevState: any, formData: FormData): Promise<{
         const lineItems = JSON.parse(formData.get('lineItems') as string || '[]');
         const subtotal = lineItems.reduce((sum: number, item: any) => sum + (item.quantity * item.rate), 0);
 
+        const attachmentsRaw = formData.get('attachmentUrls') as string | null;
+        let attachments: string[] | undefined;
+        if (attachmentsRaw) {
+            try {
+                const parsed = JSON.parse(attachmentsRaw);
+                if (Array.isArray(parsed)) {
+                    attachments = parsed.filter((u): u is string => typeof u === 'string' && !!u);
+                }
+            } catch {
+                // ignore malformed JSON
+            }
+        }
+
         const invoiceData: Omit<CrmInvoice, '_id' | 'createdAt' | 'updatedAt'> = {
             userId: new ObjectId(session.user._id),
             accountId: new ObjectId(formData.get('accountId') as string),
@@ -71,6 +84,7 @@ export async function saveInvoice(prevState: any, formData: FormData): Promise<{
             termsAndConditions: JSON.parse(formData.get('termsAndConditions') as string || '[]'),
             notes: formData.get('notes') as string,
             additionalInfo: JSON.parse(formData.get('additionalInfo') as string || '[]'),
+            attachments: attachments && attachments.length ? attachments : undefined,
             status: 'Draft',
         };
 

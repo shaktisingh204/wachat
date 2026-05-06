@@ -3,9 +3,10 @@ import { ZoruAccordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTr
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 
-import { LoaderCircle, Save, ArrowLeft, User, Truck } from 'lucide-react';
+import { LoaderCircle, Save, ArrowLeft, User, Truck, Upload, X } from 'lucide-react';
 
 import { saveCrmVendor } from '@/app/actions/crm-vendors.actions';
+import { SabFilePickerButton } from '@/components/sabfiles';
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -48,6 +49,11 @@ export default function NewVendorPage() {
     const [addressStateName, setAddressStateName] = useState<string>('');
     const [addressCityName, setAddressCityName] = useState<string>('');
 
+    // SabFiles-backed uploads
+    const [logoUrl, setLogoUrl] = useState<string>('');
+    const [logoFileName, setLogoFileName] = useState<string>('');
+    const [attachmentUrls, setAttachmentUrls] = useState<{ url: string; name: string }[]>([]);
+
     useEffect(() => {
         if (state.message) {
             toast({ title: 'Success!', description: state.message });
@@ -80,6 +86,8 @@ export default function NewVendorPage() {
 
             <form action={formAction} ref={formRef}>
                 <input type="hidden" name="bankAccountDetails" value={JSON.stringify(bankDetails)} />
+                <input type="hidden" name="logoUrl" value={logoUrl} />
+                <input type="hidden" name="attachmentUrls" value={JSON.stringify(attachmentUrls.map(a => a.url))} />
                 <ZoruCard>
                     <ZoruAccordion type="multiple" defaultValue={['basic', 'tax', 'address', 'additional']} className="w-full">
                         <ZoruAccordionItem value="basic">
@@ -87,7 +95,35 @@ export default function NewVendorPage() {
                             <ZoruAccordionContent className="space-y-4 pt-2">
                                 <div className="space-y-2">
                                     <ZoruLabel htmlFor="logo">Upload Logo</ZoruLabel>
-                                    <ZoruInput id="logo" name="logo" type="file" accept="image/jpeg,image/png" className="h-10 rounded-lg border-border bg-card text-[13px]" />
+                                    <div className="flex items-center gap-2">
+                                        <SabFilePickerButton
+                                            accept="image"
+                                            title="Pick vendor logo"
+                                            onPick={({ url, name }) => {
+                                                setLogoUrl(url);
+                                                setLogoFileName(name);
+                                            }}
+                                        >
+                                            <Upload /> {logoUrl ? 'Replace logo' : 'Choose logo'}
+                                        </SabFilePickerButton>
+                                        {logoUrl && (
+                                            <>
+                                                <span className="text-[12.5px] text-muted-foreground truncate max-w-[240px]">{logoFileName || logoUrl}</span>
+                                                <ZoruButton
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    aria-label="Remove logo"
+                                                    onClick={() => {
+                                                        setLogoUrl('');
+                                                        setLogoFileName('');
+                                                    }}
+                                                >
+                                                    <X className="h-4 w-4" />
+                                                </ZoruButton>
+                                            </>
+                                        )}
+                                    </div>
                                 </div>
                                 <div className="space-y-2">
                                     <ZoruLabel htmlFor="name">Vendor&apos;s Business Name *</ZoruLabel>
@@ -221,7 +257,40 @@ export default function NewVendorPage() {
                                     </div>
                                 </div>
                                 <div className="space-y-2"><ZoruLabel htmlFor="subject">Subject</ZoruLabel><ZoruInput id="subject" name="subject" placeholder="Brief 4-5 words on what they&rsquo;re looking for" maxLength={100} className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
-                                <div className="space-y-2"><ZoruLabel>Attachments</ZoruLabel><ZoruInput type="file" multiple className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
+                                <div className="space-y-2">
+                                    <ZoruLabel>Attachments</ZoruLabel>
+                                    <div className="flex flex-col gap-2">
+                                        <SabFilePickerButton
+                                            accept="all"
+                                            title="Add an attachment"
+                                            onPick={({ url, name }) => {
+                                                setAttachmentUrls((prev) => [...prev, { url, name }]);
+                                            }}
+                                        >
+                                            <Upload /> Add attachment
+                                        </SabFilePickerButton>
+                                        {attachmentUrls.length > 0 && (
+                                            <ul className="flex flex-col gap-1.5">
+                                                {attachmentUrls.map((a, idx) => (
+                                                    <li key={`${a.url}-${idx}`} className="flex items-center justify-between gap-2 rounded-md border border-border px-2 py-1.5">
+                                                        <span className="text-[12.5px] text-foreground truncate">{a.name}</span>
+                                                        <ZoruButton
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            aria-label={`Remove ${a.name}`}
+                                                            onClick={() =>
+                                                                setAttachmentUrls((prev) => prev.filter((_, i) => i !== idx))
+                                                            }
+                                                        >
+                                                            <X className="h-4 w-4" />
+                                                        </ZoruButton>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        )}
+                                    </div>
+                                </div>
                             </ZoruAccordionContent>
                         </ZoruAccordionItem>
                         <ZoruAccordionItem value="bank">

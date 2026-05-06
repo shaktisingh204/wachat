@@ -5,20 +5,12 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Upload } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Image from 'next/image';
-
-const handleFileChange = (file: File | null, callback: (dataUri: string) => void) => {
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => {
-        callback(reader.result as string);
-    };
-    reader.readAsDataURL(file);
-};
+import { SabFilePickerButton } from '@/components/sabfiles';
 
 export function TestimonialsBlockEditor({ settings, onUpdate }: { settings: any, onUpdate: (newSettings: any) => void }) {
     const testimonials = settings.testimonials || [];
@@ -31,10 +23,6 @@ export function TestimonialsBlockEditor({ settings, onUpdate }: { settings: any,
         const newTestimonials = [...testimonials];
         newTestimonials[index] = { ...newTestimonials[index], [field]: value };
         handleUpdate('testimonials', newTestimonials);
-    };
-
-    const handleItemFileChange = (index: number, file: File | null) => {
-        handleFileChange(file, (dataUri) => handleItemChange(index, 'avatar', dataUri));
     };
 
     const addItem = () => {
@@ -79,7 +67,13 @@ export function TestimonialsBlockEditor({ settings, onUpdate }: { settings: any,
                                     <Input placeholder="Author Title" value={item.title || ''} onChange={(e) => handleItemChange(index, 'title', e.target.value)} />
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <Input type="file" accept="image/*" className="text-xs" onChange={(e) => handleItemFileChange(index, e.target.files?.[0] || null)} />
+                                    <SabFilePickerButton
+                                        accept="image"
+                                        className="flex-1"
+                                        onPick={({ url }) => handleItemChange(index, 'avatar', url)}
+                                    >
+                                        <Upload className="mr-2 h-4 w-4" /> {item.avatar ? 'Replace photo' : 'Pick photo'}
+                                    </SabFilePickerButton>
                                     {item.avatar && <Image src={item.avatar} alt="Avatar Preview" width={32} height={32} className="rounded-full object-cover" />}
                                 </div>
                             </div>

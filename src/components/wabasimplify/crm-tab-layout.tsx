@@ -61,19 +61,27 @@ const wachatMenuItems = [
 
 const crmMenuItems = [
     { href: "/dashboard/crm", label: "Dashboard", icon: BarChart, exact: true },
+    { href: "/dashboard/crm/dashboards", label: "Custom Dashboards", icon: LayoutGrid },
     {
         href: "/dashboard/crm/sales",
         label: "Sales",
         icon: Handshake,
         subItems: [
             { href: "/dashboard/crm/sales/clients", label: "Clients & Prospects" },
-            { href: "/dashboard/crm/sales/quotations", label: "Quotation & Estimates" },
+            { href: "/dashboard/crm/sales/quotations", label: "Quotations & Estimates" },
             { href: "/dashboard/crm/sales/proforma", label: "Proforma Invoices" },
-            { href: "/dashboard/crm/sales/invoices", label: "Invoices" },
-            { href: "/dashboard/crm/sales/receipts", label: "Payment Receipts" },
             { href: "/dashboard/crm/sales/orders", label: "Sales Orders" },
             { href: "/dashboard/crm/sales/delivery", label: "Delivery Challans" },
+            { href: "/dashboard/crm/sales/invoices", label: "Invoices" },
+            { href: "/dashboard/crm/sales/receipts", label: "Payment Receipts" },
             { href: "/dashboard/crm/sales/credit-notes", label: "Credit Notes" },
+            { href: "/dashboard/crm/sales/subscriptions", label: "Subscriptions & Recurring" },
+            { href: "/dashboard/crm/sales/contracts", label: "Contracts" },
+            { href: "/dashboard/crm/sales/pipelines", label: "Sales Pipelines" },
+            { href: "/dashboard/crm/sales/forms", label: "Sales Forms" },
+            { href: "/dashboard/crm/sales/coupons", label: "Coupons & Promotions" },
+            { href: "/dashboard/crm/sales/loyalty", label: "Loyalty Program" },
+            { href: "/dashboard/crm/sales/gift-cards", label: "Gift Cards" },
         ]
     },
     {
@@ -82,10 +90,13 @@ const crmMenuItems = [
         icon: ShoppingBag,
         subItems: [
             { href: "/dashboard/crm/purchases/vendors", label: "Vendors & Suppliers" },
+            { href: "/dashboard/crm/purchases/rfqs", label: "RFQs / Bids" },
             { href: "/dashboard/crm/purchases/expenses", label: "Purchases & Expenses" },
             { href: "/dashboard/crm/purchases/orders", label: "Purchase Orders" },
             { href: "/dashboard/crm/purchases/payouts", label: "Payout Receipts" },
             { href: "/dashboard/crm/purchases/debit-notes", label: "Debit Notes" },
+            { href: "/dashboard/crm/purchases/leads", label: "Purchase Leads" },
+            { href: "/dashboard/crm/purchases/hire", label: "Hire & Services" },
         ]
     },
     {
@@ -95,11 +106,20 @@ const crmMenuItems = [
         subItems: [
             { href: "/dashboard/crm/inventory/items", label: "All Items" },
             { href: "/dashboard/crm/inventory/warehouses", label: "Warehouses" },
-            { href: "/dashboard/crm/inventory/pnl", label: "Product-wise P&L" },
-            { href: "/dashboard/crm/inventory/stock-value", label: "Stock Value Report" },
-            { href: "/dashboard/crm/inventory/batch-expiry", label: "Batch Expiry Report" },
-            { href: "/dashboard/crm/inventory/party-transactions", label: "Party Transactions Report" },
-            { href: "/dashboard/crm/inventory/all-transactions", label: "All Transactions Report" },
+            { href: "/dashboard/crm/inventory/purchase-orders", label: "Purchase Orders" },
+            { href: "/dashboard/crm/inventory/grn", label: "Goods Receipt (GRN)" },
+            { href: "/dashboard/crm/inventory/bom", label: "Bill of Materials (BOM)" },
+            { href: "/dashboard/crm/inventory/adjustments", label: "Stock Adjustments" },
+            {
+                label: 'Reports',
+                subSubItems: [
+                    { href: "/dashboard/crm/inventory/pnl", label: "Product-wise P&L" },
+                    { href: "/dashboard/crm/inventory/stock-value", label: "Stock Value Report" },
+                    { href: "/dashboard/crm/inventory/batch-expiry", label: "Batch Expiry Report" },
+                    { href: "/dashboard/crm/inventory/party-transactions", label: "Party Transactions Report" },
+                    { href: "/dashboard/crm/inventory/all-transactions", label: "All Transactions Report" },
+                ],
+            },
         ]
     },
     {
@@ -110,12 +130,18 @@ const crmMenuItems = [
             { href: "/dashboard/crm/accounting/groups", label: "Account Groups" },
             { href: "/dashboard/crm/accounting/charts", label: "Chart of Accounts" },
             { href: "/dashboard/crm/accounting/vouchers", label: "Voucher Books" },
-            { href: "/dashboard/crm/accounting/balance-sheet", label: "Balance Sheet" },
-            { href: "/dashboard/crm/accounting/trial-balance", label: "Trial Balance" },
-            { href: "/dashboard/crm/accounting/pnl", label: "Profit and Loss" },
-            { href: "/dashboard/crm/accounting/income-statement", label: "Income Statement" },
-            { href: "/dashboard/crm/accounting/day-book", label: "Day Book" },
-            { href: "/dashboard/crm/accounting/cash-flow", label: "Cash Flow Statement" },
+            { href: "/dashboard/crm/budgets", label: "Budgets & Forecasting" },
+            {
+                label: 'Reports',
+                subSubItems: [
+                    { href: "/dashboard/crm/accounting/balance-sheet", label: "Balance Sheet" },
+                    { href: "/dashboard/crm/accounting/trial-balance", label: "Trial Balance" },
+                    { href: "/dashboard/crm/accounting/pnl", label: "Profit and Loss" },
+                    { href: "/dashboard/crm/accounting/income-statement", label: "Income Statement" },
+                    { href: "/dashboard/crm/accounting/day-book", label: "Day Book" },
+                    { href: "/dashboard/crm/accounting/cash-flow", label: "Cash Flow Statement" },
+                ],
+            },
         ]
     },
     {
@@ -123,18 +149,61 @@ const crmMenuItems = [
         label: "Sales CRM",
         icon: BarChart2,
         subItems: [
-            { href: "/dashboard/crm/contacts", label: "Leads & Contacts" },
-            { href: "/dashboard/crm/deals", label: "Deals Pipeline" },
-            { href: "/dashboard/crm/tasks", label: "Tasks" },
-            { href: "/dashboard/crm/automations", label: "Automations" },
-            { href: "/dashboard/crm/sales-crm/pipelines", label: "Manage Pipelines" },
+            {
+                label: 'Leads',
+                subSubItems: [
+                    { href: "/dashboard/crm/contacts", label: "Contacts" },
+                    { href: "/dashboard/crm/deals", label: "Deals Pipeline" },
+                    { href: "/dashboard/crm/tasks", label: "Tasks" },
+                    { href: "/dashboard/crm/automations", label: "Automations" },
+                    { href: "/dashboard/crm/sales-crm/all-leads", label: "All Leads" },
+                    { href: "/dashboard/crm/sales-crm/leads", label: "Leads" },
+                ],
+            },
+            { href: "/dashboard/crm/sales-crm/pipelines", label: "Pipelines" },
+            { href: "/dashboard/crm/sales-crm/all-pipelines", label: "All Pipelines" },
+            { href: "/dashboard/crm/sales-crm/pipeline-stages", label: "Pipeline Stages" },
+            { href: "/dashboard/crm/sales-crm/statuses", label: "Statuses" },
+            { href: "/dashboard/crm/sales-crm/sources", label: "Sources" },
+            { href: "/dashboard/crm/sales-crm/categories", label: "Categories" },
+            { href: "/dashboard/crm/sales-crm/products", label: "Products" },
+            { href: "/dashboard/crm/sales-crm/agents", label: "Agents" },
             { href: "/dashboard/crm/sales-crm/forms", label: "Forms" },
+            { href: "/dashboard/crm/sales-crm/custom-forms", label: "Custom Forms" },
+            { href: "/dashboard/crm/sales-crm/notes", label: "Notes" },
+            { href: "/dashboard/crm/sales-crm/consent", label: "Consent" },
+            { href: "/dashboard/crm/sales-crm/settings", label: "Settings" },
             { href: "/dashboard/crm/analytics", label: "Analytics" },
-            { href: "/dashboard/crm/sales-crm/leads-summary", label: "Leads Summary" },
-            { href: "/dashboard/crm/sales-crm/team-sales-report", label: "Team Sales Report" },
-            { href: "/dashboard/crm/sales-crm/client-performance-report", label: "Client Performance Report" },
-            { href: "/dashboard/crm/sales-crm/lead-source-report", label: "Lead Source Report" },
+            {
+                label: 'Reports',
+                subSubItems: [
+                    { href: "/dashboard/crm/sales-crm/leads-summary", label: "Leads Summary" },
+                    { href: "/dashboard/crm/sales-crm/team-sales-report", label: "Team Sales Report" },
+                    { href: "/dashboard/crm/sales-crm/client-performance-report", label: "Client Performance Report" },
+                    { href: "/dashboard/crm/sales-crm/lead-source-report", label: "Lead Source Report" },
+                ],
+            },
         ]
+    },
+    {
+        href: "/dashboard/crm/tickets",
+        label: "Support",
+        icon: LifeBuoy,
+        subItems: [
+            { href: "/dashboard/crm/tickets", label: "Tickets" },
+            { href: "/dashboard/crm/tickets/sla", label: "SLA Policies" },
+            { href: "/dashboard/crm/tickets/knowledge-base", label: "Knowledge Base" },
+            { href: "/dashboard/crm/service-contracts", label: "Service Contracts" },
+        ],
+    },
+    {
+        href: "/dashboard/crm/operations",
+        label: "Operations",
+        icon: Compass,
+        subItems: [
+            { href: "/dashboard/crm/bookings", label: "Bookings & Appointments" },
+            { href: "/dashboard/crm/fixed-assets", label: "Fixed Assets" },
+        ],
     },
     {
         href: "/dashboard/crm/banking",
@@ -144,18 +213,41 @@ const crmMenuItems = [
             { href: "/dashboard/crm/banking/all", label: "All Payment Accounts" },
             { href: "/dashboard/crm/banking/bank-accounts", label: "Bank Accounts" },
             { href: "/dashboard/crm/banking/employee-accounts", label: "Employee Accounts" },
+            { href: "/dashboard/crm/banking/bank-transactions", label: "Bank Transactions" },
             { href: "/dashboard/crm/banking/reconciliation", label: "Bank Reconciliation" },
+            { href: "/dashboard/crm/petty-cash", label: "Petty Cash" },
+            { href: "/dashboard/crm/loans", label: "Loans & Advances" },
         ]
     },
     {
-        href: "/dashboard/hrm/payroll/employees",
+        href: "/dashboard/hrm",
         label: "HR & Payroll",
         icon: UsersIcon,
         subItems: [
             {
+                label: 'Recruitment',
+                subSubItems: [
+                    { href: "/dashboard/hrm/hr/jobs", label: "Job Postings" },
+                    { href: "/dashboard/hrm/hr/candidates", label: "Candidates" },
+                    { href: "/dashboard/hrm/hr/interviews", label: "Interviews" },
+                    { href: "/dashboard/hrm/hr/offers", label: "Offers" },
+                    { href: "/dashboard/hrm/hr/careers-page", label: "Careers Page" },
+                ],
+            },
+            {
+                label: 'People',
+                subSubItems: [
+                    { href: "/dashboard/hrm/hr/directory", label: "Employee Directory" },
+                    { href: "/dashboard/hrm/hr/onboarding", label: "Onboarding" },
+                    { href: "/dashboard/hrm/hr/welcome-kit", label: "Welcome Kits" },
+                    { href: "/dashboard/hrm/hr/probation", label: "Probation Tracker" },
+                    { href: "/dashboard/hrm/hr/org-chart", label: "Org Chart" },
+                ],
+            },
+            {
                 label: 'Employee Management',
                 subSubItems: [
-                    { href: "/dashboard/hrm/payroll/employees", label: "Employee Directory" },
+                    { href: "/dashboard/hrm/payroll/employees", label: "Employees" },
                     { href: "/dashboard/hrm/payroll/employees/new", label: "Add Employee" },
                     { href: "/dashboard/hrm/payroll/departments", label: "Departments" },
                     { href: "/dashboard/hrm/payroll/designations", label: "Designations" },
@@ -167,6 +259,16 @@ const crmMenuItems = [
                     { href: "/dashboard/hrm/payroll/attendance", label: "Daily Attendance" },
                     { href: "/dashboard/hrm/payroll/leave", label: "Leave Management" },
                     { href: "/dashboard/hrm/payroll/holidays", label: "Holiday List" },
+                ],
+            },
+            {
+                label: 'Shifts & Time',
+                subSubItems: [
+                    { href: "/dashboard/hrm/payroll/shifts", label: "Shifts" },
+                    { href: "/dashboard/hrm/payroll/shift-rotations", label: "Shift Rotations" },
+                    { href: "/dashboard/hrm/payroll/shift-change-requests", label: "Shift Change Requests" },
+                    { href: "/dashboard/hrm/payroll/time-logs", label: "Time Logs" },
+                    { href: "/dashboard/hrm/payroll/weekly-timesheets", label: "Weekly Timesheets" },
                 ],
             },
             {
@@ -187,15 +289,57 @@ const crmMenuItems = [
                 ],
             },
             {
-                label: 'Performance & Appraisal',
+                label: 'Performance & Growth',
                 subSubItems: [
                     { href: "/dashboard/hrm/payroll/goal-setting", label: "Goal Setting" },
                     { href: "/dashboard/hrm/payroll/kpi-tracking", label: "KPI Tracking" },
                     { href: "/dashboard/hrm/payroll/appraisal-reviews", label: "Appraisal Reviews" },
+                    { href: "/dashboard/hrm/hr/okrs", label: "OKRs" },
+                    { href: "/dashboard/hrm/hr/feedback-360", label: "360 Feedback" },
+                    { href: "/dashboard/hrm/hr/one-on-ones", label: "One-on-Ones" },
+                    { href: "/dashboard/hrm/hr/recognition", label: "Recognition" },
+                    { href: "/dashboard/hrm/hr/awards", label: "Awards & Recognition" },
+                    { href: "/dashboard/hrm/hr/surveys", label: "Surveys" },
                 ],
             },
             {
-                label: 'Reports & Analytics',
+                label: 'Learning',
+                subSubItems: [
+                    { href: "/dashboard/hrm/hr/training", label: "Training" },
+                    { href: "/dashboard/hrm/hr/certifications", label: "Certifications" },
+                    { href: "/dashboard/hrm/hr/learning-paths", label: "Learning Paths" },
+                ],
+            },
+            {
+                label: 'Docs & Assets',
+                subSubItems: [
+                    { href: "/dashboard/hrm/hr/documents", label: "Documents" },
+                    { href: "/dashboard/hrm/hr/document-templates", label: "Document Templates" },
+                    { href: "/dashboard/hrm/hr/assets", label: "Assets" },
+                    { href: "/dashboard/hrm/hr/asset-assignments", label: "Asset Assignments" },
+                ],
+            },
+            {
+                label: 'Travel & Expenses',
+                subSubItems: [
+                    { href: "/dashboard/hrm/hr/timesheets", label: "Timesheets" },
+                    { href: "/dashboard/hrm/hr/travel", label: "Travel" },
+                    { href: "/dashboard/hrm/hr/expense-claims", label: "Expense Claims" },
+                ],
+            },
+            {
+                label: 'Exit & Comp',
+                subSubItems: [
+                    { href: "/dashboard/hrm/hr/exits", label: "Exits" },
+                    { href: "/dashboard/hrm/hr/disciplinary", label: "Disciplinary Cases" },
+                    { href: "/dashboard/hrm/hr/succession", label: "Succession" },
+                    { href: "/dashboard/hrm/hr/compensation-bands", label: "Compensation Bands" },
+                    { href: "/dashboard/hrm/hr/announcements", label: "Announcements" },
+                    { href: "/dashboard/hrm/hr/policies", label: "Policies" },
+                ],
+            },
+            {
+                label: 'Reports',
                 subSubItems: [
                     { href: "/dashboard/hrm/payroll/reports/attendance", label: "Attendance Report" },
                     { href: "/dashboard/hrm/payroll/reports/leave", label: "Leave Report" },
@@ -204,24 +348,78 @@ const crmMenuItems = [
                 ],
             },
             {
-                label: 'HRM Settings',
+                label: 'Settings',
                 subSubItems: [
                     { href: "/dashboard/hrm/payroll/settings", label: "All Settings" },
                 ],
-            }
+            },
         ],
     },
     {
         href: "/dashboard/crm/reports",
-        label: "GST Reports",
+        label: "Reports",
         icon: FileText,
         subItems: [
-            { href: "/dashboard/crm/reports/gstr-1", label: "GSTR-1 Sales Report" },
-            { href: "/dashboard/crm/reports/gstr-2b", label: "GSTR-2B Purchase Report" },
+            {
+                label: 'GST',
+                subSubItems: [
+                    { href: "/dashboard/crm/reports/gstr-1", label: "GSTR-1 Sales Report" },
+                    { href: "/dashboard/crm/reports/gstr-2b", label: "GSTR-2B Purchase Report" },
+                ],
+            },
+            {
+                label: 'Sales',
+                subSubItems: [
+                    { href: "/dashboard/crm/reports/top-clients", label: "Top Clients" },
+                    { href: "/dashboard/crm/reports/top-products", label: "Top Products" },
+                    { href: "/dashboard/crm/reports/sales-deals", label: "Sales Deals" },
+                    { href: "/dashboard/crm/reports/invoice-aging", label: "Invoice Aging" },
+                    { href: "/dashboard/crm/reports/payment-report", label: "Payment Report" },
+                ],
+            },
+            {
+                label: 'Operations',
+                subSubItems: [
+                    { href: "/dashboard/crm/reports/late-report", label: "Late Report" },
+                    { href: "/dashboard/crm/reports/overdue-tasks", label: "Overdue Tasks" },
+                    { href: "/dashboard/crm/reports/task-report", label: "Task Report" },
+                    { href: "/dashboard/crm/reports/ticket-report", label: "Ticket Report" },
+                    { href: "/dashboard/crm/reports/project-status-report", label: "Project Status" },
+                    { href: "/dashboard/crm/reports/agent-performance", label: "Agent Performance" },
+                ],
+            },
+            {
+                label: 'HR',
+                subSubItems: [
+                    { href: "/dashboard/crm/reports/attendance-report", label: "Attendance" },
+                    { href: "/dashboard/crm/reports/leave-report", label: "Leave" },
+                    { href: "/dashboard/crm/reports/leave-balance-report", label: "Leave Balance" },
+                    { href: "/dashboard/crm/reports/birthday-anniversary", label: "Birthday & Anniversary" },
+                ],
+            },
+            {
+                label: 'Finance',
+                subSubItems: [
+                    { href: "/dashboard/crm/reports/income", label: "Income" },
+                    { href: "/dashboard/crm/reports/expense", label: "Expense" },
+                    { href: "/dashboard/crm/reports/profit-loss", label: "Profit & Loss" },
+                    { href: "/dashboard/crm/reports/tax", label: "Tax" },
+                    { href: "/dashboard/crm/reports/leads-conversion", label: "Leads Conversion" },
+                ],
+            },
         ]
     },
     { href: "/dashboard/crm/integrations", label: "Integrations", icon: Zap },
-    { href: "/dashboard/crm/settings", label: "CRM Settings", icon: Settings },
+    {
+        href: "/dashboard/crm/settings",
+        label: "CRM Settings",
+        icon: Settings,
+        subItems: [
+            { href: "/dashboard/crm/settings", label: "All Settings" },
+            { href: "/dashboard/crm/audit-log", label: "Audit Log" },
+            { href: "/dashboard/crm/portal", label: "Customer Portal" },
+        ],
+    },
 ];
 
 const teamMenuItems = [

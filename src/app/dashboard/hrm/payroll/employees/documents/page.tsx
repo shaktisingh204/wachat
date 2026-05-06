@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useMemo, useState, useTransition } from 'react';
-import { ExternalLink, FileText, LoaderCircle, Pencil, Plus, Trash2 } from 'lucide-react';
+import { ExternalLink, FileText, LoaderCircle, Pencil, Plus, Trash2, Upload } from 'lucide-react';
+import { SabFilePickerButton } from '@/components/sabfiles';
 import {
   ZoruDialog,
   ZoruDialogContent,
@@ -311,13 +312,21 @@ export default function EmployeeDocumentsPage() {
 
             <div>
               <ZoruLabel className="text-[12px] text-zoru-ink-muted">File URL</ZoruLabel>
-              <ZoruInput
-                type="url"
-                value={form.file}
-                onChange={(e) => set('file', e.target.value)}
-                placeholder="https://…"
-                className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
-              />
+              <div className="mt-1.5 flex items-center gap-2">
+                <ZoruInput
+                  type="url"
+                  value={form.file}
+                  onChange={(e) => set('file', e.target.value)}
+                  placeholder="https://…"
+                  className="h-10 flex-1 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                />
+                <SabFilePickerButton
+                  accept="all"
+                  onPick={({ url }) => set('file', url)}
+                >
+                  <Upload className="h-4 w-4" /> Choose file
+                </SabFilePickerButton>
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">

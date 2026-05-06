@@ -9,20 +9,12 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Upload } from 'lucide-react';
 import Image from 'next/image';
 import { v4 as uuidv4 } from 'uuid';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Lightbulb } from 'lucide-react';
-
-const handleFileChange = (file: File | null, callback: (dataUri: string) => void) => {
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => {
-        callback(reader.result as string);
-    };
-    reader.readAsDataURL(file);
-};
+import { SabFilePickerButton, SabFileUrlInput } from '@/components/sabfiles';
 
 const shapeDividerOptions = [
     { value: 'none', label: 'None' },
@@ -103,24 +95,49 @@ export function HeroBlockEditor({ settings, onUpdate }: { settings: any, onUpdat
                         {settings.backgroundType === 'classic' && (
                             <div className="p-3 border rounded-md space-y-4">
                                 <div className="space-y-2"><Label>Background Color</Label><Input type="color" value={settings.backgroundColor || '#111827'} onChange={(e) => handleUpdate('backgroundColor', e.target.value)} /></div>
-                                <div className="space-y-2"><Label>Background Image</Label><Input type="file" accept="image/*" onChange={(e) => handleFileChange(e.target.files?.[0] || null, (dataUri) => handleUpdate('backgroundImageUrl', dataUri))} /></div>
+                                <div className="space-y-2">
+                                    <Label>Background Image</Label>
+                                    <SabFilePickerButton
+                                        accept="image"
+                                        onPick={({ url }) => handleUpdate('backgroundImageUrl', url)}
+                                    >
+                                        <Upload className="mr-2 h-4 w-4" /> Pick image
+                                    </SabFilePickerButton>
+                                </div>
                             </div>
                         )}
                         {settings.backgroundType === 'video' && (
                             <div className="p-3 border rounded-md space-y-4">
-                                <div className="space-y-2"><Label>Background Video URL</Label><Input placeholder="https://example.com/video.mp4" value={settings.backgroundVideoUrl || ''} onChange={(e) => handleUpdate('backgroundVideoUrl', e.target.value)} /></div>
+                                <div className="space-y-2"><Label>Background Video URL</Label><SabFileUrlInput accept="video" placeholder="https://example.com/video.mp4" value={settings.backgroundVideoUrl || ''} onChange={(v) => handleUpdate('backgroundVideoUrl', v)} /></div>
                             </div>
                         )}
                         {settings.backgroundType === 'slideshow' && (
                             <div className="p-3 border rounded-md space-y-4">
                                 {(settings.slideshowImages || []).map((img: any, index: number) => (
                                     <div key={img.id} className="flex items-center gap-2">
-                                        <Input type="file" accept="image/*" className="flex-1" onChange={(e) => handleFileChange(e.target.files?.[0] || null, (dataUri) => handleSlideshowImageChange(index, dataUri))} />
+                                        <SabFilePickerButton
+                                            accept="image"
+                                            className="flex-1"
+                                            onPick={({ url }) => handleSlideshowImageChange(index, url)}
+                                        >
+                                            <Upload className="mr-2 h-4 w-4" /> {img.src ? 'Replace image' : 'Pick image'}
+                                        </SabFilePickerButton>
                                         {img.src && <Image src={img.src} alt="preview" width={32} height={32} className="rounded-sm object-cover" />}
                                         <Button type="button" variant="ghost" size="icon" onClick={() => removeSlideshowImage(index)}><Trash2 className="h-4 w-4"/></Button>
                                     </div>
                                 ))}
-                                <Button type="button" variant="outline" size="sm" onClick={addSlideshowImage}><Plus className="h-4 w-4 mr-2" />Add Image</Button>
+                                <SabFilePickerButton
+                                    accept="image"
+                                    onPick={({ url }) => {
+                                        const newImages = [
+                                            ...(settings.slideshowImages || []),
+                                            { id: uuidv4(), src: url },
+                                        ];
+                                        handleUpdate('slideshowImages', newImages);
+                                    }}
+                                >
+                                    <Plus className="h-4 w-4 mr-2" />Add Image
+                                </SabFilePickerButton>
                             </div>
                         )}
 

@@ -24,6 +24,8 @@ import type {
 } from '@/lib/definitions';
 import { TelegramBotApi, TelegramApiError } from '@/lib/telegram/bot-api';
 import { invalidateTelegramBotCache } from '@/lib/telegram/bot-cache';
+import { rustClient, RustApiError } from '@/lib/rust-client';
+import type { BotRow as TelegramBotRow } from '@/lib/rust-client/telegram-bots';
 
 type ActionResult<T = {}> = {
     success: boolean;
@@ -71,28 +73,35 @@ async function requireBot(botId: string): Promise<
 }
 
 /* ── bots ──────────────────────────────────────────────────────── */
+//
+// Bot lifecycle (list / get / connect / disconnect / refresh-webhook /
+// rotate-secret) is served by the `telegram-bots` Rust crate. The TS
+// actions below are thin pass-throughs that translate the Rust envelope
+// into the `ActionResult` / row shape callers already expect.
 
-export async function listTelegramBots(projectId: string): Promise<WithId<TelegramBot>[]> {
+export type TelegramBotListRow = TelegramBotRow;
+
+export async function listTelegramBots(projectId: string): Promise<TelegramBotRow[]> {
     try {
-        const project = await getProjectById(projectId);
-        if (!project) return [];
-        const { db } = await connectToDatabase();
-        const bots = await db
-            .collection<TelegramBot>('telegram_bots')
-            .find({ projectId: project._id })
-            .sort({ createdAt: -1 })
-            .toArray();
-        return normalize(bots);
+        const res = await rustClient.telegramBots.list(projectId);
+        if (res.error) return [];
+        return res.bots ?? [];
     } catch (err) {
+        if (err instanceof RustApiError) return [];
         console.error('[telegram.listBots]', err);
         return [];
     }
 }
 
-export async function getTelegramBot(botId: string): Promise<WithId<TelegramBot> | null> {
-    const r = await requireBot(botId);
-    if (!r.ok) return null;
-    return normalize(r.bot);
+export async function getTelegramBot(botId: string): Promise<TelegramBotRow | null> {
+    try {
+        const res = await rustClient.telegramBots.get(botId);
+        if (res.error || !res.bot) return null;
+        return res.bot;
+    } catch (err) {
+        if (err instanceof RustApiError) return null;
+        return null;
+    }
 }
 
 export async function connectTelegramBot(input: {
@@ -100,200 +109,53 @@ export async function connectTelegramBot(input: {
     token: string;
 }): Promise<ActionResult<{ botId: string }>> {
     try {
-        const token = input.token.trim();
-        if (!/^\d+:[A-Za-z0-9_-]{20,}$/.test(token)) {
-            return { success: false, error: 'Token format looks wrong. Expected 123456:AAA-token.' };
-        }
-        const project = await getProjectById(input.projectId);
-        if (!project) return { success: false, error: 'Project not found.' };
-        const session = await getSession();
-        if (!session?.user) return { success: false, error: 'Not authenticated.' };
-
-        // Validate against Telegram
-        const me = await TelegramBotApi.getMe(token);
-        if (!me.is_bot || !me.username) {
-            return { success: false, error: 'Token does not belong to a bot.' };
-        }
-
-        const { db } = await connectToDatabase();
-
-        // Prevent duplicate registrations across projects.
-        const existing = await db
-            .collection<TelegramBot>('telegram_bots')
-            .findOne({ botId: me.id });
-        if (existing && !existing.projectId.equals(project._id)) {
-            return {
-                success: false,
-                error: 'This bot is already linked to another workspace.',
-            };
-        }
-
-        const now = new Date();
-        const webhookSecret = newWebhookSecret();
-
-        const res = await db.collection<TelegramBot>('telegram_bots').findOneAndUpdate(
-            { botId: me.id },
-            {
-                $setOnInsert: {
-                    projectId: project._id,
-                    userId: new ObjectId(session.user._id),
-                    botId: me.id,
-                    createdAt: now,
-                },
-                $set: {
-                    username: me.username,
-                    name: [me.first_name, me.last_name].filter(Boolean).join(' ').trim() || me.username,
-                    token,
-                    webhookSecret,
-                    canJoinGroups: me.can_join_groups ?? false,
-                    canReadAllGroupMessages: me.can_read_all_group_messages ?? false,
-                    supportsInlineQueries: me.supports_inline_queries ?? false,
-                    isActive: true,
-                    updatedAt: now,
-                },
-            },
-            { upsert: true, returnDocument: 'after' },
-        );
-
-        const botDoc = res;
-        if (!botDoc) return { success: false, error: 'Failed to persist bot.' };
-
-        const botIdHex = botDoc._id.toString();
-        const webhookUrl = buildWebhookUrl(botIdHex);
-
-        if (!webhookUrl.startsWith('https://')) {
-            // Save the bot anyway — user can register the webhook later.
-            return {
-                success: true,
-                botId: botIdHex,
-                message:
-                    'Bot saved, but NEXT_PUBLIC_APP_URL must be an https URL before the webhook can be registered.',
-            };
-        }
-
-        await TelegramBotApi.setWebhook(token, {
-            url: webhookUrl,
-            secret_token: webhookSecret,
-            allowed_updates: [
-                'message',
-                'edited_message',
-                'channel_post',
-                'callback_query',
-                'inline_query',
-                'my_chat_member',
-                'business_connection',
-                'business_message',
-                'edited_business_message',
-            ],
+        const res = await rustClient.telegramBots.connect({
+            projectId: input.projectId,
+            token: input.token,
         });
-
-        await db.collection<TelegramBot>('telegram_bots').updateOne(
-            { _id: botDoc._id },
-            {
-                $set: {
-                    webhookUrl,
-                    webhookRegisteredAt: new Date(),
-                    updatedAt: new Date(),
-                },
-            },
-        );
-
-        invalidateTelegramBotCache(botIdHex);
+        if (!res.success) return { success: false, error: res.error };
+        if (res.botId) invalidateTelegramBotCache(res.botId);
         revalidatePath('/dashboard/telegram', 'layout');
-        return { success: true, botId: botIdHex, message: `Connected @${me.username}.` };
+        return { success: true, botId: res.botId, message: res.message };
     } catch (err) {
-        if (err instanceof TelegramApiError) {
-            return { success: false, error: err.description };
-        }
+        if (err instanceof RustApiError) return { success: false, error: err.message };
         return { success: false, error: getErrorMessage(err) };
     }
 }
 
 export async function disconnectTelegramBot(botId: string): Promise<ActionResult> {
     try {
-        const r = await requireBot(botId);
-        if (!r.ok) return { success: false, error: r.error };
-
-        try {
-            await TelegramBotApi.deleteWebhook(r.bot.token, true);
-        } catch {
-            /* best effort — if Telegram says the token is invalid we still remove locally */
-        }
-
-        const { db } = await connectToDatabase();
-        await db.collection<TelegramBot>('telegram_bots').updateOne(
-            { _id: r.bot._id },
-            { $set: { isActive: false, updatedAt: new Date() } },
-        );
-
+        const res = await rustClient.telegramBots.disconnect(botId);
+        if (!res.success) return { success: false, error: res.error };
         invalidateTelegramBotCache(botId);
         revalidatePath('/dashboard/telegram', 'layout');
-        return { success: true, message: 'Bot disconnected.' };
+        return { success: true, message: res.message ?? 'Bot disconnected.' };
     } catch (err) {
+        if (err instanceof RustApiError) return { success: false, error: err.message };
         return { success: false, error: getErrorMessage(err) };
     }
 }
 
 export async function refreshTelegramWebhookInfo(botId: string): Promise<ActionResult> {
     try {
-        const r = await requireBot(botId);
-        if (!r.ok) return { success: false, error: r.error };
-
-        const info = await TelegramBotApi.getWebhookInfo(r.bot.token);
-        const { db } = await connectToDatabase();
-        await db.collection<TelegramBot>('telegram_bots').updateOne(
-            { _id: r.bot._id },
-            {
-                $set: {
-                    webhookInfo: {
-                        url: info.url,
-                        pendingUpdateCount: info.pending_update_count,
-                        lastErrorMessage: info.last_error_message,
-                        lastErrorDate: info.last_error_date
-                            ? new Date(info.last_error_date * 1000)
-                            : undefined,
-                    },
-                    updatedAt: new Date(),
-                },
-            },
-        );
+        const res = await rustClient.telegramBots.refreshWebhookInfo(botId);
+        if (!res.success) return { success: false, error: res.error };
         invalidateTelegramBotCache(botId);
-        return { success: true };
+        return { success: true, message: res.message };
     } catch (err) {
+        if (err instanceof RustApiError) return { success: false, error: err.message };
         return { success: false, error: getErrorMessage(err) };
     }
 }
 
 export async function rotateTelegramWebhookSecret(botId: string): Promise<ActionResult> {
     try {
-        const r = await requireBot(botId);
-        if (!r.ok) return { success: false, error: r.error };
-        const secret = newWebhookSecret();
-        const url = r.bot.webhookUrl ?? buildWebhookUrl(botId);
-        await TelegramBotApi.setWebhook(r.bot.token, {
-            url,
-            secret_token: secret,
-            allowed_updates: [
-                'message',
-                'edited_message',
-                'channel_post',
-                'callback_query',
-                'inline_query',
-                'my_chat_member',
-                'business_connection',
-                'business_message',
-                'edited_business_message',
-            ],
-        });
-        const { db } = await connectToDatabase();
-        await db.collection<TelegramBot>('telegram_bots').updateOne(
-            { _id: r.bot._id },
-            { $set: { webhookSecret: secret, webhookUrl: url, updatedAt: new Date() } },
-        );
+        const res = await rustClient.telegramBots.rotateWebhookSecret(botId);
+        if (!res.success) return { success: false, error: res.error };
         invalidateTelegramBotCache(botId);
-        return { success: true, message: 'Webhook secret rotated.' };
+        return { success: true, message: res.message ?? 'Webhook secret rotated.' };
     } catch (err) {
-        if (err instanceof TelegramApiError) return { success: false, error: err.description };
+        if (err instanceof RustApiError) return { success: false, error: err.message };
         return { success: false, error: getErrorMessage(err) };
     }
 }

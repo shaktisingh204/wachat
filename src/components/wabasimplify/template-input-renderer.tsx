@@ -6,7 +6,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { UploadCloud, Link as LinkIcon, MapPin, ChevronsUpDown, Check } from 'lucide-react';
 import type { WithId } from 'mongodb';
 import type { Template } from '@/lib/definitions';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -22,6 +22,7 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from '@/components/ui/popover';
+import { SabFileToFileButton } from '@/components/sabfiles';
 
 interface SmartVariableInputProps {
     id: string;
@@ -117,6 +118,17 @@ interface TemplateInputRendererProps {
 
 export function TemplateInputRenderer({ template, variableOptions = [] }: TemplateInputRendererProps) {
     const [headerMediaSource, setHeaderMediaSource] = useState<'url' | 'file'>('file');
+    const headerMediaFileRef = useRef<HTMLInputElement>(null);
+    const cardMediaRefs = useRef<Record<number, HTMLInputElement | null>>({});
+    const [pickedHeaderMediaName, setPickedHeaderMediaName] = useState<string | null>(null);
+    const [pickedCardMediaNames, setPickedCardMediaNames] = useState<Record<number, string>>({});
+
+    const setFileOnInput = (input: HTMLInputElement | null, file: File) => {
+        if (!input) return;
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        input.files = dt.files;
+    };
 
     const components = template.components || [];
 
@@ -167,13 +179,28 @@ export function TemplateInputRenderer({ template, variableOptions = [] }: Templa
                                     <div className="space-y-1">
                                         <input type="hidden" name="mediaSource" value="file" />
                                         <Input
+                                            ref={headerMediaFileRef}
                                             name="headerMediaFile"
                                             type="file"
                                             accept={component.format === 'IMAGE' ? "image/*" : component.format === 'VIDEO' ? "video/*" : "application/pdf"}
                                             required
                                             className="file:text-primary file:font-medium"
                                         />
-                                        <p className="text-[10px] text-muted-foreground">Supports {component.format === 'IMAGE' ? 'JPG, PNG' : component.format === 'VIDEO' ? 'MP4' : 'PDF'}</p>
+                                        <div className="flex items-center justify-between gap-2 pt-1">
+                                            <p className="text-[10px] text-muted-foreground">
+                                                Supports {component.format === 'IMAGE' ? 'JPG, PNG' : component.format === 'VIDEO' ? 'MP4' : 'PDF'}
+                                                {pickedHeaderMediaName ? ` · Picked: ${pickedHeaderMediaName}` : ''}
+                                            </p>
+                                            <SabFileToFileButton
+                                                accept={component.format === 'IMAGE' ? 'image' : component.format === 'VIDEO' ? 'video' : 'document'}
+                                                onPickFile={(file) => {
+                                                    setFileOnInput(headerMediaFileRef.current, file);
+                                                    setPickedHeaderMediaName(file.name);
+                                                }}
+                                            >
+                                                Pick from SabFiles
+                                            </SabFileToFileButton>
+                                        </div>
                                     </div>
                                 ) : (
                                     <div className="space-y-1">
@@ -294,12 +321,29 @@ export function TemplateInputRenderer({ template, variableOptions = [] }: Templa
                                         <Label className="font-medium">Card {index + 1} ({header.format})</Label>
                                     </div>
                                     <Input
+                                        ref={(el) => {
+                                            cardMediaRefs.current[index] = el;
+                                        }}
                                         name={`card_${index}_media_file`}
                                         type="file"
                                         accept={header.format === 'IMAGE' ? "image/*" : "video/*"}
                                         required
                                         className="file:text-primary file:font-medium"
                                     />
+                                    <div className="flex items-center justify-between gap-2">
+                                        <p className="text-[10px] text-muted-foreground">
+                                            {pickedCardMediaNames[index] ? `Picked: ${pickedCardMediaNames[index]}` : 'Or pick from SabFiles'}
+                                        </p>
+                                        <SabFileToFileButton
+                                            accept={header.format === 'IMAGE' ? 'image' : 'video'}
+                                            onPickFile={(file) => {
+                                                setFileOnInput(cardMediaRefs.current[index] ?? null, file);
+                                                setPickedCardMediaNames((prev) => ({ ...prev, [index]: file.name }));
+                                            }}
+                                        >
+                                            Pick from SabFiles
+                                        </SabFileToFileButton>
+                                    </div>
                                 </div>
                             );
                         })}

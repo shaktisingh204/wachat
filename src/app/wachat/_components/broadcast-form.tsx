@@ -63,6 +63,8 @@ import {
   useZoruToast,
 } from '@/components/zoruui';
 
+import { SabFileToFileButton } from '@/components/sabfiles';
+
 import { TemplateInputRenderer } from './template-input-renderer';
 
 /* ══════════════════════════════════════════════════════════════════
@@ -294,14 +296,20 @@ export function BroadcastForm({
     validateAndExtract();
   }, [selectedFile, selectedTemplate, broadcastType, audienceType]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setSelectedFile(e.target.files[0]);
+  const acceptFile = (file: File | null) => {
+    if (file) {
+      setSelectedFile(file);
     } else {
       setSelectedFile(null);
       setValidationErrors([]);
       setVariableOptions([]);
     }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file =
+      e.target.files && e.target.files.length > 0 ? e.target.files[0] : null;
+    acceptFile(file);
   };
 
   const handleDownloadSample = () => {
@@ -591,6 +599,23 @@ export function BroadcastForm({
                 className="sr-only"
               />
             </label>
+            <div className="mt-1 flex justify-end">
+              <SabFileToFileButton
+                accept="document"
+                onPickFile={(file) => {
+                  acceptFile(file);
+                }}
+                onError={(err) =>
+                  toast({
+                    title: 'Pick failed',
+                    description: err.message,
+                    variant: 'destructive',
+                  })
+                }
+              >
+                Pick from SabFiles
+              </SabFileToFileButton>
+            </div>
             <div className="mt-0.5 text-[11px] text-zoru-ink-muted">
               For variables, use column names that match your template (e.g.{' '}
               <code className="rounded-[3px] bg-zoru-surface-2 px-1 font-mono text-[10px] text-zoru-ink">

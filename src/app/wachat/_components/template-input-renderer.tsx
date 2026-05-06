@@ -39,7 +39,7 @@ import {
   ZoruRadioGroupItem,
   cn,
 } from '@/components/zoruui';
-import { SabFileUrlInput } from '@/components/sabfiles';
+import { SabFileToFileButton, SabFileUrlInput } from '@/components/sabfiles';
 
 interface SmartVariableInputProps {
   id: string;
@@ -154,6 +154,23 @@ export function TemplateInputRenderer({
     'file',
   );
   const [headerMediaUrl, setHeaderMediaUrl] = useState('');
+  const headerMediaFileRef = React.useRef<HTMLInputElement>(null);
+  const cardMediaRefs = React.useRef<Record<number, HTMLInputElement | null>>(
+    {},
+  );
+  const [pickedHeaderMediaName, setPickedHeaderMediaName] = useState<
+    string | null
+  >(null);
+  const [pickedCardMediaNames, setPickedCardMediaNames] = useState<
+    Record<number, string>
+  >({});
+
+  const setFileOnInput = (input: HTMLInputElement | null, file: File) => {
+    if (!input) return;
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    input.files = dt.files;
+  };
 
   const components = template.components || [];
 
@@ -251,6 +268,7 @@ export function TemplateInputRenderer({
                   <div className="space-y-1">
                     <input type="hidden" name="mediaSource" value="file" />
                     <ZoruInput
+                      ref={headerMediaFileRef}
                       name="headerMediaFile"
                       type="file"
                       accept={
@@ -262,14 +280,34 @@ export function TemplateInputRenderer({
                       }
                       required
                     />
-                    <p className="text-[10px] text-zoru-ink-muted">
-                      Supports{' '}
-                      {component.format === 'IMAGE'
-                        ? 'JPG, PNG'
-                        : component.format === 'VIDEO'
-                          ? 'MP4'
-                          : 'PDF'}
-                    </p>
+                    <div className="flex items-center justify-between gap-2 pt-1">
+                      <p className="text-[10px] text-zoru-ink-muted">
+                        Supports{' '}
+                        {component.format === 'IMAGE'
+                          ? 'JPG, PNG'
+                          : component.format === 'VIDEO'
+                            ? 'MP4'
+                            : 'PDF'}
+                        {pickedHeaderMediaName
+                          ? ` · Picked: ${pickedHeaderMediaName}`
+                          : ''}
+                      </p>
+                      <SabFileToFileButton
+                        accept={
+                          component.format === 'IMAGE'
+                            ? 'image'
+                            : component.format === 'VIDEO'
+                              ? 'video'
+                              : 'document'
+                        }
+                        onPickFile={(file) => {
+                          setFileOnInput(headerMediaFileRef.current, file);
+                          setPickedHeaderMediaName(file.name);
+                        }}
+                      >
+                        Pick from SabFiles
+                      </SabFileToFileButton>
+                    </div>
                   </div>
                 ) : (
                   <div className="space-y-1">
@@ -474,6 +512,9 @@ export function TemplateInputRenderer({
                       </ZoruLabel>
                     </div>
                     <ZoruInput
+                      ref={(el) => {
+                        cardMediaRefs.current[index] = el;
+                      }}
                       name={`card_${index}_media_file`}
                       type="file"
                       accept={
@@ -481,6 +522,28 @@ export function TemplateInputRenderer({
                       }
                       required
                     />
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-[10px] text-zoru-ink-muted">
+                        {pickedCardMediaNames[index]
+                          ? `Picked: ${pickedCardMediaNames[index]}`
+                          : 'Or pick from SabFiles'}
+                      </p>
+                      <SabFileToFileButton
+                        accept={header.format === 'IMAGE' ? 'image' : 'video'}
+                        onPickFile={(file) => {
+                          setFileOnInput(
+                            cardMediaRefs.current[index] ?? null,
+                            file,
+                          );
+                          setPickedCardMediaNames((prev) => ({
+                            ...prev,
+                            [index]: file.name,
+                          }));
+                        }}
+                      >
+                        Pick from SabFiles
+                      </SabFileToFileButton>
+                    </div>
                   </div>
                 );
               })}

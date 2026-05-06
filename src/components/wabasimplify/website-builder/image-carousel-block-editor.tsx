@@ -4,7 +4,7 @@
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2, TrendingUp } from 'lucide-react';
+import { Plus, Trash2, TrendingUp, Upload } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -14,21 +14,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from 'next/image';
 import { Slider } from '@/components/ui/slider';
 import { Textarea } from '@/components/ui/textarea';
+import { SabFilePickerButton } from '@/components/sabfiles';
 
 type CarouselImage = {
     id: string;
     src: string;
     link?: string;
     caption?: string;
-};
-
-const handleFileChange = (file: File | null, callback: (dataUri: string) => void) => {
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => {
-        callback(reader.result as string);
-    };
-    reader.readAsDataURL(file);
 };
 
 
@@ -47,11 +39,6 @@ export function ImageCarouselBlockEditor({ settings, onUpdate }: { settings: any
     const handleImageChange = (index: number, field: keyof CarouselImage, value: string) => {
         const newImages = [...images];
         newImages[index] = { ...newImages[index], [field]: value };
-        handleUpdate('images', newImages);
-    };
-
-    const addImage = () => {
-        const newImages = [...images, { id: uuidv4(), src: '', link: '', caption: '' }];
         handleUpdate('images', newImages);
     };
 
@@ -108,14 +95,31 @@ export function ImageCarouselBlockEditor({ settings, onUpdate }: { settings: any
                                     </Button>
                                     <Label>Slide {index + 1}</Label>
                                     <div className="flex items-center gap-2">
-                                        <Input type="file" accept="image/*" className="flex-1" onChange={(e) => handleFileChange(e.target.files?.[0] || null, (dataUri) => handleImageChange(index, 'src', dataUri))} />
+                                        <SabFilePickerButton
+                                            accept="image"
+                                            className="flex-1"
+                                            onPick={({ url }) => handleImageChange(index, 'src', url)}
+                                        >
+                                            <Upload className="mr-2 h-4 w-4" /> {item.src ? 'Replace image' : 'Pick image'}
+                                        </SabFilePickerButton>
                                         {item.src && <Image src={item.src} alt="preview" width={40} height={40} className="rounded-sm object-cover" />}
                                     </div>
                                     <Input placeholder="Link URL (Optional)" value={item.link || ''} onChange={(e) => handleImageChange(index, 'link', e.target.value)} />
                                     <Input placeholder="Caption (Optional)" value={item.caption || ''} onChange={(e) => handleImageChange(index, 'caption', e.target.value)} />
                                 </div>
                             ))}
-                            <Button type="button" variant="outline" onClick={addImage}><Plus className="mr-2 h-4 w-4" /> Add Image</Button>
+                            <SabFilePickerButton
+                                accept="image"
+                                onPick={({ url }) => {
+                                    const newImages = [
+                                        ...images,
+                                        { id: uuidv4(), src: url, link: '', caption: '' },
+                                    ];
+                                    handleUpdate('images', newImages);
+                                }}
+                            >
+                                <Plus className="mr-2 h-4 w-4" /> Add Image
+                            </SabFilePickerButton>
                         </AccordionContent>
                     </AccordionItem>
                     <AccordionItem value="carousel_settings">

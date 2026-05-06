@@ -14,7 +14,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { LoaderCircle, Plus, Building } from 'lucide-react';
+import { LoaderCircle, Plus, Building, Upload, X } from 'lucide-react';
+import { SabFilePickerButton } from '@/components/sabfiles';
 import { useToast } from '@/hooks/use-toast';
 import { addCrmClient } from '@/app/actions/crm.actions';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -72,6 +73,11 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
   const [addressStateName, setAddressStateName] = useState<string>('');
   const [addressCityName, setAddressCityName] = useState<string>('');
 
+  // SabFiles-backed uploads
+  const [logoUrl, setLogoUrl] = useState<string>('');
+  const [logoFileName, setLogoFileName] = useState<string>('');
+  const [attachmentUrls, setAttachmentUrls] = useState<{ url: string; name: string }[]>([]);
+
   // Sync internal open state if defaultOpen changes (though usually managed internally)
   useEffect(() => {
     if (defaultOpen) setOpen(true);
@@ -81,6 +87,9 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
     if (formState.message) {
       toast({ title: 'Success!', description: formState.message });
       formRef.current?.reset();
+      setLogoUrl('');
+      setLogoFileName('');
+      setAttachmentUrls([]);
       setOpen(false);
       // Pass the new client back
       onClientAdded(formState.newClient);
@@ -117,8 +126,37 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
                 <AccordionTrigger>Basic Information</AccordionTrigger>
                 <AccordionContent className="space-y-4 pt-2">
                   <div className="space-y-2">
-                    <Label htmlFor="logo">Upload Logo</Label>
-                    <Input id="logo" name="logo" type="file" />
+                    <Label>Upload Logo</Label>
+                    <input type="hidden" name="logoUrl" value={logoUrl} />
+                    <div className="flex items-center gap-2">
+                      <SabFilePickerButton
+                        accept="image"
+                        title="Pick client logo"
+                        onPick={({ url, name }) => {
+                          setLogoUrl(url);
+                          setLogoFileName(name);
+                        }}
+                      >
+                        <Upload className="h-4 w-4" /> {logoUrl ? 'Replace logo' : 'Choose logo'}
+                      </SabFilePickerButton>
+                      {logoUrl && (
+                        <>
+                          <span className="text-xs text-muted-foreground truncate max-w-[200px]">{logoFileName || logoUrl}</span>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            aria-label="Remove logo"
+                            onClick={() => {
+                              setLogoUrl('');
+                              setLogoFileName('');
+                            }}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </>
+                      )}
+                    </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
@@ -245,7 +283,41 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
                     <div className="space-y-2"><Label htmlFor="email">Email</Label><Input id="email" name="email" type="email" maxLength={100} /></div>
                     <div className="space-y-2"><Label htmlFor="phone">Phone No.</Label><Input id="phone" name="phone" maxLength={30} /></div>
                   </div>
-                  <div className="space-y-2"><Label>Attachments</Label><Input type="file" multiple /></div>
+                  <div className="space-y-2">
+                    <Label>Attachments</Label>
+                    <input type="hidden" name="attachmentUrls" value={JSON.stringify(attachmentUrls.map(a => a.url))} />
+                    <div className="flex flex-col gap-2">
+                      <SabFilePickerButton
+                        accept="all"
+                        title="Add an attachment"
+                        onPick={({ url, name }) => {
+                          setAttachmentUrls((prev) => [...prev, { url, name }]);
+                        }}
+                      >
+                        <Upload className="h-4 w-4" /> Add attachment
+                      </SabFilePickerButton>
+                      {attachmentUrls.length > 0 && (
+                        <ul className="flex flex-col gap-1.5">
+                          {attachmentUrls.map((a, idx) => (
+                            <li key={`${a.url}-${idx}`} className="flex items-center justify-between gap-2 rounded-md border border-border px-2 py-1.5">
+                              <span className="text-xs text-foreground truncate">{a.name}</span>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                aria-label={`Remove ${a.name}`}
+                                onClick={() =>
+                                  setAttachmentUrls((prev) => prev.filter((_, i) => i !== idx))
+                                }
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  </div>
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="enterprise">

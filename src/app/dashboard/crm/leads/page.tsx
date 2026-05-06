@@ -1,15 +1,5 @@
-import * as React from 'react';
+import { redirect } from 'next/navigation';
 
-import { RouteComingSoon } from '@/components/zoruui';
-
-export const metadata = { title: "CRM — Leads · SabNode" };
-
-export default function Page(): React.JSX.Element {
-  return (
-    <RouteComingSoon
-      title={"CRM — Leads"}
-      parentHref={"/dashboard/crm"}
-      parentLabel={"Back to CRM"}
-    />
-  );
+export default function Page(): never {
+  redirect("/dashboard/crm/sales-crm/leads");
 }

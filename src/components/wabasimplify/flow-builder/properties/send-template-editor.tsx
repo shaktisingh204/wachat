@@ -10,6 +10,7 @@ import type { WithId } from 'mongodb';
 import { useEffect, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { SabFileToFileButton } from '@/components/sabfiles';
 
 interface EditorProps {
     node: any;
@@ -94,20 +95,24 @@ export function SendTemplateEditor({ node, onUpdate }: EditorProps) {
         }
     }, [node.data.headerMedia]);
 
+    const acceptHeaderMediaFile = (file: File) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            onUpdate({
+                headerMedia: {
+                    type: mediaType,
+                    url: '',
+                    base64: reader.result as string
+                }
+            });
+        };
+        reader.readAsDataURL(file);
+    };
+
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                onUpdate({
-                    headerMedia: {
-                        type: mediaType,
-                        url: '',
-                        base64: reader.result as string
-                    }
-                });
-            };
-            reader.readAsDataURL(file);
+            acceptHeaderMediaFile(file);
         }
     };
 
@@ -161,6 +166,12 @@ export function SendTemplateEditor({ node, onUpdate }: EditorProps) {
                                 accept={mediaType === 'image' ? "image/*" : mediaType === 'video' ? "video/*" : "*/*"}
                                 onChange={handleFileChange}
                             />
+                            <SabFileToFileButton
+                                accept={mediaType === 'image' ? 'image' : mediaType === 'video' ? 'video' : 'document'}
+                                onPickFile={(file) => acceptHeaderMediaFile(file)}
+                            >
+                                Pick from SabFiles
+                            </SabFileToFileButton>
                             {node.data.headerMedia?.base64 && (
                                 <p className="text-xs text-green-600 truncate">Media uploaded</p>
                             )}

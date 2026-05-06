@@ -8,20 +8,12 @@ import { Switch } from '@/components/ui/switch';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Upload } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { Textarea } from '@/components/ui/textarea';
 import { Slider } from '@/components/ui/slider';
 import { Separator } from '@/components/ui/separator';
-
-const handleFileChange = (file: File | null, callback: (dataUri: string) => void) => {
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => {
-        callback(reader.result as string);
-    };
-    reader.readAsDataURL(file);
-};
+import { SabFilePickerButton } from '@/components/sabfiles';
 
 export function VideoBlockEditor({ settings, onUpdate }: { settings: any, onUpdate: (newSettings: any) => void }) {
     const handleUpdate = (field: string, value: any) => {
@@ -92,8 +84,13 @@ export function VideoBlockEditor({ settings, onUpdate }: { settings: any, onUpda
                         <AccordionTrigger>Cover Image (Poster)</AccordionTrigger>
                         <AccordionContent className="space-y-4 pt-2">
                             <div className="space-y-2">
-                                <Label htmlFor={`coverImageUrl-${settings.id}`}>Image Upload</Label>
-                                <Input id={`coverImageUrl-${settings.id}`} type="file" accept="image/*" onChange={(e) => handleFileChange(e.target.files?.[0] || null, (dataUri) => handleUpdate('coverImageUrl', dataUri))} />
+                                <Label>Cover Image</Label>
+                                <SabFilePickerButton
+                                    accept="image"
+                                    onPick={({ url }) => handleUpdate('coverImageUrl', url)}
+                                >
+                                    <Upload className="mr-2 h-4 w-4" /> Pick image
+                                </SabFilePickerButton>
                             </div>
                         </AccordionContent>
                     </AccordionItem>

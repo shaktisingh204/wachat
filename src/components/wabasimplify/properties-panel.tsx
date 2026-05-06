@@ -13,6 +13,7 @@ import { Trash2, Settings2, Plus, Variable, ChevronDown } from 'lucide-react';
 import { ALL_BLOCK_TYPES } from '@/components/flow-builder/Sidebar';
 import { useProject } from '@/context/project-context';
 import { cn } from '@/lib/utils';
+import { SabFileUrlInput, type SabFileAccept } from '@/components/sabfiles';
 
 /* ── Dynamic selector for variables ─────────────────── */
 
@@ -78,10 +79,21 @@ function TextNodeEditor({ data, onChange }: { data: any; onChange: (d: any) => v
 }
 
 function MediaNodeEditor({ data, onChange, mediaType }: { data: any; onChange: (d: any) => void; mediaType: string }) {
+    const accept: SabFileAccept =
+        mediaType === 'image' || mediaType === 'sticker' ? 'image'
+        : mediaType === 'video' ? 'video'
+        : mediaType === 'audio' ? 'audio'
+        : mediaType === 'document' ? 'document'
+        : 'all';
     return (
         <>
             <Field label={`${mediaType} URL`}>
-                <Input value={data.mediaUrl || ''} onChange={e => onChange({ mediaUrl: e.target.value })} placeholder="https://example.com/media.jpg" />
+                <SabFileUrlInput
+                    value={data.mediaUrl || ''}
+                    onChange={(v) => onChange({ mediaUrl: v })}
+                    accept={accept}
+                    placeholder="https://example.com/media.jpg"
+                />
             </Field>
             <Field label="Or Base64 Data" hint="Paste a base64 data URI">
                 <Input value={data.imageBase64 || ''} onChange={e => onChange({ imageBase64: e.target.value })} placeholder="data:image/png;base64,..." />

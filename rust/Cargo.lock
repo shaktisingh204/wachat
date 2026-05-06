@@ -3501,6 +3501,7 @@ dependencies = [
  "sabnode-users",
  "serde",
  "serde_json",
+ "telegram-bots",
  "tokio",
  "tower",
  "tower-http",
@@ -4094,6 +4095,31 @@ name = "tap"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "55937e1799185b12863d447f42597ed69d9928686b8d88a1df17376a097d8369"
+
+[[package]]
+name = "telegram-bots"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "base64",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "rand 0.8.6",
+ "regex",
+ "reqwest",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+ "tokio",
+ "tracing",
+ "utoipa",
+]
 
 [[package]]
 name = "testcontainers"
