@@ -1,13 +1,39 @@
+require('dotenv').config();
 
 module.exports = {
   apps: [
+    {
+      name: 'sabnode-api',
+      cwd: './rust',
+      script: 'cargo',
+      args: 'run --release -p sabnode-api',
+      instances: 1,
+      exec_mode: 'fork',
+      watch: false,
+      restart_delay: 5000,
+      max_restarts: 20,
+      env: {
+        RUST_JWT_SECRET: process.env.RUST_JWT_SECRET,
+        MONGODB_URI: process.env.MONGODB_URI,
+        MONGODB_DB: process.env.MONGODB_DB,
+        REDIS_URL: process.env.REDIS_URL,
+        FACEBOOK_APP_SECRET: process.env.FACEBOOK_APP_SECRET,
+        SABNODE_PORT: process.env.SABNODE_PORT || '8080',
+        SABNODE_ENV: process.env.SABNODE_ENV || 'production',
+        RUST_LOG: process.env.RUST_LOG || 'info',
+      },
+    },
     {
       name: 'sabnode-web',
       script: 'node_modules/.bin/next',
       args: 'start -p 3002',
       instances: 1,
       exec_mode: 'fork',
-      env: { NODE_ENV: 'production' },
+      env: {
+        NODE_ENV: 'production',
+        RUST_API_URL: process.env.RUST_API_URL || 'http://127.0.0.1:8080',
+        RUST_JWT_SECRET: process.env.RUST_JWT_SECRET,
+      },
     },
 
     // New scalable broadcast pipeline. Run multiple instances for horizontal
