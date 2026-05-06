@@ -3,24 +3,6 @@
 import { cn as _zoruCn } from '@/components/zoruui';
 void _zoruCn;
 
-rd/marketplace/installed
- *
- * Lists every marketplace app currently installed by the active tenant,
- * with a per-app usage chart sourced from the billing meter
- * (`usage_events` keyed on `app:{appId}`).
- *
- * Fetches:
- *   - Installs via the existing `getInstalledApps` server action when
- *     present, otherwise the `/api/marketplace/installed` JSON endpoint.
- *     Both are documented contracts of Impl 3 — at least one is expected
- *     to ship by the time this page is wired into the sidebar.
- *
- * Cross-slice: at render time we only need read-only data. Writes (install
- * / uninstall) live on dedicated detail pages.
- */
-
-'use client';
-
 import * as React from 'react';
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import { useProject } from '@/context/project-context';
