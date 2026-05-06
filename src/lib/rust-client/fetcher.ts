@@ -113,6 +113,57 @@ export async function rustPublicFetch<T>(path: string, init?: RequestInit): Prom
 }
 
 /**
+ * Issue a JSON request to the Rust BFF as an authenticated **admin**.
+ *
+ * Use ONLY for routes the Rust side has explicitly gated on the
+ * `"admin"` role claim — currently the cross-collection count
+ * endpoints used by `getAdminDashboardStats`. Verifies the
+ * `admin_session` cookie before minting; throws {@link RustApiError}
+ * with a 403 if the caller isn't an admin.
+ */
+export async function rustAdminFetch<T>(path: string, init?: RequestInit): Promise<T> {
+    // Late import to avoid a Server-Component bundling cycle: this file is
+    // imported transitively from layouts that don't have admin auth in scope.
+    const { getAdminSession } = await import('@/lib/admin-session');
+    const admin = await getAdminSession();
+    if (!admin?.isAdmin) {
+        throw new RustApiError(
+            403,
+            { ok: false, error: { code: 'FORBIDDEN', message: 'Admin role required.' } },
+            'Admin role required for Rust admin call',
+        );
+    }
+    const adminId =
+        (admin as any).adminId ||
+        (admin as any).admin?._id ||
+        (admin as any).admin?.id ||
+        'admin';
+    const token = await issueRustJwt({
+        userId: String(adminId),
+        tenantId: String(adminId),
+        roles: ['admin'],
+    });
+    const url = `${getBaseUrl()}${path}`;
+    const headers = new Headers(init?.headers);
+    headers.set('Authorization', `Bearer ${token}`);
+    if (!headers.has('Content-Type') && init?.body && !(init.body instanceof FormData)) {
+        headers.set('Content-Type', 'application/json');
+    }
+    headers.set('Accept', 'application/json');
+    const res = await fetch(url, { ...init, headers, cache: 'no-store' });
+    if (!res.ok) {
+        let envelope: RustErrorEnvelope | null = null;
+        try {
+            envelope = (await res.json()) as RustErrorEnvelope;
+        } catch {
+            // ignore non-JSON bodies
+        }
+        throw new RustApiError(res.status, envelope, `Rust API ${res.status} ${res.statusText}`);
+    }
+    return (await res.json()) as T;
+}
+
+/**
  * Issue a JSON request to the Rust BFF.
  *
  * @typeParam T - Expected success response shape.

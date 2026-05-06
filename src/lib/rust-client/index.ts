@@ -17,6 +17,8 @@ import { metaSuiteApi } from './meta-suite';
 import { metaTokenApi } from './meta-token';
 import { projectsApi } from './projects';
 import { qrCodesApi } from './qr-codes';
+import { urlShortenerApi } from './url-shortener';
+import { adManagerApi } from './ad-manager';
 import { sabfilesApi } from './sabfiles';
 import { sessionApi } from './session';
 import { templatesApi } from './templates';
@@ -48,6 +50,19 @@ import { wachatWebhookApi } from './wachat-webhook';
 import { wachatWebhookActionsApi } from './wachat-webhook-actions';
 import { whatsappSendApi } from './whatsapp-send';
 import { telegramBotsApi } from './telegram-bots';
+import { telegramChatsApi } from './telegram-chats';
+import { telegramBroadcastsApi } from './telegram-broadcasts';
+import { telegramAutoReplyApi } from './telegram-auto-reply';
+import { telegramCommandsApi } from './telegram-commands';
+import { telegramBotProfileApi } from './telegram-bot-profile';
+import { telegramChannelsApi } from './telegram-channels';
+import { telegramAnalyticsApi } from './telegram-analytics';
+import { telegramPaymentsApi } from './telegram-payments';
+import { telegramStickersApi } from './telegram-stickers';
+import { telegramStoriesApi } from './telegram-stories';
+import { telegramFlowsApi } from './telegram-flows';
+import { telegramMiniAppsApi } from './telegram-mini-apps';
+import { telegramAdsApi } from './telegram-ads';
 
 export const rustClient = {
     users: usersApi,
@@ -85,14 +100,29 @@ export const rustClient = {
     metaFlows: metaFlowsApi,
     facebookFlow: facebookFlowApi,
     qrCodes: qrCodesApi,
+    urlShortener: urlShortenerApi,
+    adManager: adManagerApi,
     sabfiles: sabfilesApi,
     telegramBots: telegramBotsApi,
+    telegramChats: telegramChatsApi,
+    telegramBroadcasts: telegramBroadcastsApi,
+    telegramAutoReply: telegramAutoReplyApi,
+    telegramCommands: telegramCommandsApi,
+    telegramBotProfile: telegramBotProfileApi,
+    telegramChannels: telegramChannelsApi,
+    telegramAnalytics: telegramAnalyticsApi,
+    telegramPayments: telegramPaymentsApi,
+    telegramStickers: telegramStickersApi,
+    telegramStories: telegramStoriesApi,
+    telegramFlows: telegramFlowsApi,
+    telegramMiniApps: telegramMiniAppsApi,
+    telegramAds: telegramAdsApi,
 };
 
 export type RustClient = typeof rustClient;
 
 // Re-exports for convenient imports from one path.
-export { rustFetch, RustApiError } from './fetcher';
+export { rustFetch, rustAdminFetch, rustPublicFetch, RustApiError } from './fetcher';
 export type { MeResponse, RustErrorEnvelope } from './types';
 export type {
     WebhookLogSummary,
@@ -219,6 +249,34 @@ export type {
     QrCodeDeleteOneResult,
     QrCodesApi,
 } from './qr-codes';
+export type {
+    GraphProxyBody as AdManagerGraphProxyBody,
+    GraphProxyResult as AdManagerGraphProxyResult,
+    AdManagerTokenKind,
+    AdAccountsResult as AdManagerAdAccountsResult,
+    SuccessResult as AdManagerSuccessResult,
+    LocalCampaignsResult as AdManagerLocalCampaignsResult,
+    UploadImageResult as AdManagerUploadImageResult,
+    UploadVideoResult as AdManagerUploadVideoResult,
+    AdManagerApi,
+} from './ad-manager';
+export type {
+    CreateShortUrlBody,
+    BulkCreateShortUrlsBody,
+    DeleteManyBody as UrlShortenerDeleteManyBody,
+    AddDomainBody as UrlShortenerAddDomainBody,
+    TrackClickBody as UrlShortenerTrackClickBody,
+    CreateShortUrlResult,
+    BulkCreateResult as UrlShortenerBulkCreateResult,
+    ListResult as UrlShortenerListResult,
+    DeleteOneResult as UrlShortenerDeleteOneResult,
+    DeleteManyResult as UrlShortenerDeleteManyResult,
+    AddDomainResult as UrlShortenerAddDomainResult,
+    VerifyDomainResult as UrlShortenerVerifyDomainResult,
+    DeleteDomainResult as UrlShortenerDeleteDomainResult,
+    TrackClickResult as UrlShortenerTrackClickResult,
+    UrlShortenerApi,
+} from './url-shortener';
 export type {
     CallingWeeklyOperatingHours as RustCallingWeeklyOperatingHours,
     CallingHolidaySchedule as RustCallingHolidaySchedule,

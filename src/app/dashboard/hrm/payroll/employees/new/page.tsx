@@ -3,7 +3,7 @@
 import { EmployeeForm } from '@/components/wabasimplify/crm-employee-form';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-import { getCrmDepartments, getCrmDesignations, getCrmEmployees } from '@/app/actions/crm-employees.actions';
+import { getCrmDepartments, getCrmDesignations } from '@/app/actions/crm-employees.actions';
 import { useEffect, useState } from 'react';
 
 import { ZoruButton } from '@/components/zoruui';
@@ -11,17 +11,14 @@ import { ZoruButton } from '@/components/zoruui';
 export default function NewEmployeePage() {
     const [departments, setDepartments] = useState([]);
     const [designations, setDesignations] = useState([]);
-    const [managers, setManagers] = useState([]);
 
     useEffect(() => {
         Promise.all([
             getCrmDepartments(),
             getCrmDesignations(),
-            getCrmEmployees(),
-        ]).then(([depts, desigs, emps]) => {
+        ]).then(([depts, desigs]) => {
             setDepartments(depts as any);
             setDesignations(desigs as any);
-            setManagers(emps as any);
         });
     }, []);
 
@@ -37,7 +34,7 @@ export default function NewEmployeePage() {
                 <h1 className="mt-2 text-[26px] leading-tight text-zoru-ink">Add New Employee</h1>
                 <p className="mt-1 text-[13px] text-zoru-ink-muted">Enter the details for the new employee.</p>
             </div>
-            <EmployeeForm departments={departments} designations={designations} managers={managers} />
+            <EmployeeForm departments={departments} designations={designations} />
         </div>
     );
 }

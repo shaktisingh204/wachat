@@ -14,14 +14,54 @@
  * `crm_function_plan.md`.
  */
 export type EntityKey =
-  | 'client'      // CRM Account (the company/client record on `crm_accounts`)
-  | 'vendor'      // CRM Vendor (`crm_vendors`)
-  | 'item'        // CRM Product / Item (`crm_products`)
-  | 'employee'    // HR Employee (`crm_employees`)
-  | 'user'        // Platform user (`users`)
   | 'account'     // Chart-of-accounts node (`crm_chart_of_accounts`)
-  | 'warehouse'   // Stock location (`crm_warehouses`)
-  | 'bankAccount';// Payment / bank account (`crm_payment_accounts`)
+  | 'bankAccount' // Payment / bank account (`crm_payment_accounts`)
+  | 'branch'      // Multi-branch location (collection TBD — see action TODO)
+  | 'category'    // Product category (`crm_product_categories`)
+  | 'client'      // CRM Account (the company/client record on `crm_accounts`)
+  | 'currency'    // Static currency list (no DB)
+  | 'department'  // HR department (`crm_departments`)
+  | 'designation' // HR designation (`crm_designations`)
+  | 'employee'    // HR Employee (`crm_employees`)
+  | 'item'        // CRM Product / Item (`crm_products`)
+  | 'pipeline'    // Sales pipeline (embedded on `users.crmPipelines`)
+  | 'project'     // CRM Project (`crm_projects`)
+  | 'stage'       // Pipeline stage (embedded on `users.crmPipelines[].stages`)
+  | 'tag'         // Cross-entity tag (collection TBD — see action TODO)
+  | 'taxRate'     // Tax rate (`crm_taxes`)
+  | 'user'        // Platform user (`users`)
+  | 'vendor'      // CRM Vendor (`crm_vendors`)
+  | 'warehouse';  // Stock location (`crm_warehouses`)
+
+/**
+ * Runtime mirror of the `EntityKey` union. Settings UIs and other
+ * consumers that need to enumerate every registered entity (e.g. the
+ * `entity_ref` custom-field configurator) read from this array.
+ *
+ * The `satisfies readonly EntityKey[]` clause keeps it in lock-step
+ * with the type union — adding a new key to the union without adding
+ * it here, or vice-versa, fails the TS build. Append-only.
+ */
+export const ENTITY_KEYS = [
+  'account',
+  'bankAccount',
+  'branch',
+  'category',
+  'client',
+  'currency',
+  'department',
+  'designation',
+  'employee',
+  'item',
+  'pipeline',
+  'project',
+  'stage',
+  'tag',
+  'taxRate',
+  'user',
+  'vendor',
+  'warehouse',
+] as const satisfies readonly EntityKey[];
 
 /**
  * Visual chip presented in the picker trigger and dropdown rows.
@@ -98,7 +138,8 @@ export interface EntityLookupConfig {
   /** Optional default Mongo filter (e.g. exclude archived). */
   defaultFilter?: (ctx: unknown) => Record<string, unknown>;
   /** Project a raw doc into a chip. */
-  toChip: (doc: Record<string, unknown>) => LookupChip;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  toChip: (doc: any) => LookupChip;
   /** The actual fetch implementation. */
   fetch: (params: LookupParams, ctx: unknown) => Promise<LookupResult>;
 }

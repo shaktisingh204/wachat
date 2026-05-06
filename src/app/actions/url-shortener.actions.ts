@@ -1,207 +1,85 @@
-
 'use server';
 
+/**
+ * Server-action shim for the URL shortener.
+ *
+ * All Mongo work has moved to `rust/crates/url-shortener`. The bodies
+ * here are thin marshallers: parse FormData / read the session, call
+ * `rustClient.urlShortener.*`, and run the legacy `revalidatePath`
+ * calls Next.js needs to know about. Wire shapes (`{ message, error,
+ * shortUrlId, ... }`) are preserved exactly so existing `useFormState`
+ * consumers and `<form action>` callers keep working.
+ *
+ * Bulk import: the uploaded file is forwarded as multipart to
+ * `/v1/url-shortener/bulk-upload`. The Rust crate parses CSV via the
+ * `csv` crate and XLSX via `calamine`. Nothing TS-side touches the
+ * file contents.
+ */
 import { revalidatePath } from 'next/cache';
-import { ObjectId, type WithId } from 'mongodb';
-import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions/user.actions';
-import type { ShortUrl, User, CustomDomain } from '@/lib/definitions';
-import { nanoid } from 'nanoid';
 import { headers } from 'next/headers';
-import { Readable } from 'stream';
-import Papa from 'papaparse';
-import * as XLSX from 'xlsx';
-import dns from 'dns';
-import { promisify } from 'util';
+import { ObjectId, type WithId } from 'mongodb';
 
-const generateShortCode = (length = 7) => nanoid(length);
+import { getSession } from '@/app/actions/user.actions';
+import { rustClient, RustApiError } from '@/lib/rust-client';
+import type { ShortUrl, User, CustomDomain } from '@/lib/definitions';
 
-export async function createShortUrl(prevState: any, formData: FormData): Promise<{ message?: string; error?: string, shortUrlId?: string, shortCode?: string }> {
-    const originalUrl = formData.get('originalUrl') as string;
-    const alias = formData.get('alias') as string | null;
-    const tagIds = (formData.get('tagIds') as string)?.split(',').filter(Boolean) || [];
-    const expiresAtStr = formData.get('expiresAt') as string | null;
-    let domainId = formData.get('domainId') as string | null;
-    if (domainId === 'none') {
-        domainId = null;
-    }
+function rustErr(e: unknown): string {
+    if (e instanceof RustApiError) return e.message;
+    if (e instanceof Error) return e.message;
+    return 'An unexpected error occurred.';
+}
 
+// ---------------------------------------------------------------------------
+// Create / bulk-create
+// ---------------------------------------------------------------------------
 
-    const session = await getSession();
-    if (!session?.user) return { error: 'Access denied.' };
-
-    if (!originalUrl) {
-        return { error: 'Original URL is required.' };
-    }
-
+export async function createShortUrl(
+    _prevState: any,
+    formData: FormData,
+): Promise<{ message?: string; error?: string; shortUrlId?: string; shortCode?: string }> {
     try {
-        new URL(originalUrl);
-    } catch (_) {
-        return { error: 'Invalid Original URL format.' };
-    }
-
-    try {
-        const { db } = await connectToDatabase();
-
-        let shortCode = alias || generateShortCode();
-
-        const query: any = { shortCode };
-        if (domainId) {
-            query.domainId = domainId;
-        } else {
-            // For default domain
-        }
-
-        const duplicateQuery = domainId
-            ? { shortCode, domainId: domainId }
-            : { shortCode, domainId: { $exists: false } };
-
-        const existing = await db.collection('short_urls').findOne(duplicateQuery);
-        if (existing) {
-            return { error: 'This custom alias is already in use.' };
-        }
-
-        const newShortUrl: Omit<ShortUrl, '_id'> = {
-            userId: new ObjectId(session.user._id),
-            originalUrl,
-            shortCode,
-            clickCount: 0,
-            analytics: [],
-            tagIds,
-            ...(domainId && { domainId }),
-            createdAt: new Date(),
-            ...(expiresAtStr && { expiresAt: new Date(expiresAtStr) }),
-        };
-
-        const result = await db.collection('short_urls').insertOne(newShortUrl as any);
-        const insertedId = result.insertedId;
-
+        const result = await rustClient.urlShortener.fromFormCreate(formData);
         revalidatePath('/dashboard/url-shortener');
-        return { message: 'Short URL created successfully!', shortUrlId: insertedId.toString(), shortCode };
-
-    } catch (e: any) {
-        if (e.code === 11000) {
-            return { error: 'That short code is already taken, please try again.' };
-        }
-        return { error: e.message || 'An unexpected error occurred.' };
+        return result;
+    } catch (e) {
+        return { error: rustErr(e) };
     }
 }
 
-async function processUrlStream(inputStream: NodeJS.ReadableStream | string, userId: ObjectId): Promise<number> {
-    return new Promise<number>((resolve, reject) => {
-        const urlRows: { url: string; alias?: string }[] = [];
-
-        Papa.parse(inputStream, {
-            header: true,
-            skipEmptyLines: true,
-            step: (results) => {
-                urlRows.push(results.data as { url: string; alias?: string });
-            },
-            complete: async () => {
-                if (urlRows.length === 0) {
-                    return resolve(0);
-                }
-
-                const urlColumnHeader = Object.keys(urlRows[0])[0];
-                const aliasColumnHeader = Object.keys(urlRows[0])[1];
-
-                const urlsToInsert = urlRows.map(row => {
-                    const originalUrl = (row[urlColumnHeader as keyof typeof row] || '').trim();
-                    if (!originalUrl) return null;
-
-                    try { new URL(originalUrl); } catch { return null; }
-
-                    const alias = (row[aliasColumnHeader as keyof typeof row] || '').trim() || null;
-
-                    return {
-                        userId,
-                        originalUrl,
-                        shortCode: alias || generateShortCode(),
-                        clickCount: 0,
-                        analytics: [],
-                        createdAt: new Date(),
-                    };
-                }).filter(Boolean);
-
-                if (urlsToInsert.length === 0) {
-                    return resolve(0);
-                }
-
-                const { db } = await connectToDatabase();
-                try {
-                    const result = await db.collection('short_urls').insertMany(urlsToInsert as any[], { ordered: false });
-                    resolve(result.insertedCount);
-                } catch (e: any) {
-                    if (e.code === 11000) {
-                        resolve(e.result.nInserted || 0);
-                    } else {
-                        reject(e);
-                    }
-                }
-            },
-            error: (error) => reject(error)
-        });
-    });
-};
-
-export async function handleBulkCreateShortUrls(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
-    const urlFile = formData.get('urlFile') as File;
-
-    const session = await getSession();
-    if (!session?.user) return { error: "Access denied." };
-
-    if (!urlFile || urlFile.size === 0) {
-        return { error: 'A file is required.' };
-    }
-
+export async function handleBulkCreateShortUrls(
+    _prevState: any,
+    formData: FormData,
+): Promise<{ message?: string; error?: string }> {
+    // Forward the entire FormData. The Rust crate validates the file
+    // is present, parses CSV (`csv` crate) or XLSX (`calamine`), and
+    // bulk-inserts in one round trip.
     try {
-        let createdCount = 0;
-        if (urlFile.name.endsWith('.csv')) {
-            const nodeStream = Readable.fromWeb(urlFile.stream() as any);
-            createdCount = await processUrlStream(nodeStream, new ObjectId(session.user._id));
-        } else if (urlFile.name.endsWith('.xlsx')) {
-            const fileBuffer = Buffer.from(await urlFile.arrayBuffer());
-            const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
-            const sheetName = workbook.SheetNames[0];
-            if (!sheetName) throw new Error('The XLSX file contains no sheets.');
-            const worksheet = workbook.Sheets[sheetName];
-            const csvData = XLSX.utils.sheet_to_csv(worksheet);
-            createdCount = await processUrlStream(csvData, new ObjectId(session.user._id));
-        } else {
-            return { error: 'Unsupported file type. Please upload a .csv or .xlsx file.' };
-        }
-
-        if (createdCount === 0) {
-            return { error: 'No valid URLs found in the file to import.' };
-        }
-
+        const result = await rustClient.urlShortener.bulkUpload(formData);
         revalidatePath('/dashboard/url-shortener');
-        return { message: `Successfully imported and created ${createdCount} short URL(s).` };
-    } catch (e: any) {
-        return { error: e.message || 'An unexpected error occurred during bulk import.' };
+        return result;
+    } catch (e) {
+        return { error: rustErr(e) };
     }
 }
 
+// ---------------------------------------------------------------------------
+// List / get / delete
+// ---------------------------------------------------------------------------
 
-export async function getShortUrls(): Promise<{ user: (Omit<User, 'password'> & { _id: string }) | null; urls: WithId<ShortUrl>[]; domains: WithId<CustomDomain>[] }> {
+export async function getShortUrls(): Promise<{
+    user: (Omit<User, 'password'> & { _id: string }) | null;
+    urls: WithId<ShortUrl>[];
+    domains: WithId<CustomDomain>[];
+}> {
     const session = await getSession();
     if (!session?.user) return { user: null, urls: [], domains: [] };
 
     try {
-        const { db } = await connectToDatabase();
-        const user = await db.collection<User>('users').findOne({ _id: new ObjectId(session.user._id) }, { projection: { password: 0 } });
-
-        if (!user) return { user: null, urls: [], domains: [] };
-
-        const urls = await db.collection('short_urls')
-            .find({ userId: new ObjectId(session.user._id) })
-            .sort({ createdAt: -1 })
-            .toArray();
-
+        const result = await rustClient.urlShortener.list<WithId<ShortUrl>, WithId<CustomDomain>>();
         return {
-            user: JSON.parse(JSON.stringify(user)),
-            urls: JSON.parse(JSON.stringify(urls)),
-            domains: JSON.parse(JSON.stringify(user?.customDomains || [])),
+            user: (result.user as Omit<User, 'password'> & { _id: string }) || null,
+            urls: result.urls,
+            domains: result.domains,
         };
     } catch (error) {
         console.error('Failed to fetch short URLs:', error);
@@ -209,80 +87,24 @@ export async function getShortUrls(): Promise<{ user: (Omit<User, 'password'> & 
     }
 }
 
-export async function trackClickAndGetUrl(shortCode: string, hostname: string | null): Promise<{ originalUrl: string | null; error?: string }> {
+export async function trackClickAndGetUrl(
+    shortCode: string,
+    hostname: string | null,
+): Promise<{ originalUrl: string | null; error?: string }> {
     try {
-        const { db } = await connectToDatabase();
-        let urlDoc: WithId<ShortUrl> | null = null;
-
-        if (hostname) {
-            // Custom domain lookup:
-            const userWithDomain = await db.collection('users').findOne({
-                'customDomains.hostname': hostname,
-                'customDomains.verified': true
-            });
-
-            if (userWithDomain && userWithDomain.customDomains) {
-                const domain = userWithDomain.customDomains.find((d: any) => d.hostname === hostname);
-                if (domain) {
-                    urlDoc = await db.collection<ShortUrl>('short_urls').findOne({
-                        shortCode,
-                        domainId: domain._id.toString()
-                    });
-                }
-            }
-
-            // Fallback: If strict custom domain lookup failed, check if this is effectively a "default" access 
-            // (e.g. user accessing specific custom domain link via localhost or misconfigured local environment)
-            if (!urlDoc) {
-                urlDoc = await db.collection<ShortUrl>('short_urls').findOne({ shortCode });
-            }
-        } else {
-            // Default domain lookup
-            urlDoc = await db.collection<ShortUrl>('short_urls').findOne({
-                shortCode,
-                domainId: { $exists: false }
-            });
-
-            // Fallback: Check if it exists with Any domainId
-            if (!urlDoc) {
-                urlDoc = await db.collection<ShortUrl>('short_urls').findOne({ shortCode });
-            }
-        }
-
-
-        if (!urlDoc) {
-            return { originalUrl: null, error: 'URL not found.' };
-        }
-        if (urlDoc.expiresAt && new Date() > new Date(urlDoc.expiresAt)) {
-            return { originalUrl: null, error: 'This link has expired.' };
-        }
-
         const headerList = await headers();
-        const userAgent = headerList.get('user-agent');
-        const referrer = headerList.get('referer');
-        const ip = headerList.get('x-forwarded-for') || headerList.get('x-real-ip');
-
-        await db.collection<ShortUrl>('short_urls').updateOne(
-            { _id: urlDoc._id },
-            {
-                $inc: { clickCount: 1 },
-                $push: {
-                    analytics: {
-                        $each: [{
-                            timestamp: new Date(),
-                            ...(userAgent && { userAgent }),
-                            ...(referrer && { referrer }),
-                            ...(ip && { ip }),
-                        }],
-                        $slice: -100
-                    }
-                }
-            }
-        );
-
-        return { originalUrl: urlDoc.originalUrl };
-
-    } catch (e: any) {
+        const result = await rustClient.urlShortener.resolveRedirect({
+            shortCode,
+            hostname,
+            userAgent: headerList.get('user-agent'),
+            referrer: headerList.get('referer'),
+            ip: headerList.get('x-forwarded-for') || headerList.get('x-real-ip'),
+        });
+        return {
+            originalUrl: result.originalUrl ?? null,
+            error: result.error,
+        };
+    } catch (e) {
         console.error('Error tracking click:', e);
         return { originalUrl: null, error: 'Database error.' };
     }
@@ -291,195 +113,109 @@ export async function trackClickAndGetUrl(shortCode: string, hostname: string | 
 export async function deleteShortUrl(id: string): Promise<{ success: boolean; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access denied.' };
-    if (!ObjectId.isValid(id)) {
-        return { success: false, error: 'Invalid URL ID.' };
-    }
-
-    const urlToDelete = await getShortUrlById(id);
-    if (!urlToDelete) return { success: false, error: 'URL not found or access denied.' };
-    if (urlToDelete.userId.toString() !== session.user._id.toString()) {
-        return { success: false, error: 'Access denied.' };
-    }
+    if (!ObjectId.isValid(id)) return { success: false, error: 'Invalid URL ID.' };
 
     try {
-        const { db } = await connectToDatabase();
-        await db.collection('short_urls').deleteOne({ _id: new ObjectId(id) });
+        const result = await rustClient.urlShortener.deleteOne(id);
         revalidatePath('/dashboard/url-shortener');
         revalidatePath(`/dashboard/url-shortener/${id}`);
-        return { success: true };
-    } catch (e: any) {
-        return { success: false, error: e.message || 'An unexpected error occurred.' };
+        return result;
+    } catch (e) {
+        return { success: false, error: rustErr(e) };
     }
 }
 
-export async function deleteManyShortUrls(ids: string[]): Promise<{ success: boolean; deleted?: number; error?: string }> {
+export async function deleteManyShortUrls(
+    ids: string[],
+): Promise<{ success: boolean; deleted?: number; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access denied.' };
-    const validIds = ids.filter((id) => ObjectId.isValid(id)).map((id) => new ObjectId(id));
-    if (validIds.length === 0) {
-        return { success: false, error: 'No valid IDs provided.' };
-    }
+
     try {
-        const { db } = await connectToDatabase();
-        const result = await db.collection('short_urls').deleteMany({
-            _id: { $in: validIds },
-            userId: new ObjectId(session.user._id),
-        });
+        const result = await rustClient.urlShortener.deleteMany({ ids });
         revalidatePath('/dashboard/url-shortener');
-        return { success: true, deleted: result.deletedCount };
-    } catch (e: any) {
-        return { success: false, error: e.message || 'Failed to delete links.' };
+        return result;
+    } catch (e) {
+        return { success: false, error: rustErr(e) || 'Failed to delete links.' };
     }
 }
 
 export async function getShortUrlById(id: string): Promise<WithId<ShortUrl> | null> {
     if (!ObjectId.isValid(id)) return null;
-
     const session = await getSession();
     if (!session?.user) return null;
 
-    const { db } = await connectToDatabase();
-    const url = await db.collection<ShortUrl>('short_urls').findOne({
-        _id: new ObjectId(id),
-        userId: new ObjectId(session.user._id)
-    });
-
-    if (!url) return null;
-    return JSON.parse(JSON.stringify(url));
+    try {
+        return await rustClient.urlShortener.getOne<WithId<ShortUrl>>(id);
+    } catch {
+        return null;
+    }
 }
 
-
-// --- Custom Domain Actions ---
+// ---------------------------------------------------------------------------
+// Custom domains
+// ---------------------------------------------------------------------------
 
 export async function getCustomDomains(): Promise<WithId<CustomDomain>[]> {
     const session = await getSession();
     if (!session?.user) return [];
 
     try {
-        const { db } = await connectToDatabase();
-        const user = await db.collection<User>('users').findOne({ _id: new ObjectId(session.user._id) });
-        return JSON.parse(JSON.stringify(user?.customDomains || []));
+        return await rustClient.urlShortener.listDomains<WithId<CustomDomain>>();
     } catch (error) {
         console.error('Failed to fetch custom domains:', error);
         return [];
     }
 }
 
-export async function addCustomDomain(prevState: any, formData: FormData): Promise<{ success?: boolean; error?: string }> {
-    const hostname = formData.get('hostname') as string;
-    const session = await getSession();
-    if (!session?.user) return { error: 'Access denied.' };
-    if (!hostname) return { error: 'Hostname is required.' };
-
-    const domainRegex = /^(?!-)[A-Za-z0-9-]+([\-\.]{1}[a-z0-9]+)*\.[A-Za-z]{2,6}$/;
-    if (!domainRegex.test(hostname)) {
-        return { error: 'Invalid domain format.' };
-    }
-
+export async function addCustomDomain(
+    _prevState: any,
+    formData: FormData,
+): Promise<{ success?: boolean; error?: string }> {
     try {
-        const { db } = await connectToDatabase();
-        const user = await db.collection('users').findOne({ _id: new ObjectId(session.user._id) });
-        if (user?.customDomains?.some((d: any) => d.hostname === hostname)) {
-            return { error: 'This domain has already been added.' };
-        }
-
-        const newDomain: CustomDomain = {
-            _id: new ObjectId(),
-            hostname,
-            verified: false,
-            verificationCode: `sabnode-verify=${nanoid(16)}`,
-        };
-
-        await db.collection('users').updateOne(
-            { _id: new ObjectId(session.user._id) },
-            { $push: { customDomains: newDomain } } as any
-        );
-
-        revalidatePath('/dashboard/url-shortener/settings');
-        revalidatePath('/dashboard/facebook/custom-ecommerce/settings');
-        return { success: true };
-    } catch (e: any) {
-        return { error: e.message || 'An unexpected error occurred.' };
-    }
-}
-
-export async function verifyCustomDomain(domainId: string): Promise<{ success: boolean, error?: string }> {
-    const session = await getSession();
-    if (!session?.user) return { success: false, error: 'Access denied.' };
-
-    try {
-        const { db } = await connectToDatabase();
-        const user = await db.collection('users').findOne({
-            _id: new ObjectId(session.user._id),
-            'customDomains._id': new ObjectId(domainId)
-        });
-
-        if (!user || !user.customDomains) {
-            return { success: false, error: 'Domain not found.' };
-        }
-
-        const domainToCheck = user.customDomains.find((d: any) => d._id.toString() === domainId);
-        if (!domainToCheck) {
-            return { success: false, error: 'Domain not found.' };
-        }
-
-        const resolveTxt = promisify(dns.resolveTxt);
-
-        // --- DEV BYPASS ---
-        if (domainToCheck.hostname.endsWith('.localhost') || domainToCheck.hostname.endsWith('.test')) {
-            await db.collection('users').updateOne(
-                { _id: new ObjectId(session.user._id), 'customDomains._id': new ObjectId(domainId) },
-                { $set: { 'customDomains.$.verified': true } }
-            );
+        const result = await rustClient.urlShortener.fromFormAddDomain(formData);
+        if (result.success) {
             revalidatePath('/dashboard/url-shortener/settings');
-            return { success: true };
+            revalidatePath('/dashboard/facebook/custom-ecommerce/settings');
         }
-        // ------------------
-
-        let verified = false;
-        try {
-            const records = await resolveTxt(domainToCheck.hostname);
-            const flatRecords = records.flat();
-            if (flatRecords.includes(domainToCheck.verificationCode)) {
-                verified = true;
-            }
-        } catch (e) {
-            // TXT lookup failed
-        }
-
-        if (!verified) {
-            return {
-                success: false,
-                error: `DNS verification failed. Could not find TXT record: ${domainToCheck.verificationCode}`
-            };
-        }
-
-        await db.collection('users').updateOne(
-            { _id: new ObjectId(session.user._id), 'customDomains._id': new ObjectId(domainId) },
-            { $set: { 'customDomains.$.verified': true } }
-        );
-        revalidatePath('/dashboard/url-shortener/settings');
-        revalidatePath('/dashboard/facebook/custom-ecommerce/settings');
-        return { success: true };
-    } catch (e: any) {
-        return { success: false, error: 'Failed to verify domain: ' + e.message };
+        return result.success ? { success: true } : { error: result.error };
+    } catch (e) {
+        return { error: rustErr(e) };
     }
 }
 
-export async function deleteCustomDomain(domainId: string): Promise<{ success: boolean; error?: string }> {
+export async function verifyCustomDomain(
+    domainId: string,
+): Promise<{ success: boolean; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access denied.' };
 
     try {
-        const { db } = await connectToDatabase();
-        await db.collection('users').updateOne(
-            { _id: new ObjectId(session.user._id) },
-            { $pull: { customDomains: { _id: new ObjectId(domainId) } } } as any
-        );
-        revalidatePath('/dashboard/url-shortener/settings');
-        revalidatePath('/dashboard/facebook/custom-ecommerce/settings');
-        return { success: true };
-    } catch (e: any) {
+        const result = await rustClient.urlShortener.verifyDomain(domainId);
+        if (result.success) {
+            revalidatePath('/dashboard/url-shortener/settings');
+            revalidatePath('/dashboard/facebook/custom-ecommerce/settings');
+        }
+        return result;
+    } catch (e) {
+        return { success: false, error: 'Failed to verify domain: ' + rustErr(e) };
+    }
+}
+
+export async function deleteCustomDomain(
+    domainId: string,
+): Promise<{ success: boolean; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied.' };
+
+    try {
+        const result = await rustClient.urlShortener.deleteDomain(domainId);
+        if (result.success) {
+            revalidatePath('/dashboard/url-shortener/settings');
+            revalidatePath('/dashboard/facebook/custom-ecommerce/settings');
+        }
+        return result;
+    } catch (e) {
         return { success: false, error: 'Failed to delete domain.' };
     }
 }

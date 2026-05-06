@@ -3,51 +3,62 @@
 /**
  * Per-broadcast token bucket rate limiter, backed by a Lua script in Redis.
  *
- * Why a Lua script: the refill + check + decrement must be atomic so that
- * multiple worker processes (and concurrent in-process sends) cannot exceed
- * the configured messages-per-second for a given broadcast.
+ * Wire-compatible with the Rust `wachat-rate-limit` crate
+ * (`rust/crates/wachat-rate-limit/src/acquire.lua`). Both sides charge against
+ * the SAME Redis key with the SAME script, so during the broadcast-worker
+ * Rust migration a Node and a Rust acquirer can coordinate without drift.
+ *
+ * Key layout (must match `TokenBucket::redis_key` on the Rust side):
+ *   wrl:bucket:bcast:tb:<broadcastId>
  *
  * Bucket model:
  *   - capacity = mps (allows a 1-second burst)
  *   - refill   = mps tokens / second
  *   - cost     = 1 token per message (caller may request `n`)
  *
- * Returns [granted, wait_ms].
- *  granted=1 -> tokens removed; caller may proceed
- *  granted=0 -> tokens NOT removed; caller should sleep wait_ms and retry
+ * Lua script:
+ *   - Inputs:  KEYS[1]=key, ARGV={capacity, refill_per_sec, cost}
+ *   - Output:  { granted, retry_after_ms }
+ *   - `now` is sourced from `redis.call('TIME')` so the bucket is immune to
+ *     client clock skew across worker processes.
  */
 
 const ACQUIRE_LUA = `
-local key  = KEYS[1]
-local mps  = tonumber(ARGV[1])
-local now  = tonumber(ARGV[2])
-local need = tonumber(ARGV[3])
+local key       = KEYS[1]
+local capacity  = tonumber(ARGV[1])
+local refill_ps = tonumber(ARGV[2])
+local cost      = tonumber(ARGV[3])
 
-local data = redis.call('HMGET', key, 'tokens', 'ts')
-local tokens = tonumber(data[1])
-local ts     = tonumber(data[2])
+local t = redis.call('TIME')
+local now_ms = tonumber(t[1]) * 1000 + math.floor(tonumber(t[2]) / 1000)
+
+local data    = redis.call('HMGET', key, 'tokens', 'ts')
+local tokens  = tonumber(data[1])
+local last_ts = tonumber(data[2])
 
 if tokens == nil then
-  tokens = mps
-  ts = now
+  tokens  = capacity
+  last_ts = now_ms
 end
 
-local elapsed = math.max(0, now - ts) / 1000.0
-tokens = math.min(mps, tokens + elapsed * mps)
-ts = now
+local elapsed_sec = math.max(0, (now_ms - last_ts) / 1000.0)
+tokens = math.min(capacity, tokens + elapsed_sec * refill_ps)
 
-if tokens >= need then
-  tokens = tokens - need
-  redis.call('HMSET', key, 'tokens', tokens, 'ts', ts)
-  redis.call('PEXPIRE', key, 60000)
-  return {1, 0}
+local ttl_ms = 60000
+
+if tokens >= cost then
+  tokens = tokens - cost
+  redis.call('HMSET', key, 'tokens', tokens, 'ts', now_ms)
+  redis.call('PEXPIRE', key, ttl_ms)
+  return { 1, 0 }
 end
 
-local missing = need - tokens
-local wait_ms = math.ceil(missing / mps * 1000.0)
-redis.call('HMSET', key, 'tokens', tokens, 'ts', ts)
-redis.call('PEXPIRE', key, 60000)
-return {0, wait_ms}
+local missing      = cost - tokens
+local retry_after  = math.ceil(missing / refill_ps * 1000.0)
+
+redis.call('HMSET', key, 'tokens', tokens, 'ts', now_ms)
+redis.call('PEXPIRE', key, ttl_ms)
+return { 0, retry_after }
 `;
 
 const REGISTERED = new WeakSet();
@@ -62,7 +73,7 @@ function ensureRegistered(redis) {
 }
 
 function bucketKey(broadcastId) {
-  return `bcast:tb:${broadcastId}`;
+  return `wrl:bucket:bcast:tb:${broadcastId}`;
 }
 
 /**
@@ -77,7 +88,8 @@ function bucketKey(broadcastId) {
 async function acquireTokens(redis, broadcastId, mps, n = 1, maxSleep = 2000) {
   ensureRegistered(redis);
   const key = bucketKey(broadcastId);
-  const need = Math.max(1, Math.min(n, mps));
+  const capacity = Math.max(1, mps | 0);
+  const need = Math.max(1, Math.min(n, capacity));
 
   // Hard ceiling so a misconfigured / dead broadcast can't loop forever.
   const HARD_DEADLINE = Date.now() + 5 * 60 * 1000;
@@ -85,9 +97,9 @@ async function acquireTokens(redis, broadcastId, mps, n = 1, maxSleep = 2000) {
   while (Date.now() < HARD_DEADLINE) {
     const [granted, waitMs] = await redis.bcastAcquire(
       key,
-      String(mps),
-      String(Date.now()),
-      String(need)
+      String(capacity),
+      String(capacity),
+      String(need),
     );
     if (granted === 1) return true;
 

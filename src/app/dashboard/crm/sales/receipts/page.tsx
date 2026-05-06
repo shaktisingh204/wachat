@@ -71,12 +71,13 @@ export default function PaymentReceiptsPage() {
                                 <ZoruTableHead className="text-zoru-ink-muted">Client</ZoruTableHead>
                                 <ZoruTableHead className="text-zoru-ink-muted">Date</ZoruTableHead>
                                 <ZoruTableHead className="text-zoru-ink-muted text-right">Amount</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted text-right">Actions</ZoruTableHead>
                             </ZoruTableRow>
                         </ZoruTableHeader>
                         <ZoruTableBody>
                             {isLoading ? (
                                 <ZoruTableRow className="border-zoru-line">
-                                    <ZoruTableCell colSpan={4} className="text-center h-24">
+                                    <ZoruTableCell colSpan={5} className="text-center h-24">
                                         <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
                                     </ZoruTableCell>
                                 </ZoruTableRow>
@@ -87,11 +88,19 @@ export default function PaymentReceiptsPage() {
                                         <ZoruTableCell className="text-zoru-ink">{accountsMap.get(r.accountId.toString()) || 'Unknown Client'}</ZoruTableCell>
                                         <ZoruTableCell className="text-zoru-ink">{new Date(r.receiptDate).toLocaleDateString()}</ZoruTableCell>
                                         <ZoruTableCell className="text-right text-zoru-ink">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: r.currency || 'INR' }).format(r.totalAmountReceived)}</ZoruTableCell>
+                                        <ZoruTableCell className="text-right">
+                                            <Link
+                                                href={`/dashboard/crm/sales/receipts/${r._id}/edit`}
+                                                className="text-[12.5px] font-medium text-zoru-ink hover:underline"
+                                            >
+                                                Edit
+                                            </Link>
+                                        </ZoruTableCell>
                                     </ZoruTableRow>
                                 ))
                             ) : (
                                 <ZoruTableRow className="border-zoru-line">
-                                    <ZoruTableCell colSpan={4} className="h-24 text-center text-[13px] text-zoru-ink-muted">
+                                    <ZoruTableCell colSpan={5} className="h-24 text-center text-[13px] text-zoru-ink-muted">
                                         No receipts found.
                                     </ZoruTableCell>
                                 </ZoruTableRow>

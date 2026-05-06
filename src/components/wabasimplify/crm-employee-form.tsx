@@ -18,6 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { SmartDepartmentSelect } from '@/components/crm/hr-payroll/smart-department-select';
 import { SmartDesignationSelect } from '@/components/crm/hr-payroll/smart-designation-select';
 import { SmartLocationSelect } from '@/components/crm/smart-location-select';
+import { EntityPicker } from '@/components/crm/entity-picker';
 
 const initialState: { message?: string; error?: string } = { message: undefined, error: undefined };
 
@@ -59,6 +60,7 @@ interface ExtendedDetail {
     overtime_hourly_rate?: number;
     hourly_rate?: number;
     slack_username?: string;
+    bank_account_id?: string;
     bank_account_number?: string;
     bank_name?: string;
     tax_regime?: string;
@@ -69,7 +71,6 @@ interface EmployeeFormProps {
     employee?: WithId<CrmEmployee> | null;
     departments: WithId<CrmDepartment>[];
     designations: WithId<CrmDesignation>[];
-    managers: WithId<CrmEmployee>[];
     detail?: ExtendedDetail | null;
 }
 
@@ -78,7 +79,7 @@ function toDateInput(v: any): string {
     try { return new Date(v).toISOString().slice(0, 10); } catch { return ''; }
 }
 
-export function EmployeeForm({ employee, departments, designations, managers, detail }: EmployeeFormProps) {
+export function EmployeeForm({ employee, departments, designations, detail }: EmployeeFormProps) {
     const [state, formAction] = useActionState(saveCrmEmployee, initialState);
     const { toast } = useToast();
     const router = useRouter();
@@ -97,6 +98,7 @@ export function EmployeeForm({ employee, departments, designations, managers, de
     const [workState, setWorkState] = useState(employee?.workState || '');
     const [workCity, setWorkCity] = useState(employee?.workCity || '');
     const [reportingTo, setReportingTo] = useState(detail?.reporting_to || '');
+    const [bankAccountId, setBankAccountId] = useState<string>(detail?.bank_account_id || '');
 
     useEffect(() => {
         if (employee) {
@@ -127,6 +129,7 @@ export function EmployeeForm({ employee, departments, designations, managers, de
             <input type="hidden" name="workState" value={workState} />
             <input type="hidden" name="workCity" value={workCity} />
             <input type="hidden" name="ext_reporting_to" value={reportingTo} />
+            <input type="hidden" name="ext_bank_account_id" value={bankAccountId} />
 
             <ClayCard padded={false}>
                 <div className="p-6">
@@ -343,19 +346,20 @@ export function EmployeeForm({ employee, departments, designations, managers, de
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Reporting To</Label>
-                                        <Select value={reportingTo || '__none__'} onValueChange={(v) => setReportingTo(v === '__none__' ? '' : v)}>
-                                            <SelectTrigger className="h-10 rounded-lg border-border bg-card text-[13px]"><SelectValue placeholder="Select manager…" /></SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="__none__">— None —</SelectItem>
-                                                {managers
-                                                    .filter(m => !isEditing || m._id.toString() !== employee!._id.toString())
-                                                    .map(m => (
-                                                        <SelectItem key={m._id.toString()} value={m._id.toString()}>
-                                                            {m.firstName} {m.lastName}
-                                                        </SelectItem>
-                                                    ))}
-                                            </SelectContent>
-                                        </Select>
+                                        <EntityPicker
+                                            entity="employee"
+                                            value={reportingTo || null}
+                                            placeholder="Select manager…"
+                                            filter={
+                                                isEditing
+                                                    ? { _id: { $ne: employee!._id } }
+                                                    : undefined
+                                            }
+                                            onChange={(next) => {
+                                                const id = Array.isArray(next) ? next[0] ?? '' : (next ?? '');
+                                                setReportingTo(id);
+                                            }}
+                                        />
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Probation End Date</Label>
@@ -412,6 +416,18 @@ export function EmployeeForm({ employee, departments, designations, managers, de
                             <AccordionTrigger>Banking &amp; Tax</AccordionTrigger>
                             <AccordionContent className="pt-4">
                                 <div className="grid gap-4 md:grid-cols-2">
+                                    <div className="space-y-2 md:col-span-2">
+                                        <Label>Linked Bank Account</Label>
+                                        <EntityPicker
+                                            entity="bankAccount"
+                                            value={bankAccountId || null}
+                                            placeholder="Select bank account…"
+                                            onChange={(next) => {
+                                                const id = Array.isArray(next) ? next[0] ?? '' : (next ?? '');
+                                                setBankAccountId(id);
+                                            }}
+                                        />
+                                    </div>
                                     <div className="space-y-2">
                                         <Label>Bank Account Number</Label>
                                         <Input name="bank_account_number" defaultValue={detail?.bank_account_number || ''} className="h-10 rounded-lg border-border bg-card text-[13px]" />

@@ -17,6 +17,8 @@ use meta_flows::MetaFlowsState;
 use meta_suite::MetaSuiteState;
 use meta_token::MetaTokenState;
 use qr_codes::QrCodesState;
+use url_shortener::UrlShortenerState;
+use ad_manager::AdManagerState;
 use sabfiles::{SabfilesState, r2::{R2Client, R2Config}};
 use sabnode_auth::AuthConfig;
 use sabnode_db::{mongo::MongoHandle, redis::RedisHandle};
@@ -35,6 +37,19 @@ use wachat_facebook_automation::WachatFacebookAutomationState;
 use wachat_facebook_business::WachatFacebookBusinessState;
 use wachat_facebook_comments::WachatFacebookCommentsState;
 use telegram_bots::{TelegramBotsState, bot_api::BotApiClient as TelegramBotApiClient};
+use telegram_chats::TelegramChatsState;
+use telegram_broadcasts::TelegramBroadcastsState;
+use telegram_auto_reply::TelegramAutoReplyState;
+use telegram_commands::TelegramCommandsState;
+use telegram_bot_profile::TelegramBotProfileState;
+use telegram_channels::TelegramChannelsState;
+use telegram_analytics::TelegramAnalyticsState;
+use telegram_payments::TelegramPaymentsState;
+use telegram_stickers::TelegramStickersState;
+use telegram_stories::TelegramStoriesState;
+use telegram_flows::TelegramFlowsState;
+use telegram_mini_apps::TelegramMiniAppsState;
+use telegram_ads::TelegramAdsState;
 use wachat_facebook_content::WachatFacebookContentState;
 use wachat_facebook_crm::WachatFacebookCrmState;
 use wachat_facebook_events::WachatFacebookEventsState;
@@ -74,7 +89,7 @@ use wachat_webhook_contacts::ContactsUpserter;
 use wachat_webhook_conversations::ConversationTracker;
 use wachat_webhook_dlq::DlqWriter;
 use wachat_webhook_inbound::InboundProcessor;
-use wachat_webhook_status::StatusProcessor;
+use wachat_webhook_status::{StatusProcessor, WachatWebhookStatusState};
 use wachat_webhook_template_events::TemplateEventsProcessor;
 use wachat_webhook_verify::WebhookVerifier;
 
@@ -203,6 +218,8 @@ async fn run() -> anyhow::Result<()> {
 
     let webhook_actions = WachatWebhookActionsState::new(mongo.clone());
 
+    let webhook_status = WachatWebhookStatusState::new(mongo.clone());
+
     let meta_suite = MetaSuiteState::new(mongo.clone(), meta.clone());
 
     // Meta-token endpoints — read Facebook app credentials via the same env
@@ -219,6 +236,10 @@ async fn run() -> anyhow::Result<()> {
     let meta_flows = MetaFlowsState::new(mongo.clone(), meta.clone());
 
     let qr_codes = QrCodesState::new(mongo.clone());
+
+    let url_shortener = UrlShortenerState::new(mongo.clone());
+
+    let ad_manager = AdManagerState::new(mongo.clone());
 
     let facebook_flow = FacebookFlowState::new(mongo.clone());
 
@@ -284,11 +305,31 @@ async fn run() -> anyhow::Result<()> {
     let telegram_app_url = std::env::var("NEXT_PUBLIC_APP_URL")
         .or_else(|_| std::env::var("VERCEL_URL"))
         .unwrap_or_default();
+    let telegram_bot_api = TelegramBotApiClient::new();
     let telegram_bots_state = TelegramBotsState::new(
         mongo.clone(),
-        TelegramBotApiClient::new(),
+        telegram_bot_api.clone(),
         telegram_app_url,
     );
+    let telegram_chats_state = TelegramChatsState::new(
+        mongo.clone(),
+        telegram_bot_api.clone(),
+    );
+    let telegram_broadcasts_state =
+        TelegramBroadcastsState::new(mongo.clone(), telegram_bot_api.clone());
+    let telegram_auto_reply_state = TelegramAutoReplyState::new(mongo.clone());
+    let telegram_commands_state =
+        TelegramCommandsState::new(mongo.clone(), telegram_bot_api.clone());
+    let telegram_bot_profile_state =
+        TelegramBotProfileState::new(mongo.clone(), telegram_bot_api);
+    let telegram_channels_state = TelegramChannelsState::new(mongo.clone());
+    let telegram_analytics_state = TelegramAnalyticsState::new(mongo.clone());
+    let telegram_payments_state = TelegramPaymentsState::new(mongo.clone());
+    let telegram_stickers_state = TelegramStickersState::new(mongo.clone());
+    let telegram_stories_state = TelegramStoriesState::new(mongo.clone());
+    let telegram_flows_state = TelegramFlowsState::new(mongo.clone());
+    let telegram_mini_apps_state = TelegramMiniAppsState::new(mongo.clone());
+    let telegram_ads_state = TelegramAdsState::new(mongo.clone());
 
     // SabFiles — file manager backed by Cloudflare R2. R2 credentials are
     // optional at boot: if any are missing we boot anyway with a stubbed
@@ -338,10 +379,13 @@ async fn run() -> anyhow::Result<()> {
         features,
         analytics,
         webhook_actions,
+        webhook_status,
         meta_suite,
         meta_token,
         meta_flows,
         qr_codes,
+        url_shortener,
+        ad_manager,
         facebook_flow,
         public_api,
         api_key_verifier,
@@ -364,6 +408,19 @@ async fn run() -> anyhow::Result<()> {
         instagram,
         sabfiles_state,
         telegram_bots_state,
+        telegram_chats_state,
+        telegram_broadcasts_state,
+        telegram_auto_reply_state,
+        telegram_commands_state,
+        telegram_bot_profile_state,
+        telegram_channels_state,
+        telegram_analytics_state,
+        telegram_payments_state,
+        telegram_stickers_state,
+        telegram_stories_state,
+        telegram_flows_state,
+        telegram_mini_apps_state,
+        telegram_ads_state,
     );
     let app = router::build(state.clone());
 

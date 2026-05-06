@@ -177,6 +177,70 @@ function projectItem(doc: any, toChip: (d: any) => LookupChip, rawFields?: strin
 }
 
 /* ------------------------------------------------------------------ */
+/* Static lookup data (no DB)                                          */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Top 12 currencies. Kept inline so we don't need a `crm_currencies`
+ * collection just to power a picker. If/when a tenant-scoped currency
+ * table lands, swap this entry for a `makeMongoLookup` call.
+ */
+interface StaticCurrency { code: string; symbol: string; name: string }
+const STATIC_CURRENCIES: StaticCurrency[] = [
+  { code: 'INR', symbol: '₹',   name: 'Indian Rupee' },
+  { code: 'USD', symbol: '$',   name: 'US Dollar' },
+  { code: 'EUR', symbol: '€',   name: 'Euro' },
+  { code: 'GBP', symbol: '£',   name: 'British Pound' },
+  { code: 'AED', symbol: 'د.إ', name: 'UAE Dirham' },
+  { code: 'SGD', symbol: 'S$',  name: 'Singapore Dollar' },
+  { code: 'JPY', symbol: '¥',   name: 'Japanese Yen' },
+  { code: 'CAD', symbol: 'C$',  name: 'Canadian Dollar' },
+  { code: 'AUD', symbol: 'A$',  name: 'Australian Dollar' },
+  { code: 'NZD', symbol: 'NZ$', name: 'New Zealand Dollar' },
+  { code: 'CHF', symbol: 'Fr.', name: 'Swiss Franc' },
+  { code: 'CNY', symbol: '¥',   name: 'Chinese Yuan' },
+];
+
+/**
+ * Apply free-text matching + paginate over a static array. Used by
+ * `currency` and the (rare) static-fallback path for `taxRate` if
+ * we ever want one.
+ */
+function staticPaginate<T>(
+  list: T[],
+  match: (item: T, q: string) => boolean,
+  toItem: (item: T) => LookupItem,
+  params: LookupParams,
+  filterById?: (item: T, id: string) => boolean,
+): LookupResult {
+  const { page, limit, skip } = paginate(params);
+
+  if (params.ids && params.ids.length > 0 && filterById) {
+    const matched = list.filter(it => params.ids!.some(id => filterById(it, id)));
+    const items = matched.map(toItem);
+    return { items, page: 1, limit: items.length, total: items.length, hasMore: false };
+  }
+
+  const q = params.q?.trim() ?? '';
+  const filtered = q.length === 0 ? list : list.filter(it => match(it, q));
+  const total = filtered.length;
+  const slice = filtered.slice(skip, skip + limit);
+  const items = slice.map(toItem);
+  return { items, page, limit, total, hasMore: skip + items.length < total };
+}
+
+/** Empty-result helper for entities whose collection doesn't exist yet. */
+function emptyLookupResult(params: LookupParams): LookupResult {
+  return {
+    items: [],
+    page: Math.max(1, params.page ?? 1),
+    limit: Math.min(Math.max(1, params.limit ?? LOOKUP_DEFAULT_LIMIT), LOOKUP_MAX_LIMIT),
+    total: 0,
+    hasMore: false,
+  };
+}
+
+/* ------------------------------------------------------------------ */
 /* Registry                                                            */
 /* ------------------------------------------------------------------ */
 
@@ -450,6 +514,353 @@ const registry: LookupRegistry = {
         tertiary: last4 ? `••••${last4}` : (doc.currency || undefined),
       };
     },
+  }),
+
+  department: makeMongoLookup({
+    collection: 'crm_departments',
+    // `code` and `head` aren't currently part of CrmDepartment in
+    // definitions.ts but extension shapes (WsDepartmentExt) and
+    // future migrations may add them — keep them in the searchable
+    // list and the chip projection so this entry "just works" once
+    // the schema catches up.
+    searchableFields: ['name', 'code'],
+    rawFields: ['name', 'code', 'description', 'parentDepartmentId'],
+    sort: { name: 1 },
+    toChip: (doc) => ({
+      primary: doc.name || 'Unnamed',
+      secondary: doc.code || undefined,
+      tertiary: doc?.head?.name || undefined,
+    }),
+  }),
+
+  designation: {
+    // Designation joins to its parent department for the tertiary
+    // line, so we hand-roll the aggregation rather than reuse
+    // `makeMongoLookup`.
+    searchableFields: ['name', 'level'],
+    toChip: (doc) => ({
+      primary: doc.name || 'Unnamed',
+      secondary: doc.level || undefined,
+      tertiary: doc.departmentName || undefined,
+    }),
+    async fetch(params, ctx) {
+      const context = ctx as LookupContext | null;
+      if (!context) {
+        return { items: [], page: 1, limit: params.limit ?? LOOKUP_DEFAULT_LIMIT, total: 0, hasMore: false };
+      }
+      const { db } = await connectToDatabase();
+      const { page, limit, skip } = paginate(params);
+
+      const matchStage: Record<string, unknown> = { userId: context.userId };
+      const hydrateIds = toObjectIds(params.ids);
+      if (hydrateIds) matchStage._id = { $in: hydrateIds };
+      const text = textMatch(this.searchableFields, params.q);
+      if (text) Object.assign(matchStage, text);
+      if (params.filter) Object.assign(matchStage, params.filter);
+
+      const pipeline: any[] = [
+        { $match: matchStage },
+        {
+          $lookup: {
+            from: 'crm_departments',
+            localField: 'departmentId',
+            foreignField: '_id',
+            as: '_dept',
+          },
+        },
+        { $unwind: { path: '$_dept', preserveNullAndEmptyArrays: true } },
+        { $addFields: { departmentName: '$_dept.name' } },
+        { $project: { _dept: 0 } },
+        { $sort: { name: 1 } },
+      ];
+
+      const [docs, total] = await Promise.all([
+        hydrateIds
+          ? db.collection('crm_designations').aggregate(pipeline).toArray()
+          : db.collection('crm_designations').aggregate([...pipeline, { $skip: skip }, { $limit: limit }]).toArray(),
+        db.collection('crm_designations').countDocuments(matchStage as Filter<Document>),
+      ]);
+
+      const rawFields = ['name', 'level', 'departmentId', 'description', 'departmentName'];
+      const items = docs.map(doc => projectItem(doc, this.toChip, rawFields));
+      if (hydrateIds) {
+        return { items, page: 1, limit: items.length, total: items.length, hasMore: false };
+      }
+      return { items, page, limit, total, hasMore: skip + items.length < total };
+    },
+  },
+
+  tag: {
+    // TODO(tag): a unified `crm_tags` collection does not exist yet —
+    // tags are inlined per-entity (e.g. `crm_accounts.tags: string[]`).
+    // Once the unified collection lands, swap this for a
+    // `makeMongoLookup({ collection: 'crm_tags', ... })`.
+    searchableFields: ['name'],
+    toChip: (doc) => ({ primary: doc.name || 'Tag', color: doc.color }),
+    async fetch(params) {
+      return emptyLookupResult(params);
+    },
+  },
+
+  category: makeMongoLookup({
+    // Confirmed: `crm_product_categories` is the canonical collection
+    // (see `crm-inventory-settings.actions.ts`). There is no
+    // `crm_categories` in this codebase. The current schema
+    // (`CrmProductCategory`) doesn't have `code` or a parent ref but
+    // we keep them in the searchable/chip projection so this entry
+    // upgrades gracefully when those fields are added.
+    collection: 'crm_product_categories',
+    searchableFields: ['name', 'code'],
+    rawFields: ['name', 'code', 'description', 'parentCategoryId', 'parentName'],
+    sort: { name: 1 },
+    toChip: (doc) => ({
+      primary: doc.name || 'Unnamed',
+      secondary: doc.code || undefined,
+      tertiary: doc.parentName || undefined,
+    }),
+  }),
+
+  taxRate: {
+    // Backed by Worksuite's `crm_taxes` collection (tenant-scoped via
+    // `userId`, fields `tax_name` / `rate_percent`). If the tenant
+    // hasn't created any tax rates yet, fall back to the standard
+    // Indian GST slabs so the picker is never empty.
+    // TODO(taxRate): consider seeding `crm_taxes` per-tenant on signup
+    // so the static fallback can be removed.
+    searchableFields: ['tax_name'],
+    toChip: (doc) => {
+      const rate = typeof doc.rate_percent === 'number' ? doc.rate_percent : Number(doc.rate_percent ?? 0);
+      const ratePct = Number.isFinite(rate) ? `${rate}%` : '—';
+      return {
+        primary: ratePct,
+        secondary: doc.tax_name || undefined,
+      };
+    },
+    async fetch(params, ctx) {
+      const context = ctx as LookupContext | null;
+      if (!context) {
+        return { items: [], page: 1, limit: params.limit ?? LOOKUP_DEFAULT_LIMIT, total: 0, hasMore: false };
+      }
+      const { db } = await connectToDatabase();
+      const { page, limit, skip } = paginate(params);
+
+      const tenantFilter: Filter<Document> = { userId: context.userId };
+      const hydrateIds = toObjectIds(params.ids);
+
+      if (hydrateIds) {
+        const docs = await db.collection('crm_taxes')
+          .find({ ...tenantFilter, _id: { $in: hydrateIds } } as Filter<Document>).toArray();
+        const items = docs.map(doc => projectItem(doc, this.toChip, ['tax_name', 'rate_percent', 'is_default']));
+        return { items, page: 1, limit: items.length, total: items.length, hasMore: false };
+      }
+
+      const text = textMatch(this.searchableFields, params.q);
+      const filter: Filter<Document> = { ...tenantFilter, ...(params.filter ?? {}), ...(text ?? {}) };
+
+      const [docs, total] = await Promise.all([
+        db.collection('crm_taxes').find(filter).sort({ rate_percent: 1 }).skip(skip).limit(limit).toArray(),
+        db.collection('crm_taxes').countDocuments(filter),
+      ]);
+
+      // Fallback: synthesize chips from the standard GST slabs when
+      // the tenant has nothing in `crm_taxes` yet.
+      if (total === 0 && !params.q) {
+        const slabs = [0, 0.1, 0.25, 3, 5, 12, 18, 28];
+        const items: LookupItem[] = slabs.map(rate => ({
+          id: `static:gst:${rate}`,
+          chip: { primary: `${rate}%`, secondary: 'GST' },
+          raw: { tax_name: 'GST', rate_percent: rate, _static: true },
+        }));
+        return {
+          items: items.slice(skip, skip + limit),
+          page,
+          limit,
+          total: items.length,
+          hasMore: skip + Math.min(items.length - skip, limit) < items.length,
+        };
+      }
+
+      const rawFields = ['tax_name', 'rate_percent', 'is_default'];
+      const items = docs.map(doc => projectItem(doc, this.toChip, rawFields));
+      return { items, page, limit, total, hasMore: skip + items.length < total };
+    },
+  },
+
+  currency: {
+    // Static — see `STATIC_CURRENCIES` above. Tenant context is
+    // ignored intentionally; currencies are global reference data.
+    searchableFields: ['code', 'name'],
+    toChip: (doc) => ({
+      primary: doc.code,
+      secondary: doc.symbol,
+      tertiary: doc.name,
+    }),
+    async fetch(params) {
+      return staticPaginate<StaticCurrency>(
+        STATIC_CURRENCIES,
+        (item, q) => {
+          const needle = q.toLowerCase();
+          return item.code.toLowerCase().includes(needle)
+            || item.name.toLowerCase().includes(needle);
+        },
+        (item) => ({
+          id: item.code,
+          chip: { primary: item.code, secondary: item.symbol, tertiary: item.name },
+          raw: { code: item.code, symbol: item.symbol, name: item.name },
+        }),
+        params,
+        (item, id) => item.code === id,
+      );
+    },
+  },
+
+  pipeline: {
+    // Pipelines are stored as an embedded array on the user document
+    // (`users.crmPipelines`), NOT a standalone collection. Each entry
+    // has a uuid `id` (string), `name`, and `stages: { id, name, chance }[]`.
+    // We read the current user's array, filter in memory, and shape
+    // chips. Since the data lives on the tenant's own user record,
+    // tenant scoping is implicit.
+    searchableFields: ['name'],
+    toChip: (doc) => {
+      const stageCount = Array.isArray(doc.stages) ? doc.stages.length : 0;
+      return {
+        primary: doc.name || 'Pipeline',
+        secondary: stageCount > 0 ? `${stageCount} stage${stageCount === 1 ? '' : 's'}` : undefined,
+        tertiary: doc.ownerName || undefined,
+      };
+    },
+    async fetch(params, ctx) {
+      const context = ctx as LookupContext | null;
+      if (!context) {
+        return { items: [], page: 1, limit: params.limit ?? LOOKUP_DEFAULT_LIMIT, total: 0, hasMore: false };
+      }
+      const { db } = await connectToDatabase();
+      const userDoc = await db.collection('users').findOne(
+        { _id: context.userId },
+        { projection: { crmPipelines: 1 } },
+      );
+      const all: any[] = Array.isArray(userDoc?.crmPipelines) ? userDoc!.crmPipelines : [];
+
+      return staticPaginate<any>(
+        all,
+        (p, q) => typeof p?.name === 'string' && p.name.toLowerCase().includes(q.toLowerCase()),
+        (p) => ({
+          id: String(p.id),
+          chip: this.toChip(p),
+          raw: { name: p.name, stages: p.stages, ownerName: p.ownerName },
+        }),
+        params,
+        (p, id) => String(p?.id) === id,
+      );
+    },
+  },
+
+  stage: {
+    // Stages are nested inside `users.crmPipelines[].stages`. We read
+    // the current user's pipelines, optionally filter to a single
+    // pipeline via `params.filter.pipelineId`, then flatten into a
+    // single stage list. The composite id is `pipelineId:stageId` so
+    // a hydrated value can be uniquely resolved later.
+    searchableFields: ['name', 'pipelineName'],
+    toChip: (doc) => {
+      const probability = typeof doc.chance === 'number' ? `${doc.chance}%` : undefined;
+      return {
+        primary: doc.name || 'Stage',
+        secondary: doc.pipelineName || undefined,
+        tertiary: probability,
+      };
+    },
+    async fetch(params, ctx) {
+      const context = ctx as LookupContext | null;
+      if (!context) {
+        return { items: [], page: 1, limit: params.limit ?? LOOKUP_DEFAULT_LIMIT, total: 0, hasMore: false };
+      }
+      const { db } = await connectToDatabase();
+      const userDoc = await db.collection('users').findOne(
+        { _id: context.userId },
+        { projection: { crmPipelines: 1 } },
+      );
+      const pipelines: any[] = Array.isArray(userDoc?.crmPipelines) ? userDoc!.crmPipelines : [];
+
+      const wantedPipelineId = (params.filter as Record<string, unknown> | undefined)?.pipelineId;
+      const scopedPipelines = wantedPipelineId
+        ? pipelines.filter(p => String(p?.id) === String(wantedPipelineId))
+        : pipelines;
+
+      // Flatten with parent context attached.
+      const flat: Array<{ id: string; name: string; chance: number; pipelineId: string; pipelineName: string }> = [];
+      for (const p of scopedPipelines) {
+        if (!Array.isArray(p?.stages)) continue;
+        for (const s of p.stages) {
+          flat.push({
+            id: `${String(p.id)}:${String(s.id)}`,
+            name: String(s?.name ?? ''),
+            chance: Number(s?.chance ?? 0),
+            pipelineId: String(p.id),
+            pipelineName: String(p?.name ?? ''),
+          });
+        }
+      }
+
+      return staticPaginate<typeof flat[number]>(
+        flat,
+        (s, q) => {
+          const needle = q.toLowerCase();
+          return s.name.toLowerCase().includes(needle)
+            || s.pipelineName.toLowerCase().includes(needle);
+        },
+        (s) => ({
+          id: s.id,
+          chip: this.toChip(s),
+          raw: {
+            name: s.name,
+            chance: s.chance,
+            pipelineId: s.pipelineId,
+            pipelineName: s.pipelineName,
+          },
+        }),
+        params,
+        (s, id) => s.id === id,
+      );
+    },
+  },
+
+  branch: {
+    // TODO(branch): the multi-branch feature (plan §12.18) hasn't
+    // produced a `crm_branches` collection yet. Returning an empty
+    // result keeps the picker working — swap to `makeMongoLookup`
+    // once the collection lands. Expected fields per the plan:
+    // `name`, `code`, `address`, `city`, `state`, `country`,
+    // `pincode`, `isDefault`, `userId`.
+    searchableFields: ['name', 'code'],
+    toChip: (doc) => ({
+      primary: doc.name || 'Branch',
+      secondary: doc.code || undefined,
+      tertiary: doc.city || undefined,
+    }),
+    async fetch(params) {
+      return emptyLookupResult(params);
+    },
+  },
+
+  project: makeMongoLookup({
+    // Confirmed: `crm_projects` is the canonical collection (used by
+    // both `crm-services.actions.ts` and `worksuite/projects.actions.ts`).
+    // The base SabNode shape (`HrProject`) doesn't include `code`,
+    // but we keep `code` in the searchable list and chip projection
+    // for forward-compat with `WsProject.projectShortCode`-style
+    // additions.
+    collection: 'crm_projects',
+    searchableFields: ['name', 'code', 'projectShortCode', 'description'],
+    rawFields: ['name', 'code', 'projectShortCode', 'clientId', 'clientName',
+                'status', 'startDate', 'endDate', 'currency'],
+    sort: { name: 1 },
+    toChip: (doc) => ({
+      primary: doc.name || doc.projectName || 'Project',
+      secondary: doc.code || doc.projectShortCode || undefined,
+      tertiary: doc.clientName || undefined,
+    }),
   }),
 };
 

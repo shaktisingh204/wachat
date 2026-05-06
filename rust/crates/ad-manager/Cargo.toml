@@ -1,0 +1,36 @@
+[package]
+name = "ad-manager"
+version = "0.1.0"
+edition = "2024"
+description = "Meta Marketing API BFF — proxies graph.facebook.com calls and owns the ad_accounts/ad_campaigns/automated-rules state for the Ad Manager dashboard."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "ad_manager"
+path = "src/lib.rs"
+
+[dependencies]
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query", "multipart"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "sync"] }
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+bson = { version = "2", features = ["chrono-0_4"] }
+mongodb = "3"
+
+futures = "0.3"
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+tracing = "0.1"
+anyhow = "1"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "gzip", "multipart", "stream"] }
+bytes = "1"
+
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+
+[lints]
+workspace = true

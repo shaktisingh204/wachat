@@ -23,16 +23,50 @@ use fred::types::scripts::Script;
 /// — there is no risk of running an outdated script in production.
 pub const ADD_JOB_LUA: &str = include_str!("add_job.lua");
 
-/// Process-global `Script` handle. `Script::from_lua` precomputes the SHA1
+/// Consumer-side scripts. See the matching `.lua` files for the contracts.
+pub const MOVE_TO_ACTIVE_LUA: &str = include_str!("move_to_active.lua");
+pub const MOVE_TO_COMPLETED_LUA: &str = include_str!("move_to_completed.lua");
+pub const MOVE_TO_FAILED_LUA: &str = include_str!("move_to_failed.lua");
+pub const STALLED_CHECK_LUA: &str = include_str!("stalled_check.lua");
+
+/// Process-global `Script` handles. `Script::from_lua` precomputes the SHA1
 /// in pure Rust (via fred's `sha-1` feature) so this initialisation does
 /// no I/O — the first EVALSHA call is what actually loads the script
 /// server-side, and `evalsha_with_reload` retries with `SCRIPT LOAD` on
 /// `NOSCRIPT`.
-static SCRIPT: OnceLock<Script> = OnceLock::new();
+static ADD_JOB_SCRIPT: OnceLock<Script> = OnceLock::new();
+static MOVE_TO_ACTIVE_SCRIPT: OnceLock<Script> = OnceLock::new();
+static MOVE_TO_COMPLETED_SCRIPT: OnceLock<Script> = OnceLock::new();
+static MOVE_TO_FAILED_SCRIPT: OnceLock<Script> = OnceLock::new();
+static STALLED_CHECK_SCRIPT: OnceLock<Script> = OnceLock::new();
 
 /// Returns the cached `Script` for `add_job.lua`. Cheap (one OnceLock read);
 /// safe to call on every `BullProducer::add` invocation.
 #[inline]
 pub fn add_job_script() -> &'static Script {
-    SCRIPT.get_or_init(|| Script::from_lua(ADD_JOB_LUA))
+    ADD_JOB_SCRIPT.get_or_init(|| Script::from_lua(ADD_JOB_LUA))
+}
+
+/// Returns the cached `Script` for `move_to_active.lua`.
+#[inline]
+pub fn move_to_active_script() -> &'static Script {
+    MOVE_TO_ACTIVE_SCRIPT.get_or_init(|| Script::from_lua(MOVE_TO_ACTIVE_LUA))
+}
+
+/// Returns the cached `Script` for `move_to_completed.lua`.
+#[inline]
+pub fn move_to_completed_script() -> &'static Script {
+    MOVE_TO_COMPLETED_SCRIPT.get_or_init(|| Script::from_lua(MOVE_TO_COMPLETED_LUA))
+}
+
+/// Returns the cached `Script` for `move_to_failed.lua`.
+#[inline]
+pub fn move_to_failed_script() -> &'static Script {
+    MOVE_TO_FAILED_SCRIPT.get_or_init(|| Script::from_lua(MOVE_TO_FAILED_LUA))
+}
+
+/// Returns the cached `Script` for `stalled_check.lua`.
+#[inline]
+pub fn stalled_check_script() -> &'static Script {
+    STALLED_CHECK_SCRIPT.get_or_init(|| Script::from_lua(STALLED_CHECK_LUA))
 }

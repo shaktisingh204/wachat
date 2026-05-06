@@ -5,7 +5,7 @@
 name = "wachat-webhook-status"
 version = "0.1.0"
 edition = "2024"
-description = "Process Meta WhatsApp webhook status updates (sent/delivered/read/failed) into MongoDB MessageLog rows. Idempotent, batch-friendly, no broadcast counter side-effects."
+description = "Process Meta WhatsApp webhook status updates (sent/delivered/read/failed) into MongoDB MessageLog rows + broadcast counters. Idempotent, batch-friendly. Hosts the Phase-9 broadcast-counter HTTP endpoint consumed by the legacy Node webhook receiver during the broadcast-worker cutover."
 license = "UNLICENSED"
 publish = false
 
@@ -27,6 +27,20 @@ bson = { version = "2.13", features = ["chrono-0_4"] }
 
 # Mongo driver — used for `Collection::update_one` and the `UpdateResult` type.
 mongodb = "3.2"
+
+# Stream combinators for the bulk `broadcast_contacts` cursor walk in
+# `broadcast.rs`. Same minor pin used across the workspace.
+futures = "0.3"
+
+# Axum HTTP — only used by the Phase-9 broadcast-counter endpoint
+# (`POST /v1/wachat/webhook-status/broadcast-statuses`). Same feature
+# union as sibling routers so the api crate resolves a single set of
+# cargo features at build time.
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros"] }
+
+# JWT extractor for the broadcast-counter handler — mirrors the auth
+# contract every other domain router uses (no anonymous access).
+sabnode-auth = { path = "../auth" }
 
 # Tracing for fail-soft logging on unknown wamids / malformed status strings.
 tracing = "0.1"

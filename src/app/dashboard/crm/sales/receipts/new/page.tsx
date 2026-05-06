@@ -21,15 +21,15 @@ import {
 } from '@/components/zoruui';
 import { DatePicker } from '@/components/ui/date-picker';
 import { ArrowLeft, Save, LoaderCircle, PlusCircle, Trash2, Check } from 'lucide-react';
-import { SmartClientSelect } from '@/components/crm/sales/smart-client-select';
 import Link from 'next/link';
 import { v4 as uuidv4 } from 'uuid';
 import type { WithId, CrmAccount, CrmInvoice, PaymentRecord } from '@/lib/definitions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
 import { getUnpaidInvoicesByAccount } from '@/app/actions/crm-invoices.actions';
 import { savePaymentReceipt } from '@/app/actions/crm-payment-receipts.actions';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { NotebookText } from 'lucide-react';
+import { EntityPicker } from '@/components/crm/entity-picker';
 
 const initialState = { message: '', error: '' };
 
@@ -58,12 +58,14 @@ const StepIndicator = ({ currentStep, step, title }: { currentStep: number, step
 export default function RecordPaymentPage() {
     const [state, formAction] = useActionState(savePaymentReceipt, initialState);
     const router = useRouter();
+    const pathname = usePathname();
     const { toast } = useZoruToast();
     const formRef = useRef<HTMLFormElement>(null);
 
     const [step, setStep] = useState(1);
     const [clients, setClients] = useState<WithId<CrmAccount>[]>([]);
     const [selectedClientId, setSelectedClientId] = useState<string>('');
+    const [bankAccountId, setBankAccountId] = useState<string>('');
     const [receiptDate, setReceiptDate] = useState<Date | undefined>(new Date());
     const [currency, setCurrency] = useState<string>('INR');
 
@@ -160,6 +162,7 @@ export default function RecordPaymentPage() {
     return (
         <form action={formAction} ref={formRef}>
             <input type="hidden" name="accountId" value={selectedClientId} />
+            <input type="hidden" name="bankAccountId" value={bankAccountId} />
             <input type="hidden" name="receiptDate" value={receiptDate?.toISOString()} />
             <input type="hidden" name="currency" value={currency} />
             <input type="hidden" name="paymentRecords" value={JSON.stringify(paymentRecords)} />
@@ -195,22 +198,38 @@ export default function RecordPaymentPage() {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="space-y-1.5">
                                             <ZoruLabel htmlFor="client-select" className="text-zoru-ink">Payment Received From *</ZoruLabel>
-                                            <SmartClientSelect
-                                                value={selectedClientId}
-                                                onSelect={handleClientChange}
-                                                initialOptions={clients.map(c => ({ value: c._id.toString(), label: c.name }))}
-                                                onClientAdded={(newClient: any) => {
-                                                    if (newClient) {
-                                                        const newId = newClient._id?.toString() || newClient.insertedId?.toString();
-                                                        setClients(prev => [...prev, { ...newClient, _id: newId }]);
-                                                        handleClientChange(newId);
-                                                    }
+                                            <EntityPicker
+                                                entity="client"
+                                                value={selectedClientId || null}
+                                                allowCreate
+                                                placeholder="Select client…"
+                                                onCreateClick={() => {
+                                                    const ret = encodeURIComponent(pathname);
+                                                    router.push(`/dashboard/crm/sales/clients/new?return=${ret}`);
+                                                }}
+                                                onChange={(next) => {
+                                                    const id = Array.isArray(next) ? next[0] ?? '' : (next ?? '');
+                                                    handleClientChange(id);
                                                 }}
                                             />
                                         </div>
                                         <div className="space-y-1.5">
                                             <ZoruLabel htmlFor="currency" className="text-zoru-ink">Currency *</ZoruLabel>
                                             <ZoruSelect name="currency" defaultValue={currency} onValueChange={setCurrency} required><ZoruSelectTrigger id="currency"><ZoruSelectValue /></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="INR">Indian Rupee (INR, ₹)</ZoruSelectItem><ZoruSelectItem value="USD">US Dollar (USD, $)</ZoruSelectItem></ZoruSelectContent></ZoruSelect>
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="space-y-1.5">
+                                            <ZoruLabel htmlFor="bank-account-select" className="text-zoru-ink">Deposit To (Bank Account)</ZoruLabel>
+                                            <EntityPicker
+                                                entity="bankAccount"
+                                                value={bankAccountId || null}
+                                                placeholder="Select bank account…"
+                                                onChange={(next) => {
+                                                    const id = Array.isArray(next) ? next[0] ?? '' : (next ?? '');
+                                                    setBankAccountId(id);
+                                                }}
+                                            />
                                         </div>
                                     </div>
                                 </div>

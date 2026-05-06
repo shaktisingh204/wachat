@@ -68,6 +68,7 @@
 //! # Ok(()) }
 //! ```
 
+pub mod consumer;
 pub mod error;
 pub mod keys;
 pub mod producer;
@@ -75,5 +76,6 @@ pub mod script;
 
 // Re-export the public surface so `use wachat_queue::{BullProducer, ...}`
 // works without subpath imports.
+pub use consumer::{BullJob, CloseHandle, JobHandler, JobOutcome, Worker, WorkerOptions};
 pub use error::QueueError;
 pub use producer::{Backoff, BullProducer, DEFAULT_PREFIX, JobId, JobOptions};

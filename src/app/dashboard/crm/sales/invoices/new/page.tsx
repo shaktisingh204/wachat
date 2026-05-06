@@ -24,6 +24,8 @@ import { saveInvoice } from '@/app/actions/crm-invoices.actions';
 import { useRouter } from 'next/navigation';
 import { SmartClientSelect } from '@/components/crm/sales/smart-client-select';
 import { SmartProductSelect } from '@/components/crm/inventory/smart-product-select';
+import { EntityPicker } from '@/components/crm/entity-picker';
+import type { LookupItem } from '@/lib/lookup-registry';
 import { SabFilePickerButton } from '@/components/sabfiles';
 
 type TermItem = { id: string; text: string; }
@@ -120,6 +122,9 @@ export default function NewInvoicePage() {
 
     const [clients, setClients] = useState<WithId<CrmAccount>[]>([]);
     const [selectedClientId, setSelectedClientId] = useState<string>('');
+    // Hydrated client from <EntityPicker> — populated via the picker's
+    // onChange so we can fill GSTIN / address without a follow-up fetch.
+    const [pickedClient, setPickedClient] = useState<LookupItem | null>(null);
     const [invoiceDate, setInvoiceDate] = useState<Date | undefined>(new Date());
     const [dueDate, setDueDate] = useState<Date | undefined>(new Date(Date.now() + 15 * 24 * 60 * 60 * 1000));
     const [lineItems, setLineItems] = useState<InvoiceLineItem[]>([{ id: '1', name: '', description: '', quantity: 1, rate: 0 }]);
@@ -150,6 +155,15 @@ export default function NewInvoicePage() {
     }, [state, toast, router]);
 
     const selectedClient = clients.find(c => c._id.toString() === selectedClientId);
+    // When the picker hydrated a client we don't have in `clients` yet
+    // (e.g. fresh tenant, large dataset), fall back to its `raw` for
+    // the inline billing-address preview.
+    const pickedRaw = pickedClient && pickedClient.id === selectedClientId
+        ? (pickedClient.raw as Record<string, any> | undefined)
+        : undefined;
+    const billedToName = selectedClient?.name ?? pickedRaw?.name;
+    const billedToAddress = selectedClient?.address ?? (pickedRaw?.billingAddress as string | undefined) ?? (pickedRaw?.address as string | undefined);
+    const billedToPhone = selectedClient?.phone ?? (pickedRaw?.phone as string | undefined);
 
     return (
         <form action={formAction}>
@@ -199,22 +213,27 @@ export default function NewInvoicePage() {
                                 </div>
                                 <div>
                                     <h3 className="mb-2 text-zoru-ink">Billed To:</h3>
-                                    <SmartClientSelect
-                                        value={selectedClientId}
-                                        onSelect={setSelectedClientId}
-                                        initialOptions={clients.map(c => ({ value: c._id.toString(), label: c.name }))}
-                                        onClientAdded={(newClient) => {
-                                            if (newClient) {
-                                                setClients(prev => [...prev, { ...newClient, _id: newClient._id || newClient.insertedId }]);
-                                                setSelectedClientId(newClient._id?.toString() || newClient.insertedId?.toString());
-                                            }
+                                    <EntityPicker
+                                        entity="client"
+                                        value={selectedClientId || null}
+                                        allowCreate
+                                        placeholder="Select client…"
+                                        onCreateClick={() => {
+                                            const ret = encodeURIComponent('/dashboard/crm/sales/invoices/new');
+                                            router.push(`/dashboard/crm/sales/clients/new?return=${ret}`);
+                                        }}
+                                        onChange={(next, hydrated) => {
+                                            const id = Array.isArray(next) ? next[0] ?? '' : (next ?? '');
+                                            setSelectedClientId(id);
+                                            const item = Array.isArray(hydrated) ? hydrated[0] : hydrated;
+                                            setPickedClient(item ?? null);
                                         }}
                                     />
-                                    {selectedClient && (
+                                    {(billedToName || billedToAddress || billedToPhone) && (
                                         <div className="mt-2 space-y-1 text-sm">
-                                            <p className="text-zoru-ink">{selectedClient.name}</p>
-                                            <p className="text-zoru-ink-muted">{selectedClient.address}</p>
-                                            <p className="text-zoru-ink-muted">{selectedClient.phone}</p>
+                                            {billedToName && <p className="text-zoru-ink">{billedToName}</p>}
+                                            {billedToAddress && <p className="text-zoru-ink-muted">{billedToAddress}</p>}
+                                            {billedToPhone && <p className="text-zoru-ink-muted">{billedToPhone}</p>}
                                         </div>
                                     )}
                                 </div>

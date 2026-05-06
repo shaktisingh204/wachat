@@ -13,15 +13,15 @@ import {
 } from '@/components/zoruui';
 import { DatePicker } from '@/components/ui/date-picker';
 import { PlusCircle, Trash2, ArrowLeft, Save, LoaderCircle, Image as ImageIcon, Upload, X } from 'lucide-react';
-import { SmartClientSelect } from '@/components/crm/sales/smart-client-select';
-import { SmartProductSelect } from '@/components/crm/inventory/smart-product-select';
 import Link from 'next/link';
 import { v4 as uuidv4 } from 'uuid';
 import type { WithId, CrmAccount, QuotationLineItem } from '@/lib/definitions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
 import { saveQuotation } from '@/app/actions/crm-quotations.actions';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { SabFilePickerButton } from '@/components/sabfiles';
+import { EntityPicker } from '@/components/crm/entity-picker';
+import type { LookupItem } from '@/lib/lookup-registry';
 
 type TermItem = { id: string; text: string; }
 type AdditionalInfoItem = { id: string; key: string; value: string; }
@@ -77,15 +77,20 @@ const QuotationLineItems = ({ items, setItems, currency }: { items: QuotationLin
                         {items.map((item, index) => (
                             <tr key={item.id} className="border-b border-zoru-line">
                                 <td className="p-2">
-                                    <SmartProductSelect
-                                        value={item.id.startsWith('item-') && !item.name ? '' : undefined}
+                                    <EntityPicker
+                                        entity="item"
+                                        value={null}
                                         placeholder="Name/SKU"
-                                        onSelect={(val) => { }}
-                                        onProductChange={(product) => {
-                                            handleItemChange(item.id, 'name', product.name);
-                                            handleItemChange(item.id, 'rate', product.sellingPrice);
+                                        onChange={(_id, hydrated) => {
+                                            const raw = (hydrated as LookupItem | undefined)?.raw as any;
+                                            if (raw) {
+                                                handleItemChange(item.id, 'name', raw.name ?? '');
+                                                handleItemChange(item.id, 'rate', raw.sellingPrice ?? 0);
+                                                if (raw.description !== undefined) {
+                                                    handleItemChange(item.id, 'description', raw.description ?? '');
+                                                }
+                                            }
                                         }}
-                                        className="w-full"
                                     />
                                 </td>
                                 <td className="p-2"><ZoruInput type="number" className="w-24 text-right" value={item.quantity} onChange={e => handleItemChange(item.id, 'quantity', Number(e.target.value))} /></td>
@@ -164,10 +169,12 @@ const AdditionalInfo = ({ fields, setFields }: { fields: AdditionalInfoItem[], s
 export default function NewQuotationPage() {
     const [state, formAction] = useActionState(saveQuotation, initialState);
     const router = useRouter();
+    const pathname = usePathname();
     const { toast } = useZoruToast();
 
     const [clients, setClients] = useState<WithId<CrmAccount>[]>([]);
     const [selectedClientId, setSelectedClientId] = useState<string>('');
+    const [pickedClient, setPickedClient] = useState<LookupItem | null>(null);
     const [quotationDate, setQuotationDate] = useState<Date | undefined>(new Date());
     const [validTillDate, setValidTillDate] = useState<Date | undefined>(new Date(Date.now() + 15 * 24 * 60 * 60 * 1000));
     const [lineItems, setLineItems] = useState<QuotationLineItem[]>([{ id: '1', name: '', description: '', quantity: 1, rate: 0 }]);
@@ -243,23 +250,39 @@ export default function NewQuotationPage() {
                                 </div>
                                 <div>
                                     <h3 className="mb-2 text-zoru-ink">To:</h3>
-                                    <SmartClientSelect
-                                        value={selectedClientId}
-                                        onSelect={setSelectedClientId}
-                                        initialOptions={clients.map(c => ({ value: c._id.toString(), label: c.name }))}
-                                        onClientAdded={(newClient: any) => {
-                                            if (newClient) {
-                                                setClients(prev => [...prev, { ...newClient, _id: newClient._id || newClient.insertedId }]);
-                                                setSelectedClientId(newClient._id?.toString() || newClient.insertedId?.toString());
-                                            }
+                                    <EntityPicker
+                                        entity="client"
+                                        value={selectedClientId || null}
+                                        allowCreate
+                                        placeholder="Select client…"
+                                        onCreateClick={() => {
+                                            const ret = encodeURIComponent(pathname);
+                                            router.push(`/dashboard/crm/sales/clients/new?return=${ret}`);
+                                        }}
+                                        onChange={(next, hydrated) => {
+                                            const id = Array.isArray(next) ? next[0] ?? '' : (next ?? '');
+                                            setSelectedClientId(id);
+                                            const item = Array.isArray(hydrated) ? hydrated[0] : hydrated;
+                                            setPickedClient(item ?? null);
                                         }}
                                     />
-                                    {selectedClient && (
-                                        <div className="mt-2">
-                                            <p className="text-zoru-ink-muted">{selectedClient.address}</p>
-                                            <p className="text-zoru-ink-muted">{selectedClient.phone}</p>
-                                        </div>
-                                    )}
+                                    {(() => {
+                                        const pickedRaw = pickedClient && pickedClient.id === selectedClientId
+                                            ? (pickedClient.raw as Record<string, any> | undefined)
+                                            : undefined;
+                                        const billedToAddress = selectedClient?.address
+                                            ?? (pickedRaw?.billingAddress as string | undefined)
+                                            ?? (pickedRaw?.address as string | undefined);
+                                        const billedToPhone = selectedClient?.phone
+                                            ?? (pickedRaw?.phone as string | undefined);
+                                        if (!billedToAddress && !billedToPhone) return null;
+                                        return (
+                                            <div className="mt-2">
+                                                {billedToAddress && <p className="text-zoru-ink-muted">{billedToAddress}</p>}
+                                                {billedToPhone && <p className="text-zoru-ink-muted">{billedToPhone}</p>}
+                                            </div>
+                                        );
+                                    })()}
                                 </div>
                             </section>
 

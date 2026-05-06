@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { savePurchaseOrder } from '@/app/actions/crm-purchase-orders.actions';
 import { Button } from '@/components/ui/button';
 import { ClayCard, ClayButton } from '@/components/clay';
@@ -10,15 +10,20 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { DatePicker } from '@/components/ui/date-picker';
-import { SmartVendorSelect } from '@/components/crm/purchases/smart-vendor-select';
-import { SmartProductSelect } from '@/components/crm/inventory/smart-product-select';
 import { LoaderCircle, Plus, Trash2, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { EntityPicker } from '@/components/crm/entity-picker';
+import type { LookupItem } from '@/lib/lookup-registry';
+import type { WithId, CrmPurchaseOrder } from '@/lib/definitions';
 
 const initialState = { message: '', error: '' };
 
-function SubmitButton() {
+interface PurchaseOrderFormProps {
+    order?: WithId<CrmPurchaseOrder> | null;
+}
+
+function SubmitButton({ isEdit }: { isEdit: boolean }) {
     const { pending } = useFormStatus();
     return (
         <ClayButton
@@ -27,24 +32,38 @@ function SubmitButton() {
             disabled={pending}
             leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
         >
-            Save Purchase Order
+            {isEdit ? 'Update Purchase Order' : 'Save Purchase Order'}
         </ClayButton>
     );
 }
 
-export function NewPurchaseOrderForm() {
+export function NewPurchaseOrderForm({ order }: PurchaseOrderFormProps = {}) {
+    const isEdit = !!order;
     const [state, formAction] = useActionState(savePurchaseOrder, initialState);
     const { toast } = useToast();
     const router = useRouter();
+    const pathname = usePathname();
 
-    const [orderDate, setOrderDate] = useState<Date | undefined>(new Date());
-    const [deliveryDate, setDeliveryDate] = useState<Date | undefined>();
-    const [vendorId, setVendorId] = useState('');
+    const [orderDate, setOrderDate] = useState<Date | undefined>(
+        order?.orderDate ? new Date(order.orderDate) : new Date()
+    );
+    const [deliveryDate, setDeliveryDate] = useState<Date | undefined>(
+        order?.expectedDeliveryDate ? new Date(order.expectedDeliveryDate) : undefined
+    );
+    const [vendorId, setVendorId] = useState(order?.vendorId ? String(order.vendorId) : '');
+    const [warehouseId, setWarehouseId] = useState(order?.warehouseId ? String(order.warehouseId) : '');
 
     // Line Items State
-    const [lineItems, setLineItems] = useState([
-        { description: '', quantity: 1, rate: 0, amount: 0 }
-    ]);
+    const [lineItems, setLineItems] = useState<Array<{ description: string; quantity: number; rate: number; amount: number }>>(
+        order?.lineItems && order.lineItems.length > 0
+            ? order.lineItems.map((li: any) => ({
+                description: li.description ?? '',
+                quantity: Number(li.quantity ?? 1),
+                rate: Number(li.rate ?? 0),
+                amount: Number(li.amount ?? Number(li.quantity ?? 0) * Number(li.rate ?? 0)),
+            }))
+            : [{ description: '', quantity: 1, rate: 0, amount: 0 }]
+    );
 
     const updateLineItem = (index: number, field: string, value: any) => {
         const newItems = [...lineItems];
@@ -83,7 +102,9 @@ export function NewPurchaseOrderForm() {
 
     return (
         <form action={formAction}>
+            {isEdit && <input type="hidden" name="orderId" value={String(order!._id)} />}
             <input type="hidden" name="vendorId" value={vendorId} />
+            <input type="hidden" name="warehouseId" value={warehouseId} />
             <input type="hidden" name="lineItems" value={JSON.stringify(lineItems)} />
 
             <div className="grid gap-6">
@@ -95,17 +116,24 @@ export function NewPurchaseOrderForm() {
                     <div className="grid md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label className="text-foreground">Vendor</Label>
-                            <SmartVendorSelect
-                                value={vendorId}
-                                onSelect={setVendorId}
-                                onVendorAdded={(newVendor) => {
-                                    setVendorId(newVendor._id.toString());
+                            <EntityPicker
+                                entity="vendor"
+                                value={vendorId || null}
+                                allowCreate
+                                placeholder="Select vendor…"
+                                onCreateClick={() => {
+                                    const ret = encodeURIComponent(pathname);
+                                    router.push(`/dashboard/crm/purchases/vendors/new?return=${ret}`);
+                                }}
+                                onChange={(next) => {
+                                    const id = Array.isArray(next) ? next[0] ?? '' : (next ?? '');
+                                    setVendorId(id);
                                 }}
                             />
                         </div>
                         <div className="space-y-2">
                             <Label className="text-foreground">Currency</Label>
-                            <Select name="currency" defaultValue="INR">
+                            <Select name="currency" defaultValue={order?.currency ?? 'INR'}>
                                 <SelectTrigger><SelectValue /></SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="INR">Indian Rupee (INR)</SelectItem>
@@ -126,7 +154,19 @@ export function NewPurchaseOrderForm() {
                         </div>
                         <div className="space-y-2">
                             <Label className="text-foreground">Payment Terms</Label>
-                            <Input name="paymentTerms" placeholder="e.g. Net 30" />
+                            <Input name="paymentTerms" placeholder="e.g. Net 30" defaultValue={order?.paymentTerms ?? ''} />
+                        </div>
+                        <div className="space-y-2">
+                            <Label className="text-foreground">Warehouse</Label>
+                            <EntityPicker
+                                entity="warehouse"
+                                value={warehouseId || null}
+                                placeholder="Select warehouse…"
+                                onChange={(next) => {
+                                    const id = Array.isArray(next) ? next[0] ?? '' : (next ?? '');
+                                    setWarehouseId(id);
+                                }}
+                            />
                         </div>
                     </div>
                 </ClayCard>
@@ -148,15 +188,17 @@ export function NewPurchaseOrderForm() {
                                 <div key={index} className="grid grid-cols-12 gap-2 p-3 border-t border-border items-center">
                                     <div className="col-span-5">
                                         <div className="col-span-5">
-                                            <SmartProductSelect
-                                                value={''} // Uncontrolled for now as we map to description
+                                            <EntityPicker
+                                                entity="item"
+                                                value={null}
                                                 placeholder="Item description"
-                                                onSelect={() => { }}
-                                                onProductChange={(product) => {
-                                                    updateLineItem(index, 'description', product.name);
-                                                    updateLineItem(index, 'rate', product.costPrice || product.sellingPrice); // PO uses cost price usually
+                                                onChange={(_id, hydrated) => {
+                                                    const raw = (hydrated as LookupItem | undefined)?.raw as any;
+                                                    if (raw) {
+                                                        updateLineItem(index, 'description', raw.name ?? '');
+                                                        updateLineItem(index, 'rate', raw.costPrice ?? raw.sellingPrice ?? 0);
+                                                    }
                                                 }}
-                                                className="w-full"
                                             />
                                         </div>
                                     </div>
@@ -209,10 +251,10 @@ export function NewPurchaseOrderForm() {
                     <div className="mb-4">
                         <h2 className="text-[15px] font-semibold text-foreground">Additional Notes</h2>
                     </div>
-                    <Textarea name="notes" placeholder="Any shipping instructions or terms..." />
+                    <Textarea name="notes" placeholder="Any shipping instructions or terms..." defaultValue={order?.notes ?? ''} />
                     <div className="flex justify-end gap-2 mt-6 pt-4 border-t border-border">
                         <ClayButton type="button" variant="pill" onClick={() => router.back()}>Cancel</ClayButton>
-                        <SubmitButton />
+                        <SubmitButton isEdit={isEdit} />
                     </div>
                 </ClayCard>
             </div>

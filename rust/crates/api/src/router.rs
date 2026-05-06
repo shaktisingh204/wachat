@@ -49,10 +49,13 @@ pub fn build(state: AppState) -> Router {
     let wachat_features = wachat_features::router::<AppState>();
     let wachat_analytics = wachat_analytics::router::<AppState>();
     let wachat_webhook_actions = wachat_webhook_actions::router::<AppState>();
+    let wachat_webhook_status = wachat_webhook_status::router::<AppState>();
     let meta_suite = meta_suite::router::<AppState>();
     let meta_token = meta_token::router::<AppState>();
     let meta_flows = meta_flows::router::<AppState>();
     let qr_codes = qr_codes::router::<AppState>();
+    let url_shortener = url_shortener::router::<AppState>();
+    let ad_manager = ad_manager::router::<AppState>();
     let facebook_flow = facebook_flow::router::<AppState>();
     let wachat_public = wachat_public_api::router::<AppState>();
     let wachat_projects = wachat_projects::router::<AppState>();
@@ -74,6 +77,19 @@ pub fn build(state: AppState) -> Router {
     let instagram = wachat_instagram::router::<AppState>();
     let sabfiles_router = sabfiles::router::<AppState>();
     let telegram_bots_router = telegram_bots::router::<AppState>();
+    let telegram_chats_router = telegram_chats::router::<AppState>();
+    let telegram_broadcasts_router = telegram_broadcasts::router::<AppState>();
+    let telegram_auto_reply_router = telegram_auto_reply::router::<AppState>();
+    let telegram_commands_router = telegram_commands::router::<AppState>();
+    let telegram_bot_profile_router = telegram_bot_profile::router::<AppState>();
+    let telegram_channels_router = telegram_channels::router::<AppState>();
+    let telegram_analytics_router = telegram_analytics::router::<AppState>();
+    let telegram_payments_router = telegram_payments::router::<AppState>();
+    let telegram_stickers_router = telegram_stickers::router::<AppState>();
+    let telegram_stories_router = telegram_stories::router::<AppState>();
+    let telegram_flows_router = telegram_flows::router::<AppState>();
+    let telegram_mini_apps_router = telegram_mini_apps::router::<AppState>();
+    let telegram_ads_router = telegram_ads::router::<AppState>();
 
     Router::new()
         .merge(routes::health::router())
@@ -81,6 +97,7 @@ pub fn build(state: AppState) -> Router {
         .merge(wachat_webhook_cron)
         .nest("/v1/wachat/webhook", wachat_webhook_admin)
         .nest("/v1/wachat/webhook-actions", wachat_webhook_actions)
+        .nest("/v1/wachat/webhook-status", wachat_webhook_status)
         .nest("/v1/wachat/templates", wachat_templates)
         .nest("/v1/wachat/templates-actions", wachat_templates_actions)
         .nest("/v1/wachat/config", wachat_config)
@@ -95,6 +112,8 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/meta/token", meta_token)
         .nest("/v1/meta/flows", meta_flows)
         .nest("/v1/qr-codes", qr_codes)
+        .nest("/v1/url-shortener", url_shortener)
+        .nest("/v1/ad-manager", ad_manager)
         .nest("/v1/facebook/flow", facebook_flow)
         .nest("/v1/projects", wachat_projects)
         .nest("/v1/contacts", wachat_contacts)
@@ -115,6 +134,19 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/instagram", instagram)
         .nest("/v1/sabfiles", sabfiles_router)
         .nest("/v1/telegram/bots", telegram_bots_router)
+        .nest("/v1/telegram/chats", telegram_chats_router)
+        .nest("/v1/telegram/broadcasts", telegram_broadcasts_router)
+        .nest("/v1/telegram/auto-reply", telegram_auto_reply_router)
+        .nest("/v1/telegram/commands", telegram_commands_router)
+        .nest("/v1/telegram/bot-profile", telegram_bot_profile_router)
+        .nest("/v1/telegram/channels", telegram_channels_router)
+        .nest("/v1/telegram/analytics", telegram_analytics_router)
+        .nest("/v1/telegram/payments", telegram_payments_router)
+        .nest("/v1/telegram/stickers", telegram_stickers_router)
+        .nest("/v1/telegram/stories", telegram_stories_router)
+        .nest("/v1/telegram/flows", telegram_flows_router)
+        .nest("/v1/telegram/mini-apps", telegram_mini_apps_router)
+        .nest("/v1/telegram/ads", telegram_ads_router)
         .nest("/v1", v1)
         .with_state(state)
         .layer(SetRequestIdLayer::new(

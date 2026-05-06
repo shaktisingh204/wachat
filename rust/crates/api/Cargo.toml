@@ -73,6 +73,19 @@ wachat-facebook-messenger-profile = { path = "../wachat-facebook-messenger-profi
 wachat-instagram = { path = "../wachat-instagram" }
 sabfiles = { path = "../sabfiles" }
 telegram-bots = { path = "../telegram-bots" }
+telegram-chats = { path = "../telegram-chats" }
+telegram-broadcasts = { path = "../telegram-broadcasts" }
+telegram-auto-reply = { path = "../telegram-auto-reply" }
+telegram-commands = { path = "../telegram-commands" }
+telegram-bot-profile = { path = "../telegram-bot-profile" }
+telegram-channels = { path = "../telegram-channels" }
+telegram-analytics = { path = "../telegram-analytics" }
+telegram-payments = { path = "../telegram-payments" }
+telegram-stickers = { path = "../telegram-stickers" }
+telegram-stories = { path = "../telegram-stories" }
+telegram-flows = { path = "../telegram-flows" }
+telegram-mini-apps = { path = "../telegram-mini-apps" }
+telegram-ads = { path = "../telegram-ads" }
 wachat-rate-limit = { path = "../wachat-rate-limit" }
 wachat-config = { path = "../wachat-config" }
 wachat-analytics = { path = "../wachat-analytics" }
@@ -80,6 +93,8 @@ meta-suite = { path = "../meta-suite" }
 meta-token = { path = "../meta-token" }
 meta-flows = { path = "../meta-flows" }
 qr-codes = { path = "../qr-codes" }
+url-shortener = { path = "../url-shortener" }
+ad-manager = { path = "../ad-manager" }
 facebook-flow = { path = "../facebook-flow" }
 
 axum = "0.8"

@@ -7,6 +7,7 @@ import { cookies } from 'next/headers';
 
 import { connectToDatabase } from '@/lib/mongodb';
 import { getErrorMessage } from '@/lib/utils';
+import { rustClient } from '@/lib/rust-client';
 import type { Project, BusinessCapabilities, Plan } from '@/lib/definitions';
 import {
   handleSubscribeProjectWebhook,
@@ -264,10 +265,14 @@ export async function handleMetaConnection(data: {
 
     const { db } = await connectToDatabase();
 
+    // `facebookUserAccessToken` is part of the broader auth/onboarding
+    // surface (still TS-side); `metaAdAccounts` is owned by the Rust
+    // ad-manager BFF and routed through `rustClient.adManager.setMetaAdAccounts`.
     const userUpdateData: any = {
-      facebookUserAccessToken: userAccessToken
+      facebookUserAccessToken: userAccessToken,
     };
 
+    let adAccountsToPersist: { id: string; name: string; account_id: string }[] | null = null;
     if (includeAds) {
       console.log(`${LOG_PREFIX_META} Step 3: Getting Ad Accounts`);
       try {
@@ -279,7 +284,7 @@ export async function handleMetaConnection(data: {
         });
         const adAccounts = adAccountsResponse.data?.data || [];
         if (adAccounts.length > 0) {
-          userUpdateData.metaAdAccounts = adAccounts.map((acc: any) => ({ id: acc.id, name: acc.name, account_id: acc.account_id }));
+          adAccountsToPersist = adAccounts.map((acc: any) => ({ id: acc.id, name: acc.name, account_id: acc.account_id }));
         }
       } catch (adError) {
         console.warn(`${LOG_PREFIX_META} Could not fetch ad accounts. User may not have granted 'ads_management' permission.`);
@@ -290,6 +295,14 @@ export async function handleMetaConnection(data: {
       { _id: new ObjectId(userId) },
       { $set: userUpdateData }
     );
+
+    if (adAccountsToPersist) {
+      try {
+        await rustClient.adManager.setMetaAdAccounts(adAccountsToPersist);
+      } catch (e) {
+        console.warn(`${LOG_PREFIX_META} setMetaAdAccounts via Rust BFF failed:`, getErrorMessage(e));
+      }
+    }
 
     const bulkOps = pages.map((page: any) => {
       // Create a separate project for each Facebook Page

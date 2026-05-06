@@ -1,4 +1,5 @@
 import type { ObjectId } from 'mongodb';
+import type { EntityKey } from '@/lib/lookup-registry';
 
 /**
  * Worksuite Meta — misc modules ported from Worksuite PHP/Laravel:
@@ -60,7 +61,14 @@ export type WsCustomFieldType =
   | 'checkbox'
   | 'radio'
   | 'email'
-  | 'url';
+  | 'url'
+  /**
+   * Linked record — renders as `<EntityPicker entity={targetEntity} />`
+   * automatically wherever this field is rendered. Stores either a
+   * single id string or an array of ids when `multi` is true.
+   * See `crm_function_plan.md` §13.8.
+   */
+  | 'entity_ref';
 
 export interface WsCustomField extends WsMetaBase {
   group_id: ObjectId | string;
@@ -78,6 +86,20 @@ export interface WsCustomField extends WsMetaBase {
   display_in_table?: boolean;
   /** Sort order within the group. */
   position?: number;
+  /**
+   * For `type === 'entity_ref'`: the registered entity the picker
+   * should resolve. The runtime list of valid keys lives in
+   * `ENTITY_KEYS` (`@/lib/lookup-registry`). Ignored for other types.
+   * See `crm_function_plan.md` §13.8.
+   */
+  targetEntity?: EntityKey;
+  /**
+   * For `type === 'entity_ref'` (and any future multi-value type):
+   * when true the picker accepts multiple selections and the stored
+   * value is an array of ids instead of a single id.
+   * See `crm_function_plan.md` §13.8.
+   */
+  multi?: boolean;
 }
 
 /**

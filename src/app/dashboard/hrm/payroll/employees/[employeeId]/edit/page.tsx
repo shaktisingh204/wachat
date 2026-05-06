@@ -1,7 +1,7 @@
 import { EmployeeForm } from '@/components/wabasimplify/crm-employee-form';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-import { getCrmDepartments, getCrmDesignations, getCrmEmployees } from '@/app/actions/crm-employees.actions';
+import { getCrmDepartments, getCrmDesignations } from '@/app/actions/crm-employees.actions';
 import { getEmployeeDetailByEmployeeId } from '@/app/actions/worksuite/hr-ext.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
@@ -20,11 +20,10 @@ export default async function EditEmployeePage(
   const params = await props.params;
   const employeeId = params.employeeId;
 
-  const [employee, departments, designations, managers, detail] = await Promise.all([
+  const [employee, departments, designations, detail] = await Promise.all([
     getEmployeeById(employeeId),
     getCrmDepartments(),
     getCrmDesignations(),
-    getCrmEmployees(),
     getEmployeeDetailByEmployeeId(employeeId),
   ]);
 
@@ -48,7 +47,6 @@ export default async function EditEmployeePage(
         employee={employee}
         departments={departments}
         designations={designations}
-        managers={managers}
         detail={detail}
       />
     </div>

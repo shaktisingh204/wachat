@@ -15,8 +15,16 @@ name = "wachat_queue"
 path = "src/lib.rs"
 
 [dependencies]
-# Async stack — matches the rest of the workspace.
+# Async stack — matches the rest of the workspace. The consumer also pulls in
+# `rt` (single-thread Runtime test helpers) and `signal` is intentionally NOT
+# enabled — graceful shutdown is plumbed through an explicit `CloseHandle`
+# the binary owner wires up to whatever signal source they prefer.
 tokio = { version = "1", features = ["macros", "rt-multi-thread", "time", "sync"] }
+
+# `#[async_trait]` for the user-facing `JobHandler` trait. We can't use the
+# 1.75+ native async-fn-in-trait yet because the trait must be object-safe
+# (Worker stores it as `Arc<dyn JobHandler>`).
+async-trait = "0.1"
 
 # Serialization. BullMQ stores `data` as a JSON string inside a Redis hash;
 # our producer serializes the caller-supplied payload with serde_json.
@@ -27,6 +35,11 @@ serde_json = "1"
 thiserror = "2"
 anyhow = "1"
 tracing = "0.1"
+
+# UUID is used by the consumer to mint a per-worker token for the lock key
+# (`bull:<queue>:<jobId>:lock`) so we can detect stalled jobs that were locked
+# by an older incarnation of the same worker.
+# (Already a dep below; the consumer just consumes the same crate.)
 
 # Redis client — re-using the same `fred` version that `sabnode-db` exposes
 # via `RedisHandle` so we share the same Client type without coercion.

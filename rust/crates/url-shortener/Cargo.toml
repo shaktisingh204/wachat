@@ -1,0 +1,44 @@
+[package]
+name = "url-shortener"
+version = "0.1.0"
+edition = "2024"
+description = "User-scoped URL shortener — short_urls collection plus per-user customDomains array on the users doc. Ports src/app/actions/url-shortener.actions.ts."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "url_shortener"
+path = "src/lib.rs"
+
+[dependencies]
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query", "multipart"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "sync"] }
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+bson = { version = "2", features = ["chrono-0_4"] }
+mongodb = "3"
+
+futures = "0.3"
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+tracing = "0.1"
+anyhow = "1"
+
+# DNS TXT lookup for custom-domain verification. async-resolver from
+# `hickory-resolver` is the actively maintained successor to trust-dns.
+hickory-resolver = { version = "0.24", default-features = false, features = ["tokio-runtime", "system-config"] }
+
+# Bulk import parsing — `csv` for .csv, `calamine` for .xlsx. Both pure
+# Rust, no external runtime deps. Replaces the TS-side `papaparse` +
+# `xlsx` dance.
+csv = "1.3"
+calamine = "0.26"
+
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+
+[lints]
+workspace = true

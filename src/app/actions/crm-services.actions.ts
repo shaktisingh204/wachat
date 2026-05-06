@@ -17,6 +17,8 @@ import type {
   HrContract,
   HrTicket,
 } from '@/lib/hr-types';
+import type { LineageRef } from '@/lib/definitions';
+import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
 
 type FormState = { message?: string; error?: string; id?: string };
 
@@ -230,6 +232,16 @@ export async function convertInvoiceToCreditNote(
     rate: li.rate || 0,
   }));
 
+  // Build lineage for the new credit note from the parent invoice's
+  // chain, plus the invoice itself. See crm_function_plan.md §13.5.
+  const newLineage = buildLineageFromParent({
+    kind: 'invoice',
+    id: invoice._id.toString(),
+    no: invoice.invoiceNumber || undefined,
+    status: invoice.status || undefined,
+    lineage: (invoice.lineage as LineageRef[] | undefined) ?? undefined,
+  });
+
   const creditNote = {
     userId: new ObjectId(user._id),
     accountId: invoice.accountId,
@@ -240,11 +252,33 @@ export async function convertInvoiceToCreditNote(
     lineItems,
     reason: 'Converted from invoice',
     status: 'draft',
+    lineage: newLineage,
     createdAt: new Date(),
     updatedAt: new Date(),
   };
 
   const res = await db.collection('crm_credit_notes').insertOne(creditNote as any);
+
+  // Best-effort back-reference: push the new credit note onto the
+  // parent invoice's lineage so the rail on the invoice's detail
+  // page sees the downstream credit note too. Idempotent via
+  // appendLineage's (kind,id) dedupe.
+  try {
+    const updatedInvoiceLineage = appendLineage(invoice.lineage as LineageRef[] | undefined, {
+      kind: 'creditNote',
+      id: res.insertedId.toString(),
+      no: undefined,
+      status: 'draft',
+      createdAt: new Date().toISOString(),
+    });
+    await db.collection('crm_invoices').updateOne(
+      { _id: invoice._id },
+      { $set: { lineage: updatedInvoiceLineage, updatedAt: new Date() } },
+    );
+  } catch {
+    // Non-fatal — the conversion already succeeded.
+  }
+
   revalidatePath('/dashboard/crm/sales/credit-notes');
   revalidatePath('/dashboard/crm/sales/invoices');
   return { success: true, creditNoteId: res.insertedId.toString() };

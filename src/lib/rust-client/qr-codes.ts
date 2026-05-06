@@ -17,7 +17,7 @@
  */
 import 'server-only';
 
-import { rustFetch } from './fetcher';
+import { rustFetch, rustAdminFetch } from './fetcher';
 
 const BASE = '/v1/qr-codes';
 
@@ -102,6 +102,21 @@ export const qrCodesApi = {
             `${BASE}/${encodeURIComponent(id)}`,
             { method: 'DELETE' },
         ),
+
+    /** Multipart entrypoint — TS Server Action forwards FormData here. */
+    fromFormCreate: (formData: FormData) =>
+        rustFetch<QrCodeCreateResult>(`${BASE}/from-form/create`, {
+            method: 'POST',
+            body: formData as any,
+        }),
+
+    countForUser: () => rustFetch<{ count: number }>(`${BASE}/count`),
+
+    /** Admin-only: total number of QR codes across all users. */
+    countGlobal: () =>
+        rustAdminFetch<{ count: number }>(`${BASE}/admin/count-global`, {
+            method: 'POST',
+        }),
 };
 
 export type QrCodesApi = typeof qrCodesApi;

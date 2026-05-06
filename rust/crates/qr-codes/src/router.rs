@@ -31,7 +31,36 @@ where
     Router::new()
         .route("/", get(list_qr_codes).post(create_qr_code))
         .route("/delete-many", post(delete_many))
+        .route("/count", get(count_user))
+        .route("/admin/count-global", post(count_global))
+        // Multipart entrypoint — Server Action forwards FormData here.
+        .route("/from-form/create", post(crate::from_form::create_qr_code))
         .route("/{id}", axum::routing::delete(delete_qr_code))
+}
+
+#[derive(serde::Serialize)]
+struct CountResp {
+    count: u64,
+}
+
+async fn count_user(
+    user: AuthUser,
+    State(s): State<QrCodesState>,
+) -> Result<Json<CountResp>> {
+    let oid = oid_from_str(&user.user_id)?;
+    Ok(Json(CountResp { count: store::count_for_user(&s.mongo, oid).await? }))
+}
+
+async fn count_global(
+    user: AuthUser,
+    State(s): State<QrCodesState>,
+) -> Result<Json<CountResp>> {
+    if !user.roles.iter().any(|r| r == "admin") {
+        return Err(sabnode_common::ApiError::Forbidden(
+            "admin role required".to_owned(),
+        ));
+    }
+    Ok(Json(CountResp { count: store::count_global(&s.mongo).await? }))
 }
 
 async fn list_qr_codes(

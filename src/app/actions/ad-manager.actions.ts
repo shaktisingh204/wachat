@@ -2,30 +2,26 @@
 
 /**
  * =================================================================
- *  SabNode Ad Manager – full Meta Marketing API coverage
+ *  SabNode Ad Manager – Meta Marketing API surface (BFF-backed)
  * =================================================================
  *
- *  Everything the Meta Marketing Graph API exposes for managing
- *  campaigns, ad sets, ads, creatives, audiences, insights, pixels,
- *  previews, targeting search and asset uploads is proxied through
- *  this file.  UI components talk to these server actions and never
- *  hit graph.facebook.com directly.
+ *  Every Graph call now lands on the Rust BFF
+ *  (`/v1/ad-manager/graph`) which holds the user's
+ *  `adManagerAccessToken` and proxies to graph.facebook.com/v23.0/*.
+ *  The functions in this file are thin shims that translate the
+ *  legacy `(path, opts)` shape into a JSON body the Rust handler
+ *  understands and then re-shape the response into the `{ data?,
+ *  error? }` envelope the UI components expect.
  *
- *  Graph API version is pinned to v23.0.  All functions return a
- *  `{ data?, error? }` shape so the UI can handle errors uniformly.
+ *  Stateful endpoints (Mongo-touching: ad accounts list, the
+ *  `ad_campaigns` quick-create mirror, asset uploads) call dedicated
+ *  Rust routes — the Mongo writes never run on the Next.js process.
  */
-
 import { revalidatePath } from 'next/cache';
-import axios, { AxiosRequestConfig } from 'axios';
-import { ObjectId, type WithId } from 'mongodb';
+import type { WithId } from 'mongodb';
 
-import { getErrorMessage } from '@/lib/utils';
-import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions/user.actions';
-import type { AdCampaign, CustomAudience, FacebookPage } from '@/lib/definitions';
 import {
     validate,
-    friendlyGraphError,
     CreateCampaignInput,
     CreateAdSetInput,
     CreateAdInput,
@@ -43,66 +39,45 @@ import {
     type ActionResult,
 } from '@/lib/ad-manager/validators';
 import { AD_PREVIEW_FORMATS } from '@/components/wabasimplify/ad-manager/constants';
-
-const API_VERSION = 'v23.0';
-const GRAPH = `https://graph.facebook.com/${API_VERSION}`;
-const LOG_PREFIX = '[AD_MANAGER]';
-
-// -----------------------------------------------------------------
-//  Types (ActionResult is imported from validators.ts because
-//  "use server" files cannot export non-async values.)
-// -----------------------------------------------------------------
-
-type GraphRequestOptions = {
-    method?: 'GET' | 'POST' | 'DELETE';
-    params?: Record<string, any>;
-    body?: Record<string, any>;
-    formData?: FormData;
-};
+import { getSession } from '@/app/actions/user.actions';
+import { rustClient, RustApiError } from '@/lib/rust-client';
+import type { AdCampaign, CustomAudience, FacebookPage } from '@/lib/definitions';
 
 // -----------------------------------------------------------------
 //  Helpers
 // -----------------------------------------------------------------
-async function requireToken(): Promise<{ token?: string; error?: string }> {
-    const session = await getSession();
-    const token = (session?.user as any)?.adManagerAccessToken;
-    if (!token) return { error: 'Ad Manager account not connected.' };
-    return { token };
-}
 
 function withActPrefix(id: string): string {
     if (!id) return id;
     return id.startsWith('act_') ? id : `act_${id}`;
 }
 
-async function graph<T = any>(
-    path: string,
-    token: string,
-    opts: GraphRequestOptions = {},
-): Promise<ActionResult<T>> {
-    const { method = 'GET', params = {}, body, formData } = opts;
-    const url = `${GRAPH}/${path.replace(/^\//, '')}`;
+function rustErr(e: unknown): string {
+    if (e instanceof RustApiError) return e.message;
+    if (e instanceof Error) return e.message;
+    return 'An unexpected error occurred.';
+}
 
-    const config: AxiosRequestConfig = {
-        method,
-        url,
-        params: { access_token: token, ...params },
-    };
+type GraphOpts = {
+    method?: 'GET' | 'POST' | 'DELETE';
+    params?: Record<string, unknown>;
+    body?: Record<string, unknown>;
+    tokenKind?: 'adManager' | 'metaSuite';
+};
 
-    if (formData) {
-        formData.append('access_token', token);
-        config.data = formData;
-    } else if (body) {
-        config.data = { access_token: token, ...body };
-    }
-
+async function graph<T = any>(path: string, opts: GraphOpts = {}): Promise<ActionResult<T>> {
     try {
-        const res = await axios.request<T>(config);
+        const res = await rustClient.adManager.graph<T>({
+            path: path.replace(/^\//, ''),
+            method: opts.method,
+            params: opts.params,
+            body: opts.body,
+            tokenKind: opts.tokenKind,
+        });
+        if (res.error) return { error: res.error };
         return { data: res.data };
-    } catch (e: any) {
-        const msg = friendlyGraphError(e);
-        console.error(`${LOG_PREFIX} graph(${method} ${path}) failed:`, msg);
-        return { error: msg };
+    } catch (e) {
+        return { error: rustErr(e) };
     }
 }
 
@@ -112,13 +87,16 @@ async function graph<T = any>(
 export async function getAdAccounts(): Promise<{ accounts: any[]; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { accounts: [], error: 'Authentication required.' };
-    return { accounts: (session.user as any).metaAdAccounts || [] };
+    try {
+        const res = await rustClient.adManager.getAdAccounts();
+        return { accounts: res.accounts || [], error: res.error };
+    } catch (e) {
+        return { accounts: [], error: rustErr(e) };
+    }
 }
 
 export async function getAdAccountDetails(adAccountId: string): Promise<ActionResult> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    return graph(withActPrefix(adAccountId), token!, {
+    return graph(withActPrefix(adAccountId), {
         params: {
             fields: [
                 'id,account_id,name,account_status,currency,timezone_name,business_country_code',
@@ -134,17 +112,12 @@ export async function getAdAccountDetails(adAccountId: string): Promise<ActionRe
 export async function deleteAdAccount(accountId: string): Promise<{ success: boolean; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Authentication required' };
-
     try {
-        const { db } = await connectToDatabase();
-        await db.collection('users').updateOne(
-            { _id: new ObjectId(session.user._id) },
-            { $pull: { metaAdAccounts: { id: accountId } } } as any,
-        );
+        const res = await rustClient.adManager.deleteAdAccount(accountId);
         revalidatePath('/dashboard/ad-manager/ad-accounts');
-        return { success: true };
-    } catch (e: any) {
-        return { success: false, error: 'Failed to disconnect ad account.' };
+        return res;
+    } catch (e) {
+        return { success: false, error: rustErr(e) || 'Failed to disconnect ad account.' };
     }
 }
 
@@ -163,19 +136,15 @@ const CAMPAIGN_FIELDS = [
 ].join(',');
 
 export async function listCampaigns(adAccountId: string, opts?: { limit?: number; effective_status?: string[] }): Promise<ActionResult<any[]>> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
     const params: any = { fields: CAMPAIGN_FIELDS, limit: opts?.limit ?? 100 };
     if (opts?.effective_status) params.effective_status = JSON.stringify(opts.effective_status);
-    const res = await graph<{ data: any[] }>(`${withActPrefix(adAccountId)}/campaigns`, token!, { params });
+    const res = await graph<{ data: any[] }>(`${withActPrefix(adAccountId)}/campaigns`, { params });
     if (res.error) return { error: res.error };
     return { data: res.data?.data || [] };
 }
 
 export async function getCampaign(campaignId: string): Promise<ActionResult> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    return graph(campaignId, token!, { params: { fields: CAMPAIGN_FIELDS } });
+    return graph(campaignId, { params: { fields: CAMPAIGN_FIELDS } });
 }
 
 export async function createCampaign(
@@ -199,9 +168,6 @@ export async function createCampaign(
     const v = validate(CreateCampaignInput, payload);
     if ('error' in v) return { error: v.error };
 
-    const { token, error } = await requireToken();
-    if (error) return { error };
-
     const body: Record<string, any> = {
         name: v.data.name,
         objective: v.data.objective,
@@ -218,34 +184,31 @@ export async function createCampaign(
     if (v.data.start_time) body.start_time = v.data.start_time;
     if (v.data.stop_time) body.stop_time = v.data.stop_time;
 
-    const res = await graph<{ id: string }>(`${withActPrefix(acc.data)}/campaigns`, token!, {
-        method: 'POST',
-        body,
-    });
+    const res = await graph<{ id: string }>(`${withActPrefix(acc.data)}/campaigns`, { method: 'POST', body });
     if (res.error) return { error: res.error };
     revalidatePath('/dashboard/ad-manager/campaigns');
     return { data: res.data };
 }
 
 export async function updateCampaign(campaignId: string, patch: Record<string, any>): Promise<ActionResult> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
     const body: Record<string, any> = { ...patch };
     if (body.special_ad_categories && Array.isArray(body.special_ad_categories)) {
         body.special_ad_categories = JSON.stringify(body.special_ad_categories);
     }
-    const res = await graph(campaignId, token!, { method: 'POST', body });
+    const res = await graph(campaignId, { method: 'POST', body });
     if (!res.error) revalidatePath('/dashboard/ad-manager/campaigns');
     return res;
 }
 
 export async function deleteCampaign(campaignId: string): Promise<ActionResult> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    const res = await graph(campaignId, token!, { method: 'DELETE' });
+    const res = await graph(campaignId, { method: 'DELETE' });
     if (!res.error) {
-        const { db } = await connectToDatabase();
-        await db.collection('ad_campaigns').deleteMany({ metaCampaignId: campaignId });
+        try {
+            await rustClient.adManager.deleteLocalCampaignsByMetaId(campaignId);
+        } catch {
+            // Local mirror cleanup is best-effort; the Graph delete is the
+            // source of truth.
+        }
         revalidatePath('/dashboard/ad-manager/campaigns');
     }
     return res;
@@ -255,13 +218,9 @@ export async function duplicateCampaign(
     campaignId: string,
     opts?: { deep_copy?: boolean; rename_options?: { rename_prefix?: string } },
 ): Promise<ActionResult> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    const body: Record<string, any> = {
-        deep_copy: opts?.deep_copy ?? true,
-    };
+    const body: Record<string, any> = { deep_copy: opts?.deep_copy ?? true };
     if (opts?.rename_options) body.rename_options = JSON.stringify(opts.rename_options);
-    return graph(`${campaignId}/copies`, token!, { method: 'POST', body });
+    return graph(`${campaignId}/copies`, { method: 'POST', body });
 }
 
 // =================================================================
@@ -282,20 +241,16 @@ export async function listAdSets(
     level: 'account' | 'campaign' = 'account',
     opts?: { limit?: number; effective_status?: string[] },
 ): Promise<ActionResult<any[]>> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
     const prefix = level === 'account' ? withActPrefix(parentId) : parentId;
     const params: any = { fields: ADSET_FIELDS, limit: opts?.limit ?? 100 };
     if (opts?.effective_status) params.effective_status = JSON.stringify(opts.effective_status);
-    const res = await graph<{ data: any[] }>(`${prefix}/adsets`, token!, { params });
+    const res = await graph<{ data: any[] }>(`${prefix}/adsets`, { params });
     if (res.error) return { error: res.error };
     return { data: res.data?.data || [] };
 }
 
 export async function getAdSet(adSetId: string): Promise<ActionResult> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    return graph(adSetId, token!, { params: { fields: ADSET_FIELDS } });
+    return graph(adSetId, { params: { fields: ADSET_FIELDS } });
 }
 
 export async function createAdSet(
@@ -327,9 +282,6 @@ export async function createAdSet(
         return { error: 'Either daily_budget or lifetime_budget is required' };
     }
 
-    const { token, error } = await requireToken();
-    if (error) return { error };
-
     const body: Record<string, any> = {
         name: v.data.name,
         campaign_id: v.data.campaign_id,
@@ -349,38 +301,26 @@ export async function createAdSet(
     if (v.data.attribution_spec) body.attribution_spec = JSON.stringify(v.data.attribution_spec);
     if (v.data.pacing_type) body.pacing_type = JSON.stringify(v.data.pacing_type);
 
-    const res = await graph<{ id: string }>(`${withActPrefix(acc.data)}/adsets`, token!, {
-        method: 'POST',
-        body,
-    });
+    const res = await graph<{ id: string }>(`${withActPrefix(acc.data)}/adsets`, { method: 'POST', body });
     if (!res.error) revalidatePath('/dashboard/ad-manager/campaigns');
     return res;
 }
 
 export async function updateAdSet(adSetId: string, patch: Record<string, any>): Promise<ActionResult> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
     const body: Record<string, any> = { ...patch };
     if (body.targeting && typeof body.targeting !== 'string') body.targeting = JSON.stringify(body.targeting);
     if (body.promoted_object && typeof body.promoted_object !== 'string') body.promoted_object = JSON.stringify(body.promoted_object);
-    const res = await graph(adSetId, token!, { method: 'POST', body });
+    const res = await graph(adSetId, { method: 'POST', body });
     if (!res.error) revalidatePath('/dashboard/ad-manager/campaigns');
     return res;
 }
 
 export async function deleteAdSet(adSetId: string): Promise<ActionResult> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    return graph(adSetId, token!, { method: 'DELETE' });
+    return graph(adSetId, { method: 'DELETE' });
 }
 
 export async function duplicateAdSet(adSetId: string, opts?: { deep_copy?: boolean }): Promise<ActionResult> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    return graph(`${adSetId}/copies`, token!, {
-        method: 'POST',
-        body: { deep_copy: opts?.deep_copy ?? true },
-    });
+    return graph(`${adSetId}/copies`, { method: 'POST', body: { deep_copy: opts?.deep_copy ?? true } });
 }
 
 // =================================================================
@@ -399,20 +339,16 @@ export async function listAds(
     level: 'account' | 'campaign' | 'adset' = 'account',
     opts?: { limit?: number; effective_status?: string[] },
 ): Promise<ActionResult<any[]>> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
     const prefix = level === 'account' ? withActPrefix(parentId) : parentId;
     const params: any = { fields: AD_FIELDS, limit: opts?.limit ?? 100 };
     if (opts?.effective_status) params.effective_status = JSON.stringify(opts.effective_status);
-    const res = await graph<{ data: any[] }>(`${prefix}/ads`, token!, { params });
+    const res = await graph<{ data: any[] }>(`${prefix}/ads`, { params });
     if (res.error) return { error: res.error };
     return { data: res.data?.data || [] };
 }
 
 export async function getAd(adId: string): Promise<ActionResult> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    return graph(adId, token!, { params: { fields: AD_FIELDS } });
+    return graph(adId, { params: { fields: AD_FIELDS } });
 }
 
 export async function createAd(
@@ -431,9 +367,6 @@ export async function createAd(
     const v = validate(CreateAdInput, payload);
     if ('error' in v) return { error: v.error };
 
-    const { token, error } = await requireToken();
-    if (error) return { error };
-
     const body: Record<string, any> = {
         name: v.data.name,
         adset_id: v.data.adset_id,
@@ -443,33 +376,23 @@ export async function createAd(
     else if (v.data.creative) body.creative = JSON.stringify(v.data.creative);
     if (v.data.tracking_specs) body.tracking_specs = JSON.stringify(v.data.tracking_specs);
 
-    return graph(`${withActPrefix(acc.data)}/ads`, token!, { method: 'POST', body });
+    return graph(`${withActPrefix(acc.data)}/ads`, { method: 'POST', body });
 }
 
 export async function updateAd(adId: string, patch: Record<string, any>): Promise<ActionResult> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    return graph(adId, token!, { method: 'POST', body: patch });
+    return graph(adId, { method: 'POST', body: patch });
 }
 
 export async function deleteAd(adId: string): Promise<ActionResult> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    return graph(adId, token!, { method: 'DELETE' });
+    return graph(adId, { method: 'DELETE' });
 }
 
 export async function duplicateAd(adId: string): Promise<ActionResult> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    return graph(`${adId}/copies`, token!, { method: 'POST' });
+    return graph(`${adId}/copies`, { method: 'POST' });
 }
 
 export async function getAdPreview(adId: string, adFormat: string): Promise<ActionResult<{ body: string }>> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    const res = await graph<{ data: { body: string }[] }>(`${adId}/previews`, token!, {
-        params: { ad_format: adFormat },
-    });
+    const res = await graph<{ data: { body: string }[] }>(`${adId}/previews`, { params: { ad_format: adFormat } });
     if (res.error) return { error: res.error };
     return { data: { body: res.data?.data?.[0]?.body || '' } };
 }
@@ -486,9 +409,7 @@ const CREATIVE_FIELDS = [
 ].join(',');
 
 export async function listCreatives(adAccountId: string): Promise<ActionResult<any[]>> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    const res = await graph<{ data: any[] }>(`${withActPrefix(adAccountId)}/adcreatives`, token!, {
+    const res = await graph<{ data: any[] }>(`${withActPrefix(adAccountId)}/adcreatives`, {
         params: { fields: CREATIVE_FIELDS, limit: 200 },
     });
     if (res.error) return { error: res.error };
@@ -510,21 +431,16 @@ export async function createCreative(
     const v = validate(CreateCreativeInput, payload);
     if ('error' in v) return { error: v.error };
 
-    const { token, error } = await requireToken();
-    if (error) return { error };
-
     const body: Record<string, any> = { name: v.data.name };
     if (v.data.object_story_spec) body.object_story_spec = JSON.stringify(v.data.object_story_spec);
     if (v.data.asset_feed_spec) body.asset_feed_spec = JSON.stringify(v.data.asset_feed_spec);
     if (v.data.url_tags) body.url_tags = v.data.url_tags;
     if (v.data.degrees_of_freedom_spec) body.degrees_of_freedom_spec = JSON.stringify(v.data.degrees_of_freedom_spec);
-    return graph(`${withActPrefix(acc.data)}/adcreatives`, token!, { method: 'POST', body });
+    return graph(`${withActPrefix(acc.data)}/adcreatives`, { method: 'POST', body });
 }
 
 export async function deleteCreative(creativeId: string): Promise<ActionResult> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    return graph(creativeId, token!, { method: 'DELETE' });
+    return graph(creativeId, { method: 'DELETE' });
 }
 
 export async function generatePreviewFromCreative(
@@ -532,59 +448,28 @@ export async function generatePreviewFromCreative(
     creativePayload: Record<string, any>,
     adFormat: string,
 ): Promise<ActionResult<{ body: string }>> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
     const res = await graph<{ data: { body: string }[] }>(
         `${withActPrefix(adAccountId)}/generatepreviews`,
-        token!,
-        {
-            params: {
-                ad_format: adFormat,
-                creative: JSON.stringify(creativePayload),
-            },
-        },
+        { params: { ad_format: adFormat, creative: JSON.stringify(creativePayload) } },
     );
     if (res.error) return { error: res.error };
     return { data: { body: res.data?.data?.[0]?.body || '' } };
 }
 
 // =================================================================
-//  ASSETS: IMAGES & VIDEOS
+//  ASSETS: IMAGES & VIDEOS — multipart, routed via dedicated Rust endpoint
 // =================================================================
 
 export async function uploadAdImage(formData: FormData): Promise<{ imageHash?: string; imageUrl?: string; error?: string }> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-
-    const adAccountIdRaw = formData.get('adAccountId') as string;
-    const adAccountId = adAccountIdRaw ? withActPrefix(adAccountIdRaw) : null;
-    if (!adAccountId) return { error: 'Ad Account ID required for upload' };
-
-    const file = formData.get('file') as File;
-    if (!file) return { error: 'No file provided' };
-
     try {
-        const buffer = Buffer.from(await file.arrayBuffer());
-        const url = `${GRAPH}/${adAccountId}/adimages`;
-        const uploadData = new FormData();
-        uploadData.append('filename', new Blob([buffer as any]), file.name);
-        uploadData.append('access_token', token!);
-
-        const res = await fetch(url, { method: 'POST', body: uploadData });
-        const data = await res.json();
-        if (data.error) throw new Error(data.error.message);
-
-        const imageInfo = Object.values(data.images)[0] as any;
-        return { imageHash: imageInfo.hash, imageUrl: imageInfo.url };
-    } catch (e: any) {
-        return { error: e.message || 'Failed to upload image' };
+        return await rustClient.adManager.uploadImage(formData);
+    } catch (e) {
+        return { error: rustErr(e) };
     }
 }
 
 export async function listAdImages(adAccountId: string): Promise<ActionResult<any[]>> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    const res = await graph<{ data: any[] }>(`${withActPrefix(adAccountId)}/adimages`, token!, {
+    const res = await graph<{ data: any[] }>(`${withActPrefix(adAccountId)}/adimages`, {
         params: { fields: 'hash,name,url,width,height,created_time', limit: 100 },
     });
     if (res.error) return { error: res.error };
@@ -592,34 +477,15 @@ export async function listAdImages(adAccountId: string): Promise<ActionResult<an
 }
 
 export async function uploadAdVideo(formData: FormData): Promise<{ videoId?: string; error?: string }> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    const adAccountIdRaw = formData.get('adAccountId') as string;
-    const adAccountId = adAccountIdRaw ? withActPrefix(adAccountIdRaw) : null;
-    if (!adAccountId) return { error: 'Ad Account ID required' };
-
-    const file = formData.get('file') as File;
-    if (!file) return { error: 'No file provided' };
-
     try {
-        const buffer = Buffer.from(await file.arrayBuffer());
-        const url = `${GRAPH}/${adAccountId}/advideos`;
-        const uploadData = new FormData();
-        uploadData.append('source', new Blob([buffer as any]), file.name);
-        uploadData.append('access_token', token!);
-        const res = await fetch(url, { method: 'POST', body: uploadData });
-        const data = await res.json();
-        if (data.error) throw new Error(data.error.message);
-        return { videoId: data.id };
-    } catch (e: any) {
-        return { error: e.message || 'Failed to upload video' };
+        return await rustClient.adManager.uploadVideo(formData);
+    } catch (e) {
+        return { error: rustErr(e) };
     }
 }
 
 export async function listAdVideos(adAccountId: string): Promise<ActionResult<any[]>> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    const res = await graph<{ data: any[] }>(`${withActPrefix(adAccountId)}/advideos`, token!, {
+    const res = await graph<{ data: any[] }>(`${withActPrefix(adAccountId)}/advideos`, {
         params: { fields: 'id,title,source,picture,thumbnails,length,created_time', limit: 50 },
     });
     if (res.error) return { error: res.error };
@@ -639,10 +505,8 @@ const AUDIENCE_FIELDS = [
 ].join(',');
 
 export async function getCustomAudiences(adAccountId: string): Promise<{ audiences?: CustomAudience[]; error?: string }> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
     if (!adAccountId) return { audiences: [] };
-    const res = await graph<{ data: any[] }>(`${withActPrefix(adAccountId)}/customaudiences`, token!, {
+    const res = await graph<{ data: any[] }>(`${withActPrefix(adAccountId)}/customaudiences`, {
         params: { fields: AUDIENCE_FIELDS, limit: 100 },
     });
     if (res.error) return { error: res.error };
@@ -665,69 +529,44 @@ export async function createCustomAudience(
     const v = validate(CreateCustomAudienceInput, payload);
     if ('error' in v) return { error: v.error };
 
-    const { token, error } = await requireToken();
-    if (error) return { error };
-
-    const body: Record<string, any> = {
-        name: v.data.name,
-        subtype: v.data.subtype,
-    };
+    const body: Record<string, any> = { name: v.data.name, subtype: v.data.subtype };
     if (v.data.description) body.description = v.data.description;
     if (v.data.customer_file_source) body.customer_file_source = v.data.customer_file_source;
     if (v.data.retention_days) body.retention_days = v.data.retention_days;
     if (v.data.rule) body.rule = JSON.stringify(v.data.rule);
-    const res = await graph<{ id: string }>(`${withActPrefix(acc.data)}/customaudiences`, token!, {
-        method: 'POST',
-        body,
-    });
+    const res = await graph<{ id: string }>(`${withActPrefix(acc.data)}/customaudiences`, { method: 'POST', body });
     if (!res.error) revalidatePath('/dashboard/ad-manager/audiences');
     return res;
 }
 
 export async function createLookalikeAudience(
     adAccountId: string,
-    payload: {
-        name: string;
-        origin_audience_id: string;
-        country: string;
-        ratio?: number; // 0.01 .. 0.20
-    },
+    payload: { name: string; origin_audience_id: string; country: string; ratio?: number },
 ): Promise<ActionResult> {
     const acc = validate(AdAccountIdSchema, adAccountId);
     if ('error' in acc) return { error: acc.error };
     const v = validate(CreateLookalikeInput, payload);
     if ('error' in v) return { error: v.error };
 
-    const { token, error } = await requireToken();
-    if (error) return { error };
-
     const body = {
         name: v.data.name,
         subtype: 'LOOKALIKE',
         origin_audience_id: v.data.origin_audience_id,
-        lookalike_spec: JSON.stringify({
-            type: 'similarity',
-            country: v.data.country,
-            ratio: v.data.ratio ?? 0.01,
-        }),
+        lookalike_spec: JSON.stringify({ type: 'similarity', country: v.data.country, ratio: v.data.ratio ?? 0.01 }),
     };
-    const res = await graph(`${withActPrefix(acc.data)}/customaudiences`, token!, { method: 'POST', body });
+    const res = await graph(`${withActPrefix(acc.data)}/customaudiences`, { method: 'POST', body });
     if (!res.error) revalidatePath('/dashboard/ad-manager/audiences');
     return res;
 }
 
 export async function deleteCustomAudience(audienceId: string): Promise<ActionResult> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    const res = await graph(audienceId, token!, { method: 'DELETE' });
+    const res = await graph(audienceId, { method: 'DELETE' });
     if (!res.error) revalidatePath('/dashboard/ad-manager/audiences');
     return res;
 }
 
 export async function getSavedAudiences(adAccountId: string): Promise<ActionResult<any[]>> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    const res = await graph<{ data: any[] }>(`${withActPrefix(adAccountId)}/saved_audiences`, token!, {
+    const res = await graph<{ data: any[] }>(`${withActPrefix(adAccountId)}/saved_audiences`, {
         params: { fields: 'id,name,description,targeting,approximate_count_lower_bound,run_status' },
     });
     if (res.error) return { error: res.error };
@@ -743,11 +582,9 @@ export async function searchTargeting(
     type: 'adinterest' | 'adgeolocation' | 'adworkposition' | 'adworkemployer' | 'adeducationschool' | 'adeducationmajor' | 'adlocale' = 'adinterest',
     locationTypes?: string[],
 ): Promise<ActionResult<any[]>> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
     const params: any = { type, q: query, limit: 25 };
     if (locationTypes && type === 'adgeolocation') params.location_types = JSON.stringify(locationTypes);
-    const res = await graph<{ data: any[] }>('search', token!, { params });
+    const res = await graph<{ data: any[] }>('search', { params });
     if (res.error) return { error: res.error };
     return { data: res.data?.data || [] };
 }
@@ -755,9 +592,7 @@ export async function searchTargeting(
 export async function browseTargeting(
     type: 'adinterest_category' | 'behaviors' | 'demographics',
 ): Promise<ActionResult<any[]>> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    const res = await graph<{ data: any[] }>(`targetingbrowse`, token!, { params: { type } });
+    const res = await graph<{ data: any[] }>('targetingbrowse', { params: { type } });
     if (res.error) return { error: res.error };
     return { data: res.data?.data || [] };
 }
@@ -771,30 +606,20 @@ export async function getReachEstimate(
     if ('error' in acc) return { error: acc.error };
     const v = validate(ReachEstimateInput, { targeting, ...opts });
     if ('error' in v) return { error: v.error };
-
-    const { token, error } = await requireToken();
-    if (error) return { error };
     const params: any = { targeting_spec: JSON.stringify(v.data.targeting) };
     if (v.data.optimization_goal) params.optimization_goal = v.data.optimization_goal;
-    return graph(`${withActPrefix(acc.data)}/reachestimate`, token!, { params });
+    return graph(`${withActPrefix(acc.data)}/reachestimate`, { params });
 }
 
 export async function getDeliveryEstimate(
     adAccountId: string,
-    payload: {
-        targeting_spec: Record<string, any>;
-        optimization_goal: string;
-        daily_budget?: number;
-    },
+    payload: { targeting_spec: Record<string, any>; optimization_goal: string; daily_budget?: number },
 ): Promise<ActionResult> {
     const acc = validate(AdAccountIdSchema, adAccountId);
     if ('error' in acc) return { error: acc.error };
     const v = validate(DeliveryEstimateInput, payload);
     if ('error' in v) return { error: v.error };
-
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    return graph(`${withActPrefix(acc.data)}/delivery_estimate`, token!, {
+    return graph(`${withActPrefix(acc.data)}/delivery_estimate`, {
         params: {
             targeting_spec: JSON.stringify(v.data.targeting_spec),
             optimization_goal: v.data.optimization_goal,
@@ -837,10 +662,6 @@ export async function getInsights(
         const v = validate(InsightsQueryInput, opts);
         if ('error' in v) return { error: v.error };
     }
-
-    const { token, error } = await requireToken();
-    if (error) return { error };
-
     const isAct = objectId.startsWith('act_') || /^\d+$/.test(objectId);
     const nodeId = opts?.level === 'account' && isAct ? withActPrefix(objectId) : objectId;
 
@@ -855,29 +676,22 @@ export async function getInsights(
     if (opts?.action_breakdowns?.length) params.action_breakdowns = opts.action_breakdowns.join(',');
     if (opts?.time_increment) params.time_increment = opts.time_increment;
 
-    const res = await graph<{ data: any[] }>(`${nodeId}/insights`, token!, { params });
+    const res = await graph<{ data: any[] }>(`${nodeId}/insights`, { params });
     if (res.error) return { error: res.error };
     return { data: res.data?.data || [] };
 }
 
 export async function exportInsightsAsync(
     objectId: string,
-    opts?: {
-        level?: string;
-        date_preset?: string;
-        fields?: string[];
-        breakdowns?: string[];
-    },
+    opts?: { level?: string; date_preset?: string; fields?: string[]; breakdowns?: string[] },
 ): Promise<ActionResult<{ report_run_id: string }>> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
     const params: any = {
         level: opts?.level || 'ad',
         fields: (opts?.fields || DEFAULT_INSIGHT_FIELDS.split(',')).join(','),
     };
     if (opts?.date_preset) params.date_preset = opts.date_preset;
     if (opts?.breakdowns?.length) params.breakdowns = opts.breakdowns.join(',');
-    return graph(`${objectId}/insights`, token!, { method: 'POST', params });
+    return graph(`${objectId}/insights`, { method: 'POST', params });
 }
 
 // =================================================================
@@ -885,9 +699,7 @@ export async function exportInsightsAsync(
 // =================================================================
 
 export async function listPixels(adAccountId: string): Promise<ActionResult<any[]>> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    const res = await graph<{ data: any[] }>(`${withActPrefix(adAccountId)}/adspixels`, token!, {
+    const res = await graph<{ data: any[] }>(`${withActPrefix(adAccountId)}/adspixels`, {
         params: { fields: 'id,name,code,last_fired_time,is_created_by_business,creation_time,owner_business' },
     });
     if (res.error) return { error: res.error };
@@ -895,19 +707,15 @@ export async function listPixels(adAccountId: string): Promise<ActionResult<any[
 }
 
 export async function createPixel(adAccountId: string, name: string): Promise<ActionResult> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    return graph(`${withActPrefix(adAccountId)}/adspixels`, token!, { method: 'POST', body: { name } });
+    return graph(`${withActPrefix(adAccountId)}/adspixels`, { method: 'POST', body: { name } });
 }
 
 export async function getPixelStats(pixelId: string, aggregation: 'event' | 'browser_type' | 'url' = 'event'): Promise<ActionResult> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    return graph(`${pixelId}/stats`, token!, { params: { aggregation } });
+    return graph(`${pixelId}/stats`, { params: { aggregation } });
 }
 
 // =================================================================
-//  BATCH STATUS UPDATE + GENERIC UPDATE ENTITY STATUS
+//  BATCH STATUS UPDATE
 // =================================================================
 
 export async function updateEntityStatus(
@@ -915,18 +723,14 @@ export async function updateEntityStatus(
     type: 'campaign' | 'adset' | 'ad',
     status: 'ACTIVE' | 'PAUSED' | 'DELETED' | 'ARCHIVED',
 ): Promise<{ success: boolean; error?: string }> {
-    const { token, error } = await requireToken();
-    if (error) return { success: false, error };
-    const res = await graph(id, token!, { method: 'POST', body: { status } });
+    const res = await graph(id, { method: 'POST', body: { status } });
     if (res.error) return { success: false, error: res.error };
     if (type === 'campaign') {
         try {
-            const { db } = await connectToDatabase();
-            await db.collection('ad_campaigns').updateOne(
-                { metaCampaignId: id },
-                { $set: { status } },
-            );
-        } catch {}
+            await rustClient.adManager.updateLocalCampaignStatus(id, status);
+        } catch {
+            // best-effort mirror update
+        }
     }
     revalidatePath('/dashboard/ad-manager/campaigns');
     return { success: true };
@@ -936,90 +740,50 @@ export async function batchUpdateStatus(
     ids: string[],
     status: 'ACTIVE' | 'PAUSED' | 'DELETED' | 'ARCHIVED',
 ): Promise<{ success: boolean; errors?: string[] }> {
-    const { token, error } = await requireToken();
-    if (error) return { success: false, errors: [error] };
-    const batch = ids.map((id) => ({
-        method: 'POST',
-        relative_url: `${id}?status=${status}`,
-    }));
-    const res = await graph('', token!, { method: 'POST', body: { batch: JSON.stringify(batch) } });
+    const batch = ids.map((id) => ({ method: 'POST', relative_url: `${id}?status=${status}` }));
+    const res = await graph('', { method: 'POST', body: { batch: JSON.stringify(batch) } });
     if (res.error) return { success: false, errors: [res.error] };
     revalidatePath('/dashboard/ad-manager/campaigns');
     return { success: true };
 }
 
 // =================================================================
-//  FACEBOOK PAGES + INSTAGRAM ACCOUNTS (used in creative wizard)
+//  FACEBOOK PAGES + INSTAGRAM ACCOUNTS (creative wizard) — metaSuite token
 // =================================================================
 
 export async function getFacebookPagesForAdCreation(): Promise<{ pages?: FacebookPage[]; error?: string }> {
-    const session = await getSession();
-    const token = (session?.user as any)?.metaSuiteAccessToken;
-    if (!token) return { error: 'Facebook account not connected.' };
-    try {
-        const res = await axios.get(`${GRAPH}/me/accounts`, {
-            params: { fields: 'id,name,access_token,category,picture{url}', access_token: token },
-        });
-        if (res.data.error) throw new Error(res.data.error.message);
-        return { pages: res.data.data || [] };
-    } catch (e: any) {
-        return { error: getErrorMessage(e) };
-    }
+    const res = await graph<{ data: any[] }>('me/accounts', {
+        params: { fields: 'id,name,access_token,category,picture{url}' },
+        tokenKind: 'metaSuite',
+    });
+    if (res.error) return { error: res.error };
+    return { pages: (res.data?.data || []) as any };
 }
 
 export async function getInstagramAccountsForPage(pageId: string): Promise<ActionResult<any[]>> {
-    const session = await getSession();
-    const token = (session?.user as any)?.metaSuiteAccessToken;
-    if (!token) return { error: 'Facebook account not connected.' };
-    try {
-        const res = await axios.get(`${GRAPH}/${pageId}`, {
-            params: { fields: 'instagram_business_account{id,username,profile_picture_url}', access_token: token },
-        });
-        const ig = res.data?.instagram_business_account;
-        return { data: ig ? [ig] : [] };
-    } catch (e: any) {
-        return { error: getErrorMessage(e) };
-    }
+    const res = await graph<any>(pageId, {
+        params: { fields: 'instagram_business_account{id,username,profile_picture_url}' },
+        tokenKind: 'metaSuite',
+    });
+    if (res.error) return { error: res.error };
+    const ig = res.data?.instagram_business_account;
+    return { data: ig ? [ig] : [] };
 }
 
 // =================================================================
 //  LEGACY: local DB backed "quick create" wizard
-//  (kept for the one-click Click-to-WhatsApp ad create flow)
 // =================================================================
 
 export async function getAdCampaigns(adAccountId: string): Promise<{ campaigns?: WithId<AdCampaign>[]; error?: string }> {
-    const { token, error } = await requireToken();
-    if (error) return { campaigns: [], error };
     if (!adAccountId) return { campaigns: [] };
-
     try {
-        const session = await getSession();
-        const { db } = await connectToDatabase();
-        const localCampaigns = await db
-            .collection<AdCampaign>('ad_campaigns')
-            .find({ adAccountId, userId: new ObjectId(session!.user._id) })
-            .sort({ createdAt: -1 })
-            .toArray();
-
-        if (localCampaigns.length === 0) return { campaigns: [] };
-
-        const adIds = localCampaigns.map((c) => c.metaAdId).filter(Boolean);
-        if (adIds.length === 0) return { campaigns: JSON.parse(JSON.stringify(localCampaigns)) };
-
-        const { data } = await graph<any>('', token!, {
-            params: {
-                ids: adIds.join(','),
-                fields: 'status,insights{impressions, clicks, spend, ctr}',
-            },
-        });
-
-        const combined = localCampaigns.map((c) => {
-            const m = data?.[c.metaAdId];
-            return m ? { ...c, status: m.status || c.status, insights: m.insights?.data?.[0] || {} } : c;
-        });
-        return { campaigns: JSON.parse(JSON.stringify(combined)) };
-    } catch (e: any) {
-        return { error: getErrorMessage(e) };
+        // Rust merges the local `ad_campaigns` rows with the current Graph
+        // status + insights in one round trip.
+        const res = await rustClient.adManager.decoratedLocalCampaigns(adAccountId);
+        if (res.error) return { error: res.error };
+        return { campaigns: res.campaigns as WithId<AdCampaign>[] };
+    } catch (e) {
+        return { error: rustErr(e) };
     }
 }
 
@@ -1027,107 +791,15 @@ export async function handleCreateAdCampaign(
     _prevState: any,
     formData: FormData,
 ): Promise<{ message?: string; error?: string }> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    const session = await getSession();
-
-    const adAccountId = withActPrefix(formData.get('adAccountId') as string);
-    const facebookPageId = formData.get('facebookPageId') as string;
-    const campaignName = formData.get('campaignName') as string;
-    const dailyBudget = Number(formData.get('dailyBudget')) * 100;
-    const adMessage = formData.get('adMessage') as string;
-    const destinationUrl = formData.get('destinationUrl') as string;
-    const objective = (formData.get('objective') as string) || 'OUTCOME_TRAFFIC';
-    const status = (formData.get('status') as string) || 'PAUSED';
-    const imageHash = formData.get('imageHash') as string;
-    const targetCountry = (formData.get('targetCountry') as string) || 'IN';
-    const minAge = Number(formData.get('minAge')) || 18;
-    const maxAge = Number(formData.get('maxAge')) || 65;
-
-    if (!adAccountId || !facebookPageId || !campaignName || isNaN(dailyBudget) || !adMessage || !destinationUrl) {
-        return { error: 'All fields are required, including Name, Objective, Status, and Budget.' };
-    }
-
+    // Rust parses multipart, validates required fields, runs the 4-step
+    // Graph orchestration, and inserts the local mirror — all in one
+    // round trip.
     try {
-        // 1. Campaign
-        const camp = await graph<{ id: string }>(`${adAccountId}/campaigns`, token!, {
-            method: 'POST',
-            body: {
-                name: campaignName,
-                objective,
-                status,
-                special_ad_categories: JSON.stringify([]),
-            },
-        });
-        if (camp.error || !camp.data?.id) throw new Error(camp.error || 'Failed to create campaign.');
-
-        // 2. Ad set
-        const adset = await graph<{ id: string }>(`${adAccountId}/adsets`, token!, {
-            method: 'POST',
-            body: {
-                name: `${campaignName} Ad Set`,
-                campaign_id: camp.data.id,
-                daily_budget: dailyBudget,
-                billing_event: 'IMPRESSIONS',
-                optimization_goal: 'LINK_CLICKS',
-                targeting: JSON.stringify({
-                    geo_locations: { countries: [targetCountry] },
-                    age_min: minAge,
-                    age_max: maxAge,
-                }),
-                status,
-            },
-        });
-        if (adset.error || !adset.data?.id) throw new Error(adset.error || 'Failed to create ad set.');
-
-        // 3. Creative
-        const creative = await graph<{ id: string }>(`${adAccountId}/adcreatives`, token!, {
-            method: 'POST',
-            body: {
-                name: `${campaignName} Ad Creative`,
-                object_story_spec: JSON.stringify({
-                    page_id: facebookPageId,
-                    link_data: {
-                        message: adMessage,
-                        link: destinationUrl,
-                        ...(imageHash ? { image_hash: imageHash } : { image_url: 'https://placehold.co/1200x628.png' }),
-                        call_to_action: { type: 'LEARN_MORE', value: { link: destinationUrl } },
-                    },
-                }),
-            },
-        });
-        if (creative.error || !creative.data?.id) throw new Error(creative.error || 'Failed to create creative.');
-
-        // 4. Ad
-        const ad = await graph<{ id: string }>(`${adAccountId}/ads`, token!, {
-            method: 'POST',
-            body: {
-                name: `${campaignName} Ad`,
-                adset_id: adset.data.id,
-                creative: JSON.stringify({ creative_id: creative.data.id }),
-                status,
-            },
-        });
-        if (ad.error || !ad.data?.id) throw new Error(ad.error || 'Failed to create ad.');
-
-        const { db } = await connectToDatabase();
-        await db.collection('ad_campaigns').insertOne({
-            userId: new ObjectId(session!.user._id),
-            adAccountId,
-            name: campaignName,
-            status,
-            dailyBudget: dailyBudget / 100,
-            metaCampaignId: camp.data.id,
-            metaAdSetId: adset.data.id,
-            metaAdCreativeId: creative.data.id,
-            metaAdId: ad.data.id,
-            createdAt: new Date(),
-        } as any);
-
-        revalidatePath('/dashboard/ad-manager/campaigns');
-        return { message: `Ad campaign "${campaignName}" created successfully!` };
-    } catch (e: any) {
-        return { error: getErrorMessage(e) };
+        const res = await rustClient.adManager.fromFormCreateAdCampaign(formData);
+        if (!res.error) revalidatePath('/dashboard/ad-manager/campaigns');
+        return res;
+    } catch (e) {
+        return { error: rustErr(e) };
     }
 }
 
@@ -1140,23 +812,14 @@ export async function getAdSets(campaignId: string): Promise<{ adSets?: any[]; e
 }
 
 export async function getAds(adSetId: string): Promise<{ ads?: any[]; error?: string }> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    const res = await graph<{ data: any[] }>(`${adSetId}/ads`, token!, {
-        params: {
-            fields: 'id,name,status,creative{image_url,thumbnail_url,object_story_spec},insights{impressions,clicks,spend,ctr}',
-        },
-    });
-    if (res.error) return { error: res.error };
-    const ads = (res.data?.data || []).map((ad: any) => ({
-        ...ad,
-        insights: ad.insights?.data?.[0] || {},
-        imageUrl:
-            ad.creative?.image_url ||
-            ad.creative?.thumbnail_url ||
-            ad.creative?.object_story_spec?.link_data?.image_url,
-    }));
-    return { ads };
+    // Rust fetches and reshapes — flattens insights and coalesces imageUrl.
+    try {
+        const res = await rustClient.adManager.reshapedAds(adSetId);
+        if (res.error) return { error: res.error };
+        return { ads: res.ads };
+    } catch (e) {
+        return { error: rustErr(e) };
+    }
 }
 
 // =================================================================
@@ -1166,24 +829,18 @@ export async function getAds(adSetId: string): Promise<{ ads?: any[]; error?: st
 // ----- Ad Labels -------------------------------------------------
 
 export async function listAdLabels(adAccountId: string): Promise<ActionResult<any[]>> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    const res = await graph<{ data: any[] }>(`${withActPrefix(adAccountId)}/adlabels`, token!, {
+    const res = await graph<{ data: any[] }>(`${withActPrefix(adAccountId)}/adlabels`, {
         params: { fields: 'id,name,created_time,updated_time' },
     });
     return res.error ? { error: res.error } : { data: res.data?.data || [] };
 }
 
 export async function createAdLabel(adAccountId: string, name: string): Promise<ActionResult> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    return graph(`${withActPrefix(adAccountId)}/adlabels`, token!, { method: 'POST', body: { name } });
+    return graph(`${withActPrefix(adAccountId)}/adlabels`, { method: 'POST', body: { name } });
 }
 
 export async function attachAdLabel(objectId: string, labelId: string): Promise<ActionResult> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    return graph(`${objectId}/adlabels`, token!, {
+    return graph(`${objectId}/adlabels`, {
         method: 'POST',
         body: { adlabels: JSON.stringify([{ id: labelId }]) },
     });
@@ -1198,9 +855,7 @@ const CUSTOM_CONVERSION_FIELDS = [
 ].join(',');
 
 export async function listCustomConversions(adAccountId: string): Promise<ActionResult<any[]>> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    const res = await graph<{ data: any[] }>(`${withActPrefix(adAccountId)}/customconversions`, token!, {
+    const res = await graph<{ data: any[] }>(`${withActPrefix(adAccountId)}/customconversions`, {
         params: { fields: CUSTOM_CONVERSION_FIELDS },
     });
     return res.error ? { error: res.error } : { data: res.data?.data || [] };
@@ -1220,10 +875,7 @@ export async function createCustomConversion(
     if ('error' in acc) return { error: acc.error };
     const v = validate(CustomConversionInput, payload);
     if ('error' in v) return { error: v.error };
-
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    return graph(`${withActPrefix(acc.data)}/customconversions`, token!, {
+    return graph(`${withActPrefix(acc.data)}/customconversions`, {
         method: 'POST',
         body: {
             name: v.data.name,
@@ -1245,30 +897,23 @@ export async function sendConversionApiEvent(
     if ('error' in p) return { error: p.error };
     const v = validate(ConversionApiEventInput, payload);
     if ('error' in v) return { error: v.error };
-
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    return graph(`${p.data}/events`, token!, {
+    return graph(`${p.data}/events`, {
         method: 'POST',
         body: {
-            data: JSON.stringify([
-                {
-                    event_name: v.data.event_name,
-                    event_time: v.data.event_time,
-                    action_source: v.data.action_source || 'website',
-                    event_source_url: v.data.event_source_url,
-                    user_data: v.data.user_data,
-                    custom_data: v.data.custom_data,
-                },
-            ]),
+            data: JSON.stringify([{
+                event_name: v.data.event_name,
+                event_time: v.data.event_time,
+                action_source: v.data.action_source || 'website',
+                event_source_url: v.data.event_source_url,
+                user_data: v.data.user_data,
+                custom_data: v.data.custom_data,
+            }]),
         },
     });
 }
 
 export async function listOfflineEventSets(adAccountId: string): Promise<ActionResult<any[]>> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    const res = await graph<{ data: any[] }>(`${withActPrefix(adAccountId)}/offline_conversion_data_sets`, token!, {
+    const res = await graph<{ data: any[] }>(`${withActPrefix(adAccountId)}/offline_conversion_data_sets`, {
         params: { fields: 'id,name,description,event_stats,valid_entries,matched_entries' },
     });
     return res.error ? { error: res.error } : { data: res.data?.data || [] };
@@ -1278,52 +923,39 @@ export async function uploadOfflineEvents(
     dataSetId: string,
     events: Array<Record<string, any>>,
 ): Promise<ActionResult> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    return graph(`${dataSetId}/events`, token!, {
+    return graph(`${dataSetId}/events`, {
         method: 'POST',
-        body: {
-            upload_tag: `sabnode_${Date.now()}`,
-            data: JSON.stringify(events),
-        },
+        body: { upload_tag: `sabnode_${Date.now()}`, data: JSON.stringify(events) },
     });
 }
 
 // ----- Lead Forms / Lead Ads -------------------------------------
 
 export async function listLeadGenForms(pageId: string): Promise<ActionResult<any[]>> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    const res = await graph<{ data: any[] }>(`${pageId}/leadgen_forms`, token!, {
+    const res = await graph<{ data: any[] }>(`${pageId}/leadgen_forms`, {
         params: { fields: 'id,name,status,locale,leads_count,created_time,privacy_policy_url' },
     });
     return res.error ? { error: res.error } : { data: res.data?.data || [] };
 }
 
 export async function getLeadsFromForm(formId: string, since?: number): Promise<ActionResult<any[]>> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
     const params: any = { fields: 'id,created_time,field_data,form_id,ad_id,adset_id,campaign_id' };
     if (since) params.filtering = JSON.stringify([{ field: 'time_created', operator: 'GREATER_THAN', value: since }]);
-    const res = await graph<{ data: any[] }>(`${formId}/leads`, token!, { params });
+    const res = await graph<{ data: any[] }>(`${formId}/leads`, { params });
     return res.error ? { error: res.error } : { data: res.data?.data || [] };
 }
 
 // ----- Catalogs / Product sets / DPA -----------------------------
 
 export async function listCatalogs(businessId: string): Promise<ActionResult<any[]>> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    const res = await graph<{ data: any[] }>(`${businessId}/owned_product_catalogs`, token!, {
+    const res = await graph<{ data: any[] }>(`${businessId}/owned_product_catalogs`, {
         params: { fields: 'id,name,product_count,vertical,feed_count' },
     });
     return res.error ? { error: res.error } : { data: res.data?.data || [] };
 }
 
 export async function listProductSets(catalogId: string): Promise<ActionResult<any[]>> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    const res = await graph<{ data: any[] }>(`${catalogId}/product_sets`, token!, {
+    const res = await graph<{ data: any[] }>(`${catalogId}/product_sets`, {
         params: { fields: 'id,name,product_count,filter' },
     });
     return res.error ? { error: res.error } : { data: res.data?.data || [] };
@@ -1333,14 +965,9 @@ export async function createProductSet(
     catalogId: string,
     payload: { name: string; filter?: Record<string, any> },
 ): Promise<ActionResult> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    return graph(`${catalogId}/product_sets`, token!, {
+    return graph(`${catalogId}/product_sets`, {
         method: 'POST',
-        body: {
-            name: payload.name,
-            filter: payload.filter ? JSON.stringify(payload.filter) : undefined,
-        },
+        body: { name: payload.name, filter: payload.filter ? JSON.stringify(payload.filter) : undefined },
     });
 }
 
@@ -1348,16 +975,12 @@ export async function createProductSet(
 
 export async function addUsersToCustomAudience(
     audienceId: string,
-    schema: string[], // e.g. ['EMAIL','PHONE','FN','LN','CT','ST','ZIP','COUNTRY']
-    hashedUsers: string[][], // pre-hashed (SHA-256) rows matching `schema`
+    schema: string[],
+    hashedUsers: string[][],
 ): Promise<ActionResult> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    return graph(`${audienceId}/users`, token!, {
+    return graph(`${audienceId}/users`, {
         method: 'POST',
-        body: {
-            payload: JSON.stringify({ schema, data: hashedUsers }),
-        },
+        body: { payload: JSON.stringify({ schema, data: hashedUsers }) },
     });
 }
 
@@ -1366,9 +989,7 @@ export async function removeUsersFromCustomAudience(
     schema: string[],
     hashedUsers: string[][],
 ): Promise<ActionResult> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    return graph(`${audienceId}/users`, token!, {
+    return graph(`${audienceId}/users`, {
         method: 'DELETE',
         body: { payload: JSON.stringify({ schema, data: hashedUsers }) },
     });
@@ -1380,9 +1001,7 @@ export async function createSavedAudience(
     adAccountId: string,
     payload: { name: string; description?: string; targeting: Record<string, any> },
 ): Promise<ActionResult> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    return graph(`${withActPrefix(adAccountId)}/saved_audiences`, token!, {
+    return graph(`${withActPrefix(adAccountId)}/saved_audiences`, {
         method: 'POST',
         body: {
             name: payload.name,
@@ -1393,36 +1012,26 @@ export async function createSavedAudience(
 }
 
 export async function deleteSavedAudience(audienceId: string): Promise<ActionResult> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    return graph(audienceId, token!, { method: 'DELETE' });
+    return graph(audienceId, { method: 'DELETE' });
 }
 
 // ----- Async report jobs -----------------------------------------
 
 export async function getReportRunStatus(reportRunId: string): Promise<ActionResult> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    return graph(reportRunId, token!, {
+    return graph(reportRunId, {
         params: { fields: 'id,async_status,async_percent_completion,date_start,date_stop' },
     });
 }
 
 export async function getReportRunInsights(reportRunId: string): Promise<ActionResult<any[]>> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    const res = await graph<{ data: any[] }>(`${reportRunId}/insights`, token!, { params: { limit: 1000 } });
+    const res = await graph<{ data: any[] }>(`${reportRunId}/insights`, { params: { limit: 1000 } });
     return res.error ? { error: res.error } : { data: res.data?.data || [] };
 }
 
 // ----- Interest suggestions / validation -------------------------
 
-export async function suggestTargeting(
-    interestList: string[],
-): Promise<ActionResult<any[]>> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    const res = await graph<{ data: any[] }>('search', token!, {
+export async function suggestTargeting(interestList: string[]): Promise<ActionResult<any[]>> {
+    const res = await graph<{ data: any[] }>('search', {
         params: {
             type: 'adinterestsuggestion',
             interest_list: JSON.stringify(interestList),
@@ -1435,9 +1044,7 @@ export async function suggestTargeting(
 export async function validateTargeting(
     interests: Array<{ id: string; name: string }>,
 ): Promise<ActionResult<any[]>> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    const res = await graph<{ data: any[] }>('search', token!, {
+    const res = await graph<{ data: any[] }>('search', {
         params: {
             type: 'adinterestvalid',
             interest_list: JSON.stringify(interests.map((i) => i.name)),
@@ -1450,18 +1057,14 @@ export async function validateTargeting(
 // ----- Ad account users / assigned agencies ----------------------
 
 export async function listAdAccountUsers(adAccountId: string): Promise<ActionResult<any[]>> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    const res = await graph<{ data: any[] }>(`${withActPrefix(adAccountId)}/assigned_users`, token!, {
+    const res = await graph<{ data: any[] }>(`${withActPrefix(adAccountId)}/assigned_users`, {
         params: { fields: 'id,name,email,role,permitted_tasks,business' },
     });
     return res.error ? { error: res.error } : { data: res.data?.data || [] };
 }
 
 export async function listAdAccountAgencies(adAccountId: string): Promise<ActionResult<any[]>> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    const res = await graph<{ data: any[] }>(`${withActPrefix(adAccountId)}/agencies`, token!, {
+    const res = await graph<{ data: any[] }>(`${withActPrefix(adAccountId)}/agencies`, {
         params: { fields: 'id,name,verification_status,permitted_tasks' },
     });
     return res.error ? { error: res.error } : { data: res.data?.data || [] };
@@ -1469,20 +1072,14 @@ export async function listAdAccountAgencies(adAccountId: string): Promise<Action
 
 // ----- Payment methods / invoices --------------------------------
 
-export async function getAdAccountSpend(adAccountId: string, since?: string, until?: string): Promise<ActionResult> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    return graph(`${withActPrefix(adAccountId)}`, token!, {
-        params: {
-            fields: 'amount_spent,balance,currency,funding_source_details,min_daily_budget,spend_cap',
-        },
+export async function getAdAccountSpend(adAccountId: string, _since?: string, _until?: string): Promise<ActionResult> {
+    return graph(withActPrefix(adAccountId), {
+        params: { fields: 'amount_spent,balance,currency,funding_source_details,min_daily_budget,spend_cap' },
     });
 }
 
 export async function listBusinessInvoices(businessId: string): Promise<ActionResult<any[]>> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    const res = await graph<{ data: any[] }>(`${businessId}/business_invoices`, token!, {
+    const res = await graph<{ data: any[] }>(`${businessId}/business_invoices`, {
         params: {
             fields: 'id,invoice_id,billing_period,billed_amount_details,due_date,issue_date,payment_status,invoice_date,type',
         },
@@ -1526,13 +1123,7 @@ export async function createCarouselCreative(
 
 export async function createDynamicProductAdCreative(
     adAccountId: string,
-    payload: {
-        name: string;
-        page_id: string;
-        product_set_id: string;
-        message: string;
-        link: string;
-    },
+    payload: { name: string; page_id: string; product_set_id: string; message: string; link: string },
 ): Promise<ActionResult> {
     return createCreative(adAccountId, {
         name: payload.name,
@@ -1562,9 +1153,7 @@ export async function createDraftCampaign(
 // ----- Rules & automated actions ---------------------------------
 
 export async function listAdRules(adAccountId: string): Promise<ActionResult<any[]>> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    const res = await graph<{ data: any[] }>(`${withActPrefix(adAccountId)}/adrules_library`, token!, {
+    const res = await graph<{ data: any[] }>(`${withActPrefix(adAccountId)}/adrules_library`, {
         params: { fields: 'id,name,status,schedule,execution_spec,evaluation_spec,created_time' },
     });
     return res.error ? { error: res.error } : { data: res.data?.data || [] };
@@ -1583,10 +1172,7 @@ export async function createAdRule(
     if ('error' in acc) return { error: acc.error };
     const v = validate(AdRuleInput, payload);
     if ('error' in v) return { error: v.error };
-
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    return graph(`${withActPrefix(acc.data)}/adrules_library`, token!, {
+    return graph(`${withActPrefix(acc.data)}/adrules_library`, {
         method: 'POST',
         body: {
             name: v.data.name,
@@ -1614,10 +1200,6 @@ export async function compareInsights(
     return { data: { a: a.data || [], b: b.data || [] } };
 }
 
-// =================================================================
-//  DEEPEST META API SURFACE — things most wrappers don't expose
-// =================================================================
-
 // ----- Reach & Frequency prediction ------------------------------
 
 export async function createReachFrequencyPrediction(
@@ -1626,7 +1208,7 @@ export async function createReachFrequencyPrediction(
         campaign_group_id?: string;
         name: string;
         target_spec: Record<string, any>;
-        budget: number; // minor units
+        budget: number;
         start_time: string;
         end_time: string;
         buying_type?: 'RESERVED' | 'AUCTION';
@@ -1637,9 +1219,7 @@ export async function createReachFrequencyPrediction(
         instream_packages?: string[];
     },
 ): Promise<ActionResult<{ id: string }>> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    return graph(`${withActPrefix(adAccountId)}/reachfrequencypredictions`, token!, {
+    return graph(`${withActPrefix(adAccountId)}/reachfrequencypredictions`, {
         method: 'POST',
         body: {
             name: payload.name,
@@ -1658,9 +1238,7 @@ export async function createReachFrequencyPrediction(
 }
 
 export async function listReachFrequencyPredictions(adAccountId: string): Promise<ActionResult<any[]>> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    const res = await graph<{ data: any[] }>(`${withActPrefix(adAccountId)}/reachfrequencypredictions`, token!, {
+    const res = await graph<{ data: any[] }>(`${withActPrefix(adAccountId)}/reachfrequencypredictions`, {
         params: {
             fields: 'id,name,status,budget,reservation_status,impression_curve,prediction_mode,start_time,end_time,target_audience_size,frequency_cap',
         },
@@ -1668,35 +1246,24 @@ export async function listReachFrequencyPredictions(adAccountId: string): Promis
     return res.error ? { error: res.error } : { data: res.data?.data || [] };
 }
 
-// ----- Targeting sentence lines (human-readable targeting) -------
+// ----- Targeting sentence lines ----------------------------------
 
 export async function getTargetingSentenceLines(
     adAccountId: string,
     targeting: Record<string, any>,
 ): Promise<ActionResult<any[]>> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    const res = await graph<{ data: any[] }>(
-        `${withActPrefix(adAccountId)}/targetingsentencelines`,
-        token!,
-        { params: { targeting_spec: JSON.stringify(targeting) } },
-    );
+    const res = await graph<{ data: any[] }>(`${withActPrefix(adAccountId)}/targetingsentencelines`, {
+        params: { targeting_spec: JSON.stringify(targeting) },
+    });
     return res.error ? { error: res.error } : { data: res.data?.data || [] };
 }
 
-// ----- Ad preview iframe (all positions) -------------------------
-// AD_PREVIEW_FORMATS is declared in constants.ts (non-server file)
-// so this file can stay pure server actions. It's imported at the top.
+// ----- All previews ----------------------------------------------
 
 export async function getAllAdPreviews(adId: string): Promise<ActionResult<Record<string, string>>> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-
     const results: Record<string, string> = {};
     const tasks = AD_PREVIEW_FORMATS.map(async (fmt) => {
-        const res = await graph<{ data: { body: string }[] }>(`${adId}/previews`, token!, {
-            params: { ad_format: fmt },
-        });
+        const res = await graph<{ data: { body: string }[] }>(`${adId}/previews`, { params: { ad_format: fmt } });
         if (!res.error && res.data?.data?.[0]?.body) results[fmt] = res.data.data[0].body;
     });
     await Promise.allSettled(tasks);
@@ -1716,10 +1283,6 @@ export async function runAsyncInsightsJob(
     },
     onProgress?: (pct: number) => void,
 ): Promise<ActionResult<any[]>> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-
-    // 1) Kick off
     const params: any = {
         level: opts.level || 'ad',
         fields: (opts.fields || ['campaign_id', 'adset_id', 'ad_id', 'impressions', 'clicks', 'spend']).join(','),
@@ -1728,21 +1291,15 @@ export async function runAsyncInsightsJob(
     if (opts.time_range) params.time_range = JSON.stringify(opts.time_range);
     if (opts.breakdowns) params.breakdowns = opts.breakdowns.join(',');
 
-    const kick = await graph<{ report_run_id: string }>(`${objectId}/insights`, token!, {
-        method: 'POST',
-        params,
-    });
+    const kick = await graph<{ report_run_id: string }>(`${objectId}/insights`, { method: 'POST', params });
     if (kick.error || !kick.data?.report_run_id) return { error: kick.error || 'Failed to start report' };
     const runId = kick.data.report_run_id;
 
-    // 2) Poll until done or timeout (~2 min)
     const started = Date.now();
     while (Date.now() - started < 120_000) {
-        const status = await graph<{ async_status: string; async_percent_completion: number }>(
-            runId,
-            token!,
-            { params: { fields: 'async_status,async_percent_completion' } },
-        );
+        const status = await graph<{ async_status: string; async_percent_completion: number }>(runId, {
+            params: { fields: 'async_status,async_percent_completion' },
+        });
         if (status.error) return { error: status.error };
         onProgress?.(status.data?.async_percent_completion || 0);
         if (status.data?.async_status === 'Job Completed') break;
@@ -1752,17 +1309,14 @@ export async function runAsyncInsightsJob(
         await new Promise((r) => setTimeout(r, 1_500));
     }
 
-    // 3) Fetch results
-    const results = await graph<{ data: any[] }>(`${runId}/insights`, token!, { params: { limit: 5000 } });
+    const results = await graph<{ data: any[] }>(`${runId}/insights`, { params: { limit: 5000 } });
     return results.error ? { error: results.error } : { data: results.data?.data || [] };
 }
 
 // ----- Extended credit / business-level billing ------------------
 
 export async function listExtendedCredits(businessId: string): Promise<ActionResult<any[]>> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    const res = await graph<{ data: any[] }>(`${businessId}/extendedcredits`, token!, {
+    const res = await graph<{ data: any[] }>(`${businessId}/extendedcredits`, {
         params: {
             fields: 'id,credit_type,credit_available,credit_used,legal_entity_name,max_balance,owner_business',
         },
@@ -1770,126 +1324,74 @@ export async function listExtendedCredits(businessId: string): Promise<ActionRes
     return res.error ? { error: res.error } : { data: res.data?.data || [] };
 }
 
-// ----- Business users / partners / agencies ---------------------
-
 export async function listBusinessUsers(businessId: string): Promise<ActionResult<any[]>> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    const res = await graph<{ data: any[] }>(`${businessId}/business_users`, token!, {
+    const res = await graph<{ data: any[] }>(`${businessId}/business_users`, {
         params: { fields: 'id,name,email,role,title,two_fac_status' },
     });
     return res.error ? { error: res.error } : { data: res.data?.data || [] };
 }
 
 export async function listBusinessPartners(businessId: string): Promise<ActionResult<any[]>> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    const res = await graph<{ data: any[] }>(`${businessId}/business_partners`, token!, {
+    const res = await graph<{ data: any[] }>(`${businessId}/business_partners`, {
         params: { fields: 'id,name,verification_status,two_factor_type' },
     });
     return res.error ? { error: res.error } : { data: res.data?.data || [] };
 }
 
-// ----- Page posts (for promoting existing posts) -----------------
+// ----- Page posts (metaSuite) ------------------------------------
 
 export async function listPagePromotablePosts(pageId: string): Promise<ActionResult<any[]>> {
-    const session = await getSession();
-    const token = (session?.user as any)?.metaSuiteAccessToken;
-    if (!token) return { error: 'Facebook account not connected.' };
-    try {
-        const res = await axios.get(`${GRAPH}/${pageId}/promotable_posts`, {
-            params: {
-                fields: 'id,message,created_time,picture,type,status_type,insights{name,values}',
-                is_published: true,
-                access_token: token,
-            },
-        });
-        return { data: res.data.data || [] };
-    } catch (e: any) {
-        return { error: getErrorMessage(e) };
-    }
-}
-
-// ----- Instant Experience (canvas) ------------------------------
-
-export async function listInstantExperiences(pageId: string): Promise<ActionResult<any[]>> {
-    const session = await getSession();
-    const token = (session?.user as any)?.metaSuiteAccessToken;
-    if (!token) return { error: 'Facebook account not connected.' };
-    try {
-        const res = await axios.get(`${GRAPH}/${pageId}/canvases`, {
-            params: {
-                fields: 'id,name,canvas_link,body_elements,is_published,update_time',
-                access_token: token,
-            },
-        });
-        return { data: res.data.data || [] };
-    } catch (e: any) {
-        return { error: getErrorMessage(e) };
-    }
-}
-
-// ----- Branded Content handle ------------------------------------
-
-export async function listBrandedContentHandles(pageId: string): Promise<ActionResult<any[]>> {
-    const session = await getSession();
-    const token = (session?.user as any)?.metaSuiteAccessToken;
-    if (!token) return { error: 'Facebook account not connected.' };
-    try {
-        const res = await axios.get(`${GRAPH}/${pageId}/branded_content_ad_handlers`, {
-            params: { access_token: token },
-        });
-        return { data: res.data.data || [] };
-    } catch (e: any) {
-        return { error: getErrorMessage(e) };
-    }
-}
-
-// ----- Instagram Business Account discovery ----------------------
-
-export async function getInstagramBusinessAccount(pageId: string): Promise<ActionResult> {
-    const session = await getSession();
-    const token = (session?.user as any)?.metaSuiteAccessToken;
-    if (!token) return { error: 'Facebook account not connected.' };
-    try {
-        const res = await axios.get(`${GRAPH}/${pageId}`, {
-            params: {
-                fields: 'instagram_business_account{id,username,name,profile_picture_url,followers_count,media_count,biography}',
-                access_token: token,
-            },
-        });
-        return { data: res.data?.instagram_business_account || null };
-    } catch (e: any) {
-        return { error: getErrorMessage(e) };
-    }
-}
-
-// ----- Audience sharing -----------------------------------------
-
-export async function shareCustomAudience(
-    audienceId: string,
-    accountIds: string[],
-): Promise<ActionResult> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    return graph(`${audienceId}/adaccounts`, token!, {
-        method: 'POST',
-        body: {
-            adaccounts: JSON.stringify(accountIds.map((a) => withActPrefix(a))),
+    const res = await graph<{ data: any[] }>(`${pageId}/promotable_posts`, {
+        params: {
+            fields: 'id,message,created_time,picture,type,status_type,insights{name,values}',
+            is_published: true,
         },
-    });
-}
-
-export async function listSharedAudienceAccounts(audienceId: string): Promise<ActionResult<any[]>> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    const res = await graph<{ data: any[] }>(`${audienceId}/adaccounts`, token!, {
-        params: { fields: 'id,account_id,name' },
+        tokenKind: 'metaSuite',
     });
     return res.error ? { error: res.error } : { data: res.data?.data || [] };
 }
 
-// ----- Custom audience prefill (app install, web retargeting) ----
+export async function listInstantExperiences(pageId: string): Promise<ActionResult<any[]>> {
+    const res = await graph<{ data: any[] }>(`${pageId}/canvases`, {
+        params: { fields: 'id,name,canvas_link,body_elements,is_published,update_time' },
+        tokenKind: 'metaSuite',
+    });
+    return res.error ? { error: res.error } : { data: res.data?.data || [] };
+}
+
+export async function listBrandedContentHandles(pageId: string): Promise<ActionResult<any[]>> {
+    const res = await graph<{ data: any[] }>(`${pageId}/branded_content_ad_handlers`, {
+        tokenKind: 'metaSuite',
+    });
+    return res.error ? { error: res.error } : { data: res.data?.data || [] };
+}
+
+export async function getInstagramBusinessAccount(pageId: string): Promise<ActionResult> {
+    const res = await graph<any>(pageId, {
+        params: {
+            fields: 'instagram_business_account{id,username,name,profile_picture_url,followers_count,media_count,biography}',
+        },
+        tokenKind: 'metaSuite',
+    });
+    if (res.error) return { error: res.error };
+    return { data: res.data?.instagram_business_account || null };
+}
+
+// ----- Audience sharing -----------------------------------------
+
+export async function shareCustomAudience(audienceId: string, accountIds: string[]): Promise<ActionResult> {
+    return graph(`${audienceId}/adaccounts`, {
+        method: 'POST',
+        body: { adaccounts: JSON.stringify(accountIds.map((a) => withActPrefix(a))) },
+    });
+}
+
+export async function listSharedAudienceAccounts(audienceId: string): Promise<ActionResult<any[]>> {
+    const res = await graph<{ data: any[] }>(`${audienceId}/adaccounts`, {
+        params: { fields: 'id,account_id,name' },
+    });
+    return res.error ? { error: res.error } : { data: res.data?.data || [] };
+}
 
 export async function createWebsiteRetargetingAudience(
     adAccountId: string,
@@ -1908,44 +1410,24 @@ export async function createWebsiteRetargetingAudience(
     });
 }
 
-// ----- Pixel share / page permissions ---------------------------
-
-export async function sharePixelWithAdAccount(
-    pixelId: string,
-    adAccountId: string,
-): Promise<ActionResult> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    return graph(`${pixelId}/shared_accounts`, token!, {
+export async function sharePixelWithAdAccount(pixelId: string, adAccountId: string): Promise<ActionResult> {
+    return graph(`${pixelId}/shared_accounts`, {
         method: 'POST',
         body: { account_id: adAccountId.replace(/^act_/, '') },
     });
 }
 
-// ----- Video copyright / rights manager -------------------------
-
 export async function listVideoCopyrights(pageId: string): Promise<ActionResult<any[]>> {
-    const session = await getSession();
-    const token = (session?.user as any)?.metaSuiteAccessToken;
-    if (!token) return { error: 'Facebook account not connected.' };
-    try {
-        const res = await axios.get(`${GRAPH}/${pageId}/video_copyrights`, {
-            params: {
-                fields: 'id,copyright_content_id,creation_time,ownership_countries,reference_file,monitoring_status',
-                access_token: token,
-            },
-        });
-        return { data: res.data.data || [] };
-    } catch (e: any) {
-        return { error: getErrorMessage(e) };
-    }
+    const res = await graph<{ data: any[] }>(`${pageId}/video_copyrights`, {
+        params: {
+            fields: 'id,copyright_content_id,creation_time,ownership_countries,reference_file,monitoring_status',
+        },
+        tokenKind: 'metaSuite',
+    });
+    return res.error ? { error: res.error } : { data: res.data?.data || [] };
 }
 
-// ----- Tracking / conversion spec introspection -----------------
-
 export async function getSupportedActionTypes(): Promise<ActionResult<string[]>> {
-    // Static list from Marketing API docs; useful for the UI when
-    // building conversion rules without hitting Graph.
     return {
         data: [
             'link_click', 'post_engagement', 'page_engagement', 'post_reaction',
@@ -1966,55 +1448,34 @@ export async function getSupportedActionTypes(): Promise<ActionResult<string[]>>
     };
 }
 
-// ----- Promo codes / offers --------------------------------------
-
 export async function listOffers(pageId: string): Promise<ActionResult<any[]>> {
-    const session = await getSession();
-    const token = (session?.user as any)?.metaSuiteAccessToken;
-    if (!token) return { error: 'Facebook account not connected.' };
-    try {
-        const res = await axios.get(`${GRAPH}/${pageId}/offers`, {
-            params: {
-                fields: 'id,title,details,terms,expiration_time,online_code,barcode_type,barcode',
-                access_token: token,
-            },
-        });
-        return { data: res.data.data || [] };
-    } catch (e: any) {
-        return { error: getErrorMessage(e) };
-    }
+    const res = await graph<{ data: any[] }>(`${pageId}/offers`, {
+        params: { fields: 'id,title,details,terms,expiration_time,online_code,barcode_type,barcode' },
+        tokenKind: 'metaSuite',
+    });
+    return res.error ? { error: res.error } : { data: res.data?.data || [] };
 }
-
-// ----- Activities log (audit trail) ------------------------------
 
 export async function getAdAccountActivities(
     adAccountId: string,
     opts?: { since?: string; until?: string; limit?: number },
 ): Promise<ActionResult<any[]>> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
     const params: any = {
         fields: 'actor_name,application_id,event_type,event_time,object_id,object_name,object_type,translated_event_type,extra_data',
         limit: opts?.limit ?? 100,
     };
     if (opts?.since) params.since = opts.since;
     if (opts?.until) params.until = opts.until;
-    const res = await graph<{ data: any[] }>(`${withActPrefix(adAccountId)}/activities`, token!, { params });
+    const res = await graph<{ data: any[] }>(`${withActPrefix(adAccountId)}/activities`, { params });
     return res.error ? { error: res.error } : { data: res.data?.data || [] };
 }
 
-// ----- Ad study (Brand Lift / Conversion Lift) -------------------
-
 export async function listAdStudies(adAccountId: string): Promise<ActionResult<any[]>> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    const res = await graph<{ data: any[] }>(`${withActPrefix(adAccountId)}/ads_reporting_mmm_reports`, token!, {
+    const res = await graph<{ data: any[] }>(`${withActPrefix(adAccountId)}/ads_reporting_mmm_reports`, {
         params: { fields: 'id,name,description,start_time,end_time,status,results' },
     });
     return res.error ? { error: res.error } : { data: res.data?.data || [] };
 }
-
-// ----- Search for targeting by category --------------------------
 
 export async function searchAdEducationSchool(query: string): Promise<ActionResult<any[]>> {
     return searchTargeting(query, 'adeducationschool');
@@ -2036,31 +1497,16 @@ export async function searchAdLocale(query: string): Promise<ActionResult<any[]>
     return searchTargeting(query, 'adlocale');
 }
 
-// ----- Mobile app install tracking (MMP) -------------------------
-
 export async function listApplications(): Promise<ActionResult<any[]>> {
-    const session = await getSession();
-    const token = (session?.user as any)?.metaSuiteAccessToken;
-    if (!token) return { error: 'Facebook account not connected.' };
-    try {
-        const res = await axios.get(`${GRAPH}/me/applications`, {
-            params: {
-                fields: 'id,name,namespace,link,icon_url,category,object_store_urls',
-                access_token: token,
-            },
-        });
-        return { data: res.data.data || [] };
-    } catch (e: any) {
-        return { error: getErrorMessage(e) };
-    }
+    const res = await graph<{ data: any[] }>('me/applications', {
+        params: { fields: 'id,name,namespace,link,icon_url,category,object_store_urls' },
+        tokenKind: 'metaSuite',
+    });
+    return res.error ? { error: res.error } : { data: res.data?.data || [] };
 }
 
-// ----- Account limits / features --------------------------------
-
 export async function getAdAccountCapabilities(adAccountId: string): Promise<ActionResult> {
-    const { token, error } = await requireToken();
-    if (error) return { error };
-    return graph(withActPrefix(adAccountId), token!, {
+    return graph(withActPrefix(adAccountId), {
         params: {
             fields: [
                 'capabilities',
@@ -2075,4 +1521,3 @@ export async function getAdAccountCapabilities(adAccountId: string): Promise<Act
         },
     });
 }
-
