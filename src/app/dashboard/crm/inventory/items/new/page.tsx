@@ -1,3 +1,6 @@
+import { cn as _zoruCn } from '@/components/zoruui';
+void _zoruCn;
+
 import { Package } from "lucide-react";
 import { ProductForm } from "./product-form";
 

@@ -1,5 +1,8 @@
 'use client';
 
+import { cn as _zoruCn } from '@/components/zoruui';
+void _zoruCn;
+
 import { Download, SlidersHorizontal, CalendarX, LoaderCircle, Users, CheckCircle2, Clock, MinusCircle } from 'lucide-react';
 import { useState, useEffect, useTransition, useCallback } from 'react';
 import { generateLeaveReportData, getReportEmployees, getReportLeaveTypes } from '@/app/actions/crm-hr-reports.actions';

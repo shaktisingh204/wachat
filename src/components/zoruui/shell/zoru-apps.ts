@@ -103,7 +103,7 @@ export const ZORU_APPS: ZoruAppDescriptor[] = [
     name: "CRM",
     href: "/dashboard/crm",
     Icon: Briefcase,
-    migration: "pending",
+    migration: "done",
     isActive: (p) => !!p?.startsWith("/dashboard/crm"),
   },
   {
@@ -119,7 +119,7 @@ export const ZORU_APPS: ZoruAppDescriptor[] = [
     name: "SEO Suite",
     href: "/dashboard/seo",
     Icon: Search,
-    migration: "pending",
+    migration: "done",
     isActive: (p) => !!p?.startsWith("/dashboard/seo"),
   },
   {

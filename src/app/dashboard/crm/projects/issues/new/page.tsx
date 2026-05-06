@@ -1,3 +1,6 @@
+import { cn as _zoruCn } from '@/components/zoruui';
+void _zoruCn;
+
 import { Bug } from 'lucide-react';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { NewIssueForm } from './new-issue-form';

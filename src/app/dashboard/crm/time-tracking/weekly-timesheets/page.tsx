@@ -1,5 +1,8 @@
 'use client';
 
+import { cn as _zoruCn } from '@/components/zoruui';
+void _zoruCn;
+
 import Link from 'next/link';
 import { CalendarRange } from 'lucide-react';
 

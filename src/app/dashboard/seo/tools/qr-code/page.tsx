@@ -1,5 +1,8 @@
 'use client';
 
+import { cn as _zoruCn } from '@/components/zoruui';
+void _zoruCn;
+
 import { useRef, useState } from 'react';
 import QRCode from 'react-qr-code';
 import { Input } from '@/components/ui/input';

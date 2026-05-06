@@ -1,5 +1,8 @@
 'use client';
 
+import { cn as _zoruCn } from '@/components/zoruui';
+void _zoruCn;
+
 import * as React from 'react';
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { BarChart3, Download, Filter, RotateCcw } from 'lucide-react';

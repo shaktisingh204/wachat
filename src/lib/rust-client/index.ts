@@ -30,6 +30,11 @@ import { wachatFacebookAutomationApi } from './wachat-facebook-automation';
 import { wachatFacebookCrmApi } from './wachat-facebook-crm';
 import { wachatFacebookAgentsApi } from './wachat-facebook-agents';
 import { wachatFacebookBusinessApi } from './wachat-facebook-business';
+import { wachatFacebookMiscApi } from './wachat-facebook-misc';
+import { wachatFacebookCommentsApi } from './wachat-facebook-comments';
+import { wachatFacebookEventsApi } from './wachat-facebook-events';
+import { wachatFacebookLeadGenApi } from './wachat-facebook-lead-gen';
+import { wachatFacebookMessengerProfileApi } from './wachat-facebook-messenger-profile';
 import { wachatInstagramApi } from './wachat-instagram';
 import { wachatTemplatesActionsApi } from './wachat-templates-actions';
 import { wachatAnalyticsApi } from './wachat-analytics';
@@ -56,6 +61,11 @@ export const rustClient = {
     wachatFacebookCrm: wachatFacebookCrmApi,
     wachatFacebookAgents: wachatFacebookAgentsApi,
     wachatFacebookBusiness: wachatFacebookBusinessApi,
+    wachatFacebookMisc: wachatFacebookMiscApi,
+    wachatFacebookComments: wachatFacebookCommentsApi,
+    wachatFacebookEvents: wachatFacebookEventsApi,
+    wachatFacebookLeadGen: wachatFacebookLeadGenApi,
+    wachatFacebookMessengerProfile: wachatFacebookMessengerProfileApi,
     wachatInstagram: wachatInstagramApi,
     wachatWebhook: wachatWebhookApi,
     wachatWebhookActions: wachatWebhookActionsApi,

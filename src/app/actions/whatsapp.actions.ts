@@ -4,12 +4,9 @@
 
 import { revalidatePath } from 'next/cache';
 import { ObjectId, type WithId } from 'mongodb';
-import axios from 'axios';
 import { getProjectById } from './project.actions';
 import type { Project, Contact, PhoneNumber, PaymentConfiguration, FacebookPaymentRequest, Transaction, AnyMessage } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
-
-const API_VERSION = 'v23.0';
 
 export async function getPublicProjectById(projectId: string): Promise<WithId<Project> | null> {
     try {
@@ -43,12 +40,11 @@ async function _createProjectFromWaba(data: {
 
     try {
         let businessId: string | undefined = undefined;
+        const { rustClient: _rustEarly, RustApiError: _RustErrEarly } = await import('@/lib/rust-client');
         if (includeCatalog) {
             try {
-                const businessesResponse = await axios.get(`https://graph.facebook.com/v23.0/me/businesses`, {
-                    params: { access_token: accessToken }
-                });
-                const businesses = businessesResponse.data.data;
+                const businessesResponse = await _rustEarly.wachatConfig.getMeBusinesses(accessToken);
+                const businesses = businessesResponse.data;
                 if (businesses && businesses.length > 0) {
                     businessId = businesses[0].id;
                 } else {
@@ -59,18 +55,21 @@ async function _createProjectFromWaba(data: {
             }
         }
 
-        const projectDetailsResponse = await fetch(`https://graph.facebook.com/v23.0/${wabaId}?fields=name&access_token=${accessToken}`);
-        const projectData = await projectDetailsResponse.json();
-
-        if (projectData.error) {
-            return { error: `Meta API Error (fetching project name): ${projectData.error.message}` };
+        let projectData: { name: string };
+        try {
+            projectData = await _rustEarly.wachatConfig.getWabaDetails(wabaId, accessToken);
+        } catch (e: any) {
+            if (e instanceof _RustErrEarly) {
+                return { error: `Meta API Error (fetching project name): ${e.message}` };
+            }
+            return { error: `Meta API Error (fetching project name): ${getErrorMessage(e)}` };
         }
 
         // Upsert the project through the Rust BFF — `manualSetup` is keyed
         // by `(wabaId, userId)` and applies default-plan / `messagesPerSecond`
         // / `hasCatalogManagement` defaults on insert, so the legacy
         // "exists? insertOne : skip" logic collapses into a single hop.
-        const { rustClient } = await import('@/lib/rust-client');
+        const rustClient = _rustEarly;
         const created = await rustClient.wachatConfig.manualSetup({
             name: projectData.name,
             wabaId,
@@ -95,11 +94,7 @@ async function _createProjectFromWaba(data: {
                 console.log(`[WABA Setup] Registering ${phoneNumbers.length} phone number(s)`);
                 for (const phone of phoneNumbers) {
                     try {
-                        await axios.post(
-                            `https://graph.facebook.com/${API_VERSION}/${phone.id}/register`,
-                            { messaging_product: 'whatsapp', pin: '123456' },
-                            { headers: { 'Authorization': `Bearer ${accessToken}` } }
-                        );
+                        await rustClient.wachatConfig.registerPhone(projectId, phone.id, { pin: '123456' });
                         console.log(`[WABA Setup] Registered ${phone.display_phone_number} (${phone.id})`);
                     } catch (regError: any) {
                         const errMsg = getErrorMessage(regError);
@@ -439,17 +434,16 @@ export async function getPaymentConfigurations(projectId: string): Promise<{ con
     }
 
     try {
-        const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${project.wabaId}/payment_configurations`, {
-            params: {
-                access_token: project.accessToken,
+        const { rustClient, RustApiError } = await import('@/lib/rust-client');
+        try {
+            const result = await rustClient.wachatPay.listConfigurations(projectId);
+            return { configurations: (result.configurations || []) as unknown as PaymentConfiguration[] };
+        } catch (e: any) {
+            if (e instanceof RustApiError) {
+                return { configurations: [], error: e.message };
             }
-        });
-
-        if (response.data.error) {
-            throw new Error(getErrorMessage({ response }));
+            throw e;
         }
-
-        return { configurations: response.data.data || [] };
     } catch (e: any) {
         return { configurations: [], error: getErrorMessage(e) };
     }
@@ -463,37 +457,43 @@ export async function handleCreatePaymentConfiguration(prevState: any, formData:
     }
 
     const providerName = formData.get('provider_name') as string;
-    let payload: any = {
-        configuration_name: formData.get('configuration_name'),
-        purpose_code: formData.get('purpose_code'),
-        merchant_category_code: formData.get('merchant_category_code'),
-        provider_name: providerName,
+    const body: {
+        configurationName: string;
+        purposeCode: string;
+        merchantCategoryCode: string;
+        providerName: string;
+        merchantVpa?: string;
+        redirectUrl?: string;
+    } = {
+        configurationName: (formData.get('configuration_name') as string) || '',
+        purposeCode: (formData.get('purpose_code') as string) || '',
+        merchantCategoryCode: (formData.get('merchant_category_code') as string) || '',
+        providerName,
     };
 
     if (providerName === 'upi_vpa') {
-        payload.merchant_vpa = formData.get('merchant_vpa');
+        body.merchantVpa = (formData.get('merchant_vpa') as string) || undefined;
     } else {
-        payload.redirect_url = formData.get('redirect_url');
+        body.redirectUrl = (formData.get('redirect_url') as string) || undefined;
     }
 
     try {
-        const response = await axios.post(
-            `https://graph.facebook.com/${API_VERSION}/${project.wabaId}/payment_configurations`,
-            payload,
-            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
-        );
+        const { rustClient, RustApiError } = await import('@/lib/rust-client');
+        try {
+            const result = await rustClient.wachatPay.createConfiguration(projectId, body);
 
-        if (response.data.error) {
-            throw new Error(getErrorMessage({ response }));
+            if (result.oauthUrl) {
+                return { message: result.message || "Configuration created! Complete the process by visiting the OAuth URL.", oauth_url: result.oauthUrl };
+            }
+
+            revalidatePath('/wachat/whatsapp-pay/settings');
+            return { message: result.message || "UPI VPA configuration created successfully!" };
+        } catch (e: any) {
+            if (e instanceof RustApiError) {
+                return { error: e.message };
+            }
+            throw e;
         }
-
-        if (response.data.oauth_url) {
-            return { message: "Configuration created! Complete the process by visiting the OAuth URL.", oauth_url: response.data.oauth_url };
-        }
-
-        revalidatePath('/wachat/whatsapp-pay/settings');
-        return { message: "UPI VPA configuration created successfully!" };
-
     } catch (e: any) {
         return { error: getErrorMessage(e) };
     }
@@ -514,20 +514,18 @@ export async function handleUpdateDataEndpoint(prevState: any, formData: FormDat
     }
 
     try {
-        const payload = { data_endpoint_url: dataEndpointUrl };
-        const response = await axios.post(
-            `https://graph.facebook.com/${API_VERSION}/${project.wabaId}/payment_configuration/${configurationName}`,
-            payload,
-            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
-        );
+        const { rustClient, RustApiError } = await import('@/lib/rust-client');
+        try {
+            await rustClient.wachatPay.updateDataEndpoint(projectId, configurationName, { dataEndpointUrl });
 
-        if (response.data.error) {
-            throw new Error(getErrorMessage({ response }));
+            revalidatePath('/wachat/whatsapp-pay/settings');
+            return { message: "Data endpoint URL updated successfully!" };
+        } catch (e: any) {
+            if (e instanceof RustApiError) {
+                return { error: e.message };
+            }
+            throw e;
         }
-
-        revalidatePath('/wachat/whatsapp-pay/settings');
-        return { message: "Data endpoint URL updated successfully!" };
-
     } catch (e: any) {
         return { error: getErrorMessage(e) };
     }
@@ -548,26 +546,21 @@ export async function handleRegenerateOauthLink(prevState: any, formData: FormDa
     }
 
     try {
-        const payload = {
-            configuration_name: configurationName,
-            redirect_url: redirectUrl,
-        };
-        const response = await axios.post(
-            `https://graph.facebook.com/${API_VERSION}/${project.wabaId}/generate_payment_configuration_oauth_link`,
-            payload,
-            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
-        );
+        const { rustClient, RustApiError } = await import('@/lib/rust-client');
+        try {
+            const result = await rustClient.wachatPay.regenerateOauth(projectId, configurationName, { redirectUrl });
 
-        if (response.data.error) {
-            throw new Error(getErrorMessage({ response }));
+            if (result.oauthUrl) {
+                return { message: "New link generated! Complete the process by visiting the OAuth URL.", oauth_url: result.oauthUrl };
+            }
+
+            return { error: "Failed to generate OAuth link. No URL was returned." };
+        } catch (e: any) {
+            if (e instanceof RustApiError) {
+                return { error: e.message };
+            }
+            throw e;
         }
-
-        if (response.data.oauth_url) {
-            return { message: "New link generated! Complete the process by visiting the OAuth URL.", oauth_url: response.data.oauth_url };
-        }
-
-        return { error: "Failed to generate OAuth link. No URL was returned." };
-
     } catch (e: any) {
         return { error: getErrorMessage(e) };
     }
@@ -583,18 +576,18 @@ export async function handleDeletePaymentConfiguration(
     }
 
     try {
-        const response = await axios.delete(`https://graph.facebook.com/${API_VERSION}/${project.wabaId}/payment_configuration`, {
-            headers: { 'Authorization': `Bearer ${project.accessToken}`, 'Content-Type': 'application/json' },
-            data: { configuration_name: configurationName }
-        });
+        const { rustClient, RustApiError } = await import('@/lib/rust-client');
+        try {
+            const result = await rustClient.wachatPay.deleteConfiguration(projectId, configurationName);
 
-        if (response.data.error) {
-            throw new Error(getErrorMessage({ response }));
+            revalidatePath('/wachat/whatsapp-pay/settings');
+            return { success: !!result?.success || true };
+        } catch (e: any) {
+            if (e instanceof RustApiError) {
+                return { success: false, error: e.message };
+            }
+            throw e;
         }
-
-        revalidatePath('/wachat/whatsapp-pay/settings');
-        return { success: true };
-
     } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };
     }
@@ -607,18 +600,16 @@ export async function getPaymentConfigurationByName(projectId: string, configura
     }
 
     try {
-        const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${project.wabaId}/payment_configuration`, {
-            params: {
-                configuration_name: configurationName,
-                access_token: project.accessToken,
+        const { rustClient, RustApiError } = await import('@/lib/rust-client');
+        try {
+            const result = await rustClient.wachatPay.getConfiguration(projectId, configurationName);
+            return { configuration: (result.configuration ?? null) as unknown as PaymentConfiguration | null };
+        } catch (e: any) {
+            if (e instanceof RustApiError) {
+                return { error: e.message };
             }
-        });
-
-        if (response.data.error) {
-            throw new Error(getErrorMessage({ response }));
+            throw e;
         }
-
-        return { configuration: response.data.data?.[0] || null };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
     }
@@ -821,11 +812,16 @@ export async function getWabaHealthStatus(
     }
 
     try {
-        const response = await axios.get(
-            `https://graph.facebook.com/${API_VERSION}/${project.wabaId}`,
-            { params: { fields: 'health_status', access_token: project.accessToken } }
-        );
-        return { healthStatus: response.data.health_status };
+        const { rustClient, RustApiError } = await import('@/lib/rust-client');
+        try {
+            const result = await rustClient.wachatFeatures.getWabaHealth(project.wabaId);
+            return { healthStatus: result.healthStatus };
+        } catch (e: any) {
+            if (e instanceof RustApiError) {
+                return { error: e.message };
+            }
+            throw e;
+        }
     } catch (e: any) {
         return { error: getErrorMessage(e) };
     }
@@ -841,15 +837,20 @@ export async function getPhoneNumberHealthStatus(
     }
 
     try {
-        const response = await axios.get(
-            `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}`,
-            { params: { fields: 'health_status,messaging_limit_tier,name_status,quality_rating', access_token: project.accessToken } }
-        );
-        return {
-            healthStatus: response.data.health_status,
-            messagingLimitTier: response.data.messaging_limit_tier,
-            nameStatus: response.data.name_status,
-        };
+        const { rustClient, RustApiError } = await import('@/lib/rust-client');
+        try {
+            const result = await rustClient.wachatFeatures.getPhoneNumberHealth(phoneNumberId);
+            return {
+                healthStatus: result.healthStatus,
+                messagingLimitTier: (result.messagingLimitTier ?? undefined) as string | undefined,
+                nameStatus: (result.nameStatus ?? undefined) as string | undefined,
+            };
+        } catch (e: any) {
+            if (e instanceof RustApiError) {
+                return { error: e.message };
+            }
+            throw e;
+        }
     } catch (e: any) {
         return { error: getErrorMessage(e) };
     }
@@ -868,11 +869,16 @@ export async function getConversationalAutomation(
     }
 
     try {
-        const response = await axios.get(
-            `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/conversational_automation`,
-            { params: { access_token: project.accessToken } }
-        );
-        return { automation: response.data.data || response.data };
+        const { rustClient, RustApiError } = await import('@/lib/rust-client');
+        try {
+            const result = await rustClient.wachatFeatures.getConversationalAutomation(phoneNumberId);
+            return { automation: result.automation };
+        } catch (e: any) {
+            if (e instanceof RustApiError) {
+                return { error: e.message };
+            }
+            throw e;
+        }
     } catch (e: any) {
         return { error: getErrorMessage(e) };
     }
@@ -893,7 +899,11 @@ export async function handleUpdateConversationalAutomation(
     }
 
     try {
-        const payload: any = {};
+        const payload: {
+            enable_welcome_message?: boolean;
+            prompts?: string[];
+            commands?: Array<{ command_name: string; command_description: string }>;
+        } = {};
 
         if (settings.enable_welcome_message !== undefined) {
             payload.enable_welcome_message = settings.enable_welcome_message;
@@ -907,13 +917,16 @@ export async function handleUpdateConversationalAutomation(
             payload.commands = settings.commands;
         }
 
-        await axios.post(
-            `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/conversational_automation`,
-            payload,
-            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
-        );
-
-        return { message: 'Conversational automation settings updated successfully.' };
+        const { rustClient, RustApiError } = await import('@/lib/rust-client');
+        try {
+            const result = await rustClient.wachatFeatures.updateConversationalAutomation(phoneNumberId, payload);
+            return { message: result.message || 'Conversational automation settings updated successfully.' };
+        } catch (e: any) {
+            if (e instanceof RustApiError) {
+                return { error: e.message };
+            }
+            throw e;
+        }
     } catch (e: any) {
         return { error: getErrorMessage(e) };
     }
@@ -930,14 +943,16 @@ export async function handleDeleteConversationalAutomation(
     }
 
     try {
-        await axios.delete(
-            `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/conversational_automation`,
-            {
-                headers: { 'Authorization': `Bearer ${project.accessToken}` },
-                data: { fields },
+        const { rustClient, RustApiError } = await import('@/lib/rust-client');
+        try {
+            const result = await rustClient.wachatFeatures.deleteConversationalAutomation(phoneNumberId, fields);
+            return { message: result.message || 'Conversational automation settings removed.' };
+        } catch (e: any) {
+            if (e instanceof RustApiError) {
+                return { error: e.message };
             }
-        );
-        return { message: 'Conversational automation settings removed.' };
+            throw e;
+        }
     } catch (e: any) {
         return { error: getErrorMessage(e) };
     }
@@ -956,11 +971,16 @@ export async function getCommerceSettings(
     }
 
     try {
-        const response = await axios.get(
-            `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/whatsapp_commerce_settings`,
-            { params: { access_token: project.accessToken } }
-        );
-        return { settings: response.data.data?.[0] || response.data };
+        const { rustClient, RustApiError } = await import('@/lib/rust-client');
+        try {
+            const result = await rustClient.wachatFeatures.getCommerceSettings(phoneNumberId);
+            return { settings: result.settings };
+        } catch (e: any) {
+            if (e instanceof RustApiError) {
+                return { error: e.message };
+            }
+            throw e;
+        }
     } catch (e: any) {
         return { error: getErrorMessage(e) };
     }
@@ -980,12 +1000,16 @@ export async function handleUpdateCommerceSettings(
     }
 
     try {
-        await axios.post(
-            `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/whatsapp_commerce_settings`,
-            settings,
-            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
-        );
-        return { message: 'Commerce settings updated successfully.' };
+        const { rustClient, RustApiError } = await import('@/lib/rust-client');
+        try {
+            const result = await rustClient.wachatFeatures.updateCommerceSettings(phoneNumberId, settings);
+            return { message: result.message || 'Commerce settings updated successfully.' };
+        } catch (e: any) {
+            if (e instanceof RustApiError) {
+                return { error: e.message };
+            }
+            throw e;
+        }
     } catch (e: any) {
         return { error: getErrorMessage(e) };
     }

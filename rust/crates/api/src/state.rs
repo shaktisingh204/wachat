@@ -31,9 +31,13 @@ use wachat_contacts::WachatContactsState;
 use wachat_facebook_agents::WachatFacebookAgentsState;
 use wachat_facebook_automation::WachatFacebookAutomationState;
 use wachat_facebook_business::WachatFacebookBusinessState;
+use wachat_facebook_comments::WachatFacebookCommentsState;
 use wachat_facebook_content::WachatFacebookContentState;
 use wachat_facebook_crm::WachatFacebookCrmState;
+use wachat_facebook_events::WachatFacebookEventsState;
+use wachat_facebook_lead_gen::WachatFacebookLeadGenState;
 use wachat_facebook_messaging::WachatFacebookMessagingState;
+use wachat_facebook_messenger_profile::WachatFacebookMessengerProfileState;
 use wachat_facebook_misc::WachatFacebookMiscState;
 use wachat_facebook_pages::WachatFacebookPagesState;
 use wachat_flows::WachatFlowsState;
@@ -84,6 +88,10 @@ pub struct AppState {
     pub fb_agents: WachatFacebookAgentsState,
     pub fb_business: WachatFacebookBusinessState,
     pub fb_misc: WachatFacebookMiscState,
+    pub fb_comments: WachatFacebookCommentsState,
+    pub fb_events: WachatFacebookEventsState,
+    pub fb_lead_gen: WachatFacebookLeadGenState,
+    pub fb_messenger_profile: WachatFacebookMessengerProfileState,
     pub instagram: WachatInstagramState,
     pub ready: Arc<AtomicBool>,
 }
@@ -125,6 +133,10 @@ impl AppState {
         fb_agents: WachatFacebookAgentsState,
         fb_business: WachatFacebookBusinessState,
         fb_misc: WachatFacebookMiscState,
+        fb_comments: WachatFacebookCommentsState,
+        fb_events: WachatFacebookEventsState,
+        fb_lead_gen: WachatFacebookLeadGenState,
+        fb_messenger_profile: WachatFacebookMessengerProfileState,
         instagram: WachatInstagramState,
     ) -> Self {
         Self {
@@ -163,6 +175,10 @@ impl AppState {
             fb_agents,
             fb_business,
             fb_misc,
+            fb_comments,
+            fb_events,
+            fb_lead_gen,
+            fb_messenger_profile,
             instagram,
             ready: Arc::new(AtomicBool::new(false)),
         }
@@ -378,6 +394,30 @@ impl FromRef<AppState> for WachatFacebookBusinessState {
 impl FromRef<AppState> for WachatFacebookMiscState {
     fn from_ref(s: &AppState) -> Self {
         s.fb_misc.clone()
+    }
+}
+
+impl FromRef<AppState> for WachatFacebookCommentsState {
+    fn from_ref(s: &AppState) -> Self {
+        s.fb_comments.clone()
+    }
+}
+
+impl FromRef<AppState> for WachatFacebookEventsState {
+    fn from_ref(s: &AppState) -> Self {
+        s.fb_events.clone()
+    }
+}
+
+impl FromRef<AppState> for WachatFacebookLeadGenState {
+    fn from_ref(s: &AppState) -> Self {
+        s.fb_lead_gen.clone()
+    }
+}
+
+impl FromRef<AppState> for WachatFacebookMessengerProfileState {
+    fn from_ref(s: &AppState) -> Self {
+        s.fb_messenger_profile.clone()
     }
 }
 

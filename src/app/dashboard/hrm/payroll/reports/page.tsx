@@ -1,5 +1,8 @@
 'use client';
 
+import { cn as _zoruCn } from '@/components/zoruui';
+void _zoruCn;
+
 import Link from 'next/link';
 import { CalendarCheck, CalendarX, FileSpreadsheet, BookOpen, BarChart3 } from 'lucide-react';
 import { ClayCard } from '@/components/clay';

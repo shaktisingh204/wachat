@@ -1,24 +1,17 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import { authenticateApiKey } from '@/app/actions/api-keys.actions';
+import { verifyApiKey } from '@/lib/api-platform/auth';
 import { sendTemplateSms } from '@/lib/sms/services/messaging.service';
 import { checkRateLimit } from '@/lib/rate-limiter';
-import { ObjectId } from 'mongodb';
 
 export async function POST(request: NextRequest) {
-    const authHeader = request.headers.get('Authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return NextResponse.json({ error: 'Unauthorized: Missing API key.' }, { status: 401 });
-    }
-    const apiKey = authHeader.split(' ')[1];
-
-    const authResult = await authenticateApiKey(apiKey);
-    if (!authResult.success || !authResult.user) {
+    const ctx = await verifyApiKey(request);
+    if (!ctx) {
         return NextResponse.json({ error: 'Unauthorized: Invalid API key.' }, { status: 401 });
     }
 
-    const { user } = authResult;
-    const { success: rateLimitSuccess, error: rateLimitError } = await checkRateLimit(`api:${user._id.toString()}:sms-template`, 60, 60 * 1000);
+    const userId = ctx.tenantId;
+    const { success: rateLimitSuccess, error: rateLimitError } = await checkRateLimit(`api:${userId}:sms-template`, 60, 60 * 1000);
     if (!rateLimitSuccess) {
         return NextResponse.json({ error: rateLimitError }, { status: 429 });
     }
@@ -31,12 +24,6 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'recipient and dltTemplateId are required.' }, { status: 400 });
         }
 
-        // Convert variables object to array if needed, or pass as is if service handles it.
-        // The service I wrote expects string[].
-        // If the body has "variables": { "0": "val", "1": "val" } or similar?
-        // Let's assume the API consumer sends an object or array. 
-        // Logic: Extract values from variables object or assume it's an array.
-
         let variableValues: string[] = [];
         if (Array.isArray(variables)) {
             variableValues = variables.map(String);
@@ -45,7 +32,7 @@ export async function POST(request: NextRequest) {
         }
 
         const result = await sendTemplateSms({
-            userId: user._id, // User from API key authn
+            userId, // hex tenant id resolved from API key — sendTemplateSms wraps it in `new ObjectId(...)`
             recipient,
             dltTemplateId,
             headerId,

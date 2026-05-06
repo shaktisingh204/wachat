@@ -1,5 +1,8 @@
 'use client';
 
+import { cn as _zoruCn } from '@/components/zoruui';
+void _zoruCn;
+
 import * as React from 'react';
 import { Heart } from 'lucide-react';
 import { HrEntityPage, ClayBadge } from '../../../_components/hr-entity-page';

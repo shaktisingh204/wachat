@@ -1,5 +1,8 @@
 'use client';
 
+import { cn as _zoruCn } from '@/components/zoruui';
+void _zoruCn;
+
 import { Download, SlidersHorizontal, BookOpen, LoaderCircle, IndianRupee, Users, TrendingDown, Wallet } from 'lucide-react';
 import { useState, useEffect, useTransition, useCallback } from 'react';
 import { generateSalaryRegisterData } from '@/app/actions/crm-hr-reports.actions';

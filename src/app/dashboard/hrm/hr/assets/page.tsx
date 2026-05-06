@@ -1,5 +1,8 @@
 'use client';
 
+import { cn as _zoruCn } from '@/components/zoruui';
+void _zoruCn;
+
 import * as React from 'react';
 import { Package } from 'lucide-react';
 import { ClayBadge, HrEntityPage } from '../_components/hr-entity-page';

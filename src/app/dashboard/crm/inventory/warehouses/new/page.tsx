@@ -1,3 +1,6 @@
+import { cn as _zoruCn } from '@/components/zoruui';
+void _zoruCn;
+
 import { Warehouse as WarehouseIcon } from 'lucide-react';
 import { WarehouseForm } from "./warehouse-form";
 

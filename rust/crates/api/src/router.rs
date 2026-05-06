@@ -67,6 +67,10 @@ pub fn build(state: AppState) -> Router {
     let fb_agents = wachat_facebook_agents::router::<AppState>();
     let fb_business = wachat_facebook_business::router::<AppState>();
     let fb_misc = wachat_facebook_misc::router::<AppState>();
+    let fb_comments = wachat_facebook_comments::router::<AppState>();
+    let fb_events = wachat_facebook_events::router::<AppState>();
+    let fb_lead_gen = wachat_facebook_lead_gen::router::<AppState>();
+    let fb_messenger_profile = wachat_facebook_messenger_profile::router::<AppState>();
     let instagram = wachat_instagram::router::<AppState>();
 
     Router::new()
@@ -102,6 +106,10 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/facebook/agents", fb_agents)
         .nest("/v1/facebook/business", fb_business)
         .nest("/v1/facebook/misc", fb_misc)
+        .nest("/v1/facebook/comments", fb_comments)
+        .nest("/v1/facebook/events", fb_events)
+        .nest("/v1/facebook/lead-gen", fb_lead_gen)
+        .nest("/v1/facebook/messenger-profile", fb_messenger_profile)
         .nest("/v1/instagram", instagram)
         .nest("/v1", v1)
         .with_state(state)

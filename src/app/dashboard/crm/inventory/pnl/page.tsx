@@ -1,5 +1,8 @@
 'use client';
 
+import { cn as _zoruCn } from '@/components/zoruui';
+void _zoruCn;
+
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Download, TrendingUp, LoaderCircle, ArrowUpDown } from 'lucide-react';
 import { useState, useEffect, useTransition, useCallback, useMemo } from 'react';

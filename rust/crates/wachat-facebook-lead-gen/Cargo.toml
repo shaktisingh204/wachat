@@ -35,9 +35,5 @@ sabnode-auth = { path = "../auth" }
 sabnode-db = { path = "../db" }
 wachat-meta-client = { path = "../wachat-meta-client" }
 
-# Empty [workspace] keeps this crate verifiable in isolation when the parent
-# `rust/Cargo.toml` (a shared file) hasn't been updated yet to list it under
-# `workspace.members`. The integrating commit should remove this stanza and
-# add the crate to the parent workspace; at that point the crate-level
-# `[lints] workspace = true` from sibling crates can be added too.
-[workspace]
+[lints]
+workspace = true

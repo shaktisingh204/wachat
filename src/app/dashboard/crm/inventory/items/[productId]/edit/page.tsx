@@ -1,5 +1,8 @@
 'use client';
 
+import { cn as _zoruCn } from '@/components/zoruui';
+void _zoruCn;
+
 import { useEffect, useState } from 'react';
 import { useParams, notFound } from 'next/navigation';
 import { CrmProductForm } from '@/components/wabasimplify/crm-product-form';

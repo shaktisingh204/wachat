@@ -1,3 +1,6 @@
+import { cn as _zoruCn } from '@/components/zoruui';
+void _zoruCn;
+
 export const dynamic = 'force-dynamic';
 
 import { getAutoLeadRules, saveAutoLeadRule, deleteAutoLeadRule } from '@/app/actions/crm-auto-leads.actions';

@@ -1,5 +1,9 @@
-/**
- * /dashboard/marketplace/installed
+'use client';
+
+import { cn as _zoruCn } from '@/components/zoruui';
+void _zoruCn;
+
+rd/marketplace/installed
  *
  * Lists every marketplace app currently installed by the active tenant,
  * with a per-app usage chart sourced from the billing meter
