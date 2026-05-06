@@ -228,6 +228,33 @@ export const wachatBroadcastApi = {
         rustFetch<RequeueStuckResponse>(`${BASE}/admin/requeue-stuck`, {
             method: 'POST',
         }),
+
+    /**
+     * `POST /projects/{projectId}/media` — multipart-upload a file to
+     * Meta via the Rust BFF. Replaces the legacy Node-side
+     * `uploadMediaToMeta` helper that called Graph directly with axios.
+     *
+     * The Rust handler resolves the project's stored access token,
+     * forwards the bytes to `{phoneNumberId}/media`, and returns
+     * `{ id }` — the Meta media id ready for use on a template / message
+     * payload.
+     */
+    uploadMedia: async (
+        projectId: string,
+        phoneNumberId: string,
+        file: File,
+    ): Promise<{ id: string }> => {
+        const form = new FormData();
+        form.set('phoneNumberId', phoneNumberId);
+        form.set('file', file, file.name);
+        // The shared `rustFetch` adds the auth header for us. We pass
+        // FormData as the body — the browser/node serializer sets the
+        // multipart boundary automatically; do NOT pre-set Content-Type.
+        return rustFetch<{ id: string }>(
+            `${BASE}/projects/${encodeURIComponent(projectId)}/media`,
+            { method: 'POST', body: form },
+        );
+    },
 };
 
 export type WachatBroadcastApi = typeof wachatBroadcastApi;

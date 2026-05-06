@@ -129,6 +129,7 @@ async fn run() -> anyhow::Result<()> {
     let broadcast = WachatBroadcastState {
         mongo: mongo.clone(),
         bull: bull.clone(),
+        media: MediaUploader::new("v23.0"),
     };
     let webhook = WebhookState {
         mongo: mongo.clone(),

@@ -108,10 +108,19 @@ impl IntoResponse for ApiError {
 
         // Always log server-side. 5xx gets `error`, 4xx gets `warn` so logs
         // stay useful without alerting on client mistakes.
+        //
+        // For `Internal(anyhow::Error)` we render with `{:#}` so the full
+        // context chain is included (the underlying Mongo / serde / IO
+        // error PLUS every `.context(...)` annotation). Display alone
+        // truncates at the first frame and gives us nothing useful.
+        let detail = match &self {
+            ApiError::Internal(err) => format!("{err:#}"),
+            other => other.to_string(),
+        };
         if status.is_server_error() {
-            tracing::error!(error.code = code, error.detail = %self, "request failed");
+            tracing::error!(error.code = code, error.detail = %detail, "request failed");
         } else {
-            tracing::warn!(error.code = code, error.detail = %self, "request rejected");
+            tracing::warn!(error.code = code, error.detail = %detail, "request rejected");
         }
 
         let body = ErrorEnvelope {

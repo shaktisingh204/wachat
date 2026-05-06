@@ -28,17 +28,22 @@ pub struct Project {
     /// Owning user. FK into the `users` collection.
     pub user_id: ObjectId,
 
-    /// Human-readable project name.
-    pub name: String,
+    /// Human-readable project name. Optional for resilience against legacy
+    /// documents that may have been imported without one.
+    #[serde(default)]
+    pub name: Option<String>,
 
     /// Meta WhatsApp Business Account id. Optional because freshly-created
     /// projects can exist before the embedded-signup callback runs.
+    #[serde(default)]
     pub waba_id: Option<String>,
 
     /// Meta Business Manager id.
+    #[serde(default)]
     pub business_id: Option<String>,
 
     /// Meta App id used for embedded signup.
+    #[serde(default)]
     pub app_id: Option<String>,
 
     /// Long-lived Meta system-user access token. Stored encrypted at the app
@@ -46,6 +51,7 @@ pub struct Project {
     ///
     /// Optional because it's empty between project creation and OAuth
     /// completion.
+    #[serde(default)]
     pub access_token: Option<String>,
 
     /// Phone numbers attached to the WABA. Note this is the *summary* shape,
@@ -57,24 +63,31 @@ pub struct Project {
 
     /// Project-level rate limit (messages/sec) for broadcast workers. Defaults
     /// to `None` (worker falls back to plan/global default).
+    #[serde(default)]
     pub messages_per_second: Option<u32>,
 
     /// Per-project credit balance. `f64` because the TS treats it as a number
     /// and we deduct fractional amounts for partial-message billing.
+    #[serde(default)]
     pub credits: Option<f64>,
 
     /// Plan id (FK into `plans`). Populated lookups happen in the consuming
     /// service, not here.
+    #[serde(default)]
     pub plan_id: Option<ObjectId>,
 
     /// WABA review state strings as Meta returns them
     /// (e.g. `"APPROVED"`, `"REJECTED"`, `"PENDING_REVIEW"`).
+    #[serde(default)]
     pub review_status: Option<String>,
 
     /// WABA ban state (e.g. `"DEFAULT"`, `"DISABLED"`, `"VIOLATION"`).
+    #[serde(default)]
     pub ban_state: Option<String>,
 
     /// Created-at timestamp. BSON `Date` ⇄ `chrono::DateTime<Utc>` via the
-    /// `bson` `chrono-0_4` feature.
-    pub created_at: DateTime<Utc>,
+    /// `bson` `chrono-0_4` feature. Optional — pre-existing documents may not
+    /// have it.
+    #[serde(default)]
+    pub created_at: Option<DateTime<Utc>>,
 }

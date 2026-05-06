@@ -110,7 +110,7 @@ impl MessageSender {
         let phone_number_id = project
             .phone_numbers
             .first()
-            .map(|p| p.id.clone())
+            .and_then(|p| p.id.clone())
             .ok_or_else(|| {
                 ApiError::BadRequest("Project has no phone number configured.".to_owned())
             })?;

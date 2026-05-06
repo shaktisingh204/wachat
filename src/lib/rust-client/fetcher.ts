@@ -103,7 +103,13 @@ export async function rustFetch<T>(path: string, init?: RequestInit): Promise<T>
 
     const headers = new Headers(init?.headers);
     headers.set('Authorization', auth);
-    if (!headers.has('Content-Type') && init?.body) {
+    // Default to JSON when the caller hasn't been explicit. Skip when
+    // the body is `FormData` so the runtime can set the
+    // `multipart/form-data; boundary=...` header itself — overriding it
+    // breaks Meta's multipart parsing on the server side.
+    const isFormData =
+        typeof FormData !== 'undefined' && init?.body instanceof FormData;
+    if (!headers.has('Content-Type') && init?.body && !isFormData) {
         headers.set('Content-Type', 'application/json');
     }
     headers.set('Accept', 'application/json');

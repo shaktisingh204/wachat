@@ -34,7 +34,7 @@ impl PublicProject {
         Self {
             id: p.id.to_hex(),
             user_id: p.user_id.to_hex(),
-            name: p.name,
+            name: p.name.unwrap_or_default(),
             waba_id: p.waba_id,
             business_id: None,
             app_id: None,

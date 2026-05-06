@@ -27,16 +27,26 @@ use serde::{Deserialize, Serialize};
 #[serde(rename_all = "snake_case")]
 pub struct PhoneNumberSummary {
     /// Meta phone-number id (`PHONE_NUMBER_ID` in Cloud API URLs).
-    pub id: String,
+    /// Optional + lenient: legacy rows occasionally omit it on
+    /// half-provisioned WABAs; making it `Option` keeps the parent
+    /// `Project` deserialization from failing for one bad sub-doc.
+    #[serde(default)]
+    pub id: Option<String>,
 
     /// Human-readable phone number (e.g. `"+1 555-555-5555"`).
-    pub display_phone_number: String,
+    /// Optional + accepts both `display_phone_number` (Meta API shape) and
+    /// `displayPhoneNumber` (Node-side persisted shape) — Mongo
+    /// documents in this app exist in both forms.
+    #[serde(default, alias = "displayPhoneNumber")]
+    pub display_phone_number: Option<String>,
 
     /// Verified business display name shown on the WhatsApp client.
-    pub verified_name: String,
+    #[serde(default, alias = "verifiedName")]
+    pub verified_name: Option<String>,
 
     /// Quality rating reported by Meta (`"GREEN" | "YELLOW" | "RED"`).
     /// Optional because freshly-provisioned numbers may not have one yet.
+    #[serde(default, alias = "qualityRating")]
     pub quality_rating: Option<String>,
 }
 

@@ -12,21 +12,13 @@ import { getErrorMessage, validateFile } from '@/lib/utils';
 import type { BroadcastJob } from '@/lib/definitions';
 import Papa from 'papaparse';
 import * as xlsx from 'xlsx';
-import axios from 'axios';
-import NodeFormData from 'form-data';
-
-// Aligned with the rest of the Wachat module — Meta Cloud API v23.0.
-// Used by the inline media upload path that still runs in TS (see
-// `uploadMediaToMeta`); the broadcast worker reads it from the env so
-// we keep the constant here for parity.
-const API_VERSION = 'v23.0';
 
 // ---------------------------------------------------------------------------
-// Phase 6: every server action below is a thin shim around the Rust
-// `wachat-broadcast` crate. CSV parsing and Meta media uploads stay on
-// the TS side (multipart/binary doesn't move cleanly over JSON), but
-// every Mongo write, BullMQ enqueue, and tenancy gate now lives in
-// Rust.
+// Phase 6 (final): every server action below is a thin shim around the
+// Rust `wachat-broadcast` crate — Mongo I/O, BullMQ enqueue, tenancy
+// gates, AND multipart media uploads to Meta all live in Rust now. CSV
+// / XLSX parsing remains on the TS side because file decoding is
+// inherently transport-coupled to the Next.js request body.
 //
 // Error contract: the legacy actions returned `{ error?, message? }`.
 // `RustApiError` carries the same human-readable message in `.message`,
@@ -166,35 +158,22 @@ const parseContactFile = async (file: File): Promise<ContactRecord[]> => {
 };
 
 /**
- * Upload a single header-media file to Meta and return the media id.
- * Kept on the TS side because multipart binary doesn't fit the
- * JSON-only Rust API surface; the existing accessToken-on-project path
- * is the same one `whatsapp.actions.ts` uses elsewhere.
+ * Upload a single header-media file to Meta via the Rust BFF and
+ * return the resulting media id. The Rust endpoint resolves the
+ * project's access token server-side, so we no longer thread it
+ * through here — pass the bare `projectId` the action already has.
  */
 async function uploadMediaToMeta(
     file: File,
+    projectId: string,
     phoneNumberId: string,
-    accessToken: string,
 ): Promise<string> {
-    const form = new NodeFormData();
-    const buffer = Buffer.from(await file.arrayBuffer());
-    form.append('file', buffer, {
-        filename: file.name,
-        contentType: file.type,
-        knownLength: buffer.length,
-    });
-    form.append('messaging_product', 'whatsapp');
-    const res = await axios.post(
-        `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/media`,
-        form,
-        {
-            headers: {
-                ...form.getHeaders(),
-                Authorization: `Bearer ${accessToken}`,
-            },
-        },
+    const r = await rustClient.wachatBroadcast.uploadMedia(
+        projectId,
+        phoneNumberId,
+        file,
     );
-    return res.data.id;
+    return r.id;
 }
 
 // ---------------------------------------------------------------------------
@@ -296,7 +275,6 @@ export async function handleStartBroadcast(
         const headerImageUrl = formData.get('headerMediaUrl') as string | null;
         const headerMediaFile = formData.get('headerMediaFile') as File | null;
         const baseMediaSource = formData.get('mediaSource') as string | null;
-        const accessToken = project.accessToken!;
 
         // Header — text variable, location, image / video / document.
         const headerComponentDef = template.components?.find(c => c.type === 'HEADER');
@@ -353,8 +331,8 @@ export async function handleStartBroadcast(
                 try {
                     const mediaId = await uploadMediaToMeta(
                         headerMediaFile,
+                        projectId,
                         phoneNumberId,
-                        accessToken,
                     );
                     const headerIndex = components.findIndex(
                         (c: any) => c.type === 'HEADER',
@@ -479,8 +457,8 @@ export async function handleStartBroadcast(
                             try {
                                 const mediaId = await uploadMediaToMeta(
                                     file,
+                                    projectId,
                                     phoneNumberId,
-                                    accessToken,
                                 );
                                 cardComponents.push({
                                     type: 'header',
