@@ -1,7 +1,8 @@
 'use client';
 
 import { Percent } from 'lucide-react';
-import { ClayBadge, HrEntityPage } from '../../_components/hr-entity-page';
+import { HrEntityPage } from '../../_components/hr-entity-page';
+import { ZoruBadge } from '@/components/zoruui';
 import {
   getTaxes,
   saveTax,
@@ -34,9 +35,9 @@ export default function TaxesPage() {
           key: 'is_default',
           label: 'Default',
           render: (row) => (
-            <ClayBadge tone={row.is_default ? 'green' : 'neutral'}>
+            <ZoruBadge variant={row.is_default ? 'success' : 'ghost'}>
               {row.is_default ? 'Yes' : 'No'}
-            </ClayBadge>
+            </ZoruBadge>
           ),
         },
       ]}

@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import { CalendarDays } from 'lucide-react';
-import { ClayButton, ClayCard } from '@/components/clay';
+import { ZoruButton, ZoruCard } from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import { StatCard } from '../_components/report-toolbar';
 import { getAttendanceMatrix } from '@/app/actions/worksuite/reports.actions';
@@ -15,16 +15,16 @@ function AttendanceFilter({ month, year }: { month: number; year: number }) {
   return (
     <form
       method="get"
-      className="flex flex-wrap items-end gap-2 rounded-lg border border-border bg-card px-3 py-2"
+      className="flex flex-wrap items-end gap-2 rounded-lg border border-zoru-line bg-zoru-bg px-3 py-2"
     >
       <label className="flex flex-col gap-1">
-        <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+        <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
           Month
         </span>
         <select
           name="month"
           defaultValue={String(month)}
-          className="h-9 rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
+          className="h-9 rounded-lg border border-zoru-line bg-zoru-bg px-2 text-[13px] text-zoru-ink"
         >
           {months.map((m, i) => (
             <option key={m} value={i + 1}>
@@ -34,13 +34,13 @@ function AttendanceFilter({ month, year }: { month: number; year: number }) {
         </select>
       </label>
       <label className="flex flex-col gap-1">
-        <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+        <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
           Year
         </span>
         <select
           name="year"
           defaultValue={String(year)}
-          className="h-9 rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
+          className="h-9 rounded-lg border border-zoru-line bg-zoru-bg px-2 text-[13px] text-zoru-ink"
         >
           {years.map((y) => (
             <option key={y} value={y}>
@@ -49,18 +49,18 @@ function AttendanceFilter({ month, year }: { month: number; year: number }) {
           ))}
         </select>
       </label>
-      <ClayButton type="submit" variant="obsidian" size="sm">
+      <ZoruButton type="submit" size="sm">
         Apply
-      </ClayButton>
+      </ZoruButton>
     </form>
   );
 }
 
 const STATUS_GLYPH: Record<string, { char: string; cls: string; title: string }> = {
-  Present: { char: 'P', cls: 'bg-emerald-50 text-emerald-500', title: 'Present' },
-  Absent: { char: 'A', cls: 'bg-rose-50 text-destructive', title: 'Absent' },
-  'Half Day': { char: 'H', cls: 'bg-amber-50 text-amber-500', title: 'Half Day' },
-  Leave: { char: 'L', cls: 'bg-sky-50 text-sky-500', title: 'Leave' },
+  Present: { char: 'P', cls: 'bg-emerald-50 text-zoru-success-ink', title: 'Present' },
+  Absent: { char: 'A', cls: 'bg-rose-50 text-zoru-danger-ink', title: 'Absent' },
+  'Half Day': { char: 'H', cls: 'bg-amber-50 text-zoru-warning-ink', title: 'Half Day' },
+  Leave: { char: 'L', cls: 'bg-sky-50 text-zoru-info-ink', title: 'Leave' },
 };
 
 export default async function AttendanceReportPage(props: {
@@ -94,29 +94,29 @@ export default async function AttendanceReportPage(props: {
         <StatCard label="On leave" value={String(totalLeave)} tone="blue" />
       </div>
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         <div className="overflow-x-auto">
           <table className="min-w-full border-collapse">
             <thead>
               <tr>
-                <th className="sticky left-0 z-10 bg-card px-3 py-2 text-left text-[12px] font-semibold text-muted-foreground">
+                <th className="sticky left-0 z-10 bg-zoru-bg px-3 py-2 text-left text-[12px] font-semibold text-zoru-ink-muted">
                   Employee
                 </th>
                 {Array.from({ length: daysInMonth }, (_, i) => (
                   <th
                     key={i}
-                    className="min-w-[26px] px-1 py-2 text-center text-[11px] font-medium text-muted-foreground"
+                    className="min-w-[26px] px-1 py-2 text-center text-[11px] font-medium text-zoru-ink-muted"
                   >
                     {i + 1}
                   </th>
                 ))}
-                <th className="px-3 py-2 text-right text-[12px] font-semibold text-muted-foreground">
+                <th className="px-3 py-2 text-right text-[12px] font-semibold text-zoru-ink-muted">
                   P
                 </th>
-                <th className="px-2 py-2 text-right text-[12px] font-semibold text-muted-foreground">
+                <th className="px-2 py-2 text-right text-[12px] font-semibold text-zoru-ink-muted">
                   A
                 </th>
-                <th className="px-2 py-2 text-right text-[12px] font-semibold text-muted-foreground">
+                <th className="px-2 py-2 text-right text-[12px] font-semibold text-zoru-ink-muted">
                   L
                 </th>
               </tr>
@@ -126,7 +126,7 @@ export default async function AttendanceReportPage(props: {
                 <tr>
                   <td
                     colSpan={daysInMonth + 4}
-                    className="py-8 text-center text-[13px] text-muted-foreground"
+                    className="py-8 text-center text-[13px] text-zoru-ink-muted"
                   >
                     No employees found.
                   </td>
@@ -135,9 +135,9 @@ export default async function AttendanceReportPage(props: {
                 matrix.map((row) => (
                   <tr
                     key={row.employeeId}
-                    className="border-t border-border"
+                    className="border-t border-zoru-line"
                   >
-                    <td className="sticky left-0 z-10 bg-card px-3 py-2 text-[13px] text-foreground">
+                    <td className="sticky left-0 z-10 bg-zoru-bg px-3 py-2 text-[13px] text-zoru-ink">
                       {row.employeeName}
                     </td>
                     {row.days.map((d, i) => {
@@ -155,18 +155,18 @@ export default async function AttendanceReportPage(props: {
                               {glyph.char}
                             </span>
                           ) : (
-                            <span className="text-muted-foreground">·</span>
+                            <span className="text-zoru-ink-muted">·</span>
                           )}
                         </td>
                       );
                     })}
-                    <td className="px-3 py-2 text-right text-[12.5px] font-medium text-emerald-500">
+                    <td className="px-3 py-2 text-right text-[12.5px] font-medium text-zoru-success-ink">
                       {row.summary.present}
                     </td>
-                    <td className="px-2 py-2 text-right text-[12.5px] font-medium text-destructive">
+                    <td className="px-2 py-2 text-right text-[12.5px] font-medium text-zoru-danger-ink">
                       {row.summary.absent}
                     </td>
-                    <td className="px-2 py-2 text-right text-[12.5px] font-medium text-sky-500">
+                    <td className="px-2 py-2 text-right text-[12.5px] font-medium text-zoru-info-ink">
                       {row.summary.leave}
                     </td>
                   </tr>
@@ -175,7 +175,7 @@ export default async function AttendanceReportPage(props: {
             </tbody>
           </table>
         </div>
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

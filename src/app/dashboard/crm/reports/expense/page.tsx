@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import { Receipt } from 'lucide-react';
-import { ClayCard } from '@/components/clay';
+import { ZoruCard } from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import {
   ReportToolbar,
@@ -38,12 +38,12 @@ export default async function ExpenseReportPage(props: {
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <ClayCard>
+        <ZoruCard className="p-6">
           <div className="mb-3">
-            <h2 className="text-[16px] font-semibold text-foreground">By month</h2>
+            <h2 className="text-[16px] font-semibold text-zoru-ink">By month</h2>
           </div>
           {byPeriod.length === 0 ? (
-            <div className="py-8 text-center text-[13px] text-muted-foreground">
+            <div className="py-8 text-center text-[13px] text-zoru-ink-muted">
               No expenses.
             </div>
           ) : (
@@ -58,16 +58,16 @@ export default async function ExpenseReportPage(props: {
               />
             ))
           )}
-        </ClayCard>
+        </ZoruCard>
 
-        <ClayCard>
+        <ZoruCard className="p-6">
           <div className="mb-3">
-            <h2 className="text-[16px] font-semibold text-foreground">
+            <h2 className="text-[16px] font-semibold text-zoru-ink">
               By category
             </h2>
           </div>
           {byCategory.length === 0 ? (
-            <div className="py-8 text-center text-[13px] text-muted-foreground">
+            <div className="py-8 text-center text-[13px] text-zoru-ink-muted">
               No expense categories.
             </div>
           ) : (
@@ -82,7 +82,7 @@ export default async function ExpenseReportPage(props: {
               />
             ))
           )}
-        </ClayCard>
+        </ZoruCard>
       </div>
     </div>
   );

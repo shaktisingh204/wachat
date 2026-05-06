@@ -1,6 +1,11 @@
 import { MessageSquare } from 'lucide-react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import {
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+} from '@/components/zoruui';
 import {
   listConversations,
   getConversationWith,
@@ -35,11 +40,17 @@ export default async function ConversationPage({
 
   return (
     <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Messages"
-        subtitle="Chat directly with your teammates."
-        icon={MessageSquare}
-      />
+      <ZoruPageHeader>
+        <div className="flex items-start gap-3">
+          <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-zoru-surface-2">
+            <MessageSquare className="h-5 w-5 text-zoru-ink" strokeWidth={1.75} />
+          </div>
+          <ZoruPageHeading>
+            <ZoruPageTitle>Messages</ZoruPageTitle>
+            <ZoruPageDescription>Chat directly with your teammates.</ZoruPageDescription>
+          </ZoruPageHeading>
+        </div>
+      </ZoruPageHeader>
 
       <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
         <ConversationsPane conversations={conversations} activePeerId={peerId} />

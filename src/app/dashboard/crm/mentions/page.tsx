@@ -1,7 +1,14 @@
 import { AtSign } from 'lucide-react';
 
-import { CrmPageHeader } from '../_components/crm-page-header';
-import { ClayCard, ClayBadge } from '@/components/clay';
+import {
+  ZoruBadge,
+  ZoruCard,
+  ZoruPageActions,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+} from '@/components/zoruui';
 import { getMentionsForMe } from '@/app/actions/worksuite/chat.actions';
 import type { WsMentionUser } from '@/lib/worksuite/chat-types';
 import { MentionRow } from './_components/mention-row';
@@ -12,29 +19,35 @@ export default async function MentionsPage() {
 
   return (
     <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Mentions"
-        subtitle="Every time someone @-mentions you."
-        icon={AtSign}
-        actions={
-          unread > 0 ? (
-            <ClayBadge tone="rose">{unread} unread</ClayBadge>
-          ) : null
-        }
-      />
+      <ZoruPageHeader>
+        <div className="flex items-start gap-3">
+          <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-zoru-surface-2">
+            <AtSign className="h-5 w-5 text-zoru-ink" strokeWidth={1.75} />
+          </div>
+          <ZoruPageHeading>
+            <ZoruPageTitle>Mentions</ZoruPageTitle>
+            <ZoruPageDescription>Every time someone @-mentions you.</ZoruPageDescription>
+          </ZoruPageHeading>
+        </div>
+        {unread > 0 ? (
+          <ZoruPageActions>
+            <ZoruBadge variant="danger">{unread} unread</ZoruBadge>
+          </ZoruPageActions>
+        ) : null}
+      </ZoruPageHeader>
 
       {mentions.length === 0 ? (
-        <ClayCard className="flex items-center justify-center py-12">
-          <p className="text-[13px] text-muted-foreground">No mentions yet.</p>
-        </ClayCard>
+        <ZoruCard className="flex items-center justify-center p-6 py-12">
+          <p className="text-[13px] text-zoru-ink-muted">No mentions yet.</p>
+        </ZoruCard>
       ) : (
-        <ClayCard padded={false}>
-          <ul className="divide-y divide-border">
+        <ZoruCard className="p-0">
+          <ul className="divide-y divide-zoru-line">
             {mentions.map((m) => (
               <MentionRow key={m._id} mention={m} />
             ))}
           </ul>
-        </ClayCard>
+        </ZoruCard>
       )}
     </div>
   );

@@ -1,21 +1,21 @@
 export const dynamic = 'force-dynamic';
 
 import { TrendingUp } from 'lucide-react';
-import { ClayCard } from '@/components/clay';
+import {
+  ZoruCard,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import {
   ReportToolbar,
   StatCard,
   fmtMoney,
 } from '../_components/report-toolbar';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { getProfitLoss } from '@/app/actions/worksuite/reports.actions';
 
 export default async function ProfitLossPage(props: {
@@ -52,59 +52,59 @@ export default async function ProfitLossPage(props: {
         />
       </div>
 
-      <ClayCard>
-        <div className="overflow-x-auto rounded-lg border border-border">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border hover:bg-transparent">
-                <TableHead className="text-muted-foreground">Period</TableHead>
-                <TableHead className="text-right text-muted-foreground">
+      <ZoruCard className="p-6">
+        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+          <ZoruTable>
+            <ZoruTableHeader>
+              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                <ZoruTableHead className="text-zoru-ink-muted">Period</ZoruTableHead>
+                <ZoruTableHead className="text-right text-zoru-ink-muted">
                   Income
-                </TableHead>
-                <TableHead className="text-right text-muted-foreground">
+                </ZoruTableHead>
+                <ZoruTableHead className="text-right text-zoru-ink-muted">
                   Expense
-                </TableHead>
-                <TableHead className="text-right text-muted-foreground">
+                </ZoruTableHead>
+                <ZoruTableHead className="text-right text-zoru-ink-muted">
                   Profit
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+                </ZoruTableHead>
+              </ZoruTableRow>
+            </ZoruTableHeader>
+            <ZoruTableBody>
               {rows.length === 0 ? (
-                <TableRow className="border-border">
-                  <TableCell
+                <ZoruTableRow className="border-zoru-line">
+                  <ZoruTableCell
                     colSpan={4}
-                    className="h-20 text-center text-[13px] text-muted-foreground"
+                    className="h-20 text-center text-[13px] text-zoru-ink-muted"
                   >
                     No data.
-                  </TableCell>
-                </TableRow>
+                  </ZoruTableCell>
+                </ZoruTableRow>
               ) : (
                 rows.map((r) => (
-                  <TableRow key={r.period} className="border-border">
-                    <TableCell className="font-medium text-foreground">
+                  <ZoruTableRow key={r.period} className="border-zoru-line">
+                    <ZoruTableCell className="font-medium text-zoru-ink">
                       {r.period}
-                    </TableCell>
-                    <TableCell className="text-right text-[13px] text-emerald-500">
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-right text-[13px] text-zoru-success-ink">
                       {fmtMoney(r.income)}
-                    </TableCell>
-                    <TableCell className="text-right text-[13px] text-destructive">
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-right text-[13px] text-zoru-danger-ink">
                       {fmtMoney(r.expense)}
-                    </TableCell>
-                    <TableCell
+                    </ZoruTableCell>
+                    <ZoruTableCell
                       className={`text-right text-[13px] font-medium ${
-                        r.profit >= 0 ? 'text-emerald-500' : 'text-destructive'
+                        r.profit >= 0 ? 'text-zoru-success-ink' : 'text-zoru-danger-ink'
                       }`}
                     >
                       {fmtMoney(r.profit)}
-                    </TableCell>
-                  </TableRow>
+                    </ZoruTableCell>
+                  </ZoruTableRow>
                 ))
               )}
-            </TableBody>
-          </Table>
+            </ZoruTableBody>
+          </ZoruTable>
         </div>
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

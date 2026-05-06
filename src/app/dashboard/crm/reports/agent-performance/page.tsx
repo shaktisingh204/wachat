@@ -1,21 +1,21 @@
 export const dynamic = 'force-dynamic';
 
 import { UserCog } from 'lucide-react';
-import { ClayCard } from '@/components/clay';
+import {
+  ZoruCard,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import {
   ReportToolbar,
   StatCard,
   fmtMinutes,
 } from '../_components/report-toolbar';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { getAgentPerformance } from '@/app/actions/worksuite/reports.actions';
 
 export default async function AgentPerformancePage(props: {
@@ -48,68 +48,68 @@ export default async function AgentPerformancePage(props: {
         <StatCard label="Avg resolution" value={fmtMinutes(avgRes)} tone="blue" />
       </div>
 
-      <ClayCard>
-        <div className="overflow-x-auto rounded-lg border border-border">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border hover:bg-transparent">
-                <TableHead className="text-muted-foreground">Agent</TableHead>
-                <TableHead className="text-right text-muted-foreground">
+      <ZoruCard className="p-6">
+        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+          <ZoruTable>
+            <ZoruTableHeader>
+              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                <ZoruTableHead className="text-zoru-ink-muted">Agent</ZoruTableHead>
+                <ZoruTableHead className="text-right text-zoru-ink-muted">
                   Total
-                </TableHead>
-                <TableHead className="text-right text-muted-foreground">
+                </ZoruTableHead>
+                <ZoruTableHead className="text-right text-zoru-ink-muted">
                   Resolved
-                </TableHead>
-                <TableHead className="text-right text-muted-foreground">
+                </ZoruTableHead>
+                <ZoruTableHead className="text-right text-zoru-ink-muted">
                   Resolution rate
-                </TableHead>
-                <TableHead className="text-right text-muted-foreground">
+                </ZoruTableHead>
+                <ZoruTableHead className="text-right text-zoru-ink-muted">
                   Avg resolution
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+                </ZoruTableHead>
+              </ZoruTableRow>
+            </ZoruTableHeader>
+            <ZoruTableBody>
               {rows.length === 0 ? (
-                <TableRow className="border-border">
-                  <TableCell
+                <ZoruTableRow className="border-zoru-line">
+                  <ZoruTableCell
                     colSpan={5}
-                    className="h-20 text-center text-[13px] text-muted-foreground"
+                    className="h-20 text-center text-[13px] text-zoru-ink-muted"
                   >
                     No tickets in this range.
-                  </TableCell>
-                </TableRow>
+                  </ZoruTableCell>
+                </ZoruTableRow>
               ) : (
                 rows.map((r) => {
                   const rate = r.total ? (r.resolved / r.total) * 100 : 0;
                   return (
-                    <TableRow key={r.agent} className="border-border">
-                      <TableCell className="font-medium text-foreground">
+                    <ZoruTableRow key={r.agent} className="border-zoru-line">
+                      <ZoruTableCell className="font-medium text-zoru-ink">
                         {r.agent}
-                      </TableCell>
-                      <TableCell className="text-right text-[13px] text-foreground">
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-right text-[13px] text-zoru-ink">
                         {r.total}
-                      </TableCell>
-                      <TableCell className="text-right text-[13px] text-emerald-500">
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-right text-[13px] text-zoru-success-ink">
                         {r.resolved}
-                      </TableCell>
-                      <TableCell
+                      </ZoruTableCell>
+                      <ZoruTableCell
                         className={`text-right text-[13px] ${
-                          rate >= 70 ? 'text-emerald-500' : 'text-amber-500'
+                          rate >= 70 ? 'text-zoru-success-ink' : 'text-zoru-warning-ink'
                         }`}
                       >
                         {rate.toFixed(0)}%
-                      </TableCell>
-                      <TableCell className="text-right text-[13px] text-sky-500">
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-right text-[13px] text-zoru-info-ink">
                         {fmtMinutes(r.avgResolutionMinutes)}
-                      </TableCell>
-                    </TableRow>
+                      </ZoruTableCell>
+                    </ZoruTableRow>
                   );
                 })
               )}
-            </TableBody>
-          </Table>
+            </ZoruTableBody>
+          </ZoruTable>
         </div>
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

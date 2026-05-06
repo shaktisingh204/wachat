@@ -6,7 +6,7 @@ import { HrFormPage } from '../../../_components/hr-form-page';
 import { getLearningPaths, saveLearningPath } from '@/app/actions/hr.actions';
 import type { HrLearningPath } from '@/lib/hr-types';
 import { fields, sections } from '../../_config';
-import { Skeleton } from '@/components/ui/skeleton';
+import { ZoruSkeleton } from '@/components/zoruui';
 
 export default function EditLearningPathPage({
   params,
@@ -39,8 +39,8 @@ export default function EditLearningPathPage({
   if (loading) {
     return (
       <div className="flex w-full flex-col gap-4">
-        <Skeleton className="h-12 w-full" />
-        <Skeleton className="h-64 w-full" />
+        <ZoruSkeleton className="h-12 w-full" />
+        <ZoruSkeleton className="h-64 w-full" />
       </div>
     );
   }

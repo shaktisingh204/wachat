@@ -19,7 +19,7 @@ use wachat_types::Project;
 use crate::{
     phone, project, qr, register,
     state::WachatConfigState,
-    webhook, widget,
+    waba_setup, webhook, widget,
 };
 
 const PROJECTS_COLL: &str = "projects";
@@ -45,6 +45,12 @@ async fn load_project_for(
 #[derive(Deserialize)]
 struct WabaQuery {
     waba_id: String,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct AccessTokenQuery {
+    access_token: String,
 }
 
 pub fn router<S>() -> Router<S>
@@ -100,6 +106,14 @@ where
             "/projects/{id}/widget-settings",
             post(save_widget_settings),
         )
+        // WABA setup proxies — pre-project Meta calls used by the
+        // legacy `_createProjectFromWaba` helper and the project-rename
+        // flow. The accessToken is taken from the query string because
+        // these are called *before* the project doc exists in Mongo (so
+        // there is nothing on disk to read it from).
+        .route("/me/businesses", get(get_me_businesses))
+        .route("/waba/{waba_id}/details", get(get_waba_details))
+        .route("/waba/{waba_id}/name", post(update_waba_name))
 }
 
 async fn get_public(
@@ -298,4 +312,48 @@ async fn save_widget_settings(
     let p = load_project_for(&user, &s.mongo, &id).await?;
     widget::save(&s.mongo, &p.id, &body).await?;
     Ok(Json(serde_json::json!({"success": true})))
+}
+
+// ---------------------------------------------------------------------------
+// WABA setup proxies — thin auth-gated wrappers around three Meta calls.
+// `AuthUser` is required so anonymous callers can't use the BFF as an open
+// proxy, but the access token comes from the request (query/body) because
+// the project doc may not exist yet.
+// ---------------------------------------------------------------------------
+
+async fn get_me_businesses(
+    _user: AuthUser,
+    State(s): State<WachatConfigState>,
+    Query(q): Query<AccessTokenQuery>,
+) -> Result<Json<waba_setup::BusinessesResponse>> {
+    let resp = waba_setup::get_me_businesses(&s.meta, &q.access_token).await?;
+    Ok(Json(resp))
+}
+
+async fn get_waba_details(
+    _user: AuthUser,
+    State(s): State<WachatConfigState>,
+    Path(waba_id): Path<String>,
+    Query(q): Query<AccessTokenQuery>,
+) -> Result<Json<waba_setup::WabaDetails>> {
+    let resp = waba_setup::get_waba_details(&s.meta, &waba_id, &q.access_token).await?;
+    Ok(Json(resp))
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct UpdateWabaNameRequest {
+    access_token: String,
+    name: String,
+}
+
+async fn update_waba_name(
+    _user: AuthUser,
+    State(s): State<WachatConfigState>,
+    Path(waba_id): Path<String>,
+    Json(body): Json<UpdateWabaNameRequest>,
+) -> Result<Json<Value>> {
+    let resp =
+        waba_setup::update_waba_name(&s.meta, &waba_id, &body.access_token, &body.name).await?;
+    Ok(Json(resp))
 }

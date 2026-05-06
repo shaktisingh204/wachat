@@ -9,12 +9,15 @@ import { getCrmDashboardStats } from '@/app/actions/crm.actions';
 import { getPinnedQuickList } from '@/app/actions/worksuite/dashboard.actions';
 import type { WsPinnedItem } from '@/lib/worksuite/dashboard-types';
 import {
-  ClayCard,
-  ClayButton,
-  ClayBadge,
-  ClaySectionHeader,
-} from '@/components/clay';
-import { Skeleton } from '@/components/ui/skeleton';
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruSkeleton,
+} from '@/components/zoruui';
 import {
   RecentDealsCard,
   UpcomingTasksCard,
@@ -35,26 +38,22 @@ function StatCard({
   tone?: 'rose' | 'green' | 'amber' | 'blue';
 }) {
   const toneBg: Record<string, string> = {
-    rose: 'bg-accent text-accent-foreground',
-    green: 'bg-emerald-50 text-emerald-500',
-    amber: 'bg-amber-50 text-amber-500',
-    blue: 'bg-sky-50 text-sky-500',
+    rose: 'bg-zoru-surface-2 text-zoru-ink',
+    green: 'bg-zoru-success/10 text-zoru-success-ink',
+    amber: 'bg-zoru-warning/15 text-zoru-warning-ink',
+    blue: 'bg-zoru-surface-2 text-zoru-ink',
   };
 
   return (
-    <ClayCard>
+    <ZoruCard className="p-6">
       <div className="flex items-start justify-between gap-3">
-        <p className="text-[12.5px] font-medium text-muted-foreground">{title}</p>
-        <div
-          className={`flex h-8 w-8 items-center justify-center rounded-lg ${toneBg[tone]}`}
-        >
+        <p className="text-[12.5px] text-zoru-ink-muted">{title}</p>
+        <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${toneBg[tone]}`}>
           <Icon className="h-4 w-4" strokeWidth={1.75} />
         </div>
       </div>
-      <p className="mt-3 text-[26px] font-semibold leading-none tracking-tight text-foreground">
-        {value}
-      </p>
-    </ClayCard>
+      <p className="mt-3 text-[26px] leading-none text-zoru-ink">{value}</p>
+    </ZoruCard>
   );
 }
 
@@ -63,34 +62,33 @@ type PinnedRow = WsPinnedItem & { _id: string };
 function PinnedQuickCard({ items }: { items: PinnedRow[] }) {
   if (!items || items.length === 0) return null;
   return (
-    <ClayCard>
+    <ZoruCard className="p-6">
       <div className="flex items-center justify-between pb-3">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent">
-            <Pin className="h-4 w-4 text-accent-foreground" strokeWidth={1.75} />
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zoru-surface-2">
+            <Pin className="h-4 w-4 text-zoru-ink" strokeWidth={1.75} />
           </div>
-          <h2 className="text-[15px] font-semibold text-foreground">Pinned</h2>
-          <ClayBadge tone="rose-soft">{items.length}</ClayBadge>
+          <h2 className="text-[15px] text-zoru-ink">Pinned</h2>
+          <ZoruBadge variant="ghost">{items.length}</ZoruBadge>
         </div>
         <Link href="/dashboard/crm/pinned">
-          <ClayButton variant="pill">View all</ClayButton>
+          <ZoruButton variant="outline" size="sm">View all</ZoruButton>
         </Link>
       </div>
       <ul className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
         {items.map((it) => (
           <li
             key={it._id}
-            className="flex items-center gap-2 rounded-lg border border-border bg-white p-2"
+            className="flex items-center gap-2 rounded-lg border border-zoru-line bg-zoru-bg p-2"
           >
-            <ClayBadge tone="neutral">{it.resource_type}</ClayBadge>
-            <span className="min-w-0 flex-1 truncate text-[12.5px] text-foreground">
-              {it.title ||
-                `${it.resource_type} ${String(it.resource_id).slice(-6)}`}
+            <ZoruBadge variant="ghost">{it.resource_type}</ZoruBadge>
+            <span className="min-w-0 flex-1 truncate text-[12.5px] text-zoru-ink">
+              {it.title || `${it.resource_type} ${String(it.resource_id).slice(-6)}`}
             </span>
           </li>
         ))}
       </ul>
-    </ClayCard>
+    </ZoruCard>
   );
 }
 
@@ -115,18 +113,18 @@ export default function CrmDashboardPage() {
     return (
       <div className="flex w-full flex-col gap-6">
         <div>
-          <Skeleton className="h-8 w-64" />
-          <Skeleton className="mt-2 h-4 w-96" />
+          <ZoruSkeleton className="h-8 w-64" />
+          <ZoruSkeleton className="mt-2 h-4 w-96" />
         </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Skeleton className="h-28 w-full rounded-xl" />
-          <Skeleton className="h-28 w-full rounded-xl" />
-          <Skeleton className="h-28 w-full rounded-xl" />
-          <Skeleton className="h-28 w-full rounded-xl" />
+          <ZoruSkeleton className="h-28 w-full rounded-xl" />
+          <ZoruSkeleton className="h-28 w-full rounded-xl" />
+          <ZoruSkeleton className="h-28 w-full rounded-xl" />
+          <ZoruSkeleton className="h-28 w-full rounded-xl" />
         </div>
         <div className="grid gap-4 lg:grid-cols-3">
-          <Skeleton className="h-64 w-full rounded-xl lg:col-span-2" />
-          <Skeleton className="h-64 w-full rounded-xl" />
+          <ZoruSkeleton className="h-64 w-full rounded-xl lg:col-span-2" />
+          <ZoruSkeleton className="h-64 w-full rounded-xl" />
         </div>
       </div>
     );
@@ -136,29 +134,29 @@ export default function CrmDashboardPage() {
 
   return (
     <div className="flex w-full flex-col gap-6">
-      <ClaySectionHeader
-        title="CRM Dashboard"
-        subtitle="An overview of your customer relationships, leads, and deals."
-        size="lg"
-        actions={
-          <>
-            <ClayButton
-              variant="pill"
-              leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}
-              onClick={() => router.push('/dashboard/crm/contacts')}
-            >
-              New Contact
-            </ClayButton>
-            <ClayButton
-              variant="obsidian"
-              leading={<Handshake className="h-4 w-4" strokeWidth={1.75} />}
-              onClick={() => router.push('/dashboard/crm/deals')}
-            >
-              New Deal
-            </ClayButton>
-          </>
-        }
-      />
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <ZoruPageHeader>
+          <ZoruPageHeading>
+            <ZoruPageTitle>CRM Dashboard</ZoruPageTitle>
+            <ZoruPageDescription>
+              An overview of your customer relationships, leads, and deals.
+            </ZoruPageDescription>
+          </ZoruPageHeading>
+        </ZoruPageHeader>
+        <div className="flex flex-wrap items-center gap-2">
+          <ZoruButton
+            variant="outline"
+            onClick={() => router.push('/dashboard/crm/contacts')}
+          >
+            <Plus className="h-4 w-4" strokeWidth={1.75} />
+            New Contact
+          </ZoruButton>
+          <ZoruButton onClick={() => router.push('/dashboard/crm/deals')}>
+            <Handshake className="h-4 w-4" strokeWidth={1.75} />
+            New Deal
+          </ZoruButton>
+        </div>
+      </div>
 
       {/* Pinned quick-list (only renders when user has pinned items) */}
       <PinnedQuickCard items={pinned} />

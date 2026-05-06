@@ -50,6 +50,7 @@ use sabnode_auth::AuthConfig;
 pub mod analytics;
 pub mod chat;
 pub mod contacts;
+pub mod health_automation_commerce;
 pub mod helpers;
 pub mod media;
 pub mod messaging;
@@ -328,5 +329,25 @@ where
         .route(
             "/conversation-filters/{filter_id}",
             delete(misc::conversation_filters::delete),
+        )
+        // ---- health / conversational automation / commerce settings -------
+        .route(
+            "/waba/{waba_id}/health",
+            get(health_automation_commerce::waba_health),
+        )
+        .route(
+            "/phone-numbers/{phone_id}/health",
+            get(health_automation_commerce::phone_health),
+        )
+        .route(
+            "/phone-numbers/{phone_id}/conversational-automation",
+            get(health_automation_commerce::get_conversational_automation)
+                .post(health_automation_commerce::update_conversational_automation)
+                .delete(health_automation_commerce::delete_conversational_automation),
+        )
+        .route(
+            "/phone-numbers/{phone_id}/commerce-settings",
+            get(health_automation_commerce::get_commerce_settings)
+                .post(health_automation_commerce::update_commerce_settings),
         )
 }

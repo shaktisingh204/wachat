@@ -3,7 +3,7 @@
 import { Tag } from 'lucide-react';
 
 import { HrEntityPage } from '../../_components/hr-entity-page';
-import { ClayBadge } from '@/components/clay';
+import { ZoruBadge } from '@/components/zoruui';
 import {
   getPromotions,
   savePromotion,
@@ -16,14 +16,14 @@ type PromotionRow = Omit<WsPromotion, '_id' | 'userId' | 'applies_to_ids'> & {
   [k: string]: any;
 };
 
-const STATUS_TONES: Record<string, 'green' | 'neutral'> = {
-  active: 'green',
-  inactive: 'neutral',
+const STATUS_VARIANTS: Record<string, 'success' | 'ghost'> = {
+  active: 'success',
+  inactive: 'ghost',
 };
 
-const TYPE_TONES: Record<string, 'blue' | 'amber'> = {
-  percent: 'blue',
-  fixed: 'amber',
+const TYPE_VARIANTS: Record<string, 'info' | 'warning'> = {
+  percent: 'info',
+  fixed: 'warning',
 };
 
 export default function PromotionsPage() {
@@ -46,9 +46,9 @@ export default function PromotionsPage() {
           key: 'type',
           label: 'Type',
           render: (row) => (
-            <ClayBadge tone={TYPE_TONES[row.type] || 'neutral'}>
+            <ZoruBadge variant={TYPE_VARIANTS[row.type] || 'ghost'}>
               {row.type}
-            </ClayBadge>
+            </ZoruBadge>
           ),
         },
         {
@@ -72,9 +72,9 @@ export default function PromotionsPage() {
           key: 'status',
           label: 'Status',
           render: (row) => (
-            <ClayBadge tone={STATUS_TONES[row.status] || 'neutral'} dot>
+            <ZoruBadge variant={STATUS_VARIANTS[row.status] || 'ghost'}>
               {row.status}
-            </ClayBadge>
+            </ZoruBadge>
           ),
         },
       ]}

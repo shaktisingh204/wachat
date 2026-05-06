@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import { Wallet } from 'lucide-react';
-import { ClayCard } from '@/components/clay';
+import { ZoruCard } from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import {
   ReportToolbar,
@@ -37,15 +37,15 @@ export default async function IncomeReportPage(props: {
         <StatCard label="Monthly average" value={fmtMoney(avg)} />
       </div>
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         <div className="mb-3">
-          <h2 className="text-[16px] font-semibold text-foreground">By month</h2>
-          <p className="mt-0.5 text-[12.5px] text-muted-foreground">
+          <h2 className="text-[16px] font-semibold text-zoru-ink">By month</h2>
+          <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
             Grouped by invoice date.
           </p>
         </div>
         {rows.length === 0 ? (
-          <div className="py-8 text-center text-[13px] text-muted-foreground">
+          <div className="py-8 text-center text-[13px] text-zoru-ink-muted">
             No income for the selected range.
           </div>
         ) : (
@@ -62,7 +62,7 @@ export default async function IncomeReportPage(props: {
             ))}
           </div>
         )}
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

@@ -1,7 +1,8 @@
 'use client';
 
 import { Flag } from 'lucide-react';
-import { ClayBadge, HrEntityPage } from '../../_components/hr-entity-page';
+import { HrEntityPage } from '../../_components/hr-entity-page';
+import { ZoruBadge } from '@/components/zoruui';
 import {
   getFlags,
   saveFlag,
@@ -25,7 +26,7 @@ export default function FlagsPage() {
           key: 'resource_type',
           label: 'Module',
           render: (row) => (
-            <ClayBadge tone="rose-soft">{String(row.resource_type || '')}</ClayBadge>
+            <ZoruBadge variant="ghost">{String(row.resource_type || '')}</ZoruBadge>
           ),
         },
         { key: 'resource_id', label: 'Resource ID' },

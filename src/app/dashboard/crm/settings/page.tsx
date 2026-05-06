@@ -1,34 +1,60 @@
-import { Settings } from 'lucide-react';
-
 import { getCrmSettings } from '@/app/actions/crm-settings.actions';
 import { CrmSettingsForm } from '@/components/crm/settings/crm-settings-form';
-import { ClayCard } from '@/components/clay';
-import { CrmPageHeader } from '../_components/crm-page-header';
+import {
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruCard,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+} from '@/components/zoruui';
 
 export const dynamic = 'force-dynamic';
 
 export default async function CrmSettingsPage() {
   const crmSettings = await getCrmSettings();
 
-  if (!crmSettings) {
-    return (
-      <ClayCard>
-        <p className="py-8 text-center text-[13px] text-muted-foreground">
-          Failed to load settings.
-        </p>
-      </ClayCard>
-    );
-  }
-
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="CRM Settings"
-        subtitle="Manage your organization profile, sales preferences, inventory configurations, and module features."
-        icon={Settings}
-      />
+    <div className="flex min-h-full flex-col gap-6">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard/crm">CRM</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Settings</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
 
-      <CrmSettingsForm settings={crmSettings} />
+      <ZoruPageHeader>
+        <ZoruPageHeading>
+          <ZoruPageTitle>CRM Settings</ZoruPageTitle>
+          <ZoruPageDescription>
+            Manage your organization profile, sales preferences, inventory configurations, and module features.
+          </ZoruPageDescription>
+        </ZoruPageHeading>
+      </ZoruPageHeader>
+
+      {!crmSettings ? (
+        <ZoruCard className="p-6">
+          <p className="py-8 text-center text-[13px] text-zoru-ink-muted">
+            Failed to load settings.
+          </p>
+        </ZoruCard>
+      ) : (
+        <CrmSettingsForm settings={crmSettings} />
+      )}
     </div>
   );
 }
