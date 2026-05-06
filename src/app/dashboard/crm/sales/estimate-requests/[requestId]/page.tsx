@@ -1,8 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import {
   use,
   useCallback,
@@ -24,20 +21,22 @@ import {
   User as UserIcon,
   Trash2,
 } from 'lucide-react';
-import { ClayBadge, ClayButton, ClayCard } from '@/components/clay';
-import { SharePublicLinkButton } from '@/components/worksuite/share-public-link-button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Skeleton } from '@/components/ui/skeleton';
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSkeleton,
+  useZoruToast,
+} from '@/components/zoruui';
+import { SharePublicLinkButton } from '@/components/worksuite/share-public-link-button';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
-import { useToast } from '@/hooks/use-toast';
 import {
   acceptEstimate,
   convertEstimateRequestToQuote,
@@ -57,13 +56,13 @@ type Loaded = {
   accepts: (WsAcceptEstimate & { _id: string })[];
 };
 
-type Tone = 'neutral' | 'amber' | 'green' | 'red' | 'blue';
+type Variant = 'ghost' | 'warning' | 'success' | 'danger';
 
-const STATUS_TONE: Record<WsEstimateRequestStatus, Tone> = {
-  pending: 'amber',
-  'in-review': 'blue',
-  quoted: 'blue',
-  declined: 'red',
+const STATUS_VARIANT: Record<WsEstimateRequestStatus, Variant> = {
+  pending: 'warning',
+  'in-review': 'ghost',
+  quoted: 'ghost',
+  declined: 'danger',
 };
 
 function fmtDate(v: unknown): string {
@@ -83,7 +82,7 @@ export default function EstimateRequestDetailPage(props: {
 }) {
   const { requestId } = use(props.params);
   const router = useRouter();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
 
   const [data, setData] = useState<Loaded | null>(null);
   const [isLoading, startLoading] = useTransition();
@@ -177,7 +176,6 @@ export default function EstimateRequestDetailPage(props: {
       try {
         canvas.releasePointerCapture(e.pointerId);
       } catch {
-        /* ignore */
       }
     }
   };
@@ -269,26 +267,27 @@ export default function EstimateRequestDetailPage(props: {
   if (isLoading && !data) {
     return (
       <div className="flex w-full flex-col gap-6">
-        <Skeleton className="h-10 w-64" />
-        <Skeleton className="h-64 w-full" />
+        <ZoruSkeleton className="h-10 w-64" />
+        <ZoruSkeleton className="h-64 w-full" />
       </div>
     );
   }
 
   if (!request || !data) {
     return (
-      <ClayCard variant="outline" className="border-dashed">
+      <ZoruCard className="p-6 border-dashed">
         <div className="flex flex-col items-center gap-3 py-12 text-center">
-          <p className="text-[13px] text-muted-foreground">
+          <p className="text-[13px] text-zoru-ink-muted">
             Estimate request not found.
           </p>
           <Link href="/dashboard/crm/sales/estimate-requests">
-            <ClayButton variant="pill" leading={<ArrowLeft className="h-4 w-4" />}>
+            <ZoruButton variant="outline">
+              <ArrowLeft className="h-4 w-4" />
               Back
-            </ClayButton>
+            </ZoruButton>
           </Link>
         </div>
-      </ClayCard>
+      </ZoruCard>
     );
   }
 
@@ -301,57 +300,55 @@ export default function EstimateRequestDetailPage(props: {
         actions={
           <>
             <Link href="/dashboard/crm/sales/estimate-requests">
-              <ClayButton variant="pill" leading={<ArrowLeft className="h-4 w-4" />}>
+              <ZoruButton variant="outline">
+                <ArrowLeft className="h-4 w-4" />
                 Back
-              </ClayButton>
+              </ZoruButton>
             </Link>
             <SharePublicLinkButton
               resourceType="estimate"
               resourceId={request._id}
             />
-            <ClayButton
-              variant="obsidian"
+            <ZoruButton
               disabled={isConverting || isQuoted}
               onClick={handleConvert}
-              leading={
-                isConverting ? (
-                  <LoaderCircle className="h-4 w-4 animate-spin" />
-                ) : (
-                  <ArrowRightCircle className="h-4 w-4" />
-                )
-              }
             >
+              {isConverting ? (
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+              ) : (
+                <ArrowRightCircle className="h-4 w-4" />
+              )}
               {isQuoted ? 'Already Quoted' : 'Convert to Quote'}
-            </ClayButton>
+            </ZoruButton>
           </>
         }
       />
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         <div className="mb-4 flex flex-wrap items-center gap-3">
-          <ClayBadge tone={STATUS_TONE[request.status] || 'neutral'} dot>
+          <ZoruBadge variant={STATUS_VARIANT[request.status] || 'ghost'}>
             {request.status}
-          </ClayBadge>
-          <Select
+          </ZoruBadge>
+          <ZoruSelect
             value={request.status}
             onValueChange={(v) => handleStatusChange(v as WsEstimateRequestStatus)}
           >
-            <SelectTrigger className="h-9 w-40 rounded-lg border-border bg-card text-[13px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
+            <ZoruSelectTrigger className="w-40">
+              <ZoruSelectValue />
+            </ZoruSelectTrigger>
+            <ZoruSelectContent>
               {WS_ESTIMATE_REQUEST_STATUSES.map((s) => (
-                <SelectItem key={s} value={s}>
+                <ZoruSelectItem key={s} value={s}>
                   {s}
-                </SelectItem>
+                </ZoruSelectItem>
               ))}
-            </SelectContent>
-          </Select>
+            </ZoruSelectContent>
+          </ZoruSelect>
           <div className="ml-auto">
             <button
               type="button"
               onClick={handleDelete}
-              className="rounded-lg p-2 text-muted-foreground hover:bg-rose-50 hover:text-destructive"
+              className="rounded-lg p-2 text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-danger-ink"
               aria-label="Delete"
             >
               <Trash2 className="h-4 w-4" />
@@ -361,39 +358,39 @@ export default function EstimateRequestDetailPage(props: {
 
         <div className="grid gap-4 md:grid-cols-3">
           <div className="flex items-start gap-3">
-            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent">
-              <UserIcon className="h-4 w-4 text-accent-foreground" strokeWidth={1.75} />
+            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zoru-surface-2">
+              <UserIcon className="h-4 w-4 text-zoru-ink" strokeWidth={1.75} />
             </div>
             <div>
-              <p className="text-[11.5px] text-muted-foreground">Requester</p>
-              <p className="text-[13px] font-medium text-foreground">
+              <p className="text-[11.5px] text-zoru-ink-muted">Requester</p>
+              <p className="text-[13px] text-zoru-ink">
                 {request.requester_name || '—'}
               </p>
               {request.requester_email ? (
-                <p className="text-[11.5px] text-muted-foreground">
+                <p className="text-[11.5px] text-zoru-ink-muted">
                   {request.requester_email}
                 </p>
               ) : null}
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent">
-              <Calendar className="h-4 w-4 text-accent-foreground" strokeWidth={1.75} />
+            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zoru-surface-2">
+              <Calendar className="h-4 w-4 text-zoru-ink" strokeWidth={1.75} />
             </div>
             <div>
-              <p className="text-[11.5px] text-muted-foreground">Desired Date</p>
-              <p className="text-[13px] font-medium text-foreground">
+              <p className="text-[11.5px] text-zoru-ink-muted">Desired Date</p>
+              <p className="text-[13px] text-zoru-ink">
                 {fmtDate(request.desired_date)}
               </p>
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent">
-              <Calendar className="h-4 w-4 text-accent-foreground" strokeWidth={1.75} />
+            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zoru-surface-2">
+              <Calendar className="h-4 w-4 text-zoru-ink" strokeWidth={1.75} />
             </div>
             <div>
-              <p className="text-[11.5px] text-muted-foreground">Created</p>
-              <p className="text-[13px] font-medium text-foreground">
+              <p className="text-[11.5px] text-zoru-ink-muted">Created</p>
+              <p className="text-[13px] text-zoru-ink">
                 {fmtDate(request.createdAt)}
               </p>
             </div>
@@ -401,10 +398,10 @@ export default function EstimateRequestDetailPage(props: {
         </div>
 
         <div className="mt-6">
-          <p className="mb-1 text-[11.5px] font-medium uppercase tracking-wide text-muted-foreground">
+          <p className="mb-1 text-[11.5px] uppercase text-zoru-ink-muted">
             Description
           </p>
-          <div className="rounded-lg border border-border bg-secondary p-3 text-[13px] text-foreground">
+          <div className="rounded-lg border border-zoru-line bg-zoru-surface-2 p-3 text-[13px] text-zoru-ink">
             <pre className="whitespace-pre-wrap font-sans">
               {request.description}
             </pre>
@@ -413,23 +410,23 @@ export default function EstimateRequestDetailPage(props: {
 
         {request.notes ? (
           <div className="mt-4">
-            <p className="mb-1 text-[11.5px] font-medium uppercase tracking-wide text-muted-foreground">
+            <p className="mb-1 text-[11.5px] uppercase text-zoru-ink-muted">
               Internal Notes
             </p>
-            <div className="rounded-lg border border-border bg-secondary p-3 text-[13px] text-foreground">
+            <div className="rounded-lg border border-zoru-line bg-zoru-surface-2 p-3 text-[13px] text-zoru-ink">
               <pre className="whitespace-pre-wrap font-sans">
                 {request.notes}
               </pre>
             </div>
           </div>
         ) : null}
-      </ClayCard>
+      </ZoruCard>
 
       {data.accepts.length > 0 ? (
-        <ClayCard>
+        <ZoruCard className="p-6">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="h-5 w-5 text-emerald-500" />
-            <h2 className="text-[16px] font-semibold text-foreground">
+            <h2 className="text-[16px] text-zoru-ink">
               Accepted by customer
             </h2>
           </div>
@@ -437,19 +434,19 @@ export default function EstimateRequestDetailPage(props: {
             {data.accepts.map((s) => (
               <div
                 key={s._id}
-                className="rounded-lg border border-border bg-secondary p-4"
+                className="rounded-lg border border-zoru-line bg-zoru-surface-2 p-4"
               >
-                <p className="text-[11.5px] text-muted-foreground">Accepted by</p>
-                <p className="text-[13px] font-medium text-foreground">
+                <p className="text-[11.5px] text-zoru-ink-muted">Accepted by</p>
+                <p className="text-[13px] text-zoru-ink">
                   {s.accepted_by_name}
                 </p>
-                <p className="text-[11.5px] text-muted-foreground">
+                <p className="text-[11.5px] text-zoru-ink-muted">
                   {s.accepted_by_email}
                 </p>
-                <p className="mt-2 text-[11.5px] text-muted-foreground">
+                <p className="mt-2 text-[11.5px] text-zoru-ink-muted">
                   Accepted at
                 </p>
-                <p className="text-[13px] text-foreground">
+                <p className="text-[13px] text-zoru-ink">
                   {fmtDateTime(s.accepted_at)}
                 </p>
                 {s.signature_data_url ? (
@@ -457,50 +454,50 @@ export default function EstimateRequestDetailPage(props: {
                   <img
                     src={s.signature_data_url}
                     alt="Signature"
-                    className="mt-2 max-h-24 rounded-lg border border-border bg-white p-2"
+                    className="mt-2 max-h-24 rounded-lg border border-zoru-line bg-white p-2"
                   />
                 ) : null}
               </div>
             ))}
           </div>
-        </ClayCard>
+        </ZoruCard>
       ) : null}
 
       {canAccept ? (
-        <ClayCard>
+        <ZoruCard className="p-6">
           <div className="mb-4">
-            <h2 className="text-[16px] font-semibold text-foreground">
+            <h2 className="text-[16px] text-zoru-ink">
               Accept estimate
             </h2>
-            <p className="mt-0.5 text-[12.5px] text-muted-foreground">
+            <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
               Record customer acceptance with signature. This will move the
-              request into <span className="font-medium">quoted</span>.
+              request into <span>quoted</span>.
             </p>
           </div>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <Label className="text-foreground">Full Name</Label>
-              <Input
+              <ZoruLabel className="text-zoru-ink">Full Name</ZoruLabel>
+              <ZoruInput
                 value={signerName}
                 onChange={(e) => setSignerName(e.target.value)}
                 placeholder="Jane Doe"
-                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+                className="mt-1.5"
               />
             </div>
             <div>
-              <Label className="text-foreground">Email</Label>
-              <Input
+              <ZoruLabel className="text-zoru-ink">Email</ZoruLabel>
+              <ZoruInput
                 type="email"
                 value={signerEmail}
                 onChange={(e) => setSignerEmail(e.target.value)}
                 placeholder="jane@example.com"
-                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+                className="mt-1.5"
               />
             </div>
           </div>
           <div className="mt-4">
-            <Label className="text-foreground">Signature</Label>
-            <div className="mt-1.5 rounded-lg border border-border bg-white p-2">
+            <ZoruLabel className="text-zoru-ink">Signature</ZoruLabel>
+            <div className="mt-1.5 rounded-lg border border-zoru-line bg-white p-2">
               <canvas
                 ref={canvasRef}
                 className="block w-full touch-none rounded-lg bg-white"
@@ -514,30 +511,27 @@ export default function EstimateRequestDetailPage(props: {
             </div>
           </div>
           <div className="mt-4 flex flex-wrap justify-end gap-2">
-            <ClayButton
-              variant="pill"
-              leading={<Eraser className="h-4 w-4" />}
+            <ZoruButton
+              variant="outline"
               onClick={clearCanvas}
               disabled={isSigning}
             >
+              <Eraser className="h-4 w-4" />
               Clear
-            </ClayButton>
-            <ClayButton
-              variant="obsidian"
+            </ZoruButton>
+            <ZoruButton
               onClick={handleAccept}
               disabled={isSigning}
-              leading={
-                isSigning ? (
-                  <LoaderCircle className="h-4 w-4 animate-spin" />
-                ) : (
-                  <CheckCircle2 className="h-4 w-4" />
-                )
-              }
             >
+              {isSigning ? (
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+              ) : (
+                <CheckCircle2 className="h-4 w-4" />
+              )}
               Accept &amp; Sign
-            </ClayButton>
+            </ZoruButton>
           </div>
-        </ClayCard>
+        </ZoruCard>
       ) : null}
     </div>
   );

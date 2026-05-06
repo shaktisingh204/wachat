@@ -1,60 +1,62 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useActionState, useEffect, useState, useTransition, useCallback } from 'react';
 import { useFormStatus } from 'react-dom';
 import { ModuleLayout } from '@/components/wabasimplify/module-layout';
 import { ModuleSidebar } from '@/components/wabasimplify/module-sidebar';
-import { ListChecks, CalendarDays, Percent, Bell, Shield, Settings } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
+import { ListChecks, CalendarDays, Percent, Bell, Shield, Settings, LoaderCircle, Save, Plus, Trash2 } from 'lucide-react';
 import { saveRolePermissions, saveRole, deleteRole } from '@/app/actions/crm-roles.actions';
 import { getSession } from '@/app/actions/user.actions';
 import type { User, WithId } from '@/lib/definitions';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Button } from '@/components/ui/button';
-import { LoaderCircle, Save, Plus, Trash2 } from "lucide-react";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '@/components/ui/dialog';
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
 
-import { ClayCard, ClayButton } from '@/components/clay';
+import {
+    ZoruAccordion,
+    ZoruAccordionContent,
+    ZoruAccordionItem,
+    ZoruAccordionTrigger,
+    ZoruAlertDialog,
+    ZoruAlertDialogAction,
+    ZoruAlertDialogCancel,
+    ZoruAlertDialogContent,
+    ZoruAlertDialogDescription,
+    ZoruAlertDialogFooter,
+    ZoruAlertDialogHeader,
+    ZoruAlertDialogTitle,
+    ZoruAlertDialogTrigger,
+    ZoruButton,
+    ZoruCard,
+    ZoruCheckbox,
+    ZoruDialog,
+    ZoruDialogContent,
+    ZoruDialogDescription,
+    ZoruDialogFooter,
+    ZoruDialogHeader,
+    ZoruDialogTitle,
+    ZoruDialogTrigger,
+    ZoruInput,
+    ZoruLabel,
+    ZoruSkeleton,
+    ZoruTable,
+    ZoruTableBody,
+    ZoruTableCell,
+    ZoruTableHead,
+    ZoruTableHeader,
+    ZoruTableRow,
+    useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 
 const PlaceholderCard = ({ title, description }: { title: string, description: string }) => (
-    <ClayCard>
+    <ZoruCard className="p-6">
         <div className="flex flex-col items-center gap-3 py-12 text-center">
             <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent">
                 <Settings className="h-6 w-6 text-accent-foreground" strokeWidth={1.75} />
             </div>
-            <h3 className="text-[15px] font-semibold text-foreground">{title}</h3>
-            <p className="text-[12.5px] text-muted-foreground">{description}</p>
-            <p className="mt-2 text-[11.5px] text-muted-foreground">This feature is under development and will be available soon.</p>
+            <h3 className="text-[15px] text-zoru-ink">{title}</h3>
+            <p className="text-[12.5px] text-zoru-ink-muted">{description}</p>
+            <p className="mt-2 text-[11.5px] text-zoru-ink-muted">This feature is under development and will be available soon.</p>
         </div>
-    </ClayCard>
+    </ZoruCard>
 );
 
 const initialState = { message: null, error: undefined };
@@ -62,10 +64,10 @@ const initialState = { message: null, error: undefined };
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <Button type="submit" disabled={pending}>
+        <ZoruButton type="submit" disabled={pending}>
             {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
             Save Permissions
-        </Button>
+        </ZoruButton>
     )
 }
 
@@ -83,7 +85,7 @@ const actions = ['view', 'create', 'edit', 'delete'];
 function AddRoleDialog({ onRoleAdded }: { onRoleAdded: () => void }) {
     const [open, setOpen] = useState(false);
     const [roleName, setRoleName] = useState('');
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
     const [isPending, startTransition] = useTransition();
 
     const handleAddRole = async () => {
@@ -104,33 +106,33 @@ function AddRoleDialog({ onRoleAdded }: { onRoleAdded: () => void }) {
     }
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" />}>Add Role</ClayButton>
-            </DialogTrigger>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Create New Role</DialogTitle>
-                    <DialogDescription>Give your new role a name. You can set its permissions after creating it.</DialogDescription>
-                </DialogHeader>
+        <ZoruDialog open={open} onOpenChange={setOpen}>
+            <ZoruDialogTrigger asChild>
+                <ZoruButton><Plus className="h-4 w-4" />Add Role</ZoruButton>
+            </ZoruDialogTrigger>
+            <ZoruDialogContent>
+                <ZoruDialogHeader>
+                    <ZoruDialogTitle>Create New Role</ZoruDialogTitle>
+                    <ZoruDialogDescription>Give your new role a name. You can set its permissions after creating it.</ZoruDialogDescription>
+                </ZoruDialogHeader>
                 <div className="py-4">
-                    <Label htmlFor="roleName">Role Name</Label>
-                    <Input id="roleName" value={roleName} onChange={(e) => setRoleName(e.target.value)} className="h-10 rounded-lg border-border bg-card text-[13px]" />
+                    <ZoruLabel htmlFor="roleName">Role Name</ZoruLabel>
+                    <ZoruInput id="roleName" value={roleName} onChange={(e) => setRoleName(e.target.value)} className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
                 </div>
-                <DialogFooter>
-                    <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-                    <Button onClick={handleAddRole} disabled={isPending}>
+                <ZoruDialogFooter>
+                    <ZoruButton variant="ghost" onClick={() => setOpen(false)}>Cancel</ZoruButton>
+                    <ZoruButton onClick={handleAddRole} disabled={isPending}>
                         {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
                         Create Role
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+                    </ZoruButton>
+                </ZoruDialogFooter>
+            </ZoruDialogContent>
+        </ZoruDialog>
     )
 }
 
 function DeleteRoleButton({ role, onRoleDeleted }: { role: any, onRoleDeleted: () => void }) {
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
     const [isPending, startTransition] = useTransition();
 
     if (role.id === 'agent') return null;
@@ -148,23 +150,23 @@ function DeleteRoleButton({ role, onRoleDeleted }: { role: any, onRoleDeleted: (
     }
 
     return (
-        <AlertDialog>
-            <AlertDialogTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-7 w-7"><Trash2 className="h-4 w-4 text-destructive" /></Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-                <AlertDialogHeader>
-                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                    <AlertDialogDescription>This will permanently delete the &ldquo;{role.name}&rdquo; role. Team members with this role will lose their special permissions.</AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleDelete} disabled={isPending}>
+        <ZoruAlertDialog>
+            <ZoruAlertDialogTrigger asChild>
+                <ZoruButton variant="ghost" size="icon" className="h-7 w-7"><Trash2 className="h-4 w-4 text-zoru-danger-ink" /></ZoruButton>
+            </ZoruAlertDialogTrigger>
+            <ZoruAlertDialogContent>
+                <ZoruAlertDialogHeader>
+                    <ZoruAlertDialogTitle>Are you sure?</ZoruAlertDialogTitle>
+                    <ZoruAlertDialogDescription>This will permanently delete the &ldquo;{role.name}&rdquo; role. Team members with this role will lose their special permissions.</ZoruAlertDialogDescription>
+                </ZoruAlertDialogHeader>
+                <ZoruAlertDialogFooter>
+                    <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+                    <ZoruAlertDialogAction onClick={handleDelete} disabled={isPending}>
                         {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />} Delete
-                    </AlertDialogAction>
-                </AlertDialogFooter>
-            </AlertDialogContent>
-        </AlertDialog>
+                    </ZoruAlertDialogAction>
+                </ZoruAlertDialogFooter>
+            </ZoruAlertDialogContent>
+        </ZoruAlertDialog>
     );
 }
 
@@ -172,7 +174,7 @@ function AccessControlTab() {
     const [user, setUser] = useState<WithId<User> | null>(null);
     const [isLoading, startLoading] = useTransition();
     const [state, formAction] = useActionState(saveRolePermissions as any, initialState as any);
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
 
     const fetchUser = useCallback(() => {
         startLoading(async () => {
@@ -196,7 +198,7 @@ function AccessControlTab() {
     }, [state, toast, fetchUser]);
 
     if (isLoading || !user) {
-        return <Skeleton className="h-96 w-full" />
+        return <ZoruSkeleton className="h-96 w-full" />
     }
 
     const allRoles = [{ id: 'agent', name: 'Agent', permissions: (user.crm || {}).permissions?.agent }, ...((user.crm || {}).customRoles || [])];
@@ -204,51 +206,51 @@ function AccessControlTab() {
     return (
         <form action={formAction}>
             <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-[15px] font-semibold text-foreground">Roles & Permissions</h3>
+                <h3 className="text-[15px] text-zoru-ink">Roles & Permissions</h3>
                 <AddRoleDialog onRoleAdded={fetchUser} />
             </div>
-            <Accordion type="single" collapsible className="w-full space-y-4">
+            <ZoruAccordion type="single" collapsible className="w-full space-y-4">
                 {allRoles.map(role => {
                     const crmPermissions = (role as any).permissions || {};
 
                     return (
-                        <AccordionItem key={role.id} value={role.id} className="rounded-lg border border-border bg-card">
-                            <AccordionTrigger className="p-4 text-[14px] font-semibold hover:no-underline">
+                        <ZoruAccordionItem key={role.id} value={role.id} className="rounded-lg border border-zoru-line bg-zoru-bg">
+                            <ZoruAccordionTrigger className="p-4 text-[14px] hover:no-underline">
                                 <div className="flex items-center gap-2">
                                     {role.name}
                                     {role.id !== 'agent' && <DeleteRoleButton role={role} onRoleDeleted={fetchUser} />}
                                 </div>
-                            </AccordionTrigger>
-                            <AccordionContent className="p-4 pt-0">
+                            </ZoruAccordionTrigger>
+                            <ZoruAccordionContent className="p-4 pt-0">
                                 <input type="hidden" name={`roleId`} value={role.id} />
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow className="border-border">
-                                            <TableHead className="text-muted-foreground">Module</TableHead>
-                                            {actions.map(action => <TableHead key={action} className="text-center capitalize text-muted-foreground">{action}</TableHead>)}
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
+                                <ZoruTable>
+                                    <ZoruTableHeader>
+                                        <ZoruTableRow className="border-zoru-line">
+                                            <ZoruTableHead className="text-zoru-ink-muted">Module</ZoruTableHead>
+                                            {actions.map(action => <ZoruTableHead key={action} className="text-center capitalize text-zoru-ink-muted">{action}</ZoruTableHead>)}
+                                        </ZoruTableRow>
+                                    </ZoruTableHeader>
+                                    <ZoruTableBody>
                                         {crmModules.map(module => (
-                                            <TableRow key={module.id} className="border-border">
-                                                <TableCell className="text-[13px] font-medium text-foreground">{module.name}</TableCell>
+                                            <ZoruTableRow key={module.id} className="border-zoru-line">
+                                                <ZoruTableCell className="text-[13px] font-medium text-zoru-ink">{module.name}</ZoruTableCell>
                                                 {actions.map(action => (
-                                                    <TableCell key={action} className="text-center">
-                                                        <Checkbox
+                                                    <ZoruTableCell key={action} className="text-center">
+                                                        <ZoruCheckbox
                                                             name={`${role.id}_${module.id}_${action}`}
                                                             defaultChecked={(crmPermissions[module.id as keyof typeof crmPermissions] as any)?.[action] ?? false}
                                                         />
-                                                    </TableCell>
+                                                    </ZoruTableCell>
                                                 ))}
-                                            </TableRow>
+                                            </ZoruTableRow>
                                         ))}
-                                    </TableBody>
-                                </Table>
-                            </AccordionContent>
-                        </AccordionItem>
+                                    </ZoruTableBody>
+                                </ZoruTable>
+                            </ZoruAccordionContent>
+                        </ZoruAccordionItem>
                     )
                 })}
-            </Accordion>
+            </ZoruAccordion>
             <div className="mt-6 flex justify-end">
                 <SubmitButton />
             </div>
@@ -285,37 +287,37 @@ export default function HrmSettingsPage() {
             >
                 {activeTab === 'pay_cycle' && (
                     <div className="space-y-6">
-                        <h2 className="text-[20px] font-semibold tracking-tight text-foreground">Pay Cycle</h2>
+                        <h2 className="text-[20px] text-zoru-ink">Pay Cycle</h2>
                         <PlaceholderCard title="Pay Cycle Configuration" description="Define your company's pay period (e.g., monthly, weekly) and payroll processing dates." />
                     </div>
                 )}
                 {activeTab === 'attendance' && (
                     <div className="space-y-6">
-                        <h2 className="text-[20px] font-semibold tracking-tight text-foreground">Attendance</h2>
+                        <h2 className="text-[20px] text-zoru-ink">Attendance</h2>
                         <PlaceholderCard title="Attendance Rules" description="Set rules for late entry, early exit, overtime, and shift timings." />
                     </div>
                 )}
                 {activeTab === 'leave_policy' && (
                     <div className="space-y-6">
-                        <h2 className="text-[20px] font-semibold tracking-tight text-foreground">Leave Policy</h2>
+                        <h2 className="text-[20px] text-zoru-ink">Leave Policy</h2>
                         <PlaceholderCard title="Leave Policy Setup" description="Create and assign different leave types like Casual Leave (CL), Sick Leave (SL), and Paid Leave (PL)." />
                     </div>
                 )}
                 {activeTab === 'tax_deduction' && (
                     <div className="space-y-6">
-                        <h2 className="text-[20px] font-semibold tracking-tight text-foreground">Tax & Deductions</h2>
+                        <h2 className="text-[20px] text-zoru-ink">Tax & Deductions</h2>
                         <PlaceholderCard title="Tax & Deduction Rules" description="Manage formulas and rules for all statutory and custom deductions and allowances." />
                     </div>
                 )}
                 {activeTab === 'notifications' && (
                     <div className="space-y-6">
-                        <h2 className="text-[20px] font-semibold tracking-tight text-foreground">Notifications</h2>
+                        <h2 className="text-[20px] text-zoru-ink">Notifications</h2>
                         <PlaceholderCard title="Notification Settings" description="Configure email and SMS notification templates for HR-related events." />
                     </div>
                 )}
                 {activeTab === 'access_control' && (
                     <div className="space-y-6">
-                        <h2 className="text-[20px] font-semibold tracking-tight text-foreground">Access Control</h2>
+                        <h2 className="text-[20px] text-zoru-ink">Access Control</h2>
                         <AccessControlTab />
                     </div>
                 )}

@@ -1,8 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
 import {
   Tags,
@@ -12,18 +9,20 @@ import {
   LoaderCircle,
   X,
 } from 'lucide-react';
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { useToast } from '@/hooks/use-toast';
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  useZoruToast,
+} from '@/components/zoruui';
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import {
   getLeaveTypes,
   saveLeaveType,
@@ -42,7 +41,7 @@ const EMPTY: Partial<WsLeaveType> = {
 };
 
 export default function LeaveTypesPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [types, setTypes] = useState<(WsLeaveType & { _id: string })[]>([]);
   const [isLoadingList, startLoadList] = useTransition();
   const [isDeleting, startDelete] = useTransition();
@@ -130,80 +129,79 @@ export default function LeaveTypesPage() {
         subtitle="Define leave categories with annual quota, color, monthly cap, and paid status."
         icon={Tags}
         actions={
-          <ClayButton
-            variant="obsidian"
-            leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}
-            onClick={openNew}
-          >
+          <ZoruButton onClick={openNew}>
+            <Plus className="h-4 w-4" strokeWidth={1.75} />
             Add Leave Type
-          </ClayButton>
+          </ZoruButton>
         }
       />
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         {isLoadingList && types.length === 0 ? (
-          <div className="py-12 text-center text-[13px] text-muted-foreground">Loading…</div>
+          <div className="py-12 text-center text-[13px] text-zoru-ink-muted">Loading…</div>
         ) : types.length === 0 ? (
-          <div className="py-12 text-center text-[13px] text-muted-foreground">
+          <div className="py-12 text-center text-[13px] text-zoru-ink-muted">
             No leave types yet. Add one above.
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-lg border border-border">
+          <div className="overflow-x-auto rounded-lg border border-zoru-line">
             <table className="w-full text-left text-[13px]">
               <thead>
-                <tr className="border-b border-border">
-                  <th className="px-4 py-3 font-medium text-muted-foreground">Type</th>
-                  <th className="px-4 py-3 font-medium text-muted-foreground">Per Year</th>
-                  <th className="px-4 py-3 font-medium text-muted-foreground">Monthly Cap</th>
-                  <th className="px-4 py-3 font-medium text-muted-foreground">Unit</th>
-                  <th className="px-4 py-3 font-medium text-muted-foreground">Paid</th>
-                  <th className="px-4 py-3 font-medium text-muted-foreground">Status</th>
-                  <th className="px-4 py-3 text-right font-medium text-muted-foreground">Actions</th>
+                <tr className="border-b border-zoru-line">
+                  <th className="px-4 py-3 font-medium text-zoru-ink-muted">Type</th>
+                  <th className="px-4 py-3 font-medium text-zoru-ink-muted">Per Year</th>
+                  <th className="px-4 py-3 font-medium text-zoru-ink-muted">Monthly Cap</th>
+                  <th className="px-4 py-3 font-medium text-zoru-ink-muted">Unit</th>
+                  <th className="px-4 py-3 font-medium text-zoru-ink-muted">Paid</th>
+                  <th className="px-4 py-3 font-medium text-zoru-ink-muted">Status</th>
+                  <th className="px-4 py-3 text-right font-medium text-zoru-ink-muted">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {types.map((t) => (
-                  <tr key={t._id} className="border-b border-border last:border-0">
+                  <tr key={t._id} className="border-b border-zoru-line last:border-0">
                     <td className="px-4 py-3">
                       <span className="inline-flex items-center gap-2">
                         <span
                           aria-hidden
-                          className="inline-block h-3 w-3 rounded-full border border-border"
+                          className="inline-block h-3 w-3 rounded-full border border-zoru-line"
                           style={{ backgroundColor: t.color || '#94A3B8' }}
                         />
-                        <span className="font-medium text-foreground">{t.type_name}</span>
+                        <span className="font-medium text-zoru-ink">{t.type_name}</span>
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-foreground">{t.no_of_leaves}</td>
-                    <td className="px-4 py-3 text-foreground">{t.monthly_limit}</td>
-                    <td className="px-4 py-3 text-foreground capitalize">{t.leave_unit}</td>
+                    <td className="px-4 py-3 text-zoru-ink">{t.no_of_leaves}</td>
+                    <td className="px-4 py-3 text-zoru-ink">{t.monthly_limit}</td>
+                    <td className="px-4 py-3 text-zoru-ink capitalize">{t.leave_unit}</td>
                     <td className="px-4 py-3">
-                      <ClayBadge tone={t.paid ? 'green' : 'amber'}>
+                      <ZoruBadge variant={t.paid ? 'success' : 'warning'}>
                         {t.paid ? 'Paid' : 'Unpaid'}
-                      </ClayBadge>
+                      </ZoruBadge>
                     </td>
                     <td className="px-4 py-3">
-                      <ClayBadge tone={t.status === 'active' ? 'green' : 'amber'}>
+                      <ZoruBadge variant={t.status === 'active' ? 'success' : 'warning'}>
                         {t.status}
-                      </ClayBadge>
+                      </ZoruBadge>
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex justify-end gap-1">
-                        <ClayButton
-                          variant="pill"
+                        <ZoruButton
+                          variant="outline"
+                          size="sm"
                           onClick={() => openEdit(t)}
-                          leading={<Pencil className="h-3.5 w-3.5" strokeWidth={1.75} />}
                         >
+                          <Pencil className="h-3.5 w-3.5" strokeWidth={1.75} />
                           Edit
-                        </ClayButton>
-                        <ClayButton
-                          variant="pill"
+                        </ZoruButton>
+                        <ZoruButton
+                          variant="outline"
+                          size="sm"
                           onClick={() => handleDelete(t._id)}
                           disabled={isDeleting}
-                          leading={<Trash2 className="h-3.5 w-3.5 text-red-500" strokeWidth={1.75} />}
                         >
+                          <Trash2 className="h-3.5 w-3.5 text-red-500" strokeWidth={1.75} />
                           Delete
-                        </ClayButton>
+                        </ZoruButton>
                       </div>
                     </td>
                   </tr>
@@ -212,23 +210,24 @@ export default function LeaveTypesPage() {
             </table>
           </div>
         )}
-      </ClayCard>
+      </ZoruCard>
 
-      {/* Add / Edit dialog — using a ClayCard overlay rather than shadcn Dialog */}
+      {/* Add / Edit dialog — using a ZoruCard overlay rather than shadcn Dialog */}
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <ClayCard className="w-full max-w-lg">
+          <ZoruCard className="w-full max-w-lg p-6">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-[16px] font-semibold text-foreground">
+              <h2 className="text-[16px] text-zoru-ink">
                 {editing ? 'Edit Leave Type' : 'Add Leave Type'}
               </h2>
-              <ClayButton
-                variant="pill"
+              <ZoruButton
+                variant="outline"
+                size="sm"
                 onClick={() => setOpen(false)}
-                leading={<X className="h-4 w-4" strokeWidth={1.75} />}
               >
+                <X className="h-4 w-4" strokeWidth={1.75} />
                 Close
-              </ClayButton>
+              </ZoruButton>
             </div>
 
             <form ref={formRef} action={formAction} className="grid gap-4 md:grid-cols-2">
@@ -239,135 +238,132 @@ export default function LeaveTypesPage() {
 
               {/* type_name — full width */}
               <div className="md:col-span-2">
-                <Label className="text-foreground">Type Name *</Label>
-                <Input
+                <ZoruLabel className="text-zoru-ink">Type Name *</ZoruLabel>
+                <ZoruInput
                   name="type_name"
                   required
                   value={typeName}
                   onChange={(e) => setTypeName(e.target.value)}
-                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                 />
               </div>
 
               {/* no_of_leaves */}
               <div>
-                <Label className="text-foreground">Leaves Per Year</Label>
-                <Input
+                <ZoruLabel className="text-zoru-ink">Leaves Per Year</ZoruLabel>
+                <ZoruInput
                   name="no_of_leaves"
                   type="number"
                   min="0"
                   value={noOfLeaves}
                   onChange={(e) => setNoOfLeaves(e.target.value)}
-                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                 />
               </div>
 
               {/* monthly_limit */}
               <div>
-                <Label className="text-foreground">Monthly Limit</Label>
-                <Input
+                <ZoruLabel className="text-zoru-ink">Monthly Limit</ZoruLabel>
+                <ZoruInput
                   name="monthly_limit"
                   type="number"
                   min="0"
                   value={monthlyLimit}
                   onChange={(e) => setMonthlyLimit(e.target.value)}
-                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                 />
               </div>
 
               {/* color */}
               <div>
-                <Label className="text-foreground">Color</Label>
+                <ZoruLabel className="text-zoru-ink">Color</ZoruLabel>
                 <div className="mt-1.5 flex items-center gap-2">
                   <input
                     type="color"
                     name="color"
                     value={color}
                     onChange={(e) => setColor(e.target.value)}
-                    className="h-10 w-12 cursor-pointer rounded-lg border border-border bg-card p-1"
+                    className="h-10 w-12 cursor-pointer rounded-lg border border-zoru-line bg-zoru-bg p-1"
                   />
-                  <span className="text-[13px] text-muted-foreground">{color}</span>
+                  <span className="text-[13px] text-zoru-ink-muted">{color}</span>
                 </div>
               </div>
 
               {/* leave_unit */}
               <div>
-                <Label className="text-foreground">Leave Unit</Label>
-                <Select
+                <ZoruLabel className="text-zoru-ink">Leave Unit</ZoruLabel>
+                <ZoruSelect
                   value={leaveUnit}
                   onValueChange={(v) => setLeaveUnit(v as typeof leaveUnit)}
                   name="leave_unit"
                 >
-                  <SelectTrigger className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="days">Days</SelectItem>
-                    <SelectItem value="hours">Hours</SelectItem>
-                    <SelectItem value="half-days">Half Days</SelectItem>
-                  </SelectContent>
-                </Select>
+                  <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                    <ZoruSelectValue />
+                  </ZoruSelectTrigger>
+                  <ZoruSelectContent>
+                    <ZoruSelectItem value="days">Days</ZoruSelectItem>
+                    <ZoruSelectItem value="hours">Hours</ZoruSelectItem>
+                    <ZoruSelectItem value="half-days">Half Days</ZoruSelectItem>
+                  </ZoruSelectContent>
+                </ZoruSelect>
                 {/* hidden input because shadcn Select doesn't submit via form */}
                 <input type="hidden" name="leave_unit" value={leaveUnit} />
               </div>
 
               {/* paid */}
               <div>
-                <Label className="text-foreground">Paid</Label>
-                <Select value={paid} onValueChange={setPaid} name="paid">
-                  <SelectTrigger className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="true">Yes</SelectItem>
-                    <SelectItem value="false">No</SelectItem>
-                  </SelectContent>
-                </Select>
+                <ZoruLabel className="text-zoru-ink">Paid</ZoruLabel>
+                <ZoruSelect value={paid} onValueChange={setPaid} name="paid">
+                  <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                    <ZoruSelectValue />
+                  </ZoruSelectTrigger>
+                  <ZoruSelectContent>
+                    <ZoruSelectItem value="true">Yes</ZoruSelectItem>
+                    <ZoruSelectItem value="false">No</ZoruSelectItem>
+                  </ZoruSelectContent>
+                </ZoruSelect>
                 <input type="hidden" name="paid" value={paid} />
               </div>
 
               {/* status */}
               <div>
-                <Label className="text-foreground">Status</Label>
-                <Select
+                <ZoruLabel className="text-zoru-ink">Status</ZoruLabel>
+                <ZoruSelect
                   value={status}
                   onValueChange={(v) => setStatus(v as typeof status)}
                   name="status"
                 >
-                  <SelectTrigger className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="inactive">Inactive</SelectItem>
-                  </SelectContent>
-                </Select>
+                  <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                    <ZoruSelectValue />
+                  </ZoruSelectTrigger>
+                  <ZoruSelectContent>
+                    <ZoruSelectItem value="active">Active</ZoruSelectItem>
+                    <ZoruSelectItem value="inactive">Inactive</ZoruSelectItem>
+                  </ZoruSelectContent>
+                </ZoruSelect>
                 <input type="hidden" name="status" value={status} />
               </div>
 
               <div className="flex justify-end gap-2 md:col-span-2">
-                <ClayButton
+                <ZoruButton
                   type="button"
-                  variant="pill"
+                  variant="outline"
                   onClick={() => setOpen(false)}
                 >
                   Cancel
-                </ClayButton>
-                <ClayButton
+                </ZoruButton>
+                <ZoruButton
                   type="submit"
-                  variant="obsidian"
                   disabled={isPending}
-                  leading={
-                    isPending ? (
-                      <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.75} />
-                    ) : null
-                  }
                 >
+                  {isPending ? (
+                    <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.75} />
+                  ) : null}
                   {editing ? 'Update' : 'Create'}
-                </ClayButton>
+                </ZoruButton>
               </div>
             </form>
-          </ClayCard>
+          </ZoruCard>
         </div>
       )}
     </div>

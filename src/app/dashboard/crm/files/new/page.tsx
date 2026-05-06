@@ -1,26 +1,24 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useActionState, useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useFormStatus } from 'react-dom';
 import { ArrowLeft, FileText, LoaderCircle } from 'lucide-react';
 
-import { ClayButton, ClayCard } from '@/components/clay';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { useToast } from '@/hooks/use-toast';
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 import {
@@ -34,23 +32,16 @@ const initialState: { message?: string; error?: string; id?: string } = {};
 function SubmitBtn() {
   const { pending } = useFormStatus();
   return (
-    <ClayButton
-      type="submit"
-      variant="obsidian"
-      size="lg"
-      disabled={pending}
-      leading={
-        pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : undefined
-      }
-    >
+    <ZoruButton type="submit" size="lg" disabled={pending}>
+      {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
       Save file record
-    </ClayButton>
+    </ZoruButton>
   );
 }
 
 export default function NewFileRecordPage() {
   const router = useRouter();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [state, formAction] = useActionState(saveFile, initialState);
   const [folders, setFolders] = useState<WsFileFolder[]>([]);
   const [_, startTransition] = useTransition();
@@ -79,7 +70,7 @@ export default function NewFileRecordPage() {
     <div className="flex w-full max-w-3xl flex-col gap-6">
       <Link
         href="/dashboard/crm/files"
-        className="inline-flex items-center gap-2 text-[12.5px] text-muted-foreground hover:text-foreground"
+        className="inline-flex items-center gap-2 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
       >
         <ArrowLeft className="h-3.5 w-3.5" />
         Back to files
@@ -91,12 +82,12 @@ export default function NewFileRecordPage() {
         icon={FileText}
       />
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         <form action={formAction} className="space-y-5">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor="filename">Filename *</Label>
-              <Input
+              <ZoruLabel htmlFor="filename">Filename *</ZoruLabel>
+              <ZoruInput
                 id="filename"
                 name="filename"
                 required
@@ -104,8 +95,8 @@ export default function NewFileRecordPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="display_name">Display name</Label>
-              <Input
+              <ZoruLabel htmlFor="display_name">Display name</ZoruLabel>
+              <ZoruInput
                 id="display_name"
                 name="display_name"
                 placeholder="Signed contract"
@@ -114,57 +105,57 @@ export default function NewFileRecordPage() {
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="url">File URL *</Label>
-            <Input
+            <ZoruLabel htmlFor="url">File URL *</ZoruLabel>
+            <ZoruInput
               id="url"
               name="url"
               type="url"
               required
               placeholder="https://..."
             />
-            <p className="text-[11.5px] text-muted-foreground">
+            <p className="text-[11.5px] text-zoru-ink-muted">
               Paste the public URL where the file is hosted.
             </p>
           </div>
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div className="space-y-1.5">
-              <Label htmlFor="size_bytes">Size (bytes)</Label>
-              <Input id="size_bytes" name="size_bytes" type="number" min={0} />
+              <ZoruLabel htmlFor="size_bytes">Size (bytes)</ZoruLabel>
+              <ZoruInput id="size_bytes" name="size_bytes" type="number" min={0} />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="mime_type">MIME type</Label>
-              <Input
+              <ZoruLabel htmlFor="mime_type">MIME type</ZoruLabel>
+              <ZoruInput
                 id="mime_type"
                 name="mime_type"
                 placeholder="application/pdf"
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="extension">Extension</Label>
-              <Input id="extension" name="extension" placeholder="pdf" />
+              <ZoruLabel htmlFor="extension">Extension</ZoruLabel>
+              <ZoruInput id="extension" name="extension" placeholder="pdf" />
             </div>
           </div>
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor="folder_id">Folder</Label>
-              <Select name="folder_id">
-                <SelectTrigger>
-                  <SelectValue placeholder="No folder (root)" />
-                </SelectTrigger>
-                <SelectContent>
+              <ZoruLabel htmlFor="folder_id">Folder</ZoruLabel>
+              <ZoruSelect name="folder_id">
+                <ZoruSelectTrigger>
+                  <ZoruSelectValue placeholder="No folder (root)" />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
                   {folders.map((f) => (
-                    <SelectItem key={String(f._id)} value={String(f._id)}>
+                    <ZoruSelectItem key={String(f._id)} value={String(f._id)}>
                       {f.name}
-                    </SelectItem>
+                    </ZoruSelectItem>
                   ))}
-                </SelectContent>
-              </Select>
+                </ZoruSelectContent>
+              </ZoruSelect>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="storage_location">Storage location</Label>
-              <Input
+              <ZoruLabel htmlFor="storage_location">Storage location</ZoruLabel>
+              <ZoruInput
                 id="storage_location"
                 name="storage_location"
                 defaultValue="external"
@@ -174,8 +165,8 @@ export default function NewFileRecordPage() {
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
+            <ZoruLabel htmlFor="description">Description</ZoruLabel>
+            <ZoruTextarea
               id="description"
               name="description"
               rows={3}
@@ -190,19 +181,19 @@ export default function NewFileRecordPage() {
               name="is_public"
               className="h-4 w-4"
             />
-            <Label htmlFor="is_public" className="cursor-pointer">
+            <ZoruLabel htmlFor="is_public" className="cursor-pointer">
               Publicly accessible
-            </Label>
+            </ZoruLabel>
           </div>
 
-          <div className="flex items-center justify-end gap-3 border-t border-border pt-4">
+          <div className="flex items-center justify-end gap-3 border-t border-zoru-line pt-4">
             <Link href="/dashboard/crm/files">
-              <ClayButton variant="ghost">Cancel</ClayButton>
+              <ZoruButton variant="ghost">Cancel</ZoruButton>
             </Link>
             <SubmitBtn />
           </div>
         </form>
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

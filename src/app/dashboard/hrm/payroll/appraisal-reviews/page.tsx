@@ -1,55 +1,50 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import * as React from 'react';
 import { useTransition, useActionState, useEffect, useState } from 'react';
 import { Star, Plus, Pencil, Trash2, LoaderCircle } from 'lucide-react';
 import { format } from 'date-fns';
 
-import { ClayCard, ClayBadge, ClayButton } from '@/components/clay';
+import {
+  ZoruCard,
+  ZoruBadge,
+  ZoruButton,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogDescription,
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruInput,
+  ZoruLabel,
+  ZoruTextarea,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSkeleton,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
 import {
   getCrmAppraisalReviews,
   saveCrmAppraisalReview,
   deleteCrmAppraisalReview,
 } from '@/app/actions/crm-hr-appraisals.actions';
 
-const STATUS_TONES: Record<string, 'neutral' | 'green' | 'amber' | 'red'> = {
-  Scheduled: 'amber',
-  Completed: 'green',
-  Cancelled: 'red',
+const STATUS_VARIANTS: Record<string, 'secondary' | 'success' | 'warning' | 'danger'> = {
+  Scheduled: 'warning',
+  Completed: 'success',
+  Cancelled: 'danger',
 };
 
 const RATING_FIELDS: { name: string; label: string }[] = [
@@ -67,10 +62,10 @@ function StarRating({ value }: { value: number }) {
       {[1, 2, 3, 4, 5].map((i) => (
         <Star
           key={i}
-          className={`h-3 w-3 ${i <= n ? 'fill-yellow-400 text-yellow-400' : 'fill-transparent text-border'}`}
+          className={`h-3 w-3 ${i <= n ? 'fill-yellow-400 text-yellow-400' : 'fill-transparent text-zoru-line'}`}
         />
       ))}
-      <span className="ml-1 text-[12px] tabular-nums text-muted-foreground">
+      <span className="ml-1 text-[12px] tabular-nums text-zoru-ink-muted">
         {value?.toFixed(1) ?? '—'}
       </span>
     </div>
@@ -97,7 +92,7 @@ function ReviewFormDialog({
   review: any | null;
   onSaved: () => void;
 }) {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [state, formAction, isPending] = useActionState(saveCrmAppraisalReview, SAVE_INITIAL);
   const isEdit = Boolean(review?._id);
 
@@ -113,16 +108,16 @@ function ReviewFormDialog({
   }, [state, toast, onOpenChange, onSaved]);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-foreground">
+    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+      <ZoruDialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+        <ZoruDialogHeader>
+          <ZoruDialogTitle className="text-zoru-ink">
             {isEdit ? 'Edit Appraisal Review' : 'New Appraisal Review'}
-          </DialogTitle>
-          <DialogDescription className="text-muted-foreground">
+          </ZoruDialogTitle>
+          <ZoruDialogDescription className="text-zoru-ink-muted">
             Complete the performance evaluation form below.
-          </DialogDescription>
-        </DialogHeader>
+          </ZoruDialogDescription>
+        </ZoruDialogHeader>
 
         <form action={formAction} className="space-y-5 py-2">
           {isEdit && <input type="hidden" name="id" value={review._id} />}
@@ -130,34 +125,34 @@ function ReviewFormDialog({
           {/* Core fields */}
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-1.5">
-              <Label className="text-foreground">
-                Employee ID <span className="text-destructive">*</span>
-              </Label>
-              <Input
+              <ZoruLabel className="text-zoru-ink">
+                Employee ID <span className="text-zoru-danger-ink">*</span>
+              </ZoruLabel>
+              <ZoruInput
                 name="employeeId"
                 required
                 defaultValue={review?.employeeId?.toString() ?? ''}
                 placeholder="Employee ObjectId"
-                className="h-10 rounded-lg border-border bg-card text-[13px]"
+                className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-foreground">
-                Reviewer ID <span className="text-destructive">*</span>
-              </Label>
-              <Input
+              <ZoruLabel className="text-zoru-ink">
+                Reviewer ID <span className="text-zoru-danger-ink">*</span>
+              </ZoruLabel>
+              <ZoruInput
                 name="reviewerId"
                 required
                 defaultValue={review?.reviewerId?.toString() ?? ''}
                 placeholder="Reviewer ObjectId"
-                className="h-10 rounded-lg border-border bg-card text-[13px]"
+                className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-foreground">
-                Period / Cycle <span className="text-destructive">*</span>
-              </Label>
-              <Input
+              <ZoruLabel className="text-zoru-ink">
+                Period / Cycle <span className="text-zoru-danger-ink">*</span>
+              </ZoruLabel>
+              <ZoruInput
                 name="reviewDate"
                 type="date"
                 required
@@ -166,37 +161,37 @@ function ReviewFormDialog({
                     ? new Date(review.reviewDate).toISOString().slice(0, 10)
                     : ''
                 }
-                className="h-10 rounded-lg border-border bg-card text-[13px]"
+                className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-foreground">Status</Label>
-              <Select
+              <ZoruLabel className="text-zoru-ink">Status</ZoruLabel>
+              <ZoruSelect
                 name="status"
                 defaultValue={review?.status ?? 'Scheduled'}
               >
-                <SelectTrigger className="h-10 rounded-lg border-border bg-card text-[13px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Scheduled">Scheduled</SelectItem>
-                  <SelectItem value="Completed">Completed</SelectItem>
-                  <SelectItem value="Cancelled">Cancelled</SelectItem>
-                </SelectContent>
-              </Select>
+                <ZoruSelectTrigger className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                  <ZoruSelectValue />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                  <ZoruSelectItem value="Scheduled">Scheduled</ZoruSelectItem>
+                  <ZoruSelectItem value="Completed">Completed</ZoruSelectItem>
+                  <ZoruSelectItem value="Cancelled">Cancelled</ZoruSelectItem>
+                </ZoruSelectContent>
+              </ZoruSelect>
             </div>
           </div>
 
           {/* Ratings */}
           <div>
-            <p className="mb-2 text-[13px] font-semibold text-foreground">
+            <p className="mb-2 text-[13px] text-zoru-ink">
               Ratings (1 = Poor, 5 = Excellent)
             </p>
             <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
               {RATING_FIELDS.map(({ name, label }) => (
                 <div key={name} className="space-y-1.5">
-                  <Label className="text-foreground">{label}</Label>
-                  <Input
+                  <ZoruLabel className="text-zoru-ink">{label}</ZoruLabel>
+                  <ZoruInput
                     name={name}
                     type="number"
                     min={1}
@@ -206,7 +201,7 @@ function ReviewFormDialog({
                       review?.ratings?.[name.replace('rating_', '')] ?? ''
                     }
                     placeholder="1–5"
-                    className="h-10 rounded-lg border-border bg-card text-[13px]"
+                    className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                   />
                 </div>
               ))}
@@ -216,66 +211,61 @@ function ReviewFormDialog({
           {/* Qualitative */}
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <Label className="text-foreground">Strengths</Label>
-              <Textarea
+              <ZoruLabel className="text-zoru-ink">Strengths</ZoruLabel>
+              <ZoruTextarea
                 name="strengths"
                 rows={3}
                 defaultValue={review?.strengths ?? ''}
                 placeholder="Key strengths demonstrated…"
-                className="rounded-lg border-border bg-card text-[13px]"
+                className="rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-foreground">Areas of Improvement</Label>
-              <Textarea
+              <ZoruLabel className="text-zoru-ink">Areas of Improvement</ZoruLabel>
+              <ZoruTextarea
                 name="areasForImprovement"
                 rows={3}
                 defaultValue={review?.areasForImprovement ?? ''}
                 placeholder="Opportunities to grow…"
-                className="rounded-lg border-border bg-card text-[13px]"
+                className="rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-foreground">Goals / Comments</Label>
-              <Textarea
+              <ZoruLabel className="text-zoru-ink">Goals / Comments</ZoruLabel>
+              <ZoruTextarea
                 name="reviewerComments"
                 rows={3}
                 defaultValue={review?.reviewerComments ?? ''}
                 placeholder="Goals for next period, additional comments…"
-                className="rounded-lg border-border bg-card text-[13px]"
+                className="rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
               />
             </div>
           </div>
 
-          <DialogFooter className="gap-2">
-            <ClayButton
+          <ZoruDialogFooter className="gap-2">
+            <ZoruButton
               type="button"
-              variant="pill"
+              variant="outline"
               onClick={() => onOpenChange(false)}
             >
               Cancel
-            </ClayButton>
-            <ClayButton
+            </ZoruButton>
+            <ZoruButton
               type="submit"
-              variant="obsidian"
               disabled={isPending}
-              leading={
-                isPending ? (
-                  <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.75} />
-                ) : null
-              }
             >
+              {isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
               {isEdit ? 'Update Review' : 'Create Review'}
-            </ClayButton>
-          </DialogFooter>
+            </ZoruButton>
+          </ZoruDialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      </ZoruDialogContent>
+    </ZoruDialog>
   );
 }
 
 export default function AppraisalReviewsPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [reviews, setReviews] = useState<any[]>([]);
   const [isLoading, startLoading] = useTransition();
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -317,23 +307,23 @@ export default function AppraisalReviewsPage() {
         review={editing}
         onSaved={refresh}
       />
-      <AlertDialog
+      <ZoruAlertDialog
         open={deletingId !== null}
         onOpenChange={(o) => !o && setDeletingId(null)}
       >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-foreground">Delete Review?</AlertDialogTitle>
-            <AlertDialogDescription className="text-muted-foreground">
+        <ZoruAlertDialogContent>
+          <ZoruAlertDialogHeader>
+            <ZoruAlertDialogTitle className="text-zoru-ink">Delete Review?</ZoruAlertDialogTitle>
+            <ZoruAlertDialogDescription className="text-zoru-ink-muted">
               This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </ZoruAlertDialogDescription>
+          </ZoruAlertDialogHeader>
+          <ZoruAlertDialogFooter>
+            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+            <ZoruAlertDialogAction onClick={handleDelete}>Delete</ZoruAlertDialogAction>
+          </ZoruAlertDialogFooter>
+        </ZoruAlertDialogContent>
+      </ZoruAlertDialog>
 
       <div className="flex w-full flex-col gap-6">
         <CrmPageHeader
@@ -341,38 +331,37 @@ export default function AppraisalReviewsPage() {
           subtitle="Performance evaluations — ratings, strengths, and improvement areas."
           icon={Star}
           actions={
-            <ClayButton
-              variant="obsidian"
-              leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}
+            <ZoruButton
               onClick={() => {
                 setEditing(null);
                 setDialogOpen(true);
               }}
             >
+              <Plus className="h-4 w-4" />
               New Review
-            </ClayButton>
+            </ZoruButton>
           }
         />
 
-        <ClayCard>
-          <div className="overflow-x-auto rounded-lg border border-border">
+        <ZoruCard className="p-6">
+          <div className="overflow-x-auto rounded-lg border border-zoru-line">
             <table className="w-full text-left text-[13px]">
               <thead>
-                <tr className="border-b border-border">
-                  <th className="px-4 py-3 text-[12px] font-medium text-muted-foreground">Employee</th>
-                  <th className="px-4 py-3 text-[12px] font-medium text-muted-foreground">Reviewer</th>
-                  <th className="px-4 py-3 text-[12px] font-medium text-muted-foreground">Period</th>
-                  <th className="px-4 py-3 text-[12px] font-medium text-muted-foreground">Status</th>
-                  <th className="px-4 py-3 text-[12px] font-medium text-muted-foreground">Overall Rating</th>
-                  <th className="px-4 py-3 text-right text-[12px] font-medium text-muted-foreground">Actions</th>
+                <tr className="border-b border-zoru-line">
+                  <th className="px-4 py-3 text-[12px] text-zoru-ink-muted">Employee</th>
+                  <th className="px-4 py-3 text-[12px] text-zoru-ink-muted">Reviewer</th>
+                  <th className="px-4 py-3 text-[12px] text-zoru-ink-muted">Period</th>
+                  <th className="px-4 py-3 text-[12px] text-zoru-ink-muted">Status</th>
+                  <th className="px-4 py-3 text-[12px] text-zoru-ink-muted">Overall Rating</th>
+                  <th className="px-4 py-3 text-right text-[12px] text-zoru-ink-muted">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {isLoading && reviews.length === 0 ? (
                   [0, 1, 2].map((i) => (
-                    <tr key={i} className="border-b border-border">
+                    <tr key={i} className="border-b border-zoru-line">
                       <td colSpan={6} className="px-4 py-3">
-                        <Skeleton className="h-5 w-full" />
+                        <ZoruSkeleton className="h-5 w-full" />
                       </td>
                     </tr>
                   ))
@@ -380,7 +369,7 @@ export default function AppraisalReviewsPage() {
                   <tr>
                     <td
                       colSpan={6}
-                      className="px-4 py-12 text-center text-[13px] text-muted-foreground"
+                      className="px-4 py-12 text-center text-[13px] text-zoru-ink-muted"
                     >
                       No appraisal reviews yet — click New Review to get started.
                     </td>
@@ -399,40 +388,40 @@ export default function AppraisalReviewsPage() {
                     return (
                       <tr
                         key={String(review._id)}
-                        className="border-b border-border last:border-0"
+                        className="border-b border-zoru-line last:border-0"
                       >
-                        <td className="px-4 py-3 font-medium text-foreground">
+                        <td className="px-4 py-3 text-zoru-ink">
                           {empName || '—'}
                         </td>
-                        <td className="px-4 py-3 text-foreground">{revName}</td>
-                        <td className="px-4 py-3 text-muted-foreground">{periodDate}</td>
+                        <td className="px-4 py-3 text-zoru-ink">{revName}</td>
+                        <td className="px-4 py-3 text-zoru-ink-muted">{periodDate}</td>
                         <td className="px-4 py-3">
-                          <ClayBadge tone={STATUS_TONES[review.status] ?? 'neutral'} dot>
+                          <ZoruBadge variant={STATUS_VARIANTS[review.status] ?? 'secondary'}>
                             {review.status}
-                          </ClayBadge>
+                          </ZoruBadge>
                         </td>
                         <td className="px-4 py-3">
                           <StarRating value={avg} />
                         </td>
                         <td className="px-4 py-3 text-right">
                           <div className="flex justify-end gap-1">
-                            <ClayButton
-                              variant="pill"
+                            <ZoruButton
+                              variant="ghost"
                               size="sm"
-                              leading={<Pencil className="h-3.5 w-3.5" strokeWidth={1.75} />}
                               onClick={() => {
                                 setEditing(review);
                                 setDialogOpen(true);
                               }}
-                            />
-                            <ClayButton
-                              variant="pill"
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                            </ZoruButton>
+                            <ZoruButton
+                              variant="ghost"
                               size="sm"
-                              leading={
-                                <Trash2 className="h-3.5 w-3.5 text-destructive" strokeWidth={1.75} />
-                              }
                               onClick={() => setDeletingId(String(review._id))}
-                            />
+                            >
+                              <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                            </ZoruButton>
                           </div>
                         </td>
                       </tr>
@@ -442,7 +431,7 @@ export default function AppraisalReviewsPage() {
               </tbody>
             </table>
           </div>
-        </ClayCard>
+        </ZoruCard>
       </div>
     </>
   );

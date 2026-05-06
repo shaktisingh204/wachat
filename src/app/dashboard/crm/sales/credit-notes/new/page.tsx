@@ -1,25 +1,22 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
-
 import { useState, useEffect, useActionState, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { ClayCard, ClayButton } from '@/components/clay';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+    ZoruButton,
+    ZoruCard,
+    ZoruInput,
+    ZoruLabel,
+    ZoruSeparator,
+    ZoruTextarea,
+    useZoruToast,
+} from '@/components/zoruui';
 import { DatePicker } from '@/components/ui/date-picker';
-import { Separator } from '@/components/ui/separator';
-import { Textarea } from '@/components/ui/textarea';
 import { PlusCircle, Trash2, ArrowLeft, Save, LoaderCircle } from 'lucide-react';
 import { SmartClientSelect } from '@/components/crm/sales/smart-client-select';
 import Link from 'next/link';
 import type { WithId, CrmAccount, CreditNoteLineItem } from '@/lib/definitions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
-import { useToast } from '@/hooks/use-toast';
 import { saveCreditNote } from '@/app/actions/crm-credit-notes.actions';
 import { useRouter } from 'next/navigation';
 
@@ -36,20 +33,14 @@ const initialState = { message: '', error: '' };
 function SaveButton() {
     const { pending } = useFormStatus();
     return (
-        <ClayButton
-            type="submit"
-            variant="obsidian"
-            disabled={pending}
-            leading={
-                pending ? (
-                    <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.75} />
-                ) : (
-                    <Save className="h-4 w-4" strokeWidth={1.75} />
-                )
-            }
-        >
+        <ZoruButton type="submit" disabled={pending}>
+            {pending ? (
+                <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.75} />
+            ) : (
+                <Save className="h-4 w-4" strokeWidth={1.75} />
+            )}
             Save Credit Note
-        </ClayButton>
+        </ZoruButton>
     );
 }
 
@@ -72,35 +63,35 @@ const LineItemsTable = ({ items, setItems, currency }: { items: CreditNoteLineIt
         <div className="mt-6">
             <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                    <thead className="bg-muted">
-                        <tr className="border-b">
-                            <th className="p-3 text-left font-medium">Item</th>
-                            <th className="p-3 text-right font-medium">Quantity</th>
-                            <th className="p-3 text-right font-medium">Rate</th>
-                            <th className="p-3 text-right font-medium">Amount</th>
+                    <thead className="bg-zoru-surface-2">
+                        <tr className="border-b border-zoru-line">
+                            <th className="p-3 text-left">Item</th>
+                            <th className="p-3 text-right">Quantity</th>
+                            <th className="p-3 text-right">Rate</th>
+                            <th className="p-3 text-right">Amount</th>
                             <th className="p-3"></th>
                         </tr>
                     </thead>
                     <tbody>
                         {items.map((item, index) => (
-                            <tr key={item.id} className="border-b">
-                                <td className="p-2"><Input placeholder="Name/SKU Id" value={item.name} onChange={e => handleItemChange(item.id, 'name', e.target.value)} required maxLength={100} /></td>
-                                <td className="p-2"><Input type="number" className="w-24 text-right" value={item.quantity} onChange={e => handleItemChange(item.id, 'quantity', Number(e.target.value))} /></td>
-                                <td className="p-2"><Input type="number" className="w-32 text-right" value={item.rate} onChange={e => handleItemChange(item.id, 'rate', Number(e.target.value))} /></td>
-                                <td className="p-2 text-right font-medium">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(item.quantity * item.rate)}</td>
-                                <td className="p-2"><Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveItem(item.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button></td>
+                            <tr key={item.id} className="border-b border-zoru-line">
+                                <td className="p-2"><ZoruInput placeholder="Name/SKU Id" value={item.name} onChange={e => handleItemChange(item.id, 'name', e.target.value)} required maxLength={100} /></td>
+                                <td className="p-2"><ZoruInput type="number" className="w-24 text-right" value={item.quantity} onChange={e => handleItemChange(item.id, 'quantity', Number(e.target.value))} /></td>
+                                <td className="p-2"><ZoruInput type="number" className="w-32 text-right" value={item.rate} onChange={e => handleItemChange(item.id, 'rate', Number(e.target.value))} /></td>
+                                <td className="p-2 text-right">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(item.quantity * item.rate)}</td>
+                                <td className="p-2"><ZoruButton type="button" variant="ghost" size="icon" onClick={() => handleRemoveItem(item.id)}><Trash2 className="h-4 w-4 text-zoru-danger-ink" /></ZoruButton></td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
             </div>
             <div className="p-4 space-y-2">
-                <Button type="button" variant="outline" size="sm" onClick={handleAddItem}><PlusCircle className="mr-2 h-4 w-4" />Add New Line</Button>
+                <ZoruButton type="button" variant="outline" size="sm" onClick={handleAddItem}><PlusCircle className="mr-2 h-4 w-4" />Add New Line</ZoruButton>
             </div>
-            <Separator />
+            <ZoruSeparator />
             <div className="p-4 flex justify-end">
                 <div className="w-full max-w-sm space-y-2">
-                    <div className="flex justify-between items-center"><span className="text-muted-foreground">Total Credit ({currency})</span><span className="font-bold text-lg">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalAmount)}</span></div>
+                    <div className="flex justify-between items-center"><span className="text-zoru-ink-muted">Total Credit ({currency})</span><span className="text-lg text-zoru-ink">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalAmount)}</span></div>
                 </div>
             </div>
         </div>
@@ -111,7 +102,7 @@ const LineItemsTable = ({ items, setItems, currency }: { items: CreditNoteLineIt
 export default function NewCreditNotePage() {
     const [state, formAction] = useActionState(saveCreditNote, initialState);
     const router = useRouter();
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
 
     const [clients, setClients] = useState<WithId<CrmAccount>[]>([]);
     const [selectedClientId, setSelectedClientId] = useState<string>('');
@@ -145,31 +136,31 @@ export default function NewCreditNotePage() {
                 <div className="max-w-6xl mx-auto flex flex-col gap-6">
                     <header className="flex justify-between items-center mb-6">
                         <div>
-                            <Link href="/dashboard/crm/sales/credit-notes" className="inline-flex items-center gap-2 text-[13px] text-muted-foreground hover:text-foreground">
+                            <Link href="/dashboard/crm/sales/credit-notes" className="inline-flex items-center gap-2 text-[13px] text-zoru-ink-muted hover:text-zoru-ink">
                                 <ArrowLeft className="h-4 w-4" />Back to Credit Notes
                             </Link>
                         </div>
                         <div className="flex items-center gap-2">
-                            <ClayButton variant="pill" type="button">Save As Draft</ClayButton>
+                            <ZoruButton variant="outline" type="button">Save As Draft</ZoruButton>
                             <SaveButton />
                         </div>
                     </header>
-                    <ClayCard variant="floating" padded={false} className="mx-auto max-w-4xl p-4 sm:p-8 md:p-12">
+                    <ZoruCard className="p-0 mx-auto max-w-4xl p-4 sm:p-8 md:p-12">
                         <div>
                             <header className="mb-8">
-                                <h1 className="text-[28px] font-semibold tracking-tight text-foreground">Credit Note</h1>
+                                <h1 className="text-[28px] text-zoru-ink">Credit Note</h1>
                             </header>
 
-                            <Separator className="my-8" />
+                            <ZoruSeparator className="my-8" />
 
                             <section className="grid md:grid-cols-2 gap-8 text-sm mb-8">
                                 <div>
-                                    <h3 className="font-semibold mb-2">From:</h3>
-                                    <p className="font-bold">{yourBusinessDetails.name}</p>
-                                    <p className="text-muted-foreground">{yourBusinessDetails.address}</p>
+                                    <h3 className="mb-2 text-zoru-ink">From:</h3>
+                                    <p className="text-zoru-ink">{yourBusinessDetails.name}</p>
+                                    <p className="text-zoru-ink-muted">{yourBusinessDetails.address}</p>
                                 </div>
                                 <div>
-                                    <h3 className="font-semibold mb-2">To:</h3>
+                                    <h3 className="mb-2 text-zoru-ink">To:</h3>
                                     <SmartClientSelect
                                         value={selectedClientId}
                                         onSelect={setSelectedClientId}
@@ -185,14 +176,14 @@ export default function NewCreditNotePage() {
                             </section>
 
                             <section className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-                                <div className="space-y-1"><Label className="text-xs">Credit Note No.</Label><Input name="creditNoteNumber" placeholder="Leave blank to auto-generate" className="h-8" maxLength={50} /></div>
-                                <div className="space-y-1"><Label className="text-xs">Credit Note Date *</Label><DatePicker date={creditNoteDate} setDate={setCreditNoteDate} className="h-8" /></div>
-                                <div className="space-y-1"><Label className="text-xs">Original Invoice No.</Label><Input name="originalInvoiceNumber" className="h-8" maxLength={50} /></div>
+                                <div className="space-y-1"><ZoruLabel className="text-xs">Credit Note No.</ZoruLabel><ZoruInput name="creditNoteNumber" placeholder="Leave blank to auto-generate" className="h-8" maxLength={50} /></div>
+                                <div className="space-y-1"><ZoruLabel className="text-xs">Credit Note Date *</ZoruLabel><DatePicker date={creditNoteDate} setDate={setCreditNoteDate} className="h-8" /></div>
+                                <div className="space-y-1"><ZoruLabel className="text-xs">Original Invoice No.</ZoruLabel><ZoruInput name="originalInvoiceNumber" className="h-8" maxLength={50} /></div>
                             </section>
 
                             <section className="mb-8">
-                                <Label>Reason for Issuance</Label>
-                                <Textarea name="reason" placeholder="e.g. Return of goods, discount adjustment..." maxLength={500} />
+                                <ZoruLabel>Reason for Issuance</ZoruLabel>
+                                <ZoruTextarea name="reason" placeholder="e.g. Return of goods, discount adjustment..." maxLength={500} />
                             </section>
 
                             <section>
@@ -200,7 +191,7 @@ export default function NewCreditNotePage() {
                             </section>
 
                         </div>
-                    </ClayCard>
+                    </ZoruCard>
                 </div>
             </div>
         </form>

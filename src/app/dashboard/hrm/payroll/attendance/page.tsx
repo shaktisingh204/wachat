@@ -1,8 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import {
   CheckSquare,
@@ -17,33 +14,31 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
-import { DatePicker } from '@/components/ui/date-picker';
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogFooter,
+  ZoruDatePicker,
+  ZoruCard,
+  ZoruButton,
+  ZoruBadge,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import { useToast } from '@/hooks/use-toast';
 import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
 import { getEmployeeShifts } from '@/app/actions/worksuite/shifts.actions';
 import {
@@ -84,7 +79,7 @@ type ModalState = {
 };
 
 export default function AttendancePage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [employees, setEmployees] = useState<EmployeeLite[]>([]);
   const [shifts, setShifts] = useState<ShiftLite[]>([]);
   const [records, setRecords] = useState<WsAttendanceExt[]>([]);
@@ -145,7 +140,6 @@ export default function AttendancePage() {
     return m;
   }, [records]);
 
-  /* ─── Clock In (quick) ─────────────────────── */
   const handleQuickClockIn = (empId: string) => {
     setFormState({
       working_from: 'office',
@@ -161,7 +155,6 @@ export default function AttendancePage() {
     setModal({ open: true, mode: 'clock-in', employeeId: empId });
   };
 
-  /* ─── Clock Out (direct) ───────────────────── */
   const handleClockOut = (empId: string) => {
     startSave(async () => {
       const r = await clockOut(empId, date);
@@ -174,7 +167,6 @@ export default function AttendancePage() {
     });
   };
 
-  /* ─── Manual entry ─────────────────────────── */
   const handleManualEntry = (empId: string, existing?: WsAttendanceExt) => {
     if (existing) {
       setFormState({
@@ -256,7 +248,6 @@ export default function AttendancePage() {
     });
   };
 
-  // Stats
   const presentCount = records.filter((r) => r.clock_in_time).length;
   const lateCount = records.filter((r) => r.late).length;
   const wfhCount = records.filter((r) => r.working_from === 'home').length;
@@ -269,96 +260,94 @@ export default function AttendancePage() {
         icon={CheckSquare}
         actions={
           <>
-            <DatePicker date={date} setDate={setDate} />
-            <ClayButton
-              variant="pill"
-              leading={<FileText className="h-4 w-4" strokeWidth={1.75} />}
-            >
+            <ZoruDatePicker value={date} onChange={setDate} />
+            <ZoruButton variant="outline">
+              <FileText className="h-4 w-4" />
               Export
-            </ClayButton>
+            </ZoruButton>
           </>
         }
       />
 
       {/* Summary stats */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <ClayCard>
-          <p className="text-[12px] text-muted-foreground">Present</p>
-          <p className="mt-1 text-[26px] font-semibold text-foreground">{presentCount}</p>
-        </ClayCard>
-        <ClayCard>
-          <p className="text-[12px] text-muted-foreground">Late</p>
-          <p className="mt-1 text-[26px] font-semibold text-foreground">{lateCount}</p>
-        </ClayCard>
-        <ClayCard>
-          <p className="text-[12px] text-muted-foreground">WFH</p>
-          <p className="mt-1 text-[26px] font-semibold text-foreground">{wfhCount}</p>
-        </ClayCard>
-        <ClayCard>
-          <p className="text-[12px] text-muted-foreground">Total Employees</p>
-          <p className="mt-1 text-[26px] font-semibold text-foreground">{employees.length}</p>
-        </ClayCard>
+        <ZoruCard className="p-6">
+          <p className="text-[12px] text-zoru-ink-muted">Present</p>
+          <p className="mt-1 text-[26px] text-zoru-ink">{presentCount}</p>
+        </ZoruCard>
+        <ZoruCard className="p-6">
+          <p className="text-[12px] text-zoru-ink-muted">Late</p>
+          <p className="mt-1 text-[26px] text-zoru-ink">{lateCount}</p>
+        </ZoruCard>
+        <ZoruCard className="p-6">
+          <p className="text-[12px] text-zoru-ink-muted">WFH</p>
+          <p className="mt-1 text-[26px] text-zoru-ink">{wfhCount}</p>
+        </ZoruCard>
+        <ZoruCard className="p-6">
+          <p className="text-[12px] text-zoru-ink-muted">Total Employees</p>
+          <p className="mt-1 text-[26px] text-zoru-ink">{employees.length}</p>
+        </ZoruCard>
       </div>
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 className="text-[16px] font-semibold text-foreground">
+            <h2 className="text-[16px] text-zoru-ink">
               Attendance — {date ? format(date, 'PPP') : '…'}
             </h2>
-            <p className="mt-0.5 text-[12.5px] text-muted-foreground">
+            <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
               {records.length} record{records.length === 1 ? '' : 's'} for this date
             </p>
           </div>
         </div>
 
-        <div className="overflow-x-auto rounded-lg border border-border">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border hover:bg-transparent">
-                <TableHead className="text-muted-foreground">Employee</TableHead>
-                <TableHead className="text-muted-foreground">Clock In</TableHead>
-                <TableHead className="text-muted-foreground">Clock Out</TableHead>
-                <TableHead className="text-muted-foreground">Working From</TableHead>
-                <TableHead className="text-muted-foreground">Hours</TableHead>
-                <TableHead className="text-muted-foreground">Flags</TableHead>
-                <TableHead className="text-right text-muted-foreground">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+          <ZoruTable>
+            <ZoruTableHeader>
+              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                <ZoruTableHead className="text-zoru-ink-muted">Employee</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Clock In</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Clock Out</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Working From</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Hours</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Flags</ZoruTableHead>
+                <ZoruTableHead className="text-right text-zoru-ink-muted">Actions</ZoruTableHead>
+              </ZoruTableRow>
+            </ZoruTableHeader>
+            <ZoruTableBody>
               {isLoading ? (
-                <TableRow className="border-border">
-                  <TableCell colSpan={7} className="h-24 text-center text-[13px] text-muted-foreground">
+                <ZoruTableRow className="border-zoru-line">
+                  <ZoruTableCell colSpan={7} className="h-24 text-center text-[13px] text-zoru-ink-muted">
                     Loading…
-                  </TableCell>
-                </TableRow>
+                  </ZoruTableCell>
+                </ZoruTableRow>
               ) : employees.length === 0 ? (
-                <TableRow className="border-border">
-                  <TableCell colSpan={7} className="h-24 text-center text-[13px] text-muted-foreground">
+                <ZoruTableRow className="border-zoru-line">
+                  <ZoruTableCell colSpan={7} className="h-24 text-center text-[13px] text-zoru-ink-muted">
                     No employees found.
-                  </TableCell>
-                </TableRow>
+                  </ZoruTableCell>
+                </ZoruTableRow>
               ) : (
                 employees.map((emp) => {
                   const rec = recordByEmployee.get(emp._id);
                   const isIn = !!rec?.clock_in_time;
                   const isOut = !!rec?.clock_out_time;
                   return (
-                    <TableRow key={emp._id} className="border-border">
-                      <TableCell className="text-[13px] font-medium text-foreground">
+                    <ZoruTableRow key={emp._id} className="border-zoru-line">
+                      <ZoruTableCell className="text-[13px] text-zoru-ink">
                         {[emp.firstName, emp.lastName].filter(Boolean).join(' ') || 'Unnamed'}
-                      </TableCell>
-                      <TableCell className="text-[13px] text-foreground">
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-[13px] text-zoru-ink">
                         {isIn ? (
                           <span className="flex items-center gap-1.5 text-green-600">
                             <LogIn className="h-3.5 w-3.5" />
                             {fmt(rec?.clock_in_time)}
                           </span>
                         ) : (
-                          <span className="text-muted-foreground">—</span>
+                          <span className="text-zoru-ink-muted">—</span>
                         )}
-                      </TableCell>
-                      <TableCell className="text-[13px] text-foreground">
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-[13px] text-zoru-ink">
                         {isOut ? (
                           <span className="flex items-center gap-1.5 text-red-500">
                             <LogOut className="h-3.5 w-3.5" />
@@ -367,93 +356,92 @@ export default function AttendancePage() {
                         ) : isIn ? (
                           <span className="text-amber-500 text-[12px]">Active</span>
                         ) : (
-                          <span className="text-muted-foreground">—</span>
+                          <span className="text-zoru-ink-muted">—</span>
                         )}
-                      </TableCell>
-                      <TableCell className="text-[12.5px] capitalize text-foreground">
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-[12.5px] capitalize text-zoru-ink">
                         {rec?.working_from ? (
                           <span className="flex items-center gap-1.5">
-                            <MapPin className="h-3 w-3 text-muted-foreground" />
+                            <MapPin className="h-3 w-3 text-zoru-ink-muted" />
                             {rec.working_from}
                           </span>
                         ) : (
-                          <span className="text-muted-foreground">—</span>
+                          <span className="text-zoru-ink-muted">—</span>
                         )}
-                      </TableCell>
-                      <TableCell className="text-[13px] text-foreground">
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-[13px] text-zoru-ink">
                         {fmtHours(rec?.working_hours)}
-                      </TableCell>
-                      <TableCell>
+                      </ZoruTableCell>
+                      <ZoruTableCell>
                         <div className="flex flex-wrap gap-1">
                           {rec?.late && (
-                            <ClayBadge tone="amber">Late</ClayBadge>
+                            <ZoruBadge variant="warning">Late</ZoruBadge>
                           )}
                           {rec?.half_day && (
-                            <ClayBadge tone="blue">Half Day</ClayBadge>
+                            <ZoruBadge variant="info">Half Day</ZoruBadge>
                           )}
                         </div>
-                      </TableCell>
-                      <TableCell className="text-right">
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-right">
                         <div className="flex items-center justify-end gap-1">
                           {!isIn ? (
-                            <ClayButton
-                              variant="pill"
+                            <ZoruButton
+                              variant="outline"
                               size="sm"
-                              leading={<LogIn className="h-3.5 w-3.5" strokeWidth={1.75} />}
                               onClick={() => handleQuickClockIn(emp._id)}
                               disabled={isSaving}
                             >
+                              <LogIn className="h-3.5 w-3.5" />
                               Clock In
-                            </ClayButton>
+                            </ZoruButton>
                           ) : !isOut ? (
-                            <ClayButton
-                              variant="pill"
+                            <ZoruButton
+                              variant="outline"
                               size="sm"
-                              leading={<LogOut className="h-3.5 w-3.5 text-destructive" strokeWidth={1.75} />}
                               onClick={() => handleClockOut(emp._id)}
                               disabled={isSaving}
                             >
+                              <LogOut className="h-3.5 w-3.5 text-zoru-danger-ink" />
                               Clock Out
-                            </ClayButton>
+                            </ZoruButton>
                           ) : null}
-                          <ClayButton
-                            variant="pill"
+                          <ZoruButton
+                            variant="ghost"
                             size="sm"
                             onClick={() => handleManualEntry(emp._id, rec)}
                             title={rec ? 'Edit record' : 'Add manual entry'}
                           >
                             {rec ? <Edit className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
-                          </ClayButton>
+                          </ZoruButton>
                           {rec?._id && (
-                            <ClayButton variant="pill" size="sm" onClick={() => handleDelete(rec._id)}>
-                              <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                            </ClayButton>
+                            <ZoruButton variant="ghost" size="sm" onClick={() => handleDelete(rec._id)}>
+                              <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                            </ZoruButton>
                           )}
                         </div>
-                      </TableCell>
-                    </TableRow>
+                      </ZoruTableCell>
+                    </ZoruTableRow>
                   );
                 })
               )}
-            </TableBody>
-          </Table>
+            </ZoruTableBody>
+          </ZoruTable>
         </div>
-      </ClayCard>
+      </ZoruCard>
 
       {/* Clock-in / Manual entry dialog */}
-      <Dialog open={modal.open} onOpenChange={(v) => setModal((m) => ({ ...m, open: v }))}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>
+      <ZoruDialog open={modal.open} onOpenChange={(v) => setModal((m) => ({ ...m, open: v }))}>
+        <ZoruDialogContent className="max-w-lg">
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>
               {modal.mode === 'clock-in' ? 'Clock In' : modal.record ? 'Edit Attendance' : 'Add Attendance'}
-            </DialogTitle>
-          </DialogHeader>
+            </ZoruDialogTitle>
+          </ZoruDialogHeader>
 
           <div className="grid gap-4 py-4 md:grid-cols-2">
-            {/* Employee display */}
             <div className="md:col-span-2">
-              <Label className="text-[12px] text-muted-foreground">Employee</Label>
-              <p className="mt-1 text-[13px] font-medium text-foreground">
+              <ZoruLabel className="text-[12px] text-zoru-ink-muted">Employee</ZoruLabel>
+              <p className="mt-1 text-[13px] text-zoru-ink">
                 {employees.find((e) => e._id === modal.employeeId)
                   ? [
                       employees.find((e) => e._id === modal.employeeId)?.firstName,
@@ -465,40 +453,37 @@ export default function AttendancePage() {
               </p>
             </div>
 
-            {/* Working From */}
             <div>
-              <Label className="text-[12px] text-muted-foreground">Working From</Label>
-              <Select
+              <ZoruLabel className="text-[12px] text-zoru-ink-muted">Working From</ZoruLabel>
+              <ZoruSelect
                 value={formState.working_from}
                 onValueChange={(v) => setFormState((p) => ({ ...p, working_from: v }))}
               >
-                <SelectTrigger className="mt-1.5 h-9 text-[13px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
+                <ZoruSelectTrigger className="mt-1.5 h-9 text-[13px]">
+                  <ZoruSelectValue />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
                   {WORKING_FROM_OPTIONS.map((o) => (
-                    <SelectItem key={o} value={o} className="capitalize">
+                    <ZoruSelectItem key={o} value={o} className="capitalize">
                       {o.replace('-', ' ')}
-                    </SelectItem>
+                    </ZoruSelectItem>
                   ))}
-                </SelectContent>
-              </Select>
+                </ZoruSelectContent>
+              </ZoruSelect>
             </div>
 
-            {/* Shift */}
             <div>
-              <Label className="text-[12px] text-muted-foreground">Shift</Label>
-              <Select
-                value={formState.shift_id}
+              <ZoruLabel className="text-[12px] text-zoru-ink-muted">Shift</ZoruLabel>
+              <ZoruSelect
+                value={formState.shift_id || undefined}
                 onValueChange={(v) => setFormState((p) => ({ ...p, shift_id: v }))}
               >
-                <SelectTrigger className="mt-1.5 h-9 text-[13px]">
-                  <SelectValue placeholder="Select shift (optional)" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">— None —</SelectItem>
+                <ZoruSelectTrigger className="mt-1.5 h-9 text-[13px]">
+                  <ZoruSelectValue placeholder="Select shift (optional)" />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
                   {shifts.map((s) => (
-                    <SelectItem key={s._id} value={s._id}>
+                    <ZoruSelectItem key={s._id} value={s._id}>
                       <span className="flex items-center gap-2">
                         <span
                           aria-hidden
@@ -507,18 +492,17 @@ export default function AttendancePage() {
                         />
                         {s.name}
                       </span>
-                    </SelectItem>
+                    </ZoruSelectItem>
                   ))}
-                </SelectContent>
-              </Select>
+                </ZoruSelectContent>
+              </ZoruSelect>
             </div>
 
-            {/* Manual times — only in manual mode */}
             {modal.mode === 'manual' && (
               <>
                 <div>
-                  <Label className="text-[12px] text-muted-foreground">Clock In Time</Label>
-                  <Input
+                  <ZoruLabel className="text-[12px] text-zoru-ink-muted">Clock In Time</ZoruLabel>
+                  <ZoruInput
                     type="datetime-local"
                     value={formState.clock_in_time}
                     onChange={(e) =>
@@ -528,8 +512,8 @@ export default function AttendancePage() {
                   />
                 </div>
                 <div>
-                  <Label className="text-[12px] text-muted-foreground">Clock Out Time</Label>
-                  <Input
+                  <ZoruLabel className="text-[12px] text-zoru-ink-muted">Clock Out Time</ZoruLabel>
+                  <ZoruInput
                     type="datetime-local"
                     value={formState.clock_out_time}
                     onChange={(e) =>
@@ -541,10 +525,9 @@ export default function AttendancePage() {
               </>
             )}
 
-            {/* GPS */}
             <div>
-              <Label className="text-[12px] text-muted-foreground">Latitude (optional)</Label>
-              <Input
+              <ZoruLabel className="text-[12px] text-zoru-ink-muted">Latitude (optional)</ZoruLabel>
+              <ZoruInput
                 value={formState.latitude}
                 onChange={(e) => setFormState((p) => ({ ...p, latitude: e.target.value }))}
                 placeholder="28.6139"
@@ -552,8 +535,8 @@ export default function AttendancePage() {
               />
             </div>
             <div>
-              <Label className="text-[12px] text-muted-foreground">Longitude (optional)</Label>
-              <Input
+              <ZoruLabel className="text-[12px] text-zoru-ink-muted">Longitude (optional)</ZoruLabel>
+              <ZoruInput
                 value={formState.longitude}
                 onChange={(e) => setFormState((p) => ({ ...p, longitude: e.target.value }))}
                 placeholder="77.2090"
@@ -561,9 +544,8 @@ export default function AttendancePage() {
               />
             </div>
 
-            {/* Flags */}
             <div className="flex items-center gap-4 md:col-span-2">
-              <label className="flex cursor-pointer items-center gap-2 text-[13px] text-foreground">
+              <label className="flex cursor-pointer items-center gap-2 text-[13px] text-zoru-ink">
                 <input
                   type="checkbox"
                   checked={formState.late}
@@ -572,7 +554,7 @@ export default function AttendancePage() {
                 />
                 Mark as Late
               </label>
-              <label className="flex cursor-pointer items-center gap-2 text-[13px] text-foreground">
+              <label className="flex cursor-pointer items-center gap-2 text-[13px] text-zoru-ink">
                 <input
                   type="checkbox"
                   checked={formState.half_day}
@@ -581,7 +563,7 @@ export default function AttendancePage() {
                 />
                 Half Day
               </label>
-              <label className="flex cursor-pointer items-center gap-2 text-[13px] text-foreground">
+              <label className="flex cursor-pointer items-center gap-2 text-[13px] text-zoru-ink">
                 <input
                   type="checkbox"
                   checked={formState.overwrite}
@@ -593,25 +575,22 @@ export default function AttendancePage() {
             </div>
           </div>
 
-          <DialogFooter>
-            <ClayButton
-              variant="pill"
+          <ZoruDialogFooter>
+            <ZoruButton
+              variant="outline"
               onClick={() => setModal((m) => ({ ...m, open: false }))}
             >
               Cancel
-            </ClayButton>
-            <ClayButton
-              variant="obsidian"
+            </ZoruButton>
+            <ZoruButton
               onClick={submitModal}
               disabled={isSaving}
-              leading={
-                modal.mode === 'clock-in' ? (
-                  <LogIn className="h-4 w-4" strokeWidth={1.75} />
-                ) : (
-                  <Clock className="h-4 w-4" strokeWidth={1.75} />
-                )
-              }
             >
+              {modal.mode === 'clock-in' ? (
+                <LogIn className="h-4 w-4" />
+              ) : (
+                <Clock className="h-4 w-4" />
+              )}
               {isSaving
                 ? 'Saving…'
                 : modal.mode === 'clock-in'
@@ -619,10 +598,10 @@ export default function AttendancePage() {
                 : modal.record
                 ? 'Update'
                 : 'Add Record'}
-            </ClayButton>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            </ZoruButton>
+          </ZoruDialogFooter>
+        </ZoruDialogContent>
+      </ZoruDialog>
     </div>
   );
 }

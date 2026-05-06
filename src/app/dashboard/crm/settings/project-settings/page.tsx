@@ -1,8 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import {
   useActionState,
   useCallback,
@@ -12,20 +9,21 @@ import {
 } from 'react';
 import { FolderKanban, LoaderCircle } from 'lucide-react';
 
-import { ClayButton, ClayCard } from '@/components/clay';
-import { CrmPageHeader } from '../../_components/crm-page-header';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSkeleton,
+  ZoruSwitch,
+  useZoruToast,
+} from '@/components/zoruui';
+import { CrmPageHeader } from '../../_components/crm-page-header';
 import {
   getProjectSettings,
   saveProjectSettings,
@@ -34,9 +32,6 @@ import type { WsProjectSetting } from '@/lib/worksuite/module-settings-types';
 
 type FormState = { message?: string; error?: string; id?: string };
 const initialState: FormState = {};
-
-const inputClass =
-  'h-10 rounded-lg border-border bg-card text-[13px]';
 
 function ToggleRow({
   name,
@@ -51,23 +46,23 @@ function ToggleRow({
 }) {
   const [checked, setChecked] = useState<boolean>(!!defaultChecked);
   return (
-    <div className="flex items-start justify-between gap-4 rounded-lg border border-border bg-card/50 px-4 py-3">
+    <div className="flex items-start justify-between gap-4 rounded-lg border border-zoru-line bg-zoru-surface px-4 py-3">
       <div className="flex-1">
-        <Label htmlFor={name} className="text-[13px] font-medium text-foreground">
+        <ZoruLabel htmlFor={name} className="text-[13px] text-zoru-ink">
           {label}
-        </Label>
+        </ZoruLabel>
         {description ? (
-          <p className="mt-0.5 text-[12px] text-muted-foreground">{description}</p>
+          <p className="mt-0.5 text-[12px] text-zoru-ink-muted">{description}</p>
         ) : null}
       </div>
-      <Switch id={name} checked={checked} onCheckedChange={setChecked} />
+      <ZoruSwitch id={name} checked={checked} onCheckedChange={setChecked} />
       <input type="hidden" name={name} value={checked ? 'yes' : 'no'} />
     </div>
   );
 }
 
 export default function ProjectSettingsPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [settings, setSettings] = useState<WsProjectSetting | null>(null);
   const [isLoading, startLoading] = useTransition();
   const [saveState, formAction, isSaving] = useActionState(
@@ -109,14 +104,14 @@ export default function ProjectSettingsPage() {
       />
 
       {isLoading && !settings ? (
-        <ClayCard>
-          <Skeleton className="h-[420px] w-full" />
-        </ClayCard>
+        <ZoruCard className="p-6">
+          <ZoruSkeleton className="h-[420px] w-full" />
+        </ZoruCard>
       ) : (
-        <ClayCard>
+        <ZoruCard className="p-6">
           <form action={formAction} className="space-y-6">
             <section className="space-y-3">
-              <h3 className="text-[13px] font-semibold uppercase tracking-wide text-muted-foreground">
+              <h3 className="text-[13px] uppercase tracking-wide text-zoru-ink-muted">
                 Feature Toggles
               </h3>
               <div className="grid gap-3 md:grid-cols-2">
@@ -160,59 +155,51 @@ export default function ProjectSettingsPage() {
             </section>
 
             <section className="space-y-4">
-              <h3 className="text-[13px] font-semibold uppercase tracking-wide text-muted-foreground">
+              <h3 className="text-[13px] uppercase tracking-wide text-zoru-ink-muted">
                 Defaults
               </h3>
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
-                  <Label htmlFor="default_status" className="text-[13px] text-foreground">
+                  <ZoruLabel htmlFor="default_status" className="text-[13px] text-zoru-ink">
                     Default Status
-                  </Label>
-                  <Input
+                  </ZoruLabel>
+                  <ZoruInput
                     id="default_status"
                     name="default_status"
                     placeholder="not_started"
                     defaultValue={settings?.default_status ?? 'not_started'}
-                    className={`mt-1.5 ${inputClass}`}
+                    className="mt-1.5"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="default_priority" className="text-[13px] text-foreground">
+                  <ZoruLabel htmlFor="default_priority" className="text-[13px] text-zoru-ink">
                     Default Priority
-                  </Label>
-                  <Select
+                  </ZoruLabel>
+                  <ZoruSelect
                     name="default_priority"
                     defaultValue={settings?.default_priority ?? 'medium'}
                   >
-                    <SelectTrigger id="default_priority" className={`mt-1.5 ${inputClass}`}>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="low">Low</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="high">High</SelectItem>
-                    </SelectContent>
-                  </Select>
+                    <ZoruSelectTrigger id="default_priority" className="mt-1.5">
+                      <ZoruSelectValue />
+                    </ZoruSelectTrigger>
+                    <ZoruSelectContent>
+                      <ZoruSelectItem value="low">Low</ZoruSelectItem>
+                      <ZoruSelectItem value="medium">Medium</ZoruSelectItem>
+                      <ZoruSelectItem value="high">High</ZoruSelectItem>
+                    </ZoruSelectContent>
+                  </ZoruSelect>
                 </div>
               </div>
             </section>
 
             <div className="flex justify-end">
-              <ClayButton
-                type="submit"
-                variant="obsidian"
-                disabled={isSaving}
-                leading={
-                  isSaving ? (
-                    <LoaderCircle className="h-4 w-4 animate-spin" />
-                  ) : undefined
-                }
-              >
+              <ZoruButton type="submit" disabled={isSaving}>
+                {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
                 Save Project Settings
-              </ClayButton>
+              </ZoruButton>
             </div>
           </form>
-        </ClayCard>
+        </ZoruCard>
       )}
     </div>
   );

@@ -1,5 +1,5 @@
 import { ShieldCheck, AlertTriangle, Zap, RefreshCw, Image as ImageIcon } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
+import { ZoruSeparator } from '@/components/zoruui';
 import { SubscribeAllButton } from '@/components/wabasimplify/subscribe-all-button';
 import { RunCronJobsButton } from '@/components/wabasimplify/run-cron-jobs-button';
 import { SyncLocalTemplatesButton } from '@/components/wabasimplify/sync-local-templates-button';
@@ -83,7 +83,7 @@ export default function SystemHealthPage() {
                 >
                     <div className="space-y-4">
                         <WebhookProcessingToggle />
-                        <Separator className="bg-slate-100" />
+                        <ZoruSeparator className="bg-zoru-line" />
                         <DiwaliThemeToggle />
                     </div>
                 </SectionCard>

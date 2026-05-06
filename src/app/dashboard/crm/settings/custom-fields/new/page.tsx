@@ -1,6 +1,3 @@
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { Suspense } from 'react';
 import { Layers } from 'lucide-react';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
@@ -17,7 +14,7 @@ export default function NewCustomFieldPage() {
       />
       <Suspense
         fallback={
-          <div className="text-[13px] text-muted-foreground">Loading…</div>
+          <div className="text-[13px] text-zoru-ink-muted">Loading…</div>
         }
       >
         <NewCustomFieldForm />

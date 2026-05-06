@@ -1,9 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
-import * as React from 'react';
 import {
   useActionState,
   useCallback,
@@ -13,13 +9,16 @@ import {
 } from 'react';
 import { CalendarDays, LoaderCircle } from 'lucide-react';
 
-import { ClayCard, ClayButton } from '@/components/clay';
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSkeleton,
+  ZoruSwitch,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
 import {
   getGoogleCalendarSetting,
   saveGoogleCalendarSetting,
@@ -29,7 +28,7 @@ import type { WsGoogleCalendarSetting } from '@/lib/worksuite/integrations-types
 type Doc = (WsGoogleCalendarSetting & { _id: unknown }) | null;
 
 export default function GoogleCalendarIntegrationPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [doc, setDoc] = useState<Doc>(null);
   const [enabled, setEnabled] = useState(false);
   const [, startLoading] = useTransition();
@@ -82,11 +81,11 @@ export default function GoogleCalendarIntegrationPage() {
         icon={CalendarDays}
       />
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         {!doc && !id ? (
           <div className="space-y-4">
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
+            <ZoruSkeleton className="h-10 w-full" />
+            <ZoruSkeleton className="h-10 w-full" />
           </div>
         ) : null}
 
@@ -100,58 +99,47 @@ export default function GoogleCalendarIntegrationPage() {
 
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <Label htmlFor="client_id" className="text-foreground">
-                Client ID
-              </Label>
+              <ZoruLabel htmlFor="client_id">Client ID</ZoruLabel>
               <div className="mt-1.5">
-                <Input
+                <ZoruInput
                   id="client_id"
                   name="client_id"
                   defaultValue={v('client_id')}
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="client_secret" className="text-foreground">
-                Client Secret
-              </Label>
+              <ZoruLabel htmlFor="client_secret">Client Secret</ZoruLabel>
               <div className="mt-1.5">
-                <Input
+                <ZoruInput
                   id="client_secret"
                   name="client_secret"
                   type="password"
                   defaultValue={v('client_secret')}
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div className="md:col-span-2">
-              <Label htmlFor="redirect_uri" className="text-foreground">
-                Redirect URI
-              </Label>
+              <ZoruLabel htmlFor="redirect_uri">Redirect URI</ZoruLabel>
               <div className="mt-1.5">
-                <Input
+                <ZoruInput
                   id="redirect_uri"
                   name="redirect_uri"
                   defaultValue={v('redirect_uri')}
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
-            <div className="md:col-span-2 flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3">
+            <div className="md:col-span-2 flex items-center justify-between rounded-lg border border-zoru-line bg-zoru-bg px-4 py-3">
               <div>
-                <div className="text-[13px] font-medium text-foreground">
-                  Enabled
-                </div>
-                <div className="text-[12px] text-muted-foreground">
+                <div className="text-[13px] text-zoru-ink">Enabled</div>
+                <div className="text-[12px] text-zoru-ink-muted">
                   Allow members to connect their Google Calendar.
                 </div>
               </div>
-              <Switch
+              <ZoruSwitch
                 checked={enabled}
                 onCheckedChange={setEnabled}
                 aria-label="Google Calendar enabled"
@@ -160,24 +148,13 @@ export default function GoogleCalendarIntegrationPage() {
           </div>
 
           <div className="flex justify-end gap-2 pt-2">
-            <ClayButton
-              type="submit"
-              variant="obsidian"
-              disabled={isSaving}
-              leading={
-                isSaving ? (
-                  <LoaderCircle
-                    className="h-4 w-4 animate-spin"
-                    strokeWidth={1.75}
-                  />
-                ) : null
-              }
-            >
+            <ZoruButton type="submit" disabled={isSaving}>
+              {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
               Save
-            </ClayButton>
+            </ZoruButton>
           </div>
         </form>
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

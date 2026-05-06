@@ -1,15 +1,10 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useTransition } from 'react';
 import { Languages, Star } from 'lucide-react';
 
-import { ClayBadge } from '@/components/clay';
+import { ZoruBadge, ZoruButton, useZoruToast } from '@/components/zoruui';
 import { HrEntityPage } from '../../_components/hr-entity-page';
-import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
 import {
   getLanguages,
   saveLanguage,
@@ -20,16 +15,12 @@ import type { WsLanguageSetting } from '@/lib/worksuite/company-types';
 
 function SetDefaultButton({ id, isDefault }: { id: string; isDefault: boolean }) {
   const [pending, start] = useTransition();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   if (isDefault) {
-    return (
-      <ClayBadge tone="green" dot>
-        Default
-      </ClayBadge>
-    );
+    return <ZoruBadge variant="success">Default</ZoruBadge>;
   }
   return (
-    <Button
+    <ZoruButton
       variant="ghost"
       size="sm"
       disabled={pending}
@@ -45,10 +36,10 @@ function SetDefaultButton({ id, isDefault }: { id: string; isDefault: boolean })
             });
         })
       }
-      className="text-[12px] text-muted-foreground"
+      className="text-[12px] text-zoru-ink-muted"
     >
-      <Star className="mr-1 h-3.5 w-3.5" /> Set default
-    </Button>
+      <Star className="h-3.5 w-3.5" /> Set default
+    </ZoruButton>
   );
 }
 
@@ -69,9 +60,9 @@ export default function LanguagesPage() {
           key: 'is_enabled',
           label: 'Enabled',
           render: (row) => (
-            <ClayBadge tone={row.is_enabled ? 'green' : 'neutral'}>
+            <ZoruBadge variant={row.is_enabled ? 'success' : 'ghost'}>
               {row.is_enabled ? 'Yes' : 'No'}
-            </ClayBadge>
+            </ZoruBadge>
           ),
         },
         {

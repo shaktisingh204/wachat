@@ -1,8 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import Link from 'next/link';
 import {
@@ -13,22 +10,22 @@ import {
   Search,
 } from 'lucide-react';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { ClayBadge, ClayButton, ClayCard } from '@/components/clay';
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import { getProposals } from '@/app/actions/worksuite/proposals.actions';
 import type {
@@ -39,14 +36,14 @@ import { WS_PROPOSAL_STATUSES } from '@/lib/worksuite/proposals-types';
 
 type ProposalRow = WsProposal & { _id: string };
 
-type BadgeTone = 'neutral' | 'amber' | 'green' | 'red' | 'blue';
+type BadgeVariant = 'ghost' | 'warning' | 'success' | 'danger';
 
-const STATUS_TONE: Record<WsProposalStatus, BadgeTone> = {
-  draft: 'neutral',
-  sent: 'amber',
-  accepted: 'green',
-  declined: 'red',
-  expired: 'red',
+const STATUS_VARIANT: Record<WsProposalStatus, BadgeVariant> = {
+  draft: 'ghost',
+  sent: 'warning',
+  accepted: 'success',
+  declined: 'danger',
+  expired: 'danger',
 };
 
 function fmtCurrency(value: number, currency?: string): string {
@@ -101,136 +98,132 @@ export default function ProposalsPage() {
         actions={
           <>
             <Link href="/dashboard/crm/sales/proposals/templates">
-              <ClayButton
-                variant="pill"
-                leading={<LayoutTemplate className="h-4 w-4" strokeWidth={1.75} />}
-              >
+              <ZoruButton variant="outline">
+                <LayoutTemplate className="h-4 w-4" strokeWidth={1.75} />
                 Templates
-              </ClayButton>
+              </ZoruButton>
             </Link>
             <Link href="/dashboard/crm/sales/proposals/new">
-              <ClayButton
-                variant="obsidian"
-                leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}
-              >
+              <ZoruButton>
+                <Plus className="h-4 w-4" strokeWidth={1.75} />
                 New Proposal
-              </ClayButton>
+              </ZoruButton>
             </Link>
           </>
         }
       />
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 className="text-[16px] font-semibold text-foreground">
+            <h2 className="text-[16px] text-zoru-ink">
               All Proposals
             </h2>
-            <p className="mt-0.5 text-[12.5px] text-muted-foreground">
+            <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
               {proposals.length} result{proposals.length === 1 ? '' : 's'} · Total{' '}
               {fmtCurrency(totalValue, proposals[0]?.currency)}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <div className="relative">
-              <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
+              <ZoruInput
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search title or number…"
-                className="h-9 w-56 rounded-lg border-border bg-card pl-8 text-[13px]"
+                leadingSlot={<Search />}
+                className="w-56"
               />
             </div>
-            <Select
+            <ZoruSelect
               value={status}
               onValueChange={(v) => setStatus(v as WsProposalStatus | 'all')}
             >
-              <SelectTrigger className="h-9 w-36 rounded-lg border-border bg-card text-[13px]">
-                <SelectValue placeholder="All statuses" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All statuses</SelectItem>
+              <ZoruSelectTrigger className="w-36">
+                <ZoruSelectValue placeholder="All statuses" />
+              </ZoruSelectTrigger>
+              <ZoruSelectContent>
+                <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
                 {WS_PROPOSAL_STATUSES.map((s) => (
-                  <SelectItem key={s} value={s}>
+                  <ZoruSelectItem key={s} value={s}>
                     {s}
-                  </SelectItem>
+                  </ZoruSelectItem>
                 ))}
-              </SelectContent>
-            </Select>
+              </ZoruSelectContent>
+            </ZoruSelect>
           </div>
         </div>
 
-        <div className="overflow-x-auto rounded-lg border border-border">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border hover:bg-transparent">
-                <TableHead className="text-muted-foreground">Number</TableHead>
-                <TableHead className="text-muted-foreground">Title</TableHead>
-                <TableHead className="text-muted-foreground">Issued</TableHead>
-                <TableHead className="text-muted-foreground">Valid Until</TableHead>
-                <TableHead className="text-muted-foreground">Status</TableHead>
-                <TableHead className="text-right text-muted-foreground">Total</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+          <ZoruTable>
+            <ZoruTableHeader>
+              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                <ZoruTableHead className="text-zoru-ink-muted">Number</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Title</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Issued</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Valid Until</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
+                <ZoruTableHead className="text-right text-zoru-ink-muted">Total</ZoruTableHead>
+              </ZoruTableRow>
+            </ZoruTableHeader>
+            <ZoruTableBody>
               {isLoading ? (
-                <TableRow className="border-border">
-                  <TableCell colSpan={6} className="h-24 text-center">
-                    <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
-                  </TableCell>
-                </TableRow>
+                <ZoruTableRow className="border-zoru-line">
+                  <ZoruTableCell colSpan={6} className="h-24 text-center">
+                    <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
+                  </ZoruTableCell>
+                </ZoruTableRow>
               ) : empty ? (
-                <TableRow className="border-border">
-                  <TableCell
+                <ZoruTableRow className="border-zoru-line">
+                  <ZoruTableCell
                     colSpan={6}
-                    className="h-24 text-center text-[13px] text-muted-foreground"
+                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
                   >
                     No proposals found.
-                  </TableCell>
-                </TableRow>
+                  </ZoruTableCell>
+                </ZoruTableRow>
               ) : (
                 proposals.map((p) => (
-                  <TableRow
+                  <ZoruTableRow
                     key={p._id}
-                    className="cursor-pointer border-border hover:bg-secondary"
+                    className="cursor-pointer border-zoru-line hover:bg-zoru-surface-2"
                   >
-                    <TableCell className="font-medium text-foreground">
+                    <ZoruTableCell className="text-zoru-ink">
                       <Link
                         href={`/dashboard/crm/sales/proposals/${p._id}`}
                         className="hover:underline"
                       >
                         {p.proposal_number}
                       </Link>
-                    </TableCell>
-                    <TableCell className="text-foreground">
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-zoru-ink">
                       <Link
                         href={`/dashboard/crm/sales/proposals/${p._id}`}
                         className="hover:underline"
                       >
                         {p.title || '—'}
                       </Link>
-                    </TableCell>
-                    <TableCell className="text-foreground">
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-zoru-ink">
                       {fmtDate(p.issue_date)}
-                    </TableCell>
-                    <TableCell className="text-foreground">
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-zoru-ink">
                       {fmtDate(p.valid_until)}
-                    </TableCell>
-                    <TableCell>
-                      <ClayBadge tone={STATUS_TONE[p.status] || 'neutral'} dot>
+                    </ZoruTableCell>
+                    <ZoruTableCell>
+                      <ZoruBadge variant={STATUS_VARIANT[p.status] || 'ghost'}>
                         {p.status}
-                      </ClayBadge>
-                    </TableCell>
-                    <TableCell className="text-right font-medium text-foreground">
+                      </ZoruBadge>
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-right text-zoru-ink">
                       {fmtCurrency(p.total || 0, p.currency)}
-                    </TableCell>
-                  </TableRow>
+                    </ZoruTableCell>
+                  </ZoruTableRow>
                 ))
               )}
-            </TableBody>
-          </Table>
+            </ZoruTableBody>
+          </ZoruTable>
         </div>
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

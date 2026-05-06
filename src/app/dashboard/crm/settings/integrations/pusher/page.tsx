@@ -1,9 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
-import * as React from 'react';
 import {
   useActionState,
   useCallback,
@@ -13,13 +9,16 @@ import {
 } from 'react';
 import { LoaderCircle, Play, Zap } from 'lucide-react';
 
-import { ClayCard, ClayButton } from '@/components/clay';
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSkeleton,
+  ZoruSwitch,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
 import {
   getPusherSetting,
   savePusherSetting,
@@ -30,7 +29,7 @@ import type { WsPusherSetting } from '@/lib/worksuite/integrations-types';
 type Doc = (WsPusherSetting & { _id: unknown }) | null;
 
 export default function PusherIntegrationPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [doc, setDoc] = useState<Doc>(null);
   const [isActive, setIsActive] = useState(false);
   const [, startLoading] = useTransition();
@@ -98,11 +97,11 @@ export default function PusherIntegrationPage() {
         icon={Zap}
       />
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         {!doc && !id ? (
           <div className="space-y-4">
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
+            <ZoruSkeleton className="h-10 w-full" />
+            <ZoruSkeleton className="h-10 w-full" />
           </div>
         ) : null}
 
@@ -116,73 +115,55 @@ export default function PusherIntegrationPage() {
 
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <Label htmlFor="app_id" className="text-foreground">
-                App ID
-              </Label>
+              <ZoruLabel htmlFor="app_id">App ID</ZoruLabel>
               <div className="mt-1.5">
-                <Input
-                  id="app_id"
-                  name="app_id"
-                  defaultValue={v('app_id')}
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
-                />
+                <ZoruInput id="app_id" name="app_id" defaultValue={v('app_id')} />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="cluster" className="text-foreground">
-                Cluster
-              </Label>
+              <ZoruLabel htmlFor="cluster">Cluster</ZoruLabel>
               <div className="mt-1.5">
-                <Input
+                <ZoruInput
                   id="cluster"
                   name="cluster"
                   defaultValue={v('cluster')}
                   placeholder="mt1"
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="app_key" className="text-foreground">
-                App Key
-              </Label>
+              <ZoruLabel htmlFor="app_key">App Key</ZoruLabel>
               <div className="mt-1.5">
-                <Input
+                <ZoruInput
                   id="app_key"
                   name="app_key"
                   defaultValue={v('app_key')}
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="app_secret" className="text-foreground">
-                App Secret
-              </Label>
+              <ZoruLabel htmlFor="app_secret">App Secret</ZoruLabel>
               <div className="mt-1.5">
-                <Input
+                <ZoruInput
                   id="app_secret"
                   name="app_secret"
                   type="password"
                   defaultValue={v('app_secret')}
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
                 />
               </div>
             </div>
 
-            <div className="md:col-span-2 flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3">
+            <div className="md:col-span-2 flex items-center justify-between rounded-lg border border-zoru-line bg-zoru-bg px-4 py-3">
               <div>
-                <div className="text-[13px] font-medium text-foreground">
-                  Active
-                </div>
-                <div className="text-[12px] text-muted-foreground">
+                <div className="text-[13px] text-zoru-ink">Active</div>
+                <div className="text-[12px] text-zoru-ink-muted">
                   Enable Pusher realtime.
                 </div>
               </div>
-              <Switch
+              <ZoruSwitch
                 checked={isActive}
                 onCheckedChange={setIsActive}
                 aria-label="Pusher active"
@@ -191,42 +172,21 @@ export default function PusherIntegrationPage() {
           </div>
 
           <div className="flex flex-wrap justify-end gap-2 pt-2">
-            <ClayButton
-              type="button"
-              variant="obsidian"
-              onClick={onTest}
-              disabled={isTesting}
-              leading={
-                isTesting ? (
-                  <LoaderCircle
-                    className="h-4 w-4 animate-spin"
-                    strokeWidth={1.75}
-                  />
-                ) : (
-                  <Play className="h-4 w-4" strokeWidth={1.75} />
-                )
-              }
-            >
+            <ZoruButton type="button" onClick={onTest} disabled={isTesting}>
+              {isTesting ? (
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+              ) : (
+                <Play className="h-4 w-4" />
+              )}
               Test
-            </ClayButton>
-            <ClayButton
-              type="submit"
-              variant="obsidian"
-              disabled={isSaving}
-              leading={
-                isSaving ? (
-                  <LoaderCircle
-                    className="h-4 w-4 animate-spin"
-                    strokeWidth={1.75}
-                  />
-                ) : null
-              }
-            >
+            </ZoruButton>
+            <ZoruButton type="submit" disabled={isSaving}>
+              {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
               Save
-            </ClayButton>
+            </ZoruButton>
           </div>
         </form>
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

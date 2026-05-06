@@ -1,8 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import * as React from 'react';
 import Link from 'next/link';
 import {
@@ -18,9 +15,14 @@ import {
 } from 'lucide-react';
 import { useEffect, useState, useTransition } from 'react';
 
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruSkeleton,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import { Skeleton } from '@/components/ui/skeleton';
 import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
 
 type Employee = {
@@ -38,12 +40,15 @@ type Employee = {
   [k: string]: any;
 };
 
-const STATUS_TONES: Record<string, 'green' | 'amber' | 'neutral' | 'red'> = {
-  active: 'green',
-  inactive: 'neutral',
-  terminated: 'red',
-  probation: 'amber',
-  notice: 'amber',
+const STATUS_VARIANTS: Record<
+  string,
+  'success' | 'warning' | 'ghost' | 'danger'
+> = {
+  active: 'success',
+  inactive: 'ghost',
+  terminated: 'danger',
+  probation: 'warning',
+  notice: 'warning',
 };
 
 function initials(name: string) {
@@ -61,7 +66,7 @@ function fmtDate(v: unknown): string {
 
 // Stable avatar color per employee based on first letter
 const AVATAR_COLORS = [
-  'bg-accent text-accent-foreground',
+  'bg-zoru-surface-2 text-zoru-ink',
   'bg-blue-100 text-blue-700',
   'bg-emerald-100 text-emerald-700',
   'bg-amber-100 text-amber-700',
@@ -117,12 +122,10 @@ export default function DirectoryPage() {
         icon={Users}
         actions={
           <Link href="/dashboard/hrm/payroll/employees">
-            <ClayButton
-              variant="obsidian"
-              trailing={<ArrowRight className="h-4 w-4" strokeWidth={1.75} />}
-            >
+            <ZoruButton>
               Manage Employees
-            </ClayButton>
+              <ArrowRight className="h-4 w-4" strokeWidth={1.75} />
+            </ZoruButton>
           </Link>
         }
       />
@@ -130,32 +133,31 @@ export default function DirectoryPage() {
       {/* Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-          <input
+          <ZoruInput
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by name, email, title, department…"
-            className="h-10 w-full rounded-full border border-border bg-card pl-9 pr-4 text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+            leadingSlot={<Search />}
           />
         </div>
         <div className="flex items-center gap-1">
-          <ClayButton
-            variant={view === 'grid' ? 'obsidian' : 'pill'}
+          <ZoruButton
+            variant={view === 'grid' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setView('grid')}
             aria-label="Grid view"
           >
             <LayoutGrid className="h-4 w-4" />
-          </ClayButton>
-          <ClayButton
-            variant={view === 'list' ? 'obsidian' : 'pill'}
+          </ZoruButton>
+          <ZoruButton
+            variant={view === 'list' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setView('list')}
             aria-label="List view"
           >
             <List className="h-4 w-4" />
-          </ClayButton>
+          </ZoruButton>
         </div>
       </div>
 
@@ -168,30 +170,28 @@ export default function DirectoryPage() {
           }
         >
           {[...Array(8)].map((_, i) => (
-            <Skeleton key={i} className={view === 'grid' ? 'h-48 w-full rounded-lg' : 'h-16 w-full'} />
+            <ZoruSkeleton key={i} className={view === 'grid' ? 'h-48 w-full rounded-lg' : 'h-16 w-full'} />
           ))}
         </div>
       ) : empty || failed ? (
-        <ClayCard>
+        <ZoruCard>
           <div className="flex flex-col items-start gap-3 p-8">
-            <h3 className="text-[15px] font-semibold text-foreground">No employees found</h3>
-            <p className="max-w-xl text-[13px] text-muted-foreground">
+            <h3 className="text-[15px] text-zoru-ink">No employees found</h3>
+            <p className="max-w-xl text-[13px] text-zoru-ink-muted">
               {q
                 ? `No results match "${search}". Try a different search term.`
                 : 'Employee data will appear here once added via HR-Payroll → Employees.'}
             </p>
             {!q && (
               <Link href="/dashboard/hrm/payroll/employees">
-                <ClayButton
-                  variant="obsidian"
-                  trailing={<ArrowRight className="h-4 w-4" strokeWidth={1.75} />}
-                >
+                <ZoruButton>
                   Go to Employees
-                </ClayButton>
+                  <ArrowRight className="h-4 w-4" strokeWidth={1.75} />
+                </ZoruButton>
               </Link>
             )}
           </div>
-        </ClayCard>
+        </ZoruCard>
       ) : view === 'grid' ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {rows.map((e) => {
@@ -200,45 +200,45 @@ export default function DirectoryPage() {
               e.employeeId ||
               'Unnamed';
             const color = avatarColor(name);
-            const tone = STATUS_TONES[(e.status || '').toLowerCase()] || 'neutral';
+            const variant = STATUS_VARIANTS[(e.status || '').toLowerCase()] || 'ghost';
             return (
-              <ClayCard key={e._id}>
+              <ZoruCard key={e._id}>
                 <div className="flex flex-col gap-3 p-4">
                   {/* Avatar + status */}
                   <div className="flex items-start justify-between gap-2">
                     <div
-                      className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-[15px] font-semibold ${color}`}
+                      className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-[15px] ${color}`}
                     >
                       {initials(name)}
                     </div>
                     {e.status && (
-                      <ClayBadge tone={tone} dot>
+                      <ZoruBadge variant={variant}>
                         {e.status}
-                      </ClayBadge>
+                      </ZoruBadge>
                     )}
                   </div>
 
                   {/* Name + title */}
                   <div>
-                    <div className="text-[14px] font-semibold text-foreground leading-snug">
+                    <div className="text-[14px] text-zoru-ink leading-snug">
                       {name}
                     </div>
-                    <div className="mt-0.5 text-[12px] text-muted-foreground">
+                    <div className="mt-0.5 text-[12px] text-zoru-ink-muted">
                       {e.designationName || '—'}
                     </div>
                     {e.departmentName && (
-                      <div className="mt-0.5 text-[11px] text-muted-foreground">
+                      <div className="mt-0.5 text-[11px] text-zoru-ink-muted">
                         {e.departmentName}
                       </div>
                     )}
                   </div>
 
                   {/* Contact + meta */}
-                  <div className="flex flex-col gap-1 pt-1 border-t border-border">
+                  <div className="flex flex-col gap-1 pt-1 border-t border-zoru-line">
                     {e.email && (
                       <a
                         href={`mailto:${e.email}`}
-                        className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-foreground truncate"
+                        className="inline-flex items-center gap-1.5 text-[12px] text-zoru-ink-muted hover:text-zoru-ink truncate"
                       >
                         <Mail className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} />
                         <span className="truncate">{e.email}</span>
@@ -247,42 +247,42 @@ export default function DirectoryPage() {
                     {e.phone && (
                       <a
                         href={`tel:${e.phone}`}
-                        className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-foreground"
+                        className="inline-flex items-center gap-1.5 text-[12px] text-zoru-ink-muted hover:text-zoru-ink"
                       >
                         <Phone className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} />
                         {e.phone}
                       </a>
                     )}
                     {e.workLocation && (
-                      <div className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground">
+                      <div className="inline-flex items-center gap-1.5 text-[12px] text-zoru-ink-muted">
                         <MapPin className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} />
                         {e.workLocation}
                       </div>
                     )}
                     {e.joiningDate && (
-                      <div className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground">
+                      <div className="inline-flex items-center gap-1.5 text-[12px] text-zoru-ink-muted">
                         <Calendar className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} />
                         Joined {fmtDate(e.joiningDate)}
                       </div>
                     )}
                   </div>
                 </div>
-              </ClayCard>
+              </ZoruCard>
             );
           })}
         </div>
       ) : (
         /* List view — native table */
-        <ClayCard>
+        <ZoruCard>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-[13px]">
               <thead>
-                <tr className="border-b border-border">
+                <tr className="border-b border-zoru-line">
                   {['Employee', 'Designation', 'Department', 'Email', 'Phone', 'Location', 'Joined', 'Status'].map(
                     (h) => (
                       <th
                         key={h}
-                        className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground whitespace-nowrap"
+                        className="px-4 py-3 text-[11px] uppercase tracking-wide text-zoru-ink-muted whitespace-nowrap"
                       >
                         {h}
                       </th>
@@ -290,52 +290,52 @@ export default function DirectoryPage() {
                   )}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border">
+              <tbody className="divide-y divide-zoru-line">
                 {rows.map((e) => {
                   const name =
                     [e.firstName, e.lastName].filter(Boolean).join(' ') ||
                     e.employeeId ||
                     'Unnamed';
                   const color = avatarColor(name);
-                  const tone = STATUS_TONES[(e.status || '').toLowerCase()] || 'neutral';
+                  const variant = STATUS_VARIANTS[(e.status || '').toLowerCase()] || 'ghost';
                   return (
-                    <tr key={e._id} className="transition-colors hover:bg-secondary">
+                    <tr key={e._id} className="transition-colors hover:bg-zoru-surface-2">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2.5">
                           <div
-                            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[12px] font-semibold ${color}`}
+                            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[12px] ${color}`}
                           >
                             {initials(name)}
                           </div>
                           <div>
-                            <div className="font-medium text-foreground">{name}</div>
+                            <div className="text-zoru-ink">{name}</div>
                             {e.employeeId && (
-                              <div className="text-[11px] text-muted-foreground">{e.employeeId}</div>
+                              <div className="text-[11px] text-zoru-ink-muted">{e.employeeId}</div>
                             )}
                           </div>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-foreground">{e.designationName || '—'}</td>
-                      <td className="px-4 py-3 text-foreground">{e.departmentName || '—'}</td>
-                      <td className="px-4 py-3 text-muted-foreground">
+                      <td className="px-4 py-3 text-zoru-ink">{e.designationName || '—'}</td>
+                      <td className="px-4 py-3 text-zoru-ink">{e.departmentName || '—'}</td>
+                      <td className="px-4 py-3 text-zoru-ink-muted">
                         {e.email ? (
-                          <a href={`mailto:${e.email}`} className="hover:text-foreground truncate max-w-[160px] block">
+                          <a href={`mailto:${e.email}`} className="hover:text-zoru-ink truncate max-w-[160px] block">
                             {e.email}
                           </a>
                         ) : (
                           '—'
                         )}
                       </td>
-                      <td className="px-4 py-3 text-muted-foreground">{e.phone || '—'}</td>
-                      <td className="px-4 py-3 text-muted-foreground">{e.workLocation || '—'}</td>
-                      <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">
+                      <td className="px-4 py-3 text-zoru-ink-muted">{e.phone || '—'}</td>
+                      <td className="px-4 py-3 text-zoru-ink-muted">{e.workLocation || '—'}</td>
+                      <td className="px-4 py-3 text-zoru-ink-muted whitespace-nowrap">
                         {fmtDate(e.joiningDate) || '—'}
                       </td>
                       <td className="px-4 py-3">
                         {e.status ? (
-                          <ClayBadge tone={tone} dot>
+                          <ZoruBadge variant={variant}>
                             {e.status}
-                          </ClayBadge>
+                          </ZoruBadge>
                         ) : (
                           '—'
                         )}
@@ -346,12 +346,12 @@ export default function DirectoryPage() {
               </tbody>
             </table>
           </div>
-        </ClayCard>
+        </ZoruCard>
       )}
 
       {/* Result count */}
       {!isLoading && allRows.length > 0 && (
-        <p className="text-[12px] text-muted-foreground">
+        <p className="text-[12px] text-zoru-ink-muted">
           Showing {rows.length} of {allRows.length} employee{allRows.length !== 1 ? 's' : ''}
           {q ? ` matching "${search}"` : ''}
         </p>

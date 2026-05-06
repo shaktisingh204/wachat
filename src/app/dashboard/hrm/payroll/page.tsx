@@ -1,14 +1,19 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useState, useEffect, useTransition, useCallback } from 'react';
 import { DollarSign, LoaderCircle, Play, CheckCircle } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { startOfMonth } from 'date-fns';
 
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
+import {
+    ZoruBadge,
+    ZoruButton,
+    ZoruCard,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { getPayslips } from '@/app/actions/crm-payroll.actions';
 import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
@@ -24,10 +29,10 @@ const months = [
 ];
 
 function statusBadge(status: string) {
-    if (status === 'paid') return <ClayBadge tone="green" dot>Paid</ClayBadge>;
-    if (status === 'pending') return <ClayBadge tone="amber" dot>Pending</ClayBadge>;
-    if (status === 'processing') return <ClayBadge tone="blue" dot>Processing</ClayBadge>;
-    return <ClayBadge tone="neutral">{status}</ClayBadge>;
+    if (status === 'paid') return <ZoruBadge variant="success">Paid</ZoruBadge>;
+    if (status === 'pending') return <ZoruBadge variant="warning">Pending</ZoruBadge>;
+    if (status === 'processing') return <ZoruBadge variant="info">Processing</ZoruBadge>;
+    return <ZoruBadge variant="secondary">{status}</ZoruBadge>;
 }
 
 export default function PayrollRunPage() {
@@ -69,75 +74,77 @@ export default function PayrollRunPage() {
                 icon={DollarSign}
                 actions={
                     <>
-                        <Select value={String(month)} onValueChange={val => setMonth(Number(val))}>
-                            <SelectTrigger className="w-36 h-9 rounded-full border-border bg-card text-[13px]">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {months.map(m => <SelectItem key={m.value} value={String(m.value)}>{m.label}</SelectItem>)}
-                            </SelectContent>
-                        </Select>
-                        <Select value={String(year)} onValueChange={val => setYear(Number(val))}>
-                            <SelectTrigger className="w-28 h-9 rounded-full border-border bg-card text-[13px]">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {years.map(y => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}
-                            </SelectContent>
-                        </Select>
-                        <ClayButton variant="obsidian" leading={<Play className="h-4 w-4" />} disabled={isLoading}>
+                        <ZoruSelect value={String(month)} onValueChange={val => setMonth(Number(val))}>
+                            <ZoruSelectTrigger className="w-36 h-9 rounded-full border-zoru-line bg-zoru-bg text-[13px]">
+                                <ZoruSelectValue />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                {months.map(m => <ZoruSelectItem key={m.value} value={String(m.value)}>{m.label}</ZoruSelectItem>)}
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                        <ZoruSelect value={String(year)} onValueChange={val => setYear(Number(val))}>
+                            <ZoruSelectTrigger className="w-28 h-9 rounded-full border-zoru-line bg-zoru-bg text-[13px]">
+                                <ZoruSelectValue />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                {years.map(y => <ZoruSelectItem key={y} value={String(y)}>{y}</ZoruSelectItem>)}
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                        <ZoruButton disabled={isLoading}>
+                            <Play className="h-4 w-4" />
                             Run Payroll
-                        </ClayButton>
+                        </ZoruButton>
                     </>
                 }
             />
 
             <div className="grid gap-4 md:grid-cols-3">
-                <ClayCard>
-                    <p className="text-[12.5px] font-medium text-muted-foreground">Total Gross Salary</p>
-                    <div className="mt-2 text-2xl font-bold text-foreground">₹{totalGross.toLocaleString('en-IN')}</div>
-                    <p className="mt-1 text-[11.5px] text-muted-foreground">{payslips.length} employees</p>
-                </ClayCard>
-                <ClayCard>
-                    <p className="text-[12.5px] font-medium text-muted-foreground">Total Deductions</p>
-                    <div className="mt-2 text-2xl font-bold text-foreground">₹{totalDeductions.toLocaleString('en-IN')}</div>
-                    <p className="mt-1 text-[11.5px] text-muted-foreground">PF + ESI + TDS + PT</p>
-                </ClayCard>
-                <ClayCard>
-                    <p className="text-[12.5px] font-medium text-muted-foreground">Total Net Pay</p>
-                    <div className="mt-2 text-2xl font-bold text-foreground">₹{totalNet.toLocaleString('en-IN')}</div>
-                    <p className="mt-1 text-[11.5px] text-muted-foreground">Amount to be disbursed</p>
-                </ClayCard>
+                <ZoruCard className="p-6">
+                    <p className="text-[12.5px] font-medium text-zoru-ink-muted">Total Gross Salary</p>
+                    <div className="mt-2 text-2xl text-zoru-ink">₹{totalGross.toLocaleString('en-IN')}</div>
+                    <p className="mt-1 text-[11.5px] text-zoru-ink-muted">{payslips.length} employees</p>
+                </ZoruCard>
+                <ZoruCard className="p-6">
+                    <p className="text-[12.5px] font-medium text-zoru-ink-muted">Total Deductions</p>
+                    <div className="mt-2 text-2xl text-zoru-ink">₹{totalDeductions.toLocaleString('en-IN')}</div>
+                    <p className="mt-1 text-[11.5px] text-zoru-ink-muted">PF + ESI + TDS + PT</p>
+                </ZoruCard>
+                <ZoruCard className="p-6">
+                    <p className="text-[12.5px] font-medium text-zoru-ink-muted">Total Net Pay</p>
+                    <div className="mt-2 text-2xl text-zoru-ink">₹{totalNet.toLocaleString('en-IN')}</div>
+                    <p className="mt-1 text-[11.5px] text-zoru-ink-muted">Amount to be disbursed</p>
+                </ZoruCard>
             </div>
 
-            <ClayCard>
+            <ZoruCard className="p-6">
                 <div className="mb-4 flex items-center justify-between">
                     <div>
-                        <h2 className="text-[16px] font-semibold text-foreground">Payroll Register — {periodLabel}</h2>
-                        <p className="mt-0.5 text-[12.5px] text-muted-foreground">Review each employee's salary breakdown before disbursement.</p>
+                        <h2 className="text-[16px] text-zoru-ink">Payroll Register — {periodLabel}</h2>
+                        <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">Review each employee&apos;s salary breakdown before disbursement.</p>
                     </div>
-                    <ClayButton variant="pill" size="sm" leading={<CheckCircle className="h-3.5 w-3.5" />} disabled>
+                    <ZoruButton variant="outline" size="sm" disabled>
+                        <CheckCircle className="h-3.5 w-3.5" />
                         Mark All Paid
-                    </ClayButton>
+                    </ZoruButton>
                 </div>
-                <div className="overflow-x-auto rounded-lg border border-border">
+                <div className="overflow-x-auto rounded-lg border border-zoru-line">
                     <table className="w-full text-left text-[13px]">
                         <thead>
-                            <tr className="border-b border-border bg-secondary">
-                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Employee</th>
-                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Designation</th>
-                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Basic Salary</th>
-                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Allowances</th>
-                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Deductions</th>
-                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Net Pay</th>
-                                <th className="px-4 py-3 text-center text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Status</th>
+                            <tr className="border-b border-zoru-line bg-zoru-surface-2">
+                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">Employee</th>
+                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">Designation</th>
+                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">Basic Salary</th>
+                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">Allowances</th>
+                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">Deductions</th>
+                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">Net Pay</th>
+                                <th className="px-4 py-3 text-center text-[12px] uppercase text-zoru-ink-muted">Status</th>
                             </tr>
                         </thead>
                         <tbody>
                             {isLoading ? (
                                 <tr>
                                     <td colSpan={7} className="h-48 text-center">
-                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
+                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-zoru-ink-muted" />
                                     </td>
                                 </tr>
                             ) : payslips.length > 0 ? (
@@ -145,25 +152,25 @@ export default function PayrollRunPage() {
                                     const basic = p.earnings?.find((e: any) => e.name?.toLowerCase().includes('basic'))?.amount ?? 0;
                                     const allowances = (p.grossSalary ?? 0) - basic;
                                     return (
-                                        <tr key={p._id?.toString() ?? idx} className="border-b border-border last:border-0 hover:bg-secondary/50 transition-colors">
+                                        <tr key={p._id?.toString() ?? idx} className="border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2/50 transition-colors">
                                             <td className="px-4 py-3">
-                                                <div className="font-medium text-foreground">
+                                                <div className="font-medium text-zoru-ink">
                                                     {p.employee?.firstName} {p.employee?.lastName}
                                                 </div>
-                                                <div className="text-[11.5px] text-muted-foreground">{p.employee?.employeeId ?? '—'}</div>
+                                                <div className="text-[11.5px] text-zoru-ink-muted">{p.employee?.employeeId ?? '—'}</div>
                                             </td>
-                                            <td className="px-4 py-3 text-foreground">{p.employee?.designationName ?? '—'}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-foreground">₹{basic.toLocaleString('en-IN')}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-foreground">₹{allowances.toLocaleString('en-IN')}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-destructive">₹{(p.totalDeductions ?? 0).toLocaleString('en-IN')}</td>
-                                            <td className="px-4 py-3 text-right font-mono font-semibold text-foreground">₹{(p.netPay ?? 0).toLocaleString('en-IN')}</td>
+                                            <td className="px-4 py-3 text-zoru-ink">{p.employee?.designationName ?? '—'}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-zoru-ink">₹{basic.toLocaleString('en-IN')}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-zoru-ink">₹{allowances.toLocaleString('en-IN')}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-zoru-danger-ink">₹{(p.totalDeductions ?? 0).toLocaleString('en-IN')}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-zoru-ink">₹{(p.netPay ?? 0).toLocaleString('en-IN')}</td>
                                             <td className="px-4 py-3 text-center">{statusBadge(p.status)}</td>
                                         </tr>
                                     );
                                 })
                             ) : (
                                 <tr>
-                                    <td colSpan={7} className="h-24 text-center text-muted-foreground">
+                                    <td colSpan={7} className="h-24 text-center text-zoru-ink-muted">
                                         No payroll data for {periodLabel}. Click &ldquo;Run Payroll&rdquo; to generate.
                                     </td>
                                 </tr>
@@ -171,23 +178,23 @@ export default function PayrollRunPage() {
                         </tbody>
                         {payslips.length > 0 && (
                             <tfoot>
-                                <tr className="border-t-2 border-border bg-secondary">
-                                    <td colSpan={2} className="px-4 py-3 text-[12.5px] font-semibold text-foreground">Totals</td>
-                                    <td className="px-4 py-3 text-right font-mono text-[12.5px] font-semibold text-foreground">
+                                <tr className="border-t-2 border-zoru-line bg-zoru-surface-2">
+                                    <td colSpan={2} className="px-4 py-3 text-[12.5px] text-zoru-ink">Totals</td>
+                                    <td className="px-4 py-3 text-right font-mono text-[12.5px] text-zoru-ink">
                                         ₹{payslips.reduce((s, p) => s + (p.earnings?.find((e: any) => e.name?.toLowerCase().includes('basic'))?.amount ?? 0), 0).toLocaleString('en-IN')}
                                     </td>
-                                    <td className="px-4 py-3 text-right font-mono text-[12.5px] font-semibold text-foreground">
+                                    <td className="px-4 py-3 text-right font-mono text-[12.5px] text-zoru-ink">
                                         ₹{payslips.reduce((s, p) => { const basic = p.earnings?.find((e: any) => e.name?.toLowerCase().includes('basic'))?.amount ?? 0; return s + ((p.grossSalary ?? 0) - basic); }, 0).toLocaleString('en-IN')}
                                     </td>
-                                    <td className="px-4 py-3 text-right font-mono text-[12.5px] font-semibold text-destructive">₹{totalDeductions.toLocaleString('en-IN')}</td>
-                                    <td className="px-4 py-3 text-right font-mono text-[12.5px] font-bold text-foreground">₹{totalNet.toLocaleString('en-IN')}</td>
+                                    <td className="px-4 py-3 text-right font-mono text-[12.5px] text-zoru-danger-ink">₹{totalDeductions.toLocaleString('en-IN')}</td>
+                                    <td className="px-4 py-3 text-right font-mono text-[12.5px] text-zoru-ink">₹{totalNet.toLocaleString('en-IN')}</td>
                                     <td />
                                 </tr>
                             </tfoot>
                         )}
                     </table>
                 </div>
-            </ClayCard>
+            </ZoruCard>
         </div>
     );
 }

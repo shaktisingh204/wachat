@@ -187,3 +187,115 @@
 .zoruui [class*="text-primary-foreground"] {
   color: hsl(var(--zoru-on-primary)) !important;
 }
+
+/* ──────────────────────────────────────────────────────────────────
+ * Clay pastel-tinted backgrounds → neutral surface
+ *
+ * Clay's design language used cream + tone-tinted pastel backgrounds
+ * for badges/cards (mint, sky, indigo, lime, violet, slate, pink,
+ * yellow, orange, rose). They survive the .zoruui token remap
+ * because they're hardcoded as Tailwind arbitrary-values
+ * (`bg-[#DCFCE7]` etc.). Override them here so every Clay component
+ * inside `.zoruui` renders with the neutral Zoru palette.
+ * ───────────────────────────────────────────────────────────────── */
+
+.zoruui [class*="bg-[#CCFBF1]"],
+.zoruui [class*="bg-[#DBEAFE]"],
+.zoruui [class*="bg-[#DCFCE7]"],
+.zoruui [class*="bg-[#E0E7FF]"],
+.zoruui [class*="bg-[#ECFCCB]"],
+.zoruui [class*="bg-[#EEE8FF]"],
+.zoruui [class*="bg-[#F1F5F9]"],
+.zoruui [class*="bg-[#FCE7F3]"],
+.zoruui [class*="bg-[#FEF3C7]"],
+.zoruui [class*="bg-[#FFEDD5]"] {
+  background-color: hsl(var(--zoru-surface-2)) !important;
+}
+
+.zoruui [class*="text-[#115E59]"],
+.zoruui [class*="text-[#166534]"],
+.zoruui [class*="text-[#1E40AF]"],
+.zoruui [class*="text-[#334155]"],
+.zoruui [class*="text-[#3730A3]"],
+.zoruui [class*="text-[#3F6212]"],
+.zoruui [class*="text-[#5B21B6]"],
+.zoruui [class*="text-[#92400E]"],
+.zoruui [class*="text-[#9A3412]"],
+.zoruui [class*="text-[#9D174D]"] {
+  color: hsl(var(--zoru-ink)) !important;
+}
+
+.zoruui [class*="border-[#86EFAC]"],
+.zoruui [class*="border-[#FCD34D]"],
+.zoruui [class*="border-[#93C5FD]"] {
+  border-color: hsl(var(--zoru-line)) !important;
+}
+
+/* Generic Tailwind colored tints used as accent backgrounds (most
+ * common: bg-rose-50, bg-amber-50, bg-emerald-50, etc.) — flatten
+ * inside zoruui scope so per-status pages don't read like a rainbow. */
+.zoruui [class*="bg-rose-50"],
+.zoruui [class*="bg-pink-50"],
+.zoruui [class*="bg-purple-50"],
+.zoruui [class*="bg-fuchsia-50"],
+.zoruui [class*="bg-violet-50"],
+.zoruui [class*="bg-indigo-50"],
+.zoruui [class*="bg-blue-50"],
+.zoruui [class*="bg-sky-50"],
+.zoruui [class*="bg-cyan-50"],
+.zoruui [class*="bg-teal-50"],
+.zoruui [class*="bg-emerald-50"],
+.zoruui [class*="bg-green-50"],
+.zoruui [class*="bg-lime-50"],
+.zoruui [class*="bg-yellow-50"],
+.zoruui [class*="bg-amber-50"],
+.zoruui [class*="bg-orange-50"],
+.zoruui [class*="bg-red-50"],
+.zoruui [class*="bg-cream-50"] {
+  background-color: hsl(var(--zoru-surface-2)) !important;
+}
+
+/* Soft-100 variants too — same idea, slightly stronger tint. */
+.zoruui [class*="bg-rose-100"],
+.zoruui [class*="bg-pink-100"],
+.zoruui [class*="bg-purple-100"],
+.zoruui [class*="bg-fuchsia-100"],
+.zoruui [class*="bg-violet-100"],
+.zoruui [class*="bg-indigo-100"],
+.zoruui [class*="bg-blue-100"],
+.zoruui [class*="bg-sky-100"],
+.zoruui [class*="bg-cyan-100"],
+.zoruui [class*="bg-teal-100"],
+.zoruui [class*="bg-emerald-100"],
+.zoruui [class*="bg-green-100"],
+.zoruui [class*="bg-lime-100"],
+.zoruui [class*="bg-yellow-100"],
+.zoruui [class*="bg-amber-100"],
+.zoruui [class*="bg-orange-100"],
+.zoruui [class*="bg-red-100"] {
+  background-color: hsl(var(--zoru-surface-3)) !important;
+}
+
+/* All gradient backgrounds (any color combo) → flat surface inside
+ * zoru. Keeps cards from showing colored gradients on legacy pages. */
+.zoruui [class*="bg-gradient-to-"],
+.zoruui [class*="bg-gradient-to-tr"],
+.zoruui [class*="bg-gradient-to-tl"],
+.zoruui [class*="bg-gradient-to-br"],
+.zoruui [class*="bg-gradient-to-bl"],
+.zoruui [class*="bg-gradient-to-r"],
+.zoruui [class*="bg-gradient-to-l"],
+.zoruui [class*="bg-gradient-to-t"],
+.zoruui [class*="bg-gradient-to-b"] {
+  background-image: none !important;
+  background-color: hsl(var(--zoru-surface-2)) !important;
+}
+
+/* …but DON'T flatten gradients on the dock or sidebar — they're
+ * intentionally styled within Zoru components and should keep their
+ * subtle aurora/glass effects. */
+.zoruui nav[aria-label="App dock"] [class*="bg-gradient-to-"],
+.zoruui aside [class*="bg-gradient-to-"] {
+  background-image: revert !important;
+  background-color: revert !important;
+}

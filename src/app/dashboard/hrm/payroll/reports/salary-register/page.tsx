@@ -1,17 +1,19 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { Download, SlidersHorizontal, BookOpen, LoaderCircle, IndianRupee, Users, TrendingDown, Wallet } from 'lucide-react';
 import { useState, useEffect, useTransition, useCallback } from 'react';
 import { generateSalaryRegisterData } from '@/app/actions/crm-hr-reports.actions';
-import { useToast } from '@/hooks/use-toast';
 import Papa from 'papaparse';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Label } from '@/components/ui/label';
 
-import { ClayCard, ClayButton } from '@/components/clay';
+import {
+    ZoruButton,
+    ZoruCard,
+    ZoruLabel,
+    ZoruPopover,
+    ZoruPopoverContent,
+    ZoruPopoverTrigger,
+    useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 
 type SalaryRow = {
@@ -35,14 +37,14 @@ type Summary = { totalGross: number; totalDeductions: number; totalNetPay: numbe
 const fmt = (n: number) => `₹${n.toLocaleString('en-IN')}`;
 
 const StatCard = ({ title, value, icon: Icon, sub }: { title: string; value: string; icon: React.ElementType; sub?: string }) => (
-    <ClayCard className="flex flex-col gap-1">
+    <ZoruCard className="flex flex-col gap-1 p-6">
         <div className="flex items-center justify-between">
-            <p className="text-[12.5px] font-medium text-muted-foreground">{title}</p>
-            <Icon className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
+            <p className="text-[12.5px] font-medium text-zoru-ink-muted">{title}</p>
+            <Icon className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
         </div>
-        <p className="mt-1 text-2xl font-bold text-foreground">{value}</p>
-        {sub ? <p className="text-[11.5px] text-muted-foreground">{sub}</p> : null}
-    </ClayCard>
+        <p className="mt-1 text-2xl text-zoru-ink">{value}</p>
+        {sub ? <p className="text-[11.5px] text-zoru-ink-muted">{sub}</p> : null}
+    </ZoruCard>
 );
 
 const MONTHS = [
@@ -55,7 +57,7 @@ export default function SalaryRegisterPage() {
     const [reportData, setReportData] = useState<SalaryRow[]>([]);
     const [summary, setSummary] = useState<Summary>({ totalGross: 0, totalDeductions: 0, totalNetPay: 0, totalEmployees: 0 });
     const [isLoading, startTransition] = useTransition();
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
 
     const now = new Date();
     const [selectedMonth, setSelectedMonth] = useState(now.getMonth() + 1);
@@ -103,47 +105,48 @@ export default function SalaryRegisterPage() {
                 icon={BookOpen}
                 actions={
                     <>
-                        <Popover>
-                            <PopoverTrigger asChild>
-                                <ClayButton variant="pill" leading={<SlidersHorizontal className="h-4 w-4" />}>
+                        <ZoruPopover>
+                            <ZoruPopoverTrigger asChild>
+                                <ZoruButton variant="outline">
+                                    <SlidersHorizontal className="h-4 w-4" />
                                     Period
-                                </ClayButton>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-64 space-y-4 p-4">
+                                </ZoruButton>
+                            </ZoruPopoverTrigger>
+                            <ZoruPopoverContent className="w-64 space-y-4 p-4">
                                 <div className="space-y-1.5">
-                                    <Label className="text-[12.5px]">Month</Label>
+                                    <ZoruLabel className="text-[12.5px]">Month</ZoruLabel>
                                     <select
                                         value={selectedMonth}
                                         onChange={e => setSelectedMonth(Number(e.target.value))}
-                                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-[13px] text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+                                        className="w-full rounded-lg border border-zoru-line bg-zoru-bg px-3 py-2 text-[13px] text-zoru-ink focus:outline-none focus:ring-2 focus:ring-primary/30"
                                     >
                                         {MONTHS.map((m, i) => <option key={m} value={i + 1}>{m}</option>)}
                                     </select>
                                 </div>
                                 <div className="space-y-1.5">
-                                    <Label className="text-[12.5px]">Year</Label>
+                                    <ZoruLabel className="text-[12.5px]">Year</ZoruLabel>
                                     <select
                                         value={selectedYear}
                                         onChange={e => setSelectedYear(Number(e.target.value))}
-                                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-[13px] text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+                                        className="w-full rounded-lg border border-zoru-line bg-zoru-bg px-3 py-2 text-[13px] text-zoru-ink focus:outline-none focus:ring-2 focus:ring-primary/30"
                                     >
                                         {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
                                     </select>
                                 </div>
-                                <ClayButton variant="obsidian" onClick={fetchData} disabled={isLoading} className="w-full">
+                                <ZoruButton onClick={fetchData} disabled={isLoading} className="w-full">
                                     {isLoading ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
                                     Apply
-                                </ClayButton>
-                            </PopoverContent>
-                        </Popover>
-                        <ClayButton
-                            variant="pill"
+                                </ZoruButton>
+                            </ZoruPopoverContent>
+                        </ZoruPopover>
+                        <ZoruButton
+                            variant="outline"
                             onClick={handleDownload}
                             disabled={isLoading || reportData.length === 0}
-                            leading={<Download className="h-4 w-4" />}
                         >
+                            <Download className="h-4 w-4" />
                             Download CSV
-                        </ClayButton>
+                        </ZoruButton>
                     </>
                 }
             />
@@ -156,106 +159,106 @@ export default function SalaryRegisterPage() {
                 <StatCard title="Total Net Pay" value={fmt(summary.totalNetPay)} icon={Wallet} />
             </div>
 
-            <ClayCard>
+            <ZoruCard className="p-6">
                 <div className="mb-4 flex items-center justify-between">
                     <div>
-                        <h2 className="text-[16px] font-semibold text-foreground">Register Details</h2>
-                        <p className="mt-0.5 text-[12.5px] text-muted-foreground">
+                        <h2 className="text-[16px] text-zoru-ink">Register Details</h2>
+                        <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
                             {MONTHS[selectedMonth - 1]} {selectedYear}
                         </p>
                     </div>
                     {reportData.length > 0 && (
-                        <span className="text-[12.5px] text-muted-foreground">{reportData.length} employee{reportData.length !== 1 ? 's' : ''}</span>
+                        <span className="text-[12.5px] text-zoru-ink-muted">{reportData.length} employee{reportData.length !== 1 ? 's' : ''}</span>
                     )}
                 </div>
 
-                <div className="overflow-x-auto rounded-lg border border-border">
+                <div className="overflow-x-auto rounded-lg border border-zoru-line">
                     <table className="w-full text-left text-[13px]">
                         <thead>
-                            <tr className="border-b border-border bg-secondary">
-                                <th className="px-4 py-3 font-medium text-muted-foreground">Employee</th>
-                                <th className="px-4 py-3 font-medium text-muted-foreground">Department</th>
+                            <tr className="border-b border-zoru-line bg-zoru-surface-2">
+                                <th className="px-4 py-3 font-medium text-zoru-ink-muted">Employee</th>
+                                <th className="px-4 py-3 font-medium text-zoru-ink-muted">Department</th>
                                 {/* Earnings */}
-                                <th className="border-l border-border px-4 py-3 text-right font-medium text-green-600">Basic</th>
+                                <th className="border-l border-zoru-line px-4 py-3 text-right font-medium text-green-600">Basic</th>
                                 <th className="px-4 py-3 text-right font-medium text-green-600">HRA</th>
                                 <th className="px-4 py-3 text-right font-medium text-green-600">Spl. Allow.</th>
                                 <th className="px-4 py-3 text-right font-medium text-green-600">Other</th>
                                 <th className="px-4 py-3 text-right font-medium text-green-700">Total Gross</th>
                                 {/* Deductions */}
-                                <th className="border-l border-border px-4 py-3 text-right font-medium text-red-500">PF</th>
+                                <th className="border-l border-zoru-line px-4 py-3 text-right font-medium text-red-500">PF</th>
                                 <th className="px-4 py-3 text-right font-medium text-red-500">ESI</th>
                                 <th className="px-4 py-3 text-right font-medium text-red-500">TDS</th>
                                 <th className="px-4 py-3 text-right font-medium text-red-600">Total Deductions</th>
                                 {/* Net */}
-                                <th className="border-l border-border px-4 py-3 text-right font-medium text-foreground">Net Pay</th>
+                                <th className="border-l border-zoru-line px-4 py-3 text-right font-medium text-zoru-ink">Net Pay</th>
                             </tr>
                         </thead>
                         <tbody>
                             {isLoading ? (
                                 <tr>
                                     <td colSpan={12} className="h-48 text-center">
-                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
+                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-zoru-ink-muted" />
                                     </td>
                                 </tr>
                             ) : reportData.length > 0 ? (
                                 <>
                                     {reportData.map(row => (
-                                        <tr key={row.employeeId} className="border-b border-border last:border-0 hover:bg-secondary/50">
-                                            <td className="px-4 py-3 font-medium text-foreground">{row.employeeName}</td>
-                                            <td className="px-4 py-3 text-muted-foreground">{row.department}</td>
+                                        <tr key={row.employeeId} className="border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2/50">
+                                            <td className="px-4 py-3 font-medium text-zoru-ink">{row.employeeName}</td>
+                                            <td className="px-4 py-3 text-zoru-ink-muted">{row.department}</td>
                                             {/* Earnings */}
-                                            <td className="border-l border-border px-4 py-3 text-right font-mono text-foreground">{fmt(row.basic)}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-foreground">{fmt(row.hra)}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-foreground">{fmt(row.specialAllowance)}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-foreground">{fmt(row.otherEarnings)}</td>
+                                            <td className="border-l border-zoru-line px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.basic)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.hra)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.specialAllowance)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.otherEarnings)}</td>
                                             <td className="px-4 py-3 text-right font-mono font-semibold text-green-700">{fmt(row.totalGross)}</td>
                                             {/* Deductions */}
-                                            <td className="border-l border-border px-4 py-3 text-right font-mono text-foreground">{fmt(row.pf)}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-foreground">{fmt(row.esi)}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-foreground">{fmt(row.tds)}</td>
+                                            <td className="border-l border-zoru-line px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.pf)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.esi)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.tds)}</td>
                                             <td className="px-4 py-3 text-right font-mono font-semibold text-red-600">{fmt(row.totalDeductions)}</td>
                                             {/* Net */}
-                                            <td className="border-l border-border px-4 py-3 text-right font-mono font-bold text-foreground">{fmt(row.netPay)}</td>
+                                            <td className="border-l border-zoru-line px-4 py-3 text-right font-mono font-bold text-zoru-ink">{fmt(row.netPay)}</td>
                                         </tr>
                                     ))}
                                     {/* Totals row */}
-                                    <tr className="border-t-2 border-border bg-secondary font-semibold">
-                                        <td className="px-4 py-3 text-foreground" colSpan={2}>Totals</td>
-                                        <td className="border-l border-border px-4 py-3 text-right font-mono text-foreground">
+                                    <tr className="border-t-2 border-zoru-line bg-zoru-surface-2 font-semibold">
+                                        <td className="px-4 py-3 text-zoru-ink" colSpan={2}>Totals</td>
+                                        <td className="border-l border-zoru-line px-4 py-3 text-right font-mono text-zoru-ink">
                                             {fmt(reportData.reduce((s, r) => s + r.basic, 0))}
                                         </td>
-                                        <td className="px-4 py-3 text-right font-mono text-foreground">
+                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">
                                             {fmt(reportData.reduce((s, r) => s + r.hra, 0))}
                                         </td>
-                                        <td className="px-4 py-3 text-right font-mono text-foreground">
+                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">
                                             {fmt(reportData.reduce((s, r) => s + r.specialAllowance, 0))}
                                         </td>
-                                        <td className="px-4 py-3 text-right font-mono text-foreground">
+                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">
                                             {fmt(reportData.reduce((s, r) => s + r.otherEarnings, 0))}
                                         </td>
                                         <td className="px-4 py-3 text-right font-mono text-green-700">
                                             {fmt(summary.totalGross)}
                                         </td>
-                                        <td className="border-l border-border px-4 py-3 text-right font-mono text-foreground">
+                                        <td className="border-l border-zoru-line px-4 py-3 text-right font-mono text-zoru-ink">
                                             {fmt(reportData.reduce((s, r) => s + r.pf, 0))}
                                         </td>
-                                        <td className="px-4 py-3 text-right font-mono text-foreground">
+                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">
                                             {fmt(reportData.reduce((s, r) => s + r.esi, 0))}
                                         </td>
-                                        <td className="px-4 py-3 text-right font-mono text-foreground">
+                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">
                                             {fmt(reportData.reduce((s, r) => s + r.tds, 0))}
                                         </td>
                                         <td className="px-4 py-3 text-right font-mono text-red-600">
                                             {fmt(summary.totalDeductions)}
                                         </td>
-                                        <td className="border-l border-border px-4 py-3 text-right font-mono text-foreground">
+                                        <td className="border-l border-zoru-line px-4 py-3 text-right font-mono text-zoru-ink">
                                             {fmt(summary.totalNetPay)}
                                         </td>
                                     </tr>
                                 </>
                             ) : (
                                 <tr>
-                                    <td colSpan={12} className="h-24 text-center text-muted-foreground">
+                                    <td colSpan={12} className="h-24 text-center text-zoru-ink-muted">
                                         No salary data found for the selected period.
                                     </td>
                                 </tr>
@@ -263,7 +266,7 @@ export default function SalaryRegisterPage() {
                         </tbody>
                     </table>
                 </div>
-            </ClayCard>
+            </ZoruCard>
         </div>
     );
 }

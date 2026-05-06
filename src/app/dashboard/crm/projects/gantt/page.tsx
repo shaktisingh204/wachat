@@ -1,8 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { GanttChart, ArrowLeft, Flag } from 'lucide-react';
@@ -14,9 +11,13 @@ import type {
   WsProject,
   WsProjectMilestone,
 } from '@/lib/worksuite/project-types';
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruSkeleton,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
-import { Skeleton } from '@/components/ui/skeleton';
 
 type Project = WsProject & { _id: string };
 type Milestone = WsProjectMilestone & { _id: string };
@@ -111,8 +112,8 @@ export default function GanttPage() {
   if (isLoading && projects.length === 0) {
     return (
       <div className="flex w-full flex-col gap-6">
-        <Skeleton className="h-10 w-64" />
-        <Skeleton className="h-96 w-full" />
+        <ZoruSkeleton className="h-10 w-64" />
+        <ZoruSkeleton className="h-96 w-full" />
       </div>
     );
   }
@@ -125,43 +126,38 @@ export default function GanttPage() {
         icon={GanttChart}
         actions={
           <Link href="/dashboard/crm/projects">
-            <ClayButton variant="pill" leading={<ArrowLeft className="h-4 w-4" />}>
+            <ZoruButton variant="outline" size="sm">
+              <ArrowLeft className="h-4 w-4" />
               Projects
-            </ClayButton>
+            </ZoruButton>
           </Link>
         }
       />
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         <div className="mb-4 flex flex-wrap items-center gap-3">
-          <span className="text-[11.5px] text-muted-foreground">Legend:</span>
-          <ClayBadge tone="rose-soft" dot>
-            Scheduled
-          </ClayBadge>
-          <ClayBadge tone="amber" dot>
-            Milestone pending
-          </ClayBadge>
-          <ClayBadge tone="green" dot>
-            Milestone complete
-          </ClayBadge>
-          <ClayBadge tone="neutral">No dates</ClayBadge>
-          <span className="ml-auto text-[11.5px] text-muted-foreground">
+          <span className="text-[11.5px] text-zoru-ink-muted">Legend:</span>
+          <ZoruBadge variant="danger">Scheduled</ZoruBadge>
+          <ZoruBadge variant="warning">Milestone pending</ZoruBadge>
+          <ZoruBadge variant="success">Milestone complete</ZoruBadge>
+          <ZoruBadge variant="ghost">No dates</ZoruBadge>
+          <span className="ml-auto text-[11.5px] text-zoru-ink-muted">
             {projects.length} project{projects.length === 1 ? '' : 's'} ·{' '}
             {milestones.length} milestones
           </span>
         </div>
 
         {projects.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-border p-12 text-center">
-            <p className="text-[13px] text-muted-foreground">
+          <div className="rounded-lg border border-dashed border-zoru-line p-12 text-center">
+            <p className="text-[13px] text-zoru-ink-muted">
               No projects to show.
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-lg border border-border">
+          <div className="overflow-x-auto rounded-lg border border-zoru-line">
             <div className="min-w-[900px]">
-              <div className="grid grid-cols-[220px_1fr] border-b border-border bg-secondary">
-                <div className="p-3 text-[11.5px] font-medium uppercase tracking-wide text-muted-foreground">
+              <div className="grid grid-cols-[220px_1fr] border-b border-zoru-line bg-zoru-surface-2">
+                <div className="p-3 text-[11.5px] font-medium uppercase tracking-wide text-zoru-ink-muted">
                   Project
                 </div>
                 <div
@@ -173,7 +169,7 @@ export default function GanttPage() {
                   {months.map((m) => (
                     <div
                       key={m.label}
-                      className="border-l border-border p-3 text-center text-[11.5px] font-medium text-muted-foreground"
+                      className="border-l border-zoru-line p-3 text-center text-[11.5px] font-medium text-zoru-ink-muted"
                     >
                       {m.label}
                     </div>
@@ -201,16 +197,16 @@ export default function GanttPage() {
                   return (
                     <div
                       key={project._id}
-                      className="grid grid-cols-[220px_1fr] border-b border-border last:border-b-0"
+                      className="grid grid-cols-[220px_1fr] border-b border-zoru-line last:border-b-0"
                     >
                       <div className="flex flex-col justify-center p-3">
                         <Link
                           href={`/dashboard/crm/projects/${project._id}`}
-                          className="truncate text-[13px] font-medium text-foreground hover:underline"
+                          className="truncate text-[13px] font-medium text-zoru-ink hover:underline"
                         >
                           {project.name || project.projectName}
                         </Link>
-                        <span className="text-[11px] text-muted-foreground">
+                        <span className="text-[11px] text-zoru-ink-muted">
                           {project.clientName || '—'}
                         </span>
                       </div>
@@ -225,7 +221,7 @@ export default function GanttPage() {
                           {months.map((m) => (
                             <div
                               key={m.label}
-                              className="border-l border-border"
+                              className="border-l border-zoru-line"
                             />
                           ))}
                         </div>
@@ -246,7 +242,7 @@ export default function GanttPage() {
                             </span>
                           </div>
                         ) : (
-                          <div className="absolute inset-y-0 left-3 flex items-center text-[11px] text-muted-foreground">
+                          <div className="absolute inset-y-0 left-3 flex items-center text-[11px] text-zoru-ink-muted">
                             No scheduled dates
                           </div>
                         )}
@@ -271,7 +267,7 @@ export default function GanttPage() {
             </div>
           </div>
         )}
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

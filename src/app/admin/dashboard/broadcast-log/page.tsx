@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { getAllBroadcasts } from '@/app/actions/index.ts';
-import { Button } from '@/components/ui/button';
+import { ZoruButton } from '@/components/zoruui';
 import { RefreshCw, LoaderCircle, Radio } from 'lucide-react';
 
 const BROADCASTS_PER_PAGE = 20;
@@ -49,7 +49,7 @@ export default function BroadcastLogPage() {
                     <h1 className="text-2xl font-bold text-slate-900">Broadcast Log</h1>
                     <p className="text-sm text-slate-500 mt-1">System-wide raw log of all broadcasts for debugging.</p>
                 </div>
-                <Button
+                <ZoruButton
                     onClick={() => fetchBroadcasts(currentPage)}
                     disabled={isLoading}
                     className="border border-slate-300 bg-slate-100 text-slate-900 hover:bg-slate-200 hover:text-slate-900"
@@ -61,7 +61,7 @@ export default function BroadcastLogPage() {
                         : <RefreshCw className="mr-2 h-4 w-4" />
                     }
                     Refresh
-                </Button>
+                </ZoruButton>
             </div>
 
             {/* Table card */}
@@ -133,22 +133,22 @@ export default function BroadcastLogPage() {
                 <div className="px-6 py-3 border-t border-slate-200 flex items-center justify-between">
                     <span className="text-xs text-slate-500">Page {currentPage} of {totalPages > 0 ? totalPages : 1}</span>
                     <div className="flex gap-2">
-                        <Button
+                        <ZoruButton
                             variant="outline" size="sm"
                             onClick={() => setCurrentPage(p => p - 1)}
                             disabled={currentPage <= 1 || isLoading}
                             className="border-slate-300 bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900 disabled:opacity-40"
                         >
                             Previous
-                        </Button>
-                        <Button
+                        </ZoruButton>
+                        <ZoruButton
                             variant="outline" size="sm"
                             onClick={() => setCurrentPage(p => p + 1)}
                             disabled={currentPage >= totalPages || isLoading}
                             className="border-slate-300 bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900 disabled:opacity-40"
                         >
                             Next
-                        </Button>
+                        </ZoruButton>
                     </div>
                 </div>
             </div>

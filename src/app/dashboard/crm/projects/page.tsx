@@ -1,8 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import Link from 'next/link';
 import {
   Briefcase,
@@ -24,7 +21,7 @@ import {
   deleteWsProject,
 } from '@/app/actions/worksuite/projects.actions';
 import type { WsProject } from '@/lib/worksuite/project-types';
-import { ClayButton } from '@/components/clay';
+import { ZoruButton } from '@/components/zoruui';
 
 const STATUS_TONES: Record<
   string,
@@ -114,12 +111,10 @@ export default function ProjectsPage() {
           const Icon = q.icon;
           return (
             <Link key={q.href} href={q.href}>
-              <ClayButton
-                variant="pill"
-                leading={<Icon className="h-4 w-4" strokeWidth={1.75} />}
-              >
+              <ZoruButton variant="outline" size="sm">
+                <Icon className="h-4 w-4" strokeWidth={1.75} />
                 {q.label}
-              </ClayButton>
+              </ZoruButton>
             </Link>
           );
         })}
@@ -140,7 +135,7 @@ export default function ProjectsPage() {
             render: (row) => (
               <Link
                 href={`/dashboard/crm/projects/${row._id}`}
-                className="font-medium text-foreground hover:underline"
+                className="font-medium text-zoru-ink hover:underline"
               >
                 {row.name || row.projectName || '—'}
               </Link>

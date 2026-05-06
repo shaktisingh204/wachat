@@ -1,8 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import {
   useActionState,
   useCallback,
@@ -13,28 +10,26 @@ import {
 } from 'react';
 import { LoaderCircle, Plus, ShieldCheck, Trash2 } from 'lucide-react';
 
-import { ClayButton, ClayCard } from '@/components/clay';
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSkeleton,
+  ZoruSwitch,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
 import {
   getExpenseCategoryRoles,
   saveExpenseCategoryRole,
@@ -49,13 +44,10 @@ import type { WsRole } from '@/lib/worksuite/rbac-types';
 type FormState = { message?: string; error?: string; id?: string };
 const initialState: FormState = {};
 
-const inputClass =
-  'h-10 rounded-lg border-border bg-card text-[13px]';
-
 type Row = WsExpenseCategoryRole & { _id: string };
 
 export default function ExpenseCategoryRolesPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [rows, setRows] = useState<Row[]>([]);
   const [categories, setCategories] = useState<
     (WsExpenseCategoryExt & { _id: string })[]
@@ -147,77 +139,74 @@ export default function ExpenseCategoryRolesPage() {
         icon={ShieldCheck}
       />
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         <form action={formAction} className="space-y-4">
-          <h3 className="text-[13px] font-semibold uppercase tracking-wide text-muted-foreground">
+          <h3 className="text-[13px] uppercase tracking-wide text-zoru-ink-muted">
             Add Permission
           </h3>
           <div className="grid gap-4 md:grid-cols-4">
             <div>
-              <Label htmlFor="expense_category_id" className="text-[13px] text-foreground">
+              <ZoruLabel htmlFor="expense_category_id" className="text-[13px] text-zoru-ink">
                 Category
-              </Label>
-              <Select
+              </ZoruLabel>
+              <ZoruSelect
                 name="expense_category_id"
                 value={categoryId}
                 onValueChange={setCategoryId}
               >
-                <SelectTrigger
-                  id="expense_category_id"
-                  className={`mt-1.5 ${inputClass}`}
-                >
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
+                <ZoruSelectTrigger id="expense_category_id" className="mt-1.5">
+                  <ZoruSelectValue placeholder="Select category" />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
                   {categories.map((c) => (
-                    <SelectItem key={String(c._id)} value={String(c._id)}>
+                    <ZoruSelectItem key={String(c._id)} value={String(c._id)}>
                       {c.category_name}
-                    </SelectItem>
+                    </ZoruSelectItem>
                   ))}
-                </SelectContent>
-              </Select>
+                </ZoruSelectContent>
+              </ZoruSelect>
             </div>
             <div>
-              <Label htmlFor="role_id" className="text-[13px] text-foreground">
+              <ZoruLabel htmlFor="role_id" className="text-[13px] text-zoru-ink">
                 Role
-              </Label>
-              <Select name="role_id" value={roleId} onValueChange={setRoleId}>
-                <SelectTrigger id="role_id" className={`mt-1.5 ${inputClass}`}>
-                  <SelectValue placeholder="Select role" />
-                </SelectTrigger>
-                <SelectContent>
+              </ZoruLabel>
+              <ZoruSelect name="role_id" value={roleId} onValueChange={setRoleId}>
+                <ZoruSelectTrigger id="role_id" className="mt-1.5">
+                  <ZoruSelectValue placeholder="Select role" />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
                   {roles.map((r) => (
-                    <SelectItem key={String(r._id)} value={String(r._id)}>
+                    <ZoruSelectItem key={String(r._id)} value={String(r._id)}>
                       {r.display_name}
-                    </SelectItem>
+                    </ZoruSelectItem>
                   ))}
-                </SelectContent>
-              </Select>
+                </ZoruSelectContent>
+              </ZoruSelect>
             </div>
-            <div className="flex items-center gap-3 rounded-lg border border-border bg-card/50 px-4">
-              <Switch
+            <div className="flex items-center gap-3 rounded-lg border border-zoru-line bg-zoru-surface px-4">
+              <ZoruSwitch
                 id="can_create"
                 checked={canCreate}
                 onCheckedChange={setCanCreate}
               />
-              <Label htmlFor="can_create" className="text-[13px] text-foreground">
+              <ZoruLabel htmlFor="can_create" className="text-[13px] text-zoru-ink">
                 Can create
-              </Label>
+              </ZoruLabel>
               <input
                 type="hidden"
                 name="can_create"
                 value={canCreate ? 'yes' : 'no'}
               />
             </div>
-            <div className="flex items-center gap-3 rounded-lg border border-border bg-card/50 px-4">
-              <Switch
+            <div className="flex items-center gap-3 rounded-lg border border-zoru-line bg-zoru-surface px-4">
+              <ZoruSwitch
                 id="can_approve"
                 checked={canApprove}
                 onCheckedChange={setCanApprove}
               />
-              <Label htmlFor="can_approve" className="text-[13px] text-foreground">
+              <ZoruLabel htmlFor="can_approve" className="text-[13px] text-zoru-ink">
                 Can approve
-              </Label>
+              </ZoruLabel>
               <input
                 type="hidden"
                 name="can_approve"
@@ -226,69 +215,63 @@ export default function ExpenseCategoryRolesPage() {
             </div>
           </div>
           <div className="flex justify-end">
-            <ClayButton
-              type="submit"
-              variant="obsidian"
-              disabled={isSaving || !categoryId || !roleId}
-              leading={
-                isSaving ? (
-                  <LoaderCircle className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Plus className="h-4 w-4" />
-                )
-              }
-            >
+            <ZoruButton type="submit" disabled={isSaving || !categoryId || !roleId}>
+              {isSaving ? (
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+              ) : (
+                <Plus className="h-4 w-4" />
+              )}
               Add Permission
-            </ClayButton>
+            </ZoruButton>
           </div>
         </form>
-      </ClayCard>
+      </ZoruCard>
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         {isLoading && rows.length === 0 ? (
-          <Skeleton className="h-[200px] w-full" />
+          <ZoruSkeleton className="h-[200px] w-full" />
         ) : rows.length === 0 ? (
-          <div className="py-10 text-center text-[13px] text-muted-foreground">
+          <div className="py-10 text-center text-[13px] text-zoru-ink-muted">
             No permissions configured yet.
           </div>
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Category</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Create</TableHead>
-                <TableHead>Approve</TableHead>
-                <TableHead className="w-[80px] text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+          <ZoruTable>
+            <ZoruTableHeader>
+              <ZoruTableRow>
+                <ZoruTableHead>Category</ZoruTableHead>
+                <ZoruTableHead>Role</ZoruTableHead>
+                <ZoruTableHead>Create</ZoruTableHead>
+                <ZoruTableHead>Approve</ZoruTableHead>
+                <ZoruTableHead className="w-[80px] text-right">Actions</ZoruTableHead>
+              </ZoruTableRow>
+            </ZoruTableHeader>
+            <ZoruTableBody>
               {rows.map((row) => {
                 const cat = categoryById.get(String(row.expense_category_id));
                 const rl = roleById.get(String(row.role_id));
                 return (
-                  <TableRow key={String(row._id)}>
-                    <TableCell>{cat?.category_name ?? '—'}</TableCell>
-                    <TableCell>{rl?.display_name ?? '—'}</TableCell>
-                    <TableCell>{row.can_create ? 'Yes' : 'No'}</TableCell>
-                    <TableCell>{row.can_approve ? 'Yes' : 'No'}</TableCell>
-                    <TableCell className="text-right">
-                      <Button
+                  <ZoruTableRow key={String(row._id)}>
+                    <ZoruTableCell>{cat?.category_name ?? '—'}</ZoruTableCell>
+                    <ZoruTableCell>{rl?.display_name ?? '—'}</ZoruTableCell>
+                    <ZoruTableCell>{row.can_create ? 'Yes' : 'No'}</ZoruTableCell>
+                    <ZoruTableCell>{row.can_approve ? 'Yes' : 'No'}</ZoruTableCell>
+                    <ZoruTableCell className="text-right">
+                      <ZoruButton
                         variant="ghost"
                         size="sm"
                         disabled={isDeleting && deletingId === String(row._id)}
                         onClick={() => handleDelete(String(row._id))}
                       >
-                        <Trash2 className="h-4 w-4 text-muted-foreground" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
+                        <Trash2 className="h-4 w-4 text-zoru-ink-muted" />
+                      </ZoruButton>
+                    </ZoruTableCell>
+                  </ZoruTableRow>
                 );
               })}
-            </TableBody>
-          </Table>
+            </ZoruTableBody>
+          </ZoruTable>
         )}
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

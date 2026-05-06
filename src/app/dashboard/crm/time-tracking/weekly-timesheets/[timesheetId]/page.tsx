@@ -1,8 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import * as React from 'react';
 import Link from 'next/link';
 import {
@@ -25,21 +22,23 @@ import {
   LoaderCircle,
 } from 'lucide-react';
 
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
-import { CrmPageHeader } from '../../../_components/crm-page-header';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSkeleton,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
+import { CrmPageHeader } from '../../../_components/crm-page-header';
 import {
   getWeeklyTimesheetById,
   getWeeklyEntries,
@@ -56,14 +55,14 @@ import {
 } from '@/lib/worksuite/time-types';
 
 const DAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-const STATUS_TONES: Record<
+const STATUS_VARIANTS: Record<
   WsWeeklyTimesheetStatus,
-  'neutral' | 'green' | 'amber' | 'red'
+  'ghost' | 'success' | 'warning' | 'danger'
 > = {
-  draft: 'neutral',
-  submitted: 'amber',
-  approved: 'green',
-  rejected: 'red',
+  draft: 'ghost',
+  submitted: 'warning',
+  approved: 'success',
+  rejected: 'danger',
 };
 
 /** Build the seven YYYY-MM-DD date strings for the week. */
@@ -86,7 +85,7 @@ export default function WeeklyTimesheetDetailPage({
   params: Promise<{ timesheetId: string }>;
 }) {
   const { timesheetId } = use(params);
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [ts, setTs] = useState<WsWeeklyTimesheet | null>(null);
   const [entries, setEntries] = useState<WsWeeklyTimesheetEntry[]>([]);
   const [grid, setGrid] = useState<Grid>({});
@@ -241,7 +240,7 @@ export default function WeeklyTimesheetDetailPage({
       <div>
         <Link
           href="/dashboard/crm/time-tracking/weekly-timesheets"
-          className="inline-flex items-center gap-1.5 text-[12.5px] text-muted-foreground hover:text-foreground"
+          className="inline-flex items-center gap-1.5 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
         >
           <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.75} />
           Back to Weekly Timesheets
@@ -263,57 +262,37 @@ export default function WeeklyTimesheetDetailPage({
         actions={
           <div className="flex flex-wrap items-center gap-2">
             {ts ? (
-              <ClayBadge tone={STATUS_TONES[ts.status] || 'neutral'} dot>
+              <ZoruBadge variant={STATUS_VARIANTS[ts.status] || 'ghost'}>
                 {ts.status}
-              </ClayBadge>
+              </ZoruBadge>
             ) : null}
-            <ClayButton
-              variant="pill"
-              leading={
-                isSaving ? (
-                  <LoaderCircle
-                    className="h-4 w-4 animate-spin"
-                    strokeWidth={1.75}
-                  />
-                ) : (
-                  <Save className="h-4 w-4" strokeWidth={1.75} />
-                )
-              }
-              disabled={isSaving}
-              onClick={saveAll}
-            >
+            <ZoruButton variant="outline" disabled={isSaving} onClick={saveAll}>
+              {isSaving ? (
+                <LoaderCircle
+                  className="h-4 w-4 animate-spin"
+                  strokeWidth={1.75}
+                />
+              ) : (
+                <Save className="h-4 w-4" strokeWidth={1.75} />
+              )}
               Save
-            </ClayButton>
+            </ZoruButton>
             {ts?.status === 'draft' || ts?.status === 'rejected' ? (
-              <ClayButton
-                variant="obsidian"
-                leading={<Send className="h-4 w-4" strokeWidth={1.75} />}
-                onClick={handleSubmit}
-              >
+              <ZoruButton onClick={handleSubmit}>
+                <Send className="h-4 w-4" strokeWidth={1.75} />
                 Submit
-              </ClayButton>
+              </ZoruButton>
             ) : null}
             {ts?.status === 'submitted' ? (
               <>
-                <ClayButton
-                  variant="obsidian"
-                  leading={<Check className="h-4 w-4" strokeWidth={1.75} />}
-                  onClick={handleApprove}
-                >
+                <ZoruButton onClick={handleApprove}>
+                  <Check className="h-4 w-4" strokeWidth={1.75} />
                   Approve
-                </ClayButton>
-                <ClayButton
-                  variant="pill"
-                  leading={
-                    <X
-                      className="h-4 w-4 text-destructive"
-                      strokeWidth={1.75}
-                    />
-                  }
-                  onClick={() => setRejecting(true)}
-                >
+                </ZoruButton>
+                <ZoruButton variant="outline" onClick={() => setRejecting(true)}>
+                  <X className="h-4 w-4 text-zoru-danger-ink" strokeWidth={1.75} />
                   Reject
-                </ClayButton>
+                </ZoruButton>
               </>
             ) : null}
           </div>
@@ -321,65 +300,62 @@ export default function WeeklyTimesheetDetailPage({
       />
 
       {isLoading && !ts ? (
-        <ClayCard>
-          <Skeleton className="h-40 w-full" />
-        </ClayCard>
+        <ZoruCard className="p-6">
+          <ZoruSkeleton className="h-40 w-full" />
+        </ZoruCard>
       ) : !ts ? (
-        <ClayCard>
-          <p className="text-center text-[13px] text-muted-foreground">
+        <ZoruCard className="p-6">
+          <p className="text-center text-[13px] text-zoru-ink-muted">
             Timesheet not found.
           </p>
-        </ClayCard>
+        </ZoruCard>
       ) : (
         <>
           {ts.reason ? (
-            <div className="rounded-lg border border-rose-50 bg-rose-50/40 p-3 text-[12.5px] text-destructive">
+            <div className="rounded-lg border border-rose-50 bg-rose-50/40 p-3 text-[12.5px] text-zoru-danger-ink">
               <span className="font-semibold">Rejection reason: </span>
               {ts.reason}
             </div>
           ) : null}
 
-          <ClayCard>
+          <ZoruCard className="p-6">
             <div className="mb-3 flex flex-wrap items-end gap-3">
               <div className="min-w-[220px] flex-1">
-                <Label className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                <ZoruLabel className="text-[11px] uppercase tracking-[0.18em] text-zoru-ink-muted">
                   Add Task Row
-                </Label>
-                <Input
+                </ZoruLabel>
+                <ZoruInput
                   value={newTaskId}
                   onChange={(e) => setNewTaskId(e.target.value)}
                   placeholder="Task ID (optional — leave blank for general)"
-                  className="mt-1 h-9 rounded-lg border-border bg-card text-[13px]"
+                  className="mt-1 h-9 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                 />
               </div>
-              <ClayButton
-                variant="pill"
-                leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}
-                onClick={addTaskRow}
-              >
+              <ZoruButton variant="outline" onClick={addTaskRow}>
+                <Plus className="h-4 w-4" strokeWidth={1.75} />
                 Add Row
-              </ClayButton>
+              </ZoruButton>
             </div>
 
-            <div className="overflow-x-auto rounded-lg border border-border">
+            <div className="overflow-x-auto rounded-lg border border-zoru-line">
               <table className="w-full text-[13px]">
-                <thead className="bg-secondary">
+                <thead className="bg-zoru-surface-2">
                   <tr>
-                    <th className="p-3 text-left text-[11.5px] font-medium uppercase tracking-[0.1em] text-muted-foreground">
+                    <th className="p-3 text-left text-[11.5px] font-medium uppercase tracking-[0.1em] text-zoru-ink-muted">
                       Task
                     </th>
                     {weekDates.map((d, i) => (
                       <th
                         key={d}
-                        className="p-3 text-center text-[11.5px] font-medium uppercase tracking-[0.1em] text-muted-foreground"
+                        className="p-3 text-center text-[11.5px] font-medium uppercase tracking-[0.1em] text-zoru-ink-muted"
                       >
                         <div>{DAY_LABELS[i]}</div>
-                        <div className="text-[10.5px] normal-case tracking-normal text-muted-foreground">
+                        <div className="text-[10.5px] normal-case tracking-normal text-zoru-ink-muted">
                           {d.slice(5)}
                         </div>
                       </th>
                     ))}
-                    <th className="p-3 text-right text-[11.5px] font-medium uppercase tracking-[0.1em] text-muted-foreground">
+                    <th className="p-3 text-right text-[11.5px] font-medium uppercase tracking-[0.1em] text-zoru-ink-muted">
                       Total
                     </th>
                     <th className="w-10" />
@@ -390,7 +366,7 @@ export default function WeeklyTimesheetDetailPage({
                     <tr>
                       <td
                         colSpan={weekDates.length + 3}
-                        className="p-6 text-center text-[13px] text-muted-foreground"
+                        className="p-6 text-center text-[13px] text-zoru-ink-muted"
                       >
                         No rows — add a task ID above to start logging.
                       </td>
@@ -405,11 +381,11 @@ export default function WeeklyTimesheetDetailPage({
                       return (
                         <tr
                           key={tid}
-                          className="border-t border-border"
+                          className="border-t border-zoru-line"
                         >
-                          <td className="p-2 text-foreground">
+                          <td className="p-2 text-zoru-ink">
                             {tid === '__no_task__' ? (
-                              <span className="text-muted-foreground">
+                              <span className="text-zoru-ink-muted">
                                 (General)
                               </span>
                             ) : (
@@ -418,7 +394,7 @@ export default function WeeklyTimesheetDetailPage({
                           </td>
                           {weekDates.map((d) => (
                             <td key={d} className="p-1.5">
-                              <Input
+                              <ZoruInput
                                 type="number"
                                 step="0.25"
                                 min="0"
@@ -426,18 +402,18 @@ export default function WeeklyTimesheetDetailPage({
                                 onChange={(e) =>
                                   updateCell(tid, d, e.target.value)
                                 }
-                                className="h-9 w-20 rounded-lg border-border bg-card text-center text-[13px] tabular-nums"
+                                className="h-9 w-20 rounded-lg border-zoru-line bg-zoru-bg text-center text-[13px] tabular-nums"
                               />
                             </td>
                           ))}
-                          <td className="p-2 text-right font-mono tabular-nums text-foreground">
+                          <td className="p-2 text-right font-mono tabular-nums text-zoru-ink">
                             {rowTotal.toFixed(2)}
                           </td>
                           <td className="p-2">
                             <button
                               type="button"
                               onClick={() => removeTaskRow(tid)}
-                              className="text-muted-foreground hover:text-destructive"
+                              className="text-zoru-ink-muted hover:text-zoru-danger-ink"
                               aria-label="Remove row"
                             >
                               <Trash2
@@ -451,20 +427,20 @@ export default function WeeklyTimesheetDetailPage({
                     })
                   )}
                 </tbody>
-                <tfoot className="bg-secondary">
-                  <tr className="border-t border-border">
-                    <td className="p-3 text-[11.5px] uppercase tracking-[0.1em] text-muted-foreground">
+                <tfoot className="bg-zoru-surface-2">
+                  <tr className="border-t border-zoru-line">
+                    <td className="p-3 text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
                       Day totals
                     </td>
                     {weekDates.map((d) => (
                       <td
                         key={d}
-                        className="p-3 text-center font-mono tabular-nums text-foreground"
+                        className="p-3 text-center font-mono tabular-nums text-zoru-ink"
                       >
                         {(totals.dayTotals[d] || 0).toFixed(2)}
                       </td>
                     ))}
-                    <td className="p-3 text-right font-mono font-semibold tabular-nums text-foreground">
+                    <td className="p-3 text-right font-mono font-semibold tabular-nums text-zoru-ink">
                       {totals.grand.toFixed(2)}
                     </td>
                     <td />
@@ -472,11 +448,11 @@ export default function WeeklyTimesheetDetailPage({
                 </tfoot>
               </table>
             </div>
-          </ClayCard>
+          </ZoruCard>
         </>
       )}
 
-      <Dialog
+      <ZoruDialog
         open={rejecting}
         onOpenChange={(o) => {
           if (!o) {
@@ -485,36 +461,34 @@ export default function WeeklyTimesheetDetailPage({
           }
         }}
       >
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-foreground">Reject timesheet</DialogTitle>
-            <DialogDescription className="text-muted-foreground">
+        <ZoruDialogContent className="max-w-md">
+          <ZoruDialogHeader>
+            <ZoruDialogTitle className="text-zoru-ink">Reject timesheet</ZoruDialogTitle>
+            <ZoruDialogDescription className="text-zoru-ink-muted">
               Give a reason so the employee can revise and resubmit.
-            </DialogDescription>
-          </DialogHeader>
-          <Textarea
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
+          <ZoruTextarea
             rows={4}
             value={rejectReason}
             onChange={(e) => setRejectReason(e.target.value)}
             placeholder="Reason…"
-            className="rounded-lg border-border bg-card text-[13px]"
+            className="rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
           />
-          <DialogFooter className="gap-2">
-            <ClayButton
-              variant="pill"
+          <ZoruDialogFooter className="gap-2">
+            <ZoruButton
+              variant="outline"
               onClick={() => {
                 setRejecting(false);
                 setRejectReason('');
               }}
             >
               Cancel
-            </ClayButton>
-            <ClayButton variant="obsidian" onClick={handleReject}>
-              Reject
-            </ClayButton>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            </ZoruButton>
+            <ZoruButton onClick={handleReject}>Reject</ZoruButton>
+          </ZoruDialogFooter>
+        </ZoruDialogContent>
+      </ZoruDialog>
     </div>
   );
 }

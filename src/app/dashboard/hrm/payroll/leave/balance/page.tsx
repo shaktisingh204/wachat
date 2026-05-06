@@ -1,12 +1,12 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { CalendarCheck, ArrowLeft } from 'lucide-react';
-import { ClayCard, ClayButton } from '@/components/clay';
+import {
+  ZoruCard,
+  ZoruButton,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import {
   getLeaveBalance,
@@ -41,26 +41,24 @@ export default function LeaveBalancePage() {
         icon={CalendarCheck}
         actions={
           <Link href="/dashboard/hrm/payroll/leave">
-            <ClayButton
-              variant="pill"
-              leading={<ArrowLeft className="h-4 w-4" strokeWidth={1.75} />}
-            >
+            <ZoruButton variant="outline">
+              <ArrowLeft className="h-4 w-4" />
               Back
-            </ClayButton>
+            </ZoruButton>
           </Link>
         }
       />
 
-      <ClayCard>
-        <div className="overflow-x-auto rounded-lg border border-border">
+      <ZoruCard className="p-6">
+        <div className="overflow-x-auto rounded-lg border border-zoru-line">
           <table className="w-full text-left text-[13px]">
             <thead>
-              <tr className="border-b border-border">
-                <th className="px-4 py-3 font-medium text-muted-foreground">Employee</th>
+              <tr className="border-b border-zoru-line">
+                <th className="px-4 py-3 text-zoru-ink-muted">Employee</th>
                 {types.map((t) => (
                   <th
                     key={String(t._id)}
-                    className="px-4 py-3 font-medium text-muted-foreground"
+                    className="px-4 py-3 text-zoru-ink-muted"
                   >
                     <span className="inline-flex items-center gap-1.5">
                       <span
@@ -79,7 +77,7 @@ export default function LeaveBalancePage() {
                 <tr>
                   <td
                     colSpan={types.length + 1}
-                    className="h-24 text-center text-muted-foreground"
+                    className="h-24 text-center text-zoru-ink-muted"
                   >
                     Loading…
                   </td>
@@ -88,7 +86,7 @@ export default function LeaveBalancePage() {
                 <tr>
                   <td
                     colSpan={types.length + 1}
-                    className="h-24 text-center text-muted-foreground"
+                    className="h-24 text-center text-zoru-ink-muted"
                   >
                     No employees found.
                   </td>
@@ -97,8 +95,8 @@ export default function LeaveBalancePage() {
                 rows.map((r) => {
                   const byType = new Map(r.rows.map((x) => [x.leave_type_id, x]));
                   return (
-                    <tr key={r.employee_id} className="border-b border-border last:border-0">
-                      <td className="px-4 py-3 font-medium text-foreground">
+                    <tr key={r.employee_id} className="border-b border-zoru-line last:border-0">
+                      <td className="px-4 py-3 text-zoru-ink">
                         {r.employee_name}
                       </td>
                       {types.map((t) => {
@@ -107,7 +105,7 @@ export default function LeaveBalancePage() {
                           return (
                             <td
                               key={String(t._id)}
-                              className="px-4 py-3 text-muted-foreground"
+                              className="px-4 py-3 text-zoru-ink-muted"
                             >
                               —
                             </td>
@@ -120,13 +118,13 @@ export default function LeaveBalancePage() {
                               <span
                                 className={
                                   low
-                                    ? 'font-semibold text-red-500'
-                                    : 'font-semibold text-foreground'
+                                    ? 'text-red-500'
+                                    : 'text-zoru-ink'
                                 }
                               >
                                 {row.remaining} / {row.allocated}
                               </span>
-                              <span className="text-[11px] text-muted-foreground">
+                              <span className="text-[11px] text-zoru-ink-muted">
                                 used: {row.used}
                               </span>
                             </div>
@@ -140,7 +138,7 @@ export default function LeaveBalancePage() {
             </tbody>
           </table>
         </div>
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

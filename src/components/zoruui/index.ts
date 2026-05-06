@@ -240,6 +240,7 @@ export {
   ZoruResizableHandle,
 } from "./resizable";
 export { ZoruEmptyState, type ZoruEmptyStateProps } from "./empty-state";
+export { RouteComingSoon, type RouteComingSoonProps } from "./route-coming-soon";
 export {
   ZoruLimelightNav,
   type ZoruLimelightItem,

@@ -1,8 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import * as React from 'react';
 import { useEffect, useState, useTransition } from 'react';
 import {
@@ -14,45 +11,37 @@ import {
   Trash2,
 } from 'lucide-react';
 
-import { ClayCard, ClayBadge, ClayButton } from '@/components/clay';
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruLabel,
+  ZoruSkeleton,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  ZoruTextarea,
+  cn,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from '@/components/ui/tabs';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
 import {
   getRemovalRequests,
   getRemovalRequestLeads,
@@ -71,14 +60,14 @@ import type {
 type UserRow = WsRemovalRequest & { _id: string };
 type LeadRow = WsRemovalRequestLead & { _id: string };
 
-const STATUS_TONE: Record<
+const STATUS_VARIANT: Record<
   WsRemovalRequestStatus,
-  'amber' | 'green' | 'red' | 'blue'
+  'warning' | 'success' | 'danger' | 'info'
 > = {
-  pending: 'amber',
-  approved: 'green',
-  rejected: 'red',
-  completed: 'blue',
+  pending: 'warning',
+  approved: 'success',
+  rejected: 'danger',
+  completed: 'info',
 };
 
 function formatDate(value?: Date | string) {
@@ -89,7 +78,8 @@ function formatDate(value?: Date | string) {
 }
 
 export default function RemovalRequestsPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
+  const [tab, setTab] = useState<'users' | 'leads'>('users');
   const [userRows, setUserRows] = useState<UserRow[]>([]);
   const [leadRows, setLeadRows] = useState<LeadRow[]>([]);
   const [isLoading, startLoading] = useTransition();
@@ -192,67 +182,67 @@ export default function RemovalRequestsPage() {
     <div className="flex flex-wrap justify-end gap-1">
       {status === 'pending' ? (
         <>
-          <Button
+          <ZoruButton
             variant="ghost"
             size="sm"
             disabled={pending}
             onClick={() => onApprove(id, variant)}
             aria-label="Approve"
           >
-            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
-          </Button>
-          <Button
+            <CheckCircle2 className="h-3.5 w-3.5 text-zoru-success-ink" />
+          </ZoruButton>
+          <ZoruButton
             variant="ghost"
             size="sm"
             disabled={pending}
             onClick={() => setRejecting({ id, variant })}
             aria-label="Reject"
           >
-            <XCircle className="h-3.5 w-3.5 text-destructive" />
-          </Button>
+            <XCircle className="h-3.5 w-3.5 text-zoru-danger-ink" />
+          </ZoruButton>
         </>
       ) : null}
       {status === 'approved' ? (
-        <Button
+        <ZoruButton
           variant="ghost"
           size="sm"
           disabled={pending}
           onClick={() => onComplete(id, variant)}
           aria-label="Complete"
         >
-          <CircleCheckBig className="h-3.5 w-3.5 text-sky-500" />
-        </Button>
+          <CircleCheckBig className="h-3.5 w-3.5 text-zoru-info-ink" />
+        </ZoruButton>
       ) : null}
-      <Button
+      <ZoruButton
         variant="ghost"
         size="sm"
         disabled={pending}
         onClick={() => setDeleting({ id, variant })}
         aria-label="Delete"
       >
-        <Trash2 className="h-3.5 w-3.5 text-destructive" />
-      </Button>
+        <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+      </ZoruButton>
     </div>
   );
 
   const emptyRow = (cols: number, label: string) => (
-    <TableRow className="border-border">
-      <TableCell
+    <ZoruTableRow>
+      <ZoruTableCell
         colSpan={cols}
-        className="h-24 text-center text-[13px] text-muted-foreground"
+        className="h-24 text-center text-[13px] text-zoru-ink-muted"
       >
         {label}
-      </TableCell>
-    </TableRow>
+      </ZoruTableCell>
+    </ZoruTableRow>
   );
 
   const loadingRows = (cols: number) =>
     [...Array(3)].map((_, i) => (
-      <TableRow key={i} className="border-border">
-        <TableCell colSpan={cols}>
-          <Skeleton className="h-8 w-full" />
-        </TableCell>
-      </TableRow>
+      <ZoruTableRow key={i}>
+        <ZoruTableCell colSpan={cols}>
+          <ZoruSkeleton className="h-8 w-full" />
+        </ZoruTableCell>
+      </ZoruTableRow>
     ));
 
   return (
@@ -263,146 +253,127 @@ export default function RemovalRequestsPage() {
         icon={UserMinus}
       />
 
-      <ClayCard>
-        <Tabs defaultValue="users" className="w-full">
-          <TabsList className="mb-4">
-            <TabsTrigger value="users">
-              User Requests ({userRows.length})
-            </TabsTrigger>
-            <TabsTrigger value="leads">
-              Lead Requests ({leadRows.length})
-            </TabsTrigger>
-          </TabsList>
+      <ZoruCard className="p-6">
+        <div className="mb-4 inline-flex gap-1 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-1">
+          {(['users', 'leads'] as const).map((id) => (
+            <button
+              key={id}
+              type="button"
+              onClick={() => setTab(id)}
+              className={cn(
+                'rounded-[var(--zoru-radius-sm)] px-3 py-1.5 text-sm transition-colors',
+                tab === id
+                  ? 'bg-zoru-bg text-zoru-ink shadow-[var(--zoru-shadow-sm)]'
+                  : 'text-zoru-ink-muted hover:text-zoru-ink',
+              )}
+            >
+              {id === 'users'
+                ? `User Requests (${userRows.length})`
+                : `Lead Requests (${leadRows.length})`}
+            </button>
+          ))}
+        </div>
 
-          <TabsContent value="users">
-            <div className="overflow-x-auto rounded-lg border border-border">
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-border hover:bg-transparent">
-                    <TableHead className="text-muted-foreground">
-                      User ID
-                    </TableHead>
-                    <TableHead className="text-muted-foreground">
-                      Reason
-                    </TableHead>
-                    <TableHead className="text-muted-foreground">
-                      Status
-                    </TableHead>
-                    <TableHead className="text-muted-foreground">
-                      Submitted
-                    </TableHead>
-                    <TableHead className="text-muted-foreground">
-                      Handled
-                    </TableHead>
-                    <TableHead className="w-[160px] text-right text-muted-foreground">
-                      Actions
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {isLoading && userRows.length === 0
-                    ? loadingRows(6)
-                    : userRows.length === 0
-                      ? emptyRow(6, 'No user removal requests yet.')
-                      : userRows.map((row) => (
-                          <TableRow
-                            key={row._id}
-                            className="border-border"
-                          >
-                            <TableCell className="text-[13px] text-foreground">
-                              {row.user_id || '—'}
-                            </TableCell>
-                            <TableCell className="max-w-[280px] truncate text-[13px] text-muted-foreground">
-                              {row.reason || '—'}
-                            </TableCell>
-                            <TableCell>
-                              <ClayBadge tone={STATUS_TONE[row.status]}>
-                                {row.status.charAt(0).toUpperCase() +
-                                  row.status.slice(1)}
-                              </ClayBadge>
-                            </TableCell>
-                            <TableCell className="text-[13px] text-muted-foreground">
-                              {formatDate(row.submitted_at)}
-                            </TableCell>
-                            <TableCell className="text-[13px] text-muted-foreground">
-                              {formatDate(row.handled_at)}
-                            </TableCell>
-                            <TableCell className="text-right">
-                              {renderActions(row.status, row._id, 'user')}
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                </TableBody>
-              </Table>
-            </div>
-          </TabsContent>
+        {tab === 'users' ? (
+          <div className="overflow-x-auto rounded-lg border border-zoru-line">
+            <ZoruTable>
+              <ZoruTableHeader>
+                <ZoruTableRow className="hover:bg-transparent">
+                  <ZoruTableHead className="text-zoru-ink-muted">User ID</ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">Reason</ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">Submitted</ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">Handled</ZoruTableHead>
+                  <ZoruTableHead className="w-[160px] text-right text-zoru-ink-muted">
+                    Actions
+                  </ZoruTableHead>
+                </ZoruTableRow>
+              </ZoruTableHeader>
+              <ZoruTableBody>
+                {isLoading && userRows.length === 0
+                  ? loadingRows(6)
+                  : userRows.length === 0
+                    ? emptyRow(6, 'No user removal requests yet.')
+                    : userRows.map((row) => (
+                        <ZoruTableRow key={row._id}>
+                          <ZoruTableCell className="text-[13px] text-zoru-ink">
+                            {row.user_id || '—'}
+                          </ZoruTableCell>
+                          <ZoruTableCell className="max-w-[280px] truncate text-[13px] text-zoru-ink-muted">
+                            {row.reason || '—'}
+                          </ZoruTableCell>
+                          <ZoruTableCell>
+                            <ZoruBadge variant={STATUS_VARIANT[row.status]}>
+                              {row.status.charAt(0).toUpperCase() +
+                                row.status.slice(1)}
+                            </ZoruBadge>
+                          </ZoruTableCell>
+                          <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                            {formatDate(row.submitted_at)}
+                          </ZoruTableCell>
+                          <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                            {formatDate(row.handled_at)}
+                          </ZoruTableCell>
+                          <ZoruTableCell className="text-right">
+                            {renderActions(row.status, row._id, 'user')}
+                          </ZoruTableCell>
+                        </ZoruTableRow>
+                      ))}
+              </ZoruTableBody>
+            </ZoruTable>
+          </div>
+        ) : (
+          <div className="overflow-x-auto rounded-lg border border-zoru-line">
+            <ZoruTable>
+              <ZoruTableHeader>
+                <ZoruTableRow className="hover:bg-transparent">
+                  <ZoruTableHead className="text-zoru-ink-muted">Lead ID</ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">Email</ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">Reason</ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">Submitted</ZoruTableHead>
+                  <ZoruTableHead className="w-[160px] text-right text-zoru-ink-muted">
+                    Actions
+                  </ZoruTableHead>
+                </ZoruTableRow>
+              </ZoruTableHeader>
+              <ZoruTableBody>
+                {isLoading && leadRows.length === 0
+                  ? loadingRows(6)
+                  : leadRows.length === 0
+                    ? emptyRow(6, 'No lead removal requests yet.')
+                    : leadRows.map((row) => (
+                        <ZoruTableRow key={row._id}>
+                          <ZoruTableCell className="text-[13px] text-zoru-ink">
+                            {row.lead_id || '—'}
+                          </ZoruTableCell>
+                          <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                            {row.requester_email || '—'}
+                          </ZoruTableCell>
+                          <ZoruTableCell className="max-w-[260px] truncate text-[13px] text-zoru-ink-muted">
+                            {row.reason || '—'}
+                          </ZoruTableCell>
+                          <ZoruTableCell>
+                            <ZoruBadge variant={STATUS_VARIANT[row.status]}>
+                              {row.status.charAt(0).toUpperCase() +
+                                row.status.slice(1)}
+                            </ZoruBadge>
+                          </ZoruTableCell>
+                          <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                            {formatDate(row.submitted_at)}
+                          </ZoruTableCell>
+                          <ZoruTableCell className="text-right">
+                            {renderActions(row.status, row._id, 'lead')}
+                          </ZoruTableCell>
+                        </ZoruTableRow>
+                      ))}
+              </ZoruTableBody>
+            </ZoruTable>
+          </div>
+        )}
+      </ZoruCard>
 
-          <TabsContent value="leads">
-            <div className="overflow-x-auto rounded-lg border border-border">
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-border hover:bg-transparent">
-                    <TableHead className="text-muted-foreground">
-                      Lead ID
-                    </TableHead>
-                    <TableHead className="text-muted-foreground">
-                      Email
-                    </TableHead>
-                    <TableHead className="text-muted-foreground">
-                      Reason
-                    </TableHead>
-                    <TableHead className="text-muted-foreground">
-                      Status
-                    </TableHead>
-                    <TableHead className="text-muted-foreground">
-                      Submitted
-                    </TableHead>
-                    <TableHead className="w-[160px] text-right text-muted-foreground">
-                      Actions
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {isLoading && leadRows.length === 0
-                    ? loadingRows(6)
-                    : leadRows.length === 0
-                      ? emptyRow(6, 'No lead removal requests yet.')
-                      : leadRows.map((row) => (
-                          <TableRow
-                            key={row._id}
-                            className="border-border"
-                          >
-                            <TableCell className="text-[13px] text-foreground">
-                              {row.lead_id || '—'}
-                            </TableCell>
-                            <TableCell className="text-[13px] text-muted-foreground">
-                              {row.requester_email || '—'}
-                            </TableCell>
-                            <TableCell className="max-w-[260px] truncate text-[13px] text-muted-foreground">
-                              {row.reason || '—'}
-                            </TableCell>
-                            <TableCell>
-                              <ClayBadge tone={STATUS_TONE[row.status]}>
-                                {row.status.charAt(0).toUpperCase() +
-                                  row.status.slice(1)}
-                              </ClayBadge>
-                            </TableCell>
-                            <TableCell className="text-[13px] text-muted-foreground">
-                              {formatDate(row.submitted_at)}
-                            </TableCell>
-                            <TableCell className="text-right">
-                              {renderActions(row.status, row._id, 'lead')}
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                </TableBody>
-              </Table>
-            </div>
-          </TabsContent>
-        </Tabs>
-      </ClayCard>
-
-      <Dialog
+      <ZoruDialog
         open={rejecting !== null}
         onOpenChange={(o) => {
           if (!o) {
@@ -411,80 +382,65 @@ export default function RemovalRequestsPage() {
           }
         }}
       >
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="text-foreground">
-              Reject Removal Request
-            </DialogTitle>
-            <DialogDescription className="text-muted-foreground">
+        <ZoruDialogContent className="max-w-lg">
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>Reject Removal Request</ZoruDialogTitle>
+            <ZoruDialogDescription>
               Provide a reason the requester will see.
-            </DialogDescription>
-          </DialogHeader>
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
           <div className="space-y-2">
-            <Label htmlFor="reject-reason" className="text-foreground">
-              Reason
-            </Label>
-            <Textarea
+            <ZoruLabel htmlFor="reject-reason">Reason</ZoruLabel>
+            <ZoruTextarea
               id="reject-reason"
               rows={3}
               value={rejectReason}
               onChange={(e) => setRejectReason(e.target.value)}
               placeholder="Outstanding legal obligation…"
-              className="rounded-lg border-border bg-card text-[13px]"
             />
           </div>
-          <DialogFooter className="gap-2">
-            <ClayButton
+          <ZoruDialogFooter className="gap-2">
+            <ZoruButton
               type="button"
-              variant="pill"
+              variant="outline"
               onClick={() => {
                 setRejecting(null);
                 setRejectReason('');
               }}
             >
               Cancel
-            </ClayButton>
-            <ClayButton
+            </ZoruButton>
+            <ZoruButton
               type="button"
-              variant="obsidian"
               disabled={pending}
               onClick={confirmReject}
-              leading={
-                pending ? (
-                  <LoaderCircle
-                    className="h-4 w-4 animate-spin"
-                    strokeWidth={1.75}
-                  />
-                ) : null
-              }
             >
+              {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
               Reject
-            </ClayButton>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            </ZoruButton>
+          </ZoruDialogFooter>
+        </ZoruDialogContent>
+      </ZoruDialog>
 
-      <AlertDialog
+      <ZoruAlertDialog
         open={deleting !== null}
         onOpenChange={(o) => !o && setDeleting(null)}
       >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-foreground">
-              Delete request?
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-muted-foreground">
+        <ZoruAlertDialogContent>
+          <ZoruAlertDialogHeader>
+            <ZoruAlertDialogTitle>Delete request?</ZoruAlertDialogTitle>
+            <ZoruAlertDialogDescription>
               This cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete}>
+            </ZoruAlertDialogDescription>
+          </ZoruAlertDialogHeader>
+          <ZoruAlertDialogFooter>
+            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+            <ZoruAlertDialogAction onClick={confirmDelete}>
               Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </ZoruAlertDialogAction>
+          </ZoruAlertDialogFooter>
+        </ZoruAlertDialogContent>
+      </ZoruAlertDialog>
     </div>
   );
 }

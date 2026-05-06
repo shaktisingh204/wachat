@@ -1,8 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import {
@@ -12,35 +9,35 @@ import {
   Filter as FilterIcon,
 } from 'lucide-react';
 
-import { ClayCard, ClayBadge, ClayButton } from '@/components/clay';
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { getPayments } from '@/app/actions/worksuite/payments.actions';
 import type { ListPaymentsFilter } from '@/lib/worksuite/payments-types';
 
-const STATUS_TONES: Record<
+const STATUS_VARIANTS: Record<
   string,
-  'green' | 'amber' | 'red' | 'neutral'
+  'success' | 'warning' | 'danger' | 'ghost'
 > = {
-  completed: 'green',
-  pending: 'amber',
-  failed: 'red',
-  refunded: 'neutral',
+  completed: 'success',
+  pending: 'warning',
+  failed: 'danger',
+  refunded: 'ghost',
 };
 
 const GATEWAY_OPTIONS = [
@@ -84,158 +81,153 @@ export default function PaymentsPage() {
         icon={CreditCard}
         actions={
           <Link href="/dashboard/crm/sales/payments/new">
-            <ClayButton
-              variant="obsidian"
-              leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}
-            >
+            <ZoruButton>
+              <Plus className="h-4 w-4" strokeWidth={1.75} />
               Record Payment
-            </ClayButton>
+            </ZoruButton>
           </Link>
         }
       />
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         <div className="mb-4 flex flex-wrap items-end gap-3">
-          <div className="flex items-center gap-2 text-[12px] text-muted-foreground">
+          <div className="flex items-center gap-2 text-[12px] text-zoru-ink-muted">
             <FilterIcon className="h-3.5 w-3.5" strokeWidth={1.75} />
             Filters
           </div>
-          <Select
+          <ZoruSelect
             value={filter.gateway || 'all'}
             onValueChange={(v) =>
               setFilter((f) => ({ ...f, gateway: v === 'all' ? '' : v }))
             }
           >
-            <SelectTrigger className="h-9 w-[150px] rounded-lg border-border bg-card text-[12.5px]">
-              <SelectValue placeholder="Gateway" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All gateways</SelectItem>
+            <ZoruSelectTrigger className="w-[150px]">
+              <ZoruSelectValue placeholder="Gateway" />
+            </ZoruSelectTrigger>
+            <ZoruSelectContent>
+              <ZoruSelectItem value="all">All gateways</ZoruSelectItem>
               {GATEWAY_OPTIONS.filter(Boolean).map((g) => (
-                <SelectItem key={g} value={g}>
+                <ZoruSelectItem key={g} value={g}>
                   {g}
-                </SelectItem>
+                </ZoruSelectItem>
               ))}
-            </SelectContent>
-          </Select>
-          <Select
+            </ZoruSelectContent>
+          </ZoruSelect>
+          <ZoruSelect
             value={filter.status || 'all'}
             onValueChange={(v) =>
               setFilter((f) => ({ ...f, status: v === 'all' ? '' : v }))
             }
           >
-            <SelectTrigger className="h-9 w-[140px] rounded-lg border-border bg-card text-[12.5px]">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All statuses</SelectItem>
+            <ZoruSelectTrigger className="w-[140px]">
+              <ZoruSelectValue placeholder="Status" />
+            </ZoruSelectTrigger>
+            <ZoruSelectContent>
+              <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
               {STATUS_OPTIONS.filter(Boolean).map((s) => (
-                <SelectItem key={s} value={s}>
+                <ZoruSelectItem key={s} value={s}>
                   {s}
-                </SelectItem>
+                </ZoruSelectItem>
               ))}
-            </SelectContent>
-          </Select>
-          <Input
+            </ZoruSelectContent>
+          </ZoruSelect>
+          <ZoruInput
             type="date"
             value={filter.from || ''}
             onChange={(e) =>
               setFilter((f) => ({ ...f, from: e.target.value || '' }))
             }
-            className="h-9 w-[150px] rounded-lg border-border bg-card text-[12.5px]"
+            className="w-[150px]"
           />
-          <Input
+          <ZoruInput
             type="date"
             value={filter.to || ''}
             onChange={(e) =>
               setFilter((f) => ({ ...f, to: e.target.value || '' }))
             }
-            className="h-9 w-[150px] rounded-lg border-border bg-card text-[12.5px]"
+            className="w-[150px]"
           />
         </div>
 
         {isLoading && rows.length === 0 ? (
           <div className="flex justify-center py-10">
-            <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />
+            <LoaderCircle className="h-5 w-5 animate-spin text-zoru-ink-muted" />
           </div>
         ) : rows.length === 0 ? (
           <div className="flex flex-col items-center gap-3 py-10 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent">
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-zoru-surface-2">
               <CreditCard
-                className="h-6 w-6 text-accent-foreground"
+                className="h-6 w-6 text-zoru-ink"
                 strokeWidth={1.75}
               />
             </div>
-            <p className="text-[13px] text-muted-foreground">
+            <p className="text-[13px] text-zoru-ink-muted">
               No payments recorded yet.
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-lg border border-border">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-border hover:bg-transparent">
-                  <TableHead className="text-muted-foreground">Date</TableHead>
-                  <TableHead className="text-muted-foreground">
+          <div className="overflow-x-auto rounded-lg border border-zoru-line">
+            <ZoruTable>
+              <ZoruTableHeader>
+                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                  <ZoruTableHead className="text-zoru-ink-muted">Date</ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">
                     Invoice
-                  </TableHead>
-                  <TableHead className="text-muted-foreground">Client</TableHead>
-                  <TableHead className="text-muted-foreground">Gateway</TableHead>
-                  <TableHead className="text-right text-muted-foreground">
+                  </ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">Client</ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">Gateway</ZoruTableHead>
+                  <ZoruTableHead className="text-right text-zoru-ink-muted">
                     Amount
-                  </TableHead>
-                  <TableHead className="text-muted-foreground">Status</TableHead>
-                  <TableHead className="text-right text-muted-foreground">
+                  </ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
+                  <ZoruTableHead className="text-right text-zoru-ink-muted">
                     &nbsp;
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+                  </ZoruTableHead>
+                </ZoruTableRow>
+              </ZoruTableHeader>
+              <ZoruTableBody>
                 {rows.map((row) => (
-                  <TableRow
+                  <ZoruTableRow
                     key={String(row._id)}
-                    className="border-border"
+                    className="border-zoru-line"
                   >
-                    <TableCell className="text-[12.5px] text-foreground">
+                    <ZoruTableCell className="text-[12.5px] text-zoru-ink">
                       {row.paid_on
                         ? new Date(row.paid_on).toLocaleDateString()
                         : '—'}
-                    </TableCell>
-                    <TableCell className="font-mono text-[12px] text-foreground">
+                    </ZoruTableCell>
+                    <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
                       {row.invoice_number || '—'}
-                    </TableCell>
-                    <TableCell className="text-[12.5px] text-foreground">
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-[12.5px] text-zoru-ink">
                       {row.client_name || '—'}
-                    </TableCell>
-                    <TableCell>
-                      <ClayBadge tone="neutral">{row.gateway}</ClayBadge>
-                    </TableCell>
-                    <TableCell className="text-right font-semibold text-foreground">
+                    </ZoruTableCell>
+                    <ZoruTableCell>
+                      <ZoruBadge variant="ghost">{row.gateway}</ZoruBadge>
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-right text-zoru-ink">
                       {formatMoney(row.amount, row.currency)}
-                    </TableCell>
-                    <TableCell>
-                      <ClayBadge
-                        tone={STATUS_TONES[row.status] || 'neutral'}
-                        dot
-                      >
+                    </ZoruTableCell>
+                    <ZoruTableCell>
+                      <ZoruBadge variant={STATUS_VARIANTS[row.status] || 'ghost'}>
                         {row.status}
-                      </ClayBadge>
-                    </TableCell>
-                    <TableCell className="text-right">
+                      </ZoruBadge>
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-right">
                       <Link
                         href={`/dashboard/crm/sales/payments/${String(row._id)}`}
-                        className="text-[12px] font-medium text-accent-foreground hover:underline"
+                        className="text-[12px] text-zoru-ink hover:underline"
                       >
                         View
                       </Link>
-                    </TableCell>
-                  </TableRow>
+                    </ZoruTableCell>
+                  </ZoruTableRow>
                 ))}
-              </TableBody>
-            </Table>
+              </ZoruTableBody>
+            </ZoruTable>
           </div>
         )}
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

@@ -1,44 +1,41 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useState, useEffect, useCallback, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import type { WithId } from 'mongodb';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
 import type { CrmAccount } from '@/lib/definitions';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Input } from '@/components/ui/input';
 import { Search, Building, Edit } from 'lucide-react';
 import { useDebouncedCallback } from 'use-debounce';
 import { CrmAddAccountDialog } from '@/components/wabasimplify/crm-add-account-dialog';
 import { formatDistanceToNow } from 'date-fns';
 import Link from 'next/link';
 
-import { ClayCard } from '@/components/clay';
+import {
+  ZoruCard,
+  ZoruInput,
+  ZoruSkeleton,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../_components/crm-page-header';
 
 const ACCOUNTS_PER_PAGE = 20;
 
 function AccountsPageSkeleton() {
   return (
-    <ClayCard>
-      <Skeleton className="h-6 w-48" />
-      <Skeleton className="mt-2 h-4 w-64" />
+    <ZoruCard className="p-6">
+      <ZoruSkeleton className="h-6 w-48" />
+      <ZoruSkeleton className="mt-2 h-4 w-64" />
       <div className="mt-6 flex items-center justify-between">
-        <Skeleton className="h-10 w-64" />
+        <ZoruSkeleton className="h-10 w-64" />
       </div>
-      <Skeleton className="mt-4 h-96 w-full" />
-    </ClayCard>
+      <ZoruSkeleton className="mt-4 h-96 w-full" />
+    </ZoruCard>
   );
 }
 
@@ -83,90 +80,90 @@ export default function CrmAccountsPage() {
         actions={<CrmAddAccountDialog onAdded={fetchData} />}
       />
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 className="text-[16px] font-semibold text-foreground">All Accounts</h2>
-            <p className="mt-0.5 text-[12.5px] text-muted-foreground">
+            <h2 className="text-[16px] font-semibold text-zoru-ink">All Accounts</h2>
+            <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
               A list of all companies in your CRM.
             </p>
           </div>
           <div className="relative w-full max-w-sm">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+            <ZoruInput
               placeholder="Search by name, industry, or website..."
-              className="h-10 rounded-lg border-border bg-card pl-9 text-[13px]"
+              className="h-10 rounded-lg border-zoru-line bg-zoru-bg pl-9 text-[13px]"
               onChange={(e) => handleSearch(e.target.value)}
             />
           </div>
         </div>
 
-        <div className="overflow-x-auto rounded-lg border border-border">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border hover:bg-transparent">
-                <TableHead className="text-muted-foreground">Account Name</TableHead>
-                <TableHead className="text-muted-foreground">Industry</TableHead>
-                <TableHead className="text-muted-foreground">Website</TableHead>
-                <TableHead className="text-muted-foreground">Created</TableHead>
-                <TableHead className="text-right text-muted-foreground">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+          <ZoruTable>
+            <ZoruTableHeader>
+              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                <ZoruTableHead className="text-zoru-ink-muted">Account Name</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Industry</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Website</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Created</ZoruTableHead>
+                <ZoruTableHead className="text-right text-zoru-ink-muted">Actions</ZoruTableHead>
+              </ZoruTableRow>
+            </ZoruTableHeader>
+            <ZoruTableBody>
               {isLoading ? (
                 [...Array(5)].map((_, i) => (
-                  <TableRow key={i} className="border-border">
-                    <TableCell colSpan={5}>
-                      <Skeleton className="h-10 w-full" />
-                    </TableCell>
-                  </TableRow>
+                  <ZoruTableRow key={i} className="border-zoru-line">
+                    <ZoruTableCell colSpan={5}>
+                      <ZoruSkeleton className="h-10 w-full" />
+                    </ZoruTableCell>
+                  </ZoruTableRow>
                 ))
               ) : accounts.length > 0 ? (
                 accounts.map((account) => (
-                  <TableRow key={account._id.toString()} className="border-border">
-                    <TableCell>
+                  <ZoruTableRow key={account._id.toString()} className="border-zoru-line">
+                    <ZoruTableCell>
                       <Link
                         href={`/dashboard/crm/accounts/${account._id.toString()}`}
-                        className="flex items-center gap-2 text-[13px] font-medium text-foreground hover:underline"
+                        className="flex items-center gap-2 text-[13px] font-medium text-zoru-ink hover:underline"
                       >
-                        <Building className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
+                        <Building className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
                         {account.name}
                       </Link>
-                    </TableCell>
-                    <TableCell className="text-[13px] text-foreground">
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-[13px] text-zoru-ink">
                       {account.industry || 'N/A'}
-                    </TableCell>
-                    <TableCell className="text-[13px] text-foreground">
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-[13px] text-zoru-ink">
                       {account.website || 'N/A'}
-                    </TableCell>
-                    <TableCell className="text-[13px] text-muted-foreground">
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
                       {formatDistanceToNow(new Date(account.createdAt), { addSuffix: true })}
-                    </TableCell>
-                    <TableCell className="text-right">
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-right">
                       <Link
                         href={`/dashboard/crm/accounts/${account._id.toString()}/edit`}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
                         aria-label="Edit account"
                       >
                         <Edit className="h-4 w-4" strokeWidth={1.75} />
                       </Link>
-                    </TableCell>
-                  </TableRow>
+                    </ZoruTableCell>
+                  </ZoruTableRow>
                 ))
               ) : (
-                <TableRow className="border-border">
-                  <TableCell
+                <ZoruTableRow className="border-zoru-line">
+                  <ZoruTableCell
                     colSpan={5}
-                    className="h-24 text-center text-[13px] text-muted-foreground"
+                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
                   >
                     No accounts found.
-                  </TableCell>
-                </TableRow>
+                  </ZoruTableCell>
+                </ZoruTableRow>
               )}
-            </TableBody>
-          </Table>
+            </ZoruTableBody>
+          </ZoruTable>
         </div>
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

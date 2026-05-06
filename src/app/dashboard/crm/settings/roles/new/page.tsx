@@ -1,20 +1,20 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useActionState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Shield, LoaderCircle, ArrowLeft } from 'lucide-react';
 
-import { ClayCard, ClayButton } from '@/components/clay';
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruCheckbox,
+  ZoruInput,
+  ZoruLabel,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
-import { useToast } from '@/hooks/use-toast';
 import { saveRole } from '@/app/actions/worksuite/rbac.actions';
 
 /**
@@ -23,7 +23,7 @@ import { saveRole } from '@/app/actions/worksuite/rbac.actions';
  */
 export default function NewRolePage() {
   const router = useRouter();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [state, formAction, isPending] = useActionState(saveRole, {
     message: '',
     error: '',
@@ -50,90 +50,66 @@ export default function NewRolePage() {
         subtitle="Create a role that can be assigned to users, then configure its permissions."
         icon={Shield}
         actions={
-          <Link href="/dashboard/crm/settings/roles">
-            <ClayButton
-              variant="pill"
-              leading={<ArrowLeft className="h-4 w-4" strokeWidth={1.75} />}
-            >
+          <ZoruButton variant="outline" asChild>
+            <Link href="/dashboard/crm/settings/roles">
+              <ArrowLeft className="h-4 w-4" />
               Back to roles
-            </ClayButton>
-          </Link>
+            </Link>
+          </ZoruButton>
         }
       />
 
-      <ClayCard>
+      <ZoruCard className="p-0">
         <form action={formAction} className="max-w-xl space-y-4 p-6">
           <div>
-            <Label htmlFor="display_name" className="text-foreground">
-              Display name <span className="text-destructive">*</span>
-            </Label>
-            <Input
+            <ZoruLabel htmlFor="display_name">
+              Display name <span className="text-zoru-danger-ink">*</span>
+            </ZoruLabel>
+            <ZoruInput
               id="display_name"
               name="display_name"
               required
               placeholder="e.g. Sales Manager"
-              className="h-10 rounded-lg border-border bg-card text-[13px]"
             />
           </div>
 
           <div>
-            <Label htmlFor="name" className="text-foreground">
-              Slug
-            </Label>
-            <Input
+            <ZoruLabel htmlFor="name">Slug</ZoruLabel>
+            <ZoruInput
               id="name"
               name="name"
               placeholder="auto-generated from display name"
-              className="h-10 rounded-lg border-border bg-card text-[13px]"
             />
-            <p className="mt-1 text-[12px] text-muted-foreground">
+            <p className="mt-1 text-[12px] text-zoru-ink-muted">
               Lowercase identifier used in permission checks.
             </p>
           </div>
 
           <div>
-            <Label htmlFor="description" className="text-foreground">
-              Description
-            </Label>
-            <Textarea
-              id="description"
-              name="description"
-              rows={3}
-              className="rounded-lg border-border bg-card text-[13px]"
-            />
+            <ZoruLabel htmlFor="description">Description</ZoruLabel>
+            <ZoruTextarea id="description" name="description" rows={3} />
           </div>
 
           <div className="flex items-center gap-2">
-            <Checkbox id="is_admin" name="is_admin" value="true" />
-            <Label htmlFor="is_admin" className="text-[13px] text-foreground">
+            <ZoruCheckbox id="is_admin" name="is_admin" value="true" />
+            <ZoruLabel htmlFor="is_admin" className="text-[13px] text-zoru-ink">
               Admin role — grants all permissions automatically
-            </Label>
+            </ZoruLabel>
           </div>
 
           <div className="flex justify-end gap-2 pt-2">
-            <Link href="/dashboard/crm/settings/roles">
-              <ClayButton type="button" variant="pill">
-                Cancel
-              </ClayButton>
-            </Link>
-            <ClayButton
-              type="submit"
-              variant="obsidian"
-              disabled={isPending}
-              leading={
-                isPending ? (
-                  <LoaderCircle
-                    className="h-4 w-4 animate-spin"
-                    strokeWidth={1.75}
-                  />
-                ) : null
-              }
-            >
+            <ZoruButton type="button" variant="outline" asChild>
+              <Link href="/dashboard/crm/settings/roles">Cancel</Link>
+            </ZoruButton>
+            <ZoruButton type="submit" disabled={isPending}>
+              {isPending ? (
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+              ) : null}
               Create Role
-            </ClayButton>
+            </ZoruButton>
           </div>
         </form>
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

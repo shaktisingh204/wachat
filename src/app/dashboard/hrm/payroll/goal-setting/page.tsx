@@ -1,8 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import * as React from 'react';
 import { useState, useEffect, useCallback, useTransition, useActionState } from 'react';
 import type { WithId } from 'mongodb';
@@ -10,34 +7,33 @@ import { getCrmGoals, saveCrmGoal, deleteCrmGoal } from '@/app/actions/crm-hr.ac
 import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
 import type { CrmGoal, CrmEmployee } from '@/lib/definitions';
 import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { useToast } from '@/hooks/use-toast';
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogDescription,
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruInput,
+  ZoruLabel,
+  ZoruTextarea,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruCard,
+  ZoruBadge,
+  ZoruButton,
+  useZoruToast,
+} from '@/components/zoruui';
 import {
   Plus,
   Edit,
@@ -47,7 +43,6 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 
-import { ClayCard, ClayBadge, ClayButton } from '@/components/clay';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 
 const SAVE_INITIAL: any = { message: null, error: null };
@@ -65,35 +60,34 @@ const PRIORITY_OPTIONS = [
   { value: 'low', label: 'Low' },
 ] as const;
 
-const STATUS_TONES: Record<string, 'neutral' | 'amber' | 'green' | 'red'> = {
-  'not-started': 'neutral',
-  'in-progress': 'amber',
-  completed: 'green',
-  cancelled: 'red',
-  // legacy values
-  'Not Started': 'neutral',
-  'In Progress': 'amber',
-  Completed: 'green',
-  Cancelled: 'red',
-  'On Hold': 'neutral',
+const STATUS_VARIANTS: Record<string, 'secondary' | 'warning' | 'success' | 'danger'> = {
+  'not-started': 'secondary',
+  'in-progress': 'warning',
+  completed: 'success',
+  cancelled: 'danger',
+  'Not Started': 'secondary',
+  'In Progress': 'warning',
+  Completed: 'success',
+  Cancelled: 'danger',
+  'On Hold': 'secondary',
 };
 
-const PRIORITY_TONES: Record<string, 'red' | 'amber' | 'neutral'> = {
-  high: 'red',
-  medium: 'amber',
-  low: 'neutral',
+const PRIORITY_VARIANTS: Record<string, 'danger' | 'warning' | 'secondary'> = {
+  high: 'danger',
+  medium: 'warning',
+  low: 'secondary',
 };
 
 function ProgressBar({ value }: { value: number }) {
   const pct = Math.min(100, Math.max(0, value || 0));
   const color =
-    pct >= 100 ? 'bg-green-500' : pct >= 50 ? 'bg-amber-500' : 'bg-border';
+    pct >= 100 ? 'bg-green-500' : pct >= 50 ? 'bg-amber-500' : 'bg-zoru-line';
   return (
     <div className="space-y-1">
-      <div className="h-1.5 w-full overflow-hidden rounded-full bg-border">
+      <div className="h-1.5 w-full overflow-hidden rounded-full bg-zoru-line">
         <div className={`h-full rounded-full ${color}`} style={{ width: `${pct}%` }} />
       </div>
-      <p className="text-right text-[11.5px] tabular-nums text-muted-foreground">{pct}%</p>
+      <p className="text-right text-[11.5px] tabular-nums text-zoru-ink-muted">{pct}%</p>
     </div>
   );
 }
@@ -112,7 +106,7 @@ function GoalFormDialog({
   employees: WithId<CrmEmployee>[];
 }) {
   const [state, formAction, isPending] = useActionState(saveCrmGoal, SAVE_INITIAL);
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const isEditing = !!goal;
 
   useEffect(() => {
@@ -127,73 +121,73 @@ function GoalFormDialog({
   }, [state, toast, onSave, onOpenChange]);
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+    <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+      <ZoruDialogContent className="max-w-lg">
         <form action={formAction}>
           {isEditing && (
             <input type="hidden" name="id" value={goal._id.toString()} />
           )}
-          <DialogHeader>
-            <DialogTitle className="text-foreground">
+          <ZoruDialogHeader>
+            <ZoruDialogTitle className="text-zoru-ink">
               {isEditing ? 'Edit Goal' : 'Create Goal'}
-            </DialogTitle>
-            <DialogDescription className="text-muted-foreground">
+            </ZoruDialogTitle>
+            <ZoruDialogDescription className="text-zoru-ink-muted">
               Set a clear objective with a due date and priority.
-            </DialogDescription>
-          </DialogHeader>
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
 
           <div className="space-y-4 py-4">
             <div className="space-y-1.5">
-              <Label className="text-foreground">
-                Title <span className="text-destructive">*</span>
-              </Label>
-              <Input
+              <ZoruLabel className="text-zoru-ink">
+                Title <span className="text-zoru-danger-ink">*</span>
+              </ZoruLabel>
+              <ZoruInput
                 name="title"
                 defaultValue={goal?.title}
                 required
                 placeholder="e.g. Launch new product feature"
-                className="h-10 rounded-lg border-border bg-card text-[13px]"
+                className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
               />
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-foreground">Description</Label>
-              <Textarea
+              <ZoruLabel className="text-zoru-ink">Description</ZoruLabel>
+              <ZoruTextarea
                 name="description"
                 defaultValue={goal?.description}
                 rows={3}
                 placeholder="Describe the goal in detail…"
-                className="rounded-lg border-border bg-card text-[13px]"
+                className="rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <Label className="text-foreground">
+                <ZoruLabel className="text-zoru-ink">
                   Assign To
-                </Label>
-                <Select
+                </ZoruLabel>
+                <ZoruSelect
                   name="assigneeId"
-                  defaultValue={goal?.assigneeId?.toString() ?? ''}
+                  defaultValue={goal?.assigneeId?.toString() ?? undefined}
                 >
-                  <SelectTrigger className="h-10 rounded-lg border-border bg-card text-[13px]">
-                    <SelectValue placeholder="Select employee…" />
-                  </SelectTrigger>
-                  <SelectContent>
+                  <ZoruSelectTrigger className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                    <ZoruSelectValue placeholder="Select employee…" />
+                  </ZoruSelectTrigger>
+                  <ZoruSelectContent>
                     {employees.map((e) => (
-                      <SelectItem key={e._id.toString()} value={e._id.toString()}>
+                      <ZoruSelectItem key={e._id.toString()} value={e._id.toString()}>
                         {e.firstName} {e.lastName}
-                      </SelectItem>
+                      </ZoruSelectItem>
                     ))}
-                  </SelectContent>
-                </Select>
+                  </ZoruSelectContent>
+                </ZoruSelect>
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-foreground">
-                  Due Date <span className="text-destructive">*</span>
-                </Label>
-                <Input
+                <ZoruLabel className="text-zoru-ink">
+                  Due Date <span className="text-zoru-danger-ink">*</span>
+                </ZoruLabel>
+                <ZoruInput
                   name="targetDate"
                   type="date"
                   required
@@ -202,85 +196,80 @@ function GoalFormDialog({
                       ? new Date(goal.targetDate).toISOString().slice(0, 10)
                       : ''
                   }
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
+                  className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-1.5">
-                <Label className="text-foreground">Priority</Label>
-                <Select name="priority" defaultValue={(goal as any)?.priority ?? 'medium'}>
-                  <SelectTrigger className="h-10 rounded-lg border-border bg-card text-[13px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
+                <ZoruLabel className="text-zoru-ink">Priority</ZoruLabel>
+                <ZoruSelect name="priority" defaultValue={(goal as any)?.priority ?? 'medium'}>
+                  <ZoruSelectTrigger className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                    <ZoruSelectValue />
+                  </ZoruSelectTrigger>
+                  <ZoruSelectContent>
                     {PRIORITY_OPTIONS.map((o) => (
-                      <SelectItem key={o.value} value={o.value}>
+                      <ZoruSelectItem key={o.value} value={o.value}>
                         {o.label}
-                      </SelectItem>
+                      </ZoruSelectItem>
                     ))}
-                  </SelectContent>
-                </Select>
+                  </ZoruSelectContent>
+                </ZoruSelect>
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-foreground">Status</Label>
-                <Select
+                <ZoruLabel className="text-zoru-ink">Status</ZoruLabel>
+                <ZoruSelect
                   name="status"
                   defaultValue={(goal?.status as string) ?? 'not-started'}
                 >
-                  <SelectTrigger className="h-10 rounded-lg border-border bg-card text-[13px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
+                  <ZoruSelectTrigger className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                    <ZoruSelectValue />
+                  </ZoruSelectTrigger>
+                  <ZoruSelectContent>
                     {STATUS_OPTIONS.map((o) => (
-                      <SelectItem key={o.value} value={o.value}>
+                      <ZoruSelectItem key={o.value} value={o.value}>
                         {o.label}
-                      </SelectItem>
+                      </ZoruSelectItem>
                     ))}
-                  </SelectContent>
-                </Select>
+                  </ZoruSelectContent>
+                </ZoruSelect>
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-foreground">Progress (%)</Label>
-                <Input
+                <ZoruLabel className="text-zoru-ink">Progress (%)</ZoruLabel>
+                <ZoruInput
                   name="progress"
                   type="number"
                   min={0}
                   max={100}
                   defaultValue={goal?.progress ?? 0}
-                  className="h-10 rounded-lg border-border bg-card text-[13px]"
+                  className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                 />
               </div>
             </div>
           </div>
 
-          <DialogFooter className="gap-2">
-            <ClayButton
+          <ZoruDialogFooter className="gap-2">
+            <ZoruButton
               type="button"
-              variant="pill"
+              variant="outline"
               onClick={() => onOpenChange(false)}
             >
               Cancel
-            </ClayButton>
-            <ClayButton
+            </ZoruButton>
+            <ZoruButton
               type="submit"
-              variant="obsidian"
               disabled={isPending}
-              leading={
-                isPending ? (
-                  <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.75} />
-                ) : null
-              }
             >
+              {isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
               {isEditing ? 'Save Goal' : 'Create Goal'}
-            </ClayButton>
-          </DialogFooter>
+            </ZoruButton>
+          </ZoruDialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      </ZoruDialogContent>
+    </ZoruDialog>
   );
 }
 
@@ -295,59 +284,60 @@ function GoalCard({
 }) {
   const priority = (goal as any).priority as string | undefined;
   return (
-    <ClayCard className="flex flex-col gap-3">
+    <ZoruCard className="flex flex-col gap-3 p-6">
       <div className="flex items-start justify-between gap-2">
-        <h3 className="text-[15px] font-semibold text-foreground">{goal.title}</h3>
+        <h3 className="text-[15px] text-zoru-ink">{goal.title}</h3>
         <div className="flex shrink-0 gap-1">
           {priority && (
-            <ClayBadge tone={PRIORITY_TONES[priority] ?? 'neutral'}>
+            <ZoruBadge variant={PRIORITY_VARIANTS[priority] ?? 'secondary'}>
               {priority}
-            </ClayBadge>
+            </ZoruBadge>
           )}
-          <ClayBadge tone={STATUS_TONES[goal.status] ?? 'neutral'}>
+          <ZoruBadge variant={STATUS_VARIANTS[goal.status] ?? 'secondary'}>
             {goal.status}
-          </ClayBadge>
+          </ZoruBadge>
         </div>
       </div>
 
       {goal.targetDate && (
-        <p className="text-[12.5px] text-muted-foreground">
+        <p className="text-[12.5px] text-zoru-ink-muted">
           Due: {format(new Date(goal.targetDate), 'PPP')}
         </p>
       )}
 
       {goal.description && (
-        <p className="line-clamp-2 text-[13px] text-muted-foreground">{goal.description}</p>
+        <p className="line-clamp-2 text-[13px] text-zoru-ink-muted">{goal.description}</p>
       )}
 
       <ProgressBar value={goal.progress ?? 0} />
 
       {(goal as any).assigneeInfo && (
-        <p className="text-[12.5px] text-foreground">
+        <p className="text-[12.5px] text-zoru-ink">
           Assigned to:{' '}
-          <span className="font-semibold">
+          <span className="text-zoru-ink">
             {(goal as any).assigneeInfo.firstName} {(goal as any).assigneeInfo.lastName}
           </span>
         </p>
       )}
 
       <div className="flex justify-end gap-2 pt-1">
-        <ClayButton
-          variant="pill"
+        <ZoruButton
+          variant="ghost"
           size="sm"
-          leading={<Trash2 className="h-3.5 w-3.5 text-destructive" strokeWidth={1.75} />}
           onClick={onDelete}
-        />
-        <ClayButton
-          variant="pill"
+        >
+          <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+        </ZoruButton>
+        <ZoruButton
+          variant="outline"
           size="sm"
-          leading={<Edit className="h-3.5 w-3.5" strokeWidth={1.75} />}
           onClick={onEdit}
         >
+          <Edit className="h-3.5 w-3.5" />
           Edit
-        </ClayButton>
+        </ZoruButton>
       </div>
-    </ClayCard>
+    </ZoruCard>
   );
 }
 
@@ -358,7 +348,7 @@ export default function GoalSettingPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<WithId<CrmGoal> | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
 
   const fetchData = useCallback(() => {
     startTransition(async () => {
@@ -401,23 +391,23 @@ export default function GoalSettingPage() {
         onSave={fetchData}
         employees={employees}
       />
-      <AlertDialog
+      <ZoruAlertDialog
         open={deletingId !== null}
         onOpenChange={(o) => !o && setDeletingId(null)}
       >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-foreground">Delete Goal?</AlertDialogTitle>
-            <AlertDialogDescription className="text-muted-foreground">
+        <ZoruAlertDialogContent>
+          <ZoruAlertDialogHeader>
+            <ZoruAlertDialogTitle className="text-zoru-ink">Delete Goal?</ZoruAlertDialogTitle>
+            <ZoruAlertDialogDescription className="text-zoru-ink-muted">
               This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </ZoruAlertDialogDescription>
+          </ZoruAlertDialogHeader>
+          <ZoruAlertDialogFooter>
+            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+            <ZoruAlertDialogAction onClick={handleDelete}>Delete</ZoruAlertDialogAction>
+          </ZoruAlertDialogFooter>
+        </ZoruAlertDialogContent>
+      </ZoruAlertDialog>
 
       <div className="flex w-full flex-col gap-6">
         <CrmPageHeader
@@ -425,22 +415,19 @@ export default function GoalSettingPage() {
           subtitle="Set, track, and manage goals for your team and employees."
           icon={Target}
           actions={
-            <ClayButton
-              variant="obsidian"
-              leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}
-              onClick={() => handleOpenDialog(null)}
-            >
+            <ZoruButton onClick={() => handleOpenDialog(null)}>
+              <Plus className="h-4 w-4" />
               New Goal
-            </ClayButton>
+            </ZoruButton>
           }
         />
 
         {isLoading && goals.length === 0 ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {[0, 1, 2].map((i) => (
-              <ClayCard key={i}>
-                <div className="h-32 animate-pulse rounded-lg bg-secondary" />
-              </ClayCard>
+              <ZoruCard key={i} className="p-6">
+                <div className="h-32 animate-pulse rounded-lg bg-zoru-surface-2" />
+              </ZoruCard>
             ))}
           </div>
         ) : goals.length > 0 ? (
@@ -455,24 +442,21 @@ export default function GoalSettingPage() {
             ))}
           </div>
         ) : (
-          <ClayCard variant="outline" className="border-dashed">
+          <ZoruCard className="border-dashed p-6">
             <div className="flex flex-col items-center gap-3 py-12 text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent">
-                <Target className="h-6 w-6 text-accent-foreground" strokeWidth={1.75} />
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-zoru-surface-2">
+                <Target className="h-6 w-6 text-zoru-ink" />
               </div>
-              <h3 className="text-[15px] font-semibold text-foreground">No Goals Yet</h3>
-              <p className="text-[12.5px] text-muted-foreground">
+              <h3 className="text-[15px] text-zoru-ink">No Goals Yet</h3>
+              <p className="text-[12.5px] text-zoru-ink-muted">
                 Create a new goal to get started.
               </p>
-              <ClayButton
-                variant="obsidian"
-                leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}
-                onClick={() => handleOpenDialog(null)}
-              >
+              <ZoruButton onClick={() => handleOpenDialog(null)}>
+                <Plus className="h-4 w-4" />
                 New Goal
-              </ClayButton>
+              </ZoruButton>
             </div>
-          </ClayCard>
+          </ZoruCard>
         )}
       </div>
     </>

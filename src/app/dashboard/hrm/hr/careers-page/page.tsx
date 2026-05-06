@@ -1,26 +1,24 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import * as React from 'react';
 import { useActionState, useEffect, useState, useTransition } from 'react';
 import { Globe, LoaderCircle } from 'lucide-react';
 
-import { ClayCard, ClayButton } from '@/components/clay';
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSkeleton,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import {
   getCareersPageConfig,
   saveCareersPageConfig,
@@ -32,7 +30,7 @@ type ConfigDoc =
   | null;
 
 export default function CareersPageConfigPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [config, setConfig] = useState<ConfigDoc>(null);
   const [isLoading, startLoading] = useTransition();
   const [saveState, saveFormAction, isSaving] = useActionState(
@@ -90,12 +88,12 @@ export default function CareersPageConfigPage() {
         icon={Globe}
       />
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         {isLoading && !config ? (
           <div className="space-y-4">
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-24 w-full" />
-            <Skeleton className="h-10 w-full" />
+            <ZoruSkeleton className="h-10 w-full" />
+            <ZoruSkeleton className="h-24 w-full" />
+            <ZoruSkeleton className="h-10 w-full" />
           </div>
         ) : (
           <form action={saveFormAction} className="space-y-4">
@@ -105,137 +103,122 @@ export default function CareersPageConfigPage() {
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="md:col-span-2">
-                <Label htmlFor="headline" className="text-foreground">
+                <ZoruLabel htmlFor="headline" className="text-zoru-ink">
                   Headline
-                </Label>
+                </ZoruLabel>
                 <div className="mt-1.5">
-                  <Input
+                  <ZoruInput
                     id="headline"
                     name="headline"
                     defaultValue={value('headline')}
-                    className="h-10 rounded-lg border-border bg-card text-[13px]"
                   />
                 </div>
               </div>
 
               <div className="md:col-span-2">
-                <Label htmlFor="intro" className="text-foreground">
+                <ZoruLabel htmlFor="intro" className="text-zoru-ink">
                   Intro
-                </Label>
+                </ZoruLabel>
                 <div className="mt-1.5">
-                  <Textarea
+                  <ZoruTextarea
                     id="intro"
                     name="intro"
                     rows={3}
                     defaultValue={value('intro')}
-                    className="rounded-lg border-border bg-card text-[13px]"
                   />
                 </div>
               </div>
 
               <div>
-                <Label htmlFor="logoUrl" className="text-foreground">
+                <ZoruLabel htmlFor="logoUrl" className="text-zoru-ink">
                   Logo URL
-                </Label>
+                </ZoruLabel>
                 <div className="mt-1.5">
-                  <Input
+                  <ZoruInput
                     id="logoUrl"
                     name="logoUrl"
                     defaultValue={value('logoUrl')}
-                    className="h-10 rounded-lg border-border bg-card text-[13px]"
                   />
                 </div>
               </div>
 
               <div>
-                <Label htmlFor="primaryColor" className="text-foreground">
+                <ZoruLabel htmlFor="primaryColor" className="text-zoru-ink">
                   Primary Color
-                </Label>
+                </ZoruLabel>
                 <div className="mt-1.5">
-                  <Input
+                  <ZoruInput
                     id="primaryColor"
                     name="primaryColor"
                     defaultValue={value('primaryColor')}
                     placeholder="#E11D48"
-                    className="h-10 rounded-lg border-border bg-card text-[13px]"
                   />
                 </div>
               </div>
 
               <div>
-                <Label htmlFor="ctaLabel" className="text-foreground">
+                <ZoruLabel htmlFor="ctaLabel" className="text-zoru-ink">
                   CTA Label
-                </Label>
+                </ZoruLabel>
                 <div className="mt-1.5">
-                  <Input
+                  <ZoruInput
                     id="ctaLabel"
                     name="ctaLabel"
                     defaultValue={value('ctaLabel')}
-                    className="h-10 rounded-lg border-border bg-card text-[13px]"
                   />
                 </div>
               </div>
 
               <div>
-                <Label htmlFor="slug" className="text-foreground">
+                <ZoruLabel htmlFor="slug" className="text-zoru-ink">
                   Slug
-                </Label>
+                </ZoruLabel>
                 <div className="mt-1.5">
-                  <Input
+                  <ZoruInput
                     id="slug"
                     name="slug"
                     defaultValue={value('slug')}
-                    className="h-10 rounded-lg border-border bg-card text-[13px]"
                   />
                 </div>
               </div>
 
               <div className="md:col-span-2">
-                <Label htmlFor="isPublished" className="text-foreground">
+                <ZoruLabel htmlFor="isPublished" className="text-zoru-ink">
                   Published
-                </Label>
+                </ZoruLabel>
                 <div className="mt-1.5">
-                  <Select
+                  <ZoruSelect
                     name="isPublished"
                     defaultValue={
                       config && (config as any).isPublished ? 'yes' : 'no'
                     }
                   >
-                    <SelectTrigger
-                      id="isPublished"
-                      className="h-10 rounded-lg border-border bg-card text-[13px]"
-                    >
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="yes">Yes</SelectItem>
-                      <SelectItem value="no">No</SelectItem>
-                    </SelectContent>
-                  </Select>
+                    <ZoruSelectTrigger id="isPublished">
+                      <ZoruSelectValue placeholder="Select" />
+                    </ZoruSelectTrigger>
+                    <ZoruSelectContent>
+                      <ZoruSelectItem value="yes">Yes</ZoruSelectItem>
+                      <ZoruSelectItem value="no">No</ZoruSelectItem>
+                    </ZoruSelectContent>
+                  </ZoruSelect>
                 </div>
               </div>
             </div>
 
             <div className="flex justify-end gap-2 pt-2">
-              <ClayButton
-                type="submit"
-                variant="obsidian"
-                disabled={isSaving}
-                leading={
-                  isSaving ? (
-                    <LoaderCircle
-                      className="h-4 w-4 animate-spin"
-                      strokeWidth={1.75}
-                    />
-                  ) : null
-                }
-              >
+              <ZoruButton type="submit" disabled={isSaving}>
+                {isSaving ? (
+                  <LoaderCircle
+                    className="h-4 w-4 animate-spin"
+                    strokeWidth={1.75}
+                  />
+                ) : null}
                 Save
-              </ClayButton>
+              </ZoruButton>
             </div>
           </form>
         )}
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

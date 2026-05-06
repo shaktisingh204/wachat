@@ -1,8 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import * as React from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
@@ -15,21 +12,23 @@ import {
 } from 'lucide-react';
 import { useEffect, useState, useTransition } from 'react';
 
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
-import { CrmPageHeader } from '../../../_components/crm-page-header';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
+  ZoruAvatar,
+  ZoruAvatarFallback,
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  useZoruToast,
+} from '@/components/zoruui';
+import { CrmPageHeader } from '../../../_components/crm-page-header';
 import {
   getRoleById,
   getRoleMembers,
@@ -78,7 +77,7 @@ export default function RoleDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const roleId = params?.id as string;
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
 
   const [role, setRole] = useState<(WsRole & { _id: string }) | null>(null);
   const [groups, setGroups] = useState<Grouped[]>([]);
@@ -200,7 +199,7 @@ export default function RoleDetailPage() {
   if (isLoading && !role) {
     return (
       <div className="flex h-60 items-center justify-center">
-        <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />
+        <LoaderCircle className="h-5 w-5 animate-spin text-zoru-ink-muted" />
       </div>
     );
   }
@@ -213,9 +212,9 @@ export default function RoleDetailPage() {
           subtitle="This role may have been deleted."
           icon={Shield}
         />
-        <Link href="/dashboard/crm/settings/roles">
-          <ClayButton variant="pill">Back to roles</ClayButton>
-        </Link>
+        <ZoruButton variant="outline" asChild>
+          <Link href="/dashboard/crm/settings/roles">Back to roles</Link>
+        </ZoruButton>
       </div>
     );
   }
@@ -227,22 +226,20 @@ export default function RoleDetailPage() {
         subtitle={role.description || 'Manage members and permissions for this role.'}
         icon={Shield}
         actions={
-          <Link href="/dashboard/crm/settings/roles">
-            <ClayButton
-              variant="pill"
-              leading={<ArrowLeft className="h-4 w-4" strokeWidth={1.75} />}
-            >
+          <ZoruButton variant="outline" asChild>
+            <Link href="/dashboard/crm/settings/roles">
+              <ArrowLeft className="h-4 w-4" />
               Back
-            </ClayButton>
-          </Link>
+            </Link>
+          </ZoruButton>
         }
       />
 
       {/* Members */}
-      <ClayCard>
-        <div className="border-b border-border p-5">
-          <h2 className="text-[15px] font-semibold text-foreground">Members</h2>
-          <p className="text-[13px] text-muted-foreground">
+      <ZoruCard className="p-0">
+        <div className="border-b border-zoru-line p-5">
+          <h2 className="text-[15px] text-zoru-ink">Members</h2>
+          <p className="text-[13px] text-zoru-ink-muted">
             {members.length} assigned
           </p>
         </div>
@@ -250,44 +247,35 @@ export default function RoleDetailPage() {
         <div className="space-y-3 p-5">
           <div className="flex flex-wrap items-end gap-2">
             <div className="min-w-[180px] flex-1">
-              <Label htmlFor="newMemberName" className="text-foreground">
-                Name
-              </Label>
-              <Input
+              <ZoruLabel htmlFor="newMemberName">Name</ZoruLabel>
+              <ZoruInput
                 id="newMemberName"
                 value={newMemberName}
                 onChange={(e) => setNewMemberName(e.target.value)}
                 placeholder="Alex Doe"
-                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
             <div className="min-w-[220px] flex-1">
-              <Label htmlFor="newMemberEmail" className="text-foreground">
-                Email / user id
-              </Label>
-              <Input
+              <ZoruLabel htmlFor="newMemberEmail">Email / user id</ZoruLabel>
+              <ZoruInput
                 id="newMemberEmail"
                 value={newMemberEmail}
                 onChange={(e) => setNewMemberEmail(e.target.value)}
                 placeholder="alex@example.com"
-                className="h-10 rounded-lg border-border bg-card text-[13px]"
               />
             </div>
-            <ClayButton
-              variant="obsidian"
-              onClick={addMember}
-              leading={<UserPlus className="h-4 w-4" strokeWidth={1.75} />}
-            >
+            <ZoruButton onClick={addMember}>
+              <UserPlus className="h-4 w-4" />
               Add
-            </ClayButton>
+            </ZoruButton>
           </div>
 
           {members.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-border p-6 text-center text-[13px] text-muted-foreground">
+            <div className="rounded-lg border border-dashed border-zoru-line p-6 text-center text-[13px] text-zoru-ink-muted">
               No members yet.
             </div>
           ) : (
-            <ul className="divide-y divide-border rounded-lg border border-border">
+            <ul className="divide-y divide-zoru-line rounded-lg border border-zoru-line">
               {members.map((m) => {
                 const label = m.user_name || m.user_email || m.user_id;
                 return (
@@ -296,45 +284,41 @@ export default function RoleDetailPage() {
                     className="flex items-center justify-between gap-3 p-3"
                   >
                     <div className="flex items-center gap-3">
-                      <Avatar className="h-9 w-9">
-                        <AvatarFallback className="bg-accent text-[12px] text-accent-foreground">
+                      <ZoruAvatar className="h-9 w-9">
+                        <ZoruAvatarFallback className="bg-zoru-surface-2 text-[12px] text-zoru-ink">
                           {initials(label)}
-                        </AvatarFallback>
-                      </Avatar>
+                        </ZoruAvatarFallback>
+                      </ZoruAvatar>
                       <div>
-                        <div className="text-[13px] font-medium text-foreground">
-                          {label}
-                        </div>
+                        <div className="text-[13px] text-zoru-ink">{label}</div>
                         {m.user_email && m.user_name ? (
-                          <div className="text-[12px] text-muted-foreground">
+                          <div className="text-[12px] text-zoru-ink-muted">
                             {m.user_email}
                           </div>
                         ) : null}
                       </div>
                     </div>
-                    <Button
+                    <ZoruButton
                       variant="ghost"
                       size="sm"
                       onClick={() => removeMember(m.user_id)}
                       aria-label="Remove member"
                     >
-                      <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                    </Button>
+                      <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                    </ZoruButton>
                   </li>
                 );
               })}
             </ul>
           )}
         </div>
-      </ClayCard>
+      </ZoruCard>
 
       {/* Permission matrix */}
-      <ClayCard>
-        <div className="border-b border-border p-5">
-          <h2 className="text-[15px] font-semibold text-foreground">
-            Permission matrix
-          </h2>
-          <p className="text-[13px] text-muted-foreground">
+      <ZoruCard className="p-0">
+        <div className="border-b border-zoru-line p-5">
+          <h2 className="text-[15px] text-zoru-ink">Permission matrix</h2>
+          <p className="text-[13px] text-zoru-ink-muted">
             Toggle a cell to grant this role the permission with the chosen
             type. Toggle again to revoke.{' '}
             {isBusy ? (
@@ -345,7 +329,7 @@ export default function RoleDetailPage() {
 
         <div className="overflow-x-auto p-5">
           {groups.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-border p-6 text-center text-[13px] text-muted-foreground">
+            <div className="rounded-lg border border-dashed border-zoru-line p-6 text-center text-[13px] text-zoru-ink-muted">
               No permissions defined. Create some under{' '}
               <Link
                 href="/dashboard/crm/settings/permissions"
@@ -356,67 +340,57 @@ export default function RoleDetailPage() {
               .
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow className="border-border hover:bg-transparent">
-                  <TableHead className="text-muted-foreground">
-                    Permission
-                  </TableHead>
+            <ZoruTable>
+              <ZoruTableHeader>
+                <ZoruTableRow className="hover:bg-transparent">
+                  <ZoruTableHead className="text-zoru-ink-muted">Permission</ZoruTableHead>
                   {types.map((t) => (
-                    <TableHead
-                      key={t._id}
-                      className="text-center text-muted-foreground"
-                    >
+                    <ZoruTableHead key={t._id} className="text-center text-zoru-ink-muted">
                       {t.display_name || t.name}
-                    </TableHead>
+                    </ZoruTableHead>
                   ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+                </ZoruTableRow>
+              </ZoruTableHeader>
+              <ZoruTableBody>
                 {groups.map((g, gi) => (
                   <React.Fragment key={g.module?._id || `orphan-${gi}`}>
-                    <TableRow className="border-border bg-accent/30 hover:bg-accent/30">
-                      <TableCell
+                    <ZoruTableRow className="bg-zoru-surface-2 hover:bg-zoru-surface-2">
+                      <ZoruTableCell
                         colSpan={types.length + 1}
-                        className="text-[13px] font-semibold text-foreground"
+                        className="text-[13px] text-zoru-ink"
                       >
                         {g.module?.display_name ||
                           g.module?.module_name ||
                           'Uncategorised'}
-                      </TableCell>
-                    </TableRow>
+                      </ZoruTableCell>
+                    </ZoruTableRow>
                     {g.permissions.length === 0 ? (
-                      <TableRow className="border-border">
-                        <TableCell
+                      <ZoruTableRow>
+                        <ZoruTableCell
                           colSpan={types.length + 1}
-                          className="py-3 text-center text-[12px] text-muted-foreground"
+                          className="py-3 text-center text-[12px] text-zoru-ink-muted"
                         >
                           No permissions in this module.
-                        </TableCell>
-                      </TableRow>
+                        </ZoruTableCell>
+                      </ZoruTableRow>
                     ) : (
                       g.permissions.map((p) => {
                         const activeType = grants.get(String(p._id));
                         return (
-                          <TableRow key={p._id} className="border-border">
-                            <TableCell className="text-[13px] text-foreground">
-                              <div className="font-medium">
-                                {p.display_name || p.name}
-                              </div>
-                              <div className="text-[12px] text-muted-foreground">
+                          <ZoruTableRow key={p._id}>
+                            <ZoruTableCell className="text-[13px] text-zoru-ink">
+                              <div>{p.display_name || p.name}</div>
+                              <div className="text-[12px] text-zoru-ink-muted">
                                 <code>{p.name}</code>
                               </div>
-                            </TableCell>
+                            </ZoruTableCell>
                             {types.map((t) => {
                               const checked = activeType === String(t._id);
                               return (
-                                <TableCell
-                                  key={t._id}
-                                  className="text-center"
-                                >
+                                <ZoruTableCell key={t._id} className="text-center">
                                   <input
                                     type="checkbox"
-                                    className="h-4 w-4 cursor-pointer accent-foreground"
+                                    className="h-4 w-4 cursor-pointer accent-zoru-ink"
                                     checked={checked}
                                     disabled={isBusy}
                                     onChange={() =>
@@ -424,21 +398,21 @@ export default function RoleDetailPage() {
                                     }
                                     aria-label={`${p.name} — ${t.name}`}
                                   />
-                                </TableCell>
+                                </ZoruTableCell>
                               );
                             })}
-                          </TableRow>
+                          </ZoruTableRow>
                         );
                       })
                     )}
                   </React.Fragment>
                 ))}
-              </TableBody>
-            </Table>
+              </ZoruTableBody>
+            </ZoruTable>
           )}
         </div>
 
-        <div className="flex flex-wrap gap-2 border-t border-border p-4">
+        <div className="flex flex-wrap gap-2 border-t border-zoru-line p-4">
           {Array.from(grants.entries()).slice(0, 6).map(([permId, typeId]) => {
             const perm = groups
               .flatMap((g) => g.permissions)
@@ -446,13 +420,13 @@ export default function RoleDetailPage() {
             const type = types.find((t) => String(t._id) === typeId);
             if (!perm || !type) return null;
             return (
-              <ClayBadge key={permId} tone="green">
+              <ZoruBadge key={permId} variant="success">
                 {perm.name} · {type.name}
-              </ClayBadge>
+              </ZoruBadge>
             );
           })}
         </div>
-      </ClayCard>
+      </ZoruCard>
 
       {/* Avoid unused-import noise when router is only used conditionally above. */}
       <span className="hidden">{String(!!router)}</span>

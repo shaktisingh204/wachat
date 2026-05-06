@@ -4,11 +4,9 @@ import { useCallback, useEffect, useState, useTransition } from 'react';
 import { getWebhookLogs, getWebhookLogPayload } from '@/app/actions/index.ts';
 import type { FlowLog } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { ZoruButton, ZoruScrollArea, useZoruToast } from '@/components/zoruui';
 import { useDebouncedCallback } from 'use-debounce';
 import { Eye, Search, LoaderCircle, GitFork, Copy, X } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
 
 export const dynamic = 'force-dynamic';
 const LOGS_PER_PAGE = 20;
@@ -21,7 +19,7 @@ export default function FlowLogsPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedLog, setSelectedLog] = useState<WithId<FlowLog> | null>(null);
     const [loadingPayload, setLoadingPayload] = useState(false);
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
 
     const fetchLogs = useCallback((page: number, query: string) => {
         startTransition(async () => {
@@ -139,14 +137,14 @@ export default function FlowLogsPage() {
                     <div className="px-6 py-3 border-t border-slate-200 flex items-center justify-between">
                         <span className="text-xs text-slate-500">Page {currentPage} of {totalPages > 0 ? totalPages : 1}</span>
                         <div className="flex gap-2">
-                            <Button variant="outline" size="sm" onClick={() => setCurrentPage(p => p - 1)} disabled={currentPage <= 1 || isLoading}
+                            <ZoruButton variant="outline" size="sm" onClick={() => setCurrentPage(p => p - 1)} disabled={currentPage <= 1 || isLoading}
                                 className="border-slate-300 bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900 disabled:opacity-40">
                                 Previous
-                            </Button>
-                            <Button variant="outline" size="sm" onClick={() => setCurrentPage(p => p + 1)} disabled={currentPage >= totalPages || isLoading}
+                            </ZoruButton>
+                            <ZoruButton variant="outline" size="sm" onClick={() => setCurrentPage(p => p + 1)} disabled={currentPage >= totalPages || isLoading}
                                 className="border-slate-300 bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900 disabled:opacity-40">
                                 Next
-                            </Button>
+                            </ZoruButton>
                         </div>
                     </div>
                 </div>
@@ -191,7 +189,7 @@ export default function FlowLogsPage() {
                                     <LoaderCircle className="h-6 w-6 animate-spin text-slate-500" />
                                 </div>
                             ) : selectedLog ? (
-                                <ScrollArea className="max-h-[60vh]">
+                                <ZoruScrollArea className="max-h-[60vh]">
                                     <div className="space-y-2 pr-2">
                                         {selectedLog.entries.map((entry, i) => (
                                             <div key={i} className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-mono">
@@ -213,7 +211,7 @@ export default function FlowLogsPage() {
                                             </div>
                                         ))}
                                     </div>
-                                </ScrollArea>
+                                </ZoruScrollArea>
                             ) : null}
                         </div>
                     </div>

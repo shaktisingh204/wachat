@@ -1,11 +1,12 @@
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { AlertOctagon, ArrowLeft } from 'lucide-react';
 
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { getIssueById } from '@/app/actions/worksuite/meta.actions';
 
@@ -32,14 +33,14 @@ export default async function IssueDetailPage({
     return d.toLocaleString();
   };
 
-  const statusTone =
+  const statusVariant: 'success' | 'danger' | 'ghost' | 'warning' =
     issue.status === 'resolved'
-      ? 'green'
+      ? 'success'
       : issue.status === 'in_progress'
-        ? 'rose'
+        ? 'danger'
         : issue.status === 'closed'
-          ? 'neutral'
-          : 'amber';
+          ? 'ghost'
+          : 'warning';
 
   return (
     <div className="flex w-full flex-col gap-6">
@@ -49,63 +50,61 @@ export default async function IssueDetailPage({
         icon={AlertOctagon}
         actions={
           <Link href="/dashboard/crm/projects/issues">
-            <ClayButton
-              variant="pill"
-              leading={<ArrowLeft className="h-4 w-4" strokeWidth={1.75} />}
-            >
+            <ZoruButton variant="outline" size="sm">
+              <ArrowLeft className="h-4 w-4" strokeWidth={1.75} />
               Back
-            </ClayButton>
+            </ZoruButton>
           </Link>
         }
       />
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+            <p className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
               Status
             </p>
             <div className="mt-1">
-              <ClayBadge tone={statusTone}>{issue.status}</ClayBadge>
+              <ZoruBadge variant={statusVariant}>{issue.status}</ZoruBadge>
             </div>
           </div>
           <div>
-            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+            <p className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
               Priority
             </p>
             <div className="mt-1">
-              <ClayBadge tone="neutral">{issue.priority || 'medium'}</ClayBadge>
+              <ZoruBadge variant="ghost">{issue.priority || 'medium'}</ZoruBadge>
             </div>
           </div>
           <div>
-            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+            <p className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
               Reporter
             </p>
-            <p className="mt-1 text-[13px] text-foreground">
+            <p className="mt-1 text-[13px] text-zoru-ink">
               {issue.reporterName || '—'}
             </p>
           </div>
           <div>
-            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+            <p className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
               Assignee
             </p>
-            <p className="mt-1 text-[13px] text-foreground">
+            <p className="mt-1 text-[13px] text-zoru-ink">
               {issue.assigneeName || '—'}
             </p>
           </div>
           <div>
-            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+            <p className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
               Project
             </p>
-            <p className="mt-1 text-[13px] text-muted-foreground">
+            <p className="mt-1 text-[13px] text-zoru-ink-muted">
               {issue.projectId ? String(issue.projectId) : 'Unassigned'}
             </p>
           </div>
           <div>
-            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+            <p className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
               Created
             </p>
-            <p className="mt-1 text-[13px] text-muted-foreground">
+            <p className="mt-1 text-[13px] text-zoru-ink-muted">
               {formatDate(issue.createdAt)}
             </p>
           </div>
@@ -113,23 +112,23 @@ export default async function IssueDetailPage({
 
         {issue.description ? (
           <div className="mt-6">
-            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+            <p className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
               Description
             </p>
-            <p className="mt-2 whitespace-pre-wrap text-[13px] text-foreground">
+            <p className="mt-2 whitespace-pre-wrap text-[13px] text-zoru-ink">
               {issue.description}
             </p>
           </div>
         ) : null}
-      </ClayCard>
+      </ZoruCard>
 
-      <ClayCard>
-        <h2 className="text-[14px] font-semibold text-foreground">Comments</h2>
-        <p className="mt-2 text-[12.5px] text-muted-foreground">
+      <ZoruCard className="p-6">
+        <h2 className="text-[14px] font-semibold text-zoru-ink">Comments</h2>
+        <p className="mt-2 text-[12.5px] text-zoru-ink-muted">
           Lightweight comments are not yet wired up — plug in the shared
           comments subsystem when available.
         </p>
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

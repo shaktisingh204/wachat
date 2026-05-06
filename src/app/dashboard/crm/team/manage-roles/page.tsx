@@ -1,44 +1,45 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useActionState, useEffect, useState, useTransition, useCallback } from 'react';
-import { useFormStatus } from 'react-dom';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { LoaderCircle, Save, Shield, Plus, Trash2 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
 import { getSession } from '@/app/actions/user.actions';
 import { saveRolePermissions, saveRole, deleteRole } from '@/app/actions/crm-roles.actions';
 import type { WithId, User } from '@/lib/definitions';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '@/components/ui/dialog';
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { Input } from '@/components/ui/input';
 
-import { ClayCard, ClayButton } from '@/components/clay';
+import {
+    ZoruAccordion,
+    ZoruAccordionContent,
+    ZoruAccordionItem,
+    ZoruAccordionTrigger,
+    ZoruAlertDialog,
+    ZoruAlertDialogAction,
+    ZoruAlertDialogCancel,
+    ZoruAlertDialogContent,
+    ZoruAlertDialogDescription,
+    ZoruAlertDialogFooter,
+    ZoruAlertDialogHeader,
+    ZoruAlertDialogTitle,
+    ZoruAlertDialogTrigger,
+    ZoruButton,
+    ZoruCheckbox,
+    ZoruDialog,
+    ZoruDialogContent,
+    ZoruDialogDescription,
+    ZoruDialogFooter,
+    ZoruDialogHeader,
+    ZoruDialogTitle,
+    ZoruDialogTrigger,
+    ZoruInput,
+    ZoruLabel,
+    ZoruSkeleton,
+    ZoruTable,
+    ZoruTableBody,
+    ZoruTableCell,
+    ZoruTableHead,
+    ZoruTableHeader,
+    ZoruTableRow,
+    useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
 const initialState = { message: undefined, error: undefined };
@@ -46,9 +47,9 @@ const initialState = { message: undefined, error: undefined };
 function PageSkeleton() {
     return (
         <div className="space-y-4">
-            <Skeleton className="h-10 w-64" />
-            <Skeleton className="h-4 w-96" />
-            <Skeleton className="h-80 w-full" />
+            <ZoruSkeleton className="h-10 w-64" />
+            <ZoruSkeleton className="h-4 w-96" />
+            <ZoruSkeleton className="h-80 w-full" />
         </div>
     )
 }
@@ -67,7 +68,7 @@ const actions = ['view', 'create', 'edit', 'delete'];
 function AddRoleDialog({ onRoleAdded }: { onRoleAdded: () => void }) {
     const [open, setOpen] = useState(false);
     const [roleName, setRoleName] = useState('');
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
     const [isPending, startTransition] = useTransition();
 
     const handleAddRole = async () => {
@@ -88,33 +89,33 @@ function AddRoleDialog({ onRoleAdded }: { onRoleAdded: () => void }) {
     }
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}>Add Role</ClayButton>
-            </DialogTrigger>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Create New Role</DialogTitle>
-                    <DialogDescription>Give your new role a name. You can set its permissions after creating it.</DialogDescription>
-                </DialogHeader>
+        <ZoruDialog open={open} onOpenChange={setOpen}>
+            <ZoruDialogTrigger asChild>
+                <ZoruButton><Plus className="h-4 w-4" strokeWidth={1.75} />Add Role</ZoruButton>
+            </ZoruDialogTrigger>
+            <ZoruDialogContent>
+                <ZoruDialogHeader>
+                    <ZoruDialogTitle>Create New Role</ZoruDialogTitle>
+                    <ZoruDialogDescription>Give your new role a name. You can set its permissions after creating it.</ZoruDialogDescription>
+                </ZoruDialogHeader>
                 <div className="py-4">
-                    <Label htmlFor="roleName">Role Name</Label>
-                    <Input id="roleName" value={roleName} onChange={(e) => setRoleName(e.target.value)} className="h-10 rounded-lg border-border bg-card text-[13px]" />
+                    <ZoruLabel htmlFor="roleName">Role Name</ZoruLabel>
+                    <ZoruInput id="roleName" value={roleName} onChange={(e) => setRoleName(e.target.value)} className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
                 </div>
-                <DialogFooter>
-                    <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-                    <Button onClick={handleAddRole} disabled={isPending}>
+                <ZoruDialogFooter>
+                    <ZoruButton variant="ghost" onClick={() => setOpen(false)}>Cancel</ZoruButton>
+                    <ZoruButton onClick={handleAddRole} disabled={isPending}>
                         {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
                         Create Role
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+                    </ZoruButton>
+                </ZoruDialogFooter>
+            </ZoruDialogContent>
+        </ZoruDialog>
     )
 }
 
 function DeleteRoleButton({ role, onRoleDeleted }: { role: any, onRoleDeleted: () => void }) {
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
     const [isPending, startTransition] = useTransition();
 
     if (role.id === 'agent') return null;
@@ -132,23 +133,23 @@ function DeleteRoleButton({ role, onRoleDeleted }: { role: any, onRoleDeleted: (
     }
 
     return (
-        <AlertDialog>
-            <AlertDialogTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-7 w-7"><Trash2 className="h-4 w-4 text-destructive" /></Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-                <AlertDialogHeader>
-                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                    <AlertDialogDescription>This will permanently delete the &ldquo;{role.name}&rdquo; role. Team members with this role will lose their special permissions.</AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleDelete} disabled={isPending}>
+        <ZoruAlertDialog>
+            <ZoruAlertDialogTrigger asChild>
+                <ZoruButton variant="ghost" size="icon" className="h-7 w-7"><Trash2 className="h-4 w-4 text-zoru-danger-ink" /></ZoruButton>
+            </ZoruAlertDialogTrigger>
+            <ZoruAlertDialogContent>
+                <ZoruAlertDialogHeader>
+                    <ZoruAlertDialogTitle>Are you sure?</ZoruAlertDialogTitle>
+                    <ZoruAlertDialogDescription>This will permanently delete the &ldquo;{role.name}&rdquo; role. Team members with this role will lose their special permissions.</ZoruAlertDialogDescription>
+                </ZoruAlertDialogHeader>
+                <ZoruAlertDialogFooter>
+                    <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+                    <ZoruAlertDialogAction onClick={handleDelete} disabled={isPending}>
                         {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />} Delete
-                    </AlertDialogAction>
-                </AlertDialogFooter>
-            </AlertDialogContent>
-        </AlertDialog>
+                    </ZoruAlertDialogAction>
+                </ZoruAlertDialogFooter>
+            </ZoruAlertDialogContent>
+        </ZoruAlertDialog>
     );
 }
 
@@ -156,7 +157,7 @@ export default function ManageRolesPage() {
     const [user, setUser] = useState<WithId<User> | null>(null);
     const [isLoading, startLoading] = useTransition();
     const [state, formAction] = useActionState(saveRolePermissions, initialState);
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
 
     const fetchUser = useCallback(() => {
         startLoading(async () => {
@@ -200,52 +201,53 @@ export default function ManageRolesPage() {
             />
 
             <form action={formAction}>
-                <Accordion type="single" collapsible className="w-full space-y-4">
+                <ZoruAccordion type="single" collapsible className="w-full space-y-4">
                     {allRoles.map(role => {
                         const crmPermissions = role.permissions || {};
 
                         return (
-                            <AccordionItem key={role.id} value={role.id} className="rounded-lg border border-border bg-card">
-                                <AccordionTrigger className="p-4 font-semibold text-[15px] hover:no-underline">
+                            <ZoruAccordionItem key={role.id} value={role.id} className="rounded-lg border border-zoru-line bg-zoru-bg">
+                                <ZoruAccordionTrigger className="p-4 font-semibold text-[15px] hover:no-underline">
                                     <div className="flex items-center gap-2">
                                         {role.name}
                                         {role.id !== 'agent' && <DeleteRoleButton role={role} onRoleDeleted={fetchUser} />}
                                     </div>
-                                </AccordionTrigger>
-                                <AccordionContent className="p-4 pt-0">
+                                </ZoruAccordionTrigger>
+                                <ZoruAccordionContent className="p-4 pt-0">
                                     <input type="hidden" name={`roleId`} value={role.id} />
-                                    <Table>
-                                        <TableHeader>
-                                            <TableRow className="border-border hover:bg-transparent">
-                                                <TableHead className="text-muted-foreground">Module</TableHead>
-                                                {actions.map(action => <TableHead key={action} className="text-center capitalize text-muted-foreground">{action}</TableHead>)}
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
+                                    <ZoruTable>
+                                        <ZoruTableHeader>
+                                            <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                                                <ZoruTableHead className="text-zoru-ink-muted">Module</ZoruTableHead>
+                                                {actions.map(action => <ZoruTableHead key={action} className="text-center capitalize text-zoru-ink-muted">{action}</ZoruTableHead>)}
+                                            </ZoruTableRow>
+                                        </ZoruTableHeader>
+                                        <ZoruTableBody>
                                             {crmModules.map(module => (
-                                                <TableRow key={module.id} className="border-border">
-                                                    <TableCell className="font-medium text-foreground">{module.name}</TableCell>
+                                                <ZoruTableRow key={module.id} className="border-zoru-line">
+                                                    <ZoruTableCell className="font-medium text-zoru-ink">{module.name}</ZoruTableCell>
                                                     {actions.map(action => (
-                                                        <TableCell key={action} className="text-center">
-                                                            <Checkbox
+                                                        <ZoruTableCell key={action} className="text-center">
+                                                            <ZoruCheckbox
                                                                 name={`${role.id}_${module.id}_${action}`}
                                                                 defaultChecked={(crmPermissions[module.id as keyof typeof crmPermissions] as any)?.[action] ?? false}
                                                             />
-                                                        </TableCell>
+                                                        </ZoruTableCell>
                                                     ))}
-                                                </TableRow>
+                                                </ZoruTableRow>
                                             ))}
-                                        </TableBody>
-                                    </Table>
-                                </AccordionContent>
-                            </AccordionItem>
+                                        </ZoruTableBody>
+                                    </ZoruTable>
+                                </ZoruAccordionContent>
+                            </ZoruAccordionItem>
                         )
                     })}
-                </Accordion>
+                </ZoruAccordion>
                 <div className="flex justify-end mt-6">
-                    <ClayButton type="submit" variant="obsidian" leading={<Save className="h-4 w-4" strokeWidth={1.75} />}>
+                    <ZoruButton type="submit">
+                        <Save className="h-4 w-4" strokeWidth={1.75} />
                         Save Permissions
-                    </ClayButton>
+                    </ZoruButton>
                 </div>
             </form>
         </div>

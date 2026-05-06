@@ -1,35 +1,31 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useState, useEffect, useCallback, useTransition, useActionState, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import { LoaderCircle, Trash2, CalendarHeart, Pencil, Plus, X, PartyPopper } from 'lucide-react';
 import { format } from 'date-fns';
-import { useToast } from '@/hooks/use-toast';
 import { getCrmHolidays, saveCrmHoliday, deleteCrmHoliday } from '@/app/actions/crm-hr.actions';
 import type { WithId, CrmHoliday } from '@/lib/definitions';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { DatePicker } from '@/components/ui/date-picker';
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
-
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
+    ZoruInput,
+    ZoruLabel,
+    ZoruDatePicker,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+    ZoruDialog,
+    ZoruDialogContent,
+    ZoruDialogDescription,
+    ZoruDialogFooter,
+    ZoruDialogHeader,
+    ZoruDialogTitle,
+    ZoruCard,
+    ZoruButton,
+    ZoruBadge,
+    useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 
 const saveInitialState: any = { message: null, error: null };
@@ -42,13 +38,12 @@ const TYPE_LABELS: Record<HolidayType, string> = {
     optional: 'Optional',
 };
 
-const TYPE_TONES: Record<HolidayType, 'blue' | 'amber' | 'neutral'> = {
-    national: 'blue',
-    regional: 'amber',
-    optional: 'neutral',
+const TYPE_VARIANTS: Record<HolidayType, 'info' | 'warning' | 'secondary'> = {
+    national: 'info',
+    regional: 'warning',
+    optional: 'secondary',
 };
 
-// Common Indian national holidays for the "Add Public Holidays" feature
 const NATIONAL_HOLIDAYS_IN = [
     { name: "Republic Day",           date: "2026-01-26", type: "national" as HolidayType, recurring: true },
     { name: "Independence Day",       date: "2026-08-15", type: "national" as HolidayType, recurring: true },
@@ -69,14 +64,10 @@ const NATIONAL_HOLIDAYS_IN = [
 function SaveButton({ label }: { label: string }) {
     const { pending } = useFormStatus();
     return (
-        <ClayButton
-            type="submit"
-            variant="obsidian"
-            disabled={pending}
-            leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : undefined}
-        >
+        <ZoruButton type="submit" disabled={pending}>
+            {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
             {label}
-        </ClayButton>
+        </ZoruButton>
     );
 }
 
@@ -84,14 +75,12 @@ export default function HolidaysPage() {
     const [holidays, setHolidays] = useState<WithId<CrmHoliday>[]>([]);
     const [isLoading, startLoading] = useTransition();
     const [saveState, formAction] = useActionState(saveCrmHoliday, saveInitialState);
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
     const formRef = useRef<HTMLFormElement>(null);
 
-    // Dialog state
     const [dialogOpen, setDialogOpen] = useState(false);
     const [editing, setEditing] = useState<WithId<CrmHoliday> | null>(null);
 
-    // Controlled form fields
     const [date, setDate] = useState<Date | undefined>(undefined);
     const [type, setType] = useState<string>('national');
     const [recurring, setRecurring] = useState<string>('false');
@@ -151,7 +140,6 @@ export default function HolidaysPage() {
         setDialogOpen(true);
     };
 
-    // "Add Public Holidays" — bulk insert national holidays for the current year
     const [bulkTransition, startBulkTransition] = useTransition();
     const handleAddPublicHolidays = () => {
         startBulkTransition(async () => {
@@ -180,48 +168,45 @@ export default function HolidaysPage() {
                 icon={CalendarHeart}
                 actions={
                     <>
-                        <ClayButton
-                            variant="pill"
-                            leading={<PartyPopper className="h-4 w-4" />}
+                        <ZoruButton
+                            variant="outline"
                             onClick={handleAddPublicHolidays}
                             disabled={bulkTransition}
                         >
+                            <PartyPopper className="h-4 w-4" />
                             {bulkTransition ? 'Adding…' : 'Add Public Holidays'}
-                        </ClayButton>
-                        <ClayButton
-                            variant="obsidian"
-                            leading={<Plus className="h-4 w-4" />}
-                            onClick={openAdd}
-                        >
+                        </ZoruButton>
+                        <ZoruButton onClick={openAdd}>
+                            <Plus className="h-4 w-4" />
                             Add Holiday
-                        </ClayButton>
+                        </ZoruButton>
                     </>
                 }
             />
 
-            <ClayCard>
+            <ZoruCard className="p-6">
                 <div className="mb-4 flex items-center justify-between">
-                    <h2 className="text-[16px] font-semibold text-foreground">Holiday Calendar</h2>
-                    <ClayBadge tone="neutral">{holidays.length} holidays</ClayBadge>
+                    <h2 className="text-[16px] text-zoru-ink">Holiday Calendar</h2>
+                    <ZoruBadge variant="secondary">{holidays.length} holidays</ZoruBadge>
                 </div>
-                <div className="overflow-x-auto rounded-lg border border-border">
+                <div className="overflow-x-auto rounded-lg border border-zoru-line">
                     <table className="w-full text-left text-[13px]">
                         <thead>
-                            <tr className="border-b border-border bg-secondary">
-                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Holiday</th>
-                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Date</th>
-                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Day</th>
-                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Type</th>
-                                <th className="px-4 py-3 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Location</th>
-                                <th className="px-4 py-3 text-center text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Recurring</th>
-                                <th className="px-4 py-3 text-right text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Actions</th>
+                            <tr className="border-b border-zoru-line bg-zoru-surface-2">
+                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">Holiday</th>
+                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">Date</th>
+                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">Day</th>
+                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">Type</th>
+                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">Location</th>
+                                <th className="px-4 py-3 text-center text-[12px] uppercase text-zoru-ink-muted">Recurring</th>
+                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {isLoading ? (
                                 <tr>
                                     <td colSpan={7} className="h-24 text-center">
-                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
+                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
                                     </td>
                                 </tr>
                             ) : holidays.length > 0 ? (
@@ -229,36 +214,36 @@ export default function HolidaysPage() {
                                     const d = new Date(holiday.date);
                                     const holidayType: HolidayType = ((holiday as any).type as HolidayType) ?? 'national';
                                     return (
-                                        <tr key={holiday._id.toString()} className="border-b border-border last:border-0 hover:bg-secondary/50 transition-colors">
-                                            <td className="px-4 py-3 font-medium text-foreground">{holiday.name}</td>
-                                            <td className="px-4 py-3 text-foreground">{format(d, 'dd MMM yyyy')}</td>
-                                            <td className="px-4 py-3 text-muted-foreground">{DAY_NAMES[d.getDay()]}</td>
+                                        <tr key={holiday._id.toString()} className="border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2/50 transition-colors">
+                                            <td className="px-4 py-3 text-zoru-ink">{holiday.name}</td>
+                                            <td className="px-4 py-3 text-zoru-ink">{format(d, 'dd MMM yyyy')}</td>
+                                            <td className="px-4 py-3 text-zoru-ink-muted">{DAY_NAMES[d.getDay()]}</td>
                                             <td className="px-4 py-3">
-                                                <ClayBadge tone={TYPE_TONES[holidayType]}>
+                                                <ZoruBadge variant={TYPE_VARIANTS[holidayType]}>
                                                     {TYPE_LABELS[holidayType]}
-                                                </ClayBadge>
+                                                </ZoruBadge>
                                             </td>
-                                            <td className="px-4 py-3 text-muted-foreground">
+                                            <td className="px-4 py-3 text-zoru-ink-muted">
                                                 {(holiday as any).location || '—'}
                                             </td>
                                             <td className="px-4 py-3 text-center">
                                                 {(holiday as any).recurring ? (
-                                                    <ClayBadge tone="green">Yes</ClayBadge>
+                                                    <ZoruBadge variant="success">Yes</ZoruBadge>
                                                 ) : (
-                                                    <ClayBadge tone="neutral">No</ClayBadge>
+                                                    <ZoruBadge variant="secondary">No</ZoruBadge>
                                                 )}
                                             </td>
                                             <td className="px-4 py-3">
                                                 <div className="flex items-center justify-end gap-1">
-                                                    <ClayButton
+                                                    <ZoruButton
                                                         variant="ghost"
                                                         size="icon"
                                                         onClick={() => openEdit(holiday)}
                                                         aria-label="Edit"
                                                     >
                                                         <Pencil className="h-3.5 w-3.5" />
-                                                    </ClayButton>
-                                                    <ClayButton
+                                                    </ZoruButton>
+                                                    <ZoruButton
                                                         variant="ghost"
                                                         size="icon"
                                                         onClick={() => handleDelete(holiday)}
@@ -266,7 +251,7 @@ export default function HolidaysPage() {
                                                         aria-label="Delete"
                                                     >
                                                         <Trash2 className="h-3.5 w-3.5 text-red-500" />
-                                                    </ClayButton>
+                                                    </ZoruButton>
                                                 </div>
                                             </td>
                                         </tr>
@@ -274,27 +259,26 @@ export default function HolidaysPage() {
                                 })
                             ) : (
                                 <tr>
-                                    <td colSpan={7} className="h-24 text-center text-[13px] text-muted-foreground">
-                                        No holidays added yet. Click "Add Holiday" or "Add Public Holidays".
+                                    <td colSpan={7} className="h-24 text-center text-[13px] text-zoru-ink-muted">
+                                        No holidays added yet. Click &quot;Add Holiday&quot; or &quot;Add Public Holidays&quot;.
                                     </td>
                                 </tr>
                             )}
                         </tbody>
                     </table>
                 </div>
-            </ClayCard>
+            </ZoruCard>
 
-            {/* Add / Edit dialog */}
-            <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) setEditing(null); }}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle className="text-foreground">
+            <ZoruDialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) setEditing(null); }}>
+                <ZoruDialogContent>
+                    <ZoruDialogHeader>
+                        <ZoruDialogTitle className="text-zoru-ink">
                             {editing ? 'Edit Holiday' : 'Add Holiday'}
-                        </DialogTitle>
-                        <DialogDescription className="text-muted-foreground">
+                        </ZoruDialogTitle>
+                        <ZoruDialogDescription className="text-zoru-ink-muted">
                             Fill in the holiday details. Name and date are required.
-                        </DialogDescription>
-                    </DialogHeader>
+                        </ZoruDialogDescription>
+                    </ZoruDialogHeader>
                     <form action={formAction} ref={formRef} className="space-y-4">
                         {editing?._id ? (
                             <input type="hidden" name="_id" value={editing._id.toString()} />
@@ -304,92 +288,92 @@ export default function HolidaysPage() {
                         <input type="hidden" name="recurring" value={recurring} />
 
                         <div>
-                            <Label htmlFor="holiday-name" className="text-[13px] text-foreground">
+                            <ZoruLabel htmlFor="holiday-name" className="text-[13px] text-zoru-ink">
                                 Holiday Name <span className="text-red-500">*</span>
-                            </Label>
-                            <Input
+                            </ZoruLabel>
+                            <ZoruInput
                                 id="holiday-name"
                                 name="name"
                                 required
                                 defaultValue={editing?.name ?? ''}
                                 placeholder="e.g. Diwali"
-                                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+                                className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                             />
                         </div>
 
                         <div>
-                            <Label className="text-[13px] text-foreground">
+                            <ZoruLabel className="text-[13px] text-zoru-ink">
                                 Date <span className="text-red-500">*</span>
-                            </Label>
+                            </ZoruLabel>
                             <div className="mt-1.5">
-                                <DatePicker date={date} setDate={setDate} />
+                                <ZoruDatePicker value={date} onChange={setDate} />
                             </div>
                         </div>
 
                         <div>
-                            <Label htmlFor="holiday-type" className="text-[13px] text-foreground">
+                            <ZoruLabel htmlFor="holiday-type" className="text-[13px] text-zoru-ink">
                                 Type
-                            </Label>
-                            <Select value={type} onValueChange={setType}>
-                                <SelectTrigger
+                            </ZoruLabel>
+                            <ZoruSelect value={type} onValueChange={setType}>
+                                <ZoruSelectTrigger
                                     id="holiday-type"
-                                    className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+                                    className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                                 >
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="national">National</SelectItem>
-                                    <SelectItem value="regional">Regional</SelectItem>
-                                    <SelectItem value="optional">Optional</SelectItem>
-                                </SelectContent>
-                            </Select>
+                                    <ZoruSelectValue />
+                                </ZoruSelectTrigger>
+                                <ZoruSelectContent>
+                                    <ZoruSelectItem value="national">National</ZoruSelectItem>
+                                    <ZoruSelectItem value="regional">Regional</ZoruSelectItem>
+                                    <ZoruSelectItem value="optional">Optional</ZoruSelectItem>
+                                </ZoruSelectContent>
+                            </ZoruSelect>
                         </div>
 
                         <div>
-                            <Label htmlFor="holiday-location" className="text-[13px] text-foreground">
+                            <ZoruLabel htmlFor="holiday-location" className="text-[13px] text-zoru-ink">
                                 Location / State
-                            </Label>
-                            <Input
+                            </ZoruLabel>
+                            <ZoruInput
                                 id="holiday-location"
                                 name="location"
                                 defaultValue={(editing as any)?.location ?? ''}
                                 placeholder="e.g. Maharashtra (leave blank for all)"
-                                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+                                className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                             />
                         </div>
 
                         <div>
-                            <Label htmlFor="holiday-recurring" className="text-[13px] text-foreground">
+                            <ZoruLabel htmlFor="holiday-recurring" className="text-[13px] text-zoru-ink">
                                 Recurring Yearly
-                            </Label>
-                            <Select value={recurring} onValueChange={setRecurring}>
-                                <SelectTrigger
+                            </ZoruLabel>
+                            <ZoruSelect value={recurring} onValueChange={setRecurring}>
+                                <ZoruSelectTrigger
                                     id="holiday-recurring"
-                                    className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+                                    className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                                 >
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="true">Yes — repeats every year</SelectItem>
-                                    <SelectItem value="false">No — one-time</SelectItem>
-                                </SelectContent>
-                            </Select>
+                                    <ZoruSelectValue />
+                                </ZoruSelectTrigger>
+                                <ZoruSelectContent>
+                                    <ZoruSelectItem value="true">Yes — repeats every year</ZoruSelectItem>
+                                    <ZoruSelectItem value="false">No — one-time</ZoruSelectItem>
+                                </ZoruSelectContent>
+                            </ZoruSelect>
                         </div>
 
-                        <DialogFooter>
-                            <ClayButton
+                        <ZoruDialogFooter>
+                            <ZoruButton
                                 type="button"
-                                variant="pill"
+                                variant="outline"
                                 onClick={() => setDialogOpen(false)}
-                                leading={<X className="h-3.5 w-3.5" />}
                             >
+                                <X className="h-3.5 w-3.5" />
                                 Cancel
-                            </ClayButton>
+                            </ZoruButton>
                             <SaveButton label={editing ? 'Save Changes' : 'Add Holiday'} />
-                        </DialogFooter>
+                        </ZoruDialogFooter>
                     </form>
-                </DialogContent>
-            </Dialog>
+                </ZoruDialogContent>
+            </ZoruDialog>
         </div>
     );
 }

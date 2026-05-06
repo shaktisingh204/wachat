@@ -1,18 +1,19 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { Download, SlidersHorizontal, FileSpreadsheet, LoaderCircle, IndianRupee, Users, TrendingDown, Wallet } from 'lucide-react';
 import { useState, useEffect, useTransition, useCallback } from 'react';
 import { generatePayrollSummaryData, getReportDepartments } from '@/app/actions/crm-hr-reports.actions';
-import { useToast } from '@/hooks/use-toast';
 import Papa from 'papaparse';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Label } from '@/components/ui/label';
-import { format } from 'date-fns';
 
-import { ClayCard, ClayButton } from '@/components/clay';
+import {
+    ZoruButton,
+    ZoruCard,
+    ZoruLabel,
+    ZoruPopover,
+    ZoruPopoverContent,
+    ZoruPopoverTrigger,
+    useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 
 type PayrollRow = {
@@ -38,14 +39,14 @@ type SelectItem = { _id: string; name: string };
 const fmt = (n: number) => `₹${n.toLocaleString('en-IN')}`;
 
 const StatCard = ({ title, value, icon: Icon, sub }: { title: string; value: string; icon: React.ElementType; sub?: string }) => (
-    <ClayCard className="flex flex-col gap-1">
+    <ZoruCard className="flex flex-col gap-1 p-6">
         <div className="flex items-center justify-between">
-            <p className="text-[12.5px] font-medium text-muted-foreground">{title}</p>
-            <Icon className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
+            <p className="text-[12.5px] font-medium text-zoru-ink-muted">{title}</p>
+            <Icon className="h-4 w-4 text-zoru-ink-muted" strokeWidth={1.75} />
         </div>
-        <p className="mt-1 text-2xl font-bold text-foreground">{value}</p>
-        {sub ? <p className="text-[11.5px] text-muted-foreground">{sub}</p> : null}
-    </ClayCard>
+        <p className="mt-1 text-2xl text-zoru-ink">{value}</p>
+        {sub ? <p className="text-[11.5px] text-zoru-ink-muted">{sub}</p> : null}
+    </ZoruCard>
 );
 
 const MONTHS = [
@@ -60,7 +61,7 @@ export default function PayrollSummaryPage() {
     const [totalEmployees, setTotalEmployees] = useState(0);
     const [departments, setDepartments] = useState<SelectItem[]>([]);
     const [isLoading, startTransition] = useTransition();
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
 
     const now = new Date();
     const [selectedMonth, setSelectedMonth] = useState(now.getMonth() + 1);
@@ -115,58 +116,59 @@ export default function PayrollSummaryPage() {
                 icon={FileSpreadsheet}
                 actions={
                     <>
-                        <Popover>
-                            <PopoverTrigger asChild>
-                                <ClayButton variant="pill" leading={<SlidersHorizontal className="h-4 w-4" />}>
+                        <ZoruPopover>
+                            <ZoruPopoverTrigger asChild>
+                                <ZoruButton variant="outline">
+                                    <SlidersHorizontal className="h-4 w-4" />
                                     Filters
-                                </ClayButton>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-72 space-y-4 p-4">
+                                </ZoruButton>
+                            </ZoruPopoverTrigger>
+                            <ZoruPopoverContent className="w-72 space-y-4 p-4">
                                 <div className="space-y-1.5">
-                                    <Label className="text-[12.5px]">Month</Label>
+                                    <ZoruLabel className="text-[12.5px]">Month</ZoruLabel>
                                     <select
                                         value={selectedMonth}
                                         onChange={e => setSelectedMonth(Number(e.target.value))}
-                                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-[13px] text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+                                        className="w-full rounded-lg border border-zoru-line bg-zoru-bg px-3 py-2 text-[13px] text-zoru-ink focus:outline-none focus:ring-2 focus:ring-primary/30"
                                     >
                                         {MONTHS.map((m, i) => <option key={m} value={i + 1}>{m}</option>)}
                                     </select>
                                 </div>
                                 <div className="space-y-1.5">
-                                    <Label className="text-[12.5px]">Year</Label>
+                                    <ZoruLabel className="text-[12.5px]">Year</ZoruLabel>
                                     <select
                                         value={selectedYear}
                                         onChange={e => setSelectedYear(Number(e.target.value))}
-                                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-[13px] text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+                                        className="w-full rounded-lg border border-zoru-line bg-zoru-bg px-3 py-2 text-[13px] text-zoru-ink focus:outline-none focus:ring-2 focus:ring-primary/30"
                                     >
                                         {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
                                     </select>
                                 </div>
                                 <div className="space-y-1.5">
-                                    <Label className="text-[12.5px]">Department</Label>
+                                    <ZoruLabel className="text-[12.5px]">Department</ZoruLabel>
                                     <select
                                         value={selectedDept}
                                         onChange={e => setSelectedDept(e.target.value)}
-                                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-[13px] text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+                                        className="w-full rounded-lg border border-zoru-line bg-zoru-bg px-3 py-2 text-[13px] text-zoru-ink focus:outline-none focus:ring-2 focus:ring-primary/30"
                                     >
                                         <option value="">All Departments</option>
                                         {departments.map(d => <option key={d._id} value={d._id}>{d.name}</option>)}
                                     </select>
                                 </div>
-                                <ClayButton variant="obsidian" onClick={fetchData} disabled={isLoading} className="w-full">
+                                <ZoruButton onClick={fetchData} disabled={isLoading} className="w-full">
                                     {isLoading ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
                                     Apply Filters
-                                </ClayButton>
-                            </PopoverContent>
-                        </Popover>
-                        <ClayButton
-                            variant="pill"
+                                </ZoruButton>
+                            </ZoruPopoverContent>
+                        </ZoruPopover>
+                        <ZoruButton
+                            variant="outline"
                             onClick={handleDownload}
                             disabled={isLoading || rows.length === 0}
-                            leading={<Download className="h-4 w-4" />}
                         >
+                            <Download className="h-4 w-4" />
                             Export CSV
-                        </ClayButton>
+                        </ZoruButton>
                     </>
                 }
             />
@@ -179,30 +181,30 @@ export default function PayrollSummaryPage() {
                 <StatCard title="Total Net Pay" value={fmt(totals.netPay)} icon={Wallet} />
             </div>
 
-            <ClayCard>
+            <ZoruCard className="p-6">
                 <div className="mb-4 flex items-center justify-between">
                     <div>
-                        <h2 className="text-[16px] font-semibold text-foreground">Payroll Breakdown</h2>
-                        <p className="mt-0.5 text-[12.5px] text-muted-foreground">
+                        <h2 className="text-[16px] text-zoru-ink">Payroll Breakdown</h2>
+                        <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
                             {MONTHS[selectedMonth - 1]} {selectedYear}
                         </p>
                     </div>
                     {rows.length > 0 && (
-                        <span className="text-[12.5px] text-muted-foreground">{rows.length} employee{rows.length !== 1 ? 's' : ''}</span>
+                        <span className="text-[12.5px] text-zoru-ink-muted">{rows.length} employee{rows.length !== 1 ? 's' : ''}</span>
                     )}
                 </div>
 
-                <div className="overflow-x-auto rounded-lg border border-border">
+                <div className="overflow-x-auto rounded-lg border border-zoru-line">
                     <table className="w-full text-left text-[13px]">
                         <thead>
-                            <tr className="border-b border-border bg-secondary">
-                                <th className="px-4 py-3 font-medium text-muted-foreground">Employee</th>
-                                <th className="px-4 py-3 font-medium text-muted-foreground">Department</th>
-                                <th className="px-4 py-3 text-right font-medium text-muted-foreground">Gross Salary</th>
-                                <th className="px-4 py-3 text-right font-medium text-muted-foreground">PF</th>
-                                <th className="px-4 py-3 text-right font-medium text-muted-foreground">ESI</th>
-                                <th className="px-4 py-3 text-right font-medium text-muted-foreground">TDS</th>
-                                <th className="px-4 py-3 text-right font-medium text-muted-foreground">Prof. Tax</th>
+                            <tr className="border-b border-zoru-line bg-zoru-surface-2">
+                                <th className="px-4 py-3 font-medium text-zoru-ink-muted">Employee</th>
+                                <th className="px-4 py-3 font-medium text-zoru-ink-muted">Department</th>
+                                <th className="px-4 py-3 text-right font-medium text-zoru-ink-muted">Gross Salary</th>
+                                <th className="px-4 py-3 text-right font-medium text-zoru-ink-muted">PF</th>
+                                <th className="px-4 py-3 text-right font-medium text-zoru-ink-muted">ESI</th>
+                                <th className="px-4 py-3 text-right font-medium text-zoru-ink-muted">TDS</th>
+                                <th className="px-4 py-3 text-right font-medium text-zoru-ink-muted">Prof. Tax</th>
                                 <th className="px-4 py-3 text-right font-medium text-red-600">Total Deductions</th>
                                 <th className="px-4 py-3 text-right font-medium text-green-600">Net Pay</th>
                             </tr>
@@ -211,40 +213,40 @@ export default function PayrollSummaryPage() {
                             {isLoading ? (
                                 <tr>
                                     <td colSpan={9} className="h-48 text-center">
-                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
+                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-zoru-ink-muted" />
                                     </td>
                                 </tr>
                             ) : rows.length > 0 ? (
                                 <>
                                     {rows.map(row => (
-                                        <tr key={row.employeeId} className="border-b border-border last:border-0 hover:bg-secondary/50">
-                                            <td className="px-4 py-3 font-medium text-foreground">{row.employeeName}</td>
-                                            <td className="px-4 py-3 text-muted-foreground">{row.department}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-foreground">{fmt(row.grossSalary)}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-foreground">{fmt(row.pf)}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-foreground">{fmt(row.esi)}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-foreground">{fmt(row.tds)}</td>
-                                            <td className="px-4 py-3 text-right font-mono text-foreground">{fmt(row.professionalTax)}</td>
+                                        <tr key={row.employeeId} className="border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2/50">
+                                            <td className="px-4 py-3 font-medium text-zoru-ink">{row.employeeName}</td>
+                                            <td className="px-4 py-3 text-zoru-ink-muted">{row.department}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.grossSalary)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.pf)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.esi)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.tds)}</td>
+                                            <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(row.professionalTax)}</td>
                                             <td className="px-4 py-3 text-right font-mono font-semibold text-red-600">{fmt(row.totalDeductions)}</td>
                                             <td className="px-4 py-3 text-right font-mono font-bold text-green-600">{fmt(row.netPay)}</td>
                                         </tr>
                                     ))}
                                     {/* Totals row */}
-                                    <tr className="border-t-2 border-border bg-secondary font-semibold">
-                                        <td className="px-4 py-3 text-foreground">Totals</td>
+                                    <tr className="border-t-2 border-zoru-line bg-zoru-surface-2 font-semibold">
+                                        <td className="px-4 py-3 text-zoru-ink">Totals</td>
                                         <td className="px-4 py-3" />
-                                        <td className="px-4 py-3 text-right font-mono text-foreground">{fmt(totals.grossSalary)}</td>
-                                        <td className="px-4 py-3 text-right font-mono text-foreground">{fmt(totals.pf)}</td>
-                                        <td className="px-4 py-3 text-right font-mono text-foreground">{fmt(totals.esi)}</td>
-                                        <td className="px-4 py-3 text-right font-mono text-foreground">{fmt(totals.tds)}</td>
-                                        <td className="px-4 py-3 text-right font-mono text-foreground">{fmt(totals.professionalTax)}</td>
+                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(totals.grossSalary)}</td>
+                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(totals.pf)}</td>
+                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(totals.esi)}</td>
+                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(totals.tds)}</td>
+                                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">{fmt(totals.professionalTax)}</td>
                                         <td className="px-4 py-3 text-right font-mono text-red-600">{fmt(totals.totalDeductions)}</td>
                                         <td className="px-4 py-3 text-right font-mono text-green-600">{fmt(totals.netPay)}</td>
                                     </tr>
                                 </>
                             ) : (
                                 <tr>
-                                    <td colSpan={9} className="h-24 text-center text-muted-foreground">
+                                    <td colSpan={9} className="h-24 text-center text-zoru-ink-muted">
                                         No payroll data found for the selected period.
                                     </td>
                                 </tr>
@@ -252,7 +254,7 @@ export default function PayrollSummaryPage() {
                         </tbody>
                     </table>
                 </div>
-            </ClayCard>
+            </ZoruCard>
         </div>
     );
 }

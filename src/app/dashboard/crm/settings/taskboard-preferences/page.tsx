@@ -1,36 +1,32 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import * as React from 'react';
 import { KanbanSquare, Save, Trash2 } from 'lucide-react';
 
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruCheckbox,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { useToast } from '@/hooks/use-toast';
 import {
   getMyTaskboardSettings,
   saveTaskboardSettings,
@@ -53,7 +49,7 @@ const SORTS: WsTaskboardSortBy[] = ['due_date', 'priority', 'created'];
  * whether "done" tasks are hidden.
  */
 export default function TaskboardPreferencesPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [rows, setRows] = React.useState<Row[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [saving, setSaving] = React.useState(false);
@@ -142,20 +138,18 @@ export default function TaskboardPreferencesPage() {
       />
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <ClayCard className="lg:col-span-2">
+        <ZoruCard className="p-6 lg:col-span-2">
           <div className="pb-3">
-            <h2 className="text-[16px] font-semibold text-foreground">
-              Edit preferences
-            </h2>
-            <p className="text-[12.5px] text-muted-foreground">
+            <h2 className="text-[16px] text-zoru-ink">Edit preferences</h2>
+            <p className="text-[12.5px] text-zoru-ink-muted">
               Leave project id blank for a global default that applies to
               every project board.
             </p>
           </div>
           <div className="grid gap-3">
             <div className="grid gap-1.5">
-              <Label htmlFor="project-id">Project ID (optional)</Label>
-              <Input
+              <ZoruLabel htmlFor="project-id">Project ID (optional)</ZoruLabel>
+              <ZoruInput
                 id="project-id"
                 value={form.project_id}
                 onChange={(e) =>
@@ -165,19 +159,19 @@ export default function TaskboardPreferencesPage() {
               />
             </div>
             <div className="flex items-center gap-2">
-              <Checkbox
+              <ZoruCheckbox
                 id="hide-done"
                 checked={form.hide_done}
                 onCheckedChange={(v) =>
                   setForm((f) => ({ ...f, hide_done: !!v }))
                 }
               />
-              <Label htmlFor="hide-done">Hide completed tasks</Label>
+              <ZoruLabel htmlFor="hide-done">Hide completed tasks</ZoruLabel>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="grid gap-1.5">
-                <Label>Group by</Label>
-                <Select
+                <ZoruLabel>Group by</ZoruLabel>
+                <ZoruSelect
                   value={form.group_by}
                   onValueChange={(v) =>
                     setForm((f) => ({
@@ -186,42 +180,42 @@ export default function TaskboardPreferencesPage() {
                     }))
                   }
                 >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
+                  <ZoruSelectTrigger>
+                    <ZoruSelectValue />
+                  </ZoruSelectTrigger>
+                  <ZoruSelectContent>
                     {GROUPS.map((g) => (
-                      <SelectItem key={g} value={g}>
+                      <ZoruSelectItem key={g} value={g}>
                         {g}
-                      </SelectItem>
+                      </ZoruSelectItem>
                     ))}
-                  </SelectContent>
-                </Select>
+                  </ZoruSelectContent>
+                </ZoruSelect>
               </div>
               <div className="grid gap-1.5">
-                <Label>Sort by</Label>
-                <Select
+                <ZoruLabel>Sort by</ZoruLabel>
+                <ZoruSelect
                   value={form.sort_by}
                   onValueChange={(v) =>
                     setForm((f) => ({ ...f, sort_by: v as WsTaskboardSortBy }))
                   }
                 >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
+                  <ZoruSelectTrigger>
+                    <ZoruSelectValue />
+                  </ZoruSelectTrigger>
+                  <ZoruSelectContent>
                     {SORTS.map((s) => (
-                      <SelectItem key={s} value={s}>
+                      <ZoruSelectItem key={s} value={s}>
                         {s}
-                      </SelectItem>
+                      </ZoruSelectItem>
                     ))}
-                  </SelectContent>
-                </Select>
+                  </ZoruSelectContent>
+                </ZoruSelect>
               </div>
             </div>
             <div className="grid gap-1.5">
-              <Label htmlFor="cols">Visible columns (comma separated)</Label>
-              <Textarea
+              <ZoruLabel htmlFor="cols">Visible columns (comma separated)</ZoruLabel>
+              <ZoruTextarea
                 id="cols"
                 rows={3}
                 value={form.visible_columns}
@@ -231,31 +225,25 @@ export default function TaskboardPreferencesPage() {
               />
             </div>
             <div>
-              <ClayButton
-                variant="obsidian"
-                leading={<Save className="h-4 w-4" strokeWidth={1.75} />}
-                onClick={handleSave}
-                disabled={saving}
-              >
+              <ZoruButton onClick={handleSave} disabled={saving}>
+                <Save className="h-4 w-4" />
                 {saving ? 'Saving…' : 'Save preferences'}
-              </ClayButton>
+              </ZoruButton>
             </div>
           </div>
-        </ClayCard>
+        </ZoruCard>
 
-        <ClayCard>
+        <ZoruCard className="p-6">
           <div className="pb-3">
-            <h2 className="text-[16px] font-semibold text-foreground">
-              Saved presets
-            </h2>
-            <p className="text-[12.5px] text-muted-foreground">
+            <h2 className="text-[16px] text-zoru-ink">Saved presets</h2>
+            <p className="text-[12.5px] text-zoru-ink-muted">
               Click a preset to load it into the editor.
             </p>
           </div>
           {isLoading ? (
-            <p className="text-[13px] text-muted-foreground">Loading…</p>
+            <p className="text-[13px] text-zoru-ink-muted">Loading…</p>
           ) : rows.length === 0 ? (
-            <p className="text-[13px] text-muted-foreground">
+            <p className="text-[13px] text-zoru-ink-muted">
               No presets yet. Save one to see it here.
             </p>
           ) : (
@@ -263,58 +251,56 @@ export default function TaskboardPreferencesPage() {
               {rows.map((r) => (
                 <li
                   key={r._id}
-                  className="flex items-center justify-between gap-2 rounded-lg border border-border p-2"
+                  className="flex items-center justify-between gap-2 rounded-lg border border-zoru-line p-2"
                 >
                   <button
                     type="button"
                     onClick={() => loadRow(r)}
                     className="min-w-0 flex-1 text-left"
                   >
-                    <p className="truncate text-[13px] font-medium text-foreground">
+                    <p className="truncate text-[13px] text-zoru-ink">
                       {r.project_id ? `Project ${String(r.project_id).slice(-6)}` : 'Global default'}
                     </p>
                     <div className="mt-1 flex flex-wrap gap-1">
-                      <ClayBadge tone="neutral">{r.group_by}</ClayBadge>
-                      <ClayBadge tone="neutral">{r.sort_by}</ClayBadge>
+                      <ZoruBadge variant="ghost">{r.group_by}</ZoruBadge>
+                      <ZoruBadge variant="ghost">{r.sort_by}</ZoruBadge>
                       {r.hide_done ? (
-                        <ClayBadge tone="amber">hide done</ClayBadge>
+                        <ZoruBadge variant="warning">hide done</ZoruBadge>
                       ) : null}
                     </div>
                   </button>
-                  <Button
+                  <ZoruButton
                     variant="ghost"
                     size="sm"
                     onClick={() => setDeletingId(r._id)}
                     aria-label="Delete preset"
                   >
-                    <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                  </Button>
+                    <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                  </ZoruButton>
                 </li>
               ))}
             </ul>
           )}
-        </ClayCard>
+        </ZoruCard>
       </div>
 
-      <AlertDialog
+      <ZoruAlertDialog
         open={deletingId !== null}
         onOpenChange={(o) => !o && setDeletingId(null)}
       >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-foreground">
-              Delete preset?
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-muted-foreground">
+        <ZoruAlertDialogContent>
+          <ZoruAlertDialogHeader>
+            <ZoruAlertDialogTitle>Delete preset?</ZoruAlertDialogTitle>
+            <ZoruAlertDialogDescription>
               This removes the stored taskboard preferences for that scope.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </ZoruAlertDialogDescription>
+          </ZoruAlertDialogHeader>
+          <ZoruAlertDialogFooter>
+            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+            <ZoruAlertDialogAction onClick={handleDelete}>Delete</ZoruAlertDialogAction>
+          </ZoruAlertDialogFooter>
+        </ZoruAlertDialogContent>
+      </ZoruAlertDialog>
     </div>
   );
 }

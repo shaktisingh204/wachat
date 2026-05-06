@@ -1,29 +1,25 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useEffect, useState, useTransition } from 'react';
 import { Users2, Plus, Pencil, Trash2, LoaderCircle } from 'lucide-react';
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
+import {
+  ZoruCard,
+  ZoruButton,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogFooter,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { useToast } from '@/hooks/use-toast';
 import {
   getEmployeeTeams,
   saveEmployeeTeam,
@@ -38,7 +34,7 @@ type TeamRow = WsEmployeeTeam & { _id: string };
 const EMPTY: Partial<TeamRow> = { team_name: '', leader_user_id: '' };
 
 export default function EmployeeTeamsPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [teams, setTeams] = useState<TeamRow[]>([]);
   const [employees, setEmployees] = useState<EmployeeLite[]>([]);
   const [isLoading, startLoad] = useTransition();
@@ -110,51 +106,48 @@ export default function EmployeeTeamsPage() {
         subtitle="Define employee teams with designated leaders."
         icon={Users2}
         actions={
-          <ClayButton
-            variant="obsidian"
-            leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}
-            onClick={openAdd}
-          >
+          <ZoruButton onClick={openAdd}>
+            <Plus className="h-4 w-4" />
             Add Team
-          </ClayButton>
+          </ZoruButton>
         }
       />
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         {isLoading ? (
           <div className="flex h-32 items-center justify-center">
-            <LoaderCircle className="h-6 w-6 animate-spin text-muted-foreground" />
+            <LoaderCircle className="h-6 w-6 animate-spin text-zoru-ink-muted" />
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-lg border border-border">
+          <div className="overflow-x-auto rounded-lg border border-zoru-line">
             <table className="w-full text-[13px]">
               <thead>
-                <tr className="border-b border-border bg-secondary">
-                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Team Name</th>
-                  <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Team Leader</th>
-                  <th className="px-4 py-2.5 text-right text-[12px] font-medium text-muted-foreground">Actions</th>
+                <tr className="border-b border-zoru-line bg-zoru-surface-2">
+                  <th className="px-4 py-2.5 text-left text-[12px] text-zoru-ink-muted">Team Name</th>
+                  <th className="px-4 py-2.5 text-left text-[12px] text-zoru-ink-muted">Team Leader</th>
+                  <th className="px-4 py-2.5 text-right text-[12px] text-zoru-ink-muted">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {teams.length === 0 ? (
                   <tr>
-                    <td colSpan={3} className="py-10 text-center text-[13px] text-muted-foreground">
+                    <td colSpan={3} className="py-10 text-center text-[13px] text-zoru-ink-muted">
                       No teams yet.
                     </td>
                   </tr>
                 ) : (
                   teams.map((t) => (
-                    <tr key={t._id} className="border-t border-border hover:bg-secondary/50">
-                      <td className="px-4 py-2.5 font-medium text-foreground">{t.team_name}</td>
-                      <td className="px-4 py-2.5 text-muted-foreground">{empName(t.leader_user_id ?? '')}</td>
+                    <tr key={t._id} className="border-t border-zoru-line hover:bg-zoru-surface-2/50">
+                      <td className="px-4 py-2.5 text-zoru-ink">{t.team_name}</td>
+                      <td className="px-4 py-2.5 text-zoru-ink-muted">{empName(t.leader_user_id ?? '')}</td>
                       <td className="px-4 py-2.5 text-right">
                         <div className="flex justify-end gap-1">
-                          <ClayButton variant="pill" size="sm" onClick={() => openEdit(t)}>
+                          <ZoruButton variant="ghost" size="sm" onClick={() => openEdit(t)}>
                             <Pencil className="h-3.5 w-3.5" />
-                          </ClayButton>
-                          <ClayButton variant="pill" size="sm" onClick={() => handleDelete(t._id)} disabled={isSaving}>
-                            <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                          </ClayButton>
+                          </ZoruButton>
+                          <ZoruButton variant="ghost" size="sm" onClick={() => handleDelete(t._id)} disabled={isSaving}>
+                            <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                          </ZoruButton>
                         </div>
                       </td>
                     </tr>
@@ -164,52 +157,53 @@ export default function EmployeeTeamsPage() {
             </table>
           </div>
         )}
-      </ClayCard>
+      </ZoruCard>
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-[440px]">
-          <DialogHeader>
-            <DialogTitle>{form._id ? 'Edit Team' : 'Add Team'}</DialogTitle>
-          </DialogHeader>
+      <ZoruDialog open={open} onOpenChange={setOpen}>
+        <ZoruDialogContent className="sm:max-w-[440px]">
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>{form._id ? 'Edit Team' : 'Add Team'}</ZoruDialogTitle>
+          </ZoruDialogHeader>
           <div className="grid gap-4 py-2">
             <div>
-              <Label className="text-[12px] text-muted-foreground">
-                Team Name <span className="text-destructive">*</span>
-              </Label>
-              <Input
+              <ZoruLabel className="text-[12px] text-zoru-ink-muted">
+                Team Name <span className="text-zoru-danger-ink">*</span>
+              </ZoruLabel>
+              <ZoruInput
                 value={form.team_name ?? ''}
                 onChange={(e) => setForm((p) => ({ ...p, team_name: e.target.value }))}
                 placeholder="e.g. Engineering Squad"
-                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+                className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
               />
             </div>
             <div>
-              <Label className="text-[12px] text-muted-foreground">Team Leader</Label>
-              <Select
-                value={form.leader_user_id ?? ''}
+              <ZoruLabel className="text-[12px] text-zoru-ink-muted">Team Leader</ZoruLabel>
+              <ZoruSelect
+                value={form.leader_user_id || undefined}
                 onValueChange={(v) => setForm((p) => ({ ...p, leader_user_id: v }))}
               >
-                <SelectTrigger className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]">
-                  <SelectValue placeholder="Select employee" />
-                </SelectTrigger>
-                <SelectContent>
+                <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                  <ZoruSelectValue placeholder="Select employee" />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
                   {employees.map((e) => (
-                    <SelectItem key={e._id} value={e._id}>
+                    <ZoruSelectItem key={e._id} value={e._id}>
                       {[e.firstName, e.lastName].filter(Boolean).join(' ') || 'Unnamed'}
-                    </SelectItem>
+                    </ZoruSelectItem>
                   ))}
-                </SelectContent>
-              </Select>
+                </ZoruSelectContent>
+              </ZoruSelect>
             </div>
           </div>
-          <DialogFooter>
-            <ClayButton variant="pill" onClick={() => setOpen(false)}>Cancel</ClayButton>
-            <ClayButton variant="obsidian" onClick={handleSave} disabled={isSaving}>
-              {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : form._id ? 'Save' : 'Create'}
-            </ClayButton>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          <ZoruDialogFooter>
+            <ZoruButton variant="outline" onClick={() => setOpen(false)}>Cancel</ZoruButton>
+            <ZoruButton onClick={handleSave} disabled={isSaving}>
+              {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
+              {form._id ? 'Save' : 'Create'}
+            </ZoruButton>
+          </ZoruDialogFooter>
+        </ZoruDialogContent>
+      </ZoruDialog>
     </div>
   );
 }

@@ -1,8 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import * as React from 'react';
 import {
   LayoutDashboard,
@@ -14,38 +11,35 @@ import {
   ArrowDown,
 } from 'lucide-react';
 
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { useToast } from '@/hooks/use-toast';
 import {
   getMyDashboardWidgets,
   saveDashboardWidget,
@@ -76,7 +70,7 @@ const TYPES: WsDashboardWidgetType[] = [
  * deleted. Widths are stored as 1–12 column spans.
  */
 export default function DashboardWidgetsPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [widgets, setWidgets] = React.useState<Row[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [isPending, startTransition] = React.useTransition();
@@ -202,38 +196,32 @@ export default function DashboardWidgetsPage() {
         subtitle="Compose your personal CRM dashboard. Add widgets, reorder, and control visibility."
         icon={LayoutDashboard}
         actions={
-          <ClayButton
-            variant="obsidian"
-            leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}
-            onClick={() => setDialogOpen(true)}
-          >
+          <ZoruButton onClick={() => setDialogOpen(true)}>
+            <Plus className="h-4 w-4" strokeWidth={1.75} />
             Add Widget
-          </ClayButton>
+          </ZoruButton>
         }
       />
 
       {isLoading ? (
-        <ClayCard>
-          <p className="text-[13px] text-muted-foreground">Loading…</p>
-        </ClayCard>
+        <ZoruCard className="p-6">
+          <p className="text-[13px] text-zoru-ink-muted">Loading…</p>
+        </ZoruCard>
       ) : sorted.length === 0 ? (
-        <ClayCard>
+        <ZoruCard className="p-6">
           <div className="text-center">
-            <p className="text-[13px] text-muted-foreground">
+            <p className="text-[13px] text-zoru-ink-muted">
               No widgets yet. Add your first widget to start building your
               dashboard.
             </p>
             <div className="mt-4">
-              <ClayButton
-                variant="obsidian"
-                leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}
-                onClick={() => setDialogOpen(true)}
-              >
+              <ZoruButton onClick={() => setDialogOpen(true)}>
+                <Plus className="h-4 w-4" strokeWidth={1.75} />
                 Add your first widget
-              </ClayButton>
+              </ZoruButton>
             </div>
           </div>
-        </ClayCard>
+        </ZoruCard>
       ) : (
         <div className="grid grid-cols-12 gap-4">
           {sorted.map((w, idx) => {
@@ -241,28 +229,28 @@ export default function DashboardWidgetsPage() {
             const colClass = `col-span-12 md:col-span-${span}`;
             return (
               <div key={w._id} className={colClass}>
-                <ClayCard
+                <ZoruCard
                   className={
-                    w.is_visible === false ? 'opacity-60' : undefined
+                    w.is_visible === false ? 'p-6 opacity-60' : 'p-6'
                   }
                 >
                   <div className="flex items-start justify-between gap-3 pb-3">
                     <div className="min-w-0">
-                      <p className="truncate text-[14px] font-semibold text-foreground">
+                      <p className="truncate text-[14px] text-zoru-ink">
                         {w.widget_name}
                       </p>
                       <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                        <ClayBadge tone="rose-soft">{w.type}</ClayBadge>
-                        <ClayBadge tone="neutral">w:{span}</ClayBadge>
-                        <ClayBadge
-                          tone={w.is_visible !== false ? 'green' : 'neutral'}
+                        <ZoruBadge variant="default">{w.type}</ZoruBadge>
+                        <ZoruBadge variant="ghost">w:{span}</ZoruBadge>
+                        <ZoruBadge
+                          variant={w.is_visible !== false ? 'success' : 'ghost'}
                         >
                           {w.is_visible !== false ? 'Visible' : 'Hidden'}
-                        </ClayBadge>
+                        </ZoruBadge>
                       </div>
                     </div>
                     <div className="flex shrink-0 items-center gap-1">
-                      <Button
+                      <ZoruButton
                         variant="ghost"
                         size="sm"
                         disabled={idx === 0 || isPending}
@@ -270,8 +258,8 @@ export default function DashboardWidgetsPage() {
                         aria-label="Move up"
                       >
                         <ArrowUp className="h-3.5 w-3.5" />
-                      </Button>
-                      <Button
+                      </ZoruButton>
+                      <ZoruButton
                         variant="ghost"
                         size="sm"
                         disabled={idx === sorted.length - 1 || isPending}
@@ -279,8 +267,8 @@ export default function DashboardWidgetsPage() {
                         aria-label="Move down"
                       >
                         <ArrowDown className="h-3.5 w-3.5" />
-                      </Button>
-                      <Button
+                      </ZoruButton>
+                      <ZoruButton
                         variant="ghost"
                         size="sm"
                         onClick={() => handleToggle(w._id)}
@@ -291,46 +279,46 @@ export default function DashboardWidgetsPage() {
                         ) : (
                           <EyeOff className="h-3.5 w-3.5" />
                         )}
-                      </Button>
-                      <Button
+                      </ZoruButton>
+                      <ZoruButton
                         variant="ghost"
                         size="sm"
                         onClick={() => setDeletingId(w._id)}
                         aria-label="Delete"
                       >
-                        <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                      </Button>
+                        <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                      </ZoruButton>
                     </div>
                   </div>
                   {w.config?.data_source ? (
-                    <p className="text-[12px] text-muted-foreground">
+                    <p className="text-[12px] text-zoru-ink-muted">
                       Source:{' '}
                       <span className="font-mono">{w.config.data_source}</span>
                     </p>
                   ) : (
-                    <p className="text-[12px] text-muted-foreground">
+                    <p className="text-[12px] text-zoru-ink-muted">
                       No data source configured.
                     </p>
                   )}
-                </ClayCard>
+                </ZoruCard>
               </div>
             );
           })}
         </div>
       )}
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="text-foreground">Add widget</DialogTitle>
-            <DialogDescription className="text-muted-foreground">
+      <ZoruDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <ZoruDialogContent>
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>Add widget</ZoruDialogTitle>
+            <ZoruDialogDescription>
               Add a new widget to your dashboard grid.
-            </DialogDescription>
-          </DialogHeader>
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
           <div className="grid gap-3 py-2">
             <div className="grid gap-1.5">
-              <Label htmlFor="widget-name">Widget name</Label>
-              <Input
+              <ZoruLabel htmlFor="widget-name">Widget name</ZoruLabel>
+              <ZoruInput
                 id="widget-name"
                 value={form.widget_name}
                 onChange={(e) =>
@@ -341,8 +329,8 @@ export default function DashboardWidgetsPage() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="grid gap-1.5">
-                <Label>Type</Label>
-                <Select
+                <ZoruLabel>Type</ZoruLabel>
+                <ZoruSelect
                   value={form.type}
                   onValueChange={(v) =>
                     setForm((f) => ({
@@ -351,21 +339,21 @@ export default function DashboardWidgetsPage() {
                     }))
                   }
                 >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
+                  <ZoruSelectTrigger>
+                    <ZoruSelectValue />
+                  </ZoruSelectTrigger>
+                  <ZoruSelectContent>
                     {TYPES.map((t) => (
-                      <SelectItem key={t} value={t}>
+                      <ZoruSelectItem key={t} value={t}>
                         {t}
-                      </SelectItem>
+                      </ZoruSelectItem>
                     ))}
-                  </SelectContent>
-                </Select>
+                  </ZoruSelectContent>
+                </ZoruSelect>
               </div>
               <div className="grid gap-1.5">
-                <Label htmlFor="widget-width">Width (1–12)</Label>
-                <Input
+                <ZoruLabel htmlFor="widget-width">Width (1–12)</ZoruLabel>
+                <ZoruInput
                   id="widget-width"
                   type="number"
                   min={1}
@@ -384,8 +372,8 @@ export default function DashboardWidgetsPage() {
               </div>
             </div>
             <div className="grid gap-1.5">
-              <Label htmlFor="widget-config">Config (JSON, optional)</Label>
-              <Textarea
+              <ZoruLabel htmlFor="widget-config">Config (JSON, optional)</ZoruLabel>
+              <ZoruTextarea
                 id="widget-config"
                 rows={4}
                 placeholder='{"data_source":"deals.recent"}'
@@ -396,36 +384,34 @@ export default function DashboardWidgetsPage() {
               />
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>
+          <ZoruDialogFooter>
+            <ZoruButton variant="outline" onClick={() => setDialogOpen(false)}>
               Cancel
-            </Button>
-            <Button disabled={saving} onClick={handleAdd}>
+            </ZoruButton>
+            <ZoruButton disabled={saving} onClick={handleAdd}>
               {saving ? 'Saving…' : 'Add Widget'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            </ZoruButton>
+          </ZoruDialogFooter>
+        </ZoruDialogContent>
+      </ZoruDialog>
 
-      <AlertDialog
+      <ZoruAlertDialog
         open={deletingId !== null}
         onOpenChange={(o) => !o && setDeletingId(null)}
       >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-foreground">
-              Delete widget?
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-muted-foreground">
+        <ZoruAlertDialogContent>
+          <ZoruAlertDialogHeader>
+            <ZoruAlertDialogTitle>Delete widget?</ZoruAlertDialogTitle>
+            <ZoruAlertDialogDescription>
               This permanently removes the widget from your dashboard.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </ZoruAlertDialogDescription>
+          </ZoruAlertDialogHeader>
+          <ZoruAlertDialogFooter>
+            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+            <ZoruAlertDialogAction onClick={handleDelete}>Delete</ZoruAlertDialogAction>
+          </ZoruAlertDialogFooter>
+        </ZoruAlertDialogContent>
+      </ZoruAlertDialog>
     </div>
   );
 }

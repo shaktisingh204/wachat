@@ -1,12 +1,13 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { Plus, Clock, Edit, Trash2, CalendarDays } from 'lucide-react';
-import { ClayCard, ClayBadge, ClayButton } from '@/components/clay';
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import {
   getEmployeeShifts,
@@ -47,116 +48,112 @@ export default function EmployeeShiftsPage() {
         actions={
           <>
             <Link href="/dashboard/hrm/payroll/shifts/schedule">
-              <ClayButton
-                variant="pill"
-                leading={<CalendarDays className="h-4 w-4" strokeWidth={1.75} />}
-              >
+              <ZoruButton variant="outline">
+                <CalendarDays className="h-4 w-4" strokeWidth={1.75} />
                 Schedule
-              </ClayButton>
+              </ZoruButton>
             </Link>
             <Link href="/dashboard/hrm/payroll/shifts/new">
-              <ClayButton
-                variant="obsidian"
-                leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}
-              >
+              <ZoruButton>
+                <Plus className="h-4 w-4" strokeWidth={1.75} />
                 Add Shift
-              </ClayButton>
+              </ZoruButton>
             </Link>
           </>
         }
       />
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 className="text-[16px] font-semibold text-foreground">All Shifts</h2>
-            <p className="mt-0.5 text-[12.5px] text-muted-foreground">
+            <h2 className="text-[16px] text-zoru-ink">All Shifts</h2>
+            <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
               Each shift defines office hours, late-mark window and half-day rules.
             </p>
           </div>
         </div>
-        <div className="overflow-x-auto rounded-lg border border-border">
+        <div className="overflow-x-auto rounded-lg border border-zoru-line">
           <table className="w-full border-collapse text-[13px]">
             <thead>
-              <tr className="border-b border-border bg-secondary">
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Shift</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Clock In / Out</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Office Hours</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Late Mark</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Open Days</th>
-                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-muted-foreground">Days Off Type</th>
-                <th className="px-4 py-2.5 text-right text-[12px] font-medium text-muted-foreground">Actions</th>
+              <tr className="border-b border-zoru-line bg-zoru-surface-2">
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-zoru-ink-muted">Shift</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-zoru-ink-muted">Clock In / Out</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-zoru-ink-muted">Office Hours</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-zoru-ink-muted">Late Mark</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-zoru-ink-muted">Open Days</th>
+                <th className="px-4 py-2.5 text-left text-[12px] font-medium text-zoru-ink-muted">Days Off Type</th>
+                <th className="px-4 py-2.5 text-right text-[12px] font-medium text-zoru-ink-muted">Actions</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
-                <tr className="border-b border-border">
-                  <td colSpan={7} className="h-24 text-center text-[13px] text-muted-foreground">
+                <tr className="border-b border-zoru-line">
+                  <td colSpan={7} className="h-24 text-center text-[13px] text-zoru-ink-muted">
                     Loading...
                   </td>
                 </tr>
               ) : shifts.length > 0 ? (
                 shifts.map((shift) => (
-                  <tr key={String(shift._id)} className="border-b border-border last:border-0 hover:bg-secondary/50">
+                  <tr key={String(shift._id)} className="border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2/50">
                     <td className="px-4 py-2.5">
                       <div className="flex items-center gap-2">
                         <span
                           aria-hidden
-                          className="inline-block h-4 w-4 rounded-[4px] border border-border"
+                          className="inline-block h-4 w-4 rounded-[4px] border border-zoru-line"
                           style={{ backgroundColor: shift.color_code || '#EAB308' }}
                         />
-                        <span className="font-medium text-foreground">{shift.name}</span>
+                        <span className="font-medium text-zoru-ink">{shift.name}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-2.5 text-foreground">
+                    <td className="px-4 py-2.5 text-zoru-ink">
                       {shift.clock_in_time || '—'} – {shift.clock_out_time || '—'}
                     </td>
-                    <td className="px-4 py-2.5 text-foreground">
+                    <td className="px-4 py-2.5 text-zoru-ink">
                       {shift.office_start_time} – {shift.office_end_time}
                     </td>
-                    <td className="px-4 py-2.5 text-foreground">
+                    <td className="px-4 py-2.5 text-zoru-ink">
                       {shift.late_mark_after} min
                     </td>
                     <td className="px-4 py-2.5">
                       <div className="flex flex-wrap gap-1">
                         {(shift.office_open_days || []).length
                           ? shift.office_open_days.map((d) => (
-                              <ClayBadge key={d} tone="blue">
+                              <ZoruBadge key={d} variant="info">
                                 {d.slice(0, 3)}
-                              </ClayBadge>
+                              </ZoruBadge>
                             ))
-                          : <span className="text-muted-foreground">—</span>}
+                          : <span className="text-zoru-ink-muted">—</span>}
                       </div>
                     </td>
                     <td className="px-4 py-2.5">
-                      <ClayBadge tone={shift.days_off_type === 'week-off' ? 'blue' : 'neutral'}>
+                      <ZoruBadge variant={shift.days_off_type === 'week-off' ? 'info' : 'secondary'}>
                         {shift.days_off_type}
-                      </ClayBadge>
+                      </ZoruBadge>
                     </td>
                     <td className="px-4 py-2.5 text-right">
                       <div className="flex items-center justify-end gap-1">
                         <Link href={`/dashboard/hrm/payroll/shifts/${shift._id}/edit`}>
-                          <ClayButton variant="pill" size="icon" aria-label="Edit shift">
+                          <ZoruButton variant="outline" size="icon" aria-label="Edit shift">
                             <Edit className="h-4 w-4" />
-                          </ClayButton>
+                          </ZoruButton>
                         </Link>
-                        <ClayButton
-                          variant="pill"
+                        <ZoruButton
+                          variant="outline"
                           size="icon"
                           aria-label="Delete shift"
                           onClick={() => handleDelete(shift._id)}
                         >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </ClayButton>
+                          <Trash2 className="h-4 w-4 text-zoru-danger-ink" />
+                        </ZoruButton>
                       </div>
                     </td>
                   </tr>
                 ))
               ) : (
-                <tr className="border-b border-border">
+                <tr className="border-b border-zoru-line">
                   <td
                     colSpan={7}
-                    className="h-24 text-center text-[13px] text-muted-foreground"
+                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
                   >
                     No shifts yet. Create your first shift.
                   </td>
@@ -165,7 +162,7 @@ export default function EmployeeShiftsPage() {
             </tbody>
           </table>
         </div>
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

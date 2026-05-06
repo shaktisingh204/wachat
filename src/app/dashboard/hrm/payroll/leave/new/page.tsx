@@ -1,24 +1,22 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { CalendarPlus, LoaderCircle } from 'lucide-react';
-import { ClayCard, ClayButton } from '@/components/clay';
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { useToast } from '@/hooks/use-toast';
+  ZoruCard,
+  ZoruButton,
+  ZoruInput,
+  ZoruLabel,
+  ZoruTextarea,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  useZoruToast,
+} from '@/components/zoruui';
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import {
   getLeaveTypes,
   saveLeave,
@@ -35,7 +33,7 @@ type EmployeeLite = { _id: string; firstName?: string; lastName?: string };
 
 export default function ApplyLeavePage() {
   const router = useRouter();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [types, setTypes] = useState<WsLeaveType[]>([]);
   const [employees, setEmployees] = useState<EmployeeLite[]>([]);
   const [isLoading, startTransition] = useTransition();
@@ -114,37 +112,37 @@ export default function ApplyLeavePage() {
         subtitle="Submit a leave application for an employee."
         icon={CalendarPlus}
       />
-      <ClayCard>
+      <ZoruCard className="p-6">
         {isLoading ? (
-          <div className="py-12 text-center text-[13px] text-muted-foreground">
+          <div className="py-12 text-center text-[13px] text-zoru-ink-muted">
             Loading form…
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-2">
             <div>
-              <Label className="text-foreground">Employee *</Label>
-              <Select value={userId} onValueChange={setUserId}>
-                <SelectTrigger className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]">
-                  <SelectValue placeholder="Select employee" />
-                </SelectTrigger>
-                <SelectContent>
+              <ZoruLabel className="text-zoru-ink">Employee *</ZoruLabel>
+              <ZoruSelect value={userId || undefined} onValueChange={setUserId}>
+                <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                  <ZoruSelectValue placeholder="Select employee" />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
                   {employees.map((e) => (
-                    <SelectItem key={e._id} value={e._id}>
+                    <ZoruSelectItem key={e._id} value={e._id}>
                       {[e.firstName, e.lastName].filter(Boolean).join(' ') || 'Unnamed'}
-                    </SelectItem>
+                    </ZoruSelectItem>
                   ))}
-                </SelectContent>
-              </Select>
+                </ZoruSelectContent>
+              </ZoruSelect>
             </div>
             <div>
-              <Label className="text-foreground">Leave Type *</Label>
-              <Select value={leaveTypeId} onValueChange={setLeaveTypeId}>
-                <SelectTrigger className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]">
-                  <SelectValue placeholder="Select leave type" />
-                </SelectTrigger>
-                <SelectContent>
+              <ZoruLabel className="text-zoru-ink">Leave Type *</ZoruLabel>
+              <ZoruSelect value={leaveTypeId || undefined} onValueChange={setLeaveTypeId}>
+                <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                  <ZoruSelectValue placeholder="Select leave type" />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
                   {types.map((t) => (
-                    <SelectItem key={String(t._id)} value={String(t._id)}>
+                    <ZoruSelectItem key={String(t._id)} value={String(t._id)}>
                       <span className="inline-flex items-center gap-2">
                         <span
                           aria-hidden
@@ -153,150 +151,145 @@ export default function ApplyLeavePage() {
                         />
                         {t.type_name}
                       </span>
-                    </SelectItem>
+                    </ZoruSelectItem>
                   ))}
-                </SelectContent>
-              </Select>
+                </ZoruSelectContent>
+              </ZoruSelect>
             </div>
 
             <div>
-              <Label className="text-foreground">Duration</Label>
-              <Select value={duration} onValueChange={(v) => setDuration(v as WsLeaveDuration)}>
-                <SelectTrigger className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="full-day">Full day</SelectItem>
-                  <SelectItem value="half-day">Half day</SelectItem>
-                  <SelectItem value="multiple">Multiple days</SelectItem>
-                  <SelectItem value="hours">Hours</SelectItem>
-                </SelectContent>
-              </Select>
+              <ZoruLabel className="text-zoru-ink">Duration</ZoruLabel>
+              <ZoruSelect value={duration} onValueChange={(v) => setDuration(v as WsLeaveDuration)}>
+                <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                  <ZoruSelectValue />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                  <ZoruSelectItem value="full-day">Full day</ZoruSelectItem>
+                  <ZoruSelectItem value="half-day">Half day</ZoruSelectItem>
+                  <ZoruSelectItem value="multiple">Multiple days</ZoruSelectItem>
+                  <ZoruSelectItem value="hours">Hours</ZoruSelectItem>
+                </ZoruSelectContent>
+              </ZoruSelect>
             </div>
 
             {duration === 'half-day' ? (
               <div>
-                <Label className="text-foreground">Half-day Type</Label>
-                <Select value={halfDayType} onValueChange={(v) => setHalfDayType(v as WsHalfDayType)}>
-                  <SelectTrigger className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="first-half">First half</SelectItem>
-                    <SelectItem value="second-half">Second half</SelectItem>
-                  </SelectContent>
-                </Select>
+                <ZoruLabel className="text-zoru-ink">Half-day Type</ZoruLabel>
+                <ZoruSelect value={halfDayType} onValueChange={(v) => setHalfDayType(v as WsHalfDayType)}>
+                  <ZoruSelectTrigger className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                    <ZoruSelectValue />
+                  </ZoruSelectTrigger>
+                  <ZoruSelectContent>
+                    <ZoruSelectItem value="first-half">First half</ZoruSelectItem>
+                    <ZoruSelectItem value="second-half">Second half</ZoruSelectItem>
+                  </ZoruSelectContent>
+                </ZoruSelect>
               </div>
             ) : null}
 
             <div>
-              <Label className="text-foreground">
+              <ZoruLabel className="text-zoru-ink">
                 {duration === 'multiple' ? 'Start Date *' : 'Leave Date *'}
-              </Label>
-              <Input
+              </ZoruLabel>
+              <ZoruInput
                 type="date"
                 value={leaveDate}
                 onChange={(e) => setLeaveDate(e.target.value)}
                 required
-                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+                className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
               />
             </div>
 
             {duration === 'multiple' ? (
               <div>
-                <Label className="text-foreground">End Date *</Label>
-                <Input
+                <ZoruLabel className="text-zoru-ink">End Date *</ZoruLabel>
+                <ZoruInput
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
                   required
-                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                 />
               </div>
             ) : null}
 
             {duration === 'hours' ? (
               <div>
-                <Label className="text-foreground">Hours *</Label>
-                <Input
+                <ZoruLabel className="text-zoru-ink">Hours *</ZoruLabel>
+                <ZoruInput
                   type="number"
                   step="0.5"
                   min="0.5"
                   value={hours}
                   onChange={(e) => setHours(e.target.value)}
                   required
-                  className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+                  className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                 />
               </div>
             ) : null}
 
             <div className="md:col-span-2">
-              <Label className="text-foreground">Reason</Label>
-              <Textarea
+              <ZoruLabel className="text-zoru-ink">Reason</ZoruLabel>
+              <ZoruTextarea
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 rows={3}
-                className="mt-1.5 rounded-lg border-border bg-card text-[13px]"
+                className="mt-1.5 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
               />
             </div>
 
             <div>
-              <Label className="text-foreground">Days Count</Label>
-              <Input
+              <ZoruLabel className="text-zoru-ink">Days Count</ZoruLabel>
+              <ZoruInput
                 type="number"
                 step="0.5"
                 min="0"
                 value={daysCount}
                 onChange={(e) => setDaysCount(e.target.value)}
                 placeholder="Auto-calculated if left blank"
-                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+                className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
               />
             </div>
 
             <div>
-              <Label className="text-foreground">Attachment Name</Label>
-              <Input
+              <ZoruLabel className="text-zoru-ink">Attachment Name</ZoruLabel>
+              <ZoruInput
                 value={attachmentName}
                 onChange={(e) => setAttachmentName(e.target.value)}
                 placeholder="doctor-note.pdf"
-                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+                className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
               />
             </div>
             <div>
-              <Label className="text-foreground">Attachment URL</Label>
-              <Input
+              <ZoruLabel className="text-zoru-ink">Attachment URL</ZoruLabel>
+              <ZoruInput
                 type="url"
                 value={attachmentUrl}
                 onChange={(e) => setAttachmentUrl(e.target.value)}
                 placeholder="https://…"
-                className="mt-1.5 h-10 rounded-lg border-border bg-card text-[13px]"
+                className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
               />
             </div>
 
             <div className="flex gap-2 md:col-span-2 md:justify-end">
-              <ClayButton
+              <ZoruButton
                 type="button"
-                variant="pill"
+                variant="outline"
                 onClick={() => router.push('/dashboard/hrm/payroll/leave')}
               >
                 Cancel
-              </ClayButton>
-              <ClayButton
+              </ZoruButton>
+              <ZoruButton
                 type="submit"
-                variant="obsidian"
                 disabled={isSaving}
-                leading={
-                  isSaving ? (
-                    <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.75} />
-                  ) : null
-                }
               >
+                {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
                 Submit Application
-              </ClayButton>
+              </ZoruButton>
             </div>
           </form>
         )}
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

@@ -1,16 +1,17 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import * as React from 'react';
 import { useEffect, useState, useTransition } from 'react';
 import { Settings as SettingsIcon, Briefcase, ListTodo } from 'lucide-react';
 
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruSwitch,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
-import { Switch } from '@/components/ui/switch';
-import { useToast } from '@/hooks/use-toast';
 import {
   getLogTimeSettings,
   setLogTimeFor,
@@ -38,7 +39,7 @@ const ITEMS: {
 ];
 
 export default function TimeTrackingSettingsPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [settings, setSettings] = useState<WsLogTimeFor[]>([]);
   const [, startLoading] = useTransition();
   const [busy, setBusy] = useState<WsLogTimeModule | null>(null);
@@ -83,8 +84,8 @@ export default function TimeTrackingSettingsPage() {
         icon={SettingsIcon}
       />
 
-      <ClayCard>
-        <div className="divide-y divide-border">
+      <ZoruCard className="p-6">
+        <div className="divide-y divide-zoru-line">
           {ITEMS.map(({ module, label, description, icon: Icon }) => {
             const enabled = isEnabled(module);
             return (
@@ -101,20 +102,20 @@ export default function TimeTrackingSettingsPage() {
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <p className="text-[14px] font-semibold text-foreground">
+                      <p className="text-[14px] font-semibold text-zoru-ink">
                         {label}
                       </p>
-                      <ClayBadge tone={enabled ? 'green' : 'neutral'} dot>
+                      <ZoruBadge variant={enabled ? 'success' : 'ghost'}>
                         {enabled ? 'Enabled' : 'Disabled'}
-                      </ClayBadge>
+                      </ZoruBadge>
                     </div>
-                    <p className="mt-0.5 text-[12.5px] text-muted-foreground">
+                    <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
                       {description}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Switch
+                  <ZoruSwitch
                     checked={enabled}
                     disabled={busy === module}
                     onCheckedChange={(v) => toggle(module, Boolean(v))}
@@ -124,12 +125,12 @@ export default function TimeTrackingSettingsPage() {
             );
           })}
         </div>
-      </ClayCard>
+      </ZoruCard>
 
       <div className="flex justify-end">
-        <ClayButton variant="pill" onClick={refresh}>
+        <ZoruButton variant="outline" onClick={refresh}>
           Refresh
-        </ClayButton>
+        </ZoruButton>
       </div>
     </div>
   );

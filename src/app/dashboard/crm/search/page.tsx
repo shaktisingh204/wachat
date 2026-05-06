@@ -1,26 +1,25 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Search as SearchIcon, Sparkles, RefreshCw } from 'lucide-react';
 import { useDebouncedCallback } from 'use-debounce';
 
-import { ClayBadge, ClayButton, ClayCard } from '@/components/clay';
-import { Input } from '@/components/ui/input';
-import { Skeleton } from '@/components/ui/skeleton';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { useToast } from '@/hooks/use-toast';
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruSkeleton,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../_components/crm-page-header';
 
 import {
@@ -34,81 +33,84 @@ import {
 
 type SearchState = { query: string; groups: WsSearchGroup[] };
 
-const GROUP_TONE: Record<string, 'neutral' | 'amber' | 'green' | 'red' | 'rose-soft'> = {
-  contact: 'neutral',
-  account: 'rose-soft',
-  deal: 'amber',
-  lead: 'green',
-  task: 'neutral',
-  project: 'rose-soft',
-  invoice: 'amber',
-  ticket: 'red',
-  contract: 'neutral',
-  kb: 'neutral',
-  note: 'neutral',
-  client: 'rose-soft',
-  proposal: 'amber',
-  estimate: 'amber',
+const GROUP_VARIANT: Record<
+  string,
+  'ghost' | 'warning' | 'success' | 'danger'
+> = {
+  contact: 'ghost',
+  account: 'danger',
+  deal: 'warning',
+  lead: 'success',
+  task: 'ghost',
+  project: 'danger',
+  invoice: 'warning',
+  ticket: 'danger',
+  contract: 'ghost',
+  kb: 'ghost',
+  note: 'ghost',
+  client: 'danger',
+  proposal: 'warning',
+  estimate: 'warning',
 };
 
 function GroupCard({ group }: { group: WsSearchGroup }) {
-  const tone = GROUP_TONE[group.type] ?? 'neutral';
+  const variant = GROUP_VARIANT[group.type] ?? 'ghost';
   const shown = group.items.slice(0, 5);
   const more = Math.max(0, group.items.length - shown.length);
 
   return (
-    <ClayCard>
+    <ZoruCard className="p-6">
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <h2 className="text-[16px] font-semibold text-foreground">{group.label}</h2>
-          <ClayBadge tone={tone}>{group.items.length}</ClayBadge>
+          <h2 className="text-[16px] font-semibold text-zoru-ink">{group.label}</h2>
+          <ZoruBadge variant={variant}>{group.items.length}</ZoruBadge>
         </div>
         {more > 0 ? (
-          <span className="text-[12px] text-muted-foreground">
+          <span className="text-[12px] text-zoru-ink-muted">
             Showing 5 of {group.items.length}
           </span>
         ) : null}
       </div>
-      <div className="overflow-x-auto rounded-lg border border-border">
-        <Table>
-          <TableHeader>
-            <TableRow className="border-border hover:bg-transparent">
-              <TableHead className="text-muted-foreground">Title</TableHead>
-              <TableHead className="text-muted-foreground">Description</TableHead>
-              <TableHead className="text-muted-foreground w-[110px]">Action</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+      <div className="overflow-x-auto rounded-lg border border-zoru-line">
+        <ZoruTable>
+          <ZoruTableHeader>
+            <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+              <ZoruTableHead className="text-zoru-ink-muted">Title</ZoruTableHead>
+              <ZoruTableHead className="text-zoru-ink-muted">Description</ZoruTableHead>
+              <ZoruTableHead className="text-zoru-ink-muted w-[110px]">Action</ZoruTableHead>
+            </ZoruTableRow>
+          </ZoruTableHeader>
+          <ZoruTableBody>
             {shown.map((item) => {
               const url =
                 item.url ||
                 defaultSearchUrl(group.type, String(item.searchable_id));
               return (
-                <TableRow
+                <ZoruTableRow
                   key={String(item._id)}
-                  className="border-border"
+                  className="border-zoru-line"
                 >
-                  <TableCell className="text-[13px] font-medium text-foreground">
+                  <ZoruTableCell className="text-[13px] font-medium text-zoru-ink">
                     {item.title}
-                  </TableCell>
-                  <TableCell className="text-[12.5px] text-muted-foreground">
+                  </ZoruTableCell>
+                  <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
                     {item.description || '—'}
-                  </TableCell>
-                  <TableCell>
+                  </ZoruTableCell>
+                  <ZoruTableCell>
                     <Link
                       href={url}
                       className="text-[12.5px] font-medium text-accent-foreground hover:underline"
                     >
                       View
                     </Link>
-                  </TableCell>
-                </TableRow>
+                  </ZoruTableCell>
+                </ZoruTableRow>
               );
             })}
-          </TableBody>
-        </Table>
+          </ZoruTableBody>
+        </ZoruTable>
       </div>
-    </ClayCard>
+    </ZoruCard>
   );
 }
 
@@ -116,7 +118,7 @@ export default function CrmUniversalSearchPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get('q') ?? '';
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
 
   const [query, setQuery] = useState(initialQuery);
   const [state, setState] = useState<SearchState>({
@@ -174,71 +176,67 @@ export default function CrmUniversalSearchPage() {
         subtitle="Find contacts, accounts, deals, projects, tickets and more across your workspace."
         icon={SearchIcon}
         actions={
-          <ClayButton
+          <ZoruButton
             variant="ghost"
             onClick={handleReindex}
             disabled={isReindexing}
-            leading={
-              <RefreshCw
-                className={`h-4 w-4 ${isReindexing ? 'animate-spin' : ''}`}
-              />
-            }
           >
+            <RefreshCw className={`h-4 w-4 ${isReindexing ? 'animate-spin' : ''}`} />
             Reindex
-          </ClayButton>
+          </ZoruButton>
         }
       />
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         <div className="flex flex-col gap-2">
-          <label className="text-[12.5px] font-medium text-muted-foreground">
+          <label className="text-[12.5px] font-medium text-zoru-ink-muted">
             Search query
           </label>
           <div className="relative">
-            <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
+            <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+            <ZoruInput
               defaultValue={initialQuery}
               placeholder="Type at least one character..."
-              className="h-11 rounded-lg border-border bg-card pl-9 text-[13.5px]"
+              className="h-11 rounded-lg border-zoru-line bg-zoru-bg pl-9 text-[13.5px]"
               onChange={(e) => handleChange(e.target.value)}
             />
           </div>
-          <p className="text-[11.5px] text-muted-foreground">
+          <p className="text-[11.5px] text-zoru-ink-muted">
             Searches title, description and keywords in the universal index.
-            Run <span className="font-medium text-foreground">Reindex</span> to
+            Run <span className="font-medium text-zoru-ink">Reindex</span> to
             rebuild from your CRM data.
           </p>
         </div>
-      </ClayCard>
+      </ZoruCard>
 
       {isPending && state.groups.length === 0 ? (
-        <ClayCard>
-          <Skeleton className="h-6 w-64" />
-          <Skeleton className="mt-3 h-40 w-full" />
-        </ClayCard>
+        <ZoruCard className="p-6">
+          <ZoruSkeleton className="h-6 w-64" />
+          <ZoruSkeleton className="mt-3 h-40 w-full" />
+        </ZoruCard>
       ) : state.query.length === 0 ? (
-        <ClayCard>
+        <ZoruCard className="p-6">
           <div className="flex items-center gap-3">
             <Sparkles className="h-5 w-5 text-accent-foreground" />
-            <p className="text-[13px] text-muted-foreground">
+            <p className="text-[13px] text-zoru-ink-muted">
               Start typing above to search across your CRM entities.
             </p>
           </div>
-        </ClayCard>
+        </ZoruCard>
       ) : state.groups.length === 0 ? (
-        <ClayCard>
+        <ZoruCard className="p-6">
           <div className="flex flex-col items-start gap-1">
-            <p className="text-[13px] font-medium text-foreground">
+            <p className="text-[13px] font-medium text-zoru-ink">
               No results for &ldquo;{state.query}&rdquo;.
             </p>
-            <p className="text-[12.5px] text-muted-foreground">
+            <p className="text-[12.5px] text-zoru-ink-muted">
               Try a different query or run a reindex if you&rsquo;ve recently added data.
             </p>
           </div>
-        </ClayCard>
+        </ZoruCard>
       ) : (
         <>
-          <div className="text-[12.5px] text-muted-foreground">
+          <div className="text-[12.5px] text-zoru-ink-muted">
             {totalHits} result{totalHits === 1 ? '' : 's'} across{' '}
             {state.groups.length} group{state.groups.length === 1 ? '' : 's'}.
           </div>

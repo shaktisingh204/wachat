@@ -1,26 +1,24 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import * as React from 'react';
 import { useActionState, useEffect, useState, useTransition } from 'react';
 import { ShieldCheck, LoaderCircle } from 'lucide-react';
 
-import { ClayCard, ClayButton } from '@/components/clay';
-import { CrmPageHeader } from '../../_components/crm-page-header';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSkeleton,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
+import { CrmPageHeader } from '../../_components/crm-page-header';
 import {
   getGdprSettings,
   saveGdprSettings,
@@ -62,7 +60,7 @@ const BOOL_FIELDS: {
 ];
 
 export default function GdprSettingsPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [config, setConfig] = useState<ConfigDoc>(null);
   const [isLoading, startLoading] = useTransition();
   const [saveState, saveFormAction, isSaving] = useActionState(
@@ -123,12 +121,12 @@ export default function GdprSettingsPage() {
         icon={ShieldCheck}
       />
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         {isLoading && !config ? (
           <div className="space-y-4">
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-24 w-full" />
-            <Skeleton className="h-10 w-full" />
+            <ZoruSkeleton className="h-10 w-full" />
+            <ZoruSkeleton className="h-24 w-full" />
+            <ZoruSkeleton className="h-10 w-full" />
           </div>
         ) : (
           <form action={saveFormAction} className="space-y-6">
@@ -137,37 +135,27 @@ export default function GdprSettingsPage() {
             ) : null}
 
             <section className="space-y-4">
-              <h2 className="text-[14px] font-semibold text-foreground">
-                Core controls
-              </h2>
+              <h2 className="text-[14px] text-zoru-ink">Core controls</h2>
               <div className="grid gap-4 md:grid-cols-2">
                 {BOOL_FIELDS.map((f) => (
                   <div key={String(f.key)}>
-                    <Label
-                      htmlFor={String(f.key)}
-                      className="text-foreground"
-                    >
-                      {f.label}
-                    </Label>
+                    <ZoruLabel htmlFor={String(f.key)}>{f.label}</ZoruLabel>
                     <div className="mt-1.5">
-                      <Select
+                      <ZoruSelect
                         name={String(f.key)}
                         defaultValue={boolValue(f.key)}
                       >
-                        <SelectTrigger
-                          id={String(f.key)}
-                          className="h-10 rounded-lg border-border bg-card text-[13px]"
-                        >
-                          <SelectValue placeholder="Select" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="yes">Enabled</SelectItem>
-                          <SelectItem value="no">Disabled</SelectItem>
-                        </SelectContent>
-                      </Select>
+                        <ZoruSelectTrigger id={String(f.key)}>
+                          <ZoruSelectValue placeholder="Select" />
+                        </ZoruSelectTrigger>
+                        <ZoruSelectContent>
+                          <ZoruSelectItem value="yes">Enabled</ZoruSelectItem>
+                          <ZoruSelectItem value="no">Disabled</ZoruSelectItem>
+                        </ZoruSelectContent>
+                      </ZoruSelect>
                     </div>
                     {f.hint ? (
-                      <p className="mt-1 text-[11.5px] text-muted-foreground">
+                      <p className="mt-1 text-[11.5px] text-zoru-ink-muted">
                         {f.hint}
                       </p>
                     ) : null}
@@ -177,76 +165,53 @@ export default function GdprSettingsPage() {
             </section>
 
             <section className="space-y-4">
-              <h2 className="text-[14px] font-semibold text-foreground">
-                Cookie banner
-              </h2>
+              <h2 className="text-[14px] text-zoru-ink">Cookie banner</h2>
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="md:col-span-2">
-                  <Label htmlFor="cookie_message" className="text-foreground">
-                    Cookie message
-                  </Label>
+                  <ZoruLabel htmlFor="cookie_message">Cookie message</ZoruLabel>
                   <div className="mt-1.5">
-                    <Textarea
+                    <ZoruTextarea
                       id="cookie_message"
                       name="cookie_message"
                       rows={3}
                       defaultValue={value('cookie_message')}
-                      className="rounded-lg border-border bg-card text-[13px]"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <Label
-                    htmlFor="accept_cookie_btn_text"
-                    className="text-foreground"
-                  >
-                    Accept button text
-                  </Label>
+                  <ZoruLabel htmlFor="accept_cookie_btn_text">Accept button text</ZoruLabel>
                   <div className="mt-1.5">
-                    <Input
+                    <ZoruInput
                       id="accept_cookie_btn_text"
                       name="accept_cookie_btn_text"
                       defaultValue={value('accept_cookie_btn_text')}
                       placeholder="Accept"
-                      className="h-10 rounded-lg border-border bg-card text-[13px]"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <Label
-                    htmlFor="decline_cookie_btn_text"
-                    className="text-foreground"
-                  >
-                    Decline button text
-                  </Label>
+                  <ZoruLabel htmlFor="decline_cookie_btn_text">Decline button text</ZoruLabel>
                   <div className="mt-1.5">
-                    <Input
+                    <ZoruInput
                       id="decline_cookie_btn_text"
                       name="decline_cookie_btn_text"
                       defaultValue={value('decline_cookie_btn_text')}
                       placeholder="Decline"
-                      className="h-10 rounded-lg border-border bg-card text-[13px]"
                     />
                   </div>
                 </div>
 
                 <div className="md:col-span-2">
-                  <Label
-                    htmlFor="privacy_policy_url"
-                    className="text-foreground"
-                  >
-                    Privacy policy URL
-                  </Label>
+                  <ZoruLabel htmlFor="privacy_policy_url">Privacy policy URL</ZoruLabel>
                   <div className="mt-1.5">
-                    <Input
+                    <ZoruInput
                       id="privacy_policy_url"
                       name="privacy_policy_url"
                       type="url"
                       defaultValue={value('privacy_policy_url')}
                       placeholder="https://example.com/privacy"
-                      className="h-10 rounded-lg border-border bg-card text-[13px]"
                     />
                   </div>
                 </div>
@@ -254,61 +219,41 @@ export default function GdprSettingsPage() {
             </section>
 
             <section className="space-y-4">
-              <h2 className="text-[14px] font-semibold text-foreground">
-                Data controller
-              </h2>
+              <h2 className="text-[14px] text-zoru-ink">Data controller</h2>
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
-                  <Label
-                    htmlFor="data_controller_name"
-                    className="text-foreground"
-                  >
-                    Controller name
-                  </Label>
+                  <ZoruLabel htmlFor="data_controller_name">Controller name</ZoruLabel>
                   <div className="mt-1.5">
-                    <Input
+                    <ZoruInput
                       id="data_controller_name"
                       name="data_controller_name"
                       defaultValue={value('data_controller_name')}
-                      className="h-10 rounded-lg border-border bg-card text-[13px]"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <Label
-                    htmlFor="data_controller_email"
-                    className="text-foreground"
-                  >
-                    Controller email
-                  </Label>
+                  <ZoruLabel htmlFor="data_controller_email">Controller email</ZoruLabel>
                   <div className="mt-1.5">
-                    <Input
+                    <ZoruInput
                       id="data_controller_email"
                       name="data_controller_email"
                       type="email"
                       defaultValue={value('data_controller_email')}
-                      className="h-10 rounded-lg border-border bg-card text-[13px]"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <Label
-                    htmlFor="retention_period_days"
-                    className="text-foreground"
-                  >
-                    Retention period (days)
-                  </Label>
+                  <ZoruLabel htmlFor="retention_period_days">Retention period (days)</ZoruLabel>
                   <div className="mt-1.5">
-                    <Input
+                    <ZoruInput
                       id="retention_period_days"
                       name="retention_period_days"
                       type="number"
                       min={0}
                       defaultValue={value('retention_period_days')}
                       placeholder="365"
-                      className="h-10 rounded-lg border-border bg-card text-[13px]"
                     />
                   </div>
                 </div>
@@ -316,25 +261,14 @@ export default function GdprSettingsPage() {
             </section>
 
             <div className="flex justify-end gap-2 pt-2">
-              <ClayButton
-                type="submit"
-                variant="obsidian"
-                disabled={isSaving}
-                leading={
-                  isSaving ? (
-                    <LoaderCircle
-                      className="h-4 w-4 animate-spin"
-                      strokeWidth={1.75}
-                    />
-                  ) : null
-                }
-              >
+              <ZoruButton type="submit" disabled={isSaving}>
+                {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
                 Save
-              </ClayButton>
+              </ZoruButton>
             </div>
           </form>
         )}
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

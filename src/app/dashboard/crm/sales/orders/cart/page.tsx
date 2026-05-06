@@ -1,8 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import {
   useCallback,
   useEffect,
@@ -23,13 +20,16 @@ import {
   LoaderCircle,
 } from 'lucide-react';
 
-import { ClayCard, ClayButton } from '@/components/clay';
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSkeleton,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
 
 import {
   getCart,
@@ -67,7 +67,7 @@ const initialState = { message: '', error: '' } as {
 
 export default function CartPage() {
   const router = useRouter();
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
 
   const [isLoading, startLoading] = useTransition();
   const [isSubmitting, startSubmitting] = useTransition();
@@ -187,8 +187,8 @@ export default function CartPage() {
   if (isLoading) {
     return (
       <div className="flex w-full flex-col gap-6">
-        <Skeleton className="h-12 w-full" />
-        <Skeleton className="h-80 w-full" />
+        <ZoruSkeleton className="h-12 w-full" />
+        <ZoruSkeleton className="h-80 w-full" />
       </div>
     );
   }
@@ -201,9 +201,10 @@ export default function CartPage() {
         icon={ShoppingBag}
         actions={
           <Link href="/dashboard/crm/sales/orders">
-            <ClayButton variant="pill" leading={<ArrowLeft className="h-4 w-4" />}>
+            <ZoruButton variant="outline">
+              <ArrowLeft className="h-4 w-4" />
               Back to orders
-            </ClayButton>
+            </ZoruButton>
           </Link>
         }
       />
@@ -215,65 +216,65 @@ export default function CartPage() {
         <input type="hidden" name="discount" value={String(discount)} />
         <input type="hidden" name="items" value={hiddenItems} />
 
-        <ClayCard>
+        <ZoruCard className="p-6">
           <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-1.5 md:col-span-2">
-              <Label className="text-foreground">Client</Label>
-              <Input
+              <ZoruLabel className="text-zoru-ink">Client</ZoruLabel>
+              <ZoruInput
                 value={clientName}
                 onChange={(e) => setClientName(e.target.value)}
                 placeholder="Client name"
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-foreground">Currency</Label>
-              <Input
+              <ZoruLabel className="text-zoru-ink">Currency</ZoruLabel>
+              <ZoruInput
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value.toUpperCase())}
                 maxLength={5}
               />
             </div>
           </div>
-        </ClayCard>
+        </ZoruCard>
 
-        <ClayCard className="mt-6">
+        <ZoruCard className="p-6 mt-6">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-[15px] font-semibold text-foreground">Items</h2>
-            <ClayButton
+            <h2 className="text-[15px] text-zoru-ink">Items</h2>
+            <ZoruButton
               type="button"
               size="sm"
-              variant="pill"
+              variant="outline"
               onClick={addRow}
-              leading={<Plus className="h-3.5 w-3.5" />}
             >
+              <Plus className="h-3.5 w-3.5" />
               Add line
-            </ClayButton>
+            </ZoruButton>
           </div>
-          <div className="overflow-x-auto rounded-lg border border-border">
+          <div className="overflow-x-auto rounded-lg border border-zoru-line">
             <table className="w-full text-sm">
-              <thead className="bg-secondary">
-                <tr className="border-b border-border text-left">
-                  <th className="p-2 font-medium text-foreground">Item</th>
-                  <th className="p-2 font-medium text-foreground">Description</th>
-                  <th className="p-2 text-right font-medium text-foreground">Qty</th>
-                  <th className="p-2 text-right font-medium text-foreground">Unit price</th>
-                  <th className="p-2 text-right font-medium text-foreground">Tax %</th>
-                  <th className="p-2 text-right font-medium text-foreground">Amount</th>
+              <thead className="bg-zoru-surface-2">
+                <tr className="border-b border-zoru-line text-left">
+                  <th className="p-2 text-zoru-ink">Item</th>
+                  <th className="p-2 text-zoru-ink">Description</th>
+                  <th className="p-2 text-right text-zoru-ink">Qty</th>
+                  <th className="p-2 text-right text-zoru-ink">Unit price</th>
+                  <th className="p-2 text-right text-zoru-ink">Tax %</th>
+                  <th className="p-2 text-right text-zoru-ink">Amount</th>
                   <th className="p-2" />
                 </tr>
               </thead>
               <tbody>
                 {items.map((row) => (
-                  <tr key={row.id} className="border-b border-border">
+                  <tr key={row.id} className="border-b border-zoru-line">
                     <td className="p-2">
-                      <Input
+                      <ZoruInput
                         value={row.name}
                         onChange={(e) => updateRow(row.id, { name: e.target.value })}
                         placeholder="Name"
                       />
                     </td>
                     <td className="p-2">
-                      <Input
+                      <ZoruInput
                         value={row.description}
                         onChange={(e) =>
                           updateRow(row.id, { description: e.target.value })
@@ -282,7 +283,7 @@ export default function CartPage() {
                       />
                     </td>
                     <td className="p-2">
-                      <Input
+                      <ZoruInput
                         type="number"
                         value={row.quantity}
                         onChange={(e) =>
@@ -292,7 +293,7 @@ export default function CartPage() {
                       />
                     </td>
                     <td className="p-2">
-                      <Input
+                      <ZoruInput
                         type="number"
                         step="0.01"
                         value={row.unit_price}
@@ -303,7 +304,7 @@ export default function CartPage() {
                       />
                     </td>
                     <td className="p-2">
-                      <Input
+                      <ZoruInput
                         type="number"
                         step="0.01"
                         value={row.tax_rate || 0}
@@ -320,7 +321,7 @@ export default function CartPage() {
                       <button
                         type="button"
                         onClick={() => removeRow(row.id)}
-                        className="text-destructive"
+                        className="text-zoru-danger-ink"
                         aria-label="Remove row"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -330,30 +331,30 @@ export default function CartPage() {
                 ))}
               </tbody>
               <tfoot>
-                <tr className="bg-secondary">
-                  <td colSpan={5} className="p-3 text-right text-muted-foreground">
+                <tr className="bg-zoru-surface-2">
+                  <td colSpan={5} className="p-3 text-right text-zoru-ink-muted">
                     Subtotal
                   </td>
-                  <td className="p-3 text-right font-medium">
+                  <td className="p-3 text-right">
                     {fmtMoney(subtotal, currency)}
                   </td>
                   <td />
                 </tr>
                 <tr>
-                  <td colSpan={5} className="p-3 text-right text-muted-foreground">
+                  <td colSpan={5} className="p-3 text-right text-zoru-ink-muted">
                     Tax
                   </td>
-                  <td className="p-3 text-right font-medium">
+                  <td className="p-3 text-right">
                     {fmtMoney(tax, currency)}
                   </td>
                   <td />
                 </tr>
                 <tr>
-                  <td colSpan={5} className="p-3 text-right text-muted-foreground">
+                  <td colSpan={5} className="p-3 text-right text-zoru-ink-muted">
                     Discount
                   </td>
                   <td className="p-3 text-right">
-                    <Input
+                    <ZoruInput
                       type="number"
                       step="0.01"
                       value={discount}
@@ -363,14 +364,14 @@ export default function CartPage() {
                   </td>
                   <td />
                 </tr>
-                <tr className="bg-secondary">
+                <tr className="bg-zoru-surface-2">
                   <td
                     colSpan={5}
-                    className="p-3 text-right font-semibold text-foreground"
+                    className="p-3 text-right text-zoru-ink"
                   >
                     Total
                   </td>
-                  <td className="p-3 text-right font-semibold text-foreground">
+                  <td className="p-3 text-right text-zoru-ink">
                     {fmtMoney(total, currency)}
                   </td>
                   <td />
@@ -378,57 +379,52 @@ export default function CartPage() {
               </tfoot>
             </table>
           </div>
-        </ClayCard>
+        </ZoruCard>
 
-        <ClayCard className="mt-6">
-          <Label className="text-foreground">Notes</Label>
-          <Textarea
+        <ZoruCard className="p-6 mt-6">
+          <ZoruLabel className="text-zoru-ink">Notes</ZoruLabel>
+          <ZoruTextarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Any special instructions..."
             rows={3}
           />
-        </ClayCard>
+        </ZoruCard>
 
         <div className="mt-6 flex flex-wrap items-center justify-end gap-2">
-          <ClayButton
+          <ZoruButton
             type="button"
-            variant="pill"
+            variant="outline"
             onClick={handleClear}
             disabled={isClearing}
-            leading={<Eraser className="h-4 w-4" />}
           >
+            <Eraser className="h-4 w-4" />
             Clear cart
-          </ClayButton>
-          <ClayButton
+          </ZoruButton>
+          <ZoruButton
             type="submit"
-            variant="pill"
+            variant="outline"
             disabled={isSaving}
-            leading={
-              isSaving ? (
-                <LoaderCircle className="h-4 w-4 animate-spin" />
-              ) : (
-                <Save className="h-4 w-4" />
-              )
-            }
           >
+            {isSaving ? (
+              <LoaderCircle className="h-4 w-4 animate-spin" />
+            ) : (
+              <Save className="h-4 w-4" />
+            )}
             Save draft
-          </ClayButton>
-          <ClayButton
+          </ZoruButton>
+          <ZoruButton
             type="button"
-            variant="obsidian"
             onClick={handleSubmit}
             disabled={isSubmitting}
-            leading={
-              isSubmitting ? (
-                <LoaderCircle className="h-4 w-4 animate-spin" />
-              ) : (
-                <Send className="h-4 w-4" />
-              )
-            }
           >
+            {isSubmitting ? (
+              <LoaderCircle className="h-4 w-4 animate-spin" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
             Submit order
-          </ClayButton>
+          </ZoruButton>
         </div>
       </form>
     </div>

@@ -1,20 +1,18 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import { CalendarDays, ChevronLeft, ChevronRight, Users } from 'lucide-react';
 import { format, addDays, startOfWeek } from 'date-fns';
-import { ClayCard, ClayButton } from '@/components/clay';
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+  ZoruButton,
+  ZoruCard,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+} from '@/components/zoruui';
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
 import type { WithId, CrmEmployee } from '@/lib/definitions';
 import {
@@ -113,76 +111,76 @@ export default function ShiftSchedulePage() {
         icon={CalendarDays}
         actions={
           <>
-            <ClayButton
-              variant="pill"
+            <ZoruButton
+              variant="outline"
               size="icon"
               onClick={() => setWeekStart(addDays(weekStart, -7))}
               aria-label="Previous week"
             >
               <ChevronLeft className="h-4 w-4" strokeWidth={1.75} />
-            </ClayButton>
-            <ClayButton
-              variant="pill"
+            </ZoruButton>
+            <ZoruButton
+              variant="outline"
               onClick={() => setWeekStart(startOfWeek(new Date(), { weekStartsOn: 1 }))}
             >
               Today
-            </ClayButton>
-            <ClayButton
-              variant="pill"
+            </ZoruButton>
+            <ZoruButton
+              variant="outline"
               size="icon"
               onClick={() => setWeekStart(addDays(weekStart, 7))}
               aria-label="Next week"
             >
               <ChevronRight className="h-4 w-4" strokeWidth={1.75} />
-            </ClayButton>
+            </ZoruButton>
           </>
         }
       />
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 className="text-[16px] font-semibold text-foreground">
+            <h2 className="text-[16px] text-zoru-ink">
               Week of {format(weekStart, 'MMM d, yyyy')}
             </h2>
-            <p className="mt-0.5 text-[12.5px] text-muted-foreground">
+            <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
               {employees.length} employees · {shifts.length} shifts configured
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-[12px] text-muted-foreground">Shift to assign:</span>
-            <Select value={selectedShiftId} onValueChange={setSelectedShiftId}>
-              <SelectTrigger className="h-9 w-[200px] rounded-lg border-border bg-card text-[13px]">
-                <SelectValue placeholder="Choose shift" />
-              </SelectTrigger>
-              <SelectContent>
+            <span className="text-[12px] text-zoru-ink-muted">Shift to assign:</span>
+            <ZoruSelect value={selectedShiftId} onValueChange={setSelectedShiftId}>
+              <ZoruSelectTrigger className="h-9 w-[200px] rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                <ZoruSelectValue placeholder="Choose shift" />
+              </ZoruSelectTrigger>
+              <ZoruSelectContent>
                 {shifts.map((s) => (
-                  <SelectItem key={String(s._id)} value={String(s._id)}>
+                  <ZoruSelectItem key={String(s._id)} value={String(s._id)}>
                     <span className="flex items-center gap-2">
                       <span
                         aria-hidden
-                        className="inline-block h-3 w-3 rounded-[3px] border border-border"
+                        className="inline-block h-3 w-3 rounded-[3px] border border-zoru-line"
                         style={{ backgroundColor: s.color_code || '#EAB308' }}
                       />
                       {s.name}
                     </span>
-                  </SelectItem>
+                  </ZoruSelectItem>
                 ))}
-              </SelectContent>
-            </Select>
+              </ZoruSelectContent>
+            </ZoruSelect>
           </div>
         </div>
 
         {shifts.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-border bg-secondary p-6 text-center text-[13px] text-muted-foreground">
+          <div className="rounded-lg border border-dashed border-zoru-line bg-zoru-surface-2 p-6 text-center text-[13px] text-zoru-ink-muted">
             Create a shift first to start scheduling.
           </div>
         ) : employees.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-border bg-secondary p-6 text-center text-[13px] text-muted-foreground">
+          <div className="rounded-lg border border-dashed border-zoru-line bg-zoru-surface-2 p-6 text-center text-[13px] text-zoru-ink-muted">
             <Users className="mx-auto mb-2 h-5 w-5" /> No employees found.
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-lg border border-border">
+          <div className="overflow-x-auto rounded-lg border border-zoru-line">
             <div
               className="grid min-w-[900px]"
               style={{
@@ -190,16 +188,16 @@ export default function ShiftSchedulePage() {
               }}
             >
               {/* Header row */}
-              <div className="border-b border-border bg-secondary px-3 py-2 text-[12px] font-medium text-muted-foreground">
+              <div className="border-b border-zoru-line bg-zoru-surface-2 px-3 py-2 text-[12px] font-medium text-zoru-ink-muted">
                 Employee
               </div>
               {weekDays.map((d) => (
                 <div
                   key={d.toISOString()}
-                  className="border-b border-l border-border bg-secondary px-3 py-2 text-[12px] font-medium text-foreground"
+                  className="border-b border-l border-zoru-line bg-zoru-surface-2 px-3 py-2 text-[12px] font-medium text-zoru-ink"
                 >
                   <div>{format(d, 'EEE')}</div>
-                  <div className="text-[11px] text-muted-foreground">{format(d, 'MMM d')}</div>
+                  <div className="text-[11px] text-zoru-ink-muted">{format(d, 'MMM d')}</div>
                 </div>
               ))}
 
@@ -218,7 +216,7 @@ export default function ShiftSchedulePage() {
             </div>
           </div>
         )}
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }
@@ -241,12 +239,12 @@ function Row({
   const empId = employee._id.toString();
   return (
     <>
-      <div className="flex items-center gap-2 border-t border-border px-3 py-2 text-[13px] text-foreground">
+      <div className="flex items-center gap-2 border-t border-zoru-line px-3 py-2 text-[13px] text-zoru-ink">
         <div className="min-w-0">
           <div className="truncate font-medium">
             {employee.firstName} {employee.lastName}
           </div>
-          <div className="truncate text-[11px] text-muted-foreground">
+          <div className="truncate text-[11px] text-zoru-ink-muted">
             {employee.employeeId}
           </div>
         </div>
@@ -261,7 +259,7 @@ function Row({
             type="button"
             disabled={pending}
             onClick={() => onClick(empId, day)}
-            className="flex min-h-[52px] items-center justify-center border-l border-t border-border bg-card px-2 py-1.5 text-left text-[12px] transition-colors hover:bg-secondary disabled:opacity-70"
+            className="flex min-h-[52px] items-center justify-center border-l border-t border-zoru-line bg-zoru-bg px-2 py-1.5 text-left text-[12px] transition-colors hover:bg-zoru-surface-2 disabled:opacity-70"
           >
             {shift ? (
               <span
@@ -276,7 +274,7 @@ function Row({
                 {shift.name}
               </span>
             ) : (
-              <span className="text-[11px] text-muted-foreground">—</span>
+              <span className="text-[11px] text-zoru-ink-muted">—</span>
             )}
           </button>
         );

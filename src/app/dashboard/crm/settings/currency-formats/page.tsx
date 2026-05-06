@@ -1,8 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import {
   useActionState,
   useCallback,
@@ -13,28 +10,26 @@ import {
 } from 'react';
 import { Hash, LoaderCircle, Plus, Trash2 } from 'lucide-react';
 
-import { ClayButton, ClayCard } from '@/components/clay';
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSkeleton,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
 import {
   getCurrencyFormatSettings,
   saveCurrencyFormatSetting,
@@ -47,13 +42,10 @@ import type { WsCurrency } from '@/lib/worksuite/company-types';
 type FormState = { message?: string; error?: string; id?: string };
 const initialState: FormState = {};
 
-const inputClass =
-  'h-10 rounded-lg border-border bg-card text-[13px]';
-
 type Row = WsCurrencyFormatSetting & { _id: string };
 
 export default function CurrencyFormatsPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [rows, setRows] = useState<Row[]>([]);
   const [currencies, setCurrencies] = useState<(WsCurrency & { _id: string })[]>(
     [],
@@ -133,185 +125,179 @@ export default function CurrencyFormatsPage() {
         icon={Hash}
       />
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         <form action={formAction} className="space-y-4">
-          <h3 className="text-[13px] font-semibold uppercase tracking-wide text-muted-foreground">
+          <h3 className="text-[13px] uppercase tracking-wide text-zoru-ink-muted">
             Add or Update Format
           </h3>
           <div className="grid gap-4 md:grid-cols-3">
             <div>
-              <Label htmlFor="currency_id" className="text-[13px] text-foreground">
+              <ZoruLabel htmlFor="currency_id" className="text-[13px] text-zoru-ink">
                 Currency
-              </Label>
-              <Select
+              </ZoruLabel>
+              <ZoruSelect
                 name="currency_id"
                 value={currencyId}
                 onValueChange={setCurrencyId}
               >
-                <SelectTrigger id="currency_id" className={`mt-1.5 ${inputClass}`}>
-                  <SelectValue placeholder="Select currency" />
-                </SelectTrigger>
-                <SelectContent>
+                <ZoruSelectTrigger id="currency_id" className="mt-1.5">
+                  <ZoruSelectValue placeholder="Select currency" />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
                   {currencies.map((c) => (
-                    <SelectItem key={String(c._id)} value={String(c._id)}>
+                    <ZoruSelectItem key={String(c._id)} value={String(c._id)}>
                       {c.code} — {c.name}
-                    </SelectItem>
+                    </ZoruSelectItem>
                   ))}
-                </SelectContent>
-              </Select>
+                </ZoruSelectContent>
+              </ZoruSelect>
             </div>
             <div>
-              <Label htmlFor="position" className="text-[13px] text-foreground">
+              <ZoruLabel htmlFor="position" className="text-[13px] text-zoru-ink">
                 Symbol Position
-              </Label>
-              <Select
+              </ZoruLabel>
+              <ZoruSelect
                 name="position"
                 value={position ?? 'front'}
                 onValueChange={(v) =>
                   setPosition(v as WsCurrencyFormatSetting['position'])
                 }
               >
-                <SelectTrigger id="position" className={`mt-1.5 ${inputClass}`}>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="front">Front ($1)</SelectItem>
-                  <SelectItem value="back">Back (1$)</SelectItem>
-                  <SelectItem value="front-space">Front with space ($ 1)</SelectItem>
-                  <SelectItem value="back-space">Back with space (1 $)</SelectItem>
-                </SelectContent>
-              </Select>
+                <ZoruSelectTrigger id="position" className="mt-1.5">
+                  <ZoruSelectValue />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                  <ZoruSelectItem value="front">Front ($1)</ZoruSelectItem>
+                  <ZoruSelectItem value="back">Back (1$)</ZoruSelectItem>
+                  <ZoruSelectItem value="front-space">Front with space ($ 1)</ZoruSelectItem>
+                  <ZoruSelectItem value="back-space">Back with space (1 $)</ZoruSelectItem>
+                </ZoruSelectContent>
+              </ZoruSelect>
             </div>
             <div>
-              <Label
+              <ZoruLabel
                 htmlFor="decimal_separator"
-                className="text-[13px] text-foreground"
+                className="text-[13px] text-zoru-ink"
               >
                 Decimal Separator
-              </Label>
-              <Input
+              </ZoruLabel>
+              <ZoruInput
                 id="decimal_separator"
                 name="decimal_separator"
                 defaultValue="."
-                className={`mt-1.5 ${inputClass}`}
+                className="mt-1.5"
               />
             </div>
             <div>
-              <Label
+              <ZoruLabel
                 htmlFor="thousand_separator"
-                className="text-[13px] text-foreground"
+                className="text-[13px] text-zoru-ink"
               >
                 Thousand Separator
-              </Label>
-              <Input
+              </ZoruLabel>
+              <ZoruInput
                 id="thousand_separator"
                 name="thousand_separator"
                 defaultValue=","
-                className={`mt-1.5 ${inputClass}`}
+                className="mt-1.5"
               />
             </div>
             <div>
-              <Label
+              <ZoruLabel
                 htmlFor="decimal_digits"
-                className="text-[13px] text-foreground"
+                className="text-[13px] text-zoru-ink"
               >
                 Decimal Digits
-              </Label>
-              <Input
+              </ZoruLabel>
+              <ZoruInput
                 id="decimal_digits"
                 name="decimal_digits"
                 type="number"
                 min={0}
                 defaultValue="2"
-                className={`mt-1.5 ${inputClass}`}
+                className="mt-1.5"
               />
             </div>
             <div>
-              <Label
+              <ZoruLabel
                 htmlFor="no_of_decimal"
-                className="text-[13px] text-foreground"
+                className="text-[13px] text-zoru-ink"
               >
                 No. of Decimal
-              </Label>
-              <Input
+              </ZoruLabel>
+              <ZoruInput
                 id="no_of_decimal"
                 name="no_of_decimal"
                 type="number"
                 min={0}
                 defaultValue="2"
-                className={`mt-1.5 ${inputClass}`}
+                className="mt-1.5"
               />
             </div>
           </div>
           <div className="flex justify-end">
-            <ClayButton
-              type="submit"
-              variant="obsidian"
-              disabled={isSaving || !currencyId}
-              leading={
-                isSaving ? (
-                  <LoaderCircle className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Plus className="h-4 w-4" />
-                )
-              }
-            >
+            <ZoruButton type="submit" disabled={isSaving || !currencyId}>
+              {isSaving ? (
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+              ) : (
+                <Plus className="h-4 w-4" />
+              )}
               Save Format
-            </ClayButton>
+            </ZoruButton>
           </div>
         </form>
-      </ClayCard>
+      </ZoruCard>
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         {isLoading && rows.length === 0 ? (
-          <Skeleton className="h-[200px] w-full" />
+          <ZoruSkeleton className="h-[200px] w-full" />
         ) : rows.length === 0 ? (
-          <div className="py-10 text-center text-[13px] text-muted-foreground">
+          <div className="py-10 text-center text-[13px] text-zoru-ink-muted">
             No currency formats configured.
           </div>
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Currency</TableHead>
-                <TableHead>Position</TableHead>
-                <TableHead>Decimal</TableHead>
-                <TableHead>Thousand</TableHead>
-                <TableHead>Digits</TableHead>
-                <TableHead className="w-[80px] text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+          <ZoruTable>
+            <ZoruTableHeader>
+              <ZoruTableRow>
+                <ZoruTableHead>Currency</ZoruTableHead>
+                <ZoruTableHead>Position</ZoruTableHead>
+                <ZoruTableHead>Decimal</ZoruTableHead>
+                <ZoruTableHead>Thousand</ZoruTableHead>
+                <ZoruTableHead>Digits</ZoruTableHead>
+                <ZoruTableHead className="w-[80px] text-right">Actions</ZoruTableHead>
+              </ZoruTableRow>
+            </ZoruTableHeader>
+            <ZoruTableBody>
               {rows.map((row) => {
                 const c = currencyById.get(String(row.currency_id));
                 return (
-                  <TableRow key={String(row._id)}>
-                    <TableCell>
+                  <ZoruTableRow key={String(row._id)}>
+                    <ZoruTableCell>
                       {c ? `${c.code} — ${c.name}` : '—'}
-                    </TableCell>
-                    <TableCell>{row.position ?? '—'}</TableCell>
-                    <TableCell>{row.decimal_separator ?? '—'}</TableCell>
-                    <TableCell>{row.thousand_separator ?? '—'}</TableCell>
-                    <TableCell>
+                    </ZoruTableCell>
+                    <ZoruTableCell>{row.position ?? '—'}</ZoruTableCell>
+                    <ZoruTableCell>{row.decimal_separator ?? '—'}</ZoruTableCell>
+                    <ZoruTableCell>{row.thousand_separator ?? '—'}</ZoruTableCell>
+                    <ZoruTableCell>
                       {row.no_of_decimal ?? row.decimal_digits ?? '—'}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-right">
+                      <ZoruButton
                         variant="ghost"
                         size="sm"
                         disabled={isDeleting && deletingId === String(row._id)}
                         onClick={() => handleDelete(String(row._id))}
                       >
-                        <Trash2 className="h-4 w-4 text-muted-foreground" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
+                        <Trash2 className="h-4 w-4 text-zoru-ink-muted" />
+                      </ZoruButton>
+                    </ZoruTableCell>
+                  </ZoruTableRow>
                 );
               })}
-            </TableBody>
-          </Table>
+            </ZoruTableBody>
+          </ZoruTable>
         )}
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

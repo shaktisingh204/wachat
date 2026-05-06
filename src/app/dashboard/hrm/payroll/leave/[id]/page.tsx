@@ -1,8 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { use, useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { format } from 'date-fns';
@@ -15,12 +12,16 @@ import {
   Trash2,
   Plus,
 } from 'lucide-react';
-import { ClayCard, ClayBadge, ClayButton } from '@/components/clay';
+import {
+  ZoruCard,
+  ZoruBadge,
+  ZoruButton,
+  ZoruInput,
+  ZoruLabel,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/hooks/use-toast';
 import {
   getLeave,
   getLeaveTypes,
@@ -46,7 +47,7 @@ export default function LeaveDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [leave, setLeave] = useState<WsLeave | null>(null);
   const [type, setType] = useState<WsLeaveType | null>(null);
   const [employeeName, setEmployeeName] = useState('');
@@ -83,10 +84,10 @@ export default function LeaveDetailPage({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  const statusTone = (s?: WsLeaveStatus): 'green' | 'red' | 'amber' => {
-    if (s === 'approved') return 'green';
-    if (s === 'rejected') return 'red';
-    return 'amber';
+  const statusVariant = (s?: WsLeaveStatus): 'success' | 'danger' | 'warning' => {
+    if (s === 'approved') return 'success';
+    if (s === 'rejected') return 'danger';
+    return 'warning';
   };
 
   const handleApprove = () => {
@@ -148,48 +149,46 @@ export default function LeaveDetailPage({
         icon={CalendarOff}
         actions={
           <Link href="/dashboard/hrm/payroll/leave">
-            <ClayButton
-              variant="pill"
-              leading={<ArrowLeft className="h-4 w-4" strokeWidth={1.75} />}
-            >
+            <ZoruButton variant="outline">
+              <ArrowLeft className="h-4 w-4" />
               Back to list
-            </ClayButton>
+            </ZoruButton>
           </Link>
         }
       />
 
       {isLoading && !leave ? (
-        <ClayCard>
-          <div className="py-12 text-center text-[13px] text-muted-foreground">
+        <ZoruCard className="p-6">
+          <div className="py-12 text-center text-[13px] text-zoru-ink-muted">
             Loading…
           </div>
-        </ClayCard>
+        </ZoruCard>
       ) : !leave ? (
-        <ClayCard>
-          <div className="py-12 text-center text-[13px] text-muted-foreground">
+        <ZoruCard className="p-6">
+          <div className="py-12 text-center text-[13px] text-zoru-ink-muted">
             Leave application not found.
           </div>
-        </ClayCard>
+        </ZoruCard>
       ) : (
         <>
-          <ClayCard>
+          <ZoruCard className="p-6">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="space-y-1">
-                <div className="text-[12px] uppercase tracking-wide text-muted-foreground">
+                <div className="text-[12px] uppercase text-zoru-ink-muted">
                   Employee
                 </div>
-                <div className="text-[18px] font-semibold text-foreground">
+                <div className="text-[18px] text-zoru-ink">
                   {employeeName}
                 </div>
               </div>
-              <ClayBadge tone={statusTone(leave.status)}>{leave.status}</ClayBadge>
+              <ZoruBadge variant={statusVariant(leave.status)}>{leave.status}</ZoruBadge>
             </div>
 
             <dl className="mt-6 grid gap-4 md:grid-cols-3">
               <Field label="Leave Type">
                 {type ? (
                   <span
-                    className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11.5px] font-medium"
+                    className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11.5px]"
                     style={{
                       backgroundColor: (type.color || '#94A3B8') + '20',
                       color: type.color || '#64748B',
@@ -236,20 +235,20 @@ export default function LeaveDetailPage({
             </dl>
 
             <div className="mt-6">
-              <div className="text-[12px] uppercase tracking-wide text-muted-foreground">
+              <div className="text-[12px] uppercase text-zoru-ink-muted">
                 Reason
               </div>
-              <p className="mt-1 whitespace-pre-wrap text-[13px] text-foreground">
+              <p className="mt-1 whitespace-pre-wrap text-[13px] text-zoru-ink">
                 {leave.reason || '—'}
               </p>
             </div>
 
             {leave.reject_reason ? (
               <div className="mt-4 rounded-lg border border-rose-50 bg-rose-50 p-3">
-                <div className="text-[12px] uppercase tracking-wide text-destructive">
+                <div className="text-[12px] uppercase text-zoru-danger-ink">
                   Rejection reason
                 </div>
-                <p className="mt-1 whitespace-pre-wrap text-[13px] text-destructive">
+                <p className="mt-1 whitespace-pre-wrap text-[13px] text-zoru-danger-ink">
                   {leave.reject_reason}
                 </p>
               </div>
@@ -258,94 +257,90 @@ export default function LeaveDetailPage({
             {leave.status === 'pending' ? (
               <div className="mt-6 flex flex-wrap items-end gap-3">
                 <div className="flex-1 min-w-[240px]">
-                  <Label className="text-foreground">Rejection reason (optional)</Label>
-                  <Textarea
+                  <ZoruLabel className="text-zoru-ink">Rejection reason (optional)</ZoruLabel>
+                  <ZoruTextarea
                     rows={2}
                     value={rejectReason}
                     onChange={(e) => setRejectReason(e.target.value)}
-                    className="mt-1.5 rounded-lg border-border bg-card text-[13px]"
+                    className="mt-1.5 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
                   />
                 </div>
                 <div className="flex gap-2">
-                  <ClayButton
+                  <ZoruButton
                     type="button"
-                    variant="obsidian"
                     onClick={handleApprove}
                     disabled={isActing}
-                    leading={<Check className="h-4 w-4" strokeWidth={1.75} />}
                   >
+                    <Check className="h-4 w-4" />
                     Approve
-                  </ClayButton>
-                  <ClayButton
+                  </ZoruButton>
+                  <ZoruButton
                     type="button"
-                    variant="pill"
+                    variant="outline"
                     onClick={handleReject}
                     disabled={isActing}
-                    leading={<X className="h-4 w-4" strokeWidth={1.75} />}
                   >
+                    <X className="h-4 w-4" />
                     Reject
-                  </ClayButton>
+                  </ZoruButton>
                 </div>
               </div>
             ) : null}
-          </ClayCard>
+          </ZoruCard>
 
-          <ClayCard>
-            <h2 className="mb-4 text-[16px] font-semibold text-foreground">Attachments</h2>
+          <ZoruCard className="p-6">
+            <h2 className="mb-4 text-[16px] text-zoru-ink">Attachments</h2>
             {files.length === 0 ? (
-              <p className="text-[13px] text-muted-foreground">No attachments.</p>
+              <p className="text-[13px] text-zoru-ink-muted">No attachments.</p>
             ) : (
               <ul className="space-y-2">
                 {files.map((f) => (
                   <li
                     key={String(f._id)}
-                    className="flex items-center justify-between rounded-lg border border-border bg-secondary px-3 py-2"
+                    className="flex items-center justify-between rounded-lg border border-zoru-line bg-zoru-surface-2 px-3 py-2"
                   >
                     <a
                       href={f.url}
                       target="_blank"
                       rel="noreferrer"
-                      className="flex items-center gap-2 text-[13px] text-foreground hover:underline"
+                      className="flex items-center gap-2 text-[13px] text-zoru-ink hover:underline"
                     >
-                      <Paperclip className="h-4 w-4 text-muted-foreground" />
+                      <Paperclip className="h-4 w-4 text-zoru-ink-muted" />
                       {f.filename}
                     </a>
-                    <ClayButton
-                      variant="pill"
+                    <ZoruButton
+                      variant="outline"
                       onClick={() => handleDeleteFile(String(f._id))}
                       title="Delete attachment"
-                      leading={<Trash2 className="h-3.5 w-3.5 text-red-500" strokeWidth={1.75} />}
                     >
+                      <Trash2 className="h-3.5 w-3.5 text-red-500" />
                       Delete
-                    </ClayButton>
+                    </ZoruButton>
                   </li>
                 ))}
               </ul>
             )}
 
             <form onSubmit={handleAddFile} className="mt-4 grid gap-3 md:grid-cols-[1fr_2fr_auto]">
-              <Input
+              <ZoruInput
                 placeholder="File name"
                 value={fileName}
                 onChange={(e) => setFileName(e.target.value)}
-                className="h-10 rounded-lg border-border bg-card text-[13px]"
+                className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
               />
-              <Input
+              <ZoruInput
                 type="url"
                 placeholder="https://…"
                 value={fileUrl}
                 onChange={(e) => setFileUrl(e.target.value)}
-                className="h-10 rounded-lg border-border bg-card text-[13px]"
+                className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
               />
-              <ClayButton
-                type="submit"
-                variant="obsidian"
-                leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}
-              >
+              <ZoruButton type="submit">
+                <Plus className="h-4 w-4" />
                 Add
-              </ClayButton>
+              </ZoruButton>
             </form>
-          </ClayCard>
+          </ZoruCard>
         </>
       )}
     </div>
@@ -361,10 +356,10 @@ function Field({
 }) {
   return (
     <div>
-      <dt className="text-[12px] uppercase tracking-wide text-muted-foreground">
+      <dt className="text-[12px] uppercase text-zoru-ink-muted">
         {label}
       </dt>
-      <dd className="mt-1 text-[13px] text-foreground">{children}</dd>
+      <dd className="mt-1 text-[13px] text-zoru-ink">{children}</dd>
     </div>
   );
 }

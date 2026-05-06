@@ -1,43 +1,49 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useState, useEffect, useCallback, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Receipt, LoaderCircle, FileMinus, Pencil, Save } from "lucide-react";
 import Link from 'next/link';
 import { getInvoices, updateInvoice } from '@/app/actions/crm-invoices.actions';
 import { convertInvoiceToCreditNote } from '@/app/actions/crm-services.actions';
 import type { WithId, CrmInvoice } from '@/lib/definitions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useToast } from '@/hooks/use-toast';
 
-import { ClayButton, ClayCard, ClayBadge } from '@/components/clay';
+import {
+    ZoruAlertDialog,
+    ZoruAlertDialogAction,
+    ZoruAlertDialogCancel,
+    ZoruAlertDialogContent,
+    ZoruAlertDialogDescription,
+    ZoruAlertDialogFooter,
+    ZoruAlertDialogHeader,
+    ZoruAlertDialogTitle,
+    ZoruAlertDialogTrigger,
+    ZoruBadge,
+    ZoruButton,
+    ZoruCard,
+    ZoruDialog,
+    ZoruDialogContent,
+    ZoruDialogDescription,
+    ZoruDialogFooter,
+    ZoruDialogHeader,
+    ZoruDialogTitle,
+    ZoruInput,
+    ZoruLabel,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+    ZoruTable,
+    ZoruTableBody,
+    ZoruTableCell,
+    ZoruTableHead,
+    ZoruTableHeader,
+    ZoruTableRow,
+    ZoruTextarea,
+    useZoruToast,
+} from '@/components/zoruui';
 import { SharePublicLinkButton } from '@/components/worksuite/share-public-link-button';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
@@ -65,7 +71,7 @@ export default function InvoicesPage() {
     });
     const [isSaving, setIsSaving] = useState(false);
     const router = useRouter();
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
 
     const openEdit = (invoice: WithId<CrmInvoice>) => {
         setEditing(invoice);
@@ -133,12 +139,12 @@ export default function InvoicesPage() {
         }
     };
 
-    const getStatusTone = (status: string): 'green' | 'amber' | 'red' | 'rose-soft' => {
+    const getStatusVariant = (status: string): 'success' | 'warning' | 'danger' | 'ghost' => {
         const s = status.toLowerCase();
-        if (s === 'paid') return 'green';
-        if (s === 'sent') return 'amber';
-        if (s === 'overdue') return 'red';
-        return 'rose-soft';
+        if (s === 'paid') return 'success';
+        if (s === 'sent') return 'warning';
+        if (s === 'overdue') return 'danger';
+        return 'ghost';
     };
 
     return (
@@ -149,124 +155,125 @@ export default function InvoicesPage() {
                 icon={Receipt}
                 actions={
                     <Link href="/dashboard/crm/sales/invoices/new">
-                        <ClayButton variant="obsidian" leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}>
+                        <ZoruButton>
+                            <Plus className="h-4 w-4" strokeWidth={1.75} />
                             New Invoice
-                        </ClayButton>
+                        </ZoruButton>
                     </Link>
                 }
             />
 
-            <ClayCard>
+            <ZoruCard className="p-6">
                 <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-foreground">Recent Invoices</h2>
-                    <p className="mt-0.5 text-[12.5px] text-muted-foreground">A list of invoices you have created.</p>
+                    <h2 className="text-[16px] text-zoru-ink">Recent Invoices</h2>
+                    <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">A list of invoices you have created.</p>
                 </div>
-                <div className="overflow-x-auto rounded-lg border border-border">
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="border-border hover:bg-transparent">
-                                <TableHead className="text-muted-foreground">Invoice #</TableHead>
-                                <TableHead className="text-muted-foreground">Client</TableHead>
-                                <TableHead className="text-muted-foreground">Date</TableHead>
-                                <TableHead className="text-muted-foreground">Due Date</TableHead>
-                                <TableHead className="text-muted-foreground">Status</TableHead>
-                                <TableHead className="text-muted-foreground text-right">Amount</TableHead>
-                                <TableHead className="text-muted-foreground text-right w-[180px]">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
+                <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                    <ZoruTable>
+                        <ZoruTableHeader>
+                            <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                                <ZoruTableHead className="text-zoru-ink-muted">Invoice #</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted">Client</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted">Date</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted">Due Date</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted text-right">Amount</ZoruTableHead>
+                                <ZoruTableHead className="text-zoru-ink-muted text-right w-[180px]">Actions</ZoruTableHead>
+                            </ZoruTableRow>
+                        </ZoruTableHeader>
+                        <ZoruTableBody>
                             {isLoading ? (
-                                <TableRow className="border-border">
-                                    <TableCell colSpan={7} className="text-center h-24">
-                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
-                                    </TableCell>
-                                </TableRow>
+                                <ZoruTableRow className="border-zoru-line">
+                                    <ZoruTableCell colSpan={7} className="text-center h-24">
+                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
+                                    </ZoruTableCell>
+                                </ZoruTableRow>
                             ) : invoices.length > 0 ? (
                                 invoices.map(q => {
                                     const invoiceId = q._id.toString();
                                     const isConverting = convertingId === invoiceId;
                                     return (
-                                    <TableRow key={invoiceId} className="border-border">
-                                        <TableCell className="font-medium text-foreground">{q.invoiceNumber}</TableCell>
-                                        <TableCell className="text-foreground">{accountsMap.get(q.accountId.toString()) || 'Unknown Client'}</TableCell>
-                                        <TableCell className="text-foreground">{new Date(q.invoiceDate).toLocaleDateString()}</TableCell>
-                                        <TableCell className="text-foreground">{q.dueDate ? new Date(q.dueDate).toLocaleDateString() : 'N/A'}</TableCell>
-                                        <TableCell><ClayBadge tone={getStatusTone(q.status)} dot>{q.status}</ClayBadge></TableCell>
-                                        <TableCell className="text-right font-medium text-foreground">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: q.currency || 'INR' }).format(q.total)}</TableCell>
-                                        <TableCell className="text-right">
+                                    <ZoruTableRow key={invoiceId} className="border-zoru-line">
+                                        <ZoruTableCell className="text-zoru-ink">{q.invoiceNumber}</ZoruTableCell>
+                                        <ZoruTableCell className="text-zoru-ink">{accountsMap.get(q.accountId.toString()) || 'Unknown Client'}</ZoruTableCell>
+                                        <ZoruTableCell className="text-zoru-ink">{new Date(q.invoiceDate).toLocaleDateString()}</ZoruTableCell>
+                                        <ZoruTableCell className="text-zoru-ink">{q.dueDate ? new Date(q.dueDate).toLocaleDateString() : 'N/A'}</ZoruTableCell>
+                                        <ZoruTableCell><ZoruBadge variant={getStatusVariant(q.status)}>{q.status}</ZoruBadge></ZoruTableCell>
+                                        <ZoruTableCell className="text-right text-zoru-ink">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: q.currency || 'INR' }).format(q.total)}</ZoruTableCell>
+                                        <ZoruTableCell className="text-right">
                                             <span className="mr-2 inline-block align-middle">
                                                 <SharePublicLinkButton
                                                     resourceType="invoice"
                                                     resourceId={invoiceId}
                                                 />
                                             </span>
-                                            <ClayButton
-                                                variant="pill"
+                                            <ZoruButton
+                                                variant="outline"
                                                 size="sm"
                                                 onClick={() => openEdit(q)}
-                                                leading={<Pencil className="h-3.5 w-3.5" />}
                                                 className="mr-2"
                                             >
+                                                <Pencil className="h-3.5 w-3.5" />
                                                 Edit
-                                            </ClayButton>
-                                            <AlertDialog>
-                                                <AlertDialogTrigger asChild>
-                                                    <ClayButton
-                                                        variant="pill"
+                                            </ZoruButton>
+                                            <ZoruAlertDialog>
+                                                <ZoruAlertDialogTrigger asChild>
+                                                    <ZoruButton
+                                                        variant="outline"
                                                         size="sm"
                                                         disabled={isConverting}
-                                                        leading={isConverting ? (
+                                                    >
+                                                        {isConverting ? (
                                                             <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
                                                         ) : (
                                                             <FileMinus className="h-3.5 w-3.5" />
                                                         )}
-                                                    >
                                                         Credit Note
-                                                    </ClayButton>
-                                                </AlertDialogTrigger>
-                                                <AlertDialogContent>
-                                                    <AlertDialogHeader>
-                                                        <AlertDialogTitle className="text-foreground">Convert to Credit Note?</AlertDialogTitle>
-                                                        <AlertDialogDescription className="text-muted-foreground">
+                                                    </ZoruButton>
+                                                </ZoruAlertDialogTrigger>
+                                                <ZoruAlertDialogContent>
+                                                    <ZoruAlertDialogHeader>
+                                                        <ZoruAlertDialogTitle className="text-zoru-ink">Convert to Credit Note?</ZoruAlertDialogTitle>
+                                                        <ZoruAlertDialogDescription className="text-zoru-ink-muted">
                                                             This will create a new draft credit note from invoice {q.invoiceNumber}. The original invoice will remain unchanged.
-                                                        </AlertDialogDescription>
-                                                    </AlertDialogHeader>
-                                                    <AlertDialogFooter>
-                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                        <AlertDialogAction onClick={() => handleConvert(invoiceId)}>
+                                                        </ZoruAlertDialogDescription>
+                                                    </ZoruAlertDialogHeader>
+                                                    <ZoruAlertDialogFooter>
+                                                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+                                                        <ZoruAlertDialogAction onClick={() => handleConvert(invoiceId)}>
                                                             Convert
-                                                        </AlertDialogAction>
-                                                    </AlertDialogFooter>
-                                                </AlertDialogContent>
-                                            </AlertDialog>
-                                        </TableCell>
-                                    </TableRow>
+                                                        </ZoruAlertDialogAction>
+                                                    </ZoruAlertDialogFooter>
+                                                </ZoruAlertDialogContent>
+                                            </ZoruAlertDialog>
+                                        </ZoruTableCell>
+                                    </ZoruTableRow>
                                     );
                                 })
                             ) : (
-                                <TableRow className="border-border">
-                                    <TableCell colSpan={7} className="h-24 text-center text-[13px] text-muted-foreground">
+                                <ZoruTableRow className="border-zoru-line">
+                                    <ZoruTableCell colSpan={7} className="h-24 text-center text-[13px] text-zoru-ink-muted">
                                         No invoices found.
-                                    </TableCell>
-                                </TableRow>
+                                    </ZoruTableCell>
+                                </ZoruTableRow>
                             )}
-                        </TableBody>
-                    </Table>
+                        </ZoruTableBody>
+                    </ZoruTable>
                 </div>
-            </ClayCard>
+            </ZoruCard>
 
-            <Dialog open={editing !== null} onOpenChange={(open) => !open && setEditing(null)}>
-                <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
-                        <DialogTitle className="text-foreground">Edit Invoice</DialogTitle>
-                        <DialogDescription className="text-muted-foreground">
+            <ZoruDialog open={editing !== null} onOpenChange={(open) => !open && setEditing(null)}>
+                <ZoruDialogContent className="sm:max-w-md">
+                    <ZoruDialogHeader>
+                        <ZoruDialogTitle className="text-zoru-ink">Edit Invoice</ZoruDialogTitle>
+                        <ZoruDialogDescription className="text-zoru-ink-muted">
                             Update invoice number, dates, status, and notes.
-                        </DialogDescription>
-                    </DialogHeader>
+                        </ZoruDialogDescription>
+                    </ZoruDialogHeader>
                     <div className="grid gap-4 py-2">
                         <div className="space-y-1.5">
-                            <Label htmlFor="edit-inv-num" className="text-foreground">Invoice #</Label>
-                            <Input
+                            <ZoruLabel htmlFor="edit-inv-num" className="text-zoru-ink">Invoice #</ZoruLabel>
+                            <ZoruInput
                                 id="edit-inv-num"
                                 value={editForm.invoiceNumber}
                                 onChange={(e) => setEditForm(f => ({ ...f, invoiceNumber: e.target.value }))}
@@ -274,8 +281,8 @@ export default function InvoicesPage() {
                         </div>
                         <div className="grid grid-cols-2 gap-3">
                             <div className="space-y-1.5">
-                                <Label htmlFor="edit-inv-date" className="text-foreground">Invoice Date</Label>
-                                <Input
+                                <ZoruLabel htmlFor="edit-inv-date" className="text-zoru-ink">Invoice Date</ZoruLabel>
+                                <ZoruInput
                                     id="edit-inv-date"
                                     type="date"
                                     value={editForm.invoiceDate}
@@ -283,8 +290,8 @@ export default function InvoicesPage() {
                                 />
                             </div>
                             <div className="space-y-1.5">
-                                <Label htmlFor="edit-due-date" className="text-foreground">Due Date</Label>
-                                <Input
+                                <ZoruLabel htmlFor="edit-due-date" className="text-zoru-ink">Due Date</ZoruLabel>
+                                <ZoruInput
                                     id="edit-due-date"
                                     type="date"
                                     value={editForm.dueDate}
@@ -293,24 +300,24 @@ export default function InvoicesPage() {
                             </div>
                         </div>
                         <div className="space-y-1.5">
-                            <Label htmlFor="edit-status" className="text-foreground">Status</Label>
-                            <Select
+                            <ZoruLabel htmlFor="edit-status" className="text-zoru-ink">Status</ZoruLabel>
+                            <ZoruSelect
                                 value={editForm.status}
                                 onValueChange={(value) => setEditForm(f => ({ ...f, status: value }))}
                             >
-                                <SelectTrigger id="edit-status">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
+                                <ZoruSelectTrigger id="edit-status">
+                                    <ZoruSelectValue />
+                                </ZoruSelectTrigger>
+                                <ZoruSelectContent>
                                     {INVOICE_STATUSES.map(s => (
-                                        <SelectItem key={s} value={s}>{s}</SelectItem>
+                                        <ZoruSelectItem key={s} value={s}>{s}</ZoruSelectItem>
                                     ))}
-                                </SelectContent>
-                            </Select>
+                                </ZoruSelectContent>
+                            </ZoruSelect>
                         </div>
                         <div className="space-y-1.5">
-                            <Label htmlFor="edit-notes" className="text-foreground">Notes</Label>
-                            <Textarea
+                            <ZoruLabel htmlFor="edit-notes" className="text-zoru-ink">Notes</ZoruLabel>
+                            <ZoruTextarea
                                 id="edit-notes"
                                 rows={3}
                                 value={editForm.notes}
@@ -318,25 +325,24 @@ export default function InvoicesPage() {
                             />
                         </div>
                     </div>
-                    <DialogFooter>
-                        <ClayButton variant="pill" onClick={() => setEditing(null)} disabled={isSaving}>
+                    <ZoruDialogFooter>
+                        <ZoruButton variant="outline" onClick={() => setEditing(null)} disabled={isSaving}>
                             Cancel
-                        </ClayButton>
-                        <ClayButton
-                            variant="obsidian"
+                        </ZoruButton>
+                        <ZoruButton
                             onClick={saveEdit}
                             disabled={isSaving}
-                            leading={isSaving ? (
+                        >
+                            {isSaving ? (
                                 <LoaderCircle className="h-4 w-4 animate-spin" />
                             ) : (
                                 <Save className="h-4 w-4" />
                             )}
-                        >
                             Save Changes
-                        </ClayButton>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+                        </ZoruButton>
+                    </ZoruDialogFooter>
+                </ZoruDialogContent>
+            </ZoruDialog>
         </div>
     );
 }

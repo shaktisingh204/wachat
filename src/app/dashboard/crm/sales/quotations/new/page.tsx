@@ -1,28 +1,24 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
-
 import { useState, useEffect, useActionState, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
-import { Button } from '@/components/ui/button';
-import { ClayCard, ClayButton } from '@/components/clay';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+    ZoruButton,
+    ZoruCard,
+    ZoruInput,
+    ZoruLabel,
+    ZoruSeparator,
+    ZoruTextarea,
+    useZoruToast,
+} from '@/components/zoruui';
 import { DatePicker } from '@/components/ui/date-picker';
-import { Separator } from '@/components/ui/separator';
-import { Textarea } from '@/components/ui/textarea';
-import { PlusCircle, Trash2, ArrowLeft, Save, LoaderCircle, File as FileIcon, Edit, ChevronDown, Info, Upload, Image as ImageIcon, Settings, Printer, Share2 } from 'lucide-react';
+import { PlusCircle, Trash2, ArrowLeft, Save, LoaderCircle, Image as ImageIcon, Upload } from 'lucide-react';
 import { SmartClientSelect } from '@/components/crm/sales/smart-client-select';
 import { SmartProductSelect } from '@/components/crm/inventory/smart-product-select';
 import Link from 'next/link';
-import Image from 'next/image';
 import { v4 as uuidv4 } from 'uuid';
 import type { WithId, CrmAccount, QuotationLineItem } from '@/lib/definitions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
-import { useToast } from '@/hooks/use-toast';
 import { saveQuotation } from '@/app/actions/crm-quotations.actions';
 import { useRouter } from 'next/navigation';
 
@@ -41,14 +37,10 @@ const initialState = { message: '', error: '' };
 function SaveButton() {
     const { pending } = useFormStatus();
     return (
-        <ClayButton
-            type="submit"
-            variant="obsidian"
-            disabled={pending}
-            leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-        >
+        <ZoruButton type="submit" disabled={pending}>
+            {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Save & Continue
-        </ClayButton>
+        </ZoruButton>
     );
 }
 
@@ -65,28 +57,24 @@ const QuotationLineItems = ({ items, setItems, currency }: { items: QuotationLin
         setItems(items.map(item => item.id === id ? { ...item, [field]: value } : item));
     };
 
-    const calculateAmount = (quantity: number, rate: number) => {
-        return (quantity * rate).toFixed(2);
-    };
-
     const totalAmount = items.reduce((sum, item) => sum + (item.quantity * item.rate), 0);
 
     return (
         <div className="mt-6">
-            <div className="overflow-x-auto rounded-lg border border-border">
+            <div className="overflow-x-auto rounded-lg border border-zoru-line">
                 <table className="w-full text-sm">
-                    <thead className="bg-secondary">
-                        <tr className="border-b border-border">
-                            <th className="p-3 text-left font-medium text-foreground">Item</th>
-                            <th className="p-3 text-right font-medium text-foreground">Quantity</th>
-                            <th className="p-3 text-right font-medium text-foreground">Rate</th>
-                            <th className="p-3 text-right font-medium text-foreground">Amount</th>
+                    <thead className="bg-zoru-surface-2">
+                        <tr className="border-b border-zoru-line">
+                            <th className="p-3 text-left text-zoru-ink">Item</th>
+                            <th className="p-3 text-right text-zoru-ink">Quantity</th>
+                            <th className="p-3 text-right text-zoru-ink">Rate</th>
+                            <th className="p-3 text-right text-zoru-ink">Amount</th>
                             <th className="p-3"></th>
                         </tr>
                     </thead>
                     <tbody>
                         {items.map((item, index) => (
-                            <tr key={item.id} className="border-b border-border">
+                            <tr key={item.id} className="border-b border-zoru-line">
                                 <td className="p-2">
                                     <SmartProductSelect
                                         value={item.id.startsWith('item-') && !item.name ? '' : undefined}
@@ -99,22 +87,22 @@ const QuotationLineItems = ({ items, setItems, currency }: { items: QuotationLin
                                         className="w-full"
                                     />
                                 </td>
-                                <td className="p-2"><Input type="number" className="w-24 text-right" value={item.quantity} onChange={e => handleItemChange(item.id, 'quantity', Number(e.target.value))} /></td>
-                                <td className="p-2"><Input type="number" className="w-32 text-right" value={item.rate} onChange={e => handleItemChange(item.id, 'rate', Number(e.target.value))} /></td>
-                                <td className="p-2 text-right font-medium">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(item.quantity * item.rate)}</td>
-                                <td className="p-2"><Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveItem(item.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button></td>
+                                <td className="p-2"><ZoruInput type="number" className="w-24 text-right" value={item.quantity} onChange={e => handleItemChange(item.id, 'quantity', Number(e.target.value))} /></td>
+                                <td className="p-2"><ZoruInput type="number" className="w-32 text-right" value={item.rate} onChange={e => handleItemChange(item.id, 'rate', Number(e.target.value))} /></td>
+                                <td className="p-2 text-right text-zoru-ink">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(item.quantity * item.rate)}</td>
+                                <td className="p-2"><ZoruButton type="button" variant="ghost" size="icon" onClick={() => handleRemoveItem(item.id)}><Trash2 className="h-4 w-4 text-zoru-danger-ink" /></ZoruButton></td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
             </div>
             <div className="p-4 space-y-2">
-                <ClayButton type="button" variant="pill" size="sm" onClick={handleAddItem} leading={<PlusCircle className="h-4 w-4" />}>Add New Line</ClayButton>
+                <ZoruButton type="button" variant="outline" size="sm" onClick={handleAddItem}><PlusCircle className="h-4 w-4" />Add New Line</ZoruButton>
             </div>
-            <Separator />
+            <ZoruSeparator />
             <div className="p-4 flex justify-end">
                 <div className="w-full max-w-sm space-y-2">
-                    <div className="flex justify-between items-center"><span className="text-muted-foreground">Total ({currency})</span><span className="font-bold text-lg text-foreground">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalAmount)}</span></div>
+                    <div className="flex justify-between items-center"><span className="text-zoru-ink-muted">Total ({currency})</span><span className="text-lg text-zoru-ink">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(totalAmount)}</span></div>
                 </div>
             </div>
         </div>
@@ -134,15 +122,15 @@ const TermsAndConditions = ({ terms, setTerms }: { terms: TermItem[], setTerms: 
 
     return (
         <div className="space-y-2">
-            <Label className="font-semibold text-foreground">Terms & Conditions</Label>
+            <ZoruLabel className="text-zoru-ink">Terms & Conditions</ZoruLabel>
             {terms.map((term, index) => (
                 <div key={term.id} className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">{String(index + 1).padStart(2, '0')}</span>
-                    <Input value={term.text} onChange={(e) => handleTermChange(term.id, e.target.value)} maxLength={500} />
-                    <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveTerm(term.id)}><Trash2 className="h-4 w-4" /></Button>
+                    <span className="text-sm text-zoru-ink-muted">{String(index + 1).padStart(2, '0')}</span>
+                    <ZoruInput value={term.text} onChange={(e) => handleTermChange(term.id, e.target.value)} maxLength={500} />
+                    <ZoruButton type="button" variant="ghost" size="icon" onClick={() => handleRemoveTerm(term.id)}><Trash2 className="h-4 w-4" /></ZoruButton>
                 </div>
             ))}
-            <ClayButton type="button" variant="pill" size="sm" onClick={handleAddTerm} leading={<PlusCircle className="h-4 w-4" />}>Add New Term</ClayButton>
+            <ZoruButton type="button" variant="outline" size="sm" onClick={handleAddTerm}><PlusCircle className="h-4 w-4" />Add New Term</ZoruButton>
         </div>
     );
 };
@@ -159,15 +147,15 @@ const AdditionalInfo = ({ fields, setFields }: { fields: AdditionalInfoItem[], s
     };
     return (
         <div className="space-y-2">
-            <Label className="font-semibold text-foreground">Additional Info</Label>
+            <ZoruLabel className="text-zoru-ink">Additional Info</ZoruLabel>
             {fields.map((field, index) => (
                 <div key={field.id} className="grid grid-cols-[1fr,1fr,auto] gap-2 items-center">
-                    <Input placeholder="Field Name" value={field.key} onChange={e => handleFieldChange(field.id, 'key', e.target.value)} maxLength={100} />
-                    <Input placeholder="Value" value={field.value} onChange={e => handleFieldChange(field.id, 'value', e.target.value)} maxLength={100} />
-                    <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveField(field.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                    <ZoruInput placeholder="Field Name" value={field.key} onChange={e => handleFieldChange(field.id, 'key', e.target.value)} maxLength={100} />
+                    <ZoruInput placeholder="Value" value={field.value} onChange={e => handleFieldChange(field.id, 'value', e.target.value)} maxLength={100} />
+                    <ZoruButton type="button" variant="ghost" size="icon" onClick={() => handleRemoveField(field.id)}><Trash2 className="h-4 w-4 text-zoru-danger-ink" /></ZoruButton>
                 </div>
             ))}
-            <ClayButton type="button" variant="pill" className="w-full" onClick={handleAddField} leading={<PlusCircle className="h-4 w-4" />}>Add More Fields</ClayButton>
+            <ZoruButton type="button" variant="outline" className="w-full" onClick={handleAddField}><PlusCircle className="h-4 w-4" />Add More Fields</ZoruButton>
         </div>
     );
 }
@@ -175,9 +163,8 @@ const AdditionalInfo = ({ fields, setFields }: { fields: AdditionalInfoItem[], s
 export default function NewQuotationPage() {
     const [state, formAction] = useActionState(saveQuotation, initialState);
     const router = useRouter();
-    const { toast } = useToast();
+    const { toast } = useZoruToast();
 
-    // Form State
     const [clients, setClients] = useState<WithId<CrmAccount>[]>([]);
     const [selectedClientId, setSelectedClientId] = useState<string>('');
     const [quotationDate, setQuotationDate] = useState<Date | undefined>(new Date());
@@ -222,37 +209,37 @@ export default function NewQuotationPage() {
                     <header className="flex justify-between items-center mb-6">
                         <div>
                             <Link href="/dashboard/crm/sales/quotations">
-                                <ClayButton variant="pill" size="sm" leading={<ArrowLeft className="h-4 w-4" />}>Back to Quotations</ClayButton>
+                                <ZoruButton variant="outline" size="sm"><ArrowLeft className="h-4 w-4" />Back to Quotations</ZoruButton>
                             </Link>
                         </div>
                         <div className="flex items-center gap-2">
-                            <ClayButton variant="pill">Save As Draft</ClayButton>
+                            <ZoruButton variant="outline">Save As Draft</ZoruButton>
                             <SaveButton />
                         </div>
                     </header>
-                    <ClayCard variant="floating" padded={false} className="max-w-4xl mx-auto p-4 sm:p-8 md:p-12">
+                    <ZoruCard className="p-0 max-w-4xl mx-auto p-4 sm:p-8 md:p-12">
                         <div className="p-0">
                             <header className="grid grid-cols-2 gap-8 mb-8">
                                 <div>
-                                    <h1 className="text-3xl font-bold text-foreground">QUOTATION</h1>
-                                    <Input placeholder="Add Subtitle (e.g. For Website Redesign)" className="border-0 shadow-none -ml-3 p-0 h-auto text-muted-foreground focus-visible:ring-0 text-base" />
+                                    <h1 className="text-3xl text-zoru-ink">QUOTATION</h1>
+                                    <ZoruInput placeholder="Add Subtitle (e.g. For Website Redesign)" className="border-0 shadow-none -ml-3 p-0 h-auto text-zoru-ink-muted text-base" />
                                 </div>
                                 <div className="flex justify-end">
-                                    <div className="w-32 h-32 bg-secondary flex items-center justify-center rounded-lg"><ImageIcon className="h-12 w-12 text-muted-foreground/50" /></div>
+                                    <div className="w-32 h-32 bg-zoru-surface-2 flex items-center justify-center rounded-lg"><ImageIcon className="h-12 w-12 text-zoru-ink-muted" /></div>
                                 </div>
                             </header>
 
-                            <Separator className="my-8" />
+                            <ZoruSeparator className="my-8" />
 
                             <section className="grid md:grid-cols-2 gap-8 text-sm mb-8">
                                 <div>
-                                    <h3 className="font-semibold mb-2 text-foreground">From:</h3>
-                                    <p className="font-bold">{yourBusinessDetails.name}</p>
-                                    <p className="text-muted-foreground">{yourBusinessDetails.address}</p>
-                                    <p className="text-muted-foreground">GSTIN: {yourBusinessDetails.gstin}</p>
+                                    <h3 className="mb-2 text-zoru-ink">From:</h3>
+                                    <p className="text-zoru-ink">{yourBusinessDetails.name}</p>
+                                    <p className="text-zoru-ink-muted">{yourBusinessDetails.address}</p>
+                                    <p className="text-zoru-ink-muted">GSTIN: {yourBusinessDetails.gstin}</p>
                                 </div>
                                 <div>
-                                    <h3 className="font-semibold mb-2 text-foreground">To:</h3>
+                                    <h3 className="mb-2 text-zoru-ink">To:</h3>
                                     <SmartClientSelect
                                         value={selectedClientId}
                                         onSelect={setSelectedClientId}
@@ -266,54 +253,54 @@ export default function NewQuotationPage() {
                                     />
                                     {selectedClient && (
                                         <div className="mt-2">
-                                            <p className="text-muted-foreground">{selectedClient.address}</p>
-                                            <p className="text-muted-foreground">{selectedClient.phone}</p>
+                                            <p className="text-zoru-ink-muted">{selectedClient.address}</p>
+                                            <p className="text-zoru-ink-muted">{selectedClient.phone}</p>
                                         </div>
                                     )}
                                 </div>
                             </section>
 
                             <section className="grid grid-cols-3 gap-4 mb-8">
-                                <div className="space-y-1"><Label htmlFor="quotationNumber" className="text-xs text-foreground">Quotation No.</Label><Input id="quotationNumber" name="quotationNumber" placeholder="Leave blank to auto-generate" className="h-8" maxLength={50} /></div>
-                                <div className="space-y-1"><Label className="text-xs text-foreground">Quotation Date *</Label><DatePicker date={quotationDate} setDate={setQuotationDate} className="h-8" /></div>
-                                <div className="space-y-1"><Label className="text-xs text-foreground">Valid Till Date</Label><DatePicker date={validTillDate} setDate={setValidTillDate} className="h-8" /></div>
+                                <div className="space-y-1"><ZoruLabel htmlFor="quotationNumber" className="text-xs text-zoru-ink">Quotation No.</ZoruLabel><ZoruInput id="quotationNumber" name="quotationNumber" placeholder="Leave blank to auto-generate" className="h-8" maxLength={50} /></div>
+                                <div className="space-y-1"><ZoruLabel className="text-xs text-zoru-ink">Quotation Date *</ZoruLabel><DatePicker date={quotationDate} setDate={setQuotationDate} className="h-8" /></div>
+                                <div className="space-y-1"><ZoruLabel className="text-xs text-zoru-ink">Valid Till Date</ZoruLabel><DatePicker date={validTillDate} setDate={setValidTillDate} className="h-8" /></div>
                             </section>
 
                             <section>
                                 <QuotationLineItems items={lineItems} setItems={setLineItems} currency="INR" />
                             </section>
 
-                            <Separator className="my-8" />
+                            <ZoruSeparator className="my-8" />
 
                             <section className="grid md:grid-cols-2 gap-8 text-sm">
                                 <div className="space-y-6">
                                     <TermsAndConditions terms={terms} setTerms={setTerms} />
-                                    <div className="space-y-2"><Label className="font-semibold text-foreground">Additional Notes</Label><Textarea placeholder="Any additional notes for the client..." value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={500} /></div>
+                                    <div className="space-y-2"><ZoruLabel className="text-zoru-ink">Additional Notes</ZoruLabel><ZoruTextarea placeholder="Any additional notes for the client..." value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={500} /></div>
                                     <div className="space-y-2">
-                                        <Label className="font-semibold text-foreground">Attachments</Label>
+                                        <ZoruLabel className="text-zoru-ink">Attachments</ZoruLabel>
                                         <div className="flex items-center justify-center w-full">
-                                            <label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-border rounded-lg cursor-pointer bg-secondary hover:bg-card"><div className="flex flex-col items-center justify-center"><Upload className="w-6 h-6 mb-2 text-muted-foreground" /><p className="text-xs text-muted-foreground"><span className="font-semibold">Click to upload</span> or drag and drop</p></div><input id="dropzone-file" type="file" className="hidden" /></label>
+                                            <label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-zoru-line rounded-lg cursor-pointer bg-zoru-surface-2 hover:bg-zoru-bg"><div className="flex flex-col items-center justify-center"><Upload className="w-6 h-6 mb-2 text-zoru-ink-muted" /><p className="text-xs text-zoru-ink-muted"><span>Click to upload</span> or drag and drop</p></div><input id="dropzone-file" type="file" className="hidden" /></label>
                                         </div>
-                                        <p className="text-xs text-muted-foreground">Max file size is 10 MB.</p>
+                                        <p className="text-xs text-zoru-ink-muted">Max file size is 10 MB.</p>
                                     </div>
                                 </div>
                                 <div className="space-y-6">
                                     <div className="space-y-2">
-                                        <Label className="font-semibold text-foreground">Your Contact Details</Label>
+                                        <ZoruLabel className="text-zoru-ink">Your Contact Details</ZoruLabel>
                                         <div className="space-y-2">
-                                            <Input type="email" placeholder="Your Email (optional)" value={contactDetails.email} onChange={e => setContactDetails(prev => ({ ...prev, email: e.target.value }))} />
-                                            <Input type="tel" placeholder="Your Phone (optional)" value={contactDetails.phone} onChange={e => setContactDetails(prev => ({ ...prev, phone: e.target.value }))} />
+                                            <ZoruInput type="email" placeholder="Your Email (optional)" value={contactDetails.email} onChange={e => setContactDetails(prev => ({ ...prev, email: e.target.value }))} />
+                                            <ZoruInput type="tel" placeholder="Your Phone (optional)" value={contactDetails.phone} onChange={e => setContactDetails(prev => ({ ...prev, phone: e.target.value }))} />
                                         </div>
                                     </div>
                                     <AdditionalInfo fields={additionalInfo} setFields={setAdditionalInfo} />
                                     <div className="space-y-2">
-                                        <Label className="font-semibold text-foreground">Signature</Label>
-                                        <div className="h-24 border border-border rounded-lg bg-secondary flex items-center justify-center"><ClayButton type="button" variant="pill">Upload Signature</ClayButton></div>
+                                        <ZoruLabel className="text-zoru-ink">Signature</ZoruLabel>
+                                        <div className="h-24 border border-zoru-line rounded-lg bg-zoru-surface-2 flex items-center justify-center"><ZoruButton type="button" variant="outline">Upload Signature</ZoruButton></div>
                                     </div>
                                 </div>
                             </section>
                         </div>
-                    </ClayCard>
+                    </ZoruCard>
                 </div>
             </div>
         </form>

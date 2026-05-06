@@ -1,12 +1,12 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useEffect, useMemo, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { CalendarDays, ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react';
-import { ClayCard, ClayButton } from '@/components/clay';
+import {
+  ZoruCard,
+  ZoruButton,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { getLeavesForDateRange } from '@/app/actions/worksuite/leave.actions';
 import type { WsLeaveCalendarEntry } from '@/lib/worksuite/leave-types';
@@ -52,9 +52,8 @@ export default function LeaveCalendarPage() {
     return m;
   }, [entries]);
 
-  // Build grid cells: leading empty cells for day-of-week offset, then days.
   const grid = useMemo(() => {
-    const first = start.getDay(); // 0 = Sunday
+    const first = start.getDay();
     const daysInMonth = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0).getDate();
     const cells: Array<{ date: Date | null; iso: string | null }> = [];
     for (let i = 0; i < first; i++) cells.push({ date: null, iso: null });
@@ -87,47 +86,45 @@ export default function LeaveCalendarPage() {
         icon={CalendarDays}
         actions={
           <Link href="/dashboard/hrm/payroll/leave">
-            <ClayButton
-              variant="pill"
-              leading={<ArrowLeft className="h-4 w-4" strokeWidth={1.75} />}
-            >
+            <ZoruButton variant="outline">
+              <ArrowLeft className="h-4 w-4" />
               Back
-            </ClayButton>
+            </ZoruButton>
           </Link>
         }
       />
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <ClayButton
-              variant="pill"
+            <ZoruButton
+              variant="outline"
               onClick={goPrev}
-              leading={<ChevronLeft className="h-4 w-4" strokeWidth={1.75} />}
             >
+              <ChevronLeft className="h-4 w-4" />
               Prev
-            </ClayButton>
-            <div className="min-w-[180px] text-center text-[16px] font-semibold text-foreground">
+            </ZoruButton>
+            <div className="min-w-[180px] text-center text-[16px] text-zoru-ink">
               {monthLabel}
             </div>
-            <ClayButton
-              variant="pill"
+            <ZoruButton
+              variant="outline"
               onClick={goNext}
-              leading={<ChevronRight className="h-4 w-4" strokeWidth={1.75} />}
             >
+              <ChevronRight className="h-4 w-4" />
               Next
-            </ClayButton>
+            </ZoruButton>
           </div>
-          <ClayButton variant="pill" onClick={goToday}>
+          <ZoruButton variant="outline" onClick={goToday}>
             Today
-          </ClayButton>
+          </ZoruButton>
         </div>
 
         <div className="grid grid-cols-7 gap-1">
           {WEEKDAYS.map((d) => (
             <div
               key={d}
-              className="py-2 text-center text-[11.5px] font-medium uppercase tracking-wide text-muted-foreground"
+              className="py-2 text-center text-[11.5px] uppercase text-zoru-ink-muted"
             >
               {d}
             </div>
@@ -147,25 +144,20 @@ export default function LeaveCalendarPage() {
               <div
                 key={cell.iso!}
                 className={
-                  'min-h-[90px] rounded-lg border bg-card p-1.5 ' +
+                  'min-h-[90px] rounded-lg border bg-zoru-bg p-1.5 ' +
                   (isToday
-                    ? 'border-foreground ring-1 ring-foreground'
-                    : 'border-border')
+                    ? 'border-zoru-ink ring-1 ring-zoru-ink'
+                    : 'border-zoru-line')
                 }
               >
-                <div
-                  className={
-                    'mb-1 text-[12px] font-medium ' +
-                    (isToday ? 'text-foreground' : 'text-foreground')
-                  }
-                >
+                <div className="mb-1 text-[12px] text-zoru-ink">
                   {cell.date.getDate()}
                 </div>
                 <div className="space-y-1">
                   {dayEntries.slice(0, 3).map((e) => (
                     <div
                       key={`${e._id}-${e.date}`}
-                      className="truncate rounded-full px-2 py-0.5 text-[11px] font-medium"
+                      className="truncate rounded-full px-2 py-0.5 text-[11px]"
                       style={{
                         backgroundColor: (e.color || '#94A3B8') + '25',
                         color: e.color || '#64748B',
@@ -176,7 +168,7 @@ export default function LeaveCalendarPage() {
                     </div>
                   ))}
                   {dayEntries.length > 3 ? (
-                    <div className="text-[10.5px] text-muted-foreground">
+                    <div className="text-[10.5px] text-zoru-ink-muted">
                       +{dayEntries.length - 3} more
                     </div>
                   ) : null}
@@ -187,9 +179,9 @@ export default function LeaveCalendarPage() {
         </div>
 
         {isLoading ? (
-          <p className="mt-4 text-center text-[12px] text-muted-foreground">Loading…</p>
+          <p className="mt-4 text-center text-[12px] text-zoru-ink-muted">Loading…</p>
         ) : null}
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

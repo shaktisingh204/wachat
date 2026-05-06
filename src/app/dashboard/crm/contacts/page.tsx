@@ -1,8 +1,5 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import { useState, useEffect, useCallback, useTransition } from 'react';
 import Link from 'next/link';
 import { useDebouncedCallback } from 'use-debounce';
@@ -15,52 +12,58 @@ import { getCrmPipelines } from '@/app/actions/crm-pipelines.actions';
 import { getSession } from '@/app/actions/user.actions';
 import { getDealStagesForIndustry } from '@/lib/crm-industry-stages';
 import type { CrmContact, CrmAccount, CrmPipeline } from '@/lib/definitions';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 import { CrmAddContactDialog } from '@/components/wabasimplify/crm-add-contact-dialog';
 import { CreateDealDialog } from '@/components/wabasimplify/crm-create-deal-dialog';
-import { useToast } from '@/hooks/use-toast';
 
-import { ClayCard, ClayBadge } from '@/components/clay';
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruAvatar,
+  ZoruAvatarFallback,
+  ZoruAvatarImage,
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuTrigger,
+  ZoruInput,
+  ZoruSkeleton,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  useZoruToast,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../_components/crm-page-header';
 
 const CONTACTS_PER_PAGE = 15;
 
 function ContactsPageSkeleton() {
   return (
-    <ClayCard>
-      <Skeleton className="h-6 w-48" />
-      <Skeleton className="mt-2 h-4 w-64" />
+    <ZoruCard className="p-6">
+      <ZoruSkeleton className="h-6 w-48" />
+      <ZoruSkeleton className="mt-2 h-4 w-64" />
       <div className="mt-6 flex items-center justify-between">
-        <Skeleton className="h-10 w-64" />
-        <Skeleton className="h-10 w-48" />
+        <ZoruSkeleton className="h-10 w-64" />
+        <ZoruSkeleton className="h-10 w-48" />
       </div>
-      <Skeleton className="mt-4 h-96 w-full" />
-    </ClayCard>
+      <ZoruSkeleton className="mt-4 h-96 w-full" />
+    </ZoruCard>
   );
 }
 
 export default function CrmContactsPage() {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [contacts, setContacts] = useState<WithId<CrmContact>[]>([]);
   const [accounts, setAccounts] = useState<WithId<CrmAccount>[]>([]);
   const [pipelines, setPipelines] = useState<CrmPipeline[]>([]);
@@ -119,10 +122,10 @@ export default function CrmContactsPage() {
     setCurrentPage(1);
   }, 300);
 
-  const leadScoreTone = (score: number): 'green' | 'amber' | 'red' => {
-    if (score > 75) return 'green';
-    if (score > 50) return 'amber';
-    return 'red';
+  const leadScoreVariant = (score: number): 'success' | 'warning' | 'danger' => {
+    if (score > 75) return 'success';
+    if (score > 50) return 'warning';
+    return 'danger';
   };
 
   if (isLoading && contacts.length === 0) return <ContactsPageSkeleton />;
@@ -136,160 +139,160 @@ export default function CrmContactsPage() {
         actions={<CrmAddContactDialog onAdded={fetchData} accounts={accounts} />}
       />
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 className="text-[16px] font-semibold text-foreground">Contacts Directory</h2>
-            <p className="mt-0.5 text-[12.5px] text-muted-foreground">
+            <h2 className="text-[16px] font-semibold text-zoru-ink">Contacts Directory</h2>
+            <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
               A list of all individuals in your CRM.
             </p>
           </div>
           <div className="relative w-full max-w-sm">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+            <ZoruInput
               placeholder="Search by name, email, or phone..."
-              className="h-10 rounded-lg border-border bg-card pl-9 text-[13px]"
+              className="h-10 rounded-lg border-zoru-line bg-zoru-bg pl-9 text-[13px]"
               onChange={(e) => handleSearch(e.target.value)}
             />
           </div>
         </div>
 
-        <div className="overflow-x-auto rounded-lg border border-border">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border hover:bg-transparent">
-                <TableHead className="text-muted-foreground">Name</TableHead>
-                <TableHead className="text-muted-foreground">Contact Info</TableHead>
-                <TableHead className="text-muted-foreground">Job Title</TableHead>
-                <TableHead className="text-muted-foreground">Lead Score</TableHead>
-                <TableHead className="text-muted-foreground">Status</TableHead>
-                <TableHead className="text-muted-foreground">Last Activity</TableHead>
-                <TableHead className="w-[50px]" />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+          <ZoruTable>
+            <ZoruTableHeader>
+              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                <ZoruTableHead className="text-zoru-ink-muted">Name</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Contact Info</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Job Title</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Lead Score</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Last Activity</ZoruTableHead>
+                <ZoruTableHead className="w-[50px]" />
+              </ZoruTableRow>
+            </ZoruTableHeader>
+            <ZoruTableBody>
               {isLoading ? (
                 [...Array(5)].map((_, i) => (
-                  <TableRow key={i} className="border-border">
-                    <TableCell colSpan={7}>
-                      <Skeleton className="h-16 w-full" />
-                    </TableCell>
-                  </TableRow>
+                  <ZoruTableRow key={i} className="border-zoru-line">
+                    <ZoruTableCell colSpan={7}>
+                      <ZoruSkeleton className="h-16 w-full" />
+                    </ZoruTableCell>
+                  </ZoruTableRow>
                 ))
               ) : contacts.length > 0 ? (
                 contacts.map((contact) => (
-                  <TableRow key={contact._id.toString()} className="border-border">
-                    <TableCell>
+                  <ZoruTableRow key={contact._id.toString()} className="border-zoru-line">
+                    <ZoruTableCell>
                       <div className="flex items-center gap-3">
-                        <Avatar className="h-9 w-9 border border-border">
-                          <AvatarImage src={contact.avatarUrl || ''} />
-                          <AvatarFallback className="bg-accent text-[12px] text-accent-foreground">
+                        <ZoruAvatar className="h-9 w-9 border border-zoru-line">
+                          <ZoruAvatarImage src={contact.avatarUrl || ''} />
+                          <ZoruAvatarFallback className="bg-accent text-[12px] text-accent-foreground">
                             {contact.name?.charAt(0) ?? '?'}
-                          </AvatarFallback>
-                        </Avatar>
+                          </ZoruAvatarFallback>
+                        </ZoruAvatar>
                         <div>
                           <Link
                             href={`/dashboard/crm/contacts/${contact._id.toString()}`}
-                            className="text-[13px] font-medium text-foreground hover:underline"
+                            className="text-[13px] font-medium text-zoru-ink hover:underline"
                           >
                             {contact.name}
                           </Link>
-                          <p className="text-[11.5px] text-muted-foreground">
+                          <p className="text-[11.5px] text-zoru-ink-muted">
                             Added {new Date(contact.createdAt).toLocaleDateString()}
                           </p>
                         </div>
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-col gap-1 text-[12.5px] text-foreground">
+                    </ZoruTableCell>
+                    <ZoruTableCell>
+                      <div className="flex flex-col gap-1 text-[12.5px] text-zoru-ink">
                         {contact.email && (
                           <div className="flex items-center gap-1.5">
-                            <Mail className="h-3 w-3 text-muted-foreground" />
+                            <Mail className="h-3 w-3 text-zoru-ink-muted" />
                             {contact.email}
                           </div>
                         )}
                         {contact.phone && (
                           <div className="flex items-center gap-1.5">
-                            <Phone className="h-3 w-3 text-muted-foreground" />
+                            <Phone className="h-3 w-3 text-zoru-ink-muted" />
                             {contact.phone}
                           </div>
                         )}
                       </div>
-                    </TableCell>
-                    <TableCell className="text-[13px] text-foreground">
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-[13px] text-zoru-ink">
                       {contact.jobTitle || 'N/A'}
-                    </TableCell>
-                    <TableCell>
-                      <ClayBadge tone={leadScoreTone(contact.leadScore || 0)} dot>
+                    </ZoruTableCell>
+                    <ZoruTableCell>
+                      <ZoruBadge variant={leadScoreVariant(contact.leadScore || 0)}>
                         {contact.leadScore || 0}
-                      </ClayBadge>
-                    </TableCell>
-                    <TableCell>
-                      <ClayBadge tone="rose-soft">{contact.status}</ClayBadge>
-                    </TableCell>
-                    <TableCell className="text-[13px] text-foreground">
+                      </ZoruBadge>
+                    </ZoruTableCell>
+                    <ZoruTableCell>
+                      <ZoruBadge variant="danger">{contact.status}</ZoruBadge>
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-[13px] text-zoru-ink">
                       {contact.lastActivity
                         ? new Date(contact.lastActivity).toLocaleDateString()
                         : 'Never'}
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
+                    </ZoruTableCell>
+                    <ZoruTableCell>
+                      <ZoruDropdownMenu>
+                        <ZoruDropdownMenuTrigger asChild>
+                          <ZoruButton variant="ghost" className="h-8 w-8 p-0">
                             <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem asChild>
+                          </ZoruButton>
+                        </ZoruDropdownMenuTrigger>
+                        <ZoruDropdownMenuContent align="end">
+                          <ZoruDropdownMenuItem asChild>
                             <Link href={`/dashboard/crm/contacts/${contact._id.toString()}`}>
                               View Details
                             </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onSelect={() => setDealForContact(contact)}>
+                          </ZoruDropdownMenuItem>
+                          <ZoruDropdownMenuItem onSelect={() => setDealForContact(contact)}>
                             Create Deal
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className="text-destructive"
+                          </ZoruDropdownMenuItem>
+                          <ZoruDropdownMenuItem
+                            className="text-zoru-danger-ink"
                             onSelect={() => setDeleteContactId(contact._id.toString())}
                           >
                             Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
+                          </ZoruDropdownMenuItem>
+                        </ZoruDropdownMenuContent>
+                      </ZoruDropdownMenu>
+                    </ZoruTableCell>
+                  </ZoruTableRow>
                 ))
               ) : (
-                <TableRow className="border-border">
-                  <TableCell colSpan={7} className="h-24 text-center text-[13px] text-muted-foreground">
+                <ZoruTableRow className="border-zoru-line">
+                  <ZoruTableCell colSpan={7} className="h-24 text-center text-[13px] text-zoru-ink-muted">
                     No contacts found.
-                  </TableCell>
-                </TableRow>
+                  </ZoruTableCell>
+                </ZoruTableRow>
               )}
-            </TableBody>
-          </Table>
+            </ZoruTableBody>
+          </ZoruTable>
         </div>
-      </ClayCard>
+      </ZoruCard>
 
-      <AlertDialog
+      <ZoruAlertDialog
         open={deleteContactId !== null}
         onOpenChange={(open) => !open && setDeleteContactId(null)}
       >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete this contact?</AlertDialogTitle>
-            <AlertDialogDescription>
+        <ZoruAlertDialogContent>
+          <ZoruAlertDialogHeader>
+            <ZoruAlertDialogTitle>Delete this contact?</ZoruAlertDialogTitle>
+            <ZoruAlertDialogDescription>
               This action cannot be undone. The contact will be permanently removed.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
+            </ZoruAlertDialogDescription>
+          </ZoruAlertDialogHeader>
+          <ZoruAlertDialogFooter>
+            <ZoruAlertDialogCancel disabled={isDeleting}>Cancel</ZoruAlertDialogCancel>
+            <ZoruAlertDialogAction onClick={handleDelete} disabled={isDeleting}>
               {isDeleting ? 'Deleting…' : 'Delete'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </ZoruAlertDialogAction>
+          </ZoruAlertDialogFooter>
+        </ZoruAlertDialogContent>
+      </ZoruAlertDialog>
 
       {dealForContact ? (
         <CreateDealDialog

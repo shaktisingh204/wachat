@@ -10,38 +10,43 @@ import {
 } from 'lucide-react';
 import { useActionState, useEffect, useState, useTransition } from 'react';
 
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruButton,
+  ZoruCard,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSkeleton,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  ZoruTextarea,
+  cn,
+  useZoruToast,
+  zoruBadgeVariants,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
 
 export type HrFieldType =
   | 'text'
@@ -86,6 +91,75 @@ export interface HrColumn<T> {
   render?: (row: T) => unknown;
   className?: string;
 }
+
+/**
+ * ClayBadge — legacy compat shim. Maps the old `tone` API onto
+ * ZoruBadge variants so existing HR pages keep rendering during the
+ * migration. Prefer `ZoruBadge` directly in new code.
+ */
+type LegacyTone =
+  | 'neutral'
+  | 'rose'
+  | 'rose-soft'
+  | 'obsidian'
+  | 'green'
+  | 'amber'
+  | 'red'
+  | 'blue';
+
+interface ClayBadgeProps extends Omit<React.HTMLAttributes<HTMLSpanElement>, 'children'> {
+  tone?: LegacyTone;
+  dot?: boolean;
+  children?: React.ReactNode;
+}
+
+const TONE_TO_VARIANT: Record<
+  LegacyTone,
+  'default' | 'ghost' | 'success' | 'warning' | 'danger'
+> = {
+  neutral: 'ghost',
+  rose: 'default',
+  'rose-soft': 'ghost',
+  obsidian: 'default',
+  green: 'success',
+  amber: 'warning',
+  red: 'danger',
+  blue: 'ghost',
+};
+
+const DOT_CLASS: Record<LegacyTone, string> = {
+  neutral: 'bg-zoru-ink-muted',
+  rose: 'bg-zoru-ink',
+  'rose-soft': 'bg-zoru-ink',
+  obsidian: 'bg-zoru-ink',
+  green: 'bg-zoru-success',
+  amber: 'bg-zoru-warning',
+  red: 'bg-zoru-danger',
+  blue: 'bg-zoru-ink-muted',
+};
+
+export const ClayBadge = React.forwardRef<HTMLSpanElement, ClayBadgeProps>(
+  ({ className, tone = 'neutral', dot = false, children, ...props }, ref) => (
+    <span
+      ref={ref}
+      className={cn(
+        zoruBadgeVariants({ variant: TONE_TO_VARIANT[tone] }),
+        'gap-1.5',
+        className,
+      )}
+      {...props}
+    >
+      {dot ? (
+        <span
+          aria-hidden
+          className={cn('h-1.5 w-1.5 rounded-full', DOT_CLASS[tone])}
+        />
+      ) : null}
+      {children}
+    </span>
+  ),
+);
+ClayBadge.displayName = 'ClayBadge';
 
 function toNode(value: unknown): React.ReactNode {
   if (value === null || value === undefined) return '—';
@@ -146,40 +220,25 @@ function renderField(field: HrField, value?: unknown) {
   };
 
   if (field.type === 'textarea') {
-    return (
-      <Textarea
-        {...common}
-        rows={3}
-        className="rounded-lg border-border bg-card text-[13px]"
-      />
-    );
+    return <ZoruTextarea {...common} rows={3} />;
   }
   if (field.type === 'select') {
     return (
-      <Select name={field.name} defaultValue={String(common.defaultValue || '')}>
-        <SelectTrigger
-          id={field.name}
-          className="h-10 rounded-lg border-border bg-card text-[13px]"
-        >
-          <SelectValue placeholder={field.placeholder || 'Select'} />
-        </SelectTrigger>
-        <SelectContent>
+      <ZoruSelect name={field.name} defaultValue={String(common.defaultValue || '')}>
+        <ZoruSelectTrigger id={field.name}>
+          <ZoruSelectValue placeholder={field.placeholder || 'Select'} />
+        </ZoruSelectTrigger>
+        <ZoruSelectContent>
           {(field.options || []).map((opt) => (
-            <SelectItem key={opt.value} value={opt.value}>
+            <ZoruSelectItem key={opt.value} value={opt.value}>
               {opt.label}
-            </SelectItem>
+            </ZoruSelectItem>
           ))}
-        </SelectContent>
-      </Select>
+        </ZoruSelectContent>
+      </ZoruSelect>
     );
   }
-  return (
-    <Input
-      {...common}
-      type={field.type || 'text'}
-      className="h-10 rounded-lg border-border bg-card text-[13px]"
-    />
-  );
+  return <ZoruInput {...common} type={field.type || 'text'} />;
 }
 
 /**
@@ -258,7 +317,7 @@ function FieldArray({
       <input type="hidden" name={field.name} value={hiddenValue} />
 
       {rows.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-border bg-secondary px-3 py-2.5 text-center text-[12px] text-muted-foreground">
+        <p className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-2.5 text-center text-[12px] text-zoru-ink-muted">
           No rows yet — click Add below to start.
         </p>
       ) : (
@@ -266,84 +325,68 @@ function FieldArray({
           {rows.map((row, i) => (
             <div
               key={i}
-              className="flex flex-wrap items-end gap-2 rounded-lg border border-border bg-secondary p-2"
+              className="flex flex-wrap items-end gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 p-2"
             >
               {subs.map((s) => {
                 const fieldId = `${field.name}-${i}-${s.name}`;
                 if (s.type === 'select') {
                   return (
                     <div key={s.name} className="min-w-[120px] flex-1">
-                      <Label
-                        htmlFor={fieldId}
-                        className="text-[11px] text-muted-foreground"
-                      >
-                        {s.label}
-                      </Label>
-                      <Select
+                      <ZoruLabel htmlFor={fieldId}>{s.label}</ZoruLabel>
+                      <ZoruSelect
                         value={row[s.name] || ''}
                         onValueChange={(v) => updateRow(i, s.name, v)}
                       >
-                        <SelectTrigger
-                          id={fieldId}
-                          className="h-9 rounded-lg border-border bg-card text-[13px]"
-                        >
-                          <SelectValue placeholder={s.placeholder || 'Select'} />
-                        </SelectTrigger>
-                        <SelectContent>
+                        <ZoruSelectTrigger id={fieldId}>
+                          <ZoruSelectValue placeholder={s.placeholder || 'Select'} />
+                        </ZoruSelectTrigger>
+                        <ZoruSelectContent>
                           {(s.options || []).map((opt) => (
-                            <SelectItem key={opt.value} value={opt.value}>
+                            <ZoruSelectItem key={opt.value} value={opt.value}>
                               {opt.label}
-                            </SelectItem>
+                            </ZoruSelectItem>
                           ))}
-                        </SelectContent>
-                      </Select>
+                        </ZoruSelectContent>
+                      </ZoruSelect>
                     </div>
                   );
                 }
                 return (
                   <div key={s.name} className="min-w-[120px] flex-1">
-                    <Label
-                      htmlFor={fieldId}
-                      className="text-[11px] text-muted-foreground"
-                    >
-                      {s.label}
-                    </Label>
-                    <Input
+                    <ZoruLabel htmlFor={fieldId}>{s.label}</ZoruLabel>
+                    <ZoruInput
                       id={fieldId}
                       type={s.type || 'text'}
                       value={row[s.name] || ''}
                       placeholder={s.placeholder}
                       required={s.required}
                       onChange={(e) => updateRow(i, s.name, e.target.value)}
-                      className="h-9 rounded-lg border-border bg-card text-[13px]"
                     />
                   </div>
                 );
               })}
-              <ClayButton
+              <ZoruButton
                 type="button"
-                variant="pill"
+                variant="ghost"
+                size="sm"
                 onClick={() => removeRow(i)}
+                className="text-zoru-danger-ink"
                 aria-label="Remove row"
               >
-                <Trash2 className="h-3.5 w-3.5 text-destructive" />
-              </ClayButton>
+                <Trash2 className="h-3.5 w-3.5" />
+              </ZoruButton>
             </div>
           ))}
         </div>
       )}
 
-      <ClayButton
-        type="button"
-        variant="pill"
-        onClick={addRow}
-        leading={<Plus className="h-3.5 w-3.5" />}
-      >
+      <ZoruButton type="button" variant="outline" size="sm" onClick={addRow}>
+        <Plus className="mr-1.5 h-3.5 w-3.5" />
         {field.addLabel || 'Add row'}
-      </ClayButton>
+      </ZoruButton>
 
       {field.help ? (
-        <p className="text-[11.5px] text-muted-foreground">{field.help}</p>
+        <p className="text-[11.5px] text-zoru-ink-muted">{field.help}</p>
       ) : null}
     </div>
   );
@@ -362,7 +405,7 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
   emptyText,
   basePath,
 }: HrEntityPageProps<T>) {
-  const { toast } = useToast();
+  const { toast } = useZoruToast();
   const [rows, setRows] = useState<T[]>([]);
   const [isLoading, startLoading] = useTransition();
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -424,86 +467,75 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
         icon={icon}
         actions={
           basePath ? (
-            <Link href={`${basePath}/new`}>
-              <ClayButton
-                variant="obsidian"
-                leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}
-              >
+            <ZoruButton asChild>
+              <Link href={`${basePath}/new`}>
+                <Plus className="h-4 w-4" strokeWidth={1.75} />
                 Add {singular}
-              </ClayButton>
-            </Link>
+              </Link>
+            </ZoruButton>
           ) : (
-            <ClayButton
-              variant="obsidian"
-              leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}
+            <ZoruButton
               onClick={() => {
                 setEditing(null);
                 setDialogOpen(true);
               }}
             >
+              <Plus className="h-4 w-4" strokeWidth={1.75} />
               Add {singular}
-            </ClayButton>
+            </ZoruButton>
           )
         }
       />
 
-      <ClayCard>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-[13px]">
-            <thead>
-              <tr className="border-b border-border">
+      <ZoruCard className="p-6">
+        <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
+          <ZoruTable>
+            <ZoruTableHeader>
+              <ZoruTableRow>
                 {columns.map((c) => (
-                  <th
-                    key={c.key}
-                    className={
-                      'px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground ' +
-                      (c.className || '')
-                    }
-                  >
+                  <ZoruTableHead key={c.key} className={c.className}>
                     {c.label}
-                  </th>
+                  </ZoruTableHead>
                 ))}
-                <th className="w-[120px] px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
+                <ZoruTableHead className="w-[120px] text-right">Actions</ZoruTableHead>
+              </ZoruTableRow>
+            </ZoruTableHeader>
+            <ZoruTableBody>
               {isLoading && rows.length === 0 ? (
                 [...Array(3)].map((_, i) => (
-                  <tr key={i}>
-                    <td colSpan={columns.length + 1} className="px-4 py-3">
-                      <Skeleton className="h-6 w-full" />
-                    </td>
-                  </tr>
+                  <ZoruTableRow key={i}>
+                    <ZoruTableCell colSpan={columns.length + 1}>
+                      <ZoruSkeleton className="h-8 w-full" />
+                    </ZoruTableCell>
+                  </ZoruTableRow>
                 ))
               ) : rows.length === 0 ? (
-                <tr>
-                  <td
+                <ZoruTableRow>
+                  <ZoruTableCell
                     colSpan={columns.length + 1}
-                    className="px-4 py-12 text-center text-[13px] text-muted-foreground"
+                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
                   >
                     {emptyText || `No ${singular.toLowerCase()} yet — click Add to get started.`}
-                  </td>
-                </tr>
+                  </ZoruTableCell>
+                </ZoruTableRow>
               ) : (
                 rows.map((row) => (
-                  <tr key={row._id} className="transition-colors hover:bg-secondary">
+                  <ZoruTableRow key={row._id}>
                     {columns.map((c) => (
-                      <td key={c.key} className="px-4 py-3 text-foreground">
+                      <ZoruTableCell key={c.key} className="text-[13px] text-zoru-ink">
                         {c.render ? toNode(c.render(row)) : toNode(row[c.key])}
-                      </td>
+                      </ZoruTableCell>
                     ))}
-                    <td className="px-4 py-3 text-right">
+                    <ZoruTableCell className="text-right">
                       <div className="flex justify-end gap-1">
                         {basePath ? (
-                          <Link href={`${basePath}/${row._id}/edit`}>
-                            <ClayButton variant="ghost" size="sm" aria-label="Edit">
+                          <ZoruButton variant="ghost" size="sm" asChild>
+                            <Link href={`${basePath}/${row._id}/edit`} aria-label="Edit">
                               <Pencil className="h-3.5 w-3.5" />
-                            </ClayButton>
-                          </Link>
+                            </Link>
+                          </ZoruButton>
                         ) : (
-                          <ClayButton
+                          <ZoruButton
                             variant="ghost"
                             size="sm"
                             aria-label="Edit"
@@ -513,36 +545,36 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
                             }}
                           >
                             <Pencil className="h-3.5 w-3.5" />
-                          </ClayButton>
+                          </ZoruButton>
                         )}
-                        <ClayButton
+                        <ZoruButton
                           variant="ghost"
                           size="sm"
                           aria-label="Delete"
                           onClick={() => setDeletingId(row._id)}
                         >
-                          <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                        </ClayButton>
+                          <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                        </ZoruButton>
                       </div>
-                    </td>
-                  </tr>
+                    </ZoruTableCell>
+                  </ZoruTableRow>
                 ))
               )}
-            </tbody>
-          </table>
+            </ZoruTableBody>
+          </ZoruTable>
         </div>
-      </ClayCard>
+      </ZoruCard>
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-foreground">
+      <ZoruDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <ZoruDialogContent className="max-w-2xl">
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>
               {editing ? `Edit ${singular}` : `Add ${singular}`}
-            </DialogTitle>
-            <DialogDescription className="text-muted-foreground">
+            </ZoruDialogTitle>
+            <ZoruDialogDescription>
               {editing ? 'Update the details and save.' : `Fill in the details below.`}
-            </DialogDescription>
-          </DialogHeader>
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
 
           <form action={saveFormAction} className="space-y-4">
             {editing?._id ? (
@@ -555,10 +587,10 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
                   key={field.name}
                   className={field.fullWidth ? 'md:col-span-2' : ''}
                 >
-                  <Label htmlFor={field.name} className="text-foreground">
+                  <ZoruLabel htmlFor={field.name}>
                     {field.label}
-                    {field.required ? <span className="text-destructive"> *</span> : null}
-                  </Label>
+                    {field.required ? <span className="text-zoru-danger-ink"> *</span> : null}
+                  </ZoruLabel>
                   <div className="mt-1.5">
                     {renderField(
                       field,
@@ -573,57 +605,45 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
               ))}
             </div>
 
-            <DialogFooter className="gap-2">
-              <ClayButton
+            <ZoruDialogFooter className="gap-2">
+              <ZoruButton
                 type="button"
-                variant="pill"
+                variant="outline"
                 onClick={() => setDialogOpen(false)}
               >
                 Cancel
-              </ClayButton>
-              <ClayButton
-                type="submit"
-                variant="obsidian"
-                disabled={isSaving}
-                leading={
-                  isSaving ? (
-                    <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.75} />
-                  ) : null
-                }
-              >
+              </ZoruButton>
+              <ZoruButton type="submit" disabled={isSaving}>
+                {isSaving ? (
+                  <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.75} />
+                ) : null}
                 Save
-              </ClayButton>
-            </DialogFooter>
+              </ZoruButton>
+            </ZoruDialogFooter>
           </form>
-        </DialogContent>
-      </Dialog>
+        </ZoruDialogContent>
+      </ZoruDialog>
 
-      <AlertDialog
+      <ZoruAlertDialog
         open={deletingId !== null}
         onOpenChange={(o) => !o && setDeletingId(null)}
       >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-foreground">Delete {singular}?</AlertDialogTitle>
-            <AlertDialogDescription className="text-muted-foreground">
+        <ZoruAlertDialogContent>
+          <ZoruAlertDialogHeader>
+            <ZoruAlertDialogTitle>Delete {singular}?</ZoruAlertDialogTitle>
+            <ZoruAlertDialogDescription>
               This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel asChild>
-              <ClayButton variant="pill" size="sm">Cancel</ClayButton>
-            </AlertDialogCancel>
-            <AlertDialogAction asChild>
-              <ClayButton variant="obsidian" size="sm" onClick={handleDelete}>Delete</ClayButton>
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </ZoruAlertDialogDescription>
+          </ZoruAlertDialogHeader>
+          <ZoruAlertDialogFooter>
+            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+            <ZoruAlertDialogAction onClick={handleDelete}>Delete</ZoruAlertDialogAction>
+          </ZoruAlertDialogFooter>
+        </ZoruAlertDialogContent>
+      </ZoruAlertDialog>
     </div>
   );
 }
-
-export { ClayBadge };
 
 /** Format a field value for display inside an Input default value. */
 function formatFieldValue(value: unknown, type?: HrFieldType): string {

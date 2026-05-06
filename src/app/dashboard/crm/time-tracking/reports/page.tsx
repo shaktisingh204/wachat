@@ -1,32 +1,28 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
 import * as React from 'react';
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import { BarChart3, Download, Filter, RotateCcw } from 'lucide-react';
 
-import { ClayCard, ClayButton } from '@/components/clay';
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSkeleton,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Skeleton } from '@/components/ui/skeleton';
 import { getTimeReport } from '@/app/actions/worksuite/time.actions';
 import type { WsTimeReportRow } from '@/lib/worksuite/time-types';
 
@@ -88,9 +84,7 @@ export default function TimeTrackingReportsPage() {
         subtitle="Group logged time by employee, project, or date. Export as CSV."
         icon={BarChart3}
         actions={
-          <ClayButton
-            variant="obsidian"
-            leading={<Download className="h-4 w-4" strokeWidth={1.75} />}
+          <ZoruButton
             onClick={() =>
               downloadCsv(
                 `time-report-${group}-${new Date().toISOString().slice(0, 10)}.csv`,
@@ -99,135 +93,133 @@ export default function TimeTrackingReportsPage() {
             }
             disabled={rows.length === 0}
           >
+            <Download className="h-4 w-4" strokeWidth={1.75} />
             Export CSV
-          </ClayButton>
+          </ZoruButton>
         }
       />
 
-      <ClayCard>
+      <ZoruCard className="p-6">
         <div className="flex flex-wrap items-end gap-3">
           <div className="min-w-[180px] flex-1">
-            <Label className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+            <ZoruLabel className="text-[11px] uppercase tracking-[0.18em] text-zoru-ink-muted">
               Group by
-            </Label>
-            <Select value={group} onValueChange={(v) => setGroup(v as Group)}>
-              <SelectTrigger className="mt-1 h-9 rounded-lg border-border bg-card text-[13px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="employee">Employee</SelectItem>
-                <SelectItem value="project">Project</SelectItem>
-                <SelectItem value="date">Date</SelectItem>
-              </SelectContent>
-            </Select>
+            </ZoruLabel>
+            <ZoruSelect value={group} onValueChange={(v) => setGroup(v as Group)}>
+              <ZoruSelectTrigger className="mt-1 h-9 rounded-lg border-zoru-line bg-zoru-bg text-[13px]">
+                <ZoruSelectValue />
+              </ZoruSelectTrigger>
+              <ZoruSelectContent>
+                <ZoruSelectItem value="employee">Employee</ZoruSelectItem>
+                <ZoruSelectItem value="project">Project</ZoruSelectItem>
+                <ZoruSelectItem value="date">Date</ZoruSelectItem>
+              </ZoruSelectContent>
+            </ZoruSelect>
           </div>
           <div className="min-w-[140px] flex-1">
-            <Label className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+            <ZoruLabel className="text-[11px] uppercase tracking-[0.18em] text-zoru-ink-muted">
               From
-            </Label>
-            <Input
+            </ZoruLabel>
+            <ZoruInput
               type="date"
               value={from}
               onChange={(e) => setFrom(e.target.value)}
-              className="mt-1 h-9 rounded-lg border-border bg-card text-[13px]"
+              className="mt-1 h-9 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
             />
           </div>
           <div className="min-w-[140px] flex-1">
-            <Label className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+            <ZoruLabel className="text-[11px] uppercase tracking-[0.18em] text-zoru-ink-muted">
               To
-            </Label>
-            <Input
+            </ZoruLabel>
+            <ZoruInput
               type="date"
               value={to}
               onChange={(e) => setTo(e.target.value)}
-              className="mt-1 h-9 rounded-lg border-border bg-card text-[13px]"
+              className="mt-1 h-9 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
             />
           </div>
-          <ClayButton
-            variant="pill"
-            leading={<Filter className="h-4 w-4" strokeWidth={1.75} />}
-            onClick={refresh}
-          >
+          <ZoruButton variant="outline" onClick={refresh}>
+            <Filter className="h-4 w-4" strokeWidth={1.75} />
             Apply
-          </ClayButton>
-          <ClayButton
+          </ZoruButton>
+          <ZoruButton
             variant="ghost"
-            leading={<RotateCcw className="h-4 w-4" strokeWidth={1.75} />}
             onClick={() => {
               setGroup('project');
               setFrom('');
               setTo('');
             }}
           >
+            <RotateCcw className="h-4 w-4" strokeWidth={1.75} />
             Reset
-          </ClayButton>
+          </ZoruButton>
         </div>
-      </ClayCard>
+      </ZoruCard>
 
-      <ClayCard>
-        <div className="overflow-x-auto rounded-lg border border-border">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border hover:bg-transparent">
-                <TableHead className="text-muted-foreground">{groupLabel}</TableHead>
-                <TableHead className="text-muted-foreground">Entries</TableHead>
-                <TableHead className="text-right text-muted-foreground">
+      <ZoruCard className="p-6">
+        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+          <ZoruTable>
+            <ZoruTableHeader>
+              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                <ZoruTableHead className="text-zoru-ink-muted">{groupLabel}</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Entries</ZoruTableHead>
+                <ZoruTableHead className="text-right text-zoru-ink-muted">
                   Hours
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+                </ZoruTableHead>
+              </ZoruTableRow>
+            </ZoruTableHeader>
+            <ZoruTableBody>
               {isLoading && rows.length === 0 ? (
                 [0, 1, 2].map((i) => (
-                  <TableRow key={i} className="border-border">
-                    <TableCell colSpan={3}>
-                      <Skeleton className="h-8 w-full" />
-                    </TableCell>
-                  </TableRow>
+                  <ZoruTableRow key={i} className="border-zoru-line">
+                    <ZoruTableCell colSpan={3}>
+                      <ZoruSkeleton className="h-8 w-full" />
+                    </ZoruTableCell>
+                  </ZoruTableRow>
                 ))
               ) : rows.length === 0 ? (
-                <TableRow className="border-border">
-                  <TableCell
+                <ZoruTableRow className="border-zoru-line">
+                  <ZoruTableCell
                     colSpan={3}
-                    className="h-24 text-center text-[13px] text-muted-foreground"
+                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
                   >
                     No logged time for the selected range.
-                  </TableCell>
-                </TableRow>
+                  </ZoruTableCell>
+                </ZoruTableRow>
               ) : (
                 rows.map((r) => (
-                  <TableRow key={r.key} className="border-border">
-                    <TableCell className="text-[13px] text-foreground">
+                  <ZoruTableRow key={r.key} className="border-zoru-line">
+                    <ZoruTableCell className="text-[13px] text-zoru-ink">
                       {r.label === 'unknown' ? (
-                        <span className="text-muted-foreground">(unassigned)</span>
+                        <span className="text-zoru-ink-muted">(unassigned)</span>
                       ) : (
                         <span className="font-mono text-[12.5px]">{r.label}</span>
                       )}
-                    </TableCell>
-                    <TableCell className="text-[13px] text-muted-foreground">
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
                       {r.entries}
-                    </TableCell>
-                    <TableCell className="text-right font-mono tabular-nums text-[13px] text-foreground">
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-right font-mono tabular-nums text-[13px] text-zoru-ink">
                       {r.totalHours}h {String(r.totalMinutes).padStart(2, '0')}m
-                    </TableCell>
-                  </TableRow>
+                    </ZoruTableCell>
+                  </ZoruTableRow>
                 ))
               )}
-            </TableBody>
-          </Table>
+            </ZoruTableBody>
+          </ZoruTable>
           {rows.length > 0 ? (
-            <div className="flex items-center justify-between border-t border-border bg-secondary px-4 py-3 text-[13px]">
-              <span className="text-[11.5px] uppercase tracking-[0.1em] text-muted-foreground">
+            <div className="flex items-center justify-between border-t border-zoru-line bg-zoru-surface-2 px-4 py-3 text-[13px]">
+              <span className="text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
                 Total
               </span>
-              <span className="font-mono font-semibold tabular-nums text-foreground">
+              <span className="font-mono font-semibold tabular-nums text-zoru-ink">
                 {Math.floor(grandMinutes / 60)}h{' '}
                 {String(grandMinutes % 60).padStart(2, '0')}m
               </span>
             </div>
           ) : null}
         </div>
-      </ClayCard>
+      </ZoruCard>
     </div>
   );
 }

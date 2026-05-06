@@ -120,6 +120,7 @@ import {
   Target,
   Ticket,
   Timer,
+  Trash2,
   TrendingUp,
   Trophy,
   Truck,
@@ -942,6 +943,34 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         items: [
           leaf("home", "All links", "/dashboard/url-shortener", LinkIcon, p),
           leaf("settings", "Settings", "/dashboard/url-shortener/settings", Settings, p),
+        ],
+      },
+    ],
+  },
+
+  /* ─────────────────────────────  SabFiles  ───────────────────────── */
+  {
+    prefix: "/dashboard/sabfiles",
+    heading: "SabFiles",
+    caption: "Cloud file manager",
+    build: (p) => [
+      {
+        id: "sabfiles-main",
+        label: "Workspace",
+        items: [
+          leaf("home", "My files", "/dashboard/sabfiles", FolderOpen, p),
+          leaf("recent", "Recent", "/dashboard/sabfiles/recent", History, p),
+          leaf("starred", "Starred", "/dashboard/sabfiles/starred", Star, p),
+          leaf("shared", "Shared by me", "/dashboard/sabfiles/shared", Share2, p),
+          leaf("trash", "Trash", "/dashboard/sabfiles/trash", Trash2, p),
+        ],
+      },
+      {
+        id: "sabfiles-ops",
+        label: "Operations",
+        items: [
+          leaf("storage", "Storage usage", "/dashboard/sabfiles/storage", HardDrive, p),
+          leaf("settings", "Settings", "/dashboard/sabfiles/settings", Settings, p),
         ],
       },
     ],
