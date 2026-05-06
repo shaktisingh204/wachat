@@ -92,6 +92,8 @@ members = [
     "crates/telegram-flows",
     "crates/telegram-mini-apps",
     "crates/telegram-ads",
+    "crates/crm-core",
+    "crates/crm-sales-types",
 ]
 
 [workspace.package]
