@@ -58,6 +58,7 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import { SabFileUrlInput } from '@/components/sabfiles';
 
 const CATEGORIES = [
   { value: 'General', label: 'General' },
@@ -83,6 +84,13 @@ export default function SavedRepliesPage() {
   const [replies, setReplies] = useState<Reply[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Reply | null>(null);
+  const [mediaUrl, setMediaUrl] = useState('');
+
+  useEffect(() => {
+    if (dialogOpen) {
+      setMediaUrl(editing?.mediaUrl ?? '');
+    }
+  }, [dialogOpen, editing]);
 
   const load = useCallback(() => {
     if (!activeProject?._id) return;
@@ -340,11 +348,13 @@ export default function SavedRepliesPage() {
 
             <div className="flex flex-col gap-1.5">
               <ZoruLabel htmlFor="mediaUrl">Media URL (optional)</ZoruLabel>
-              <ZoruInput
+              <SabFileUrlInput
                 id="mediaUrl"
                 name="mediaUrl"
                 placeholder="https://…"
-                defaultValue={editing?.mediaUrl ?? ''}
+                accept="all"
+                value={mediaUrl}
+                onChange={(v) => setMediaUrl(v)}
               />
             </div>
           </form>

@@ -72,6 +72,7 @@ import {
   cn,
   useZoruToast,
 } from '@/components/zoruui';
+import { SabFileUrlInput } from '@/components/sabfiles';
 
 const createTemplateInitialState: CreateTemplateState = {
   message: null,
@@ -549,11 +550,20 @@ export function CreateTemplateForm({
                         }
                       />
                       <div className="text-xs text-zoru-ink-muted">OR</div>
-                      <ZoruInput
+                      <SabFileUrlInput
                         name="headerSampleUrl"
                         placeholder="https://..."
                         value={headerSampleUrl}
-                        onChange={(e) => setHeaderSampleUrl(e.target.value)}
+                        onChange={(v) => setHeaderSampleUrl(v)}
+                        accept={
+                          headerFormat === 'IMAGE'
+                            ? 'image'
+                            : headerFormat === 'VIDEO'
+                              ? 'video'
+                              : headerFormat === 'DOCUMENT'
+                                ? 'document'
+                                : 'all'
+                        }
                       />
                     </div>
                   )}

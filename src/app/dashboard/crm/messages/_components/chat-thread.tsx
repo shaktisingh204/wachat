@@ -6,6 +6,7 @@ import { Paperclip, Send, LoaderCircle, Download } from 'lucide-react';
 import { ClayCard, ClayButton } from '@/components/clay';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
+import { SabFileUrlInput } from '@/components/sabfiles';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import {
@@ -209,11 +210,17 @@ export function ChatThread({ peerUserId, currentUserId, initialMessages }: ChatT
             placeholder="File name (optional)"
             className="h-8 w-44 rounded-lg border-border bg-card text-[12px]"
           />
-          <Input
+          <SabFileUrlInput
             value={fileUrl}
-            onChange={(e) => setFileUrl(e.target.value)}
+            onChange={(v, pick) => {
+              setFileUrl(v);
+              if (pick && !fileName.trim()) {
+                setFileName(pick.name);
+              }
+            }}
+            accept="all"
             placeholder="https://file-url"
-            className="h-8 flex-1 min-w-[180px] rounded-lg border-border bg-card text-[12px]"
+            className="flex-1 min-w-[180px]"
           />
           <ClayButton
             type="button"

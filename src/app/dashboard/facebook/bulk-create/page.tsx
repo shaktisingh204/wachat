@@ -73,6 +73,7 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import { SabFileUrlInput } from '@/components/sabfiles';
 
 type PostRow = { message: string; imageUrl: string; scheduledTime: string };
 
@@ -434,11 +435,10 @@ export default function BulkCreatePage() {
                             />
                           </ZoruTableCell>
                           <ZoruTableCell>
-                            <ZoruInput
+                            <SabFileUrlInput
+                              accept="image"
                               value={row.imageUrl}
-                              onChange={(e) =>
-                                updateRow(i, 'imageUrl', e.target.value)
-                              }
+                              onChange={(v) => updateRow(i, 'imageUrl', v)}
                               placeholder="https://…"
                             />
                           </ZoruTableCell>

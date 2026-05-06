@@ -62,6 +62,7 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from "@/components/zoruui";
+import { SabFileUrlInput } from "@/components/sabfiles";
 
 /* ------------------------------------------------------------------ */
 /* Create product                                                     */
@@ -103,6 +104,7 @@ export function CreateProductDialog({
   );
   const formRef = useRef<HTMLFormElement>(null);
   const { toast } = useZoruToast();
+  const [imageUrl, setImageUrl] = useState("");
 
   useEffect(() => {
     if (state?.message) {
@@ -112,6 +114,7 @@ export function CreateProductDialog({
         variant: "success",
       });
       formRef.current?.reset();
+      setImageUrl("");
       onOpenChange(false);
       onCreated?.();
     }
@@ -180,7 +183,13 @@ export function CreateProductDialog({
             </div>
             <div className="grid gap-1.5">
               <ZoruLabel htmlFor="cp-image">Image URL</ZoruLabel>
-              <ZoruInput id="cp-image" name="image_url" type="url" required />
+              <SabFileUrlInput
+                id="cp-image"
+                name="image_url"
+                accept="image"
+                value={imageUrl}
+                onChange={setImageUrl}
+              />
             </div>
           </div>
 
@@ -240,6 +249,11 @@ export function EditProductDialog({
   );
   const formRef = useRef<HTMLFormElement>(null);
   const { toast } = useZoruToast();
+  const [imageUrl, setImageUrl] = useState<string>("");
+
+  useEffect(() => {
+    setImageUrl((product?.image_url as string | undefined) ?? "");
+  }, [product]);
 
   useEffect(() => {
     if (state?.success && state?.message) {
@@ -332,11 +346,12 @@ export function EditProductDialog({
             </div>
             <div className="grid gap-1.5">
               <ZoruLabel htmlFor="ep-image">Image URL</ZoruLabel>
-              <ZoruInput
+              <SabFileUrlInput
                 id="ep-image"
                 name="image_url"
-                type="url"
-                defaultValue={product.image_url ?? ""}
+                accept="image"
+                value={imageUrl}
+                onChange={setImageUrl}
               />
             </div>
           </div>

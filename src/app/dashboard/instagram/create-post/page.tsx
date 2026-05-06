@@ -15,6 +15,7 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import { SabFileUrlInput } from '@/components/sabfiles';
 import { LoaderCircle, X, Instagram } from 'lucide-react';
 
 const initialState: any = { message: null, error: null };
@@ -35,6 +36,7 @@ export default function CreateInstagramPostPage() {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const [projectId, setProjectId] = useState<string | null>(null);
+  const [imageUrl, setImageUrl] = useState('');
 
   useEffect(() => {
     const storedProjectId = localStorage.getItem('activeProjectId');
@@ -45,6 +47,7 @@ export default function CreateInstagramPostPage() {
     if (state.message) {
       toast({ title: 'Success', description: state.message });
       formRef.current?.reset();
+      setImageUrl('');
       router.push('/dashboard/instagram/feed');
     }
     if (state.error) {
@@ -71,12 +74,13 @@ export default function CreateInstagramPostPage() {
           <ZoruCardContent className="space-y-4">
             <div className="space-y-2">
               <ZoruLabel htmlFor="imageUrl">Image URL</ZoruLabel>
-              <ZoruInput
+              <SabFileUrlInput
                 id="imageUrl"
                 name="imageUrl"
-                type="url"
+                accept="image"
                 placeholder="https://example.com/image.jpg"
-                required
+                value={imageUrl}
+                onChange={setImageUrl}
               />
               <p className="text-xs text-zoru-ink-muted">
                 Your image must be publicly accessible.

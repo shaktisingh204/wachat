@@ -297,6 +297,87 @@ pub async fn search_nodes(
     Ok(Json(NodesResponse { nodes: out }))
 }
 
+/// Flat library view: every (non-trashed) file the user owns, optionally
+/// filtered by category and name. Drives the file-picker modal.
+pub async fn library(
+    user: AuthUser,
+    State(s): State<SabfilesState>,
+    Query(q): Query<LibraryQuery>,
+) -> Result<Json<NodesResponse>> {
+    let user_id = user_oid(&user)?;
+    let limit = q.limit.unwrap_or(200).clamp(1, 500) as i64;
+    let coll = s.mongo.collection::<Document>(NODES_COLL);
+
+    let mut filter = doc! {
+        "userId": user_id,
+        "type": "file",
+        "trashed": { "$ne": true },
+    };
+
+    // Category → mime regex. Keep these aligned with the SabFilePicker
+    // tabs in the UI.
+    match q.category.as_deref().unwrap_or("all") {
+        "image" => {
+            filter.insert("mime", doc! { "$regex": "^image/", "$options": "i" });
+        }
+        "video" => {
+            filter.insert("mime", doc! { "$regex": "^video/", "$options": "i" });
+        }
+        "audio" => {
+            filter.insert("mime", doc! { "$regex": "^audio/", "$options": "i" });
+        }
+        "document" => {
+            filter.insert(
+                "mime",
+                doc! {
+                    "$regex": "(pdf|msword|officedocument|text/|spreadsheet|presentation|csv|rtf|epub)",
+                    "$options": "i"
+                },
+            );
+        }
+        "other" => {
+            filter.insert(
+                "mime",
+                doc! {
+                    "$not": doc! {
+                        "$regex": "^(image|video|audio)/|pdf|msword|officedocument|text/|spreadsheet|presentation|csv|rtf|epub",
+                        "$options": "i",
+                    }
+                },
+            );
+        }
+        _ => {}
+    }
+
+    if let Some(needle) = q.query.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+        filter.insert(
+            "name",
+            doc! { "$regex": regex::escape_basic(needle), "$options": "i" },
+        );
+    }
+
+    let mut cursor = coll
+        .find(filter)
+        .with_options(
+            FindOptions::builder()
+                .sort(doc! { "updatedAt": -1 })
+                .limit(limit)
+                .build(),
+        )
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+
+    let mut out = Vec::new();
+    while let Some(d) = cursor
+        .try_next()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?
+    {
+        out.push(decorate_node(&s.r2, d));
+    }
+    Ok(Json(NodesResponse { nodes: out }))
+}
+
 pub async fn list_starred(
     user: AuthUser,
     State(s): State<SabfilesState>,

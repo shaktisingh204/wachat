@@ -21,6 +21,7 @@ import { rustClient, RustApiError } from '@/lib/rust-client';
 import type {
     SabfilesNode,
     ListNodesQuery,
+    LibraryQuery,
     PresignUploadBody,
     ConfirmUploadBody,
     CreateShareBody,
@@ -231,6 +232,14 @@ export async function getStorageUsage() {
         return await rustClient.sabfiles.storage();
     } catch (e) {
         return { ...asError(e), used: 0, count: 0 };
+    }
+}
+
+export async function getLibrary(q?: LibraryQuery) {
+    try {
+        return await rustClient.sabfiles.library(q);
+    } catch (e) {
+        return { ...asError(e), nodes: [] as SabfilesNode[] };
     }
 }
 

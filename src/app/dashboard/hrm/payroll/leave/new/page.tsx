@@ -16,6 +16,7 @@ import {
   ZoruSelectValue,
   useZoruToast,
 } from '@/components/zoruui';
+import { SabFileUrlInput } from '@/components/sabfiles';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import {
   getLeaveTypes,
@@ -262,13 +263,14 @@ export default function ApplyLeavePage() {
             </div>
             <div>
               <ZoruLabel className="text-zoru-ink">Attachment URL</ZoruLabel>
-              <ZoruInput
-                type="url"
-                value={attachmentUrl}
-                onChange={(e) => setAttachmentUrl(e.target.value)}
-                placeholder="https://…"
-                className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
-              />
+              <div className="mt-1.5">
+                <SabFileUrlInput
+                  accept="all"
+                  value={attachmentUrl}
+                  onChange={(v) => setAttachmentUrl(v)}
+                  placeholder="https://…"
+                />
+              </div>
             </div>
 
             <div className="flex gap-2 md:col-span-2 md:justify-end">

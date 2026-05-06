@@ -170,3 +170,17 @@ pub struct SearchQuery {
     #[serde(default)]
     pub limit: Option<u32>,
 }
+
+/// Query for the flat library view used by the file-picker modal.
+#[derive(Debug, Clone, Deserialize)]
+pub struct LibraryQuery {
+    /// `image` | `video` | `audio` | `document` | `other` | `all`. Defaults to `all`.
+    #[serde(default)]
+    pub category: Option<String>,
+    /// Optional case-insensitive name substring filter.
+    #[serde(default)]
+    pub query: Option<String>,
+    /// Max items, default 200, capped at 500.
+    #[serde(default)]
+    pub limit: Option<u32>,
+}
