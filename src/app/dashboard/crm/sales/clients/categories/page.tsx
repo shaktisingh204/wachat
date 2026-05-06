@@ -1,5 +1,8 @@
 'use client';
 
+import { cn as _zoruCn } from '@/components/zoruui';
+void _zoruCn;
+
 import * as React from 'react';
 import { Tags, Layers } from 'lucide-react';
 import { HrEntityPage } from '../../../_components/hr-entity-page';

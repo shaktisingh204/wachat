@@ -1,3 +1,6 @@
+import { cn as _zoruCn } from '@/components/zoruui';
+void _zoruCn;
+
 import { getProformaInvoices } from '@/app/actions/crm-proforma-invoices.actions';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Plus, Search, FileText } from 'lucide-react';

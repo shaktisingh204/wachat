@@ -17,6 +17,7 @@ import {
 import { cn } from "../lib/cn";
 import { ZoruAppSidebar, type ZoruSidebarGroup } from "./zoru-app-sidebar";
 import { ZORU_APPS, ZORU_MIGRATED_APPS } from "./zoru-apps";
+import { findAppSidebarConfig } from "./zoru-app-sidebars";
 import { ZoruDock, ZoruDockIcon } from "./zoru-dock";
 import { ZoruHeader } from "./zoru-header";
 import { ZoruInput } from "../input";
@@ -115,26 +116,43 @@ export function ZoruHomeShell({
     })),
   };
 
-  const defaultSidebarGroups: ZoruSidebarGroup[] = [
-    {
-      id: "main",
-      label: "Workspace",
-      items: [
-        { id: "home", label: "Home", icon: <Home />, href: "/dashboard", active: pathname === "/dashboard" },
-        { id: "what's-new", label: "What's new", icon: <Sparkles />, href: "/dashboard" },
-        { id: "notifications", label: "Notifications", icon: <Bell />, href: "/dashboard/notifications" },
-      ],
-    },
-    {
-      id: "shortcuts",
-      label: "Shortcuts",
-      items: [
-        { id: "wachat", label: "WaChat inbox", icon: <Smartphone />, href: "/wachat" },
-        { id: "sabflow", label: "Flows", icon: <Workflow />, href: "/dashboard/sabflow/flow-builder" },
-        { id: "crm", label: "CRM", icon: <Briefcase />, href: "/dashboard/crm" },
-      ],
-    },
-  ];
+  // Auto-select per-app sidebar groups from the central registry based on
+  // the current pathname. Each app declares its own grouped menu in
+  // `zoru-app-sidebars.tsx`; the active config wins, the fallback is the
+  // home Workspace + Shortcuts pair.
+  const activeAppConfig = React.useMemo(
+    () => findAppSidebarConfig(pathname),
+    [pathname],
+  );
+
+  const autoGroups: ZoruSidebarGroup[] = React.useMemo(
+    () => (activeAppConfig ? activeAppConfig.build(pathname ?? "") : []),
+    [activeAppConfig, pathname],
+  );
+
+  const defaultSidebarGroups: ZoruSidebarGroup[] =
+    autoGroups.length > 0
+      ? autoGroups
+      : [
+          {
+            id: "main",
+            label: "Workspace",
+            items: [
+              { id: "home", label: "Home", icon: <Home />, href: "/dashboard", active: pathname === "/dashboard" },
+              { id: "what's-new", label: "What's new", icon: <Sparkles />, href: "/dashboard" },
+              { id: "notifications", label: "Notifications", icon: <Bell />, href: "/dashboard/notifications" },
+            ],
+          },
+          {
+            id: "shortcuts",
+            label: "Shortcuts",
+            items: [
+              { id: "wachat", label: "WaChat inbox", icon: <Smartphone />, href: "/wachat" },
+              { id: "sabflow", label: "Flows", icon: <Workflow />, href: "/dashboard/sabflow/flow-builder" },
+              { id: "crm", label: "CRM", icon: <Briefcase />, href: "/dashboard/crm" },
+            ],
+          },
+        ];
 
   // Always surface migrated apps at the top of the sidebar, even when
   // a module overrides the rest of the groups (e.g. /wachat passes its
@@ -143,6 +161,16 @@ export function ZoruHomeShell({
     migratedAppsGroup,
     ...(sidebarGroupsProp ?? defaultSidebarGroups),
   ];
+
+  // Auto-resolve the heading + caption from the active app config when
+  // the caller hasn't explicitly overridden them.
+  const resolvedHeading = sidebarHeading ?? activeAppConfig?.heading ?? "Home";
+  const resolvedCaption =
+    sidebarCaption ??
+    activeAppConfig?.caption ??
+    user?.name ??
+    user?.email ??
+    "Workspace";
 
   const planFooter = plan?.name || plan?.credits !== undefined ? (
     <div className="flex flex-col gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3">
@@ -163,8 +191,8 @@ export function ZoruHomeShell({
   return (
     <div className="zoruui flex h-screen w-full overflow-hidden bg-zoru-bg text-zoru-ink">
       <ZoruAppSidebar
-        heading={sidebarHeading ?? "Home"}
-        caption={sidebarCaption ?? user?.name ?? user?.email ?? "Workspace"}
+        heading={resolvedHeading}
+        caption={resolvedCaption}
         groups={sidebarGroups}
         footer={planFooter}
       />

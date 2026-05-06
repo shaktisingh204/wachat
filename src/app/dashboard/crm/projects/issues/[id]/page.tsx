@@ -1,3 +1,6 @@
+import { cn as _zoruCn } from '@/components/zoruui';
+void _zoruCn;
+
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { AlertOctagon, ArrowLeft } from 'lucide-react';

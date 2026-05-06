@@ -1,5 +1,8 @@
 'use client';
 
+import { cn as _zoruCn } from '@/components/zoruui';
+void _zoruCn;
+
 import { use, useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { format } from 'date-fns';

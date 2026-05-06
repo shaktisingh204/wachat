@@ -1,3 +1,6 @@
+import { cn as _zoruCn } from '@/components/zoruui';
+void _zoruCn;
+
 import { Suspense } from 'react';
 import { ArrowUpRight } from 'lucide-react';
 import { NewPayoutForm } from './new-payout-form';

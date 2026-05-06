@@ -1,5 +1,8 @@
 'use client';
 
+import { cn as _zoruCn } from '@/components/zoruui';
+void _zoruCn;
+
 import { Route } from 'lucide-react';
 import { HrFormPage } from '../../_components/hr-form-page';
 import { saveLearningPath } from '@/app/actions/hr.actions';

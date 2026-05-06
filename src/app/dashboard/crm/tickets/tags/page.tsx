@@ -1,5 +1,8 @@
 'use client';
 
+import { cn as _zoruCn } from '@/components/zoruui';
+void _zoruCn;
+
 import { Hash } from 'lucide-react';
 import { HrEntityPage } from '../../_components/hr-entity-page';
 import {

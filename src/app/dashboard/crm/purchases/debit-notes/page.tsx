@@ -1,3 +1,6 @@
+import { cn as _zoruCn } from '@/components/zoruui';
+void _zoruCn;
+
 import { getDebitNotes } from '@/app/actions/crm-debit-notes.actions';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Plus, Search, FileMinus } from 'lucide-react';

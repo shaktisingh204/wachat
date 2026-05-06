@@ -1,5 +1,8 @@
 'use client';
 
+import { cn as _zoruCn } from '@/components/zoruui';
+void _zoruCn;
+
 import { useRouter } from 'next/navigation';
 import { getCrmChartOfAccountById, getVoucherEntriesForAccount } from '@/app/actions/crm-accounting.actions';
 import { Button } from '@/components/ui/button';

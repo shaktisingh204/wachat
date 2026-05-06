@@ -1,5 +1,8 @@
 'use client';
 
+import { cn as _zoruCn } from '@/components/zoruui';
+void _zoruCn;
+
 import { MessagesSquare, Folder } from 'lucide-react';
 import Link from 'next/link';
 

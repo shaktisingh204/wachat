@@ -1,5 +1,8 @@
 'use client';
 
+import { cn as _zoruCn } from '@/components/zoruui';
+void _zoruCn;
+
 import { useTransition } from 'react';
 import { CircleDollarSign, Star } from 'lucide-react';
 

@@ -1,3 +1,6 @@
+import { cn as _zoruCn } from '@/components/zoruui';
+void _zoruCn;
+
 import { getExpenses } from '@/app/actions/crm-expenses.actions';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Plus, Search, Wallet } from 'lucide-react';

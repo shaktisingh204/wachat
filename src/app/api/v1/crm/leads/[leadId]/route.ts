@@ -1,6 +1,6 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import { authenticateApiKey } from '@/app/actions/api-keys.actions';
+import { verifyApiKey, type ApiAuthContext } from '@/lib/api-platform/auth';
 import { getLeadByIdForApi, updateLeadForApi, deleteLeadForApi } from '@/app/actions/crm-leads-api.actions';
 import { checkRateLimit } from '@/lib/rate-limiter';
 import { ObjectId } from 'mongodb';
@@ -8,9 +8,9 @@ import { ObjectId } from 'mongodb';
 async function handler(
     request: NextRequest,
     { params }: { params: Promise<{ leadId: string }> },
-    authResult: any
+    ctx: ApiAuthContext,
 ) {
-    const { user } = authResult;
+    const userId = ctx.tenantId;
     const { leadId } = await params;
 
     if (!ObjectId.isValid(leadId)) {
@@ -18,20 +18,20 @@ async function handler(
     }
 
     if (request.method === 'GET') {
-        const { lead, error } = await getLeadByIdForApi(leadId, user._id.toString());
+        const { lead, error } = await getLeadByIdForApi(leadId, userId);
         if (error) return NextResponse.json({ error }, { status: 404 });
         return NextResponse.json({ success: true, data: lead });
     }
 
     if (request.method === 'PUT') {
         const body = await request.json();
-        const { success, lead, error } = await updateLeadForApi(leadId, user._id.toString(), body);
+        const { success, lead, error } = await updateLeadForApi(leadId, userId, body);
         if (error) return NextResponse.json({ error }, { status: 400 });
         return NextResponse.json({ success, data: lead });
     }
 
     if (request.method === 'DELETE') {
-        const { success, error } = await deleteLeadForApi(leadId, user._id.toString());
+        const { success, error } = await deleteLeadForApi(leadId, userId);
         if (error) return NextResponse.json({ error }, { status: 400 });
         return NextResponse.json({ success, message: 'Lead deleted successfully.' });
     }
@@ -45,24 +45,17 @@ export async function wrapper(
     request: NextRequest,
     { params }: { params: Promise<{ leadId: string }> }
 ) {
-    const authHeader = request.headers.get('Authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return NextResponse.json({ error: 'Unauthorized: Missing API key.' }, { status: 401 });
-    }
-    const apiKey = authHeader.split(' ')[1];
-
-    const authResult = await authenticateApiKey(apiKey);
-    if (!authResult.success || !authResult.user) {
+    const ctx = await verifyApiKey(request);
+    if (!ctx) {
         return NextResponse.json({ error: 'Unauthorized: Invalid API key.' }, { status: 401 });
     }
 
-    const { user } = authResult;
-    const { success, error } = await checkRateLimit(`api:leads:${user._id.toString()}`, 60, 60 * 1000);
+    const { success, error } = await checkRateLimit(`api:leads:${ctx.tenantId}`, 60, 60 * 1000);
     if (!success) {
         return NextResponse.json({ error }, { status: 429 });
     }
 
-    return handler(request, { params }, authResult);
+    return handler(request, { params }, ctx);
 }
 
 export { wrapper as GET, wrapper as PUT, wrapper as DELETE };

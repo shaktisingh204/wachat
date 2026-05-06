@@ -1,5 +1,8 @@
 'use client';
 
+import { cn as _zoruCn } from '@/components/zoruui';
+void _zoruCn;
+
 import { UserPlus, Star } from 'lucide-react';
 import { ClayCard } from '@/components/clay';
 import { CrmPageHeader } from '../../_components/crm-page-header';

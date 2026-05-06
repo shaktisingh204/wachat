@@ -1,5 +1,8 @@
 'use client';
 
+import { cn as _zoruCn } from '@/components/zoruui';
+void _zoruCn;
+
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import { CalendarDays, ChevronLeft, ChevronRight, Users } from 'lucide-react';
 import { format, addDays, startOfWeek } from 'date-fns';

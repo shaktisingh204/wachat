@@ -32,9 +32,13 @@ use wachat_contacts::WachatContactsState;
 use wachat_facebook_agents::WachatFacebookAgentsState;
 use wachat_facebook_automation::WachatFacebookAutomationState;
 use wachat_facebook_business::WachatFacebookBusinessState;
+use wachat_facebook_comments::WachatFacebookCommentsState;
 use wachat_facebook_content::WachatFacebookContentState;
 use wachat_facebook_crm::WachatFacebookCrmState;
+use wachat_facebook_events::WachatFacebookEventsState;
+use wachat_facebook_lead_gen::WachatFacebookLeadGenState;
 use wachat_facebook_messaging::WachatFacebookMessagingState;
+use wachat_facebook_messenger_profile::WachatFacebookMessengerProfileState;
 use wachat_facebook_misc::WachatFacebookMiscState;
 use wachat_facebook_pages::{FacebookAppConfig, WachatFacebookPagesState};
 use wachat_flows::WachatFlowsState;
@@ -263,6 +267,11 @@ async fn run() -> anyhow::Result<()> {
     let fb_agents = WachatFacebookAgentsState::new(mongo.clone());
     let fb_business = WachatFacebookBusinessState::new(mongo.clone(), meta.clone());
     let fb_misc = WachatFacebookMiscState::new(mongo.clone(), meta.clone());
+    let fb_comments = WachatFacebookCommentsState::new(mongo.clone(), meta.clone());
+    let fb_events = WachatFacebookEventsState::new(mongo.clone(), meta.clone());
+    let fb_lead_gen = WachatFacebookLeadGenState::new(mongo.clone(), meta.clone());
+    let fb_messenger_profile =
+        WachatFacebookMessengerProfileState::new(mongo.clone(), meta.clone());
     let instagram = WachatInstagramState::new(mongo.clone(), meta.clone());
 
     let state = AppState::new(
@@ -300,6 +309,10 @@ async fn run() -> anyhow::Result<()> {
         fb_agents,
         fb_business,
         fb_misc,
+        fb_comments,
+        fb_events,
+        fb_lead_gen,
+        fb_messenger_profile,
         instagram,
     );
     let app = router::build(state.clone());

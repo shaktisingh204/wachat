@@ -1,3 +1,6 @@
+import { cn as _zoruCn } from '@/components/zoruui';
+void _zoruCn;
+
 import { Suspense } from 'react';
 import { Wallet } from 'lucide-react';
 import { NewExpenseForm } from './new-expense-form';

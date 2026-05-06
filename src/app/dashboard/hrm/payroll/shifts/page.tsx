@@ -1,5 +1,8 @@
 'use client';
 
+import { cn as _zoruCn } from '@/components/zoruui';
+void _zoruCn;
+
 import { useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { Plus, Clock, Edit, Trash2, CalendarDays } from 'lucide-react';

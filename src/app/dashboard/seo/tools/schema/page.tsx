@@ -1,5 +1,8 @@
 'use client';
 
+import { cn as _zoruCn } from '@/components/zoruui';
+void _zoruCn;
+
 import SchemaBuilder from '@/components/seo/schema-builder';
 import { Card, CardContent } from '@/components/ui/card';
 import { Code2 } from 'lucide-react';

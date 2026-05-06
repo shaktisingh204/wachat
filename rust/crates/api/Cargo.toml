@@ -66,6 +66,10 @@ wachat-facebook-crm = { path = "../wachat-facebook-crm" }
 wachat-facebook-agents = { path = "../wachat-facebook-agents" }
 wachat-facebook-business = { path = "../wachat-facebook-business" }
 wachat-facebook-misc = { path = "../wachat-facebook-misc" }
+wachat-facebook-comments = { path = "../wachat-facebook-comments" }
+wachat-facebook-events = { path = "../wachat-facebook-events" }
+wachat-facebook-lead-gen = { path = "../wachat-facebook-lead-gen" }
+wachat-facebook-messenger-profile = { path = "../wachat-facebook-messenger-profile" }
 wachat-instagram = { path = "../wachat-instagram" }
 wachat-rate-limit = { path = "../wachat-rate-limit" }
 wachat-config = { path = "../wachat-config" }
