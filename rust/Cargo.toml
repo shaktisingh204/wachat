@@ -94,6 +94,16 @@ members = [
     "crates/telegram-ads",
     "crates/crm-core",
     "crates/crm-sales-types",
+    "crates/crm-purchases-types",
+    "crates/crm-inventory-types",
+    "crates/crm-accounting-types",
+    "crates/crm-sales-crm-types",
+    "crates/crm-banking-types",
+    "crates/crm-reports-types",
+    "crates/crm-integrations-types",
+    "crates/hrm-payroll-types",
+    "crates/hrm-people-types",
+    "crates/crm-extras-types",
 ]
 
 [workspace.package]

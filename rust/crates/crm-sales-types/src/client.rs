@@ -10,6 +10,7 @@
 //! because it stores the account-level entity; the §13 lookup registry
 //! exposes it under the `client` entity key).
 
+use crate::address::Address;
 use bson::oid::ObjectId;
 use chrono::{DateTime, Utc};
 use crm_core::{Assignment, Attachment, Attribution, Audit, CustomFields, Identity, Note, Tags};
@@ -43,29 +44,6 @@ pub enum ContactChannel {
     Whatsapp,
     Telegram,
     Sms,
-}
-
-/// Postal address. Mirrors the line1/line2/city/state/country/pincode
-/// shape used everywhere in the TS code.
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct Address {
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub line1: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub line2: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub city: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub state: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub country: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub pincode: Option<String>,
-    /// Optional human label for shipping addresses ("Office",
-    /// "Warehouse-A", …). Ignored for the billing address.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub label: Option<String>,
 }
 
 /// Email + phone book. Primary is required; `alt` is a free-form
