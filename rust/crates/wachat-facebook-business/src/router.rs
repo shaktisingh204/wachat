@@ -28,7 +28,7 @@ use axum::{
     extract::{FromRef, Path, State},
     routing::{get, post},
 };
-use bson::doc;
+use bson::{Document, doc};
 use sabnode_auth::{AuthConfig, AuthUser};
 use sabnode_common::{ApiError, Result};
 use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
@@ -38,26 +38,45 @@ use crate::{business, commerce, state::WachatFacebookBusinessState};
 
 const PROJECTS_COLL: &str = "projects";
 
-/// Tenant gate — mirrors `wachat-config::router::load_project_for` so the
-/// contract is identical to every other per-project handler in the
-/// workspace. 404 if the project doesn't exist, 403 if the caller is not
-/// its owner.
+/// Tenant gate — reads the project document untyped (raw `Document`) so that
+/// schema drift on legacy/mixed-shape rows can't crash the handler with a
+/// strict-deserialization 500. We then rebuild a minimal `Project` containing
+/// only the fields downstream business/commerce code touches.
+/// 404 if the project doesn't exist, 403 if the caller is not its owner.
 async fn load_project_for(
     user: &AuthUser,
     mongo: &MongoHandle,
     project_id_hex: &str,
 ) -> Result<Project> {
     let oid = oid_from_str(project_id_hex)?;
-    let coll = mongo.collection::<Project>(PROJECTS_COLL);
-    let project = coll
+    let coll = mongo.collection::<Document>(PROJECTS_COLL);
+    let raw = coll
         .find_one(doc! { "_id": oid })
         .await
         .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?
         .ok_or_else(|| ApiError::NotFound(format!("project {project_id_hex}")))?;
-    if user.tenant_id != project.user_id.to_hex() {
+    let owner = raw
+        .get_object_id("userId")
+        .map_err(|_| ApiError::Internal(anyhow::anyhow!("project missing userId")))?;
+    if user.tenant_id != owner.to_hex() {
         return Err(ApiError::Forbidden("not your project".to_owned()));
     }
-    Ok(project)
+    Ok(Project {
+        id: oid,
+        user_id: owner,
+        name: raw.get_str("name").ok().map(str::to_owned),
+        waba_id: raw.get_str("wabaId").ok().map(str::to_owned),
+        business_id: raw.get_str("businessId").ok().map(str::to_owned),
+        app_id: raw.get_str("appId").ok().map(str::to_owned),
+        access_token: raw.get_str("accessToken").ok().map(str::to_owned),
+        phone_numbers: Vec::new(),
+        messages_per_second: None,
+        credits: None,
+        plan_id: None,
+        review_status: None,
+        ban_state: None,
+        created_at: None,
+    })
 }
 
 pub fn router<S>() -> Router<S>

@@ -5,13 +5,13 @@ import { useFormStatus } from 'react-dom';
 
 import { LoaderCircle, Save, ArrowLeft, User, Truck, Upload, X } from 'lucide-react';
 
-import { saveCrmVendor } from '@/app/actions/crm-vendors.actions';
+import { saveCrmVendor, getCrmVendorById } from '@/app/actions/crm-vendors.actions';
 import { SabFilePickerButton } from '@/components/sabfiles';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { CrmAddBankAccountDialog } from '@/components/wabasimplify/crm-add-bank-account-dialog';
-import type { BankAccountDetails } from '@/lib/definitions';
+import type { BankAccountDetails, CrmVendor, WithId } from '@/lib/definitions';
 
 import { EntityPicker } from '@/components/crm/entity-picker';
 
@@ -19,11 +19,11 @@ import { CrmPageHeader } from '../../../_components/crm-page-header';
 
 const initialState = { message: '', error: '' };
 
-function SubmitButton() {
+function SubmitButton({ isEdit }: { isEdit: boolean }) {
     const { pending } = useFormStatus();
     return (
         <ZoruButton type="submit" disabled={pending}>
-            Add Vendor
+            {isEdit ? 'Save Changes' : 'Add Vendor'}
         </ZoruButton>
     );
 }
@@ -32,9 +32,25 @@ export default function NewVendorPage() {
     const [state, formAction] = useActionState(saveCrmVendor, initialState);
     const { toast } = useZoruToast();
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const editVendorId = searchParams?.get('vendorId') ?? '';
+    const isEdit = Boolean(editVendorId);
+    const [vendor, setVendor] = useState<WithId<CrmVendor> | null>(null);
     const formRef = useRef<HTMLFormElement>(null);
     const [bankDetails, setBankDetails] = useState<Partial<BankAccountDetails>>({});
     const [isBankDialogOpen, setIsBankDialogOpen] = useState(false);
+
+    useEffect(() => {
+        if (!editVendorId) return;
+        let cancelled = false;
+        (async () => {
+            const v = await getCrmVendorById(editVendorId);
+            if (!cancelled) setVendor(v);
+        })();
+        return () => {
+            cancelled = true;
+        };
+    }, [editVendorId]);
 
     // Location picker state — one id per field
     const [countryId, setCountryId] = useState<string>('');
@@ -74,12 +90,17 @@ export default function NewVendorPage() {
             </div>
 
             <CrmPageHeader
-                title="New Vendor"
-                subtitle="Enter the details for the new vendor or supplier."
+                title={isEdit ? 'Edit Vendor' : 'New Vendor'}
+                subtitle={
+                    isEdit
+                        ? `Update details for ${vendor?.name ?? 'this vendor'}.`
+                        : 'Enter the details for the new vendor or supplier.'
+                }
                 icon={Truck}
             />
 
-            <form action={formAction} ref={formRef}>
+            <form action={formAction} ref={formRef} key={vendor?._id?.toString() ?? 'new'}>
+                {isEdit && <input type="hidden" name="vendorId" value={editVendorId} />}
                 <input type="hidden" name="bankAccountDetails" value={JSON.stringify(bankDetails)} />
                 <input type="hidden" name="logoUrl" value={logoUrl} />
                 <input type="hidden" name="attachmentUrls" value={JSON.stringify(attachmentUrls.map(a => a.url))} />
@@ -122,7 +143,7 @@ export default function NewVendorPage() {
                                 </div>
                                 <div className="space-y-2">
                                     <ZoruLabel htmlFor="name">Vendor&apos;s Business Name *</ZoruLabel>
-                                    <ZoruInput id="name" name="name" required maxLength={100} className="h-10 rounded-lg border-border bg-card text-[13px]" />
+                                    <ZoruInput id="name" name="name" required maxLength={100} defaultValue={vendor?.name ?? ''} className="h-10 rounded-lg border-border bg-card text-[13px]" />
                                 </div>
                                 <div className="space-y-2">
                                     <ZoruLabel htmlFor="clientIndustry">Vendor Industry</ZoruLabel>
@@ -222,12 +243,12 @@ export default function NewVendorPage() {
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <ZoruLabel htmlFor="email">Email</ZoruLabel>
-                                        <ZoruInput id="email" name="email" type="email" maxLength={100} className="h-10 rounded-lg border-border bg-card text-[13px]" />
+                                        <ZoruInput id="email" name="email" type="email" maxLength={100} defaultValue={vendor?.email ?? ''} className="h-10 rounded-lg border-border bg-card text-[13px]" />
                                         <div className="flex items-center space-x-2"><ZoruCheckbox id="show-email" /><ZoruLabel htmlFor="show-email" className="font-normal text-xs">Show in Invoice</ZoruLabel></div>
                                     </div>
                                     <div className="space-y-2">
                                         <ZoruLabel htmlFor="phone">Phone No.</ZoruLabel>
-                                        <ZoruInput id="phone" name="phone" maxLength={30} className="h-10 rounded-lg border-border bg-card text-[13px]" />
+                                        <ZoruInput id="phone" name="phone" maxLength={30} defaultValue={vendor?.phone ?? ''} className="h-10 rounded-lg border-border bg-card text-[13px]" />
                                         <div className="flex items-center space-x-2"><ZoruCheckbox id="show-phone" /><ZoruLabel htmlFor="show-phone" className="font-normal text-xs">Show in Invoice</ZoruLabel></div>
                                     </div>
                                 </div>
@@ -296,7 +317,7 @@ export default function NewVendorPage() {
                     </ZoruAccordion>
 
                     <div className="flex justify-end pt-6">
-                        <SubmitButton />
+                        <SubmitButton isEdit={isEdit} />
                     </div>
                 </ZoruCard>
             </form>

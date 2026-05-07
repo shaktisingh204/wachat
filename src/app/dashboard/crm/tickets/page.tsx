@@ -4,6 +4,7 @@ import {
   useActionState,
   useCallback,
   useEffect,
+  useRef,
   useState,
   useTransition,
 } from 'react';
@@ -20,7 +21,13 @@ import {
   updateTicketStatus,
   deleteTicket,
 } from '@/app/actions/crm-services.actions';
+import { getCustomFieldsFor } from '@/app/actions/worksuite/meta.actions';
 import type { HrTicket } from '@/lib/hr-types';
+import type { WsCustomField } from '@/lib/worksuite/meta-types';
+import {
+  CustomFieldInput,
+  type CustomFieldValue,
+} from '@/components/crm/custom-field-input';
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -105,6 +112,61 @@ export default function TicketsPage() {
     message: '',
     error: '',
   } as any);
+
+  // Custom-field definitions configured in CRM Settings → Custom Fields
+  // for entity=ticket. Loaded once on first dialog open.
+  const [customFields, setCustomFields] = useState<WsCustomField[]>([]);
+  const [customFieldValues, setCustomFieldValues] = useState<
+    Record<string, CustomFieldValue>
+  >({});
+  const customFieldsLoadedRef = useRef(false);
+
+  useEffect(() => {
+    if (!dialogOpen) return;
+    if (customFieldsLoadedRef.current) return;
+    customFieldsLoadedRef.current = true;
+    let cancelled = false;
+    (async () => {
+      try {
+        const defs = await getCustomFieldsFor('ticket');
+        if (!cancelled) setCustomFields((defs as WsCustomField[]) ?? []);
+      } catch {
+        if (!cancelled) setCustomFields([]);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [dialogOpen]);
+
+  // Reseed custom-field values whenever the dialog opens for a different
+  // ticket. `editing.customFields` is the storage shape applied by
+  // `applyCustomFieldsToEntity` — keyed by `WsCustomField.name`.
+  useEffect(() => {
+    if (!dialogOpen) return;
+    const seed = (editing as Ticket & {
+      customFields?: Record<string, CustomFieldValue>;
+    } | null)?.customFields;
+    setCustomFieldValues(seed ?? {});
+  }, [dialogOpen, editing]);
+
+  const handleCustomFieldChange = useCallback(
+    (slug: string, next: CustomFieldValue) => {
+      setCustomFieldValues((prev) => ({ ...prev, [slug]: next }));
+    },
+    [],
+  );
+
+  // Inject the JSON-encoded customFields blob into FormData under the
+  // `customFields` key. `saveTicket` parses + persists via
+  // `applyCustomFieldsToEntity('ticket', insertedId, parsed)`.
+  const handleSaveAction = useCallback(
+    (formData: FormData) => {
+      formData.set('customFields', JSON.stringify(customFieldValues));
+      saveFormAction(formData);
+    },
+    [saveFormAction, customFieldValues],
+  );
 
   const refresh = useCallback(() => {
     startLoading(async () => {
@@ -399,7 +461,7 @@ export default function TicketsPage() {
             </ZoruDialogDescription>
           </ZoruDialogHeader>
 
-          <form action={saveFormAction} className="space-y-4">
+          <form action={handleSaveAction} className="space-y-4">
             {editing?._id ? (
               <input type="hidden" name="_id" value={editing._id} />
             ) : null}
@@ -498,6 +560,26 @@ export default function TicketsPage() {
                 />
               </div>
             </div>
+
+            {customFields.length > 0 ? (
+              <div className="space-y-3 border-t border-zoru-line pt-4">
+                <div className="text-[11px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                  Custom Fields
+                </div>
+                <div className="grid gap-4 md:grid-cols-2">
+                  {customFields.map((f) => (
+                    <CustomFieldInput
+                      key={String(f._id ?? f.name)}
+                      field={f}
+                      value={customFieldValues[f.name]}
+                      onChange={(next) =>
+                        handleCustomFieldChange(f.name, next)
+                      }
+                    />
+                  ))}
+                </div>
+              </div>
+            ) : null}
 
             <ZoruDialogFooter className="gap-2">
               <ZoruButton

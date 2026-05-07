@@ -220,7 +220,45 @@ export default function VisitorPostsPage() {
       {!projectId ? (
         <FbNoProject />
       ) : error ? (
-        <FbErrorAlert message={error} />
+        /\b(permission|\(#10\)|\(#200\)|\(#100\))/i.test(error) ? (
+          <ZoruCard className="mt-6 p-6 text-sm">
+            <div className="flex items-start gap-3">
+              <div className="text-base font-medium text-zoru-fg">
+                Visitor posts requires extended Meta permissions
+              </div>
+            </div>
+            <p className="mt-3 text-zoru-muted-fg">
+              Reading visitor posts on a Facebook Page requires the{" "}
+              <code className="rounded bg-zoru-surface px-1.5 py-0.5 text-[0.85em]">
+                Page Public Content Access
+              </code>{" "}
+              permission, which Meta only grants to apps that have completed
+              App Review for that capability. Once SabNode is approved, you can
+              reconnect your account below to grant the new scope.
+            </p>
+            <p className="mt-2 text-zoru-muted-fg/80">
+              Raw error from Meta: {error}
+            </p>
+            <div className="mt-4 flex gap-2">
+              <a
+                href="/api/auth/meta-suite/login?reauthorize=true&state=facebook_reauth"
+                className="inline-flex items-center rounded-md border border-zoru-line bg-zoru-surface px-3 py-1.5 text-sm font-medium hover:bg-zoru-surface-2"
+              >
+                Reconnect Facebook
+              </a>
+              <a
+                href="https://developers.facebook.com/docs/graph-api/reference/page/visitor_posts/"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center rounded-md px-3 py-1.5 text-sm font-medium text-zoru-muted-fg hover:text-zoru-fg"
+              >
+                Learn more
+              </a>
+            </div>
+          </ZoruCard>
+        ) : (
+          <FbErrorAlert message={error} />
+        )
       ) : (
         <>
           {/* Segmented buttons (no tab UI) */}

@@ -5,7 +5,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { BarChart, ExternalLink, ArrowRight, Trash2, MoreVertical, Calendar } from 'lucide-react';
+import { BarChart, ArrowRight, Trash2, MoreVertical, Calendar } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import Link from 'next/link';
@@ -14,7 +14,8 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu';
+import { deleteSeoProject } from '@/app/actions/seo.actions';
 
 // Define a flexible interface that can handle SEO Project data
 // We can import the exact type, but for UI component flexibility we can define shape
@@ -87,7 +88,19 @@ export const SeoProjectCard = React.memo(function SeoProjectCard({ project }: Se
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            <DropdownMenuItem className="text-destructive focus:text-destructive">
+                            <DropdownMenuItem
+                                className="text-destructive focus:text-destructive"
+                                onSelect={async (e) => {
+                                    e.preventDefault();
+                                    if (!window.confirm(`Delete "${displayName}"? This cannot be undone.`)) return;
+                                    const res = await deleteSeoProject(String(project._id));
+                                    if (res?.error) {
+                                        window.alert(res.error);
+                                    } else {
+                                        router.refresh();
+                                    }
+                                }}
+                            >
                                 <Trash2 className="mr-2 h-4 w-4" /> Delete Project
                             </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -138,12 +151,14 @@ export const SeoProjectCard = React.memo(function SeoProjectCard({ project }: Se
                 </div>
 
                 <div className="pt-2">
-                    <Button
-                        className="w-full bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white shadow-md shadow-orange-500/10 border-0"
-                        size="sm"
-                    >
-                        View Dashboard <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
+                    <Link href={`/dashboard/seo/${project._id}`} className="block">
+                        <Button
+                            className="w-full bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white shadow-md shadow-orange-500/10 border-0"
+                            size="sm"
+                        >
+                            View Dashboard <ArrowRight className="ml-2 h-4 w-4" />
+                        </Button>
+                    </Link>
                 </div>
             </CardContent>
         </Card>

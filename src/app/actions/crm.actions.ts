@@ -9,6 +9,8 @@ import { getSession } from '@/app/actions/user.actions';
 import type { CrmContact, CrmDeal, CrmTask, CrmInvoice } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { z } from 'zod';
+import { applyCustomFieldsToEntity } from '@/app/actions/worksuite/meta.actions';
+import { writeAuditEntry } from '@/lib/audit-log';
 
 export async function getCrmContacts(
     page: number = 1,
@@ -213,6 +215,23 @@ export async function addCrmClient(prevState: any, formData: FormData): Promise<
 
         const accountResult = await db.collection('crm_accounts').insertOne(accountDoc);
 
+        // Persist custom-field values for entity=account. Best-effort.
+        const cfRaw = formData.get('customFields');
+        if (typeof cfRaw === 'string' && cfRaw.length > 0 && cfRaw !== '{}') {
+            try {
+                const parsed = JSON.parse(cfRaw);
+                if (parsed && typeof parsed === 'object') {
+                    await applyCustomFieldsToEntity(
+                        'account',
+                        accountResult.insertedId.toString(),
+                        parsed,
+                    );
+                }
+            } catch (e) {
+                console.error('[addCrmClient] customFields parse failed:', e);
+            }
+        }
+
         const newContact: Partial<CrmContact> = {
             userId: new ObjectId(session.user._id),
             accountId: accountResult.insertedId,
@@ -225,6 +244,14 @@ export async function addCrmClient(prevState: any, formData: FormData): Promise<
         };
         const insertResult = await db.collection('crm_contacts').insertOne(newContact as CrmContact);
         const createdClient = { ...newContact, _id: insertResult.insertedId };
+
+        // §12.21 audit trail.
+        await writeAuditEntry({
+            tenantUserId: session.user._id,
+            action: 'create',
+            entityKind: 'account',
+            entityId: accountResult.insertedId.toString(),
+        });
 
         revalidatePath('/dashboard/crm/sales/clients');
         return { message: 'New client added successfully.', newClient: JSON.parse(JSON.stringify(createdClient)) };

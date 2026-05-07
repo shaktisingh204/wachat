@@ -19,6 +19,8 @@ import type {
 } from '@/lib/hr-types';
 import type { LineageRef } from '@/lib/definitions';
 import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
+import { applyCustomFieldsToEntity } from '@/app/actions/worksuite/meta.actions';
+import { writeAuditEntry } from '@/lib/audit-log';
 
 type FormState = { message?: string; error?: string; id?: string };
 
@@ -174,10 +176,40 @@ export async function getTicketById(id: string) {
   return hrGetById<HrTicket>('crm_tickets', id);
 }
 export async function saveTicket(_prev: any, formData: FormData) {
-  return save('crm_tickets', '/dashboard/crm/tickets', formData, {
+  const result = await save('crm_tickets', '/dashboard/crm/tickets', formData, {
     idFields: ['clientId'],
     dateFields: ['firstResponseAt', 'resolvedAt'],
   });
+
+  // Persist custom-field values for `entity=ticket`. Best-effort —
+  // if the field bag is malformed we still report the ticket save
+  // succeeded so the user doesn't get a misleading error.
+  if (result.id) {
+    const raw = formData.get('customFields');
+    if (typeof raw === 'string' && raw.length > 0 && raw !== '{}') {
+      try {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object') {
+          await applyCustomFieldsToEntity('ticket', result.id, parsed);
+        }
+      } catch (e) {
+        console.error('[saveTicket] customFields parse failed:', e);
+      }
+    }
+
+    // §12.21 audit trail.
+    const user = await requireSession();
+    if (user) {
+      await writeAuditEntry({
+        tenantUserId: user._id,
+        action: formData.get('_id') ? 'update' : 'create',
+        entityKind: 'ticket',
+        entityId: result.id,
+      });
+    }
+  }
+
+  return result;
 }
 export async function updateTicketStatus(
   id: string,

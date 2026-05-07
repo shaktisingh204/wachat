@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect, useRef, useState } from 'react';
+import { useActionState, useCallback, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
   Dialog,
@@ -18,6 +18,9 @@ import { LoaderCircle, Plus, Building, Upload, X } from 'lucide-react';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import { useToast } from '@/hooks/use-toast';
 import { addCrmClient } from '@/app/actions/crm.actions';
+import { getCustomFieldsFor } from '@/app/actions/worksuite/meta.actions';
+import type { WsCustomField } from '@/lib/worksuite/meta-types';
+import { CustomFieldInput, type CustomFieldValue } from '@/components/crm/custom-field-input';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { ScrollArea } from '../ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
@@ -86,6 +89,50 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
   const [logoFileName, setLogoFileName] = useState<string>('');
   const [attachmentUrls, setAttachmentUrls] = useState<{ url: string; name: string }[]>([]);
 
+  // Custom-field definitions for entity=account, plus the live edit
+  // values keyed by `WsCustomField.name`. Loaded once on first dialog open.
+  const [customFields, setCustomFields] = useState<WsCustomField[]>([]);
+  const [customFieldValues, setCustomFieldValues] = useState<
+    Record<string, CustomFieldValue>
+  >({});
+  const customFieldsLoadedRef = useRef(false);
+
+  useEffect(() => {
+    if (!open) return;
+    if (customFieldsLoadedRef.current) return;
+    customFieldsLoadedRef.current = true;
+    let cancelled = false;
+    (async () => {
+      try {
+        const defs = await getCustomFieldsFor('account');
+        if (!cancelled) setCustomFields((defs as WsCustomField[]) ?? []);
+      } catch {
+        if (!cancelled) setCustomFields([]);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [open]);
+
+  const handleCustomFieldChange = useCallback(
+    (slug: string, next: CustomFieldValue) => {
+      setCustomFieldValues((prev) => ({ ...prev, [slug]: next }));
+    },
+    [],
+  );
+
+  // Inject the JSON-encoded customFields blob into FormData so the
+  // server action can call `applyCustomFieldsToEntity('account', ...)`
+  // after the insert.
+  const handleFormAction = useCallback(
+    (formData: FormData) => {
+      formData.set('customFields', JSON.stringify(customFieldValues));
+      formAction(formData);
+    },
+    [formAction, customFieldValues],
+  );
+
   // Sync internal open state if defaultOpen changes (though usually managed internally)
   useEffect(() => {
     if (defaultOpen) setOpen(true);
@@ -98,6 +145,7 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
       setLogoUrl('');
       setLogoFileName('');
       setAttachmentUrls([]);
+      setCustomFieldValues({});
       setOpen(false);
       // Pass the new client back
       onClientAdded(formState.newClient);
@@ -121,7 +169,7 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-2xl max-h-[85vh] flex flex-col overflow-hidden p-0">
-        <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
+        <form action={handleFormAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
           <DialogHeader className="px-6 pt-6 pb-2">
             <DialogTitle className="text-foreground">Create a New Client</DialogTitle>
             <DialogDescription className="text-muted-foreground">
@@ -374,6 +422,25 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
                   <ClayButton variant="pill" size="sm" className="mt-2" disabled>Enable Now</ClayButton>
                 </AccordionContent>
               </AccordionItem>
+              {customFields.length > 0 ? (
+                <AccordionItem value="custom-fields">
+                  <AccordionTrigger>Custom Fields</AccordionTrigger>
+                  <AccordionContent className="space-y-4 pt-2">
+                    <div className="grid gap-4 md:grid-cols-2">
+                      {customFields.map((f) => (
+                        <CustomFieldInput
+                          key={String(f._id ?? f.name)}
+                          field={f}
+                          value={customFieldValues[f.name]}
+                          onChange={(next) =>
+                            handleCustomFieldChange(f.name, next)
+                          }
+                        />
+                      ))}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              ) : null}
             </Accordion>
           </div>
           <DialogFooter className="px-6 pb-6 pt-2">

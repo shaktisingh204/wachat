@@ -21,7 +21,6 @@
  */
 
 import * as React from 'react';
-import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   ArrowLeft,
@@ -70,19 +69,7 @@ const SIDE_RAIL_BLOCKS = [
 export default function FacebookFlowBuilderPage() {
   const router = useRouter();
   const { toast } = useZoruToast();
-  const [redirecting, setRedirecting] = React.useState(false);
-
-  useEffect(() => {
-    // Existing behaviour: this Meta-Suite entry is currently an alias
-    // for the custom e-commerce flow builder. We trigger the redirect
-    // but keep the chrome rendered so the user never sees a blank
-    // page while next/navigation is settling.
-    const timer = window.setTimeout(() => {
-      setRedirecting(true);
-      router.replace('/dashboard/facebook/custom-ecommerce');
-    }, 600);
-    return () => window.clearTimeout(timer);
-  }, [router]);
+  const [redirecting] = React.useState(false);
 
   // TODO(meta-zoru): wire to real save/publish actions when a
   // Meta-Suite-native canvas lives in this route.

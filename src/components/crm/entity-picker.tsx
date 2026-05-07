@@ -53,12 +53,37 @@ import {
 } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { lookupEntity } from '@/app/actions/crm-lookup.actions';
+import {
+  rustLookupEntity,
+  recordPickedRecent,
+} from '@/lib/rust-lookup-client';
 import type {
   EntityKey,
   LookupItem,
   LookupParams,
   LookupResult,
 } from '@/lib/lookup-registry';
+
+/**
+ * Env-flag that flips the picker from the TS server action to the Rust
+ * `/v1/crm/lookup/{entity}` HTTP endpoint. Read once at module load —
+ * callers don't need to react to it changing within a session.
+ */
+const USE_RUST_LOOKUP =
+  process.env.NEXT_PUBLIC_USE_RUST_LOOKUP === 'true';
+
+/**
+ * Single dispatch point so every fetch site stays in sync. Returns the
+ * same `LookupResult` envelope either way.
+ */
+function fetchLookup(
+  entity: EntityKey,
+  params: LookupParams,
+): Promise<LookupResult> {
+  return USE_RUST_LOOKUP
+    ? rustLookupEntity(entity, params)
+    : lookupEntity(entity, params);
+}
 
 /* ------------------------------------------------------------------ */
 /* Public types                                                        */
@@ -116,12 +141,20 @@ const ENTITY_LABEL: Record<EntityKey, string> = {
   vendorType: 'vendor type',
 };
 
+/**
+ * Recents storage key. The localStorage path is the LEGACY mechanism —
+ * when `NEXT_PUBLIC_USE_RUST_LOOKUP === 'true'` the server-side Redis
+ * LRU is the source of truth (see `crm-lookup::recents`) and the
+ * picker reads `LookupResult.recent` directly from the empty-state
+ * response. This local cache only kicks in when the flag is off.
+ */
 function recentsKey(entity: EntityKey) {
   return `entityPicker.recent.${entity}`;
 }
 
 function loadRecents(entity: EntityKey): string[] {
   if (typeof window === 'undefined') return [];
+  if (USE_RUST_LOOKUP) return [];
   try {
     const raw = window.localStorage.getItem(recentsKey(entity));
     if (!raw) return [];
@@ -136,6 +169,10 @@ function loadRecents(entity: EntityKey): string[] {
 
 function pushRecent(entity: EntityKey, id: string, max = 5) {
   if (typeof window === 'undefined') return;
+  // When the Rust flag is on, `recordPickedRecent` already POSTs to
+  // /v1/crm/lookup/{entity}/recent/{itemId} which feeds the per-tenant
+  // Redis LRU. Skip the duplicate localStorage write.
+  if (USE_RUST_LOOKUP) return;
   try {
     const current = loadRecents(entity).filter((x) => x !== id);
     const next = [id, ...current].slice(0, max);
@@ -223,7 +260,7 @@ export function EntityPickerChip({
       return;
     }
     let cancelled = false;
-    lookupEntity(entity, { ids: [id] })
+    fetchLookup(entity, { ids: [id] })
       .then((res) => {
         if (cancelled) return;
         setItem(res.items[0] ?? null);
@@ -337,7 +374,7 @@ export function EntityPicker({
     if (missing.length === 0) return;
 
     let cancelled = false;
-    lookupEntity(entity, { ids: missing })
+    fetchLookup(entity, { ids: missing })
       .then((res: LookupResult) => {
         if (cancelled) return;
         setSelectedItems((prev) => {
@@ -359,29 +396,48 @@ export function EntityPicker({
 
   // Hydrate recents when the popover opens (or entity changes) so
   // chips render immediately without the user having to type.
+  //
+  // Two paths:
+  //   1) USE_RUST_LOOKUP — the empty-state response carries `recent`
+  //      hydrated from the per-tenant Redis LRU. One round trip.
+  //   2) Legacy localStorage — read the cached id list, then fetch
+  //      details by ids.
   React.useEffect(() => {
     if (!open) return;
-    const ids = loadRecents(entity).slice(0, recentLimit);
-    if (ids.length === 0) {
-      setRecentItems([]);
-      return;
-    }
     let cancelled = false;
-    lookupEntity(entity, { ids })
-      .then((res) => {
-        if (cancelled) return;
-        // Preserve the recents order.
-        const byId = new Map(res.items.map((it) => [it.id, it]));
-        const ordered: LookupItem[] = [];
-        for (const id of ids) {
-          const it = byId.get(id);
-          if (it) ordered.push(it);
-        }
-        setRecentItems(ordered);
-      })
-      .catch(() => {
-        if (!cancelled) setRecentItems([]);
-      });
+
+    if (USE_RUST_LOOKUP) {
+      // Empty-state lookup: no q, no ids, page=0 — the Rust handler
+      // returns `result.recent` populated for the current user.
+      fetchLookup(entity, { page: 0 })
+        .then((res) => {
+          if (cancelled) return;
+          setRecentItems((res.recent ?? []).slice(0, recentLimit));
+        })
+        .catch(() => {
+          if (!cancelled) setRecentItems([]);
+        });
+    } else {
+      const ids = loadRecents(entity).slice(0, recentLimit);
+      if (ids.length === 0) {
+        setRecentItems([]);
+        return;
+      }
+      fetchLookup(entity, { ids })
+        .then((res) => {
+          if (cancelled) return;
+          const byId = new Map(res.items.map((it) => [it.id, it]));
+          const ordered: LookupItem[] = [];
+          for (const id of ids) {
+            const it = byId.get(id);
+            if (it) ordered.push(it);
+          }
+          setRecentItems(ordered);
+        })
+        .catch(() => {
+          if (!cancelled) setRecentItems([]);
+        });
+    }
     return () => {
       cancelled = true;
     };
@@ -405,7 +461,7 @@ export function EntityPicker({
     };
 
     setLoading(true);
-    lookupEntity(entity, params)
+    fetchLookup(entity, params)
       .then((res) => {
         if (ac.signal.aborted) return;
         setResults(res.items);
@@ -432,7 +488,7 @@ export function EntityPicker({
     if (loading || !hasMore) return;
     setLoading(true);
     try {
-      const res = await lookupEntity(entity, {
+      const res = await fetchLookup(entity, {
         q: debouncedSearch || undefined,
         page: page + 1,
         limit: 20,
@@ -470,6 +526,10 @@ export function EntityPicker({
   const commitSelection = React.useCallback(
     (item: LookupItem) => {
       pushRecent(entity, item.id, recentLimit);
+      // When the Rust backend is enabled, also notify it so its
+      // server-side LRU stays warm. No-op (and no token leak) when the
+      // flag is off — see `recordPickedRecent` for the guard.
+      void recordPickedRecent(entity, item.id);
       setSelectedItems((prev) => ({ ...prev, [item.id]: item }));
 
       if (multi) {

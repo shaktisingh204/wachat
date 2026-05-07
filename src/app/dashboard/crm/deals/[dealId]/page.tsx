@@ -1,8 +1,19 @@
 'use client';
-import { ZoruBadge, ZoruButton, ZoruCard, ZoruSkeleton, useZoruToast } from '@/components/zoruui';
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSkeleton,
+  useZoruToast,
+} from '@/components/zoruui';
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { useParams } from 'next/navigation';
-import { getCrmDealById } from '@/app/actions/crm-deals.actions';
+import { getCrmDealById, updateCrmDealStage } from '@/app/actions/crm-deals.actions';
 import { getCrmContactById } from '@/app/actions/crm.actions';
 import { getCrmAccountById } from '@/app/actions/crm-accounts.actions';
 import type { CrmDeal, CrmContact, CrmAccount, WithId, CrmTask } from '@/lib/definitions';
@@ -157,8 +168,46 @@ export default function CrmDealDetailPage() {
               <h2 className="text-[16px] font-semibold leading-tight text-foreground">
                 {deal.name}
               </h2>
-              <div>
+              <div className="flex flex-col gap-2">
                 <ZoruBadge variant={(stageTone(deal.stage)) as any}>{deal.stage}</ZoruBadge>
+                <ZoruSelect
+                  value={deal.stage}
+                  onValueChange={async (next) => {
+                    if (next === deal.stage) return;
+                    const prev = deal.stage;
+                    setDeal({ ...deal, stage: next });
+                    const res = await updateCrmDealStage(dealId, next);
+                    if (res.error) {
+                      toast({
+                        title: 'Could not update stage',
+                        description: res.error,
+                        variant: 'destructive',
+                      });
+                      setDeal({ ...deal, stage: prev });
+                    } else {
+                      toast({ title: 'Stage updated', description: `Now: ${next}` });
+                    }
+                  }}
+                >
+                  <ZoruSelectTrigger className="h-8 w-44 text-[12.5px]">
+                    <ZoruSelectValue />
+                  </ZoruSelectTrigger>
+                  <ZoruSelectContent>
+                    {[
+                      'Lead Generated',
+                      'Contacted',
+                      'Qualified',
+                      'Proposal',
+                      'Negotiation',
+                      'Won',
+                      'Lost',
+                    ].map((s) => (
+                      <ZoruSelectItem key={s} value={s}>
+                        {s}
+                      </ZoruSelectItem>
+                    ))}
+                  </ZoruSelectContent>
+                </ZoruSelect>
               </div>
             </div>
 

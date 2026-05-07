@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-import { Plus, Truck, LoaderCircle, Trash2 } from 'lucide-react';
+import { Plus, Truck, LoaderCircle, Trash2, Pencil } from 'lucide-react';
 import { getCrmVendors, deleteCrmVendor } from '@/app/actions/crm-vendors.actions';
 import type { WithId, CrmVendor } from '@/lib/definitions';
 
@@ -87,6 +87,14 @@ export default function VendorsPage() {
                                         <ZoruTableCell className="text-[13px] text-foreground">{vendor.phone || 'N/A'}</ZoruTableCell>
                                         <ZoruTableCell><ZoruBadge variant="ghost" className="capitalize">{vendor.vendorType}</ZoruBadge></ZoruTableCell>
                                         <ZoruTableCell className="text-right">
+                                            <Link
+                                                href={`/dashboard/crm/purchases/vendors/new?vendorId=${vendor._id.toString()}`}
+                                                aria-label="Edit vendor"
+                                            >
+                                                <ZoruButton variant="ghost" size="icon">
+                                                    <Pencil className="h-4 w-4 text-muted-foreground" />
+                                                </ZoruButton>
+                                            </Link>
                                              <ZoruAlertDialog>
                                                 <ZoruAlertDialogTrigger asChild>
                                                     <ZoruButton variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive"/></ZoruButton>

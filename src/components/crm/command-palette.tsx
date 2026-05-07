@@ -41,7 +41,29 @@ import {
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
 import { lookupEntity } from '@/app/actions/crm-lookup.actions';
-import type { EntityKey, LookupItem } from '@/lib/lookup-registry';
+import { rustLookupEntity } from '@/lib/rust-lookup-client';
+import type { EntityKey, LookupItem, LookupParams, LookupResult } from '@/lib/lookup-registry';
+
+/**
+ * Env-flag that flips the palette from the TS server action to the
+ * Rust `/v1/crm/lookup/{entity}` HTTP endpoint. Read once at module
+ * load — callers don't need to react to it changing within a session.
+ */
+const USE_RUST_LOOKUP =
+  process.env.NEXT_PUBLIC_USE_RUST_LOOKUP === 'true';
+
+/**
+ * Single dispatch point so every fetch site stays in sync. Returns
+ * the same `LookupResult` envelope either way.
+ */
+function fetchLookup(
+  entity: EntityKey,
+  params: LookupParams,
+): Promise<LookupResult> {
+  return USE_RUST_LOOKUP
+    ? rustLookupEntity(entity, params)
+    : lookupEntity(entity, params);
+}
 
 /* ------------------------------------------------------------------ */
 /* Static maps                                                          */
@@ -150,6 +172,10 @@ const RECENTS_DISPLAY_LIMIT = 8;
 
 function loadRecentIds(entity: EntityKey): string[] {
   if (typeof window === 'undefined') return [];
+  // When the Rust backend is the source of truth, recents come back
+  // inline on the empty-state lookup response (`result.recent`) — no
+  // localStorage needed. Returning [] short-circuits the legacy path.
+  if (USE_RUST_LOOKUP) return [];
   try {
     const raw = window.localStorage.getItem(RECENT_KEY(entity));
     if (!raw) return [];
@@ -266,19 +292,29 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
     return () => window.clearTimeout(handle);
   }, [query, open]);
 
-  // Hydrate recents on every open. Cheap (8 lookup calls capped at the
-  // recents-per-entity ceiling) and ensures freshness if the user
-  // visited new records since last time.
+  // Hydrate recents on every open. Two paths:
+  //   1) USE_RUST_LOOKUP — empty-state lookup per entity returns
+  //      `result.recent` populated from the per-tenant Redis LRU. Same
+  //      8 calls; one round trip each, no separate ids fetch.
+  //   2) Legacy — read localStorage ids per entity, then fetch by ids.
   React.useEffect(() => {
     if (!open) return;
     let cancelled = false;
     setRecentsLoaded(false);
     (async () => {
       const tasks = ENTITY_ORDER.map(async (entity) => {
+        if (USE_RUST_LOOKUP) {
+          try {
+            const res = await fetchLookup(entity, { page: 0 });
+            return { entity, items: res.recent ?? [] };
+          } catch {
+            return { entity, items: [] as LookupItem[] };
+          }
+        }
         const ids = loadRecentIds(entity);
         if (ids.length === 0) return { entity, items: [] as LookupItem[] };
         try {
-          const res = await lookupEntity(entity, { ids });
+          const res = await fetchLookup(entity, { ids });
           // Preserve the localStorage order (most-recent-first).
           const byId = new Map(res.items.map((it) => [it.id, it]));
           const ordered = ids
@@ -340,7 +376,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
         const settled = await Promise.all(
           ENTITY_ORDER.map(async (entity) => {
             try {
-              const res = await lookupEntity(entity, { q, limit: PER_ENTITY_LIMIT });
+              const res = await fetchLookup(entity, { q, limit: PER_ENTITY_LIMIT });
               return [entity, res.items] as const;
             } catch {
               return [entity, [] as LookupItem[]] as const;

@@ -181,7 +181,7 @@ export const wachatFacebookPagesApi = {
         }),
 
     // User-level pages
-    getFacebookPages: () => rustFetch<PagesResp>(`${BASE}/`),
+    getFacebookPages: () => rustFetch<PagesResp>(BASE),
 
     // Project-scoped page detail / mutation
     getPageDetails: (projectId: string) =>
