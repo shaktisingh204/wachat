@@ -25,7 +25,10 @@ import { ZoruButton } from "../button";
 import { ZoruNotificationPopover } from "../notification-popover";
 import { ZoruToaster } from "../toaster";
 import { ZoruUserDropdown } from "../user-dropdown";
-import { useCommandPalette } from "@/components/crm/command-palette";
+import {
+  CommandPaletteProvider,
+  useCommandPalette,
+} from "@/components/crm/command-palette";
 
 export interface ZoruHomeShellProps {
   user?: {
@@ -67,6 +70,29 @@ const DOCK_APPS = ZORU_APPS;
  * absent (hard constraint from the project plan).
  */
 export function ZoruHomeShell({
+  user,
+  plan,
+  sidebarHeading,
+  sidebarCaption,
+  sidebarGroups: sidebarGroupsProp,
+  children,
+}: ZoruHomeShellProps) {
+  return (
+    <CommandPaletteProvider>
+      <ZoruHomeShellContent
+        user={user}
+        plan={plan}
+        sidebarHeading={sidebarHeading}
+        sidebarCaption={sidebarCaption}
+        sidebarGroups={sidebarGroupsProp}
+      >
+        {children}
+      </ZoruHomeShellContent>
+    </CommandPaletteProvider>
+  );
+}
+
+function ZoruHomeShellContent({
   user,
   plan,
   sidebarHeading,
