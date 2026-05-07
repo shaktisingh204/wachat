@@ -1,0 +1,33 @@
+[package]
+name = "crm-purchases-types"
+version = "0.1.0"
+edition = "2024"
+description = "Domain DTOs for the CRM Purchases module (vendors, purchase orders, bills, debit notes, payouts, purchase leads). Pure types — flatten crm-core fragments and reuse shared sales building blocks (Address, LineItem, Totals)."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "crm_purchases_types"
+path = "src/lib.rs"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+bson = { version = "2", features = ["chrono-0_4"] }
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+thiserror = "2"
+crm-core = { path = "../crm-core" }
+# Shared doc-shaped building blocks live in crm-sales-types today
+# (Address, LineItem, Totals, RecurringConfig, ContactBook,
+# EmailLog/WhatsAppSendLog/PdfStatus). When a third domain (Inventory,
+# Accounting, …) starts pulling on the same set we'll lift those into a
+# `crm-doc-shared` crate; for now this single dependency edge is the
+# pragmatic choice.
+crm-sales-types = { path = "../crm-sales-types" }
+sabnode-common = { path = "../common" }
+
+[dev-dependencies]
+serde_json = "1"
+
+[lints]
+workspace = true

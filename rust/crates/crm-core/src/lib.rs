@@ -46,6 +46,7 @@ pub mod audit;
 pub mod custom_fields;
 pub mod identity;
 pub mod lifecycle;
+pub mod lineage;
 pub mod note;
 pub mod tagging;
 
@@ -56,5 +57,6 @@ pub use audit::Audit;
 pub use custom_fields::CustomFields;
 pub use identity::Identity;
 pub use lifecycle::{Lifecycle, Priority, SoftDelete, Status};
+pub use lineage::LineageRef;
 pub use note::Note;
 pub use tagging::Tags;

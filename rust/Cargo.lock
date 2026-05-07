@@ -1083,6 +1083,29 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "790eea4361631c5e7d22598ecd5723ff611904e3344ce8720784c93e3d83d40b"
 
 [[package]]
+name = "crm-accounting-types"
+version = "0.1.0"
+dependencies = [
+ "bson",
+ "chrono",
+ "crm-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "crm-banking-types"
+version = "0.1.0"
+dependencies = [
+ "bson",
+ "chrono",
+ "crm-core",
+ "crm-sales-types",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "crm-core"
 version = "0.1.0"
 dependencies = [
@@ -1092,6 +1115,79 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror 2.0.18",
+]
+
+[[package]]
+name = "crm-extras-types"
+version = "0.1.0"
+dependencies = [
+ "bson",
+ "chrono",
+ "crm-core",
+ "crm-sales-types",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "crm-integrations-types"
+version = "0.1.0"
+dependencies = [
+ "bson",
+ "chrono",
+ "crm-core",
+ "crm-sales-types",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "crm-inventory-types"
+version = "0.1.0"
+dependencies = [
+ "bson",
+ "chrono",
+ "crm-core",
+ "crm-sales-types",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "crm-purchases-types"
+version = "0.1.0"
+dependencies = [
+ "bson",
+ "chrono",
+ "crm-core",
+ "crm-sales-types",
+ "sabnode-common",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+]
+
+[[package]]
+name = "crm-reports-types"
+version = "0.1.0"
+dependencies = [
+ "bson",
+ "chrono",
+ "crm-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "crm-sales-crm-types"
+version = "0.1.0"
+dependencies = [
+ "bson",
+ "chrono",
+ "crm-core",
+ "crm-sales-types",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -1931,6 +2027,30 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cc627f471c528ff0c4a49e1d5e60450c8f6461dd6d10ba9dcd3a61d3dff7728d"
 dependencies = [
  "windows-sys 0.61.2",
+]
+
+[[package]]
+name = "hrm-payroll-types"
+version = "0.1.0"
+dependencies = [
+ "bson",
+ "chrono",
+ "crm-core",
+ "crm-sales-types",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "hrm-people-types"
+version = "0.1.0"
+dependencies = [
+ "bson",
+ "chrono",
+ "crm-core",
+ "crm-sales-types",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
