@@ -4,8 +4,9 @@ import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
-import type { CrmSalesOrder } from '@/lib/definitions';
+import type { CrmSalesOrder, LineageKind, LineageRef } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
+import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
 
 async function getNextSalesOrderNumber(db: Db, userId: ObjectId): Promise<string> {
     const lastOrder = await db.collection<CrmSalesOrder>('crm_sales_orders')
@@ -31,6 +32,31 @@ async function getNextSalesOrderNumber(db: Db, userId: ObjectId): Promise<string
 
     // Fallback for unexpected formats
     return `SO-${Date.now().toString().slice(-5)}`;
+}
+
+
+export async function getSalesOrderById(orderId: string): Promise<WithId<CrmSalesOrder> | null> {
+    const session = await getSession();
+    if (!session?.user) return null;
+
+    if (!ObjectId.isValid(orderId)) return null;
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id);
+
+        const order = await db.collection('crm_sales_orders').findOne({
+            _id: new ObjectId(orderId),
+            userId: userObjectId,
+        });
+
+        if (!order) return null;
+
+        return JSON.parse(JSON.stringify(order));
+    } catch (e: any) {
+        console.error("Failed to fetch CRM sales order:", e);
+        return null;
+    }
 }
 
 
@@ -110,11 +136,81 @@ export async function saveSalesOrder(prevState: any, formData: FormData): Promis
             orderData.orderNumber = await getNextSalesOrderNumber(db, userObjectId);
         }
 
-        await db.collection('crm_sales_orders').insertOne({
+        // Lineage seeding (crm_function_plan.md §13.5 / §15 Phase 2).
+        // Optional `fromKind` + `fromId` form fields propagate the
+        // parent's lineage onto the newly-created sales order. All
+        // existing flows keep working unchanged when these fields are
+        // absent.
+        let lineage: LineageRef[] | undefined;
+        const fromKind = (formData.get('fromKind') as string | null) || null;
+        const fromId = (formData.get('fromId') as string | null) || null;
+        const ALLOWED_PARENT_KINDS: LineageKind[] = ['quotation', 'lead', 'deal', 'proforma'];
+        if (fromKind && fromId && ALLOWED_PARENT_KINDS.includes(fromKind as LineageKind) && ObjectId.isValid(fromId)) {
+            const parentCollection: Record<string, string> = {
+                quotation: 'crm_quotations',
+                lead: 'crm_leads',
+                deal: 'crm_deals',
+                proforma: 'crm_proforma_invoices',
+            };
+            const parentNoField: Record<string, string> = {
+                quotation: 'quotationNumber',
+                lead: 'title',
+                deal: 'name',
+                proforma: 'proformaNumber',
+            };
+            const coll = parentCollection[fromKind];
+            try {
+                const parent = await db.collection(coll).findOne(
+                    { _id: new ObjectId(fromId), userId: userObjectId },
+                    { projection: { lineage: 1, [parentNoField[fromKind]]: 1, status: 1 } },
+                );
+                if (parent) {
+                    lineage = buildLineageFromParent({
+                        kind: fromKind as LineageKind,
+                        id: parent._id.toString(),
+                        no: (parent[parentNoField[fromKind]] as string | undefined) || undefined,
+                        status: (parent.status as string | undefined) || undefined,
+                        lineage: (parent.lineage as LineageRef[] | undefined) ?? [],
+                    });
+                }
+            } catch {
+                // ignore lineage seed failures — sales order still saves
+            }
+        }
+
+        const insertResult = await db.collection('crm_sales_orders').insertOne({
             ...orderData,
+            ...(lineage ? { lineage } : {}),
             createdAt: new Date(),
             updatedAt: new Date()
         } as any);
+
+        // Best-effort back-link onto the parent doc.
+        if (lineage && fromKind && fromId) {
+            try {
+                const parentCollection: Record<string, string> = {
+                    quotation: 'crm_quotations',
+                    lead: 'crm_leads',
+                    deal: 'crm_deals',
+                    proforma: 'crm_proforma_invoices',
+                };
+                const coll = parentCollection[fromKind];
+                const parent = await db.collection(coll).findOne({ _id: new ObjectId(fromId) });
+                const updatedParentLineage = appendLineage(parent?.lineage as LineageRef[] | undefined, {
+                    kind: 'salesOrder',
+                    id: insertResult.insertedId.toString(),
+                    no: orderData.orderNumber,
+                    status: orderData.status,
+                    createdAt: new Date().toISOString(),
+                });
+                await db.collection(coll).updateOne(
+                    { _id: new ObjectId(fromId) },
+                    { $set: { lineage: updatedParentLineage, updatedAt: new Date() } },
+                );
+            } catch {
+                // non-fatal
+            }
+        }
 
         revalidatePath('/dashboard/crm/sales/orders');
         return { message: 'Sales order saved successfully.' };

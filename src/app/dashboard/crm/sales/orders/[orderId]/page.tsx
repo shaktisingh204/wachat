@@ -25,6 +25,7 @@ import {
   deleteOrder,
 } from '@/app/actions/worksuite/billing.actions';
 import type { WsOrder } from '@/lib/worksuite/billing-types';
+import { LineageRail } from '@/components/crm/lineage-rail';
 
 type OrderRow = WsOrder & { _id: string };
 
@@ -205,6 +206,8 @@ export default function OrderDetailPage(props: {
         }
       />
 
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
+        <div className="flex flex-col gap-6">
       <ZoruCard className="p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
@@ -362,6 +365,20 @@ export default function OrderDetailPage(props: {
           ) : null}
         </div>
       </ZoruCard>
+        </div>
+
+        <div className="flex flex-col gap-6">
+          <LineageRail
+            current={{
+              kind: 'salesOrder',
+              id: String(order._id),
+              no: order.order_number,
+              status: order.status,
+            }}
+            lineage={order.lineage ?? []}
+          />
+        </div>
+      </div>
     </div>
   );
 }

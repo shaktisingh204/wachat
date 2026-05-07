@@ -6,8 +6,9 @@ import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
-import type { CrmPaymentReceipt, CrmInvoice } from '@/lib/definitions';
+import type { CrmPaymentReceipt, CrmInvoice, LineageKind, LineageRef } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
+import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
 
 export async function getPaymentReceipts(
     page: number = 1,
@@ -151,6 +152,62 @@ export async function savePaymentReceipt(prevState: any, formData: FormData): Pr
 
         const { db } = await connectToDatabase();
 
+        // Lineage seeding (crm_function_plan.md §13.5). The form may
+        // optionally pass `fromKind` + `fromId` when a receipt is
+        // created in the context of a parent doc — typically an
+        // Invoice (single-invoice settlement) or a Proforma Invoice
+        // (advance-payment receipts). Multi-invoice settlements via
+        // `apply_to[]` (settledInvoices) are NOT cross-linked here:
+        // lineage points at a single primary parent — explicit
+        // `fromKind`/`fromId` if provided, else the first applied
+        // invoice from `settledInvoices` if any.
+        let lineage: LineageRef[] | undefined;
+        let resolvedFromKind: LineageKind | null = null;
+        let resolvedFromId: string | null = null;
+
+        const rawFromKind = (formData.get('fromKind') as string | null) || null;
+        const rawFromId = (formData.get('fromId') as string | null) || null;
+        const ALLOWED_PARENT_KINDS: LineageKind[] = ['invoice', 'proforma'];
+
+        if (rawFromKind && rawFromId && ALLOWED_PARENT_KINDS.includes(rawFromKind as LineageKind) && ObjectId.isValid(rawFromId)) {
+            resolvedFromKind = rawFromKind as LineageKind;
+            resolvedFromId = rawFromId;
+        } else if (settledInvoices.length > 0 && settledInvoices[0]?.invoiceId && ObjectId.isValid(settledInvoices[0].invoiceId)) {
+            // Fallback to first applied invoice as primary parent.
+            resolvedFromKind = 'invoice';
+            resolvedFromId = settledInvoices[0].invoiceId;
+        }
+
+        const parentCollection: Record<string, string> = {
+            invoice: 'crm_invoices',
+            proforma: 'crm_proforma_invoices',
+        };
+        const parentNoField: Record<string, string> = {
+            invoice: 'invoiceNumber',
+            proforma: 'proformaNumber',
+        };
+
+        if (resolvedFromKind && resolvedFromId) {
+            const coll = parentCollection[resolvedFromKind];
+            try {
+                const parent = await db.collection(coll).findOne({
+                    _id: new ObjectId(resolvedFromId),
+                    userId: new ObjectId(session.user._id),
+                });
+                if (parent) {
+                    lineage = buildLineageFromParent({
+                        kind: resolvedFromKind,
+                        id: parent._id.toString(),
+                        no: (parent[parentNoField[resolvedFromKind]] as string | undefined) || undefined,
+                        status: (parent.status as string | undefined) || undefined,
+                        lineage: (parent.lineage as LineageRef[] | undefined) ?? undefined,
+                    });
+                }
+            } catch {
+                // ignore lineage seed failures — receipt still saves
+            }
+        }
+
         // Use a transaction to ensure atomicity
         const dbSession = db.client.startSession();
         try {
@@ -158,6 +215,7 @@ export async function savePaymentReceipt(prevState: any, formData: FormData): Pr
                 // 1. Save the payment receipt
                 await db.collection('crm_payment_receipts').insertOne({
                     ...receiptData,
+                    ...(lineage ? { lineage } : {}),
                     createdAt: new Date(),
                     updatedAt: new Date()
                 } as any, { session: dbSession });
@@ -188,6 +246,27 @@ export async function savePaymentReceipt(prevState: any, formData: FormData): Pr
             });
         } finally {
             await dbSession.endSession();
+        }
+
+        // Best-effort back-link onto the primary parent doc.
+        if (lineage && resolvedFromKind && resolvedFromId) {
+            try {
+                const coll = parentCollection[resolvedFromKind];
+                const parent = await db.collection(coll).findOne({ _id: new ObjectId(resolvedFromId) });
+                const updatedParentLineage = appendLineage(parent?.lineage as LineageRef[] | undefined, {
+                    kind: 'paymentReceipt',
+                    id: newReceiptId.toString(),
+                    no: receiptData.receiptNumber,
+                    status: (receiptData as any).status as string | undefined,
+                    createdAt: new Date().toISOString(),
+                });
+                await db.collection(coll).updateOne(
+                    { _id: new ObjectId(resolvedFromId) },
+                    { $set: { lineage: updatedParentLineage, updatedAt: new Date() } },
+                );
+            } catch {
+                // non-fatal
+            }
         }
 
         revalidatePath('/dashboard/crm/sales/receipts');

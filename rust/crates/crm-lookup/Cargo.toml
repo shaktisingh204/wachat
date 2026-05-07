@@ -16,6 +16,7 @@ serde_json = "1"
 bson = { version = "2", features = ["chrono-0_4"] }
 chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
 mongodb = "3.2"
+fred = { version = "10.1", default-features = true, features = ["enable-rustls"] }
 futures = "0.3"
 tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
 axum = { version = "0.8", default-features = false, features = ["json", "http1", "query"] }
@@ -25,6 +26,7 @@ anyhow = "1.0"
 crm-lookup-types = { path = "../crm-lookup-types" }
 sabnode-common = { path = "../common" }
 sabnode-db = { path = "../db" }
+sabnode-auth = { path = "../auth" }
 
 [lints]
 workspace = true

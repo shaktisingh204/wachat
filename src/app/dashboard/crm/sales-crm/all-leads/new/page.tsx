@@ -9,7 +9,6 @@ import { addCrmLead } from '@/app/actions/crm-leads.actions';
 import { getCrmPipelines } from '@/app/actions/crm-pipelines.actions';
 import { getSession } from '@/app/actions/user.actions';
 import type { WithId, CrmPipeline, User } from '@/lib/definitions';
-import { SmartPipelineSelect } from '@/components/crm/sales-crm/smart-pipeline-select';
 import { EntityPicker } from '@/components/crm/entity-picker';
 
 import Link from 'next/link';
@@ -183,13 +182,13 @@ export default function AddLeadPage() {
                             <div className="space-y-2">
                                 <ZoruLabel htmlFor="pipelineId" className="text-foreground">Sales Pipeline</ZoruLabel>
                                 <input type="hidden" name="pipelineId" value={selectedPipelineId} />
-                                <SmartPipelineSelect
-                                    value={selectedPipelineId}
-                                    onSelect={setSelectedPipelineId}
-                                    initialOptions={pipelines.map(p => ({ value: p.id, label: p.name }))}
-                                    onPipelineAdded={(newPipeline: CrmPipeline) => {
-                                        setPipelines(prev => [...prev, newPipeline]);
-                                        setSelectedPipelineId(newPipeline.id);
+                                <EntityPicker
+                                    entity="pipeline"
+                                    value={selectedPipelineId || null}
+                                    placeholder="Select pipeline..."
+                                    onChange={(next) => {
+                                        const id = Array.isArray(next) ? next[0] ?? '' : (next ?? '');
+                                        setSelectedPipelineId(id);
                                     }}
                                 />
                             </div>

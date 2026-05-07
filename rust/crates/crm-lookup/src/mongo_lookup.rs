@@ -32,6 +32,12 @@ pub struct LookupSpec {
     /// but globals like Currency live with `Scope::Global` (skip the
     /// `userId` filter entirely).
     pub honors_project_scope: bool,
+    /// `true` for cross-tenant reference data (e.g. Pincode) — the
+    /// executor skips the `userId` narrowing entirely so every tenant
+    /// reads the same shared collection. Defaults to `false`; flipping
+    /// this requires you to be sure the rows have no per-tenant data
+    /// to leak.
+    pub is_global: bool,
 }
 
 /// Build a Mongo `$regex` BSON value from a free-text query. Escapes
@@ -74,8 +80,10 @@ pub async fn execute(
     let mut filter = (spec.default_filter)();
 
     // Tenant filter — every CRM doc carries `userId` per §0. Globals
-    // opt out of this (their docs are cross-tenant by design).
-    if !matches!(ctx.scope, Scope::Global) {
+    // opt out of this (their docs are cross-tenant by design): either
+    // the spec is intrinsically global (reference data like Pincode),
+    // or the caller asked for `Scope::Global` on a per-request basis.
+    if !spec.is_global && !matches!(ctx.scope, Scope::Global) {
         filter.insert("userId", ctx.user_id);
     }
 

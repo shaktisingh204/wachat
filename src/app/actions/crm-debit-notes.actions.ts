@@ -4,8 +4,9 @@ import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
-import type { CrmDebitNote } from '@/lib/definitions';
+import type { CrmDebitNote, LineageKind, LineageRef } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
+import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
 
 async function getNextDebitNoteNumber(db: Db, userId: ObjectId): Promise<string> {
     const lastNote = await db.collection<CrmDebitNote>('crm_debit_notes')
@@ -107,11 +108,78 @@ export async function saveDebitNote(prevState: any, formData: FormData): Promise
             noteData.noteNumber = await getNextDebitNoteNumber(db, userObjectId);
         }
 
-        await db.collection('crm_debit_notes').insertOne({
+        // Lineage seeding (crm_function_plan.md §13.5). The form may
+        // optionally pass `fromKind` + `fromId` when a debit note is
+        // created in the context of a parent doc. Debit notes typically
+        // derive from a Bill (persisted in `crm_expenses`), but a PO is
+        // occasionally also a valid origin. Both fields are optional, so
+        // existing flows keep working unchanged.
+        let lineage: LineageRef[] | undefined;
+        const fromKind = (formData.get('fromKind') as string | null) || null;
+        const fromId = (formData.get('fromId') as string | null) || null;
+        const ALLOWED_PARENT_KINDS: LineageKind[] = ['bill', 'purchaseOrder'];
+        if (fromKind && fromId && ALLOWED_PARENT_KINDS.includes(fromKind as LineageKind) && ObjectId.isValid(fromId)) {
+            // Bills live in `crm_expenses` today (see CrmExpense in
+            // src/lib/definitions.ts) — no separate bills collection.
+            const parentCollection: Record<string, string> = {
+                bill: 'crm_expenses',
+                purchaseOrder: 'crm_purchase_orders',
+            };
+            const parentNoField: Record<string, string> = {
+                bill: 'referenceNumber',
+                purchaseOrder: 'orderNumber',
+            };
+            const coll = parentCollection[fromKind];
+            try {
+                const parent = await db.collection(coll).findOne({
+                    _id: new ObjectId(fromId),
+                    userId: userObjectId,
+                });
+                if (parent) {
+                    lineage = buildLineageFromParent({
+                        kind: fromKind as LineageKind,
+                        id: parent._id.toString(),
+                        no: (parent[parentNoField[fromKind]] as string | undefined) || undefined,
+                        status: (parent.status as string | undefined) || undefined,
+                        lineage: (parent.lineage as LineageRef[] | undefined) ?? undefined,
+                    });
+                }
+            } catch {
+                // ignore lineage seed failures — debit note still saves
+            }
+        }
+
+        const insertResult = await db.collection('crm_debit_notes').insertOne({
             ...noteData,
+            ...(lineage ? { lineage } : {}),
             createdAt: new Date(),
             updatedAt: new Date()
         } as any);
+
+        // Best-effort back-link onto the parent doc.
+        if (lineage && fromKind && fromId) {
+            try {
+                const parentCollection: Record<string, string> = {
+                    bill: 'crm_expenses',
+                    purchaseOrder: 'crm_purchase_orders',
+                };
+                const coll = parentCollection[fromKind];
+                const parent = await db.collection(coll).findOne({ _id: new ObjectId(fromId) });
+                const updatedParentLineage = appendLineage(parent?.lineage as LineageRef[] | undefined, {
+                    kind: 'debitNote',
+                    id: insertResult.insertedId.toString(),
+                    no: noteData.noteNumber,
+                    status: noteData.status,
+                    createdAt: new Date().toISOString(),
+                });
+                await db.collection(coll).updateOne(
+                    { _id: new ObjectId(fromId) },
+                    { $set: { lineage: updatedParentLineage, updatedAt: new Date() } },
+                );
+            } catch {
+                // non-fatal
+            }
+        }
 
         revalidatePath('/dashboard/crm/purchases/debit-notes');
         return { message: 'Debit note saved successfully.' };

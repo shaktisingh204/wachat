@@ -14,8 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { saveCrmProduct } from '@/app/actions/crm-products.actions';
-import { SmartCategorySelect } from "@/components/crm/inventory/smart-category-select";
-import { SmartUnitSelect } from "@/components/crm/inventory/smart-unit-select";
+import { EntityPicker } from '@/components/crm/entity-picker';
 import { LoaderCircle } from "lucide-react";
 import { ClayButton } from "@/components/clay";
 
@@ -99,12 +98,20 @@ export function QuickAddProductDialog({ open, onOpenChange, onProductAdded, defa
                         <div className="grid gap-2">
                             <Label className="text-foreground">Category</Label>
                             <input type="hidden" name="categoryId" value={categoryId} />
-                            <SmartCategorySelect value={categoryId} onSelect={setCategoryId} />
+                            <EntityPicker
+                                entity="category"
+                                value={categoryId || null}
+                                onChange={(next) => setCategoryId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
+                            />
                         </div>
                         <div className="grid gap-2">
                             <Label className="text-foreground">Unit</Label>
                             <input type="hidden" name="unitId" value={unitId} />
-                            <SmartUnitSelect value={unitId} onSelect={setUnitId} />
+                            <EntityPicker
+                                entity="unit"
+                                value={unitId || null}
+                                onChange={(next) => setUnitId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
+                            />
                         </div>
                     </div>
                     <DialogFooter>

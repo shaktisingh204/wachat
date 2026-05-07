@@ -1,0 +1,42 @@
+# Phase — axum router for the CRM **payouts** HTTP surface (§2.5).
+#
+# Mirrors the work done by `src/app/actions/crm-payouts.actions.ts`:
+#   * Mongo reads  — paginated list (q + vendorId + status filters), get-by-id.
+#   * Mongo writes — create / update / soft-delete on `crm_payouts`.
+#
+# Mounted under `/v1/crm/payouts` from the orchestrating `api` crate. Per the
+# slice contract this crate is a leaf — the orchestrator wires it into the
+# workspace `Cargo.toml`.
+[package]
+name = "crm-payouts"
+version = "0.1.0"
+edition = "2024"
+description = "Axum router that mounts the CRM payouts HTTP surface (`/v1/crm/payouts/*`). Owns list / get / create / update / delete endpoints scoped by `userId`; ports `src/app/actions/crm-payouts.actions.ts`. Reads/writes `crm-purchases-types::PayoutReceipt` against the `crm_payouts` Mongo collection."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "crm_payouts"
+path = "src/lib.rs"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+bson = { version = "2", features = ["chrono-0_4"] }
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+mongodb = "3.2"
+futures = "0.3"
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "query"] }
+tracing = "0.1"
+anyhow = "1.0"
+
+crm-core = { path = "../crm-core" }
+crm-purchases-types = { path = "../crm-purchases-types" }
+crm-sales-types = { path = "../crm-sales-types" }
+sabnode-auth = { path = "../auth" }
+sabnode-common = { path = "../common" }
+sabnode-db = { path = "../db" }
+
+[lints]
+workspace = true

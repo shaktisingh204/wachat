@@ -9,8 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { saveCrmStockAdjustment } from "@/app/actions/crm-inventory.actions";
-import { SmartProductSelect } from "@/components/crm/inventory/smart-product-select";
-import { SmartWarehouseSelect } from "@/components/crm/inventory/smart-warehouse-select";
+import { EntityPicker } from "@/components/crm/entity-picker";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -20,8 +19,8 @@ export function AdjustmentForm() {
     const { toast } = useToast();
     const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-    const [productId, setProductId] = React.useState('');
-    const [warehouseId, setWarehouseId] = React.useState('');
+    const [productId, setProductId] = React.useState<string>('');
+    const [warehouseId, setWarehouseId] = React.useState<string>('');
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -80,12 +79,22 @@ export function AdjustmentForm() {
                 <CardContent className="grid gap-4">
                     <div className="grid gap-2">
                         <Label>Product *</Label>
-                        <SmartProductSelect value={productId} onSelect={setProductId} />
+                        <input type="hidden" name="productId" value={productId} />
+                        <EntityPicker
+                            entity="item"
+                            value={productId || null}
+                            onChange={(next) => setProductId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
+                        />
                     </div>
 
                     <div className="grid gap-2">
                         <Label>Warehouse *</Label>
-                        <SmartWarehouseSelect value={warehouseId} onSelect={setWarehouseId} />
+                        <input type="hidden" name="warehouseId" value={warehouseId} />
+                        <EntityPicker
+                            entity="warehouse"
+                            value={warehouseId || null}
+                            onChange={(next) => setWarehouseId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
+                        />
                     </div>
 
                     <div className="grid gap-2">

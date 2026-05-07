@@ -27,7 +27,7 @@ import {
     useZoruToast,
 } from '@/components/zoruui';
 import { LoaderCircle, Save } from 'lucide-react';
-import { SmartAccountGroupSelect } from '@/components/crm/accounting/smart-account-group-select';
+import { EntityPicker } from '@/components/crm/entity-picker';
 
 const saveInitialState = { message: undefined, error: undefined };
 
@@ -85,10 +85,10 @@ export function CrmChartOfAccountDialog({ isOpen, onOpenChange, onSave, accountG
                             <div className="space-y-2">
                                 <ZoruLabel htmlFor="accountGroupId" className="text-zoru-ink">Account Group *</ZoruLabel>
                                 <input type="hidden" name="accountGroupId" value={selectedGroupId} />
-                                <SmartAccountGroupSelect
-                                    value={selectedGroupId}
-                                    onSelect={(val: string) => setSelectedGroupId(val)}
-                                    initialOptions={accountGroups.map(g => ({ value: g._id.toString(), label: g.name }))}
+                                <EntityPicker
+                                    entity="account"
+                                    value={selectedGroupId || null}
+                                    onChange={(next) => setSelectedGroupId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
                                 />
                             </div>
 

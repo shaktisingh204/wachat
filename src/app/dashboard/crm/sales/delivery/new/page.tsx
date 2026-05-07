@@ -14,7 +14,7 @@ import {
 } from '@/components/zoruui';
 import { DatePicker } from '@/components/ui/date-picker';
 import { PlusCircle, Trash2, ArrowLeft, Save, LoaderCircle } from 'lucide-react';
-import { SmartClientSelect } from '@/components/crm/sales/smart-client-select';
+import { EntityPicker } from '@/components/crm/entity-picker';
 import Link from 'next/link';
 import type { WithId, CrmAccount, DeliveryChallanLineItem } from '@/lib/definitions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
@@ -148,16 +148,10 @@ export default function NewDeliveryChallanPage() {
                                 </div>
                                 <div>
                                     <h3 className="mb-2 text-zoru-ink">To (Consignee):</h3>
-                                    <SmartClientSelect
-                                        value={selectedClientId}
-                                        onSelect={setSelectedClientId}
-                                        initialOptions={clients.map(c => ({ value: c._id.toString(), label: c.name }))}
-                                        onClientAdded={(newClient: any) => {
-                                            if (newClient) {
-                                                setClients(prev => [...prev, { ...newClient, _id: newClient._id || newClient.insertedId }]);
-                                                setSelectedClientId(newClient._id?.toString() || newClient.insertedId?.toString());
-                                            }
-                                        }}
+                                    <EntityPicker
+                                        entity="client"
+                                        value={selectedClientId || null}
+                                        onChange={(next) => setSelectedClientId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
                                     />
                                     {selectedClient && (
                                         <p className="text-zoru-ink-muted mt-1">{selectedClient?.phone}</p>

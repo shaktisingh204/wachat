@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { DatePicker } from '@/components/ui/date-picker';
-import { SmartVendorSelect } from '@/components/crm/purchases/smart-vendor-select';
+import { EntityPicker } from '@/components/crm/entity-picker';
 import { LoaderCircle, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -58,10 +58,10 @@ export function NewPayoutForm() {
                     <div className="grid gap-4">
                         <div className="space-y-2">
                             <Label className="text-foreground">Vendor *</Label>
-                            <SmartVendorSelect
-                                value={vendorId}
-                                onSelect={setVendorId}
-                                onVendorAdded={(newVendor) => setVendorId(newVendor._id.toString())}
+                            <EntityPicker
+                                entity="vendor"
+                                value={vendorId || null}
+                                onChange={(next) => setVendorId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
                             />
                         </div>
 

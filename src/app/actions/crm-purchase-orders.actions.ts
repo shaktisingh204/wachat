@@ -4,8 +4,9 @@ import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
-import type { CrmPurchaseOrder } from '@/lib/definitions';
+import type { CrmPurchaseOrder, LineageKind, LineageRef } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
+import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
 
 async function getNextPurchaseOrderNumber(db: Db, userId: ObjectId): Promise<string> {
     const lastOrder = await db.collection<CrmPurchaseOrder>('crm_purchase_orders')
@@ -175,11 +176,75 @@ export async function savePurchaseOrder(prevState: any, formData: FormData): Pro
             orderData.orderNumber = await getNextPurchaseOrderNumber(db, userObjectId);
         }
 
-        await db.collection('crm_purchase_orders').insertOne({
+        // Lineage seeding (crm_function_plan.md §13.5). The form may
+        // optionally pass `fromKind` + `fromId` when a Purchase Order
+        // is created in the context of a parent doc (typically an RFQ
+        // or a Vendor Bid). Both fields are optional, so existing
+        // flows keep working unchanged.
+        let lineage: LineageRef[] | undefined;
+        const fromKind = (formData.get('fromKind') as string | null) || null;
+        const fromId = (formData.get('fromId') as string | null) || null;
+        const ALLOWED_PARENT_KINDS: LineageKind[] = ['rfq', 'vendorBid'];
+        if (fromKind && fromId && ALLOWED_PARENT_KINDS.includes(fromKind as LineageKind) && ObjectId.isValid(fromId)) {
+            const parentCollection: Record<string, string> = {
+                rfq: 'crm_rfqs',
+                vendorBid: 'crm_vendor_bids',
+            };
+            const parentNoField: Record<string, string> = {
+                rfq: 'rfqNumber',
+                vendorBid: 'bidNumber',
+            };
+            const coll = parentCollection[fromKind];
+            try {
+                const parent = await db.collection(coll).findOne({
+                    _id: new ObjectId(fromId),
+                    userId: userObjectId,
+                });
+                if (parent) {
+                    lineage = buildLineageFromParent({
+                        kind: fromKind as LineageKind,
+                        id: parent._id.toString(),
+                        no: (parent[parentNoField[fromKind]] as string | undefined) || undefined,
+                        status: (parent.status as string | undefined) || undefined,
+                        lineage: (parent.lineage as LineageRef[] | undefined) ?? undefined,
+                    });
+                }
+            } catch {
+                // ignore lineage seed failures — purchase order still saves
+            }
+        }
+
+        const insertResult = await db.collection('crm_purchase_orders').insertOne({
             ...orderData,
+            ...(lineage ? { lineage } : {}),
             createdAt: new Date(),
             updatedAt: new Date()
         } as any);
+
+        // Best-effort back-link onto the parent doc.
+        if (lineage && fromKind && fromId) {
+            try {
+                const parentCollection: Record<string, string> = {
+                    rfq: 'crm_rfqs',
+                    vendorBid: 'crm_vendor_bids',
+                };
+                const coll = parentCollection[fromKind];
+                const parent = await db.collection(coll).findOne({ _id: new ObjectId(fromId) });
+                const updatedParentLineage = appendLineage(parent?.lineage as LineageRef[] | undefined, {
+                    kind: 'purchaseOrder',
+                    id: insertResult.insertedId.toString(),
+                    no: orderData.orderNumber,
+                    status: orderData.status,
+                    createdAt: new Date().toISOString(),
+                });
+                await db.collection(coll).updateOne(
+                    { _id: new ObjectId(fromId) },
+                    { $set: { lineage: updatedParentLineage, updatedAt: new Date() } },
+                );
+            } catch {
+                // non-fatal
+            }
+        }
 
         revalidatePath('/dashboard/crm/purchases/orders');
         return { message: 'Purchase order saved successfully.' };

@@ -13,12 +13,13 @@ import {
 } from '@/components/zoruui';
 import { DatePicker } from '@/components/ui/date-picker';
 import { PlusCircle, Trash2, ArrowLeft, Save, LoaderCircle } from 'lucide-react';
-import { SmartClientSelect } from '@/components/crm/sales/smart-client-select';
 import Link from 'next/link';
 import type { WithId, CrmAccount, CreditNoteLineItem } from '@/lib/definitions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
 import { saveCreditNote } from '@/app/actions/crm-credit-notes.actions';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
+import { EntityPicker } from '@/components/crm/entity-picker';
+import type { LookupItem } from '@/lib/lookup-registry';
 
 
 const yourBusinessDetails = {
@@ -75,7 +76,23 @@ const LineItemsTable = ({ items, setItems, currency }: { items: CreditNoteLineIt
                     <tbody>
                         {items.map((item, index) => (
                             <tr key={item.id} className="border-b border-zoru-line">
-                                <td className="p-2"><ZoruInput placeholder="Name/SKU Id" value={item.name} onChange={e => handleItemChange(item.id, 'name', e.target.value)} required maxLength={100} /></td>
+                                <td className="p-2">
+                                    <EntityPicker
+                                        entity="item"
+                                        value={null}
+                                        placeholder="Name/SKU"
+                                        onChange={(_id, hydrated) => {
+                                            const raw = (hydrated as LookupItem | undefined)?.raw as any;
+                                            if (raw) {
+                                                handleItemChange(item.id, 'name', raw.name ?? '');
+                                                handleItemChange(item.id, 'rate', raw.sellingPrice ?? 0);
+                                                if (raw.description !== undefined) {
+                                                    handleItemChange(item.id, 'description', raw.description ?? '');
+                                                }
+                                            }
+                                        }}
+                                    />
+                                </td>
                                 <td className="p-2"><ZoruInput type="number" className="w-24 text-right" value={item.quantity} onChange={e => handleItemChange(item.id, 'quantity', Number(e.target.value))} /></td>
                                 <td className="p-2"><ZoruInput type="number" className="w-32 text-right" value={item.rate} onChange={e => handleItemChange(item.id, 'rate', Number(e.target.value))} /></td>
                                 <td className="p-2 text-right">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(item.quantity * item.rate)}</td>
@@ -102,10 +119,12 @@ const LineItemsTable = ({ items, setItems, currency }: { items: CreditNoteLineIt
 export default function NewCreditNotePage() {
     const [state, formAction] = useActionState(saveCreditNote, initialState);
     const router = useRouter();
+    const pathname = usePathname();
     const { toast } = useZoruToast();
 
     const [clients, setClients] = useState<WithId<CrmAccount>[]>([]);
     const [selectedClientId, setSelectedClientId] = useState<string>('');
+    const [pickedClient, setPickedClient] = useState<LookupItem | null>(null);
     const [creditNoteDate, setCreditNoteDate] = useState<Date | undefined>(new Date());
     const [lineItems, setLineItems] = useState<CreditNoteLineItem[]>([{ id: '1', name: '', description: '', quantity: 1, rate: 0 }]);
 
@@ -161,15 +180,20 @@ export default function NewCreditNotePage() {
                                 </div>
                                 <div>
                                     <h3 className="mb-2 text-zoru-ink">To:</h3>
-                                    <SmartClientSelect
-                                        value={selectedClientId}
-                                        onSelect={setSelectedClientId}
-                                        initialOptions={clients.map(c => ({ value: c._id.toString(), label: c.name }))}
-                                        onClientAdded={(newClient: any) => {
-                                            if (newClient) {
-                                                setClients(prev => [...prev, { ...newClient, _id: newClient._id || newClient.insertedId }]);
-                                                setSelectedClientId(newClient._id?.toString() || newClient.insertedId?.toString());
-                                            }
+                                    <EntityPicker
+                                        entity="client"
+                                        value={selectedClientId || null}
+                                        allowCreate
+                                        placeholder="Select client…"
+                                        onCreateClick={() => {
+                                            const ret = encodeURIComponent(pathname);
+                                            router.push(`/dashboard/crm/sales/clients/new?return=${ret}`);
+                                        }}
+                                        onChange={(next, hydrated) => {
+                                            const id = Array.isArray(next) ? next[0] ?? '' : (next ?? '');
+                                            setSelectedClientId(id);
+                                            const item = Array.isArray(hydrated) ? hydrated[0] : hydrated;
+                                            setPickedClient(item ?? null);
                                         }}
                                     />
                                 </div>

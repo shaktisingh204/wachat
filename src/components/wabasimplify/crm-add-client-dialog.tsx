@@ -47,8 +47,7 @@ interface CrmAddClientDialogProps {
   defaultName?: string;
 }
 
-import { SmartLocationSelect } from '@/components/crm/smart-location-select';
-import { SmartIndustrySelect } from '@/components/crm/inventory/smart-industry-select';
+import { EntityPicker } from '@/components/crm/entity-picker';
 
 // ... imports
 
@@ -72,6 +71,15 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
   const [addressState, setAddressState] = useState<string>('');
   const [addressStateName, setAddressStateName] = useState<string>('');
   const [addressCityName, setAddressCityName] = useState<string>('');
+
+  // EntityPicker id state (one per picker)
+  const [clientIndustryId, setClientIndustryId] = useState<string>('');
+  const [countryId, setCountryId] = useState<string>('');
+  const [stateId, setStateId] = useState<string>('');
+  const [cityId, setCityId] = useState<string>('');
+  const [addressCountryId, setAddressCountryId] = useState<string>('');
+  const [addressStateId, setAddressStateId] = useState<string>('');
+  const [addressCityId, setAddressCityId] = useState<string>('');
 
   // SabFiles-backed uploads
   const [logoUrl, setLogoUrl] = useState<string>('');
@@ -166,53 +174,41 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
                     <div className="space-y-2">
                       <Label htmlFor="clientIndustry">Client Industry</Label>
                       {/* Hidden input to store value for form submission */}
-                      <input type="hidden" name="clientIndustry" value={clientIndustry} />
-                      <SmartIndustrySelect
-                        value={clientIndustry}
-                        onSelect={(val: string) => setClientIndustry(val)}
+                      <input type="hidden" name="clientIndustry" value={clientIndustryId} />
+                      <EntityPicker
+                        entity="industry"
+                        value={clientIndustryId || null}
+                        onChange={(next) => setClientIndustryId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
                       />
                     </div>
                   </div>
                   <div className="grid grid-cols-3 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="country">Country *</Label>
-                      <SmartLocationSelect
-                        type="country"
-                        value={country}
-                        onSelect={(val, label) => {
-                          setCountry(val);
-                          setCountryName(label);
-                          setSelectedState('');
-                          setSelectedStateName('');
-                          setCityName('');
-                        }}
+                      <EntityPicker
+                        entity="location"
+                        value={countryId || null}
+                        onChange={(next) => setCountryId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
                       />
-                      <input type="hidden" name="country" value={countryName} />
+                      <input type="hidden" name="country" value={countryId} />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="state">State</Label>
-                      <SmartLocationSelect
-                        type="state"
-                        selectedCountryCode={country}
-                        value={selectedState}
-                        onSelect={(val: string, label: string) => {
-                          setSelectedState(val);
-                          setSelectedStateName(label);
-                          setCityName('');
-                        }}
+                      <EntityPicker
+                        entity="location"
+                        value={stateId || null}
+                        onChange={(next) => setStateId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
                       />
-                      <input type="hidden" name="state" value={selectedStateName} />
+                      <input type="hidden" name="state" value={stateId} />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="city">City/Town</Label>
-                      <SmartLocationSelect
-                        type="city"
-                        selectedCountryCode={country}
-                        selectedStateCode={selectedState}
-                        value={cityName}
-                        onSelect={(val: string, label: string) => setCityName(label)}
+                      <EntityPicker
+                        entity="location"
+                        value={cityId || null}
+                        onChange={(next) => setCityId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
                       />
-                      <input type="hidden" name="city" value={cityName} />
+                      <input type="hidden" name="city" value={cityId} />
                     </div>
                   </div>
                 </AccordionContent>
@@ -225,43 +221,30 @@ export function CrmAddClientDialog({ onClientAdded, defaultOpen = false, default
                   <div className="grid grid-cols-3 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="addressCountry">Country</Label>
-                      <SmartLocationSelect
-                        type="country"
-                        value={addressCountry}
-                        onSelect={(val, label) => {
-                          setAddressCountry(val);
-                          setAddressCountryName(label);
-                          setAddressState('');
-                          setAddressStateName('');
-                          setAddressCityName('');
-                        }}
+                      <EntityPicker
+                        entity="location"
+                        value={addressCountryId || null}
+                        onChange={(next) => setAddressCountryId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
                       />
-                      <input type="hidden" name="addressCountry" value={addressCountryName} />
+                      <input type="hidden" name="addressCountry" value={addressCountryId} />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="addressState">State</Label>
-                      <SmartLocationSelect
-                        type="state"
-                        selectedCountryCode={addressCountry}
-                        value={addressState}
-                        onSelect={(val, label) => {
-                          setAddressState(val);
-                          setAddressStateName(label);
-                          setAddressCityName('');
-                        }}
+                      <EntityPicker
+                        entity="location"
+                        value={addressStateId || null}
+                        onChange={(next) => setAddressStateId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
                       />
-                      <input type="hidden" name="addressState" value={addressStateName} />
+                      <input type="hidden" name="addressState" value={addressStateId} />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="addressCity">City</Label>
-                      <SmartLocationSelect
-                        type="city"
-                        selectedCountryCode={addressCountry}
-                        selectedStateCode={addressState}
-                        value={addressCityName}
-                        onSelect={(val, label) => setAddressCityName(label)}
+                      <EntityPicker
+                        entity="location"
+                        value={addressCityId || null}
+                        onChange={(next) => setAddressCityId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
                       />
-                      <input type="hidden" name="addressCity" value={addressCityName} />
+                      <input type="hidden" name="addressCity" value={addressCityId} />
                     </div>
                     <div className="space-y-2"><Label htmlFor="addressZip">ZIP Code</Label><Input id="addressZip" name="addressZip" maxLength={20} /></div>
                   </div>

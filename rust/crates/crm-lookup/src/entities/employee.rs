@@ -17,6 +17,7 @@ pub static SPEC: LookupSpec = LookupSpec {
     default_filter,
     to_chip,
     honors_project_scope: false,
+    is_global: false,
 };
 
 fn default_filter() -> Document {

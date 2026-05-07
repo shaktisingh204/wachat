@@ -4,8 +4,9 @@ import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
-import type { CrmCreditNote } from '@/lib/definitions';
+import type { CrmCreditNote, LineageKind, LineageRef } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
+import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
 
 async function getNextCreditNoteNumber(db: Db, userId: ObjectId): Promise<string> {
     const lastNote = await db.collection<CrmCreditNote>('crm_credit_notes')
@@ -106,11 +107,76 @@ export async function saveCreditNote(prevState: any, formData: FormData): Promis
             return { error: 'Credit note number, client, and at least one item are required.' };
         }
 
-        await db.collection('crm_credit_notes').insertOne({
+        // Lineage seeding (crm_function_plan.md §13.5). The form may
+        // optionally pass `fromKind` + `fromId` when a credit note is
+        // created in the context of a parent doc. Per the §13.5 chain,
+        // a credit note always derives from an invoice, so the only
+        // allow-listed parent kind here is `invoice`. Both fields are
+        // optional, so existing flows keep working unchanged.
+        let lineage: LineageRef[] | undefined;
+        const fromKind = (formData.get('fromKind') as string | null) || null;
+        const fromId = (formData.get('fromId') as string | null) || null;
+        const ALLOWED_PARENT_KINDS: LineageKind[] = ['invoice'];
+        if (
+            fromKind &&
+            fromId &&
+            ALLOWED_PARENT_KINDS.includes(fromKind as LineageKind) &&
+            ObjectId.isValid(fromId)
+        ) {
+            try {
+                const parent = await db.collection('crm_invoices').findOne(
+                    {
+                        _id: new ObjectId(fromId),
+                        userId: userObjectId,
+                    },
+                    { projection: { _id: 1, lineage: 1, invoiceNumber: 1, status: 1 } },
+                );
+                if (parent) {
+                    lineage = buildLineageFromParent({
+                        kind: 'invoice',
+                        id: parent._id.toString(),
+                        no: (parent.invoiceNumber as string | undefined) || undefined,
+                        status: (parent.status as string | undefined) || undefined,
+                        lineage: (parent.lineage as LineageRef[] | undefined) ?? undefined,
+                    });
+                }
+            } catch {
+                // ignore lineage seed failures — credit note still saves
+            }
+        }
+
+        const insertResult = await db.collection('crm_credit_notes').insertOne({
             ...creditNoteData,
+            ...(lineage ? { lineage } : {}),
             createdAt: new Date(),
             updatedAt: new Date()
         } as any);
+
+        // Best-effort back-link onto the parent invoice.
+        if (lineage && fromKind === 'invoice' && fromId && ObjectId.isValid(fromId)) {
+            try {
+                const parent = await db.collection('crm_invoices').findOne(
+                    { _id: new ObjectId(fromId) },
+                    { projection: { _id: 1, lineage: 1 } },
+                );
+                const updatedParentLineage = appendLineage(
+                    parent?.lineage as LineageRef[] | undefined,
+                    {
+                        kind: 'creditNote',
+                        id: insertResult.insertedId.toString(),
+                        no: creditNoteData.creditNoteNumber,
+                        status: undefined,
+                        createdAt: new Date().toISOString(),
+                    },
+                );
+                await db.collection('crm_invoices').updateOne(
+                    { _id: new ObjectId(fromId) },
+                    { $set: { lineage: updatedParentLineage, updatedAt: new Date() } },
+                );
+            } catch {
+                // non-fatal
+            }
+        }
 
         revalidatePath('/dashboard/crm/sales/credit-notes');
         return { message: 'Credit Note saved successfully.' };

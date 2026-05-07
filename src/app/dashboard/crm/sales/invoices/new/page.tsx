@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useActionState, useRef, useTransition } from 'react';
+import { useState, useEffect, useActionState, useRef, useTransition, useCallback } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
     ZoruButton,
@@ -21,12 +21,16 @@ import { v4 as uuidv4 } from 'uuid';
 import type { WithId, CrmAccount, InvoiceLineItem } from '@/lib/definitions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
 import { saveInvoice } from '@/app/actions/crm-invoices.actions';
+import { getCustomFieldsFor } from '@/app/actions/worksuite/meta.actions';
+import type { WsCustomField } from '@/lib/worksuite/meta-types';
 import { useRouter } from 'next/navigation';
-import { SmartClientSelect } from '@/components/crm/sales/smart-client-select';
-import { SmartProductSelect } from '@/components/crm/inventory/smart-product-select';
 import { EntityPicker } from '@/components/crm/entity-picker';
 import type { LookupItem } from '@/lib/lookup-registry';
 import { SabFilePickerButton } from '@/components/sabfiles';
+import {
+    CustomFieldInput,
+    type CustomFieldValue,
+} from '@/components/crm/custom-field-input';
 
 type TermItem = { id: string; text: string; }
 type AdditionalInfoItem = { id: string; key: string; value: string; }
@@ -82,15 +86,20 @@ const LineItemsTable = ({ items, setItems, currency }: { items: InvoiceLineItem[
                         {items.map((item, index) => (
                             <tr key={item.id} className="border-b border-zoru-line">
                                 <td className="p-2">
-                                    <SmartProductSelect
-                                        value={item.id.startsWith('item-') && !item.name ? '' : undefined}
-                                        placeholder="Select Product"
-                                        onSelect={(val) => { }}
-                                        onProductChange={(product) => {
-                                            handleItemChange(item.id, 'name', product.name);
-                                            handleItemChange(item.id, 'rate', product.sellingPrice);
+                                    <EntityPicker
+                                        entity="item"
+                                        value={null}
+                                        placeholder="Name/SKU"
+                                        onChange={(_id, hydrated) => {
+                                            const raw = (Array.isArray(hydrated) ? hydrated[0] : hydrated)?.raw as any;
+                                            if (raw) {
+                                                handleItemChange(item.id, 'name', raw.name ?? '');
+                                                handleItemChange(item.id, 'rate', raw.sellingPrice ?? 0);
+                                                if (raw.description !== undefined) {
+                                                    handleItemChange(item.id, 'description', raw.description ?? '');
+                                                }
+                                            }
                                         }}
-                                        className="w-full"
                                     />
                                 </td>
                                 <td className="p-2"><ZoruInput type="number" className="w-24 text-right" value={item.quantity} onChange={e => handleItemChange(item.id, 'quantity', Number(e.target.value))} /></td>
@@ -140,9 +149,51 @@ export default function NewInvoicePage() {
     const [contactDetails, setContactDetails] = useState({ email: '', phone: '' });
     const [attachments, setAttachments] = useState<{ url: string; name: string }[]>([]);
 
+    // Custom-field definitions configured in CRM Settings → Custom Fields
+    // for entity=invoice. Loaded once on mount.
+    const [customFields, setCustomFields] = useState<WsCustomField[]>([]);
+    const [customFieldValues, setCustomFieldValues] = useState<
+        Record<string, CustomFieldValue>
+    >({});
+
     useEffect(() => {
         getCrmAccounts().then(data => setClients(data.accounts));
     }, []);
+
+    useEffect(() => {
+        let cancelled = false;
+        (async () => {
+            try {
+                const defs = await getCustomFieldsFor('invoice');
+                if (!cancelled) setCustomFields((defs as WsCustomField[]) ?? []);
+            } catch {
+                // Non-fatal — the rest of the form still works.
+                if (!cancelled) setCustomFields([]);
+            }
+        })();
+        return () => {
+            cancelled = true;
+        };
+    }, []);
+
+    const handleCustomFieldChange = useCallback(
+        (slug: string, next: CustomFieldValue) => {
+            setCustomFieldValues((prev) => ({ ...prev, [slug]: next }));
+        },
+        [],
+    );
+
+    // Wrap the server action so we can serialize per-slug custom-field
+    // values into the FormData under the `customFields` key (JSON-encoded
+    // object keyed by `WsCustomField.name`). Matches the storage contract
+    // consumed by `applyCustomFieldsToEntity`.
+    const handleFormAction = useCallback(
+        (formData: FormData) => {
+            formData.set('customFields', JSON.stringify(customFieldValues));
+            formAction(formData);
+        },
+        [formAction, customFieldValues],
+    );
 
     useEffect(() => {
         if (state.message) {
@@ -166,7 +217,7 @@ export default function NewInvoicePage() {
     const billedToPhone = selectedClient?.phone ?? (pickedRaw?.phone as string | undefined);
 
     return (
-        <form action={formAction}>
+        <form action={handleFormAction}>
             <input type="hidden" name="accountId" value={selectedClientId} />
             <input type="hidden" name="invoiceDate" value={invoiceDate?.toISOString()} />
             <input type="hidden" name="dueDate" value={dueDate?.toISOString()} />
@@ -293,6 +344,26 @@ export default function NewInvoicePage() {
                                 {showContactDetails ? (<div className="space-y-2"><ZoruLabel className="text-zoru-ink">Your Contact Details</ZoruLabel><div className="space-y-2"><ZoruInput type="email" placeholder="Your Email (optional)" value={contactDetails.email} onChange={e => setContactDetails(prev => ({ ...prev, email: e.target.value }))} /><ZoruInput type="tel" placeholder="Your Phone (optional)" value={contactDetails.phone} onChange={e => setContactDetails(prev => ({ ...prev, phone: e.target.value }))} /></div></div>) : (<ZoruButton type="button" variant="ghost" size="sm" onClick={() => setShowContactDetails(true)}>Add Contact Details</ZoruButton>)}
                                 {showSignature ? (<div className="space-y-2"><ZoruLabel className="text-zoru-ink">Signature</ZoruLabel><div className="h-24 border border-zoru-line rounded-lg bg-zoru-surface-2 flex items-center justify-center"><ZoruButton type="button" variant="outline">Upload Signature</ZoruButton></div></div>) : (<ZoruButton type="button" variant="ghost" size="sm" onClick={() => setShowSignature(true)}>Add Signature</ZoruButton>)}
                             </section>
+                            {customFields.length > 0 ? (
+                                <>
+                                    <ZoruSeparator className="my-8" />
+                                    <section className="space-y-3">
+                                        <div className="text-[11px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                                            Custom Fields
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            {customFields.map((f) => (
+                                                <CustomFieldInput
+                                                    key={String(f._id ?? f.name)}
+                                                    field={f}
+                                                    value={customFieldValues[f.name]}
+                                                    onChange={(next) => handleCustomFieldChange(f.name, next)}
+                                                />
+                                            ))}
+                                        </div>
+                                    </section>
+                                </>
+                            ) : null}
                             <ZoruSeparator className="my-8" />
                             <div className="space-y-4">
                                 <div className="flex items-center space-x-2">

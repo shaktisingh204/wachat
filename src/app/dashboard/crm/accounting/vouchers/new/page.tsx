@@ -15,7 +15,7 @@ import type { WithId } from 'mongodb';
 import type { CrmChartOfAccount, CrmVoucherBook, CrmPaymentAccount } from '@/lib/definitions';
 import { getSession } from '@/app/actions/user.actions';
 
-import { SmartLedgerSelect } from '@/components/crm/accounting/smart-ledger-select';
+import { EntityPicker } from '@/components/crm/entity-picker';
 
 const initialState = { message: undefined, error: undefined };
 
@@ -74,14 +74,14 @@ const LineItemsSection = ({ title, items, setItems, accounts, currency, setCurre
                         <div className="grid md:grid-cols-2 gap-4">
                             <div className="space-y-1">
                                 <ZoruLabel className="text-xs">Account *</ZoruLabel>
-                                <SmartLedgerSelect
-                                    value={item.accountId}
-                                    onSelect={(val: string) => handleItemChange(item.id, 'accountId', val)}
-                                    initialOptions={accounts.map(acc => ({
-                                        value: acc._id.toString(),
-                                        label: (acc as any).accountName || (acc as any).name
-                                    }))}
+                                <EntityPicker
+                                    entity="account"
+                                    value={item.accountId || null}
                                     placeholder="Search from an Account..."
+                                    onChange={(next) => {
+                                        const id = Array.isArray(next) ? next[0] ?? '' : (next ?? '');
+                                        handleItemChange(item.id, 'accountId', id);
+                                    }}
                                 />
                                 <input type="hidden" name={item.accountId} value={item.accountId} required />
                             </div>

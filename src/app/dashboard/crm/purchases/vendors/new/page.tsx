@@ -13,7 +13,7 @@ import { useRouter } from 'next/navigation';
 import { CrmAddBankAccountDialog } from '@/components/wabasimplify/crm-add-bank-account-dialog';
 import type { BankAccountDetails } from '@/lib/definitions';
 
-import { SmartLocationSelect } from '@/components/crm/smart-location-select';
+import { EntityPicker } from '@/components/crm/entity-picker';
 
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 
@@ -36,18 +36,13 @@ export default function NewVendorPage() {
     const [bankDetails, setBankDetails] = useState<Partial<BankAccountDetails>>({});
     const [isBankDialogOpen, setIsBankDialogOpen] = useState(false);
 
-    // Location State
-    const [country, setCountry] = useState<string>('IN');
-    const [countryName, setCountryName] = useState<string>('India');
-    const [selectedState, setSelectedState] = useState<string>('');
-    const [selectedStateName, setSelectedStateName] = useState<string>('');
-    const [cityName, setCityName] = useState<string>('');
-
-    const [addressCountry, setAddressCountry] = useState<string>('');
-    const [addressCountryName, setAddressCountryName] = useState<string>('');
-    const [addressState, setAddressState] = useState<string>('');
-    const [addressStateName, setAddressStateName] = useState<string>('');
-    const [addressCityName, setAddressCityName] = useState<string>('');
+    // Location picker state — one id per field
+    const [countryId, setCountryId] = useState<string>('');
+    const [stateId, setStateId] = useState<string>('');
+    const [cityId, setCityId] = useState<string>('');
+    const [addressCountryId, setAddressCountryId] = useState<string>('');
+    const [addressStateId, setAddressStateId] = useState<string>('');
+    const [addressCityId, setAddressCityId] = useState<string>('');
 
     // SabFiles-backed uploads
     const [logoUrl, setLogoUrl] = useState<string>('');
@@ -136,43 +131,33 @@ export default function NewVendorPage() {
                                 <div className="grid grid-cols-3 gap-4">
                                     <div className="space-y-2">
                                         <ZoruLabel htmlFor="country">Country *</ZoruLabel>
-                                        <SmartLocationSelect
-                                            type="country"
-                                            value={country}
-                                            onSelect={(val, label) => {
-                                                setCountry(val);
-                                                setCountryName(label);
-                                                setSelectedState('');
-                                                setSelectedStateName('');
-                                                setCityName('');
-                                            }}
+                                        <EntityPicker
+                                            entity="location"
+                                            value={countryId || null}
+                                            placeholder="Select country"
+                                            onChange={(next) => setCountryId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
                                         />
-                                        <input type="hidden" name="country" value={countryName} />
+                                        <input type="hidden" name="country" value={countryId} />
                                     </div>
                                     <div className="space-y-2">
                                         <ZoruLabel htmlFor="state">State</ZoruLabel>
-                                        <SmartLocationSelect
-                                            type="state"
-                                            selectedCountryCode={country}
-                                            value={selectedState}
-                                            onSelect={(val, label) => {
-                                                setSelectedState(val);
-                                                setSelectedStateName(label);
-                                                setCityName('');
-                                            }}
+                                        <EntityPicker
+                                            entity="location"
+                                            value={stateId || null}
+                                            placeholder="Select state"
+                                            onChange={(next) => setStateId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
                                         />
-                                        <input type="hidden" name="state" value={selectedStateName} />
+                                        <input type="hidden" name="state" value={stateId} />
                                     </div>
                                     <div className="space-y-2">
                                         <ZoruLabel htmlFor="city">City/Town</ZoruLabel>
-                                        <SmartLocationSelect
-                                            type="city"
-                                            selectedCountryCode={country}
-                                            selectedStateCode={selectedState}
-                                            value={cityName}
-                                            onSelect={(val, label) => setCityName(label)}
+                                        <EntityPicker
+                                            entity="location"
+                                            value={cityId || null}
+                                            placeholder="Select city"
+                                            onChange={(next) => setCityId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
                                         />
-                                        <input type="hidden" name="city" value={cityName} />
+                                        <input type="hidden" name="city" value={cityId} />
                                     </div>
                                 </div>
                             </ZoruAccordionContent>
@@ -197,43 +182,33 @@ export default function NewVendorPage() {
                                 <div className="grid grid-cols-3 gap-4">
                                     <div className="space-y-2">
                                         <ZoruLabel>Country</ZoruLabel>
-                                        <SmartLocationSelect
-                                            type="country"
-                                            value={addressCountry}
-                                            onSelect={(val, label) => {
-                                                setAddressCountry(val);
-                                                setAddressCountryName(label);
-                                                setAddressState('');
-                                                setAddressStateName('');
-                                                setAddressCityName('');
-                                            }}
+                                        <EntityPicker
+                                            entity="location"
+                                            value={addressCountryId || null}
+                                            placeholder="Select country"
+                                            onChange={(next) => setAddressCountryId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
                                         />
-                                        <input type="hidden" name="addressCountry" value={addressCountryName} />
+                                        <input type="hidden" name="addressCountry" value={addressCountryId} />
                                     </div>
                                     <div className="space-y-2">
                                         <ZoruLabel>State / Province</ZoruLabel>
-                                        <SmartLocationSelect
-                                            type="state"
-                                            selectedCountryCode={addressCountry}
-                                            value={addressState}
-                                            onSelect={(val, label) => {
-                                                setAddressState(val);
-                                                setAddressStateName(label);
-                                                setAddressCityName('');
-                                            }}
+                                        <EntityPicker
+                                            entity="location"
+                                            value={addressStateId || null}
+                                            placeholder="Select state"
+                                            onChange={(next) => setAddressStateId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
                                         />
-                                        <input type="hidden" name="addressState" value={addressStateName} />
+                                        <input type="hidden" name="addressState" value={addressStateId} />
                                     </div>
                                     <div className="space-y-2">
                                         <ZoruLabel>City</ZoruLabel>
-                                        <SmartLocationSelect
-                                            type="city"
-                                            selectedCountryCode={addressCountry}
-                                            selectedStateCode={addressState}
-                                            value={addressCityName}
-                                            onSelect={(val, label) => setAddressCityName(label)}
+                                        <EntityPicker
+                                            entity="location"
+                                            value={addressCityId || null}
+                                            placeholder="Select city"
+                                            onChange={(next) => setAddressCityId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
                                         />
-                                        <input type="hidden" name="addressCity" value={addressCityName} />
+                                        <input type="hidden" name="addressCity" value={addressCityId} />
                                     </div>
                                 </div>
                                 <div className="space-y-2"><ZoruLabel>Postal Code / Zip Code</ZoruLabel><ZoruInput name="pincode" maxLength={20} className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
