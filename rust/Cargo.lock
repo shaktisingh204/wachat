@@ -1106,6 +1106,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "crm-conversions"
+version = "0.1.0"
+dependencies = [
+ "bson",
+ "chrono",
+ "crm-core",
+ "crm-extras-types",
+ "crm-purchases-types",
+ "crm-sales-types",
+ "serde",
+]
+
+[[package]]
 name = "crm-core"
 version = "0.1.0"
 dependencies = [
@@ -1115,6 +1128,70 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror 2.0.18",
+]
+
+[[package]]
+name = "crm-credit-notes"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-core",
+ "crm-sales-types",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "crm-deals"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-core",
+ "crm-sales-crm-types",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "utoipa",
+]
+
+[[package]]
+name = "crm-debit-notes"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-core",
+ "crm-purchases-types",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
@@ -1154,6 +1231,48 @@ dependencies = [
 ]
 
 [[package]]
+name = "crm-invoices"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-core",
+ "crm-sales-types",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "crm-leads"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-core",
+ "crm-sales-crm-types",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "crm-lookup"
 version = "0.1.0"
 dependencies = [
@@ -1162,8 +1281,10 @@ dependencies = [
  "bson",
  "chrono",
  "crm-lookup-types",
+ "fred",
  "futures",
  "mongodb",
+ "sabnode-auth",
  "sabnode-common",
  "sabnode-db",
  "serde",
@@ -1183,6 +1304,70 @@ dependencies = [
 ]
 
 [[package]]
+name = "crm-payment-receipts"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-core",
+ "crm-sales-types",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "crm-payouts"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-core",
+ "crm-purchases-types",
+ "crm-sales-types",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "crm-purchase-orders"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-core",
+ "crm-purchases-types",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "crm-purchases-types"
 version = "0.1.0"
 dependencies = [
@@ -1194,6 +1379,27 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror 2.0.18",
+]
+
+[[package]]
+name = "crm-quotations"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-core",
+ "crm-sales-types",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
@@ -1220,6 +1426,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "crm-sales-orders"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-core",
+ "crm-sales-types",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "crm-sales-types"
 version = "0.1.0"
 dependencies = [
@@ -1230,6 +1457,48 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror 2.0.18",
+]
+
+[[package]]
+name = "crm-subscriptions"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-core",
+ "crm-extras-types",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "crm-tickets"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-core",
+ "crm-extras-types",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]

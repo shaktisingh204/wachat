@@ -202,6 +202,30 @@ const STATIC_CURRENCIES: StaticCurrency[] = [
 ];
 
 /**
+ * Standard units of measure. Tenants pick from this canonical set when
+ * creating products / line items. If/when tenant-configurable units land,
+ * swap this entry for a `makeMongoLookup({ collection: 'crm_units', ... })`.
+ */
+const STATIC_UNITS: string[] = [
+  'PCS', 'KG', 'G', 'L', 'ML', 'HRS', 'DAYS', 'BOX', 'PACK',
+  'DOZEN', 'PAIR', 'ROLL', 'METER', 'FT', 'INCH', 'M2', 'M3', 'TON',
+];
+
+/**
+ * Coarse industry classification — small, vetted enum so reports / filters
+ * stay groupable. TODO(industry): promote to a tenant-overridable Mongo
+ * collection (`crm_industries`) once admins ask to customize.
+ */
+const STATIC_INDUSTRIES: string[] = [
+  'SaaS', 'E-commerce', 'Manufacturing', 'Retail', 'Healthcare',
+  'Finance', 'Education', 'Real Estate', 'Hospitality', 'Transportation',
+  'Construction', 'Agriculture', 'Media', 'Telecom', 'Other',
+];
+
+/** Vendor classification — used by purchase-order routing / GL mapping. */
+const STATIC_VENDOR_TYPES: string[] = ['goods', 'services', 'both'];
+
+/**
  * Apply free-text matching + paginate over a static array. Used by
  * `currency` and the (rare) static-fallback path for `taxRate` if
  * we ever want one.
@@ -862,6 +886,92 @@ const registry: LookupRegistry = {
       tertiary: doc.clientName || undefined,
     }),
   }),
+
+  brand: {
+    // TODO(brand): a `crm_brands` Mongo collection is the eventual home
+    // (each tenant grows its own brand list as products are imported).
+    // Until that lands, return an empty result so the picker still
+    // mounts cleanly — `<EntityPicker>` falls back to free-text entry
+    // when the registry has no matches.
+    searchableFields: ['name'],
+    toChip: (doc) => ({ primary: doc.name || 'Brand' }),
+    async fetch(params) {
+      return emptyLookupResult(params);
+    },
+  },
+
+  unit: {
+    // Static — small canonical UoM set. Tenant context is ignored.
+    searchableFields: ['code'],
+    toChip: (doc) => ({ primary: doc.code }),
+    async fetch(params) {
+      return staticPaginate<string>(
+        STATIC_UNITS,
+        (item, q) => item.toLowerCase().includes(q.toLowerCase()),
+        (item) => ({
+          id: item,
+          chip: { primary: item },
+          raw: { code: item, name: item },
+        }),
+        params,
+        (item, id) => item === id,
+      );
+    },
+  },
+
+  industry: {
+    // Static — short curated list. Tenant context is ignored.
+    // TODO(industry): swap for a Mongo-backed lookup once tenants
+    // request custom values.
+    searchableFields: ['name'],
+    toChip: (doc) => ({ primary: doc.name }),
+    async fetch(params) {
+      return staticPaginate<string>(
+        STATIC_INDUSTRIES,
+        (item, q) => item.toLowerCase().includes(q.toLowerCase()),
+        (item) => ({
+          id: item,
+          chip: { primary: item },
+          raw: { code: item, name: item },
+        }),
+        params,
+        (item, id) => item === id,
+      );
+    },
+  },
+
+  location: {
+    // TODO(location): too broad for a static enum (country/state/city
+    // composition varies per consumer). The legacy SmartLocationSelect
+    // is a free-text input today, so an empty registry preserves
+    // current behavior while letting consumers migrate to
+    // <EntityPicker>. Future: back this with a `crm_locations`
+    // collection or compose Country + State + free-text city.
+    searchableFields: ['name'],
+    toChip: (doc) => ({ primary: doc.name || 'Location' }),
+    async fetch(params) {
+      return emptyLookupResult(params);
+    },
+  },
+
+  vendorType: {
+    // Static — fixed set wired into purchase-order GL mapping.
+    searchableFields: ['code'],
+    toChip: (doc) => ({ primary: doc.code }),
+    async fetch(params) {
+      return staticPaginate<string>(
+        STATIC_VENDOR_TYPES,
+        (item, q) => item.toLowerCase().includes(q.toLowerCase()),
+        (item) => ({
+          id: item,
+          chip: { primary: item },
+          raw: { code: item, name: item },
+        }),
+        params,
+        (item, id) => item === id,
+      );
+    },
+  },
 };
 
 /* ------------------------------------------------------------------ */

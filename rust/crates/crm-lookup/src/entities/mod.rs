@@ -1,12 +1,41 @@
-//! Per-entity lookup specs for the canonical 8 entities. Add a new
-//! entity by writing a sibling module + wiring it into
-//! [`crate::search::dispatch`].
+//! Per-entity lookup specs. Add a new entity by writing a sibling
+//! module + wiring it into [`crate::search::search`].
 
 pub mod account;
+pub mod asset;
 pub mod bank_account;
+pub mod bill;
+pub mod brand;
+pub mod branch;
+pub mod category;
 pub mod client;
+pub mod contact;
+pub mod cost_center;
+pub mod coupon;
+pub mod deal;
+pub mod department;
+pub mod designation;
 pub mod employee;
+pub mod holiday;
+pub mod hsn;
+pub mod invoice;
 pub mod item;
+pub mod lead;
+pub mod pincode;
+pub mod plan;
+pub mod project;
+pub mod purchase_order;
+pub mod quotation;
+pub mod receipt;
+pub mod sales_order;
+pub mod shift;
+pub mod source;
+pub mod status;
+pub mod subscription;
+pub mod tag;
+pub mod tax_rate;
+pub mod template;
+pub mod ticket;
 pub mod user;
 pub mod vendor;
 pub mod warehouse;

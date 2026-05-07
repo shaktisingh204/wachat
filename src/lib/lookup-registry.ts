@@ -17,20 +17,25 @@ export type EntityKey =
   | 'account'     // Chart-of-accounts node (`crm_chart_of_accounts`)
   | 'bankAccount' // Payment / bank account (`crm_payment_accounts`)
   | 'branch'      // Multi-branch location (collection TBD — see action TODO)
+  | 'brand'       // Product brand (free-text dropdown today; `crm_brands` future)
   | 'category'    // Product category (`crm_product_categories`)
   | 'client'      // CRM Account (the company/client record on `crm_accounts`)
   | 'currency'    // Static currency list (no DB)
   | 'department'  // HR department (`crm_departments`)
   | 'designation' // HR designation (`crm_designations`)
   | 'employee'    // HR Employee (`crm_employees`)
+  | 'industry'    // Industry classification (static enum)
   | 'item'        // CRM Product / Item (`crm_products`)
+  | 'location'    // Country/state/city location lookup (TODO collection)
   | 'pipeline'    // Sales pipeline (embedded on `users.crmPipelines`)
   | 'project'     // CRM Project (`crm_projects`)
   | 'stage'       // Pipeline stage (embedded on `users.crmPipelines[].stages`)
   | 'tag'         // Cross-entity tag (collection TBD — see action TODO)
   | 'taxRate'     // Tax rate (`crm_taxes`)
+  | 'unit'        // Unit of measure (PCS/KG/L/HRS/...)
   | 'user'        // Platform user (`users`)
   | 'vendor'      // CRM Vendor (`crm_vendors`)
+  | 'vendorType'  // Vendor classification (goods/services/both)
   | 'warehouse';  // Stock location (`crm_warehouses`)
 
 /**
@@ -46,20 +51,25 @@ export const ENTITY_KEYS = [
   'account',
   'bankAccount',
   'branch',
+  'brand',
   'category',
   'client',
   'currency',
   'department',
   'designation',
   'employee',
+  'industry',
   'item',
+  'location',
   'pipeline',
   'project',
   'stage',
   'tag',
   'taxRate',
+  'unit',
   'user',
   'vendor',
+  'vendorType',
   'warehouse',
 ] as const satisfies readonly EntityKey[];
 

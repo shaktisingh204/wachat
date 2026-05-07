@@ -21,6 +21,8 @@ import type {
   WsPromotion,
   WsFrequency,
 } from '@/lib/worksuite/billing-types';
+import type { LineageKind, LineageRef } from '@/lib/definitions';
+import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
 
 /**
  * Worksuite billing actions — Orders + Cart, Recurring Invoices,
@@ -172,6 +174,58 @@ export async function saveOrder(
     const totals = computeItemsTotals(items);
     const discount = toNumber(data.discount, 0);
 
+    // Lineage seeding (crm_function_plan.md §13.5/§15 Phase 2). The form
+    // may optionally pass `fromKind` + `fromId` when a sales order is
+    // created in the context of an upstream parent (deal / quotation /
+    // proforma). Both fields are optional, so existing flows keep working
+    // unchanged. Mirrors the saveExpense / saveInvoice pattern.
+    let seededLineage: LineageRef[] | undefined;
+    const fromKind = (formData.get('fromKind') as string | null) || null;
+    const fromId = (formData.get('fromId') as string | null) || null;
+    const ALLOWED_PARENT_KINDS: LineageKind[] = ['deal', 'quotation', 'proforma'];
+    if (
+      fromKind &&
+      fromId &&
+      ALLOWED_PARENT_KINDS.includes(fromKind as LineageKind) &&
+      ObjectId.isValid(fromId)
+    ) {
+      const user = await requireSession();
+      if (user) {
+        const parentCollection: Record<string, string> = {
+          deal: 'crm_deals',
+          quotation: 'crm_quotations',
+          proforma: 'crm_proformas',
+        };
+        const parentNoField: Record<string, string> = {
+          deal: 'name',
+          quotation: 'quotationNumber',
+          proforma: 'proformaNumber',
+        };
+        const coll = parentCollection[fromKind];
+        try {
+          const { db } = await connectToDatabase();
+          const parent = await db.collection(coll).findOne({
+            _id: new ObjectId(fromId),
+            userId: new ObjectId(user._id),
+          });
+          if (parent) {
+            seededLineage = buildLineageFromParent({
+              kind: fromKind as LineageKind,
+              id: parent._id.toString(),
+              no:
+                (parent[parentNoField[fromKind]] as string | undefined) ||
+                undefined,
+              status: (parent.status as string | undefined) || undefined,
+              lineage:
+                (parent.lineage as LineageRef[] | undefined) ?? undefined,
+            });
+          }
+        } catch {
+          // ignore lineage seed failures — order still saves
+        }
+      }
+    }
+
     const payload: Record<string, any> = {
       _id: data._id,
       order_number:
@@ -194,6 +248,7 @@ export async function saveOrder(
       notes: data.notes || '',
       payment_terms: data.payment_terms || data.paymentTerms || '',
       items,
+      ...(seededLineage ? { lineage: seededLineage } : {}),
     };
 
     const res = await hrSave('crm_orders', payload, {
@@ -201,6 +256,39 @@ export async function saveOrder(
       dateFields: ['order_date', 'delivery_date'],
     });
     if (res.error) return { error: res.error };
+
+    // Best-effort back-link onto the parent doc so the rail on the
+    // upstream side can show this new salesOrder as a child.
+    if (seededLineage && fromKind && fromId && res.id) {
+      try {
+        const parentCollection: Record<string, string> = {
+          deal: 'crm_deals',
+          quotation: 'crm_quotations',
+          proforma: 'crm_proformas',
+        };
+        const coll = parentCollection[fromKind];
+        const { db } = await connectToDatabase();
+        const parent = await db
+          .collection(coll)
+          .findOne({ _id: new ObjectId(fromId) });
+        const updatedParentLineage = appendLineage(
+          parent?.lineage as LineageRef[] | undefined,
+          {
+            kind: 'salesOrder',
+            id: res.id,
+            no: payload.order_number,
+            status: payload.status,
+            createdAt: new Date().toISOString(),
+          },
+        );
+        await db.collection(coll).updateOne(
+          { _id: new ObjectId(fromId) },
+          { $set: { lineage: updatedParentLineage, updatedAt: new Date() } },
+        );
+      } catch {
+        // non-fatal
+      }
+    }
 
     // Persist items in their own collection as well (denormalised copy
     // stays on the order document for fast reads).
@@ -283,6 +371,15 @@ export async function convertOrderToInvoice(
   const now = new Date();
   const invoiceNumber = `INV-${now.getFullYear()}-${String(Date.now()).slice(-6)}`;
 
+  // Build invoice lineage by copying the order's chain + the order itself.
+  const invoiceLineage = buildLineageFromParent({
+    kind: 'salesOrder',
+    id: order._id.toString(),
+    no: (order.order_number as string | undefined) || undefined,
+    status: (order.status as string | undefined) || undefined,
+    lineage: (order.lineage as LineageRef[] | undefined) ?? undefined,
+  });
+
   const res = await db.collection('crm_invoices').insertOne({
     userId: userOid,
     accountId: order.client_id || null,
@@ -297,9 +394,23 @@ export async function convertOrderToInvoice(
     currency: order.currency || 'INR',
     subtotal,
     total: subtotal,
+    lineage: invoiceLineage,
     createdAt: now,
     updatedAt: now,
   });
+
+  // Back-link the new invoice into the order's own lineage so the SO
+  // detail rail can render a downstream "invoice" step.
+  const updatedOrderLineage = appendLineage(
+    (order.lineage as LineageRef[] | undefined) ?? undefined,
+    {
+      kind: 'invoice',
+      id: res.insertedId.toString(),
+      no: invoiceNumber,
+      status: 'Draft',
+      createdAt: now.toISOString(),
+    },
+  );
 
   await db.collection('crm_orders').updateOne(
     { _id: new ObjectId(orderId), userId: userOid },
@@ -308,6 +419,7 @@ export async function convertOrderToInvoice(
         invoice_id: res.insertedId,
         converted_at: now,
         status: 'confirmed',
+        lineage: updatedOrderLineage,
         updatedAt: now,
       },
     },

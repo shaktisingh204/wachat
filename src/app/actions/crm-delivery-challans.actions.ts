@@ -6,8 +6,9 @@ import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
-import type { CrmDeliveryChallan } from '@/lib/definitions';
+import type { CrmDeliveryChallan, LineageKind, LineageRef } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
+import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
 
 export async function getDeliveryChallans(
     page: number = 1,
@@ -73,11 +74,79 @@ export async function saveDeliveryChallan(prevState: any, formData: FormData): P
         }
 
         const { db } = await connectToDatabase();
-        await db.collection('crm_delivery_challans').insertOne({
+
+        // Lineage seeding (crm_function_plan.md §13.5). The form may
+        // optionally pass `fromKind` + `fromId` when a delivery challan
+        // is created in the context of a parent doc (typically a Sales
+        // Order, Invoice, or Quotation). Both fields are optional, so
+        // existing flows keep working unchanged.
+        let lineage: LineageRef[] | undefined;
+        const fromKind = (formData.get('fromKind') as string | null) || null;
+        const fromId = (formData.get('fromId') as string | null) || null;
+        const ALLOWED_PARENT_KINDS: LineageKind[] = ['salesOrder', 'invoice', 'quotation'];
+        if (fromKind && fromId && ALLOWED_PARENT_KINDS.includes(fromKind as LineageKind) && ObjectId.isValid(fromId)) {
+            const parentCollection: Record<string, string> = {
+                salesOrder: 'crm_sales_orders',
+                invoice: 'crm_invoices',
+                quotation: 'crm_quotations',
+            };
+            const parentNoField: Record<string, string> = {
+                salesOrder: 'orderNumber',
+                invoice: 'invoiceNumber',
+                quotation: 'quotationNumber',
+            };
+            const coll = parentCollection[fromKind];
+            try {
+                const parent = await db.collection(coll).findOne({
+                    _id: new ObjectId(fromId),
+                    userId: new ObjectId(session.user._id),
+                });
+                if (parent) {
+                    lineage = buildLineageFromParent({
+                        kind: fromKind as LineageKind,
+                        id: parent._id.toString(),
+                        no: (parent[parentNoField[fromKind]] as string | undefined) || undefined,
+                        status: (parent.status as string | undefined) || undefined,
+                        lineage: (parent.lineage as LineageRef[] | undefined) ?? undefined,
+                    });
+                }
+            } catch {
+                // ignore lineage seed failures — challan still saves
+            }
+        }
+
+        const insertResult = await db.collection('crm_delivery_challans').insertOne({
             ...challanData,
+            ...(lineage ? { lineage } : {}),
             createdAt: new Date(),
             updatedAt: new Date()
         } as any);
+
+        // Best-effort back-link onto the parent doc.
+        if (lineage && fromKind && fromId) {
+            try {
+                const parentCollection: Record<string, string> = {
+                    salesOrder: 'crm_sales_orders',
+                    invoice: 'crm_invoices',
+                    quotation: 'crm_quotations',
+                };
+                const coll = parentCollection[fromKind];
+                const parent = await db.collection(coll).findOne({ _id: new ObjectId(fromId) });
+                const updatedParentLineage = appendLineage(parent?.lineage as LineageRef[] | undefined, {
+                    kind: 'deliveryChallan',
+                    id: insertResult.insertedId.toString(),
+                    no: challanData.challanNumber,
+                    status: challanData.status,
+                    createdAt: new Date().toISOString(),
+                });
+                await db.collection(coll).updateOne(
+                    { _id: new ObjectId(fromId) },
+                    { $set: { lineage: updatedParentLineage, updatedAt: new Date() } },
+                );
+            } catch {
+                // non-fatal
+            }
+        }
 
         revalidatePath('/dashboard/crm/sales/delivery');
         return { message: 'Delivery Challan saved successfully.' };

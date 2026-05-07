@@ -12,6 +12,7 @@ use std::{net::SocketAddr, sync::Arc};
 
 use anyhow::Context;
 use common::Settings;
+use crm_lookup::indexes as crm_lookup_indexes;
 use facebook_flow::FacebookFlowState;
 use meta_flows::MetaFlowsState;
 use meta_suite::MetaSuiteState;
@@ -124,6 +125,15 @@ async fn run() -> anyhow::Result<()> {
         .context("connecting to MongoDB")?;
     mongo.ping().await.context("MongoDB initial ping")?;
     info!(db = %mongo_db, "mongodb connected");
+
+    // Ensure CRM lookup indexes exist before serving traffic so $regex
+    // queries hit indexes from the first request. Idempotent — re-runs
+    // are no-ops.
+    info!("ensuring CRM lookup indexes");
+    crm_lookup_indexes::ensure_indexes(&mongo)
+        .await
+        .context("ensuring CRM lookup indexes")?;
+    info!("lookup indexes ensured");
 
     let redis = RedisHandle::connect(&redis_url)
         .await

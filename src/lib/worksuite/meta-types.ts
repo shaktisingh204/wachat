@@ -40,6 +40,7 @@ export type WsCustomFieldBelongsTo =
   | 'employee'
   | 'invoice'
   | 'estimate'
+  | 'quotation'
   | 'ticket'
   | 'product'
   | 'vendor'

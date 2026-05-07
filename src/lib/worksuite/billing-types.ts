@@ -1,4 +1,5 @@
 import type { ObjectId } from 'mongodb';
+import type { LineageRef } from '@/lib/definitions';
 
 /**
  * Worksuite billing types — ported from the Worksuite PHP/Laravel
@@ -63,6 +64,13 @@ export type WsOrder = Owned & {
   items?: WsOrderItem[];
   invoice_id?: ObjectId;
   converted_at?: Date;
+  /**
+   * Cross-feature data lineage chain (see `crm_function_plan.md` §13.5).
+   * Populated when this order is converted from an upstream parent
+   * (e.g. quotation/proforma) and used by the SO detail rail to render
+   * the "Linked Documents" trail.
+   */
+  lineage?: LineageRef[];
 };
 
 export type WsOrderItem = {

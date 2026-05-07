@@ -2,14 +2,13 @@
 
 import { ZoruButton, ZoruCard, ZoruDatePicker, ZoruLabel, ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow, useZoruToast } from '@/components/zoruui';
 import { Download, Users, LoaderCircle } from "lucide-react";
-import { useState, useEffect, useTransition, useCallback } from 'react';
-import { generatePartyTransactionReport, getCrmAccountsForSelection, getCrmVendorsForSelection } from '@/app/actions/crm-reports.actions';
+import { useState, useEffect, useTransition } from 'react';
+import { generatePartyTransactionReport } from '@/app/actions/crm-reports.actions';
 
 import Papa from "papaparse";
 
 import { format } from 'date-fns';
-import { SmartClientSelect } from '@/components/crm/sales/smart-client-select';
-import { SmartVendorSelect } from '@/components/crm/purchases/smart-vendor-select';
+import { EntityPicker } from '@/components/crm/entity-picker';
 
 import { CrmPageHeader } from '../../_components/crm-page-header';
 
@@ -24,7 +23,6 @@ type PartyTransaction = {
 
 export default function PartyTransactionsReportPage() {
     const [reportData, setReportData] = useState<PartyTransaction[]>([]);
-    const [parties, setParties] = useState<{ id: string, name: string }[]>([]);
     const [isLoading, startTransition] = useTransition();
     const { toast } = useZoruToast();
 
@@ -33,23 +31,11 @@ export default function PartyTransactionsReportPage() {
     const [startDate, setStartDate] = useState<Date | undefined>();
     const [endDate, setEndDate] = useState<Date | undefined>();
 
-    const fetchParties = useCallback(async (type: 'customer' | 'vendor') => {
-        startTransition(async () => {
-            if (type === 'customer') {
-                const data = await getCrmAccountsForSelection();
-                setParties(data.map(p => ({ id: p._id, name: p.name })));
-            } else {
-                const data = await getCrmVendorsForSelection();
-                setParties(data.map(p => ({ id: p._id, name: p.name })));
-            }
-            setPartyId('');
-            setReportData([]);
-        });
-    }, []);
-
+    // Reset selected party + report when toggling between customer/vendor.
     useEffect(() => {
-        fetchParties(partyType);
-    }, [partyType, fetchParties]);
+        setPartyId('');
+        setReportData([]);
+    }, [partyType]);
 
     const handleGenerateReport = () => {
         if (!partyId) {
@@ -109,16 +95,18 @@ export default function PartyTransactionsReportPage() {
                     <div className="space-y-1">
                         <ZoruLabel>Select Party</ZoruLabel>
                         {partyType === 'customer' ? (
-                            <SmartClientSelect
-                                value={partyId}
-                                onSelect={setPartyId}
-                                initialOptions={parties.map(p => ({ value: p.id, label: p.name }))}
+                            <EntityPicker
+                                entity="client"
+                                value={partyId || null}
+                                placeholder="Select customer…"
+                                onChange={(next) => setPartyId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
                             />
                         ) : (
-                            <SmartVendorSelect
-                                value={partyId}
-                                onSelect={setPartyId}
-                                initialOptions={parties.map(p => ({ value: p.id, label: p.name }))}
+                            <EntityPicker
+                                entity="vendor"
+                                value={partyId || null}
+                                placeholder="Select vendor…"
+                                onChange={(next) => setPartyId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
                             />
                         )}
                     </div>

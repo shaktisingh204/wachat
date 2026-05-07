@@ -70,6 +70,11 @@ const entityHref: Record<EntityKey, (id: string) => string> = {
   stage: () => `/dashboard/crm/sales-crm/pipelines`,
   tag: () => `/dashboard/crm/settings`,
   taxRate: () => `/dashboard/crm/settings`,
+  brand: () => `/dashboard/crm/settings`,
+  unit: () => `/dashboard/crm/settings`,
+  industry: () => `/dashboard/crm/settings`,
+  location: () => `/dashboard/crm/settings`,
+  vendorType: () => `/dashboard/crm/settings`,
 };
 
 const entityLabel: Record<EntityKey, string> = {
@@ -91,6 +96,11 @@ const entityLabel: Record<EntityKey, string> = {
   stage: 'Stages',
   tag: 'Tags',
   taxRate: 'Tax Rates',
+  brand: 'Brands',
+  unit: 'Units',
+  industry: 'Industries',
+  location: 'Locations',
+  vendorType: 'Vendor Types',
 };
 
 const ENTITY_ORDER: EntityKey[] = [
@@ -488,6 +498,11 @@ function emptyResults(): Record<EntityKey, LookupItem[]> {
     stage: [],
     tag: [],
     taxRate: [],
+    brand: [],
+    unit: [],
+    industry: [],
+    location: [],
+    vendorType: [],
   };
 }
 

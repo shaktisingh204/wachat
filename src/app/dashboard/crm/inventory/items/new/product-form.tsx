@@ -9,9 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { saveCrmProduct } from "@/app/actions/crm-products.actions";
-import { SmartCategorySelect } from "@/components/crm/inventory/smart-category-select";
-import { SmartBrandSelect } from "@/components/crm/inventory/smart-brand-select";
-import { SmartUnitSelect } from "@/components/crm/inventory/smart-unit-select";
+import { EntityPicker } from "@/components/crm/entity-picker";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, ArrowLeft, Upload, X } from "lucide-react";
 import Link from "next/link";
@@ -213,11 +211,21 @@ export function ProductForm({ initialData }: ProductFormProps) {
                         <CardContent className="grid gap-4">
                             <div className="grid gap-2">
                                 <Label>Category</Label>
-                                <SmartCategorySelect value={categoryId} onSelect={setCategoryId} />
+                                <input type="hidden" name="categoryId" value={categoryId} />
+                                <EntityPicker
+                                    entity="category"
+                                    value={categoryId || null}
+                                    onChange={(next) => setCategoryId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
+                                />
                             </div>
                             <div className="grid gap-2">
                                 <Label>Brand</Label>
-                                <SmartBrandSelect value={brandId} onSelect={setBrandId} />
+                                <input type="hidden" name="brandId" value={brandId} />
+                                <EntityPicker
+                                    entity="brand"
+                                    value={brandId || null}
+                                    onChange={(next) => setBrandId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
+                                />
                             </div>
                         </CardContent>
                     </Card>
@@ -229,7 +237,12 @@ export function ProductForm({ initialData }: ProductFormProps) {
                         <CardContent className="grid gap-4">
                             <div className="grid gap-2">
                                 <Label>Unit of Measure</Label>
-                                <SmartUnitSelect value={unitId} onSelect={setUnitId} />
+                                <input type="hidden" name="unitId" value={unitId} />
+                                <EntityPicker
+                                    entity="unit"
+                                    value={unitId || null}
+                                    onChange={(next) => setUnitId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
+                                />
                             </div>
 
                             <Separator />

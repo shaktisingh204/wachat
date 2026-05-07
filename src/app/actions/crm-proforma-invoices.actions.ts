@@ -4,8 +4,9 @@ import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
-import type { CrmProformaInvoice } from '@/lib/definitions';
+import type { CrmProformaInvoice, LineageKind, LineageRef } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
+import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
 
 async function getNextProformaNumber(db: Db, userId: ObjectId): Promise<string> {
     const lastDoc = await db.collection<CrmProformaInvoice>('crm_proforma_invoices')
@@ -121,11 +122,81 @@ export async function saveProformaInvoice(prevState: any, formData: FormData): P
             proformaData.proformaNumber = await getNextProformaNumber(db, userObjectId);
         }
 
-        await db.collection<CrmProformaInvoice>('crm_proforma_invoices').insertOne({
+        // Lineage seeding (crm_function_plan.md §13.5). The form may
+        // optionally pass `fromKind` + `fromId` when a proforma invoice
+        // is created in the context of a parent doc (Lead, Deal,
+        // Quotation, or Sales Order). Both fields are optional, so
+        // existing flows keep working unchanged.
+        let lineage: LineageRef[] | undefined;
+        const fromKind = (formData.get('fromKind') as string | null) || null;
+        const fromId = (formData.get('fromId') as string | null) || null;
+        const ALLOWED_PARENT_KINDS: LineageKind[] = ['lead', 'deal', 'quotation', 'salesOrder'];
+        if (fromKind && fromId && ALLOWED_PARENT_KINDS.includes(fromKind as LineageKind) && ObjectId.isValid(fromId)) {
+            const parentCollection: Record<string, string> = {
+                lead: 'crm_leads',
+                deal: 'crm_deals',
+                quotation: 'crm_quotations',
+                salesOrder: 'crm_sales_orders',
+            };
+            const parentNoField: Record<string, string> = {
+                lead: 'title',
+                deal: 'name',
+                quotation: 'quotationNumber',
+                salesOrder: 'orderNumber',
+            };
+            const coll = parentCollection[fromKind];
+            try {
+                const parent = await db.collection(coll).findOne({
+                    _id: new ObjectId(fromId),
+                    userId: userObjectId,
+                });
+                if (parent) {
+                    lineage = buildLineageFromParent({
+                        kind: fromKind as LineageKind,
+                        id: parent._id.toString(),
+                        no: (parent[parentNoField[fromKind]] as string | undefined) || undefined,
+                        status: (parent.status as string | undefined) || undefined,
+                        lineage: (parent.lineage as LineageRef[] | undefined) ?? undefined,
+                    });
+                }
+            } catch {
+                // ignore lineage seed failures — proforma still saves
+            }
+        }
+
+        const insertResult = await db.collection<CrmProformaInvoice>('crm_proforma_invoices').insertOne({
             ...proformaData,
+            ...(lineage ? { lineage } : {}),
             createdAt: new Date(),
             updatedAt: new Date()
         } as any);
+
+        // Best-effort back-link onto the parent doc.
+        if (lineage && fromKind && fromId) {
+            try {
+                const parentCollection: Record<string, string> = {
+                    lead: 'crm_leads',
+                    deal: 'crm_deals',
+                    quotation: 'crm_quotations',
+                    salesOrder: 'crm_sales_orders',
+                };
+                const coll = parentCollection[fromKind];
+                const parent = await db.collection(coll).findOne({ _id: new ObjectId(fromId) });
+                const updatedParentLineage = appendLineage(parent?.lineage as LineageRef[] | undefined, {
+                    kind: 'proforma',
+                    id: insertResult.insertedId.toString(),
+                    no: proformaData.proformaNumber,
+                    status: proformaData.status,
+                    createdAt: new Date().toISOString(),
+                });
+                await db.collection(coll).updateOne(
+                    { _id: new ObjectId(fromId) },
+                    { $set: { lineage: updatedParentLineage, updatedAt: new Date() } },
+                );
+            } catch {
+                // non-fatal
+            }
+        }
 
         revalidatePath('/dashboard/crm/sales/proforma');
         return { message: 'Proforma Invoice saved successfully.' };

@@ -57,6 +57,6 @@ pub use audit::Audit;
 pub use custom_fields::CustomFields;
 pub use identity::Identity;
 pub use lifecycle::{Lifecycle, Priority, SoftDelete, Status};
-pub use lineage::LineageRef;
+pub use lineage::{LineageRef, append_lineage, build_lineage_from_parent};
 pub use note::Note;
 pub use tagging::Tags;

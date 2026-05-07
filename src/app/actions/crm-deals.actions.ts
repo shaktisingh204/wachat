@@ -6,9 +6,11 @@ import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
-import type { CrmDeal, CrmContact, CrmAccount, User, CrmTask } from '@/lib/definitions';
+import type { CrmDeal, CrmContact, CrmAccount, User, CrmTask, LineageKind, LineageRef } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { getDealStagesForIndustry } from '@/lib/crm-industry-stages';
+import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
+import { applyCustomFieldsToEntity } from '@/app/actions/worksuite/meta.actions';
 
 export async function getCrmDeals(
     page: number = 1,
@@ -119,7 +121,85 @@ export async function createCrmDeal(prevState: any, formData: FormData): Promise
         }
 
         const { db } = await connectToDatabase();
-        await db.collection('crm_deals').insertOne(newDeal as CrmDeal);
+
+        // Lineage seeding (crm_function_plan.md §13.5). A deal in the
+        // §13.5 chain originates from a Lead, so only `fromKind: 'lead'`
+        // is honoured here. Both fields are optional — existing
+        // create-deal flows keep working unchanged.
+        let lineage: LineageRef[] | undefined;
+        let parentLead: { _id: ObjectId; lineage?: LineageRef[]; title?: string } | null = null;
+        const fromKind = (formData.get('fromKind') as string | null) || null;
+        const fromId = (formData.get('fromId') as string | null) || null;
+        if (fromKind === 'lead' && fromId && ObjectId.isValid(fromId)) {
+            try {
+                const lead = await db.collection('crm_leads').findOne(
+                    {
+                        _id: new ObjectId(fromId),
+                        userId: new ObjectId(session.user._id),
+                    },
+                    { projection: { _id: 1, lineage: 1, title: 1 } },
+                );
+                if (lead) {
+                    parentLead = {
+                        _id: lead._id,
+                        lineage: (lead.lineage as LineageRef[] | undefined) ?? undefined,
+                        title: (lead.title as string | undefined) || undefined,
+                    };
+                    lineage = buildLineageFromParent({
+                        kind: 'lead' as LineageKind,
+                        id: lead._id.toString(),
+                        no: parentLead.title,
+                        lineage: parentLead.lineage,
+                    });
+                }
+            } catch {
+                // ignore lineage seed failures — deal still saves
+            }
+        }
+
+        const insertResult = await db.collection('crm_deals').insertOne({
+            ...newDeal,
+            ...(lineage ? { lineage } : {}),
+        } as CrmDeal);
+
+        // Custom fields (Worksuite §13). The dialog wires a JSON-encoded
+        // map under `customFields`; persist via the shared upsert helper.
+        const customFieldsRaw = formData.get('customFields') as string | null;
+        if (customFieldsRaw) {
+            let parsedValues: Record<string, unknown> = {};
+            try {
+                const parsed = JSON.parse(customFieldsRaw);
+                if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+                    parsedValues = parsed as Record<string, unknown>;
+                }
+            } catch {
+                parsedValues = {};
+            }
+            try {
+                await applyCustomFieldsToEntity('deal', insertResult.insertedId.toString(), parsedValues);
+            } catch {
+                // non-fatal — deal already saved
+            }
+        }
+
+        // Best-effort back-link onto the parent lead.
+        if (lineage && parentLead) {
+            try {
+                const updatedParentLineage = appendLineage(parentLead.lineage, {
+                    kind: 'deal',
+                    id: insertResult.insertedId.toString(),
+                    no: newDeal.name,
+                    status: newDeal.stage,
+                    createdAt: new Date().toISOString(),
+                });
+                await db.collection('crm_leads').updateOne(
+                    { _id: parentLead._id },
+                    { $set: { lineage: updatedParentLineage, updatedAt: new Date() } },
+                );
+            } catch {
+                // non-fatal
+            }
+        }
 
         revalidatePath('/dashboard/crm/deals');
         return { message: 'Deal created successfully.' };

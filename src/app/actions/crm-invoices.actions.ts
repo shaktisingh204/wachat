@@ -8,6 +8,7 @@ import { getSession } from '@/app/actions/user.actions';
 import type { CrmInvoice, LineageKind, LineageRef } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
+import { applyCustomFieldsToEntity } from '@/app/actions/worksuite/meta.actions';
 
 export async function getInvoices(
     page: number = 1,
@@ -145,6 +146,28 @@ export async function saveInvoice(prevState: any, formData: FormData): Promise<{
             createdAt: new Date(),
             updatedAt: new Date()
         } as any);
+
+        // Custom fields (Worksuite §13). The dialog wires a JSON-encoded
+        // map under `customFields`; persist via the shared upsert helper.
+        const customFieldsRaw = formData.get('customFields') as string | null;
+        if (customFieldsRaw) {
+            let parsedValues: Record<string, unknown> = {};
+            try {
+                const parsed = JSON.parse(customFieldsRaw);
+                if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+                    parsedValues = parsed as Record<string, unknown>;
+                }
+            } catch {
+                parsedValues = {};
+            }
+            if (Object.keys(parsedValues).length > 0) {
+                try {
+                    await applyCustomFieldsToEntity('invoice', insertResult.insertedId.toString(), parsedValues);
+                } catch {
+                    // non-fatal — invoice already saved
+                }
+            }
+        }
 
         // Best-effort back-link onto the parent doc.
         if (lineage && fromKind && fromId) {

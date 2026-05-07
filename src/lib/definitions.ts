@@ -1010,6 +1010,147 @@ export type CrmPayout = {
     lineage?: LineageRef[];
 };
 
+// --- Procurement chain doc types (RFQ → Bid → PO → GRN → Bill → Payout) ---
+//
+// These mirror the canonical purchase-side lineage so each step is a
+// first-class doc that can carry `lineage[]` refs and surface in the
+// "Linked Documents" rail.
+
+/** Request-for-Quotation issued to one or more vendors (see §12.3). */
+export interface CrmRfq {
+    _id: ObjectId;
+    userId: ObjectId;
+    projectId: ObjectId;
+    createdAt: Date;
+    updatedAt: Date;
+    title: string;
+    items: Array<{
+        itemId?: ObjectId;
+        description?: string;
+        qty: number;
+        unit?: string;
+        specs?: string;
+    }>;
+    requiredBy?: Date;
+    vendorsInvited: ObjectId[];
+    terms?: string;
+    deadline?: Date;
+    status: 'draft' | 'open' | 'closed' | 'awarded' | 'cancelled';
+    attachments?: string[];
+    lineage?: LineageRef[];
+}
+
+/** A vendor's bid in response to an RFQ (see §12.3). */
+export interface CrmVendorBid {
+    _id: ObjectId;
+    userId: ObjectId;
+    projectId: ObjectId;
+    createdAt: Date;
+    updatedAt: Date;
+    rfqId: ObjectId;
+    vendorId: ObjectId;
+    items: Array<{
+        itemId: ObjectId;
+        qty: number;
+        rate: number;
+        leadTimeDays?: number;
+        notes?: string;
+    }>;
+    currency: string;
+    subTotal: number;
+    total: number;
+    terms?: string;
+    attachments?: string[];
+    status: 'submitted' | 'shortlisted' | 'awarded' | 'rejected' | 'withdrawn';
+    submittedAt: Date;
+    lineage?: LineageRef[];
+}
+
+/** Goods Receipt Note recorded against an inbound shipment (see §12.4). */
+export interface CrmGrn {
+    _id: ObjectId;
+    userId: ObjectId;
+    projectId: ObjectId;
+    createdAt: Date;
+    updatedAt: Date;
+    grnNo: string;
+    date: Date;
+    poId?: ObjectId;
+    vendorId: ObjectId;
+    warehouseId: ObjectId;
+    items: Array<{
+        itemId: ObjectId;
+        orderedQty: number;
+        receivedQty: number;
+        acceptedQty: number;
+        rejectedQty: number;
+        batch?: string;
+        expiry?: Date;
+        serialNos?: string[];
+    }>;
+    inspectorId?: ObjectId;
+    attachments?: string[];
+    status: 'draft' | 'inspected' | 'posted' | 'rejected';
+    /** Goods Issue Note id, when items are issued downstream. */
+    ginId?: ObjectId;
+    /** Material Return Note id, when rejected items are returned. */
+    mrnId?: ObjectId;
+    lineage?: LineageRef[];
+}
+
+/**
+ * Vendor bill (see §2.3). Distinct from `CrmExpense` — a bill is the
+ * accounts-payable shape with item lines, expense lines, tax handling
+ * and links back to PO/GRN.
+ */
+export interface CrmBill {
+    _id: ObjectId;
+    userId: ObjectId;
+    projectId: ObjectId;
+    createdAt: Date;
+    updatedAt: Date;
+    billNo?: string;
+    /** Vendor's invoice number as printed on their bill. */
+    vendorInvoiceNo?: string;
+    billDate: Date;
+    dueDate?: Date;
+    vendorId: ObjectId;
+    items?: Array<{
+        itemId: ObjectId;
+        qty: number;
+        rate: number;
+        total: number;
+        warehouseId?: ObjectId;
+    }>;
+    /** Non-inventory expense lines posted directly to a P&L account. */
+    expenseLines?: Array<{
+        accountId: ObjectId;
+        amount: number;
+        description?: string;
+        projectId?: ObjectId;
+    }>;
+    tdsSection?: string;
+    tdsAmount?: number;
+    reverseCharge?: boolean;
+    placeOfSupply?: string;
+    currency: string;
+    subTotal: number;
+    total: number;
+    amountPaid: number;
+    balance: number;
+    status:
+        | 'draft'
+        | 'submitted'
+        | 'approved'
+        | 'paid'
+        | 'partially_paid'
+        | 'overdue'
+        | 'cancelled';
+    linkedPoId?: ObjectId;
+    linkedGrnIds?: ObjectId[];
+    lineage?: LineageRef[];
+}
+
 // --- HR & Payroll Types ---
 export type CrmDepartment = {
     _id: ObjectId;

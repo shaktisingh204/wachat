@@ -109,6 +109,11 @@ const ENTITY_LABEL: Record<EntityKey, string> = {
   stage: 'stage',
   tag: 'tag',
   taxRate: 'tax rate',
+  brand: 'brand',
+  unit: 'unit',
+  industry: 'industry',
+  location: 'location',
+  vendorType: 'vendor type',
 };
 
 function recentsKey(entity: EntityKey) {

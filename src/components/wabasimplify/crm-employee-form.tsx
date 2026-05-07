@@ -15,9 +15,6 @@ import type { WithId, CrmEmployee, CrmDepartment, CrmDesignation } from '@/lib/d
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { DatePicker } from '../ui/date-picker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { SmartDepartmentSelect } from '@/components/crm/hr-payroll/smart-department-select';
-import { SmartDesignationSelect } from '@/components/crm/hr-payroll/smart-designation-select';
-import { SmartLocationSelect } from '@/components/crm/smart-location-select';
 import { EntityPicker } from '@/components/crm/entity-picker';
 
 const initialState: { message?: string; error?: string } = { message: undefined, error: undefined };
@@ -193,52 +190,65 @@ export function EmployeeForm({ employee, departments, designations, detail }: Em
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <Label>Department</Label>
-                                        <SmartDepartmentSelect
-                                            value={departmentId}
-                                            onSelect={setDepartmentId}
-                                            initialOptions={departments.map(d => ({ value: d._id.toString(), label: d.name }))}
+                                        <EntityPicker
+                                            entity="department"
+                                            value={departmentId || null}
+                                            onChange={(next) => {
+                                                const id = Array.isArray(next) ? next[0] ?? '' : (next ?? '');
+                                                setDepartmentId(id);
+                                            }}
                                         />
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Designation</Label>
-                                        <SmartDesignationSelect
-                                            value={designationId}
-                                            onSelect={setDesignationId}
-                                            initialOptions={designations.map(d => ({ value: d._id.toString(), label: d.name }))}
+                                        <EntityPicker
+                                            entity="designation"
+                                            value={designationId || null}
+                                            onChange={(next) => {
+                                                const id = Array.isArray(next) ? next[0] ?? '' : (next ?? '');
+                                                setDesignationId(id);
+                                            }}
                                         />
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-3 gap-4">
                                     <div className="space-y-2">
                                         <Label>Work Country</Label>
-                                        <SmartLocationSelect
-                                            type="country"
-                                            value={workCountry}
-                                            onSelect={(val) => { setWorkCountry(val); setWorkState(''); setWorkCity(''); }}
+                                        <EntityPicker
+                                            entity="location"
+                                            value={workCountry || null}
                                             placeholder="Select Country..."
+                                            onChange={(next) => {
+                                                const id = Array.isArray(next) ? (next[0] ?? '') : (next ?? '');
+                                                setWorkCountry(id);
+                                                setWorkState('');
+                                                setWorkCity('');
+                                            }}
                                         />
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Work State</Label>
-                                        <SmartLocationSelect
-                                            type="state"
-                                            selectedCountryCode={workCountry}
-                                            value={workState}
-                                            onSelect={(val) => { setWorkState(val); setWorkCity(''); }}
+                                        <EntityPicker
+                                            entity="location"
+                                            value={workState || null}
                                             placeholder="Select State..."
-                                            disabled={!workCountry}
+                                            onChange={(next) => {
+                                                const id = Array.isArray(next) ? (next[0] ?? '') : (next ?? '');
+                                                setWorkState(id);
+                                                setWorkCity('');
+                                            }}
                                         />
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Work City</Label>
-                                        <SmartLocationSelect
-                                            type="city"
-                                            selectedCountryCode={workCountry}
-                                            selectedStateCode={workState}
-                                            value={workCity}
-                                            onSelect={(_val, label) => setWorkCity(label)}
+                                        <EntityPicker
+                                            entity="location"
+                                            value={workCity || null}
                                             placeholder="Select City..."
-                                            disabled={!workState}
+                                            onChange={(next) => {
+                                                const id = Array.isArray(next) ? (next[0] ?? '') : (next ?? '');
+                                                setWorkCity(id);
+                                            }}
                                         />
                                     </div>
                                 </div>

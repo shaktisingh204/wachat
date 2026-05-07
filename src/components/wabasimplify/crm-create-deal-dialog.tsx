@@ -3,7 +3,7 @@
 
 'use client';
 
-import { useActionState, useEffect, useRef, useState } from 'react';
+import { useActionState, useCallback, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
   ZoruButton,
@@ -26,8 +26,14 @@ import {
 } from '@/components/zoruui';
 import { LoaderCircle, Plus } from 'lucide-react';
 import { createCrmDeal } from '@/app/actions/crm-deals.actions';
+import { getCustomFieldsFor } from '@/app/actions/worksuite/meta.actions';
 import type { WithId, CrmContact, CrmAccount } from '@/lib/definitions';
+import type { WsCustomField } from '@/lib/worksuite/meta-types';
 import { EntityPicker } from '@/components/crm/entity-picker';
+import {
+  CustomFieldInput,
+  type CustomFieldValue,
+} from '@/components/crm/custom-field-input';
 
 const initialState = { message: undefined, error: undefined };
 
@@ -78,6 +84,52 @@ export function CreateDealDialog({
   const [selectedAccountId, setSelectedAccountId] = useState<string>(defaultAccountId || '');
   const lastHandledRef = useRef<typeof state | null>(null);
 
+  // Custom-field definitions configured in CRM Settings → Custom Fields
+  // for entity=deal. Loaded once when the dialog first opens.
+  const [customFields, setCustomFields] = useState<WsCustomField[]>([]);
+  const [customFieldValues, setCustomFieldValues] = useState<
+    Record<string, CustomFieldValue>
+  >({});
+  const customFieldsLoadedRef = useRef(false);
+
+  useEffect(() => {
+    if (!open) return;
+    if (customFieldsLoadedRef.current) return;
+    customFieldsLoadedRef.current = true;
+    let cancelled = false;
+    (async () => {
+      try {
+        const defs = await getCustomFieldsFor('deal');
+        if (!cancelled) setCustomFields((defs as WsCustomField[]) ?? []);
+      } catch {
+        // Non-fatal — the rest of the form still works.
+        if (!cancelled) setCustomFields([]);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [open]);
+
+  const handleCustomFieldChange = useCallback(
+    (slug: string, next: CustomFieldValue) => {
+      setCustomFieldValues((prev) => ({ ...prev, [slug]: next }));
+    },
+    [],
+  );
+
+  // Wrap the server action so we can serialize per-slug custom-field
+  // values into the FormData under the `customFields` key (JSON-encoded
+  // object keyed by `WsCustomField.name`). Matches the storage contract
+  // consumed by `applyCustomFieldsToEntity`.
+  const handleFormAction = useCallback(
+    (formData: FormData) => {
+      formData.set('customFields', JSON.stringify(customFieldValues));
+      formAction(formData);
+    },
+    [formAction, customFieldValues],
+  );
+
   useEffect(() => {
     if (lastHandledRef.current === state) return;
     if (state.message) {
@@ -86,6 +138,7 @@ export function CreateDealDialog({
       formRef.current?.reset();
       setCloseDate(undefined);
       setSelectedAccountId(defaultAccountId || '');
+      setCustomFieldValues({});
       setOpen(false);
       onDealCreated();
     } else if (state.error) {
@@ -105,7 +158,7 @@ export function CreateDealDialog({
         </ZoruDialogTrigger>
       )}
       <ZoruDialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
-        <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
+        <form action={handleFormAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
           <input type="hidden" name="closeDate" value={closeDate?.toISOString()} />
           <input type="hidden" name="accountId" value={selectedAccountId} />
           <ZoruDialogHeader className="px-6 pt-6 pb-2">
@@ -197,6 +250,23 @@ export function CreateDealDialog({
                   <ZoruInput id="lossReason" name="lossReason" placeholder="Optional" className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
                 </div>
               </div>
+              {customFields.length > 0 ? (
+                <div className="space-y-3 border-t border-zoru-line pt-4">
+                  <div className="text-[11px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                    Custom Fields
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    {customFields.map((f) => (
+                      <CustomFieldInput
+                        key={String(f._id ?? f.name)}
+                        field={f}
+                        value={customFieldValues[f.name]}
+                        onChange={(next) => handleCustomFieldChange(f.name, next)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ) : null}
             </div>
           </div>
           <ZoruDialogFooter className="px-6 pb-6 pt-2">

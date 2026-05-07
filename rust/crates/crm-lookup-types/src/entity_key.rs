@@ -105,6 +105,17 @@ pub enum EntityKey {
     Shift,
     /// Holiday calendar entry.
     Holiday,
+    /// Product brand (`crm_brands`) — tenant-grown.
+    Brand,
+    /// Unit of measure — static enum (PCS / KG / L / HRS / ...).
+    Unit,
+    /// Industry classification — static enum.
+    Industry,
+    /// Location lookup (TODO: future composition of country / state /
+    /// city or dedicated `crm_locations` collection).
+    Location,
+    /// Vendor classification — static enum (goods / services / both).
+    VendorType,
 }
 
 impl EntityKey {
@@ -154,6 +165,11 @@ impl EntityKey {
             Self::Subscription => "subscription",
             Self::Shift => "shift",
             Self::Holiday => "holiday",
+            Self::Brand => "brand",
+            Self::Unit => "unit",
+            Self::Industry => "industry",
+            Self::Location => "location",
+            Self::VendorType => "vendorType",
         }
     }
 }

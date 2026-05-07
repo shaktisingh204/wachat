@@ -5,8 +5,10 @@ import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
-import type { CrmQuotation } from '@/lib/definitions';
+import type { CrmQuotation, LineageKind, LineageRef } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
+import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
+import { applyCustomFieldsToEntity } from '@/app/actions/worksuite/meta.actions';
 
 async function getNextQuotationNumber(db: Db, userId: ObjectId): Promise<string> {
     const lastQuotation = await db.collection<CrmQuotation>('crm_quotations')
@@ -73,6 +75,25 @@ export async function getQuotations(
     }
 }
 
+export async function getQuotationById(quotationId: string): Promise<WithId<CrmQuotation> | null> {
+    const session = await getSession();
+    if (!session?.user) return null;
+    if (!ObjectId.isValid(quotationId)) return null;
+
+    try {
+        const { db } = await connectToDatabase();
+        const quotation = await db.collection('crm_quotations').findOne({
+            _id: new ObjectId(quotationId),
+            userId: new ObjectId(session.user._id),
+        });
+        if (!quotation) return null;
+        return JSON.parse(JSON.stringify(quotation));
+    } catch (e) {
+        console.error('Failed to fetch quotation by id:', e);
+        return null;
+    }
+}
+
 export async function saveQuotation(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
@@ -131,11 +152,95 @@ export async function saveQuotation(prevState: any, formData: FormData): Promise
             quotationData.quotationNumber = await getNextQuotationNumber(db, userObjectId);
         }
 
-        await db.collection('crm_quotations').insertOne({
+        // Lineage seeding (crm_function_plan.md §13.5). The form may
+        // optionally pass `fromKind` + `fromId` when a quotation is
+        // created in the context of a parent doc (typically a Lead or
+        // a Deal). Both fields are optional, so existing flows keep
+        // working unchanged.
+        let lineage: LineageRef[] | undefined;
+        const fromKind = (formData.get('fromKind') as string | null) || null;
+        const fromId = (formData.get('fromId') as string | null) || null;
+        const ALLOWED_PARENT_KINDS: LineageKind[] = ['lead', 'deal'];
+        if (fromKind && fromId && ALLOWED_PARENT_KINDS.includes(fromKind as LineageKind) && ObjectId.isValid(fromId)) {
+            const parentCollection: Record<string, string> = {
+                lead: 'crm_leads',
+                deal: 'crm_deals',
+            };
+            const parentNoField: Record<string, string> = {
+                lead: 'title',
+                deal: 'name',
+            };
+            const coll = parentCollection[fromKind];
+            try {
+                const parent = await db.collection(coll).findOne({
+                    _id: new ObjectId(fromId),
+                    userId: userObjectId,
+                });
+                if (parent) {
+                    lineage = buildLineageFromParent({
+                        kind: fromKind as LineageKind,
+                        id: parent._id.toString(),
+                        no: (parent[parentNoField[fromKind]] as string | undefined) || undefined,
+                        status: (parent.status as string | undefined) || undefined,
+                        lineage: (parent.lineage as LineageRef[] | undefined) ?? undefined,
+                    });
+                }
+            } catch {
+                // ignore lineage seed failures — quotation still saves
+            }
+        }
+
+        const insertResult = await db.collection('crm_quotations').insertOne({
             ...quotationData,
+            ...(lineage ? { lineage } : {}),
             createdAt: new Date(),
             updatedAt: new Date()
         } as any);
+
+        // Custom fields (Worksuite §13). The dialog wires a JSON-encoded
+        // map under `customFields`; persist via the shared upsert helper.
+        const customFieldsRaw = formData.get('customFields') as string | null;
+        if (customFieldsRaw) {
+            let parsedValues: Record<string, unknown> = {};
+            try {
+                const parsed = JSON.parse(customFieldsRaw);
+                if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+                    parsedValues = parsed as Record<string, unknown>;
+                }
+            } catch {
+                parsedValues = {};
+            }
+            try {
+                await applyCustomFieldsToEntity('quotation', insertResult.insertedId.toString(), parsedValues);
+            } catch {
+                // non-fatal — quotation already saved
+            }
+        }
+
+        // Best-effort back-link onto the parent doc.
+        if (lineage && fromKind && fromId) {
+            try {
+                const parentCollection: Record<string, string> = {
+                    lead: 'crm_leads',
+                    deal: 'crm_deals',
+                };
+                const coll = parentCollection[fromKind];
+                const parent = await db.collection(coll).findOne({ _id: new ObjectId(fromId) });
+                const updatedParentLineage = appendLineage(parent?.lineage as LineageRef[] | undefined, {
+                    kind: 'quotation',
+                    id: insertResult.insertedId.toString(),
+                    no: quotationData.quotationNumber,
+                    status: quotationData.status,
+                    createdAt: new Date().toISOString(),
+                });
+                await db.collection(coll).updateOne(
+                    { _id: new ObjectId(fromId) },
+                    { $set: { lineage: updatedParentLineage, updatedAt: new Date() } },
+                );
+            } catch {
+                // non-fatal
+            }
+        }
 
         revalidatePath('/dashboard/crm/sales/quotations');
         return { message: 'Quotation saved successfully.' };

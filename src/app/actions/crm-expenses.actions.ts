@@ -4,8 +4,9 @@ import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/index.ts';
-import type { CrmExpense } from '@/lib/definitions';
+import type { CrmExpense, LineageKind, LineageRef } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
+import { buildLineageFromParent, appendLineage } from '@/lib/lineage';
 
 export async function getExpenses(
     page: number = 1,
@@ -76,16 +77,97 @@ export async function saveExpense(prevState: any, formData: FormData): Promise<{
             return { error: 'Expense account, amount, and date are required.' };
         }
 
-        await db.collection('crm_expenses').insertOne({
+        // Lineage seeding (crm_function_plan.md §13.5/§15 Phase 2). The form
+        // may optionally pass `fromKind` + `fromId` when a bill / expense is
+        // created in the context of a purchase parent (PO or GRN). Both
+        // fields are optional, so existing flows keep working unchanged.
+        let lineage: LineageRef[] | undefined;
+        const fromKind = (formData.get('fromKind') as string | null) || null;
+        const fromId = (formData.get('fromId') as string | null) || null;
+        const ALLOWED_PARENT_KINDS: LineageKind[] = ['purchaseOrder', 'grn'];
+        if (fromKind && fromId && ALLOWED_PARENT_KINDS.includes(fromKind as LineageKind) && ObjectId.isValid(fromId)) {
+            const parentCollection: Record<string, string> = {
+                purchaseOrder: 'crm_purchase_orders',
+                grn: 'crm_grns',
+            };
+            const parentNoField: Record<string, string> = {
+                purchaseOrder: 'orderNumber',
+                grn: 'grnNumber',
+            };
+            const coll = parentCollection[fromKind];
+            try {
+                const parent = await db.collection(coll).findOne({
+                    _id: new ObjectId(fromId),
+                    userId: userObjectId,
+                });
+                if (parent) {
+                    lineage = buildLineageFromParent({
+                        kind: fromKind as LineageKind,
+                        id: parent._id.toString(),
+                        no: (parent[parentNoField[fromKind]] as string | undefined) || undefined,
+                        status: (parent.status as string | undefined) || undefined,
+                        lineage: (parent.lineage as LineageRef[] | undefined) ?? undefined,
+                    });
+                }
+            } catch {
+                // ignore lineage seed failures — bill still saves
+            }
+        }
+
+        const insertResult = await db.collection('crm_expenses').insertOne({
             ...expenseData,
+            ...(lineage ? { lineage } : {}),
             createdAt: new Date(),
             updatedAt: new Date()
         } as any);
+
+        // Best-effort back-link onto the parent doc.
+        if (lineage && fromKind && fromId) {
+            try {
+                const parentCollection: Record<string, string> = {
+                    purchaseOrder: 'crm_purchase_orders',
+                    grn: 'crm_grns',
+                };
+                const coll = parentCollection[fromKind];
+                const parent = await db.collection(coll).findOne({ _id: new ObjectId(fromId) });
+                const updatedParentLineage = appendLineage(parent?.lineage as LineageRef[] | undefined, {
+                    kind: 'bill',
+                    id: insertResult.insertedId.toString(),
+                    no: expenseData.referenceNumber || undefined,
+                    createdAt: new Date().toISOString(),
+                });
+                await db.collection(coll).updateOne(
+                    { _id: new ObjectId(fromId) },
+                    { $set: { lineage: updatedParentLineage, updatedAt: new Date() } },
+                );
+            } catch {
+                // non-fatal
+            }
+        }
 
         revalidatePath('/dashboard/crm/purchases/expenses');
         return { message: 'Expense saved successfully.' };
     } catch (e) {
         return { error: getErrorMessage(e) };
+    }
+}
+
+export async function getExpenseById(expenseId: string): Promise<WithId<CrmExpense> | null> {
+    const session = await getSession();
+    if (!session?.user) return null;
+    if (!ObjectId.isValid(expenseId)) return null;
+
+    try {
+        const { db } = await connectToDatabase();
+        const expense = await db.collection('crm_expenses').findOne({
+            _id: new ObjectId(expenseId),
+            userId: new ObjectId(session.user._id),
+        });
+        if (!expense) return null;
+        return JSON.parse(JSON.stringify(expense));
+    } catch (e) {
+        console.error('Failed to fetch expense by id:', e);
+        return null;
     }
 }
 

@@ -25,6 +25,7 @@ import { ZoruButton } from "../button";
 import { ZoruNotificationPopover } from "../notification-popover";
 import { ZoruToaster } from "../toaster";
 import { ZoruUserDropdown } from "../user-dropdown";
+import { useCommandPalette } from "@/components/crm/command-palette";
 
 export interface ZoruHomeShellProps {
   user?: {
@@ -75,6 +76,10 @@ export function ZoruHomeShell({
 }: ZoruHomeShellProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const { setOpen: setCommandPaletteOpen } = useCommandPalette();
+  const openCommandPalette = React.useCallback(() => {
+    setCommandPaletteOpen(true);
+  }, [setCommandPaletteOpen]);
   const [, startTransition] = React.useTransition();
   // Track which dock target we're navigating to so the icon can show
   // an inline pulse — gives instant visual feedback even before
@@ -193,7 +198,16 @@ export function ZoruHomeShell({
             <ZoruInput
               placeholder="Search SabNode…"
               leadingSlot={<Search />}
-              trailingSlot={<ZoruKbd>⌘K</ZoruKbd>}
+              trailingSlot={
+                <button
+                  type="button"
+                  aria-label="Open command palette"
+                  onClick={openCommandPalette}
+                  className="inline-flex cursor-pointer items-center rounded-[var(--zoru-radius-sm)] border-0 bg-transparent p-0 outline-none focus-visible:ring-2 focus-visible:ring-zoru-ink/30"
+                >
+                  <ZoruKbd>⌘K</ZoruKbd>
+                </button>
+              }
             />
           }
           trailing={

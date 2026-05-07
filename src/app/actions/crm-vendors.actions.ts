@@ -25,6 +25,24 @@ export async function getCrmVendors(): Promise<WithId<CrmVendor>[]> {
     }
 }
 
+export async function getCrmVendorById(vendorId: string): Promise<WithId<CrmVendor> | null> {
+    const session = await getSession();
+    if (!session?.user) return null;
+    if (!ObjectId.isValid(vendorId)) return null;
+    try {
+        const { db } = await connectToDatabase();
+        const v = await db.collection<CrmVendor>('crm_vendors').findOne({
+            _id: new ObjectId(vendorId),
+            userId: new ObjectId(session.user._id),
+        });
+        if (!v) return null;
+        return JSON.parse(JSON.stringify(v));
+    } catch (e) {
+        console.error('Failed to fetch vendor by id:', e);
+        return null;
+    }
+}
+
 export async function saveCrmVendor(prevState: any, formData: FormData): Promise<{ message?: string; error?: string; newVendor?: any }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied.' };

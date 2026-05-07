@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useActionState, useRef } from 'react';
+import { useState, useEffect, useActionState, useRef, useCallback } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
     ZoruButton,
@@ -18,9 +18,12 @@ import { v4 as uuidv4 } from 'uuid';
 import type { WithId, CrmAccount, QuotationLineItem } from '@/lib/definitions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
 import { saveQuotation } from '@/app/actions/crm-quotations.actions';
+import { getCustomFieldsFor } from '@/app/actions/worksuite/meta.actions';
+import type { WsCustomField } from '@/lib/worksuite/meta-types';
 import { useRouter, usePathname } from 'next/navigation';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import { EntityPicker } from '@/components/crm/entity-picker';
+import { CustomFieldInput, type CustomFieldValue } from '@/components/crm/custom-field-input';
 import type { LookupItem } from '@/lib/lookup-registry';
 
 type TermItem = { id: string; text: string; }
@@ -187,9 +190,51 @@ export default function NewQuotationPage() {
     const [contactDetails, setContactDetails] = useState({ email: '', phone: '' });
     const [attachments, setAttachments] = useState<{ url: string; name: string }[]>([]);
 
+    // Custom-field definitions configured in CRM Settings → Custom Fields
+    // for entity=quotation. Loaded once on mount.
+    const [customFields, setCustomFields] = useState<WsCustomField[]>([]);
+    const [customFieldValues, setCustomFieldValues] = useState<
+        Record<string, CustomFieldValue>
+    >({});
+
     useEffect(() => {
         getCrmAccounts().then(data => setClients(data.accounts));
     }, []);
+
+    useEffect(() => {
+        let cancelled = false;
+        (async () => {
+            try {
+                const defs = await getCustomFieldsFor('quotation');
+                if (!cancelled) setCustomFields((defs as WsCustomField[]) ?? []);
+            } catch {
+                // Non-fatal — the rest of the form still works.
+                if (!cancelled) setCustomFields([]);
+            }
+        })();
+        return () => {
+            cancelled = true;
+        };
+    }, []);
+
+    const handleCustomFieldChange = useCallback(
+        (slug: string, next: CustomFieldValue) => {
+            setCustomFieldValues((prev) => ({ ...prev, [slug]: next }));
+        },
+        [],
+    );
+
+    // Wrap the server action so we can serialize per-slug custom-field
+    // values into the FormData under the `customFields` key (JSON-encoded
+    // object keyed by `WsCustomField.name`). Matches the storage contract
+    // consumed by `applyCustomFieldsToEntity`.
+    const handleFormAction = useCallback(
+        (formData: FormData) => {
+            formData.set('customFields', JSON.stringify(customFieldValues));
+            formAction(formData);
+        },
+        [formAction, customFieldValues],
+    );
 
     useEffect(() => {
         if (state.message) {
@@ -204,7 +249,7 @@ export default function NewQuotationPage() {
     const selectedClient = clients.find(c => c._id.toString() === selectedClientId);
 
     return (
-        <form action={formAction}>
+        <form action={handleFormAction}>
             <input type="hidden" name="accountId" value={selectedClientId} />
             <input type="hidden" name="quotationDate" value={quotationDate?.toISOString()} />
             <input type="hidden" name="validTillDate" value={validTillDate?.toISOString()} />
@@ -351,6 +396,24 @@ export default function NewQuotationPage() {
                                     </div>
                                 </div>
                             </section>
+
+                            {customFields.length > 0 ? (
+                                <section className="mt-8 space-y-3 border-t border-zoru-line pt-6">
+                                    <div className="text-[11px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+                                        Custom Fields
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {customFields.map((f) => (
+                                            <CustomFieldInput
+                                                key={String(f._id ?? f.name)}
+                                                field={f}
+                                                value={customFieldValues[f.name]}
+                                                onChange={(next) => handleCustomFieldChange(f.name, next)}
+                                            />
+                                        ))}
+                                    </div>
+                                </section>
+                            ) : null}
                         </div>
                     </ZoruCard>
                 </div>

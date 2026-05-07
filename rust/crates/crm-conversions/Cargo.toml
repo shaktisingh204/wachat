@@ -1,0 +1,23 @@
+[package]
+name = "crm-conversions"
+version = "0.1.0"
+edition = "2024"
+description = "Pure conversion helpers between CRM document types (§13.5 lineage chain)."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "crm_conversions"
+path = "src/lib.rs"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+bson = { version = "2", features = ["chrono-0_4"] }
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+crm-core = { path = "../crm-core" }
+crm-sales-types = { path = "../crm-sales-types" }
+crm-purchases-types = { path = "../crm-purchases-types" }
+crm-extras-types = { path = "../crm-extras-types" }
+
+[lints]
+workspace = true
