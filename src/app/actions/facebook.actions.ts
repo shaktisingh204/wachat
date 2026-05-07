@@ -2157,24 +2157,45 @@ export async function getEventAttendees(
 export async function getLeadGenForms(
     projectId: string,
 ): Promise<{ forms?: FacebookLeadGenForm[]; error?: string }> {
-    void projectId;
-    return { forms: [], error: NOT_IMPL };
+    if (!projectId) return { forms: [], error: 'projectId is required.' };
+    try {
+        const res = await rustClient.wachatFacebookLeadGen.getLeadGenForms(projectId);
+        if (res.error) return { forms: [], error: res.error };
+        return { forms: (res.forms || []) as FacebookLeadGenForm[] };
+    } catch (e) {
+        if (e instanceof RustApiError) return { forms: [], error: e.message };
+        throw e;
+    }
 }
 
 export async function getLeadsForForm(
     formId: string,
     projectId: string,
 ): Promise<{ leads?: FacebookLead[]; error?: string }> {
-    void formId; void projectId;
-    return { leads: [], error: NOT_IMPL };
+    if (!formId || !projectId) return { leads: [], error: 'formId and projectId are required.' };
+    try {
+        const res = await rustClient.wachatFacebookLeadGen.getLeadsForForm(formId, projectId);
+        if (res.error) return { leads: [], error: res.error };
+        return { leads: (res.leads || []) as FacebookLead[] };
+    } catch (e) {
+        if (e instanceof RustApiError) return { leads: [], error: e.message };
+        throw e;
+    }
 }
 
 export async function getLeadById(
     leadId: string,
     projectId: string,
 ): Promise<{ lead?: FacebookLead; error?: string }> {
-    void leadId; void projectId;
-    return { error: NOT_IMPL };
+    if (!leadId || !projectId) return { error: 'leadId and projectId are required.' };
+    try {
+        const res = await rustClient.wachatFacebookLeadGen.getLeadById(leadId, projectId);
+        if (res.error) return { error: res.error };
+        return { lead: res.lead as FacebookLead | undefined };
+    } catch (e) {
+        if (e instanceof RustApiError) return { error: e.message };
+        throw e;
+    }
 }
 
 export async function getMessengerProfile(projectId: string): Promise<{ profile?: any; error?: string }> {
