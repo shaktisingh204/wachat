@@ -19,7 +19,6 @@ use sabnode_common::{ApiError, Result};
 use sabnode_db::{document_to_clean_json, mongo::MongoHandle};
 use serde_json::Value;
 use tracing::instrument;
-use wachat_types::Project;
 
 use crate::dto::{
     AgentsResp, CommentAutoReplyBody, CreateAgentBody, DocsResp, MessageResp, OkResp, RulesResp,
@@ -38,27 +37,38 @@ const AUDIENCE_COLL: &str = "fb_audience_segments";
 // Tenancy gate — inlined per task spec.
 // ---------------------------------------------------------------------------
 
-/// Tenant gate for project-scoped routes. Mirrors the helper in
-/// `wachat-config::router::load_project_for`. Returns 404 for missing
-/// projects, 403 for non-owners.
+/// Lightweight project handle used by this crate. We only need the project's
+/// own `_id` for child-collection lookups; tenant ownership is verified during
+/// load. Reading the raw `Document` (instead of `wachat_types::Project`) avoids
+/// schema-drift deserialization failures on legacy/mixed-shape project rows.
+pub(crate) struct ProjectRef {
+    pub id: ObjectId,
+}
+
+/// Tenant gate for project-scoped routes. Returns 404 for missing
+/// projects, 403 for non-owners. Reads the project document untyped so
+/// stale/legacy fields cannot crash the handler.
 #[instrument(skip_all, fields(project_id = %project_id_hex))]
 async fn load_project_for(
     user: &AuthUser,
     mongo: &MongoHandle,
     project_id_hex: &str,
-) -> Result<Project> {
+) -> Result<ProjectRef> {
     let oid = ObjectId::parse_str(project_id_hex)
         .map_err(|_| ApiError::BadRequest("invalid project id".to_owned()))?;
-    let coll = mongo.collection::<Project>(PROJECTS_COLL);
+    let coll = mongo.collection::<Document>(PROJECTS_COLL);
     let project = coll
         .find_one(doc! { "_id": oid })
         .await
         .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?
         .ok_or_else(|| ApiError::NotFound(format!("project {project_id_hex}")))?;
-    if user.tenant_id != project.user_id.to_hex() {
+    let owner = project
+        .get_object_id("userId")
+        .map_err(|_| ApiError::Internal(anyhow::anyhow!("project missing userId")))?;
+    if user.tenant_id != owner.to_hex() {
         return Err(ApiError::Forbidden("not your project".to_owned()));
     }
-    Ok(project)
+    Ok(ProjectRef { id: oid })
 }
 
 /// Resolve a child document by `_id`, then verify the project that owns

@@ -10,6 +10,27 @@ import type { CrmDeliveryChallan, LineageKind, LineageRef } from '@/lib/definiti
 import { getErrorMessage } from '@/lib/utils';
 import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
 
+export async function getDeliveryChallanById(
+    challanId: string
+): Promise<WithId<CrmDeliveryChallan> | null> {
+    const session = await getSession();
+    if (!session?.user) return null;
+    if (!ObjectId.isValid(challanId)) return null;
+
+    try {
+        const { db } = await connectToDatabase();
+        const challan = await db.collection('crm_delivery_challans').findOne({
+            _id: new ObjectId(challanId),
+            userId: new ObjectId(session.user._id),
+        });
+        if (!challan) return null;
+        return JSON.parse(JSON.stringify(challan));
+    } catch (e) {
+        console.error('Failed to fetch delivery challan by id:', e);
+        return null;
+    }
+}
+
 export async function getDeliveryChallans(
     page: number = 1,
     limit: number = 20,

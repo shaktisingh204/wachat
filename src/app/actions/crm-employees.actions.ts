@@ -7,6 +7,8 @@ import { getSession } from '@/app/actions/user.actions';
 import { ObjectId, type WithId } from 'mongodb';
 import { getErrorMessage } from '@/lib/utils';
 import type { CrmDepartment, CrmDesignation, CrmEmployee } from '@/lib/definitions';
+import { applyCustomFieldsToEntity } from '@/app/actions/worksuite/meta.actions';
+import { writeAuditEntry } from '@/lib/audit-log';
 
 // --- Departments ---
 export async function getCrmDepartments(): Promise<WithId<CrmDepartment>[]> {
@@ -273,6 +275,32 @@ export async function saveCrmEmployee(_prev: any, formData: FormData): Promise<{
             { $set: { ...detailData, employee_id: resolvedEmployeeId.toString() }, $setOnInsert: { createdAt: new Date() } },
             { upsert: true }
         );
+
+        // Persist custom-field values for entity=employee. Best-effort —
+        // a failure here doesn't unwind the employee insert/update.
+        const cfRaw = formData.get('customFields');
+        if (typeof cfRaw === 'string' && cfRaw.length > 0 && cfRaw !== '{}') {
+            try {
+                const parsed = JSON.parse(cfRaw);
+                if (parsed && typeof parsed === 'object') {
+                    await applyCustomFieldsToEntity(
+                        'employee',
+                        resolvedEmployeeId.toString(),
+                        parsed,
+                    );
+                }
+            } catch (e) {
+                console.error('[saveCrmEmployee] customFields parse failed:', e);
+            }
+        }
+
+        // §12.21 audit trail.
+        await writeAuditEntry({
+            tenantUserId: session.user._id,
+            action: isEditing ? 'update' : 'create',
+            entityKind: 'employee',
+            entityId: resolvedEmployeeId.toString(),
+        });
 
         revalidatePath('/dashboard/hrm/payroll/employees');
         revalidatePath('/dashboard/hrm/payroll/employees/profile');

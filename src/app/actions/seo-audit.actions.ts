@@ -1,57 +1,37 @@
 'use server';
 
 import { connectToDatabase } from '@/lib/mongodb';
-import { SeoAudit, SeoProject } from '@/lib/seo/definitions';
-import { seoAuditQueue } from '@/workers/seo/bullmq-setup';
+import { SeoAudit } from '@/lib/seo/definitions';
 import { ObjectId } from 'mongodb';
 
+import { runAuditImmediate } from './seo.actions';
+
+/**
+ * Run the audit inline via `runAuditImmediate`. The previous BullMQ job
+ * pipeline relied on a worker that wasn't registered in `ecosystem.config.js`,
+ * so jobs queued here never completed and the polling UI hung forever.
+ *
+ * `runAuditImmediate` performs the crawl synchronously, writes terminal
+ * `status: 'completed'` (or `'failed'`) to `seo_audits`, and `revalidatePath`s
+ * the audit subroute. It returns `{ success, auditId, message }` on success
+ * or `{ error, auditId? }` on failure — we normalize both shapes here so
+ * the UI's polling loop terminates correctly.
+ */
 export async function startAudit(projectId: string) {
-    const { db } = await connectToDatabase();
-
-    const project = await db.collection<SeoProject>('seo_projects').findOne({
-        _id: new ObjectId(projectId)
-    });
-
-    if (!project) {
-        throw new Error('Project not found');
+    const result = await runAuditImmediate(projectId);
+    if ('error' in result && result.error) {
+        // Surface the failure but still return an auditId if the run created one,
+        // so the UI's polling loop can read terminal status from the row.
+        return {
+            success: false,
+            auditId: (result as any).auditId,
+            error: result.error,
+        };
     }
-
-    // 1. Create Audit Record
-    const auditId = new ObjectId();
-    const newAudit: SeoAudit = {
-        _id: auditId,
-        projectId: new ObjectId(projectId),
-        pages: [], // Will be empty initially for massive crawls, or keep legacy array? 
-        // For massive crawls, we should NOT store pages here. 
-        // But for MVP/Compatibility, let's keep it empty and use 'audit_snapshots' collection.
-        totalScore: 0,
-        startedAt: new Date(),
-        status: 'pending',
-        summary: {
-            totalPages: 0,
-            criticalIssues: 0,
-            warningIssues: 0
-        },
-        visitedPages: false
-    };
-
-    await db.collection('seo_audits').insertOne(newAudit);
-
-    // 2. Add Job to Queue
-    const domainUrl = project.domain.startsWith('http') ? project.domain : `https://${project.domain}`;
-
-    await seoAuditQueue.add('crawl-page', {
-        projectId,
-        auditId: auditId.toString(),
-        url: domainUrl,
-        depth: 0,
-        maxDepth: project.settings.crawlDepth || 2 // Default depth 2
-    });
-
     return {
         success: true,
-        auditId: auditId.toString(),
-        message: 'Audit started successfully'
+        auditId: (result as any).auditId,
+        message: 'Audit completed.',
     };
 }
 
@@ -59,21 +39,21 @@ export async function getAuditStatus(auditId: string) {
     const { db } = await connectToDatabase();
 
     const audit = await db.collection<SeoAudit>('seo_audits').findOne({
-        _id: new ObjectId(auditId)
+        _id: new ObjectId(auditId),
     });
 
-    if (!audit) throw new Error("Audit not found");
+    if (!audit) throw new Error('Audit not found');
 
-    // Get snapshot count
     const crawledCount = await db.collection('audit_snapshots').countDocuments({
-        auditId: new ObjectId(auditId)
+        auditId: new ObjectId(auditId),
     });
 
-    // Check if jobs actve?
-    // Start with basic DB status
     return {
         status: audit.status,
         crawledCount,
-        summary: audit.summary
+        summary: audit.summary,
+        // Surface failures in the polling response so the UI can stop spinning
+        // and show the underlying problem.
+        error: audit.status === 'failed' ? 'Audit failed.' : undefined,
     };
 }

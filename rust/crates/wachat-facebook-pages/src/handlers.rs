@@ -786,7 +786,7 @@ pub async fn get_page_insights(
     };
 
     let path = format!(
-        "{page}/insights?metric=page_impressions_unique,page_post_engagements&period=days_28"
+        "{page}/insights?metric=page_impressions,page_post_engagements&period=days_28"
     );
     let v = match graph_get(&s.meta, &path, token).await {
         Ok(v) => v,
@@ -814,7 +814,7 @@ pub async fn get_page_insights(
 
     Json(PageInsightsResp {
         insights: Some(PageInsightsCompact {
-            page_reach: pick("page_impressions_unique"),
+            page_reach: pick("page_impressions"),
             post_engagement: pick("page_post_engagements"),
         }),
         ..Default::default()
@@ -850,7 +850,7 @@ pub async fn get_detailed_page_insights(
         }
     };
 
-    const DEFAULT_METRICS: &str = "page_impressions,page_impressions_unique,page_engaged_users,page_post_engagements,page_fan_adds,page_fan_removes,page_fans,page_views_total,page_actions_post_reactions_total,page_video_views";
+    const DEFAULT_METRICS: &str = "page_impressions,page_post_engagements,page_views_total,page_fans";
     let metrics = q.metrics.unwrap_or_else(|| DEFAULT_METRICS.to_owned());
     let period = q.period.unwrap_or_else(|| "days_28".to_owned());
 
@@ -898,53 +898,17 @@ pub async fn get_page_fan_demographics(
             });
         }
     };
-    let (page, token) = match require_page(&project) {
-        Ok(t) => t,
-        Err(e) => {
-            return Json(DemographicsResp {
-                error: Some(e.to_owned()),
-                ..Default::default()
-            });
-        }
-    };
-
-    let path = format!(
-        "{page}/insights?metric=page_fans_city,page_fans_country,page_fans_gender_age&period=lifetime"
-    );
-    let v = match graph_get(&s.meta, &path, token).await {
-        Ok(v) => v,
-        Err(e) => {
-            return Json(DemographicsResp {
-                error: Some(err_msg(e)),
-                ..Default::default()
-            });
-        }
-    };
-    let mut out = serde_json::Map::new();
-    if let Some(arr) = v.get("data").and_then(|d| d.as_array()) {
-        for metric in arr {
-            let name = metric
-                .get("name")
-                .and_then(|n| n.as_str())
-                .unwrap_or("")
-                .to_owned();
-            if name.is_empty() {
-                continue;
-            }
-            let last_value = metric
-                .get("values")
-                .and_then(|v| v.as_array())
-                .and_then(|a| a.last())
-                .and_then(|e| e.get("value"))
-                .cloned()
-                .unwrap_or_else(|| Value::Object(serde_json::Map::new()));
-            out.insert(name, last_value);
-        }
+    if let Err(e) = require_page(&project) {
+        return Json(DemographicsResp {
+            error: Some(e.to_owned()),
+            ..Default::default()
+        });
     }
-    Json(DemographicsResp {
-        demographics: Some(Value::Object(out)),
-        ..Default::default()
-    })
+    // NOTE: Meta deprecated page_fans_city/country/gender_age (and the bulk of
+    // fan-demographic edges) in Graph API v22+ (Sept 2024). The metrics no longer
+    // return data. Return an empty payload until/if Meta ships replacements.
+    let _ = &s; // suppress unused
+    Json(DemographicsResp::default())
 }
 
 // =========================================================================

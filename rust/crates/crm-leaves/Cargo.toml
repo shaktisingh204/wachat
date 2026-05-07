@@ -1,0 +1,32 @@
+[package]
+name = "crm-leaves"
+version = "0.1.0"
+edition = "2024"
+description = "Leave catalog (LeaveType) + leave application (LeaveApplication) CRUD handlers (§9.4). Reads/writes hrm-payroll-types::{LeaveType, LeaveApplication} against `crm_leave_types` and `crm_leave_applications` Mongo collections, plus a POST /applications/{id}/approve action."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "crm_leaves"
+path = "src/lib.rs"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+bson = { version = "2", features = ["chrono-0_4"] }
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+mongodb = "3.2"
+futures = "0.3"
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "query"] }
+tracing = "0.1"
+anyhow = "1.0"
+
+crm-core = { path = "../crm-core" }
+hrm-payroll-types = { path = "../hrm-payroll-types" }
+sabnode-auth = { path = "../auth" }
+sabnode-common = { path = "../common" }
+sabnode-db = { path = "../db" }
+
+[lints]
+workspace = true

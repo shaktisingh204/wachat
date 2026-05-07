@@ -69,7 +69,32 @@ export async function getSeoProject(id: string) {
     }
 }
 
-// --- AUDITS ---
+export async function deleteSeoProject(id: string) {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Unauthorized' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+        const projectOid = new ObjectId(id);
+        const result = await db.collection('seo_projects').deleteOne({
+            _id: projectOid,
+            userId,
+        });
+        if (result.deletedCount === 0) {
+            return { error: 'Project not found.' };
+        }
+        // Best-effort cleanup of related collections — failures here don't abort.
+        await Promise.allSettled([
+            db.collection('seo_audits').deleteMany({ projectId: projectOid }),
+            db.collection('seo_keywords').deleteMany({ projectId: projectOid }),
+        ]);
+        revalidatePath('/dashboard/seo');
+        return { success: true };
+    } catch (e: any) {
+        return { error: e?.message ?? 'Failed to delete project.' };
+    }
+}
 
 // --- AUDITS ---
 
@@ -145,11 +170,13 @@ export async function runAuditImmediate(projectId: string) {
                 { _id: new ObjectId(auditId) },
                 { $set: { status: 'failed' } }
             );
-            return { error: "Crawl failed: " + crawlError.message };
+            return { error: "Crawl failed: " + crawlError.message, auditId: auditId.toString() };
         }
 
         revalidatePath(`/dashboard/seo/${projectId}/audit`);
-        return { success: true };
+        revalidatePath(`/dashboard/seo/${projectId}`);
+        revalidatePath('/dashboard/seo');
+        return { success: true, auditId: auditId.toString(), message: 'Audit completed.' };
     } catch (e: any) {
         return { error: e.message };
     }

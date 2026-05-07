@@ -94,10 +94,13 @@ const SEGMENT_LABELS: Record<Segment, string> = {
   fans: "Fans & followers",
 };
 
+// Meta deprecated several Page Insights metrics in Graph v22+ (Sept 2024):
+// page_engaged_users, page_impressions_unique, page_fan_adds, page_fan_removes,
+// page_video_views, page_actions_post_reactions_total. These are removed.
 const SEGMENT_METRICS: Record<Segment, string[]> = {
-  engagement: ["page_engaged_users", "page_post_engagements"],
-  reach: ["page_impressions", "page_impressions_unique"],
-  fans: ["page_fans", "page_fan_adds"],
+  engagement: ["page_post_engagements"],
+  reach: ["page_impressions"],
+  fans: ["page_fans", "page_views_total"],
 };
 
 /* ── helpers ──────────────────────────────────────────────────────── */
@@ -257,7 +260,7 @@ export default function FacebookInsightsPage() {
   }, [projectId, period, fetchInsights]);
 
   const impressions = getMetricLast(insights, "page_impressions");
-  const engagedUsers = getMetricLast(insights, "page_engaged_users");
+  const engagedUsers = getMetricLast(insights, "page_post_engagements");
   const fans = getMetricLast(insights, "page_fans");
   const views = getMetricLast(insights, "page_views_total");
 

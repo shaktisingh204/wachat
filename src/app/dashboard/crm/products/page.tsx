@@ -1,12 +1,13 @@
 'use client';
 
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState, useTransition } from 'react';
 import { AlertCircle, PlusCircle, ShoppingBag } from 'lucide-react';
 
 import { getCrmProducts } from '@/app/actions/crm-products.actions';
 import { getSession } from '@/app/actions/user.actions';
 import type { WithId, CrmProduct, User, Plan } from '@/lib/definitions';
-import { CrmProductDialog } from '@/components/wabasimplify/crm-product-dialog';
 import { CrmProductCard } from '@/components/wabasimplify/crm-product-card';
 
 import {
@@ -37,13 +38,12 @@ function PageSkeleton() {
 }
 
 export default function CrmProductsPage() {
+  const router = useRouter();
   const [user, setUser] = useState<
     (Omit<User, 'password'> & { _id: string; plan?: WithId<Plan> | null }) | null
   >(null);
   const [products, setProducts] = useState<WithId<CrmProduct>[]>([]);
   const [isLoading, startLoading] = useTransition();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<WithId<CrmProduct> | null>(null);
 
   const fetchData = () => {
     startLoading(async () => {
@@ -60,11 +60,6 @@ export default function CrmProductsPage() {
     fetchData();
   }, []);
 
-  const handleOpenDialog = (product: WithId<CrmProduct> | null) => {
-    setEditingProduct(product);
-    setIsDialogOpen(true);
-  };
-
   if (isLoading) return <PageSkeleton />;
 
   if (!user) {
@@ -80,53 +75,48 @@ export default function CrmProductsPage() {
   const currency = user.plan?.currency || 'USD';
 
   return (
-    <>
-      <CrmProductDialog
-        isOpen={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        currency={currency}
-        product={editingProduct}
-        onSuccess={fetchData}
-      />
-      <div className="flex w-full flex-col gap-6">
-        <CrmPageHeader
-          title="Product Catalog"
-          subtitle="Manage products for your CRM and sales pipeline."
-          icon={ShoppingBag}
-          actions={
-            <ZoruButton onClick={() => handleOpenDialog(null)}>
+    <div className="flex w-full flex-col gap-6">
+      <CrmPageHeader
+        title="Product Catalog"
+        subtitle="Manage products for your CRM and sales pipeline."
+        icon={ShoppingBag}
+        actions={
+          <Link href="/dashboard/crm/inventory/items/new">
+            <ZoruButton>
               <PlusCircle className="h-4 w-4" strokeWidth={1.75} />
               Add Product
             </ZoruButton>
-          }
-        />
+          </Link>
+        }
+      />
 
-        {products.length > 0 ? (
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {products.map((product) => (
-              <CrmProductCard
-                key={product._id.toString()}
-                product={product}
-                currency={currency}
-                onEdit={() => handleOpenDialog(product)}
-                onDelete={fetchData}
-              />
-            ))}
-          </div>
-        ) : (
-          <ZoruCard className="border-dashed p-6">
-            <div className="flex flex-col items-center gap-3 py-12 text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent">
-                <ShoppingBag className="h-6 w-6 text-accent-foreground" strokeWidth={1.75} />
-              </div>
-              <h3 className="text-[15px] font-semibold text-zoru-ink">No Products Yet</h3>
-              <p className="text-[12.5px] text-zoru-ink-muted">
-                Click &ldquo;Add Product&rdquo; to get started.
-              </p>
+      {products.length > 0 ? (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {products.map((product) => (
+            <CrmProductCard
+              key={product._id.toString()}
+              product={product}
+              currency={currency}
+              onEdit={() =>
+                router.push(`/dashboard/crm/inventory/items/${product._id.toString()}/edit`)
+              }
+              onDelete={fetchData}
+            />
+          ))}
+        </div>
+      ) : (
+        <ZoruCard className="border-dashed p-6">
+          <div className="flex flex-col items-center gap-3 py-12 text-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent">
+              <ShoppingBag className="h-6 w-6 text-accent-foreground" strokeWidth={1.75} />
             </div>
-          </ZoruCard>
-        )}
-      </div>
-    </>
+            <h3 className="text-[15px] font-semibold text-zoru-ink">No Products Yet</h3>
+            <p className="text-[12.5px] text-zoru-ink-muted">
+              Click &ldquo;Add Product&rdquo; to get started.
+            </p>
+          </div>
+        </ZoruCard>
+      )}
+    </div>
   );
 }

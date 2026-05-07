@@ -135,6 +135,15 @@ export interface LookupResult {
   limit: number;
   total: number;
   hasMore: boolean;
+  /**
+   * Server-side recently-picked items for the current user, populated
+   * by the Rust executor on empty-state queries (no `q`, no `ids`,
+   * page=0). Drives the picker's "Recent" empty state without a
+   * separate client-side localStorage cache. Optional — only set when
+   * the lookup endpoint is the Rust one and the user has a recents
+   * history. The TS server action leaves it unset for now.
+   */
+  recent?: LookupItem[];
 }
 
 /**

@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState, useEffect, useState } from 'react';
+import { useActionState, useCallback, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
@@ -11,11 +11,14 @@ import { ClayCard, ClayButton } from '@/components/clay';
 import { LoaderCircle, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveCrmEmployee } from '@/app/actions/index.ts';
+import { getCustomFieldsFor } from '@/app/actions/worksuite/meta.actions';
 import type { WithId, CrmEmployee, CrmDepartment, CrmDesignation } from '@/lib/definitions';
+import type { WsCustomField } from '@/lib/worksuite/meta-types';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { DatePicker } from '../ui/date-picker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { EntityPicker } from '@/components/crm/entity-picker';
+import { CustomFieldInput, type CustomFieldValue } from '@/components/crm/custom-field-input';
 
 const initialState: { message?: string; error?: string } = { message: undefined, error: undefined };
 
@@ -97,6 +100,55 @@ export function EmployeeForm({ employee, departments, designations, detail }: Em
     const [reportingTo, setReportingTo] = useState(detail?.reporting_to || '');
     const [bankAccountId, setBankAccountId] = useState<string>(detail?.bank_account_id || '');
 
+    // Custom-field definitions for entity=employee, plus the live edit
+    // values keyed by `WsCustomField.name`. Seeded from
+    // `employee.customFields` on edit (storage shape applied by
+    // `applyCustomFieldsToEntity`).
+    const [customFields, setCustomFields] = useState<WsCustomField[]>([]);
+    const [customFieldValues, setCustomFieldValues] = useState<
+        Record<string, CustomFieldValue>
+    >(() => {
+        const seed = (employee as (WithId<CrmEmployee> & {
+            customFields?: Record<string, CustomFieldValue>;
+        }) | null | undefined)?.customFields;
+        return seed ?? {};
+    });
+    const customFieldsLoadedRef = useRef(false);
+
+    useEffect(() => {
+        if (customFieldsLoadedRef.current) return;
+        customFieldsLoadedRef.current = true;
+        let cancelled = false;
+        (async () => {
+            try {
+                const defs = await getCustomFieldsFor('employee');
+                if (!cancelled) setCustomFields((defs as WsCustomField[]) ?? []);
+            } catch {
+                if (!cancelled) setCustomFields([]);
+            }
+        })();
+        return () => {
+            cancelled = true;
+        };
+    }, []);
+
+    const handleCustomFieldChange = useCallback(
+        (slug: string, next: CustomFieldValue) => {
+            setCustomFieldValues((prev) => ({ ...prev, [slug]: next }));
+        },
+        [],
+    );
+
+    // Inject the JSON-encoded customFields blob into FormData so the
+    // server action can call `applyCustomFieldsToEntity('employee', ...)`.
+    const handleFormAction = useCallback(
+        (formData: FormData) => {
+            formData.set('customFields', JSON.stringify(customFieldValues));
+            formAction(formData);
+        },
+        [formAction, customFieldValues],
+    );
+
     useEffect(() => {
         if (employee) {
             setWorkCountry(employee.workCountry || '');
@@ -116,7 +168,7 @@ export function EmployeeForm({ employee, departments, designations, detail }: Em
     }, [state]);
 
     return (
-        <form action={formAction}>
+        <form action={handleFormAction}>
             {isEditing && <input type="hidden" name="employeeId" value={employee._id.toString()} />}
             <input type="hidden" name="dateOfJoining" value={dateOfJoining?.toISOString() ?? ''} />
             {dateOfBirth && <input type="hidden" name="dateOfBirth" value={dateOfBirth.toISOString()} />}
@@ -465,6 +517,26 @@ export function EmployeeForm({ employee, departments, designations, detail }: Em
                             </AccordionContent>
                         </AccordionItem>
                     </Accordion>
+
+                    {customFields.length > 0 ? (
+                        <div className="mt-6 space-y-3 rounded-xl border border-border bg-card p-4">
+                            <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                                Custom Fields
+                            </div>
+                            <div className="grid gap-4 md:grid-cols-2">
+                                {customFields.map((f) => (
+                                    <CustomFieldInput
+                                        key={String(f._id ?? f.name)}
+                                        field={f}
+                                        value={customFieldValues[f.name]}
+                                        onChange={(next) =>
+                                            handleCustomFieldChange(f.name, next)
+                                        }
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    ) : null}
                 </div>
 
                 <div className="flex border-t border-border p-6 pt-4">

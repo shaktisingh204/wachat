@@ -189,6 +189,25 @@ export async function saveDebitNote(prevState: any, formData: FormData): Promise
 }
 
 
+export async function getDebitNoteById(noteId: string): Promise<WithId<CrmDebitNote> | null> {
+    const session = await getSession();
+    if (!session?.user) return null;
+    if (!ObjectId.isValid(noteId)) return null;
+
+    try {
+        const { db } = await connectToDatabase();
+        const note = await db.collection('crm_debit_notes').findOne({
+            _id: new ObjectId(noteId),
+            userId: new ObjectId(session.user._id),
+        });
+        if (!note) return null;
+        return JSON.parse(JSON.stringify(note));
+    } catch (e) {
+        console.error('Failed to fetch debit note by id:', e);
+        return null;
+    }
+}
+
 export async function deleteDebitNote(noteId: string): Promise<{ success: boolean; error?: string }> {
     if (!ObjectId.isValid(noteId)) return { success: false, error: 'Invalid ID.' };
 

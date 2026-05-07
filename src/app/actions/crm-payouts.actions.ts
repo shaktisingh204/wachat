@@ -9,6 +9,25 @@ import { getErrorMessage } from '@/lib/utils';
 import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
 
 
+export async function getPayoutById(payoutId: string): Promise<WithId<CrmPayout> | null> {
+    const session = await getSession();
+    if (!session?.user) return null;
+    if (!ObjectId.isValid(payoutId)) return null;
+
+    try {
+        const { db } = await connectToDatabase();
+        const payout = await db.collection<CrmPayout>('crm_payouts').findOne({
+            _id: new ObjectId(payoutId),
+            userId: new ObjectId(session.user._id),
+        });
+        if (!payout) return null;
+        return JSON.parse(JSON.stringify(payout));
+    } catch (e) {
+        console.error('Failed to fetch payout by id:', e);
+        return null;
+    }
+}
+
 export async function getPayouts(
     page: number = 1,
     limit: number = 20,

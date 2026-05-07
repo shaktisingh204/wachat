@@ -61,6 +61,30 @@ pub fn build(state: AppState) -> Router {
     let wachat_projects = wachat_projects::router::<AppState>();
     let wachat_contacts = wachat_contacts::router::<AppState>();
     let crm_lookup = crm_lookup::router::<AppState>();
+    let crm_leads = crm_leads::router::<AppState>();
+    let crm_deals = crm_deals::router::<AppState>();
+    let crm_quotations = crm_quotations::router::<AppState>();
+    let crm_invoices = crm_invoices::router::<AppState>();
+    let crm_sales_orders = crm_sales_orders::router::<AppState>();
+    let crm_purchase_orders = crm_purchase_orders::router::<AppState>();
+    let crm_payment_receipts = crm_payment_receipts::router::<AppState>();
+    let crm_credit_notes = crm_credit_notes::router::<AppState>();
+    let crm_debit_notes = crm_debit_notes::router::<AppState>();
+    let crm_payouts = crm_payouts::router::<AppState>();
+    let crm_tickets = crm_tickets::router::<AppState>();
+    let crm_subscriptions = crm_subscriptions::router::<AppState>();
+    let crm_bills = crm_bills::router::<AppState>();
+    let crm_rfqs = crm_rfqs::router::<AppState>();
+    let crm_vendor_bids = crm_vendor_bids::router::<AppState>();
+    let crm_grns = crm_grns::router::<AppState>();
+    let crm_employees = crm_employees::router::<AppState>();
+    let crm_attendance = crm_attendance::router::<AppState>();
+    let crm_leaves = crm_leaves::router::<AppState>();
+    let crm_payroll_runs = crm_payroll_runs::router::<AppState>();
+    let crm_fixed_assets = crm_fixed_assets::router::<AppState>();
+    let crm_bookings = crm_bookings::router::<AppState>();
+    let crm_holidays = crm_holidays::router::<AppState>();
+    let crm_departments = crm_departments::router::<AppState>();
     let wachat_flows = wachat_flows::router::<AppState>();
     let wachat_api_keys_admin = wachat_api_keys_admin::router::<AppState>();
     let fb_pages = wachat_facebook_pages::router::<AppState>();
@@ -119,6 +143,30 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/projects", wachat_projects)
         .nest("/v1/contacts", wachat_contacts)
         .nest("/v1/crm/lookup", crm_lookup)
+        .nest("/v1/crm/leads", crm_leads)
+        .nest("/v1/crm/deals", crm_deals)
+        .nest("/v1/crm/quotations", crm_quotations)
+        .nest("/v1/crm/invoices", crm_invoices)
+        .nest("/v1/crm/sales-orders", crm_sales_orders)
+        .nest("/v1/crm/purchase-orders", crm_purchase_orders)
+        .nest("/v1/crm/payment-receipts", crm_payment_receipts)
+        .nest("/v1/crm/credit-notes", crm_credit_notes)
+        .nest("/v1/crm/debit-notes", crm_debit_notes)
+        .nest("/v1/crm/payouts", crm_payouts)
+        .nest("/v1/crm/tickets", crm_tickets)
+        .nest("/v1/crm/subscriptions", crm_subscriptions)
+        .nest("/v1/crm/bills", crm_bills)
+        .nest("/v1/crm/rfqs", crm_rfqs)
+        .nest("/v1/crm/vendor-bids", crm_vendor_bids)
+        .nest("/v1/crm/grns", crm_grns)
+        .nest("/v1/crm/fixed-assets", crm_fixed_assets)
+        .nest("/v1/crm/bookings", crm_bookings)
+        .nest("/v1/hrm/employees", crm_employees)
+        .nest("/v1/hrm/attendance", crm_attendance)
+        .nest("/v1/hrm/leaves", crm_leaves)
+        .nest("/v1/hrm/payroll-runs", crm_payroll_runs)
+        .nest("/v1/hrm/holidays", crm_holidays)
+        .nest("/v1/hrm/departments", crm_departments)
         .nest("/v1/flows", wachat_flows)
         .nest("/v1/api-keys", wachat_api_keys_admin)
         .nest("/v1/facebook/pages", fb_pages)

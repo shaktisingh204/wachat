@@ -1,8 +1,83 @@
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import { ZoruCard } from '@/components/zoruui';
 import { Trophy } from 'lucide-react';
+import { ObjectId } from 'mongodb';
 
-export default function AwardsPage() {
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import {
+  ZoruBadge,
+  ZoruCard,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
+import { getSession } from '@/app/actions/user.actions';
+import { connectToDatabase } from '@/lib/mongodb';
+
+type AnyAwardProgram = {
+  _id?: { toString(): string } | string;
+  name?: string;
+  periodStart?: string | Date;
+  periodEnd?: string | Date;
+  nominations?: unknown[];
+  winners?: unknown[];
+  status?: string;
+  createdAt?: string | Date;
+};
+
+function formatDate(value: string | Date | undefined): string {
+  if (!value) return '—';
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return '—';
+  return d.toLocaleDateString();
+}
+
+function formatPeriod(start?: string | Date, end?: string | Date): string {
+  const s = formatDate(start);
+  const e = formatDate(end);
+  if (s === '—' && e === '—') return '—';
+  return `${s} – ${e}`;
+}
+
+function getStatusVariant(status?: string): 'success' | 'warning' | 'danger' | 'ghost' {
+  const s = (status || '').toLowerCase();
+  if (s === 'active' || s === 'approved' || s === 'won' || s === 'published') return 'success';
+  if (s === 'draft' || s === 'pending') return 'ghost';
+  if (
+    s === 'rejected' ||
+    s === 'closed_lost' ||
+    s === 'cancelled' ||
+    s === 'high' ||
+    s === 'critical' ||
+    s === 'closed'
+  )
+    return 'danger';
+  return 'warning';
+}
+
+export default async function AwardsPage() {
+  const session = await getSession();
+  let programs: AnyAwardProgram[] = [];
+  let loadError = false;
+
+  if (session?.user?._id) {
+    try {
+      const { db } = await connectToDatabase();
+      const userObjectId = new ObjectId(session.user._id as string);
+      const docs = await db
+        .collection('crm_award_programs')
+        .find({ userId: userObjectId } as any)
+        .sort({ createdAt: -1 })
+        .limit(50)
+        .toArray();
+      programs = JSON.parse(JSON.stringify(docs)) as AnyAwardProgram[];
+    } catch (e) {
+      console.error('Failed to load crm_award_programs:', e);
+      loadError = true;
+    }
+  }
+
   return (
     <div className="flex w-full flex-col gap-6">
       <CrmPageHeader
@@ -10,11 +85,78 @@ export default function AwardsPage() {
         subtitle="Celebrate top performers with structured awards and peer nominations."
         icon={Trophy}
       />
-      <ZoruCard className="p-12 text-center">
-        <p className="text-[14px] text-zoru-ink-muted">
-          Awards and recognition programs are coming soon. You will be able to define
-          award categories, run nomination cycles and publish winners across the company.
-        </p>
+
+      <ZoruCard className="p-6">
+        <div className="mb-4">
+          <h2 className="text-[16px] text-zoru-ink">All programs</h2>
+          <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+            Recognition cycles you have run, with nomination and winner counts.
+          </p>
+        </div>
+        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+          <ZoruTable>
+            <ZoruTableHeader>
+              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                <ZoruTableHead className="text-zoru-ink-muted">Program name</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Period</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Total nominations</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Total winners</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
+              </ZoruTableRow>
+            </ZoruTableHeader>
+            <ZoruTableBody>
+              {loadError ? (
+                <ZoruTableRow className="border-zoru-line">
+                  <ZoruTableCell
+                    colSpan={5}
+                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                  >
+                    Could not load award programs. Please try again.
+                  </ZoruTableCell>
+                </ZoruTableRow>
+              ) : programs.length > 0 ? (
+                programs.map((program, idx) => {
+                  const id =
+                    typeof program._id === 'string'
+                      ? program._id
+                      : (program._id as any)?.toString?.() ?? String(idx);
+                  const nominations = Array.isArray(program.nominations)
+                    ? program.nominations.length
+                    : 0;
+                  const winners = Array.isArray(program.winners)
+                    ? program.winners.length
+                    : 0;
+                  return (
+                    <ZoruTableRow key={id} className="border-zoru-line">
+                      <ZoruTableCell className="text-zoru-ink">
+                        {program.name || 'Untitled program'}
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-zoru-ink">
+                        {formatPeriod(program.periodStart, program.periodEnd)}
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-zoru-ink">{nominations}</ZoruTableCell>
+                      <ZoruTableCell className="text-zoru-ink">{winners}</ZoruTableCell>
+                      <ZoruTableCell>
+                        <ZoruBadge variant={getStatusVariant(program.status)}>
+                          {program.status || 'draft'}
+                        </ZoruBadge>
+                      </ZoruTableCell>
+                    </ZoruTableRow>
+                  );
+                })
+              ) : (
+                <ZoruTableRow className="border-zoru-line">
+                  <ZoruTableCell
+                    colSpan={5}
+                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                  >
+                    No award programs yet. Define a recognition cycle to start collecting nominations.
+                  </ZoruTableCell>
+                </ZoruTableRow>
+              )}
+            </ZoruTableBody>
+          </ZoruTable>
+        </div>
       </ZoruCard>
     </div>
   );

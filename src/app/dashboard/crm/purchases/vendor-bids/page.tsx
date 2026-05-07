@@ -105,6 +105,7 @@ export default async function VendorBidsPage() {
                 <ZoruTableHead className="text-zoru-ink-muted text-right">Total</ZoruTableHead>
                 <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
                 <ZoruTableHead className="text-zoru-ink-muted">Submitted</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted text-right">Actions</ZoruTableHead>
               </ZoruTableRow>
             </ZoruTableHeader>
             <ZoruTableBody>
@@ -130,6 +131,13 @@ export default async function VendorBidsPage() {
                     'Unknown vendor';
                   const total = bid.total ?? bid.totalAmount;
                   const submitted = bid.submittedAt ?? bid.createdAt;
+                  // Defensive: backend uses 'awarded' but accept the
+                  // common synonyms 'won' and 'accepted' too.
+                  const statusLower = (bid.status || '').toLowerCase();
+                  const canConvert =
+                    statusLower === 'awarded' ||
+                    statusLower === 'won' ||
+                    statusLower === 'accepted';
                   return (
                     <ZoruTableRow key={id} className="border-zoru-line">
                       <ZoruTableCell className="text-zoru-ink">{rfqRef}</ZoruTableCell>
@@ -145,13 +153,28 @@ export default async function VendorBidsPage() {
                       <ZoruTableCell className="text-zoru-ink">
                         {formatDate(submitted)}
                       </ZoruTableCell>
+                      <ZoruTableCell className="text-right">
+                        {canConvert ? (
+                          <form
+                            method="post"
+                            action={`/dashboard/crm/purchases/vendor-bids/${id}/convert-to-po`}
+                            className="inline-block"
+                          >
+                            <ZoruButton type="submit" variant="secondary">
+                              Convert to PO
+                            </ZoruButton>
+                          </form>
+                        ) : (
+                          <span className="text-[12.5px] text-zoru-ink-muted">—</span>
+                        )}
+                      </ZoruTableCell>
                     </ZoruTableRow>
                   );
                 })
               ) : (
                 <ZoruTableRow className="border-zoru-line">
                   <ZoruTableCell
-                    colSpan={5}
+                    colSpan={6}
                     className="h-24 text-center text-[13px] text-zoru-ink-muted"
                   >
                     No vendor bids yet. Send out an RFQ to start collecting bids.

@@ -2104,8 +2104,26 @@ export async function savePersistentMenu(
     prevState: any,
     formData: FormData,
 ): Promise<{ success: boolean; error?: string }> {
-    void formData;
-    return { success: false, error: NOT_IMPL };
+    void prevState;
+    const projectId = String(formData.get('projectId') || '');
+    if (!projectId) return { success: false, error: 'projectId is required.' };
+    let menu: unknown;
+    try {
+        menu = JSON.parse(String(formData.get('menu') || '[]'));
+    } catch {
+        return { success: false, error: 'Invalid menu JSON.' };
+    }
+    try {
+        const res = await rustClient.wachatFacebookMessengerProfile.savePersistentMenu(
+            projectId,
+            { persistent_menu: menu as any },
+        );
+        if (res.error) return { success: false, error: res.error };
+        return { success: true };
+    } catch (e) {
+        if (e instanceof RustApiError) return { success: false, error: e.message };
+        throw e;
+    }
 }
 
 export async function getFacebookEvents(projectId: string): Promise<{ events?: FacebookEvent[]; error?: string }> {
@@ -2199,48 +2217,105 @@ export async function getLeadById(
 }
 
 export async function getMessengerProfile(projectId: string): Promise<{ profile?: any; error?: string }> {
-    void projectId;
-    return { profile: {}, error: NOT_IMPL };
+    if (!projectId) return { profile: {}, error: 'projectId is required.' };
+    try {
+        const res = await rustClient.wachatFacebookMessengerProfile.getMessengerProfile(projectId);
+        if (res.error) return { profile: {}, error: res.error };
+        return { profile: res.profile ?? {} };
+    } catch (e) {
+        if (e instanceof RustApiError) return { profile: {}, error: e.message };
+        throw e;
+    }
 }
 
 export async function setMessengerGreeting(
     projectId: string,
     greetingText: string,
 ): Promise<{ success: boolean; error?: string }> {
-    void projectId; void greetingText;
-    return { success: false, error: NOT_IMPL };
+    if (!projectId) return { success: false, error: 'projectId is required.' };
+    try {
+        const res = await rustClient.wachatFacebookMessengerProfile.setMessengerGreeting(
+            projectId,
+            { greeting: [{ locale: 'default', text: greetingText }] },
+        );
+        if (res.error) return { success: false, error: res.error };
+        return { success: true };
+    } catch (e) {
+        if (e instanceof RustApiError) return { success: false, error: e.message };
+        throw e;
+    }
 }
 
 export async function setMessengerGetStarted(
     projectId: string,
     payload: string,
 ): Promise<{ success: boolean; error?: string }> {
-    void projectId; void payload;
-    return { success: false, error: NOT_IMPL };
+    if (!projectId) return { success: false, error: 'projectId is required.' };
+    try {
+        const res = await rustClient.wachatFacebookMessengerProfile.setMessengerGetStarted(
+            projectId,
+            { get_started: { payload } },
+        );
+        if (res.error) return { success: false, error: res.error };
+        return { success: true };
+    } catch (e) {
+        if (e instanceof RustApiError) return { success: false, error: e.message };
+        throw e;
+    }
 }
 
 export async function setMessengerIceBreakers(
     projectId: string,
     iceBreakers: { question: string; payload: string }[],
 ): Promise<{ success: boolean; error?: string }> {
-    void projectId; void iceBreakers;
-    return { success: false, error: NOT_IMPL };
+    if (!projectId) return { success: false, error: 'projectId is required.' };
+    try {
+        const res = await rustClient.wachatFacebookMessengerProfile.setMessengerIceBreakers(
+            projectId,
+            { ice_breakers: [{ locale: 'default', call_to_actions: iceBreakers }] },
+        );
+        if (res.error) return { success: false, error: res.error };
+        return { success: true };
+    } catch (e) {
+        if (e instanceof RustApiError) return { success: false, error: e.message };
+        throw e;
+    }
 }
 
 export async function setWhitelistedDomains(
     projectId: string,
     domains: string[],
 ): Promise<{ success: boolean; error?: string }> {
-    void projectId; void domains;
-    return { success: false, error: NOT_IMPL };
+    if (!projectId) return { success: false, error: 'projectId is required.' };
+    try {
+        const res = await rustClient.wachatFacebookMessengerProfile.setWhitelistedDomains(
+            projectId,
+            { whitelisted_domains: domains },
+        );
+        if (res.error) return { success: false, error: res.error };
+        return { success: true };
+    } catch (e) {
+        if (e instanceof RustApiError) return { success: false, error: e.message };
+        throw e;
+    }
 }
 
 export async function deleteMessengerProfileFields(
     projectId: string,
     fields: string[],
 ): Promise<{ success: boolean; error?: string }> {
-    void projectId; void fields;
-    return { success: false, error: NOT_IMPL };
+    if (!projectId) return { success: false, error: 'projectId is required.' };
+    try {
+        const res = await rustClient.wachatFacebookMessengerProfile.deleteMessengerProfileFields(
+            projectId,
+            { fields },
+        );
+        if (res.error) return { success: false, error: res.error };
+        return { success: true };
+    } catch (e) {
+        if (e instanceof RustApiError) return { success: false, error: e.message };
+        throw e;
+    }
 }
 
 export async function sendPrivateReply(
@@ -2296,8 +2371,15 @@ export async function getCommentReplies(
 }
 
 export async function getPersonas(projectId: string): Promise<{ personas?: any[]; error?: string }> {
-    void projectId;
-    return { personas: [], error: NOT_IMPL };
+    if (!projectId) return { personas: [], error: 'projectId is required.' };
+    try {
+        const res = await rustClient.wachatFacebookMessengerProfile.getPersonas(projectId);
+        if (res.error) return { personas: [], error: res.error };
+        return { personas: res.personas ?? [] };
+    } catch (e) {
+        if (e instanceof RustApiError) return { personas: [], error: e.message };
+        throw e;
+    }
 }
 
 export async function createPersona(
@@ -2305,16 +2387,33 @@ export async function createPersona(
     name: string,
     profilePictureUrl: string,
 ): Promise<{ personaId?: string; error?: string }> {
-    void projectId; void name; void profilePictureUrl;
-    return { error: NOT_IMPL };
+    if (!projectId) return { error: 'projectId is required.' };
+    try {
+        const res = await rustClient.wachatFacebookMessengerProfile.createPersona(
+            projectId,
+            { name, profile_picture_url: profilePictureUrl },
+        );
+        if (res.error) return { error: res.error };
+        return { personaId: res.persona_id ?? res.id };
+    } catch (e) {
+        if (e instanceof RustApiError) return { error: e.message };
+        throw e;
+    }
 }
 
 export async function deletePersona(
     personaId: string,
     projectId: string,
 ): Promise<{ success: boolean; error?: string }> {
-    void personaId; void projectId;
-    return { success: false, error: NOT_IMPL };
+    if (!personaId || !projectId) return { success: false, error: 'personaId and projectId are required.' };
+    try {
+        const res = await rustClient.wachatFacebookMessengerProfile.deletePersona(projectId, personaId);
+        if (res.error) return { success: false, error: res.error };
+        return { success: true };
+    } catch (e) {
+        if (e instanceof RustApiError) return { success: false, error: e.message };
+        throw e;
+    }
 }
 
 export async function getSubscribedApps(projectId: string): Promise<{ apps?: any[]; error?: string }> {
@@ -2336,16 +2435,39 @@ export async function unsubscribeApp(projectId: string): Promise<{ success: bool
 }
 
 export async function getSavedResponses(projectId: string): Promise<{ responses?: any[]; error?: string }> {
-    void projectId;
-    return { responses: [], error: NOT_IMPL };
+    if (!projectId) return { responses: [], error: 'projectId is required.' };
+    try {
+        const res = await rustClient.wachatFacebookMessengerProfile.getSavedResponses(projectId);
+        if (res.error) return { responses: [], error: res.error };
+        return { responses: res.responses ?? [] };
+    } catch (e) {
+        if (e instanceof RustApiError) return { responses: [], error: e.message };
+        throw e;
+    }
 }
 
 export async function createSavedResponse(
     prevState: { message?: string; error?: string },
     formData: FormData,
 ): Promise<{ message?: string; error?: string }> {
-    void formData;
-    return { error: NOT_IMPL };
+    void prevState;
+    const projectId = String(formData.get('projectId') || '');
+    const title = String(formData.get('title') || '');
+    const message = String(formData.get('message') || '');
+    if (!projectId || !title || !message) {
+        return { error: 'projectId, title and message are required.' };
+    }
+    try {
+        const res = await rustClient.wachatFacebookMessengerProfile.createSavedResponse(
+            projectId,
+            { title, message },
+        );
+        if (res.error) return { error: res.error };
+        return { message: res.message ?? 'Saved response created.' };
+    } catch (e) {
+        if (e instanceof RustApiError) return { error: e.message };
+        throw e;
+    }
 }
 
 export async function updateSavedResponse(
@@ -2354,16 +2476,38 @@ export async function updateSavedResponse(
     title: string,
     message: string,
 ): Promise<{ success: boolean; error?: string }> {
-    void responseId; void projectId; void title; void message;
-    return { success: false, error: NOT_IMPL };
+    if (!responseId || !projectId) {
+        return { success: false, error: 'responseId and projectId are required.' };
+    }
+    try {
+        const res = await rustClient.wachatFacebookMessengerProfile.updateSavedResponse(
+            projectId,
+            responseId,
+            { title, message },
+        );
+        if (res.error) return { success: false, error: res.error };
+        return { success: true };
+    } catch (e) {
+        if (e instanceof RustApiError) return { success: false, error: e.message };
+        throw e;
+    }
 }
 
 export async function deleteSavedResponse(
     responseId: string,
     projectId: string,
 ): Promise<{ success: boolean; error?: string }> {
-    void responseId; void projectId;
-    return { success: false, error: NOT_IMPL };
+    if (!responseId || !projectId) {
+        return { success: false, error: 'responseId and projectId are required.' };
+    }
+    try {
+        const res = await rustClient.wachatFacebookMessengerProfile.deleteSavedResponse(projectId, responseId);
+        if (res.error) return { success: false, error: res.error };
+        return { success: true };
+    } catch (e) {
+        if (e instanceof RustApiError) return { success: false, error: e.message };
+        throw e;
+    }
 }
 
 export async function uploadReusableAttachment(

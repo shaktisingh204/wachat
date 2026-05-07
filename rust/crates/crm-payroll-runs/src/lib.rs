@@ -1,0 +1,64 @@
+//! # crm-payroll-runs
+//!
+//! HTTP surface for the §9.6 Payroll Run entity. Sister business-logic
+//! crate to [`crm_leads`](https://docs.rs/crm-leads) and
+//! [`crm_employees`](https://docs.rs/crm-employees), following the same
+//! conventions:
+//!
+//! - DTOs live in [`dto`] (request shapes only — the response shape is
+//!   the canonical [`hrm_payroll_types::PayrollRun`] from the §9.6 types
+//!   crate; we never redeclare it here).
+//! - Handlers live in [`handlers`] and read [`sabnode_auth::AuthUser`] as
+//!   their authenticated principal. Every query is scoped by
+//!   `userId == AuthUser.user_id` (the CRM "tenant root" — see
+//!   `crm-core::Identity`).
+//! - The [`router`] module exposes a state-generic [`router::router`]
+//!   that the host `api` crate mounts under `/v1/hrm/payroll-runs`.
+//!
+//! ## Mongo
+//!
+//! Backing collection: `crm_payroll_runs`. The PayrollRun DTO flattens
+//! `Identity`/`Audit` from `crm-core` so the document root carries
+//! `_id`, `userId`, `projectId`, `createdAt`, … directly. Read-side
+//! lifecycle handlers also touch:
+//!
+//! - `crm_employees` — to fetch the active employee roster for the
+//!   tenant during [`handlers::compute_payroll_run`].
+//! - `crm_salary_structures` — to fetch each employee's structure and
+//!   resolve its components into earning / deduction lines.
+//!
+//! ## Soft delete
+//!
+//! `DELETE` does NOT remove the row — it sets `archived = true` and
+//! stamps `deletedAt`. Payroll history is load-bearing for statutory
+//! audits (PF / ESI / TDS challans), so we never lose a run. The list
+//! endpoint excludes `archived = true` rows by default.
+//!
+//! ## Lineage
+//!
+//! Payroll runs are NOT part of the §13.5 sales lineage chain (Lead →
+//! Deal → Quotation → Sales Order → Invoice). They are a root HRM
+//! workflow node — they reference employees and salary structures by id
+//! but do not derive from a sales artefact, so this crate does not
+//! accept `fromKind` / `fromId` on create.
+//!
+//! ## Lifecycle (the three "verb" endpoints)
+//!
+//! Beyond the standard 5 CRUD endpoints, this crate exposes three
+//! lifecycle transitions that mutate `status` + `employees[]` /
+//! `approvals[]` / `bankFileId`:
+//!
+//! | POST verb                              | Effect                                                                    |
+//! |----------------------------------------|---------------------------------------------------------------------------|
+//! | `/{id}/compute`                        | Resolve roster + structures, populate `employees[]` + `totals`            |
+//! | `/{id}/approve`                        | Append an `ApprovalStep`, flip to `approved` once the chain is complete   |
+//! | `/{id}/disburse`                       | Stub-generate the bank file, set `bankFileId`, flip to `disbursed`        |
+//!
+//! See the function-level docs in [`handlers`] for the rules each
+//! endpoint enforces (legal source statuses, idempotency, etc.).
+
+pub mod dto;
+pub mod handlers;
+pub mod router;
+
+pub use router::router;

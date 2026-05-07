@@ -34,6 +34,25 @@ async function getNextCreditNoteNumber(db: Db, userId: ObjectId): Promise<string
     return `CN-${Date.now().toString().slice(-5)}`;
 }
 
+export async function getCreditNoteById(creditNoteId: string): Promise<WithId<CrmCreditNote> | null> {
+    const session = await getSession();
+    if (!session?.user) return null;
+    if (!ObjectId.isValid(creditNoteId)) return null;
+
+    try {
+        const { db } = await connectToDatabase();
+        const note = await db.collection('crm_credit_notes').findOne({
+            _id: new ObjectId(creditNoteId),
+            userId: new ObjectId(session.user._id),
+        });
+        if (!note) return null;
+        return JSON.parse(JSON.stringify(note));
+    } catch (e) {
+        console.error('Failed to fetch credit note by id:', e);
+        return null;
+    }
+}
+
 export async function getCreditNotes(
     page: number = 1,
     limit: number = 20,
