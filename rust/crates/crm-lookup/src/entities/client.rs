@@ -1,0 +1,44 @@
+//! `client` — CRM Account / Customer (`crm_accounts`).
+
+use crate::mongo_lookup::LookupSpec;
+use bson::{Document, doc};
+use crm_lookup_types::LookupChip;
+
+pub static SPEC: LookupSpec = LookupSpec {
+    collection: "crm_accounts",
+    searchable_fields: &["name", "email", "phone", "gstin", "code", "displayName"],
+    default_filter,
+    to_chip,
+    honors_project_scope: true,
+};
+
+fn default_filter() -> Document {
+    doc! { "archived": { "$ne": true } }
+}
+
+fn to_chip(d: &Document) -> LookupChip {
+    let primary = d
+        .get_str("displayName")
+        .ok()
+        .filter(|s| !s.is_empty())
+        .or_else(|| d.get_str("name").ok())
+        .unwrap_or("(unnamed)")
+        .to_owned();
+    let secondary = d
+        .get_str("gstin")
+        .ok()
+        .filter(|s| !s.is_empty())
+        .map(str::to_owned);
+    let tertiary = d
+        .get_document("billingAddress")
+        .ok()
+        .and_then(|a| a.get_str("city").ok())
+        .filter(|s| !s.is_empty())
+        .map(str::to_owned);
+    LookupChip {
+        primary,
+        secondary,
+        tertiary,
+        ..Default::default()
+    }
+}
