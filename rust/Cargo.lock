@@ -1154,6 +1154,35 @@ dependencies = [
 ]
 
 [[package]]
+name = "crm-lookup"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "crm-lookup-types",
+ "futures",
+ "mongodb",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "crm-lookup-types"
+version = "0.1.0"
+dependencies = [
+ "bson",
+ "chrono",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "crm-purchases-types"
 version = "0.1.0"
 dependencies = [
@@ -3795,6 +3824,7 @@ dependencies = [
  "anyhow",
  "axum",
  "chrono",
+ "crm-lookup",
  "dotenvy",
  "facebook-flow",
  "meta-flows",

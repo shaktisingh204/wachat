@@ -1,0 +1,23 @@
+[package]
+name = "crm-lookup-types"
+version = "0.1.0"
+edition = "2024"
+description = "Type contract for the unified lookup API (§13.4): EntityKey, LookupParams, LookupResult, LookupItem, LookupChip. Pure types — no Mongo execution. Mirrors the TS shape in src/lib/lookup-registry.ts so the Rust executor (future `crm-lookup` crate) can drop in without renegotiating the wire format."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "crm_lookup_types"
+path = "src/lib.rs"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+bson = { version = "2", features = ["chrono-0_4"] }
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+[dev-dependencies]
+serde_json = "1"
+
+[lints]
+workspace = true

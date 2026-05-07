@@ -60,6 +60,7 @@ pub fn build(state: AppState) -> Router {
     let wachat_public = wachat_public_api::router::<AppState>();
     let wachat_projects = wachat_projects::router::<AppState>();
     let wachat_contacts = wachat_contacts::router::<AppState>();
+    let crm_lookup = crm_lookup::router::<AppState>();
     let wachat_flows = wachat_flows::router::<AppState>();
     let wachat_api_keys_admin = wachat_api_keys_admin::router::<AppState>();
     let fb_pages = wachat_facebook_pages::router::<AppState>();
@@ -117,6 +118,7 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/facebook/flow", facebook_flow)
         .nest("/v1/projects", wachat_projects)
         .nest("/v1/contacts", wachat_contacts)
+        .nest("/v1/crm/lookup", crm_lookup)
         .nest("/v1/flows", wachat_flows)
         .nest("/v1/api-keys", wachat_api_keys_admin)
         .nest("/v1/facebook/pages", fb_pages)

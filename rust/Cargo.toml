@@ -104,6 +104,8 @@ members = [
     "crates/hrm-payroll-types",
     "crates/hrm-people-types",
     "crates/crm-extras-types",
+    "crates/crm-lookup-types",
+    "crates/crm-lookup",
 ]
 
 [workspace.package]

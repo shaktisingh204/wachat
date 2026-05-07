@@ -149,6 +149,42 @@ The full §0-§10 CRM/HRM DTO layer is now in Rust. The TS `src/lib/definitions.
 
 **NEXT (Rust port) →** §11+ Sidebar IA wiring (no DTOs needed) OR move to building the first business-logic crate (e.g. `crm-leads` server-action equivalents using `crm-sales-crm-types::Lead`).
 
+**Rust port — §12 Advanced Features (all 28 sub-sections) DTOs: DONE (2026-05-07).** New crate `crm-extras-types` covers every §12 entity in 28 modules across a 10-agent parallel run.
+
+- §12.1 [subscription.rs](rust/crates/crm-extras-types/src/subscription.rs) — `Subscription`, `BillingFrequency`, `RenewalMode`, `SubscriptionStatus`, `DunningStep`, `SubscriptionEvent`, item lines, trial-until + next-billing-at + paused-until.
+- §12.2 [contract.rs](rust/crates/crm-extras-types/src/contract.rs) — `Contract`, `ContractType` (NDA/MSA/SOW/Service/Lease), `ContractStatus`, `EsignProvider` (Internal/Digio/DocuSign/Aadhaar), `Signature` records with IP + timestamp + version history.
+- §12.3 [rfq.rs](rust/crates/crm-extras-types/src/rfq.rs) — `Rfq` + `VendorBid` + statuses + bid line items reusing `crm_sales_types::Totals`.
+- §12.4 [grn.rs](rust/crates/crm-extras-types/src/grn.rs) — `Grn` (Goods Receipt Note) with batch/expiry/serial tracking + `gin_id`/`mrn_id` cross-refs.
+- §12.5 [bom.rs](rust/crates/crm-extras-types/src/bom.rs) — `Bom`, `BomComponent`, `ProductionOrder`, `DowntimeReason`, `ProductionStatus`.
+- §12.6 [pos.rs](rust/crates/crm-extras-types/src/pos.rs) — `PosSession`, `PosSale`, `Storefront`, `PaymentSplit`.
+- §12.7 [promotions.rs](rust/crates/crm-extras-types/src/promotions.rs) — `Coupon` with tagged `CouponType` (Percent/Flat/Bogo/FreeShipping), `LoyaltyProgram` + tiers + redemption, `GiftCard` + redemption log.
+- §12.8 [ticket.rs](rust/crates/crm-extras-types/src/ticket.rs) — `Ticket`, `TicketChannel`, `TicketStatus`, `TicketSeverity`, parent/child + merge log; `Sla` with business hours + escalation matrix.
+- §12.9 [knowledge_base.rs](rust/crates/crm-extras-types/src/knowledge_base.rs) — `KbArticle`, status / visibility, helpful counters, view count.
+- §12.10 [portal.rs](rust/crates/crm-extras-types/src/portal.rs) — `PortalUser` + `PortalSession` + `PortalCapability` enum.
+- §12.11 [field_service.rs](rust/crates/crm-extras-types/src/field_service.rs) — `AmcContract` + `ServiceRequest` + `PartUsed` + statuses; flattens `Assignment` for dispatch.
+- §12.12 [booking.rs](rust/crates/crm-extras-types/src/booking.rs) — `BookingResource` + `Booking` with RRULE recurring + reminders + payment status.
+- §12.13 [fixed_asset.rs](rust/crates/crm-extras-types/src/fixed_asset.rs) — `FixedAsset` + `DepreciationMethod` (SLM/WDV/Units) + `RetireSellEntry`.
+- §12.14 [budget.rs](rust/crates/crm-extras-types/src/budget.rs) — `Budget` with tagged `BudgetHead` (Account/Department/Project/CostCenter), `BudgetScenario`, `BudgetAlert`.
+- §12.15 [petty_cash.rs](rust/crates/crm-extras-types/src/petty_cash.rs) — `PettyCashFloat` + `PettyCashVoucher` + `Denomination` count.
+- §12.16 [loan.rs](rust/crates/crm-extras-types/src/loan.rs) — `Loan` + `LoanType` (employee advance / customer / vendor) + `EmiScheduleItem`, NPA flag, repayment auto-deduct.
+- §12.17 [fx.rs](rust/crates/crm-extras-types/src/fx.rs) — `FxSettings` + `FxRate` + `FxRevaluation` (realised + unrealised).
+- §12.18 [multi_branch.rs](rust/crates/crm-extras-types/src/multi_branch.rs) — `Branch`, `CostCenter`, `Project` (canonical Project DTO; older lookup-registry pointer is now backed by this shape).
+- §12.19 [nps_referral.rs](rust/crates/crm-extras-types/src/nps_referral.rs) — `NpsSurvey` + `NpsResponse`, `Referral` with tagged `ReferralReward` (Points/Credit/Cash).
+- §12.20 [templates.rs](rust/crates/crm-extras-types/src/templates.rs) — universal `Template` (email/SMS/WhatsApp/PDF/portal) + `MergeVariable` + A/B `TemplateVariant`; `NotificationRule` with mute window.
+- §12.21 [audit_log.rs](rust/crates/crm-extras-types/src/audit_log.rs) — `AuditEntry` (with `actor_id` separate from tenant-root `Identity::user_id` to avoid JSON-key collision), `AuditAction` enum (16 variants), `FieldDiff`, embedded `EntityTimelineEntry`.
+- §12.22 [workflow.rs](rust/crates/crm-extras-types/src/workflow.rs) — `Workflow` definition + `WorkflowRun` + struct-variant `ApproverKind` (User/Role/Manager/Dynamic — struct variants required for internally-tagged enums).
+- §12.23 [import_export.rs](rust/crates/crm-extras-types/src/import_export.rs) — `ImportJob`, `DedupeRule`, `BlacklistEntry`, `EraseRequest` (GDPR/DPDP), `ConsentEvent`.
+- §12.24 [dashboard.rs](rust/crates/crm-extras-types/src/dashboard.rs) — `Dashboard` + `Widget` with tagged `WidgetSource` (SavedView/Query/Report) + 9-variant `WidgetKind`.
+- §12.25 [saved_view.rs](rust/crates/crm-extras-types/src/saved_view.rs) — `SavedView` + recursive `FilterGroup` (AND/OR), `Segment` with cached count.
+- §12.26 [background_job.rs](rust/crates/crm-extras-types/src/background_job.rs) — `BackgroundJob` + tagged `JobSchedule` (Once/Cron/OnEvent) + `JobLogEntry`.
+- §12.27 [india_tax.rs](rust/crates/crm-extras-types/src/india_tax.rs) — `HsnSacEntry`, `GstSlab`, `EInvoiceCredentials`, `EwayBillCredentials`, `GstrReturn`, `ItcLedgerEntry`, `RcmRegisterEntry`, `MsmeAlert`.
+- §12.28 [hr_cases.rs](rust/crates/crm-extras-types/src/hr_cases.rs) — `DisciplinaryCase` + `Hearing` + `EvidenceItem`; `AwardProgram` + `Nomination`.
+- Workspace registration: `crates/crm-extras-types` added to [rust/Cargo.toml](rust/Cargo.toml).
+- Verification: `cargo clippy -p crm-extras-types --tests -- -D warnings` clean; `cargo test -p crm-extras-types` → **53 tests pass** across the 28 modules. Two integration fixes during merge: renamed `AuditEntry::user_id` → `actor_id` (it collided with `Identity::user_id` which flattens to the same JSON `userId` key) and converted `ApproverKind::User(ObjectId)` / `Role(String)` tuple variants to struct variants `User { id }` / `Role { name }` (internally-tagged enums can't serialize tuple variants holding primitives).
+- §12 is now COMPLETE on the DTO side.
+
+The full Rust DTO layer for `crm_function_plan.md` §0 through §12 (sans §11/§13/§14 which are docs/sidebar/cross-feature plans, not entity types) is in place. Total Rust DTO coverage = **145 tests passing across 12 crates** (`crm-core`, `crm-sales-types`, `crm-purchases-types`, `crm-inventory-types`, `crm-accounting-types`, `crm-sales-crm-types`, `crm-banking-types`, `crm-reports-types`, `crm-integrations-types`, `hrm-payroll-types`, `hrm-people-types`, `crm-extras-types`).
+
 ---
 
 ## 3 · CRM — Inventory
@@ -567,6 +603,33 @@ Each entity provides:
 - `chip(item)`: returns `{ primary, secondary, tertiary, avatarUrl, color }` — drives the visual chip without leaking schema details.
 - `defaultFilter(ctx)`: e.g. `{ active: true, archived: { $ne: true } }`.
 - `permissions(ctx)`: which roles may read.
+
+**Rust port — §13.4 contract types: DONE (2026-05-07).** New crate `crm-lookup-types` mirrors the TS shapes byte-for-byte so a future Rust executor (`crm-lookup`) can drop in without renegotiating the wire format. Pure types, no Mongo / async / I/O.
+
+- [rust/crates/crm-lookup-types/src/entity_key.rs](rust/crates/crm-lookup-types/src/entity_key.rs) — `EntityKey` enum (42 variants — the canonical 18 already in TS plus the 24 §13.1 expansion targets like `Lead`/`Deal`/`Invoice`/`Pincode`/`State`/`Country`/`Asset`/`Ticket`). camelCase serde matches TS string-union (`bankAccount`, `taxRate`, `salesOrder`, …). Helper `EntityKey::as_str()` for hot-path string comparisons.
+- [rust/crates/crm-lookup-types/src/params.rs](rust/crates/crm-lookup-types/src/params.rs) — `LookupParams { q, page, limit, ids, filter, scope, project_id }`, `Scope` enum (project/tenant/global) with default `Tenant`, `LOOKUP_MAX_LIMIT = 50` / `LOOKUP_DEFAULT_LIMIT = 20` constants.
+- [rust/crates/crm-lookup-types/src/chip.rs](rust/crates/crm-lookup-types/src/chip.rs) — `LookupChip { primary, secondary?, tertiary?, avatar_url?, color? }`.
+- [rust/crates/crm-lookup-types/src/result.rs](rust/crates/crm-lookup-types/src/result.rs) — `LookupItem { id, chip, raw }` + `LookupResult { items, page, limit, total?, has_more, recent }`.
+- Workspace registration: `crates/crm-lookup-types` added to [rust/Cargo.toml](rust/Cargo.toml).
+- Verification: `cargo clippy -p crm-lookup-types --tests -- -D warnings` clean; `cargo test -p crm-lookup-types` → 8 tests pass (round-trips per type, camelCase wire format, `Scope::default() == Tenant`, optional fields skip-serialize).
+- **§13.4 executor — Rust `crm-lookup` crate: DONE (2026-05-07).** Mongo-backed executor + Axum handler reusing `sabnode-db::MongoHandle` and `sabnode-common::ApiError`. The Next.js TS server action can now be replaced by a thin proxy (or deleted) once auth middleware is wired upstream.
+  - [rust/crates/crm-lookup/src/context.rs](rust/crates/crm-lookup/src/context.rs) — `TenantCtx { user_id, project_id?, scope }` with builder methods.
+  - [rust/crates/crm-lookup/src/mongo_lookup.rs](rust/crates/crm-lookup/src/mongo_lookup.rs) — generic `execute(mongo, spec, params, ctx)` doing tenant filter + pagination + free-text `$regex` search + id hydration + caller-filter merge. `build_regex` escapes metacharacters; uses `limit + 1` fetch trick to infer `has_more` without a separate count.
+  - [rust/crates/crm-lookup/src/entities/](rust/crates/crm-lookup/src/entities/) — 8 per-entity `LookupSpec` constants (one module each):
+    - `client.rs` — `crm_accounts`, search across name/email/phone/gstin/code/displayName, chip = displayName + GSTIN + city.
+    - `vendor.rs` — `crm_vendors`, chip = displayName/companyName + GSTIN.
+    - `item.rs` — `crm_products`, chip = name + "SKU + price" + HSN + thumbnail.
+    - `employee.rs` — `crm_employees`, hides terminated/resigned, chip = name + "designation · department".
+    - `user.rs` — `users` (cross-tenant collection), chip = name + email + avatar.
+    - `account.rs` — `crm_chart_of_accounts`, chip = "code · name" + nature.
+    - `warehouse.rs` — `crm_warehouses`, chip = name + code.
+    - `bank_account.rs` — `crm_payment_accounts`, chip = accountName + masked "•••• 1234" tail + bankName.
+  - [rust/crates/crm-lookup/src/search.rs](rust/crates/crm-lookup/src/search.rs) — top-level `pub async fn search(mongo, entity, params, ctx)` dispatch. Unwired entities return `BadRequest` with a clear "not yet implemented" message so the picker can fall back to the TS action gracefully.
+  - [rust/crates/crm-lookup/src/handler.rs](rust/crates/crm-lookup/src/handler.rs) — Axum route `lookup_route` with `LookupState { mongo }`, `LookupQuery` matching the TS query string (`q&page&limit&ids&filter&scope&userId&projectId`), URL `entity` segment parsed via `serde_json::from_value`. Returns `Json<LookupResult>` on success; `ApiError`'s `IntoResponse` impl handles failures.
+  - Workspace registration: `crates/crm-lookup` added to [rust/Cargo.toml](rust/Cargo.toml).
+  - Verification: `cargo clippy -p crm-lookup --tests -- -D warnings` clean; `cargo test -p crm-lookup -p crm-lookup-types` → 12 tests pass total (regex escaping, regex preserves plain text, parse_entity accepts canonical keys / rejects unknown, plus the 8 type round-trips from the types crate).
+  - **§13.4 host wiring — DONE (2026-05-07).** `crm-lookup::router::<S>()` exposed (generic over any state where `MongoHandle: FromRef<S>`); the `LookupState` wrapper was dropped in favour of extracting `MongoHandle` directly via the same FromRef plumbing every other domain crate uses (`wachat-projects`, `wachat-contacts`, etc.). `sabnode-api` now mounts the lookup router at `/v1/crm/lookup/{entity}` — see [rust/crates/api/src/router.rs](rust/crates/api/src/router.rs) `.nest("/v1/crm/lookup", crm_lookup)` and [rust/crates/api/Cargo.toml](rust/crates/api/Cargo.toml) `crm-lookup = { path = "../crm-lookup" }`. `cargo check -p sabnode-api` clean (only pre-existing wachat-templates-router warnings remain). With this, `GET /v1/crm/lookup/client?q=acme&userId=<oid>` is a live HTTP endpoint backed by the Rust executor — TS callers can switch over once session middleware sets the `userId` query param (or, when auth lands, a request extension).
+  - **NEXT (§13.4 follow-on) →** port the remaining 34 entities (Lead/Contact/Deal/Pipeline/Stage/Tag/Template/Source/Status/Hsn/Pincode/State/Country/Asset/Ticket/Invoice/Quotation/SalesOrder/PurchaseOrder/Bill/Receipt/Coupon/Plan/Subscription/Shift/Holiday/Project/CostCenter/Branch/Currency/Category/Department/Designation/TaxRate) — each needs one ~30-line module file under `crm-lookup/src/entities/` plus a match arm in `search::search`. Pattern is now mechanical; could be done in a parallel-agent batch.
 
 Implementation note: build one `lookupRegistry` map in `src/app/actions/crm-lookup.actions.ts` with one entry per entity, and a single server action `lookupEntity(entity, params)`. The picker calls the action via a thin client wrapper.
 
