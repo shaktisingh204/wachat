@@ -248,7 +248,7 @@ function ZoruHomeShellContent({
                     id: "sign-out",
                     label: "Sign out",
                     icon: <LogOut />,
-                    href: "/api/auth/signout",
+                    href: "/api/auth/logout",
                     destructive: true,
                   },
                 ]}

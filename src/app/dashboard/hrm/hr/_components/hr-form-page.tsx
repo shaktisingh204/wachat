@@ -21,6 +21,7 @@ import {
 } from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import type { HrField } from './hr-entity-page';
+import { getRemainingFields } from '@/lib/hr-form-sections';
 
 /**
  * HrFormPage — full-page form for creating or editing an HR entity.
@@ -91,12 +92,10 @@ export function HrFormPage({
     return m;
   }, [fields]);
 
-  const renderedFieldNames = new Set<string>();
   const renderSection = (title: string, names: string[]) => {
     const sectionFields = names
       .map((n) => fieldByName.get(n))
       .filter(Boolean) as HrField[];
-    sectionFields.forEach((f) => renderedFieldNames.add(f.name));
     if (sectionFields.length === 0) return null;
     return (
       <ZoruCard key={title} className="p-6">
@@ -112,7 +111,7 @@ export function HrFormPage({
     );
   };
 
-  const remainingFields = fields.filter((f) => !renderedFieldNames.has(f.name));
+  const remainingFields = getRemainingFields(fields, sections);
 
   return (
     <div className="flex w-full flex-col gap-6">
@@ -227,7 +226,13 @@ function renderField(field: HrField, raw?: unknown) {
       </ZoruSelect>
     );
   }
-  return <ZoruInput {...common} type={field.type || 'text'} />;
+  return (
+    <ZoruInput
+      {...common}
+      type={field.type || 'text'}
+      min={field.type === 'number' ? 0 : undefined}
+    />
+  );
 }
 
 function formatForInput(value: unknown, type?: string): string {
@@ -334,6 +339,7 @@ function FieldArray({
                     <ZoruInput
                       id={fieldId}
                       type={s.type || 'text'}
+                      min={s.type === 'number' ? 0 : undefined}
                       value={row[s.name] || ''}
                       placeholder={s.placeholder}
                       required={s.required}

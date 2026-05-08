@@ -21,7 +21,7 @@ import type { User, Tag } from '@/lib/definitions';
 import { MultiSelectCombobox } from './multi-select-combobox'; // Assuming this exists from previous file
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
-import { downloadQrCode } from '@/lib/qr-utils';
+import { downloadQrCode, filterPhoneLikeInput, normalizeQrWebsiteUrl, QR_FIELD_LIMITS } from '@/lib/qr-utils';
 
 const DATA_TYPES = [
     { value: 'url', label: 'Website', icon: LinkIcon },
@@ -67,11 +67,11 @@ export function QrCodeGenerator({ user }: { user: Omit<User, 'password'> & { _id
     // Computed QR Value
     const getQrValue = () => {
         switch (dataType) {
-            case 'url': return url || 'https://example.com';
+            case 'url': return normalizeQrWebsiteUrl(url) || 'https://example.com';
             case 'text': return text || 'Example Text';
             case 'email': return `mailto:${email}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
-            case 'phone': return `tel:${phone}`;
-            case 'sms': return `smsto:${sms}:${encodeURIComponent(smsMessage)}`;
+            case 'phone': return `tel:${filterPhoneLikeInput(phone)}`;
+            case 'sms': return `smsto:${filterPhoneLikeInput(sms)}:${encodeURIComponent(smsMessage)}`;
             case 'wifi': return `WIFI:T:${wifiEncryption};S:${wifiSsid};P:${wifiPassword};H:${wifiHidden};;`;
             default: return '';
         }
@@ -101,7 +101,14 @@ export function QrCodeGenerator({ user }: { user: Omit<User, 'password'> & { _id
         }
 
         const dataPayload = {
-            url, text, email, emailSubject, emailBody, phone, sms, smsMessage,
+            url: normalizeQrWebsiteUrl(url),
+            text,
+            email,
+            emailSubject,
+            emailBody,
+            phone: filterPhoneLikeInput(phone),
+            sms: filterPhoneLikeInput(sms),
+            smsMessage,
             wifiSsid, wifiPassword, wifiEncryption, wifiHidden
         };
 
@@ -156,7 +163,7 @@ export function QrCodeGenerator({ user }: { user: Omit<User, 'password'> & { _id
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2 col-span-2 md:col-span-1">
                                     <Label>QR Code Name <span className="text-red-500">*</span></Label>
-                                    <Input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Summer Campaign 2024" />
+                                    <Input value={name} onChange={e => setName(e.target.value.slice(0, QR_FIELD_LIMITS.name))} maxLength={QR_FIELD_LIMITS.name} placeholder="e.g. Summer Campaign 2024" />
                                 </div>
                                 <div className="space-y-2 col-span-2 md:col-span-1">
                                     <Label>Tags</Label>
@@ -207,38 +214,38 @@ export function QrCodeGenerator({ user }: { user: Omit<User, 'password'> & { _id
                             {dataType === 'url' && (
                                 <div className="space-y-2">
                                     <Label>Website URL</Label>
-                                    <Input value={url} onChange={e => setUrl(e.target.value)} placeholder="https://yourwebsite.com" />
+                                    <Input value={url} onChange={e => setUrl(e.target.value.slice(0, QR_FIELD_LIMITS.url))} maxLength={QR_FIELD_LIMITS.url} placeholder="https://yourwebsite.com" />
                                 </div>
                             )}
                             {dataType === 'text' && (
                                 <div className="space-y-2">
                                     <Label>Plain Text</Label>
-                                    <Textarea value={text} onChange={e => setText(e.target.value)} placeholder="Enter your text here..." />
+                                    <Textarea value={text} onChange={e => setText(e.target.value.slice(0, QR_FIELD_LIMITS.text))} maxLength={QR_FIELD_LIMITS.text} placeholder="Enter your text here..." />
                                 </div>
                             )}
                             {dataType === 'email' && (
                                 <div className="space-y-3">
-                                    <div className="space-y-2"><Label>Email Address</Label><Input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="contact@example.com" /></div>
-                                    <div className="space-y-2"><Label>Subject</Label><Input value={emailSubject} onChange={e => setEmailSubject(e.target.value)} placeholder="Inquiry" /></div>
-                                    <div className="space-y-2"><Label>Body</Label><Textarea value={emailBody} onChange={e => setEmailBody(e.target.value)} placeholder="Hello..." /></div>
+                                    <div className="space-y-2"><Label>Email Address</Label><Input type="email" value={email} onChange={e => setEmail(e.target.value.slice(0, QR_FIELD_LIMITS.email))} maxLength={QR_FIELD_LIMITS.email} placeholder="contact@example.com" /></div>
+                                    <div className="space-y-2"><Label>Subject</Label><Input value={emailSubject} onChange={e => setEmailSubject(e.target.value.slice(0, QR_FIELD_LIMITS.emailSubject))} maxLength={QR_FIELD_LIMITS.emailSubject} placeholder="Inquiry" /></div>
+                                    <div className="space-y-2"><Label>Body</Label><Textarea value={emailBody} onChange={e => setEmailBody(e.target.value.slice(0, QR_FIELD_LIMITS.emailBody))} maxLength={QR_FIELD_LIMITS.emailBody} placeholder="Hello..." /></div>
                                 </div>
                             )}
                             {dataType === 'phone' && (
                                 <div className="space-y-2">
                                     <Label>Phone Number</Label>
-                                    <Input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+1 234 567 8900" />
+                                    <Input type="tel" inputMode="tel" value={phone} onChange={e => setPhone(filterPhoneLikeInput(e.target.value))} maxLength={QR_FIELD_LIMITS.phone} placeholder="+1 234 567 8900" />
                                 </div>
                             )}
                             {dataType === 'sms' && (
                                 <div className="space-y-3">
-                                    <div className="space-y-2"><Label>Phone Number</Label><Input type="tel" value={sms} onChange={e => setSms(e.target.value)} placeholder="+1 234 567 8900" /></div>
-                                    <div className="space-y-2"><Label>Message</Label><Textarea value={smsMessage} onChange={e => setSmsMessage(e.target.value)} placeholder="I'm interested in..." /></div>
+                                    <div className="space-y-2"><Label>Phone Number</Label><Input type="tel" inputMode="tel" value={sms} onChange={e => setSms(filterPhoneLikeInput(e.target.value))} maxLength={QR_FIELD_LIMITS.phone} placeholder="+1 234 567 8900" /></div>
+                                    <div className="space-y-2"><Label>Message</Label><Textarea value={smsMessage} onChange={e => setSmsMessage(e.target.value.slice(0, QR_FIELD_LIMITS.smsMessage))} maxLength={QR_FIELD_LIMITS.smsMessage} placeholder="I'm interested in..." /></div>
                                 </div>
                             )}
                             {dataType === 'wifi' && (
                                 <div className="space-y-3">
-                                    <div className="space-y-2"><Label>Network Name (SSID)</Label><Input value={wifiSsid} onChange={e => setWifiSsid(e.target.value)} /></div>
-                                    <div className="space-y-2"><Label>Password</Label><Input value={wifiPassword} onChange={e => setWifiPassword(e.target.value)} /></div>
+                                    <div className="space-y-2"><Label>Network Name (SSID)</Label><Input value={wifiSsid} onChange={e => setWifiSsid(e.target.value.slice(0, QR_FIELD_LIMITS.wifiSsid))} maxLength={QR_FIELD_LIMITS.wifiSsid} /></div>
+                                    <div className="space-y-2"><Label>Password</Label><Input value={wifiPassword} onChange={e => setWifiPassword(e.target.value.slice(0, QR_FIELD_LIMITS.wifiPassword))} maxLength={QR_FIELD_LIMITS.wifiPassword} /></div>
                                     <div className="flex gap-4">
                                         <div className="space-y-2 flex-1">
                                             <Label>Encryption</Label>

@@ -46,14 +46,15 @@ export function CrmNotes({ recordId, recordType, notes: initialNotes }: CrmNotes
     useEffect(() => {
         if (state.message) {
             toast({ title: "Success", description: state.message });
-            const noteContentField = formRef.current?.elements.namedItem('noteContent') as HTMLTextAreaElement | null;
-            if(noteContentField) {
-                 const newNote = {
-                    content: noteContentField.value,
-                    createdAt: new Date(),
-                    author: "You" // This is a simplification
-                };
-                setNotes(prev => [newNote, ...prev]);
+            if (state.note) {
+                setNotes(prev => [
+                    {
+                        content: state.note.content,
+                        createdAt: new Date(state.note.createdAt),
+                        author: state.note.author,
+                    },
+                    ...prev,
+                ]);
             }
             formRef.current?.reset();
         }

@@ -21,10 +21,10 @@ export default function EditCrmItemPage() {
 
     useEffect(() => {
         if (productId) {
-            getCrmProducts().then(products => {
-                const found = (products as any).find((p: any) => p._id.toString() === productId);
+            getCrmProducts().then(({ products }) => {
+                const found = products.find((p: any) => p._id.toString() === productId);
                 if (found) {
-                    setProduct(found);
+                    setProduct(found as any);
                 }
                 setLoading(false);
             });

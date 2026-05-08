@@ -21,6 +21,7 @@ import type { LineageRef } from '@/lib/definitions';
 import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
 import { applyCustomFieldsToEntity } from '@/app/actions/worksuite/meta.actions';
 import { writeAuditEntry } from '@/lib/audit-log';
+import { isDateBefore } from '@/lib/form-validation';
 
 type FormState = { message?: string; error?: string; id?: string };
 
@@ -36,6 +37,12 @@ async function save(
 ): Promise<FormState> {
   try {
     const data = formToObject(formData, opts.numericKeys || []);
+    if (isDateBefore(data, 'startDate', 'endDate')) {
+      return { error: 'End date cannot be before start date.' };
+    }
+    if (isDateBefore(data, 'startDate', 'dueDate')) {
+      return { error: 'Due date cannot be before start date.' };
+    }
     const res = await hrSave(collection, data, {
       idFields: opts.idFields,
       dateFields: opts.dateFields,

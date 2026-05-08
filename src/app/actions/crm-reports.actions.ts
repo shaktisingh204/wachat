@@ -142,8 +142,14 @@ export async function generateTeamSalesReportData(filters: {
         const users = currentUser ? [currentUser] : [];
 
         const dealsFilter: any = { userId };
-        if (filters.createdFrom && filters.createdTo) {
-            dealsFilter.createdAt = { $gte: filters.createdFrom, $lte: filters.createdTo };
+        if (filters.createdFrom || filters.createdTo) {
+            dealsFilter.createdAt = {};
+            if (filters.createdFrom) dealsFilter.createdAt.$gte = filters.createdFrom;
+            if (filters.createdTo) {
+                const end = new Date(filters.createdTo);
+                end.setHours(23, 59, 59, 999);
+                dealsFilter.createdAt.$lte = end;
+            }
         }
         if (filters.assigneeId) {
             dealsFilter.ownerId = new ObjectId(filters.assigneeId);
@@ -201,8 +207,14 @@ export async function generateClientPerformanceReportData(filters: {
         const accountIds = accounts.map(a => a._id);
 
         const dealsFilter: any = { userId, accountId: { $in: accountIds } };
-        if (filters.createdFrom && filters.createdTo) {
-            dealsFilter.createdAt = { $gte: filters.createdFrom, $lte: filters.createdTo };
+        if (filters.createdFrom || filters.createdTo) {
+            dealsFilter.createdAt = {};
+            if (filters.createdFrom) dealsFilter.createdAt.$gte = filters.createdFrom;
+            if (filters.createdTo) {
+                const end = new Date(filters.createdTo);
+                end.setHours(23, 59, 59, 999);
+                dealsFilter.createdAt.$lte = end;
+            }
         }
         if (filters.assigneeId) {
             dealsFilter.ownerId = new ObjectId(filters.assigneeId);
@@ -266,8 +278,14 @@ export async function generateLeadSourceReportData(filters: {
         const userId = new ObjectId(session.user._id);
 
         const dealsFilter: any = { userId };
-        if (filters.createdFrom && filters.createdTo) {
-            dealsFilter.createdAt = { $gte: filters.createdFrom, $lte: filters.createdTo };
+        if (filters.createdFrom || filters.createdTo) {
+            dealsFilter.createdAt = {};
+            if (filters.createdFrom) dealsFilter.createdAt.$gte = filters.createdFrom;
+            if (filters.createdTo) {
+                const end = new Date(filters.createdTo);
+                end.setHours(23, 59, 59, 999);
+                dealsFilter.createdAt.$lte = end;
+            }
         }
         if (filters.assigneeId) {
             dealsFilter.ownerId = new ObjectId(filters.assigneeId);
@@ -668,6 +686,3 @@ export async function generateAllTransactionsReport(filters: {
         return { data: [], error: 'Failed to generate report.' };
     }
 }
-
-
-

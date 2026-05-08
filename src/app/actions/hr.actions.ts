@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { hrList, hrGetById, hrSave, hrDelete, formToObject } from '@/lib/hr-crud';
+import { hasNegativeNumber, isDateBefore } from '@/lib/form-validation';
 import type {
   HrJobPosting,
   HrCandidate,
@@ -56,10 +57,21 @@ async function genericSave(
     dateFields?: string[];
     numericKeys?: string[];
     jsonKeys?: string[];
+    nonNegativeKeys?: string[];
+    dateOrders?: Array<{ start: string; end: string; label?: string }>;
   } = {},
 ): Promise<FormState> {
   try {
     const data = formToObject(formData, options.numericKeys || []);
+    const negativeKey = hasNegativeNumber(data, options.nonNegativeKeys || []);
+    if (negativeKey) {
+      return { error: `${negativeKey} must be zero or greater.` };
+    }
+    for (const order of options.dateOrders || []) {
+      if (isDateBefore(data, order.start, order.end)) {
+        return { error: order.label || `${order.end} cannot be before ${order.start}.` };
+      }
+    }
     for (const k of options.jsonKeys || []) {
       if (typeof data[k] === 'string' && data[k]) {
         try {
@@ -95,6 +107,7 @@ export async function saveJobPosting(_prev: any, formData: FormData) {
   return genericSave('hr_job_postings', '/dashboard/hrm/hr/jobs', formData, {
     dateFields: ['postedAt'],
     numericKeys: ['salaryMin', 'salaryMax'],
+    nonNegativeKeys: ['salaryMin', 'salaryMax'],
   });
 }
 export async function deleteJobPosting(id: string) {
@@ -150,7 +163,8 @@ export async function saveOfferLetter(_prev: any, formData: FormData) {
   return genericSave('hr_offer_letters', '/dashboard/hrm/hr/offers', formData, {
     idFields: ['candidateId'],
     dateFields: ['joiningDate', 'sentAt', 'respondedAt'],
-    numericKeys: ['ctc'],
+    numericKeys: ['salary', 'ctc'],
+    nonNegativeKeys: ['salary', 'ctc'],
   });
 }
 export async function deleteOfferLetter(id: string) {
@@ -295,6 +309,9 @@ export async function getTrainingPrograms() {
 export async function saveTrainingProgram(_prev: any, formData: FormData) {
   return genericSave('hr_training_programs', '/dashboard/hrm/hr/training', formData, {
     dateFields: ['startDate', 'endDate'],
+    numericKeys: ['costPerParticipant'],
+    nonNegativeKeys: ['costPerParticipant'],
+    dateOrders: [{ start: 'startDate', end: 'endDate', label: 'End date cannot be before start date.' }],
   });
 }
 export async function deleteTrainingProgram(id: string) {
@@ -411,6 +428,8 @@ export async function saveTravelRequest(_prev: any, formData: FormData) {
     idFields: ['employeeId'],
     dateFields: ['fromDate', 'toDate'],
     numericKeys: ['estimatedCost'],
+    nonNegativeKeys: ['estimatedCost'],
+    dateOrders: [{ start: 'fromDate', end: 'toDate', label: 'Return date cannot be before travel start date.' }],
   });
 }
 export async function deleteTravelRequest(id: string) {
@@ -427,6 +446,7 @@ export async function saveExpenseClaim(_prev: any, formData: FormData) {
     idFields: ['employeeId'],
     dateFields: ['incurredAt'],
     numericKeys: ['amount'],
+    nonNegativeKeys: ['amount'],
   });
 }
 export async function deleteExpenseClaim(id: string) {
@@ -463,7 +483,11 @@ export async function saveAssetAssignment(_prev: any, formData: FormData) {
     formData,
     {
       idFields: ['assetId', 'employeeId'],
-      dateFields: ['assignedAt', 'returnedAt'],
+      dateFields: ['assignedAt', 'expectedReturnAt', 'returnedAt'],
+      dateOrders: [
+        { start: 'assignedAt', end: 'expectedReturnAt', label: 'Expected return date cannot be before assigned date.' },
+        { start: 'assignedAt', end: 'returnedAt', label: 'Actual return date cannot be before assigned date.' },
+      ],
     },
   );
 }
@@ -520,7 +544,10 @@ export async function saveCompensationBand(_prev: any, formData: FormData) {
     'hr_compensation_bands',
     '/dashboard/hrm/hr/compensation-bands',
     formData,
-    { numericKeys: ['minSalary', 'maxSalary'] },
+    {
+      numericKeys: ['min_salary', 'max_salary', 'minSalary', 'maxSalary'],
+      nonNegativeKeys: ['min_salary', 'max_salary', 'minSalary', 'maxSalary'],
+    },
   );
 }
 export async function deleteCompensationBand(id: string) {

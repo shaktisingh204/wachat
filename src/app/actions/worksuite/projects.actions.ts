@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { hrList, hrGetById, hrSave, hrDelete, formToObject } from '@/lib/hr-crud';
+import { isDateBefore } from '@/lib/form-validation';
 import type {
   WsProject,
   WsProjectMember,
@@ -60,6 +61,15 @@ async function genericSave(
 ): Promise<FormState> {
   try {
     const data = formToObject(formData, options.numericKeys || []);
+    if (isDateBefore(data, 'startDate', 'endDate')) {
+      return { error: 'End date cannot be before start date.' };
+    }
+    if (isDateBefore(data, 'startDate', 'deadline')) {
+      return { error: 'Deadline cannot be before start date.' };
+    }
+    if (isDateBefore(data, 'startDate', 'dueDate')) {
+      return { error: 'Due date cannot be before start date.' };
+    }
     for (const k of options.jsonKeys || []) {
       if (typeof data[k] === 'string' && data[k]) {
         try {

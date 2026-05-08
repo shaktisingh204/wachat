@@ -238,7 +238,13 @@ function renderField(field: HrField, value?: unknown) {
       </ZoruSelect>
     );
   }
-  return <ZoruInput {...common} type={field.type || 'text'} />;
+  return (
+    <ZoruInput
+      {...common}
+      type={field.type || 'text'}
+      min={field.type === 'number' ? 0 : undefined}
+    />
+  );
 }
 
 /**
@@ -357,6 +363,7 @@ function FieldArray({
                     <ZoruInput
                       id={fieldId}
                       type={s.type || 'text'}
+                      min={s.type === 'number' ? 0 : undefined}
                       value={row[s.name] || ''}
                       placeholder={s.placeholder}
                       required={s.required}

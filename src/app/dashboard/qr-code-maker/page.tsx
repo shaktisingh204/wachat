@@ -20,6 +20,7 @@ import { deleteManyQrCodes, deleteQrCode, getQrCodes } from '@/app/actions/qr-co
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 import { QrCodeGenerator } from '@/components/wabasimplify/qr-code-generator';
 import { QrCodeDialog } from '@/components/wabasimplify/qr-code-dialog';
+import { normalizeQrWebsiteUrl } from '@/lib/qr-utils';
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -119,7 +120,7 @@ function generateDataString(code: any): string {
   }
   switch (code.dataType) {
     case 'url':
-      return code.data?.url || '';
+      return normalizeQrWebsiteUrl(code.data?.url || '');
     case 'text':
       return code.data?.text || '';
     case 'email':
@@ -462,7 +463,7 @@ export default function QrCodeMakerPage() {
           </div>
 
           {selectedIds.size > 0 ? (
-            <div className="flex items-center justify-between gap-3 border-b border-zoru-line bg-zoru-surface-2 px-5 py-2.5 text-[12.5px]">
+            <div className="flex flex-wrap items-center gap-3 border-b border-zoru-line bg-zoru-surface-2 px-5 py-2.5 text-[12.5px]">
               <span className="text-zoru-ink">
                 <strong>{selectedIds.size}</strong> selected
               </span>
@@ -623,7 +624,7 @@ export default function QrCodeMakerPage() {
                         <td className="px-5 py-3 text-zoru-ink">
                           {code.createdAt ? new Date(code.createdAt).toLocaleDateString() : '—'}
                         </td>
-                        <td className="px-5 py-3 text-right">
+                        <td className="min-w-[92px] px-5 py-3 text-right">
                           <div className="inline-flex items-center gap-1">
                             <button
                               type="button"

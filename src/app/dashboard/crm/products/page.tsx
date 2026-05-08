@@ -81,7 +81,7 @@ export default function CrmProductsPage() {
         subtitle="Manage products for your CRM and sales pipeline."
         icon={ShoppingBag}
         actions={
-          <Link href="/dashboard/crm/inventory/items/new">
+          <Link href="/dashboard/crm/products/new">
             <ZoruButton>
               <PlusCircle className="h-4 w-4" strokeWidth={1.75} />
               Add Product
@@ -98,7 +98,7 @@ export default function CrmProductsPage() {
               product={product}
               currency={currency}
               onEdit={() =>
-                router.push(`/dashboard/crm/inventory/items/${product._id.toString()}/edit`)
+                router.push(`/dashboard/crm/products/${product._id.toString()}/edit`)
               }
               onDelete={fetchData}
             />
