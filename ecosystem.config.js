@@ -30,29 +30,36 @@ if (BROADCAST_WORKER !== 'node' && BROADCAST_WORKER !== 'rust') {
     `BROADCAST_WORKER must be 'node' or 'rust', got '${process.env.BROADCAST_WORKER}'.`,
   );
 }
+module.exports = {
+  apps: [
+    {
+      name: 'sabnode-api',
+      cwd: './rust',
+      script: 'cargo',
+      args: 'run --release -p sabnode-api',
+      instances: 1,
+      exec_mode: 'fork',
+      watch: false,
+      restart_delay: 5000,
+      max_restarts: 20,
 
-const apps = [
-  {
-    name: 'sabnode-api',
-    cwd: './rust',
-    script: 'cargo',
-    args: 'run --release -p sabnode-api',
-    instances: 1,
-    exec_mode: 'fork',
-    watch: false,
-    restart_delay: 5000,
-    max_restarts: 20,
-    env: {
-      RUST_JWT_SECRET: process.env.RUST_JWT_SECRET,
-      MONGODB_URI: process.env.MONGODB_URI,
-      MONGODB_DB: process.env.MONGODB_DB,
-      REDIS_URL: process.env.REDIS_URL,
-      FACEBOOK_APP_SECRET: process.env.FACEBOOK_APP_SECRET,
-      SABNODE_PORT: process.env.SABNODE_PORT || '8080',
-      SABNODE_ENV: process.env.SABNODE_ENV || 'production',
-      RUST_LOG: process.env.RUST_LOG || 'info',
+      env: {
+        RUST_JWT_SECRET: process.env.RUST_JWT_SECRET,
+        MONGODB_URI: process.env.MONGODB_URI,
+        MONGODB_DB: process.env.MONGODB_DB,
+        REDIS_URL: process.env.REDIS_URL,
+        FACEBOOK_APP_SECRET: process.env.FACEBOOK_APP_SECRET,
+
+        SABNODE_PORT: process.env.SABNODE_PORT || '8080',
+        SABNODE_ENV: process.env.SABNODE_ENV || 'production',
+        RUST_LOG: process.env.RUST_LOG || 'info',
+
+        R2_ACCOUNT_ID: process.env.R2_ACCOUNT_ID,
+        R2_ACCESS_KEY_ID: process.env.R2_ACCESS_KEY_ID,
+        R2_SECRET_ACCESS_KEY: process.env.R2_SECRET_ACCESS_KEY,
+        R2_BUCKET: process.env.R2_BUCKET || 'sabnode',
+      },
     },
-  },
   {
     name: 'sabnode-web',
     script: 'node_modules/.bin/next',
