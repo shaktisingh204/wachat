@@ -19,7 +19,7 @@ import {
 } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 import { useAdManager } from '@/context/ad-manager-context';
-import { useAdManagerShell } from '@/components/wabasimplify/ad-manager/ad-manager-shell';
+import { useAdManagerShell } from '@/context/ad-manager-shell-context';
 import { getInsights } from '@/app/actions/ad-manager.actions';
 import { formatMoney, formatNumber, formatPercent } from '@/components/wabasimplify/ad-manager/constants';
 import {

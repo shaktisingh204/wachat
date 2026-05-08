@@ -330,11 +330,7 @@ export async function getBrandMentions(brandName: string) {
         console.error("Brand Mentions Fetch Failed", e);
     }
 
-    // Fallback
-    return [
-        { source: 'Twitter', sentiment: 'positive', text: `Great experience with ${brandName}!`, date: new Date(), url: '#' },
-        { source: 'Reddit', sentiment: 'neutral', text: `Anyone tried ${brandName}?`, date: new Date(), url: '#' }
-    ];
+    return [];
 }
 
 export async function getBacklinks(domain: string) {

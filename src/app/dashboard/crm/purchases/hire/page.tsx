@@ -1,32 +1,18 @@
 'use client';
-import { ZoruCard } from '@/components/zoruui';
-import { UserPlus, Star } from 'lucide-react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { Handshake } from 'lucide-react';
+import { WorkingFeaturePage } from '@/components/dashboard/working-feature-page';
 
-export default function HireVendorsPage() {
-    return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Hire The Best Vendors"
-                subtitle="Coming Soon: A marketplace to find and hire top-rated vendors and service providers for your business needs."
-                icon={UserPlus}
-            />
-
-            <ZoruCard variant="outline" className="border-dashed">
-                <div className="flex flex-col items-center gap-4 py-12 text-center">
-                    <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-accent">
-                        <Star className="h-7 w-7 text-accent-foreground" strokeWidth={1.75} />
-                    </div>
-                    <div>
-                        <h3 className="text-[17px] font-semibold text-foreground">Hire The Best Vendors</h3>
-                        <p className="mt-1 max-w-md text-[12.5px] text-muted-foreground">
-                            Coming Soon: A marketplace to find and hire top-rated vendors and service providers for your business needs.
-                        </p>
-                    </div>
-                    <p className="text-[12.5px] text-muted-foreground">This feature is under development.</p>
-                </div>
-            </ZoruCard>
-        </div>
-    );
+export default function Page() {
+  return (
+    <WorkingFeaturePage
+      title="Vendor Hire"
+      description="Track vendor hiring requests, bids, approvals, and onboarding tasks."
+      eyebrow="CRM Purchases"
+      icon={Handshake}
+      accent="#0F766E"
+      storageKey="dashboard-crm-purchases-hire"
+      primaryActionLabel="Add hire request"
+    />
+  );
 }

@@ -81,23 +81,15 @@ export default function SetupPage() {
     }
 
     return (
-        <div className="relative min-h-screen overflow-hidden">
-
-            {/* ── Ambient background blobs ── */}
-            <div className="pointer-events-none fixed inset-0 -z-10">
-                <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-emerald-300/20 blur-[100px]" />
-                <div className="absolute -bottom-32 -right-32 h-80 w-80 rounded-full bg-teal-300/15 blur-[90px]" />
-                <div className="absolute top-1/3 left-1/2 h-64 w-64 rounded-full bg-lime-200/20 blur-[80px]" />
-            </div>
-
-            <div className="mx-auto max-w-6xl">
+        <div className="relative">
+            <div className="mx-auto max-w-6xl pb-12">
 
                 {/* ── HERO ── */}
                 <div className="mb-14 text-center space-y-5">
                     {/* Icon */}
                     <div className="relative mx-auto w-fit">
-                        <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-emerald-400 to-teal-500 opacity-20 blur-xl scale-110" />
-                        <div className="relative flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-[0_8px_32px_rgba(5,150,105,0.45)] mx-auto">
+                        <div className="absolute inset-0 rounded-3xl bg-emerald-200 opacity-40 blur-xl scale-110" />
+                        <div className="relative mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-emerald-600 shadow-[0_8px_32px_rgba(5,150,105,0.28)]">
                             <MessageCircle className="h-10 w-10 text-white" />
                         </div>
                         <div className="absolute -right-1 -top-1 h-4 w-4 rounded-full bg-lime-400 shadow-lg shadow-lime-400/50" />
@@ -110,7 +102,7 @@ export default function SetupPage() {
 
                     <h1 className="text-4xl font-bold tracking-tight md:text-5xl">
                         Connect Your{' '}
-                        <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-lime-500 bg-clip-text text-transparent">
+                        <span className="text-emerald-700">
                             WhatsApp Account
                         </span>
                     </h1>
@@ -130,7 +122,7 @@ export default function SetupPage() {
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-md rounded-3xl border-emerald-200/40">
                             <DialogHeader>
-                                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 mb-2">
+                                <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-600">
                                     <MessageCircle className="h-5 w-5 text-white" />
                                 </div>
                                 <DialogTitle className="text-lg">Guided WhatsApp Setup</DialogTitle>
@@ -187,7 +179,7 @@ export default function SetupPage() {
                         </p>
                         <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
                             {UNLOCKS.map((u) => (
-                                <div key={u.label} className="group flex flex-col gap-2.5 rounded-2xl border border-emerald-100/60 bg-gradient-to-br from-emerald-50/80 to-white p-4 transition hover:shadow-md hover:border-emerald-200">
+                                <div key={u.label} className="group flex flex-col gap-2.5 rounded-2xl border border-emerald-100/60 bg-white p-4 transition hover:shadow-md hover:border-emerald-200">
                                     <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
                                         <u.icon className="h-4.5 w-4.5 h-[18px] w-[18px]" />
                                     </div>
@@ -207,11 +199,11 @@ export default function SetupPage() {
                                     <div key={s.n} className="flex gap-4">
                                         {/* Step line */}
                                         <div className="flex flex-col items-center">
-                                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 text-white text-xs font-bold shadow-md shadow-emerald-500/25">
+                                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-xs font-bold text-white shadow-md shadow-emerald-500/25">
                                                 {s.n}
                                             </div>
                                             {idx < STEPS.length - 1 && (
-                                                <div className="mt-1 mb-1 w-px flex-1 bg-gradient-to-b from-emerald-300 to-teal-200" style={{ minHeight: 24 }} />
+                                                <div className="mt-1 mb-1 w-px flex-1 bg-emerald-200" style={{ minHeight: 24 }} />
                                             )}
                                         </div>
                                         <div className="pb-5">
@@ -260,13 +252,11 @@ export default function SetupPage() {
                         </div>
 
                         {/* CTA card */}
-                        <div className="relative overflow-hidden rounded-3xl border border-emerald-200/40 bg-gradient-to-br from-emerald-500 to-teal-600 p-6 shadow-xl shadow-emerald-500/25 text-white">
-                            <div className="pointer-events-none absolute -right-6 -top-6 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
-                            <div className="pointer-events-none absolute -bottom-4 -left-4 h-24 w-24 rounded-full bg-white/10 blur-xl" />
+                        <div className="relative overflow-hidden rounded-3xl border border-emerald-700 bg-emerald-700 p-6 text-white shadow-xl shadow-emerald-500/25">
                             <div className="relative space-y-3">
                                 <Zap className="h-7 w-7 text-lime-300" />
                                 <p className="font-bold text-lg leading-snug">Ready to start reaching customers?</p>
-                                <p className="text-sm text-white/80">Connect your account in under 2 minutes.</p>
+                                <p className="text-sm text-white/90">Connect your account in under 2 minutes.</p>
                                 <Dialog>
                                     <DialogTrigger asChild>
                                         <Button size="default" className="w-full rounded-xl bg-white text-emerald-700 hover:bg-white/90 font-semibold shadow-lg mt-1">
@@ -276,7 +266,7 @@ export default function SetupPage() {
                                     </DialogTrigger>
                                     <DialogContent className="sm:max-w-md rounded-3xl border-emerald-200/40">
                                         <DialogHeader>
-                                            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 mb-2">
+                                            <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-600">
                                                 <MessageCircle className="h-5 w-5 text-white" />
                                             </div>
                                             <DialogTitle className="text-lg">Guided WhatsApp Setup</DialogTitle>

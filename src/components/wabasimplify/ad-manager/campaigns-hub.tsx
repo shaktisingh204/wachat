@@ -24,7 +24,7 @@ import {
 } from '@/components/ui/sheet';
 import { useToast } from '@/hooks/use-toast';
 import { useAdManager } from '@/context/ad-manager-context';
-import { useAdManagerShell } from './ad-manager-shell';
+import { useAdManagerShell } from '@/context/ad-manager-shell-context';
 import { MetaDataTable, type MetaRow } from './meta-data-table';
 import {
     listCampaigns, listAdSets, listAds,

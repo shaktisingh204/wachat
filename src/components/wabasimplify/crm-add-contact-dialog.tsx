@@ -84,7 +84,7 @@ export function CrmAddContactDialog({ onAdded, accounts }: CrmAddContactDialogPr
                 <div className="space-y-2"><Label htmlFor="email" className="text-foreground">Email</Label><Input id="email" name="email" type="email" required /></div>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2"><Label htmlFor="phone" className="text-foreground">Phone</Label><Input id="phone" name="phone" /></div>
+                <div className="space-y-2"><Label htmlFor="phone" className="text-foreground">Phone</Label><Input id="phone" name="phone" type="tel" inputMode="tel" pattern="[0-9+()\\-\\s]*" onChange={(e) => { e.currentTarget.value = e.currentTarget.value.replace(/[^0-9+()\-\s]/g, ''); }} /></div>
                 <div className="space-y-2"><Label htmlFor="company" className="text-foreground">Company</Label><Input id="company" name="company" /></div>
               </div>
               <div className="space-y-2"><Label htmlFor="jobTitle" className="text-foreground">Job Title</Label><Input id="jobTitle" name="jobTitle" /></div>
@@ -194,7 +194,7 @@ export function CrmAddContactDialog({ onAdded, accounts }: CrmAddContactDialogPr
               </div>
             </div>
           </div>
-          <DialogFooter className="px-6 pb-6 pt-2">
+          <DialogFooter className="shrink-0 border-t border-border bg-background px-6 pb-6 pt-4">
             <ClayButton type="button" variant="pill" onClick={() => setOpen(false)}>Cancel</ClayButton>
             <SubmitButton />
           </DialogFooter>

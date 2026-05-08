@@ -2116,7 +2116,7 @@ export async function savePersistentMenu(
     try {
         const res = await rustClient.wachatFacebookMessengerProfile.savePersistentMenu(
             projectId,
-            { persistent_menu: menu as any },
+            { menuItems: menu as any },
         );
         if (res.error) return { success: false, error: res.error };
         return { success: true };
@@ -2236,7 +2236,7 @@ export async function setMessengerGreeting(
     try {
         const res = await rustClient.wachatFacebookMessengerProfile.setMessengerGreeting(
             projectId,
-            { greeting: [{ locale: 'default', text: greetingText }] },
+            { greeting: greetingText },
         );
         if (res.error) return { success: false, error: res.error };
         return { success: true };
@@ -2254,7 +2254,7 @@ export async function setMessengerGetStarted(
     try {
         const res = await rustClient.wachatFacebookMessengerProfile.setMessengerGetStarted(
             projectId,
-            { get_started: { payload } },
+            { payload },
         );
         if (res.error) return { success: false, error: res.error };
         return { success: true };
@@ -2272,7 +2272,7 @@ export async function setMessengerIceBreakers(
     try {
         const res = await rustClient.wachatFacebookMessengerProfile.setMessengerIceBreakers(
             projectId,
-            { ice_breakers: [{ locale: 'default', call_to_actions: iceBreakers }] },
+            { iceBreakers },
         );
         if (res.error) return { success: false, error: res.error };
         return { success: true };
@@ -2290,7 +2290,7 @@ export async function setWhitelistedDomains(
     try {
         const res = await rustClient.wachatFacebookMessengerProfile.setWhitelistedDomains(
             projectId,
-            { whitelisted_domains: domains },
+            { domains },
         );
         if (res.error) return { success: false, error: res.error };
         return { success: true };
@@ -2391,10 +2391,10 @@ export async function createPersona(
     try {
         const res = await rustClient.wachatFacebookMessengerProfile.createPersona(
             projectId,
-            { name, profile_picture_url: profilePictureUrl },
+            { name, profilePictureUrl },
         );
         if (res.error) return { error: res.error };
-        return { personaId: res.persona_id ?? res.id };
+        return { personaId: res.personaId };
     } catch (e) {
         if (e instanceof RustApiError) return { error: e.message };
         throw e;

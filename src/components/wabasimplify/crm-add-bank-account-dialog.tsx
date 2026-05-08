@@ -44,6 +44,9 @@ export function CrmAddBankAccountDialog({ isOpen, onOpenChange, onSave }: CrmAdd
         onOpenChange(false);
     };
 
+    const digitsOnly = (value: string) => value.replace(/\D/g, '');
+    const nameOnly = (value: string) => value.replace(/[^a-zA-Z\s'.-]/g, '');
+
     return (
         <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
             <ZoruDialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden p-0">
@@ -65,11 +68,11 @@ export function CrmAddBankAccountDialog({ isOpen, onOpenChange, onSave }: CrmAdd
                         </div>
                         <div className="space-y-2">
                             <ZoruLabel className="text-zoru-ink">Account Number *</ZoruLabel>
-                            <ZoruInput value={details.accountNumber || ''} onChange={e => setDetails(prev => ({ ...prev, accountNumber: e.target.value }))} required maxLength={30} />
+                            <ZoruInput value={details.accountNumber || ''} inputMode="numeric" pattern="[0-9]*" onChange={e => setDetails(prev => ({ ...prev, accountNumber: digitsOnly(e.target.value) }))} required maxLength={30} />
                         </div>
                         <div className="space-y-2">
                             <ZoruLabel className="text-zoru-ink">Confirm Account Number *</ZoruLabel>
-                            <ZoruInput value={confirmAccountNumber} onChange={e => setConfirmAccountNumber(e.target.value)} required maxLength={30} />
+                            <ZoruInput value={confirmAccountNumber} inputMode="numeric" pattern="[0-9]*" onChange={e => setConfirmAccountNumber(digitsOnly(e.target.value))} required maxLength={30} />
                         </div>
                         <div className="space-y-2">
                             <ZoruLabel className="text-zoru-ink">IFSC Code *</ZoruLabel>
@@ -77,7 +80,7 @@ export function CrmAddBankAccountDialog({ isOpen, onOpenChange, onSave }: CrmAdd
                         </div>
                         <div className="space-y-2">
                             <ZoruLabel className="text-zoru-ink">Account Holder Name *</ZoruLabel>
-                            <ZoruInput value={details.accountHolder || ''} onChange={e => setDetails(prev => ({ ...prev, accountHolder: e.target.value }))} required maxLength={100} />
+                            <ZoruInput value={details.accountHolder || ''} pattern="[A-Za-z\\s'.-]+" onChange={e => setDetails(prev => ({ ...prev, accountHolder: nameOnly(e.target.value) }))} required maxLength={100} />
                         </div>
                         <div className="space-y-2">
                             <ZoruLabel className="text-zoru-ink">Account Type *</ZoruLabel>
@@ -110,7 +113,7 @@ export function CrmAddBankAccountDialog({ isOpen, onOpenChange, onSave }: CrmAdd
                         {showIban && <div className="space-y-2"><ZoruInput value={details.ibanCode || ''} onChange={e => setDetails(prev => ({ ...prev, ibanCode: e.target.value }))} maxLength={34} /></div>}
                     </div>
                 </div>
-                <ZoruDialogFooter className="px-6 pb-6 pt-2">
+                <ZoruDialogFooter className="shrink-0 border-t border-zoru-line bg-zoru-bg px-6 pb-6 pt-4">
                     <ZoruButton type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</ZoruButton>
                     <ZoruButton type="button" onClick={handleSave}>Add Account</ZoruButton>
                 </ZoruDialogFooter>

@@ -598,7 +598,7 @@ export function ZoruChatClient() {
         setHasMoreContacts(
           initialData.contacts.length < initialData.totalContacts,
         );
-        setSelectedContact(initialData.selectedContact);
+        setSelectedContact(initialData.selectedContact ?? null);
         setConversation(initialData.conversation);
         setTemplates(initialData.templates);
         setSelectedPhoneNumberId(initialData.selectedPhoneNumberId);

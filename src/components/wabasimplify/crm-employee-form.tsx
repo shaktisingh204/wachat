@@ -189,7 +189,7 @@ export function EmployeeForm({ employee, departments, designations, detail }: Em
                     >
                         {/* ── Basic Personal Info ─────────────────────── */}
                         <AccordionItem value="personal">
-                            <AccordionTrigger>Personal Information</AccordionTrigger>
+                            <AccordionTrigger className="rounded-lg bg-secondary px-3 text-foreground hover:text-foreground">Personal Information</AccordionTrigger>
                             <AccordionContent className="space-y-4 pt-4">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
@@ -213,14 +213,19 @@ export function EmployeeForm({ employee, departments, designations, detail }: Em
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="dateOfBirth">Date of Birth</Label>
-                                    <DatePicker date={dateOfBirth} setDate={setDateOfBirth} />
+                                    <Input
+                                        id="dateOfBirth"
+                                        type="date"
+                                        value={dateOfBirth ? toDateInput(dateOfBirth) : ''}
+                                        onChange={(e) => setDateOfBirth(e.target.value ? new Date(e.target.value) : undefined)}
+                                    />
                                 </div>
                             </AccordionContent>
                         </AccordionItem>
 
                         {/* ── Job Info ────────────────────────────────── */}
                         <AccordionItem value="job">
-                            <AccordionTrigger>Job Information</AccordionTrigger>
+                            <AccordionTrigger className="rounded-lg bg-secondary px-3 text-foreground hover:text-foreground">Job Information</AccordionTrigger>
                             <AccordionContent className="space-y-4 pt-4">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
@@ -313,7 +318,7 @@ export function EmployeeForm({ employee, departments, designations, detail }: Em
 
                         {/* ── Extended Personal Info ───────────────────── */}
                         <AccordionItem value="extended-personal">
-                            <AccordionTrigger>Extended Personal Info</AccordionTrigger>
+                            <AccordionTrigger className="rounded-lg bg-secondary px-3 text-foreground hover:text-foreground">Extended Personal Info</AccordionTrigger>
                             <AccordionContent className="pt-4">
                                 <div className="grid gap-4 md:grid-cols-2">
                                     <div className="space-y-2 md:col-span-2">
@@ -389,7 +394,7 @@ export function EmployeeForm({ employee, departments, designations, detail }: Em
 
                         {/* ── Employment Details ───────────────────────── */}
                         <AccordionItem value="employment">
-                            <AccordionTrigger>Employment Details</AccordionTrigger>
+                            <AccordionTrigger className="rounded-lg bg-secondary px-3 text-foreground hover:text-foreground">Employment Details</AccordionTrigger>
                             <AccordionContent className="pt-4">
                                 <div className="grid gap-4 md:grid-cols-2">
                                     <div className="space-y-2">
@@ -475,7 +480,7 @@ export function EmployeeForm({ employee, departments, designations, detail }: Em
 
                         {/* ── Banking & Tax ────────────────────────────── */}
                         <AccordionItem value="banking">
-                            <AccordionTrigger>Banking &amp; Tax</AccordionTrigger>
+                            <AccordionTrigger className="rounded-lg bg-secondary px-3 text-foreground hover:text-foreground">Banking &amp; Tax</AccordionTrigger>
                             <AccordionContent className="pt-4">
                                 <div className="grid gap-4 md:grid-cols-2">
                                     <div className="space-y-2 md:col-span-2">

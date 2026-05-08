@@ -73,6 +73,27 @@ export default function AuditPage({ params }: { params: Promise<{ projectId: str
 
         try {
             const result = await startAudit(projectId);
+            if ((result as any).error) {
+                setStatus('failed');
+                toast({
+                    title: 'Audit failed',
+                    description: (result as any).error,
+                    variant: 'destructive',
+                });
+                if ((result as any).auditId) {
+                    setAudit({ _id: (result as any).auditId, status: 'failed', summary: {} });
+                }
+                return;
+            }
+            if ((result as any).success) {
+                setStatus('completed');
+                toast({
+                    title: 'Audit finished',
+                    description: (result as any).message || 'Audit completed.',
+                });
+                await loadInitialData();
+                return;
+            }
             if (result.auditId) {
                 setAudit({ _id: result.auditId, status: 'running', summary: {} });
                 setPages([]);

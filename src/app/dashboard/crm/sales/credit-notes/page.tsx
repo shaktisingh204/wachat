@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { getCreditNotes } from '@/app/actions/crm-credit-notes.actions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
 import type { WithId, CrmCreditNote } from '@/lib/definitions';
+import { formatFiniteCurrency } from '@/lib/crm/number-safety';
 
 import {
     ZoruButton,
@@ -119,7 +120,7 @@ export default function CreditNotesPage() {
                                     <ZoruTableCell className="text-zoru-ink">{new Date(note.creditNoteDate).toLocaleDateString()}</ZoruTableCell>
                                     <ZoruTableCell className="text-[12px] text-zoru-ink-muted">{note.reason}</ZoruTableCell>
                                     <ZoruTableCell className="font-mono text-xs text-zoru-ink">{note.originalInvoiceNumber || 'N/A'}</ZoruTableCell>
-                                    <ZoruTableCell className="text-right text-zoru-ink">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: note.currency || 'INR' }).format(note.total)}</ZoruTableCell>
+                                    <ZoruTableCell className="text-right text-zoru-ink">{formatFiniteCurrency(note.total, note.currency || 'INR')}</ZoruTableCell>
                                 </ZoruTableRow>
                             ))}
                         </ZoruTableBody>

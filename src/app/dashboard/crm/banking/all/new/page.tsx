@@ -113,7 +113,7 @@ export default function NewPaymentAccountPage() {
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <ZoruLabel>Opening Balance *</ZoruLabel>
-                                <ZoruInput name="openingBalance" type="number" defaultValue="0" required className="h-10 rounded-lg border-border bg-card text-[13px]" />
+                                <ZoruInput name="openingBalance" type="number" min="-100000000000" max="100000000000" step="0.01" defaultValue="0" required className="h-10 rounded-lg border-border bg-card text-[13px]" />
                             </div>
                             <div className="space-y-2">
                                 <ZoruLabel>As of *</ZoruLabel>

@@ -18,7 +18,7 @@ export function ZoruToaster() {
   const { toasts } = useZoruToast();
 
   return (
-    <ZoruToastProvider>
+    <ZoruToastProvider duration={5000}>
       {toasts.map(({ id, title, description, action, ...props }) => (
         <ZoruToast key={id} {...props}>
           <div className="flex-1 min-w-0">

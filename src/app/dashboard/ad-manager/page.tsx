@@ -29,7 +29,7 @@ import {
 
 import { cn } from '@/lib/utils';
 import { useAdManager } from '@/context/ad-manager-context';
-import { useAdManagerShell } from './layout';
+import { useAdManagerShell } from '@/context/ad-manager-shell-context';
 import { getInsights, listCampaigns } from '@/app/actions/ad-manager.actions';
 import { formatMoney, formatNumber, formatPercent } from '@/components/wabasimplify/ad-manager/constants';
 import {

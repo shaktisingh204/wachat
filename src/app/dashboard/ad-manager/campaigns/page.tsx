@@ -17,7 +17,7 @@ import {
 import { cn } from '@/lib/utils';
 import { ZoruButton, ZoruCard, ZoruBadge } from '@/components/zoruui';
 import { useAdManager } from '@/context/ad-manager-context';
-import { useAdManagerShell } from '../layout';
+import { useAdManagerShell } from '@/context/ad-manager-shell-context';
 import { AmBreadcrumb } from '../_components/am-page-shell';
 import {
   listCampaigns,
