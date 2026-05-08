@@ -126,7 +126,7 @@ export default function AddLeadPage() {
                         <div className="grid md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <ZoruLabel htmlFor="value" className="text-foreground">Estimated Value</ZoruLabel>
-                                <ZoruInput id="value" name="value" type="number" placeholder="e.g. 50000" className="h-10 rounded-lg border-border bg-card text-[13px]" />
+                                <ZoruInput id="value" name="value" type="number" min={0} step="0.01" placeholder="e.g. 50000" className="h-10 rounded-lg border-border bg-card text-[13px]" />
                             </div>
                             <div className="space-y-2">
                                 <ZoruLabel htmlFor="currency" className="text-foreground">Currency</ZoruLabel>

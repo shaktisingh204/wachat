@@ -120,11 +120,14 @@ export async function saveCrmProduct(prevState: any, formData: FormData): Promis
         if(imageUrl) productData.images = [imageUrl];
         */
         // Handling base64 image if present (similar to existing code)
+        const imageUrl = formData.get('imageUrl') as string | null;
         const imageFile = formData.get('imageFile') as File | null;
         if (imageFile && imageFile.size > 0) {
             const buffer = Buffer.from(await imageFile.arrayBuffer());
             const dataUri = `data:${imageFile.type};base64,${buffer.toString('base64')}`;
             productData.images = [dataUri];
+        } else if (imageUrl) {
+            productData.images = [imageUrl];
         } else {
             // If editing and no new file, keep existing? Need logic. 
             // Ideally we shouldn't overwrite images unless explicit.

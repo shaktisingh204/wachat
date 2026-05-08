@@ -218,3 +218,47 @@ export async function saveSalesOrder(prevState: any, formData: FormData): Promis
         return { error: getErrorMessage(e) };
     }
 }
+
+export async function updateSalesOrderStatus(
+    orderId: string,
+    status: string,
+): Promise<{ success: boolean; error?: string }> {
+    if (!ObjectId.isValid(orderId)) return { success: false, error: 'Invalid sales order id.' };
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied.' };
+
+    const allowed = ['Draft', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled'];
+    if (!allowed.includes(status)) return { success: false, error: 'Invalid status.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const result = await db.collection('crm_sales_orders').updateOne(
+            { _id: new ObjectId(orderId), userId: new ObjectId(session.user._id) },
+            { $set: { status, updatedAt: new Date() } },
+        );
+        if (result.matchedCount === 0) return { success: false, error: 'Sales order not found.' };
+        revalidatePath('/dashboard/crm/sales/orders');
+        return { success: true };
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function deleteSalesOrder(orderId: string): Promise<{ success: boolean; error?: string }> {
+    if (!ObjectId.isValid(orderId)) return { success: false, error: 'Invalid sales order id.' };
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const result = await db.collection('crm_sales_orders').deleteOne({
+            _id: new ObjectId(orderId),
+            userId: new ObjectId(session.user._id),
+        });
+        if (result.deletedCount === 0) return { success: false, error: 'Sales order not found.' };
+        revalidatePath('/dashboard/crm/sales/orders');
+        return { success: true };
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}

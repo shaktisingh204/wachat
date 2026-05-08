@@ -1,14 +1,14 @@
 'use client';
-import { ZoruBadge, ZoruCard, ZoruInput, ZoruSkeleton, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow, useZoruToast } from '@/components/zoruui';
+import { ZoruAlertDialog, ZoruAlertDialogAction, ZoruAlertDialogCancel, ZoruAlertDialogContent, ZoruAlertDialogDescription, ZoruAlertDialogFooter, ZoruAlertDialogHeader, ZoruAlertDialogTitle, ZoruAlertDialogTrigger, ZoruBadge, ZoruCard, ZoruInput, ZoruSkeleton, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow, useZoruToast } from '@/components/zoruui';
 import { useState, useEffect, useCallback, useTransition } from 'react';
 import Link from 'next/link';
 import { useDebouncedCallback } from 'use-debounce';
-import { Search, Plus, Users, Building, LoaderCircle } from 'lucide-react';
+import { Search, Plus, Users, Building, LoaderCircle, Trash2 } from 'lucide-react';
 import { convertLeadToAccount } from '@/app/actions/worksuite/conversions.actions';
 
 import type { WithId } from 'mongodb';
 
-import { getCrmLeads } from '@/app/actions/crm-leads.actions';
+import { deleteCrmLead, getCrmLeads } from '@/app/actions/crm-leads.actions';
 import type { CrmLead } from '@/lib/definitions';
 
 import { CrmPageHeader } from '../../_components/crm-page-header';
@@ -69,6 +69,16 @@ export default function CrmAllLeadsPage() {
     setCurrentPage(1);
   }, 300);
 
+  const handleDelete = async (leadId: string) => {
+    const res = await deleteCrmLead(leadId);
+    if (res.success) {
+      toast({ title: 'Lead deleted' });
+      fetchData();
+    } else {
+      toast({ title: 'Delete failed', description: res.error, variant: 'destructive' });
+    }
+  };
+
   if (isLoading && leads.length === 0) return <LeadsPageSkeleton />;
 
   return (
@@ -120,7 +130,7 @@ export default function CrmAllLeadsPage() {
                 <ZoruTableHead className="text-muted-foreground">Source</ZoruTableHead>
                 <ZoruTableHead className="text-muted-foreground">Created</ZoruTableHead>
                 <ZoruTableHead className="text-muted-foreground">Follow-up</ZoruTableHead>
-                <ZoruTableHead className="text-muted-foreground w-[160px]">Action</ZoruTableHead>
+                <ZoruTableHead className="text-muted-foreground w-[220px] text-right">Actions</ZoruTableHead>
               </ZoruTableRow>
             </ZoruTableHeader>
             <ZoruTableBody>
@@ -167,41 +177,68 @@ export default function CrmAllLeadsPage() {
                           ? new Date(lead.nextFollowUp).toLocaleDateString()
                           : 'N/A'}
                       </ZoruTableCell>
-                      <ZoruTableCell>
-                        {(lead.status as string) === 'Converted' ? (
-                          <span className="text-[11.5px] text-muted-foreground">
-                            Converted
-                          </span>
-                        ) : (
-                          <button
-                            type="button"
-                            disabled={convertingId === lead._id.toString()}
-                            onClick={async () => {
-                              const id = lead._id.toString();
-                              setConvertingId(id);
-                              const res = await convertLeadToAccount(id);
-                              setConvertingId(null);
-                              if (res.success) {
-                                toast({ title: 'Converted to Account' });
-                                fetchData();
-                              } else {
-                                toast({
-                                  variant: 'destructive',
-                                  title: 'Conversion failed',
-                                  description: res.error,
-                                });
-                              }
-                            }}
-                            className="inline-flex items-center gap-1 rounded-md border border-border px-2.5 py-1 text-[11.5px] font-medium text-foreground hover:bg-muted disabled:opacity-60"
-                          >
-                            {convertingId === lead._id.toString() ? (
-                              <LoaderCircle className="h-3 w-3 animate-spin" />
-                            ) : (
-                              <Building className="h-3 w-3" />
-                            )}
-                            Convert to Account
-                          </button>
-                        )}
+                      <ZoruTableCell className="text-right">
+                        <div className="inline-flex items-center justify-end gap-1.5">
+                          {(lead.status as string) === 'Converted' ? (
+                            <span className="px-2 text-[11.5px] text-muted-foreground">
+                              Converted
+                            </span>
+                          ) : (
+                            <button
+                              type="button"
+                              disabled={convertingId === lead._id.toString()}
+                              onClick={async () => {
+                                const id = lead._id.toString();
+                                setConvertingId(id);
+                                const res = await convertLeadToAccount(id);
+                                setConvertingId(null);
+                                if (res.success) {
+                                  toast({ title: 'Converted to Account' });
+                                  fetchData();
+                                } else {
+                                  toast({
+                                    variant: 'destructive',
+                                    title: 'Conversion failed',
+                                    description: res.error,
+                                  });
+                                }
+                              }}
+                              className="inline-flex items-center gap-1 rounded-md border border-border px-2.5 py-1 text-[11.5px] font-medium text-foreground hover:bg-muted disabled:opacity-60"
+                            >
+                              {convertingId === lead._id.toString() ? (
+                                <LoaderCircle className="h-3 w-3 animate-spin" />
+                              ) : (
+                                <Building className="h-3 w-3" />
+                              )}
+                              Convert
+                            </button>
+                          )}
+                          <ZoruAlertDialog>
+                            <ZoruAlertDialogTrigger asChild>
+                              <button
+                                type="button"
+                                className="inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                                aria-label="Delete lead"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </button>
+                            </ZoruAlertDialogTrigger>
+                            <ZoruAlertDialogContent>
+                              <ZoruAlertDialogHeader>
+                                <ZoruAlertDialogTitle>Delete this lead?</ZoruAlertDialogTitle>
+                                <ZoruAlertDialogDescription>
+                                  This permanently removes "{lead.title}". This action cannot be undone.
+                                </ZoruAlertDialogDescription>
+                              </ZoruAlertDialogHeader>
+                              <ZoruAlertDialogFooter>
+                                <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+                                <ZoruAlertDialogAction onClick={() => handleDelete(lead._id.toString())}>
+                                  Delete
+                                </ZoruAlertDialogAction>
+                              </ZoruAlertDialogFooter>
+                            </ZoruAlertDialogContent>
+                          </ZoruAlertDialog>
+                        </div>
                       </ZoruTableCell>
                     </ZoruTableRow>
                   );

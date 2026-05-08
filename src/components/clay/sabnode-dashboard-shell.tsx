@@ -33,6 +33,7 @@ import {
   useTabRouteSync,
   useTabsKeyboard,
 } from '@/components/tabs';
+import { CommandPaletteProvider } from '@/components/crm/command-palette';
 
 /* ── Bootstrap cache (survives unmount/remount across navigations) ─── */
 
@@ -228,9 +229,11 @@ export function SabNodeDashboardShell({ children }: SabNodeDashboardShellProps) 
       user={data.user as Parameters<typeof ProjectProvider>[0]['user']}
     >
       <AdManagerProvider>
-        <TabsProvider>
-          <ShellLayout>{main}</ShellLayout>
-        </TabsProvider>
+        <CommandPaletteProvider>
+          <TabsProvider>
+            <ShellLayout>{main}</ShellLayout>
+          </TabsProvider>
+        </CommandPaletteProvider>
       </AdManagerProvider>
     </ProjectProvider>
   );

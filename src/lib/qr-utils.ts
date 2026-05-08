@@ -7,6 +7,30 @@ export const normalizeHex = (color: string | undefined): string => {
     return `#${clean}`;
 };
 
+export const QR_FIELD_LIMITS = {
+    name: 120,
+    url: 2048,
+    text: 1000,
+    email: 254,
+    emailSubject: 140,
+    emailBody: 1000,
+    phone: 20,
+    smsMessage: 320,
+    wifiSsid: 64,
+    wifiPassword: 128,
+};
+
+export const normalizeQrWebsiteUrl = (value: string): string => {
+    const trimmed = value.trim();
+    if (!trimmed) return '';
+    if (/^[a-z][a-z0-9+.-]*:/i.test(trimmed)) return trimmed;
+    return `https://${trimmed}`;
+};
+
+export const filterPhoneLikeInput = (value: string, maxLength = QR_FIELD_LIMITS.phone): string => {
+    return value.replace(/[^\d+]/g, '').slice(0, maxLength);
+};
+
 /**
  * Downloads a QR code as an image/svg.
  * Handles the "Full Black" bug by ensuring proper background color application.

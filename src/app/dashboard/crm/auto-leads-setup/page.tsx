@@ -8,6 +8,7 @@ import {
   ZoruCard,
   ZoruDialog,
   ZoruDialogContent,
+  ZoruDialogClose,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
@@ -81,7 +82,9 @@ export default async function AutoLeadsSetupPage() {
                                     </div>
                                 </div>
                                 <ZoruDialogFooter>
-                                    <ZoruButton type="submit">Save Rule</ZoruButton>
+                                    <ZoruDialogClose asChild>
+                                        <ZoruButton type="submit">Save Rule</ZoruButton>
+                                    </ZoruDialogClose>
                                 </ZoruDialogFooter>
                             </form>
                         </ZoruDialogContent>

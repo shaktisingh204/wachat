@@ -267,7 +267,7 @@ export async function importCrmContacts(prevState: any, formData: FormData): Pro
 }
 
 
-export async function addCrmNote(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
+export async function addCrmNote(prevState: any, formData: FormData): Promise<{ message?: string, error?: string, note?: { content: string; author: string; createdAt: string } }> {
     const session = await getSession();
     if (!session?.user) return { error: "Access denied" };
 
@@ -298,7 +298,14 @@ export async function addCrmNote(prevState: any, formData: FormData): Promise<{ 
             { $push: { notes: { $each: [newNote], $position: 0 } } } as any
         );
         revalidatePath(`/dashboard/crm/${recordType}s/${recordId}`);
-        return { message: "Note added." };
+        return {
+            message: "Note added.",
+            note: {
+                content: newNote.content,
+                author: newNote.author,
+                createdAt: newNote.createdAt.toISOString(),
+            },
+        };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
     }

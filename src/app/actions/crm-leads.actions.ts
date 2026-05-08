@@ -20,7 +20,7 @@ const leadSchema = z.object({
     country: z.string().optional().nullable(),
     status: z.string().optional().nullable(),
     source: z.string().optional().nullable(),
-    value: z.coerce.number().optional().default(0),
+    value: z.coerce.number().min(0, 'Value must be zero or greater.').optional().default(0),
     currency: z.string().optional().nullable(),
     assignedTo: z.string().optional().nullable(),
     pipelineId: z.string().optional().nullable(),
@@ -119,5 +119,28 @@ export async function addCrmLead(prevState: any, formData: FormData, apiUser?: W
         return { message: 'Lead added successfully.', leadId: result.insertedId.toString() };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
+    }
+}
+
+export async function deleteCrmLead(leadId: string): Promise<{ success: boolean; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied.' };
+    if (!ObjectId.isValid(leadId)) return { success: false, error: 'Invalid lead id.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const result = await db.collection('crm_leads').deleteOne({
+            _id: new ObjectId(leadId),
+            userId: new ObjectId(session.user._id),
+        });
+
+        if (result.deletedCount === 0) {
+            return { success: false, error: 'Lead not found.' };
+        }
+
+        revalidatePath('/dashboard/crm/sales-crm/all-leads');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
