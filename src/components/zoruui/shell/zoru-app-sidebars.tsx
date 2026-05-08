@@ -28,6 +28,7 @@ import {
   Bookmark,
   BookOpen,
   Briefcase,
+  Brush,
   Building,
   Building2,
   Calendar,
@@ -156,6 +157,7 @@ function leaf(
   href: string,
   IconComp: Icon,
   pathname: string,
+  options?: { exact?: boolean },
 ) {
   return {
     id,
@@ -163,7 +165,8 @@ function leaf(
     href,
     icon: <IconComp />,
     active:
-      pathname === href || (href !== "/" && pathname.startsWith(href + "/")),
+      pathname === href ||
+      (!options?.exact && href !== "/" && pathname.startsWith(href + "/")),
   };
 }
 
@@ -682,7 +685,8 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         label: "Sales",
         items: [
           leaf("sales-crm", "Pipeline", "/dashboard/crm/sales-crm", TrendingUp, p),
-          leaf("sales", "Sales", "/dashboard/crm/sales", CircleDollarSign, p),
+          leaf("sales", "Sales", "/dashboard/crm/sales", CircleDollarSign, p, { exact: true }),
+          leaf("invoices", "Invoices", "/dashboard/crm/sales/invoices", Receipt, p),
           leaf("deals", "Deals", "/dashboard/crm/deals", Trophy, p),
           leaf("contracts", "Contracts", "/dashboard/crm/contracts", FileText, p),
           leaf("contacts", "Contacts", "/dashboard/crm/contacts", Users, p),
@@ -858,7 +862,7 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         id: "seo-overview",
         label: "Overview",
         items: [
-          leaf("home", "Home", "/dashboard/seo", Home, p),
+          leaf("home", "Home", "/dashboard/seo", Home, p, { exact: true }),
           leaf("brand-radar", "Brand radar", "/dashboard/seo/brand-radar", Compass, p),
           leaf("site-explorer", "Site explorer", "/dashboard/seo/site-explorer", Search, p),
           leaf("experts", "Experts", "/dashboard/seo/experts", Users, p),
@@ -926,6 +930,32 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         items: [
           leaf("config", "Config", "/dashboard/sms/config", Settings, p),
           leaf("developer", "Developer", "/dashboard/sms/developer", Code2, p),
+        ],
+      },
+    ],
+  },
+
+  /* ─────────────────────────────  Website Builder  ───────────────── */
+  {
+    prefix: "/dashboard/website-builder",
+    heading: "Website Builder",
+    caption: "Sites, pages & publishing",
+    build: (p) => [
+      {
+        id: "website-main",
+        label: "Workspace",
+        items: [
+          leaf("home", "Websites", "/dashboard/website-builder", Globe, p, { exact: true }),
+        ],
+      },
+      {
+        id: "website-tools",
+        label: "Tools",
+        items: [
+          leaf("portfolio", "Portfolio sites", "/dashboard/portfolio", Brush, p),
+          leaf("links", "URL shortener", "/dashboard/url-shortener", LinkIcon, p),
+          leaf("qr", "QR codes", "/dashboard/qr-code-maker", QrCode, p),
+          leaf("seo", "SEO projects", "/dashboard/seo", Search, p),
         ],
       },
     ],

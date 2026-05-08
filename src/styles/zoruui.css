@@ -294,8 +294,20 @@
 /* …but DON'T flatten gradients on the dock or sidebar — they're
  * intentionally styled within Zoru components and should keep their
  * subtle aurora/glass effects. */
-.zoruui nav[aria-label="App dock"] [class*="bg-gradient-to-"],
-.zoruui aside [class*="bg-gradient-to-"] {
-  background-image: revert !important;
-  background-color: revert !important;
+.zoruui nav[aria-label="App dock"] [class*="bg-gradient-to-r"],
+.zoruui aside [class*="bg-gradient-to-r"] {
+  background-image: linear-gradient(to right, var(--tw-gradient-stops)) !important;
+  background-color: transparent !important;
+}
+
+.zoruui nav[aria-label="App dock"] [class*="bg-gradient-to-b"],
+.zoruui aside [class*="bg-gradient-to-b"] {
+  background-image: linear-gradient(to bottom, var(--tw-gradient-stops)) !important;
+  background-color: transparent !important;
+}
+
+.zoruui nav[aria-label="App dock"] [class*="bg-gradient-to-br"],
+.zoruui aside [class*="bg-gradient-to-br"] {
+  background-image: linear-gradient(to bottom right, var(--tw-gradient-stops)) !important;
+  background-color: transparent !important;
 }

@@ -88,29 +88,36 @@ export function FlowCard({ flow, onDelete, onDuplicate, onRename, onExport }: Pr
       onClick={handleCardClick}
       onKeyDown={(e) => e.key === 'Enter' && handleCardClick()}
       className={cn(
-        'group relative flex flex-col rounded-xl border border-zinc-200 dark:border-zinc-800',
-        'bg-white dark:bg-zinc-900 overflow-hidden cursor-pointer',
+        'group relative flex flex-col rounded-xl border border-zoru-line',
+        'bg-zoru-bg overflow-hidden cursor-pointer',
         'shadow-sm hover:shadow-md transition-all duration-200',
-        'hover:border-amber-300 dark:hover:border-amber-700',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500',
+        'hover:border-zoru-line-strong',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-ink/30',
       )}
     >
       {/* ── Thumbnail ─────────────────────────────────────────────────── */}
-      <div className="relative h-[130px] bg-gradient-to-br from-amber-400 via-orange-400 to-amber-600 flex items-center justify-center overflow-hidden">
-        {/* Decorative circles */}
-        <div className="absolute -top-6 -right-6 h-24 w-24 rounded-full bg-white/10" />
-        <div className="absolute -bottom-4 -left-4 h-16 w-16 rounded-full bg-white/10" />
-        <div className="absolute top-6 left-6 h-10 w-10 rounded-full bg-white/10" />
-        {/* Flow icon */}
-        <LuWorkflow className="h-12 w-12 text-white/90" strokeWidth={1.5} />
+      <div className="relative flex h-[130px] items-center justify-center overflow-hidden border-b border-zoru-line bg-zoru-surface-2">
+        <div className="absolute inset-0 opacity-60 [background-image:linear-gradient(hsl(var(--zoru-line))_1px,transparent_1px),linear-gradient(90deg,hsl(var(--zoru-line))_1px,transparent_1px)] [background-size:22px_22px]" />
+        <div className="relative flex w-44 items-center justify-between">
+          {[0, 1, 2].map((node) => (
+            <React.Fragment key={node}>
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-zoru-line bg-zoru-bg shadow-sm">
+                <LuWorkflow className="h-5 w-5 text-zoru-ink" strokeWidth={1.7} />
+              </div>
+              {node < 2 ? (
+                <div className="h-px flex-1 bg-zoru-line-strong" />
+              ) : null}
+            </React.Fragment>
+          ))}
+        </div>
 
         {/* Status badge — top right corner */}
         <span
           className={cn(
             'absolute top-2.5 right-2.5 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold backdrop-blur-sm',
             isPublished
-              ? 'bg-green-50/90 text-green-700 border-green-200'
-              : 'bg-amber-50/90 text-amber-700 border-amber-200',
+              ? 'bg-zoru-success/10 text-zoru-success-ink border-zoru-success/30'
+              : 'bg-zoru-warning/15 text-zoru-warning-ink border-zoru-warning/30',
           )}
         >
           <LuCircle
@@ -122,7 +129,7 @@ export function FlowCard({ flow, onDelete, onDuplicate, onRename, onExport }: Pr
         {/* Hover action overlay */}
         <div
           className={cn(
-            'absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200',
+            'absolute inset-0 bg-zoru-ink/55 opacity-0 group-hover:opacity-100 transition-opacity duration-200',
             'flex items-center justify-center gap-2',
           )}
           onClick={(e) => e.stopPropagation()}
@@ -189,11 +196,11 @@ export function FlowCard({ flow, onDelete, onDuplicate, onRename, onExport }: Pr
             onBlur={commitRename}
             onKeyDown={handleKeyDown}
             onClick={(e) => e.stopPropagation()}
-            className="w-full rounded-md border border-amber-400 bg-zinc-50 dark:bg-zinc-800 px-2 py-0.5 text-[13px] font-semibold text-zinc-900 dark:text-zinc-100 outline-none ring-2 ring-amber-500/30"
+            className="w-full rounded-md border border-zoru-line-strong bg-zoru-bg px-2 py-0.5 text-[13px] font-semibold text-zoru-ink outline-none ring-2 ring-zoru-ink/20"
           />
         ) : (
           <p
-            className="text-[13px] font-semibold text-zinc-900 dark:text-zinc-100 truncate leading-snug"
+            className="truncate text-[13px] font-semibold leading-snug text-zoru-ink"
             title={flow.name}
             onDoubleClick={handleDoubleClick}
           >
@@ -202,11 +209,11 @@ export function FlowCard({ flow, onDelete, onDuplicate, onRename, onExport }: Pr
         )}
 
         <div className="flex items-center justify-between mt-0.5">
-          <span className="text-[10.5px] text-zinc-400 flex items-center gap-1">
+          <span className="flex items-center gap-1 text-[10.5px] text-zoru-ink-muted">
             <LuZap className="h-3 w-3" />
             {flow.groups?.length ?? 0} groups
           </span>
-          <span className="text-[10.5px] text-zinc-400">{updatedLabel}</span>
+          <span className="text-[10.5px] text-zoru-ink-muted">{updatedLabel}</span>
         </div>
       </div>
     </div>
@@ -236,11 +243,11 @@ function ActionIconBtn({
         onClick();
       }}
       className={cn(
-        'flex h-8 w-8 items-center justify-center rounded-full text-white',
+        'flex h-8 w-8 items-center justify-center rounded-full border shadow-sm',
         'backdrop-blur-sm transition-colors duration-150',
         danger
-          ? 'bg-red-500/80 hover:bg-red-500'
-          : 'bg-white/20 hover:bg-white/40',
+          ? 'border-zoru-danger bg-zoru-danger text-zoru-on-danger hover:bg-zoru-danger/90'
+          : 'border-white/70 bg-white text-zoru-ink hover:bg-zoru-surface',
       )}
     >
       {icon}

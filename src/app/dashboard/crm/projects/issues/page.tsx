@@ -31,18 +31,18 @@ import type {
   WsProject,
 } from '@/lib/worksuite/project-types';
 
-const STATUS_TONES: Record<string, 'default' | 'success' | 'warning' | 'destructive' | 'secondary'> = {
+const STATUS_TONES: Record<string, 'default' | 'success' | 'warning' | 'danger' | 'secondary'> = {
   open: 'warning',
   in_progress: 'default',
   resolved: 'success',
   closed: 'secondary',
 };
 
-const PRIORITY_TONES: Record<string, 'default' | 'success' | 'warning' | 'destructive' | 'secondary'> = {
+const PRIORITY_TONES: Record<string, 'default' | 'success' | 'warning' | 'danger' | 'secondary'> = {
   low: 'secondary',
   medium: 'default',
   high: 'warning',
-  urgent: 'destructive',
+  urgent: 'danger',
 };
 
 type IssueRow = WsIssue & { _id: string };

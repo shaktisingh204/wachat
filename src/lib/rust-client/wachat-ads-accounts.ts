@@ -76,7 +76,7 @@ export interface ActivitiesQuery {
 //  Internals
 // ---------------------------------------------------------------------------
 
-function qs(params: Record<string, string | number | undefined | null>): string {
+function qs(params: Record<string, string | number | undefined | null> | SpendQuery | ActivitiesQuery): string {
     const search = new URLSearchParams();
     for (const [k, v] of Object.entries(params)) {
         if (v === undefined || v === null || v === '') continue;

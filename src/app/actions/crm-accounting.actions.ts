@@ -7,6 +7,7 @@ import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/index.ts';
 import type { CrmAccountGroup, CrmChartOfAccount, CrmVoucherEntry } from '@/lib/definitions';
+import { coerceFiniteMoney } from '@/lib/crm/number-safety';
 import { getErrorMessage } from '@/lib/utils';
 
 export async function getCrmAccountGroups(): Promise<WithId<CrmAccountGroup>[]> {
@@ -217,7 +218,7 @@ export async function saveCrmChartOfAccount(prevState: any, formData: FormData):
             userId: new ObjectId(session.user._id),
             name: formData.get('name') as string,
             accountGroupId: new ObjectId(formData.get('accountGroupId') as string),
-            openingBalance: Number(formData.get('openingBalance')),
+            openingBalance: coerceFiniteMoney(formData.get('openingBalance')),
             balanceType: formData.get('balanceType') as 'Cr' | 'Dr',
             currency: formData.get('currency') as string,
             description: formData.get('description') as string | undefined,

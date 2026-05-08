@@ -113,7 +113,7 @@ export default function VendorLeadsPage() {
 
                     <div className="flex flex-col gap-3">
                         <SabFileToFileButton
-                            accept="text/csv,.csv"
+                            accept="document"
                             variant="outline"
                             onPickFile={(file) => importCsv(file)}
                         >

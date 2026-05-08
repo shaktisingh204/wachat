@@ -20,7 +20,7 @@ import { useToast } from '@/hooks/use-toast';
 import type { WithId, Project, PaymentConfiguration } from '@/lib/definitions';
 import { Alert, AlertTitle, AlertDescription } from '../ui/alert';
 
-const initialState = { message: undefined, error: undefined, oauth_url: undefined };
+const initialState: any = { message: undefined, error: undefined, oauth_url: undefined };
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -39,7 +39,7 @@ interface RegenerateOauthDialogProps {
 
 export function RegenerateOauthDialog({ project, config, onSuccess }: RegenerateOauthDialogProps) {
   const [open, setOpen] = useState(false);
-  const [state, formAction] = useActionState(handleRegenerateOauthLink, initialState);
+  const [state, formAction] = useActionState<any, FormData>(handleRegenerateOauthLink, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
 

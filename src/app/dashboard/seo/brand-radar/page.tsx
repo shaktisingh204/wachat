@@ -31,8 +31,10 @@ const chartConfigSentiment = { count: { label: 'Count', color: 'hsl(var(--chart-
 const getSentimentVariant = (sentiment: string): 'success' | 'danger' | 'secondary' => {
     switch (sentiment) {
         case 'Positive':
+        case 'positive':
             return 'success';
         case 'Negative':
+        case 'negative':
             return 'danger';
         default:
             return 'secondary';

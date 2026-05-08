@@ -97,7 +97,7 @@ export const SeoProjectCard = React.memo(function SeoProjectCard({ project }: Se
                                     if (res?.error) {
                                         window.alert(res.error);
                                     } else {
-                                        router.refresh();
+                                        window.location.reload();
                                     }
                                 }}
                             >

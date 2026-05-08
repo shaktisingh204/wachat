@@ -114,7 +114,7 @@ export function CrmChartOfAccountDialog({ isOpen, onOpenChange, onSave, accountG
                                     </div>
                                     <div className="space-y-2">
                                         <ZoruLabel className="text-xs text-zoru-ink">Opening Balance *</ZoruLabel>
-                                        <ZoruInput id="openingBalance" name="openingBalance" type="number" step="0.01" required defaultValue={initialData?.openingBalance || 0} />
+                                        <ZoruInput id="openingBalance" name="openingBalance" type="number" step="0.01" min="-100000000000" max="100000000000" required defaultValue={initialData?.openingBalance || 0} />
                                     </div>
                                 </div>
                                 <ZoruButton variant="link" className="p-0 h-auto mt-2 text-xs" disabled>Add Opening Balance in Other Currency</ZoruButton>
@@ -130,7 +130,7 @@ export function CrmChartOfAccountDialog({ isOpen, onOpenChange, onSave, accountG
                             </div>
                         </div>
                     </div>
-                    <ZoruDialogFooter className="px-6 pb-6 pt-2">
+                    <ZoruDialogFooter className="shrink-0 border-t border-zoru-line bg-zoru-bg px-6 pb-6 pt-4">
                         <ZoruButton type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</ZoruButton>
                         <SubmitButton isEditing={isEditing} />
                     </ZoruDialogFooter>

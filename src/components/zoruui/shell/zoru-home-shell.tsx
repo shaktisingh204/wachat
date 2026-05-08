@@ -257,7 +257,7 @@ function ZoruHomeShellContent({
           }
         />
 
-        <main className={cn("flex-1 overflow-y-auto px-6 py-6 pb-24")}>
+        <main className={cn("flex-1 overflow-y-auto px-6 py-6 pb-36")}>
           {children}
         </main>
 
@@ -266,7 +266,7 @@ function ZoruHomeShellContent({
             (rendered ABOVE the icons) is never clipped. The
             `max-w-[calc(100vw-1.5rem)]` cap lets the dock spill wider
             than its content but never past the viewport. */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-3 z-30 flex justify-center px-3">
+        <div className="pointer-events-none absolute inset-x-0 bottom-5 z-30 flex justify-center px-3">
           <div className="pointer-events-auto max-w-[calc(100vw-1.5rem)] overflow-visible rounded-[26px] border border-zoru-line bg-zoru-bg/95 p-1 shadow-[var(--zoru-shadow-lg)] backdrop-blur">
             <ZoruDock iconSize={44} static>
               {DOCK_APPS.map((app) => {

@@ -20,8 +20,10 @@ export default function PublicPortalLayout({
           <div className="flex items-center gap-2">
             <div
               aria-hidden="true"
-              className="h-8 w-8 rounded-lg bg-accent"
-            />
+              className="flex h-8 w-8 items-center justify-center rounded-lg bg-foreground text-[13px] font-semibold text-background"
+            >
+              S
+            </div>
             <span className="text-[14px] font-semibold text-foreground">
               Customer Portal
             </span>

@@ -4,7 +4,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "./lib/cn";
 
 export const zoruCardVariants = cva(
-  "rounded-[var(--zoru-radius-lg)] bg-zoru-bg text-zoru-ink transition-shadow",
+  "rounded-[var(--zoru-radius-lg)] bg-zoru-bg p-5 text-zoru-ink transition-shadow",
   {
     variants: {
       variant: {

@@ -27,6 +27,10 @@ import { cn } from '@/lib/utils';
 import { useProject } from '@/context/project-context';
 import { AdManagerProvider, useAdManager } from '@/context/ad-manager-context';
 import {
+  AdManagerShellContext,
+  type AdManagerShellState,
+} from '@/context/ad-manager-shell-context';
+import {
   ZoruButton,
   ZoruCard,
   ZoruCardContent,
@@ -38,25 +42,6 @@ import {
 } from '@/components/zoruui';
 import { Calendar } from '@/components/ui/calendar';
 import { DATE_PRESETS } from '@/components/wabasimplify/ad-manager/constants';
-
-/* ── Shell context ─────────────────────────────────────────────── */
-
-export type AdManagerShellState = {
-  search: string;
-  setSearch: (s: string) => void;
-  date: DateRange | undefined;
-  setDate: (d: DateRange | undefined) => void;
-  preset: string;
-  setPreset: (p: string) => void;
-};
-
-const AdManagerShellContext = React.createContext<AdManagerShellState | null>(null);
-
-export function useAdManagerShell() {
-  const ctx = React.useContext(AdManagerShellContext);
-  if (!ctx) throw new Error('useAdManagerShell must be used inside ad-manager layout');
-  return ctx;
-}
 
 /* ── Feature lock overlay ──────────────────────────────────────── */
 

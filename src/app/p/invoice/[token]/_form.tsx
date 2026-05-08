@@ -100,6 +100,7 @@ export function InvoicePayForm({
       <div className="mt-4 flex justify-end">
         <ClayButton
           variant="obsidian"
+          className="min-w-40 bg-foreground text-background hover:bg-foreground/90"
           onClick={submit}
           disabled={busy}
           leading={

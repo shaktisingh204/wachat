@@ -6,6 +6,7 @@ import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import type { CrmPaymentAccount, CrmVoucherEntry, BankAccountDetails } from '@/lib/definitions';
+import { coerceFiniteMoney } from '@/lib/crm/number-safety';
 import { getErrorMessage } from '@/lib/utils';
 
 export async function getCrmPaymentAccounts(): Promise<WithId<CrmPaymentAccount>[]> {
@@ -64,7 +65,7 @@ export async function saveCrmPaymentAccount(prevState: any, formData: FormData):
 
     try {
         const openingBalanceStr = formData.get('openingBalance') as string;
-        const openingBalance = openingBalanceStr ? Number(openingBalanceStr) : 0;
+        const openingBalance = coerceFiniteMoney(openingBalanceStr);
 
         const openingBalanceDateStr = formData.get('openingBalanceDate') as string;
         const openingBalanceDate = openingBalanceDateStr ? new Date(openingBalanceDateStr) : new Date();
@@ -84,7 +85,7 @@ export async function saveCrmPaymentAccount(prevState: any, formData: FormData):
             accountName: formData.get('accountName') as string,
             accountType,
             status: formData.get('status') === 'on' ? 'active' : 'inactive',
-            openingBalance: isNaN(openingBalance) ? 0 : openingBalance,
+            openingBalance,
             openingBalanceDate: openingBalanceDate,
             currency: formData.get('currency') as string,
             isDefault: formData.get('isDefault') === 'on',
