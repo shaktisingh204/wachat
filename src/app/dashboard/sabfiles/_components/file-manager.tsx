@@ -5,7 +5,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
     ChevronRight,
+    Copy,
     Download,
+    ExternalLink,
     File as FileIcon,
     FileImage,
     FileText,
@@ -24,6 +26,7 @@ import {
 } from 'lucide-react';
 
 import {
+    ZoruBadge,
     ZoruButton,
     ZoruCard,
     ZoruCardContent,
@@ -61,6 +64,7 @@ import type {
     SabfilesBreadcrumbEntry,
     SabfilesNode,
 } from '@/lib/rust-client/sabfiles';
+import { getSabfilesOpenIntent } from '@/lib/sabfiles/share-ui';
 
 type View = 'grid' | 'list';
 
@@ -134,6 +138,7 @@ export function FileManager({
     const [sharePassword, setSharePassword] = React.useState('');
     const [shareDownload, setShareDownload] = React.useState(true);
     const [shareUrl, setShareUrl] = React.useState<string | null>(null);
+    const [actionTarget, setActionTarget] = React.useState<SabfilesNode | null>(null);
     const [confirmDelete, setConfirmDelete] = React.useState(false);
     const fileInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -462,6 +467,22 @@ export function FileManager({
         [toast],
     );
 
+    const copyDownloadLink = React.useCallback(
+        async (node: SabfilesNode) => {
+            if (node.type !== 'file') return;
+            const res = await getDownloadUrl(node.id);
+            if ('error' in res) {
+                toast({ title: 'Copy failed', description: res.error, variant: 'destructive' });
+                return;
+            }
+            navigator.clipboard?.writeText(res.url).then(
+                () => toast({ title: 'Temporary file URL copied' }),
+                () => toast({ title: 'Copy failed', variant: 'destructive' }),
+            );
+        },
+        [toast],
+    );
+
     const onCopyShare = React.useCallback(() => {
         if (!shareUrl) return;
         navigator.clipboard?.writeText(shareUrl).then(
@@ -515,10 +536,10 @@ export function FileManager({
                     selected={selected}
                     onToggle={toggleSelect}
                     onOpen={(node) => {
-                        if (node.type === 'folder') {
+                        if (getSabfilesOpenIntent(node) === 'navigate') {
                             router.push(`/dashboard/sabfiles/folder/${node.id}`);
                         } else {
-                            void downloadOne(node);
+                            setActionTarget(node);
                         }
                     }}
                     onContext={(n, action) => handleNodeAction(n, action)}
@@ -529,10 +550,10 @@ export function FileManager({
                     selected={selected}
                     onToggle={toggleSelect}
                     onOpen={(node) => {
-                        if (node.type === 'folder') {
+                        if (getSabfilesOpenIntent(node) === 'navigate') {
                             router.push(`/dashboard/sabfiles/folder/${node.id}`);
                         } else {
-                            void downloadOne(node);
+                            setActionTarget(node);
                         }
                     }}
                     onContext={(n, action) => handleNodeAction(n, action)}
@@ -665,6 +686,109 @@ export function FileManager({
                 </ZoruDialogContent>
             </ZoruDialog>
 
+            {/* File action dialog */}
+            <ZoruDialog open={!!actionTarget} onOpenChange={(o) => !o && setActionTarget(null)}>
+                <ZoruDialogContent className="max-w-xl">
+                    <ZoruDialogHeader>
+                        <ZoruDialogTitle className="break-words">{actionTarget?.name}</ZoruDialogTitle>
+                        <ZoruDialogDescription>
+                            Choose what you want to do with this file.
+                        </ZoruDialogDescription>
+                    </ZoruDialogHeader>
+                    {actionTarget && (
+                        <div className="grid gap-4">
+                            <div className="flex items-center gap-3 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-surface p-3">
+                                <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-[var(--zoru-radius)] bg-zoru-bg">
+                                    {actionTarget.url && actionTarget.mime?.startsWith('image/') ? (
+                                        <img
+                                            src={actionTarget.url}
+                                            alt={actionTarget.name}
+                                            className="h-full w-full object-cover"
+                                        />
+                                    ) : (
+                                        <span className="[&>svg]:h-7 [&>svg]:w-7">
+                                            {fileIconFor(actionTarget)}
+                                        </span>
+                                    )}
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                    <div className="truncate text-sm font-medium text-zoru-ink">
+                                        {actionTarget.name}
+                                    </div>
+                                    <div className="mt-1 flex flex-wrap items-center gap-2">
+                                        <ZoruBadge variant="secondary">
+                                            {actionTarget.mime || 'File'}
+                                        </ZoruBadge>
+                                        <ZoruBadge variant="ghost">{formatSize(actionTarget.size)}</ZoruBadge>
+                                        {actionTarget.shareToken && (
+                                            <ZoruBadge variant="success">
+                                                <Share2 /> Shared
+                                            </ZoruBadge>
+                                        )}
+                                        {actionTarget.starred && (
+                                            <ZoruBadge variant="warning">
+                                                <Star /> Starred
+                                            </ZoruBadge>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="grid gap-2 sm:grid-cols-2">
+                                <ZoruButton onClick={() => void downloadOne(actionTarget)}>
+                                    <ExternalLink /> Open preview
+                                </ZoruButton>
+                                <ZoruButton variant="outline" onClick={() => void downloadOne(actionTarget)}>
+                                    <Download /> Download
+                                </ZoruButton>
+                                <ZoruButton variant="outline" onClick={() => void copyDownloadLink(actionTarget)}>
+                                    <Copy /> Copy temporary URL
+                                </ZoruButton>
+                                <ZoruButton
+                                    variant="outline"
+                                    onClick={() => {
+                                        setActionTarget(null);
+                                        openShareDialog(actionTarget);
+                                    }}
+                                >
+                                    <Share2 /> Share
+                                </ZoruButton>
+                                <ZoruButton
+                                    variant="ghost"
+                                    onClick={() => {
+                                        setActionTarget(null);
+                                        setRenameTarget(actionTarget);
+                                        setRenameDraft(actionTarget.name);
+                                    }}
+                                >
+                                    <Pencil /> Rename
+                                </ZoruButton>
+                                <ZoruButton
+                                    variant="ghost"
+                                    onClick={() => handleNodeAction(actionTarget, 'star')}
+                                >
+                                    <Star /> {actionTarget.starred ? 'Unstar' : 'Star'}
+                                </ZoruButton>
+                            </div>
+                            <div className="flex justify-between gap-2 border-t border-zoru-line pt-3">
+                                <ZoruButton variant="ghost" onClick={() => setActionTarget(null)}>
+                                    Close
+                                </ZoruButton>
+                                <ZoruButton
+                                    variant="destructive"
+                                    onClick={() => {
+                                        setActionTarget(null);
+                                        setSelected(new Set([actionTarget.id]));
+                                        setConfirmDelete(true);
+                                    }}
+                                >
+                                    <Trash2 /> Move to trash
+                                </ZoruButton>
+                            </div>
+                        </div>
+                    )}
+                </ZoruDialogContent>
+            </ZoruDialog>
+
             {/* Confirm trash dialog */}
             <ZoruDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
                 <ZoruDialogContent className="max-w-sm">
@@ -716,8 +840,12 @@ export function FileManager({
                 return;
             case 'star':
                 void starNodes([node.id], !node.starred, parentId).then(() => {
+                    const nextStarred = !node.starred;
                     setNodes((curr) =>
-                        curr.map((n) => (n.id === node.id ? { ...n, starred: !node.starred } : n)),
+                        curr.map((n) => (n.id === node.id ? { ...n, starred: nextStarred } : n)),
+                    );
+                    setActionTarget((curr) =>
+                        curr?.id === node.id ? { ...curr, starred: nextStarred } : curr,
                     );
                 });
                 return;
