@@ -203,6 +203,8 @@ export const sabfilesApi = {
         rustFetch<SabfilesOk>(`/v1/sabfiles/trash/empty`, { method: 'POST' }),
     download: (id: string) =>
         rustFetch<{ url: string }>(`/v1/sabfiles/nodes/${id}/download`),
+    preview: (id: string) =>
+        rustFetch<{ url: string }>(`/v1/sabfiles/nodes/${id}/preview`),
 
     createShare: (id: string, body: CreateShareBody) =>
         rustFetch<ShareResponse>(`/v1/sabfiles/nodes/${id}/share`, {
@@ -218,6 +220,10 @@ export const sabfilesApi = {
     publicShareDownload: (token: string, password?: string) =>
         rustPublicFetch<{ url: string }>(
             `/v1/sabfiles/share/${token}/download${qs({ password })}`,
+        ),
+    publicSharePreview: (token: string, password?: string) =>
+        rustPublicFetch<{ url: string }>(
+            `/v1/sabfiles/share/${token}/preview${qs({ password })}`,
         ),
 };
 

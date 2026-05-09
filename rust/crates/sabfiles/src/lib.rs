@@ -20,6 +20,7 @@
 //! PUT    /upload/proxy?key=...        upload through Rust to avoid browser R2 CORS
 //! POST   /upload/confirm              record file metadata after the PUT succeeded
 //! GET    /nodes/{id}/download         get a presigned GET URL (or public URL)
+//! GET    /nodes/{id}/preview          get a presigned inline preview URL
 //! PATCH  /nodes/{id}/rename           rename file or folder
 //! POST   /nodes/move                  move N nodes into a target folder
 //! POST   /nodes/star                  toggle star on N nodes
@@ -36,6 +37,7 @@
 //! POST   /nodes/{id}/share            create / update share token
 //! DELETE /nodes/{id}/share            revoke share
 //! GET    /share/{token}               PUBLIC — share landing payload (no auth)
+//! GET    /share/{token}/preview       PUBLIC — presigned inline preview URL
 //! GET    /share/{token}/download      PUBLIC — presigned download URL
 //! ```
 //!
@@ -69,10 +71,8 @@ where
     Router::new()
         // Public share routes first — no auth.
         .route("/share/{token}", get(handlers::share_view))
-        .route(
-            "/share/{token}/download",
-            get(handlers::share_download),
-        )
+        .route("/share/{token}/download", get(handlers::share_download))
+        .route("/share/{token}/preview", get(handlers::share_preview))
         // Browse / read.
         .route("/nodes", get(handlers::list_nodes))
         .route("/nodes/{id}", get(handlers::get_node))
@@ -85,6 +85,7 @@ where
         .route("/shared", get(handlers::list_shared))
         .route("/storage", get(handlers::storage_usage))
         .route("/nodes/{id}/download", get(handlers::node_download))
+        .route("/nodes/{id}/preview", get(handlers::node_preview))
         // Mutations.
         .route("/folders", post(handlers::create_folder))
         .route("/upload/presign", post(handlers::presign_upload))
