@@ -73,6 +73,11 @@ pub struct PresignUploadResponse {
 }
 
 #[derive(Debug, Clone, Deserialize)]
+pub struct ProxyUploadQuery {
+    pub key: String,
+}
+
+#[derive(Debug, Clone, Deserialize)]
 pub struct ConfirmUploadBody {
     pub key: String,
     pub name: String,

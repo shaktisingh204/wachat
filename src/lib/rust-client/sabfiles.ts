@@ -155,6 +155,15 @@ export const sabfilesApi = {
             method: 'POST',
             body: JSON.stringify(body),
         }),
+    proxyUpload: (key: string, body: BodyInit, contentType?: string) =>
+        rustFetch<SabfilesOk>(
+            `/v1/sabfiles/upload/proxy${qs({ key })}`,
+            {
+                method: 'PUT',
+                headers: contentType ? { 'Content-Type': contentType } : undefined,
+                body,
+            },
+        ),
     confirmUpload: (body: ConfirmUploadBody) =>
         rustFetch<SabfilesNodeResponse>(`/v1/sabfiles/upload/confirm`, {
             method: 'POST',
