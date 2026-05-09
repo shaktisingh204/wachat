@@ -27,6 +27,7 @@ use aws_sdk_s3::{
     Client,
     config::Builder as S3ConfigBuilder,
     presigning::PresigningConfig,
+    primitives::ByteStream,
     types::Delete as S3Delete,
     types::ObjectIdentifier,
 };
@@ -174,6 +175,32 @@ impl R2Client {
             .await
             .context("R2 presign GET failed")?;
         Ok(presigned.uri().to_string())
+    }
+
+    /// Upload bytes through the Rust BFF. This avoids browser-to-R2 CORS
+    /// requirements for clients that cannot rely on bucket CORS settings.
+    pub async fn put_object_bytes(
+        &self,
+        key: &str,
+        bytes: Vec<u8>,
+        content_type: Option<&str>,
+    ) -> Result<()> {
+        let mut builder = self
+            .client
+            .put_object()
+            .bucket(&self.bucket)
+            .key(key)
+            .body(ByteStream::from(bytes));
+
+        if let Some(ct) = content_type {
+            builder = builder.content_type(ct);
+        }
+
+        builder
+            .send()
+            .await
+            .context("R2 put_object failed")?;
+        Ok(())
     }
 
     /// Delete a single object. Errors when the key is missing are

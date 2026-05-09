@@ -17,6 +17,7 @@
 //! GET    /breadcrumb/{id}             ancestor chain (root → ... → id)
 //! POST   /folders                     create folder
 //! POST   /upload/presign              get presigned PUT URL for direct R2 upload
+//! PUT    /upload/proxy?key=...        upload through Rust to avoid browser R2 CORS
 //! POST   /upload/confirm              record file metadata after the PUT succeeded
 //! GET    /nodes/{id}/download         get a presigned GET URL (or public URL)
 //! PATCH  /nodes/{id}/rename           rename file or folder
@@ -53,7 +54,7 @@ use std::sync::Arc;
 use axum::{
     Router,
     extract::FromRef,
-    routing::{delete, get, patch, post},
+    routing::{delete, get, patch, post, put},
 };
 use sabnode_auth::AuthConfig;
 
@@ -87,6 +88,7 @@ where
         // Mutations.
         .route("/folders", post(handlers::create_folder))
         .route("/upload/presign", post(handlers::presign_upload))
+        .route("/upload/proxy", put(handlers::proxy_upload))
         .route("/upload/confirm", post(handlers::confirm_upload))
         .route("/nodes/{id}/rename", patch(handlers::rename_node))
         .route("/nodes/move", post(handlers::move_nodes))

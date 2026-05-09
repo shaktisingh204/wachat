@@ -4,15 +4,15 @@
  * SabFiles server actions — thin wrappers over the Rust BFF
  * (`/v1/sabfiles/*`).
  *
- * Browser uploads happen in two phases:
- *   1. `presignUpload({ name, size, mime })` returns an R2 PUT URL.
- *   2. The browser issues `fetch(url, { method: 'PUT', body: file })`.
+ * Browser uploads happen in three phases:
+ *   1. `presignUpload({ name, size, mime })` reserves a user-owned R2 key.
+ *   2. The browser issues `PUT /api/sabfiles/upload?key=...`.
  *   3. After 200, the browser calls `confirmUpload({ key, name, size, mime })`
  *      to record the file in Mongo.
  *
- * The browser never sends the file bytes through Next.js — the file
- * lands in R2 directly. That's why these actions return JSON shapes
- * rather than driving the upload themselves.
+ * The browser uploads to our own origin; the Next.js route forwards bytes to
+ * the Rust BFF, which writes to R2. That keeps uploads independent of R2 bucket
+ * CORS configuration.
  */
 
 import { revalidatePath } from 'next/cache';
@@ -71,7 +71,12 @@ export async function createFolder(parentId: string | null, name: string) {
 
 export async function presignUpload(body: PresignUploadBody) {
     try {
-        return await rustClient.sabfiles.presignUpload(body);
+        const presign = await rustClient.sabfiles.presignUpload(body);
+        return {
+            ...presign,
+            upload_url: `/api/sabfiles/upload?key=${encodeURIComponent(presign.key)}`,
+            method: 'PUT',
+        };
     } catch (e) {
         return asError(e);
     }

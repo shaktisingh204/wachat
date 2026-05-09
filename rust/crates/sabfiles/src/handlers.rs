@@ -16,7 +16,9 @@ use std::time::Duration;
 
 use axum::{
     Json,
+    body::Bytes,
     extract::{Path, Query, State},
+    http::HeaderMap,
 };
 use bson::{Bson, Document, doc, oid::ObjectId};
 use chrono::{DateTime, Utc};
@@ -60,6 +62,33 @@ fn validate_name(name: &str) -> Result<String> {
         ));
     }
     Ok(trimmed.to_owned())
+}
+
+fn is_user_owned_upload_key(user_id: &str, key: &str) -> bool {
+    key.starts_with(&format!("users/{user_id}/files/"))
+        && !key.contains("..")
+        && !key.contains('\\')
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn upload_proxy_key_guard_only_allows_current_user_prefix() {
+        assert!(is_user_owned_upload_key(
+            "69db5557427f2815408d54a9",
+            "users/69db5557427f2815408d54a9/files/2026/05/photo.jpg"
+        ));
+        assert!(!is_user_owned_upload_key(
+            "69db5557427f2815408d54a9",
+            "users/other-user/files/2026/05/photo.jpg"
+        ));
+        assert!(!is_user_owned_upload_key(
+            "69db5557427f2815408d54a9",
+            "../users/69db5557427f2815408d54a9/files/photo.jpg"
+        ));
+    }
 }
 
 /// Check that `parent_id` either is `None` (root) or refers to a folder
@@ -650,6 +679,37 @@ pub async fn presign_upload(
         method: "PUT".to_owned(),
         headers,
         expires_in,
+    }))
+}
+
+pub async fn proxy_upload(
+    user: AuthUser,
+    State(s): State<SabfilesState>,
+    Query(q): Query<ProxyUploadQuery>,
+    headers: HeaderMap,
+    body: Bytes,
+) -> Result<Json<OkResponse>> {
+    let _ = user_oid(&user)?;
+    if !is_user_owned_upload_key(&user.user_id, &q.key) {
+        return Err(ApiError::Forbidden(
+            "upload key does not belong to this account".to_owned(),
+        ));
+    }
+    if body.is_empty() {
+        return Err(ApiError::Validation("file body is required".to_owned()));
+    }
+
+    let content_type = headers
+        .get(axum::http::header::CONTENT_TYPE)
+        .and_then(|v| v.to_str().ok());
+
+    s.r2.put_object_bytes(&q.key, body.to_vec(), content_type)
+        .await
+        .map_err(ApiError::Internal)?;
+
+    Ok(Json(OkResponse {
+        ok: true,
+        affected: None,
     }))
 }
 
