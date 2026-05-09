@@ -556,9 +556,10 @@ pub async fn storage_usage(
                     .or_else(|_| d.get_f64("used").map(|f| f as i64))
                     .unwrap_or(0)
             }) as u64;
-            let count = d.get_i32("count").map(i64::from).unwrap_or_else(|_| {
-                d.get_i64("count").unwrap_or(0)
-            }) as u64;
+            let count = d
+                .get_i32("count")
+                .map(i64::from)
+                .unwrap_or_else(|_| d.get_i64("count").unwrap_or(0)) as u64;
             (used, count)
         }
         None => (0, 0),
@@ -587,11 +588,33 @@ pub async fn node_download(
         .get_str("r2Key")
         .map_err(|_| ApiError::Internal(anyhow::anyhow!("missing r2Key")))?;
     let name = d.get_str("name").unwrap_or("download");
-    let url = s
-        .r2
-        .presign_get(key, Some(Duration::from_secs(900)), Some(name))
+    let url =
+        s.r2.presign_get(key, Some(Duration::from_secs(900)), Some(name))
+            .await
+            .map_err(ApiError::Internal)?;
+    Ok(Json(DownloadUrlResponse { url }))
+}
+
+pub async fn node_preview(
+    user: AuthUser,
+    State(s): State<SabfilesState>,
+    Path(id): Path<String>,
+) -> Result<Json<DownloadUrlResponse>> {
+    let user_id = user_oid(&user)?;
+    let oid = node_oid(&id)?;
+    let coll = s.mongo.collection::<Document>(NODES_COLL);
+    let d = coll
+        .find_one(doc! { "_id": oid, "userId": user_id, "type": "file" })
         .await
-        .map_err(ApiError::Internal)?;
+        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?
+        .ok_or_else(|| ApiError::NotFound("file".to_owned()))?;
+    let key = d
+        .get_str("r2Key")
+        .map_err(|_| ApiError::Internal(anyhow::anyhow!("missing r2Key")))?;
+    let url =
+        s.r2.presign_get(key, Some(Duration::from_secs(900)), None)
+            .await
+            .map_err(ApiError::Internal)?;
     Ok(Json(DownloadUrlResponse { url }))
 }
 
@@ -662,15 +685,21 @@ pub async fn presign_upload(
 
     let key = build_file_key(&user.user_id, &name);
     let expires_in: u64 = 900;
-    let url = s
-        .r2
-        .presign_put(&key, body.mime.as_deref(), Some(Duration::from_secs(expires_in)))
+    let url =
+        s.r2.presign_put(
+            &key,
+            body.mime.as_deref(),
+            Some(Duration::from_secs(expires_in)),
+        )
         .await
         .map_err(ApiError::Internal)?;
 
     let mut headers = serde_json::Map::new();
     if let Some(mime) = &body.mime {
-        headers.insert("Content-Type".to_owned(), serde_json::Value::String(mime.clone()));
+        headers.insert(
+            "Content-Type".to_owned(),
+            serde_json::Value::String(mime.clone()),
+        );
     }
 
     Ok(Json(PresignUploadResponse {
@@ -1043,10 +1072,7 @@ pub async fn create_share(
     }
 
     let res = coll
-        .update_one(
-            doc! { "_id": oid, "userId": user_id },
-            doc! { "$set": set },
-        )
+        .update_one(doc! { "_id": oid, "userId": user_id }, doc! { "$set": set })
         .with_options(UpdateOptions::builder().upsert(false).build())
         .await
         .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
@@ -1058,15 +1084,17 @@ pub async fn create_share(
         .find_one(doc! { "_id": oid, "userId": user_id })
         .await
         .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?
-        .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("node disappeared after share update")))?;
+        .ok_or_else(|| {
+            ApiError::Internal(anyhow::anyhow!("node disappeared after share update"))
+        })?;
     let token = d.get_str("shareToken").unwrap_or_default().to_owned();
     let expires = d
         .get_datetime("shareExpiresAt")
         .ok()
         .map(|d| d.to_chrono().to_rfc3339());
     let download = d.get_bool("shareDownloadEnabled").unwrap_or(true);
-    let password = d.get_str("sharePassword").is_ok()
-        && !d.get_str("sharePassword").unwrap_or("").is_empty();
+    let password =
+        d.get_str("sharePassword").is_ok() && !d.get_str("sharePassword").unwrap_or("").is_empty();
 
     Ok(Json(ShareResponse {
         token: token.clone(),
@@ -1114,10 +1142,7 @@ pub async fn share_view(
     let kind = d.get_str("type").unwrap_or("file").to_owned();
     let size = d.get_i64("size").ok().map(|n| n as u64);
     let mime = d.get_str("mime").ok().map(|s| s.to_owned());
-    let thumb = d
-        .get_str("r2Key")
-        .ok()
-        .and_then(|k| s.r2.public_url_for(k));
+    let thumb = d.get_str("r2Key").ok().and_then(|k| s.r2.public_url_for(k));
     let download = d.get_bool("shareDownloadEnabled").unwrap_or(true);
     let pwd = d
         .get_str("sharePassword")
@@ -1157,11 +1182,34 @@ pub async fn share_download(
         .get_str("r2Key")
         .map_err(|_| ApiError::BadRequest("only files can be downloaded".to_owned()))?;
     let name = d.get_str("name").unwrap_or("download");
-    let url = s
-        .r2
-        .presign_get(key, Some(Duration::from_secs(900)), Some(name))
-        .await
-        .map_err(ApiError::Internal)?;
+    let url =
+        s.r2.presign_get(key, Some(Duration::from_secs(900)), Some(name))
+            .await
+            .map_err(ApiError::Internal)?;
+    Ok(Json(DownloadUrlResponse { url }))
+}
+
+pub async fn share_preview(
+    State(s): State<SabfilesState>,
+    Path(token): Path<String>,
+    Query(q): Query<SharePasswordQuery>,
+) -> Result<Json<DownloadUrlResponse>> {
+    let d = load_share(&s.mongo, &token).await?;
+    if let Ok(stored_pwd) = d.get_str("sharePassword") {
+        if !stored_pwd.is_empty() {
+            let supplied = q.password.as_deref().unwrap_or_default();
+            if supplied != stored_pwd {
+                return Err(ApiError::Unauthorized("password required".to_owned()));
+            }
+        }
+    }
+    let key = d
+        .get_str("r2Key")
+        .map_err(|_| ApiError::BadRequest("only files can be previewed".to_owned()))?;
+    let url =
+        s.r2.presign_get(key, Some(Duration::from_secs(900)), None)
+            .await
+            .map_err(ApiError::Internal)?;
     Ok(Json(DownloadUrlResponse { url }))
 }
 
@@ -1393,19 +1441,7 @@ mod regex {
         for c in s.chars() {
             if matches!(
                 c,
-                '.' | '+'
-                    | '*'
-                    | '?'
-                    | '('
-                    | ')'
-                    | '['
-                    | ']'
-                    | '{'
-                    | '}'
-                    | '|'
-                    | '\\'
-                    | '^'
-                    | '$'
+                '.' | '+' | '*' | '?' | '(' | ')' | '[' | ']' | '{' | '}' | '|' | '\\' | '^' | '$'
             ) {
                 out.push('\\');
             }
