@@ -19,7 +19,7 @@ const ZoruSheetOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      "fixed inset-0 z-50 bg-zoru-ink/40 backdrop-blur-[2px]",
+      "fixed inset-0 z-50 bg-zoru-ink/45 backdrop-blur-sm",
       "data-[state=open]:animate-in data-[state=closed]:animate-out",
       "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
       className,
@@ -31,7 +31,7 @@ ZoruSheetOverlay.displayName = "ZoruSheetOverlay";
 
 const sheetVariants = cva(
   [
-    "zoruui fixed z-50 gap-4 bg-zoru-bg p-6 shadow-[var(--zoru-shadow-xl)]",
+    "zoruui zoruui-surface-sheen fixed z-50 gap-4 bg-zoru-bg p-6 shadow-[var(--zoru-shadow-xl)]",
     "transition ease-in-out",
     "data-[state=open]:animate-in data-[state=closed]:animate-out",
     "data-[state=closed]:duration-200 data-[state=open]:duration-300",
@@ -72,7 +72,7 @@ export const ZoruSheetContent = React.forwardRef<
       {!hideClose && (
         <DialogPrimitive.Close
           aria-label="Close"
-          className="absolute right-4 top-4 inline-flex h-7 w-7 items-center justify-center rounded-[var(--zoru-radius-sm)] text-zoru-ink-muted transition-colors hover:bg-zoru-surface-2 hover:text-zoru-ink focus-visible:outline-none disabled:pointer-events-none"
+          className="absolute right-4 top-4 inline-flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] border border-transparent text-zoru-ink-muted transition-colors hover:border-zoru-line hover:bg-zoru-bg hover:text-zoru-ink focus-visible:outline-none disabled:pointer-events-none"
         >
           <X className="h-4 w-4" />
         </DialogPrimitive.Close>

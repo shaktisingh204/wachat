@@ -12,8 +12,8 @@ export const ZoruSwitch = React.forwardRef<
   <SwitchPrimitive.Root
     ref={ref}
     className={cn(
-      "peer inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent",
-      "transition-colors duration-200",
+      "peer inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent shadow-[var(--zoru-shadow-sm)]",
+      "transition-[background-color,box-shadow] duration-200 hover:shadow-[var(--zoru-shadow-md)]",
       "data-[state=unchecked]:bg-zoru-line-strong data-[state=checked]:bg-zoru-primary",
       "disabled:cursor-not-allowed disabled:opacity-50",
       "focus-visible:outline-none",
@@ -89,7 +89,7 @@ export function ZoruBouncyToggle({
         onPointerLeave={() => setPressed(false)}
         className={cn(
           "group relative h-8 w-14 rounded-full p-1 transition-all duration-500 ease-out",
-          "focus-visible:outline-none",
+          "shadow-[var(--zoru-shadow-sm)] focus-visible:outline-none",
           isChecked ? "bg-zoru-ink" : "bg-zoru-line-strong",
           disabled && "opacity-50 cursor-not-allowed",
         )}

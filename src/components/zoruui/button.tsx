@@ -9,26 +9,27 @@ import { cn } from "./lib/cn";
 export const zoruButtonVariants = cva(
   [
     "inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium",
-    "rounded-[var(--zoru-radius)] transition-[background,color,border,box-shadow,transform] duration-150",
+    "rounded-[var(--zoru-radius)] border border-transparent",
+    "transition-[background,color,border,box-shadow,transform] duration-200",
     "disabled:pointer-events-none disabled:opacity-50",
     "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([data-stop])]:size-4",
-    "active:translate-y-px",
+    "hover:-translate-y-0.5 active:translate-y-px",
   ].join(" "),
   {
     variants: {
       variant: {
         default:
-          "bg-zoru-primary text-zoru-primary-foreground hover:bg-zoru-primary-hover active:bg-zoru-primary-active shadow-[var(--zoru-shadow-sm)]",
+          "border-zoru-primary bg-zoru-primary text-zoru-primary-foreground shadow-[var(--zoru-shadow-sm)] hover:bg-zoru-primary-hover hover:shadow-[var(--zoru-shadow-md)] active:bg-zoru-primary-active",
         secondary:
-          "bg-zoru-surface-2 text-zoru-ink hover:bg-zoru-surface-3 border border-zoru-line",
+          "border-zoru-line bg-zoru-surface text-zoru-ink shadow-[var(--zoru-shadow-sm)] hover:border-zoru-line-strong hover:bg-zoru-surface-2 hover:shadow-[var(--zoru-shadow-md)]",
         outline:
-          "bg-transparent text-zoru-ink border border-zoru-line hover:bg-zoru-surface-2",
-        ghost: "bg-transparent text-zoru-ink hover:bg-zoru-surface-2",
-        link: "bg-transparent text-zoru-ink underline-offset-4 hover:underline px-0 h-auto",
+          "border-zoru-line bg-zoru-bg text-zoru-ink shadow-[var(--zoru-shadow-sm)] hover:border-zoru-line-strong hover:bg-zoru-surface hover:shadow-[var(--zoru-shadow-md)]",
+        ghost: "bg-transparent text-zoru-ink hover:translate-y-0 hover:bg-zoru-surface-2",
+        link: "h-auto bg-transparent px-0 text-zoru-ink underline-offset-4 hover:translate-y-0 hover:underline",
         destructive:
-          "bg-zoru-danger text-zoru-danger-foreground hover:bg-zoru-danger/90 shadow-[var(--zoru-shadow-sm)]",
+          "border-zoru-danger bg-zoru-danger text-zoru-danger-foreground shadow-[var(--zoru-shadow-sm)] hover:bg-zoru-danger/90 hover:shadow-[var(--zoru-shadow-md)]",
         success:
-          "bg-zoru-success text-zoru-success-foreground hover:bg-zoru-success/90 shadow-[var(--zoru-shadow-sm)]",
+          "border-zoru-success bg-zoru-success text-zoru-success-foreground shadow-[var(--zoru-shadow-sm)] hover:bg-zoru-success/90 hover:shadow-[var(--zoru-shadow-md)]",
       },
       size: {
         sm: "h-8 px-3 text-xs",

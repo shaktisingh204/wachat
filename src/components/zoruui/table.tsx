@@ -6,12 +6,14 @@ export const ZoruTable = React.forwardRef<
   HTMLTableElement,
   React.HTMLAttributes<HTMLTableElement>
 >(({ className, ...props }, ref) => (
-  <div className="relative w-full overflow-x-auto">
+  <div className="relative w-full overflow-hidden rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg shadow-[var(--zoru-shadow-sm)]">
+    <div className="w-full overflow-x-auto">
     <table
       ref={ref}
       className={cn("w-full caption-bottom text-sm text-zoru-ink", className)}
       {...props}
     />
+    </div>
   </div>
 ));
 ZoruTable.displayName = "ZoruTable";
@@ -78,7 +80,7 @@ export const ZoruTableHead = React.forwardRef<
   <th
     ref={ref}
     className={cn(
-      "h-10 px-3 text-left align-middle text-[11px] font-medium uppercase tracking-wide text-zoru-ink-subtle",
+      "h-10 bg-zoru-surface px-3 text-left align-middle text-[11px] font-medium uppercase tracking-wide text-zoru-ink-subtle",
       "[&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-0",
       className,
     )}
