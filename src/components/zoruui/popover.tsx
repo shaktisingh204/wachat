@@ -20,7 +20,7 @@ export const ZoruPopoverContent = React.forwardRef<
       align={align}
       sideOffset={sideOffset}
       className={cn(
-        "zoruui z-50 w-72 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-4 text-zoru-ink shadow-[var(--zoru-shadow-md)]",
+        "zoruui zoruui-surface-sheen z-50 w-72 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-4 text-zoru-ink shadow-[var(--zoru-shadow-lg)]",
         "outline-none",
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",

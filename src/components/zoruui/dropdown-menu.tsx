@@ -14,7 +14,7 @@ export const ZoruDropdownMenuSub = DropdownMenuPrimitive.Sub;
 export const ZoruDropdownMenuRadioGroup = DropdownMenuPrimitive.RadioGroup;
 
 const itemBase =
-  "relative flex cursor-default select-none items-center gap-2 rounded-[var(--zoru-radius-sm)] px-2 py-1.5 text-sm outline-none text-zoru-ink transition-colors focus:bg-zoru-surface-2 data-[highlighted]:bg-zoru-surface-2 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0";
+  "relative flex cursor-default select-none items-center gap-2 rounded-[var(--zoru-radius-sm)] px-2.5 py-2 text-sm outline-none text-zoru-ink transition-colors focus:bg-zoru-surface-2 data-[highlighted]:bg-zoru-surface-2 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0";
 
 export const ZoruDropdownMenuSubTrigger = React.forwardRef<
   React.ElementRef<typeof DropdownMenuPrimitive.SubTrigger>,
@@ -40,7 +40,7 @@ export const ZoruDropdownMenuSubContent = React.forwardRef<
   <DropdownMenuPrimitive.SubContent
     ref={ref}
     className={cn(
-      "zoruui z-50 min-w-[8rem] overflow-hidden rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-1 text-zoru-ink shadow-[var(--zoru-shadow-md)]",
+      "zoruui zoruui-surface-sheen z-50 min-w-[8rem] overflow-hidden rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-1.5 text-zoru-ink shadow-[var(--zoru-shadow-lg)]",
       "data-[state=open]:animate-in data-[state=closed]:animate-out",
       "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
       "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
@@ -60,7 +60,7 @@ export const ZoruDropdownMenuContent = React.forwardRef<
       ref={ref}
       sideOffset={sideOffset}
       className={cn(
-        "zoruui z-50 min-w-[8rem] overflow-hidden rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-1 text-zoru-ink shadow-[var(--zoru-shadow-md)]",
+        "zoruui zoruui-surface-sheen z-50 min-w-[8rem] overflow-hidden rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-1.5 text-zoru-ink shadow-[var(--zoru-shadow-lg)]",
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
         "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",

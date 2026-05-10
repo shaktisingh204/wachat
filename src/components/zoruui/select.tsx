@@ -19,8 +19,8 @@ export const ZoruSelectTrigger = React.forwardRef<
     className={cn(
       "flex h-9 w-full items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 py-2 text-sm",
       "text-zoru-ink placeholder:text-zoru-ink-subtle",
-      "transition-colors hover:border-zoru-line-strong",
-      "data-[state=open]:border-zoru-ink",
+      "shadow-[var(--zoru-shadow-sm)] transition-[border-color,box-shadow,background-color] hover:border-zoru-line-strong",
+      "data-[state=open]:border-zoru-ink data-[state=open]:shadow-[var(--zoru-shadow-md)]",
       "disabled:cursor-not-allowed disabled:opacity-50",
       "focus-visible:outline-none [&>span]:line-clamp-1",
       className,
@@ -73,7 +73,7 @@ export const ZoruSelectContent = React.forwardRef<
       position={position}
       className={cn(
         "zoruui relative z-50 max-h-[--radix-select-content-available-height] min-w-[8rem] overflow-hidden",
-        "rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg text-zoru-ink shadow-[var(--zoru-shadow-md)]",
+        "zoruui-surface-sheen rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg text-zoru-ink shadow-[var(--zoru-shadow-lg)]",
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
         "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
@@ -118,9 +118,9 @@ export const ZoruSelectItem = React.forwardRef<
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex w-full cursor-default select-none items-center gap-2 rounded-[var(--zoru-radius-sm)] py-1.5 pl-2 pr-8 text-sm outline-none",
+      "relative flex w-full cursor-default select-none items-center gap-2 rounded-[var(--zoru-radius-sm)] py-2 pl-2.5 pr-8 text-sm outline-none",
       "text-zoru-ink",
-      "focus:bg-zoru-surface-2 data-[highlighted]:bg-zoru-surface-2",
+      "focus:bg-zoru-surface-2 data-[highlighted]:bg-zoru-surface-2 data-[state=checked]:bg-zoru-surface",
       "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className,
     )}

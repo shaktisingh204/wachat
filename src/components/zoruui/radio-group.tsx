@@ -25,8 +25,8 @@ export const ZoruRadioGroupItem = React.forwardRef<
   <RadioGroupPrimitive.Item
     ref={ref}
     className={cn(
-      "aspect-square h-4 w-4 rounded-full border border-zoru-line-strong bg-zoru-bg text-zoru-primary",
-      "transition-colors hover:border-zoru-ink",
+      "aspect-square h-4 w-4 rounded-full border border-zoru-line-strong bg-zoru-bg text-zoru-primary shadow-[var(--zoru-shadow-sm)]",
+      "transition-[border-color,box-shadow,background-color] hover:border-zoru-ink hover:shadow-[var(--zoru-shadow-md)]",
       "data-[state=checked]:border-zoru-primary",
       "disabled:cursor-not-allowed disabled:opacity-50",
       "focus-visible:outline-none",
@@ -63,9 +63,9 @@ export const ZoruRadioCard = React.forwardRef<
   return (
     <div
       className={cn(
-        "group relative flex items-start gap-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-4 transition-colors",
-        "hover:border-zoru-line-strong",
-        "has-[[data-state=checked]]:border-zoru-ink has-[[data-state=checked]]:bg-zoru-surface",
+        "group relative flex items-start gap-3 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-4 shadow-[var(--zoru-shadow-sm)] transition-[border-color,box-shadow,transform,background-color]",
+        "hover:-translate-y-0.5 hover:border-zoru-line-strong hover:shadow-[var(--zoru-shadow-md)]",
+        "has-[[data-state=checked]]:border-zoru-ink has-[[data-state=checked]]:bg-zoru-surface has-[[data-state=checked]]:shadow-[var(--zoru-shadow-md)]",
       )}
     >
       <RadioGroupPrimitive.Item
@@ -73,7 +73,7 @@ export const ZoruRadioCard = React.forwardRef<
         id={itemId}
         className={cn(
           "mt-0.5 aspect-square h-4 w-4 shrink-0 rounded-full border border-zoru-line-strong bg-zoru-bg text-zoru-primary",
-          "transition-colors hover:border-zoru-ink",
+          "shadow-[var(--zoru-shadow-sm)] transition-[border-color,box-shadow,background-color] hover:border-zoru-ink",
           "data-[state=checked]:border-zoru-primary",
           "disabled:cursor-not-allowed disabled:opacity-50",
           "focus-visible:outline-none",

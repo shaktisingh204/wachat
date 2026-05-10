@@ -13,8 +13,8 @@ export const ZoruCheckbox = React.forwardRef<
   <CheckboxPrimitive.Root
     ref={ref}
     className={cn(
-      "peer h-4 w-4 shrink-0 rounded-[4px] border border-zoru-line-strong bg-zoru-bg",
-      "transition-colors hover:border-zoru-ink",
+      "peer h-4 w-4 shrink-0 rounded-[5px] border border-zoru-line-strong bg-zoru-bg shadow-[var(--zoru-shadow-sm)]",
+      "transition-[border-color,box-shadow,background-color] hover:border-zoru-ink hover:shadow-[var(--zoru-shadow-md)]",
       "data-[state=checked]:bg-zoru-primary data-[state=checked]:border-zoru-primary data-[state=checked]:text-zoru-primary-foreground",
       "data-[state=indeterminate]:bg-zoru-primary data-[state=indeterminate]:border-zoru-primary data-[state=indeterminate]:text-zoru-primary-foreground",
       "disabled:cursor-not-allowed disabled:opacity-50",

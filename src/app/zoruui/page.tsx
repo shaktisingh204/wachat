@@ -187,23 +187,24 @@ import {
 export default function ZoruuiGalleryPage() {
   return (
     <ZoruTooltipProvider delayDuration={150}>
-      <div className="mx-auto max-w-5xl px-8 py-16">
-        <Header />
+      <div className="zoruui-gallery min-h-screen">
+        <div className="mx-auto max-w-6xl px-5 py-8 sm:px-8 lg:py-12">
+          <Header />
 
-        <Section
-          step="Step 1"
-          title="Foundation"
-          subtitle="Tokens scoped under .zoruui — black ink, neutral surfaces, no dark mode."
-        >
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            <SwatchCard label="bg" varName="--zoru-bg" />
-            <SwatchCard label="surface" varName="--zoru-surface" />
-            <SwatchCard label="surface-2" varName="--zoru-surface-2" />
-            <SwatchCard label="line" varName="--zoru-line" />
-            <SwatchCard label="ink-muted" varName="--zoru-ink-muted" />
-            <SwatchCard label="ink (primary)" varName="--zoru-ink" />
-          </div>
-        </Section>
+          <Section
+            step="Step 1"
+            title="Foundation"
+            subtitle="Tokens scoped under .zoruui — black ink, neutral surfaces, no dark mode."
+          >
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <SwatchCard label="bg" varName="--zoru-bg" />
+              <SwatchCard label="surface" varName="--zoru-surface" />
+              <SwatchCard label="surface-2" varName="--zoru-surface-2" />
+              <SwatchCard label="line" varName="--zoru-line" />
+              <SwatchCard label="ink-muted" varName="--zoru-ink-muted" />
+              <SwatchCard label="ink (primary)" varName="--zoru-ink" />
+            </div>
+          </Section>
 
         <Section step="Step 2" title="Buttons">
           <div className="flex flex-wrap items-center gap-3">
@@ -1234,7 +1235,7 @@ export default function ZoruuiGalleryPage() {
           />
         </Section>
 
-        <Section step="Step 5" title="Carousel + color picker">
+          <Section step="Step 5" title="Carousel + color picker">
           <ZoruCarousel className="px-2">
             {Array.from({ length: 8 }).map((_, i) => (
               <ZoruCard
@@ -1258,7 +1259,8 @@ export default function ZoruuiGalleryPage() {
             <span className="text-sm text-zoru-ink-muted">Brand colour:</span>
             <ZoruColorPicker value="#0F0F10" />
           </div>
-        </Section>
+          </Section>
+        </div>
       </div>
 
       <ZoruToaster />
@@ -1325,18 +1327,48 @@ function CommandAndToastDemo() {
 
 function Header() {
   return (
-    <header className="border-b border-zoru-line pb-10">
-      <p className="text-xs uppercase tracking-[0.2em] text-zoru-ink-muted">
-        ZoruUI · Steps 1–2 of 10
-      </p>
-      <h1 className="mt-3 text-4xl font-semibold tracking-tight text-zoru-ink">
-        Foundation + atoms.
-      </h1>
-      <p className="mt-3 max-w-2xl text-base leading-relaxed text-zoru-ink-muted">
-        Tokens, scope, dock re-export, and the form & text primitives.
-        Overlays, layout, data, and marketing primitives ship in the
-        next four steps.
-      </p>
+    <header className="overflow-hidden rounded-[var(--zoru-radius-xl)] border border-zoru-line bg-zoru-bg/95 shadow-[var(--zoru-shadow-lg)]">
+      <div className="border-b border-zoru-line bg-zoru-surface/70 px-5 py-3 sm:px-7">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-[11px] uppercase tracking-[0.2em] text-zoru-ink-muted">
+            ZoruUI · component gallery
+          </p>
+          <div className="flex flex-wrap items-center gap-2 text-xs text-zoru-ink-muted">
+            <span className="rounded-full border border-zoru-line bg-zoru-bg px-3 py-1">
+              10-step rollout
+            </span>
+            <span className="rounded-full border border-zoru-line bg-zoru-bg px-3 py-1">
+              Neutral system
+            </span>
+          </div>
+        </div>
+      </div>
+      <div className="grid gap-8 px-5 py-8 sm:px-7 lg:grid-cols-[1fr_320px] lg:items-end">
+        <div>
+          <ZoruHeroPill icon={<Sparkles className="size-3" />} text="Minimal premium refresh" />
+          <h1 className="mt-5 max-w-3xl text-4xl font-semibold tracking-tight text-zoru-ink sm:text-5xl">
+            ZoruUI component showcase
+          </h1>
+          <p className="mt-4 max-w-2xl text-base leading-relaxed text-zoru-ink-muted">
+            Tokens, atoms, overlays, layout, data, and marketing primitives in a
+            calmer gallery with sharper hierarchy and more breathing room.
+          </p>
+        </div>
+        <div className="grid grid-cols-3 overflow-hidden rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-surface">
+          {[
+            ["60+", "Primitives"],
+            ["6", "Steps shown"],
+            ["B/W", "Palette"],
+          ].map(([value, label]) => (
+            <div key={label} className="border-r border-zoru-line p-4 last:border-r-0">
+              <p className="text-2xl font-semibold text-zoru-ink">{value}</p>
+              <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-zoru-ink-muted">
+                {label}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
     </header>
   );
 }
@@ -1353,14 +1385,20 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="mt-16 space-y-6">
-      <div>
-        <p className="text-[11px] uppercase tracking-[0.2em] text-zoru-ink-subtle">
-          {step}
-        </p>
-        <h2 className="mt-1 text-xl font-semibold text-zoru-ink">{title}</h2>
+    <section className="mt-12 border-t border-zoru-line/80 pt-10">
+      <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-[11px] uppercase tracking-[0.2em] text-zoru-ink-subtle">
+            {step}
+          </p>
+          <h2 className="mt-1 text-2xl font-semibold tracking-tight text-zoru-ink">
+            {title}
+          </h2>
+        </div>
         {subtitle && (
-          <p className="mt-1 text-sm text-zoru-ink-muted">{subtitle}</p>
+          <p className="max-w-xl text-sm leading-relaxed text-zoru-ink-muted">
+            {subtitle}
+          </p>
         )}
       </div>
       <div className="space-y-6">{children}</div>
@@ -1527,7 +1565,7 @@ const SAMPLE_FILES = [
 
 function SwatchCard({ label, varName }: { label: string; varName: string }) {
   return (
-    <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-4">
+    <div className="rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-4 shadow-[var(--zoru-shadow-sm)]">
       <div
         className="h-16 w-full rounded-[var(--zoru-radius-sm)] border border-zoru-line"
         style={{ backgroundColor: `hsl(var(${varName}))` }}

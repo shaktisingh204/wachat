@@ -4,18 +4,18 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "./lib/cn";
 
 export const zoruBadgeVariants = cva(
-  "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium transition-colors [&_svg]:size-3 [&_svg]:shrink-0",
+  "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium shadow-[var(--zoru-shadow-sm)] transition-colors [&_svg]:size-3 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         default: "border-transparent bg-zoru-primary text-zoru-primary-foreground",
         secondary: "border-zoru-line bg-zoru-surface text-zoru-ink",
-        outline: "border-zoru-line-strong bg-transparent text-zoru-ink",
+        outline: "border-zoru-line-strong bg-zoru-bg text-zoru-ink",
         ghost: "border-transparent bg-zoru-surface-2 text-zoru-ink-muted",
-        success: "border-transparent bg-zoru-success/10 text-zoru-success-ink",
-        danger: "border-transparent bg-zoru-danger/10 text-zoru-danger-ink",
-        warning: "border-transparent bg-zoru-warning/15 text-zoru-warning-ink",
-        info: "border-transparent bg-zoru-info/10 text-zoru-info-ink",
+        success: "border-zoru-success/20 bg-zoru-success/10 text-zoru-success-ink",
+        danger: "border-zoru-danger/20 bg-zoru-danger/10 text-zoru-danger-ink",
+        warning: "border-zoru-warning/25 bg-zoru-warning/15 text-zoru-warning-ink",
+        info: "border-zoru-info/20 bg-zoru-info/10 text-zoru-info-ink",
       },
     },
     defaultVariants: { variant: "default" },

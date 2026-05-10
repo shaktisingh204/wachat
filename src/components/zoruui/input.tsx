@@ -29,12 +29,12 @@ export const ZoruInput = React.forwardRef<HTMLInputElement, ZoruInputProps>(
         className={cn(
           "h-9 w-full bg-zoru-bg text-zoru-ink placeholder:text-zoru-ink-subtle",
           "rounded-[var(--zoru-radius)] border border-zoru-line px-3 text-sm",
-          "transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium",
-          "focus-visible:outline-none focus-visible:border-zoru-ink",
+          "shadow-[var(--zoru-shadow-sm)] transition-[border-color,box-shadow,background-color] file:border-0 file:bg-transparent file:text-sm file:font-medium",
+          "hover:border-zoru-line-strong focus-visible:outline-none focus-visible:border-zoru-ink focus-visible:shadow-[var(--zoru-shadow-md)]",
           "disabled:cursor-not-allowed disabled:opacity-50",
           "data-[invalid]:border-zoru-danger data-[invalid]:text-zoru-danger",
           hasFrame &&
-            "h-auto border-0 bg-transparent px-0 focus-visible:border-0",
+            "h-auto border-0 bg-transparent px-0 shadow-none focus-visible:border-0 focus-visible:shadow-none",
           className,
         )}
         {...props}
@@ -47,7 +47,8 @@ export const ZoruInput = React.forwardRef<HTMLInputElement, ZoruInputProps>(
       <div
         className={cn(
           "inline-flex h-9 w-full items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3",
-          "focus-within:border-zoru-ink",
+          "shadow-[var(--zoru-shadow-sm)] transition-[border-color,box-shadow,background-color]",
+          "hover:border-zoru-line-strong focus-within:border-zoru-ink focus-within:shadow-[var(--zoru-shadow-md)]",
           invalid && "border-zoru-danger",
         )}
       >
