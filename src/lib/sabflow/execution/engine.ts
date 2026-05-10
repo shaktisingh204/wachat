@@ -1,7 +1,8 @@
-import type { SabFlowDoc, Group, EdgeFrom, ScriptOptions } from '@/lib/sabflow/types';
+import type { SabFlowDoc, EdgeFrom, Group, ScriptOptions } from '@/lib/sabflow/types';
 import type { FlowSession, ChatMessage, ExecutionStep } from './types';
 import { evaluateCondition } from '@/lib/sabflow/engine/evaluateCondition';
 import { substituteVariables } from '@/lib/sabflow/engine/substituteVariables';
+import { findStartGroup } from '@/lib/sabflow/start';
 import type { Condition } from '@/lib/sabflow/engine/evaluateCondition';
 import { runScript } from './sandbox';
 import type { SandboxContext, SandboxLogEntry } from './sandbox';
@@ -38,29 +39,6 @@ function formatArg(value: unknown): string {
   }
 }
 
-/** Resolve the first group connected from the start event, or the first group. */
-function findStartGroup(flow: SabFlowDoc): Group | undefined {
-  // Prefer the group connected to the start event via an edge
-  const startEvent = flow.events.find((e) => e.type === 'start');
-  if (startEvent?.outgoingEdgeId) {
-    const edge = flow.edges.find((e) => e.id === startEvent.outgoingEdgeId);
-    if (edge?.to.groupId) {
-      return flow.groups.find((g) => g.id === edge.to.groupId);
-    }
-  }
-  // Fall back: if an edge has from.eventId === startEvent.id
-  if (startEvent) {
-    const edge = flow.edges.find(
-      (e) => 'eventId' in e.from && e.from.eventId === startEvent.id,
-    );
-    if (edge?.to.groupId) {
-      return flow.groups.find((g) => g.id === edge.to.groupId);
-    }
-  }
-  // Last resort: first group
-  return flow.groups[0];
-}
-
 // ── startSession ───────────────────────────────────────────────────────────
 
 /** Optional trigger context recorded on session start so the engine + flow can
@@ -82,7 +60,7 @@ export function startSession(
   flow: SabFlowDoc,
   options?: StartSessionOptions,
 ): FlowSession {
-  const startGroup = findStartGroup(flow);
+  const startGroup = findStartGroup(flow) ?? flow.groups[0];
 
   // Seed variables map from the flow's variable definitions (default values).
   // `defaultValue` takes precedence over the legacy `value` field.

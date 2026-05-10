@@ -27,10 +27,10 @@ import type {
   SabFlowDoc,
   Block,
   Edge,
-  Group,
   Variable,
   InputBlockType,
 } from '@/lib/sabflow/types';
+import { findStartGroup } from '@/lib/sabflow/start';
 import { cn } from '@/lib/utils';
 import {
   LuX,
@@ -82,15 +82,6 @@ function resolveVars(
       ? vars[trimmed]
       : `{{${trimmed}}}`;
   });
-}
-
-/** Find the group that the start-event connects to. */
-function findStartGroup(flow: SabFlowDoc): Group | null {
-  const startEvent = flow.events.find((e) => e.type === 'start');
-  if (!startEvent?.outgoingEdgeId) return null;
-  const edge = flow.edges.find((e) => e.id === startEvent.outgoingEdgeId);
-  if (!edge) return null;
-  return flow.groups.find((g) => g.id === edge.to.groupId) ?? null;
 }
 
 /** Find the next group/block edge from a given source. */
