@@ -132,7 +132,7 @@ function GlobalStyles() {
   return (
     <style>{`
       .sn-root {
-        background: #F5F3EC;
+        background: #F7F8FC;
         color: #121126;
         font-family: var(--font-sab-body), ui-sans-serif, system-ui, -apple-system, sans-serif;
       }
@@ -141,7 +141,7 @@ function GlobalStyles() {
       .font-display {
         font-family: var(--font-sab-display), ui-sans-serif, system-ui, sans-serif;
         font-weight: 700;
-        letter-spacing: -0.035em;
+        letter-spacing: -0.026em;
         font-feature-settings: "ss01", "ss02";
       }
       .font-display-italic {
@@ -175,11 +175,13 @@ function GlobalStyles() {
       .sn-card {
         background: #fff;
         border: 1px solid rgba(17,17,38,0.08);
+        box-shadow: 0 24px 70px -38px rgba(17,17,38,0.24), 0 1px 0 rgba(255,255,255,0.8) inset;
       }
       .sn-card-soft {
-        background: rgba(255,255,255,0.75);
+        background: rgba(255,255,255,0.82);
         border: 1px solid rgba(17,17,38,0.08);
-        backdrop-filter: blur(10px);
+        backdrop-filter: blur(16px);
+        box-shadow: 0 24px 70px -42px rgba(17,17,38,0.28), 0 1px 0 rgba(255,255,255,0.85) inset;
       }
       .sn-hair { border-color: rgba(17,17,38,0.08); }
 
@@ -229,13 +231,33 @@ function GlobalStyles() {
       }
 
       .sn-window {
-        border-radius: 24px; overflow: hidden;
+        border-radius: 28px; overflow: hidden;
         background: #fff;
         border: 1px solid rgba(17,17,38,0.08);
         box-shadow:
-          0 60px 140px -40px rgba(79,70,229,0.22),
+          0 70px 150px -44px rgba(79,70,229,0.26),
           0 24px 60px -24px rgba(17,17,38,0.12),
           0 0 0 1px rgba(255,255,255,0.8) inset;
+      }
+
+      .sn-section-shell {
+        border-radius: 36px;
+        background: rgba(255,255,255,0.58);
+        border: 1px solid rgba(17,17,38,0.07);
+        box-shadow: 0 40px 120px -70px rgba(17,17,38,0.36), 0 1px 0 rgba(255,255,255,0.86) inset;
+        backdrop-filter: blur(14px);
+      }
+
+      .sn-product-card {
+        background: linear-gradient(180deg, rgba(255,255,255,0.94), rgba(255,255,255,0.76));
+        border: 1px solid rgba(17,17,38,0.08);
+        box-shadow: 0 28px 80px -44px rgba(17,17,38,0.28);
+        transition: transform 240ms ease, box-shadow 240ms ease, border-color 240ms ease;
+      }
+      .sn-product-card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(79,70,229,0.24);
+        box-shadow: 0 36px 100px -48px rgba(79,70,229,0.34);
       }
     `}</style>
   );
@@ -246,10 +268,10 @@ function AuroraBg() {
     <div aria-hidden className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
       <div className="absolute inset-0" style={{
         background:
-          'radial-gradient(1200px 600px at 10% -5%, rgba(99,102,241,0.18), transparent 60%),' +
-          'radial-gradient(1000px 500px at 95% 8%, rgba(139,92,246,0.14), transparent 60%),' +
-          'radial-gradient(900px 500px at 50% 100%, rgba(79,70,229,0.14), transparent 60%),' +
-          '#F5F3EC',
+          'radial-gradient(1200px 620px at 10% -8%, rgba(99,102,241,0.16), transparent 60%),' +
+          'radial-gradient(1000px 520px at 96% 4%, rgba(139,92,246,0.11), transparent 62%),' +
+          'radial-gradient(900px 520px at 50% 100%, rgba(79,70,229,0.10), transparent 62%),' +
+          '#F7F8FC',
       }} />
       <div className="sn-aurora absolute -top-32 -left-32 h-[44rem] w-[44rem] rounded-full opacity-55" style={{
         background: 'radial-gradient(circle, rgba(99,102,241,0.38), transparent 60%)', filter: 'blur(30px)',
@@ -304,19 +326,19 @@ function Nav({ loading, session }: { loading: boolean; session: any }) {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full bg-white border-b sn-hair">
+      <header className="sticky top-0 z-50 w-full border-b sn-hair bg-white/88 backdrop-blur-xl">
         <div className="container mx-auto px-4 md:px-6 flex h-16 items-center gap-6">
           <Link href="/" className="flex items-center gap-2 flex-shrink-0">
             <SabNodeLogo className="h-7 w-auto" />
           </Link>
 
-          <nav className="hidden md:flex items-center gap-1 ml-4">
+          <nav className="hidden md:flex items-center gap-1 ml-4 rounded-full border border-black/[0.06] bg-black/[0.02] p-1">
             {NAV_ITEMS.map(item => {
               const isActive = open === item.key;
               const hasDropdown = !!item.dropdown;
-              const className = `inline-flex items-center gap-1 h-10 px-3.5 rounded-md text-[14px] font-semibold transition-colors ${
+              const className = `inline-flex items-center gap-1 h-8 px-3.5 rounded-full text-[13px] font-semibold transition-colors ${
                 isActive
-                  ? 'text-[#4F46E5] border border-[#4F46E5]/40 bg-[#EEF2FF]/60'
+                  ? 'text-[#4F46E5] border border-[#4F46E5]/30 bg-white shadow-sm'
                   : 'text-[#121126] hover:text-[#4F46E5]'
               }`;
               if (hasDropdown) {
@@ -359,7 +381,7 @@ function Nav({ loading, session }: { loading: boolean; session: any }) {
                 <Link href="/login" className="hidden sm:inline-flex h-9 items-center px-3 text-[13.5px] font-semibold text-[#121126] hover:text-[#4F46E5] transition-colors">
                   Sign In
                 </Link>
-                <Link href="/signup" className="inline-flex h-9 items-center rounded-md px-4 text-[13.5px] font-semibold text-[#4F46E5] border border-[#4F46E5] hover:bg-[#4F46E5] hover:text-white transition-colors">
+                <Link href="/signup" className="sn-btn-primary inline-flex h-9 items-center rounded-full px-4 text-[13.5px] font-semibold">
                   Sign Up
                 </Link>
               </>
@@ -748,16 +770,19 @@ function MobileNav({ onClose }: { onClose: () => void }) {
 
 function Hero({ session, loading }: { session: any; loading: boolean }) {
   return (
-    <section className="relative pt-12 md:pt-20 pb-10 md:pb-16 overflow-hidden">
+    <section className="relative overflow-hidden pb-12 pt-10 md:pb-18 md:pt-16">
       {/* concentric orbits + integration logos */}
       <div aria-hidden className="absolute inset-x-0 top-8 md:top-16 bottom-0 pointer-events-none">
         <OrbitField />
       </div>
 
       <div className="container relative mx-auto px-6">
-        <div className="flex flex-col items-center text-center max-w-3xl mx-auto">
+        <div className="mx-auto flex max-w-5xl flex-col items-center text-center">
           {/* trust ratings */}
-          <div className="sn-reveal flex items-center gap-7 text-[12.5px]" style={{ animationDelay: '40ms' }}>
+          <div className="sn-reveal flex flex-wrap items-center justify-center gap-3 text-[12.5px]" style={{ animationDelay: '40ms' }}>
+            <span className="sn-tag sn-tag-live">
+              <span className="dot" /> Live across 4,812 workspaces
+            </span>
             <span className="inline-flex items-center gap-1.5">
               <GoogleGlyph className="h-[15px] w-[15px]" />
               <span className="font-semibold text-[#121126] tabular-nums">4.8</span>
@@ -772,16 +797,16 @@ function Hero({ session, loading }: { session: any; loading: boolean }) {
           </div>
 
           {/* headline */}
-          <h1 className="sn-reveal mt-6 font-display text-[#121126] leading-[0.94] text-[12vw] sm:text-[9vw] md:text-[78px] lg:text-[92px]" style={{ animationDelay: '120ms' }}>
-            One platform for
+          <h1 className="sn-reveal mt-7 max-w-5xl font-display text-[#121126] leading-[0.92] text-[13vw] sm:text-[9vw] md:text-[82px] lg:text-[102px]" style={{ animationDelay: '120ms' }}>
+            The command center for
             <br />
-            every{' '}<span className="font-display-italic sn-gradient-text">conversation.</span>
+            customer{' '}<span className="font-display-italic sn-gradient-text">operations.</span>
           </h1>
 
           {/* subtext */}
-          <p className="sn-reveal mt-6 text-[15px] md:text-[17px] text-[#4A4A6B] max-w-xl leading-relaxed" style={{ animationDelay: '260ms' }}>
-            From WhatsApp inboxes to no-code flows and CRM, run every customer
-            interaction in one place — and keep your team moving forward.
+          <p className="sn-reveal mt-6 max-w-2xl text-[16px] leading-relaxed text-[#4A4A6B] md:text-[18px]" style={{ animationDelay: '260ms' }}>
+            Unify WhatsApp, web chat, AI agents, CRM, broadcasts, workflows,
+            and analytics in one workspace built for teams that actually ship.
           </p>
 
           {/* CTAs */}
@@ -791,20 +816,24 @@ function Hero({ session, loading }: { session: any; loading: boolean }) {
                 Open workspace
               </Link>
             ) : (
-              <Link href="/signup" className="sn-btn-dark inline-flex h-12 items-center gap-2 rounded-full px-7 text-[14px] font-semibold">
-                Get started free
+              <Link href="/signup" className="sn-btn-primary inline-flex h-12 items-center gap-2 rounded-full px-7 text-[14px] font-semibold">
+                Start free
+                <ArrowRight className="h-4 w-4" />
               </Link>
             )}
             <Link
-              href="/contact"
+              href="#products"
               className="inline-flex h-12 items-center gap-2 rounded-full px-6 text-[14px] font-semibold text-[#121126] bg-white border sn-hair hover:bg-black/[0.03] transition"
             >
-              Talk to sales team
+              Explore products
+              <ArrowUpRight className="h-4 w-4" />
             </Link>
           </div>
 
+          <HeroProofGrid />
+
           {/* floating activity card */}
-          <div className="sn-reveal relative mt-12 md:mt-16 w-full max-w-md" style={{ animationDelay: '520ms' }}>
+          <div className="sn-reveal relative mt-10 w-full max-w-md md:mt-14" style={{ animationDelay: '520ms' }}>
             <div
               aria-hidden
               className="absolute -inset-10 pointer-events-none"
@@ -818,9 +847,9 @@ function Hero({ session, loading }: { session: any; loading: boolean }) {
           </div>
 
           {/* trusted by + logos */}
-          <div className="sn-reveal mt-14 md:mt-20 w-full" style={{ animationDelay: '640ms' }}>
+          <div className="sn-reveal mt-12 w-full md:mt-16" style={{ animationDelay: '640ms' }}>
             <p className="text-[11.5px] text-center text-[#7878A1] tracking-wide">
-              Trusted by 200,000+ teams worldwide
+              Trusted by teams replacing disconnected support, CRM, and automation tools
             </p>
             <div className="mt-5 flex flex-wrap items-center justify-center gap-x-9 gap-y-4 opacity-80">
               {['Google', 'airbnb', 'coinbase', 'Notion', 'Gumroad', 'PayPal', 'upwork', 'shopify', 'stripe', 'ZOOM'].map((n) => (
@@ -836,6 +865,38 @@ function Hero({ session, loading }: { session: any; loading: boolean }) {
         </div>
       </div>
     </section>
+  );
+}
+
+function HeroProofGrid() {
+  const proof = [
+    { icon: MessageSquare, value: '14.2M', label: 'messages / month' },
+    { icon: Clock, value: '52s', label: 'median first reply' },
+    { icon: Shield, value: 'SOC 2', label: 'ready controls' },
+  ];
+  return (
+    <div className="sn-reveal mt-8 grid w-full max-w-3xl grid-cols-1 gap-2 sm:grid-cols-3" style={{ animationDelay: '450ms' }}>
+      {proof.map((item) => {
+        const Icon = item.icon;
+        return (
+          <div key={item.label} className="sn-card-soft rounded-2xl px-4 py-3 text-left">
+            <div className="flex items-center gap-3">
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-[#EEF2FF] text-[#4F46E5]">
+                <Icon className="h-4 w-4" />
+              </span>
+              <div>
+                <div className="font-display text-[24px] leading-none text-[#121126] tabular-nums">
+                  {item.value}
+                </div>
+                <div className="mt-1 text-[11px] uppercase tracking-[0.13em] text-[#7878A1]">
+                  {item.label}
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
   );
 }
 
@@ -1198,7 +1259,7 @@ const TRUSTED = ['Folia', 'NorthPeak', 'Lumenly', 'Kintsugi', 'Helix & Co.', 'Br
 
 function TrustStrip() {
   return (
-    <section className="relative py-12 md:py-16">
+    <section className="relative py-10 md:py-14">
       <div className="container mx-auto px-6">
         <div className="flex items-center justify-center gap-3 mb-7">
           <span className="h-px w-10 bg-[#121126]/15" />
@@ -1209,8 +1270,8 @@ function TrustStrip() {
         </div>
       </div>
       <div className="relative overflow-hidden">
-        <div aria-hidden className="pointer-events-none absolute inset-y-0 left-0 z-10 w-32 bg-gradient-to-r from-[#F5F3EC] via-[#F5F3EC]/80 to-transparent" />
-        <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 z-10 w-32 bg-gradient-to-l from-[#F5F3EC] via-[#F5F3EC]/80 to-transparent" />
+        <div aria-hidden className="pointer-events-none absolute inset-y-0 left-0 z-10 w-32 bg-gradient-to-r from-[#F7F8FC] via-[#F7F8FC]/80 to-transparent" />
+        <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 z-10 w-32 bg-gradient-to-l from-[#F7F8FC] via-[#F7F8FC]/80 to-transparent" />
         <div className="sn-marquee flex items-center gap-16 whitespace-nowrap w-max">
           {[...TRUSTED, ...TRUSTED].map((t, i) => (
             <span key={`${t}-${i}`} className="inline-flex items-center gap-16">
@@ -1235,9 +1296,10 @@ function CapabilitiesSection() {
     { icon: Brain, title: 'Private AI layer', body: 'Tenant-scoped models grounded on your own data. Never used to train anyone else.', color: '#EC4899', tint: '#FCE7F3' },
   ];
   return (
-    <section className="relative py-16 md:py-24">
+    <section className="relative py-14 md:py-20">
       <div className="container mx-auto px-6">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 md:mb-14">
+        <div className="sn-section-shell px-5 py-8 md:px-8 md:py-10">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 md:mb-12">
           <div className="max-w-xl">
             <Eyebrow label="What it does" />
             <h2 className="mt-4 font-display text-[40px] md:text-[64px] leading-[0.98] text-[#121126]">
@@ -1277,6 +1339,7 @@ function CapabilitiesSection() {
             );
           })}
         </div>
+        </div>
       </div>
     </section>
   );
@@ -1288,21 +1351,23 @@ function CapabilitiesSection() {
 
 function ProductsShowcase() {
   return (
-    <section id="products" className="relative py-16 md:py-24">
+    <section id="products" className="relative scroll-mt-24 py-16 md:py-24">
       <div className="container mx-auto px-6">
-        <div className="text-center max-w-3xl mx-auto mb-14">
+        <div className="mx-auto mb-10 max-w-3xl text-center md:mb-12">
           <Eyebrow label="Products" align="center" />
           <h2 className="mt-4 font-display text-[40px] md:text-[72px] leading-[0.98] text-[#121126]">
-            Five apps. One{' '}
-            <span className="font-display-italic sn-gradient-text">workspace.</span>
+            One workspace for the whole{' '}
+            <span className="font-display-italic sn-gradient-text">customer loop.</span>
           </h2>
           <p className="mt-5 text-[15px] md:text-[17px] text-[#4A4A6B] max-w-xl mx-auto">
-            Each mock below is the real in-product surface — not a marketing
-            render. What you see is what loads when you sign in.
+            Start with chat, then connect flows, CRM, AI, campaigns, and
+            analytics without asking your team to jump between tabs.
           </p>
         </div>
 
-        <div className="space-y-24 md:space-y-32">
+        <ProductCommandStrip />
+
+        <div className="mt-12 space-y-16 md:mt-16 md:space-y-20">
           <ProductRow
             index="01" tag="Chat · Wachat" tagColor="#25D366"
             kicker="Unified WhatsApp inbox"
@@ -1354,22 +1419,57 @@ function ProductsShowcase() {
   );
 }
 
+function ProductCommandStrip() {
+  const items = [
+    { icon: MessageSquare, title: 'Inbox', meta: 'All channels' },
+    { icon: Workflow, title: 'Flows', meta: 'Visual automation' },
+    { icon: Users2, title: 'CRM', meta: 'Contact truth' },
+    { icon: Bot, title: 'AI', meta: 'Private answers' },
+    { icon: LineChart, title: 'Analytics', meta: 'Outcome pulse' },
+  ];
+  return (
+    <div className="sn-section-shell mx-auto grid max-w-5xl grid-cols-1 gap-2 p-2 sm:grid-cols-5">
+      {items.map((item, index) => {
+        const Icon = item.icon;
+        return (
+          <a
+            key={item.title}
+            href="#products"
+            className="group flex items-center gap-3 rounded-[24px] bg-white/70 px-4 py-3 text-left transition hover:bg-white hover:shadow-[0_18px_40px_-24px_rgba(79,70,229,0.32)]"
+          >
+            <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#EEF2FF] text-[#4F46E5]">
+              <Icon className="h-4 w-4" />
+            </span>
+            <span className="min-w-0">
+              <span className="block text-[13px] font-bold text-[#121126]">{item.title}</span>
+              <span className="block truncate text-[11px] text-[#7878A1]">{item.meta}</span>
+            </span>
+            <span className="ml-auto hidden text-[10px] font-mono text-[#7878A1] lg:inline">
+              0{index + 1}
+            </span>
+          </a>
+        );
+      })}
+    </div>
+  );
+}
+
 function ProductRow({ index, tag, tagColor, kicker, title, body, bullets, mock, reverse }: {
   index: string; tag: string; tagColor: string; kicker: string;
   title: string; body: string; bullets: string[]; mock: React.ReactNode; reverse: boolean;
 }) {
   return (
-    <article className={`grid md:grid-cols-12 gap-10 md:gap-14 items-center ${reverse ? 'md:[&>*:first-child]:order-2' : ''}`}>
+    <article className={`sn-product-card grid items-center gap-8 rounded-[34px] p-4 md:grid-cols-12 md:gap-12 md:p-7 ${reverse ? 'md:[&>*:first-child]:order-2' : ''}`}>
       <div className="md:col-span-5">
         <div className="flex items-center gap-3 mb-5">
           <span className="font-mono text-[10.5px] tabular-nums text-[#7878A1]">{index}</span>
           <span className="h-px flex-1 max-w-12 bg-[#121126]/15" />
-          <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-[0.14em] text-white" style={{ background: tagColor }}>
+          <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-[0.14em] text-white shadow-[0_10px_24px_-12px_rgba(17,17,38,0.5)]" style={{ background: tagColor }}>
             {tag}
           </span>
         </div>
         <div className="text-[12px] uppercase tracking-[0.18em] font-semibold text-[#7878A1] mb-3">{kicker}</div>
-        <h3 className="font-display text-[32px] md:text-[44px] leading-[1.02] text-[#121126]">{title}</h3>
+        <h3 className="font-display text-[32px] md:text-[46px] leading-[1.02] text-[#121126]">{title}</h3>
         <p className="mt-5 text-[15px] text-[#4A4A6B] leading-relaxed max-w-md">{body}</p>
         <ul className="mt-6 space-y-2.5">
           {bullets.map(b => (
@@ -2304,8 +2404,9 @@ function ChatBubble({ side, children, time, ai }: { side: 'in' | 'out'; children
 
 function BentoMetrics() {
   return (
-    <section id="data" className="relative py-16 md:py-24">
+    <section id="data" className="relative py-14 md:py-20">
       <div className="container mx-auto px-6">
+        <div className="sn-section-shell px-5 py-8 md:px-8 md:py-10">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
           <div>
             <Eyebrow label="By the numbers" />
@@ -2331,6 +2432,7 @@ function BentoMetrics() {
         </div>
 
         <ActivityTicker />
+        </div>
       </div>
     </section>
   );
@@ -2808,6 +2910,7 @@ function PricingSection() {
   return (
     <section id="pricing" className="relative py-16 md:py-24">
       <div className="container mx-auto px-6">
+        <div className="sn-section-shell px-5 py-8 md:px-8 md:py-10">
         <div className="text-center max-w-3xl mx-auto mb-12">
           <Eyebrow label="Pricing" align="center" />
           <h2 className="mt-4 font-display text-[40px] md:text-[64px] leading-[1] text-[#121126]">
@@ -2861,6 +2964,7 @@ function PricingSection() {
             </article>
           ))}
         </div>
+        </div>
       </div>
     </section>
   );
@@ -2879,9 +2983,9 @@ function FaqSection() {
     { q: 'Can I self-host or choose a region?', a: "Yes, on Enterprise. EU, US or India residency, or deploy into your own cluster with our installer." },
   ];
   return (
-    <section id="faq" className="relative py-16 md:py-24">
+    <section id="faq" className="relative py-14 md:py-20">
       <div className="container mx-auto px-6">
-        <div className="grid md:grid-cols-12 gap-10">
+        <div className="sn-section-shell grid gap-10 px-5 py-8 md:grid-cols-12 md:px-8 md:py-10">
           <div className="md:col-span-5">
             <Eyebrow label="FAQ" />
             <h2 className="mt-4 font-display text-[40px] md:text-[60px] leading-[1] text-[#121126]">
@@ -2929,7 +3033,7 @@ function FaqSection() {
 
 function FinalCTA() {
   return (
-    <section className="relative py-16 md:py-24">
+    <section className="relative py-14 md:py-20">
       <div className="container mx-auto px-6">
         <div className="relative rounded-[32px] overflow-hidden px-8 py-14 md:px-16 md:py-20" style={{
           background: 'linear-gradient(135deg, #121126 0%, #1F1E4F 50%, #3B3683 100%)',
