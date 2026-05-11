@@ -30,7 +30,7 @@ pub mod webhook;
 use axum::{
     Router,
     extract::FromRef,
-    routing::{delete, get, post, put},
+    routing::{get, post, put},
 };
 use sabnode_auth::AuthConfig;
 use std::sync::Arc;

@@ -90,6 +90,6 @@ pub struct Template {
 
     /// Created-at timestamp. Optional in the TS schema (`createdAt?: Date`)
     /// because some legacy rows pre-date the field — we honor that here.
-    #[serde(default)]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional")]
     pub created_at: Option<DateTime<Utc>>,
 }

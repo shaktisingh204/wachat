@@ -67,7 +67,10 @@ pub struct Broadcast {
     /// throughput far above 4 billion/s is not a thing on the wachat path.
     pub mps: u32,
 
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub created_at: DateTime<Utc>,
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional")]
     pub started_at: Option<DateTime<Utc>>,
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional")]
     pub completed_at: Option<DateTime<Utc>>,
 }
