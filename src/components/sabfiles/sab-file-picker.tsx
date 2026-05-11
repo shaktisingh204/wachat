@@ -18,6 +18,7 @@
 
 import * as React from 'react';
 import {
+    AlertCircle,
     Check,
     File as FileIcon,
     FileImage,
@@ -25,6 +26,7 @@ import {
     FileVideo,
     FileAudio,
     Loader2,
+    RefreshCw,
     Search,
     Upload,
     X,
@@ -149,10 +151,21 @@ export function SabFilePicker({
     const [debouncedQuery, setDebouncedQuery] = React.useState('');
     const [items, setItems] = React.useState<SabfilesNode[]>([]);
     const [loading, setLoading] = React.useState(false);
+    const [libraryError, setLibraryError] = React.useState<string | null>(null);
     const [selectedId, setSelectedId] = React.useState<string | null>(null);
     const [tasks, setTasks] = React.useState<UploadTask[]>([]);
+    // Bumping this counter triggers a library refetch — used by the
+    // refresh button and immediately after an upload confirms so files
+    // dropped here AND files added in another tab both appear.
+    const [refreshTick, setRefreshTick] = React.useState(0);
     const fileInputRef = React.useRef<HTMLInputElement>(null);
     const { toast } = useZoruToast();
+    // Keep toast in a ref so the library effect doesn't re-fire on every
+    // render just because the hook returned a new function reference.
+    const toastRef = React.useRef(toast);
+    React.useEffect(() => {
+        toastRef.current = toast;
+    }, [toast]);
 
     // Reset internal state each time the dialog re-opens.
     React.useEffect(() => {
@@ -163,6 +176,10 @@ export function SabFilePicker({
         setDebouncedQuery('');
         setSelectedId(null);
         setTasks([]);
+        setLibraryError(null);
+        // Force a refetch so files uploaded elsewhere (e.g. the main
+        // SabFiles dashboard) show up on every re-open.
+        setRefreshTick((n) => n + 1);
     }, [open, accept]);
 
     // Debounce query → fetch.
@@ -175,6 +192,7 @@ export function SabFilePicker({
         if (!open || mode !== 'library') return;
         let cancelled = false;
         setLoading(true);
+        setLibraryError(null);
         void getLibrary({
             category: category === 'all' ? undefined : category,
             query: debouncedQuery || undefined,
@@ -183,9 +201,11 @@ export function SabFilePicker({
             if (cancelled) return;
             setLoading(false);
             if ('error' in res && res.error) {
-                toast({
-                    title: 'Library failed',
-                    description: String(res.error),
+                const msg = String(res.error);
+                setLibraryError(msg);
+                toastRef.current({
+                    title: 'Library failed to load',
+                    description: msg,
                     variant: 'destructive',
                 });
                 setItems([]);
@@ -196,7 +216,7 @@ export function SabFilePicker({
         return () => {
             cancelled = true;
         };
-    }, [open, mode, category, debouncedQuery, toast]);
+    }, [open, mode, category, debouncedQuery, refreshTick]);
 
     const restrictAccept = accept !== 'all';
     const acceptAttr = restrictAccept
@@ -232,6 +252,17 @@ export function SabFilePicker({
                 { id: taskId, name: file.name, progress: 0, status: 'queued' },
             ]);
 
+            const failTask = (err: string) => {
+                setTasks((t) =>
+                    t.map((x) => (x.id === taskId ? { ...x, status: 'error', error: err } : x)),
+                );
+                toastRef.current({
+                    title: 'Upload failed',
+                    description: `${file.name}: ${err}`,
+                    variant: 'destructive',
+                });
+            };
+
             const presign = await presignUpload({
                 name: file.name,
                 size: file.size,
@@ -239,15 +270,11 @@ export function SabFilePicker({
                 parent_id: null,
             });
             if ('error' in presign) {
-                setTasks((t) =>
-                    t.map((x) =>
-                        x.id === taskId ? { ...x, status: 'error', error: presign.error } : x,
-                    ),
-                );
+                failTask(presign.error);
                 return;
             }
 
-            const ok = await new Promise<boolean>((resolve) => {
+            const ok = await new Promise<{ ok: boolean; error?: string }>((resolve) => {
                 const xhr = new XMLHttpRequest();
                 xhr.open(presign.method, presign.upload_url);
                 for (const [k, v] of Object.entries(presign.headers || {})) {
@@ -263,20 +290,19 @@ export function SabFilePicker({
                     );
                 });
                 xhr.addEventListener('load', () => {
-                    resolve(xhr.status >= 200 && xhr.status < 300);
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        resolve({ ok: true });
+                    } else {
+                        resolve({ ok: false, error: `Storage returned ${xhr.status}` });
+                    }
                 });
-                xhr.addEventListener('error', () => resolve(false));
+                xhr.addEventListener('error', () => resolve({ ok: false, error: 'Network error' }));
+                xhr.addEventListener('abort', () => resolve({ ok: false, error: 'Upload cancelled' }));
                 xhr.send(file);
             });
 
-            if (!ok) {
-                setTasks((t) =>
-                    t.map((x) =>
-                        x.id === taskId
-                            ? { ...x, status: 'error', error: 'Upload failed' }
-                            : x,
-                    ),
-                );
+            if (!ok.ok) {
+                failTask(ok.error ?? 'Upload failed');
                 return;
             }
 
@@ -288,11 +314,7 @@ export function SabFilePicker({
                 parent_id: null,
             });
             if ('error' in confirmed) {
-                setTasks((t) =>
-                    t.map((x) =>
-                        x.id === taskId ? { ...x, status: 'error', error: confirmed.error } : x,
-                    ),
-                );
+                failTask(confirmed.error);
                 return;
             }
             setTasks((t) =>
@@ -308,11 +330,14 @@ export function SabFilePicker({
                 ),
             );
             // Auto-select the freshly uploaded file so a single click
-            // ("Pick" button) finishes the flow.
+            // ("Use this file") finishes the flow.
             setSelectedId(confirmed.node.id);
             // Also feed it into the library list so it appears with its
             // siblings if the user toggles back.
             setItems((curr) => [confirmed.node, ...curr]);
+            // And refetch in the background so the server-side ordering
+            // matches what the user sees.
+            setRefreshTick((n) => n + 1);
         },
         [],
     );
@@ -348,200 +373,316 @@ export function SabFilePicker({
         (t) => t.status === 'queued' || t.status === 'uploading',
     ).length;
 
+    const doneCount = tasks.filter((t) => t.status === 'done').length;
+
     return (
         <ZoruDialog open={open} onOpenChange={onOpenChange}>
-            <ZoruDialogContent className="max-w-3xl">
-                <ZoruDialogHeader>
-                    <ZoruDialogTitle>{title}</ZoruDialogTitle>
-                    <ZoruDialogDescription>
-                        Pick a file from your SabFiles library or upload a new one.
-                    </ZoruDialogDescription>
-                </ZoruDialogHeader>
+            <ZoruDialogContent className="flex max-h-[85vh] max-w-4xl flex-col gap-0 overflow-hidden p-0">
+                <div className="flex flex-col gap-3 border-b border-zoru-line p-5">
+                    <ZoruDialogHeader>
+                        <ZoruDialogTitle>{title}</ZoruDialogTitle>
+                        <ZoruDialogDescription>
+                            Pick a file from your SabFiles library or upload a new one.
+                        </ZoruDialogDescription>
+                    </ZoruDialogHeader>
 
-                <div className="flex flex-wrap items-center gap-1 rounded-[var(--zoru-radius)] border border-zoru-line p-1">
-                    <ModeButton
-                        active={mode === 'library'}
-                        icon={<FileImage />}
-                        label="Library"
-                        onClick={() => setMode('library')}
-                    />
-                    {allowUpload && (
+                    <div className="inline-flex w-fit items-center gap-1 rounded-full border border-zoru-line bg-zoru-surface p-1">
                         <ModeButton
-                            active={mode === 'upload'}
-                            icon={<Upload />}
-                            label="Upload"
-                            onClick={() => setMode('upload')}
+                            active={mode === 'library'}
+                            icon={<FileImage />}
+                            label="Library"
+                            onClick={() => setMode('library')}
                         />
+                        {allowUpload && (
+                            <ModeButton
+                                active={mode === 'upload'}
+                                icon={<Upload />}
+                                label="Upload"
+                                onClick={() => setMode('upload')}
+                                badge={inFlight > 0 ? inFlight : undefined}
+                            />
+                        )}
+                    </div>
+                </div>
+
+                <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden p-5">
+                    {mode === 'library' && (
+                        <>
+                            <div className="flex items-center gap-2">
+                                <div className="flex-1">
+                                    <ZoruInput
+                                        value={query}
+                                        onChange={(e) => setQuery(e.target.value)}
+                                        leadingSlot={<Search />}
+                                        placeholder="Search your files…"
+                                    />
+                                </div>
+                                <ZoruButton
+                                    type="button"
+                                    variant="outline"
+                                    size="icon"
+                                    aria-label="Refresh library"
+                                    disabled={loading}
+                                    onClick={() => setRefreshTick((n) => n + 1)}
+                                >
+                                    <RefreshCw className={cn(loading && 'animate-spin')} />
+                                </ZoruButton>
+                            </div>
+
+                            <div className="-mx-0.5 flex flex-wrap items-center gap-1.5 px-0.5">
+                                {visibleTabs.map((t) => (
+                                    <button
+                                        key={t.id}
+                                        type="button"
+                                        onClick={() => setCategory(t.id)}
+                                        className={cn(
+                                            'rounded-full border border-zoru-line bg-zoru-bg px-3 py-1 text-xs text-zoru-ink-muted transition-colors hover:border-zoru-ink/30 hover:text-zoru-ink',
+                                            category === t.id &&
+                                                'border-zoru-ink bg-zoru-ink text-zoru-on-primary hover:text-zoru-on-primary',
+                                        )}
+                                    >
+                                        {t.label}
+                                    </button>
+                                ))}
+                            </div>
+
+                            <div className="min-h-0 flex-1 overflow-y-auto rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface/40">
+                                {loading ? (
+                                    <div className="flex h-full min-h-[320px] items-center justify-center text-sm text-zoru-ink-muted">
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading
+                                        your library…
+                                    </div>
+                                ) : libraryError ? (
+                                    <div className="flex h-full min-h-[320px] flex-col items-center justify-center gap-2 px-6 text-center text-sm text-red-500">
+                                        <AlertCircle className="h-6 w-6" />
+                                        <div className="font-medium">Couldn’t load your library</div>
+                                        <div className="max-w-md text-xs text-zoru-ink-muted">
+                                            {libraryError}
+                                        </div>
+                                        <ZoruButton
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => setRefreshTick((n) => n + 1)}
+                                        >
+                                            <RefreshCw /> Try again
+                                        </ZoruButton>
+                                    </div>
+                                ) : items.length === 0 ? (
+                                    <div className="flex h-full min-h-[320px] flex-col items-center justify-center gap-2 px-6 text-center text-sm text-zoru-ink-muted">
+                                        <FileImage className="h-7 w-7 text-zoru-ink-muted/70" />
+                                        <div className="font-medium text-zoru-ink">
+                                            {debouncedQuery
+                                                ? 'No matches'
+                                                : 'Nothing here yet'}
+                                        </div>
+                                        <div className="max-w-sm text-xs">
+                                            {debouncedQuery
+                                                ? `No files matched “${debouncedQuery}”. Try clearing the search or switching category.`
+                                                : 'Upload a file to add it to your SabFiles library.'}
+                                        </div>
+                                        {allowUpload && !debouncedQuery && (
+                                            <ZoruButton
+                                                type="button"
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => setMode('upload')}
+                                            >
+                                                <Upload /> Upload now
+                                            </ZoruButton>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <ul className="grid grid-cols-2 gap-2 p-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+                                        {items.map((n) => {
+                                            const selected = selectedId === n.id;
+                                            return (
+                                                <li key={n.id}>
+                                                    <button
+                                                        type="button"
+                                                        className={cn(
+                                                            'group relative flex w-full flex-col items-stretch gap-1.5 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-2 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-zoru-ink/40 hover:shadow-md',
+                                                            selected &&
+                                                                'border-zoru-ink ring-2 ring-zoru-ink/30',
+                                                        )}
+                                                        onClick={() => setSelectedId(n.id)}
+                                                        onDoubleClick={() => {
+                                                            setSelectedId(n.id);
+                                                            setTimeout(onConfirmPick, 0);
+                                                        }}
+                                                    >
+                                                        <div className="relative flex h-24 w-full items-center justify-center overflow-hidden rounded-[var(--zoru-radius-sm)] bg-zoru-surface">
+                                                            {n.mime?.startsWith('image/') &&
+                                                            n.url ? (
+                                                                // eslint-disable-next-line @next/next/no-img-element
+                                                                <img
+                                                                    src={n.url}
+                                                                    alt={n.name}
+                                                                    className="h-full w-full object-cover"
+                                                                    loading="lazy"
+                                                                />
+                                                            ) : (
+                                                                <span className="[&>svg]:h-8 [&>svg]:w-8">
+                                                                    {iconFor(n.mime)}
+                                                                </span>
+                                                            )}
+                                                            {selected && (
+                                                                <div className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-zoru-ink text-zoru-on-primary shadow">
+                                                                    <Check className="h-3 w-3" />
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                        <div className="truncate text-xs font-medium text-zoru-ink">
+                                                            {n.name}
+                                                        </div>
+                                                        <div className="text-[10px] uppercase tracking-wide text-zoru-ink-muted">
+                                                            {fmtSize(n.size)}
+                                                        </div>
+                                                    </button>
+                                                </li>
+                                            );
+                                        })}
+                                    </ul>
+                                )}
+                            </div>
+                        </>
+                    )}
+
+                    {mode === 'upload' && (
+                        <div className="flex min-h-0 flex-1 flex-col gap-3">
+                            <div
+                                role="button"
+                                tabIndex={0}
+                                onClick={() => fileInputRef.current?.click()}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                        e.preventDefault();
+                                        fileInputRef.current?.click();
+                                    }
+                                }}
+                                onDragOver={(e) => {
+                                    e.preventDefault();
+                                }}
+                                onDrop={(e) => {
+                                    e.preventDefault();
+                                    onUploadFiles(e.dataTransfer.files);
+                                }}
+                                className="flex min-h-[180px] cursor-pointer flex-col items-center justify-center gap-2 rounded-[var(--zoru-radius-lg)] border-2 border-dashed border-zoru-line bg-zoru-surface/40 p-6 text-center transition-colors hover:border-zoru-ink/40 hover:bg-zoru-surface"
+                            >
+                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-bg text-zoru-ink-muted shadow-sm">
+                                    <Upload className="h-5 w-5" />
+                                </div>
+                                <div className="text-sm font-medium text-zoru-ink">
+                                    Click or drag files here
+                                </div>
+                                <div className="text-xs text-zoru-ink-muted">
+                                    Files upload directly to your SabFiles library.
+                                    {acceptAttr && <> Accepts {acceptAttr}.</>} Max{' '}
+                                    {fmtSize(maxSize)} per file.
+                                </div>
+                            </div>
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                multiple
+                                hidden
+                                accept={acceptAttr}
+                                onChange={(e) => {
+                                    onUploadFiles(e.target.files);
+                                    if (fileInputRef.current) fileInputRef.current.value = '';
+                                }}
+                            />
+                            {tasks.length > 0 && (
+                                <div className="flex min-h-0 flex-1 flex-col rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg">
+                                    <div className="flex items-center justify-between border-b border-zoru-line px-3 py-2">
+                                        <span className="text-xs font-semibold text-zoru-ink">
+                                            Uploads
+                                            <span className="ml-1 text-zoru-ink-muted">
+                                                ({doneCount}/{tasks.length})
+                                            </span>
+                                            {inFlight > 0 && (
+                                                <Loader2 className="ml-2 inline h-3.5 w-3.5 animate-spin text-zoru-ink-muted" />
+                                            )}
+                                        </span>
+                                        {doneCount > 0 && (
+                                            <button
+                                                type="button"
+                                                className="text-[11px] text-zoru-ink-muted hover:text-zoru-ink hover:underline"
+                                                onClick={() => setMode('library')}
+                                            >
+                                                View in library
+                                            </button>
+                                        )}
+                                    </div>
+                                    <ul className="flex max-h-56 flex-col gap-2 overflow-y-auto p-3">
+                                        {tasks.map((t) => (
+                                            <li
+                                                key={t.id}
+                                                className="flex flex-col gap-1 rounded-[var(--zoru-radius-sm)] border border-zoru-line/60 bg-zoru-surface/40 p-2"
+                                            >
+                                                <div className="flex items-center justify-between gap-2 text-xs">
+                                                    <span className="truncate font-medium text-zoru-ink">
+                                                        {t.name}
+                                                    </span>
+                                                    {t.status === 'done' && t.node && (
+                                                        <button
+                                                            type="button"
+                                                            className={cn(
+                                                                'text-[11px] font-medium',
+                                                                selectedId === t.node.id
+                                                                    ? 'text-emerald-600'
+                                                                    : 'text-zoru-ink-muted hover:text-zoru-ink hover:underline',
+                                                            )}
+                                                            onClick={() =>
+                                                                setSelectedId(t.node!.id)
+                                                            }
+                                                        >
+                                                            {selectedId === t.node.id
+                                                                ? '✓ Selected'
+                                                                : 'Select'}
+                                                        </button>
+                                                    )}
+                                                    {t.status === 'error' && (
+                                                        <span className="text-[11px] font-medium text-red-500">
+                                                            Failed
+                                                        </span>
+                                                    )}
+                                                    {(t.status === 'uploading' ||
+                                                        t.status === 'queued') && (
+                                                        <span className="text-[11px] text-zoru-ink-muted">
+                                                            {t.progress}%
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                {t.status === 'error' ? (
+                                                    <span className="text-[11px] text-red-500">
+                                                        {t.error}
+                                                    </span>
+                                                ) : (
+                                                    <ZoruProgress
+                                                        value={t.progress}
+                                                        className="h-1"
+                                                    />
+                                                )}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+                        </div>
                     )}
                 </div>
 
-                {mode === 'library' && (
-                    <>
-                        <div className="flex flex-wrap items-center gap-1.5">
-                            {visibleTabs.map((t) => (
-                                <button
-                                    key={t.id}
-                                    type="button"
-                                    onClick={() => setCategory(t.id)}
-                                    className={cn(
-                                        'rounded-full border border-zoru-line px-3 py-1 text-xs text-zoru-ink-muted hover:text-zoru-ink',
-                                        category === t.id &&
-                                            'border-zoru-ink bg-zoru-ink text-zoru-on-primary',
-                                    )}
-                                >
-                                    {t.label}
-                                </button>
-                            ))}
-                        </div>
-                        <ZoruInput
-                            value={query}
-                            onChange={(e) => setQuery(e.target.value)}
-                            leadingSlot={<Search />}
-                            placeholder="Search by name…"
-                        />
-                        <div className="min-h-[280px]">
-                            {loading ? (
-                                <div className="flex h-[280px] items-center justify-center text-sm text-zoru-ink-muted">
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading library…
-                                </div>
-                            ) : items.length === 0 ? (
-                                <div className="flex h-[280px] items-center justify-center text-sm text-zoru-ink-muted">
-                                    Nothing here yet — switch to Upload to add a file.
-                                </div>
-                            ) : (
-                                <ul className="grid max-h-[360px] grid-cols-2 gap-2 overflow-y-auto sm:grid-cols-3 md:grid-cols-4">
-                                    {items.map((n) => {
-                                        const selected = selectedId === n.id;
-                                        return (
-                                            <li key={n.id}>
-                                                <button
-                                                    type="button"
-                                                    className={cn(
-                                                        'group relative flex w-full flex-col items-stretch gap-1 rounded-[var(--zoru-radius)] border border-zoru-line p-2 text-left transition-colors hover:border-zoru-ink/40',
-                                                        selected && 'border-zoru-ink bg-zoru-surface-2',
-                                                    )}
-                                                    onClick={() => setSelectedId(n.id)}
-                                                    onDoubleClick={() => {
-                                                        setSelectedId(n.id);
-                                                        // Fire pick on double-click.
-                                                        setTimeout(onConfirmPick, 0);
-                                                    }}
-                                                >
-                                                    <div className="flex h-20 w-full items-center justify-center overflow-hidden rounded-[var(--zoru-radius-sm)] bg-zoru-surface">
-                                                        {n.mime?.startsWith('image/') && n.url ? (
-                                                            <img
-                                                                src={n.url}
-                                                                alt={n.name}
-                                                                className="h-full w-full object-cover"
-                                                                loading="lazy"
-                                                            />
-                                                        ) : (
-                                                            <span className="[&>svg]:h-7 [&>svg]:w-7">
-                                                                {iconFor(n.mime)}
-                                                            </span>
-                                                        )}
-                                                        {selected && (
-                                                            <div className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-zoru-ink text-zoru-on-primary">
-                                                                <Check className="h-3 w-3" />
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                    <div className="truncate text-xs font-medium text-zoru-ink">
-                                                        {n.name}
-                                                    </div>
-                                                    <div className="text-[10px] text-zoru-ink-muted">
-                                                        {fmtSize(n.size)}
-                                                    </div>
-                                                </button>
-                                            </li>
-                                        );
-                                    })}
-                                </ul>
-                            )}
-                        </div>
-                    </>
-                )}
-
-                {mode === 'upload' && (
-                    <div className="flex flex-col gap-3">
-                        <div
-                            role="button"
-                            tabIndex={0}
-                            onClick={() => fileInputRef.current?.click()}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter' || e.key === ' ') {
-                                    e.preventDefault();
-                                    fileInputRef.current?.click();
-                                }
-                            }}
-                            onDragOver={(e) => {
-                                e.preventDefault();
-                            }}
-                            onDrop={(e) => {
-                                e.preventDefault();
-                                onUploadFiles(e.dataTransfer.files);
-                            }}
-                            className="flex min-h-[200px] cursor-pointer flex-col items-center justify-center gap-2 rounded-[var(--zoru-radius-lg)] border-2 border-dashed border-zoru-line p-6 text-center hover:border-zoru-ink/40"
-                        >
-                            <Upload className="h-8 w-8 text-zoru-ink-muted" />
-                            <div className="text-sm font-medium text-zoru-ink">
-                                Click or drag files here
-                            </div>
-                            <div className="text-xs text-zoru-ink-muted">
-                                Files upload directly to your SabFiles library.
-                                {acceptAttr && <> Accepts {acceptAttr}.</>}
-                            </div>
-                        </div>
-                        <input
-                            ref={fileInputRef}
-                            type="file"
-                            multiple
-                            hidden
-                            accept={acceptAttr}
-                            onChange={(e) => {
-                                onUploadFiles(e.target.files);
-                                if (fileInputRef.current) fileInputRef.current.value = '';
-                            }}
-                        />
-                        {tasks.length > 0 && (
-                            <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-2">
-                                <div className="mb-2 flex items-center justify-between">
-                                    <span className="text-xs font-medium text-zoru-ink">
-                                        Uploads ({tasks.length})
-                                        {inFlight > 0 && (
-                                            <Loader2 className="ml-2 inline h-3.5 w-3.5 animate-spin text-zoru-ink-muted" />
-                                        )}
-                                    </span>
-                                </div>
-                                <ul className="flex max-h-48 flex-col gap-1.5 overflow-y-auto">
-                                    {tasks.map((t) => (
-                                        <li key={t.id} className="flex flex-col gap-1">
-                                            <div className="flex items-center justify-between gap-2 text-xs">
-                                                <span className="truncate">{t.name}</span>
-                                                {t.status === 'done' && t.node && (
-                                                    <button
-                                                        type="button"
-                                                        className="text-emerald-600 hover:underline"
-                                                        onClick={() => setSelectedId(t.node!.id)}
-                                                    >
-                                                        {selectedId === t.node.id ? 'Selected' : 'Select'}
-                                                    </button>
-                                                )}
-                                            </div>
-                                            {t.status === 'error' ? (
-                                                <span className="text-[11px] text-red-500">{t.error}</span>
-                                            ) : (
-                                                <ZoruProgress value={t.progress} className="h-1" />
-                                            )}
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        )}
+                <ZoruDialogFooter className="border-t border-zoru-line bg-zoru-surface/40 px-5 py-3">
+                    <div className="mr-auto flex items-center text-xs text-zoru-ink-muted">
+                        {selectedId
+                            ? `1 file selected`
+                            : mode === 'library'
+                              ? items.length > 0
+                                  ? 'Click a file to select it'
+                                  : ''
+                              : 'Upload to continue'}
                     </div>
-                )}
-
-                <ZoruDialogFooter>
                     <ZoruButton variant="ghost" onClick={() => onOpenChange(false)}>
                         Cancel
                     </ZoruButton>
@@ -559,23 +700,37 @@ function ModeButton({
     icon,
     label,
     onClick,
+    badge,
 }: {
     active: boolean;
     icon: React.ReactElement;
     label: string;
     onClick: () => void;
+    badge?: number;
 }) {
     return (
         <button
             type="button"
             onClick={onClick}
             className={cn(
-                'inline-flex items-center gap-1.5 rounded-[var(--zoru-radius-sm)] px-3 py-1 text-xs text-zoru-ink-muted hover:text-zoru-ink',
-                active && 'bg-zoru-ink text-zoru-on-primary',
+                'inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-medium text-zoru-ink-muted transition-colors hover:text-zoru-ink [&>svg]:h-3.5 [&>svg]:w-3.5',
+                active && 'bg-zoru-ink text-zoru-on-primary shadow-sm hover:text-zoru-on-primary',
             )}
         >
             {icon}
             {label}
+            {badge != null && badge > 0 && (
+                <span
+                    className={cn(
+                        'inline-flex h-4 min-w-[1rem] items-center justify-center rounded-full px-1 text-[10px] font-semibold',
+                        active
+                            ? 'bg-zoru-on-primary text-zoru-ink'
+                            : 'bg-zoru-ink text-zoru-on-primary',
+                    )}
+                >
+                    {badge}
+                </span>
+            )}
         </button>
     );
 }
