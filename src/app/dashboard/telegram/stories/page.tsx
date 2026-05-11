@@ -73,6 +73,7 @@ import {
 } from '@/components/zoruui';
 import { SabFileUrlInput } from '@/components/sabfiles';
 import { useProject } from '@/context/project-context';
+import { TelegramProjectGate } from '../_components/telegram-project-gate';
 import {
     cancelTelegramStoryAction,
     createTelegramStoryAction,
@@ -2301,6 +2302,7 @@ function NumField({
 }) {
     return (
         <label className="flex flex-col gap-0.5">
+            <TelegramProjectGate />
             <span className="text-[10px] uppercase tracking-[0.1em] text-zoru-ink-muted">
                 {label}
             </span>

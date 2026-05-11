@@ -80,6 +80,7 @@ import {
 } from '@/components/zoruui';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import { useProject } from '@/context/project-context';
+import { TelegramProjectGate } from '../_components/telegram-project-gate';
 import { listTelegramBots } from '@/app/actions/telegram.actions';
 import type { BotRow as TelegramBotRow } from '@/lib/rust-client/telegram-bots';
 import {
@@ -1965,6 +1966,7 @@ function DetailDrawer(props: DetailDrawerProps) {
 
     return (
         <ZoruDrawer open={open} onOpenChange={onOpenChange}>
+            <TelegramProjectGate />
             <ZoruDrawerContent className="max-h-[92vh]">
                 <ZoruDrawerHeader>
                     <ZoruDrawerTitle className="flex items-center gap-2">

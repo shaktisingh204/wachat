@@ -56,6 +56,7 @@ import {
 } from '@/components/zoruui';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import { useProject } from '@/context/project-context';
+import { TelegramProjectGate } from '../_components/telegram-project-gate';
 import {
     bulkDeleteTelegramCommandsAction,
     bulkPushTelegramCommandsAction,
@@ -726,10 +727,49 @@ export default function TelegramCommandsPage() {
     }
 
     async function runReplaceLocalWithLive() {
-        toast({
-            title: 'Not yet supported',
-            description: 'Sync direction "live → local" needs explicit per-command import. Use the import dialog with the live JSON.',
+        if (!projectId || !diffBot) return;
+        if (!diff?.live?.length) {
+            toast({
+                title: 'Nothing to import',
+                description:
+                    'Pull first — Telegram returned no live commands for this scope.',
+            });
+            return;
+        }
+        if (
+            !window.confirm(
+                `Import ${diff.live.length} command(s) from Telegram into this project? Duplicates with the same name, scope, and language are skipped.`,
+            )
+        ) {
+            return;
+        }
+        setDiffBusy(true);
+        const res = await importTelegramCommandsAction({
+            projectId,
+            commands: diff.live.map((c) => ({
+                projectId,
+                botId: diffBot,
+                command: c.command,
+                description: c.description,
+                scope: { kind: diffScope },
+                languageCode: diffLanguage || undefined,
+            })),
         });
+        setDiffBusy(false);
+        if (res.success) {
+            toast({
+                title: 'Imported',
+                description: `Inserted ${res.inserted} · skipped ${res.skipped}.`,
+            });
+            setDiffOpen(false);
+            await reload();
+        } else {
+            toast({
+                title: 'Import failed',
+                description: res.error ?? (res.errors ?? []).join(' • '),
+                variant: 'destructive',
+            });
+        }
     }
 
     async function runPushLocalOverLive() {
@@ -2217,6 +2257,7 @@ function DetailDiff({
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
     return (
         <div className="flex items-center justify-between gap-3 border-b border-zoru-line/60 py-1.5 last:border-b-0">
+            <TelegramProjectGate />
             <span className="text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
                 {label}
             </span>

@@ -62,6 +62,7 @@ import {
     useZoruToast,
 } from '@/components/zoruui';
 import { useProject } from '@/context/project-context';
+import { TelegramProjectGate } from '../_components/telegram-project-gate';
 import {
     analyticsAction,
     assignThreadAction,
@@ -453,6 +454,7 @@ export default function Page() {
 
     return (
         <div className="flex h-[calc(100vh-4rem)] flex-col bg-background">
+            <TelegramProjectGate />
             {/* Analytics summary bar */}
             <AnalyticsBar
                 analytics={analytics}

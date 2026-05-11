@@ -78,6 +78,7 @@ import {
     useZoruToast,
 } from '@/components/zoruui';
 import { useProject } from '@/context/project-context';
+import { TelegramProjectGate } from '../_components/telegram-project-gate';
 import {
     deleteTelegramWebhookDlqAction,
     deleteTelegramWebhookSubscriptionAction,
@@ -1363,6 +1364,7 @@ function AnalyticsSection({
     const palette = ZORU_CHART_PALETTE;
     return (
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
+            <TelegramProjectGate />
             <ZoruCard className="xl:col-span-2">
                 <ZoruCardContent className="p-4">
                     <h3 className="mb-2 text-sm font-medium">Deliveries & failures by day</h3>

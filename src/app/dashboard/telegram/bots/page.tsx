@@ -56,6 +56,7 @@ import {
     ZoruCheckbox,
 } from '@/components/zoruui';
 import { useProject } from '@/context/project-context';
+import { TelegramProjectGate } from '../_components/telegram-project-gate';
 import { useToast } from '@/hooks/use-toast';
 import {
     disconnectTelegramBot,
@@ -417,6 +418,7 @@ export default function TelegramBotsPage() {
 
     return (
         <div className="flex flex-col gap-6">
+            <TelegramProjectGate />
             {/* Header */}
             <div className="flex items-start gap-4">
                 <div

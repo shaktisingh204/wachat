@@ -58,6 +58,7 @@ import {
     useZoruToast,
 } from '@/components/zoruui';
 import { useProject } from '@/context/project-context';
+import { TelegramProjectGate } from '../_components/telegram-project-gate';
 import {
     listTelegramAdsPagedAction,
     upsertTelegramAdAction,
@@ -1079,6 +1080,7 @@ function Field({
 }) {
     return (
         <label className="flex flex-col gap-1.5">
+            <TelegramProjectGate />
             <span className="text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
                 {label}
             </span>

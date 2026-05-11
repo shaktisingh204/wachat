@@ -70,6 +70,7 @@ import {
 } from '@/components/zoruui';
 import { SabFileUrlInput } from '@/components/sabfiles';
 import { useProject } from '@/context/project-context';
+import { TelegramProjectGate } from '../_components/telegram-project-gate';
 import {
     clearTelegramBotOverridesAction,
     getTelegramBotOverridesAction,
@@ -624,6 +625,7 @@ export default function TelegramSettingsPage() {
 
     return (
         <div className="space-y-6 p-6">
+            <TelegramProjectGate />
             <ZoruPageHeader>
                 <ZoruPageHeading>
                     <ZoruPageEyebrow>Telegram</ZoruPageEyebrow>

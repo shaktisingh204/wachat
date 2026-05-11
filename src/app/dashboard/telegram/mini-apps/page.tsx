@@ -86,6 +86,7 @@ import {
 import { SabFileUrlInput } from '@/components/sabfiles';
 
 import { useProject } from '@/context/project-context';
+import { TelegramProjectGate } from '../_components/telegram-project-gate';
 import {
   listTelegramMiniAppsPagedAction,
   createTelegramMiniAppAction,
@@ -1515,6 +1516,7 @@ export default function MiniAppsPage() {
 
   return (
     <div className="flex min-h-full flex-col gap-4 p-4">
+        <TelegramProjectGate />
       <ZoruPageHeader>
         <ZoruPageHeading>
           <ZoruPageEyebrow>Telegram · {activeProjectName ?? ''}</ZoruPageEyebrow>

@@ -36,6 +36,7 @@ import {
 } from '@/app/actions/telegram-flows.actions';
 import type { FlowRow, FlowStatus } from '@/lib/rust-client/telegram-flows';
 import { useProject } from '@/context/project-context';
+import { TelegramProjectGate } from '../_components/telegram-project-gate';
 
 import {
   ZoruAlertDialog,
@@ -220,6 +221,7 @@ export default function TelegramFlowsPage() {
 
   return (
     <div className="flex flex-col gap-6 p-6">
+        <TelegramProjectGate />
       <ZoruPageHeader>
         <ZoruPageHeading>
           <ZoruPageEyebrow>Telegram</ZoruPageEyebrow>

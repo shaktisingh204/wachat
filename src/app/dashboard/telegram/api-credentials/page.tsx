@@ -54,6 +54,7 @@ import {
     useZoruToast,
 } from '@/components/zoruui';
 import { useProject } from '@/context/project-context';
+import { TelegramProjectGate } from '../_components/telegram-project-gate';
 import {
     createTelegramApiCredentialAction,
     deleteTelegramApiCredentialAction,
@@ -1270,6 +1271,7 @@ function KpiCard({
                 : 'text-zoru-ink';
     return (
         <ZoruCard className="p-4">
+            <TelegramProjectGate />
             <p className="text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
                 {label}
             </p>

@@ -19,6 +19,8 @@ export interface ZoruSidebarLeaf {
   icon?: React.ReactNode;
   badge?: React.ReactNode;
   onClick?: () => void;
+  children?: ZoruSidebarLeaf[];
+  defaultOpen?: boolean;
 }
 
 export interface ZoruSidebarGroup {
@@ -112,9 +114,11 @@ function SidebarGroup({ group }: { group: ZoruSidebarGroup }) {
   );
 }
 
-function SidebarLeaf({ item }: { item: ZoruSidebarLeaf }) {
+function SidebarLeaf({ item, depth = 0 }: { item: ZoruSidebarLeaf; depth?: number }) {
+  const hasChildren = !!(item.children && item.children.length > 0);
   const className = cn(
     "group flex items-center gap-2 rounded-[var(--zoru-radius-sm)] px-3 py-1.5 text-sm text-zoru-ink-muted transition-colors",
+    depth > 0 && "pl-7 text-[13px]",
     "hover:bg-zoru-surface-2 hover:text-zoru-ink",
     item.active && "bg-zoru-surface-2 text-zoru-ink font-medium",
     "focus-visible:outline-none [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-zoru-ink-muted",
@@ -130,8 +134,31 @@ function SidebarLeaf({ item }: { item: ZoruSidebarLeaf }) {
           {item.badge}
         </span>
       )}
+      {hasChildren && (
+        <ChevronDown className="ml-auto h-3 w-3 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+      )}
     </>
   );
+
+  if (hasChildren) {
+    const childActive = item.children!.some((c) => c.active);
+    return (
+      <ZoruCollapsible defaultOpen={item.defaultOpen ?? item.active ?? childActive}>
+        <ZoruCollapsibleTrigger asChild>
+          <button type="button" className={cn(className, "group w-full")}>
+            {inner}
+          </button>
+        </ZoruCollapsibleTrigger>
+        <ZoruCollapsibleContent>
+          <div className="mt-0.5 flex flex-col gap-0.5">
+            {item.children!.map((child) => (
+              <SidebarLeaf key={child.id} item={child} depth={depth + 1} />
+            ))}
+          </div>
+        </ZoruCollapsibleContent>
+      </ZoruCollapsible>
+    );
+  }
 
   return item.href ? (
     <Link href={item.href} className={className} onClick={item.onClick}>

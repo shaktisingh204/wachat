@@ -15,6 +15,10 @@ import {
     Plug,
 } from 'lucide-react';
 import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
+import { useProject } from '@/context/project-context';
+import { getTelegramOverview } from '@/app/actions/telegram.actions';
+import { listTelegramBotsAction } from '@/app/actions/telegram-extra.actions';
+import { TelegramProjectGate } from './_components/telegram-project-gate';
 
 interface QuickTileProps {
     href: string;
@@ -61,9 +65,73 @@ function StatCard({ label, value, hint }: { label: string; value: string; hint?:
     );
 }
 
+type OverviewState = {
+    bots: number;
+    activeChats: number;
+    broadcasts: number;
+    botsActive: number;
+    botsError: number;
+};
+
+const EMPTY_OVERVIEW: OverviewState = {
+    bots: 0,
+    activeChats: 0,
+    broadcasts: 0,
+    botsActive: 0,
+    botsError: 0,
+};
+
 export default function TelegramOverviewPage() {
+    const { activeProject } = useProject();
+    const projectId = activeProject?._id?.toString() ?? '';
+
+    const [stats, setStats] = React.useState<OverviewState>(EMPTY_OVERVIEW);
+    const [loading, setLoading] = React.useState(true);
+
+    React.useEffect(() => {
+        let cancelled = false;
+        async function load() {
+            if (!projectId) {
+                setStats(EMPTY_OVERVIEW);
+                setLoading(false);
+                return;
+            }
+            setLoading(true);
+            const [overview, bots] = await Promise.all([
+                getTelegramOverview(projectId).catch(() => ({
+                    bots: 0,
+                    activeChats: 0,
+                    broadcasts: 0,
+                })),
+                listTelegramBotsAction({ projectId, pageSize: 200 }).catch(
+                    () => ({ bots: [], total: 0, page: 1, pageSize: 200 }),
+                ),
+            ]);
+            if (cancelled) return;
+            const rows = bots.bots ?? [];
+            setStats({
+                bots: overview.bots ?? rows.length,
+                activeChats: overview.activeChats ?? 0,
+                broadcasts: overview.broadcasts ?? 0,
+                botsActive: rows.filter((b) => b.status === 'active').length,
+                botsError: rows.filter((b) => b.status === 'error').length,
+            });
+            setLoading(false);
+        }
+        void load();
+        return () => {
+            cancelled = true;
+        };
+    }, [projectId]);
+
+    const fmt = React.useCallback(
+        (n: number) => (loading ? '…' : n.toLocaleString()),
+        [loading],
+    );
+
     return (
         <div className="flex flex-col gap-8">
+            <TelegramProjectGate />
             {/* Header */}
             <div className="flex items-start justify-between gap-4">
                 <div className="flex items-start gap-4">
@@ -113,10 +181,44 @@ export default function TelegramOverviewPage() {
 
             {/* Stats */}
             <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-                <StatCard label="Connected bots" value="0" hint="No bots linked yet" />
-                <StatCard label="Active chats" value="0" hint="Last 24h" />
-                <StatCard label="Broadcasts sent" value="0" hint="This month" />
-                <StatCard label="Stars balance" value="0 ⭐" hint="Available" />
+                <StatCard
+                    label="Connected bots"
+                    value={fmt(stats.bots)}
+                    hint={
+                        !projectId
+                            ? 'Pick a project to see counts'
+                            : stats.bots === 0
+                            ? 'No bots linked yet'
+                            : `${stats.botsActive} active`
+                    }
+                />
+                <StatCard
+                    label="Active chats"
+                    value={fmt(stats.activeChats)}
+                    hint="Last 24h"
+                />
+                <StatCard
+                    label="Broadcasts"
+                    value={fmt(stats.broadcasts)}
+                    hint="Last 30 days"
+                />
+                <StatCard
+                    label="Webhook health"
+                    value={
+                        loading
+                            ? '…'
+                            : stats.bots === 0
+                            ? '—'
+                            : stats.botsError === 0
+                            ? 'Healthy'
+                            : `${stats.botsError} failing`
+                    }
+                    hint={
+                        stats.bots === 0
+                            ? 'Connect a bot to monitor'
+                            : `${stats.botsActive} of ${stats.bots} bots OK`
+                    }
+                />
             </div>
 
             {/* Quick actions */}
