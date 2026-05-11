@@ -97,7 +97,7 @@ pub struct Signature {
     pub status: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub signed_by: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub signed_at: Option<DateTime<Utc>>,
     /// Captured IP at signing time for non-repudiation. Stored as a
     /// string so v4 / v6 / private-network forms all round-trip.
@@ -124,8 +124,9 @@ pub struct Contract {
     pub parties: Vec<ContractParty>,
 
     /* ----- term + renewal ---------------------------------------- */
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub effective_date: DateTime<Utc>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub expiry: Option<DateTime<Utc>>,
     /// Free-form renewal terms (e.g. "Auto-renews for 12 months unless
     /// either party gives 30 days notice"). Parsing is out of scope —

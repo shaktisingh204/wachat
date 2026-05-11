@@ -74,7 +74,7 @@ pub enum EmploymentStatus {
 #[serde(rename_all = "camelCase")]
 pub struct Child {
     pub name: String,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub dob: Option<DateTime<Utc>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub gender: Option<Gender>,
@@ -101,7 +101,7 @@ pub struct IdentityDocs {
     pub pan: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub passport_no: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub passport_expiry: Option<DateTime<Utc>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub driving_licence: Option<String>,
@@ -153,9 +153,9 @@ pub struct Certification {
     pub name: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub issuer: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub issued: Option<DateTime<Utc>>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub expiry: Option<DateTime<Utc>>,
     /// SabFile reference to the certificate scan.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -169,9 +169,9 @@ pub struct Education {
     pub degree: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub field_of_study: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub start: Option<DateTime<Utc>>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub end: Option<DateTime<Utc>>,
     /// Free-form grade ("8.4 CGPA", "First Class", "A+").
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -183,9 +183,9 @@ pub struct Education {
 pub struct PastEmployment {
     pub company: String,
     pub role: String,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub start: Option<DateTime<Utc>>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub end: Option<DateTime<Utc>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub reason_for_leaving: Option<String>,
@@ -200,9 +200,9 @@ pub struct Visa {
     pub number: String,
     #[serde(rename = "visaType")]
     pub visa_type: String,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub issued: Option<DateTime<Utc>>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub valid_till: Option<DateTime<Utc>>,
     pub country: String,
 }
@@ -226,6 +226,7 @@ pub struct PersonalProfile {
     pub display_name: Option<String>,
 
     /// Required by §9.1.
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub dob: DateTime<Utc>,
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -280,10 +281,11 @@ pub struct PersonalProfile {
 pub struct EmploymentProfile {
     /// Tenant-issued employee code ("EMP-0001"). Required by §9.1.
     pub employee_id: String,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub joining_date: DateTime<Utc>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub confirmation_date: Option<DateTime<Utc>>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub probation_end: Option<DateTime<Utc>>,
 
     #[serde(default)]
@@ -341,7 +343,7 @@ pub struct EmploymentProfile {
 
     #[serde(default)]
     pub status: EmploymentStatus,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub exit_date: Option<DateTime<Utc>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub exit_reason: Option<String>,

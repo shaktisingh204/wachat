@@ -115,6 +115,7 @@ pub struct SalaryStructure {
     pub name: String,
     /// Date this structure version starts applying. Older runs continue
     /// to read whichever structure was active on their period.
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub effective_date: DateTime<Utc>,
 
     /* ----- components + targeting -------------------------------- */

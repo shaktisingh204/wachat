@@ -77,9 +77,9 @@ pub struct ChannelRow {
     #[serde(rename = "isAdmin")]
     pub is_admin: bool,
     pub permissions: ChannelPermissions,
-    #[serde(rename = "lastSyncedAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "lastSyncedAt")]
     pub last_synced_at: DateTime<Utc>,
-    #[serde(rename = "createdAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
     pub created_at: DateTime<Utc>,
 }
 
@@ -202,11 +202,7 @@ pub struct PostMessage {
         skip_serializing_if = "Option::is_none"
     )]
     pub disable_notification: Option<bool>,
-    #[serde(
-        default,
-        rename = "scheduleAt",
-        skip_serializing_if = "Option::is_none"
-    )]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", rename = "scheduleAt", skip_serializing_if = "Option::is_none")]
     pub schedule_at: Option<DateTime<Utc>>,
 }
 
@@ -265,9 +261,9 @@ pub struct PostRow {
     pub is_pinned: bool,
     #[serde(rename = "views", skip_serializing_if = "Option::is_none")]
     pub views: Option<i64>,
-    #[serde(rename = "sentAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "sentAt")]
     pub sent_at: DateTime<Utc>,
-    #[serde(rename = "editedAt", skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", rename = "editedAt", skip_serializing_if = "Option::is_none")]
     pub edited_at: Option<DateTime<Utc>>,
 }
 
@@ -289,9 +285,9 @@ pub struct ScheduledRow {
     #[serde(rename = "inlineKeyboard", skip_serializing_if = "Option::is_none")]
     pub inline_keyboard: Option<Value>,
     pub status: String,
-    #[serde(rename = "scheduledAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "scheduledAt")]
     pub scheduled_at: DateTime<Utc>,
-    #[serde(rename = "createdAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
     pub created_at: DateTime<Utc>,
 }
 

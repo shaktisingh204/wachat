@@ -116,6 +116,7 @@ pub struct AuditEntry {
     /// Wall-clock time the event occurred. Distinct from
     /// `audit.created_at` (which is when the audit row itself was
     /// written) — for replayed / backfilled events the two diverge.
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub at: DateTime<Utc>,
     /// Correlation token from the originating server-action call so a
     /// single user click that mutates several docs can be traced as one
@@ -136,6 +137,7 @@ pub struct AuditEntry {
 #[serde(rename_all = "camelCase")]
 pub struct EntityTimelineEntry {
     pub kind: String,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub at: DateTime<Utc>,
     /// Actor that produced the entry. `None` for system writes.
     #[serde(default, skip_serializing_if = "Option::is_none")]

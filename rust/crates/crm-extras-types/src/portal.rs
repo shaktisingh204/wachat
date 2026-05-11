@@ -89,7 +89,7 @@ pub struct PortalUser {
     pub capabilities: Vec<PortalCapability>,
 
     /* ----- bookkeeping ------------------------------------------ */
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub last_login_at: Option<DateTime<Utc>>,
     #[serde(default = "default_true", skip_serializing_if = "is_true")]
     pub active: bool,
@@ -110,7 +110,9 @@ pub struct PortalSession {
 
     /* ----- session window --------------------------------------- */
     pub portal_user_id: ObjectId,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub started_at: DateTime<Utc>,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub expires_at: DateTime<Utc>,
 
     /* ----- forensic context ------------------------------------- */

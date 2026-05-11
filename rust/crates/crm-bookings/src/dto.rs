@@ -145,10 +145,10 @@ pub struct ListBookingsQuery {
     #[serde(default)]
     pub status: Option<BookingStatus>,
     /// Inclusive lower bound on `slotStart`.
-    #[serde(default)]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional")]
     pub date_from: Option<DateTime<Utc>>,
     /// Exclusive upper bound on `slotStart`.
-    #[serde(default)]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional")]
     pub date_to: Option<DateTime<Utc>>,
 }
 
@@ -186,7 +186,9 @@ pub struct CreateBookingInput {
     pub service: Option<String>,
 
     /* ----- slot (★ both required) ----- */
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub slot_start: DateTime<Utc>,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub slot_end: DateTime<Utc>,
     /// RFC 5545 RRULE string. Empty / `None` means a one-off booking.
     #[serde(default)]
@@ -223,9 +225,9 @@ pub struct UpdateBookingInput {
     pub customer_id: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub service: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub slot_start: Option<DateTime<Utc>>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub slot_end: Option<DateTime<Utc>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub recurring_rule: Option<String>,

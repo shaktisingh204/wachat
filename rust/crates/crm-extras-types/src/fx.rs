@@ -94,6 +94,7 @@ pub struct FxRate {
 
     /// As-of timestamp the rate is published for. The worker uses this
     /// to pick the latest rate at posting time (`asOf <= postingDate`).
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub as_of: DateTime<Utc>,
 
     /// `true` when a finance user pinned the rate manually — the
@@ -124,6 +125,7 @@ pub struct FxRevaluation {
     pub audit: Audit,
 
     /// When the revaluation was run (worker invocation timestamp).
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub run_at: DateTime<Utc>,
 
     /// ISO 4217 base currency the revaluation is being expressed in.

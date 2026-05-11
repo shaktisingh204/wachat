@@ -115,6 +115,7 @@ pub struct NpsResponse {
 
     /// When the response was recorded (typically when the form was
     /// submitted, not when it was opened).
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub submitted_at: DateTime<Utc>,
 
     /// Channel the response came in on (matches one of the survey's
@@ -188,7 +189,7 @@ pub struct Referral {
     pub reward: Option<ReferralReward>,
 
     /// When the reward was paid out (set by the payout worker).
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub payout_at: Option<DateTime<Utc>>,
     /// External payout reference (loyalty txn id, ledger entry id,
     /// payout provider id) — string so any provider's id format

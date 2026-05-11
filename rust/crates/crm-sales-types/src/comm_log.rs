@@ -19,6 +19,7 @@ pub enum DeliveryOutcome {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct EmailLog {
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub sent_at: DateTime<Utc>,
     pub to: String,
     pub status: DeliveryOutcome,
@@ -34,6 +35,7 @@ pub struct EmailLog {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct WhatsAppSendLog {
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub sent_at: DateTime<Utc>,
     /// Recipient phone in `wa_id` format (digits only, no `+`) — same
     /// shape `wachat-types::WaContact` uses.

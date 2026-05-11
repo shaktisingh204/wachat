@@ -40,7 +40,7 @@ pub struct ChatRow {
     pub last_name: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none", rename = "lastMessagePreview")]
     pub last_message_preview: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "lastMessageAt")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "lastMessageAt")]
     pub last_message_at: Option<DateTime<Utc>>,
     #[serde(rename = "unreadCount")]
     pub unread_count: i64,
@@ -54,9 +54,9 @@ pub struct ChatRow {
     pub photo_url: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub permissions: Option<serde_json::Value>,
-    #[serde(rename = "createdAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
     pub created_at: DateTime<Utc>,
-    #[serde(rename = "updatedAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "updatedAt")]
     pub updated_at: DateTime<Utc>,
 }
 
@@ -137,13 +137,13 @@ pub struct MessageRow {
     pub error_message: Option<String>,
     #[serde(rename = "isDeleted")]
     pub is_deleted: bool,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "editedAt")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "editedAt")]
     pub edited_at: Option<DateTime<Utc>>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "readAt")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "readAt")]
     pub read_at: Option<DateTime<Utc>>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "sentAt")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "sentAt")]
     pub sent_at: Option<DateTime<Utc>>,
-    #[serde(rename = "createdAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
     pub created_at: DateTime<Utc>,
 }
 

@@ -346,28 +346,4 @@ export type TelegramWebhooksApi = typeof telegramWebhooksApi;
  * Full Bot API `allowed_updates` list — used by the dashboard
  * multi-select. Keep in sync with the upstream Telegram Bot API docs.
  */
-export const TELEGRAM_ALLOWED_UPDATES: ReadonlyArray<string> = [
-    'message',
-    'edited_message',
-    'channel_post',
-    'edited_channel_post',
-    'business_connection',
-    'business_message',
-    'edited_business_message',
-    'deleted_business_messages',
-    'message_reaction',
-    'message_reaction_count',
-    'inline_query',
-    'chosen_inline_result',
-    'callback_query',
-    'shipping_query',
-    'pre_checkout_query',
-    'purchased_paid_media',
-    'poll',
-    'poll_answer',
-    'my_chat_member',
-    'chat_member',
-    'chat_join_request',
-    'chat_boost',
-    'removed_chat_boost',
-];
+export { TELEGRAM_ALLOWED_UPDATES } from './telegram-webhooks-shared';

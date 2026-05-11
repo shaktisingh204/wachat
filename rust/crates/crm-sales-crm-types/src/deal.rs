@@ -62,6 +62,7 @@ pub enum DealStatus {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ActivityLogEntry {
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub at: DateTime<Utc>,
     /// Free-form kind ("note", "call", "email", "stage_change", …).
     pub kind: String,
@@ -110,8 +111,9 @@ pub struct Deal {
     pub probability_pct: Option<f32>,
 
     /* ----- dates ------------------------------------------------- */
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub expected_close: DateTime<Utc>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub actual_close: Option<DateTime<Utc>>,
 
     /* ----- workflow + outcome ------------------------------------ */

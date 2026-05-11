@@ -54,7 +54,7 @@ pub struct BudgetAlert {
     pub channel: String,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub recipients: Vec<ObjectId>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub fired_at: Option<DateTime<Utc>>,
 }
 
@@ -72,7 +72,9 @@ pub struct Budget {
     pub head: BudgetHead,
 
     /* ----- period ------------------------------------------------ */
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub period_from: DateTime<Utc>,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub period_to: DateTime<Utc>,
 
     /* ----- amounts ----------------------------------------------- */

@@ -44,6 +44,7 @@ pub struct Holiday {
     pub audit: Audit,
 
     /* ----- entity fields ----------------------------------------- */
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub date: DateTime<Utc>,
     pub name: String,
 

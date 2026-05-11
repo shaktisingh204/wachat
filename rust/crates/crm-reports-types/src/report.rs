@@ -91,9 +91,9 @@ pub enum ReportFormat {
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ReportFilters {
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub from: Option<DateTime<Utc>>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub to: Option<DateTime<Utc>>,
     /// e.g. "day" | "week" | "month" | "agent" | "client" | "branch".
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -134,7 +134,7 @@ pub struct ReportSchedule {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub timezone: Option<String>,
     /// Next computed run. Maintained by the scheduler, not the user.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub next_run: Option<DateTime<Utc>>,
     pub active: bool,
 }
@@ -177,7 +177,7 @@ pub struct ReportDefinition {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub recipients: Vec<ReportRecipient>,
     /// Last successful render timestamp. `None` until the first run.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub last_run_at: Option<DateTime<Utc>>,
 }
 
@@ -203,6 +203,7 @@ pub struct ReportRequest {
 #[serde(rename_all = "camelCase")]
 pub struct ReportResult {
     pub kind: ReportKind,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub generated_at: DateTime<Utc>,
     /// SabFiles id — the rendered artifact lives in the user's library
     /// per project policy; we never expose a free-text URL.

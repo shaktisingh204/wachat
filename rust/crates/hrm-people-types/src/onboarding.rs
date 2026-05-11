@@ -26,10 +26,10 @@ pub struct OnboardingChecklistItem {
     /// Owner of the task (HR partner, IT helpdesk, manager, …).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub owner_id: Option<ObjectId>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub due_date: Option<DateTime<Utc>>,
     pub done: bool,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub done_at: Option<DateTime<Utc>>,
 }
 
@@ -54,8 +54,9 @@ pub struct Onboarding {
     /// 0.0 – 100.0. Recomputed whenever an item flips `done`.
     pub completion_pct: f32,
 
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub started_at: DateTime<Utc>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub completed_at: Option<DateTime<Utc>>,
 }
 
@@ -73,7 +74,7 @@ pub struct WelcomeKitItem {
     pub sku: Option<String>,
     pub assigned: bool,
     pub delivered: bool,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub delivered_at: Option<DateTime<Utc>>,
 }
 
@@ -103,6 +104,7 @@ pub struct WelcomeKit {
 #[serde(rename_all = "camelCase")]
 pub struct ProbationMilestone {
     pub label: String,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub due: DateTime<Utc>,
     pub met: bool,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -127,20 +129,22 @@ pub struct ProbationTracker {
     pub audit: Audit,
 
     pub employee_id: ObjectId,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub start: DateTime<Utc>,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub end: DateTime<Utc>,
 
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub milestones: Vec<ProbationMilestone>,
 
     /// Scheduled review meeting timestamp.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub review_at: Option<DateTime<Utc>>,
 
     /// Final outcome — `None` until decided.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub decision: Option<ProbationDecision>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub decided_at: Option<DateTime<Utc>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub decided_by: Option<ObjectId>,

@@ -102,7 +102,7 @@ import type {
     WebhookDlqRow,
     WebhookSubscriptionRow,
 } from '@/lib/rust-client/telegram-webhooks';
-import { TELEGRAM_ALLOWED_UPDATES } from '@/lib/rust-client/telegram-webhooks';
+import { TELEGRAM_ALLOWED_UPDATES } from '@/lib/rust-client/telegram-webhooks-shared';
 
 const ACCENT = '#229ED9';
 

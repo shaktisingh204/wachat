@@ -49,6 +49,7 @@ pub enum AssetCondition {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RetireSellEntry {
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub at: DateTime<Utc>,
     /// Either `"retire"` or `"sell"`. Free-form so accountants can
     /// extend with project-specific dispositions (e.g. `"donate"`)
@@ -80,6 +81,7 @@ pub struct FixedAsset {
     pub category: Option<String>,
 
     /* ----- acquisition ------------------------------------------- */
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub purchase_date: DateTime<Utc>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub supplier_id: Option<ObjectId>,
@@ -104,9 +106,9 @@ pub struct FixedAsset {
     pub condition: AssetCondition,
 
     /* ----- contracts --------------------------------------------- */
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub warranty_until: Option<DateTime<Utc>>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub insurance_until: Option<DateTime<Utc>>,
     /// FK into the §12.18 service-contracts collection covering the
     /// asset's annual maintenance contract.

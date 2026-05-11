@@ -19,9 +19,9 @@ const BROADCASTS_COLL: &str = "broadcasts";
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct BroadcastAnalyticsBody {
-    #[serde(default)]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional")]
     pub start_date: Option<DateTime<Utc>>,
-    #[serde(default)]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional")]
     pub end_date: Option<DateTime<Utc>>,
 }
 
@@ -34,6 +34,7 @@ pub struct BroadcastSummary {
     pub success_count: u64,
     pub failed_count: u64,
     pub status: String,
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional")]
     pub created_at: Option<DateTime<Utc>>,
 }
 

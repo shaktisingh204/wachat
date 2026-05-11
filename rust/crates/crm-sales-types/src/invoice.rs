@@ -62,9 +62,10 @@ pub enum RecurringFrequency {
 pub struct RecurringConfig {
     pub frequency: RecurringFrequency,
     /// Stop after this date. `None` = run forever.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub end_date: Option<DateTime<Utc>>,
     /// Next firing time. Engine advances this on each successful run.
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub next_run: DateTime<Utc>,
     /// Optional cap on number of runs. Decrements per run.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -101,6 +102,7 @@ pub struct EInvoiceEnvelope {
     /// Signed QR string. Embed as a QR code on the PDF.
     pub qr_string: String,
     pub ack_no: String,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub ack_date: DateTime<Utc>,
 }
 
@@ -119,7 +121,9 @@ pub struct Invoice {
 
     /* ----- system-issued doc number + dates ---------------------- */
     pub invoice_no: String,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub date: DateTime<Utc>,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub due_date: DateTime<Utc>,
 
     /* ----- parties ----------------------------------------------- */

@@ -36,6 +36,7 @@ pub enum TaskType {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Reminder {
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub at: DateTime<Utc>,
     /// `"email"` | `"push"` | `"whatsapp"` | …
     pub channel: String,
@@ -65,7 +66,7 @@ pub struct ChecklistItem {
     pub text: String,
     #[serde(default)]
     pub done: bool,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub completed_at: Option<DateTime<Utc>>,
 }
 
@@ -118,6 +119,7 @@ pub struct Task {
     /// convention) — task semantics demand a single concrete owner, so
     /// this field is non-optional.
     pub assignee_id: ObjectId,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub due_date: DateTime<Utc>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub reminders: Vec<Reminder>,

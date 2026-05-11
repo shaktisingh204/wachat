@@ -181,6 +181,7 @@ pub struct Throttle {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AutomationLog {
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub at: DateTime<Utc>,
     pub success: bool,
     #[serde(default, skip_serializing_if = "Option::is_none")]

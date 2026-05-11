@@ -197,17 +197,17 @@ pub struct StoryRow {
     #[serde(rename = "protectContent")]
     pub protect_content: bool,
     pub status: String,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "scheduledAt")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "scheduledAt")]
     pub scheduled_at: Option<DateTime<Utc>>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "postedAt")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "postedAt")]
     pub posted_at: Option<DateTime<Utc>>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "expiresAt")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "expiresAt")]
     pub expires_at: Option<DateTime<Utc>>,
     #[serde(skip_serializing_if = "Option::is_none", rename = "errorMessage")]
     pub error_message: Option<String>,
-    #[serde(rename = "createdAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
     pub created_at: DateTime<Utc>,
-    #[serde(rename = "updatedAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "updatedAt")]
     pub updated_at: DateTime<Utc>,
 }
 
@@ -496,7 +496,7 @@ pub struct CreateBody {
     pub post_to_chat_page: bool,
     #[serde(default, rename = "protectContent")]
     pub protect_content: bool,
-    #[serde(default, rename = "scheduledAt")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", rename = "scheduledAt")]
     pub scheduled_at: Option<DateTime<Utc>>,
 }
 
@@ -614,7 +614,7 @@ pub struct UpdateBody {
     pub post_to_chat_page: Option<bool>,
     #[serde(default, rename = "protectContent")]
     pub protect_content: Option<bool>,
-    #[serde(default, rename = "scheduledAt")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", rename = "scheduledAt")]
     pub scheduled_at: Option<DateTime<Utc>>,
 }
 
@@ -1060,7 +1060,7 @@ pub async fn post_now(
 pub struct ScheduleBody {
     #[serde(rename = "projectId")]
     pub project_id: String,
-    #[serde(rename = "scheduledAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "scheduledAt")]
     pub scheduled_at: DateTime<Utc>,
 }
 
@@ -1432,7 +1432,7 @@ pub struct BusinessConnectionRow {
     pub can_edit: bool,
     #[serde(rename = "isEnabled")]
     pub is_enabled: bool,
-    #[serde(rename = "createdAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
     pub created_at: DateTime<Utc>,
 }
 

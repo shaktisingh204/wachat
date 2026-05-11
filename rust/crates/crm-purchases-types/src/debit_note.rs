@@ -43,6 +43,7 @@ pub struct DebitNote {
 
     /* ----- doc number + dates ------------------------------------ */
     pub dn_no: String,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub date: DateTime<Utc>,
 
     /* ----- parties + refs ---------------------------------------- */

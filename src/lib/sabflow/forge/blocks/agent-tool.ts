@@ -76,14 +76,19 @@ async function runToolAction(ctx: ForgeActionContext): Promise<ForgeActionResult
     };
   }
 
-  // Resolve the tool through the agents module. Falls back gracefully when
-  // Impl 4 hasn't shipped yet.
-  // The `typeof window === 'undefined'` guard keeps webpack/turbopack from
-  // bundling `@/lib/agents` (and its mongodb/genkit deps) into client chunks.
+  // Resolve the tool through the agents registry. We import from the
+  // narrow `agents/registry` path — NOT the package barrel `@/lib/agents`,
+  // which re-exports `server-only` modules (`evals.ts`, `memory.ts`) and
+  // would otherwise be pulled into the Client Component SSR bundle by
+  // Turbopack's static analysis of `await import(...)`.
+  //
+  // The actual tools are registered (via side-effects in `agents/tools.ts`)
+  // by the server-side import chain BEFORE this block ever runs, so the
+  // registry will be populated by the time we look up `toolName`.
   let tool: { name: string; run: (args: unknown, ctx: unknown) => Promise<unknown> } | undefined;
   if (typeof window === 'undefined') {
     try {
-      const mod = (await import('@/lib/agents')) as {
+      const mod = (await import('@/lib/agents/registry')) as {
         getTool?: (name: string) => typeof tool;
       };
       if (typeof mod.getTool === 'function') tool = mod.getTool(toolName);

@@ -125,19 +125,19 @@ pub struct InboxThread {
     #[serde(skip_serializing_if = "Option::is_none", rename = "assignedAgentId")]
     pub assigned_agent_id: Option<String>,
     pub tags: Vec<String>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "firstResponseAt")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "firstResponseAt")]
     pub first_response_at: Option<DateTime<Utc>>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "lastInboundAt")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "lastInboundAt")]
     pub last_inbound_at: Option<DateTime<Utc>>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "lastOutboundAt")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "lastOutboundAt")]
     pub last_outbound_at: Option<DateTime<Utc>>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "lastAgentReplyAt")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "lastAgentReplyAt")]
     pub last_agent_reply_at: Option<DateTime<Utc>>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "slaDueAt")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "slaDueAt")]
     pub sla_due_at: Option<DateTime<Utc>>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "snoozedUntil")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "snoozedUntil")]
     pub snoozed_until: Option<DateTime<Utc>>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "resolvedAt")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "resolvedAt")]
     pub resolved_at: Option<DateTime<Utc>>,
     #[serde(skip_serializing_if = "Option::is_none", rename = "resolvedById")]
     pub resolved_by_id: Option<String>,
@@ -151,9 +151,9 @@ pub struct InboxThread {
     pub last_message_direction: Option<String>,
     #[serde(rename = "slaBreached")]
     pub sla_breached: bool,
-    #[serde(rename = "createdAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
     pub created_at: DateTime<Utc>,
-    #[serde(rename = "updatedAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "updatedAt")]
     pub updated_at: DateTime<Utc>,
 }
 
@@ -893,7 +893,7 @@ pub struct InboxMessage {
     pub status: String,
     #[serde(skip_serializing_if = "Option::is_none", rename = "errorMessage")]
     pub error_message: Option<String>,
-    #[serde(rename = "createdAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
     pub created_at: DateTime<Utc>,
 }
 
@@ -1052,7 +1052,7 @@ pub struct InboxNote {
     pub author_id: String,
     pub body: String,
     pub mentions: Vec<String>,
-    #[serde(rename = "createdAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
     pub created_at: DateTime<Utc>,
 }
 
@@ -1477,9 +1477,9 @@ pub struct AutoAssignRule {
     pub set_priority: Option<String>,
     #[serde(rename = "setSlaSeconds", skip_serializing_if = "Option::is_none")]
     pub set_sla_seconds: Option<i64>,
-    #[serde(rename = "createdAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
     pub created_at: DateTime<Utc>,
-    #[serde(rename = "updatedAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "updatedAt")]
     pub updated_at: DateTime<Utc>,
 }
 
@@ -1786,9 +1786,9 @@ pub struct SlaPolicy {
     pub business_hours_only: bool,
     #[serde(rename = "applyToTags", skip_serializing_if = "Option::is_none")]
     pub apply_to_tags: Option<Vec<String>>,
-    #[serde(rename = "createdAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
     pub created_at: DateTime<Utc>,
-    #[serde(rename = "updatedAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "updatedAt")]
     pub updated_at: DateTime<Utc>,
 }
 

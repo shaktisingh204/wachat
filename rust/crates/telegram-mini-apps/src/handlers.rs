@@ -81,9 +81,9 @@ pub struct MiniAppRow {
     #[serde(rename = "allowedDomains")]
     pub allowed_domains: Vec<String>,
     pub status: String,
-    #[serde(rename = "createdAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
     pub created_at: DateTime<Utc>,
-    #[serde(rename = "updatedAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "updatedAt")]
     pub updated_at: DateTime<Utc>,
 }
 
@@ -240,7 +240,7 @@ pub struct SessionRow {
     pub username: Option<String>,
     #[serde(rename = "firstName", skip_serializing_if = "Option::is_none")]
     pub first_name: Option<String>,
-    #[serde(rename = "validatedAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "validatedAt")]
     pub validated_at: DateTime<Utc>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub country: Option<String>,

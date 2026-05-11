@@ -41,7 +41,9 @@ pub struct Okr {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub key_results: Vec<KeyResult>,
     pub owner_id: ObjectId,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub period_from: DateTime<Utc>,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub period_to: DateTime<Utc>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub weight_pct: Option<f32>,
@@ -75,7 +77,9 @@ pub struct Feedback360Cycle {
     pub audit: Audit,
 
     pub name: String,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub period_from: DateTime<Utc>,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub period_to: DateTime<Utc>,
     #[serde(default)]
     pub anonymous: bool,
@@ -157,9 +161,9 @@ pub struct Survey {
     pub audience_value: Option<String>,
     #[serde(default)]
     pub anonymous: bool,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub scheduled_for: Option<DateTime<Utc>>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub closes_at: Option<DateTime<Utc>>,
     #[serde(default)]
     pub results_summary: serde_json::Value,
@@ -175,7 +179,7 @@ pub struct ActionItem {
     pub text: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub owner_id: Option<ObjectId>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub due: Option<DateTime<Utc>>,
     #[serde(default)]
     pub done: bool,
@@ -191,6 +195,7 @@ pub struct OneOnOne {
 
     pub manager_id: ObjectId,
     pub employee_id: ObjectId,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub scheduled_at: DateTime<Utc>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub template_id: Option<ObjectId>,

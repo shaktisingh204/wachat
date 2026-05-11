@@ -61,7 +61,7 @@ pub struct ImportJob {
     pub dedupe_key: Option<String>,
     #[serde(default)]
     pub dry_run: bool,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub scheduled_for: Option<DateTime<Utc>>,
     /// SabFiles id of the JSON validation report produced after the run.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -104,7 +104,7 @@ pub struct BlacklistEntry {
     pub value: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub reason: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub expires_at: Option<DateTime<Utc>>,
 }
 
@@ -123,8 +123,9 @@ pub struct EraseRequest {
     pub subject_email: Option<String>,
     /// `"gdpr" | "dpdp" | "ccpa"`.
     pub regulation: String,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub requested_at: DateTime<Utc>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub processed_at: Option<DateTime<Utc>>,
     pub status: String,
     /// Entity kinds the erase covers (`["client", "ticket", "invoice"]`).
@@ -153,8 +154,9 @@ pub struct ConsentEvent {
     /// Channel the consent was captured on (`"web_form"`, `"whatsapp"`,
     /// `"email_double_optin"`, …).
     pub channel: String,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub captured_at: DateTime<Utc>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub expires_at: Option<DateTime<Utc>>,
     /// Free-form proof reference (IP + user agent string, signed token,
     /// SabFiles url, …).

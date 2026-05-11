@@ -49,7 +49,9 @@ pub enum AccountingReportFormat {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ComparisonPeriod {
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub from: DateTime<Utc>,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub to: DateTime<Utc>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub label: Option<String>,
@@ -66,7 +68,9 @@ fn is_false(b: &bool) -> bool {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AccountingReportFilters {
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub from: DateTime<Utc>,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub to: DateTime<Utc>,
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
