@@ -133,6 +133,8 @@ members = [
     "crates/crm-departments",
     "crates/sabflow-engine",
     "crates/sabflow-webhooks",
+    "crates/sabflow-nodes",
+    "crates/sabflow-engine-runtime",
 ]
 
 [workspace.package]

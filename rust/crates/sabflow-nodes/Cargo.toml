@@ -1,0 +1,40 @@
+[package]
+name = "sabflow-nodes"
+version = "0.1.0"
+edition = "2024"
+description = "SabFlow node trait, registry, descriptors, and 306 n8n-parity node implementations."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "sabflow_nodes"
+path = "src/lib.rs"
+
+[dependencies]
+async-trait = "0.1"
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "multipart", "gzip"] }
+
+futures = "0.3"
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+regex = "1"
+once_cell = "1"
+
+bson = { version = "2", features = ["chrono-0_4"] }
+mongodb = { version = "3" }
+
+tracing = "0.1"
+anyhow = "1"
+thiserror = "2"
+uuid = { version = "1", features = ["v4", "serde"] }
+base64 = "0.22"
+
+sabnode-common = { path = "../common" }
+sabnode-db = { path = "../db" }
+
+[lints]
+workspace = true

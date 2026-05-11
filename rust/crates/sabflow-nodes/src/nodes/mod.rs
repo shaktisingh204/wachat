@@ -1,0 +1,381 @@
+//! All SabFlow nodes.
+//!
+//! Layout:
+//!   - One module per fully-implemented node (e.g. `http_request`, `slack`).
+//!   - Stubs for the remaining n8n-parity nodes are registered via
+//!     [`register_stubs`] using the shared [`stub::StubNode`].
+//!
+//! [`register_all`] is the single entry point used by the registry.
+//! Implemented nodes register first so stubs with the same name don't overwrite them.
+
+pub mod stub;
+
+// ── Fully-implemented core nodes ────────────────────────────────────────────
+pub mod http_request;
+pub mod set_node;
+pub mod if_node;
+pub mod switch_node;
+pub mod merge_node;
+pub mod wait_node;
+pub mod code_node;
+pub mod schedule_trigger;
+pub mod webhook_trigger;
+pub mod noop_node;
+
+// ── Fully-implemented integration nodes ─────────────────────────────────────
+pub mod slack;
+pub mod discord;
+pub mod github;
+pub mod gitlab;
+pub mod notion;
+pub mod airtable;
+pub mod google_sheets;
+pub mod gmail;
+pub mod sendgrid;
+pub mod mailchimp;
+pub mod twilio;
+pub mod hubspot;
+pub mod stripe;
+pub mod telegram;
+pub mod openai;
+pub mod anthropic;
+pub mod postgres;
+pub mod mongo_db;
+pub mod redis_node;
+pub mod respond_to_webhook;
+
+use crate::{descriptor::NodeCategory, registry::NodeRegistry};
+
+/// Register every node (real + stub) into the registry.
+pub fn register_all(r: &mut NodeRegistry) {
+    register_implemented(r);
+    register_stubs(r);
+}
+
+fn register_implemented(r: &mut NodeRegistry) {
+    // Core (10)
+    r.register(http_request::HttpRequestNode);
+    r.register(set_node::SetNode);
+    r.register(if_node::IfNode);
+    r.register(switch_node::SwitchNode);
+    r.register(merge_node::MergeNode);
+    r.register(wait_node::WaitNode);
+    r.register(code_node::CodeNode);
+    r.register(schedule_trigger::ScheduleTriggerNode);
+    r.register(webhook_trigger::WebhookTriggerNode);
+    r.register(noop_node::NoOpNode);
+    // Integrations (20)
+    r.register(slack::SlackNode);
+    r.register(discord::DiscordNode);
+    r.register(github::GithubNode);
+    r.register(gitlab::GitlabNode);
+    r.register(notion::NotionNode);
+    r.register(airtable::AirtableNode);
+    r.register(google_sheets::GoogleSheetsNode);
+    r.register(gmail::GmailNode);
+    r.register(sendgrid::SendGridNode);
+    r.register(mailchimp::MailchimpNode);
+    r.register(twilio::TwilioNode);
+    r.register(hubspot::HubspotNode);
+    r.register(stripe::StripeNode);
+    r.register(telegram::TelegramNode);
+    r.register(openai::OpenAiNode);
+    r.register(anthropic::AnthropicNode);
+    r.register(postgres::PostgresNode);
+    r.register(mongo_db::MongoDbNode);
+    r.register(redis_node::RedisNode);
+    r.register(respond_to_webhook::RespondToWebhookNode);
+}
+
+/// Register stubs only when the name isn't already populated by an implemented node.
+fn register_stubs(r: &mut NodeRegistry) {
+    let stubs: &[(&str, &str, NodeCategory, &str)] = &[
+        // (name, displayName, category, description)
+        ("actionNetwork", "Action Network", NodeCategory::Crm, "Action Network operations"),
+        ("activeCampaign", "ActiveCampaign", NodeCategory::Marketing, "Marketing automation and CRM"),
+        ("acuityScheduling", "Acuity Scheduling", NodeCategory::Productivity, "Online appointment scheduling"),
+        ("adalo", "Adalo", NodeCategory::Developer, "Adalo app data operations"),
+        ("affinity", "Affinity", NodeCategory::Crm, "Relationship intelligence CRM"),
+        ("agileCrm", "Agile CRM", NodeCategory::Crm, "Customer relationship management"),
+        ("aiTransform", "AI Transform", NodeCategory::Ai, "Transform data with AI"),
+        ("airtop", "Airtop", NodeCategory::Ai, "Browser automation for AI agents"),
+        ("amqp", "AMQP", NodeCategory::Developer, "AMQP message queue"),
+        ("apiTemplateIo", "APITemplate.io", NodeCategory::Developer, "Generate PDFs and images"),
+        ("asana", "Asana", NodeCategory::Productivity, "Project and task management"),
+        ("autopilot", "Autopilot", NodeCategory::Marketing, "Marketing automation"),
+        ("aws", "AWS", NodeCategory::Storage, "Amazon Web Services"),
+        ("bambooHr", "BambooHR", NodeCategory::Hr, "HR management"),
+        ("bannerbear", "Bannerbear", NodeCategory::Marketing, "Auto-generate marketing creatives"),
+        ("baserow", "Baserow", NodeCategory::Database, "Open-source no-code database"),
+        ("beeminder", "Beeminder", NodeCategory::Productivity, "Goal tracking"),
+        ("bitbucket", "Bitbucket", NodeCategory::Developer, "Git hosting and code review"),
+        ("bitly", "Bitly", NodeCategory::Marketing, "URL shortener"),
+        ("bitwarden", "Bitwarden", NodeCategory::Developer, "Password manager"),
+        ("box", "Box", NodeCategory::Storage, "Cloud content management"),
+        ("brandfetch", "Brandfetch", NodeCategory::Marketing, "Brand asset lookup"),
+        ("brevo", "Brevo", NodeCategory::Marketing, "Email and SMS marketing"),
+        ("bubble", "Bubble", NodeCategory::Developer, "No-code app data"),
+        ("cal", "Cal.com", NodeCategory::Productivity, "Open-source scheduling"),
+        ("calendly", "Calendly", NodeCategory::Productivity, "Meeting scheduling"),
+        ("chargebee", "Chargebee", NodeCategory::Finance, "Subscription billing"),
+        ("circleCi", "CircleCI", NodeCategory::Developer, "Continuous integration"),
+        ("cisco", "Cisco", NodeCategory::Developer, "Cisco Webex meetings"),
+        ("clearbit", "Clearbit", NodeCategory::Marketing, "Business intelligence APIs"),
+        ("clickUp", "ClickUp", NodeCategory::Productivity, "Project management"),
+        ("clockify", "Clockify", NodeCategory::Productivity, "Time tracking"),
+        ("cloudflare", "Cloudflare", NodeCategory::Developer, "DNS and CDN management"),
+        ("cockpit", "Cockpit", NodeCategory::Developer, "Headless CMS"),
+        ("coda", "Coda", NodeCategory::Productivity, "All-in-one doc"),
+        ("coinGecko", "CoinGecko", NodeCategory::Finance, "Cryptocurrency price data"),
+        ("compareDatasets", "Compare Datasets", NodeCategory::Transform, "Diff two datasets"),
+        ("compression", "Compression", NodeCategory::Transform, "Compress and decompress files"),
+        ("contentful", "Contentful", NodeCategory::Developer, "Headless CMS"),
+        ("convertKit", "ConvertKit", NodeCategory::Marketing, "Email marketing for creators"),
+        ("copper", "Copper", NodeCategory::Crm, "CRM built for Google Workspace"),
+        ("cortex", "Cortex", NodeCategory::Developer, "Threat intelligence analysis"),
+        ("crateDb", "CrateDB", NodeCategory::Database, "Distributed SQL database"),
+        ("cron", "Cron", NodeCategory::Logic, "Schedule by cron expression"),
+        ("crypto", "Crypto", NodeCategory::Transform, "Cryptographic operations"),
+        ("currents", "Currents", NodeCategory::Analytics, "News API"),
+        ("customerIo", "Customer.io", NodeCategory::Marketing, "Behavioural email"),
+        ("dataTable", "Data Table", NodeCategory::Transform, "Tabular data operations"),
+        ("databricks", "Databricks", NodeCategory::Analytics, "Lakehouse platform"),
+        ("dateTime", "Date & Time", NodeCategory::Transform, "Format and manipulate dates"),
+        ("debugHelper", "Debug Helper", NodeCategory::Developer, "Generate test data"),
+        ("deepL", "DeepL", NodeCategory::Ai, "Translation API"),
+        ("demio", "Demio", NodeCategory::Marketing, "Webinars"),
+        ("dhl", "DHL", NodeCategory::Misc, "Shipping tracking"),
+        ("discourse", "Discourse", NodeCategory::Communication, "Forum platform"),
+        ("disqus", "Disqus", NodeCategory::Communication, "Comment platform"),
+        ("drift", "Drift", NodeCategory::Marketing, "Conversational marketing"),
+        ("dropbox", "Dropbox", NodeCategory::Storage, "Cloud file storage"),
+        ("dropcontact", "Dropcontact", NodeCategory::Crm, "Email enrichment"),
+        ("dynamicCredentialCheck", "Dynamic Credential Check", NodeCategory::Developer, "Test credentials"),
+        ("e2eTest", "E2E Test", NodeCategory::Developer, "End-to-end test helper"),
+        ("erpNext", "ERPNext", NodeCategory::Finance, "Open-source ERP"),
+        ("editImage", "Edit Image", NodeCategory::Files, "Image manipulation"),
+        ("egoi", "E-goi", NodeCategory::Marketing, "Multi-channel marketing"),
+        ("elastic", "Elasticsearch", NodeCategory::Database, "Search engine"),
+        ("emailReadImap", "Email Read (IMAP)", NodeCategory::Communication, "Read emails via IMAP"),
+        ("emailSend", "Send Email", NodeCategory::Communication, "Send via SMTP"),
+        ("emelia", "Emelia", NodeCategory::Marketing, "Cold email outreach"),
+        ("errorTrigger", "Error Trigger", NodeCategory::Trigger, "Triggers on workflow errors"),
+        ("evaluation", "Evaluation", NodeCategory::Ai, "Evaluate AI outputs"),
+        ("eventbrite", "Eventbrite", NodeCategory::Productivity, "Event ticketing"),
+        ("executeCommand", "Execute Command", NodeCategory::Developer, "Run a shell command"),
+        ("executeWorkflow", "Execute Sub-workflow", NodeCategory::Logic, "Run a sub-workflow"),
+        ("executionData", "Execution Data", NodeCategory::Developer, "Read execution metadata"),
+        ("facebook", "Facebook", NodeCategory::Marketing, "Facebook Graph API"),
+        ("facebookLeadAds", "Facebook Lead Ads", NodeCategory::Marketing, "Lead form submissions"),
+        ("figma", "Figma", NodeCategory::Productivity, "Design files"),
+        ("fileMaker", "FileMaker", NodeCategory::Database, "FileMaker DB"),
+        ("files", "Files", NodeCategory::Files, "Local file system operations"),
+        ("filter", "Filter", NodeCategory::Transform, "Filter items by condition"),
+        ("flow", "Flow", NodeCategory::Productivity, "Flow.io project management"),
+        ("form", "Form", NodeCategory::Trigger, "Built-in form trigger"),
+        ("formIo", "Form.io", NodeCategory::Productivity, "Form builder"),
+        ("formstack", "Formstack", NodeCategory::Productivity, "Online forms"),
+        ("freshdesk", "Freshdesk", NodeCategory::Communication, "Customer support"),
+        ("freshservice", "Freshservice", NodeCategory::Communication, "IT service management"),
+        ("freshworksCrm", "Freshworks CRM", NodeCategory::Crm, "Freshworks CRM"),
+        ("ftp", "FTP", NodeCategory::Storage, "Transfer files via FTP/SFTP"),
+        ("function", "Function (legacy)", NodeCategory::Logic, "Legacy code node"),
+        ("functionItem", "Function Item (legacy)", NodeCategory::Logic, "Legacy per-item code"),
+        ("getResponse", "GetResponse", NodeCategory::Marketing, "Email marketing"),
+        ("ghost", "Ghost", NodeCategory::Marketing, "Publishing platform"),
+        ("git", "Git", NodeCategory::Developer, "Run git commands"),
+        ("goToWebinar", "GoToWebinar", NodeCategory::Marketing, "Webinars"),
+        ("gong", "Gong", NodeCategory::Sales, "Revenue intelligence"),
+        ("google", "Google", NodeCategory::Productivity, "Google Workspace operations"),
+        ("gotify", "Gotify", NodeCategory::Communication, "Self-hosted push notifications"),
+        ("grafana", "Grafana", NodeCategory::Analytics, "Observability dashboards"),
+        ("graphQL", "GraphQL", NodeCategory::Developer, "Send GraphQL queries"),
+        ("grist", "Grist", NodeCategory::Database, "Spreadsheet-database hybrid"),
+        ("gumroad", "Gumroad", NodeCategory::Finance, "Digital product sales"),
+        ("hackerNews", "Hacker News", NodeCategory::Analytics, "HN API"),
+        ("haloPsa", "HaloPSA", NodeCategory::Communication, "Service management"),
+        ("harvest", "Harvest", NodeCategory::Finance, "Time tracking and invoicing"),
+        ("helpScout", "Help Scout", NodeCategory::Communication, "Customer support"),
+        ("highLevel", "HighLevel", NodeCategory::Crm, "All-in-one marketing"),
+        ("homeAssistant", "Home Assistant", NodeCategory::Misc, "Home automation"),
+        ("html", "HTML", NodeCategory::Transform, "HTML manipulation"),
+        ("htmlExtract", "HTML Extract", NodeCategory::Transform, "Extract content from HTML"),
+        ("humanticAi", "HumanticAI", NodeCategory::Ai, "Personality AI"),
+        ("hunter", "Hunter", NodeCategory::Marketing, "Email finder and verifier"),
+        ("iCalendar", "iCalendar", NodeCategory::Productivity, "Generate iCal events"),
+        ("intercom", "Intercom", NodeCategory::Communication, "Customer messaging"),
+        ("interval", "Interval", NodeCategory::Trigger, "Fire at fixed intervals"),
+        ("invoiceNinja", "Invoice Ninja", NodeCategory::Finance, "Invoicing and billing"),
+        ("itemLists", "Item Lists", NodeCategory::Transform, "Aggregate items into lists"),
+        ("iterable", "Iterable", NodeCategory::Marketing, "Cross-channel marketing"),
+        ("jenkins", "Jenkins", NodeCategory::Developer, "CI/CD jobs"),
+        ("jinaAi", "Jina AI", NodeCategory::Ai, "Embeddings and reranking"),
+        ("jira", "Jira", NodeCategory::Developer, "Issue tracking"),
+        ("jotForm", "JotForm", NodeCategory::Productivity, "Online form builder"),
+        ("jwt", "JWT", NodeCategory::Developer, "Sign and verify JWTs"),
+        ("kafka", "Kafka", NodeCategory::Developer, "Apache Kafka producer/consumer"),
+        ("keap", "Keap", NodeCategory::Crm, "Small-business CRM"),
+        ("koBoToolbox", "KoBoToolbox", NodeCategory::Productivity, "Data collection forms"),
+        ("ldap", "LDAP", NodeCategory::Developer, "Directory operations"),
+        ("lemlist", "Lemlist", NodeCategory::Marketing, "Cold email outreach"),
+        ("line", "LINE", NodeCategory::Communication, "LINE messaging"),
+        ("linear", "Linear", NodeCategory::Developer, "Issue tracking for software teams"),
+        ("lingvaNex", "LingvaNex", NodeCategory::Ai, "Translation"),
+        ("linkedIn", "LinkedIn", NodeCategory::Marketing, "LinkedIn social posting"),
+        ("localFileTrigger", "Local File Trigger", NodeCategory::Trigger, "Watch local file system"),
+        ("loneScale", "LoneScale", NodeCategory::Sales, "Sales intent data"),
+        ("mqtt", "MQTT", NodeCategory::Developer, "MQTT messaging"),
+        ("magento", "Magento", NodeCategory::Finance, "E-commerce platform"),
+        ("mailcheck", "Mailcheck", NodeCategory::Developer, "Validate email addresses"),
+        ("mailerLite", "MailerLite", NodeCategory::Marketing, "Email marketing"),
+        ("mailgun", "Mailgun", NodeCategory::Communication, "Email API"),
+        ("mailjet", "Mailjet", NodeCategory::Communication, "Email service"),
+        ("mandrill", "Mandrill", NodeCategory::Communication, "Transactional email"),
+        ("manualTrigger", "Manual Trigger", NodeCategory::Trigger, "Run manually from the editor"),
+        ("markdown", "Markdown", NodeCategory::Transform, "Markdown <-> HTML conversion"),
+        ("marketstack", "marketstack", NodeCategory::Finance, "Stock market data"),
+        ("matrix", "Matrix", NodeCategory::Communication, "Decentralised chat"),
+        ("mattermost", "Mattermost", NodeCategory::Communication, "Team chat"),
+        ("mautic", "Mautic", NodeCategory::Marketing, "Marketing automation"),
+        ("medium", "Medium", NodeCategory::Marketing, "Publishing platform"),
+        ("messageBird", "MessageBird", NodeCategory::Communication, "Omnichannel messaging"),
+        ("metabase", "Metabase", NodeCategory::Analytics, "Business intelligence"),
+        ("microsoft", "Microsoft", NodeCategory::Productivity, "Microsoft 365 services"),
+        ("mindee", "Mindee", NodeCategory::Ai, "Document OCR"),
+        ("misp", "MISP", NodeCategory::Developer, "Threat intelligence platform"),
+        ("mistralAi", "Mistral AI", NodeCategory::Ai, "Mistral language models"),
+        ("mocean", "Mocean", NodeCategory::Communication, "SMS messaging"),
+        ("mondayCom", "monday.com", NodeCategory::Productivity, "Work OS"),
+        ("monicaCrm", "Monica CRM", NodeCategory::Crm, "Personal CRM"),
+        ("moveBinaryData", "Move Binary Data", NodeCategory::Transform, "Convert binary <-> JSON fields"),
+        ("msg91", "MSG91", NodeCategory::Communication, "SMS gateway"),
+        ("mySql", "MySQL", NodeCategory::Database, "MySQL operations"),
+        ("n8n", "n8n API", NodeCategory::Developer, "Manage n8n itself"),
+        ("n8nTrainingCustomerDatastore", "n8n Training: Customer Data", NodeCategory::Developer, "Training-only mock node"),
+        ("n8nTrainingCustomerMessenger", "n8n Training: Customer Messenger", NodeCategory::Developer, "Training-only mock node"),
+        ("n8nTrigger", "n8n Trigger", NodeCategory::Trigger, "n8n lifecycle events"),
+        ("nasa", "NASA", NodeCategory::Misc, "NASA Open APIs"),
+        ("netlify", "Netlify", NodeCategory::Developer, "Netlify hosting"),
+        ("netscaler", "Netscaler", NodeCategory::Developer, "Citrix Netscaler ops"),
+        ("nextCloud", "NextCloud", NodeCategory::Storage, "Self-hosted cloud storage"),
+        ("nocoDb", "NocoDB", NodeCategory::Database, "No-code database"),
+        ("npm", "npm", NodeCategory::Developer, "npm package operations"),
+        ("odoo", "Odoo", NodeCategory::Finance, "Open ERP"),
+        ("okta", "Okta", NodeCategory::Developer, "Identity management"),
+        ("oneSimpleApi", "One Simple API", NodeCategory::Developer, "Multi-purpose API"),
+        ("onfleet", "Onfleet", NodeCategory::Misc, "Last-mile delivery"),
+        ("openThesaurus", "OpenThesaurus", NodeCategory::Ai, "German thesaurus"),
+        ("openWeatherMap", "OpenWeatherMap", NodeCategory::Misc, "Weather data"),
+        ("oracle", "Oracle DB", NodeCategory::Database, "Oracle database"),
+        ("orbit", "Orbit", NodeCategory::Marketing, "Community management"),
+        ("oura", "Oura", NodeCategory::Misc, "Health tracking ring"),
+        ("paddle", "Paddle", NodeCategory::Finance, "Subscription billing"),
+        ("pagerDuty", "PagerDuty", NodeCategory::Communication, "On-call incident response"),
+        ("payPal", "PayPal", NodeCategory::Finance, "Payments"),
+        ("peekalink", "Peekalink", NodeCategory::Misc, "URL preview generator"),
+        ("perplexity", "Perplexity", NodeCategory::Ai, "Perplexity AI search"),
+        ("phantombuster", "Phantombuster", NodeCategory::Marketing, "Automated outreach"),
+        ("philipsHue", "Philips Hue", NodeCategory::Misc, "Smart lighting"),
+        ("pipedrive", "Pipedrive", NodeCategory::Sales, "Sales CRM"),
+        ("plivo", "Plivo", NodeCategory::Communication, "SMS / voice"),
+        ("postBin", "PostBin", NodeCategory::Developer, "HTTP request bin"),
+        ("postHog", "PostHog", NodeCategory::Analytics, "Product analytics"),
+        ("postmark", "Postmark", NodeCategory::Communication, "Transactional email"),
+        ("profitWell", "ProfitWell", NodeCategory::Finance, "SaaS metrics"),
+        ("pushbullet", "Pushbullet", NodeCategory::Communication, "Cross-device notifications"),
+        ("pushcut", "Pushcut", NodeCategory::Communication, "iOS automation"),
+        ("pushover", "Pushover", NodeCategory::Communication, "Push notifications"),
+        ("questDb", "QuestDB", NodeCategory::Database, "Time-series database"),
+        ("quickBase", "QuickBase", NodeCategory::Database, "Low-code application database"),
+        ("quickBooks", "QuickBooks", NodeCategory::Finance, "Accounting"),
+        ("quickChart", "QuickChart", NodeCategory::Analytics, "Chart image generation"),
+        ("rabbitMq", "RabbitMQ", NodeCategory::Developer, "AMQP message broker"),
+        ("raindrop", "Raindrop", NodeCategory::Productivity, "Bookmark manager"),
+        ("readBinaryFile", "Read Binary File", NodeCategory::Files, "Read a single file"),
+        ("readBinaryFiles", "Read Binary Files", NodeCategory::Files, "Read multiple files"),
+        ("readPdf", "Read PDF", NodeCategory::Files, "Extract text from PDF"),
+        ("reddit", "Reddit", NodeCategory::Communication, "Reddit API"),
+        ("renameKeys", "Rename Keys", NodeCategory::Transform, "Rename object keys"),
+        ("rocketchat", "Rocket.Chat", NodeCategory::Communication, "Self-hosted team chat"),
+        ("rssFeedRead", "RSS Feed Read", NodeCategory::Communication, "Read RSS feeds"),
+        ("rundeck", "Rundeck", NodeCategory::Developer, "Job scheduler"),
+        ("s3", "S3", NodeCategory::Storage, "S3-compatible object storage"),
+        ("salesforce", "Salesforce", NodeCategory::Crm, "Salesforce CRM"),
+        ("salesmate", "Salesmate", NodeCategory::Sales, "Sales CRM"),
+        ("schedule", "Schedule", NodeCategory::Trigger, "Schedule trigger by interval or cron"),
+        ("seaTable", "SeaTable", NodeCategory::Database, "Real-time collaborative database"),
+        ("securityScorecard", "SecurityScorecard", NodeCategory::Developer, "Security ratings"),
+        ("segment", "Segment", NodeCategory::Analytics, "Customer data platform"),
+        ("sendy", "Sendy", NodeCategory::Marketing, "Self-hosted email marketing"),
+        ("sentryIo", "Sentry.io", NodeCategory::Developer, "Error monitoring"),
+        ("serviceNow", "ServiceNow", NodeCategory::Communication, "IT service management"),
+        ("shopify", "Shopify", NodeCategory::Finance, "E-commerce platform"),
+        ("signl4", "Signl4", NodeCategory::Communication, "Mobile alerting"),
+        ("simulate", "Simulate", NodeCategory::Developer, "Simulate node output"),
+        ("sms77", "sms77", NodeCategory::Communication, "SMS messaging"),
+        ("snowflake", "Snowflake", NodeCategory::Database, "Cloud data warehouse"),
+        ("splitInBatches", "Split In Batches", NodeCategory::Logic, "Loop over items in batches"),
+        ("splunk", "Splunk", NodeCategory::Analytics, "Operational intelligence"),
+        ("spotify", "Spotify", NodeCategory::Misc, "Music streaming API"),
+        ("spreadsheetFile", "Spreadsheet File", NodeCategory::Files, "Read/write CSV, XLS, ODS"),
+        ("sseTrigger", "SSE Trigger", NodeCategory::Trigger, "Server-Sent Events trigger"),
+        ("ssh", "SSH", NodeCategory::Developer, "Execute SSH commands"),
+        ("stackby", "Stackby", NodeCategory::Database, "Spreadsheet-style database"),
+        ("stickyNote", "Sticky Note", NodeCategory::Misc, "Canvas annotation"),
+        ("stopAndError", "Stop and Error", NodeCategory::Logic, "Halt execution with error"),
+        ("storyblok", "Storyblok", NodeCategory::Developer, "Headless CMS"),
+        ("strapi", "Strapi", NodeCategory::Developer, "Headless CMS"),
+        ("strava", "Strava", NodeCategory::Misc, "Athletic activity tracking"),
+        ("supabase", "Supabase", NodeCategory::Database, "Open-source Firebase alternative"),
+        ("surveyMonkey", "SurveyMonkey", NodeCategory::Productivity, "Surveys"),
+        ("syncroMsp", "SyncroMSP", NodeCategory::Communication, "MSP management"),
+        ("taiga", "Taiga", NodeCategory::Developer, "Project management"),
+        ("tapfiliate", "Tapfiliate", NodeCategory::Marketing, "Affiliate marketing"),
+        ("theHive", "TheHive", NodeCategory::Developer, "Security incident response"),
+        ("theHiveProject", "TheHive Project", NodeCategory::Developer, "TheHive v5 platform"),
+        ("timeSaved", "Time Saved", NodeCategory::Misc, "Manual time logging"),
+        ("timescaleDb", "TimescaleDB", NodeCategory::Database, "Time-series Postgres"),
+        ("todoist", "Todoist", NodeCategory::Productivity, "Task manager"),
+        ("toggl", "Toggl", NodeCategory::Productivity, "Time tracking"),
+        ("totp", "TOTP", NodeCategory::Developer, "Time-based one-time passwords"),
+        ("transform", "Transform", NodeCategory::Transform, "Generic transform helpers"),
+        ("travisCi", "Travis CI", NodeCategory::Developer, "CI builds"),
+        ("trello", "Trello", NodeCategory::Productivity, "Kanban boards"),
+        ("twake", "Twake", NodeCategory::Communication, "Open-source workplace"),
+        ("twist", "Twist", NodeCategory::Communication, "Async team messaging"),
+        ("twitter", "Twitter / X", NodeCategory::Marketing, "Twitter API"),
+        ("typeform", "Typeform", NodeCategory::Productivity, "Online forms"),
+        ("uProc", "uProc", NodeCategory::Developer, "Data processing toolset"),
+        ("unleashedSoftware", "Unleashed Software", NodeCategory::Finance, "Inventory management"),
+        ("uplead", "UpLead", NodeCategory::Sales, "B2B contact data"),
+        ("uptimeRobot", "UptimeRobot", NodeCategory::Developer, "Site monitoring"),
+        ("urlScanIo", "urlscan.io", NodeCategory::Developer, "Website scanner"),
+        ("venafi", "Venafi", NodeCategory::Developer, "Machine identity"),
+        ("vero", "Vero", NodeCategory::Marketing, "Customer messaging"),
+        ("vonage", "Vonage", NodeCategory::Communication, "Voice and SMS"),
+        ("webflow", "Webflow", NodeCategory::Developer, "Website builder API"),
+        ("wekan", "Wekan", NodeCategory::Productivity, "Open-source Kanban"),
+        ("whatsApp", "WhatsApp Business", NodeCategory::Communication, "WhatsApp Business API"),
+        ("wise", "Wise", NodeCategory::Finance, "Cross-border payments"),
+        ("wooCommerce", "WooCommerce", NodeCategory::Finance, "WordPress e-commerce"),
+        ("wordpress", "WordPress", NodeCategory::Marketing, "WordPress CMS"),
+        ("workable", "Workable", NodeCategory::Hr, "Recruiting software"),
+        ("workflowTrigger", "Workflow Trigger", NodeCategory::Trigger, "Trigger from another workflow"),
+        ("writeBinaryFile", "Write Binary File", NodeCategory::Files, "Write a file to disk"),
+        ("wufoo", "Wufoo", NodeCategory::Productivity, "Online forms"),
+        ("xero", "Xero", NodeCategory::Finance, "Accounting"),
+        ("xml", "XML", NodeCategory::Transform, "Parse and build XML"),
+        ("yourls", "YOURLS", NodeCategory::Marketing, "Self-hosted URL shortener"),
+        ("zammad", "Zammad", NodeCategory::Communication, "Helpdesk"),
+        ("zendesk", "Zendesk", NodeCategory::Communication, "Customer support"),
+        ("zoho", "Zoho", NodeCategory::Crm, "Zoho CRM"),
+        ("zoom", "Zoom", NodeCategory::Communication, "Video conferencing"),
+        ("zulip", "Zulip", NodeCategory::Communication, "Topic-based team chat"),
+    ];
+
+    for (name, display, category, description) in stubs {
+        if r.get(name).is_none() {
+            r.register(stub::stub(name, display, description, *category));
+        }
+    }
+}
