@@ -663,7 +663,7 @@ pub async fn bulk_start(
         let template_components = template.get_array("components").cloned().unwrap_or_default();
 
         let broadcast_oid = ObjectId::new();
-        let broadcast_doc = doc! {
+        let mut broadcast_doc = doc! {
             "_id": broadcast_oid,
             "name": format!("Bulk: {} - {}", body.template_name, Utc::now().format("%Y-%m-%d %H:%M:%S")),
             "projectId": project.id,
@@ -680,6 +680,12 @@ pub async fn bulk_start(
             "components": Bson::Array(template_components),
             "createdAt": Utc::now(),
         };
+        // Stamp the project's MPS so the send worker enforces the
+        // project-level rate instead of falling back to DEFAULT_MPS.
+        if let Some(p_mps) = project.messages_per_second {
+            broadcast_doc.insert("messagesPerSecond", p_mps as i64);
+            broadcast_doc.insert("projectMessagesPerSecond", p_mps as i64);
+        }
 
         bcasts.insert_one(broadcast_doc).await.map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("bulk.broadcasts.insert_one"))
