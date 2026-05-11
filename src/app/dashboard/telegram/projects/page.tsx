@@ -14,6 +14,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import {
     ArrowRight,
     CheckCircle2,
+    Loader2,
     Plug,
     Plus,
     Search,
@@ -23,11 +24,21 @@ import {
     ZoruBadge,
     ZoruButton,
     ZoruCard,
+    ZoruDialog,
+    ZoruDialogContent,
+    ZoruDialogDescription,
+    ZoruDialogFooter,
+    ZoruDialogHeader,
+    ZoruDialogTitle,
     ZoruEmptyState,
     ZoruInput,
     ZoruSkeleton,
+    useZoruToast,
 } from '@/components/zoruui';
 import { useProject } from '@/context/project-context';
+import {
+    addTelegramProject,
+} from '@/app/actions/telegram.actions';
 import { listTelegramBotsAction } from '@/app/actions/telegram-extra.actions';
 
 type BotCounts = Record<string, number>;
@@ -44,7 +55,45 @@ export default function TelegramProjectPickerPage() {
         activeProjectId,
         setActiveProjectId,
         isLoadingProject,
+        reloadProjects,
     } = useProject();
+    const { toast } = useZoruToast();
+
+    const [createOpen, setCreateOpen] = React.useState(false);
+    const [createName, setCreateName] = React.useState('');
+    const [createBusy, setCreateBusy] = React.useState(false);
+    const [createErr, setCreateErr] = React.useState<string | null>(null);
+
+    const handleCreate = React.useCallback(async () => {
+        const name = createName.trim();
+        if (!name) {
+            setCreateErr('Give the project a name.');
+            return;
+        }
+        setCreateErr(null);
+        setCreateBusy(true);
+        const res = await addTelegramProject({ name });
+        setCreateBusy(false);
+        if (!res.success || !res.projectId) {
+            setCreateErr(res.error ?? 'Could not create the project.');
+            return;
+        }
+        try {
+            localStorage.setItem('activeProjectId', res.projectId);
+            localStorage.setItem('activeProjectName', name);
+        } catch {
+            /* ignore */
+        }
+        setActiveProjectId(res.projectId);
+        await reloadProjects();
+        toast({
+            title: 'Project created',
+            description: `“${name}” is now your active workspace.`,
+        });
+        setCreateOpen(false);
+        setCreateName('');
+        router.push(nextPath);
+    }, [createName, nextPath, reloadProjects, router, setActiveProjectId, toast]);
 
     const [counts, setCounts] = React.useState<BotCounts>({});
     const [countsLoading, setCountsLoading] = React.useState(true);
@@ -87,13 +136,33 @@ export default function TelegramProjectPickerPage() {
         };
     }, [allProjects]);
 
+    // Telegram-only scope: exclude any project that belongs to another
+    // module (Wachat by `wabaId`, Facebook by `facebookPageId`, CRM by
+    // `kind: 'crm'`). Then include a project if it's tagged `kind:
+    // 'telegram'` OR it already has a Telegram bot connected. While the
+    // bot counts are still loading we include every otherwise-eligible
+    // project so legacy workspaces (created before the `kind` flag
+    // existed) still appear — once counts arrive we narrow down.
+    const telegramProjects = React.useMemo(() => {
+        return allProjects.filter((p: any) => {
+            const isWachat = !!p.wabaId;
+            const isFacebook = !!p.facebookPageId;
+            const isCrm = p.kind === 'crm';
+            if (isWachat || isFacebook || isCrm) return false;
+            const isExplicitTelegram = p.kind === 'telegram';
+            const hasBot = (counts[p._id.toString()] ?? 0) > 0;
+            if (countsLoading) return true;
+            return isExplicitTelegram || hasBot;
+        });
+    }, [allProjects, counts, countsLoading]);
+
     const filtered = React.useMemo(() => {
         const needle = q.trim().toLowerCase();
-        if (!needle) return allProjects;
-        return allProjects.filter((p) =>
+        if (!needle) return telegramProjects;
+        return telegramProjects.filter((p) =>
             p.name?.toLowerCase().includes(needle),
         );
-    }, [allProjects, q]);
+    }, [telegramProjects, q]);
 
     const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
     const paged = React.useMemo(
@@ -163,12 +232,18 @@ export default function TelegramProjectPickerPage() {
                         className="pl-9"
                     />
                 </div>
-                <Link href="/dashboard/projects/new">
-                    <ZoruButton size="sm" variant="outline">
-                        <Plus className="h-3 w-3" />
-                        New project
-                    </ZoruButton>
-                </Link>
+                <ZoruButton
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                        setCreateErr(null);
+                        setCreateName('');
+                        setCreateOpen(true);
+                    }}
+                >
+                    <Plus className="h-3 w-3" />
+                    New Telegram project
+                </ZoruButton>
             </div>
 
             {filtered.length === 0 ? (
@@ -180,8 +255,23 @@ export default function TelegramProjectPickerPage() {
                     }
                     description={
                         allProjects.length === 0
-                            ? 'Create a project first — every Telegram bot is scoped to one.'
+                            ? 'Create your first Telegram workspace to connect bots, build flows, and run broadcasts.'
                             : 'Try a different search term or clear the filter.'
+                    }
+                    action={
+                        allProjects.length === 0 ? (
+                            <ZoruButton
+                                size="sm"
+                                onClick={() => {
+                                    setCreateErr(null);
+                                    setCreateName('');
+                                    setCreateOpen(true);
+                                }}
+                            >
+                                <Plus className="h-3 w-3" />
+                                Create Telegram project
+                            </ZoruButton>
+                        ) : undefined
                     }
                 />
             ) : (
@@ -279,6 +369,68 @@ export default function TelegramProjectPickerPage() {
                     </div>
                 </div>
             ) : null}
+
+            <ZoruDialog open={createOpen} onOpenChange={setCreateOpen}>
+                <ZoruDialogContent className="max-w-md">
+                    <ZoruDialogHeader>
+                        <ZoruDialogTitle>New Telegram project</ZoruDialogTitle>
+                        <ZoruDialogDescription>
+                            A Telegram project is a workspace for bots, chats,
+                            and broadcasts. It's separate from your WhatsApp
+                            (Wachat) projects — only data and rules created
+                            inside this project apply to its bots.
+                        </ZoruDialogDescription>
+                    </ZoruDialogHeader>
+
+                    <div className="flex flex-col gap-3">
+                        <label className="flex flex-col gap-1.5">
+                            <span className="text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
+                                Project name
+                            </span>
+                            <ZoruInput
+                                value={createName}
+                                onChange={(e) => setCreateName(e.target.value)}
+                                placeholder="e.g. Support bot — EU"
+                                autoFocus
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && !createBusy) {
+                                        e.preventDefault();
+                                        void handleCreate();
+                                    }
+                                }}
+                            />
+                        </label>
+                        {createErr ? (
+                            <div className="rounded-md border border-zoru-danger-line bg-zoru-danger-surface px-3 py-2 text-[12.5px] text-zoru-danger-ink">
+                                {createErr}
+                            </div>
+                        ) : null}
+                    </div>
+
+                    <ZoruDialogFooter>
+                        <ZoruButton
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setCreateOpen(false)}
+                            disabled={createBusy}
+                        >
+                            Cancel
+                        </ZoruButton>
+                        <ZoruButton
+                            size="sm"
+                            onClick={() => void handleCreate()}
+                            disabled={createBusy || !createName.trim()}
+                        >
+                            {createBusy ? (
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                            ) : (
+                                <Plus className="h-3 w-3" />
+                            )}
+                            Create project
+                        </ZoruButton>
+                    </ZoruDialogFooter>
+                </ZoruDialogContent>
+            </ZoruDialog>
         </div>
     );
 }

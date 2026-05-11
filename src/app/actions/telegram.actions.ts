@@ -24,8 +24,25 @@ import type {
 } from '@/lib/definitions';
 import { TelegramBotApi, TelegramApiError } from '@/lib/telegram/bot-api';
 import { invalidateTelegramBotCache } from '@/lib/telegram/bot-cache';
+import {
+    connectTelegramBotDirect,
+    disconnectTelegramBotDirect,
+    listTelegramBotsDirect,
+} from '@/lib/telegram/direct-bots';
 import { rustClient, RustApiError } from '@/lib/rust-client';
 import type { BotRow as TelegramBotRow } from '@/lib/rust-client/telegram-bots';
+
+/**
+ * Returns true when a thrown `RustApiError` means "the Rust handler isn't
+ * answering". We use this to decide whether to silently fall back to the
+ * direct-Mongo implementations in `lib/telegram/direct-bots.ts`. We treat
+ * 404 (route not deployed yet) and 5xx (binary up but crashing) as the
+ * fall-back-eligible cases. Auth / 4xx other than 404 propagate.
+ */
+function isRustUnavailable(err: unknown): boolean {
+    if (!(err instanceof RustApiError)) return false;
+    return err.status === 404 || err.status >= 500 || err.status === 0;
+}
 
 type ActionResult<T = {}> = {
     success: boolean;
@@ -72,6 +89,68 @@ async function requireBot(botId: string): Promise<
     return { ok: true, bot };
 }
 
+/* ── projects (Telegram-scoped workspaces) ────────────────────── */
+
+/**
+ * Create a brand-new project to host Telegram bots. Distinct from
+ * `_createProjectFromWaba` — no Meta credentials are required, just a
+ * display name. Telegram-only projects have empty `wabaId` and
+ * `accessToken` so the Wachat picker (filtered by `wabaId`) won't list
+ * them, but the shared `Project` collection means RBAC / plan / agent
+ * plumbing still applies.
+ */
+export async function addTelegramProject(input: {
+    name: string;
+}): Promise<ActionResult<{ projectId: string; name: string }>> {
+    try {
+        const name = input.name?.trim();
+        if (!name) return { success: false, error: 'Project name is required.' };
+        if (name.length > 120) {
+            return { success: false, error: 'Project name is too long (max 120 chars).' };
+        }
+        const session = await getSession();
+        if (!session?.user)
+            return { success: false, error: 'Not authenticated.' };
+
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+        const now = new Date();
+
+        // Soft duplicate guard — same owner + same name.
+        const existing = await db
+            .collection('projects')
+            .findOne({ userId, name }, { projection: { _id: 1 } });
+        if (existing) {
+            return {
+                success: false,
+                error: 'You already have a project with that name.',
+            };
+        }
+
+        const ins = await db.collection('projects').insertOne({
+            userId,
+            name,
+            accessToken: '',
+            phoneNumbers: [],
+            // Discriminator so other modules' pickers (Wachat, CRM,
+            // Facebook) skip this workspace, and the Telegram picker
+            // shows it even before any bot is connected.
+            kind: 'telegram',
+            createdAt: now,
+        } as any);
+
+        revalidatePath('/dashboard/telegram/projects');
+        return {
+            success: true,
+            projectId: ins.insertedId.toString(),
+            name,
+            message: 'Project created.',
+        };
+    } catch (err) {
+        return { success: false, error: getErrorMessage(err) };
+    }
+}
+
 /* ── bots ──────────────────────────────────────────────────────── */
 //
 // Bot lifecycle (list / get / connect / disconnect / refresh-webhook /
@@ -87,6 +166,10 @@ export async function listTelegramBots(projectId: string): Promise<TelegramBotRo
         if (res.error) return [];
         return res.bots ?? [];
     } catch (err) {
+        if (isRustUnavailable(err)) {
+            const rows = await listTelegramBotsDirect(projectId);
+            return rows as unknown as TelegramBotRow[];
+        }
         if (err instanceof RustApiError) return [];
         console.error('[telegram.listBots]', err);
         return [];
@@ -118,6 +201,18 @@ export async function connectTelegramBot(input: {
         revalidatePath('/dashboard/telegram', 'layout');
         return { success: true, botId: res.botId, message: res.message };
     } catch (err) {
+        if (isRustUnavailable(err)) {
+            const direct = await connectTelegramBotDirect(input);
+            if (direct.success) {
+                revalidatePath('/dashboard/telegram', 'layout');
+            }
+            return {
+                success: direct.success,
+                error: direct.error,
+                message: direct.message,
+                botId: direct.botId,
+            };
+        }
         if (err instanceof RustApiError) return { success: false, error: err.message };
         return { success: false, error: getErrorMessage(err) };
     }
@@ -131,6 +226,13 @@ export async function disconnectTelegramBot(botId: string): Promise<ActionResult
         revalidatePath('/dashboard/telegram', 'layout');
         return { success: true, message: res.message ?? 'Bot disconnected.' };
     } catch (err) {
+        if (isRustUnavailable(err)) {
+            const direct = await disconnectTelegramBotDirect(botId);
+            if (direct.success) {
+                revalidatePath('/dashboard/telegram', 'layout');
+            }
+            return direct;
+        }
         if (err instanceof RustApiError) return { success: false, error: err.message };
         return { success: false, error: getErrorMessage(err) };
     }

@@ -42,12 +42,65 @@ export async function listTelegramApiCredentialsAction(
     try {
         return await rustClient.telegramApiCredentials.list(projectId);
     } catch (e) {
+        // Rust route missing or backend down — read straight from Mongo
+        // so the credentials section renders an empty/correct list
+        // instead of a red error banner.
+        if (
+            e instanceof RustApiError &&
+            (e.status === 404 || e.status >= 500 || e.status === 0)
+        ) {
+            try {
+                const { ObjectId } = await import('mongodb');
+                const { connectToDatabase } = await import('@/lib/mongodb');
+                if (!ObjectId.isValid(projectId)) {
+                    return { credentials: [], total: 0 };
+                }
+                const { db } = await connectToDatabase();
+                const docs = await db
+                    .collection('telegram_api_credentials')
+                    .find({ projectId: new ObjectId(projectId) })
+                    .sort({ createdAt: -1 })
+                    .limit(50)
+                    .toArray();
+                const credentials = docs.map((d: any) => ({
+                    _id: d._id.toString(),
+                    label: d.label,
+                    apiId: Number(d.apiId ?? 0),
+                    phoneNumberMasked: maskPhone(d.phoneNumber ?? ''),
+                    apiHashMasked: maskHash(d.apiHash ?? ''),
+                    status: d.status ?? 'unverified',
+                    testMode: Boolean(d.testMode),
+                    createdAt:
+                        d.createdAt instanceof Date
+                            ? d.createdAt.toISOString()
+                            : String(d.createdAt ?? ''),
+                    updatedAt:
+                        d.updatedAt instanceof Date
+                            ? d.updatedAt.toISOString()
+                            : String(d.updatedAt ?? ''),
+                })) as any;
+                return { credentials, total: credentials.length };
+            } catch {
+                return { credentials: [], total: 0 };
+            }
+        }
         return {
             credentials: [],
             total: 0,
             error: e instanceof RustApiError ? e.message : String(e),
         };
     }
+}
+
+function maskPhone(p: string): string {
+    if (!p) return '';
+    if (p.length <= 4) return p;
+    return `${p.slice(0, 3)}…${p.slice(-2)}`;
+}
+function maskHash(h: string): string {
+    if (!h) return '';
+    if (h.length <= 8) return '…';
+    return `${h.slice(0, 4)}…${h.slice(-4)}`;
 }
 
 export async function getTelegramApiCredentialAction(
