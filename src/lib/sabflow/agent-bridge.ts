@@ -135,93 +135,64 @@ export interface AgentBridgeResult {
   error?: string;
 }
 
-/* ── Lazy import wrapper around `@/lib/agents` ───────────────────────────── */
-
-type AgentsModule = {
-  runAgent?: (
-    agentId: string,
-    input: string,
-    options?: {
-      tenantId?: string;
-      userId?: string;
-      meta?: Record<string, unknown>;
-      model?: string;
-    },
-  ) => Promise<AgentRunSummary>;
-};
-
-let cachedRunner: AgentRunner | null = null;
-
-/**
- * Resolve the agent runner from `@/lib/agents`. If the module is missing, the
- * runner returns a stubbed result so the bridge stays callable.
+/* ── Runtime injection points ─────────────────────────────────────────────
+ *
+ * The bridge is loaded by forge blocks, which in turn get pulled into the
+ * Client Component SSR bundle of the SabFlow editor. We therefore cannot
+ * statically reference `@/lib/agents` or `@/lib/mongodb` from this file —
+ * Turbopack's static analysis follows `await import(...)` calls regardless
+ * of any `typeof window === 'undefined'` runtime guard, and any module on
+ * that chain that declares `import 'server-only'` blows up the build.
+ *
+ * Instead, the real runner + persister are *injected* at startup by the
+ * server-only file `./agent-bridge.server.ts`. When this bridge is loaded
+ * in a client bundle, no injection happens and the stub runner takes over.
  */
-async function resolveDefaultRunner(): Promise<AgentRunner> {
-  if (cachedRunner) return cachedRunner;
-  // Server-only branch — `typeof window === 'undefined'` lets the bundler
-  // tree-shake `@/lib/agents` (and its mongodb/genkit deps) out of client chunks.
-  if (typeof window === 'undefined') {
-    try {
-      const mod = (await import('@/lib/agents')) as AgentsModule;
-      if (typeof mod.runAgent === 'function') {
-        const realRunner = mod.runAgent;
-        cachedRunner = async (agentId, input, options) => {
-          const run = await realRunner(agentId, input, {
-            tenantId: options.tenantId,
-            userId: options.userId,
-            meta: options.meta,
-          });
-          return run;
-        };
-        return cachedRunner;
-      }
-    } catch {
-      // fall through to stub
-    }
-  }
-  console.warn(
-    '[sabflow/agent-bridge] @/lib/agents.runAgent unavailable — using stub runner. ' +
-      'Impl 4 has not shipped yet; agent blocks will return an empty result.',
-  );
-  cachedRunner = async (agentId, input) => ({
-    runId: `stub-${Date.now()}`,
-    agentId,
-    startedAt: Date.now(),
-    finishedAt: Date.now(),
-    input,
-    output: '',
-    transcript: [
-      {
-        role: 'system',
-        content: '[stub] @/lib/agents not implemented yet',
-        ts: Date.now(),
-      },
-    ],
-    toolCalls: 0,
-    turns: 0,
-    error: 'agents-module-missing',
-  });
-  return cachedRunner;
+
+let injectedRunner: AgentRunner | null = null;
+let injectedPersister: TranscriptPersister | null = null;
+
+export function setAgentRunner(runner: AgentRunner | null): void {
+  injectedRunner = runner;
 }
 
-/* ── Default Mongo persistence (no-op in tests) ──────────────────────────── */
+export function setTranscriptPersister(persister: TranscriptPersister | null): void {
+  injectedPersister = persister;
+}
+
+const stubRunner: AgentRunner = async (agentId, input) => ({
+  runId: `stub-${Date.now()}`,
+  agentId,
+  startedAt: Date.now(),
+  finishedAt: Date.now(),
+  input,
+  output: '',
+  transcript: [
+    {
+      role: 'system',
+      content: '[stub] @/lib/agents not wired — call setAgentRunner() server-side',
+      ts: Date.now(),
+    },
+  ],
+  toolCalls: 0,
+  turns: 0,
+  error: 'agents-module-missing',
+});
+
+function resolveDefaultRunner(): AgentRunner {
+  if (injectedRunner) return injectedRunner;
+  console.warn(
+    '[sabflow/agent-bridge] no AgentRunner registered — using stub. ' +
+      'Server-side code must import "@/lib/sabflow/agent-bridge.server" to wire up the real runner.',
+  );
+  return stubRunner;
+}
 
 async function defaultPersistTranscript(record: PersistedTranscript): Promise<void> {
-  // Avoid bringing Mongo into the unit-test path: only persist when the env
-  // actually has a connection (Next.js runtime). In Node/test environments
-  // that import this file directly, the dynamic import is allowed to fail.
+  if (!injectedPersister) return; // best-effort — silently skip if no persister
   try {
-    const mongo = (await import('@/lib/mongodb')) as {
-      connectToDatabase?: () => Promise<{ db: { collection: (n: string) => unknown } }>;
-    };
-    if (typeof mongo.connectToDatabase !== 'function') return;
-    const { db } = await mongo.connectToDatabase();
-    const col = db.collection('flow_run_agent_transcripts') as {
-      insertOne: (d: unknown) => Promise<unknown>;
-    };
-    await col.insertOne({ ...record, createdAt: new Date() });
+    await injectedPersister(record);
   } catch (e) {
-    // Persistence is best-effort — never block the flow on a logging miss.
     console.warn('[sabflow/agent-bridge] failed to persist transcript:', e);
   }
 }
@@ -280,7 +251,7 @@ export async function runAgentInFlow(
     throw new Error('runAgentInFlow: agentId is required');
   }
 
-  const runner = ctx.agentRunner ?? (await resolveDefaultRunner());
+  const runner = ctx.agentRunner ?? resolveDefaultRunner();
   const persist = ctx.persistTranscript ?? defaultPersistTranscript;
 
   const input = resolveAgentInput(blockOptions.inputTemplate, ctx.variables);

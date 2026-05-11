@@ -7,6 +7,12 @@ import { runWithRetry } from './runWithRetry';
 import { resolveErrorEdge } from './errorRouting';
 import { getForgeBlock } from '@/lib/sabflow/forge';
 import { getCredentialById } from '@/lib/sabflow/credentials/db';
+// Side-effect import: wires up the real AgentRunner + TranscriptPersister on
+// `agent-bridge.ts` so agent-* forge blocks can reach `@/lib/agents` and
+// `@/lib/mongodb`. This file is server-only — executeBlock is itself
+// server-only (via the credentials/db import above), so it never reaches
+// any client bundle.
+import '@/lib/sabflow/agent-bridge.server';
 
 export type BlockExecutionResult = {
   messages: OutgoingMessage[];
