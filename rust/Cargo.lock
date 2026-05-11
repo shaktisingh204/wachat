@@ -6310,6 +6310,8 @@ dependencies = [
  "axum",
  "bson",
  "chrono",
+ "crm-core",
+ "crm-sales-crm-types",
  "futures",
  "mongodb",
  "reqwest",
