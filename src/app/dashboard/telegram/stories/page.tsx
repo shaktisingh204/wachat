@@ -67,12 +67,11 @@ import {
     ZoruSelectValue,
     ZoruSeparator,
     ZoruSkeleton,
-    ZoruStatCard,
     ZoruSwitch,
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
-import { SabFileUrlInput, type SabFilePick } from '@/components/sabfiles';
+import { SabFileUrlInput } from '@/components/sabfiles';
 import { useProject } from '@/context/project-context';
 import {
     cancelTelegramStoryAction,
@@ -143,13 +142,16 @@ const PERIOD_OPTIONS: { value: StoryActivePeriodSeconds; label: string }[] = [
     { value: 172800, label: '48 hours' },
 ];
 
-const STATUS_VARIANT: Record<StoryStatus, 'success' | 'warning' | 'ghost' | 'info' | 'destructive' | 'secondary'> = {
+const STATUS_VARIANT: Record<
+    StoryStatus,
+    'success' | 'warning' | 'ghost' | 'info' | 'danger' | 'secondary'
+> = {
     draft: 'ghost',
     scheduled: 'warning',
     posted: 'success',
     expired: 'secondary',
-    failed: 'destructive',
-    deleted: 'destructive',
+    failed: 'danger',
+    deleted: 'danger',
 };
 
 function fmtDate(iso?: string): string {
@@ -252,9 +254,14 @@ function buildContent(form: FormState): StoryContent {
         sabFileId: form.mediaSabFileId,
         caption: form.caption.trim() || undefined,
         parseMode: form.parseMode || undefined,
-        areas: form.areas.length > 0
-            ? form.areas.map(({ _key, ...rest }) => rest)
-            : undefined,
+        areas:
+            form.areas.length > 0
+                ? form.areas.map((a) => ({
+                      position: a.position,
+                      type: a.type,
+                      payload: a.payload,
+                  }))
+                : undefined,
     };
 }
 

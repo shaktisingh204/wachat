@@ -262,6 +262,8 @@ export default function TelegramContactsPage() {
 
     // Detail drawer state — we re-use the editor drawer with `viewMode`
     const [viewMode, setViewMode] = React.useState<'create' | 'edit' | 'view'>('create');
+    // Backing row for the activity tab, when opened from an existing contact.
+    const [activeRow, setActiveRow] = React.useState<ContactRow | null>(null);
 
     // Import / sync / bulk
     const [importOpen, setImportOpen] = React.useState(false);
@@ -428,6 +430,7 @@ export default function TelegramContactsPage() {
 
     function openCreate() {
         setEditorForm(EMPTY_EDITOR);
+        setActiveRow(null);
         setEditorTab('overview');
         setEditorErr(null);
         setViewMode('create');
@@ -435,6 +438,7 @@ export default function TelegramContactsPage() {
     }
     function openEdit(row: ContactRow) {
         setEditorForm(rowToForm(row));
+        setActiveRow(row);
         setEditorTab('overview');
         setEditorErr(null);
         setViewMode('edit');
@@ -442,6 +446,7 @@ export default function TelegramContactsPage() {
     }
     function openView(row: ContactRow) {
         setEditorForm(rowToForm(row));
+        setActiveRow(row);
         setEditorTab('overview');
         setEditorErr(null);
         setViewMode('view');
@@ -1556,16 +1561,29 @@ export default function TelegramContactsPage() {
                                 <p>
                                     Last interaction:{' '}
                                     <span className="text-zoru-ink">
-                                        {fmtRelative(undefined)}
+                                        {fmtRelative(activeRow?.lastInteractionAt)}
                                     </span>
                                 </p>
                                 <p>
                                     Created:{' '}
-                                    <span className="text-zoru-ink">—</span>
+                                    <span className="text-zoru-ink">
+                                        {activeRow ? fmtDate(activeRow.createdAt) : '—'}
+                                    </span>
                                 </p>
                                 <p>
                                     Source:{' '}
-                                    <span className="text-zoru-ink">—</span>
+                                    <span className="text-zoru-ink">
+                                        {activeRow?.source ?? '—'}
+                                    </span>
+                                </p>
+                                <p>
+                                    Bot:{' '}
+                                    <span className="text-zoru-ink">
+                                        {activeRow?.botId
+                                            ? bots.find((b) => b.id === activeRow.botId)?.username ??
+                                              activeRow.botId
+                                            : 'workspace-level'}
+                                    </span>
                                 </p>
                                 <p className="text-[12px]">
                                     Note: a richer activity timeline (messages, broadcasts, payments)

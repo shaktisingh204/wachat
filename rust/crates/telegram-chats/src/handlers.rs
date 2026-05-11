@@ -818,7 +818,7 @@ pub async fn send_message(
                     });
                 }
             };
-            ("text".to_owned(), "text".to_owned(), Some(text_trim.to_owned()), None, None)
+            (sent, "text".to_owned(), Some(text_trim.to_owned()), None, None)
         };
 
     let message_id = sent_value

@@ -130,12 +130,12 @@ function fmtDate(iso?: string): string {
 
 const STATUS_VARIANT: Record<
     string,
-    'success' | 'warning' | 'ghost' | 'info' | 'secondary' | 'destructive'
+    'success' | 'warning' | 'ghost' | 'info' | 'secondary' | 'danger'
 > = {
     unverified: 'ghost',
     verified: 'info',
     login_pending: 'warning',
-    login_failed: 'destructive',
+    login_failed: 'danger',
     active: 'success',
     revoked: 'secondary',
 };
@@ -625,7 +625,7 @@ export default function TelegramApiCredentialsPage() {
                 ) : rows.length === 0 ? (
                     <div className="p-6">
                         <ZoruEmptyState
-                            icon={KeyRound}
+                            icon={<KeyRound />}
                             title="No credentials yet"
                             description="Add an api_id / api_hash pair from my.telegram.org to begin."
                             action={

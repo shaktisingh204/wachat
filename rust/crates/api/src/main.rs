@@ -52,6 +52,10 @@ use telegram_flows::TelegramFlowsState;
 use telegram_mini_apps::TelegramMiniAppsState;
 use telegram_ads::TelegramAdsState;
 use telegram_api_credentials::TelegramApiCredentialsState;
+use telegram_business_inbox::TelegramBusinessInboxState;
+use telegram_contacts::TelegramContactsState;
+use telegram_settings::TelegramSettingsState;
+use telegram_webhooks::{BotApiClient as TelegramWebhooksBotApi, TelegramWebhooksState};
 use sabflow_engine::SabflowEngineState;
 use wachat_facebook_content::WachatFacebookContentState;
 use wachat_facebook_crm::WachatFacebookCrmState;
@@ -321,7 +325,7 @@ async fn run() -> anyhow::Result<()> {
     let telegram_bots_state = TelegramBotsState::new(
         mongo.clone(),
         telegram_bot_api.clone(),
-        telegram_app_url,
+        telegram_app_url.clone(),
     );
     let telegram_chats_state = TelegramChatsState::new(
         mongo.clone(),
@@ -343,6 +347,14 @@ async fn run() -> anyhow::Result<()> {
     let telegram_mini_apps_state = TelegramMiniAppsState::new(mongo.clone());
     let telegram_ads_state = TelegramAdsState::new(mongo.clone());
     let telegram_api_credentials_state = TelegramApiCredentialsState::new(mongo.clone());
+    let telegram_business_inbox_state = TelegramBusinessInboxState::new(mongo.clone());
+    let telegram_contacts_state = TelegramContactsState::new(mongo.clone());
+    let telegram_settings_state = TelegramSettingsState::new(mongo.clone());
+    let telegram_webhooks_state = TelegramWebhooksState::new(
+        mongo.clone(),
+        TelegramWebhooksBotApi::new(),
+        telegram_app_url,
+    );
 
     // SabFiles — file manager backed by Cloudflare R2. R2 credentials are
     // optional at boot: if any are missing we boot anyway with a stubbed
@@ -443,6 +455,10 @@ async fn run() -> anyhow::Result<()> {
         telegram_mini_apps_state,
         telegram_ads_state,
         telegram_api_credentials_state,
+        telegram_business_inbox_state,
+        telegram_contacts_state,
+        telegram_settings_state,
+        telegram_webhooks_state,
         sabflow_state,
     );
     let app = router::build(state.clone());

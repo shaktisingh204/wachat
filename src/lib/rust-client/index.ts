@@ -64,6 +64,10 @@ import { telegramFlowsApi } from './telegram-flows';
 import { telegramMiniAppsApi } from './telegram-mini-apps';
 import { telegramAdsApi } from './telegram-ads';
 import { telegramApiCredentialsApi } from './telegram-api-credentials';
+import { telegramBusinessInboxApi } from './telegram-business-inbox';
+import { telegramContactsApi } from './telegram-contacts';
+import { telegramSettingsApi } from './telegram-settings';
+import { telegramWebhooksApi } from './telegram-webhooks';
 
 export const rustClient = {
     users: usersApi,
@@ -119,6 +123,10 @@ export const rustClient = {
     telegramMiniApps: telegramMiniAppsApi,
     telegramAds: telegramAdsApi,
     telegramApiCredentials: telegramApiCredentialsApi,
+    telegramBusinessInbox: telegramBusinessInboxApi,
+    telegramContacts: telegramContactsApi,
+    telegramSettings: telegramSettingsApi,
+    telegramWebhooks: telegramWebhooksApi,
 };
 
 export type RustClient = typeof rustClient;

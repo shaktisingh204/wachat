@@ -44,12 +44,12 @@ const PHONE_RE = /^\+[1-9][0-9]{6,14}$/;
 
 const STATUS_VARIANT: Record<
     string,
-    'success' | 'warning' | 'ghost' | 'info' | 'secondary' | 'destructive'
+    'success' | 'warning' | 'ghost' | 'info' | 'secondary' | 'danger'
 > = {
     unverified: 'ghost',
     verified: 'info',
     login_pending: 'warning',
-    login_failed: 'destructive',
+    login_failed: 'danger',
     active: 'success',
     revoked: 'secondary',
 };

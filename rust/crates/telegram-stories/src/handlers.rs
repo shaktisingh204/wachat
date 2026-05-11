@@ -642,8 +642,10 @@ pub async fn update_story(
         Err(e) => return err_ack(format!("mongo: {e}")),
     };
     let status = existing.get_str("status").unwrap_or("draft");
-    if status != "draft" && status != "scheduled" {
-        return err_ack("Only draft or scheduled stories can be edited locally. Use /edit for posted stories.");
+    if status != "draft" && status != "scheduled" && status != "failed" {
+        return err_ack(
+            "Only draft / scheduled / failed stories can be edited locally. Use /edit for posted stories.",
+        );
     }
 
     let mut set = doc! { "updatedAt": bson::DateTime::now() };
@@ -1894,7 +1896,7 @@ pub async fn analytics(
         }
         if status == "posted" {
             let exp = dt_opt(d.get_datetime("expiresAt").ok().copied());
-            if exp.is_none_or(|t| t > now) {
+            if exp.map_or(true, |t| t > now) {
                 active += 1;
             }
             if let Some(p) = dt_opt(d.get_datetime("postedAt").ok().copied()) {
