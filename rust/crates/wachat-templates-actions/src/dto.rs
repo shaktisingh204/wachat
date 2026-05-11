@@ -14,8 +14,13 @@ use wachat_types::{Template, TemplateCategory};
 // ---------------------------------------------------------------------------
 
 /// `?project_id=<hex>` — used by `GET /list`.
+///
+/// Accepts both snake_case (`project_id`, what the TS client sends) and
+/// camelCase (`projectId`) so the endpoint is forgiving of either style.
+/// We deliberately do NOT put `rename_all = "camelCase"` at the struct
+/// level here — that would silently flip the primary to `projectId` and
+/// break the existing `project_id=…` callers.
 #[derive(Debug, Clone, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct ProjectIdQuery {
     #[serde(alias = "projectId")]
     pub project_id: String,
