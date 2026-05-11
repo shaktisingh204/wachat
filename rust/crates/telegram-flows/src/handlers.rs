@@ -36,10 +36,7 @@ fn parse_user_oid(u: &AuthUser) -> Option<ObjectId> {
 fn parse_oid(s: &str) -> Option<ObjectId> {
     ObjectId::parse_str(s).ok()
 }
-fn err<T: Default>(msg: impl Into<String>) -> Json<T>
-where
-    T: AckLike,
-{
+fn err<T: AckLike>(msg: impl Into<String>) -> Json<T> {
     let mut a = T::default();
     a.set_error(msg.into());
     Json(a)

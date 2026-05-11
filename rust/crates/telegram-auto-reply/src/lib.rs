@@ -16,7 +16,7 @@ pub mod state;
 use axum::{
     Router,
     extract::FromRef,
-    routing::{delete, get, post, put},
+    routing::{get, post},
 };
 use bson::{Document, doc, oid::ObjectId};
 use futures::TryStreamExt;

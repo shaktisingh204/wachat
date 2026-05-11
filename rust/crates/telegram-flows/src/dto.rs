@@ -272,7 +272,7 @@ pub struct VersionResp {
     pub error: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TestStep {
     #[serde(rename = "nodeId")]

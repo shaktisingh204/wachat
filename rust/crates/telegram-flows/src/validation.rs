@@ -117,7 +117,9 @@ pub fn validate_flow(
         }
     }
 
-    // ── Edges — no dangling endpoints, no duplicate ids.
+    // ── Edges — no dangling endpoints, no duplicate ids. The literal
+    // `"trigger"` / `"start"` source ids are reserved for the canvas's
+    // virtual trigger card, so they're always considered valid sources.
     let mut edge_ids: HashSet<&str> = HashSet::new();
     for e in edges {
         if !edge_ids.insert(e.id.as_str()) {
@@ -127,7 +129,9 @@ pub fn validate_flow(
                 message: "Two or more edges share the same id.".to_owned(),
             });
         }
-        if !node_ids.contains(e.source.as_str()) {
+        let source_ok =
+            node_ids.contains(e.source.as_str()) || e.source == "trigger" || e.source == "start";
+        if !source_ok {
             errors.push(ValidationError {
                 field: format!("edges.{}.source", e.id),
                 code: "EDGE_DANGLING_SOURCE".to_owned(),

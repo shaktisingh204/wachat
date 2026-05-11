@@ -15,8 +15,8 @@ use sabnode_db::mongo::MongoHandle;
 use serde_json::Value;
 
 use crate::dto::{
-    AckResult, ConflictPair, ConflictsQuery, ConflictsResp, Cooldown, EvalStep, GetQuery,
-    ListQuery, ListResp, MatchBody, MatchResp, MatchedRule, ReorderBody, RuleRow, RunRow,
+    AckResult, ConflictPair, ConflictsQuery, ConflictsResp, Cooldown, GetQuery,
+    ListQuery, ListResp, MatchBody, MatchResp, ReorderBody, RuleRow, RunRow,
     RunsQuery, RunsResp, ScopedBody, TestBody, TestResp, UpsertBody,
 };
 use crate::engine::{Probe, conflict_signature, doc_to_json, evaluate_rule};
@@ -749,7 +749,11 @@ pub async fn runs(
             })
         })
         .collect();
-    let next_cursor = runs.last().map(|r| r._id.clone());
+    let next_cursor = if (runs.len() as i64) >= limit {
+        runs.last().map(|r| r._id.clone())
+    } else {
+        None
+    };
     Json(RunsResp {
         runs,
         next_cursor,
@@ -857,7 +861,7 @@ pub async fn conflicts(
             let name = d.get_str("name").unwrap_or("").to_owned();
             let trig_bson = d.get("trigger").cloned().unwrap_or(Bson::Null);
             let trig: Value =
-                serde_json::from_value(Bson::from(trig_bson).into_relaxed_extjson()).ok()?;
+                serde_json::from_value(trig_bson.into_relaxed_extjson()).ok()?;
             let (kind, words) = conflict_signature(&trig);
             Some(Sig {
                 id,
@@ -904,11 +908,3 @@ pub async fn conflicts(
     })
 }
 
-// Helper for `lib.rs` so `match_rules` can format steps for callers.
-pub fn _step_summary(steps: &[EvalStep]) -> String {
-    steps
-        .iter()
-        .map(|s| format!("{}: {} ({})", s.stage, s.label, s.passed))
-        .collect::<Vec<_>>()
-        .join(" | ")
-}
