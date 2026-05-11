@@ -9,10 +9,13 @@ import {
     Check,
     Copy,
     ExternalLink,
+    Info,
     KeyRound,
     Loader2,
     Plug,
     Plus,
+    RefreshCw,
+    Unlink,
 } from 'lucide-react';
 
 import {
@@ -29,7 +32,12 @@ import {
     ZoruSwitch,
     useZoruToast,
 } from '@/components/zoruui';
-import { connectTelegramBot } from '@/app/actions/telegram.actions';
+import {
+    connectTelegramBot,
+    disconnectTelegramBot,
+} from '@/app/actions/telegram.actions';
+import { listTelegramBotsAction } from '@/app/actions/telegram-extra.actions';
+import type { BotRow } from '@/lib/rust-client/telegram-bots';
 import {
     createTelegramApiCredentialAction,
     listTelegramApiCredentialsAction,
@@ -69,27 +77,54 @@ export default function TelegramConnectionsPage() {
 
     const projectId = activeProject?._id?.toString() ?? '';
 
-    // ---------------- Bot section (unchanged) ----------------
+    // ---------------- Bot section ----------------
     const [token, setToken] = React.useState('');
-    const [copied, setCopied] = React.useState(false);
+    const [copiedKey, setCopiedKey] = React.useState<string | null>(null);
     const [submitting, setSubmitting] = React.useState(false);
     const [status, setStatus] = React.useState<{
         kind: 'ok' | 'err';
         message: string;
     } | null>(null);
 
-    const origin = typeof window !== 'undefined' ? window.location.origin : '';
-    const webhookUrl = `${origin}/api/telegram/webhook/<bot-id>`;
+    const [origin, setOrigin] = React.useState('');
+    React.useEffect(() => {
+        setOrigin(window.location.origin);
+    }, []);
+    const placeholderWebhookUrl = `${origin || 'https://your-app'}/api/telegram/webhook/<bot-id>`;
 
-    const copyWebhook = async () => {
+    const copy = React.useCallback(async (text: string, key: string) => {
         try {
-            await navigator.clipboard.writeText(webhookUrl);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 1800);
+            await navigator.clipboard.writeText(text);
+            setCopiedKey(key);
+            setTimeout(() => setCopiedKey((k) => (k === key ? null : k)), 1800);
         } catch {
             /* clipboard might be blocked */
         }
-    };
+    }, []);
+
+    // ---------------- Connected bots list ----------------
+    const [bots, setBots] = React.useState<BotRow[]>([]);
+    const [botsLoading, setBotsLoading] = React.useState(true);
+    const [botsError, setBotsError] = React.useState<string | null>(null);
+    const [disconnectingId, setDisconnectingId] = React.useState<string | null>(null);
+
+    const reloadBots = React.useCallback(async () => {
+        if (!projectId) {
+            setBots([]);
+            setBotsLoading(false);
+            return;
+        }
+        setBotsLoading(true);
+        setBotsError(null);
+        const res = await listTelegramBotsAction({ projectId });
+        setBots(res.bots ?? []);
+        if (res.error) setBotsError(res.error);
+        setBotsLoading(false);
+    }, [projectId]);
+
+    React.useEffect(() => {
+        void reloadBots();
+    }, [reloadBots]);
 
     // ---------------- MTProto credentials section ----------------
     const [credentials, setCredentials] = React.useState<CredentialRow[]>([]);
@@ -202,7 +237,30 @@ export default function TelegramConnectionsPage() {
                 </div>
             </div>
 
-            {/* Bot connection — unchanged */}
+            {/* No-project banner — replaces the silent disabled state. */}
+            {!projectId ? (
+                <div
+                    className="flex items-start gap-3 rounded-2xl border p-4"
+                    style={{ borderColor: '#37BBFE66', background: '#E8F6FE' }}
+                >
+                    <Info className="mt-0.5 h-4 w-4 text-sky-700" />
+                    <div className="flex-1 text-[12.5px] leading-relaxed text-sky-900">
+                        Select a project before connecting a bot. Connections are
+                        scoped per project — bots, webhooks, and chats belong to the
+                        active workspace.
+                        <div className="mt-2">
+                            <Link
+                                href="/wachat"
+                                className="inline-flex items-center gap-1 text-sky-900 underline underline-offset-2"
+                            >
+                                Choose a project <ArrowRight className="h-3 w-3" />
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            ) : null}
+
+            {/* Bot connection */}
             <ZoruCard className="p-6">
                 <div className="flex items-center justify-between">
                     <div>
@@ -239,25 +297,37 @@ export default function TelegramConnectionsPage() {
                             value={token}
                             onChange={(e) => setToken(e.target.value)}
                             type="password"
+                            disabled={!projectId}
                         />
                     </label>
                     <div>
                         <p className="mb-1.5 text-[11.5px] uppercase tracking-[0.1em] text-zoru-ink-muted">
-                            Webhook URL
+                            Webhook URL preview
                         </p>
                         <div className="flex items-center gap-2">
                             <code className="flex-1 truncate rounded-lg border border-zoru-line bg-zoru-surface-2 px-3 py-2 font-mono text-[12px] text-zoru-ink">
-                                {webhookUrl}
+                                {placeholderWebhookUrl}
                             </code>
-                            <ZoruButton variant="outline" size="sm" onClick={copyWebhook}>
-                                {copied ? (
+                            <ZoruButton
+                                variant="outline"
+                                size="sm"
+                                onClick={() =>
+                                    copy(placeholderWebhookUrl, 'placeholder')
+                                }
+                            >
+                                {copiedKey === 'placeholder' ? (
                                     <Check className="h-3 w-3" />
                                 ) : (
                                     <Copy className="h-3 w-3" />
                                 )}
-                                {copied ? 'Copied' : 'Copy'}
+                                {copiedKey === 'placeholder' ? 'Copied' : 'Copy'}
                             </ZoruButton>
                         </div>
+                        <p className="mt-1.5 text-[11.5px] text-zoru-ink-muted">
+                            The real bot id is filled in automatically after you click
+                            Connect bot. We register the webhook with Telegram on your
+                            behalf.
+                        </p>
                     </div>
                 </div>
                 {status ? (
@@ -274,9 +344,9 @@ export default function TelegramConnectionsPage() {
                 <div className="mt-5 flex justify-end gap-2">
                     <ZoruButton
                         size="sm"
-                        disabled={!token.trim() || submitting || !activeProject?._id}
+                        disabled={!token.trim() || submitting || !projectId}
                         onClick={async () => {
-                            if (!activeProject?._id) {
+                            if (!projectId) {
                                 setStatus({
                                     kind: 'err',
                                     message: 'Select a project first.',
@@ -286,7 +356,7 @@ export default function TelegramConnectionsPage() {
                             setSubmitting(true);
                             setStatus(null);
                             const res = await connectTelegramBot({
-                                projectId: activeProject._id.toString(),
+                                projectId,
                                 token: token.trim(),
                             });
                             setSubmitting(false);
@@ -296,6 +366,11 @@ export default function TelegramConnectionsPage() {
                                     kind: 'ok',
                                     message: res.message ?? 'Bot connected.',
                                 });
+                                toast({
+                                    title: 'Bot connected',
+                                    description: res.message ?? 'Webhook registered.',
+                                });
+                                void reloadBots();
                             } else {
                                 setStatus({
                                     kind: 'err',
@@ -307,6 +382,171 @@ export default function TelegramConnectionsPage() {
                         {submitting ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
                         Connect bot
                     </ZoruButton>
+                </div>
+            </ZoruCard>
+
+            {/* Connected bots — visible right where you connect them. */}
+            <ZoruCard className="p-6">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <div className="flex items-center gap-2">
+                            <h2 className="text-[15px] text-zoru-ink">
+                                Connected bots
+                            </h2>
+                            <ZoruBadge variant="ghost">
+                                {bots.length === 0
+                                    ? 'None yet'
+                                    : `${bots.length} active`}
+                            </ZoruBadge>
+                        </div>
+                        <p className="mt-1 text-[12.5px] text-zoru-ink-muted">
+                            Bots linked to this project. The webhook URL below is the
+                            real one Telegram delivers updates to.
+                        </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <ZoruButton
+                            variant="outline"
+                            size="sm"
+                            onClick={() => void reloadBots()}
+                            disabled={botsLoading || !projectId}
+                        >
+                            {botsLoading ? (
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                            ) : (
+                                <RefreshCw className="h-3 w-3" />
+                            )}
+                            Refresh
+                        </ZoruButton>
+                        <Link
+                            href="/dashboard/telegram/bots"
+                            className="text-[12px] text-zoru-ink hover:underline"
+                        >
+                            <span className="inline-flex items-center gap-1">
+                                Manage bots <ArrowRight className="h-3 w-3" />
+                            </span>
+                        </Link>
+                    </div>
+                </div>
+
+                <div className="mt-4">
+                    {!projectId ? (
+                        <div className="rounded-xl border border-dashed border-zoru-line p-4 text-[12.5px] text-zoru-ink-muted">
+                            Pick a project to see its connected bots.
+                        </div>
+                    ) : botsLoading ? (
+                        <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink-muted">
+                            <Loader2 className="h-3 w-3 animate-spin" /> Loading bots…
+                        </div>
+                    ) : botsError ? (
+                        <p className="text-[12.5px] text-zoru-danger-ink">
+                            {botsError}
+                        </p>
+                    ) : bots.length === 0 ? (
+                        <div className="rounded-xl border border-dashed border-zoru-line p-4 text-[12.5px] text-zoru-ink-muted">
+                            No bots linked yet. Paste a token above to connect one.
+                        </div>
+                    ) : (
+                        <ul className="flex flex-col gap-2">
+                            {bots.map((b) => {
+                                const url =
+                                    b.webhookUrl ||
+                                    `${origin || 'https://your-app'}/api/telegram/webhook/${b._id}`;
+                                const isCopied = copiedKey === b._id;
+                                const isBusy = disconnectingId === b._id;
+                                return (
+                                    <li
+                                        key={b._id}
+                                        className="flex flex-col gap-2 rounded-xl border border-zoru-line bg-zoru-surface-2 px-3 py-3"
+                                    >
+                                        <div className="flex items-center justify-between gap-3">
+                                            <div className="min-w-0">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="truncate text-[13px] text-zoru-ink">
+                                                        {b.name}
+                                                    </span>
+                                                    <span className="font-mono text-[11.5px] text-zoru-ink-muted">
+                                                        @{b.username}
+                                                    </span>
+                                                    <ZoruBadge
+                                                        variant={
+                                                            b.status === 'active'
+                                                                ? 'success'
+                                                                : b.status === 'error'
+                                                                ? 'danger'
+                                                                : 'secondary'
+                                                        }
+                                                    >
+                                                        {b.status}
+                                                    </ZoruBadge>
+                                                </div>
+                                            </div>
+                                            <ZoruButton
+                                                variant="outline"
+                                                size="sm"
+                                                disabled={isBusy}
+                                                onClick={async () => {
+                                                    if (
+                                                        !window.confirm(
+                                                            `Disconnect @${b.username}? Telegram will stop delivering updates to this webhook.`,
+                                                        )
+                                                    )
+                                                        return;
+                                                    setDisconnectingId(b._id);
+                                                    const res =
+                                                        await disconnectTelegramBot(
+                                                            b._id,
+                                                        );
+                                                    setDisconnectingId(null);
+                                                    if (res.success) {
+                                                        toast({
+                                                            title: 'Bot disconnected',
+                                                            description:
+                                                                res.message ??
+                                                                'Webhook removed.',
+                                                        });
+                                                        void reloadBots();
+                                                    } else {
+                                                        toast({
+                                                            title: 'Disconnect failed',
+                                                            description:
+                                                                res.error ??
+                                                                'Unknown error.',
+                                                            variant: 'destructive',
+                                                        });
+                                                    }
+                                                }}
+                                            >
+                                                {isBusy ? (
+                                                    <Loader2 className="h-3 w-3 animate-spin" />
+                                                ) : (
+                                                    <Unlink className="h-3 w-3" />
+                                                )}
+                                                Disconnect
+                                            </ZoruButton>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <code className="flex-1 truncate rounded-lg border border-zoru-line bg-zoru-surface px-2 py-1.5 font-mono text-[11.5px] text-zoru-ink">
+                                                {url}
+                                            </code>
+                                            <ZoruButton
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => copy(url, b._id)}
+                                            >
+                                                {isCopied ? (
+                                                    <Check className="h-3 w-3" />
+                                                ) : (
+                                                    <Copy className="h-3 w-3" />
+                                                )}
+                                                {isCopied ? 'Copied' : 'Copy'}
+                                            </ZoruButton>
+                                        </div>
+                                    </li>
+                                );
+                            })}
+                        </ul>
+                    )}
                 </div>
             </ZoruCard>
 
