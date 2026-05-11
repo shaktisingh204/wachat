@@ -112,7 +112,7 @@ export function AdminDashboardClientLayout({ children }: { children: React.React
                         <SidebarMenu>
                             <SidebarMenuItem>
                                 <SidebarMenuButton asChild tooltip="Logout">
-                                    <Link href="/api/auth/admin-logout">
+                                    <Link href="/api/auth/admin-logout" prefetch={false}>
                                         <LogOut className="h-4 w-4" />
                                         <span>Logout</span>
                                     </Link>
@@ -147,7 +147,7 @@ export function AdminDashboardClientLayout({ children }: { children: React.React
                                     <DropdownMenuLabel>Admin Account</DropdownMenuLabel>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem asChild>
-                                        <Link href="/api/auth/admin-logout">
+                                        <Link href="/api/auth/admin-logout" prefetch={false}>
                                             <LogOut className="mr-2 h-4 w-4" />
                                             <span>Logout</span>
                                         </Link>
