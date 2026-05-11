@@ -1,33 +1,28 @@
 import 'server-only';
 import { cookies } from 'next/headers';
-import { rustClient, RustApiError } from '@/lib/rust-client';
+import { verifyAdminJwt } from '@/lib/auth';
 
 /**
  * Read and verify the admin session from the request cookie.
  *
- * The verification — JWT signature, expiry, role check, revoked-jti lookup —
- * runs on the Rust backend (`POST /v1/admin/session/verify`). The TS side
- * only handles the cookie store; the secret never leaves the Rust process.
+ * Verification runs in-process with `jose` against `JWT_SECRET` because
+ * every admin page render needs the session — making Rust a hard dependency
+ * for page rendering would log every admin out the moment the Rust binary
+ * was unreachable.
  *
- * Failures of any kind (missing cookie, invalid signature, expired, wrong
- * role, revoked, Rust unreachable) collapse to `{ isAdmin: false }` so the
- * caller can render the login page without a try/catch.
+ * The Rust BFF *does* expose `POST /v1/admin/session/verify` for callers
+ * that want centralised verification (cron workers, non-Node runtimes,
+ * etc.); Next.js just doesn't use it for the request-time check.
  */
 export async function getAdminSession() {
     const cookieStore = await cookies();
     const token = cookieStore.get('admin_session')?.value;
     if (!token) return { isAdmin: false as const };
 
-    try {
-        const res = await rustClient.admin.auth.verifySession(token);
-        if (!res.isAdmin || !res.user) {
-            return { isAdmin: false as const };
-        }
-        return { isAdmin: true as const, user: res.user };
-    } catch (e) {
-        if (e instanceof RustApiError) {
-            return { isAdmin: false as const };
-        }
-        throw e;
+    const payload = await verifyAdminJwt(token);
+    if (!payload || payload.role !== 'admin') {
+        return { isAdmin: false as const };
     }
+
+    return { isAdmin: true as const, user: payload };
 }
