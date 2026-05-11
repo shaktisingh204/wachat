@@ -1555,3 +1555,29 @@ export type ExecutionHistoryFilter = {
   /** Page size; default 50 in callers. */
   limit?: number;
 };
+
+/* ── SabFlow Webhook Registration ────────────────────── */
+
+/**
+ * A persisted webhook registration for a flow.
+ * Created when a flow with a webhook trigger is activated.
+ * The webhookId is the public token embedded in the URL.
+ */
+export interface SabFlowWebhook {
+  _id?: ObjectId;
+  /** UUID that forms the public webhook URL slug. */
+  webhookId: string;
+  flowId: string;
+  userId: string;
+  /** App-event slug from the trigger panel (e.g. "on_webhook", "webhook_received"). */
+  appEvent: string;
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'ANY';
+  authentication: 'none' | 'header' | 'basic' | 'query';
+  authHeaderName?: string;
+  /** Encrypted auth credential when authentication !== "none". */
+  authHeaderValue?: string;
+  responseMode: 'immediately' | 'lastNode' | 'responseNode';
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}

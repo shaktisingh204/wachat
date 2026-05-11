@@ -10,14 +10,13 @@
 //! ```ignore
 //! .nest("/v1/sabflow/webhook", sabflow_webhooks::router::<AppState>())
 //! ```
-//!
-//! Phase 6 implements the full webhook registry and response modes.
-//! This stub compiles and responds with 501 Not Implemented.
 
 pub mod dto;
 pub mod handlers;
+pub mod queue;
 pub mod router;
 pub mod state;
+pub mod store;
 
 use std::sync::Arc;
 

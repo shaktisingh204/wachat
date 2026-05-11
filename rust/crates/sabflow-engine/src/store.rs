@@ -18,15 +18,15 @@ impl ExecutionStore {
     }
 
     fn col_exec(&self) -> Collection<ExecutionRecord> {
-        self.mongo.db().collection(EXECUTIONS_COLLECTION)
+        self.mongo.collection(EXECUTIONS_COLLECTION)
     }
 
     fn col_exec_doc(&self) -> Collection<bson::Document> {
-        self.mongo.db().collection(EXECUTIONS_COLLECTION)
+        self.mongo.collection(EXECUTIONS_COLLECTION)
     }
 
     fn col_flows(&self) -> Collection<bson::Document> {
-        self.mongo.db().collection(FLOWS_COLLECTION)
+        self.mongo.collection(FLOWS_COLLECTION)
     }
 
     pub async fn insert(&self, record: &ExecutionRecord) -> Result<()> {

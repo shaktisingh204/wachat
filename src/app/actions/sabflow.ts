@@ -6,6 +6,8 @@ import { getSession } from '@/app/actions/user.actions';
 import { getSabFlowCollection, getTodaySubmissionCount } from '@/lib/sabflow/db';
 import type { SabFlowDoc } from '@/lib/sabflow/types';
 import { getErrorMessage } from '@/lib/utils';
+import { upsertFlowWebhooks, deactivateFlowWebhooks } from '@/lib/sabflow/db';
+import type { WebhookEventOptions } from '@/lib/sabflow/types';
 
 // ── helpers ────────────────────────────────────────────────────────────────
 
@@ -204,18 +206,46 @@ export async function deleteSabFlow(flowId: string) {
  * The Rust call is best-effort — a failure there does NOT roll back the DB
  * write, because the worker can still pick up the flow by querying status.
  */
-export async function activateSabFlow(flowId: string): Promise<{ ok: true } | { error: string }> {
+export async function activateSabFlow(
+  flowId: string,
+): Promise<{ ok: true; webhooks?: Array<{ appEvent: string; webhookId: string; webhookUrl: string }> } | { error: string }> {
   const session = await getSession();
   if (!session?.user) return { error: 'Authentication required' };
   if (!ObjectId.isValid(flowId)) return { error: 'Invalid flow ID' };
 
+  const userId = session.user._id.toString();
+
   try {
     const col = await getSabFlowCollection();
-    const result = await col.updateOne(
-      { _id: new ObjectId(flowId), userId: session.user._id.toString() },
+    const flow = await col.findOneAndUpdate(
+      { _id: new ObjectId(flowId), userId },
       { $set: { status: 'PUBLISHED', updatedAt: new Date() } },
+      { returnDocument: 'after' },
     );
-    if (result.matchedCount === 0) return { error: 'Flow not found or access denied' };
+    if (!flow) return { error: 'Flow not found or access denied' };
+
+    // Register webhook URLs for any webhook-type trigger events
+    let webhookResults: Array<{ appEvent: string; webhookId: string; webhookUrl: string }> | undefined;
+    const webhookEvents = (flow.events ?? []).filter((e) => e.type === 'webhook');
+    if (webhookEvents.length > 0) {
+      const opts = webhookEvents.map((e) => {
+        const o = e.options as WebhookEventOptions | undefined;
+        return {
+          appEvent: e.appEvent ?? 'webhook_received',
+          method: o?.method ?? 'ANY',
+          authentication: o?.authentication ?? 'none',
+          authHeaderName: o?.authHeaderName,
+          authHeaderValue: o?.authHeaderValue,
+          responseMode: o?.responseMode ?? 'immediately',
+        };
+      });
+      const registered = await upsertFlowWebhooks(flowId, userId, opts);
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '') ?? 'http://localhost:3000';
+      webhookResults = registered.map((r) => ({
+        ...r,
+        webhookUrl: `${baseUrl}/api/sabflow/webhook/${r.webhookId}`,
+      }));
+    }
 
     // Fire-and-forget to Rust engine — imports lazily to avoid loading fetcher in every bundle.
     try {
@@ -227,7 +257,7 @@ export async function activateSabFlow(flowId: string): Promise<{ ok: true } | { 
 
     revalidatePath(`/dashboard/sabflow/flow-builder/${flowId}`);
     revalidatePath('/dashboard/sabflow');
-    return { ok: true };
+    return webhookResults ? { ok: true, webhooks: webhookResults } : { ok: true };
   } catch (e) {
     return { error: getErrorMessage(e) };
   }
@@ -241,13 +271,18 @@ export async function deactivateSabFlow(flowId: string): Promise<{ ok: true } | 
   if (!session?.user) return { error: 'Authentication required' };
   if (!ObjectId.isValid(flowId)) return { error: 'Invalid flow ID' };
 
+  const userId = session.user._id.toString();
+
   try {
     const col = await getSabFlowCollection();
     const result = await col.updateOne(
-      { _id: new ObjectId(flowId), userId: session.user._id.toString() },
+      { _id: new ObjectId(flowId), userId },
       { $set: { status: 'DRAFT', updatedAt: new Date() } },
     );
     if (result.matchedCount === 0) return { error: 'Flow not found or access denied' };
+
+    // Deactivate all webhook registrations for this flow
+    await deactivateFlowWebhooks(flowId, userId);
 
     try {
       const { rustFetch } = await import('@/lib/rust-client/fetcher');
