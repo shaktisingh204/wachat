@@ -34,6 +34,7 @@ import {
   ShoppingBag,
   Sparkles,
   Tags,
+  Timer,
   Users,
   Webhook,
 } from "lucide-react";
@@ -222,6 +223,13 @@ export function buildWachatSidebarGroups(
           icon: React.createElement(CalendarClock),
           href: "/wachat/broadcast-scheduler",
           active: isActive("/wachat/broadcast-scheduler"),
+        },
+        {
+          id: "broadcast-cron",
+          label: "Broadcast Cron",
+          icon: React.createElement(Timer),
+          href: "/wachat/broadcast-cron",
+          active: isActive("/wachat/broadcast-cron"),
         },
         {
           id: "segments",

@@ -658,3 +658,60 @@ export async function handleStopBroadcast(
         return toErrorResponse(e);
     }
 }
+
+// ---------------------------------------------------------------------------
+// Cron Broadcast — start a tags-only broadcast from a plain object.
+// Used by the Broadcast Cron page to fire multiple queued entries in
+// parallel without constructing FormData objects.
+// ---------------------------------------------------------------------------
+
+export async function startCronBroadcast(config: {
+    projectId: string;
+    phoneNumberId: string;
+    templateId: string;
+    tagIds: string[];
+    createContacts?: boolean;
+}): Promise<{ message?: string; error?: string }> {
+    const { projectId, phoneNumberId, templateId, tagIds, createContacts } = config;
+
+    if (!projectId || !ObjectId.isValid(projectId)) return { error: 'Invalid project.' };
+    if (!phoneNumberId) return { error: 'Phone number is required.' };
+    if (!templateId || !ObjectId.isValid(templateId)) return { error: 'Invalid template.' };
+    if (!tagIds || tagIds.length === 0) return { error: 'At least one tag is required.' };
+
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Project not found.' };
+
+    let template: { id: string; name: string; components: any[] };
+    try {
+        const t = await rustClient.templates.getById(templateId, projectId);
+        if (!t) return { error: 'Template not found for this project.' };
+        if (t.status !== 'APPROVED') {
+            return {
+                error: `Template '${t.name}' is not approved (status: ${t.status}).`,
+            };
+        }
+        template = { id: t.id, name: t.name, components: (t.components as any[]) ?? [] };
+    } catch (e) {
+        return toErrorResponse(e, { error: 'Template not found for this project.' });
+    }
+
+    try {
+        const r = await rustClient.wachatBroadcast.start({
+            projectId,
+            phoneNumberId,
+            broadcastType: 'template',
+            templateId: template.id,
+            audienceType: 'tags',
+            tagIds,
+            fileName: `cron-${template.name}`,
+            components: template.components,
+            createContacts: createContacts ?? false,
+        });
+        revalidatePath('/wachat/broadcasts');
+        revalidatePath('/wachat/broadcast-cron');
+        return { message: r.message };
+    } catch (e) {
+        return toErrorResponse(e);
+    }
+}

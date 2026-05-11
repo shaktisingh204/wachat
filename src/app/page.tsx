@@ -303,12 +303,12 @@ function PaperGrain() {
 /*  Navigation — Zoho-style mega-menu header                                  */
 /* -------------------------------------------------------------------------- */
 
-const NAV_ITEMS: Array<{ label: string; key: string; dropdown?: boolean }> = [
-  { label: 'Products', key: 'products', dropdown: true },
-  { label: 'Enterprise', key: 'enterprise' },
-  { label: 'Customers', key: 'customers', dropdown: true },
-  { label: 'Partners', key: 'partners', dropdown: true },
-  { label: 'Resources', key: 'resources', dropdown: true },
+const NAV_ITEMS: Array<{ label: string; key: string; href: string; dropdown?: boolean }> = [
+  { label: 'Products', key: 'products', href: '/products', dropdown: true },
+  { label: 'Enterprise', key: 'enterprise', href: '/enterprise' },
+  { label: 'Customers', key: 'customers', href: '/customers', dropdown: true },
+  { label: 'Partners', key: 'partners', href: '/partners', dropdown: true },
+  { label: 'Resources', key: 'resources', href: '/resources', dropdown: true },
 ];
 
 function Nav({ loading, session }: { loading: boolean; session: any }) {
@@ -343,20 +343,20 @@ function Nav({ loading, session }: { loading: boolean; session: any }) {
               }`;
               if (hasDropdown) {
                 return (
-                  <button
+                  <Link
                     key={item.key}
-                    onClick={() => setOpen(isActive ? null : item.key)}
+                    href={item.href}
                     onMouseEnter={() => setOpen(item.key)}
                     aria-expanded={isActive}
                     className={className}
                   >
                     {item.label}
                     <ChevronDown className={`h-3.5 w-3.5 transition-transform ${isActive ? 'rotate-180' : ''}`} />
-                  </button>
+                  </Link>
                 );
               }
               return (
-                <Link key={item.key} href="#" className={className} onMouseEnter={close}>
+                <Link key={item.key} href={item.href} className={className} onMouseEnter={close}>
                   {item.label}
                 </Link>
               );
@@ -539,7 +539,7 @@ function ProductsMegaMenu({ onClose }: { onClose: () => void }) {
             </button>
           ))}
           <span className="h-4 w-px bg-black/10" />
-          <Link href="#products" onClick={onClose} className="inline-flex items-center gap-1 text-[12px] font-bold uppercase tracking-[0.12em] text-[#4F46E5] hover:text-[#4338CA]">
+          <Link href="/products" onClick={onClose} className="inline-flex items-center gap-1 text-[12px] font-bold uppercase tracking-[0.12em] text-[#4F46E5] hover:text-[#4338CA]">
             Explore all products <ChevronRight className="h-3 w-3" />
           </Link>
           <button aria-label="Close" onClick={onClose} className="ml-auto h-8 w-8 inline-flex items-center justify-center rounded-full hover:bg-black/5 text-[#4A4A6B] hover:text-[#121126]">
@@ -592,7 +592,7 @@ function ProductsMegaMenu({ onClose }: { onClose: () => void }) {
             </ul>
 
             <Link
-              href="#products"
+              href="/products"
               onClick={onClose}
               className="mt-4 sn-btn-primary inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-md px-4 text-[12.5px] font-bold uppercase tracking-[0.1em]"
             >
@@ -673,24 +673,24 @@ function MegaProductCard({ product, onClick }: { product: Product; onClick: () =
 function SimpleDropdown({ kind, onClose }: { kind: string; onClose: () => void }) {
   const menus: Record<string, Array<{ label: string; sub: string; href: string; icon: any; color: string }>> = {
     customers: [
-      { label: 'Case studies',    sub: 'How teams ship faster on SabNode', href: '/blog', icon: BookOpen,     color: '#4F46E5' },
-      { label: 'Customer wall',   sub: '4,812 workspaces and counting',    href: '/blog', icon: Users2,       color: '#8B5CF6' },
-      { label: 'Reviews',         sub: 'G2, Capterra, Product Hunt',        href: '/blog', icon: Star,         color: '#F59E0B' },
-      { label: 'Community',       sub: 'Join 8,000+ operators on Slack',    href: '/contact', icon: MessageCircle, color: '#06B6D4' },
+      { label: 'Case studies',    sub: 'How teams ship faster on SabNode', href: '/customers', icon: BookOpen,     color: '#4F46E5' },
+      { label: 'Customer wall',   sub: '4,812 workspaces and counting',    href: '/customers', icon: Users2,       color: '#8B5CF6' },
+      { label: 'Reviews',         sub: 'G2, Capterra, Product Hunt',        href: '/customers', icon: Star,         color: '#F59E0B' },
+      { label: 'Community',       sub: 'Join 8,000+ operators on Slack',    href: '/customers', icon: MessageCircle, color: '#06B6D4' },
     ],
     partners: [
-      { label: 'Solution partners', sub: 'Build on SabNode for clients',    href: '/contact', icon: Users2,     color: '#4F46E5' },
-      { label: 'Referral program',  sub: 'Earn 20% for 12 months',           href: '/contact', icon: DollarSign, color: '#10B981' },
-      { label: 'Affiliates',        sub: 'Tracked links, monthly payouts',   href: '/contact', icon: Globe,      color: '#EC4899' },
-      { label: 'App directory',     sub: 'Publish your integration',         href: '/contact', icon: Layers,     color: '#8B5CF6' },
+      { label: 'Solution partners', sub: 'Build on SabNode for clients',    href: '/partners', icon: Users2,     color: '#4F46E5' },
+      { label: 'Referral program',  sub: 'Earn 20% for 12 months',           href: '/partners', icon: DollarSign, color: '#10B981' },
+      { label: 'Affiliates',        sub: 'Tracked links, monthly payouts',   href: '/partners', icon: Globe,      color: '#EC4899' },
+      { label: 'App directory',     sub: 'Publish your integration',         href: '/partners', icon: Layers,     color: '#8B5CF6' },
     ],
     resources: [
-      { label: 'Docs',          sub: 'API, webhooks, SDKs',             href: '/blog',    icon: BookOpen, color: '#4F46E5' },
-      { label: 'Journal',       sub: 'Product stories + deep dives',    href: '/blog',    icon: FileText, color: '#8B5CF6' },
-      { label: 'Changelog',     sub: 'Ship notes, every Friday',        href: '/blog',    icon: Sparkles, color: '#EC4899' },
-      { label: 'Help center',   sub: 'Guides + troubleshooting',        href: '/contact', icon: Headphones, color: '#06B6D4' },
-      { label: 'Status',        sub: '99.99% · check uptime',           href: '/contact', icon: Activity, color: '#10B981' },
-      { label: 'Security',      sub: 'SOC 2 · GDPR · DPA',              href: '/contact', icon: Shield,   color: '#F59E0B' },
+      { label: 'Docs',          sub: 'API, webhooks, SDKs',             href: '/resources', icon: BookOpen, color: '#4F46E5' },
+      { label: 'Journal',       sub: 'Product stories + deep dives',    href: '/resources', icon: FileText, color: '#8B5CF6' },
+      { label: 'Changelog',     sub: 'Ship notes, every Friday',        href: '/resources', icon: Sparkles, color: '#EC4899' },
+      { label: 'Help center',   sub: 'Guides + troubleshooting',        href: '/resources', icon: Headphones, color: '#06B6D4' },
+      { label: 'Status',        sub: '99.99% · check uptime',           href: '/resources', icon: Activity, color: '#10B981' },
+      { label: 'Security',      sub: 'SOC 2 · GDPR · DPA',              href: '/resources', icon: Shield,   color: '#F59E0B' },
     ],
   };
   const items = menus[kind] ?? [];
@@ -745,9 +745,9 @@ function MobileNav({ onClose }: { onClose: () => void }) {
           </button>
         </div>
         <nav className="flex-1 overflow-y-auto p-4 space-y-1 text-[14px] font-semibold text-[#121126]">
-          {['Products', 'Enterprise', 'Customers', 'Partners', 'Resources'].map(l => (
-            <Link key={l} href="#products" onClick={onClose} className="flex items-center justify-between rounded-md px-3 py-2.5 hover:bg-[#EEF2FF] hover:text-[#4F46E5]">
-              {l} <ChevronRight className="h-4 w-4" />
+          {NAV_ITEMS.map(item => (
+            <Link key={item.key} href={item.href} onClick={onClose} className="flex items-center justify-between rounded-md px-3 py-2.5 hover:bg-[#EEF2FF] hover:text-[#4F46E5]">
+              {item.label} <ChevronRight className="h-4 w-4" />
             </Link>
           ))}
         </nav>
