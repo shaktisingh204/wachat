@@ -29,6 +29,7 @@ pub fn build(state: AppState) -> Router {
         .allow_headers(Any);
 
     let v1 = sabnode_users::router::<AppState>();
+    let admin_router = sabnode_admin::router::<AppState>();
 
     // Wachat webhook routes are absolute (`/v1/wachat/webhook/meta`) so they
     // merge at the root rather than nest under /v1.
@@ -212,6 +213,7 @@ pub fn build(state: AppState) -> Router {
         // sabflow_webhooks::router mounts at /v1/sabflow/webhook but its state
         // (SabflowWebhooksState) is not yet wired into AppState — public
         // webhook URL is served by Next.js at /api/sabflow/webhook/[webhookId].
+        .nest("/v1/admin", admin_router)
         .nest("/v1", v1)
         .with_state(state)
         .layer(SetRequestIdLayer::new(
