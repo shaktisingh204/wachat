@@ -882,6 +882,125 @@ export async function getLeadsFromForm(formId: string, since?: number): Promise<
     return res.error ? { error: res.error } : { data: res.data?.data || [] };
 }
 
+// =================================================================
+//  CRM lead-gen integration bridge
+// =================================================================
+//
+//  The CRM "Facebook Ads → Leads" integration
+//  (/dashboard/crm/settings/integrations/facebook-ads) owns the
+//  durable lead-sync config: page id, page access token, field
+//  mapping per form, and campaign routing. The Ad Manager Lead Forms
+//  page uses the helpers below to surface that connection state and
+//  upsert individual forms with sensible defaults — heavy mapping
+//  edits still happen on the CRM page.
+
+const STANDARD_FB_FIELDS = [
+    'full_name',
+    'email',
+    'phone_number',
+    'company_name',
+    'job_title',
+] as const;
+
+const DEFAULT_FB_TO_CRM: Record<string, string> = {
+    full_name: 'firstName',
+    email: 'email',
+    phone_number: 'phone',
+    company_name: 'company',
+    job_title: 'title',
+};
+
+export interface CrmLeadGenSyncStatus {
+    configured: boolean;
+    pageId: string;
+    isActive: boolean;
+    syncedFormIds: string[];
+    error?: string;
+}
+
+export async function getCrmLeadGenSyncStatus(): Promise<CrmLeadGenSyncStatus> {
+    const { getLeadGenConfig } = await import('@/lib/rust-client/wachat-facebook-leadgen-config');
+    try {
+        const { config, error } = await getLeadGenConfig();
+        if (error) return { configured: false, pageId: '', isActive: false, syncedFormIds: [], error };
+        if (!config || !config.pageId) {
+            return { configured: false, pageId: '', isActive: false, syncedFormIds: [] };
+        }
+        return {
+            configured: true,
+            pageId: config.pageId,
+            isActive: !!config.isActive,
+            syncedFormIds: (config.forms ?? []).map((f) => f.formId),
+        };
+    } catch (e) {
+        return { configured: false, pageId: '', isActive: false, syncedFormIds: [], error: rustErr(e) };
+    }
+}
+
+export async function syncLeadFormToCrm(input: {
+    pageId: string;
+    pageAccessToken: string;
+    formId: string;
+    formName: string;
+}): Promise<{ ok: boolean; error?: string }> {
+    if (!input.pageId || !input.pageAccessToken || !input.formId) {
+        return { ok: false, error: 'pageId, pageAccessToken and formId are required.' };
+    }
+
+    const { getLeadGenConfig, saveLeadGenConfig } = await import('@/lib/rust-client/wachat-facebook-leadgen-config');
+    try {
+        const session = await getSession();
+        if (!session?.user) return { ok: false, error: 'Not authenticated.' };
+
+        const current = await getLeadGenConfig();
+        const existing = current.config;
+
+        if (existing?.pageId && existing.pageId !== input.pageId) {
+            return {
+                ok: false,
+                error: `CRM is already wired to Facebook Page ${existing.pageId}. Switch pages from CRM Settings → Integrations → Facebook Ads.`,
+            };
+        }
+
+        const defaultMapping = STANDARD_FB_FIELDS.map((fb) => ({
+            fbField: fb,
+            crmField: DEFAULT_FB_TO_CRM[fb] ?? 'ignore',
+        }));
+
+        const previousForms = existing?.forms ?? [];
+        const alreadyIdx = previousForms.findIndex((f) => f.formId === input.formId);
+        const formEntry =
+            alreadyIdx >= 0
+                ? { ...previousForms[alreadyIdx], formName: input.formName || previousForms[alreadyIdx].formName }
+                : {
+                      formId: input.formId,
+                      formName: input.formName,
+                      fieldMapping: defaultMapping,
+                      defaultRouting: { pipelineId: '', stage: '', assignedTo: '' },
+                      campaignRules: [],
+                  };
+
+        const nextForms =
+            alreadyIdx >= 0
+                ? previousForms.map((f, i) => (i === alreadyIdx ? formEntry : f))
+                : [...previousForms, formEntry];
+
+        const { error } = await saveLeadGenConfig({
+            tenantId: existing?.tenantId ?? '',
+            pageId: input.pageId,
+            pageAccessToken: input.pageAccessToken,
+            isActive: existing?.isActive ?? true,
+            forms: nextForms,
+        });
+        if (error) return { ok: false, error };
+
+        revalidatePath('/dashboard/crm/settings/integrations/facebook-ads');
+        return { ok: true };
+    } catch (e) {
+        return { ok: false, error: rustErr(e) };
+    }
+}
+
 // ----- Catalogs / Product sets / DPA -----------------------------
 
 export async function listCatalogs(businessId: string): Promise<ActionResult<any[]>> {

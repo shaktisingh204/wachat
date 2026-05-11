@@ -32,9 +32,9 @@ function fmt(iso?: string): string {
   return d.toLocaleString();
 }
 
-function statusVariant(s: string): 'default' | 'secondary' | 'destructive' | 'outline' {
+function statusVariant(s: string): 'default' | 'secondary' | 'danger' | 'outline' {
   if (s === 'success') return 'default';
-  if (s === 'error') return 'destructive';
+  if (s === 'error') return 'danger';
   if (s === 'test') return 'secondary';
   return 'outline';
 }

@@ -277,7 +277,7 @@ export const telegramWebhooksApi = {
     // -- Deliveries -------------------------------------------------------
     listDeliveries: (q: ListDeliveriesQuery) =>
         rustFetch<ListDeliveriesResp>(
-            `${BASE}/deliveries${qs(q as Record<string, string | number | undefined>)}`,
+            `${BASE}/deliveries${qs(q as unknown as Record<string, string | number | undefined>)}`,
         ),
 
     getDelivery: (id: string, projectId: string) =>
@@ -306,7 +306,7 @@ export const telegramWebhooksApi = {
     // -- DLQ --------------------------------------------------------------
     listDlq: (q: ListDlqQuery) =>
         rustFetch<ListDlqResp>(
-            `${BASE}/dlq${qs(q as Record<string, string | number | undefined>)}`,
+            `${BASE}/dlq${qs(q as unknown as Record<string, string | number | undefined>)}`,
         ),
 
     enqueueDlq: (body: EnqueueDlqBody) =>
@@ -336,7 +336,7 @@ export const telegramWebhooksApi = {
     // -- Analytics --------------------------------------------------------
     analytics: (q: AnalyticsQuery) =>
         rustFetch<AnalyticsResp>(
-            `${BASE}/analytics${qs(q as Record<string, string | number | undefined>)}`,
+            `${BASE}/analytics${qs(q as unknown as Record<string, string | number | undefined>)}`,
         ),
 };
 

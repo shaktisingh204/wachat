@@ -197,11 +197,13 @@ export interface AnalyticsQuery {
 //  URL builders
 // ---------------------------------------------------------------------------
 
-function qs(params: Record<string, string | number | undefined | null>): string {
+function qs(
+    params: Record<string, string | number | undefined | null | boolean>,
+): string {
     const search = new URLSearchParams();
     for (const [k, v] of Object.entries(params)) {
         if (v === undefined || v === null) continue;
-        const value = typeof v === 'number' ? String(v) : v;
+        const value = typeof v === 'number' || typeof v === 'boolean' ? String(v) : v;
         if (value !== '') search.set(k, value);
     }
     const s = search.toString();
@@ -214,7 +216,7 @@ function qs(params: Record<string, string | number | undefined | null>): string 
 
 export const telegramBroadcastsApi = {
     /** `GET /` — paginated list with filters. */
-    list: (q: ListQuery) => rustFetch<ListResp>(`${BASE}/${qs(q)}`),
+    list: (q: ListQuery) => rustFetch<ListResp>(`${BASE}/${qs({ ...q })}`),
 
     /** `GET /{id}?projectId=…` */
     get: (broadcastId: string, projectId: string) =>
@@ -296,7 +298,7 @@ export const telegramBroadcastsApi = {
     /** `GET /{id}/deliveries` */
     deliveries: (broadcastId: string, q: DeliveriesQuery) =>
         rustFetch<DeliveriesResp>(
-            `${BASE}/${encodeURIComponent(broadcastId)}/deliveries${qs(q)}`,
+            `${BASE}/${encodeURIComponent(broadcastId)}/deliveries${qs({ ...q })}`,
         ),
 
     /**
@@ -310,7 +312,7 @@ export const telegramBroadcastsApi = {
 
     /** `GET /analytics` */
     analytics: (q: AnalyticsQuery) =>
-        rustFetch<AnalyticsResp>(`${BASE}/analytics${qs(q)}`),
+        rustFetch<AnalyticsResp>(`${BASE}/analytics${qs({ ...q })}`),
 };
 
 export type TelegramBroadcastsApi = typeof telegramBroadcastsApi;

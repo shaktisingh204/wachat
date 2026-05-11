@@ -99,9 +99,9 @@ function describeTrigger(t: FlowRow['trigger']): string {
   }
 }
 
-function statusVariant(s: string): 'default' | 'secondary' | 'destructive' | 'outline' {
+function statusVariant(s: string): 'default' | 'secondary' | 'danger' | 'outline' {
   if (s === 'published') return 'default';
-  if (s === 'disabled') return 'destructive';
+  if (s === 'disabled') return 'danger';
   return 'secondary';
 }
 

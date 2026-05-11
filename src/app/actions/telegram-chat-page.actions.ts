@@ -57,7 +57,7 @@ function errMessage(err: unknown): string {
     return 'Network error.';
 }
 
-function fail<T extends { error?: string }>(err: unknown, empty: T): T {
+function fail<T extends object>(err: unknown, empty: T): T & { error: string } {
     return { ...empty, error: errMessage(err) };
 }
 
