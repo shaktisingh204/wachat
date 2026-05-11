@@ -144,7 +144,7 @@ function buildQuery(params: Record<string, string | number | undefined>): string
 
 export const telegramAdsApi = {
     list: (q: ListQuery) =>
-        rustFetch<ListResp>(`${BASE}/${buildQuery(q as Record<string, string | number | undefined>)}`),
+        rustFetch<ListResp>(`${BASE}/${buildQuery(q as unknown as Record<string, string | number | undefined>)}`),
     detail: (campaignId: string, projectId: string) =>
         rustFetch<DetailResp>(
             `${BASE}/${encodeURIComponent(campaignId)}?projectId=${encodeURIComponent(projectId)}`,
@@ -161,7 +161,7 @@ export const telegramAdsApi = {
         ),
     analytics: (q: AnalyticsQuery) =>
         rustFetch<AnalyticsResp>(
-            `${BASE}/analytics${buildQuery(q as Record<string, string | number | undefined>)}`,
+            `${BASE}/analytics${buildQuery(q as unknown as Record<string, string | number | undefined>)}`,
         ),
     importCsv: (body: ImportBody) =>
         rustFetch<ImportResp>(`${BASE}/import`, {

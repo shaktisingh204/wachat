@@ -1,7 +1,18 @@
 'use client';
 
 import * as React from 'react';
-import { FileText, Plus, Download, RefreshCw, Users } from 'lucide-react';
+import Link from 'next/link';
+import {
+    FileText,
+    Plus,
+    Download,
+    RefreshCw,
+    Users,
+    CheckCircle2,
+    AlertTriangle,
+    Settings as SettingsIcon,
+    Loader2,
+} from 'lucide-react';
 import {
     ZoruButton,
     ZoruCard,
@@ -30,8 +41,17 @@ import {
 } from '@/components/zoruui';
 import { AmBreadcrumb, AmHeader } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 import { useToast } from '@/hooks/use-toast';
-import { getFacebookPagesForAdCreation, listLeadGenForms, getLeadsFromForm } from '@/app/actions/ad-manager.actions';
+import {
+    getFacebookPagesForAdCreation,
+    listLeadGenForms,
+    getLeadsFromForm,
+    getCrmLeadGenSyncStatus,
+    syncLeadFormToCrm,
+    type CrmLeadGenSyncStatus,
+} from '@/app/actions/ad-manager.actions';
 import type { FacebookPage } from '@/lib/definitions';
+
+const CRM_FB_INTEGRATION_HREF = '/dashboard/crm/settings/integrations/facebook-ads';
 
 export default function LeadFormsPage() {
     const { toast } = useToast();
@@ -40,6 +60,8 @@ export default function LeadFormsPage() {
     const [forms, setForms] = React.useState<any[]>([]);
     const [loading, setLoading] = React.useState(false);
     const [createOpen, setCreateOpen] = React.useState(false);
+    const [crmStatus, setCrmStatus] = React.useState<CrmLeadGenSyncStatus | null>(null);
+    const [syncingId, setSyncingId] = React.useState<string | null>(null);
 
     React.useEffect(() => {
         (async () => {
@@ -51,6 +73,15 @@ export default function LeadFormsPage() {
         })();
     }, []);
 
+    const refreshCrmStatus = React.useCallback(async () => {
+        const s = await getCrmLeadGenSyncStatus();
+        setCrmStatus(s);
+    }, []);
+
+    React.useEffect(() => {
+        refreshCrmStatus();
+    }, [refreshCrmStatus]);
+
     React.useEffect(() => {
         if (!selectedPage) return;
         (async () => {
@@ -60,6 +91,51 @@ export default function LeadFormsPage() {
             setLoading(false);
         })();
     }, [selectedPage]);
+
+    const selectedPageObj = pages.find((p) => p.id === selectedPage);
+    const crmIsForSelectedPage =
+        !!crmStatus?.configured && crmStatus.pageId === selectedPage;
+    const crmIsForDifferentPage =
+        !!crmStatus?.configured && !!crmStatus.pageId && crmStatus.pageId !== selectedPage;
+
+    const syncToCrm = async (form: any) => {
+        const pageAccessToken = (selectedPageObj as any)?.access_token as string | undefined;
+        if (!pageAccessToken) {
+            toast({
+                title: 'Missing page access token',
+                description: 'Reconnect this Facebook page in Ad Manager settings.',
+                variant: 'destructive',
+            });
+            return;
+        }
+        if (crmIsForDifferentPage) {
+            toast({
+                title: 'Different page already wired',
+                description: `CRM is connected to page ${crmStatus?.pageId}. Switch in CRM → Settings → Integrations → Facebook Ads.`,
+                variant: 'destructive',
+            });
+            return;
+        }
+
+        setSyncingId(form.id);
+        const res = await syncLeadFormToCrm({
+            pageId: selectedPage,
+            pageAccessToken,
+            formId: form.id,
+            formName: form.name,
+        });
+        setSyncingId(null);
+
+        if (res.error) {
+            toast({ title: 'Sync failed', description: res.error, variant: 'destructive' });
+            return;
+        }
+        toast({
+            title: 'Synced to CRM',
+            description: `"${form.name}" now creates CRM leads in real-time. Configure mapping & routing in CRM settings.`,
+        });
+        refreshCrmStatus();
+    };
 
     const exportLeads = async (formId: string) => {
         const res = await getLeadsFromForm(formId);
@@ -103,6 +179,13 @@ export default function LeadFormsPage() {
                         <Plus className="h-4 w-4 mr-1" /> New lead form
                     </ZoruButton>
                 }
+            />
+
+            <CrmConnectionBanner
+                status={crmStatus}
+                forSelectedPage={crmIsForSelectedPage}
+                forDifferentPage={crmIsForDifferentPage}
+                selectedPageName={selectedPageObj?.name}
             />
 
             <div className="flex items-center gap-2">
@@ -162,36 +245,63 @@ export default function LeadFormsPage() {
                                         </ZoruTableCell>
                                     </ZoruTableRow>
                                 ) : (
-                                    forms.map((f) => (
-                                        <ZoruTableRow key={f.id}>
-                                            <ZoruTableCell className="font-medium">{f.name}</ZoruTableCell>
-                                            <ZoruTableCell>
-                                                <ZoruBadge variant="outline">{f.status}</ZoruBadge>
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="tabular-nums">{f.leads_count || 0}</ZoruTableCell>
-                                            <ZoruTableCell className="text-xs text-muted-foreground">
-                                                {f.created_time
-                                                    ? new Date(f.created_time).toLocaleDateString()
-                                                    : '—'}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
-                                                <div className="flex items-center gap-1.5">
-                                                    <ZoruButton size="sm" variant="outline" onClick={() => exportLeads(f.id)}>
-                                                        <Download className="h-3 w-3 mr-1" /> Export
-                                                    </ZoruButton>
-                                                    <ZoruButton
-                                                        size="sm"
-                                                        variant="outline"
-                                                        onClick={() => {
-                                                            toast({ title: 'Leads synced to CRM', description: `${f.leads_count || 0} leads from "${f.name}" synced to CRM.` });
-                                                        }}
-                                                    >
-                                                        <RefreshCw className="h-3 w-3 mr-1" /> Sync to CRM
-                                                    </ZoruButton>
-                                                </div>
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
-                                    ))
+                                    forms.map((f) => {
+                                        const isSynced =
+                                            crmIsForSelectedPage &&
+                                            !!crmStatus?.syncedFormIds.includes(f.id);
+                                        const isSyncing = syncingId === f.id;
+                                        return (
+                                            <ZoruTableRow key={f.id}>
+                                                <ZoruTableCell className="font-medium">
+                                                    <div className="flex items-center gap-2">
+                                                        {f.name}
+                                                        {isSynced && (
+                                                            <ZoruBadge variant="success" className="text-[10px]">
+                                                                <CheckCircle2 className="mr-1 h-3 w-3" /> CRM synced
+                                                            </ZoruBadge>
+                                                        )}
+                                                    </div>
+                                                </ZoruTableCell>
+                                                <ZoruTableCell>
+                                                    <ZoruBadge variant="outline">{f.status}</ZoruBadge>
+                                                </ZoruTableCell>
+                                                <ZoruTableCell className="tabular-nums">{f.leads_count || 0}</ZoruTableCell>
+                                                <ZoruTableCell className="text-xs text-muted-foreground">
+                                                    {f.created_time
+                                                        ? new Date(f.created_time).toLocaleDateString()
+                                                        : '—'}
+                                                </ZoruTableCell>
+                                                <ZoruTableCell>
+                                                    <div className="flex items-center gap-1.5">
+                                                        <ZoruButton size="sm" variant="outline" onClick={() => exportLeads(f.id)}>
+                                                            <Download className="h-3 w-3 mr-1" /> Export
+                                                        </ZoruButton>
+                                                        {isSynced ? (
+                                                            <ZoruButton size="sm" variant="outline" asChild>
+                                                                <Link href={CRM_FB_INTEGRATION_HREF}>
+                                                                    <SettingsIcon className="h-3 w-3 mr-1" /> Configure
+                                                                </Link>
+                                                            </ZoruButton>
+                                                        ) : (
+                                                            <ZoruButton
+                                                                size="sm"
+                                                                variant="outline"
+                                                                onClick={() => syncToCrm(f)}
+                                                                disabled={isSyncing || crmIsForDifferentPage}
+                                                            >
+                                                                {isSyncing ? (
+                                                                    <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                                                                ) : (
+                                                                    <RefreshCw className="h-3 w-3 mr-1" />
+                                                                )}
+                                                                Sync to CRM
+                                                            </ZoruButton>
+                                                        )}
+                                                    </div>
+                                                </ZoruTableCell>
+                                            </ZoruTableRow>
+                                        );
+                                    })
                                 )}
                             </ZoruTableBody>
                         </ZoruTable>
@@ -224,6 +334,93 @@ export default function LeadFormsPage() {
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
             </ZoruDialog>
+        </div>
+    );
+}
+
+function CrmConnectionBanner({
+    status,
+    forSelectedPage,
+    forDifferentPage,
+    selectedPageName,
+}: {
+    status: CrmLeadGenSyncStatus | null;
+    forSelectedPage: boolean;
+    forDifferentPage: boolean;
+    selectedPageName?: string;
+}) {
+    if (status === null) {
+        return <ZoruSkeleton className="h-12 w-full" />;
+    }
+
+    if (!status.configured) {
+        return (
+            <div className="flex items-center justify-between gap-3 rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-[13px] text-amber-700 dark:text-amber-300">
+                <div className="flex items-center gap-2">
+                    <AlertTriangle className="h-4 w-4 shrink-0" />
+                    <span>
+                        CRM lead-sync is not configured yet. Click "Sync to CRM" on any form below, or configure mapping & routing first.
+                    </span>
+                </div>
+                <ZoruButton size="sm" variant="outline" asChild>
+                    <Link href={CRM_FB_INTEGRATION_HREF}>
+                        <SettingsIcon className="h-3 w-3 mr-1" /> Open CRM settings
+                    </Link>
+                </ZoruButton>
+            </div>
+        );
+    }
+
+    if (forDifferentPage) {
+        return (
+            <div className="flex items-center justify-between gap-3 rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-[13px] text-amber-700 dark:text-amber-300">
+                <div className="flex items-center gap-2">
+                    <AlertTriangle className="h-4 w-4 shrink-0" />
+                    <span>
+                        CRM is wired to a different Facebook Page (<code className="font-mono text-[12px]">{status.pageId}</code>). Forms on{' '}
+                        <strong>{selectedPageName || 'this page'}</strong> can't sync until you switch pages in CRM settings.
+                    </span>
+                </div>
+                <ZoruButton size="sm" variant="outline" asChild>
+                    <Link href={CRM_FB_INTEGRATION_HREF}>
+                        <SettingsIcon className="h-3 w-3 mr-1" /> Switch in CRM
+                    </Link>
+                </ZoruButton>
+            </div>
+        );
+    }
+
+    if (forSelectedPage && !status.isActive) {
+        return (
+            <div className="flex items-center justify-between gap-3 rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-[13px] text-amber-700 dark:text-amber-300">
+                <div className="flex items-center gap-2">
+                    <AlertTriangle className="h-4 w-4 shrink-0" />
+                    <span>
+                        CRM is wired to this page but lead sync is <strong>inactive</strong>. Enable it in CRM settings to resume real-time sync.
+                    </span>
+                </div>
+                <ZoruButton size="sm" variant="outline" asChild>
+                    <Link href={CRM_FB_INTEGRATION_HREF}>
+                        <SettingsIcon className="h-3 w-3 mr-1" /> Activate
+                    </Link>
+                </ZoruButton>
+            </div>
+        );
+    }
+
+    return (
+        <div className="flex items-center justify-between gap-3 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-4 py-2.5 text-[13px] text-emerald-700 dark:text-emerald-300">
+            <div className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 shrink-0" />
+                <span>
+                    Connected to CRM — {status.syncedFormIds.length} form{status.syncedFormIds.length === 1 ? '' : 's'} syncing in real-time.
+                </span>
+            </div>
+            <ZoruButton size="sm" variant="outline" asChild>
+                <Link href={CRM_FB_INTEGRATION_HREF}>
+                    <SettingsIcon className="h-3 w-3 mr-1" /> Mapping & routing
+                </Link>
+            </ZoruButton>
         </div>
     );
 }

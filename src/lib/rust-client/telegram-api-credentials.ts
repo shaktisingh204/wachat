@@ -241,7 +241,7 @@ export const telegramApiCredentialsApi = {
 
     audit: (q: AuditQuery) =>
         rustFetch<AuditListResp>(
-            `${BASE}/audit${qs(q as Record<string, string | number | undefined>)}`,
+            `${BASE}/audit${qs(q as unknown as Record<string, string | number | undefined>)}`,
         ),
 };
 

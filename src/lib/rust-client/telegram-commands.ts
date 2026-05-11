@@ -236,7 +236,7 @@ function buildQuery(params: Record<string, string | number | undefined>): string
 
 export const telegramCommandsApi = {
     list: (q: ListQuery) =>
-        rustFetch<ListResp>(`${BASE}/${buildQuery(q as Record<string, string | number | undefined>)}`),
+        rustFetch<ListResp>(`${BASE}/${buildQuery(q as unknown as Record<string, string | number | undefined>)}`),
     create: (body: CreateBody) =>
         rustFetch<AckResult>(`${BASE}/`, {
             method: 'POST',
@@ -291,7 +291,7 @@ export const telegramCommandsApi = {
         ),
     analytics: (q: AnalyticsQuery) =>
         rustFetch<AnalyticsResp>(
-            `${BASE}/analytics${buildQuery(q as Record<string, string | number | undefined>)}`,
+            `${BASE}/analytics${buildQuery(q as unknown as Record<string, string | number | undefined>)}`,
         ),
     import: (body: ImportBody) =>
         rustFetch<ImportResp>(`${BASE}/import`, {

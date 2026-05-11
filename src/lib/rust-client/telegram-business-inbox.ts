@@ -252,7 +252,9 @@ function qs(params: Record<string, string | number | boolean | undefined | null>
 
 export const telegramBusinessInboxApi = {
     listThreads: (q: ListThreadsQuery) =>
-        rustFetch<ListThreadsResp>(`${BASE}/threads${qs(q as Record<string, string | number | boolean | undefined>)}`),
+        rustFetch<ListThreadsResp>(
+            `${BASE}/threads${qs(q as unknown as Record<string, string | number | boolean | undefined>)}`,
+        ),
 
     getThread: (id: string, projectId: string) =>
         rustFetch<DetailResp>(`${BASE}/threads/${encodeURIComponent(id)}?projectId=${encodeURIComponent(projectId)}`),

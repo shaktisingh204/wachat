@@ -340,7 +340,7 @@ export const telegramPaymentsApi = {
 
     // Payments ---------------------------------------------------------------
     listPayments: (q: ListPaymentsQuery) =>
-        rustFetch<ListPaymentsResp>(`${BASE}/${qs(q as Record<string, string | number | undefined>)}`),
+        rustFetch<ListPaymentsResp>(`${BASE}/${qs(q as unknown as Record<string, string | number | undefined>)}`),
     getPayment: (paymentId: string, projectId: string) =>
         rustFetch<GetPaymentResp>(
             `${BASE}/${encodeURIComponent(paymentId)}${qs({ projectId })}`,
@@ -351,11 +351,11 @@ export const telegramPaymentsApi = {
             body: JSON.stringify(body),
         }),
     exportCsvUrl: (q: ListPaymentsQuery) =>
-        `${BASE}/export${qs(q as Record<string, string | number | undefined>)}`,
+        `${BASE}/export${qs(q as unknown as Record<string, string | number | undefined>)}`,
 
     // Analytics --------------------------------------------------------------
     analytics: (q: AnalyticsQuery) =>
-        rustFetch<AnalyticsResp>(`${BASE}/analytics${qs(q as Record<string, string | number | undefined>)}`),
+        rustFetch<AnalyticsResp>(`${BASE}/analytics${qs(q as unknown as Record<string, string | number | undefined>)}`),
 };
 
 export type TelegramPaymentsApi = typeof telegramPaymentsApi;

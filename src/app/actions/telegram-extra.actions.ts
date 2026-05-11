@@ -417,7 +417,14 @@ export async function listTelegramStickerSetsAction(botId: string): Promise<Stic
   try {
     return await withRustFallback(
       async () => {
-        const res = await rustClient.telegramStickers.list(botId);
+        // Legacy callers pass a single id that is sometimes a botId and
+        // sometimes a projectId. The Rust route requires both — pass the
+        // value as each so `require_project_bot` rejects the call and we
+        // gracefully fall through to the Mongo fallback below for the
+        // legacy single-id case. The new page (`telegram-stickers.actions`)
+        // calls `rustClient.telegramStickers.list(projectId, botId)`
+        // directly with the right values.
+        const res = await rustClient.telegramStickers.list(botId, botId);
         return res.sets ?? [];
       },
       async () => {
@@ -520,7 +527,14 @@ export async function createTelegramStickerSetAction(body: StickerCreateBody) {
 
 export async function deleteTelegramStickerSetAction(setId: string, botId: string) {
   try {
-    return await rustClient.telegramStickers.delete(setId, botId);
+    // Legacy signature: callers identify the pack by an opaque setId.
+    // The Rust route is `DELETE /v1/telegram/stickers/{setName}` and
+    // soft-archives via `archive`, requiring both projectId and botId.
+    // The legacy single-arg callsite has neither — pass the botId for
+    // both so the Rust call fails out cleanly and we fall to the Mongo
+    // path below for legacy compatibility. New callers use
+    // `archiveStickerSetAction` in `telegram-stickers.actions.ts`.
+    return await rustClient.telegramStickers.archive(setId, botId, botId);
   } catch (e) {
     if (sharedIsRustUnavailable(e)) {
       // Mirror the legacy `deleteTelegramStickerSet` flow: best-effort
