@@ -11,6 +11,7 @@ import {
 import type { Block, Variable, GoogleSheetsOptions, SheetsExtractor, SheetsCellValue } from '@/lib/sabflow/types';
 import { Field, PanelHeader, inputClass, selectClass, Divider } from './shared/primitives';
 import { VariableSelect } from './shared/VariableSelect';
+import { CredentialSelect } from './shared/CredentialSelect';
 
 /* ── Constants ───────────────────────────────────────────────────────────── */
 
@@ -148,6 +149,17 @@ export function GoogleSheetsSettings({ block, onBlockChange, variables = [] }: P
   return (
     <div className="space-y-4">
       <PanelHeader icon={LuSheet} title="Google Sheets" />
+
+      {/* Credentials */}
+      <Field label="Google credential">
+        <CredentialSelect
+          credentialType="google_sheets"
+          value={(opts as { credentialId?: string }).credentialId}
+          onChange={(id) => onBlockChange({ ...block, options: { ...opts, credentialId: id } })}
+        />
+      </Field>
+
+      <Divider />
 
       {/* Spreadsheet ID */}
       <Field label="Spreadsheet ID">

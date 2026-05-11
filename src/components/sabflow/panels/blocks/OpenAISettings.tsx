@@ -3,8 +3,6 @@
 import { useCallback, useState } from 'react';
 import {
   LuSparkles,
-  LuKey,
-  LuBuilding2,
   LuChevronDown,
   LuChevronUp,
   LuPlus,
@@ -13,9 +11,10 @@ import {
 } from 'react-icons/lu';
 import { cn } from '@/lib/utils';
 import type { Block, Variable } from '@/lib/sabflow/types';
-import { Field, PanelHeader, inputClass, selectClass, Divider, toggleClass } from './shared/primitives';
+import { Field, PanelHeader, inputClass, selectClass, Divider } from './shared/primitives';
 import { VariableSelect } from './shared/VariableSelect';
 import { VariableAutocompleteInput } from './shared/VariableAutocompleteInput';
+import { CredentialSelect } from './shared/CredentialSelect';
 
 /* ══════════════════════════════════════════════════════════
    Types
@@ -52,8 +51,7 @@ type ImageQuality = 'standard' | 'hd';
 
 interface OpenAIOptions {
   /* Credentials */
-  useWorkspaceKey?: boolean;
-  apiKey?: string;
+  credentialId?: string;
   /* Core */
   model?: OpenAIModel;
   task?: OpenAITask;
@@ -135,7 +133,6 @@ export function OpenAISettings({ block, onBlockChange, variables = [] }: Props) 
   const opts = (block.options ?? {}) as OpenAIOptions;
   const task: OpenAITask = opts.task ?? 'ask_assistant';
   const model: OpenAIModel = opts.model ?? 'gpt-4o';
-  const useWorkspaceKey = opts.useWorkspaceKey ?? false;
   const messagesFormat: MessagesFormat = opts.messagesFormat ?? 'last';
   const temperature = opts.temperature ?? 1;
   const maxTokens = opts.maxTokens ?? 1024;
@@ -190,54 +187,13 @@ export function OpenAISettings({ block, onBlockChange, variables = [] }: Props) 
       {/* ── Credentials ───────────────────────────────── */}
       <SectionLabel>Credentials</SectionLabel>
 
-      <div className="flex items-center justify-between">
-        <div className="space-y-0.5">
-          <span className="text-[11.5px] font-medium text-[var(--gray-10)] uppercase tracking-wide flex items-center gap-1.5">
-            <LuBuilding2 className="h-3.5 w-3.5" strokeWidth={1.8} />
-            Use workspace key
-          </span>
-          <p className="text-[11px] text-[var(--gray-8)]">
-            Inherit the API key from your workspace settings.
-          </p>
-        </div>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={useWorkspaceKey}
-          onClick={() => update({ useWorkspaceKey: !useWorkspaceKey })}
-          className={toggleClass(useWorkspaceKey)}
-        >
-          <span
-            className={cn(
-              'block h-4 w-4 rounded-full bg-white shadow transition-transform',
-              useWorkspaceKey ? 'translate-x-5' : 'translate-x-0.5',
-            )}
-          />
-        </button>
-      </div>
-
-      {!useWorkspaceKey && (
-        <Field label="API Key">
-          <div className="relative flex items-center">
-            <LuKey
-              className="absolute left-2.5 h-3.5 w-3.5 text-[var(--gray-7)] pointer-events-none"
-              strokeWidth={1.8}
-            />
-            <input
-              type="password"
-              value={opts.apiKey ?? ''}
-              onChange={(e) => update({ apiKey: e.target.value })}
-              placeholder="sk-…"
-              autoComplete="off"
-              spellCheck={false}
-              className={cn(inputClass, 'pl-8')}
-            />
-          </div>
-          <p className="text-[10.5px] text-[var(--gray-8)] mt-1">
-            Stored in the flow. Never exposed to end-users.
-          </p>
-        </Field>
-      )}
+      <Field label="OpenAI credential">
+        <CredentialSelect
+          credentialType="openai"
+          value={opts.credentialId}
+          onChange={(id) => update({ credentialId: id })}
+        />
+      </Field>
 
       <Divider />
 

@@ -26,11 +26,14 @@ import {
   Loader2,
   MoreHorizontal,
   Pencil,
+  Play,
   Plus,
   RefreshCw,
   Search,
   Sparkles,
   Trash2,
+  ToggleLeft,
+  ToggleRight,
   Workflow,
   Zap,
 } from "lucide-react";
@@ -94,6 +97,8 @@ import {
   getTodaySubmissionCounts,
   listSabFlows,
   saveSabFlow,
+  activateSabFlow,
+  deactivateSabFlow,
 } from "@/app/actions/sabflow";
 import { FlowCard, type FlowItem } from "@/components/sabflow/FlowCard";
 import { FlowImportExport } from "@/components/sabflow/FlowImportExport";
@@ -198,6 +203,30 @@ export default function SabFlowListPage() {
     } else {
       toast({ title: "Duplicated", description: "Flow was duplicated." });
       fetchFlows();
+    }
+  };
+
+  const handleToggleActive = async (flow: FlowItem) => {
+    const isPublished = flow.status === 'PUBLISHED';
+    const result = isPublished ? await deactivateSabFlow(flow._id) : await activateSabFlow(flow._id);
+    if ('error' in result) {
+      toast({ title: 'Error', description: result.error as string, variant: 'destructive' });
+    } else {
+      setFlows((prev) => prev.map((f) =>
+        f._id === flow._id ? { ...f, status: isPublished ? 'DRAFT' : 'PUBLISHED' } : f
+      ));
+    }
+  };
+
+  const handleRunNow = async (flowId: string) => {
+    try {
+      const r = await fetch(`/api/sabflow/${flowId}/trigger`, { method: 'POST' });
+      const j = await r.json() as { executionId?: string; error?: string };
+      if (j.error) throw new Error(j.error);
+      toast({ title: 'Execution queued', description: `Run ${j.executionId?.slice(-8)} started.` });
+      router.push(`/dashboard/sabflow/logs?flowId=${flowId}`);
+    } catch (e) {
+      toast({ title: 'Error', description: e instanceof Error ? e.message : 'Failed to trigger', variant: 'destructive' });
     }
   };
 
@@ -590,6 +619,14 @@ export default function SabFlowListPage() {
                             >
                               <BarChart3 />
                               Results
+                            </ZoruDropdownMenuItem>
+                            <ZoruDropdownMenuItem onClick={() => handleRunNow(flow._id)}>
+                              <Play />
+                              Run now
+                            </ZoruDropdownMenuItem>
+                            <ZoruDropdownMenuItem onClick={() => handleToggleActive(flow)}>
+                              {flow.status === 'PUBLISHED' ? <ToggleRight /> : <ToggleLeft />}
+                              {flow.status === 'PUBLISHED' ? 'Deactivate' : 'Activate'}
                             </ZoruDropdownMenuItem>
                             <ZoruDropdownMenuItem
                               onClick={() => handleDuplicate(flow._id)}
