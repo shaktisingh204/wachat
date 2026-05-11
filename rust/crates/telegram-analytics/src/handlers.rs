@@ -45,8 +45,8 @@ const BOTS: &str = "telegram_bots";
 const CHATS: &str = "telegram_chats";
 const MESSAGES: &str = "telegram_messages";
 const BROADCASTS: &str = "telegram_broadcasts";
-const INVOICES: &str = "telegram_invoices";
-const AUTO_REPLIES: &str = "telegram_auto_replies";
+const INVOICES: &str = "telegram_payment_invoices";
+const AUTO_REPLIES: &str = "telegram_auto_reply_rules";
 
 // -------------------------------------------------------------------------
 //  Shared helpers

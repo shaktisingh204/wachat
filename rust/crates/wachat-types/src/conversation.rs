@@ -33,6 +33,7 @@ pub struct Conversation {
 
     /// Timestamp of the most recent message in either direction. Used as
     /// the inbox sort key.
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub last_message_at: DateTime<Utc>,
 
     /// How many inbound messages have not been marked read by an agent.

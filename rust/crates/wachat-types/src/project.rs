@@ -88,6 +88,6 @@ pub struct Project {
     /// Created-at timestamp. BSON `Date` ⇄ `chrono::DateTime<Utc>` via the
     /// `bson` `chrono-0_4` feature. Optional — pre-existing documents may not
     /// have it.
-    #[serde(default)]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional")]
     pub created_at: Option<DateTime<Utc>>,
 }
