@@ -51,6 +51,7 @@ use telegram_stories::TelegramStoriesState;
 use telegram_flows::TelegramFlowsState;
 use telegram_mini_apps::TelegramMiniAppsState;
 use telegram_ads::TelegramAdsState;
+use sabflow_engine::SabflowEngineState;
 use wachat_facebook_content::WachatFacebookContentState;
 use wachat_facebook_crm::WachatFacebookCrmState;
 use wachat_facebook_events::WachatFacebookEventsState;
@@ -373,6 +374,14 @@ async fn run() -> anyhow::Result<()> {
         }
     };
 
+    // SabFlow execution engine — shares the same Mongo/Redis/Bull stack.
+    let sabflow_state = SabflowEngineState::new(
+        mongo.clone(),
+        redis.clone(),
+        wachat_queue::BullProducer::new(redis.clone()),
+        auth.clone(),
+    );
+
     let state = AppState::new(
         mongo,
         redis,
@@ -431,6 +440,7 @@ async fn run() -> anyhow::Result<()> {
         telegram_flows_state,
         telegram_mini_apps_state,
         telegram_ads_state,
+        sabflow_state,
     );
     let app = router::build(state.clone());
 

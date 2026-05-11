@@ -131,6 +131,8 @@ members = [
     "crates/crm-bookings",
     "crates/crm-holidays",
     "crates/crm-departments",
+    "crates/sabflow-engine",
+    "crates/sabflow-webhooks",
 ]
 
 [workspace.package]
