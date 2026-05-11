@@ -109,10 +109,11 @@ async function processExecution(job: Job<ExecutionJobPayload>): Promise<void> {
     };
 
     const session = {
+      flowId,
       currentGroupId: startGroup.id as string,
       currentBlockIndex: 0,
       variables: initialVariables,
-      history: [] as Array<{ groupId: string; blockId: string; blockType: string; timestamp: Date }>,
+      history: [] as Array<{ groupId: string; blockId: string; blockType: string; input?: string; output?: string; timestamp: Date }>,
     };
 
     const { result } = await executeFlow(flow, session);

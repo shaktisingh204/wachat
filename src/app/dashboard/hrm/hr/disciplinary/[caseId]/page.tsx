@@ -1,31 +1,23 @@
 /**
  * Disciplinary case detail page.
  *
- * Server component sibling of the disciplinary list page. Renders the
- * case-no header with severity + status badges, metadata grid (type,
- * raised by, raised at, decision), a hearings table (date, panel,
- * outcome) and an evidence list when present.
+ * Server component that renders a ZoruCard "Case Details" grid for a
+ * single disciplinary case from the `crm_disciplinary_cases` collection.
+ * Requires an active session; redirects to the list page otherwise or
+ * when the case is not found.
  */
 
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { ObjectId } from 'mongodb';
-import { ArrowLeft, Gavel } from 'lucide-react';
+import { redirect } from 'next/navigation';
+import { Gavel, PlusCircle } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/zoruui';
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
+import { CrmPageHeader } from '../../../../crm/_components/crm-page-header';
 import { getDisciplinaryCaseById } from '@/app/actions/crm-disciplinary.actions';
 import { getSession } from '@/app/actions/user.actions';
+
+export const dynamic = 'force-dynamic';
 
 function fmtDate(v: unknown): string {
     if (!v) return '—';
@@ -33,50 +25,23 @@ function fmtDate(v: unknown): string {
     return isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
 }
 
-function fmtDateTime(v: unknown): string {
-    if (!v) return '—';
-    const d = new Date(v as any);
-    return isNaN(d.getTime()) ? '—' : d.toLocaleString();
-}
+type SeverityVariant = 'danger' | 'warning' | 'ghost' | 'success';
+type StatusVariant = 'warning' | 'ghost' | 'success' | 'danger';
 
-function statusVariant(status?: string): 'ghost' | 'success' | 'warning' | 'danger' {
-    const s = (status || '').toLowerCase();
-    if (s === 'resolved' || s === 'closed_resolved' || s === 'approved') return 'success';
-    if (s === 'open' || s === 'draft' || s === 'pending') return 'ghost';
-    if (
-        s === 'rejected' ||
-        s === 'cancelled' ||
-        s === 'high' ||
-        s === 'critical' ||
-        s === 'closed' ||
-        s === 'severe'
-    )
-        return 'danger';
-    return 'warning';
-}
+const SEVERITY_VARIANT: Record<string, SeverityVariant> = {
+    critical: 'danger',
+    high: 'warning',
+    medium: 'ghost',
+    low: 'ghost',
+};
 
-function idToString(v: unknown): string {
-    if (!v) return '';
-    if (typeof v === 'string') return v;
-    if (typeof (v as any).toString === 'function') return (v as any).toString();
-    return '';
-}
-
-interface Hearing {
-    date?: string | Date;
-    panel?: string | string[];
-    outcome?: string;
-    notes?: string;
-}
-
-interface Evidence {
-    label?: string;
-    title?: string;
-    type?: string;
-    url?: string;
-    addedAt?: string | Date;
-    description?: string;
-}
+const STATUS_VARIANT: Record<string, StatusVariant> = {
+    open: 'warning',
+    under_review: 'ghost',
+    resolved: 'success',
+    dismissed: 'ghost',
+    appealed: 'warning',
+};
 
 export default async function DisciplinaryCaseDetailPage({
     params,
@@ -86,156 +51,148 @@ export default async function DisciplinaryCaseDetailPage({
     const { caseId } = await params;
 
     const session = await getSession();
-    if (!session?.user) notFound();
-    if (!ObjectId.isValid(caseId)) notFound();
+    if (!session?.user) redirect('/dashboard/hrm/hr/disciplinary');
 
     const c = await getDisciplinaryCaseById(caseId);
-    if (!c) {
-        notFound();
-    }
+    if (!c) redirect('/dashboard/hrm/hr/disciplinary');
 
-    const caseNo = ((c as any).caseNo as string) || idToString((c as any)._id) || 'Case';
-    const employee =
-        ((c as any).employeeName as string) ||
-        idToString((c as any).employeeId) ||
+    const rawId = ((c as any)._id as any)?.toString?.() ?? String((c as any)._id ?? '');
+    const shortId = rawId.slice(-8) || rawId;
+
+    const employeeName =
+        ((c as any).employeeName as string | undefined) ||
+        ((c as any).employeeId as any)?.toString?.() ||
+        String((c as any).employeeId ?? '') ||
         '—';
-    const severity = ((c as any).severity as string) || 'minor';
-    const type = ((c as any).type as string) || '—';
+
     const raisedBy =
-        ((c as any).raisedByName as string) ||
-        idToString((c as any).raisedById) ||
-        '—';
-    const decision = ((c as any).decision as string) || '—';
-    const status = ((c as any).status as string) || 'open';
-    const raisedAt = (c as any).raisedAt ?? (c as any).createdAt;
-    const hearings: Hearing[] = Array.isArray((c as any).hearings)
-        ? ((c as any).hearings as Hearing[])
-        : [];
-    const evidence: Evidence[] = Array.isArray((c as any).evidence)
-        ? ((c as any).evidence as Evidence[])
-        : [];
+        ((c as any).raisedBy as string | undefined) || '—';
+
+    const type = ((c as any).type as string | undefined) || '—';
+    const severity = ((c as any).severity as string | undefined) || '';
+    const status = ((c as any).status as string | undefined) || '';
+    const decision = ((c as any).decision as string | undefined) || '';
+    const notes = ((c as any).notes as string | undefined) || '';
+
+    const evidenceCount = Array.isArray((c as any).evidence)
+        ? ((c as any).evidence as unknown[]).length
+        : 0;
+    const hearingsCount = Array.isArray((c as any).hearings)
+        ? ((c as any).hearings as unknown[]).length
+        : 0;
+
+    const severityVariant: SeverityVariant = SEVERITY_VARIANT[severity.toLowerCase()] ?? 'ghost';
+    const statusVariant: StatusVariant = STATUS_VARIANT[status.toLowerCase()] ?? 'ghost';
 
     return (
         <div className="flex w-full flex-col gap-6">
             <CrmPageHeader
-                title={caseNo}
-                subtitle={`Disciplinary case for ${employee}`}
+                title={`Case #${shortId}`}
+                subtitle="Disciplinary case detail"
                 icon={Gavel}
                 actions={
-                    <Link href="/dashboard/hrm/hr/disciplinary">
-                        <ZoruButton variant="outline">
-                            <ArrowLeft className="h-4 w-4" />
-                            Back
+                    <div className="flex items-center gap-2">
+                        <Link href="/dashboard/hrm/hr/disciplinary">
+                            <ZoruButton variant="outline">
+                                <ArrowLeft className="h-4 w-4" />
+                                Back
+                            </ZoruButton>
+                        </Link>
+                        <ZoruButton variant="outline" disabled>
+                            <PlusCircle className="h-4 w-4" />
+                            Add Hearing
                         </ZoruButton>
-                    </Link>
+                    </div>
                 }
             />
 
             <ZoruCard className="p-6">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                        <h2 className="font-mono text-[16px] text-zoru-ink">{caseNo}</h2>
-                        <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
-                            Employee: {employee}
-                            {raisedAt ? ` • Raised ${fmtDateTime(raisedAt)}` : ''}
-                        </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <ZoruBadge variant={statusVariant(severity)}>{severity}</ZoruBadge>
-                        <ZoruBadge variant={statusVariant(status)}>{status}</ZoruBadge>
-                    </div>
-                </div>
+                <div className="mb-4 text-[14px] font-medium text-zoru-ink">Case Details</div>
 
-                <div className="mt-4 grid grid-cols-1 gap-3 text-[13px] sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
+                    {/* Case No / ID */}
                     <div>
-                        <div className="text-zoru-ink-muted">Type</div>
-                        <div className="text-zoru-ink">{type}</div>
+                        <div className="text-zoru-ink-muted">Case No / ID</div>
+                        <div className="font-mono text-zoru-ink">{shortId}</div>
                     </div>
+
+                    {/* Employee */}
                     <div>
-                        <div className="text-zoru-ink-muted">Raised by</div>
+                        <div className="text-zoru-ink-muted">Employee</div>
+                        <div className="text-zoru-ink">{employeeName}</div>
+                    </div>
+
+                    {/* Raised By */}
+                    <div>
+                        <div className="text-zoru-ink-muted">Raised By</div>
                         <div className="text-zoru-ink">{raisedBy}</div>
                     </div>
+
+                    {/* Type */}
                     <div>
-                        <div className="text-zoru-ink-muted">Raised at</div>
-                        <div className="text-zoru-ink">{fmtDateTime(raisedAt)}</div>
+                        <div className="text-zoru-ink-muted">Type</div>
+                        <div className="text-zoru-ink capitalize">{type}</div>
                     </div>
+
+                    {/* Severity */}
                     <div>
-                        <div className="text-zoru-ink-muted">Decision</div>
-                        <div className="text-zoru-ink">{decision}</div>
+                        <div className="text-zoru-ink-muted">Severity</div>
+                        {severity ? (
+                            <ZoruBadge variant={severityVariant} className="mt-0.5">
+                                {severity}
+                            </ZoruBadge>
+                        ) : (
+                            <div className="text-zoru-ink">—</div>
+                        )}
                     </div>
+
+                    {/* Status */}
+                    <div>
+                        <div className="text-zoru-ink-muted">Status</div>
+                        {status ? (
+                            <ZoruBadge variant={statusVariant} className="mt-0.5">
+                                {status.replace('_', ' ')}
+                            </ZoruBadge>
+                        ) : (
+                            <div className="text-zoru-ink">—</div>
+                        )}
+                    </div>
+
+                    {/* Date Opened */}
+                    <div>
+                        <div className="text-zoru-ink-muted">Date Opened</div>
+                        <div className="text-zoru-ink">{fmtDate((c as any).createdAt)}</div>
+                    </div>
+
+                    {/* Evidence count */}
+                    <div>
+                        <div className="text-zoru-ink-muted">Evidence</div>
+                        <div className="text-zoru-ink">{evidenceCount} item{evidenceCount === 1 ? '' : 's'}</div>
+                    </div>
+
+                    {/* Hearings count */}
+                    <div>
+                        <div className="text-zoru-ink-muted">Hearings</div>
+                        <div className="text-zoru-ink">{hearingsCount} hearing{hearingsCount === 1 ? '' : 's'}</div>
+                    </div>
+
+                    {/* Decision — full width if present */}
+                    {decision && (
+                        <div className="sm:col-span-2">
+                            <div className="text-zoru-ink-muted">Decision</div>
+                            <div className="text-zoru-ink">{decision}</div>
+                        </div>
+                    )}
+
+                    {/* Notes — full width if present */}
+                    {notes && (
+                        <div className="sm:col-span-2">
+                            <div className="text-zoru-ink-muted">Notes</div>
+                            <div className="whitespace-pre-wrap text-zoru-ink">{notes}</div>
+                        </div>
+                    )}
                 </div>
             </ZoruCard>
-
-            {hearings.length > 0 && (
-                <ZoruCard className="p-6">
-                    <div className="mb-2 text-[14px] text-zoru-ink">Hearings</div>
-                    <div className="overflow-x-auto rounded-lg border border-zoru-line">
-                        <ZoruTable>
-                            <ZoruTableHeader>
-                                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                    <ZoruTableHead className="text-zoru-ink-muted">Date</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Panel</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Outcome</ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
-                                {hearings.map((h, i) => {
-                                    const panel = Array.isArray(h.panel)
-                                        ? h.panel.filter(Boolean).join(', ')
-                                        : h.panel || '—';
-                                    return (
-                                        <ZoruTableRow key={`hearing-${i}`} className="border-zoru-line">
-                                            <ZoruTableCell className="text-zoru-ink">
-                                                {fmtDate(h.date)}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-zoru-ink">{panel}</ZoruTableCell>
-                                            <ZoruTableCell className="text-zoru-ink">
-                                                {h.outcome || '—'}
-                                                {h.notes && (
-                                                    <div className="mt-0.5 text-[11.5px] text-zoru-ink-muted">
-                                                        {h.notes}
-                                                    </div>
-                                                )}
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
-                                    );
-                                })}
-                            </ZoruTableBody>
-                        </ZoruTable>
-                    </div>
-                </ZoruCard>
-            )}
-
-            {evidence.length > 0 && (
-                <ZoruCard className="p-6">
-                    <div className="mb-2 text-[14px] text-zoru-ink">Evidence</div>
-                    <ul className="space-y-2 text-[13px] text-zoru-ink">
-                        {evidence.map((e, i) => {
-                            const label = e.label || e.title || e.type || `Evidence ${i + 1}`;
-                            return (
-                                <li
-                                    key={`evidence-${i}`}
-                                    className="rounded-md border border-zoru-line bg-zoru-surface-2 px-2.5 py-1.5"
-                                >
-                                    <div className="flex items-center justify-between gap-2">
-                                        <span className="font-medium text-zoru-ink">{label}</span>
-                                        {e.addedAt && (
-                                            <span className="text-[11.5px] text-zoru-ink-muted">
-                                                {fmtDateTime(e.addedAt)}
-                                            </span>
-                                        )}
-                                    </div>
-                                    {e.description && (
-                                        <div className="mt-0.5 text-[11.5px] text-zoru-ink-muted">
-                                            {e.description}
-                                        </div>
-                                    )}
-                                </li>
-                            );
-                        })}
-                    </ul>
-                </ZoruCard>
-            )}
         </div>
     );
 }

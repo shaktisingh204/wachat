@@ -1,57 +1,77 @@
 /**
- * Booking detail page.
+ * Booking detail page — server component.
  *
- * Server component sibling of the bookings list page. Renders the
- * resource + customer header, the slot window in big text, status and
- * payment badges, and a small reminders list when present.
+ * Guards: session required + booking must belong to userId.
+ * On failure both redirect to /dashboard/crm/bookings.
+ *
+ * Displays a structured "Booking Details" ZoruCard (2-column grid) with
+ * all booking fields, computed duration, ZoruBadge for status / payment,
+ * and full-width notes when present.
+ *
+ * Header actions: Back (Link), Edit (disabled placeholder), Cancel (disabled placeholder).
  */
 
+export const dynamic = 'force-dynamic';
+
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { ObjectId } from 'mongodb';
-import { ArrowLeft, CalendarClock } from 'lucide-react';
+import { redirect } from 'next/navigation';
+import { CalendarClock, ArrowLeft, Pencil, XCircle } from 'lucide-react';
 
 import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import { getBookingById } from '@/app/actions/crm-bookings.actions';
 import { getSession } from '@/app/actions/user.actions';
 
+// ─── helpers ────────────────────────────────────────────────────────────────
+
 function fmtDateTime(v: unknown): string {
     if (!v) return '—';
-    const d = new Date(v as any);
+    const d = new Date(v as string | number | Date);
     return isNaN(d.getTime()) ? '—' : d.toLocaleString();
 }
 
+function computeDurationMinutes(start: unknown, end: unknown): string {
+    if (!start || !end) return '—';
+    const s = new Date(start as string | number | Date);
+    const e = new Date(end as string | number | Date);
+    if (isNaN(s.getTime()) || isNaN(e.getTime())) return '—';
+    const diffMs = e.getTime() - s.getTime();
+    if (diffMs <= 0) return '—';
+    const mins = Math.round(diffMs / 60_000);
+    if (mins < 60) return `${mins} min`;
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    return m === 0 ? `${h} hr` : `${h} hr ${m} min`;
+}
+
 function statusVariant(status?: string): 'ghost' | 'success' | 'warning' | 'danger' {
-    const s = (status || '').toLowerCase();
-    if (s === 'active' || s === 'completed' || s === 'confirmed') return 'success';
-    if (s === 'paused' || s === 'draft') return 'ghost';
-    if (s === 'cancelled' || s === 'voided' || s === 'no_show') return 'danger';
-    return 'warning';
+    const s = (status ?? '').toLowerCase();
+    if (s === 'confirmed' || s === 'completed' || s === 'active') return 'success';
+    if (s === 'cancelled' || s === 'no_show' || s === 'voided') return 'danger';
+    if (s === 'draft' || s === 'pending') return 'warning';
+    return 'ghost';
 }
 
 function paymentVariant(status?: string): 'ghost' | 'success' | 'warning' | 'danger' {
-    const s = (status || '').toLowerCase();
+    const s = (status ?? '').toLowerCase();
     if (s === 'paid' || s === 'completed') return 'success';
     if (s === 'pending' || s === 'partial') return 'warning';
     if (s === 'failed' || s === 'refunded' || s === 'cancelled') return 'danger';
     return 'ghost';
 }
 
-function idToString(v: unknown): string {
-    if (!v) return '';
-    if (typeof v === 'string') return v;
-    if (typeof (v as any).toString === 'function') return (v as any).toString();
-    return '';
+// ─── detail row helpers ──────────────────────────────────────────────────────
+
+function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
+    return (
+        <div>
+            <div className="text-[11.5px] text-zoru-ink-muted">{label}</div>
+            <div className="mt-0.5 text-[13px] text-zoru-ink">{value || '—'}</div>
+        </div>
+    );
 }
 
-interface Reminder {
-    channel?: string;
-    type?: string;
-    offsetMinutes?: number;
-    sentAt?: string | Date;
-    note?: string;
-}
+// ─── page ────────────────────────────────────────────────────────────────────
 
 export default async function BookingDetailPage({
     params,
@@ -61,139 +81,94 @@ export default async function BookingDetailPage({
     const { bookingId } = await params;
 
     const session = await getSession();
-    if (!session?.user) notFound();
-    if (!ObjectId.isValid(bookingId)) notFound();
+    if (!session?.user) redirect('/dashboard/crm/bookings');
 
     const booking = await getBookingById(bookingId);
-    if (!booking) {
-        notFound();
-    }
+    if (!booking) redirect('/dashboard/crm/bookings');
 
-    const resourceName =
-        ((booking as any).resourceName as string) ||
-        idToString((booking as any).resourceId) ||
-        '—';
-    const customerName =
-        ((booking as any).customerName as string) ||
-        idToString((booking as any).customerId) ||
-        '—';
-    const slotStart = (booking as any).slotStart;
-    const slotEnd = (booking as any).slotEnd;
-    const status = ((booking as any).status as string) || 'draft';
-    const paymentStatus = ((booking as any).paymentStatus as string) || 'unpaid';
-    const recurrence = ((booking as any).recurrence as string) || '';
-    const capacity = (booking as any).capacity as number | undefined;
-    const notes = ((booking as any).notes as string) || '';
-    const reminders: Reminder[] = Array.isArray((booking as any).reminders)
-        ? ((booking as any).reminders as Reminder[])
-        : [];
+    // ── field extraction ──────────────────────────────────────────────────
+    const b = booking as Record<string, unknown>;
+
+    const resourceName = (b.resourceName as string) || 'Booking';
+    const serviceName = (b.serviceName as string) || '';
+    const customerName = (b.customerName as string) || '';
+    const customerEmail = (b.customerEmail as string) || '';
+    const customerPhone = (b.customerPhone as string) || '';
+    const slotStart = b.slotStart;
+    const slotEnd = b.slotEnd;
+    const duration = computeDurationMinutes(slotStart, slotEnd);
+    const status = (b.status as string) || 'draft';
+    const paymentStatus = (b.paymentStatus as string) || 'pending';
+    const notes = (b.notes as string) || '';
 
     return (
         <div className="flex w-full flex-col gap-6">
+            {/* ── header ─────────────────────────────────────────────────── */}
             <CrmPageHeader
                 title={resourceName}
-                subtitle={`Booking for ${customerName}`}
+                subtitle="Booking detail"
                 icon={CalendarClock}
                 actions={
-                    <Link href="/dashboard/crm/bookings">
-                        <ZoruButton variant="outline">
-                            <ArrowLeft className="h-4 w-4" />
-                            Back
+                    <div className="flex flex-wrap items-center gap-2">
+                        <Link href="/dashboard/crm/bookings">
+                            <ZoruButton variant="outline">
+                                <ArrowLeft className="h-4 w-4" />
+                                Back
+                            </ZoruButton>
+                        </Link>
+
+                        <ZoruButton variant="outline" disabled>
+                            <Pencil className="h-4 w-4" />
+                            Edit
                         </ZoruButton>
-                    </Link>
+
+                        <ZoruButton variant="outline" disabled>
+                            <XCircle className="h-4 w-4" />
+                            Cancel
+                        </ZoruButton>
+                    </div>
                 }
             />
 
+            {/* ── booking details card ────────────────────────────────────── */}
             <ZoruCard className="p-6">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                        <h2 className="text-[16px] text-zoru-ink">{resourceName}</h2>
-                        <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
-                            Customer: {customerName}
-                            {recurrence ? ` • Recurrence: ${recurrence}` : ''}
-                        </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <ZoruBadge variant={statusVariant(status)}>{status}</ZoruBadge>
-                        <ZoruBadge variant={paymentVariant(paymentStatus)}>
-                            {paymentStatus}
-                        </ZoruBadge>
-                    </div>
-                </div>
+                <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">Booking Details</h2>
 
-                <div className="mt-6 rounded-md border border-zoru-line bg-zoru-surface-2 p-4">
-                    <div className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
-                        Slot window
-                    </div>
-                    <div className="mt-1 text-[18px] text-zoru-ink">
-                        {fmtDateTime(slotStart)}
-                        <span className="text-zoru-ink-muted"> → </span>
-                        {fmtDateTime(slotEnd)}
-                    </div>
-                </div>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <DetailRow label="Resource / Staff" value={resourceName} />
+                    <DetailRow label="Service" value={serviceName} />
+                    <DetailRow label="Customer" value={customerName} />
+                    <DetailRow label="Customer Email" value={customerEmail} />
+                    <DetailRow label="Customer Phone" value={customerPhone} />
+                    <DetailRow label="Slot Start" value={fmtDateTime(slotStart)} />
+                    <DetailRow label="Slot End" value={fmtDateTime(slotEnd)} />
+                    <DetailRow label="Duration" value={duration} />
 
-                <div className="mt-4 grid grid-cols-1 gap-3 text-[13px] sm:grid-cols-2">
                     <div>
-                        <div className="text-zoru-ink-muted">Resource</div>
-                        <div className="text-zoru-ink">{resourceName}</div>
-                    </div>
-                    <div>
-                        <div className="text-zoru-ink-muted">Customer</div>
-                        <div className="text-zoru-ink">{customerName}</div>
-                    </div>
-                    <div>
-                        <div className="text-zoru-ink-muted">Recurrence</div>
-                        <div className="text-zoru-ink">{recurrence || '—'}</div>
-                    </div>
-                    <div>
-                        <div className="text-zoru-ink-muted">Capacity</div>
-                        <div className="text-zoru-ink">
-                            {typeof capacity === 'number' ? capacity : '—'}
+                        <div className="text-[11.5px] text-zoru-ink-muted">Status</div>
+                        <div className="mt-1">
+                            <ZoruBadge variant={statusVariant(status)}>{status}</ZoruBadge>
                         </div>
                     </div>
+
+                    <div>
+                        <div className="text-[11.5px] text-zoru-ink-muted">Payment Status</div>
+                        <div className="mt-1">
+                            <ZoruBadge variant={paymentVariant(paymentStatus)}>
+                                {paymentStatus}
+                            </ZoruBadge>
+                        </div>
+                    </div>
+
+                    {notes && (
+                        <div className="sm:col-span-2">
+                            <div className="text-[11.5px] text-zoru-ink-muted">Notes</div>
+                            <div className="mt-1 rounded-md border border-zoru-line bg-zoru-surface-2 p-3 text-[13px] text-zoru-ink">
+                                {notes}
+                            </div>
+                        </div>
+                    )}
                 </div>
-
-                {notes && (
-                    <div className="mt-4 rounded-md border border-zoru-line bg-zoru-surface-2 p-3 text-[13px] text-zoru-ink">
-                        {notes}
-                    </div>
-                )}
-
-                {reminders.length > 0 && (
-                    <div className="mt-6">
-                        <div className="mb-2 text-[12.5px] text-zoru-ink-muted">Reminders</div>
-                        <ul className="space-y-2 text-[13px] text-zoru-ink">
-                            {reminders.map((r, i) => {
-                                const label = r.channel || r.type || `Reminder ${i + 1}`;
-                                return (
-                                    <li
-                                        key={`reminder-${i}`}
-                                        className="rounded-md border border-zoru-line bg-zoru-surface-2 px-2.5 py-1.5"
-                                    >
-                                        <span className="font-medium text-zoru-ink">{label}</span>
-                                        {typeof r.offsetMinutes === 'number' && (
-                                            <span className="text-zoru-ink-muted">
-                                                {' '}
-                                                • {r.offsetMinutes}m before
-                                            </span>
-                                        )}
-                                        {r.sentAt && (
-                                            <span className="text-zoru-ink-muted">
-                                                {' '}
-                                                • sent {fmtDateTime(r.sentAt)}
-                                            </span>
-                                        )}
-                                        {r.note && (
-                                            <div className="mt-0.5 text-[11.5px] text-zoru-ink-muted">
-                                                {r.note}
-                                            </div>
-                                        )}
-                                    </li>
-                                );
-                            })}
-                        </ul>
-                    </div>
-                )}
             </ZoruCard>
         </div>
     );

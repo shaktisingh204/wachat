@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { LuKey, LuPlus, LuLoader2, LuExternalLink } from 'react-icons/lu';
+import { LuKey, LuPlus, LuLoader, LuExternalLink } from 'react-icons/lu';
 import { cn } from '@/lib/utils';
 import { CREDENTIAL_TYPE_LABEL, type CredentialType, type MaskedCredential } from '@/lib/sabflow/credentials/types';
 import { selectClass } from './primitives';
@@ -46,7 +46,7 @@ export function CredentialSelect({ credentialType, value, onChange }: Props) {
   if (loading) {
     return (
       <div className="flex items-center gap-2 text-[11.5px] text-[var(--gray-8)]">
-        <LuLoader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={1.8} />
+        <LuLoader className="h-3.5 w-3.5 animate-spin" strokeWidth={1.8} />
         Loading credentials…
       </div>
     );
@@ -90,7 +90,7 @@ export function CredentialSelect({ credentialType, value, onChange }: Props) {
           title="Refresh credential list"
           className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-8)] hover:text-[var(--gray-12)] hover:bg-[var(--gray-3)] transition-colors shrink-0"
         >
-          <LuLoader2 className="h-3.5 w-3.5" strokeWidth={1.8} />
+          <LuLoader className="h-3.5 w-3.5" strokeWidth={1.8} />
         </button>
       </div>
 
