@@ -1,18 +1,21 @@
-'use client';
-
 import { SlidersHorizontal } from 'lucide-react';
-import { WorkingFeaturePage } from '@/components/dashboard/working-feature-page';
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { getPayrollSettings } from '@/app/actions/crm-payroll-settings.actions';
+import { PayrollSettingsForm } from './payroll-settings-form';
 
-export default function Page() {
+export const dynamic = 'force-dynamic';
+
+export default async function PayrollSettingsPage() {
+  const settings = await getPayrollSettings();
+
   return (
-    <WorkingFeaturePage
-      title="Payroll Settings"
-      description="Configure pay cycle, attendance, leave policy, tax deductions, and notification preferences from one working payroll settings workspace."
-      eyebrow="HRM Payroll"
-      icon={SlidersHorizontal}
-      accent="#475569"
-      storageKey="dashboard-hrm-payroll-settings"
-      primaryActionLabel="Add payroll rule"
-    />
+    <div className="flex w-full flex-col gap-6">
+      <CrmPageHeader
+        title="Payroll Settings"
+        subtitle="Configure pay cycle, statutory contributions, late-marking, approvals, and payslip template."
+        icon={SlidersHorizontal}
+      />
+      <PayrollSettingsForm settings={settings} />
+    </div>
   );
 }
