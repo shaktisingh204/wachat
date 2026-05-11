@@ -1,32 +1,38 @@
-'use client';
+import { Clock3, ListChecks, CalendarClock, BarChart3, Settings2 } from 'lucide-react';
+import { CrmModuleOverview } from '../_components/crm-module-overview';
 
-import { Clock3 } from 'lucide-react';
-import { WorkingFeaturePage } from '@/components/dashboard/working-feature-page';
-
-export default function Page() {
+export default function TimeTrackingPage() {
   return (
-    <WorkingFeaturePage
+    <CrmModuleOverview
       title="Time Tracking"
-      description="Log work items, review timesheet status, filter owners, and export time-tracking rows from the CRM workspace."
-      eyebrow="CRM"
+      subtitle="Log work items, review timesheet status, and export time-tracking data from the CRM workspace."
       icon={Clock3}
-      accent="#2563EB"
-      storageKey="dashboard-crm-time-tracking"
-      primaryActionLabel="Add time log"
-  quickLinks={[
-    {
-        "label": "Time logs",
-        "href": "/dashboard/crm/time-tracking/time-logs"
-    },
-    {
-        "label": "Weekly timesheets",
-        "href": "/dashboard/crm/time-tracking/weekly-timesheets"
-    },
-    {
-        "label": "Reports",
-        "href": "/dashboard/crm/time-tracking/reports"
-    }
-]}
+      sections={[
+        {
+          href: '/dashboard/crm/time-tracking/time-logs',
+          label: 'Time Logs',
+          description: 'Start/stop timers, add manual entries, and review all logged time per project or task.',
+          icon: ListChecks,
+        },
+        {
+          href: '/dashboard/crm/time-tracking/weekly-timesheets',
+          label: 'Weekly Timesheets',
+          description: 'View and approve weekly timesheet summaries per team member.',
+          icon: CalendarClock,
+        },
+        {
+          href: '/dashboard/crm/time-tracking/reports',
+          label: 'Reports',
+          description: 'Summarise billable vs. non-billable hours, project utilisation, and export to CSV.',
+          icon: BarChart3,
+        },
+        {
+          href: '/dashboard/crm/time-tracking/settings',
+          label: 'Settings',
+          description: 'Configure rounding rules, billable defaults, and approval workflows.',
+          icon: Settings2,
+        },
+      ]}
     />
   );
 }
