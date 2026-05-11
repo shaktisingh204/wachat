@@ -1,6 +1,7 @@
 export const globalModules = [
     // WaChat Core
     'wachat_overview', 'wachat_chat', 'wachat_contacts', 'wachat_campaigns',
+    'wachat_broadcast_cron',
     'wachat_templates', 'wachat_catalog', 'wachat_calls', 'wachat_flow_builder',
     'wachat_flows', 'wachat_integrations', 'wachat_whatsapp_pay', 'wachat_numbers',
     'wachat_webhooks', 'wachat_settings',
@@ -76,7 +77,7 @@ export const globalModules = [
 export const permissionActions = ['view', 'create', 'edit', 'delete'];
 
 export const moduleCategories = {
-    'WaChat Core': ['wachat_overview', 'wachat_chat', 'wachat_contacts', 'wachat_campaigns', 'wachat_templates', 'wachat_catalog', 'wachat_calls', 'wachat_flow_builder', 'wachat_flows', 'wachat_integrations', 'wachat_whatsapp_pay', 'wachat_numbers', 'wachat_webhooks', 'wachat_settings'],
+    'WaChat Core': ['wachat_overview', 'wachat_chat', 'wachat_contacts', 'wachat_campaigns', 'wachat_broadcast_cron', 'wachat_templates', 'wachat_catalog', 'wachat_calls', 'wachat_flow_builder', 'wachat_flows', 'wachat_integrations', 'wachat_whatsapp_pay', 'wachat_numbers', 'wachat_webhooks', 'wachat_settings'],
     'CRM Sales': ['crm_dashboard', 'crm_clients', 'crm_quotations', 'crm_proforma', 'crm_invoices', 'crm_receipts', 'crm_orders', 'crm_delivery', 'crm_credit_notes'],
     'CRM Purchases': ['crm_vendors', 'crm_expenses', 'crm_purchase_orders', 'crm_payouts', 'crm_debit_notes'],
     'CRM Inventory': ['crm_items', 'crm_warehouses', 'crm_inventory_pnl', 'crm_stock_value', 'crm_batch_expiry', 'crm_party_transactions', 'crm_all_transactions'],
