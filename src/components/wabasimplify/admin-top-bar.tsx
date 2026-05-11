@@ -95,6 +95,7 @@ export function AdminTopBar() {
                         <div className="p-1.5">
                             <Link
                                 href="/api/auth/admin-logout"
+                                prefetch={false}
                                 onClick={() => setOpen(false)}
                                 className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-red-50 hover:text-red-600 transition-all w-full"
                             >

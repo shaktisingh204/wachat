@@ -96,6 +96,7 @@ export function AdminSidebarNav() {
                 </Link>
                 <Link
                     href="/api/auth/admin-logout"
+                    prefetch={false}
                     className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-500 hover:bg-red-50 hover:text-red-600 transition-all"
                 >
                     <LogOut className="h-4 w-4" />

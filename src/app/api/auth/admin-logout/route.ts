@@ -41,7 +41,16 @@ export async function GET(request: NextRequest) {
         }
     }
 
-    const response = NextResponse.redirect(new URL('/admin-login', request.url));
+    // Emit a relative-path Location so the browser resolves against the URL
+    // it actually used. Building an absolute URL from `request.url` would
+    // pin the redirect to the *internal* host (e.g. http://localhost:3002),
+    // which fails when the user reached us through an HTTPS-terminating
+    // proxy — they end up at https://localhost:3002/admin-login with no
+    // listener on TLS. RFC 7231 allows relative Location values.
+    const response = new NextResponse(null, {
+        status: 302,
+        headers: { Location: '/admin-login' },
+    });
 
     // Clear the admin session cookie
     response.cookies.delete('admin_session');

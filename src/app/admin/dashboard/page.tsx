@@ -27,7 +27,7 @@ import {
 } from '@/app/actions/admin.actions';
 import { getAdminSession } from '@/lib/admin-session';
 import { getPlans } from '@/app/actions/plan.actions';
-import { getAllBroadcasts } from '@/app/actions/index';
+import { rustClient } from '@/lib/rust-client';
 import type { Project } from '@/lib/definitions';
 
 import { ZoruButton } from '@/components/zoruui';
@@ -155,7 +155,7 @@ export default async function AdminDashboardPage({
         AdminStats,
     ] = await Promise.all([
         getProjectsForAdmin(currentPage, PROJECTS_PER_PAGE, query).catch(() => ({ projects: [], total: 0 })),
-        getAllBroadcasts(1, 6).catch(() => ({ broadcasts: [] })),
+        rustClient.admin.stats.listBroadcasts({ page: 1, limit: 6 }).catch(() => ({ broadcasts: [], total: 0 })),
         getPlans().catch(() => []),
         getAdminDashboardStats(),
     ]);
