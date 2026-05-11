@@ -215,26 +215,45 @@ export default function TelegramConnectionsPage() {
 
     return (
         <div className="flex flex-col gap-6">
-            <div className="flex items-start gap-4">
-                <div
-                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl"
-                    style={{
-                        background:
-                            'linear-gradient(135deg, #37BBFE 0%, #007DBB 100%)',
-                        boxShadow: '0 10px 28px rgba(0, 125, 187, 0.25)',
-                    }}
+            <div className="flex items-start justify-between gap-4">
+                <div className="flex items-start gap-4">
+                    <div
+                        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl"
+                        style={{
+                            background:
+                                'linear-gradient(135deg, #37BBFE 0%, #007DBB 100%)',
+                            boxShadow: '0 10px 28px rgba(0, 125, 187, 0.25)',
+                        }}
+                    >
+                        <Plug className="h-6 w-6 text-white" strokeWidth={1.75} />
+                    </div>
+                    <div>
+                        <h1 className="text-[22px] leading-tight text-zoru-ink">
+                            Connections
+                        </h1>
+                        <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-zoru-ink-muted">
+                            Link a Telegram Bot (for standard messaging) or MTProto user
+                            credentials (for full client-level automation).
+                        </p>
+                        {activeProject ? (
+                            <p className="mt-1 text-[12px] text-zoru-ink-muted">
+                                Working in{' '}
+                                <span className="font-medium text-zoru-ink">
+                                    {activeProject.name}
+                                </span>
+                            </p>
+                        ) : null}
+                    </div>
+                </div>
+                <Link
+                    href={`/dashboard/telegram/projects?next=${encodeURIComponent('/dashboard/telegram/connections')}`}
+                    className="shrink-0"
                 >
-                    <Plug className="h-6 w-6 text-white" strokeWidth={1.75} />
-                </div>
-                <div>
-                    <h1 className="text-[22px] leading-tight text-zoru-ink">
-                        Connections
-                    </h1>
-                    <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-zoru-ink-muted">
-                        Link a Telegram Bot (for standard messaging) or MTProto user
-                        credentials (for full client-level automation).
-                    </p>
-                </div>
+                    <ZoruButton variant="outline" size="sm">
+                        {activeProject ? 'Switch project' : 'Pick a project'}
+                        <ArrowRight className="h-3 w-3" />
+                    </ZoruButton>
+                </Link>
             </div>
 
             {/* No-project banner — replaces the silent disabled state. */}
@@ -250,10 +269,11 @@ export default function TelegramConnectionsPage() {
                         active workspace.
                         <div className="mt-2">
                             <Link
-                                href="/wachat"
+                                href="/dashboard/telegram/projects?next=/dashboard/telegram/connections"
                                 className="inline-flex items-center gap-1 text-sky-900 underline underline-offset-2"
                             >
-                                Choose a project <ArrowRight className="h-3 w-3" />
+                                Choose a Telegram project{' '}
+                                <ArrowRight className="h-3 w-3" />
                             </Link>
                         </div>
                     </div>

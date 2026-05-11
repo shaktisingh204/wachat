@@ -47,6 +47,7 @@ import {
 import { useEffect, useMemo, useState, useCallback, useTransition } from 'react';
 
 import { useProject } from '@/context/project-context';
+import { TelegramProjectGate } from '../_components/telegram-project-gate';
 import {
     ZoruBadge,
     ZoruBreadcrumb,
@@ -1181,6 +1182,7 @@ function MetricTile({
 }) {
     return (
         <ZoruCard className="p-4">
+            <TelegramProjectGate />
             <div className="text-[11.5px] text-zoru-ink-muted">{label}</div>
             <div className="text-[20px] leading-tight tabular-nums text-zoru-ink">
                 {isLoading ? (

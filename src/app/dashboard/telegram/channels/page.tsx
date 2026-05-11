@@ -57,6 +57,7 @@ import {
     useZoruToast,
 } from '@/components/zoruui';
 import { useProject } from '@/context/project-context';
+import { TelegramProjectGate } from '../_components/telegram-project-gate';
 import { listTelegramBots } from '@/app/actions/telegram.actions';
 import type { BotRow as TelegramBotRow } from '@/lib/rust-client/telegram-bots';
 import {
@@ -507,6 +508,7 @@ export default function TelegramChannelsPage() {
 
     return (
         <div className="flex flex-col gap-6 p-6">
+            <TelegramProjectGate />
             <ZoruPageHeader>
                 <div className="flex items-start justify-between gap-3">
                     <ZoruPageHeading>

@@ -44,6 +44,7 @@ import {
 } from 'recharts';
 
 import { useProject } from '@/context/project-context';
+import { TelegramProjectGate } from '../_components/telegram-project-gate';
 import {
     SabFileUrlInput,
 } from '@/components/sabfiles';
@@ -448,6 +449,7 @@ export default function TelegramPaymentsPage() {
 
     return (
         <div className="flex flex-col gap-6 px-6 py-6">
+            <TelegramProjectGate />
             {/* Breadcrumbs */}
             <ZoruBreadcrumb>
                 <ZoruBreadcrumbList>

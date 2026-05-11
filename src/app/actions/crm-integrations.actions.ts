@@ -3,6 +3,7 @@
 import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
+import { getLeadGenConfig } from '@/lib/rust-client/wachat-facebook-leadgen-config';
 
 export type IntegrationStatus = {
     shopify: boolean;
@@ -11,33 +12,44 @@ export type IntegrationStatus = {
     slack: boolean;
     gmail: boolean;
     whatsapp: boolean;
+    facebook: boolean;
+};
+
+const EMPTY_STATUS: IntegrationStatus = {
+    shopify: false,
+    zapier: false,
+    mailchimp: false,
+    slack: false,
+    gmail: false,
+    whatsapp: false,
+    facebook: false,
 };
 
 export async function getIntegrationTypes(): Promise<IntegrationStatus> {
     const session = await getSession();
-    if (!session?.user) return { shopify: false, zapier: false, mailchimp: false, slack: false, gmail: false, whatsapp: false };
+    if (!session?.user) return EMPTY_STATUS;
 
     try {
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(session.user._id);
 
-        // Check for Connected Accounts
-        const emailAccount = await db.collection('google_tokens').findOne({ userId: userObjectId });
-        const whatsappAccount = await db.collection('whatsapp_configs').findOne({ userId: userObjectId });
-
-        // Mock checks for others for now until their specific collections are clear
-        // In a real app we'd check oauth_tokens or similar
+        const [emailAccount, whatsappAccount, leadGen] = await Promise.all([
+            db.collection('google_tokens').findOne({ userId: userObjectId }),
+            db.collection('whatsapp_configs').findOne({ userId: userObjectId }),
+            getLeadGenConfig().catch(() => ({ config: null })),
+        ]);
 
         return {
-            shopify: false, // Implement when Shopify module is requested
+            shopify: false,
             zapier: false,
             mailchimp: false,
             slack: false,
             gmail: !!emailAccount,
-            whatsapp: !!whatsappAccount
+            whatsapp: !!whatsappAccount,
+            facebook: !!(leadGen?.config?.pageId && leadGen.config.isActive),
         };
     } catch (e) {
         console.error("Failed to fetch integration status:", e);
-        return { shopify: false, zapier: false, mailchimp: false, slack: false, gmail: false, whatsapp: false };
+        return EMPTY_STATUS;
     }
 }

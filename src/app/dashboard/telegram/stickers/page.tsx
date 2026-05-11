@@ -58,6 +58,7 @@ import {
 } from '@/components/zoruui';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 import { useProject } from '@/context/project-context';
+import { TelegramProjectGate } from '../_components/telegram-project-gate';
 
 import {
     listProjectBotsForStickersAction,
@@ -1662,6 +1663,7 @@ function StickerRowEditor({
 
     return (
         <li className="grid gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3">
+            <TelegramProjectGate />
             <div className="flex items-center gap-3">
                 <span className="rounded-md bg-zoru-surface px-2 py-0.5 font-mono text-[11px] text-zoru-ink-muted">
                     #{sticker.positionInSet + 1}

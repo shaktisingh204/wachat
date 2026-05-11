@@ -1,19 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import {
-  Briefcase,
-  LayoutGrid,
-  GanttChart,
-  Flag,
-  FolderOpen,
-  Tag,
-  Bug,
-  Activity,
-  Columns3,
-  Tags,
-  ListChecks,
-} from 'lucide-react';
+import { Briefcase } from 'lucide-react';
 import { ClayBadge, HrEntityPage } from '../_components/hr-entity-page';
 import {
   getWsProjects,
@@ -21,7 +9,6 @@ import {
   deleteWsProject,
 } from '@/app/actions/worksuite/projects.actions';
 import type { WsProject } from '@/lib/worksuite/project-types';
-import { ZoruButton } from '@/components/zoruui';
 
 const STATUS_TONES: Record<
   string,
@@ -52,74 +39,9 @@ function fmtDate(v: unknown): string {
   return isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
 }
 
-const QUICK_LINKS: {
-  href: string;
-  label: string;
-  icon: React.ElementType;
-}[] = [
-  { href: '/dashboard/crm/projects/kanban', label: 'Kanban', icon: LayoutGrid },
-  { href: '/dashboard/crm/projects/gantt', label: 'Gantt', icon: GanttChart },
-  {
-    href: '/dashboard/crm/projects/milestones',
-    label: 'Milestones',
-    icon: Flag,
-  },
-  {
-    href: '/dashboard/crm/projects/categories',
-    label: 'Categories',
-    icon: FolderOpen,
-  },
-  { href: '/dashboard/crm/projects/labels', label: 'Labels', icon: Tag },
-  { href: '/dashboard/crm/projects/issues', label: 'Issues', icon: Bug },
-  {
-    href: '/dashboard/crm/projects/activity',
-    label: 'Activity',
-    icon: Activity,
-  },
-  {
-    href: '/dashboard/crm/projects/taskboard-columns',
-    label: 'Columns',
-    icon: Columns3,
-  },
-  {
-    href: '/dashboard/crm/projects/task-categories',
-    label: 'Task Cats',
-    icon: FolderOpen,
-  },
-  {
-    href: '/dashboard/crm/projects/task-labels',
-    label: 'Task Labels',
-    icon: Tag,
-  },
-  {
-    href: '/dashboard/crm/projects/task-tags',
-    label: 'Task Tags',
-    icon: Tags,
-  },
-  {
-    href: '/dashboard/crm/projects/subtasks',
-    label: 'Sub-Tasks',
-    icon: ListChecks,
-  },
-];
-
 export default function ProjectsPage() {
   return (
     <div className="flex w-full flex-col gap-4">
-      <div className="flex flex-wrap justify-end gap-2">
-        {QUICK_LINKS.map((q) => {
-          const Icon = q.icon;
-          return (
-            <Link key={q.href} href={q.href}>
-              <ZoruButton variant="outline" size="sm">
-                <Icon className="h-4 w-4" strokeWidth={1.75} />
-                {q.label}
-              </ZoruButton>
-            </Link>
-          );
-        })}
-      </div>
-
       <HrEntityPage<WsProject & { _id: string }>
         title="Projects"
         subtitle="Manage client projects, timelines, budgets and team delivery."

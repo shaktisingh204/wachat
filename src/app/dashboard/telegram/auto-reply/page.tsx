@@ -70,6 +70,7 @@ import {
     useZoruToast,
 } from '@/components/zoruui';
 import { useProject } from '@/context/project-context';
+import { TelegramProjectGate } from '../_components/telegram-project-gate';
 
 import {
     createAutoReplyRuleAction,
@@ -673,6 +674,7 @@ function Kpi({
 }) {
     return (
         <ZoruCard>
+            <TelegramProjectGate />
             <ZoruCardContent className="p-4">
                 <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                     {label}

@@ -4,12 +4,17 @@ import { ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getCachedTelegramBot } from '@/lib/telegram/bot-cache';
 import { TelegramBotApi, TelegramApiError } from '@/lib/telegram/bot-api';
+import { processTelegramUpdate } from '@/lib/telegram/update-processor';
 import { sendTelegramBroadcastNow } from '@/app/actions/telegram.actions';
 import type {
     TelegramBot,
     TelegramBroadcast,
     TelegramScheduledPost,
 } from '@/lib/definitions';
+
+const RETRY_MIN_AGE_MS = 60_000;
+const RETRY_MAX_ATTEMPTS = 3;
+const RETRY_BATCH_SIZE = 50;
 
 export const dynamic = 'force-dynamic';
 
@@ -19,6 +24,9 @@ export const dynamic = 'force-dynamic';
  *
  *   1. Flush any QUEUED broadcasts whose scheduledAt <= now.
  *   2. Publish any QUEUED channel posts whose scheduledAt <= now.
+ *   3. Retry unprocessed webhook updates (telegram_updates with
+ *      processed=false older than RETRY_MIN_AGE_MS, capped at
+ *      RETRY_MAX_ATTEMPTS, then dead-lettered).
  *
  * Guarded by CRON_SECRET via either Authorization: Bearer or ?token=.
  */
@@ -35,8 +43,12 @@ export async function GET(req: NextRequest) {
     if (!authorized(req)) {
         return NextResponse.json({ ok: false, error: 'unauthorized' }, { status: 401 });
     }
-    const [broadcasts, posts] = await Promise.all([runBroadcasts(), runScheduledPosts()]);
-    return NextResponse.json({ ok: true, broadcasts, posts });
+    const [broadcasts, posts, retries] = await Promise.all([
+        runBroadcasts(),
+        runScheduledPosts(),
+        retryFailedUpdates(),
+    ]);
+    return NextResponse.json({ ok: true, broadcasts, posts, retries });
 }
 
 export const POST = GET;
@@ -187,4 +199,101 @@ async function dispatchPost(
         return sent.message_id;
     }
     throw new Error('Invalid post payload.');
+}
+
+/**
+ * Pick up webhook updates that were persisted but failed (or never finished)
+ * processing. Atomically claim a row by bumping `attempts` so concurrent
+ * cron ticks can't double-run the same update. Rows exceeding
+ * RETRY_MAX_ATTEMPTS are flagged with `deadLetter: true` and ignored
+ * afterwards — they stay in Mongo for manual triage.
+ */
+async function retryFailedUpdates(): Promise<{
+    attempted: number;
+    succeeded: number;
+    failed: number;
+    deadLettered: number;
+}> {
+    const { db } = await connectToDatabase();
+    const col = db.collection('telegram_updates');
+    const cutoff = new Date(Date.now() - RETRY_MIN_AGE_MS);
+
+    const due = await col
+        .find({
+            processed: false,
+            deadLetter: { $ne: true },
+            createdAt: { $lte: cutoff },
+            $or: [
+                { attempts: { $exists: false } },
+                { attempts: { $lt: RETRY_MAX_ATTEMPTS } },
+            ],
+        })
+        .sort({ createdAt: 1 })
+        .limit(RETRY_BATCH_SIZE)
+        .toArray();
+
+    let succeeded = 0;
+    let failed = 0;
+    let deadLettered = 0;
+
+    for (const row of due) {
+        // Atomic claim — re-check the same predicate so a peer-cron can't
+        // grab this row first.
+        const claim = await col.findOneAndUpdate(
+            {
+                _id: row._id,
+                processed: false,
+                deadLetter: { $ne: true },
+                $or: [
+                    { attempts: { $exists: false } },
+                    { attempts: { $lt: RETRY_MAX_ATTEMPTS } },
+                ],
+            },
+            {
+                $inc: { attempts: 1 },
+                $set: { lastAttemptAt: new Date() },
+            },
+            { returnDocument: 'after' },
+        );
+        if (!claim) continue;
+
+        const nextAttempts = (claim as any).attempts ?? 1;
+        const botIdStr = (claim as any).botId?.toString?.();
+        const payload = (claim as any).payload;
+        if (!botIdStr || !payload) {
+            failed += 1;
+            continue;
+        }
+
+        try {
+            const bot = await getCachedTelegramBot(botIdStr);
+            if (!bot) throw new Error('Bot not found or disabled.');
+            await processTelegramUpdate(db, bot, payload);
+            await col.updateOne(
+                { _id: row._id },
+                {
+                    $set: { processed: true, processedAt: new Date() },
+                    $unset: { error: '' },
+                },
+            );
+            succeeded += 1;
+        } catch (err: any) {
+            const msg = err?.message ? String(err.message) : String(err);
+            const isDead = nextAttempts >= RETRY_MAX_ATTEMPTS;
+            await col.updateOne(
+                { _id: row._id },
+                {
+                    $set: {
+                        error: msg,
+                        ...(isDead ? { deadLetter: true, deadLetteredAt: new Date() } : {}),
+                    },
+                },
+            );
+            if (isDead) deadLettered += 1;
+            failed += 1;
+            console.error('[telegram.cron.retry] failed', botIdStr, msg);
+        }
+    }
+
+    return { attempted: due.length, succeeded, failed, deadLettered };
 }

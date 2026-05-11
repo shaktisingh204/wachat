@@ -10,6 +10,7 @@ import type {
 } from '@/lib/definitions';
 import { runTelegramAutoReply } from './auto-reply';
 import { TelegramBotApi } from './bot-api';
+import { runTelegramFlowsForUpdate } from './flow-runner';
 
 /**
  * Process a single Telegram Update payload — https://core.telegram.org/bots/api#update
@@ -223,6 +224,15 @@ export async function processTelegramUpdate(
             await runTelegramAutoReply(db, bot, chatId, message, isFirstMessage);
         } catch (err) {
             console.error('[telegram.autoReply]', err);
+        }
+
+        // Flows: dispatch any published flow whose trigger matches.
+        // Runs after auto-reply so a deterministic rule still gets first
+        // say; the runner gracefully returns false when nothing matches.
+        try {
+            await runTelegramFlowsForUpdate(db, bot, chatId, message);
+        } catch (err) {
+            console.error('[telegram.flows]', err);
         }
     }
 }

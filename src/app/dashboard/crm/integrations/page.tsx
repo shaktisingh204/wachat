@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import Link from 'next/link';
-import { Zap, Mail, Bot, ShoppingCart, MessageSquare } from 'lucide-react';
+import { Zap, Mail, Bot, ShoppingCart, MessageSquare, Megaphone } from 'lucide-react';
 
 import { getIntegrationTypes } from '@/app/actions/crm-integrations.actions';
 import {
@@ -47,6 +47,13 @@ export default async function IntegrationsPage() {
       description: 'Connect your WhatsApp Business API for direct messaging.',
       status: status.whatsapp ? 'connected' : 'available',
       link: '/dashboard/settings/whatsapp',
+    },
+    {
+      name: 'Facebook Lead Ads',
+      icon: Megaphone,
+      description: 'Auto-create CRM leads from Facebook Lead Ad forms in real-time.',
+      status: status.facebook ? 'connected' : 'available',
+      link: '/dashboard/crm/settings/integrations/facebook-ads',
     },
     {
       name: 'Shopify',
