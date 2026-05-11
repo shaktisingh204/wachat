@@ -1,9 +1,11 @@
-import { Trophy } from 'lucide-react';
+import { Trophy, Plus } from 'lucide-react';
 import { ObjectId } from 'mongodb';
+import Link from 'next/link';
 
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import {
   ZoruBadge,
+  ZoruButton,
   ZoruCard,
   ZoruTable,
   ZoruTableBody,
@@ -84,6 +86,13 @@ export default async function AwardsPage() {
         title="Awards & Recognition Programs"
         subtitle="Celebrate top performers with structured awards and peer nominations."
         icon={Trophy}
+        actions={
+          <ZoruButton variant="outline" size="sm" asChild>
+            <Link href="/dashboard/hrm/hr/awards/new">
+              <Plus className="h-4 w-4" /> New program
+            </Link>
+          </ZoruButton>
+        }
       />
 
       <ZoruCard className="p-6">
