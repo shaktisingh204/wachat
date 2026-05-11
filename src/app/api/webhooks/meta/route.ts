@@ -204,10 +204,44 @@ async function processWebhookInline(db: Db, project: any, payload: any) {
                         promises.push(processCommentWebhook(db, project, change.value).catch(e =>
                             console.error(`${LOG_PREFIX} Comment error:`, e.message)));
                     }
+                    if (change.field === 'leadgen' && change.value?.leadgen_id) {
+                        const tenantId = String(project.userId);
+                        promises.push(
+                            forwardLeadGenToRust(tenantId, entry.id, change.value).catch(e =>
+                                console.error(`${LOG_PREFIX} LeadGen error:`, e.message))
+                        );
+                    }
                 }
             }
         }
         if (promises.length > 0) await Promise.allSettled(promises);
+    }
+}
+
+/* ── LeadGen → Rust BFF forwarding ─────────────────────────────── */
+
+async function forwardLeadGenToRust(tenantId: string, pageId: string, value: any) {
+    const { issueRustJwt } = await import('@/lib/jwt-for-rust');
+    const rustBase = process.env.RUST_API_URL || 'http://localhost:8080';
+    const token = await issueRustJwt({ userId: tenantId, tenantId, roles: [] });
+    const res = await fetch(`${rustBase}/v1/facebook/lead-gen/process-webhook`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+            pageId,
+            formId: value.form_id,
+            leadId: value.leadgen_id,
+            adId: value.ad_id ?? null,
+            adsetId: value.adset_id ?? null,
+            campaignId: value.campaign_id ?? null,
+        }),
+    });
+    if (!res.ok) {
+        const text = await res.text().catch(() => '');
+        throw new Error(`Rust process-webhook returned ${res.status}: ${text}`);
     }
 }
 

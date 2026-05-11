@@ -91,6 +91,163 @@ pub struct LeadResp {
 }
 
 // ---------------------------------------------------------------------------
+//  CRM Integration — config / webhook / activity DTOs
+// ---------------------------------------------------------------------------
+
+/// Maps a single Facebook form field to a CRM lead field.
+/// `crm_field` is one of: "firstName" | "lastName" | "email" | "phone" |
+/// "company" | "title" | "description" | "notes" | "ignore".
+#[derive(Debug, Clone, Default, Serialize, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct FieldMapping {
+    pub fb_field: String,
+    pub crm_field: String,
+}
+
+/// Default or campaign-rule routing target.
+#[derive(Debug, Clone, Default, Serialize, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct Routing {
+    #[serde(default)]
+    pub pipeline_id: String,
+    #[serde(default)]
+    pub stage: String,
+    #[serde(default)]
+    pub assigned_to: String,
+}
+
+/// Routing override applied when campaign_id / adset_id match.
+/// `None` fields act as wildcards.
+#[derive(Debug, Clone, Default, Serialize, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct CampaignRule {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub campaign_id: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub adset_id: Option<String>,
+    #[serde(default)]
+    pub pipeline_id: String,
+    #[serde(default)]
+    pub stage: String,
+    #[serde(default)]
+    pub assigned_to: String,
+}
+
+/// Per-form configuration: field mapping + routing rules.
+#[derive(Debug, Clone, Default, Serialize, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct FormConfig {
+    pub form_id: String,
+    #[serde(default)]
+    pub form_name: String,
+    #[serde(default)]
+    pub field_mapping: Vec<FieldMapping>,
+    #[serde(default)]
+    pub default_routing: Routing,
+    #[serde(default)]
+    pub campaign_rules: Vec<CampaignRule>,
+}
+
+/// Tenant-level CRM Facebook Lead Ads configuration.
+/// Stored in `crm_facebook_leadgen_config`.
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct LeadGenConfig {
+    #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
+    #[schema(value_type = Option<String>)]
+    pub id: Option<bson::oid::ObjectId>,
+    pub tenant_id: String,
+    #[serde(default)]
+    pub page_id: String,
+    #[serde(default)]
+    pub page_access_token: String,
+    #[serde(default)]
+    pub is_active: bool,
+    #[serde(default)]
+    pub forms: Vec<FormConfig>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[schema(value_type = Option<String>)]
+    pub created_at: Option<bson::DateTime>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[schema(value_type = Option<String>)]
+    pub updated_at: Option<bson::DateTime>,
+}
+
+/// Payload Next.js sends when Meta fires a `leadgen` webhook change.
+#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct ProcessWebhookBody {
+    pub page_id: String,
+    pub form_id: String,
+    pub lead_id: String,
+    #[serde(default)]
+    pub ad_id: Option<String>,
+    #[serde(default)]
+    pub adset_id: Option<String>,
+    #[serde(default)]
+    pub campaign_id: Option<String>,
+}
+
+/// Single entry in the activity log collection.
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct ActivityEntry {
+    #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
+    #[schema(value_type = Option<String>)]
+    pub id: Option<bson::oid::ObjectId>,
+    pub tenant_id: String,
+    #[schema(value_type = String)]
+    pub timestamp: bson::DateTime,
+    pub form_id: String,
+    #[serde(default)]
+    pub form_name: String,
+    pub facebook_lead_id: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub crm_lead_id: Option<String>,
+    pub lead_name: String,
+    /// "created" | "skipped" | "error"
+    pub status: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub error_message: Option<String>,
+}
+
+// --- Response envelopes ---
+
+#[derive(Debug, Clone, Default, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct ConfigResp {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub config: Option<LeadGenConfig>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub error: Option<String>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct ActivityResp {
+    pub entries: Vec<ActivityEntry>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub error: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct WebhookProcessResp {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub lead_id: Option<String>,
+    pub status: String,
+}
+
+#[derive(Debug, Clone, Default, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct FormsResp {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub forms: Option<Vec<FacebookLeadGenForm>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub error: Option<String>,
+}
+
+// ---------------------------------------------------------------------------
 //  Query params for project-scoped lead-gen GETs
 // ---------------------------------------------------------------------------
 

@@ -11,6 +11,7 @@ import {
   KeyRound,
   MessageSquare,
   Ticket,
+  Megaphone,
 } from 'lucide-react';
 
 import { CrmModuleOverview } from '../../_components/crm-module-overview';
@@ -89,6 +90,12 @@ export default function IntegrationsLandingPage() {
           label: 'Ticket Email',
           description: 'IMAP inbox that converts emails into tickets.',
           icon: Ticket,
+        },
+        {
+          href: '/dashboard/crm/settings/integrations/facebook-ads',
+          label: 'Facebook Ads',
+          description: 'Auto-create CRM leads from Facebook Lead Ad forms in real-time.',
+          icon: Megaphone,
         },
       ]}
     />

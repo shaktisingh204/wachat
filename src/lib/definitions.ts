@@ -165,6 +165,7 @@ export type GlobalRolePermissions = {
     wachat_chat?: ModulePermission;
     wachat_contacts?: ModulePermission;
     wachat_campaigns?: ModulePermission;
+    wachat_broadcast_cron?: ModulePermission;
     wachat_templates?: ModulePermission;
     wachat_catalog?: ModulePermission;
     wachat_calls?: ModulePermission;
@@ -610,6 +611,7 @@ export type CrmLead = {
     createdAt: Date;
     updatedAt: Date;
     lineage?: LineageRef[];
+    facebookLeadId?: string;
 };
 
 export type EmailContact = {
