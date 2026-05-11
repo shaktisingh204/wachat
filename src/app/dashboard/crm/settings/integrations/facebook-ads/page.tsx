@@ -30,11 +30,11 @@ import {
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import {
   getLeadGenConfig,
-  saveLeadGenConfig,
-  deleteLeadGenForm,
+  saveLeadGenConfigAction as saveLeadGenConfig,
+  deleteLeadGenFormAction as deleteLeadGenForm,
   getLeadGenConfigForms,
   getLeadGenActivity,
-} from '@/lib/rust-client/wachat-facebook-leadgen-config';
+} from './actions';
 import type {
   LeadGenConfig,
   LeadGenForm,

@@ -6,7 +6,7 @@ use sabnode_db::mongo::MongoHandle;
 use crate::dto::{ExecutionRecord, NodeExecutionResult};
 
 pub const EXECUTIONS_COLLECTION: &str = "sabflow_executions";
-pub const FLOWS_COLLECTION: &str = "sabflow_flows";
+pub const FLOWS_COLLECTION: &str = "sabflows";
 
 pub struct ExecutionStore {
     mongo: MongoHandle,
@@ -73,12 +73,12 @@ impl ExecutionStore {
     pub async fn fetch_flow_snapshot(
         &self,
         flow_id: &str,
-        project_id: &str,
+        user_id: &str,
     ) -> Result<Option<serde_json::Value>> {
         let filter = if let Ok(oid) = ObjectId::parse_str(flow_id) {
-            doc! { "_id": oid, "projectId": project_id }
+            doc! { "_id": oid, "userId": user_id }
         } else {
-            doc! { "flowId": flow_id, "projectId": project_id }
+            doc! { "userId": user_id }
         };
         if let Some(doc) = self.col_flows().find_one(filter).await? {
             Ok(Some(serde_json::to_value(doc)?))
@@ -90,14 +90,15 @@ impl ExecutionStore {
     pub async fn set_flow_active(
         &self,
         flow_id: &str,
-        project_id: &str,
+        user_id: &str,
         active: bool,
     ) -> Result<()> {
-        let status = if active { "ACTIVE" } else { "PUBLISHED" };
+        // Match Next.js convention: PUBLISHED = live, DRAFT = offline
+        let status = if active { "PUBLISHED" } else { "DRAFT" };
         let filter = if let Ok(oid) = ObjectId::parse_str(flow_id) {
-            doc! { "_id": oid, "projectId": project_id }
+            doc! { "_id": oid, "userId": user_id }
         } else {
-            doc! { "flowId": flow_id, "projectId": project_id }
+            doc! { "userId": user_id }
         };
         self.col_flows()
             .update_one(filter, doc! { "$set": { "status": status } })

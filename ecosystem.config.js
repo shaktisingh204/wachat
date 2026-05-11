@@ -171,6 +171,42 @@ module.exports = {
     },
 
     // ---------------------------------------------------------------------
+    // SabFlow Execution Worker
+    // ---------------------------------------------------------------------
+    {
+      name: 'sabflow-worker',
+
+      script: './node_modules/.bin/tsx',
+      args: 'src/workers/sabflow-worker.ts',
+
+      instances: process.env.SABFLOW_WORKER_INSTANCES
+        ? parseInt(process.env.SABFLOW_WORKER_INSTANCES, 10)
+        : 1,
+
+      exec_mode: 'fork',
+
+      watch: false,
+      autorestart: true,
+
+      restart_delay: 5000,
+      max_restarts: 50,
+      kill_timeout: 30000,
+
+      env: {
+        NODE_ENV: 'production',
+
+        MONGODB_URI: process.env.MONGODB_URI,
+        MONGODB_DB: process.env.MONGODB_DB,
+
+        REDIS_HOST: process.env.REDIS_HOST || '127.0.0.1',
+        REDIS_PORT: process.env.REDIS_PORT || '6379',
+        REDIS_PASSWORD: process.env.REDIS_PASSWORD,
+
+        SABFLOW_WORKER_CONCURRENCY: process.env.SABFLOW_WORKER_CONCURRENCY || '10',
+      },
+    },
+
+    // ---------------------------------------------------------------------
     // Legacy Worker
     // ---------------------------------------------------------------------
     {

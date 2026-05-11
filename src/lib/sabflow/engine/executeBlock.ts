@@ -6,6 +6,7 @@ import { substituteVariables } from './substituteVariables';
 import { runWithRetry } from './runWithRetry';
 import { resolveErrorEdge } from './errorRouting';
 import { getForgeBlock } from '@/lib/sabflow/forge';
+import { getCredentialById } from '@/lib/sabflow/credentials/db';
 
 export type BlockExecutionResult = {
   messages: OutgoingMessage[];
@@ -252,23 +253,87 @@ export async function executeBlock(
 
     case 'send_email':
     case 'google_sheets':
-    case 'google_analytics':
     case 'open_ai':
+    case 'anthropic':
+    case 'elevenlabs':
+    case 'together_ai':
+    case 'mistral':
+    case 'cal_com':
+    case 'nocodb': {
+      const outcome = await runWithRetry(block, async () => {
+        const credentialId = block.options?.credentialId as string | undefined;
+        const credentialRecord = credentialId ? await getCredentialById(credentialId) : null;
+        const credential = credentialRecord?.data;
+        const opts = substituteInValue(block.options ?? {}, variables) as Record<string, unknown>;
+
+        switch (block.type) {
+          case 'send_email': {
+            const { executeSendEmail } = await import('@/lib/sabflow/integrations/sendEmail');
+            return executeSendEmail(opts, credential);
+          }
+          case 'google_sheets': {
+            const { executeGoogleSheets } = await import('@/lib/sabflow/integrations/googleSheets');
+            return executeGoogleSheets(opts, credential);
+          }
+          case 'open_ai': {
+            const { executeOpenAi } = await import('@/lib/sabflow/integrations/openAi');
+            return executeOpenAi(opts, credential);
+          }
+          case 'anthropic': {
+            const { executeAnthropicAi } = await import('@/lib/sabflow/integrations/anthropicAi');
+            return executeAnthropicAi(opts, credential);
+          }
+          case 'elevenlabs': {
+            const { executeElevenLabs } = await import('@/lib/sabflow/integrations/elevenlabs');
+            return executeElevenLabs(opts, credential);
+          }
+          case 'together_ai': {
+            const { executeTogetherAi } = await import('@/lib/sabflow/integrations/togetherAi');
+            return executeTogetherAi(opts, credential);
+          }
+          case 'mistral': {
+            const { executeMistral } = await import('@/lib/sabflow/integrations/mistral');
+            return executeMistral(opts, credential);
+          }
+          case 'cal_com': {
+            const { executeCalCom } = await import('@/lib/sabflow/integrations/calCom');
+            return executeCalCom(opts, credential);
+          }
+          case 'nocodb': {
+            const { executeNocoDB } = await import('@/lib/sabflow/integrations/nocodb');
+            return executeNocoDB(opts, credential);
+          }
+          default:
+            return { outputs: {} };
+        }
+      });
+
+      if (outcome.kind === 'ok') {
+        const result = outcome.value as { outputs?: Record<string, unknown>; error?: string } | undefined;
+        if (result?.error) {
+          return buildErrorSignal(block, edges, new Error(result.error), 'stop');
+        }
+        const updates = result?.outputs;
+        if (updates && Object.keys(updates).length > 0) {
+          const merged: Record<string, string> = { ...variables };
+          for (const [k, v] of Object.entries(updates)) {
+            merged[k] = typeof v === 'string' ? v : JSON.stringify(v);
+          }
+          return { messages: [], updatedVariables: merged };
+        }
+        return { messages: [] };
+      }
+      return buildErrorSignal(block, edges, outcome.error, outcome.strategy);
+    }
+
+    // These third-party blocks are client-side/external-only — no-ops here.
+    case 'google_analytics':
     case 'zapier':
     case 'make_com':
     case 'pabbly_connect':
     case 'chatwoot':
     case 'pixel':
-    case 'segment':
-    case 'cal_com':
-    case 'nocodb':
-    case 'elevenlabs':
-    case 'anthropic':
-    case 'together_ai':
-    case 'mistral': {
-      // Third-party integration blocks are not executed server-side in this
-      // engine.  They are treated as no-ops; a dedicated worker/action should
-      // handle them externally.
+    case 'segment': {
       return { messages: [] };
     }
 

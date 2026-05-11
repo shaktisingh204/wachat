@@ -196,6 +196,74 @@ export async function deleteSabFlow(flowId: string) {
   }
 }
 
+// ── activateSabFlow / deactivateSabFlow ────────────────────────────────────
+
+/**
+ * Set a flow live.  Writes `status: 'PUBLISHED'` to MongoDB and calls the
+ * Rust engine's /activate endpoint so it can register any webhook triggers.
+ * The Rust call is best-effort — a failure there does NOT roll back the DB
+ * write, because the worker can still pick up the flow by querying status.
+ */
+export async function activateSabFlow(flowId: string): Promise<{ ok: true } | { error: string }> {
+  const session = await getSession();
+  if (!session?.user) return { error: 'Authentication required' };
+  if (!ObjectId.isValid(flowId)) return { error: 'Invalid flow ID' };
+
+  try {
+    const col = await getSabFlowCollection();
+    const result = await col.updateOne(
+      { _id: new ObjectId(flowId), userId: session.user._id.toString() },
+      { $set: { status: 'PUBLISHED', updatedAt: new Date() } },
+    );
+    if (result.matchedCount === 0) return { error: 'Flow not found or access denied' };
+
+    // Fire-and-forget to Rust engine — imports lazily to avoid loading fetcher in every bundle.
+    try {
+      const { rustFetch } = await import('@/lib/rust-client/fetcher');
+      await rustFetch(`/v1/sabflow/flows/${flowId}/activate`, { method: 'POST' });
+    } catch {
+      // non-fatal: Rust engine may not be up; flow status is already written
+    }
+
+    revalidatePath(`/dashboard/sabflow/flow-builder/${flowId}`);
+    revalidatePath('/dashboard/sabflow');
+    return { ok: true };
+  } catch (e) {
+    return { error: getErrorMessage(e) };
+  }
+}
+
+/**
+ * Take a flow offline.  Mirrors `activateSabFlow` but sets status to 'DRAFT'.
+ */
+export async function deactivateSabFlow(flowId: string): Promise<{ ok: true } | { error: string }> {
+  const session = await getSession();
+  if (!session?.user) return { error: 'Authentication required' };
+  if (!ObjectId.isValid(flowId)) return { error: 'Invalid flow ID' };
+
+  try {
+    const col = await getSabFlowCollection();
+    const result = await col.updateOne(
+      { _id: new ObjectId(flowId), userId: session.user._id.toString() },
+      { $set: { status: 'DRAFT', updatedAt: new Date() } },
+    );
+    if (result.matchedCount === 0) return { error: 'Flow not found or access denied' };
+
+    try {
+      const { rustFetch } = await import('@/lib/rust-client/fetcher');
+      await rustFetch(`/v1/sabflow/flows/${flowId}/deactivate`, { method: 'POST' });
+    } catch {
+      // non-fatal
+    }
+
+    revalidatePath(`/dashboard/sabflow/flow-builder/${flowId}`);
+    revalidatePath('/dashboard/sabflow');
+    return { ok: true };
+  } catch (e) {
+    return { error: getErrorMessage(e) };
+  }
+}
+
 // ── duplicateSabFlow ───────────────────────────────────────────────────────
 
 export async function duplicateSabFlow(flowId: string) {

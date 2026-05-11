@@ -13,7 +13,7 @@ import { ThemePanel } from '@/components/sabflow/panels/ThemePanel';
 import { VersionHistoryPanel } from '@/components/sabflow/panels/VersionHistoryPanel';
 import { FlowEditorHeader } from './FlowEditorHeader';
 import { ValidationPanel } from '@/components/sabflow/panels/ValidationPanel';
-import { saveSabFlow } from '@/app/actions/sabflow';
+import { saveSabFlow, activateSabFlow, deactivateSabFlow } from '@/app/actions/sabflow';
 import type { SabFlowDoc } from '@/lib/sabflow/types';
 import { countValidationResults } from '@/lib/sabflow/validation';
 import type { ValidationError } from '@/lib/sabflow/validation';
@@ -210,10 +210,22 @@ function EditorContent({ flow: initialFlow }: Props) {
   /* ── Publish toggle ───────────────────────────────────────────────────── */
 
   const handlePublishToggle = useCallback(() => {
-    const newStatus = flow.status === 'PUBLISHED' ? 'DRAFT' : 'PUBLISHED';
+    const isPublished = flow.status === 'PUBLISHED';
+    const newStatus = isPublished ? 'DRAFT' : 'PUBLISHED';
     setFlow((prev) => ({ ...prev, status: newStatus }));
-    save({ status: newStatus });
-  }, [flow.status, save]);
+    startSaving(async () => {
+      setSaveError(null);
+      const result = isPublished
+        ? await deactivateSabFlow(flow._id)
+        : await activateSabFlow(flow._id);
+      if (result && 'error' in result) {
+        setSaveError(result.error as string);
+        setFlow((prev) => ({ ...prev, status: isPublished ? 'PUBLISHED' : 'DRAFT' }));
+      } else {
+        setLastSaved(new Date());
+      }
+    });
+  }, [flow.status, flow._id, startSaving]);
 
   /* ── Render ──────────────────────────────────────────────────────────── */
 
