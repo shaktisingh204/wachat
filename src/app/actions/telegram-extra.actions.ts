@@ -742,6 +742,17 @@ export async function listTelegramBotsAction(params: ListBotsParams): Promise<Li
       page: params.page ?? 1,
       pageSize: params.pageSize ?? 50,
     };
+    // Fall back to direct Mongo when the Rust BFF isn't responding
+    // (route not deployed, server down, 5xx). The legacy collections
+    // are still authoritative, so the UI stays useful.
+    if (
+      e instanceof RustApiError &&
+      (e.status === 404 || e.status >= 500 || e.status === 0)
+    ) {
+      const { listTelegramBotsDirect } = await import('@/lib/telegram/direct-bots');
+      const rows = await listTelegramBotsDirect(params.projectId);
+      return { ...empty, bots: rows as any, total: rows.length };
+    }
     if (e instanceof RustApiError) return { ...empty, error: e.message };
     return { ...empty, error: String(e) };
   }

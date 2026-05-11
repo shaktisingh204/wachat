@@ -118,7 +118,12 @@ export default function TelegramConnectionsPage() {
         setBotsError(null);
         const res = await listTelegramBotsAction({ projectId });
         setBots(res.bots ?? []);
-        if (res.error) setBotsError(res.error);
+        // 404 here means the Rust BFF route isn't deployed yet — that
+        // shouldn't surface as a red error banner. Anything else (auth,
+        // 500) is worth showing.
+        if (res.error && !/404|not found/i.test(res.error)) {
+            setBotsError(res.error);
+        }
         setBotsLoading(false);
     }, [projectId]);
 
@@ -151,7 +156,10 @@ export default function TelegramConnectionsPage() {
         const res = await listTelegramApiCredentialsAction(projectId);
         setCredentials(res.credentials ?? []);
         setCredsLoading(false);
-        if (res.error) setCredsError(res.error);
+        // Same treatment as bots list — swallow 404s, surface real errors.
+        if (res.error && !/404|not found/i.test(res.error)) {
+            setCredsError(res.error);
+        }
     }, [projectId]);
 
     React.useEffect(() => {
