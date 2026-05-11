@@ -1,4 +1,4 @@
-import { Layers, Plus } from 'lucide-react';
+import { Factory, Layers, Plus } from 'lucide-react';
 import { ObjectId } from 'mongodb';
 import Link from 'next/link';
 
@@ -83,11 +83,18 @@ export default async function BomPage() {
         subtitle="Recipes that map a finished good to its component inputs and output quantity."
         icon={Layers}
         actions={
-          <ZoruButton variant="outline" size="sm" asChild>
-            <Link href="/dashboard/crm/inventory/bom/new">
-              <Plus className="h-4 w-4" /> New BOM
-            </Link>
-          </ZoruButton>
+          <div className="flex items-center gap-2">
+            <ZoruButton variant="ghost" size="sm" asChild>
+              <Link href="/dashboard/crm/inventory/production-orders">
+                <Factory className="h-4 w-4" /> Production orders
+              </Link>
+            </ZoruButton>
+            <ZoruButton variant="outline" size="sm" asChild>
+              <Link href="/dashboard/crm/inventory/bom/new">
+                <Plus className="h-4 w-4" /> New BOM
+              </Link>
+            </ZoruButton>
+          </div>
         }
       />
 
