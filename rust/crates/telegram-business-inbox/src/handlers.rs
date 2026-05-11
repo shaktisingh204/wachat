@@ -271,13 +271,10 @@ fn build_threads_filter(project_oid: ObjectId, q: &ListThreadsQuery) -> Document
     if let Some(a) = q.assigned_agent_id.as_deref() {
         match a {
             "unassigned" => {
+                // Treat missing / null / empty assignedAgentId as unassigned.
                 filter.insert(
-                    "$or",
-                    bson::Bson::Array(vec![
-                        bson::Bson::Document(doc! { "assignedAgentId": { "$exists": false } }),
-                        bson::Bson::Document(doc! { "assignedAgentId": bson::Bson::Null }),
-                        bson::Bson::Document(doc! { "assignedAgentId": "" }),
-                    ]),
+                    "assignedAgentId",
+                    doc! { "$in": [bson::Bson::Null, bson::Bson::String(String::new())] },
                 );
             }
             "anyone" | "any" | "" => {}

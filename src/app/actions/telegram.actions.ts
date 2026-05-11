@@ -164,8 +164,13 @@ export async function setTelegramBotCommands(
     botId: string,
     commands: Array<{ command: string; description: string }>,
 ): Promise<ActionResult> {
+    const r = await requireBot(botId);
+    if (!r.ok) return { success: false, error: r.error };
     try {
-        const res = await rustClient.telegramCommands.set(botId, commands);
+        const res = await rustClient.telegramBots.setCommands(botId, {
+            projectId: r.bot.projectId.toString(),
+            commands,
+        });
         if (!res.success) return { success: false, error: res.error };
         invalidateTelegramBotCache(botId);
         return { success: true, message: res.message ?? 'Commands saved.' };
@@ -380,7 +385,7 @@ export async function getTelegramBotCommands(botId: string): Promise<
     Array<{ command: string; description: string }>
 > {
     try {
-        const res = await rustClient.telegramCommands.get(botId);
+        const res = await rustClient.telegramBots.getCommands(botId);
         return res.commands ?? [];
     } catch (err) {
         if (err instanceof RustApiError) return [];

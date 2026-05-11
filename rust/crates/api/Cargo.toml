@@ -112,6 +112,10 @@ telegram-flows = { path = "../telegram-flows" }
 telegram-mini-apps = { path = "../telegram-mini-apps" }
 telegram-ads = { path = "../telegram-ads" }
 telegram-api-credentials = { path = "../telegram-api-credentials" }
+telegram-business-inbox = { path = "../telegram-business-inbox" }
+telegram-contacts = { path = "../telegram-contacts" }
+telegram-settings = { path = "../telegram-settings" }
+telegram-webhooks = { path = "../telegram-webhooks" }
 wachat-rate-limit = { path = "../wachat-rate-limit" }
 wachat-config = { path = "../wachat-config" }
 wachat-analytics = { path = "../wachat-analytics" }

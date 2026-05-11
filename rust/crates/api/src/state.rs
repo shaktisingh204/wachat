@@ -60,6 +60,10 @@ use telegram_flows::TelegramFlowsState;
 use telegram_mini_apps::TelegramMiniAppsState;
 use telegram_ads::TelegramAdsState;
 use telegram_api_credentials::TelegramApiCredentialsState;
+use telegram_business_inbox::TelegramBusinessInboxState;
+use telegram_contacts::TelegramContactsState;
+use telegram_settings::TelegramSettingsState;
+use telegram_webhooks::{BotApiClient as TelegramWebhooksBotApi, TelegramWebhooksState};
 use sabflow_engine::SabflowEngineState;
 use sabflow_engine_runtime::SabflowRuntimeState;
 use wachat_projects::WachatProjectsState;
@@ -133,6 +137,10 @@ pub struct AppState {
     pub telegram_mini_apps: TelegramMiniAppsState,
     pub telegram_ads: TelegramAdsState,
     pub telegram_api_credentials: TelegramApiCredentialsState,
+    pub telegram_business_inbox: TelegramBusinessInboxState,
+    pub telegram_contacts: TelegramContactsState,
+    pub telegram_settings: TelegramSettingsState,
+    pub telegram_webhooks: TelegramWebhooksState,
     pub sabflow: SabflowEngineState,
     pub sabflow_runtime: SabflowRuntimeState,
     pub ready: Arc<AtomicBool>,
@@ -199,6 +207,10 @@ impl AppState {
         telegram_mini_apps: TelegramMiniAppsState,
         telegram_ads: TelegramAdsState,
         telegram_api_credentials: TelegramApiCredentialsState,
+        telegram_business_inbox: TelegramBusinessInboxState,
+        telegram_contacts: TelegramContactsState,
+        telegram_settings: TelegramSettingsState,
+        telegram_webhooks: TelegramWebhooksState,
         sabflow: SabflowEngineState,
     ) -> Self {
         Self {
@@ -261,6 +273,10 @@ impl AppState {
             telegram_mini_apps,
             telegram_ads,
             telegram_api_credentials,
+            telegram_business_inbox,
+            telegram_contacts,
+            telegram_settings,
+            telegram_webhooks,
             sabflow,
             sabflow_runtime: SabflowRuntimeState::new(),
             ready: Arc::new(AtomicBool::new(false)),
@@ -621,6 +637,30 @@ impl FromRef<AppState> for TelegramAdsState {
 impl FromRef<AppState> for TelegramApiCredentialsState {
     fn from_ref(s: &AppState) -> Self {
         s.telegram_api_credentials.clone()
+    }
+}
+
+impl FromRef<AppState> for TelegramBusinessInboxState {
+    fn from_ref(s: &AppState) -> Self {
+        s.telegram_business_inbox.clone()
+    }
+}
+
+impl FromRef<AppState> for TelegramContactsState {
+    fn from_ref(s: &AppState) -> Self {
+        s.telegram_contacts.clone()
+    }
+}
+
+impl FromRef<AppState> for TelegramSettingsState {
+    fn from_ref(s: &AppState) -> Self {
+        s.telegram_settings.clone()
+    }
+}
+
+impl FromRef<AppState> for TelegramWebhooksState {
+    fn from_ref(s: &AppState) -> Self {
+        s.telegram_webhooks.clone()
     }
 }
 

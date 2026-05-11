@@ -848,13 +848,7 @@ function ChatWindow({ chat, projectId, onChatUpdated, onError }: ChatWindowProps
             )}
             {...dropHandlers}
         >
-            <ChatHeader
-                chat={chat}
-                onRefresh={doRefresh}
-                onForward={() => {
-                    // No-op shortcut from header: user picks via row context menu instead.
-                }}
-            />
+            <ChatHeader chat={chat} onRefresh={doRefresh} />
 
             {/* Pinned banner */}
             {chat.pinnedMessageId ? (
@@ -975,7 +969,6 @@ function ChatHeader({
 }: {
     chat: ChatRow;
     onRefresh: () => void;
-    onForward: () => void;
 }) {
     const name = chatDisplayName(chat);
     const subtitle =
