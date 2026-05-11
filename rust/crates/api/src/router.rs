@@ -197,6 +197,7 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/telegram/flows", telegram_flows_router)
         .nest("/v1/telegram/mini-apps", telegram_mini_apps_router)
         .nest("/v1/telegram/ads", telegram_ads_router)
+        .nest("/v1/sabflow", sabflow_engine::router::<AppState>())
         .nest("/v1", v1)
         .with_state(state)
         .layer(SetRequestIdLayer::new(
