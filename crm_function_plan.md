@@ -819,6 +819,36 @@ Each entity provides:
     - Contracts e-signature integration (Digio / Aadhaar e-sign / DocuSign).
     - BOM, POS, custom dashboards, customer/vendor portals, SLA engine — each their own product surface.
 
+  - **O — §12 form completion + detail pages (2026-05-11).** Session completing all remaining /new form pages and detail pages for §12 entities.
+    - **O1** budgets/new + crm-budgets.actions.ts — head, period, plan amount, scenario, alert %, owner.
+    - **O2** loans/new + crm-loans.actions.ts — type, borrower, principal, interest rate, tenure, EMI auto-calc (compound formula).
+    - **O3** petty-cash/new + crm-petty-cash.actions.ts — branch/custodian, opening balance.
+    - **O4** subscriptions/new + saveSubscription added to crm-subscriptions.actions.ts — plan name, billing frequency/amount, trial days, start date.
+    - **O5** service-contracts/new + crm-service-contracts.actions.ts — contract no, asset, coverage, frequency, billing.
+    - **O6** inventory/bom/new + crm-bom.actions.ts — header + dynamic component rows serialized as JSON.
+    - **O7** sales/coupons/new + crm-coupons.actions.ts — code, type, value, min cart, max uses, validity window.
+    - **O8** sales/loyalty/new + crm-loyalty.actions.ts — program name, points per ₹, redemption ratio, expiry.
+    - **O9** sales/gift-cards/new + crm-gift-cards.actions.ts — code, issued-to, value, expiry, transferable flag.
+    - **O10** sales/contracts/new + crm-contracts.actions.ts — type, counterparty, e-sign provider, auto-renew.
+    - **O11** bookings/new + crm-bookings.actions.ts — resource, customer, slot start/end.
+    - **O12** fixed-assets/new + crm-fixed-assets.actions.ts — code, depreciation method, cost, useful life.
+    - **O13** tickets/sla/new + crm-sla.actions.ts — priority, first-response, resolution, escalation targets.
+    - **O14** tickets/knowledge-base/new + crm-knowledge-base.actions.ts — title, category, tags, visibility, body.
+    - **O15** portal/new + crm-portal.actions.ts — name, email, portal type, capabilities.
+    - **O16** dashboards/new + crm-dashboards.actions.ts — name, description, layout, visibility, auto-refresh.
+    - **O17** Detail pages: bookings/[id], sales/contracts/[id], fixed-assets/[id], hrm/hr/disciplinary/[id], hrm/hr/awards/[id].
+    - **O18** production-orders list + new + crm-production-orders.actions.ts; BOM page "Production orders" shortcut button.
+    - All list pages that previously pointed "New" to non-existent routes now resolve. TSC still at 0 new CRM errors.
+    - **NEXT (remaining longer-horizon items):**
+      - Subscriptions cron + dunning ladder worker (Vercel Cron / Queues).
+      - Contracts e-signature integration (Digio / Aadhaar e-sign / DocuSign).
+      - POS terminal + online store.
+      - SLA engine business logic (auto-breach detection, ticket timer).
+      - KB article detail/edit page.
+      - Production order detail + actual-yield update form.
+      - Custom dashboard widget builder (add/move/resize widgets).
+      - Portal authentication flow (portal users can log in to see their invoices/tickets).
+
 Implementation note: build one `lookupRegistry` map in `src/app/actions/crm-lookup.actions.ts` with one entry per entity, and a single server action `lookupEntity(entity, params)`. The picker calls the action via a thin client wrapper.
 
 ### 13.5 Cross-feature data lineage (the chain)
