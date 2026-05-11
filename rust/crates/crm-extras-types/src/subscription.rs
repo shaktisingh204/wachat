@@ -94,6 +94,7 @@ pub struct DunningStep {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SubscriptionEvent {
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub at: DateTime<Utc>,
     /// Free-form event tag (e.g. `"renewed"`, `"paused"`, `"resumed"`,
     /// `"cancelled"`, `"dunning_email"`, `"trial_ended"`).
@@ -125,7 +126,7 @@ pub struct Subscription {
     pub frequency: BillingFrequency,
     /// While `now < trial_until`, no invoice is generated. Status flips
     /// from `Trial` to `Active` on the first post-trial cycle.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub trial_until: Option<DateTime<Utc>>,
     pub renewal_mode: RenewalMode,
 
@@ -144,16 +145,17 @@ pub struct Subscription {
 
     /* ----- lifecycle --------------------------------------------- */
     pub status: SubscriptionStatus,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub started_at: DateTime<Utc>,
     /// Time at which the next invoice should be generated. Engine
     /// advances this on each successful renewal.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub next_billing_at: Option<DateTime<Utc>>,
     /// Resume the subscription automatically once `now >= paused_until`.
     /// `None` while in `Paused` status means an indefinite pause.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub paused_until: Option<DateTime<Utc>>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub cancelled_at: Option<DateTime<Utc>>,
 
     /* ----- audit history ----------------------------------------- */

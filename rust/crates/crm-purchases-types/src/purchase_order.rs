@@ -30,11 +30,11 @@ pub enum PurchaseOrderStatus {
 pub struct ApprovalWorkflow {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub requested_by: Option<ObjectId>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub requested_at: Option<DateTime<Utc>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub approved_by: Option<ObjectId>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub approved_at: Option<DateTime<Utc>>,
     /// Free-text approver comment (rejection note, conditional
     /// approval rider, …).
@@ -55,8 +55,9 @@ pub struct PurchaseOrder {
 
     /* ----- doc number + dates ------------------------------------ */
     pub po_no: String,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub date: DateTime<Utc>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub expected_delivery: Option<DateTime<Utc>>,
 
     /* ----- parties + locations ----------------------------------- */

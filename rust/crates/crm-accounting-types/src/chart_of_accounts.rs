@@ -54,6 +54,7 @@ pub enum AccountNature {
 #[serde(rename_all = "camelCase")]
 pub struct OpeningBalanceEntry {
     pub amount: f64,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub as_of: DateTime<Utc>,
 }
 

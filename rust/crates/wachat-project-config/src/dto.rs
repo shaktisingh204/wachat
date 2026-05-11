@@ -70,6 +70,7 @@ pub struct PublicProject {
     pub ban_state: Option<String>,
 
     /// Created-at timestamp.
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub created_at: DateTime<Utc>,
 }
 

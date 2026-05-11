@@ -56,6 +56,7 @@ pub struct CreditNote {
 
     /* ----- doc number + dates ------------------------------------ */
     pub cn_no: String,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub date: DateTime<Utc>,
 
     /* ----- parties + refs ---------------------------------------- */

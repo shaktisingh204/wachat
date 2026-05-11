@@ -47,7 +47,7 @@ pub struct BotRow {
 
     #[serde(skip_serializing_if = "Option::is_none", rename = "webhookUrl")]
     pub webhook_url: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "webhookRegisteredAt")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "webhookRegisteredAt")]
     pub webhook_registered_at: Option<DateTime<Utc>>,
     #[serde(skip_serializing_if = "Option::is_none", rename = "webhookInfo")]
     pub webhook_info: Option<WebhookInfoView>,
@@ -65,14 +65,14 @@ pub struct BotRow {
     /// plus the latest webhook error (if any).
     pub status: String,
 
-    #[serde(skip_serializing_if = "Option::is_none", rename = "lastSeenAt")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "lastSeenAt")]
     pub last_seen_at: Option<DateTime<Utc>>,
     #[serde(skip_serializing_if = "Option::is_none", rename = "latencyMs")]
     pub latency_ms: Option<i64>,
 
-    #[serde(rename = "createdAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
     pub created_at: DateTime<Utc>,
-    #[serde(rename = "updatedAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "updatedAt")]
     pub updated_at: DateTime<Utc>,
 }
 
@@ -84,7 +84,7 @@ pub struct WebhookInfoView {
     pub pending_update_count: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none", rename = "lastErrorMessage")]
     pub last_error_message: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "lastErrorDate")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "lastErrorDate")]
     pub last_error_date: Option<DateTime<Utc>>,
     #[serde(skip_serializing_if = "Option::is_none", rename = "maxConnections")]
     pub max_connections: Option<i64>,
@@ -329,7 +329,7 @@ pub struct HealthResp {
     pub error: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none", rename = "latencyMs")]
     pub latency_ms: Option<i64>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "lastSeenAt")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "lastSeenAt")]
     pub last_seen_at: Option<DateTime<Utc>>,
 }
 

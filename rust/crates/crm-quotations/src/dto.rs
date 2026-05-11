@@ -109,9 +109,11 @@ pub struct CreateQuotationInput {
     /// non-empty.
     pub quotation_no: String,
     /// Quotation issue date.
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub date: DateTime<Utc>,
     /// Validity expiry — quotations past this date should not be
     /// honoured by downstream conversion flows.
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub valid_until: DateTime<Utc>,
 
     /* ----- party (★ required) ----- */
@@ -166,9 +168,9 @@ pub struct CreateQuotationInput {
 pub struct UpdateQuotationInput {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub quotation_no: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub date: Option<DateTime<Utc>>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub valid_until: Option<DateTime<Utc>>,
 
     #[serde(default, skip_serializing_if = "Option::is_none")]

@@ -183,7 +183,7 @@ pub struct SubscriptionRow {
     pub drop_pending_updates: bool,
     #[serde(skip_serializing_if = "Option::is_none", rename = "ipAddress")]
     pub ip_address: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "lastSetAt")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "lastSetAt")]
     pub last_set_at: Option<DateTime<Utc>>,
     #[serde(
         skip_serializing_if = "Option::is_none",
@@ -192,9 +192,9 @@ pub struct SubscriptionRow {
     pub last_telegram_error_message: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none", rename = "pendingUpdateCount")]
     pub pending_update_count: Option<i64>,
-    #[serde(rename = "createdAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
     pub created_at: DateTime<Utc>,
-    #[serde(rename = "updatedAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "updatedAt")]
     pub updated_at: DateTime<Utc>,
 }
 
@@ -252,7 +252,7 @@ pub struct DeliveryRow {
     pub project_id: String,
     #[serde(rename = "botId")]
     pub bot_id: String,
-    #[serde(rename = "receivedAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "receivedAt")]
     pub received_at: DateTime<Utc>,
     #[serde(rename = "updateId")]
     pub update_id: i64,
@@ -358,7 +358,7 @@ pub struct DlqRow {
     pub attempts: i64,
     #[serde(skip_serializing_if = "Option::is_none", rename = "lastError")]
     pub last_error: Option<String>,
-    #[serde(rename = "lastAttemptAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "lastAttemptAt")]
     pub last_attempt_at: DateTime<Utc>,
     pub status: String,
     #[serde(skip_serializing_if = "Option::is_none")]

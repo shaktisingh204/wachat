@@ -17,7 +17,9 @@ const INCOMING_COLL: &str = "incoming_messages";
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LocalMessageAnalyticsBody {
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub start_date: DateTime<Utc>,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub end_date: DateTime<Utc>,
 }
 

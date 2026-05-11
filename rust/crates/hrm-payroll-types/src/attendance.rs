@@ -24,6 +24,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PunchPoint {
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub at: DateTime<Utc>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub lat: Option<f64>,
@@ -49,7 +50,7 @@ pub struct PunchPoint {
 pub struct BreakSlot {
     #[serde(rename = "in")]
     pub r#in: DateTime<Utc>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub out: Option<DateTime<Utc>>,
 }
 
@@ -95,6 +96,7 @@ pub struct Attendance {
 
     /// Calendar day this record covers. Stored as the start-of-day
     /// instant in the tenant timezone — server actions normalize.
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub date: DateTime<Utc>,
     /// Employee `_id` (FK into `crm_employees`).
     pub employee_id: ObjectId,

@@ -58,13 +58,13 @@ pub struct ContactRow {
     pub custom_fields: HashMap<String, String>,
     #[serde(rename = "assignedAgentId", skip_serializing_if = "Option::is_none")]
     pub assigned_agent_id: Option<String>,
-    #[serde(rename = "lastInteractionAt", skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", rename = "lastInteractionAt", skip_serializing_if = "Option::is_none")]
     pub last_interaction_at: Option<DateTime<Utc>>,
     pub source: String,
     pub blocked: bool,
-    #[serde(rename = "createdAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
     pub created_at: DateTime<Utc>,
-    #[serde(rename = "updatedAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "updatedAt")]
     pub updated_at: DateTime<Utc>,
 }
 
@@ -277,9 +277,9 @@ pub struct SegmentRow {
     pub filter: serde_json::Value,
     #[serde(rename = "memberCount")]
     pub member_count: i64,
-    #[serde(rename = "createdAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
     pub created_at: DateTime<Utc>,
-    #[serde(rename = "updatedAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "updatedAt")]
     pub updated_at: DateTime<Utc>,
 }
 

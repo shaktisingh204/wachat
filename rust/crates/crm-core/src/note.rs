@@ -17,8 +17,9 @@ pub struct Note {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub author_id: Option<ObjectId>,
 
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub created_at: DateTime<Utc>,
 
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub edited_at: Option<DateTime<Utc>>,
 }

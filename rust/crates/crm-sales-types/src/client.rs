@@ -77,6 +77,7 @@ pub struct ContactBook {
 #[serde(rename_all = "camelCase")]
 pub struct OpeningBalance {
     pub amount: f64,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub as_of: DateTime<Utc>,
 }
 
@@ -190,9 +191,9 @@ pub struct Client {
     pub avatar_file_id: Option<ObjectId>,
     /// Date of birth. Stored as a UTC timestamp (00:00 UTC on the day)
     /// because BSON has no date-only type.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub dob: Option<DateTime<Utc>>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub anniversary: Option<DateTime<Utc>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub preferred_contact_channel: Option<ContactChannel>,

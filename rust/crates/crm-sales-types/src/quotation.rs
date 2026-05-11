@@ -32,6 +32,7 @@ pub enum QuotationStatus {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct QuotationRevision {
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub revised_at: DateTime<Utc>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub revised_by: Option<ObjectId>,
@@ -58,7 +59,9 @@ pub struct Quotation {
 
     /* ----- system-issued doc number + dates ---------------------- */
     pub quotation_no: String,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub date: DateTime<Utc>,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub valid_until: DateTime<Utc>,
 
     /* ----- parties ----------------------------------------------- */

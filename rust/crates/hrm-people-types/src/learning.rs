@@ -17,7 +17,7 @@ pub struct TrainingAttendance {
     pub employee_id: ObjectId,
     #[serde(default)]
     pub attended: bool,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub attended_at: Option<DateTime<Utc>>,
 }
 
@@ -43,7 +43,9 @@ pub struct TrainingProgram {
     pub mode: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub instructor: Option<String>,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub scheduled_start: DateTime<Utc>,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub scheduled_end: DateTime<Utc>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub capacity: Option<u32>,
@@ -72,8 +74,9 @@ pub struct EmployeeCertification {
     pub name: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub issuer: Option<String>,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub issued: DateTime<Utc>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub expiry: Option<DateTime<Utc>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub file_id: Option<ObjectId>,
@@ -127,8 +130,9 @@ pub struct LearningPathProgress {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub completed_step_ids: Vec<ObjectId>,
     pub completion_pct: f32,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub started_at: DateTime<Utc>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub completed_at: Option<DateTime<Utc>>,
 }
 

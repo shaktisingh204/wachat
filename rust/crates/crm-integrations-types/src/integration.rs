@@ -150,7 +150,7 @@ pub struct Integration {
     /// its receiver.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub webhook_url: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub last_sync_at: Option<DateTime<Utc>>,
     /// Most-recent error message (auth failure, 4xx from provider, etc.).
     /// Cleared on the next successful sync.

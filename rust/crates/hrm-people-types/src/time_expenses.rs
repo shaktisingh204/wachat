@@ -14,6 +14,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TimesheetDay {
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub date: DateTime<Utc>,
     pub hours: f32,
 }
@@ -48,7 +49,9 @@ pub struct Timesheet {
     pub audit: Audit,
 
     pub employee_id: ObjectId,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub week_start: DateTime<Utc>,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub week_end: DateTime<Utc>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub entries: Vec<TimesheetEntry>,
@@ -57,7 +60,7 @@ pub struct Timesheet {
     pub status: TimesheetStatus,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub approver_id: Option<ObjectId>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub decided_at: Option<DateTime<Utc>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
@@ -104,8 +107,9 @@ pub struct TravelRequest {
     pub mode: TravelMode,
     pub from_location: String,
     pub to_location: String,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub depart_on: DateTime<Utc>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub return_on: Option<DateTime<Utc>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub advance_amount: Option<f64>,
@@ -124,6 +128,7 @@ pub struct TravelRequest {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ExpenseClaimLine {
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub date: DateTime<Utc>,
     pub category: String,
     pub amount: f64,
@@ -163,7 +168,7 @@ pub struct ExpenseClaim {
     pub status: ExpenseClaimStatus,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub approver_id: Option<ObjectId>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub reimbursed_at: Option<DateTime<Utc>>,
     /// Bank / payroll txn id once the claim is paid out.
     #[serde(default, skip_serializing_if = "Option::is_none")]

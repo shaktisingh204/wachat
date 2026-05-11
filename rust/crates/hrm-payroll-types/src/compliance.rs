@@ -53,7 +53,9 @@ pub struct PfRecord {
     /// Statutory wage ceiling (e.g. 15_000.0 INR/month).
     pub wage_ceiling: f64,
 
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub period_from: DateTime<Utc>,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub period_to: DateTime<Utc>,
 
     /// SabFiles upload of the challan PDF.
@@ -90,7 +92,9 @@ pub struct EsiRecord {
     /// Statutory wage ceiling for ESI eligibility.
     pub wage_ceiling: f64,
 
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub period_from: DateTime<Utc>,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub period_to: DateTime<Utc>,
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -140,7 +144,9 @@ pub struct PtRecord {
 
     pub monthly_amount: f64,
 
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub period_from: DateTime<Utc>,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub period_to: DateTime<Utc>,
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -182,7 +188,9 @@ pub struct TdsRecord {
     pub gross_amount: f64,
     pub deduction_amount: f64,
 
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub period_from: DateTime<Utc>,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub period_to: DateTime<Utc>,
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -221,6 +229,7 @@ pub struct Form16PartB {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Form16Dispatch {
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub at: DateTime<Utc>,
     /// `"email"` | `"download"`.
     pub channel: String,

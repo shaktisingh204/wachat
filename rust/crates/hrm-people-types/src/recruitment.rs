@@ -68,7 +68,7 @@ pub struct JobPosting {
     pub careers_page_visible: bool,
 
     /// Auto-close timestamp. `None` = never expires.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub expiry: Option<DateTime<Utc>>,
 }
 
@@ -175,6 +175,7 @@ pub struct InterviewFeedback {
     pub summary: Option<String>,
     /// `"pending" | "advance" | "reject" | "hold"`.
     pub decision: String,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub at: DateTime<Utc>,
 }
 
@@ -201,7 +202,9 @@ pub struct Interview {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub link: Option<String>,
 
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub slot_start: DateTime<Utc>,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub slot_end: DateTime<Utc>,
 
     /// FK into the project's feedback-form templates collection.
@@ -237,7 +240,9 @@ pub struct Offer {
     pub ctc: f64,
     pub currency: String,
 
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub joining_date: DateTime<Utc>,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub validity: DateTime<Utc>,
 
     /// `"digio" | "docusign" | ...`.

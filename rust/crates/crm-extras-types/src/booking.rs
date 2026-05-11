@@ -95,6 +95,7 @@ pub enum PaymentStatus {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Reminder {
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub at: DateTime<Utc>,
     pub channel: String,
     #[serde(default, skip_serializing_if = "is_false")]
@@ -120,7 +121,9 @@ pub struct Booking {
     pub customer_id: ObjectId,
 
     /* ----- slot ------------------------------------------------- */
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub slot_start: DateTime<Utc>,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub slot_end: DateTime<Utc>,
     /// RFC 5545 RRULE string (e.g. `FREQ=WEEKLY;BYDAY=MO,WE`). Empty /
     /// `None` means a one-off booking.

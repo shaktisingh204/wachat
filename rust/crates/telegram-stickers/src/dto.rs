@@ -106,11 +106,11 @@ pub struct SetRow {
     pub sticker_count: i64,
     #[serde(default)]
     pub archived: bool,
-    #[serde(rename = "createdAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
     pub created_at: DateTime<Utc>,
-    #[serde(rename = "updatedAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "updatedAt")]
     pub updated_at: DateTime<Utc>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "lastSyncedAt")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "lastSyncedAt")]
     pub last_synced_at: Option<DateTime<Utc>>,
 }
 

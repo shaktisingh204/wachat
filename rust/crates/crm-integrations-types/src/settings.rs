@@ -212,7 +212,9 @@ pub struct MenuOrderEntry {
 #[serde(rename_all = "camelCase")]
 pub struct PlanUsage {
     pub plan: String,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub period_start: DateTime<Utc>,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub period_end: DateTime<Utc>,
     pub credits_used: u64,
     pub credits_total: u64,

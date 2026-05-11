@@ -54,9 +54,9 @@ pub struct PettyCashFloat {
     pub custodian_employee_id: Option<ObjectId>,
 
     /* ----- lifecycle stamps ------------------------------------- */
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub last_topup_at: Option<DateTime<Utc>>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub last_reconciled_at: Option<DateTime<Utc>>,
 
     /// Closed floats are kept (not deleted) so historic vouchers stay
@@ -122,6 +122,7 @@ pub struct PettyCashVoucher {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub note: Option<String>,
 
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub voucher_date: DateTime<Utc>,
 }
 

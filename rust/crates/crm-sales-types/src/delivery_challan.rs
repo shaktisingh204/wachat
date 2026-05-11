@@ -63,7 +63,7 @@ pub struct ChallanLineItem {
     /// food where traceability is regulated.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub batch: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub expiry: Option<DateTime<Utc>>,
     /// Per-piece serial numbers when the item is serialized
     /// (electronics, machinery, vehicles).
@@ -84,6 +84,7 @@ pub struct DeliveryChallan {
 
     /* ----- doc number + dates ------------------------------------ */
     pub challan_no: String,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub date: DateTime<Utc>,
 
     /* ----- refs + parties ---------------------------------------- */
@@ -105,7 +106,7 @@ pub struct DeliveryChallan {
     /// Lorry-receipt number issued by the transporter.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub lr_no: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub lr_date: Option<DateTime<Utc>>,
     #[serde(default)]
     pub mode_of_transport: ModeOfTransport,

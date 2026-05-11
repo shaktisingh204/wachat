@@ -87,6 +87,7 @@ pub struct Bom {
 
     /* ----- revision metadata ------------------------------------- */
     pub version: u32,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub effective_date: DateTime<Utc>,
 
     #[serde(default)]
@@ -112,6 +113,7 @@ pub enum ProductionStatus {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DowntimeReason {
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub at: DateTime<Utc>,
     pub minutes: u32,
     pub reason: String,
@@ -135,8 +137,9 @@ pub struct ProductionOrder {
 
     pub planned_qty: f64,
 
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub start: DateTime<Utc>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub end: Option<DateTime<Utc>>,
 
     #[serde(default, skip_serializing_if = "Option::is_none")]

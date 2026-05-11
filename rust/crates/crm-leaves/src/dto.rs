@@ -197,9 +197,11 @@ pub struct CreateLeaveApplicationInput {
     pub leave_type_id: String,
 
     /// Inclusive start of the requested range. Required.
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub from: DateTime<Utc>,
 
     /// Inclusive end of the requested range. Required. Must be `>= from`.
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub to: DateTime<Utc>,
 
     /// Whether this is a half-day request. Defaults to `false`.
@@ -233,9 +235,9 @@ pub struct CreateLeaveApplicationInput {
 pub struct UpdateLeaveApplicationInput {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub leave_type_id: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub from: Option<DateTime<Utc>>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub to: Option<DateTime<Utc>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub half_day: Option<bool>,

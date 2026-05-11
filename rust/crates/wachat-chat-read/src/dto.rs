@@ -90,7 +90,7 @@ pub struct ChatContactSummary {
     /// Timestamp of the most recent message. The contact list sorts by this
     /// descending (`chat-client.tsx` line 167), and the contact-list row
     /// renders a relative-time string off it.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub last_message_timestamp: Option<DateTime<Utc>>,
 
     /// Number of unread inbound messages. Drives the badge in the contact
@@ -105,7 +105,7 @@ pub struct ChatContactSummary {
 
     /// Created-at, returned because the TS payload includes it (the contact
     /// list doesn't render it but downstream CRM views do).
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub created_at: Option<DateTime<Utc>>,
 }
 
@@ -178,12 +178,13 @@ pub struct ChatMessage {
     /// When Meta says the message happened. Sorted on for ordering; rendered
     /// as the bubble timestamp (`chat-message.tsx` line 369:
     /// `const timestamp = message.messageTimestamp || message.createdAt;`).
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub message_timestamp: DateTime<Utc>,
 
     /// When *we* persisted the row. Tiebreaker for the merged sort, and
     /// fallback timestamp for the bubble label when `messageTimestamp` is
     /// missing.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub created_at: Option<DateTime<Utc>>,
 
     /// Original raw content blob as stored in Mongo. This is the

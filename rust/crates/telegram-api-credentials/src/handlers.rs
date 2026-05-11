@@ -179,15 +179,15 @@ pub struct CredentialRow {
     pub status: String,
     #[serde(rename = "sessionState")]
     pub session_state: String,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "lastVerifiedAt")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "lastVerifiedAt")]
     pub last_verified_at: Option<DateTime<Utc>>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "lastUsedAt")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "lastUsedAt")]
     pub last_used_at: Option<DateTime<Utc>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub notes: Option<String>,
-    #[serde(rename = "createdAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
     pub created_at: DateTime<Utc>,
-    #[serde(rename = "updatedAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "updatedAt")]
     pub updated_at: DateTime<Utc>,
 }
 
@@ -1178,11 +1178,11 @@ pub struct LoginSessionRow {
     pub status: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub placeholder: Option<bool>,
-    #[serde(rename = "startedAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "startedAt")]
     pub started_at: DateTime<Utc>,
-    #[serde(rename = "updatedAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "updatedAt")]
     pub updated_at: DateTime<Utc>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "completedAt")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "completedAt")]
     pub completed_at: Option<DateTime<Utc>>,
 }
 
@@ -1290,6 +1290,7 @@ pub struct AuditRow {
     pub actor_id: String,
     pub action: String,
     pub detail: String,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub at: DateTime<Utc>,
 }
 

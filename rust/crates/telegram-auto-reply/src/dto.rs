@@ -57,13 +57,13 @@ pub struct RuleRow {
     pub run_count: i64,
     #[serde(rename = "errorCount")]
     pub error_count: i64,
-    #[serde(rename = "lastRunAt", skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", rename = "lastRunAt", skip_serializing_if = "Option::is_none")]
     pub last_run_at: Option<DateTime<Utc>>,
     #[serde(rename = "fired7d")]
     pub fired_7d: i64,
-    #[serde(rename = "createdAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
     pub created_at: DateTime<Utc>,
-    #[serde(rename = "updatedAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "updatedAt")]
     pub updated_at: DateTime<Utc>,
 }
 
@@ -225,7 +225,7 @@ pub struct RunRow {
     #[serde(rename = "actionsCount")]
     pub actions_count: i64,
     pub status: String,
-    #[serde(rename = "firedAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "firedAt")]
     pub fired_at: DateTime<Utc>,
 }
 

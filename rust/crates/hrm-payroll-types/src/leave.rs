@@ -53,7 +53,7 @@ pub struct ApproverStep {
     pub approver_id: ObjectId,
     #[serde(default)]
     pub status: LeaveApplicationStatus,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub decided_at: Option<DateTime<Utc>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
@@ -130,7 +130,9 @@ pub struct LeaveApplication {
 
     /* ----- request body ------------------------------------------ */
     pub leave_type_id: ObjectId,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub from: DateTime<Utc>,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub to: DateTime<Utc>,
 
     /// Whether this is a half-day request. Defaults to `false`; serde

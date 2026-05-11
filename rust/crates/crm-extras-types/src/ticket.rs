@@ -67,6 +67,7 @@ pub enum TicketSeverity {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MergeLogEntry {
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub at: DateTime<Utc>,
     pub merged_from: ObjectId,
     pub by: ObjectId,
@@ -102,7 +103,7 @@ pub struct Ticket {
     /* ----- SLA + scheduling -------------------------------------- */
     /// Computed off the linked `Sla` at write-time. Nullable until the
     /// SLA evaluator fires.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub due_by: Option<DateTime<Utc>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub sla_id: Option<ObjectId>,

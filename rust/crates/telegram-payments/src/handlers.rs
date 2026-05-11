@@ -155,9 +155,9 @@ pub struct ProviderRow {
     pub currency: String,
     #[serde(rename = "testMode")]
     pub test_mode: bool,
-    #[serde(rename = "createdAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
     pub created_at: DateTime<Utc>,
-    #[serde(rename = "updatedAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "updatedAt")]
     pub updated_at: DateTime<Utc>,
 }
 
@@ -510,9 +510,9 @@ pub struct TemplateRow {
     pub provider_id: Option<String>,
     #[serde(default, rename = "shippingOptions")]
     pub shipping_options: Vec<ShippingOptionConfig>,
-    #[serde(rename = "createdAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
     pub created_at: DateTime<Utc>,
-    #[serde(rename = "updatedAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "updatedAt")]
     pub updated_at: DateTime<Utc>,
 }
 
@@ -1179,7 +1179,7 @@ pub struct InvoiceRow {
     pub message_id: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none", rename = "paymentId")]
     pub payment_id: Option<String>,
-    #[serde(rename = "createdAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
     pub created_at: DateTime<Utc>,
 }
 
@@ -1300,9 +1300,9 @@ pub struct PaymentRow {
     pub order_info: Option<serde_json::Value>,
     #[serde(skip_serializing_if = "Option::is_none", rename = "shippingAddress")]
     pub shipping_address: Option<serde_json::Value>,
-    #[serde(rename = "createdAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
     pub created_at: DateTime<Utc>,
-    #[serde(rename = "updatedAt")]
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "updatedAt")]
     pub updated_at: DateTime<Utc>,
 }
 

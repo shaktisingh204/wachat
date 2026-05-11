@@ -83,7 +83,7 @@ pub struct KbArticle {
     /* ----- cross-links + ownership ------------------------------- */
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub related_article_ids: Vec<ObjectId>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub last_reviewed_at: Option<DateTime<Utc>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub owner_id: Option<ObjectId>,

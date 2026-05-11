@@ -41,6 +41,7 @@ pub enum CaseStatus {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Hearing {
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub at: DateTime<Utc>,
     /// Members of the disciplinary panel.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -63,6 +64,7 @@ pub struct EvidenceItem {
     pub file_id: Option<ObjectId>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub submitted_at: DateTime<Utc>,
 }
 
@@ -87,7 +89,7 @@ pub struct DisciplinaryCase {
     pub hearings: Vec<Hearing>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub decision: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub decided_at: Option<DateTime<Utc>>,
     /// Free-form appeal status (`"pending"`, `"upheld"`, `"overturned"`,
     /// …). `None` when no appeal has been raised.
@@ -110,6 +112,7 @@ pub struct Nomination {
     pub reason: String,
     #[serde(default)]
     pub vote_count: u32,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub at: DateTime<Utc>,
 }
 
@@ -124,7 +127,9 @@ pub struct AwardProgram {
 
     pub name: String,
     pub criteria: String,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub nomination_open_from: DateTime<Utc>,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub nomination_open_until: DateTime<Utc>,
     /// `"panel" | "public" | "manager"`.
     pub voting_method: String,

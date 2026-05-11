@@ -37,7 +37,9 @@ pub struct Goal {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
 
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub period_from: DateTime<Utc>,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub period_to: DateTime<Utc>,
 
     /// Relative weight inside the cycle (0..100). Optional — not all
@@ -78,7 +80,9 @@ pub struct Kpi {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub actual: Option<f64>,
 
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub period_from: DateTime<Utc>,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub period_to: DateTime<Utc>,
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -102,6 +106,7 @@ pub struct AppraisalComment {
     /// `"self"` | `"manager"` | `"peer"` | `"approver"`.
     pub role: String,
     pub body: String,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub at: DateTime<Utc>,
 }
 

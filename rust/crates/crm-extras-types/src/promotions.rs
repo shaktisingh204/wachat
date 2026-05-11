@@ -83,8 +83,9 @@ pub struct Coupon {
     pub max_uses_per_customer: Option<u32>,
 
     /* ----- validity window --------------------------------------- */
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub valid_from: DateTime<Utc>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub valid_until: Option<DateTime<Utc>>,
 
     /* ----- applicability scopes (empty = "any") ------------------ */
@@ -163,6 +164,7 @@ pub struct LoyaltyProgram {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct GiftCardRedemption {
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub at: DateTime<Utc>,
     pub amount: f64,
     /// FK to the sale / invoice the redemption was applied to (if any).
@@ -194,7 +196,7 @@ pub struct GiftCard {
     /// Remaining balance after redemptions.
     pub balance: f64,
     pub currency: String,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub expiry: Option<DateTime<Utc>>,
 
     /// Whether the card can be reassigned to another recipient after

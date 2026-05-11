@@ -34,7 +34,9 @@ pub struct Exit {
     pub employee_id: ObjectId,
     #[serde(default)]
     pub exit_type: ExitType,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub notice_start: DateTime<Utc>,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub last_day: DateTime<Utc>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub fnf_amount: Option<f64>,
@@ -116,14 +118,14 @@ pub struct Announcement {
     pub audience: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub audience_value: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub scheduled_for: Option<DateTime<Utc>>,
     /// "email" | "slack" | "in_app"
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub channels: Vec<String>,
     #[serde(default)]
     pub sent: bool,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub sent_at: Option<DateTime<Utc>>,
 }
 
@@ -135,6 +137,7 @@ pub struct Announcement {
 #[serde(rename_all = "camelCase")]
 pub struct PolicyAcknowledgement {
     pub employee_id: ObjectId,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub acknowledged_at: DateTime<Utc>,
 }
 
@@ -150,6 +153,7 @@ pub struct Policy {
     pub version: String,
     /// SabFiles file id with the canonical PDF.
     pub file_id: ObjectId,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub effective_from: DateTime<Utc>,
     #[serde(default)]
     pub requires_acknowledgement: bool,

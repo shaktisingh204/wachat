@@ -77,6 +77,7 @@ pub struct StockAdjustment {
     /* ----- system-issued doc number + dates ---------------------- */
     /// System-generated adjustment number (e.g. `ADJ-2026-00042`).
     pub adjustment_no: String,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub date: DateTime<Utc>,
 
     /* ----- scope ------------------------------------------------- */

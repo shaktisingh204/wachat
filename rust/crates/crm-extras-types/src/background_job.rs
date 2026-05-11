@@ -55,6 +55,7 @@ pub enum JobStatus {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct JobLogEntry {
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub at: DateTime<Utc>,
     /// `"info" | "warn" | "error" | "debug"`.
     pub level: String,
@@ -84,9 +85,9 @@ pub struct BackgroundJob {
     pub retry_count: u32,
     #[serde(default)]
     pub max_retries: u32,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub last_run_at: Option<DateTime<Utc>>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub next_run_at: Option<DateTime<Utc>>,
     #[serde(default)]
     pub status: JobStatus,

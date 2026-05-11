@@ -52,8 +52,9 @@ pub struct GstSlab {
 
     pub rate_pct: f32,
     pub description: String,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub effective_from: DateTime<Utc>,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
     pub effective_until: Option<DateTime<Utc>>,
 }
 
@@ -102,6 +103,7 @@ pub struct GstrReturn {
     pub kind: String,
     /// Period in `YYYY-MM` form (annual returns use `YYYY`).
     pub period: String,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub generated_at: DateTime<Utc>,
     /// SabFiles id of the generated JSON / PDF.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -132,6 +134,7 @@ pub struct ItcLedgerEntry {
     /// Source document kind (`"bill"`, `"debit_note"`, …).
     pub source_doc_kind: String,
     pub source_doc_id: ObjectId,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub posted_at: DateTime<Utc>,
 }
 
@@ -165,6 +168,7 @@ pub struct MsmeAlert {
 
     pub vendor_id: ObjectId,
     pub bill_id: ObjectId,
+    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub due_date: DateTime<Utc>,
     pub days_overdue: u32,
     /// `"warning" | "escalated" | "resolved"`.
