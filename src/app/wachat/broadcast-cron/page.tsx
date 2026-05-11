@@ -29,7 +29,7 @@ import {
 
 import { useProject } from '@/context/project-context';
 import { useZoruToast } from '@/components/zoruui';
-import { getTemplates } from '@/app/actions/index.ts';
+import { getTemplates } from '@/app/actions/template.actions';
 import { startCronBroadcast } from '@/app/actions/broadcast.actions';
 import type { Template, Tag } from '@/lib/definitions';
 import type { WithId } from 'mongodb';

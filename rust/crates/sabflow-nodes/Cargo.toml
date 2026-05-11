@@ -36,5 +36,7 @@ base64 = "0.22"
 sabnode-common = { path = "../common" }
 sabnode-db = { path = "../db" }
 
+urlencoding = "2"
+
 [lints]
 workspace = true
