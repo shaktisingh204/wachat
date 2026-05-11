@@ -120,6 +120,33 @@ export function ProjectProvider({
         return () => { cancelled = true; };
     }, [activeProjectId, user?._id]);
 
+    // Self-hydrate the active project. The SSR seed (`initialProjects`)
+    // can lag behind reality — recently-changed projects, projects added
+    // after the layout mounted, or projects the cached list does not
+    // include yet — leaving `activeProject` either stale or null even
+    // though the project exists in Mongo. Refetch on every activeProjectId
+    // change so consumers (broadcast form, cron, etc.) get fresh
+    // phoneNumbers / tags / settings without each page hand-rolling its
+    // own fetch.
+    useEffect(() => {
+        if (!activeProjectId) return;
+        let cancelled = false;
+        startProjectLoad(async () => {
+            const projectData = await getProjectById(activeProjectId);
+            if (cancelled || !projectData) return;
+            setProjects(prev => {
+                const idx = prev.findIndex(
+                    p => p._id.toString() === projectData._id.toString(),
+                );
+                if (idx === -1) return [...prev, projectData];
+                const next = [...prev];
+                next[idx] = projectData;
+                return next;
+            });
+        });
+        return () => { cancelled = true; };
+    }, [activeProjectId]);
+
     return (
         <ProjectContext.Provider value={{ projects, setProjects, activeProject, activeProjectId, activeProjectName, isLoadingProject, sessionUser: user, effectivePermissions, setActiveProjectId, reloadProject, reloadProjects }}>
             {children}
