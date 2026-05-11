@@ -6,7 +6,7 @@ import {
   LuTrash2,
   LuCable,
   LuKey,
-  LuLoader2,
+  LuLoader,
   LuX,
   LuEye,
   LuEyeOff,
@@ -224,7 +224,7 @@ function AddCredentialModal({
                   : 'bg-zinc-100 text-zinc-900 hover:bg-white',
               )}
             >
-              {saving && <LuLoader2 className="w-3.5 h-3.5 animate-spin" />}
+              {saving && <LuLoader className="w-3.5 h-3.5 animate-spin" />}
               {saving ? 'Saving…' : 'Save credential'}
             </button>
           </div>
@@ -287,7 +287,7 @@ export default function SabFlowConnectionsPage() {
         {/* Table / Empty */}
         {loading ? (
           <div className="flex items-center justify-center py-24">
-            <LuLoader2 className="w-6 h-6 text-zinc-500 animate-spin" />
+            <LuLoader className="w-6 h-6 text-zinc-500 animate-spin" />
           </div>
         ) : credentials.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 text-center">
@@ -340,7 +340,7 @@ export default function SabFlowConnectionsPage() {
                         className="opacity-0 group-hover:opacity-100 transition-opacity text-zinc-500 hover:text-red-400 disabled:cursor-not-allowed"
                       >
                         {deleting === cred.id ? (
-                          <LuLoader2 className="w-4 h-4 animate-spin" />
+                          <LuLoader className="w-4 h-4 animate-spin" />
                         ) : (
                           <LuTrash2 className="w-4 h-4" />
                         )}

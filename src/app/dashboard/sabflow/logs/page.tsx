@@ -23,11 +23,11 @@ interface ExecutionRow {
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 const STATUS_STYLES: Record<string, { label: string; cls: string; Icon: React.ElementType }> = {
-  success:   { label: 'Success',   cls: 'bg-green-500/15 text-green-400',   Icon: LuCheckCircle },
-  error:     { label: 'Error',     cls: 'bg-red-500/15 text-red-400',       Icon: LuXCircle },
-  running:   { label: 'Running',   cls: 'bg-blue-500/15 text-blue-400',     Icon: LuLoader2 },
+  success:   { label: 'Success',   cls: 'bg-green-500/15 text-green-400',   Icon: LuCircleCheck },
+  error:     { label: 'Error',     cls: 'bg-red-500/15 text-red-400',       Icon: LuCircleX },
+  running:   { label: 'Running',   cls: 'bg-blue-500/15 text-blue-400',     Icon: LuLoader },
   queued:    { label: 'Queued',    cls: 'bg-zinc-500/15 text-zinc-400',     Icon: LuClock },
-  cancelled: { label: 'Cancelled', cls: 'bg-yellow-500/15 text-yellow-400', Icon: LuXCircle },
+  cancelled: { label: 'Cancelled', cls: 'bg-yellow-500/15 text-yellow-400', Icon: LuCircleX },
 };
 
 function formatDuration(ms?: number | null): string {
@@ -105,7 +105,7 @@ function ExecutionDetail({ executionId, onClose }: { executionId: string; onClos
       <div className="flex-1 overflow-y-auto p-5 space-y-4">
         {!record ? (
           <div className="flex items-center gap-2 text-zinc-500 text-sm">
-            <LuLoader2 className="w-4 h-4 animate-spin" />
+            <LuLoader className="w-4 h-4 animate-spin" />
             Connecting…
           </div>
         ) : (
@@ -221,7 +221,7 @@ export default function SabFlowLogsPage() {
                 className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-zinc-100 text-zinc-900 text-sm font-medium hover:bg-white transition-colors disabled:opacity-50"
               >
                 {triggering === flowIdFilter ? (
-                  <LuLoader2 className="w-4 h-4 animate-spin" />
+                  <LuLoader className="w-4 h-4 animate-spin" />
                 ) : (
                   <LuPlay className="w-4 h-4" />
                 )}
@@ -241,7 +241,7 @@ export default function SabFlowLogsPage() {
         {/* Table */}
         {loading ? (
           <div className="flex items-center justify-center py-24">
-            <LuLoader2 className="w-6 h-6 text-zinc-500 animate-spin" />
+            <LuLoader className="w-6 h-6 text-zinc-500 animate-spin" />
           </div>
         ) : executions.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 text-center">

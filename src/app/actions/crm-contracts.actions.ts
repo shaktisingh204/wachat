@@ -1,9 +1,30 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { ObjectId } from 'mongodb';
+import { ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
+
+export async function getContractById(
+  contractId: string,
+): Promise<WithId<Record<string, unknown>> | null> {
+  const session = await getSession();
+  if (!session?.user) return null;
+  if (!ObjectId.isValid(contractId)) return null;
+
+  try {
+    const { db } = await connectToDatabase();
+    const contract = await db.collection('crm_contracts').findOne({
+      _id: new ObjectId(contractId),
+      userId: new ObjectId(session.user._id as string),
+    });
+    if (!contract) return null;
+    return JSON.parse(JSON.stringify(contract));
+  } catch (e) {
+    console.error('Failed to fetch contract by id:', e);
+    return null;
+  }
+}
 
 export async function saveContract(
   _prev: any,

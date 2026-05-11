@@ -1,30 +1,32 @@
 /**
  * Award program detail page.
  *
- * Server component sibling of the awards list page. Renders the program
- * name header with a status badge, a period range card, the criteria
- * description, a nominations table, and a winners table when present.
+ * Server component. Loads a single document from `crm_award_programs`
+ * and renders a "Program Details" card (2-column grid) with status badge,
+ * nomination / winner counts, optional points/cash values, and a full-width
+ * criteria / description row when present.
+ *
+ * Redirects to /dashboard/hrm/hr/awards when there is no session or the
+ * document is not found.
  */
 
-import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { ObjectId } from 'mongodb';
-import { ArrowLeft, Trophy } from 'lucide-react';
+export const dynamic = 'force-dynamic';
 
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/zoruui';
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { ObjectId } from 'mongodb';
+import { ArrowLeft, Trophy, PlusCircle } from 'lucide-react';
+
+import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
+import { CrmPageHeader } from '../../../../crm/_components/crm-page-header';
 import { getAwardProgramById } from '@/app/actions/crm-awards.actions';
 import { getSession } from '@/app/actions/user.actions';
+
+const AWARDS_LIST_HREF = '/dashboard/hrm/hr/awards';
+
+/* ------------------------------------------------------------------ */
+/* Helpers                                                              */
+/* ------------------------------------------------------------------ */
 
 function fmtDate(v: unknown): string {
     if (!v) return '—';
@@ -32,45 +34,48 @@ function fmtDate(v: unknown): string {
     return isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
 }
 
-function fmtMoney(n: unknown): string {
-    if (typeof n !== 'number' || Number.isNaN(n)) return '—';
-    return n.toLocaleString(undefined, {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-    });
+function fmtINR(n: unknown): string {
+    if (typeof n !== 'number' || isNaN(n)) return '—';
+    try {
+        return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(n);
+    } catch {
+        return `₹${n}`;
+    }
 }
 
-function statusVariant(status?: string): 'ghost' | 'success' | 'warning' | 'danger' {
+function statusVariant(status?: string): 'success' | 'ghost' | 'warning' | 'danger' {
     const s = (status || '').toLowerCase();
-    if (s === 'active' || s === 'published' || s === 'approved' || s === 'won')
-        return 'success';
-    if (s === 'draft' || s === 'pending') return 'ghost';
-    if (s === 'rejected' || s === 'cancelled' || s === 'closed') return 'danger';
-    return 'warning';
+    if (s === 'active') return 'success';
+    if (s === 'draft') return 'ghost';
+    if (s === 'paused') return 'warning';
+    if (s === 'closed' || s === 'archived') return 'danger';
+    return 'ghost';
 }
 
-function idToString(v: unknown): string {
-    if (!v) return '';
-    if (typeof v === 'string') return v;
-    if (typeof (v as any).toString === 'function') return (v as any).toString();
-    return '';
+/* ------------------------------------------------------------------ */
+/* Row helper for the details grid                                      */
+/* ------------------------------------------------------------------ */
+
+function DetailRow({
+    label,
+    children,
+    fullWidth = false,
+}: {
+    label: string;
+    children: React.ReactNode;
+    fullWidth?: boolean;
+}) {
+    return (
+        <div className={fullWidth ? 'col-span-2' : undefined}>
+            <div className="text-[12px] text-zoru-ink-muted">{label}</div>
+            <div className="mt-0.5 text-[13px] text-zoru-ink">{children}</div>
+        </div>
+    );
 }
 
-interface Nomination {
-    nomineeId?: unknown;
-    nomineeName?: string;
-    nominatedById?: unknown;
-    nominatedByName?: string;
-    score?: number;
-    status?: string;
-}
-
-interface Winner {
-    employeeId?: unknown;
-    employeeName?: string;
-    awardDate?: string | Date;
-    payout?: number;
-}
+/* ------------------------------------------------------------------ */
+/* Page                                                                 */
+/* ------------------------------------------------------------------ */
 
 export default async function AwardProgramDetailPage({
     params,
@@ -80,25 +85,25 @@ export default async function AwardProgramDetailPage({
     const { programId } = await params;
 
     const session = await getSession();
-    if (!session?.user) notFound();
-    if (!ObjectId.isValid(programId)) notFound();
+    if (!session?.user) redirect(AWARDS_LIST_HREF);
+
+    if (!ObjectId.isValid(programId)) redirect(AWARDS_LIST_HREF);
 
     const program = await getAwardProgramById(programId);
-    if (!program) {
-        notFound();
-    }
+    if (!program) redirect(AWARDS_LIST_HREF);
 
-    const name = ((program as any).name as string) || 'Untitled program';
-    const status = ((program as any).status as string) || 'draft';
-    const periodStart = (program as any).periodStart;
-    const periodEnd = (program as any).periodEnd;
-    const criteria = ((program as any).criteria as string) || '';
-    const nominations: Nomination[] = Array.isArray((program as any).nominations)
-        ? ((program as any).nominations as Nomination[])
-        : [];
-    const winners: Winner[] = Array.isArray((program as any).winners)
-        ? ((program as any).winners as Winner[])
-        : [];
+    const p = program as Record<string, unknown>;
+
+    const name = (p.name as string) || 'Untitled Program';
+    const type = (p.type as string) || '—';
+    const frequency = (p.frequency as string) || '—';
+    const status = (p.status as string) || 'draft';
+    const nominations = Array.isArray(p.nominations) ? p.nominations.length : 0;
+    const winners = Array.isArray(p.winners) ? p.winners.length : 0;
+    const pointsValue = typeof p.pointsValue === 'number' ? p.pointsValue : null;
+    const cashValue = typeof p.cashValue === 'number' ? p.cashValue : null;
+    const createdAt = p.createdAt;
+    const criteria = (p.criteria as string) || (p.description as string) || '';
 
     return (
         <div className="flex w-full flex-col gap-6">
@@ -107,139 +112,50 @@ export default async function AwardProgramDetailPage({
                 subtitle="Award program detail"
                 icon={Trophy}
                 actions={
-                    <Link href="/dashboard/hrm/hr/awards">
-                        <ZoruButton variant="outline">
-                            <ArrowLeft className="h-4 w-4" />
-                            Back
+                    <div className="flex items-center gap-2">
+                        <Link href={AWARDS_LIST_HREF}>
+                            <ZoruButton variant="outline">
+                                <ArrowLeft className="h-4 w-4" />
+                                Back
+                            </ZoruButton>
+                        </Link>
+                        <ZoruButton variant="outline" disabled>
+                            <PlusCircle className="h-4 w-4" />
+                            Add Nomination
                         </ZoruButton>
-                    </Link>
+                    </div>
                 }
             />
 
             <ZoruCard className="p-6">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                        <h2 className="text-[16px] text-zoru-ink">{name}</h2>
-                        <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
-                            {nominations.length} nomination
-                            {nominations.length === 1 ? '' : 's'} • {winners.length} winner
-                            {winners.length === 1 ? '' : 's'}
-                        </p>
-                    </div>
+                <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+                    <h2 className="text-[15px] font-medium text-zoru-ink">Program Details</h2>
                     <ZoruBadge variant={statusVariant(status)}>{status}</ZoruBadge>
                 </div>
 
-                <div className="mt-4 rounded-md border border-zoru-line bg-zoru-surface-2 p-4">
-                    <div className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
-                        Period
-                    </div>
-                    <div className="mt-1 text-[16px] text-zoru-ink">
-                        {fmtDate(periodStart)}
-                        <span className="text-zoru-ink-muted"> – </span>
-                        {fmtDate(periodEnd)}
-                    </div>
+                <div className="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
+                    <DetailRow label="Program Name">{name}</DetailRow>
+                    <DetailRow label="Program Type">{type}</DetailRow>
+                    <DetailRow label="Cycle / Frequency">{frequency}</DetailRow>
+                    <DetailRow label="Nominations">{nominations}</DetailRow>
+                    <DetailRow label="Winners">{winners}</DetailRow>
+
+                    {pointsValue !== null && (
+                        <DetailRow label="Points Value">{pointsValue}</DetailRow>
+                    )}
+
+                    {cashValue !== null && (
+                        <DetailRow label="Cash Value">{fmtINR(cashValue)}</DetailRow>
+                    )}
+
+                    <DetailRow label="Created">{fmtDate(createdAt)}</DetailRow>
+
+                    {criteria ? (
+                        <DetailRow label="Criteria / Description" fullWidth>
+                            <span className="whitespace-pre-line">{criteria}</span>
+                        </DetailRow>
+                    ) : null}
                 </div>
-
-                {criteria && (
-                    <div className="mt-4">
-                        <div className="text-[12.5px] text-zoru-ink-muted">Criteria</div>
-                        <div className="mt-1 text-[13px] text-zoru-ink whitespace-pre-line">
-                            {criteria}
-                        </div>
-                    </div>
-                )}
-            </ZoruCard>
-
-            <ZoruCard className="p-6">
-                <div className="mb-2 text-[14px] text-zoru-ink">Nominations</div>
-                {nominations.length === 0 ? (
-                    <div className="text-[13px] text-zoru-ink-muted">No nominations yet.</div>
-                ) : (
-                    <div className="overflow-x-auto rounded-lg border border-zoru-line">
-                        <ZoruTable>
-                            <ZoruTableHeader>
-                                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                    <ZoruTableHead className="text-zoru-ink-muted">Nominee</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Nominated by</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Score</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
-                                {nominations.map((n, i) => {
-                                    const nominee =
-                                        n.nomineeName || idToString(n.nomineeId) || '—';
-                                    const nominator =
-                                        n.nominatedByName || idToString(n.nominatedById) || '—';
-                                    return (
-                                        <ZoruTableRow
-                                            key={`nomination-${i}`}
-                                            className="border-zoru-line"
-                                        >
-                                            <ZoruTableCell className="text-zoru-ink">
-                                                {nominee}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-zoru-ink">
-                                                {nominator}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-zoru-ink">
-                                                {typeof n.score === 'number' ? n.score : '—'}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
-                                                <ZoruBadge variant={statusVariant(n.status)}>
-                                                    {n.status || 'pending'}
-                                                </ZoruBadge>
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
-                                    );
-                                })}
-                            </ZoruTableBody>
-                        </ZoruTable>
-                    </div>
-                )}
-            </ZoruCard>
-
-            <ZoruCard className="p-6">
-                <div className="mb-2 text-[14px] text-zoru-ink">Winners</div>
-                {winners.length === 0 ? (
-                    <div className="text-[13px] text-zoru-ink-muted">
-                        No winners declared yet.
-                    </div>
-                ) : (
-                    <div className="overflow-x-auto rounded-lg border border-zoru-line">
-                        <ZoruTable>
-                            <ZoruTableHeader>
-                                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                    <ZoruTableHead className="text-zoru-ink-muted">Employee</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Award date</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Payout</ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
-                                {winners.map((w, i) => {
-                                    const employee =
-                                        w.employeeName || idToString(w.employeeId) || '—';
-                                    return (
-                                        <ZoruTableRow
-                                            key={`winner-${i}`}
-                                            className="border-zoru-line"
-                                        >
-                                            <ZoruTableCell className="text-zoru-ink">
-                                                {employee}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-zoru-ink">
-                                                {fmtDate(w.awardDate)}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-zoru-ink">
-                                                {fmtMoney(w.payout)}
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
-                                    );
-                                })}
-                            </ZoruTableBody>
-                        </ZoruTable>
-                    </div>
-                )}
             </ZoruCard>
         </div>
     );

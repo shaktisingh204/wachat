@@ -1,14 +1,18 @@
 /**
- * Fixed asset detail page.
+ * Fixed asset detail page — server component.
  *
- * Server component sibling of the fixed-assets list page. Renders the
- * asset code + name header with a status badge, a 2-col metadata grid
- * (category, cost, purchased, method, useful life, custodian, location),
- * and a depreciation summary card with accumulated depreciation + NBV.
+ * Renders two ZoruCards:
+ *   1. Asset Details — code, name, category, purchase date, supplier,
+ *      cost, location, custodian, status badge.
+ *   2. Depreciation & Lifecycle — method, useful life, residual value,
+ *      accumulated depreciation, computed NBV, warranty expiry,
+ *      insurance expiry, notes (full-width if present).
+ *
+ * Guards: getSession() redirect + ObjectId.isValid + not-found redirect.
  */
 
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { redirect } from 'next/navigation';
 import { ObjectId } from 'mongodb';
 import { ArrowLeft, Building2 } from 'lucide-react';
 
@@ -17,35 +21,51 @@ import { CrmPageHeader } from '../../_components/crm-page-header';
 import { getFixedAssetById } from '@/app/actions/crm-fixed-assets.actions';
 import { getSession } from '@/app/actions/user.actions';
 
+export const dynamic = 'force-dynamic';
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
 function fmtDate(v: unknown): string {
     if (!v) return '—';
     const d = new Date(v as any);
-    return isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+    return isNaN(d.getTime()) ? '—' : d.toLocaleDateString('en-IN');
 }
 
-function fmtMoney(n: unknown): string {
+function fmtINR(n: unknown): string {
     if (typeof n !== 'number' || Number.isNaN(n)) return '—';
-    return n.toLocaleString(undefined, {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-    });
+    try {
+        return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(n);
+    } catch {
+        return `INR ${n.toFixed(2)}`;
+    }
 }
 
-function statusVariant(status?: string): 'ghost' | 'success' | 'warning' | 'danger' {
-    const s = (status || '').toLowerCase();
-    if (s === 'active' || s === 'in_use' || s === 'approved') return 'success';
-    if (s === 'draft' || s === 'pending') return 'ghost';
-    if (s === 'disposed' || s === 'retired' || s === 'cancelled' || s === 'lost')
-        return 'danger';
-    return 'warning';
+function statusVariant(status?: string): 'success' | 'warning' | 'danger' | 'ghost' {
+    switch ((status ?? '').toLowerCase()) {
+        case 'active':
+        case 'in_use':
+            return 'success';
+        case 'retired':
+        case 'sold':
+            return 'danger';
+        case 'under_maintenance':
+            return 'warning';
+        default:
+            return 'ghost';
+    }
 }
 
-function idToString(v: unknown): string {
-    if (!v) return '';
-    if (typeof v === 'string') return v;
-    if (typeof (v as any).toString === 'function') return (v as any).toString();
-    return '';
+function methodLabel(method?: string): string {
+    if (!method) return '—';
+    const map: Record<string, string> = { slm: 'SLM', wdv: 'WDV', units: 'Units' };
+    return map[method.toLowerCase()] ?? method.toUpperCase();
 }
+
+// ---------------------------------------------------------------------------
+// Page
+// ---------------------------------------------------------------------------
 
 export default async function FixedAssetDetailPage({
     params,
@@ -55,34 +75,39 @@ export default async function FixedAssetDetailPage({
     const { assetId } = await params;
 
     const session = await getSession();
-    if (!session?.user) notFound();
-    if (!ObjectId.isValid(assetId)) notFound();
+    if (!session?.user) redirect('/dashboard/crm/fixed-assets');
+    if (!ObjectId.isValid(assetId)) redirect('/dashboard/crm/fixed-assets');
 
     const asset = await getFixedAssetById(assetId);
-    if (!asset) {
-        notFound();
-    }
+    if (!asset) redirect('/dashboard/crm/fixed-assets');
 
-    const assetCode = ((asset as any).assetCode as string) || '';
-    const name = ((asset as any).name as string) || 'Untitled asset';
-    const category = ((asset as any).category as string) || '—';
-    const cost = (asset as any).cost as number | undefined;
-    const residualValue = (asset as any).residualValue as number | undefined;
-    const depreciationMethod = ((asset as any).depreciationMethod as string) || '—';
-    const usefulLifeMonths = (asset as any).usefulLifeMonths as number | undefined;
-    const purchaseDate = (asset as any).purchaseDate;
-    const status = ((asset as any).status as string) || 'draft';
-    const custodian =
-        ((asset as any).custodianName as string) ||
-        idToString((asset as any).custodianId) ||
-        '—';
-    const location = ((asset as any).location as string) || '—';
-    const warranty = (asset as any).warranty;
-    const insurance = (asset as any).insurance;
-    const accumulatedDepreciation = (asset as any).accumulatedDepreciation as
-        | number
-        | undefined;
-    const nbv = (asset as any).nbv as number | undefined;
+    // -----------------------------------------------------------------------
+    // Field extraction
+    // -----------------------------------------------------------------------
+    const a = asset as Record<string, unknown>;
+
+    const assetCode = (a.assetCode as string) || '';
+    const name = (a.name as string) || 'Untitled asset';
+    const category = (a.category as string) || '—';
+    const purchaseDate = a.purchaseDate;
+    const supplierName = (a.supplierName as string) || '—';
+    const cost = typeof a.cost === 'number' ? a.cost : undefined;
+    const location = (a.location as string) || '—';
+    const custodianName = (a.custodianName as string) || '—';
+    const status = (a.status as string) || 'active';
+
+    const depreciationMethod = (a.depreciationMethod as string) || undefined;
+    const usefulLifeMonths = typeof a.usefulLifeMonths === 'number' ? a.usefulLifeMonths : undefined;
+    const residualValue = typeof a.residualValue === 'number' ? a.residualValue : undefined;
+    const accumulatedDepreciation =
+        typeof a.accumulatedDepreciation === 'number' ? a.accumulatedDepreciation : undefined;
+    const nbv =
+        typeof cost === 'number' && typeof accumulatedDepreciation === 'number'
+            ? cost - accumulatedDepreciation
+            : undefined;
+    const warrantyExpiry = a.warrantyExpiry;
+    const insuranceExpiry = a.insuranceExpiry;
+    const notes = (a.notes as string) || '';
 
     const headerTitle = assetCode ? `${assetCode} · ${name}` : name;
 
@@ -93,51 +118,76 @@ export default async function FixedAssetDetailPage({
                 subtitle="Fixed asset detail"
                 icon={Building2}
                 actions={
-                    <Link href="/dashboard/crm/fixed-assets">
-                        <ZoruButton variant="outline">
-                            <ArrowLeft className="h-4 w-4" />
-                            Back
+                    <div className="flex items-center gap-2">
+                        <Link href="/dashboard/crm/fixed-assets">
+                            <ZoruButton variant="outline">
+                                <ArrowLeft className="h-4 w-4" />
+                                Back
+                            </ZoruButton>
+                        </Link>
+                        <ZoruButton variant="outline" disabled>
+                            Record Depreciation
                         </ZoruButton>
-                    </Link>
+                    </div>
                 }
             />
 
+            {/* Card 1: Asset Details */}
             <ZoruCard className="p-6">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                        <h2 className="text-[16px] text-zoru-ink">{headerTitle}</h2>
-                        <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
-                            Purchased {fmtDate(purchaseDate)}
-                            {category !== '—' ? ` • ${category}` : ''}
-                        </p>
-                    </div>
+                <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+                    <h2 className="text-[15px] font-medium text-zoru-ink">Asset Details</h2>
                     <ZoruBadge variant={statusVariant(status)}>{status}</ZoruBadge>
                 </div>
 
-                <div className="mt-4 grid grid-cols-1 gap-3 text-[13px] sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
+                    <div>
+                        <div className="text-zoru-ink-muted">Asset Code</div>
+                        <div className="text-zoru-ink">{assetCode || '—'}</div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Asset Name</div>
+                        <div className="text-zoru-ink">{name}</div>
+                    </div>
                     <div>
                         <div className="text-zoru-ink-muted">Category</div>
                         <div className="text-zoru-ink">{category}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Cost</div>
-                        <div className="text-zoru-ink">{fmtMoney(cost)}</div>
-                        {typeof residualValue === 'number' && (
-                            <div className="mt-0.5 text-[11.5px] text-zoru-ink-muted">
-                                Residual {fmtMoney(residualValue)}
-                            </div>
-                        )}
-                    </div>
-                    <div>
-                        <div className="text-zoru-ink-muted">Purchased</div>
+                        <div className="text-zoru-ink-muted">Purchase Date</div>
                         <div className="text-zoru-ink">{fmtDate(purchaseDate)}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Method</div>
-                        <div className="text-zoru-ink">{depreciationMethod}</div>
+                        <div className="text-zoru-ink-muted">Supplier</div>
+                        <div className="text-zoru-ink">{supplierName}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Useful life</div>
+                        <div className="text-zoru-ink-muted">Purchase Cost</div>
+                        <div className="text-zoru-ink">{fmtINR(cost)}</div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Location</div>
+                        <div className="text-zoru-ink">{location}</div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Custodian</div>
+                        <div className="text-zoru-ink">{custodianName}</div>
+                    </div>
+                </div>
+            </ZoruCard>
+
+            {/* Card 2: Depreciation & Lifecycle */}
+            <ZoruCard className="p-6">
+                <h2 className="mb-4 text-[15px] font-medium text-zoru-ink">
+                    Depreciation &amp; Lifecycle
+                </h2>
+
+                <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
+                    <div>
+                        <div className="text-zoru-ink-muted">Depreciation Method</div>
+                        <div className="text-zoru-ink">{methodLabel(depreciationMethod)}</div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Useful Life</div>
                         <div className="text-zoru-ink">
                             {typeof usefulLifeMonths === 'number'
                                 ? `${usefulLifeMonths} months`
@@ -145,60 +195,32 @@ export default async function FixedAssetDetailPage({
                         </div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Custodian</div>
-                        <div className="text-zoru-ink">{custodian}</div>
+                        <div className="text-zoru-ink-muted">Residual Value</div>
+                        <div className="text-zoru-ink">{fmtINR(residualValue)}</div>
                     </div>
                     <div>
-                        <div className="text-zoru-ink-muted">Location</div>
-                        <div className="text-zoru-ink">{location}</div>
+                        <div className="text-zoru-ink-muted">Accumulated Depreciation</div>
+                        <div className="text-zoru-ink">{fmtINR(accumulatedDepreciation)}</div>
                     </div>
-                </div>
-
-                {(warranty || insurance) && (
-                    <div className="mt-4 grid grid-cols-1 gap-3 text-[13px] sm:grid-cols-2">
-                        {warranty && (
-                            <div className="rounded-md border border-zoru-line bg-zoru-surface-2 p-3">
-                                <div className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
-                                    Warranty
-                                </div>
-                                <div className="mt-1 text-zoru-ink">
-                                    {(warranty as any).provider || '—'}
-                                </div>
-                                <div className="text-[11.5px] text-zoru-ink-muted">
-                                    Until {fmtDate((warranty as any).expiresAt)}
-                                </div>
-                            </div>
-                        )}
-                        {insurance && (
-                            <div className="rounded-md border border-zoru-line bg-zoru-surface-2 p-3">
-                                <div className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
-                                    Insurance
-                                </div>
-                                <div className="mt-1 text-zoru-ink">
-                                    {(insurance as any).provider || '—'}
-                                </div>
-                                <div className="text-[11.5px] text-zoru-ink-muted">
-                                    Until {fmtDate((insurance as any).expiresAt)}
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                )}
-            </ZoruCard>
-
-            <ZoruCard className="p-6">
-                <div className="text-[14px] text-zoru-ink">Depreciation</div>
-                <div className="mt-3 grid grid-cols-1 gap-3 text-[13px] sm:grid-cols-2">
                     <div>
-                        <div className="text-zoru-ink-muted">Accumulated depreciation</div>
-                        <div className="text-[18px] text-zoru-ink">
-                            {fmtMoney(accumulatedDepreciation)}
+                        <div className="text-zoru-ink-muted">Net Book Value</div>
+                        <div className="text-zoru-ink">{fmtINR(nbv)}</div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Warranty Expiry</div>
+                        <div className="text-zoru-ink">{fmtDate(warrantyExpiry)}</div>
+                    </div>
+                    <div>
+                        <div className="text-zoru-ink-muted">Insurance Expiry</div>
+                        <div className="text-zoru-ink">{fmtDate(insuranceExpiry)}</div>
+                    </div>
+
+                    {notes && (
+                        <div className="sm:col-span-2">
+                            <div className="text-zoru-ink-muted">Notes</div>
+                            <div className="mt-0.5 whitespace-pre-wrap text-zoru-ink">{notes}</div>
                         </div>
-                    </div>
-                    <div>
-                        <div className="text-zoru-ink-muted">Net book value (NBV)</div>
-                        <div className="text-[18px] text-zoru-ink">{fmtMoney(nbv)}</div>
-                    </div>
+                    )}
                 </div>
             </ZoruCard>
         </div>
