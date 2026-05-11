@@ -1,5 +1,6 @@
-import { Layers } from 'lucide-react';
+import { Layers, Plus } from 'lucide-react';
 import { ObjectId } from 'mongodb';
+import Link from 'next/link';
 
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import {
@@ -82,8 +83,10 @@ export default async function BomPage() {
         subtitle="Recipes that map a finished good to its component inputs and output quantity."
         icon={Layers}
         actions={
-          <ZoruButton variant="outline" size="sm">
-            New BOM
+          <ZoruButton variant="outline" size="sm" asChild>
+            <Link href="/dashboard/crm/inventory/bom/new">
+              <Plus className="h-4 w-4" /> New BOM
+            </Link>
           </ZoruButton>
         }
       />

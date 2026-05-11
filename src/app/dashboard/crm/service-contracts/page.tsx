@@ -1,5 +1,6 @@
-import { Wrench } from 'lucide-react';
+import { Plus, Wrench } from 'lucide-react';
 import { ObjectId } from 'mongodb';
+import Link from 'next/link';
 
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import {
@@ -82,8 +83,10 @@ export default async function ServiceContractsPage() {
         subtitle="Annual maintenance contracts with coverage and visit frequency."
         icon={Wrench}
         actions={
-          <ZoruButton variant="outline" size="sm">
-            New contract
+          <ZoruButton variant="outline" size="sm" asChild>
+            <Link href="/dashboard/crm/service-contracts/new">
+              <Plus className="h-4 w-4" /> New contract
+            </Link>
           </ZoruButton>
         }
       />

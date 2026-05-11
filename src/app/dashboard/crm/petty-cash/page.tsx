@@ -1,5 +1,6 @@
-import { Wallet } from 'lucide-react';
+import { Wallet, Plus } from 'lucide-react';
 import { ObjectId } from 'mongodb';
+import Link from 'next/link';
 
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import {
@@ -78,8 +79,10 @@ export default async function PettyCashPage() {
         subtitle="Branch and employee cash floats with top-ups, spends and reconciliation."
         icon={Wallet}
         actions={
-          <ZoruButton variant="outline" size="sm">
-            New float
+          <ZoruButton variant="outline" size="sm" asChild>
+            <Link href="/dashboard/crm/petty-cash/new">
+              <Plus className="h-4 w-4" /> New float
+            </Link>
           </ZoruButton>
         }
       />
