@@ -103,9 +103,20 @@ export function BotDetailDrawer({
     const reload = React.useCallback(async () => {
         if (!botId) return;
         setLoading(true);
-        const res = await getTelegramBotAction(botId);
-        if (res.bot) setBot(res.bot);
-        setLoading(false);
+        try {
+            const res = await getTelegramBotAction(botId);
+            // `res.bot` may be undefined if the Rust BFF is unavailable and
+            // the Mongo fallback can't find the row either. Either way the
+            // skeleton must come down — the panel-level UI can surface an
+            // empty state on its own.
+            setBot(res.bot ?? null);
+        } catch {
+            // Server action failures already log on the server side. Don't
+            // leave the drawer stuck on the skeleton.
+            setBot(null);
+        } finally {
+            setLoading(false);
+        }
     }, [botId]);
 
     React.useEffect(() => {
@@ -156,8 +167,12 @@ export function BotDetailDrawer({
                                         @{bot.username}
                                         <ExternalLink className="h-3 w-3" aria-hidden />
                                     </a>
-                                ) : (
+                                ) : loading ? (
                                     'Loading…'
+                                ) : (
+                                    <span className="text-[12px] text-zoru-ink-muted">
+                                        Bot details unavailable
+                                    </span>
                                 )}
                             </ZoruSheetDescription>
                         </div>
