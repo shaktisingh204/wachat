@@ -58,3 +58,60 @@ export async function saveProductionOrder(
     return { error: `Failed to create production order: ${msg}` };
   }
 }
+
+export async function getProductionOrderById(
+  orderId: string,
+): Promise<Record<string, any> | null> {
+  if (!ObjectId.isValid(orderId)) return null;
+  const session = await getSession();
+  if (!session?.user?._id) return null;
+  const { db } = await connectToDatabase();
+  const doc = await db.collection('crm_production_orders').findOne({
+    _id: new ObjectId(orderId),
+    userId: new ObjectId(session.user._id as string),
+  } as any);
+  return doc ? JSON.parse(JSON.stringify(doc)) : null;
+}
+
+export async function updateProductionOrderYield(
+  _prev: any,
+  formData: FormData,
+): Promise<{ message?: string; error?: string }> {
+  const session = await getSession();
+  if (!session?.user) return { error: 'Access denied.' };
+
+  const orderId = (formData.get('orderId') as string | null)?.trim() || '';
+  if (!ObjectId.isValid(orderId)) return { error: 'Invalid order ID.' };
+
+  const actualYieldRaw = formData.get('actualYield');
+  const actualYield = actualYieldRaw ? parseFloat(actualYieldRaw as string) : NaN;
+  if (isNaN(actualYield) || actualYield < 0) return { error: 'Valid actual yield is required.' };
+
+  const status = (formData.get('status') as string | null) || undefined;
+  const notes = (formData.get('notes') as string | null)?.trim() || undefined;
+
+  try {
+    const { db } = await connectToDatabase();
+    const result = await db.collection('crm_production_orders').updateOne(
+      {
+        _id: new ObjectId(orderId),
+        userId: new ObjectId(session.user._id as string),
+      } as any,
+      {
+        $set: {
+          actualYield,
+          ...(status ? { status } : {}),
+          ...(notes !== undefined ? { notes } : {}),
+          updatedAt: new Date(),
+        },
+      },
+    );
+    if (result.matchedCount === 0) return { error: 'Order not found.' };
+    revalidatePath(`/dashboard/crm/inventory/production-orders/${orderId}`);
+    revalidatePath('/dashboard/crm/inventory/production-orders');
+    return { message: 'Yield updated successfully.' };
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : 'Unknown error';
+    return { error: `Failed to update yield: ${msg}` };
+  }
+}

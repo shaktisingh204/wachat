@@ -60,6 +60,7 @@ use telegram_flows::TelegramFlowsState;
 use telegram_mini_apps::TelegramMiniAppsState;
 use telegram_ads::TelegramAdsState;
 use sabflow_engine::SabflowEngineState;
+use sabflow_engine_runtime::SabflowRuntimeState;
 use wachat_projects::WachatProjectsState;
 use wachat_public_api::{ApiKeyVerifier, PublicApiState};
 use wachat_send_router::WachatSendState;
@@ -131,6 +132,7 @@ pub struct AppState {
     pub telegram_mini_apps: TelegramMiniAppsState,
     pub telegram_ads: TelegramAdsState,
     pub sabflow: SabflowEngineState,
+    pub sabflow_runtime: SabflowRuntimeState,
     pub ready: Arc<AtomicBool>,
 }
 
@@ -256,6 +258,7 @@ impl AppState {
             telegram_mini_apps,
             telegram_ads,
             sabflow,
+            sabflow_runtime: SabflowRuntimeState::new(),
             ready: Arc::new(AtomicBool::new(false)),
         }
     }
@@ -614,5 +617,11 @@ impl FromRef<AppState> for TelegramAdsState {
 impl FromRef<AppState> for SabflowEngineState {
     fn from_ref(s: &AppState) -> Self {
         s.sabflow.clone()
+    }
+}
+
+impl FromRef<AppState> for SabflowRuntimeState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabflow_runtime.clone()
     }
 }

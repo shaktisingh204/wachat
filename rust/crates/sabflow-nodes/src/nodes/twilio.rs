@@ -136,17 +136,13 @@ impl Node for TwilioNode {
         let body: Value = match (resource.as_str(), operation.as_str()) {
             // SMS / MMS send share the same Messages.json endpoint
             ("sms", "send") | ("mms", "send") => {
-                let from = ctx.substitute(&ctx.param_str(params, "from")?);
-                let to = ctx.substitute(&ctx.param_str(params, "to")?);
-                let message_body = ctx
-                    .param_str_opt(params, "body")
-                    .map(|s| ctx.substitute(&s))
-                    .unwrap_or_default();
+                let from = ctx.param_str(params, "from")?;
+                let to = ctx.param_str(params, "to")?;
+                let message_body = ctx.param_str_opt(params, "body").unwrap_or_default();
                 let mut form: Vec<(&str, String)> =
                     vec![("From", from), ("To", to), ("Body", message_body)];
                 if resource == "mms" {
                     if let Some(media) = ctx.param_str_opt(params, "mediaUrl") {
-                        let media = ctx.substitute(&media);
                         if !media.trim().is_empty() {
                             form.push(("MediaUrl", media));
                         }
@@ -155,7 +151,7 @@ impl Node for TwilioNode {
                 post_form(ctx, &account_sid, &auth_token, "Messages.json", &form).await?
             }
             ("sms", "get") | ("mms", "get") => {
-                let sid = ctx.substitute(&ctx.param_str(params, "messageSid")?);
+                let sid = ctx.param_str(params, "messageSid")?;
                 let path = format!("Messages/{sid}.json");
                 get_json(ctx, &account_sid, &auth_token, &path).await?
             }
@@ -163,15 +159,15 @@ impl Node for TwilioNode {
                 get_json(ctx, &account_sid, &auth_token, "Messages.json").await?
             }
             ("call", "make") => {
-                let from = ctx.substitute(&ctx.param_str(params, "from")?);
-                let to = ctx.substitute(&ctx.param_str(params, "to")?);
-                let url = ctx.substitute(&ctx.param_str(params, "url")?);
+                let from = ctx.param_str(params, "from")?;
+                let to = ctx.param_str(params, "to")?;
+                let url = ctx.param_str(params, "url")?;
                 let form: Vec<(&str, String)> =
                     vec![("From", from), ("To", to), ("Url", url)];
                 post_form(ctx, &account_sid, &auth_token, "Calls.json", &form).await?
             }
             ("call", "get") => {
-                let sid = ctx.substitute(&ctx.param_str(params, "callSid")?);
+                let sid = ctx.param_str(params, "callSid")?;
                 let path = format!("Calls/{sid}.json");
                 get_json(ctx, &account_sid, &auth_token, &path).await?
             }

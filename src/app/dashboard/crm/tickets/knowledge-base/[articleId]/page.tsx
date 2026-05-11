@@ -80,7 +80,7 @@ export default async function KbArticleDetailPage({
                 Back
               </ZoruButton>
             </Link>
-            <Link href="/dashboard/crm/tickets/knowledge-base/new">
+            <Link href={`/dashboard/crm/tickets/knowledge-base/${article._id}/edit`}>
               <ZoruButton variant="outline">Edit</ZoruButton>
             </Link>
           </div>

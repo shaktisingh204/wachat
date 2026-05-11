@@ -198,6 +198,10 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/telegram/mini-apps", telegram_mini_apps_router)
         .nest("/v1/telegram/ads", telegram_ads_router)
         .nest("/v1/sabflow", sabflow_engine::router::<AppState>())
+        .nest("/v1/sabflow", sabflow_engine_runtime::router::<AppState>())
+        // sabflow_webhooks::router mounts at /v1/sabflow/webhook but its state
+        // (SabflowWebhooksState) is not yet wired into AppState — public
+        // webhook URL is served by Next.js at /api/sabflow/webhook/[webhookId].
         .nest("/v1", v1)
         .with_state(state)
         .layer(SetRequestIdLayer::new(

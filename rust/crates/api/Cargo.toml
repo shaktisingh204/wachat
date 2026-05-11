@@ -122,6 +122,7 @@ url-shortener = { path = "../url-shortener" }
 ad-manager = { path = "../ad-manager" }
 facebook-flow = { path = "../facebook-flow" }
 sabflow-engine = { path = "../sabflow-engine" }
+sabflow-engine-runtime = { path = "../sabflow-engine-runtime" }
 
 axum = "0.8"
 tokio = { version = "1", features = ["full"] }
