@@ -173,12 +173,12 @@ export default function BroadcastCronPage() {
   /* Add an entry to the queue */
   const handleAdd = () => {
     setAddError('');
-    if (!selectedTemplate) {
-      setAddError('Pick a template above before adding entries.');
-      return;
-    }
     if (!phoneNumberId) {
       setAddError('Choose a phone number.');
+      return;
+    }
+    if (!selectedTemplate) {
+      setAddError('Pick a template.');
       return;
     }
     if (audienceType === 'tags' && selectedTagIds.length === 0) {
@@ -390,202 +390,16 @@ export default function BroadcastCronPage() {
         </div>
       </div>
 
-      {/* ── Composer form (template + vars + create-contacts) ────── */}
-      <form ref={composerRef} className="flex flex-col gap-6">
-        {/* Hidden plumbing for handleStartBroadcast */}
-        <input
-          type="hidden"
-          name="projectId"
-          value={activeProjectId ?? ''}
-        />
-        <input type="hidden" name="broadcastType" value="template" />
-        <input
-          type="hidden"
-          name="createContacts"
-          value={createContacts ? 'true' : 'false'}
-        />
-
-        <section className="flex flex-col gap-4">
-          <div className="flex items-end justify-between gap-4">
-            <div>
-              <h2 className="text-[18px] tracking-tight text-zoru-ink leading-none">
-                Template
-              </h2>
-              <p className="mt-1 text-[12px] text-zoru-ink-muted">
-                One template per cron run. Add entries to the queue below to
-                lock it in.
-              </p>
-            </div>
-            {templateLocked && (
-              <span className="text-[11px] text-zoru-ink-muted">
-                Clear the queue to switch template.
-              </span>
-            )}
-          </div>
-          <ZoruSelect
-            name="templateId"
-            value={selectedTemplate?._id.toString() || ''}
-            onValueChange={handleTemplateChange}
-            disabled={isLoadingTemplates || templateLocked}
-          >
-            <ZoruSelectTrigger>
-              <ZoruSelectValue
-                placeholder={
-                  isLoadingTemplates
-                    ? 'Loading templates…'
-                    : 'Choose an approved template…'
-                }
-              />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              {approvedTemplates.length === 0 ? (
-                <div className="px-2 py-4 text-center text-[12px] text-zoru-ink-muted">
-                  No approved templates. Sync with Meta or create one.
-                </div>
-              ) : (
-                approvedTemplates.map((t) => (
-                  <ZoruSelectItem key={t._id.toString()} value={t._id.toString()}>
-                    {t.name}
-                    <span className="ml-2 text-[11px] capitalize text-zoru-ink-muted">
-                      {t.status
-                        ? t.status.replace(/_/g, ' ').toLowerCase()
-                        : 'n/a'}
-                    </span>
-                  </ZoruSelectItem>
-                ))
-              )}
-            </ZoruSelectContent>
-          </ZoruSelect>
-        </section>
-
-        {/* Template variables — same renderer as the broadcast composer */}
-        {selectedTemplate && (
-          <section className="flex flex-col gap-3">
-            <h2 className="text-[18px] tracking-tight text-zoru-ink leading-none">
-              Template variables
-            </h2>
-            <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-5">
-              <TemplateInputRenderer
-                template={selectedTemplate}
-                variableOptions={TAG_VARIABLE_HINTS}
-              />
-            </div>
-          </section>
-        )}
-
-        {/* Create contacts toggle */}
-        <div className="flex items-center gap-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-5 py-3">
-          <label className="flex items-center gap-2.5 cursor-pointer select-none">
-            <input
-              type="checkbox"
-              checked={createContacts}
-              onChange={(e) => setCreateContacts(e.target.checked)}
-              className="h-4 w-4 rounded border-zoru-line text-zoru-accent focus:ring-zoru-accent"
-            />
-            <span className="text-[12px] font-medium text-zoru-ink">
-              Create contacts in CRM
-            </span>
-          </label>
-          <span className="text-[10.5px] text-zoru-ink-muted">
-            {createContacts
-              ? 'Recipients not already in your CRM will be added.'
-              : 'Off — only existing contacts are updated.'}
-          </span>
+      {/* ── Add Entry ─────────────────────────────────────────────── */}
+      <section className="flex flex-col gap-3">
+        <div>
+          <h2 className="text-[16px] font-medium text-zoru-ink leading-none">
+            1 · Add entry
+          </h2>
+          <p className="mt-1.5 text-[12px] text-zoru-ink-muted">
+            Pick a phone number, then the template, then this entry's audience.
+          </p>
         </div>
-      </form>
-
-      {/* ── Queue ────────────────────────────────────────────────── */}
-      <section>
-        <h2 className="text-[18px] tracking-tight text-zoru-ink leading-none mb-4">
-          Broadcast Queue
-        </h2>
-        {queue.length === 0 ? (
-          <ZoruEmptyState
-            icon={<Timer />}
-            title="Queue is empty"
-            description="Add phone + audience pairs below, then hit Start Cron to fire them all."
-          />
-        ) : (
-          <ZoruCard className="p-0 overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead>
-                <tr className="border-b border-zoru-line text-[11px] uppercase tracking-wide text-zoru-ink-muted">
-                  <th className="px-5 py-3">Phone Number</th>
-                  <th className="px-5 py-3">Audience</th>
-                  <th className="px-5 py-3">Status</th>
-                  <th className="px-5 py-3 text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {queue.map((entry) => (
-                  <tr
-                    key={entry.id}
-                    className="border-b border-zoru-line last:border-0"
-                  >
-                    <td className="px-5 py-3 text-[13px] text-zoru-ink">
-                      {entry.phoneLabel}
-                    </td>
-                    <td className="px-5 py-3">
-                      {entry.audienceType === 'tags' ? (
-                        <div className="flex flex-wrap gap-1">
-                          {entry.tagNames.map((name) => (
-                            <span
-                              key={name}
-                              className="inline-flex items-center gap-1 rounded-full bg-zoru-surface-2 px-2 py-0.5 text-[11px] text-zoru-ink"
-                            >
-                              <TagIcon className="h-2.5 w-2.5" />
-                              {name}
-                            </span>
-                          ))}
-                        </div>
-                      ) : (
-                        <span className="inline-flex items-center gap-1.5 text-[12px] text-zoru-ink-muted">
-                          <FileText className="h-3 w-3" />
-                          {entry.csvFile?.name ?? 'file'}
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-5 py-3">
-                      <div className="flex flex-col gap-0.5">
-                        <ZoruBadge variant={statusVariant(entry.status)}>
-                          {entry.status === 'starting' && (
-                            <Loader2 className="h-2.5 w-2.5 animate-spin" />
-                          )}
-                          {statusLabel(entry.status)}
-                        </ZoruBadge>
-                        {entry.error && (
-                          <span className="text-[10.5px] text-zoru-danger leading-tight max-w-[260px]">
-                            {entry.error}
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-5 py-3 text-right">
-                      {entry.status === 'pending' && (
-                        <ZoruButton
-                          variant="ghost"
-                          size="icon-sm"
-                          onClick={() => handleRemove(entry.id)}
-                          aria-label="Remove"
-                          className="text-zoru-danger hover:bg-zoru-danger/10 hover:text-zoru-danger"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </ZoruButton>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </ZoruCard>
-        )}
-      </section>
-
-      {/* ── Add to Queue ─────────────────────────────────────────── */}
-      <section>
-        <h2 className="text-[18px] tracking-tight text-zoru-ink leading-none mb-4">
-          Add to Queue
-        </h2>
         <ZoruCard className="p-6">
           <div className="grid gap-5 sm:grid-cols-2">
             {/* Phone number */}
@@ -613,32 +427,77 @@ export default function BroadcastCronPage() {
               </ZoruSelect>
             </div>
 
-            {/* Audience type */}
+            {/* Template — global; locks once any row is queued. */}
             <div className="flex flex-col gap-1.5">
-              <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
-                Audience <span className="text-zoru-danger">*</span>
-              </ZoruLabel>
-              <ZoruRadioGroup
-                value={audienceType}
-                onValueChange={(v) => setAudienceType(v as AudienceKind)}
-                className="flex gap-2"
+              <div className="flex items-center justify-between">
+                <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
+                  Template <span className="text-zoru-danger">*</span>
+                </ZoruLabel>
+                {templateLocked && (
+                  <span className="text-[10px] text-zoru-ink-muted">
+                    Locked · clear queue to switch
+                  </span>
+                )}
+              </div>
+              <ZoruSelect
+                value={selectedTemplate?._id.toString()}
+                onValueChange={handleTemplateChange}
+                disabled={isLoadingTemplates || templateLocked}
               >
-                <AudienceOption
-                  value="tags"
-                  id="cron-aud-tags"
-                  label="From tags"
-                  description="Existing segments"
-                  active={audienceType === 'tags'}
-                />
-                <AudienceOption
-                  value="file"
-                  id="cron-aud-file"
-                  label="Upload file"
-                  description="CSV or XLSX"
-                  active={audienceType === 'file'}
-                />
-              </ZoruRadioGroup>
+                <ZoruSelectTrigger>
+                  <ZoruSelectValue
+                    placeholder={
+                      isLoadingTemplates
+                        ? 'Loading templates…'
+                        : 'Choose an approved template…'
+                    }
+                  />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                  {approvedTemplates.length === 0 ? (
+                    <div className="px-2 py-4 text-center text-[12px] text-zoru-ink-muted">
+                      No approved templates. Sync with Meta or create one.
+                    </div>
+                  ) : (
+                    approvedTemplates.map((t) => (
+                      <ZoruSelectItem
+                        key={t._id.toString()}
+                        value={t._id.toString()}
+                      >
+                        {t.name}
+                      </ZoruSelectItem>
+                    ))
+                  )}
+                </ZoruSelectContent>
+              </ZoruSelect>
             </div>
+          </div>
+
+          {/* Audience type */}
+          <div className="mt-5 flex flex-col gap-1.5">
+            <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
+              Audience <span className="text-zoru-danger">*</span>
+            </ZoruLabel>
+            <ZoruRadioGroup
+              value={audienceType}
+              onValueChange={(v) => setAudienceType(v as AudienceKind)}
+              className="flex gap-2"
+            >
+              <AudienceOption
+                value="tags"
+                id="cron-aud-tags"
+                label="From tags"
+                description="Existing segments"
+                active={audienceType === 'tags'}
+              />
+              <AudienceOption
+                value="file"
+                id="cron-aud-file"
+                label="Upload file"
+                description="CSV or XLSX"
+                active={audienceType === 'file'}
+              />
+            </ZoruRadioGroup>
           </div>
 
           {/* Audience inputs */}
@@ -806,18 +665,177 @@ export default function BroadcastCronPage() {
 
           <div className="mt-5 flex items-center justify-between border-t border-zoru-line pt-4">
             <p className="text-[12px] text-zoru-ink-muted">
-              Each entry sends the same template (with the variables and media
-              you set above) from the chosen number to the chosen audience.
+              Each entry sends the chosen template (with variables and media
+              set in the cards below) from this number to the chosen audience.
             </p>
-            <ZoruButton
-              onClick={handleAdd}
-              disabled={!activeProjectId || !selectedTemplate}
-            >
+            <ZoruButton onClick={handleAdd} disabled={!activeProjectId}>
               Add to Queue
             </ZoruButton>
           </div>
         </ZoruCard>
       </section>
+
+      {/* ── Queue ────────────────────────────────────────────────── */}
+      <section className="flex flex-col gap-3">
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <h2 className="text-[16px] font-medium text-zoru-ink leading-none">
+              2 · Broadcast queue
+            </h2>
+            <p className="mt-1.5 text-[12px] text-zoru-ink-muted">
+              Each entry fires the chosen template from its phone number to its
+              own audience.
+            </p>
+          </div>
+          {queue.length > 0 && (
+            <span className="text-[11.5px] text-zoru-ink-muted">
+              {pendingCount} pending · {queue.length} total
+            </span>
+          )}
+        </div>
+        {queue.length === 0 ? (
+          <ZoruEmptyState
+            icon={<Timer />}
+            title="Queue is empty"
+            description="Use the form above to add phone + audience pairs, then hit Start Cron."
+          />
+        ) : (
+          <ZoruCard className="p-0 overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="border-b border-zoru-line text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                  <th className="px-5 py-3">Phone Number</th>
+                  <th className="px-5 py-3">Audience</th>
+                  <th className="px-5 py-3">Status</th>
+                  <th className="px-5 py-3 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {queue.map((entry) => (
+                  <tr
+                    key={entry.id}
+                    className="border-b border-zoru-line last:border-0"
+                  >
+                    <td className="px-5 py-3 text-[13px] text-zoru-ink">
+                      {entry.phoneLabel}
+                    </td>
+                    <td className="px-5 py-3">
+                      {entry.audienceType === 'tags' ? (
+                        <div className="flex flex-wrap gap-1">
+                          {entry.tagNames.map((name) => (
+                            <span
+                              key={name}
+                              className="inline-flex items-center gap-1 rounded-full bg-zoru-surface-2 px-2 py-0.5 text-[11px] text-zoru-ink"
+                            >
+                              <TagIcon className="h-2.5 w-2.5" />
+                              {name}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 text-[12px] text-zoru-ink-muted">
+                          <FileText className="h-3 w-3" />
+                          {entry.csvFile?.name ?? 'file'}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-5 py-3">
+                      <div className="flex flex-col gap-0.5">
+                        <ZoruBadge variant={statusVariant(entry.status)}>
+                          {entry.status === 'starting' && (
+                            <Loader2 className="h-2.5 w-2.5 animate-spin" />
+                          )}
+                          {statusLabel(entry.status)}
+                        </ZoruBadge>
+                        {entry.error && (
+                          <span className="text-[10.5px] text-zoru-danger leading-tight max-w-[260px]">
+                            {entry.error}
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-5 py-3 text-right">
+                      {entry.status === 'pending' && (
+                        <ZoruButton
+                          variant="ghost"
+                          size="icon-sm"
+                          onClick={() => handleRemove(entry.id)}
+                          aria-label="Remove"
+                          className="text-zoru-danger hover:bg-zoru-danger/10 hover:text-zoru-danger"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </ZoruButton>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </ZoruCard>
+        )}
+      </section>
+
+      {/* ── Composer form: hidden plumbing + template variables + options ── */}
+      <form ref={composerRef} className="flex flex-col gap-5">
+        <input
+          type="hidden"
+          name="projectId"
+          value={activeProjectId ?? ''}
+        />
+        <input type="hidden" name="broadcastType" value="template" />
+        <input
+          type="hidden"
+          name="createContacts"
+          value={createContacts ? 'true' : 'false'}
+        />
+        <input
+          type="hidden"
+          name="templateId"
+          value={selectedTemplate?._id.toString() ?? ''}
+        />
+
+        {/* Template variables — visible once a template is picked above. */}
+        {selectedTemplate && (
+          <ZoruCard className="p-6">
+            <div className="flex flex-col gap-4">
+              <div>
+                <h2 className="text-[16px] font-medium text-zoru-ink leading-none">
+                  Template variables
+                </h2>
+                <p className="mt-1.5 text-[12px] text-zoru-ink-muted">
+                  These values apply to every entry queued above.
+                </p>
+              </div>
+              <TemplateInputRenderer
+                template={selectedTemplate}
+                variableOptions={TAG_VARIABLE_HINTS}
+              />
+            </div>
+          </ZoruCard>
+        )}
+
+        {/* Options */}
+        <ZoruCard className="p-5">
+          <label className="flex items-start gap-3 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={createContacts}
+              onChange={(e) => setCreateContacts(e.target.checked)}
+              className="mt-0.5 h-4 w-4 rounded border-zoru-line text-zoru-accent focus:ring-zoru-accent"
+            />
+            <div className="flex flex-col">
+              <span className="text-[13px] font-medium text-zoru-ink">
+                Create contacts in CRM
+              </span>
+              <span className="mt-0.5 text-[11.5px] text-zoru-ink-muted">
+                {createContacts
+                  ? 'New recipients will be added to your CRM as they receive this broadcast.'
+                  : 'Off — only existing contacts will be updated.'}
+              </span>
+            </div>
+          </label>
+        </ZoruCard>
+      </form>
 
       <div className="h-6" />
     </div>

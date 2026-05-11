@@ -15,6 +15,7 @@ common = { package = "sabnode-common", path = "../common" }
 sabnode-auth = { path = "../auth" }
 sabnode-db = { path = "../db" }
 sabnode-users = { path = "../users" }
+sabnode-admin = { path = "../admin" }
 sabnode-observability = { path = "../observability" }
 
 wachat-webhook = { path = "../wachat-webhook" }
