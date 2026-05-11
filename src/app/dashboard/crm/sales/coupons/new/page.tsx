@@ -18,7 +18,7 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { saveCoupon } from '@/app/actions/crm-coupons.actions';
 
 export const dynamic = 'force-dynamic';

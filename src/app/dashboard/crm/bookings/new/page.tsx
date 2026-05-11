@@ -15,7 +15,7 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
-import { CrmPageHeader } from '../_components/crm-page-header';
+import { CrmPageHeader } from '../../_components/crm-page-header';
 import { saveBooking } from '@/app/actions/crm-bookings.actions';
 
 const initialState = { message: '', error: '' };
