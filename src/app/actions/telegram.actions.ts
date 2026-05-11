@@ -699,9 +699,12 @@ export type { ChannelRow as TelegramChannelRow }
 import type { ChannelRow as TelegramChannelRowType }
     from '@/lib/rust-client/telegram-channels';
 
-export async function listTelegramChannels(botId: string): Promise<TelegramChannelRowType[]> {
+export async function listTelegramChannels(
+    projectId: string,
+    botId?: string,
+): Promise<TelegramChannelRowType[]> {
     try {
-        const res = await rustClient.telegramChannels.list(botId);
+        const res = await rustClient.telegramChannels.list({ projectId, botId });
         if (res.error) return [];
         return res.channels ?? [];
     } catch (err) {

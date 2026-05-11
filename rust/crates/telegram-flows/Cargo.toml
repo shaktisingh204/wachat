@@ -2,7 +2,7 @@
 name = "telegram-flows"
 version = "0.1.0"
 edition = "2024"
-description = "Telegram quick-reply / flow shortcuts CRUD."
+description = "Telegram-scoped visual flow CRUD (graph + triggers + runs)."
 license = "UNLICENSED"
 publish = false
 

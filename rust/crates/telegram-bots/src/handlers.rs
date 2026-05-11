@@ -1048,13 +1048,15 @@ pub async fn set_name(
         return err_ack(err_msg(e));
     }
     if body.language_code.is_none() {
-        let bots = s.mongo.collection::<Document>(BOTS_COLLECTION);
-        let _ = bots
-            .update_one(
-                doc! { "_id": bot.get_object_id("_id").unwrap_or_default() },
-                doc! { "$set": { "name": &body.name, "updatedAt": bson::DateTime::now() } },
-            )
-            .await;
+        if let Ok(oid) = bot.get_object_id("_id") {
+            let bots = s.mongo.collection::<Document>(BOTS_COLLECTION);
+            let _ = bots
+                .update_one(
+                    doc! { "_id": oid },
+                    doc! { "$set": { "name": &body.name, "updatedAt": bson::DateTime::now() } },
+                )
+                .await;
+        }
     }
     ok_ack(Some("Name updated.".to_owned()), Some(bot_id))
 }

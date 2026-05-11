@@ -31,7 +31,7 @@ use axum::{
     response::{IntoResponse, Response},
 };
 use bson::{Document, doc, oid::ObjectId};
-use chrono::{DateTime, Duration, TimeZone, Utc};
+use chrono::{DateTime, Duration, Utc};
 use futures::TryStreamExt;
 use sabnode_auth::AuthUser;
 use sabnode_db::mongo::MongoHandle;
@@ -389,10 +389,24 @@ async fn resolve_bot_filter(
     Ok(Some(bot_oid))
 }
 
+/// Scope filter for sibling collections (`telegram_messages`, `_chats`,
+/// `_broadcasts`, `_invoices`, `_auto_replies`) whose docs carry both
+/// `projectId` and `botId`.
 fn scope_doc(project_oid: ObjectId, bot_oid: Option<ObjectId>) -> Document {
     let mut d = doc! { "projectId": project_oid };
     if let Some(b) = bot_oid {
         d.insert("botId", b);
+    }
+    d
+}
+
+/// Scope filter for the `telegram_bots` collection itself, where the
+/// bot's primary key is `_id` (not `botId`). Use this instead of
+/// `scope_doc` for any query that targets `telegram_bots`.
+fn bots_scope_doc(project_oid: ObjectId, bot_oid: Option<ObjectId>) -> Document {
+    let mut d = doc! { "projectId": project_oid };
+    if let Some(b) = bot_oid {
+        d.insert("_id", b);
     }
     d
 }
@@ -442,18 +456,15 @@ pub async fn overview(
     let lost_cutoff = bson::DateTime::from_chrono(Utc::now() - Duration::days(30));
 
     // ---- bots: total / active / errored ----
-    let bots_scope = scope_doc(project_oid, bot_oid);
+    // Bot-scope filter uses `_id` for the `telegram_bots` collection.
+    let bots_filter = bots_scope_doc(project_oid, bot_oid);
     let bots_total = s
         .mongo
         .collection::<Document>(BOTS)
-        .count_documents(bots_scope.clone())
+        .count_documents(bots_filter.clone())
         .await
         .unwrap_or(0) as i64;
-    let mut active_filter = bots_scope.clone();
-    if !bot_oid.is_some() {
-        // when filtering by botId, the bot is "the" bot; otherwise count
-        // bots flagged isActive (default true).
-    }
+    let mut active_filter = bots_filter.clone();
     active_filter.insert("isActive", doc! { "$ne": false });
     let bots_active = s
         .mongo
@@ -461,7 +472,7 @@ pub async fn overview(
         .count_documents(active_filter)
         .await
         .unwrap_or(0) as i64;
-    let mut errored_filter = bots_scope.clone();
+    let mut errored_filter = bots_filter.clone();
     errored_filter.insert(
         "webhookInfo.lastErrorMessage",
         doc! { "$exists": true, "$nin": [bson::Bson::Null, bson::Bson::String(String::new())] },
@@ -472,6 +483,10 @@ pub async fn overview(
         .count_documents(errored_filter)
         .await
         .unwrap_or(0) as i64;
+
+    // Sibling-collection scope uses `botId` and applies to messages,
+    // chats, broadcasts, invoices, and auto-reply rules.
+    let bots_scope = scope_doc(project_oid, bot_oid);
 
     // ---- messages: in / out / by-day ----
     let messages_match = {
@@ -1503,17 +1518,16 @@ async fn overview_payload(
     user: &AuthUser,
     project_oid: ObjectId,
     bot_oid: Option<ObjectId>,
-    _from: DateTime<Utc>,
-    _to: DateTime<Utc>,
+    from: DateTime<Utc>,
+    to: DateTime<Utc>,
 ) -> OverviewResp {
-    // Cheap rebuild: call the same handler logic with synthesised query.
-    let project_hex = project_oid.to_hex();
-    let bot_hex = bot_oid.map(|o| o.to_hex());
+    // Cheap rebuild: call the same handler logic with a synthesised query
+    // that mirrors the caller's date range and bot scope.
     let q = RangeQuery {
-        project_id: Some(project_hex),
-        from: None,
-        to: None,
-        bot_id: bot_hex,
+        project_id: Some(project_oid.to_hex()),
+        from: Some(from.to_rfc3339()),
+        to: Some(to.to_rfc3339()),
+        bot_id: bot_oid.map(|o| o.to_hex()),
     };
     let state = TelegramAnalyticsState::new(mongo.clone());
     let Json(resp) = overview(user.clone(), State(state), Query(q)).await;
@@ -1708,8 +1722,3 @@ pub async fn bot_analytics(
     })
 }
 
-// Keep the `TimeZone` import used by the legacy DateTime helpers.
-#[allow(dead_code)]
-fn _silence_imports(_b: bson::DateTime) -> DateTime<Utc> {
-    Utc.timestamp_millis_opt(0).single().unwrap_or_else(Utc::now)
-}

@@ -190,36 +190,36 @@ fn empty_list(err_msg: Option<String>) -> ListResp {
 
 fn build_list_filter(project_oid: ObjectId, q: &ListQuery) -> Document {
     let mut filter = doc! { "projectId": project_oid };
-    if let Some(s) = q.status.as_deref()
-        && s != "all"
-        && !s.is_empty()
-    {
-        filter.insert("status", s);
+    if let Some(s) = q.status.as_deref() {
+        if s != "all" && !s.is_empty() {
+            filter.insert("status", s);
+        }
     }
-    if let Some(search) = q.search.as_deref()
-        && !search.trim().is_empty()
-    {
-        let escaped = regex::escape(search.trim());
-        let regex = doc! { "$regex": escaped, "$options": "i" };
-        filter.insert(
-            "$or",
-            vec![
-                doc! { "name": regex.clone() },
-                doc! { "notes": regex.clone() },
-                doc! { "platformId": regex },
-            ],
-        );
+    if let Some(search) = q.search.as_deref() {
+        let trimmed = search.trim();
+        if !trimmed.is_empty() {
+            let escaped = regex::escape(trimmed);
+            let regex = doc! { "$regex": escaped, "$options": "i" };
+            filter.insert(
+                "$or",
+                vec![
+                    doc! { "name": regex.clone() },
+                    doc! { "notes": regex.clone() },
+                    doc! { "platformId": regex },
+                ],
+            );
+        }
     }
     let mut created_range = doc! {};
-    if let Some(from) = q.created_from.as_deref()
-        && let Some(d) = parse_iso(from)
-    {
-        created_range.insert("$gte", bson::DateTime::from_millis(d.timestamp_millis()));
+    if let Some(from) = q.created_from.as_deref() {
+        if let Some(d) = parse_iso(from) {
+            created_range.insert("$gte", bson::DateTime::from_millis(d.timestamp_millis()));
+        }
     }
-    if let Some(to) = q.created_to.as_deref()
-        && let Some(d) = parse_iso(to)
-    {
-        created_range.insert("$lte", bson::DateTime::from_millis(d.timestamp_millis()));
+    if let Some(to) = q.created_to.as_deref() {
+        if let Some(d) = parse_iso(to) {
+            created_range.insert("$lte", bson::DateTime::from_millis(d.timestamp_millis()));
+        }
     }
     if !created_range.is_empty() {
         filter.insert("createdAt", created_range);

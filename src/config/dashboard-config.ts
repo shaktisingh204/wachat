@@ -56,6 +56,7 @@ export const wachatMenuItems: MenuItem[] = [
     { href: '/wachat/chat', label: 'Live Chat', icon: MessageSquare, roles: ['owner', 'admin', 'agent'], permissionKey: 'wachat_chat' },
     { href: '/wachat/contacts', label: 'Contacts', icon: Users, roles: ['owner', 'admin', 'agent'], permissionKey: 'wachat_contacts' },
     { href: '/wachat/broadcasts', label: 'Campaigns', icon: Send, roles: ['owner', 'admin'], permissionKey: 'wachat_campaigns' },
+    { href: '/wachat/broadcast-cron', label: 'Broadcast Cron', icon: Calendar, roles: ['owner', 'admin'], permissionKey: 'wachat_broadcast_cron' },
     { href: '/wachat/templates', label: 'Templates', icon: BookCopy, roles: ['owner', 'admin'], permissionKey: 'wachat_templates' },
     // Automate
     { href: '/wachat/flow-builder', label: 'Flow Builder', icon: GitFork, roles: ['owner', 'admin'], permissionKey: 'wachat_flow_builder' },

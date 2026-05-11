@@ -84,7 +84,7 @@ pub struct StickerRow {
     pub sab_file_id: Option<String>,
 }
 
-#[derive(Debug, Clone, Default, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct SetRow {
     pub _id: String,
     #[serde(rename = "projectId")]

@@ -3,7 +3,7 @@
 //! function in `lib.rs` and the BFF endpoints can share it.
 
 use bson::Document;
-use chrono::Datelike;
+use chrono::{Datelike, Timelike};
 use regex::RegexBuilder;
 use serde_json::Value;
 
@@ -354,8 +354,6 @@ pub fn evaluate_rule(rule: &Value, probe: &Probe) -> EvalOutcome {
     });
     EvalOutcome { matched: true, steps }
 }
-
-use chrono::Timelike;
 
 /// Compute a quick keyword set for the conflict detector. Keyword and
 /// contains_any rules report their normalised needles; exact and

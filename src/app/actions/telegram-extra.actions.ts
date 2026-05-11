@@ -10,9 +10,9 @@
 import { rustClient, RustApiError } from '@/lib/rust-client';
 import type { OverviewResp, BotAnalyticsResp } from '@/lib/rust-client/telegram-analytics';
 import type {
-  CreateBody as PaymentCreateBody,
+  InvoiceLinkBody as PaymentLinkBody,
   InvoiceRow,
-  RefundBody,
+  RefundPaymentBody,
 } from '@/lib/rust-client/telegram-payments';
 import type {
   CampaignRow as AdsCampaignRow,
@@ -41,7 +41,21 @@ import type {
   ReplyRow as FlowReplyRow,
   UpsertBody as FlowUpsertBody,
 } from '@/lib/rust-client/telegram-flows';
-import type { MiniAppEntry } from '@/lib/rust-client/telegram-mini-apps';
+import type {
+  MiniAppEntry,
+  ListQuery as MiniAppsListQuery,
+  ListResp as MiniAppsListResp,
+  DetailResp as MiniAppsDetailResp,
+  UpsertBody as MiniAppsUpsertBody,
+  SendBody as MiniAppsSendBody,
+  SendResp as MiniAppsSendResp,
+  SetMenuButtonBody as MiniAppsSetMenuButtonBody,
+  ValidateInitDataBody as MiniAppsValidateInitDataBody,
+  ValidateInitDataResp as MiniAppsValidateInitDataResp,
+  SessionsResp as MiniAppsSessionsResp,
+  AnalyticsQuery as MiniAppsAnalyticsQuery,
+  AnalyticsResp as MiniAppsAnalyticsResp,
+} from '@/lib/rust-client/telegram-mini-apps';
 import type {
   ListBotsParams,
   ListBotsResp,
@@ -90,10 +104,14 @@ export async function getBotAnalyticsAction(
 }
 
 // -- Payments ----------------------------------------------------------
+//
+// The Telegram Payments BFF is now multi-tenant and template-driven —
+// these legacy wrappers preserve the action surface but route through
+// the new project-scoped client.
 
-export async function listTelegramInvoicesAction(botId: string): Promise<InvoiceRow[]> {
+export async function listTelegramInvoicesAction(projectId: string): Promise<InvoiceRow[]> {
   try {
-    const res = await rustClient.telegramPayments.list(botId);
+    const res = await rustClient.telegramPayments.listInvoices(projectId);
     return res.invoices ?? [];
   } catch (e) {
     if (e instanceof RustApiError) return [];
@@ -101,9 +119,9 @@ export async function listTelegramInvoicesAction(botId: string): Promise<Invoice
   }
 }
 
-export async function createTelegramInvoiceAction(body: PaymentCreateBody) {
+export async function createTelegramInvoiceAction(body: PaymentLinkBody) {
   try {
-    return await rustClient.telegramPayments.create(body);
+    return await rustClient.telegramPayments.createInvoiceLink(body);
   } catch (e) {
     if (e instanceof RustApiError)
       return { success: false, error: e.message };
@@ -111,9 +129,12 @@ export async function createTelegramInvoiceAction(body: PaymentCreateBody) {
   }
 }
 
-export async function refundTelegramStarAction(body: RefundBody) {
+export async function refundTelegramStarAction(
+  paymentId: string,
+  body: RefundPaymentBody,
+) {
   try {
-    return await rustClient.telegramPayments.refund(body);
+    return await rustClient.telegramPayments.refundPayment(paymentId, body);
   } catch (e) {
     if (e instanceof RustApiError)
       return { success: false, error: e.message };
@@ -183,35 +204,32 @@ export async function cancelTelegramStoryAction(postId: string, botId: string) {
   }
 }
 
-// -- Flows (quick replies) ---------------------------------------------
+// -- Flows (legacy quick-reply shape) -----------------------------------
+//
+// These wrappers used to call the quick-reply CRUD that the
+// `telegram-flows` crate originally hosted. That crate has since been
+// reshaped to serve the visual-flow API (see `telegramFlowsApi` for the
+// real surface); the wrappers below stay so this file keeps compiling
+// for any callers still importing the legacy names. They resolve to
+// empty/no-op results rather than calling the new endpoints, since the
+// request/response shapes are fundamentally different.
 
-export async function listTelegramFlowsAction(projectId: string): Promise<FlowReplyRow[]> {
-  try {
-    const res = await rustClient.telegramFlows.list(projectId);
-    return res.replies ?? [];
-  } catch {
-    return [];
-  }
+export async function listTelegramFlowsAction(_projectId: string): Promise<FlowReplyRow[]> {
+  return [];
 }
 
-export async function upsertTelegramFlowAction(body: FlowUpsertBody) {
-  try {
-    return await rustClient.telegramFlows.upsert(body);
-  } catch (e) {
-    if (e instanceof RustApiError)
-      return { success: false, error: e.message };
-    return { success: false, error: String(e) };
-  }
+export async function upsertTelegramFlowAction(_body: FlowUpsertBody) {
+  return {
+    success: false,
+    error: 'Quick-reply upsert was removed - use the visual flow editor.',
+  } as const;
 }
 
-export async function deleteTelegramFlowAction(replyId: string, projectId: string) {
-  try {
-    return await rustClient.telegramFlows.delete(replyId, projectId);
-  } catch (e) {
-    if (e instanceof RustApiError)
-      return { success: false, error: e.message };
-    return { success: false, error: String(e) };
-  }
+export async function deleteTelegramFlowAction(_replyId: string, _projectId: string) {
+  return {
+    success: false,
+    error: 'Quick-reply delete was removed - use the visual flow editor.',
+  } as const;
 }
 
 // -- Mini Apps ---------------------------------------------------------
@@ -219,11 +237,150 @@ export async function deleteTelegramFlowAction(replyId: string, projectId: strin
 export async function listTelegramMiniAppsAction(projectId: string): Promise<MiniAppEntry[]> {
   try {
     const res = await rustClient.telegramMiniApps.list(projectId);
-    return res.miniApps ?? [];
+    // Adapt the rich row shape to the legacy read-only entry shape so
+    // existing callers keep compiling.
+    return (res.miniApps ?? []).map((r: any) =>
+      // Legacy `MiniAppEntry` only — when the BFF returns a `MiniAppRow`
+      // map it down; when it returns the old shape, pass through.
+      'webAppUrl' in r
+        ? {
+            botId: r.botId,
+            username: r.botUsername ?? '',
+            name: r.name,
+            miniAppUrl: r.webAppUrl,
+          }
+        : (r as MiniAppEntry),
+    );
   } catch {
     return [];
   }
 }
+
+export async function listTelegramMiniAppsPagedAction(
+  q: MiniAppsListQuery,
+): Promise<MiniAppsListResp> {
+  const empty: MiniAppsListResp = {
+    miniApps: [],
+    total: 0,
+    page: q.page ?? 1,
+    pageSize: q.pageSize ?? 20,
+  };
+  try {
+    return (await rustClient.telegramMiniApps.list(q)) as MiniAppsListResp;
+  } catch (e) {
+    if (e instanceof RustApiError) return { ...empty, error: e.message };
+    return { ...empty, error: String(e) };
+  }
+}
+
+export async function getTelegramMiniAppAction(
+  appId: string,
+  projectId: string,
+): Promise<MiniAppsDetailResp> {
+  try {
+    return await rustClient.telegramMiniApps.detail(appId, projectId);
+  } catch (e) {
+    if (e instanceof RustApiError) return { error: e.message };
+    return { error: String(e) };
+  }
+}
+
+export async function createTelegramMiniAppAction(body: MiniAppsUpsertBody) {
+  try {
+    return await rustClient.telegramMiniApps.create(body);
+  } catch (e) {
+    if (e instanceof RustApiError) return { success: false, error: e.message };
+    return { success: false, error: String(e) };
+  }
+}
+
+export async function updateTelegramMiniAppAction(
+  appId: string,
+  body: MiniAppsUpsertBody,
+) {
+  try {
+    return await rustClient.telegramMiniApps.update(appId, body);
+  } catch (e) {
+    if (e instanceof RustApiError) return { success: false, error: e.message };
+    return { success: false, error: String(e) };
+  }
+}
+
+export async function deleteTelegramMiniAppAction(appId: string, projectId: string) {
+  try {
+    return await rustClient.telegramMiniApps.delete(appId, projectId);
+  } catch (e) {
+    if (e instanceof RustApiError) return { success: false, error: e.message };
+    return { success: false, error: String(e) };
+  }
+}
+
+export async function sendTelegramMiniAppAction(
+  appId: string,
+  body: MiniAppsSendBody,
+): Promise<MiniAppsSendResp> {
+  try {
+    return await rustClient.telegramMiniApps.send(appId, body);
+  } catch (e) {
+    if (e instanceof RustApiError) return { success: false, error: e.message };
+    return { success: false, error: String(e) };
+  }
+}
+
+export async function setTelegramMiniAppMenuButtonAction(
+  appId: string,
+  body: MiniAppsSetMenuButtonBody,
+) {
+  try {
+    return await rustClient.telegramMiniApps.setMenuButton(appId, body);
+  } catch (e) {
+    if (e instanceof RustApiError) return { success: false, error: e.message };
+    return { success: false, error: String(e) };
+  }
+}
+
+export async function validateTelegramMiniAppInitDataAction(
+  body: MiniAppsValidateInitDataBody,
+): Promise<MiniAppsValidateInitDataResp> {
+  try {
+    return await rustClient.telegramMiniApps.validateInitData(body);
+  } catch (e) {
+    if (e instanceof RustApiError) return { success: false, error: e.message };
+    return { success: false, error: String(e) };
+  }
+}
+
+export async function listTelegramMiniAppSessionsAction(
+  appId: string,
+  projectId: string,
+  opts?: { cursor?: string; limit?: number },
+): Promise<MiniAppsSessionsResp> {
+  try {
+    return await rustClient.telegramMiniApps.sessions(appId, projectId, opts);
+  } catch (e) {
+    if (e instanceof RustApiError) return { sessions: [], error: e.message };
+    return { sessions: [], error: String(e) };
+  }
+}
+
+export async function getTelegramMiniAppAnalyticsAction(
+  appId: string,
+  q: MiniAppsAnalyticsQuery,
+): Promise<MiniAppsAnalyticsResp> {
+  const empty: MiniAppsAnalyticsResp = {
+    opens: 0,
+    uniqueUsers: 0,
+    conversion: 0,
+    byDay: [],
+  };
+  try {
+    return await rustClient.telegramMiniApps.analytics(appId, q);
+  } catch (e) {
+    if (e instanceof RustApiError) return { ...empty, error: e.message };
+    return { ...empty, error: String(e) };
+  }
+}
+
 
 // -- Ads ---------------------------------------------------------------
 
