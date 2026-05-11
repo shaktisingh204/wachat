@@ -37,6 +37,24 @@ sabnode-common = { path = "../common" }
 sabnode-db = { path = "../db" }
 
 urlencoding = "2"
+md-5 = "0.10"
+
+# Postgres driver for the `postgres` node. Compiled with rustls-tls so the
+# crate doesn't drag in OpenSSL system deps.
+sqlx = { version = "0.8", default-features = false, features = [
+    "runtime-tokio",
+    "postgres",
+    "json",
+    "chrono",
+    "tls-rustls",
+] }
+
+# Redis client for the `redis` node — matches the version already used
+# elsewhere in the workspace (sabnode-db, wachat-queue, etc.).
+fred = { version = "10.1", default-features = true, features = ["enable-rustls"] }
+
+# SMTP client for the `emailSend` node.
+lettre = { version = "0.11", default-features = false, features = ["smtp-transport", "rustls-tls", "tokio1-rustls-tls", "builder", "tokio1"] }
 
 [lints]
 workspace = true

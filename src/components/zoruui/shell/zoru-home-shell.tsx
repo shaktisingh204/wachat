@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   Bell,
   Briefcase,
+  ChevronUp,
   Home,
   LogOut,
   Search,
@@ -62,6 +63,31 @@ export interface ZoruHomeShellProps {
 }
 
 const DOCK_APPS = ZORU_APPS;
+
+const DOCK_REVEAL_DELAY_MS = 140;
+const DOCK_HIDE_DELAY_MS = 220;
+
+/**
+ * Home page is the only route where the dock is permanently visible.
+ * Every other dashboard page auto-hides it and shows a small arrow
+ * peek card that reveals the dock on hover.
+ */
+function isHomeRoute(pathname: string | null): boolean {
+  return pathname === "/dashboard" || pathname === "/";
+}
+
+/**
+ * "Full-bleed" routes opt out of the dashboard's padded, scrolling
+ * <main> wrapper — the page handles its own layout edge-to-edge.
+ * Used by canvas-style editors like the SabFlow flow builder.
+ */
+function isFullBleedRoute(pathname: string | null): boolean {
+  if (!pathname) return false;
+  // /dashboard/sabflow/flow-builder/<flowId>(/subroute)? but NOT the
+  // index list page `/dashboard/sabflow/flow-builder`.
+  if (/^\/dashboard\/sabflow\/flow-builder\/[^/]+/.test(pathname)) return true;
+  return false;
+}
 
 /**
  * ZoruHomeShell — sidebar + header + main + dock. The vertical app
@@ -126,6 +152,40 @@ function ZoruHomeShellContent({
     },
     [router],
   );
+
+  // Dock visibility — pinned on the home route, otherwise auto-hides
+  // and reveals on hover over the peek card / bottom hot-zone.
+  const dockPinned = isHomeRoute(pathname);
+  const fullBleed = isFullBleedRoute(pathname);
+  const [dockHovering, setDockHovering] = React.useState(false);
+  const dockTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const showDock = React.useCallback(() => {
+    if (dockTimer.current) clearTimeout(dockTimer.current);
+    dockTimer.current = setTimeout(
+      () => setDockHovering(true),
+      DOCK_REVEAL_DELAY_MS,
+    );
+  }, []);
+
+  const hideDock = React.useCallback(() => {
+    if (dockTimer.current) clearTimeout(dockTimer.current);
+    dockTimer.current = setTimeout(
+      () => setDockHovering(false),
+      DOCK_HIDE_DELAY_MS,
+    );
+  }, []);
+
+  // Reset hover state when the route changes (so navigating between
+  // pages doesn't leave the dock stuck open).
+  React.useEffect(() => {
+    setDockHovering(false);
+    return () => {
+      if (dockTimer.current) clearTimeout(dockTimer.current);
+    };
+  }, [pathname]);
+
+  const dockOpen = dockPinned || dockHovering;
 
   // Auto-select per-app sidebar groups from the central registry based on
   // the current pathname. Each app declares its own grouped menu in
@@ -257,40 +317,95 @@ function ZoruHomeShellContent({
           }
         />
 
-        <main className={cn("flex-1 overflow-y-auto px-6 py-6 pb-36")}>
+        <main
+          className={cn(
+            fullBleed
+              ? "relative flex-1 overflow-hidden"
+              : cn(
+                  "flex-1 overflow-y-auto px-6 py-6",
+                  dockPinned ? "pb-36" : "pb-12",
+                ),
+          )}
+        >
           {children}
         </main>
 
-        {/* Bottom-anchored, centered dock — every app lives here now.
-            Wrapper stays overflow-visible so the per-icon tooltip pill
+        {/* Bottom-anchored, centered dock. On the home route it's pinned
+            (always visible). On every other page it auto-hides behind a
+            tiny arrow peek card and slides up on hover — keeping the
+            canvas full-bleed on dense editor pages.
+
+            Wrapper stays `overflow-visible` so the per-icon tooltip pill
             (rendered ABOVE the icons) is never clipped. The
             `max-w-[calc(100vw-1.5rem)]` cap lets the dock spill wider
             than its content but never past the viewport. */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-5 z-30 flex justify-center px-3">
-          <div className="pointer-events-auto max-w-[calc(100vw-1.5rem)] overflow-visible rounded-[26px] border border-zoru-line bg-zoru-bg/95 p-1 shadow-[var(--zoru-shadow-lg)] backdrop-blur">
-            <ZoruDock iconSize={44} static>
-              {DOCK_APPS.map((app) => {
-                const isPending = pendingDockHref === app.href;
-                const Icon = app.Icon;
-                return (
-                  <ZoruDockIcon
-                    key={app.id}
-                    name={app.name}
-                    href={app.href}
-                    active={app.isActive(pathname) || isPending}
-                    onActivate={handleDockActivate}
-                  >
-                    <span
-                      className={
-                        isPending ? "animate-pulse opacity-70" : undefined
-                      }
+        <div
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-30 flex flex-col items-center"
+          onMouseEnter={dockPinned ? undefined : showDock}
+          onMouseLeave={dockPinned ? undefined : hideDock}
+        >
+          {/* Peek card — only rendered when dock is hidden. A minimal
+              chip with an up chevron that hints at the hidden dock and
+              widens the hover target so reveal feels effortless. */}
+          {!dockPinned && (
+            <button
+              type="button"
+              aria-label="Show app dock"
+              aria-expanded={dockOpen}
+              onMouseEnter={showDock}
+              onFocus={showDock}
+              onClick={() => setDockHovering((v) => !v)}
+              className={cn(
+                "pointer-events-auto mb-1 inline-flex items-center gap-1.5",
+                "rounded-full border border-zoru-line bg-zoru-bg/95 px-2.5 py-1",
+                "text-[11px] text-zoru-ink-muted shadow-[var(--zoru-shadow-sm)] backdrop-blur",
+                "transition-all duration-200 ease-out",
+                "hover:text-zoru-ink hover:border-zoru-ink/20",
+                dockOpen
+                  ? "translate-y-2 opacity-0 pointer-events-none"
+                  : "translate-y-0 opacity-100",
+              )}
+            >
+              <ChevronUp className="h-3 w-3" strokeWidth={2.5} />
+              <span>Apps</span>
+            </button>
+          )}
+
+          {/* The dock itself — slides up from below when hidden. */}
+          <div
+            className={cn(
+              "px-3 transition-all duration-300 ease-out",
+              dockOpen
+                ? "translate-y-0 opacity-100 pb-5"
+                : "translate-y-[120%] opacity-0 pb-0 pointer-events-none",
+            )}
+            aria-hidden={!dockOpen}
+          >
+            <div className="pointer-events-auto max-w-[calc(100vw-1.5rem)] overflow-visible rounded-[26px] border border-zoru-line bg-zoru-bg/95 p-1 shadow-[var(--zoru-shadow-lg)] backdrop-blur">
+              <ZoruDock iconSize={44} static>
+                {DOCK_APPS.map((app) => {
+                  const isPending = pendingDockHref === app.href;
+                  const Icon = app.Icon;
+                  return (
+                    <ZoruDockIcon
+                      key={app.id}
+                      name={app.name}
+                      href={app.href}
+                      active={app.isActive(pathname) || isPending}
+                      onActivate={handleDockActivate}
                     >
-                      <Icon className="h-5 w-5" />
-                    </span>
-                  </ZoruDockIcon>
-                );
-              })}
-            </ZoruDock>
+                      <span
+                        className={
+                          isPending ? "animate-pulse opacity-70" : undefined
+                        }
+                      >
+                        <Icon className="h-5 w-5" />
+                      </span>
+                    </ZoruDockIcon>
+                  );
+                })}
+              </ZoruDock>
+            </div>
           </div>
         </div>
       </div>

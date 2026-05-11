@@ -76,9 +76,11 @@ export default async function ProductionOrderDetailPage({
                 Back
               </ZoruButton>
             </Link>
-            <ZoruButton variant="outline" disabled>
-              Update yield
-            </ZoruButton>
+            <Link href={`/dashboard/crm/inventory/production-orders/${order._id}/update-yield`}>
+              <ZoruButton variant="outline">
+                Update yield
+              </ZoruButton>
+            </Link>
           </div>
         }
       />

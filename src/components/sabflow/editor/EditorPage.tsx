@@ -241,7 +241,7 @@ function EditorContent({ flow: initialFlow }: Props) {
   return (
     <div
       ref={containerRef}
-      className="flex flex-col h-screen w-full overflow-clip bg-[var(--gray-2)]"
+      className="absolute inset-0 flex flex-col overflow-clip bg-[var(--gray-2)]"
     >
       {/* ── Webhook URL banner (shown after activation) ────────────── */}
       {webhookBanner && webhookBanner.length > 0 && (
