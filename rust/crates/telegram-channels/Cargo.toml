@@ -2,7 +2,7 @@
 name = "telegram-channels"
 version = "0.1.0"
 edition = "2024"
-description = "Telegram channel listing for the channels page."
+description = "Telegram channel administration (discover, post, schedule, pin, admins) via the bot API."
 license = "UNLICENSED"
 publish = false
 
@@ -21,6 +21,8 @@ futures = "0.3"
 chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
 tracing = "0.1"
 anyhow = "1"
+thiserror = "2"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "gzip"] }
 utoipa = { version = "5", features = ["axum_extras", "chrono"] }
 sabnode-common = { path = "../common" }
 sabnode-auth = { path = "../auth" }

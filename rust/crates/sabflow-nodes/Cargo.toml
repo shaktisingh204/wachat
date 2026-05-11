@@ -39,11 +39,12 @@ sabnode-db = { path = "../db" }
 urlencoding = "2"
 md-5 = "0.10"
 
-# Postgres driver for the `postgres` node. Compiled with rustls-tls so the
-# crate doesn't drag in OpenSSL system deps.
+# Postgres + MySQL drivers for the `postgres` / `mySql` nodes. Compiled with
+# rustls-tls so the crate doesn't drag in OpenSSL system deps.
 sqlx = { version = "0.8", default-features = false, features = [
     "runtime-tokio",
     "postgres",
+    "mysql",
     "json",
     "chrono",
     "tls-rustls",
@@ -55,6 +56,32 @@ fred = { version = "10.1", default-features = true, features = ["enable-rustls"]
 
 # SMTP client for the `emailSend` node.
 lettre = { version = "0.11", default-features = false, features = ["smtp-transport", "rustls-tls", "tokio1-rustls-tls", "builder", "tokio1"] }
+
+# IMAP client + TLS + parser for the `emailReadImap` node.
+async-imap = { version = "0.10", default-features = false, features = ["runtime-tokio"] }
+async-native-tls = { version = "0.5", default-features = false, features = ["runtime-tokio"] }
+mail-parser = "0.10"
+
+# S3-compatible object storage for the `s3` node. Already used by the
+# sabfiles crate, so it should be cached.
+aws-sdk-s3 = { version = "1", default-features = false, features = ["rustls", "rt-tokio"] }
+aws-config = { version = "1", default-features = false, features = ["rustls", "rt-tokio"] }
+aws-credential-types = "1"
+
+# HTML parser for the `html` node.
+scraper = "0.20"
+
+# XML <-> JSON conversion for the `xml` node.
+quick-xml = { version = "0.36", features = ["serialize"] }
+
+# Hashing / HMAC / JWT support for the `crypto` and `jwt` nodes.
+sha1 = "0.10"
+sha2 = "0.10"
+hmac = "0.12"
+jsonwebtoken = "9"
+
+# RSS / Atom feed parser for the `rssFeedRead` node.
+rss = "2"
 
 [lints]
 workspace = true

@@ -2,14 +2,9 @@
 //!
 //! Talks to `https://api.telegram.org/bot{token}/...`. The bot token
 //! itself is the credential — there is no OAuth, no shared secret. We
-//! only implement the four methods the bots crate needs:
-//!
-//! | Method            | Telegram endpoint   |
-//! |-------------------|---------------------|
-//! | `get_me`          | `getMe`             |
-//! | `set_webhook`     | `setWebhook`        |
-//! | `delete_webhook`  | `deleteWebhook`     |
-//! | `get_webhook_info`| `getWebhookInfo`    |
+//! implement the methods the bots crate needs for self-management:
+//! webhook lifecycle, bot info, commands, profile fields, menu button
+//! and default administrator rights.
 //!
 //! All responses follow the `{ ok: true, result: T }` /
 //! `{ ok: false, description: "…" }` envelope. The client unwraps the
@@ -40,6 +35,7 @@ pub struct BotMe {
     pub can_join_groups: Option<bool>,
     pub can_read_all_group_messages: Option<bool>,
     pub supports_inline_queries: Option<bool>,
+    pub has_main_web_app: Option<bool>,
 }
 
 #[derive(Debug, Clone, Default, Deserialize)]
@@ -48,6 +44,36 @@ pub struct WebhookInfo {
     pub pending_update_count: Option<i64>,
     pub last_error_message: Option<String>,
     pub last_error_date: Option<i64>,
+    pub max_connections: Option<i64>,
+    pub ip_address: Option<String>,
+    pub allowed_updates: Option<Vec<String>>,
+    pub has_custom_certificate: Option<bool>,
+}
+
+#[derive(Debug, Clone, Default, Deserialize, Serialize)]
+pub struct ChatAdministratorRights {
+    pub is_anonymous: bool,
+    pub can_manage_chat: bool,
+    pub can_delete_messages: bool,
+    pub can_manage_video_chats: bool,
+    pub can_restrict_members: bool,
+    pub can_promote_members: bool,
+    pub can_change_info: bool,
+    pub can_invite_users: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub can_post_messages: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub can_edit_messages: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub can_pin_messages: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub can_manage_topics: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub can_post_stories: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub can_edit_stories: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub can_delete_stories: Option<bool>,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -259,8 +285,49 @@ impl BotApiClient {
         token: &str,
         commands: &[BotCommand],
     ) -> Result<bool, BotApiError> {
+        self.set_my_commands_full(token, commands, None, None).await
+    }
+
+    pub async fn set_my_commands_full(
+        &self,
+        token: &str,
+        commands: &[BotCommand],
+        scope: Option<&serde_json::Value>,
+        language_code: Option<&str>,
+    ) -> Result<bool, BotApiError> {
         let url = format!("{BASE_URL}/bot{token}/setMyCommands");
-        let body = serde_json::json!({ "commands": commands });
+        let mut body = serde_json::json!({ "commands": commands });
+        if let Some(s) = scope {
+            body["scope"] = s.clone();
+        }
+        if let Some(lc) = language_code {
+            body["language_code"] = serde_json::Value::String(lc.to_owned());
+        }
+        let env: Envelope<bool> = self
+            .http
+            .post(url)
+            .json(&body)
+            .send()
+            .await?
+            .json()
+            .await?;
+        unwrap_envelope(env)
+    }
+
+    pub async fn delete_my_commands(
+        &self,
+        token: &str,
+        scope: Option<&serde_json::Value>,
+        language_code: Option<&str>,
+    ) -> Result<bool, BotApiError> {
+        let url = format!("{BASE_URL}/bot{token}/deleteMyCommands");
+        let mut body = serde_json::json!({});
+        if let Some(s) = scope {
+            body["scope"] = s.clone();
+        }
+        if let Some(lc) = language_code {
+            body["language_code"] = serde_json::Value::String(lc.to_owned());
+        }
         let env: Envelope<bool> = self
             .http
             .post(url)
@@ -276,16 +343,54 @@ impl BotApiClient {
         &self,
         token: &str,
     ) -> Result<Vec<BotCommand>, BotApiError> {
+        self.get_my_commands_full(token, None, None).await
+    }
+
+    pub async fn get_my_commands_full(
+        &self,
+        token: &str,
+        scope: Option<&serde_json::Value>,
+        language_code: Option<&str>,
+    ) -> Result<Vec<BotCommand>, BotApiError> {
         let url = format!("{BASE_URL}/bot{token}/getMyCommands");
-        let env: Envelope<Vec<BotCommand>> = self.http.get(url).send().await?.json().await?;
+        let mut body = serde_json::json!({});
+        if let Some(s) = scope {
+            body["scope"] = s.clone();
+        }
+        if let Some(lc) = language_code {
+            body["language_code"] = serde_json::Value::String(lc.to_owned());
+        }
+        let env: Envelope<Vec<BotCommand>> = self
+            .http
+            .post(url)
+            .json(&body)
+            .send()
+            .await?
+            .json()
+            .await?;
         unwrap_envelope(env)
     }
 
     // -- profile fields ---------------------------------------------------
 
     pub async fn set_my_name(&self, token: &str, name: &str) -> Result<bool, BotApiError> {
+        self.set_my_name_full(token, Some(name), None).await
+    }
+
+    pub async fn set_my_name_full(
+        &self,
+        token: &str,
+        name: Option<&str>,
+        language_code: Option<&str>,
+    ) -> Result<bool, BotApiError> {
         let url = format!("{BASE_URL}/bot{token}/setMyName");
-        let body = serde_json::json!({ "name": name });
+        let mut body = serde_json::json!({});
+        if let Some(n) = name {
+            body["name"] = serde_json::Value::String(n.to_owned());
+        }
+        if let Some(lc) = language_code {
+            body["language_code"] = serde_json::Value::String(lc.to_owned());
+        }
         let env: Envelope<bool> = self
             .http
             .post(url)
@@ -295,6 +400,29 @@ impl BotApiClient {
             .json()
             .await?;
         unwrap_envelope(env)
+    }
+
+    pub async fn get_my_name(
+        &self,
+        token: &str,
+        language_code: Option<&str>,
+    ) -> Result<String, BotApiError> {
+        #[derive(Deserialize)]
+        struct NameResp { name: String }
+        let url = format!("{BASE_URL}/bot{token}/getMyName");
+        let mut body = serde_json::json!({});
+        if let Some(lc) = language_code {
+            body["language_code"] = serde_json::Value::String(lc.to_owned());
+        }
+        let env: Envelope<NameResp> = self
+            .http
+            .post(url)
+            .json(&body)
+            .send()
+            .await?
+            .json()
+            .await?;
+        unwrap_envelope(env).map(|r| r.name)
     }
 
     pub async fn set_my_description(
@@ -302,8 +430,23 @@ impl BotApiClient {
         token: &str,
         description: &str,
     ) -> Result<bool, BotApiError> {
+        self.set_my_description_full(token, Some(description), None).await
+    }
+
+    pub async fn set_my_description_full(
+        &self,
+        token: &str,
+        description: Option<&str>,
+        language_code: Option<&str>,
+    ) -> Result<bool, BotApiError> {
         let url = format!("{BASE_URL}/bot{token}/setMyDescription");
-        let body = serde_json::json!({ "description": description });
+        let mut body = serde_json::json!({});
+        if let Some(d) = description {
+            body["description"] = serde_json::Value::String(d.to_owned());
+        }
+        if let Some(lc) = language_code {
+            body["language_code"] = serde_json::Value::String(lc.to_owned());
+        }
         let env: Envelope<bool> = self
             .http
             .post(url)
@@ -315,13 +458,52 @@ impl BotApiClient {
         unwrap_envelope(env)
     }
 
+    pub async fn get_my_description(
+        &self,
+        token: &str,
+        language_code: Option<&str>,
+    ) -> Result<String, BotApiError> {
+        #[derive(Deserialize)]
+        struct Resp { description: String }
+        let url = format!("{BASE_URL}/bot{token}/getMyDescription");
+        let mut body = serde_json::json!({});
+        if let Some(lc) = language_code {
+            body["language_code"] = serde_json::Value::String(lc.to_owned());
+        }
+        let env: Envelope<Resp> = self
+            .http
+            .post(url)
+            .json(&body)
+            .send()
+            .await?
+            .json()
+            .await?;
+        unwrap_envelope(env).map(|r| r.description)
+    }
+
     pub async fn set_my_short_description(
         &self,
         token: &str,
         short_description: &str,
     ) -> Result<bool, BotApiError> {
+        self.set_my_short_description_full(token, Some(short_description), None)
+            .await
+    }
+
+    pub async fn set_my_short_description_full(
+        &self,
+        token: &str,
+        short_description: Option<&str>,
+        language_code: Option<&str>,
+    ) -> Result<bool, BotApiError> {
         let url = format!("{BASE_URL}/bot{token}/setMyShortDescription");
-        let body = serde_json::json!({ "short_description": short_description });
+        let mut body = serde_json::json!({});
+        if let Some(d) = short_description {
+            body["short_description"] = serde_json::Value::String(d.to_owned());
+        }
+        if let Some(lc) = language_code {
+            body["language_code"] = serde_json::Value::String(lc.to_owned());
+        }
         let env: Envelope<bool> = self
             .http
             .post(url)
@@ -331,6 +513,29 @@ impl BotApiClient {
             .json()
             .await?;
         unwrap_envelope(env)
+    }
+
+    pub async fn get_my_short_description(
+        &self,
+        token: &str,
+        language_code: Option<&str>,
+    ) -> Result<String, BotApiError> {
+        #[derive(Deserialize)]
+        struct Resp { short_description: String }
+        let url = format!("{BASE_URL}/bot{token}/getMyShortDescription");
+        let mut body = serde_json::json!({});
+        if let Some(lc) = language_code {
+            body["language_code"] = serde_json::Value::String(lc.to_owned());
+        }
+        let env: Envelope<Resp> = self
+            .http
+            .post(url)
+            .json(&body)
+            .send()
+            .await?
+            .json()
+            .await?;
+        unwrap_envelope(env).map(|r| r.short_description)
     }
 
     // -- chat menu button -------------------------------------------------
@@ -342,6 +547,64 @@ impl BotApiClient {
     ) -> Result<bool, BotApiError> {
         let url = format!("{BASE_URL}/bot{token}/setChatMenuButton");
         let body = serde_json::json!({ "menu_button": menu_button });
+        let env: Envelope<bool> = self
+            .http
+            .post(url)
+            .json(&body)
+            .send()
+            .await?
+            .json()
+            .await?;
+        unwrap_envelope(env)
+    }
+
+    pub async fn get_chat_menu_button(
+        &self,
+        token: &str,
+    ) -> Result<serde_json::Value, BotApiError> {
+        let url = format!("{BASE_URL}/bot{token}/getChatMenuButton");
+        let env: Envelope<serde_json::Value> = self
+            .http
+            .post(url)
+            .json(&serde_json::json!({}))
+            .send()
+            .await?
+            .json()
+            .await?;
+        unwrap_envelope(env)
+    }
+
+    // -- default administrator rights ------------------------------------
+
+    pub async fn get_my_default_administrator_rights(
+        &self,
+        token: &str,
+        for_channels: bool,
+    ) -> Result<ChatAdministratorRights, BotApiError> {
+        let url = format!("{BASE_URL}/bot{token}/getMyDefaultAdministratorRights");
+        let body = serde_json::json!({ "for_channels": for_channels });
+        let env: Envelope<ChatAdministratorRights> = self
+            .http
+            .post(url)
+            .json(&body)
+            .send()
+            .await?
+            .json()
+            .await?;
+        unwrap_envelope(env)
+    }
+
+    pub async fn set_my_default_administrator_rights(
+        &self,
+        token: &str,
+        rights: Option<&ChatAdministratorRights>,
+        for_channels: bool,
+    ) -> Result<bool, BotApiError> {
+        let url = format!("{BASE_URL}/bot{token}/setMyDefaultAdministratorRights");
+        let mut body = serde_json::json!({ "for_channels": for_channels });
+        if let Some(r) = rights {
+            body["rights"] = serde_json::to_value(r).unwrap_or(serde_json::Value::Null);
+        }
         let env: Envelope<bool> = self
             .http
             .post(url)

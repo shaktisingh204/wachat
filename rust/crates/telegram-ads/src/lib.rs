@@ -13,7 +13,7 @@ pub mod state;
 use axum::{
     Router,
     extract::FromRef,
-    routing::{delete, get},
+    routing::{delete, get, post},
 };
 use sabnode_auth::AuthConfig;
 use std::sync::Arc;
@@ -28,5 +28,10 @@ where
 {
     Router::new()
         .route("/", get(handlers::list).post(handlers::upsert))
-        .route("/{campaign_id}", delete(handlers::delete_campaign))
+        .route("/analytics", get(handlers::analytics))
+        .route("/import", post(handlers::import_csv))
+        .route("/export", get(handlers::export_csv))
+        .route("/bulk-delete", post(handlers::bulk_delete))
+        .route("/utm", post(handlers::utm))
+        .route("/{campaign_id}", delete(handlers::delete_campaign).get(handlers::detail))
 }

@@ -89,6 +89,21 @@ interface Props {
   onChange: (next: Record<string, unknown>) => void;
 }
 
+/* ── Name-form helpers (so snake_case block.type still resolves) ──────────── */
+
+function snakeToCamel(s: string): string {
+  return s.replace(/_([a-z0-9])/g, (_m, c: string) => c.toUpperCase());
+}
+function camelToSnake(s: string): string {
+  return s.replace(/[A-Z]/g, (c) => `_${c.toLowerCase()}`);
+}
+function stripUnderscore(s: string): string {
+  return s.replace(/_/g, '');
+}
+function uniq<T>(arr: T[]): T[] {
+  return Array.from(new Set(arr.filter((x) => x !== '' && x != null)));
+}
+
 /* ── Shared styles ────────────────────────────────────────────────────────── */
 
 const labelClass = 'block text-[11.5px] text-[var(--gray-11)] mb-1';
@@ -107,24 +122,39 @@ export function NodeSettings({ nodeType, values, onChange }: Props) {
     let cancelled = false;
     setLoading(true);
     setError(null);
-    fetch(`/api/sabflow/nodes/${encodeURIComponent(nodeType)}`)
-      .then(async (res) => {
-        if (!res.ok) {
-          throw new Error(`Failed to load node (${res.status})`);
+
+    // Generate name candidates so blocks created with snake_case types
+    // (e.g. "google_sheets") still resolve to camelCase Rust descriptors
+    // (e.g. "googleSheets"). First successful match wins.
+    const candidates = uniq([
+      nodeType,
+      snakeToCamel(nodeType),
+      camelToSnake(nodeType),
+      stripUnderscore(nodeType),
+    ]);
+
+    (async () => {
+      for (const name of candidates) {
+        try {
+          const res = await fetch(`/api/sabflow/nodes/${encodeURIComponent(name)}`);
+          if (res.ok) {
+            const d = (await res.json()) as NodeDescriptor;
+            if (!cancelled) {
+              setDescriptor(d);
+              setLoading(false);
+            }
+            return;
+          }
+        } catch {
+          /* try next candidate */
         }
-        return (await res.json()) as NodeDescriptor;
-      })
-      .then((d) => {
-        if (cancelled) return;
-        setDescriptor(d);
-      })
-      .catch((e: unknown) => {
-        if (cancelled) return;
-        setError(e instanceof Error ? e.message : String(e));
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
+      }
+      if (!cancelled) {
+        setError(`No settings descriptor for "${nodeType}".`);
+        setLoading(false);
+      }
+    })();
+
     return () => {
       cancelled = true;
     };

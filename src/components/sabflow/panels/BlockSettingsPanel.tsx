@@ -40,6 +40,11 @@ import { NocoDBSettings } from '@/components/sabflow/panels/blocks/integrations/
 import { ElevenLabsSettings } from '@/components/sabflow/panels/blocks/integrations/ElevenLabsSettings';
 import { SegmentSettings } from '@/components/sabflow/panels/blocks/integrations/SegmentSettings';
 import { PixelSettings } from '@/components/sabflow/panels/blocks/integrations/PixelSettings';
+import { NodeSettings } from '@/components/sabflow/panels/blocks/shared/NodeSettings';
+import { GoogleSheetsSettings } from '@/components/sabflow/panels/blocks/GoogleSheetsSettings';
+import { SendEmailSettings } from '@/components/sabflow/panels/blocks/SendEmailSettings';
+import { ZapierSettings } from '@/components/sabflow/panels/blocks/ZapierSettings';
+import { MakeComSettings } from '@/components/sabflow/panels/blocks/MakeComSettings';
 import { ChoiceInputSettings } from '@/components/sabflow/panels/blocks/ChoiceInputSettings';
 import { PictureChoiceSettings } from '@/components/sabflow/panels/blocks/PictureChoiceSettings';
 import { MergeSettings } from '@/components/sabflow/panels/blocks/logic/MergeSettings';
@@ -437,34 +442,41 @@ function BlockSettingsBody({ block, variables, variableNames, onUpdate, onCreate
 
   if (block.type === 'send_email') {
     return (
-      <div className="space-y-3">
-        <Field label="To">
-          <input
-            type="text"
-            className={inputClass}
-            value={String(options.to ?? '')}
-            onChange={(e) => update({ to: e.target.value })}
-            placeholder="recipient@example.com or {{email}}"
-          />
-        </Field>
-        <Field label="Subject">
-          <input
-            type="text"
-            className={inputClass}
-            value={String(options.subject ?? '')}
-            onChange={(e) => update({ subject: e.target.value })}
-            placeholder="Your subject…"
-          />
-        </Field>
-        <Field label="Body">
-          <textarea
-            className={cn(inputClass, 'min-h-[100px] resize-y')}
-            value={String(options.body ?? '')}
-            onChange={(e) => update({ body: e.target.value })}
-            placeholder="Email body… use {{variable}} for dynamic content."
-          />
-        </Field>
-      </div>
+      <SendEmailSettings
+        block={block}
+        onBlockChange={(updated) => onUpdate({ options: updated.options })}
+        variables={variables}
+      />
+    );
+  }
+
+  if (block.type === 'google_sheets') {
+    return (
+      <GoogleSheetsSettings
+        block={block}
+        onBlockChange={(updated) => onUpdate({ options: updated.options })}
+        variables={variables}
+      />
+    );
+  }
+
+  if (block.type === 'zapier' || block.type === 'pabbly_connect') {
+    return (
+      <ZapierSettings
+        block={block}
+        onBlockChange={(updated) => onUpdate({ options: updated.options })}
+        variables={variables}
+      />
+    );
+  }
+
+  if (block.type === 'make_com') {
+    return (
+      <MakeComSettings
+        block={block}
+        onBlockChange={(updated) => onUpdate({ options: updated.options })}
+        variables={variables}
+      />
     );
   }
 
@@ -580,8 +592,18 @@ function BlockSettingsBody({ block, variables, variableNames, onUpdate, onCreate
     );
   }
 
-  /* ── Fallback ──────────────────────────────────────── */
-  return <ComingSoon label={getBlockLabel(block.type)} />;
+  /* ── Fallback: render the generic descriptor-driven settings panel.
+   *    Any block type registered in the Rust `sabflow-nodes` crate
+   *    (80 implemented + ~230 stubs) gets a working UI here automatically.
+   *    NodeSettings handles its own loading / "unknown node" states.
+   */
+  return (
+    <NodeSettings
+      nodeType={block.type}
+      values={options}
+      onChange={(next) => onUpdate({ options: next })}
+    />
+  );
 }
 
 /* ── Shared primitives ───────────────────────────────────────────────────── */
