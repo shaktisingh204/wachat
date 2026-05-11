@@ -13,7 +13,7 @@ import {
     ZoruTextarea,
     useZoruToast,
 } from '@/components/zoruui';
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { saveGiftCard } from '@/app/actions/crm-gift-cards.actions';
 
 export const dynamic = 'force-dynamic';
