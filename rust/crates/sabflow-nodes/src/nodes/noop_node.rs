@@ -1,6 +1,8 @@
-//! No Operation node.
+//! No Operation node — pass items through unchanged.
 //!
-//! TODO(sabflow): full implementation — currently returns NotImplemented.
+//! Useful as a join point, a labelled placeholder while wiring a flow, or as
+//! a target for the IF/Switch "default" branch when you want to capture items
+//! without doing anything with them.
 
 use async_trait::async_trait;
 use serde_json::Value;
@@ -8,7 +10,7 @@ use serde_json::Value;
 use crate::{
     context::{ExecutionContext, NodeInput, NodeOutput},
     descriptor::{NodeCategory, NodeDescriptor},
-    error::{NodeError, NodeResult},
+    error::NodeResult,
     node::Node,
 };
 
@@ -23,14 +25,16 @@ impl Node for NoOpNode {
             "Pass items through unchanged",
             NodeCategory::Logic,
         )
+        .icon("circle-dashed")
+        .color("#737373")
     }
 
     async fn execute(
         &self,
         _ctx: &mut ExecutionContext,
-        _input: NodeInput,
+        input: NodeInput,
         _params: &Value,
     ) -> NodeResult<NodeOutput> {
-        Err(NodeError::NotImplemented("No Operation".to_string()))
+        Ok(NodeOutput::single(input.items))
     }
 }
