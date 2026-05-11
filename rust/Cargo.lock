@@ -4361,6 +4361,47 @@ dependencies = [
 ]
 
 [[package]]
+name = "sabflow-engine-runtime"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "chrono",
+ "futures",
+ "reqwest",
+ "sabflow-nodes",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "sabflow-nodes"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "base64",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "once_cell",
+ "regex",
+ "reqwest",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+ "tokio",
+ "tracing",
+ "uuid",
+]
+
+[[package]]
 name = "sabflow-webhooks"
 version = "0.1.0"
 dependencies = [

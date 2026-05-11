@@ -132,7 +132,7 @@ module.exports = {
       cwd: './rust',
 
       // Better production approach
-      script: './target/release/wachat-broadcast-worker',
+      script: './target/release/broadcast-worker',
 
       // If you want cargo instead:
       // script: 'cargo',
