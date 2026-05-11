@@ -1,0 +1,155 @@
+'use client';
+
+import { useActionState, useEffect } from 'react';
+import { useFormStatus } from 'react-dom';
+import { ArrowLeft, Save, LoaderCircle, Globe } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
+import { CrmPageHeader } from '../../_components/crm-page-header';
+import { savePortalUser } from '@/app/actions/crm-portal.actions';
+
+export const dynamic = 'force-dynamic';
+
+function SubmitButton() {
+  const { pending } = useFormStatus();
+  return (
+    <ZoruButton type="submit" size="sm" disabled={pending}>
+      {pending ? (
+        <LoaderCircle className="h-4 w-4 animate-spin" />
+      ) : (
+        <Save className="h-4 w-4" />
+      )}
+      {pending ? 'Saving…' : 'Save portal user'}
+    </ZoruButton>
+  );
+}
+
+const initialState = { message: '', error: '' };
+
+export default function NewPortalUserPage() {
+  const router = useRouter();
+  const { toast } = useZoruToast();
+  const [state, formAction] = useActionState(savePortalUser, initialState);
+
+  useEffect(() => {
+    if (state.message) {
+      toast({
+        title: 'Portal user created',
+        description: 'Portal user created. Activation email will be sent.',
+      });
+      router.push('/dashboard/crm/portal');
+    }
+    if (state.error) {
+      toast({ title: 'Error', description: state.error, variant: 'destructive' });
+    }
+  }, [state, toast, router]);
+
+  return (
+    <div className="flex w-full flex-col gap-6">
+      <CrmPageHeader
+        title="New Portal User"
+        subtitle="Invite a customer, vendor or employee to your self-service portal."
+        icon={Globe}
+        actions={
+          <ZoruButton variant="outline" size="sm" asChild>
+            <Link href="/dashboard/crm/portal">
+              <ArrowLeft className="h-4 w-4" /> Back
+            </Link>
+          </ZoruButton>
+        }
+      />
+
+      <ZoruCard className="p-6">
+        <form action={formAction} className="flex flex-col gap-6">
+          {/* Full Name */}
+          <div className="flex flex-col gap-1.5">
+            <ZoruLabel htmlFor="name">
+              Full Name <span className="text-red-500">*</span>
+            </ZoruLabel>
+            <ZoruInput
+              id="name"
+              name="name"
+              type="text"
+              placeholder="e.g. Rahul Sharma"
+              required
+              className="max-w-xs"
+            />
+          </div>
+
+          {/* Email Address */}
+          <div className="flex flex-col gap-1.5">
+            <ZoruLabel htmlFor="email">
+              Email Address <span className="text-red-500">*</span>
+            </ZoruLabel>
+            <ZoruInput
+              id="email"
+              name="email"
+              type="email"
+              placeholder="e.g. rahul@example.com"
+              required
+              className="max-w-xs"
+            />
+          </div>
+
+          {/* Portal Type */}
+          <div className="flex flex-col gap-1.5">
+            <ZoruLabel htmlFor="portalType">Portal Type</ZoruLabel>
+            <ZoruSelect name="portalType" defaultValue="customer">
+              <ZoruSelectTrigger id="portalType" className="w-full max-w-xs">
+                <ZoruSelectValue placeholder="Select type" />
+              </ZoruSelectTrigger>
+              <ZoruSelectContent>
+                <ZoruSelectItem value="customer">Customer</ZoruSelectItem>
+                <ZoruSelectItem value="vendor">Vendor</ZoruSelectItem>
+                <ZoruSelectItem value="employee">Employee</ZoruSelectItem>
+              </ZoruSelectContent>
+            </ZoruSelect>
+          </div>
+
+          {/* Notes */}
+          <div className="flex flex-col gap-1.5">
+            <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
+            <ZoruTextarea
+              id="notes"
+              name="notes"
+              rows={3}
+              placeholder="Any additional details about this portal user…"
+              className="max-w-lg"
+            />
+          </div>
+
+          {/* Hidden capabilities */}
+          <input
+            type="hidden"
+            name="capabilities"
+            value='["view_invoices","raise_tickets","view_documents"]'
+          />
+
+          {state.error && (
+            <p className="text-[13px] text-red-500">{state.error}</p>
+          )}
+
+          <div className="flex items-center gap-3">
+            <SubmitButton />
+            <ZoruButton variant="ghost" size="sm" asChild>
+              <Link href="/dashboard/crm/portal">Cancel</Link>
+            </ZoruButton>
+          </div>
+        </form>
+      </ZoruCard>
+    </div>
+  );
+}
