@@ -1,5 +1,6 @@
-import { HandCoins } from 'lucide-react';
+import { HandCoins, Plus } from 'lucide-react';
 import { ObjectId } from 'mongodb';
+import Link from 'next/link';
 
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import {
@@ -98,8 +99,10 @@ export default async function LoansPage() {
         subtitle="Employee advances, customer and vendor loans with EMI and NPA tracking."
         icon={HandCoins}
         actions={
-          <ZoruButton variant="outline" size="sm">
-            New loan
+          <ZoruButton variant="outline" size="sm" asChild>
+            <Link href="/dashboard/crm/loans/new">
+              <Plus className="h-4 w-4" /> New loan
+            </Link>
           </ZoruButton>
         }
       />
