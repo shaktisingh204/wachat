@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use axum::extract::FromRef;
+
 use sabnode_auth::AuthConfig;
 use sabnode_db::{mongo::MongoHandle, redis::RedisHandle};
 use wachat_queue::BullProducer;

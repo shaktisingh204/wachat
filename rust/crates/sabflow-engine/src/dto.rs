@@ -20,6 +20,7 @@ pub struct TriggerExecutionResponse {
 #[serde(rename_all = "camelCase")]
 pub struct ExecutionRecord {
     #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
+    #[schema(value_type = Option<String>)]
     pub id: Option<bson::oid::ObjectId>,
     pub execution_id: String,
     pub flow_id: String,

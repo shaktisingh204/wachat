@@ -4338,6 +4338,51 @@ dependencies = [
 ]
 
 [[package]]
+name = "sabflow-engine"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "reqwest",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "utoipa",
+ "uuid",
+ "wachat-queue",
+]
+
+[[package]]
+name = "sabflow-webhooks"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "utoipa",
+ "uuid",
+ "wachat-queue",
+]
+
+[[package]]
 name = "sabnode-api"
 version = "0.1.0"
 dependencies = [
@@ -4377,6 +4422,7 @@ dependencies = [
  "meta-token",
  "qr-codes",
  "sabfiles",
+ "sabflow-engine",
  "sabnode-auth",
  "sabnode-common",
  "sabnode-db",

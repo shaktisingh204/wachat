@@ -24,6 +24,9 @@ import {
   LuVariable,
   LuPalette,
   LuHistory,
+  LuLink,
+  LuCopy,
+  LuX,
 } from 'react-icons/lu';
 
 /* ── Constants ───────────────────────────────────────────────────────────── */
@@ -47,6 +50,7 @@ function EditorContent({ flow: initialFlow }: Props) {
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [activePanel, setActivePanel] = useState<RightPanel>(null);
   const [validationResults, setValidationResults] = useState<ValidationError[]>([]);
+  const [webhookBanner, setWebhookBanner] = useState<Array<{ appEvent: string; webhookId: string; webhookUrl: string }> | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const { setOpenedNodeId } = useGraph();
 
@@ -213,6 +217,7 @@ function EditorContent({ flow: initialFlow }: Props) {
     const isPublished = flow.status === 'PUBLISHED';
     const newStatus = isPublished ? 'DRAFT' : 'PUBLISHED';
     setFlow((prev) => ({ ...prev, status: newStatus }));
+    if (isPublished) setWebhookBanner(null);
     startSaving(async () => {
       setSaveError(null);
       const result = isPublished
@@ -223,6 +228,10 @@ function EditorContent({ flow: initialFlow }: Props) {
         setFlow((prev) => ({ ...prev, status: isPublished ? 'PUBLISHED' : 'DRAFT' }));
       } else {
         setLastSaved(new Date());
+        if (!isPublished) {
+          const webhooks = (result as { webhooks?: Array<{ appEvent: string; webhookId: string; webhookUrl: string }> }).webhooks;
+          if (webhooks?.length) setWebhookBanner(webhooks);
+        }
       }
     });
   }, [flow.status, flow._id, startSaving]);
@@ -234,6 +243,36 @@ function EditorContent({ flow: initialFlow }: Props) {
       ref={containerRef}
       className="flex flex-col h-screen w-full overflow-clip bg-[var(--gray-2)]"
     >
+      {/* ── Webhook URL banner (shown after activation) ────────────── */}
+      {webhookBanner && webhookBanner.length > 0 && (
+        <div className="relative bg-[#1a1a2e] border-b border-[#8b5cf6]/30 px-4 py-2.5 flex items-start gap-3 text-[12px]">
+          <LuLink className="h-3.5 w-3.5 text-[#8b5cf6] shrink-0 mt-0.5" strokeWidth={1.8} />
+          <div className="flex-1 space-y-1.5">
+            <p className="text-[var(--gray-11)] font-medium">Webhook URL{webhookBanner.length > 1 ? 's' : ''} registered</p>
+            {webhookBanner.map((w) => (
+              <div key={w.webhookId ?? w.webhookUrl} className="flex items-center gap-2">
+                <span className="font-mono text-[#a78bfa] break-all">{w.webhookUrl}</span>
+                <button
+                  type="button"
+                  title="Copy URL"
+                  onClick={() => navigator.clipboard?.writeText(w.webhookUrl)}
+                  className="shrink-0 text-[var(--gray-8)] hover:text-[var(--gray-11)] transition-colors"
+                >
+                  <LuCopy className="h-3.5 w-3.5" strokeWidth={1.8} />
+                </button>
+              </div>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => setWebhookBanner(null)}
+            className="shrink-0 text-[var(--gray-7)] hover:text-[var(--gray-11)] transition-colors"
+          >
+            <LuX className="h-3.5 w-3.5" strokeWidth={1.8} />
+          </button>
+        </div>
+      )}
+
       {/* ── Header ────────────────────────────────────────────────────── */}
       <FlowEditorHeader
         flow={flow}

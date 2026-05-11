@@ -10,6 +10,7 @@ import type {
   ExecutionHistoryNode,
   ExecutionStatus,
   ExecutionTriggerMode,
+  SabFlowWebhook,
 } from './types';
 import type { FlowSession } from './execution/types';
 import type { WhatsAppConfig } from './whatsapp/types';
@@ -644,4 +645,95 @@ export async function getWhatsAppSessionByPhone(
   if (!doc) return null;
   const { expiresAt: _exp, ...session } = doc as SessionDoc & { _id: unknown };
   return session as unknown as FlowSession;
+}
+
+// ── SabFlow Webhook Registry ───────────────────────────────────────────────
+
+export async function getSabFlowWebhooksCollection(): Promise<Collection<SabFlowWebhook>> {
+  const { db } = await connectToDatabase();
+  const col = db.collection<SabFlowWebhook>('sabflow_webhooks');
+  await col.createIndex({ webhookId: 1 }, { unique: true, background: true });
+  await col.createIndex({ flowId: 1, userId: 1 }, { background: true });
+  return col;
+}
+
+/**
+ * Look up a webhook by its public ID (the slug in the URL).
+ * Returns null when not found or inactive.
+ */
+export async function getWebhookByWebhookId(webhookId: string): Promise<SabFlowWebhook | null> {
+  const col = await getSabFlowWebhooksCollection();
+  return col.findOne({ webhookId });
+}
+
+/**
+ * Upsert webhook registrations for a flow's webhook-type events.
+ * Call on activation. Preserves existing webhookId so URLs don't change.
+ * Returns the list of (appEvent → webhookId) pairs.
+ */
+export async function upsertFlowWebhooks(
+  flowId: string,
+  userId: string,
+  events: Array<{
+    appEvent?: string;
+    method?: SabFlowWebhook['method'];
+    authentication?: SabFlowWebhook['authentication'];
+    responseMode?: SabFlowWebhook['responseMode'];
+  }>,
+): Promise<Array<{ appEvent: string; webhookId: string }>> {
+  const { randomUUID } = await import('crypto');
+  const col = await getSabFlowWebhooksCollection();
+  const results: Array<{ appEvent: string; webhookId: string }> = [];
+
+  for (const event of events) {
+    const appEvent = event.appEvent ?? 'webhook_received';
+    const existing = await col.findOne({ flowId, userId, appEvent });
+    const webhookId = existing?.webhookId ?? randomUUID();
+    const now = new Date();
+
+    await col.updateOne(
+      { flowId, userId, appEvent },
+      {
+        $set: {
+          webhookId,
+          method: event.method ?? 'ANY',
+          authentication: event.authentication ?? 'none',
+          responseMode: event.responseMode ?? 'immediately',
+          isActive: true,
+          updatedAt: now,
+        },
+        $setOnInsert: { createdAt: now },
+      },
+      { upsert: true },
+    );
+
+    results.push({ appEvent, webhookId });
+  }
+
+  return results;
+}
+
+/**
+ * Mark all webhooks for a flow as inactive.
+ * Call on deactivation.
+ */
+export async function deactivateFlowWebhooks(flowId: string, userId: string): Promise<void> {
+  const col = await getSabFlowWebhooksCollection();
+  await col.updateMany(
+    { flowId, userId },
+    { $set: { isActive: false, updatedAt: new Date() } },
+  );
+}
+
+/**
+ * List all webhook registrations for a user, optionally filtered to a single flow.
+ */
+export async function listFlowWebhooks(
+  userId: string,
+  flowId?: string,
+): Promise<SabFlowWebhook[]> {
+  const col = await getSabFlowWebhooksCollection();
+  const filter: Record<string, unknown> = { userId };
+  if (flowId) filter.flowId = flowId;
+  return col.find(filter).sort({ createdAt: -1 }).toArray();
 }
