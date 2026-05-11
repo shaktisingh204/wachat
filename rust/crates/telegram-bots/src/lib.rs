@@ -12,6 +12,20 @@
 //! | `disconnectTelegramBot`            | `DELETE /v1/telegram/bots/{bot_id}`                       |
 //! | `refreshTelegramWebhookInfo`       | `POST   /v1/telegram/bots/{bot_id}/webhook/refresh`       |
 //! | `rotateTelegramWebhookSecret`      | `POST   /v1/telegram/bots/{bot_id}/webhook/rotate`        |
+//! | `getTelegramBotInfo`               | `GET    /v1/telegram/bots/{bot_id}/info`                  |
+//! | `getTelegramBotCommandsScoped`     | `GET    /v1/telegram/bots/{bot_id}/commands`              |
+//! | `setTelegramBotCommandsScoped`     | `POST   /v1/telegram/bots/{bot_id}/commands`              |
+//! | `deleteTelegramBotCommands`        | `DELETE /v1/telegram/bots/{bot_id}/commands`              |
+//! | `setTelegramBotName`               | `POST   /v1/telegram/bots/{bot_id}/name`                  |
+//! | `setTelegramBotDescription`        | `POST   /v1/telegram/bots/{bot_id}/description`           |
+//! | `setTelegramBotShortDescription`   | `POST   /v1/telegram/bots/{bot_id}/short-description`     |
+//! | `getTelegramBotMenuButton`         | `GET    /v1/telegram/bots/{bot_id}/menu-button`           |
+//! | `setTelegramBotMenuButton`         | `POST   /v1/telegram/bots/{bot_id}/menu-button`           |
+//! | `getTelegramBotAdminRights`        | `GET    /v1/telegram/bots/{bot_id}/default-admin-rights`  |
+//! | `setTelegramBotAdminRights`        | `POST   /v1/telegram/bots/{bot_id}/default-admin-rights`  |
+//! | `runTelegramBotHealthCheck`        | `POST   /v1/telegram/bots/{bot_id}/health`                |
+//! | `bulkDisconnectTelegramBots`       | `POST   /v1/telegram/bots/bulk-disconnect`                |
+//! | `exportTelegramBotsCsv`            | `GET    /v1/telegram/bots/export?projectId={…}`           |
 //!
 //! Mount under `/v1/telegram/bots` from the `api` crate:
 //!
@@ -65,6 +79,10 @@ where
             "/",
             get(handlers::list_bots).post(handlers::connect_bot),
         )
+        // CSV export — must come before /{bot_id}
+        .route("/export", get(handlers::export_csv))
+        // bulk disconnect
+        .route("/bulk-disconnect", post(handlers::bulk_disconnect))
         // getTelegramBot / disconnectTelegramBot
         .route(
             "/{bot_id}",
@@ -80,4 +98,32 @@ where
             "/{bot_id}/webhook/rotate",
             post(handlers::rotate_webhook_secret),
         )
+        // bot info (getMe refresh)
+        .route("/{bot_id}/info", get(handlers::get_bot_info))
+        // commands
+        .route(
+            "/{bot_id}/commands",
+            get(handlers::get_commands)
+                .post(handlers::set_commands)
+                .delete(handlers::delete_commands),
+        )
+        // profile fields
+        .route("/{bot_id}/name", post(handlers::set_name))
+        .route("/{bot_id}/description", post(handlers::set_description))
+        .route(
+            "/{bot_id}/short-description",
+            post(handlers::set_short_description),
+        )
+        // menu button
+        .route(
+            "/{bot_id}/menu-button",
+            get(handlers::get_menu_button).post(handlers::set_menu_button),
+        )
+        // default administrator rights
+        .route(
+            "/{bot_id}/default-admin-rights",
+            get(handlers::get_default_admin_rights).post(handlers::set_default_admin_rights),
+        )
+        // health check
+        .route("/{bot_id}/health", post(handlers::health_check))
 }

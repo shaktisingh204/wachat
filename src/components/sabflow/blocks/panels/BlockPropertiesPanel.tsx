@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import { LuX, LuSettings } from 'react-icons/lu';
 import { useGraph } from '@/components/sabflow/graph/providers/GraphProvider';
 
+import { NodeSettings } from '@/components/sabflow/panels/blocks/shared/NodeSettings';
 import { TextBlockSettings } from './settings/TextBlockSettings';
 import { TextInputSettings } from './settings/TextInputSettings';
 import { ConditionSettings } from './settings/ConditionSettings';
@@ -125,7 +126,7 @@ function BlockSettings({ block, onUpdate, variables }: InnerProps) {
     return <RedirectSettings block={block} onUpdate={onUpdate} />;
   }
 
-  return <FallbackSettings block={block} />;
+  return <FallbackSettings block={block} onUpdate={onUpdate} />;
 }
 
 /* ── n8n-style integration panel ─────────────────────────── */
@@ -262,12 +263,14 @@ function IntegrationParamsContent({ block, onUpdate, variables }: InnerProps) {
     );
   }
 
-  // Generic fallback for unimplemented integrations
+  // Generic fallback: render the descriptor-driven settings panel sourced
+  // from the Rust `sabflow-nodes` registry (310 node types).
   return (
-    <div className="rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] p-4 text-center text-[12px] text-[var(--gray-9)]">
-      <LuSettings className="mx-auto mb-2 h-5 w-5 opacity-40" strokeWidth={1.5} />
-      Configuration for <strong>{getBlockLabel(block.type)}</strong> coming soon.
-    </div>
+    <NodeSettings
+      nodeType={block.type}
+      values={(block.options ?? {}) as Record<string, unknown>}
+      onChange={(next) => onUpdate({ options: next })}
+    />
   );
 }
 
@@ -352,12 +355,13 @@ function RedirectSettings({ block, onUpdate }: Omit<InnerProps, 'variables'>) {
   );
 }
 
-function FallbackSettings({ block }: { block: Block }) {
+function FallbackSettings({ block, onUpdate }: { block: Block; onUpdate: (changes: Partial<Block>) => void }) {
   return (
-    <div className="rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] p-4 text-center text-[12px] text-[var(--gray-9)]">
-      <LuSettings className="mx-auto mb-2 h-5 w-5 opacity-40" strokeWidth={1.5} />
-      Settings for <strong>{getBlockLabel(block.type)}</strong> coming soon.
-    </div>
+    <NodeSettings
+      nodeType={block.type}
+      values={(block.options ?? {}) as Record<string, unknown>}
+      onChange={(next) => onUpdate({ options: next })}
+    />
   );
 }
 

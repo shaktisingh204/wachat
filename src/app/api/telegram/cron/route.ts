@@ -43,10 +43,14 @@ export const POST = GET;
 
 async function runBroadcasts(): Promise<{ dispatched: number; failed: number }> {
     const { db } = await connectToDatabase();
+    // Pick up broadcasts in either of the legacy (QUEUED) or canonical
+    // (scheduled) status spellings whose schedule has elapsed.
     const due = await db
-        .collection<TelegramBroadcast>('telegram_broadcasts')
+        .collection<TelegramBroadcast & { projectId?: ObjectId }>(
+            'telegram_broadcasts',
+        )
         .find({
-            status: 'QUEUED',
+            status: { $in: ['QUEUED', 'scheduled', 'SCHEDULED'] } as any,
             scheduledAt: { $lte: new Date() },
         })
         .limit(20)
@@ -55,8 +59,13 @@ async function runBroadcasts(): Promise<{ dispatched: number; failed: number }> 
     let dispatched = 0;
     let failed = 0;
     for (const b of due) {
+        const projectId = (b as any).projectId?.toString();
+        if (!projectId) {
+            failed += 1;
+            continue;
+        }
         try {
-            const res = await sendTelegramBroadcastNow(b._id.toString());
+            const res = await sendTelegramBroadcastNow(b._id.toString(), projectId);
             if (res.success) dispatched += 1;
             else failed += 1;
         } catch {

@@ -262,6 +262,7 @@ export async function sendTelegramTextMessage(input: {
 /* ── broadcasts ────────────────────────────────────────────────── */
 
 export async function createTelegramBroadcast(input: {
+    projectId: string;
     botId: string;
     name: string;
     audience: TelegramBroadcast['audience'];
@@ -270,6 +271,7 @@ export async function createTelegramBroadcast(input: {
 }): Promise<ActionResult<{ broadcastId: string }>> {
     try {
         const res = await rustClient.telegramBroadcasts.create({
+            projectId: input.projectId,
             botId: input.botId,
             name: input.name,
             audience: input.audience as any,
@@ -292,9 +294,10 @@ export async function createTelegramBroadcast(input: {
 // throttled-send pipeline now.
 export async function sendTelegramBroadcastNow(
     broadcastId: string,
+    projectId: string,
 ): Promise<ActionResult> {
     try {
-        const res = await rustClient.telegramBroadcasts.sendNow(broadcastId);
+        const res = await rustClient.telegramBroadcasts.sendNow(broadcastId, projectId);
         if (!res.success) return { success: false, error: res.error };
         revalidatePath('/dashboard/telegram/broadcasts');
         return { success: true, message: res.message };
@@ -310,10 +313,11 @@ import type { BroadcastRow as TelegramBroadcastRowType }
     from '@/lib/rust-client/telegram-broadcasts';
 
 export async function listTelegramBroadcasts(
-    botId: string,
+    projectId: string,
+    botId?: string,
 ): Promise<TelegramBroadcastRowType[]> {
     try {
-        const res = await rustClient.telegramBroadcasts.list(botId);
+        const res = await rustClient.telegramBroadcasts.list({ projectId, botId });
         if (res.error) return [];
         return res.broadcasts ?? [];
     } catch (err) {

@@ -8,6 +8,7 @@ import {
 } from 'react';
 import { useBlockDnd } from '@/components/sabflow/graph/providers/GraphDndProvider';
 import { REGISTRY_CATEGORIES, type BlockRegistryEntry } from './blockRegistry';
+import { useDescriptorCategories } from './descriptorRegistry';
 import { cn } from '@/lib/utils';
 import {
   LuPin,
@@ -169,22 +170,48 @@ export function BlocksSideBar() {
   const isVisible = isOpen || isLocked;
   const lowerQuery = query.trim().toLowerCase();
 
-  // Filter each category's entries by the search query
-  const filteredCategories = REGISTRY_CATEGORIES.map((cat) => ({
+  // Dynamic n8n-parity descriptor categories (fetched from the Rust runtime)
+  const descriptorCats = useDescriptorCategories();
+
+  // De-dup descriptor entries that have the same `type` as a native registry
+  // entry — the hand-written native block wins.
+  const nativeTypes = new Set(
+    REGISTRY_CATEGORIES.flatMap((cat) => cat.entries.map((e) => e.type as string)),
+  );
+  const dynamicCategories = descriptorCats.categories.map((cat) => ({
     ...cat,
-    entries: lowerQuery
-      ? cat.entries.filter(
+    entries: cat.entries.filter((e) => !nativeTypes.has(e.type as string)),
+  })).filter((cat) => cat.entries.length > 0);
+
+  // Filter each category's entries by the search query
+  const filterByQuery = <T extends BlockRegistryEntry>(entries: T[]) =>
+    lowerQuery
+      ? entries.filter(
           (e) =>
             e.label.toLowerCase().includes(lowerQuery) ||
             e.description.toLowerCase().includes(lowerQuery),
         )
-      : cat.entries,
+      : entries;
+
+  const filteredCategories = REGISTRY_CATEGORIES.map((cat) => ({
+    ...cat,
+    entries: filterByQuery(cat.entries),
   })).filter((cat) => cat.entries.length > 0);
 
-  const hasNoResults = lowerQuery.length > 0 && filteredCategories.length === 0;
+  const filteredDynamicCategories = dynamicCategories
+    .map((cat) => ({ ...cat, entries: filterByQuery(cat.entries) }))
+    .filter((cat) => cat.entries.length > 0);
 
-  // Build recent entries from the full registry
-  const allEntries = REGISTRY_CATEGORIES.flatMap((cat) => cat.entries);
+  const hasNoResults =
+    lowerQuery.length > 0 &&
+    filteredCategories.length === 0 &&
+    filteredDynamicCategories.length === 0;
+
+  // Build recent entries from the full registry (native + dynamic)
+  const allEntries = [
+    ...REGISTRY_CATEGORIES.flatMap((cat) => cat.entries),
+    ...descriptorCats.allEntries.filter((e) => !nativeTypes.has(e.type as string)),
+  ];
   const recentEntries = recentTypes
     .map((type) => allEntries.find((e) => e.type === type))
     .filter((e): e is BlockRegistryEntry => e !== undefined);
@@ -289,6 +316,32 @@ export function BlocksSideBar() {
               onDragEnd={handleDragEnd}
             />
           ))}
+
+          {/* n8n-parity dynamic categories (fetched from Rust) */}
+          {filteredDynamicCategories.length > 0 && (
+            <div className="pt-3 mt-2 border-t border-[var(--gray-4)]">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--gray-8)] mb-2 px-1.5">
+                n8n-parity integrations
+              </p>
+              {filteredDynamicCategories.map((cat) => (
+                <CategorySection
+                  key={cat.key}
+                  catKey={cat.key}
+                  label={cat.label}
+                  color={cat.color}
+                  entries={cat.entries}
+                  isCollapsed={collapsed.has(cat.key)}
+                  onToggle={toggleCategory}
+                  onDragStart={handleDragStart}
+                  onDragEnd={handleDragEnd}
+                />
+              ))}
+            </div>
+          )}
+
+          {descriptorCats.loading && !lowerQuery && (
+            <div className="text-[11px] text-[var(--gray-8)] px-2 py-2">Loading more integrations…</div>
+          )}
 
           {/* Empty state */}
           {hasNoResults && (

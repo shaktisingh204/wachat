@@ -2,7 +2,7 @@
 name = "telegram-mini-apps"
 version = "0.1.0"
 edition = "2024"
-description = "Telegram Mini Apps registry — list bots that have a Mini App configured."
+description = "Telegram Mini Apps registry — per-project Web App records, send/menu-button actions, init-data validation, sessions & analytics."
 license = "UNLICENSED"
 publish = false
 
@@ -22,9 +22,15 @@ chrono = { version = "0.4", default-features = false, features = ["clock", "serd
 tracing = "0.1"
 anyhow = "1"
 utoipa = { version = "5", features = ["axum_extras", "chrono"] }
+hmac = "0.12"
+sha2 = "0.10"
+hex = "0.4"
+subtle = "2.6"
+urlencoding = "2"
 sabnode-common = { path = "../common" }
 sabnode-auth = { path = "../auth" }
 sabnode-db = { path = "../db" }
+telegram-bots = { path = "../telegram-bots" }
 
 [lints]
 workspace = true
