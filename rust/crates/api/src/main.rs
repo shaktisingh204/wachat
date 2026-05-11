@@ -51,6 +51,7 @@ use telegram_stories::TelegramStoriesState;
 use telegram_flows::TelegramFlowsState;
 use telegram_mini_apps::TelegramMiniAppsState;
 use telegram_ads::TelegramAdsState;
+use telegram_api_credentials::TelegramApiCredentialsState;
 use sabflow_engine::SabflowEngineState;
 use wachat_facebook_content::WachatFacebookContentState;
 use wachat_facebook_crm::WachatFacebookCrmState;
@@ -341,6 +342,7 @@ async fn run() -> anyhow::Result<()> {
     let telegram_flows_state = TelegramFlowsState::new(mongo.clone());
     let telegram_mini_apps_state = TelegramMiniAppsState::new(mongo.clone());
     let telegram_ads_state = TelegramAdsState::new(mongo.clone());
+    let telegram_api_credentials_state = TelegramApiCredentialsState::new(mongo.clone());
 
     // SabFiles — file manager backed by Cloudflare R2. R2 credentials are
     // optional at boot: if any are missing we boot anyway with a stubbed
@@ -440,6 +442,7 @@ async fn run() -> anyhow::Result<()> {
         telegram_flows_state,
         telegram_mini_apps_state,
         telegram_ads_state,
+        telegram_api_credentials_state,
         sabflow_state,
     );
     let app = router::build(state.clone());

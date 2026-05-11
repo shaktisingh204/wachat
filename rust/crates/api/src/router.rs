@@ -115,6 +115,7 @@ pub fn build(state: AppState) -> Router {
     let telegram_flows_router = telegram_flows::router::<AppState>();
     let telegram_mini_apps_router = telegram_mini_apps::router::<AppState>();
     let telegram_ads_router = telegram_ads::router::<AppState>();
+    let telegram_api_credentials_router = telegram_api_credentials::router::<AppState>();
 
     Router::new()
         .merge(routes::health::router())
@@ -197,6 +198,7 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/telegram/flows", telegram_flows_router)
         .nest("/v1/telegram/mini-apps", telegram_mini_apps_router)
         .nest("/v1/telegram/ads", telegram_ads_router)
+        .nest("/v1/telegram/api-credentials", telegram_api_credentials_router)
         .nest("/v1/sabflow", sabflow_engine::router::<AppState>())
         .nest("/v1/sabflow", sabflow_engine_runtime::router::<AppState>())
         // sabflow_webhooks::router mounts at /v1/sabflow/webhook but its state

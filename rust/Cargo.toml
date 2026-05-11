@@ -92,6 +92,7 @@ members = [
     "crates/telegram-flows",
     "crates/telegram-mini-apps",
     "crates/telegram-ads",
+    "crates/telegram-api-credentials",
     "crates/crm-core",
     "crates/crm-sales-types",
     "crates/crm-purchases-types",

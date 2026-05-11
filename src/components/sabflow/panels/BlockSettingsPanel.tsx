@@ -41,6 +41,10 @@ import { ElevenLabsSettings } from '@/components/sabflow/panels/blocks/integrati
 import { SegmentSettings } from '@/components/sabflow/panels/blocks/integrations/SegmentSettings';
 import { PixelSettings } from '@/components/sabflow/panels/blocks/integrations/PixelSettings';
 import { NodeSettings } from '@/components/sabflow/panels/blocks/shared/NodeSettings';
+import { ForgeBlockSettings } from '@/components/sabflow/panels/blocks/forge/ForgeBlockSettings';
+// Importing the forge entry-point populates the in-memory block registry so
+// `getForgeBlock(...)` can find every `forge_*` schema at runtime.
+import { getForgeBlock } from '@/lib/sabflow/forge';
 import { GoogleSheetsSettings } from '@/components/sabflow/panels/blocks/GoogleSheetsSettings';
 import { SendEmailSettings } from '@/components/sabflow/panels/blocks/SendEmailSettings';
 import { ZapierSettings } from '@/components/sabflow/panels/blocks/ZapierSettings';
@@ -590,6 +594,22 @@ function BlockSettingsBody({ block, variables, variableNames, onUpdate, onCreate
         onBlockChange={(updated) => onUpdate({ options: updated.options })}
       />
     );
+  }
+
+  /* ── Forge blocks (declarative integrations registered in
+   *    @/lib/sabflow/forge — forge_github, forge_slack, forge_notion, etc.) */
+  if (block.type.startsWith('forge_')) {
+    const forgeBlock = getForgeBlock(block.type);
+    if (forgeBlock) {
+      return (
+        <ForgeBlockSettings
+          block={forgeBlock}
+          options={options}
+          onChange={(patch) => onUpdate({ options: { ...options, ...patch } })}
+        />
+      );
+    }
+    // Unknown forge id — fall through to NodeSettings which strips the prefix.
   }
 
   /* ── Fallback: render the generic descriptor-driven settings panel.
