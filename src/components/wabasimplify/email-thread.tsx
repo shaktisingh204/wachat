@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Button } from '../ui/button';
 import { Archive, ArrowRight, CornerDownLeft, MoreVertical, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
+import DOMPurify from 'isomorphic-dompurify';
 import { EmailReplyBox } from './email-reply-box';
 
 interface EmailThreadProps {
@@ -51,7 +52,7 @@ export function EmailThread({ conversation, onStatusChange }: EmailThreadProps) 
                                     <p className="text-xs text-muted-foreground">{format(new Date(message.date), 'PPpp')}</p>
                                 </div>
                                  <div className="prose prose-sm dark:prose-invert max-w-none mt-1 border p-3 rounded-md"
-                                      dangerouslySetInnerHTML={{ __html: message.bodyHtml || message.bodyText }}
+                                      dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(message.bodyHtml || message.bodyText || '', { FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed', 'form'], FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover', 'onfocus', 'onblur', 'onchange', 'onsubmit'] }) }}
                                 ></div>
                             </div>
                         </div>

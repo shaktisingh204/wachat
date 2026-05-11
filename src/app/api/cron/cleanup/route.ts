@@ -1,12 +1,15 @@
 
 import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
+import { verifyCronRequest } from '@/lib/cron-auth';
 
 export const dynamic = 'force-dynamic';
 
 // This cron job is intended to be run periodically (e.g., every hour)
 // to clear out old, processed webhook logs to keep the database clean.
 export async function GET(request: Request) {
+  const unauthorized = verifyCronRequest(request);
+  if (unauthorized) return unauthorized;
   try {
     const { db } = await connectToDatabase();
     

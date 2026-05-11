@@ -6,6 +6,7 @@ import { ObjectId } from 'mongodb';
 import axios from 'axios';
 import { getErrorMessage } from '@/lib/utils';
 import FormData from 'form-data';
+import { verifyCronRequest } from '@/lib/cron-auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -38,6 +39,8 @@ async function publishPost(project: WithId<Project>, post: WithId<RandomizerPost
 }
 
 export async function GET(request: Request) {
+    const unauthorized = verifyCronRequest(request);
+    if (unauthorized) return unauthorized;
     try {
         const { db } = await connectToDatabase();
 

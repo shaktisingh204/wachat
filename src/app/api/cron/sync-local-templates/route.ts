@@ -8,6 +8,7 @@ import { ObjectId, WithId } from 'mongodb';
 import type { Project, Template } from '@/lib/definitions';
 import axios from 'axios';
 import { getErrorMessage } from '@/lib/utils';
+import { verifyCronRequest } from '@/lib/cron-auth';
 
 const API_VERSION = 'v23.0';
 const BATCH_SIZE = 10; // Process 10 templates per cron run to avoid timeouts
@@ -168,10 +169,14 @@ async function handleSync() {
 
 
 export async function POST(request: Request) {
+    const unauthorized = verifyCronRequest(request);
+    if (unauthorized) return unauthorized;
     return handleSync();
 }
 
 export async function GET(request: Request) {
+    const unauthorized = verifyCronRequest(request);
+    if (unauthorized) return unauthorized;
     return handleSync();
 }
 

@@ -1,10 +1,13 @@
 
 import { NextResponse } from 'next/server';
 import { processBroadcastJob } from '@/lib/cron-scheduler';
+import { verifyCronRequest } from '@/lib/cron-auth';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
+  const unauthorized = verifyCronRequest(request);
+  if (unauthorized) return unauthorized;
   try {
     // This now processes all queued jobs in a single run.
     const result = await processBroadcastJob();

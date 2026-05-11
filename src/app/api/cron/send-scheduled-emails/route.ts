@@ -7,6 +7,7 @@ import type { EmailCampaign } from '@/lib/definitions';
 import { getTransporter } from '@/lib/email-service';
 import { getErrorMessage } from '@/lib/utils';
 import { getSession } from '@/app/actions';
+import { verifyCronRequest } from '@/lib/cron-auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -47,6 +48,8 @@ async function sendCampaign(campaign: WithId<EmailCampaign>) {
 }
 
 export async function GET(request: Request) {
+    const unauthorized = verifyCronRequest(request);
+    if (unauthorized) return unauthorized;
     try {
         const { db } = await connectToDatabase();
 

@@ -4,10 +4,13 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId, WithId } from 'mongodb';
 import type { Project, FacebookSubscriber, EcommFlow } from '@/lib/definitions';
 import { handleEcommFlowLogic } from '@/lib/webhook-processor';
+import { verifyCronRequest } from '@/lib/cron-auth';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
+    const unauthorized = verifyCronRequest(request);
+    if (unauthorized) return unauthorized;
     try {
         const { db } = await connectToDatabase();
 

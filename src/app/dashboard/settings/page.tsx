@@ -364,7 +364,7 @@ function UserAttributesForm({ project, user }: { project: WithId<Project>, user:
 
   const plan = user?.plan;
   const limit = plan?.attributeLimit ?? 0;
-  const isAtLimit = attributes.length >= limit;
+  const isAtLimit = false;
   const planName = plan?.name || 'Unknown';
 
   useEffect(() => {

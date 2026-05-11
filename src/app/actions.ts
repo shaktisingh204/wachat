@@ -2998,14 +2998,6 @@ export async function handleInviteAgent(prevState: any, formData: FormData): Pro
             return { error: 'Project not found or you are not the owner.' };
         }
         
-        if (!project.plan) return { error: 'Could not determine your plan limits.' };
-        const plan = project.plan;
-
-        const currentAgentCount = project.agents?.length || 0;
-        if (currentAgentCount >= (plan.agentLimit || 0)) {
-            return { error: `You have reached your agent limit of ${plan.agentLimit}. Please upgrade your plan.` };
-        }
-
         const invitee = await db.collection('users').findOne({ email });
         if (!invitee) {
             return { error: `No user found with the email "${email}". Please ask them to sign up first.` };

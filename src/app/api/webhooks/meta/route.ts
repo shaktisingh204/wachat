@@ -5,6 +5,24 @@ import type { Db, Filter, ObjectId } from 'mongodb';
 import type { Project } from '@/lib/definitions';
 import { processSingleWebhook, handleSingleMessageEvent, processStatusUpdateBatch, processIncomingMessageBatch, processCommentWebhook, processMessengerWebhook, processOrderWebhook, processCatalogWebhook } from '@/lib/webhook-processor';
 import { revalidatePath } from 'next/cache';
+import { createHmac, timingSafeEqual } from 'crypto';
+
+function verifyMetaSignature(payloadText: string, signatureHeader: string | null): boolean {
+    const appSecret = process.env.META_APP_SECRET;
+    if (!appSecret) {
+        console.error('META_APP_SECRET is not configured; rejecting webhook.');
+        return false;
+    }
+    if (!signatureHeader || !signatureHeader.startsWith('sha256=')) {
+        return false;
+    }
+    const expected = createHmac('sha256', appSecret).update(payloadText, 'utf8').digest('hex');
+    const received = signatureHeader.slice('sha256='.length);
+    const expectedBuf = Buffer.from(expected, 'hex');
+    const receivedBuf = Buffer.from(received, 'hex');
+    if (expectedBuf.length !== receivedBuf.length) return false;
+    return timingSafeEqual(expectedBuf, receivedBuf);
+}
 
 const getSearchableText = (payload: any): string => {
     let text = '';
@@ -118,6 +136,12 @@ export async function POST(request: NextRequest) {
     const payloadText = await request.text();
     if (!payloadText) {
         return NextResponse.json({ status: "ignored_empty_body" }, { status: 200 });
+    }
+
+    const signature = request.headers.get('x-hub-signature-256');
+    if (!verifyMetaSignature(payloadText, signature)) {
+        console.error('Meta webhook signature verification failed');
+        return new NextResponse('Forbidden', { status: 403 });
     }
 
     const payload = JSON.parse(payloadText);

@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getErrorMessage } from '@/lib/utils';
+import { verifyCronRequest } from '@/lib/cron-auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,9 +31,13 @@ async function handleDeleteFailedTemplates() {
 }
 
 export async function POST(request: Request) {
+    const unauthorized = verifyCronRequest(request);
+    if (unauthorized) return unauthorized;
     return handleDeleteFailedTemplates();
 }
 
 export async function GET(request: Request) {
+    const unauthorized = verifyCronRequest(request);
+    if (unauthorized) return unauthorized;
     return handleDeleteFailedTemplates();
 }
