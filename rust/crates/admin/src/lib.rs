@@ -34,13 +34,19 @@
 //!
 //! Mount under `/v1/admin` from the `api` crate.
 
+pub mod audit;
 pub mod dto;
 pub mod guard;
 pub mod handlers;
+pub mod ops;
 pub mod plans;
 pub mod projects;
+pub mod session;
 pub mod settings;
+pub mod stats;
 pub mod store;
+pub mod users;
+pub mod waba_sync;
 
 use std::sync::Arc;
 
@@ -69,6 +75,12 @@ where
         .route("/login", post(handlers::login))
         .route("/logout/revoke", post(handlers::logout_revoke))
         .merge(projects::routes::<S>())
-        .merge(settings::routes::<S>())
+        .merge(users::routes::<S>())
         .merge(plans::routes::<S>())
+        .merge(settings::routes::<S>())
+        .merge(stats::routes::<S>())
+        .merge(audit::routes::<S>())
+        .merge(ops::routes::<S>())
+        .merge(session::routes::<S>())
+        .merge(waba_sync::routes::<S>())
 }

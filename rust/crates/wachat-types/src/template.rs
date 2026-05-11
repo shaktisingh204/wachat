@@ -6,6 +6,23 @@ use bson::oid::ObjectId;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
+/// Serialize `Option<ObjectId>` as a plain hex string (or `null`) so the
+/// JSON shape matches what the TS clients expect. The default Serialize
+/// for `Option<ObjectId>` produces `{"$oid": "..."}`, which the TS code
+/// reads as `[object Object]` and breaks key/value comparisons.
+fn serialize_optional_object_id_as_hex_string<S>(
+    v: &Option<ObjectId>,
+    s: S,
+) -> Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+{
+    match v {
+        Some(oid) => bson::serde_helpers::serialize_object_id_as_hex_string(oid, s),
+        None => s.serialize_none(),
+    }
+}
+
 /// Approval lifecycle of a Meta-side message template.
 ///
 /// The TS field `status` is typed as `string`, but the values it actually
@@ -50,12 +67,23 @@ pub enum TemplateCategory {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Template {
-    #[serde(rename = "_id")]
+    // Serialize as a plain hex string so the TS callers can use it as a
+    // value/key directly. The default bson ObjectId Serialize impl emits
+    // `{"$oid": "..."}`, which collapses to "[object Object]" on the JS
+    // side and breaks any `t._id === ...` / `key={t._id.toString()}`
+    // comparison (every item ends up sharing the same value).
+    #[serde(
+        rename = "_id",
+        serialize_with = "bson::serde_helpers::serialize_object_id_as_hex_string"
+    )]
     pub id: ObjectId,
 
     /// Owning project. Optional only because some very old rows imported
     /// from legacy backups may have lost it.
-    #[serde(default)]
+    #[serde(
+        default,
+        serialize_with = "serialize_optional_object_id_as_hex_string"
+    )]
     pub project_id: Option<ObjectId>,
 
     /// Template name. Globally unique within a (project, language) tuple.

@@ -231,6 +231,41 @@ pub async fn list_library_templates(
     Ok(Json(ListLibraryTemplatesResponse { templates }))
 }
 
+/// `DELETE /v1/admin/plans/:id` — hard delete. Refuses to delete the default
+/// plan since dropping it would orphan any user/project that uses it.
+/// Mirrors `deletePlan` in `plan.actions.ts`.
+pub async fn delete_plan(
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(id): Path<String>,
+) -> Result<Json<crate::projects::OkMessage>> {
+    require_admin(&user)?;
+
+    let oid = oid_from_str(&id)?;
+    let coll = mongo.collection::<Document>(PLANS_COLL);
+
+    let existing = coll
+        .find_one(doc! { "_id": oid })
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("plans.find_one")))?
+        .ok_or_else(|| ApiError::NotFound("plan".to_owned()))?;
+
+    if existing.get_bool("isDefault").unwrap_or(false) {
+        return Err(ApiError::Conflict(
+            "Cannot delete the default plan.".to_owned(),
+        ));
+    }
+
+    coll.delete_one(doc! { "_id": oid })
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("plans.delete_one")))?;
+
+    Ok(Json(crate::projects::OkMessage {
+        ok: true,
+        message: "Plan successfully deleted.".to_owned(),
+    }))
+}
+
 /// Routes mounted at `/v1/admin` from [`crate::router`].
 pub fn routes<S>() -> Router<S>
 where
@@ -240,7 +275,10 @@ where
 {
     Router::new()
         .route("/plans", get(list_plans).post(create_plan))
-        .route("/plans/{id}", get(get_plan).put(update_plan))
+        .route(
+            "/plans/{id}",
+            get(get_plan).put(update_plan).delete(delete_plan),
+        )
         .route("/plans/{id}/permissions", patch(update_plan_permissions))
         .route("/library-templates", get(list_library_templates))
 }
