@@ -14,7 +14,6 @@ import type { Project, User, Plan } from '@/lib/definitions';
 import { checkRateLimit } from '@/lib/rate-limiter';
 import { processBroadcastJob } from '@/lib/cron-scheduler';
 import { handleSubscribeProjectWebhook, handleSyncPhoneNumbers } from '@/app/actions/whatsapp.actions';
-import axios from 'axios';
 
 
 // getProjectById moved to project.actions.ts to avoid duplicate exports
@@ -119,99 +118,35 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
     if (!accessToken || !appId || !wabaId) {
         return { error: 'WABA ID, Access Token, and App ID are required.' };
     }
-    // Basic shape check — Meta WABA ids are numeric, typically 15–16 digits.
-    if (!/^\d{6,25}$/.test(wabaId)) {
-        return { error: 'WABA ID should be a numeric id from Meta Business Manager. Double-check that you pasted the WhatsApp Business Account ID (not the Business Portfolio, Page, or App ID).' };
-    }
 
+    // Rust admin handler does the Meta lookup + project upsert + optional
+    // group insert. Phone-number sync and webhook subscription run after the
+    // upsert so failures there don't fail the whole add.
     try {
-        const { db } = await connectToDatabase();
-
-        // Fetch the WABA directly from Meta. If the ID is wrong or the token
-        // can't see it, this surfaces Meta's actual error back to the user
-        // (which is much more informative than the old "nonexisting field"
-        // error from guessing edges on the wrong node type).
-        let wabaName: string;
+        const { rustClient, RustApiError } = await import('@/lib/rust-client');
+        const res = await rustClient.admin.ops.syncWaba({
+            userId: String(session.user._id),
+            accessToken,
+            appId,
+            wabaId,
+            groupName: groupName || undefined,
+        });
         try {
-            const wabaResp = await axios.get(`https://graph.facebook.com/v23.0/${wabaId}`, {
-                params: {
-                    fields: 'id,name,currency,timezone_id,message_template_namespace',
-                    access_token: accessToken,
-                },
-            });
-            if (!wabaResp.data?.id) {
-                return { error: 'Meta returned no WABA for that ID. Check that the ID is correct and the token has whatsapp_business_management scope.' };
-            }
-            if (String(wabaResp.data.id) !== wabaId) {
-                // Defensive: Meta should always echo the id we queried. Flag
-                // the mismatch loudly rather than silently trusting the wrong id.
-                return { error: `Meta returned a different id (${wabaResp.data.id}) than requested (${wabaId}). Aborting.` };
-            }
-            wabaName = wabaResp.data.name || `WABA ${wabaId}`;
-        } catch (err: any) {
-            // Return Meta's actual error — avoids the old pattern where we
-            // wrapped everything as "nonexisting field" and buried the real
-            // cause (expired token, missing scope, wrong node type).
-            const metaMsg = err?.response?.data?.error?.message || getErrorMessage(err);
-            return { error: `Meta API error while fetching WABA ${wabaId}: ${metaMsg}` };
-        }
-
-        // Optional project group — create only after we've confirmed the
-        // WABA is reachable so we don't leave orphaned groups on bad input.
-        let groupId: ObjectId | undefined;
-        if (groupName) {
-            const groupResult = await db.collection('project_groups').insertOne({
-                userId: new ObjectId(session.user._id),
-                name: groupName,
-                createdAt: new Date(),
-            });
-            groupId = groupResult.insertedId;
-        }
-
-        // Upsert a single project scoped by (user, waba). If the user adds
-        // the same WABA again we update its token/name/appId rather than
-        // creating a duplicate project row.
-        const upsertResult = await db.collection('projects').findOneAndUpdate(
-            { userId: new ObjectId(session.user._id), wabaId },
-            {
-                $set: {
-                    name: wabaName,
-                    accessToken,
-                    appId,
-                    ...(groupId && groupName ? { groupId, groupName } : {}),
-                },
-                $setOnInsert: {
-                    userId: new ObjectId(session.user._id),
-                    wabaId,
-                    createdAt: new Date(),
-                    messagesPerSecond: 80,
-                },
-            },
-            { upsert: true, returnDocument: 'after' },
-        );
-
-        const project = (upsertResult as any)?.value || upsertResult;
-        if (!project?._id) {
-            return { error: 'Failed to create or update project record.' };
-        }
-
-        // Kick off phone number sync + webhook subscription. Both are
-        // non-fatal — we still return success if either fails, but log so
-        // the user can retry from the project settings page.
-        try {
-            await handleSyncPhoneNumbers(project._id.toString());
+            await handleSyncPhoneNumbers(res.projectId);
         } catch (e: any) {
-            console.warn(`[addWaba] phone number sync failed for ${wabaId}:`, getErrorMessage(e));
+            console.warn(`[handleSyncWabas] phone number sync failed for ${wabaId}:`, getErrorMessage(e));
         }
         try {
             await handleSubscribeProjectWebhook(wabaId, appId, accessToken);
         } catch (e: any) {
-            console.warn(`[addWaba] webhook subscribe failed for ${wabaId}:`, getErrorMessage(e));
+            console.warn(`[handleSyncWabas] webhook subscribe failed for ${wabaId}:`, getErrorMessage(e));
         }
-
         revalidatePath('/wachat');
-        return { message: `Added WhatsApp Business Account "${wabaName}".`, count: 1 };
+        return { message: res.message, count: res.count };
     } catch (e: any) {
+        if (e?.name === 'RustApiError') {
+            return { error: e.message || 'Failed to add WhatsApp Business Account.' };
+        }
         return { error: getErrorMessage(e) };
     }
 }

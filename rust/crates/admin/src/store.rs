@@ -165,3 +165,58 @@ pub fn parse_object_id(raw: &str, field: &str) -> Result<ObjectId> {
     ObjectId::parse_str(raw)
         .map_err(|_| ApiError::BadRequest(format!("Invalid {field} ID.")))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn normalizes_and_validates_email() {
+        assert_eq!(
+            normalize_and_validate_email("  Admin@Example.COM ").unwrap(),
+            "admin@example.com",
+        );
+    }
+
+    #[test]
+    fn rejects_invalid_emails() {
+        for bad in [
+            "",
+            "no-at-sign",
+            "@nolocal.com",
+            "no-domain@",
+            "no-dot@nope",
+            "two@@signs.com",
+            "white space@x.com",
+            "x@y .com",
+            "x@.com",
+            "x@y.",
+        ] {
+            assert!(
+                matches!(
+                    normalize_and_validate_email(bad),
+                    Err(ApiError::BadRequest(_))
+                ),
+                "expected rejection for {bad:?}",
+            );
+        }
+    }
+
+    #[test]
+    fn verifies_known_bcrypt_hash() {
+        // Hash of "correcthorsebatterystaple" at cost 10.
+        let hash = bcrypt::hash("correcthorsebatterystaple", 10).expect("hash ok");
+        assert!(verify_password("correcthorsebatterystaple", &hash).unwrap());
+        assert!(!verify_password("wrong", &hash).unwrap());
+    }
+
+    #[test]
+    fn parses_object_id_or_fails_loudly() {
+        let raw = "507f1f77bcf86cd799439011";
+        let parsed = parse_object_id(raw, "user").unwrap();
+        assert_eq!(parsed.to_hex(), raw);
+
+        let err = parse_object_id("not-an-oid", "user").unwrap_err();
+        assert!(matches!(err, ApiError::BadRequest(m) if m.contains("user")));
+    }
+}

@@ -5304,7 +5304,9 @@ dependencies = [
  "bson",
  "chrono",
  "futures",
+ "jsonwebtoken",
  "mongodb",
+ "reqwest",
  "sabnode-auth",
  "sabnode-common",
  "sabnode-db",
@@ -5314,6 +5316,7 @@ dependencies = [
  "tower",
  "tracing",
  "utoipa",
+ "wachat-meta-client",
 ]
 
 [[package]]

@@ -21,3 +21,43 @@ pub fn require_admin(user: &AuthUser) -> Result<()> {
         ))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn user_with_roles(roles: &[&str]) -> AuthUser {
+        AuthUser {
+            user_id: "u".to_owned(),
+            tenant_id: "t".to_owned(),
+            roles: roles.iter().map(|s| (*s).to_owned()).collect(),
+        }
+    }
+
+    #[test]
+    fn allows_admin() {
+        let u = user_with_roles(&["admin"]);
+        assert!(require_admin(&u).is_ok());
+    }
+
+    #[test]
+    fn allows_admin_alongside_other_roles() {
+        let u = user_with_roles(&["owner", "admin", "agent"]);
+        assert!(require_admin(&u).is_ok());
+    }
+
+    #[test]
+    fn rejects_non_admin() {
+        let u = user_with_roles(&["agent", "owner"]);
+        match require_admin(&u) {
+            Err(ApiError::Forbidden(_)) => {}
+            other => panic!("expected Forbidden, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn rejects_empty_roles() {
+        let u = user_with_roles(&[]);
+        assert!(matches!(require_admin(&u), Err(ApiError::Forbidden(_))));
+    }
+}

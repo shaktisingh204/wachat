@@ -11,6 +11,7 @@
  */
 import 'server-only';
 
+import { adminApi } from './admin';
 import { facebookFlowApi } from './facebook-flow';
 import { metaFlowsApi } from './meta-flows';
 import { metaSuiteApi } from './meta-suite';
@@ -70,6 +71,7 @@ import { telegramSettingsApi } from './telegram-settings';
 import { telegramWebhooksApi } from './telegram-webhooks';
 
 export const rustClient = {
+    admin: adminApi,
     users: usersApi,
     session: sessionApi,
     projects: projectsApi,
